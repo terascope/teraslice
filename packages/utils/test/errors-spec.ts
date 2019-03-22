@@ -5,7 +5,8 @@ import {
     isFatalError,
     isRetryableError,
     parseError,
-    times
+    times,
+    isTSError
 } from '../src';
 
 describe('Error Utils', () => {
@@ -19,12 +20,12 @@ describe('Error Utils', () => {
             [
                 'hello',
                 {},
-                { message: 'hello', statusCode: 500, fatalError: false }
+                { message: 'hello', statusCode: 500, fatalError: false, code: 'INTERNAL_SERVER_ERROR' }
             ],
             [
                 'hello',
                 { statusCode: 411 },
-                { statusCode: 411, fatalError: false }
+                { statusCode: 411, fatalError: false, code: 'LENGTH_REQUIRED' }
             ],
             [
                 'hello',
@@ -55,9 +56,13 @@ describe('Error Utils', () => {
                 },
             ],
             [
-                new TSError('Fatal Error', { fatalError: true }),
+                new TSError('Fatal Error', {
+                    fatalError: true,
+                    code: 'EXAMPLE'
+                }),
                 { },
                 {
+                    code: 'EXAMPLE',
                     fatalError: true,
                     message: 'Fatal Error'
                 },
@@ -140,7 +145,7 @@ describe('Error Utils', () => {
                 }),
                 { },
                 {
-                    message: 'Elasticsearch Error: Some ES Error type: some_es_type reason: some_es_reason on index: some_index',
+                    message: 'Elasticsearch Error: Some ES Error',
                     statusCode: 502
                 },
             ],
@@ -162,7 +167,7 @@ describe('Error Utils', () => {
                 }),
                 { },
                 {
-                    message: 'Elasticsearch Error: Another ES Error type: another_es_type reason: another_es_reason on index: another_index',
+                    message: 'Elasticsearch Error: Another ES Error',
                 }
             ],
             [
@@ -189,7 +194,7 @@ describe('Error Utils', () => {
                 }),
                 { reason: 'Failure' },
                 {
-                    message: 'Failure, caused by Elasticsearch Error: Response ES Error on index: hello',
+                    message: 'Failure, caused by Elasticsearch Error: Response ES Error',
                 }
             ],
             [
@@ -231,22 +236,24 @@ describe('Error Utils', () => {
 
             for (const [key, val] of Object.entries(expected)) {
                 if (key === 'stack') {
-                    it(`should have ${key} start with "${val}"`, () => {
+                    it(`should have "${key}" start with "${val}"`, () => {
                         expect(tsError[key]).toStartWith(val as string);
                     });
                 } else if (key === 'context') {
-                    it(`should have ${key} contain these properties ${JSON.stringify(val)}`, () => {
+                    it(`should have "${key}" match ${JSON.stringify(val)}`, () => {
                         expect(tsError[key]).toMatchObject(val);
                     });
                 } else {
-                    it(`should have ${key} set to ${JSON.stringify(val)}`, () => {
+                    it(`should have "${key}" set to ${JSON.stringify(val)}`, () => {
                         expect(tsError[key]).toEqual(val);
                     });
                 }
             }
 
             it('should have the default context proprerties', () => {
-                expect(tsError.context).toHaveProperty('_cause');
+                if (input && !isTSError(input)) {
+                    expect(tsError.context._cause).toEqual(input);
+                }
                 expect(tsError.context).toHaveProperty('_createdAt');
             });
 

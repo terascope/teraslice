@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const Table = require('easy-table');
-const { parseErrorInfo } = require('@terascope/utils');
+const { parseErrorInfo, parseList } = require('@terascope/utils');
 
 function makeTable(req, defaults, data, mappingFn) {
     const query = fieldsQuery(req.query, defaults);
@@ -32,7 +32,7 @@ function fieldsQuery(query, defaults) {
         return defaults || [];
     }
 
-    const results = query.fields.split(',').map(word => word.trim());
+    const results = parseList(query.fields);
 
     if (results.length === 0) {
         return defaults;

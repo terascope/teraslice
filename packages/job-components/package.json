@@ -1,10 +1,10 @@
 {
     "name": "@terascope/job-components",
-    "version": "0.14.5",
+    "version": "0.15.1",
     "publishConfig": {
         "access": "public"
     },
-    "description": "Teraslice Job Components",
+    "description": "A teraslice library for validating jobs schemas, registering apis, and defining and running new Job APIs",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/job-components#readme",
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
@@ -33,12 +33,12 @@
         "build:watch": "yarn build --watch",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
         "benchmark": "yarn build; node bench/index.js"
     },
     "dependencies": {
         "@terascope/queue": "^1.1.6",
-        "@terascope/utils": "^0.4.1",
+        "@terascope/utils": "^0.7.0",
         "convict": "^4.4.1",
         "datemath-parser": "^1.0.6",
         "uuid": "^3.3.2"

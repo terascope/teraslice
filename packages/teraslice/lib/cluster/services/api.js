@@ -5,7 +5,7 @@ const { Router } = require('express');
 const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const request = require('request');
-const { parseErrorInfo } = require('@terascope/utils');
+const { parseErrorInfo, parseList } = require('@terascope/utils');
 const {
     makePrometheus,
     isPrometheusRequest,
@@ -19,6 +19,7 @@ const terasliceVersion = require('../../../package.json').version;
 
 module.exports = async function makeAPI(context, app, options) {
     const { assetsUrl, stateStore: _stateStore } = options;
+    const clusterType = context.sysconfig.teraslice.cluster_manager_type;
     const logger = context.apis.foundation.makeLogger({ module: 'api_service' });
     const executionService = context.services.execution;
     const jobsService = context.services.jobs;
@@ -224,7 +225,7 @@ module.exports = async function makeAPI(context, app, options) {
 
         const requestHandler = handleRequest(req, res, 'Could not retrieve list of execution contexts');
         requestHandler(async () => {
-            const statuses = status.split(',').map(s => s.trim()).filter(s => !!s);
+            const statuses = parseList(status);
 
             let query = 'ex_id:*';
 
@@ -271,7 +272,14 @@ module.exports = async function makeAPI(context, app, options) {
         .get(_redirect);
 
     app.get('/txt/workers', (req, res) => {
-        const defaults = ['assignment', 'job_id', 'ex_id', 'node_id', 'pid'];
+        let defaults;
+        if (clusterType === 'native') {
+            defaults = ['assignment', 'job_id', 'ex_id', 'node_id', 'pid'];
+        }
+
+        if (clusterType === 'kubernetes') {
+            defaults = ['assignment', 'job_id', 'ex_id', 'node_id', 'pod_name', 'image'];
+        }
 
         const requestHandler = handleRequest(req, res, 'Could not get all workers');
         requestHandler(async () => {

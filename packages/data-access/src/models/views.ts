@@ -1,25 +1,88 @@
 import * as es from 'elasticsearch';
-import { getFirst, TSError } from '@terascope/utils';
-import { Base, BaseModel } from './base';
-import * as viewsConfig from './config/views';
+import { Base, BaseModel, UpdateModel, CreateModel } from './base';
 import { ManagerConfig } from '../interfaces';
+import viewsConfig from './config/views';
+import { makeISODate } from '../utils';
+import { SpaceModel } from './spaces';
 
 /**
  * Manager for Views
 */
-export class Views extends Base<ViewModel> {
+export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
+    static ModelConfig = viewsConfig;
+    static GraphQLSchema = `
+        type View {
+            id: ID!
+            name: String
+            description: String
+            data_type: String
+            roles: [String]
+            excludes: [String]
+            includes: [String]
+            constraint: String
+            prevent_prefix_wildcard: Boolean
+            created: String
+            updated: String
+        }
+
+        input CreateViewInput {
+            name: String!
+            description: String
+            data_type: String!
+            roles: [String]
+            excludes: [String]
+            includes: [String]
+            constraint: String
+            prevent_prefix_wildcard: Boolean
+        }
+
+        input UpdateViewInput {
+            id: ID!
+            name: String
+            description: String
+            data_type: String
+            roles: [String]
+            excludes: [String]
+            includes: [String]
+            constraint: String
+            prevent_prefix_wildcard: Boolean
+        }
+
+        input CreateDefaultViewInput {
+            roles: [String]
+            excludes: [String]
+            includes: [String]
+            constraint: String
+            prevent_prefix_wildcard: Boolean
+        }
+    `;
+
     constructor(client: es.Client, config: ManagerConfig) {
         super(client, config, viewsConfig);
     }
 
-    async getViewForRole(roleId: string, spaceId: string) {
-        const query = `roles:"${roleId}" AND space:"${spaceId}"`;
-        const result = getFirst(await this.find(query, 1));
-        if (result == null) {
-            const errMsg = `No View found for role "${roleId}" and space "${spaceId}"`;
-            throw new TSError(errMsg, { statusCode: 404 });
-        }
-        return result;
+    async getViewOfSpace(space: SpaceModel, roleId: string): Promise<ViewModel> {
+        const views = await this.findAll(space.views);
+        const view = views.find((view) => view.roles.includes(roleId));
+        if (view) return view;
+
+        // if the view doesn't exist create a non-restrictive default view
+        return {
+            id: `default-view-for-role-${roleId}`,
+            name: `Default View for Role ${roleId}`,
+            data_type: space.data_type,
+            roles: space.roles,
+            created: makeISODate(),
+            updated: makeISODate(),
+        };
+    }
+
+    async removeRoleFromViews(roleId: string) {
+        const views = await this.find(`roles: ${roleId}`);
+        const promises = views.map(({ id }) => {
+            return this.removeFromArray(id, 'roles', roleId);
+        });
+        await Promise.all(promises);
     }
 }
 
@@ -39,12 +102,12 @@ export interface ViewModel extends BaseModel {
     description?: string;
 
     /**
-     * The associated space
+     * The associated data type
     */
-    space: string;
+    data_type: string;
 
     /**
-     * The associated roles
+     * A list of roles this view applys to
     */
     roles: string[];
 
@@ -70,3 +133,6 @@ export interface ViewModel extends BaseModel {
     */
     prevent_prefix_wildcard?: boolean;
 }
+
+export type CreateViewInput = CreateModel<ViewModel>;
+export type UpdateViewInput = UpdateModel<ViewModel>;

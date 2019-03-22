@@ -67,6 +67,10 @@ class Config {
         return `${this.configDir}/job_state_files`;
     }
 
+    get jobStateFile() {
+        return `${this.jobStateDir}/${this.args.clusterAlias}.json`;
+    }
+
     get assetDir() {
         return `${this.configDir}/assets`;
     }

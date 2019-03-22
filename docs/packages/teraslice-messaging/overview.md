@@ -3,7 +3,16 @@ title: Teraslice Messaging
 sidebar_label: teraslice-messaging
 ---
 
-> A socket.io teraslice messaging system
+> An internal teraslice messaging library using socket.io
+
+## Installation
+
+```sh
+# Using yarn
+yarn add @terascope/teraslice-messaging
+# Using npm
+npm install --save @terascope/teraslice-messaging
+```
 
 ## Usage
 

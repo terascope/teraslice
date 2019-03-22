@@ -7,7 +7,7 @@ const signale = require('signale');
 const downloadRelease = require('@terascope/fetch-github-release');
 
 // When the docker image is switched to use node:10 this value needs to be changed to '10'
-const nodeVersion = '8';
+const nodeVersion = '10';
 const autoloadDir = path.join(__dirname, '..', 'autoload');
 const leaveZipped = true;
 const disableLogging = true;

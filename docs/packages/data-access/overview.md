@@ -5,7 +5,7 @@ sidebar_label: data-access
 
 > A tool designed to limit access to reading and querying data
 
-# Installation
+## Installation
 
 ```bash
 # Using yarn

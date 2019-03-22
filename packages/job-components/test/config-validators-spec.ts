@@ -516,10 +516,8 @@ describe('when validating k8s clustering', () => {
             const validJob = {
                 analytics: true,
                 assets: null,
-                cpu: -1,
                 lifecycle: 'once',
                 max_retries: 3,
-                memory: -1,
                 name: 'Custom Job',
                 apis: [],
                 operations: [{ _op: 'noop' }, { _op: 'noop' }],
@@ -563,10 +561,8 @@ describe('when validating k8s clustering', () => {
             const validJob = {
                 analytics: true,
                 assets: null,
-                cpu: -1,
                 lifecycle: 'once',
                 max_retries: 3,
-                memory: -1,
                 name: 'Custom Job',
                 apis: [],
                 operations: [{ _op: 'noop' }, { _op: 'noop' }],

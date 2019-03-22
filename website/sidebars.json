@@ -13,6 +13,8 @@
         ],
         "Development": [
             "development/overview",
+            "development/packages",
+            "development/scripts",
             "development/releases",
             "development/tests",
             "development/e2e-tests",
@@ -30,12 +32,15 @@
             "packages"
         ],
         "Packages": [
-            "packages/data-access/overview",
             "packages/elasticsearch-store/overview",
+            "packages/elasticsearch-api/overview",
+            "packages/job-components/overview",
+            "packages/queue/overview",
             "packages/terafoundation/overview",
             "packages/teraslice/overview",
             "packages/teraslice-cli/overview",
             "packages/teraslice-client-js/overview",
+            "packages/teraslice-test-harness/overview",
             {
                 "type": "subcategory",
                 "label": "ts-transforms",
@@ -45,19 +50,20 @@
                     "packages/ts-transforms/operations"
                 ]
             },
+            "packages/utils/overview",
             "packages/xlucene-evaluator/overview"
         ],
-        "Internal Packages": [
-            "packages/docker-compose-js/overview",
-            "packages/elasticsearch-api/overview",
+        "Legacy": [
             "packages/error-parser/overview",
+            "packages/teraslice-op-test-harness/overview"
+        ],
+        "Internal": [
+            "packages/chunked-file-reader/overview",
+            "packages/data-access/overview",
+            "packages/data-access-plugin/overview",
+            "packages/docker-compose-js/overview",
             "packages/generator-teraslice/overview",
-            "packages/job-components/overview",
-            "packages/queue/overview",
-            "packages/teraslice-messaging/overview",
-            "packages/teraslice-op-test-harness/overview",
-            "packages/teraslice-test-harness/overview",
-            "packages/utils/overview"
+            "packages/teraslice-messaging/overview"
         ]
     },
     "examples": {

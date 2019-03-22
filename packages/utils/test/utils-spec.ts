@@ -1,5 +1,16 @@
 import 'jest-extended';
-import { DataEntity, isPlainObject, parseJSON, getTypeOf, isEmpty } from '../src';
+import {
+    DataEntity,
+    isPlainObject,
+    parseJSON,
+    getTypeOf,
+    isEmpty,
+    withoutNil,
+    parseList,
+    parseNumberList,
+    toNumber,
+    toSafeString,
+} from '../src';
 
 describe('Utils', () => {
     describe('isPlainObject', () => {
@@ -120,6 +131,113 @@ describe('Utils', () => {
 
             const error = new Error('Hello');
             expect(getTypeOf(error)).toEqual('Error');
+        });
+    });
+
+    describe('withoutNil', () => {
+        let input: any;
+        let output: any;
+
+        beforeEach(() => {
+            input = {
+                a: 1,
+                b: null,
+                c: 0,
+                d: undefined,
+                e: {
+                    example: true,
+                    other: null,
+                }
+            };
+
+            output = withoutNil(input);
+        });
+
+        it('should copy the top level object', () => {
+            expect(output).not.toBe(input);
+        });
+
+        it('should not copy a nested object', () => {
+            expect(output.e).toBe(input.e);
+        });
+
+        it('should remove the nil values from the object', () => {
+            expect(output).toHaveProperty('a', 1);
+            expect(output).not.toHaveProperty('b');
+            expect(output).toHaveProperty('c', 0);
+            expect(output).not.toHaveProperty('d');
+            expect(output).toHaveProperty('e', {
+                example: true,
+                other: null,
+            });
+        });
+    });
+
+    describe('parseList', () => {
+        test.each([
+            ['a', ['a']],
+            ['a,b,c', ['a', 'b', 'c']],
+            ['a , b,c,   ', ['a', 'b', 'c']],
+            [['a ', ' b ', 'c ', false, '', null], ['a', 'b', 'c']],
+            [null, []]
+        ])('should parse %j to be %j', (input, expected) => {
+            expect(parseList(input)).toEqual(expected);
+        });
+    });
+
+    describe('parseNumberList', () => {
+        test.each([
+            ['a', []],
+            ['33.435518 , -111.873616 ,', [33.435518, -111.873616]],
+            [[33.435518, -111.873616], [33.435518, -111.873616]],
+            [['33.435518 ', -111.873616], [33.435518, -111.873616]],
+            [[Infinity, 0, 'c ', '', null, 10], [Infinity, 0, 10]],
+            [[Infinity, 0, 'c ', '', null, 10], [Infinity, 0, 10]],
+            [null, []]
+        ])('should parse %j to be %j', (input, expected) => {
+            expect(parseNumberList(input)).toEqual(expected);
+        });
+    });
+
+    describe('toNumber', () => {
+        test.each([
+            ['33.435518', 33.435518],
+            [' 33.435518     ', 33.435518],
+            [0, 0],
+            [Infinity, Infinity],
+            ['Infinity', Infinity],
+            [null, 0],
+            [2335, 2335],
+            [false, 0],
+            [true, 1],
+            [' ', 0],
+            ['', 0],
+            ['uhoh', Number.NaN],
+            [Buffer.from('idk'), Number.NaN],
+            [Buffer.from('0'), 0],
+            [Buffer.from('1'), 1],
+            [{ a: 1 }, Number.NaN],
+            [{ }, Number.NaN],
+            [[], 0],
+            [[1], 1],
+        ])('should convert %j to be %j', (input, expected) => {
+            expect(toNumber(input)).toEqual(expected);
+        });
+    });
+
+    describe('toSafeString', () => {
+        test.each([
+            ['hello-there', 'hello-there'],
+            ['++_--hello', 'hello'],
+            ['Hello_Hi THERE', 'hello_hi_there'],
+            ['Howdy-Hi?+ you', 'howdy-hi-you'],
+            ['Hi there#*', 'hi-there'],
+            ['<HI> 3', 'hi-3'],
+            ['123', '123'],
+            [123, '123'],
+            [null, ''],
+        ])('should convert %s to be %s', (input, expected) => {
+            expect(toSafeString(input)).toEqual(expected);
         });
     });
 });

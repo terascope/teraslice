@@ -2,15 +2,37 @@
 
 const fs = require('fs');
 const _ = require('lodash');
+const path = require('path');
 const { TSError, parseError } = require('@terascope/utils');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
 const { timeseriesIndex } = require('../../../utils/date_utils');
 
-// eslint-disable-next-line max-len
-module.exports = function module(context, indexName, recordType, idField, _bulkSize, fullResponse, logRecord = true) {
-    const logger = context.apis.foundation.makeLogger({ module: 'elasticsearch_backend' });
+module.exports = function module(backendConfig) {
+    const {
+        context,
+        indexName,
+        recordType,
+        idField,
+        storageName,
+        bulkSize = 500,
+        fullResponse = false,
+        logRecord = true,
+        forceRefresh = true
+    } = backendConfig;
+
+    const logger = context.apis.foundation.makeLogger({
+        module: 'elasticsearch_backend',
+        storageName,
+    });
+
     const config = context.sysconfig.teraslice;
+
+    const indexSettings = _.get(config, ['index_settings', storageName], {
+        number_of_shards: 5,
+        number_of_replicas: 1
+    });
+
     let elasticsearch;
     let client;
     let flushInterval;
@@ -19,9 +41,6 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
     // Buffer to build up bulk requests.
     let bulkQueue = [];
     let savingBulk = false; // serialize save requests.
-
-    let bulkSize = 500;
-    if (_bulkSize) bulkSize = _bulkSize;
 
     function getRecord(recordId, indexArg, fields) {
         logger.trace(`getting record id: ${recordId}`);
@@ -37,9 +56,9 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
         return elasticsearch.get(query);
     }
 
-    function search(query, from, size, sort, fields, indexArg) {
+    function search(query, from, size, sort, fields, indexArg = indexName) {
         const esQuery = {
-            index: indexArg || indexName,
+            index: indexArg,
             from,
             size,
             sort
@@ -62,13 +81,13 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
      * index saves a record to elasticsearch allowing automatic
      * ID creation
      */
-    function index(record, indexArg) {
+    function index(record, indexArg = indexName) {
         logger.trace('indexing record', logRecord ? record : null);
         const query = {
-            index: indexArg || indexName,
+            index: indexArg,
             type: recordType,
             body: record,
-            refresh: true
+            refresh: forceRefresh
         };
 
         return elasticsearch.index(query);
@@ -78,14 +97,14 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
      * index saves a record to elasticsearch with a specified ID.
      * If the document is already there it will be replaced.
      */
-    function indexWithId(recordId, record, indexArg) {
+    function indexWithId(recordId, record, indexArg = indexName) {
         logger.trace(`indexWithId call with id: ${recordId}, record`, logRecord ? record : null);
         const query = {
-            index: indexArg || indexName,
+            index: indexArg,
             type: recordType,
             id: recordId,
             body: record,
-            refresh: true
+            refresh: forceRefresh
         };
 
         return elasticsearch.indexWithId(query);
@@ -95,23 +114,23 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
      * Create saves a record to elasticsearch under the provided id.
      * If the record already exists it will not be inserted.
      */
-    function create(record, indexArg) {
+    function create(record, indexArg = indexName) {
         logger.trace('creating record', logRecord ? record : null);
 
         const query = {
-            index: indexArg || indexName,
+            index: indexArg,
             type: recordType,
             id: record[idField],
             body: record,
-            refresh: true
+            refresh: forceRefresh
         };
 
         return elasticsearch.create(query);
     }
 
-    function count(query, from, sort, indexArg) {
+    function count(query, from, sort, indexArg = indexName) {
         const esQuery = {
-            index: indexArg || indexName,
+            index: indexArg,
             from,
             sort
         };
@@ -125,36 +144,36 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
         return elasticsearch.count(esQuery);
     }
 
-    function update(recordId, updateSpec, indexArg) {
+    function update(recordId, updateSpec, indexArg = indexName) {
         logger.trace(`updating record ${recordId}, `, logRecord ? updateSpec : null);
 
         const query = {
-            index: indexArg || indexName,
+            index: indexArg,
             type: recordType,
             id: recordId,
             body: {
                 doc: updateSpec
             },
-            refresh: true,
+            refresh: forceRefresh,
             retryOnConflict: 3
         };
 
         return elasticsearch.update(query);
     }
 
-    function remove(recordId, indexArg) {
+    function remove(recordId, indexArg = indexName) {
         logger.trace(`removing record ${recordId}`);
         const query = {
-            index: indexArg || indexName,
+            index: indexArg,
             type: recordType,
             id: recordId,
-            refresh: true
+            refresh: forceRefresh
         };
 
         return elasticsearch.remove(query);
     }
 
-    function bulk(record, _type, indexArg) {
+    function bulk(record, _type, indexArg = indexName) {
         let type = _type;
         if (!type) {
             type = 'index';
@@ -162,7 +181,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
 
         const indexRequest = {};
         indexRequest[type] = {
-            _index: indexArg || indexName,
+            _index: indexArg,
             _type: recordType
         };
 
@@ -238,13 +257,23 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
     }
 
     function getMapFile() {
-        const mappingFile = `${__dirname}/mappings/${recordType}.json`;
+        const mappingFile = path.join(__dirname, `mappings/${recordType}.json`);
 
-        return JSON.parse(fs.readFileSync(mappingFile));
+        const mapping = JSON.parse(fs.readFileSync(mappingFile));
+        mapping.settings = {
+            'index.number_of_shards': indexSettings.number_of_shards,
+            'index.number_of_replicas': indexSettings.number_of_replicas,
+        };
+        return mapping;
     }
 
-    function isAvailable(indexArg) {
-        const query = { index: indexArg || indexName, q: '*' };
+    function isAvailable(indexArg = indexName) {
+        const query = {
+            index: indexArg,
+            q: '*',
+            size: 0,
+            terminate_after: '1'
+        };
 
         return new Promise(((resolve) => {
             elasticsearch.search(query)
@@ -253,19 +282,27 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
                     resolve(results);
                 })
                 .catch(() => {
+                    let running = false;
                     const isReady = setInterval(() => {
                         if (isShutdown) {
                             clearInterval(isReady);
                             return;
                         }
 
+                        if (running) return;
+                        running = true;
+
                         elasticsearch.search(query)
                             .then((results) => {
+                                running = false;
+
                                 clearInterval(isReady);
                                 resolve(results);
                             })
                             .catch(() => {
-                                logger.warn('verifying job index is open');
+                                running = false;
+
+                                logger.warn(`verifying ${recordType} index is open`);
                             });
                     }, 200);
                 });
@@ -290,8 +327,8 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
         return Promise.resolve(true);
     }
 
-    function _createIndex(indexArg) {
-        const existQuery = { index: indexArg || indexName };
+    function _createIndex(indexArg = indexName) {
+        const existQuery = { index: indexArg };
         return elasticsearch.index_exists(existQuery)
             .then((exists) => {
                 if (!exists) {
@@ -299,7 +336,7 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
 
                     // Make sure the index exists before we do anything else.
                     const createQuery = {
-                        index: indexArg || indexName,
+                        index: indexArg,
                         body: mapping
                     };
 
@@ -324,8 +361,8 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
             });
     }
 
-    function refresh(indexArg) {
-        const query = { index: indexArg || indexName };
+    function refresh(indexArg = indexName) {
+        const query = { index: indexArg };
         return elasticsearch.index_refresh(query);
     }
 
@@ -339,7 +376,8 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
             logger.error(err, 'background flush failure');
             return null;
         });
-    }, 10000);
+    // stager the interval to avoid collisions
+    }, _.random(9000, 11000));
 
     // javascript is having a fit if you use the shorthand get, so we renamed function to getRecord
     const api = {
@@ -386,14 +424,18 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
             .then(() => isAvailable(newIndex))
             .then(() => resolve(api))
             .catch((err) => {
-                const error = new TSError(err, { reason: `Error created job index: ${indexName}` });
+                const error = new TSError(err, { reason: `Error initializing ${recordType} index: ${indexName}` });
                 logger.error(error);
                 logger.info(`Attempting to connect to elasticsearch: ${clientName}`);
+                let running = false;
+
                 const checking = setInterval(() => {
                     if (isShutdown) {
                         clearInterval(checking);
                         return;
                     }
+                    if (running) return;
+                    running = true;
 
                     _createIndex(newIndex)
                         .then(() => {
@@ -421,7 +463,12 @@ module.exports = function module(context, indexName, recordType, idField, _bulkS
                             }
                             return true;
                         })
+                        .then(() => {
+                            running = false;
+                        })
                         .catch((checkingErr) => {
+                            running = false;
+
                             const checkingError = new TSError(checkingErr);
                             logger.info(checkingError, `Attempting to connect to elasticsearch: ${clientName}`);
                         });

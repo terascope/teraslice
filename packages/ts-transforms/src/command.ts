@@ -2,7 +2,7 @@
 import yargs from 'yargs';
 import path from 'path';
 import fs from 'fs';
-import { DataEntity, debugLogger } from '@terascope/utils';
+import { DataEntity, debugLogger, parseList } from '@terascope/utils';
 import _ from 'lodash';
 import got from 'got';
 import { PhaseManager } from './index';
@@ -46,7 +46,7 @@ interface ESData {
 
 try {
     if (command.t) {
-        const segments = formatList(command.t as string);
+        const segments = parseList(command.t as string);
         segments.forEach((segment: string) => {
             const pieces = segment.split(':');
             typesConfig[pieces[0].trim()] = pieces[1].trim();
@@ -74,10 +74,6 @@ async function dataFileLoader(dataPath: string): Promise<object[]> {
             resolve(parsedData);
         });
     });
-}
-
-function formatList(input: string): string[] {
-    return input.split(',').map((str) => str.trim());
 }
 
 function parseStreamResponse(data: string | object[]): object[] {
@@ -176,14 +172,14 @@ async function getData(dataPath: string) {
 async function initCommand() {
     try {
         const opConfig: PhaseConfig = {
-            rules: formatList(filePath).map(pathing => path.resolve(pathing)),
+            rules: parseList(filePath).map(pathing => path.resolve(pathing)),
             types: typesConfig,
             type
         };
         let plugins = [];
         if (command.p) {
             try {
-                const pluginList = formatList(command.p as string);
+                const pluginList = parseList(command.p as string);
                 plugins = pluginList.map((pluginPath) => {
                     const module = require(path.resolve(pluginPath));
                     const results = module.default || module;

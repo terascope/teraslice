@@ -1,7 +1,7 @@
 import 'jest-extended';
-import { TSError } from '@terascope/utils';
 import { Views, ViewModel } from '../../src/models/views';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
+import { SpaceModel } from 'packages/data-access/src';
 
 describe('Views', () => {
     const client = makeClient();
@@ -23,7 +23,7 @@ describe('Views', () => {
         it('should be able to create a view', async () => {
             const created = await views.create({
                 name: 'hello',
-                space: 'space-id',
+                data_type: 'some-data-type-id',
                 roles: ['role-id'],
                 excludes: ['example'],
                 includes: ['other'],
@@ -36,35 +36,51 @@ describe('Views', () => {
     });
 
     describe('when getting a view for a role', () => {
-        let view: ViewModel;
+        let view1: ViewModel;
+        let view2: ViewModel;
 
-        const spaceId = 'some-space-id';
         const roleId = 'some-role-id';
 
         beforeAll(async () => {
-            view = await views.create({
+            view1 = await views.create({
                 name: 'hello',
-                space: spaceId,
+                data_type: 'another-data-type-id',
                 roles: [roleId],
+            });
+
+            view2 = await views.create({
+                name: 'howdy',
+                data_type: 'another-data-type-id',
+                roles: [],
             });
         });
 
         it('should return the view if using the right space', async () => {
-            const found = await views.getViewForRole(roleId, spaceId);
-            expect(found).toEqual(view);
+            // @ts-ignore
+            const space: SpaceModel = {
+                views: [view1.id, view2.id],
+            };
+
+            const found = await views.getViewOfSpace(space, roleId);
+            expect(found).toEqual(view1);
         });
 
-        it('should throw and error if no view is found', async () => {
-            expect.hasAssertions();
+        it('should return a non-restrictive view if not found', async () => {
+            // @ts-ignore
+            const space: SpaceModel = {
+                data_type: 'FakeDataType',
+                roles: [roleId],
+                views: [view2.id],
+            };
 
-            try {
-                await views.getViewForRole(roleId, 'missing');
-            } catch (err) {
-                const errMsg = `No View found for role "${roleId}" and space "missing"`;
-                expect(err).toBeInstanceOf(TSError);
-                expect(err).toHaveProperty('statusCode', 404);
-                expect(err).toHaveProperty('message', errMsg);
-            }
+            const result = await views.getViewOfSpace(space, roleId);
+
+            expect(result).toMatchObject({
+                id: `default-view-for-role-${roleId}`,
+                name: `Default View for Role ${roleId}`,
+                data_type: space.data_type,
+                roles: space.roles,
+            });
         });
     });
 });

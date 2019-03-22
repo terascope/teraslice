@@ -1,19 +1,36 @@
 import * as es from 'elasticsearch';
-import * as rolesConfig from './config/roles';
+import rolesConfig from './config/roles';
 import { ManagerConfig } from '../interfaces';
-import { Base, BaseModel } from './base';
+import { Base, BaseModel, CreateModel, UpdateModel } from './base';
 
 /**
  * Manager for Roles
 */
-export class Roles extends Base<RoleModel> {
+export class Roles extends Base<RoleModel, CreateRoleInput, UpdateRoleInput> {
+    static ModelConfig = rolesConfig;
+    static GraphQLSchema =  `
+        type Role {
+            id: ID!
+            name: String
+            description: String
+            created: String
+            updated: String
+        }
+
+        input CreateRoleInput {
+            name: String!
+            description: String
+        }
+
+        input UpdateRoleInput {
+            id: ID!
+            name: String
+            description: String
+        }
+    `;
+
     constructor(client: es.Client, config: ManagerConfig) {
         super(client, config, rolesConfig);
-    }
-
-    async hasAccessToSpace(roleId: string, space: string): Promise<boolean> {
-        const role = await this.findById(roleId);
-        return role.spaces.includes(space);
     }
 }
 
@@ -30,9 +47,7 @@ export interface RoleModel extends BaseModel {
      * Description of the Role
     */
     description?: string;
-
-    /**
-     * A list of assocciated Spaces
-    */
-    spaces: string[];
 }
+
+export type CreateRoleInput = CreateModel<RoleModel>;
+export type UpdateRoleInput = UpdateModel<RoleModel>;

@@ -1,8 +1,13 @@
 'use strict';
 
 const Promise = require('bluebird');
-const { TSError } = require('@terascope/utils');
-const { pRetry, toString } = require('@terascope/job-components');
+const {
+    TSError,
+    pRetry,
+    toString,
+    isRetryableError,
+    parseErrorInfo
+} = require('@terascope/utils');
 const { timeseriesIndex } = require('../../utils/date_utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
@@ -50,17 +55,33 @@ module.exports = function module(context) {
             record.error = toString(error);
         }
 
-        const update = () => backend.update(slice.slice_id, record, indexData.index);
+        let notFoundErrCount = 0;
+
+        async function update() {
+            try {
+                return await backend.update(slice.slice_id, record, indexData.index);
+            } catch (_err) {
+                const { statusCode, message } = parseErrorInfo(_err);
+                let retryable = isRetryableError(_err);
+                if (statusCode === 404) {
+                    notFoundErrCount++;
+                    retryable = notFoundErrCount < 3;
+                } else if (message.includes('Request Timeout')) {
+                    retryable = true;
+                }
+
+                throw new TSError(_err, {
+                    retryable,
+                    reason: `Failure to update ${state} state`
+                });
+            }
+        }
 
         return pRetry(update, {
             retries: 10000,
             delay: 1000,
             backoff: 5,
-            matches: [
-                'Request Timeout',
-            ],
             endWithFatal: true,
-            reason: `Failure to update ${state} state`
         });
     }
 
@@ -124,6 +145,11 @@ module.exports = function module(context) {
         return backend.shutdown(forceShutdown);
     }
 
+    function refresh() {
+        const { index } = timeseriesIndex(timeseriesFormat, _index);
+        return backend.refresh(index);
+    }
+
     const api = {
         search,
         createState,
@@ -131,13 +157,25 @@ module.exports = function module(context) {
         recoverSlices,
         executionStartingSlice,
         count,
-        shutdown
+        shutdown,
+        refresh,
     };
 
-    return elasticsearchBackend(context, indexName, 'state', '_id')
+    const backendConfig = {
+        context,
+        indexName,
+        recordType: 'state',
+        idField: 'slice_id',
+        fullResponse: false,
+        logRecord: false,
+        forceRefresh: false,
+        storageName: 'state'
+    };
+
+    return elasticsearchBackend(backendConfig)
         .then((elasticsearch) => {
             backend = elasticsearch;
-            logger.info('initializing');
+            logger.info('state storage initialized');
             return api;
         });
 };

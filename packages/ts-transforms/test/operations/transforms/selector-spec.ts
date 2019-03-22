@@ -5,7 +5,7 @@ import { DataEntity } from '@terascope/utils';
 describe('selector operator', () => {
 
     it('can instantiate', () => {
-        const opConfig = { selector: 'some:data' };
+        const opConfig = { selector: 'some:data', __id: 'someId' };
         expect(() => new Selector(opConfig)).not.toThrow();
     });
 
@@ -25,7 +25,7 @@ describe('selector operator', () => {
     });
 
     it('can select data', () => {
-        const opConfig = { selector: 'some:data' };
+        const opConfig = { selector: 'some:data', __id: 'someId' };
         const test = new Selector(opConfig);
 
         const data1 = new DataEntity({ field: '56.234,95.234' });
@@ -55,7 +55,7 @@ describe('selector operator', () => {
     });
 
     it('can select match all data', () => {
-        const opConfig = { selector: '*' };
+        const opConfig = { selector: '*', __id: 'someId' };
         const test = new Selector(opConfig);
 
         const data1 = new DataEntity({ field: '56.234,95.234' });
@@ -84,7 +84,7 @@ describe('selector operator', () => {
     });
 
     it('can add selectors metadata to match documents', () => {
-        const opConfig = { selector: 'some:data' };
+        const opConfig = { selector: 'some:data', __id: 'someId' };
         const test =  new Selector(opConfig);
         const metaData = { 'some:data': true };
         const secondMetaData = { 'other:data': true };

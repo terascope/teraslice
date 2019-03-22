@@ -1,30 +1,20 @@
 'use strict';
 
+const _ = require('lodash');
+
 module.exports = function module(config) {
     const domain = require('domain');
     const primary = domain.create();
     const cluster = require('cluster');
-    const _ = require('lodash');
 
+    const { getArgs } = require('./lib/sysconfig');
     const validateConfigs = require('./lib/validate_configs');
     const { loggerClient } = require('./lib/logger_utils');
     const api = require('./lib/api');
 
     const name = config.name ? config.name : 'terafoundation';
 
-    const { argv } = require('yargs')
-        .usage('Usage: $0 [options]')
-        .alias('c', 'configfile')
-        .describe('c', `Configuration file to load.
-            If not specified, the envorinment TERAFOUNDATION_CONFIG can be used.`)
-        .alias('b', 'bootstrap')
-        .describe('b', 'Perform initial setup')
-        .help('h')
-        .alias('h', 'help');
-
-    const configFile = require('./lib/sysconfig')({
-        configfile: argv.configfile
-    });
+    const { configFile, bootstrap } = getArgs(config.name, config.default_config_file);
 
     // allows top level function to declare ops_directory, so not hard baked in
     // TODO verify why we need this
@@ -136,7 +126,7 @@ module.exports = function module(config) {
              * do any initial application setup.
              * */
             // TODO verify we need this
-            if (argv.bootstrap) {
+            if (bootstrap) {
                 if (config.bootstrap && typeof config.bootstrap === 'function') {
                     config.bootstrap(context, () => {
                         // process.exit(0);

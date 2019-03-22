@@ -51,35 +51,66 @@ The configuration file essentially has two main fields, configuration for terasl
 
 ## teraslice
 
-| Configuration | Description | Type |  Notes
-|:---------: | :--------: | :------: | :------:
-assets_directory | 'path/to/directory', to look for more custom readers and processors. Usually this is where you place your custom code not part of core, unless you want to leave your code in place. | String | optional
-action_timeout | time in milliseconds for waiting for a action ( pause/stop job, etc) to complete before throwing an error | Number | optional, defaults to 300000 ms
-network_latency_buffer | time in milliseconds buffer which is combined with action_timeout to determine how long the cluster master will wait till it throws an error | Number | optional, defaults to 15000 ms
-worker_disconnect_timeout | time in milliseconds that the slicer will wait after all workers have disconnected before terminating the job | Number | optional, defaults to 300000 ms or 5 minutes
-node_disconnect_timeout | time in milliseconds that the cluster  will wait untill it drops that node from state and attempts to provision the lost workers | Number | optional, defaults to 300000 ms or 5 minutes
-shutdown_timeout | time in milliseconds, to allow workers and slicers to finish operations before forcefully shutting down when a shutdown signal occurs| Number | optional, defaults to 60 seconds (60000 ms)
-hostname | IP or hostname for server | String | required, this is used to identify your nodes
-workers | This represents the maximum number of workers that is node is permitted to make, must be set to a number greater than zero. This is currently hard set, and to change this number it must require a reboot and configuration change | Number | optional, defaults to the amount of cpu cores your system is running on
-master | determine if cluster_master should live on this node | Boolean| optional, defaults to false,
-master_hostname | hostname where the cluster_master resides, used to notify all node_masters where to connect | String | required, defaults to 'localhost'
-port | port for the cluster_master to listen on, this is the port that is exposed externally for the api | Number | optional, defaults to 5678
-name | Name for the cluster itself, its used for naming log files/indices | String | defaults to 'teracluster',
-state | Elasticsearch cluster where job state, analytics and logs are stored | Object | optional, defaults to {connection: 'default'},
-slicer_port_range | range of ports that slicers will use per node | String | optional, defaults to range: '45678:46678'
-slicer_allocation_attempts | The number of times a slicer will try to be allocated before failing | Number | optional, defaults to 3
+|                      Field                      |                Type                |          Default           |                                                                 Description                                                                  |
+| :---------------------------------------------: | :--------------------------------: | :------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------: |
+|               **action_timeout**                |              `Number`              |          `300000`          |                  time in milliseconds for waiting for a action ( pause/stop job, etc) to complete before throwing an error                   |
+|               **analytics_rate**                |              `Number`              |          `60000`           |                                           Rate in ms in which to push analytics to cluster master                                            |
+|              **assets_directory**               |              `String`              |      `"$PWD/assets"`       |                                                         directory to look for assets                                                         |
+|                **assets_volume**                |              `String`              |             -              |                                                      name of shared asset volume (k8s)                                                       |
+|             **autoload_directory**              |              `String`              |     `"$PWD/autoload"`      |                                     directory to look for assets to auto deploy when teraslice boots up                                      |
+|            **cluster_manager_type**             |     `"native"`, `"kubernetes"`     |         `"native"`         |                                                determines which cluster system should be used                                                |
+|                     **cpu**                     |              `Number`              |             -              |                                         number of cpus to reserve per teraslice worker in kubernetes                                         |
+|                  **hostname**                   |              `String`              |        `"$HOST_IP"`        |                                                          IP or hostname for server                                                           |
+|     **index_rollover_frequency.analytics**      | `"daily"`, `"monthly"`, `"yearly"` |        `"monthly"`         |                                               How frequently the analytics indices are created                                               |
+|       **index_rollover_frequency.state**        | `"daily"`, `"monthly"`, `"yearly"` |        `"monthly"`         |                                            How frequently the teraslice state indices are created                                            |
+| **index_settings.analytics.number_of_replicas** |              `Number`              |            `1`             |                                                The number of replicas for the analytics index                                                |
+|  **index_settings.analytics.number_of_shards**  |              `Number`              |            `5`             |                                                 The number of shards for the analytics index                                                 |
+|  **index_settings.assets.number_of_replicas**   |              `Number`              |            `1`             |                                                 The number of replicas for the assets index                                                  |
+|   **index_settings.assets.number_of_shards**    |              `Number`              |            `5`             |                                                  The number of shards for the assets index                                                   |
+| **index_settings.execution.number_of_replicas** |              `Number`              |            `1`             |                                                The number of replicas for the execution index                                                |
+|  **index_settings.execution.number_of_shards**  |              `Number`              |            `5`             |                                                 The number of shards for the execution index                                                 |
+|   **index_settings.jobs.number_of_replicas**    |              `Number`              |            `1`             |                                                  The number of replicas for the jobs index                                                   |
+|    **index_settings.jobs.number_of_shards**     |              `Number`              |            `5`             |                                                   The number of shards for the jobs index                                                    |
+|   **index_settings.state.number_of_replicas**   |              `Number`              |            `1`             |                                                  The number of replicas for the state index                                                  |
+|    **index_settings.state.number_of_shards**    |              `Number`              |            `5`             |                                                   The number of shards for the state index                                                   |
+|         **kubernetes_config_map_name**          |              `String`              |    `"teraslice-worker"`    |                                  Specify the name of the Kubernetes ConfigMap used to configure worker pods                                  |
+|              **kubernetes_image**               |              `String`              |  `"terascope/teraslice"`   |                             Specify a custom image name for kubernetes, this only applies to kubernetes systems                              |
+|        **kubernetes_image_pull_secret**         |              `String`              |             -              |                                 Name of Kubernetes secret used to pull docker images from private repository                                 |
+|            **kubernetes_namespace**             |              `String`              |        `"default"`         |                                Specify a custom kubernetes namespace, this only applies to kubernetes systems                                |
+|                   **master**                    |             `Boolean`              |          `false`           |                                      boolean for determining if cluster_master should live on this node                                      |
+|               **master_hostname**               |              `String`              |       `"localhost"`        |                         hostname where the cluster_master resides, used to notify all node_masters where to connect                          |
+|                   **memory**                    |              `Number`              |             -              |                                       memory, in bytes, to reserve per teraslice worker in kubernetes                                        |
+|                    **name**                     |        `elasticsearch_Name`        |      `"teracluster"`       |                                      Name for the cluster itself, its used for naming log files/indices                                      |
+|           **network_latency_buffer**            |              `Number`              |          `15000`           | time in milliseconds buffer which is combined with action_timeout to determine how long the cluster master will wait till it throws an error |
+|           **node_disconnect_timeout**           |              `Number`              |          `300000`          |       time in milliseconds that the cluster  will wait untill it drops that node from state and attempts to provision the lost workers       |
+|             **node_state_interval**             |              `Number`              |           `5000`           |                         time in milliseconds that indicates when the cluster master will ping nodes for their state                          |
+|                    **port**                     |               `port`               |           `5678`           |                                                   port for the cluster_master to listen on                                                   |
+|                  **reporter**                   |              `String`              |             -              |                                                          not currently operational                                                           |
+|              **shutdown_timeout**               |              `Number`              |          `60000`           |                   time in milliseconds, to allow workers and slicers to finish operations before forcefully shutting down                    |
+|         **slicer_allocation_attempts**          |              `Number`              |            `3`             |                                     The number of times a slicer will try to be allocated before failing                                     |
+|              **slicer_port_range**              |              `String`              |      `"45679:46678"`       |                                                range of ports that slicers will use per node                                                 |
+|               **slicer_timeout**                |              `Number`              |          `180000`          |                       time in milliseconds that the slicer will wait for worker connection before terminating the job                        |
+|                    **state**                    |              `Object`              | `{"connection":"default"}` |                                     Elasticsearch cluster where job state, analytics and logs are stored                                     |
+|          **worker_disconnect_timeout**          |              `Number`              |          `300000`          |                time in milliseconds that the slicer will wait after all workers have disconnected before terminating the job                 |
+|                   **workers**                   |              `Number`              |            `4`             |                                                         Number of workers per server                                                         |
+
+
+
 
 ### terafoundation
 
-| Configuration | Description | Type |  Notes
-|:---------: | :--------: | :------: | :------:
-log_path | Path to where you would like to store logs pertaining to jobs as well as system logs | String | optional, defaults to the executing directory
-environment | Set to either development or production, in development logs are sent to the console, while in production they are written to file located within the dir you specify at log_path| String | defaults to development
-connectors | List of all databases used and connection configurations  | Object | required
-logging | an array of options to specify which logging functionality to use, options: ['console', 'file', 'elasticsearch'], respectively sends logging to all those locations |  Array | optional, defaults to ['console'], if environment is set to production, it will ignore console and add file
-log_level | what level of logs should be shown or saved. possible values: trace, debug, info, warn, error, fatal. if value is a string, all logging function will use that, if you specify an array then you make customize what level of logs go where. example of array => [{console: 'warn'}, {elasticsearch: 'info'}] | String or Array | optional, defaults to "info"
-log_buffer_limit | the number of logs stored in the ringbuffer on the logger before sent, logging must have elasticsearch set as a value for this to take effect | Number | optional, defaults to  30
-log_buffer_interval | interval (number in milliseconds) that the log buffer will send up its logs to elasticsearch if its enabled, used to prevent hanging logs of different services if they haven't hit the limit | Number | optional, default to 60000m which is one minute
+|              Field               |                Type                |     Default     |                                                              Description                                                              |
+| :------------------------------: | :--------------------------------: | :-------------: | :-----------------------------------------------------------------------------------------------------------------------------------: |
+|         **environment**          |              `String`              | `"development"` |                       If set to `production`, console logging will be disabled and logs will be sent to a file                        |
+|     **log_buffer_interval**      |              `Number`              |     `60000`     |                                 How often the log buffer will flush the logs (number in milliseconds)                                 |
+|       **log_buffer_limit**       |              `Number`              |      `30`       | Number of log lines to buffer before sending to elasticsearch, logging must have elasticsearch set as a value for this to take effect |
+|        **log_connection**        |              `String`              |   `"default"`   |                                   logging connection endpoint if logging is saved to elasticsearch                                    |
+| **log_index_rollover_frequency** | `"daily"`, `"monthly"`, `"yearly"` |   `"monthly"`   |                                              How frequently the log indices are created                                               |
+|          **log_level**           |              `String`              |    `"info"`     |                                                        Default logging levels                                                         |
+|           **log_path**           |              `String`              |    `"$PWD"`     |                                  Directory where the logs will be stored if logging is set to `file`                                  |
+|           **logging**            |              `Array`               |   `"console"`   |                   Logging destinations. Expects an array of logging targets. options: console, file, elasticsearch                    |
+|           **workers**            |              `Number`              |       `4`       |                                                     Number of workers per server                                                      |
+
 
 ##### connectors #####
 

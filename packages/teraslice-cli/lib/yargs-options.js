@@ -93,7 +93,7 @@ class Options {
                 default: '*'
             }),
             'ex-size': () => ({
-                describe: 'list of ex error list to return',
+                describe: 'size of ex error list to return',
                 default: 100
             }),
             'ex-from': () => ({
@@ -104,11 +104,38 @@ class Options {
                 describe: 'sort method for ex errors',
                 default: '_updated:desc'
             }),
+            'jobs-status': () => ({
+                describe: 'list of job status to include',
+                default: 'running,failing'
+            }),
+            'jobs-size': () => ({
+                describe: 'size of job error list to return',
+                default: 100
+            }),
+            'jobs-from': () => ({
+                describe: 'jobs error to start from',
+                default: 0
+            }),
+            'jobs-sort': () => ({
+                describe: 'sort method for job errors',
+                default: '_updated:desc'
+            }),
+            yes: () => ({
+                alias: 'y',
+                describe: 'Answer \'Yes\' or \'Y\' to all prompts',
+                default: false
+            }),
+            'jobs-all': () => ({
+                alias: 'a',
+                describe: 'stop all running/failing jobs',
+                default: false
+            }),
             quiet: () => ({
                 alias: 'q',
                 describe: 'Silence non-error logging.',
                 type: 'boolean'
             }),
+
         };
 
         this.positionals = {

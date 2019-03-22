@@ -3,7 +3,7 @@ title: Docker Compose JS
 sidebar_label: docker-compose-js
 ---
 
-> Javascript API for docker-compose
+> Node.js driver for controlling docker-compose testing environments.
 
 This is a simple API wrapper for the docker-compose command line tool. Its primary purpose is to allow integration tests written in node.js to dynamically manipulate the docker-compose environment.
 

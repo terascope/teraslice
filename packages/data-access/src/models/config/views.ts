@@ -1,92 +1,91 @@
+import { ModelConfig } from '../base';
+import { ViewModel } from '../views';
 
-/** Schema Version */
-export const version = 1;
-
-/** Name of Data Type */
-export const name = 'views';
-
-/** ElasticSearch Mapping */
-export const mapping = {
-    properties: {
-        name: {
-            type: 'keyword',
-            fields: {
-                text: {
-                    type: 'text',
-                    analyzer: 'lowercase_keyword_analyzer'
+const config: ModelConfig<ViewModel> = {
+    version: 1,
+    name: 'views',
+    mapping: {
+        properties: {
+            name: {
+                type: 'keyword',
+                fields: {
+                    text: {
+                        type: 'text',
+                        analyzer: 'lowercase_keyword_analyzer'
+                    }
                 }
+            },
+            constraint: {
+                type: 'keyword'
+            },
+            roles: {
+                type: 'keyword'
+            },
+            data_type: {
+                type: 'keyword'
+            },
+            excludes: {
+                type: 'keyword'
+            },
+            includes: {
+                type: 'keyword'
+            },
+            prevent_prefix_wildcard: {
+                type: 'boolean'
+            },
+        }
+    },
+    schema: {
+        properties: {
+            name: {
+                type: 'string',
+                fields: {
+                    text: {
+                        type: 'text',
+                        analyzer: 'lowercase_keyword_analyzer'
+                    }
+                },
+            },
+            description: {
+                type: 'string'
+            },
+            data_type: {
+                type: 'string'
+            },
+            roles: {
+                type: 'array',
+                items: {
+                    type: 'string'
+                },
+                uniqueItems: true,
+                default: []
+            },
+            excludes: {
+                type: 'array',
+                items: {
+                    type: 'string'
+                },
+                uniqueItems: true,
+                default: []
+            },
+            includes: {
+                type: 'array',
+                items: {
+                    type: 'string'
+                },
+                uniqueItems: true,
+                default: []
+            },
+            constraint: {
+                type: 'string'
+            },
+            prevent_prefix_wildcard: {
+                type: 'boolean',
+                default: true
             }
         },
-        space: {
-            type: 'keyword'
-        },
-        constraint: {
-            type: 'keyword'
-        },
-        roles: {
-            type: 'keyword'
-        },
-        excludes: {
-            type: 'keyword'
-        },
-        includes: {
-            type: 'keyword'
-        },
-        prevent_prefix_wildcard: {
-            type: 'boolean'
-        },
+        required: ['name', 'data_type']
     }
 };
 
-/** JSON Schema */
-export const schema = {
-    properties: {
-        name: {
-            type: 'string',
-            fields: {
-                text: {
-                    type: 'text',
-                    analyzer: 'lowercase_keyword_analyzer'
-                }
-            },
-        },
-        description: {
-            type: 'string'
-        },
-        space: {
-            type: 'string'
-        },
-        roles: {
-            type: 'array',
-            items: {
-                type: 'string'
-            },
-            uniqueItems: true,
-            default: []
-        },
-        excludes: {
-            type: 'array',
-            items: {
-                type: 'string'
-            },
-            uniqueItems: true,
-            default: []
-        },
-        includes: {
-            type: 'array',
-            items: {
-                type: 'string'
-            },
-            uniqueItems: true,
-            default: []
-        },
-        constraint: {
-            type: 'string'
-        },
-        prevent_prefix_wildcard: {
-            type: 'boolean',
-            default: true
-        }
-    },
-    required: ['name', 'space']
-};
+export = config;

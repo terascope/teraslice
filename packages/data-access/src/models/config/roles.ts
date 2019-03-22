@@ -1,44 +1,33 @@
-/** Schema Version */
-export const version = 1;
+import { ModelConfig } from '../base';
+import { RoleModel } from '../roles';
 
-/** Name of Data Type */
-export const name = 'roles';
-
-/** ElasticSearch Mapping */
-export const mapping = {
-    properties: {
-        name: {
-            type: 'keyword',
-            fields: {
-                text: {
-                    type: 'text',
-                    analyzer: 'lowercase_keyword_analyzer'
-                }
+const config: ModelConfig<RoleModel> = {
+    version: 1,
+    name: 'roles',
+    mapping: {
+        properties: {
+            name: {
+                type: 'keyword',
+                fields: {
+                    text: {
+                        type: 'text',
+                        analyzer: 'lowercase_keyword_analyzer'
+                    }
+                },
             }
-        },
-        spaces: {
-            type: 'keyword'
         }
-    }
-};
-
-/** JSON Schema */
-export const schema = {
-    properties: {
-        name: {
-            type: 'string'
-        },
-        description: {
-            type: 'string'
-        },
-        spaces: {
-            type: 'array',
-            items: {
+    },
+    schema: {
+        properties: {
+            name: {
                 type: 'string'
             },
-            uniqueItems: true,
-            default: []
+            description: {
+                type: 'string'
+            }
         },
+        required: ['name']
     },
-    required: ['name']
 };
+
+export = config;

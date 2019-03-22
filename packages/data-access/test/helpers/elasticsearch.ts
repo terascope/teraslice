@@ -2,10 +2,14 @@ import * as es from 'elasticsearch';
 import { ELASTICSEARCH_HOST } from './config';
 import { ACLManager } from '../../src';
 
+// automatically set the timeout to 10s when using elasticsearch
+jest.setTimeout(10000);
+
 export function makeClient(): es.Client {
     return new es.Client({
         host: ELASTICSEARCH_HOST,
-        log: 'error'
+        log: 'error',
+        apiVersion: '6.5'
     });
 }
 
@@ -20,6 +24,7 @@ export function cleanupIndex(model: Model) {
 }
 
 export function cleanupIndexes(manager: ACLManager) {
-    const models = [manager.roles, manager.spaces, manager.users, manager.views];
+    // @ts-ignore
+    const models = [manager.roles, manager.spaces, manager.users, manager.views, manager.dataTypes];
     return Promise.all(models.map(cleanupIndex));
 }

@@ -1,63 +1,20 @@
+
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/generator-teraslice/overview.md -->
+
 # generator-teraslice
-
-<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/generator-teraslice/overview.md INSTEAD -->
-
-**NOTE:** This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo, more documentation can be found [here](https://terascope.github.io/teraslice/docs/).
 
 > Generate teraslice related packages and code
 
 ## Installation
 
-### Install Yeoman
-
 ```bash
 # Using yarn
-yarn global add yo
+yarn add generator-teraslice
 # Using npm
-npm install --global yo
+npm install --save generator-teraslice
 ```
 
-### Global Setup
-
-**NOTE:** This will use version lock the generator and you'll have to update it manually to get the latest.
-
-```bash
-# Using yarn
-yarn global add tersalice-generator
-# Using npm
-npm install --global teraslice-generator
-```
-
-### Development Setup
-
-**NOTE:** This will always use the latest code locally.
-
-```bash
-# From the root of the teraslice repo
-cd ./packages/generator-teraslice
-
-# Link the generator so the command is available to you
-# Using yarn
-yarn link
-# Using npm
-npm link
-```
-
-## Usage
-
-### Package
-
-Generate a Teraslice package within the teraslice repo.
-
-```bash
-# From the root of the teraslice repo
-mkdir ./packages/<name-of-package>
-cd ./packages/<name-of-package>
-
-# Follow the prompts to generate
-# the correct package
-yo teraslice:package
-```
+This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo. See our [documentation](https://terascope.github.io/teraslice/docs/packages/generator-teraslice/overview) for more information or the [issues](https://github.com/terascope/teraslice/issues?q=is%3Aopen+is%3Aissue+label%3Apkg%2Fgenerator-teraslice) associated with this package
 
 ## Contributing
 
@@ -66,5 +23,5 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Please make sure to update tests as appropriate.
 
 ## License
-
 [MIT](./LICENSE) licensed.
+

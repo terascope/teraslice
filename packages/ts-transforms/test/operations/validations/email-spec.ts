@@ -5,7 +5,7 @@ import { DataEntity } from '@terascope/utils';
 describe('email validation', () => {
 
     it('can instantiate', () => {
-        const opConfig = { source_field: 'someField' };
+        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId' };
         expect(() => new Email(opConfig)).not.toThrow();
     });
 
@@ -16,14 +16,16 @@ describe('email validation', () => {
         const badConfig4 = {};
         // @ts-ignore
         expect(() => new Email(badConfig1)).toThrow();
+         // @ts-ignore
         expect(() => new Email(badConfig2)).toThrow();
         // @ts-ignore
         expect(() => new Email(badConfig3)).toThrow();
+         // @ts-ignore
         expect(() => new Email(badConfig4)).toThrow();
     });
 
     it('can validate email fields', () => {
-        const opConfig = { source_field: 'uri' };
+        const opConfig = { source_field: 'uri', target_field: 'uri', __id: 'someId' };
         const test =  new Email(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -38,6 +40,7 @@ describe('email validation', () => {
         const data9 = new DataEntity({ uri: 'ha3ke5@pawnage.com' }, metaData);
         const data10 = new DataEntity({ uri: 'asdfasdf' });
         const data11 = new DataEntity({ uri: 'SOMEWORDS@HELLO.COM' });
+        const data12 = new DataEntity({ uri: ['SOMEWORDS@HELLO.COM', 'http:// google.com', 12342, { other:'stuff' }, 'other@somewhere.com'] });
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -50,6 +53,7 @@ describe('email validation', () => {
         const results9 = test.run(data9);
         const results10 = test.run(data10);
         const results11 = test.run(data11);
+        const results12 = test.run(data12);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
@@ -67,10 +71,11 @@ describe('email validation', () => {
         expect(DataEntity.getMetadata(results9 as DataEntity, 'selectors')).toEqual(metaData.selectors);
         expect(results10).toEqual({});
         expect(results11).toEqual(data11);
+        expect(results12).toEqual({ uri: ['SOMEWORDS@HELLO.COM', 'other@somewhere.com'] });
     });
 
     it('can validate nested fields', async() => {
-        const opConfig = { source_field: 'person.email' };
+        const opConfig = { source_field: 'person.email', target_field: 'person.email', __id: 'someId' };
         const test =  new Email(opConfig);
 
         const data1 = new DataEntity({ email: 'ha3ke5@pawnage.com' });

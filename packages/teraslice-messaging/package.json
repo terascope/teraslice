@@ -4,7 +4,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "description": "Teraslice Messaging",
+    "description": "An internal teraslice messaging library using socket.io",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-messaging#readme",
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
@@ -33,14 +33,14 @@
         "build:watch": "yarn build --watch",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
         "@terascope/queue": "^1.1.6",
         "debug": "^4.1.1",
         "lodash": "^4.17.11",
         "nanoid": "^2.0.1",
-        "p-event": "^2.3.1",
+        "p-event": "^4.0.0",
         "porty": "^3.1.1",
         "socket.io": "^1.7.4",
         "socket.io-client": "^1.7.4"

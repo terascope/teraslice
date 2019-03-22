@@ -1,12 +1,11 @@
+
+<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/job-components/overview.md -->
+
 # @terascope/job-components
-
-<!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/job-components/overview.md INSTEAD -->
-
-**NOTE:** This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo, more documentation can be found [here](https://terascope.github.io/teraslice/docs/).
 
 > A teraslice library for validating jobs schemas, registering apis, and defining and running new Job APIs
 
-# Installation
+## Installation
 
 ```bash
 # Using yarn
@@ -15,6 +14,8 @@ yarn add @terascope/job-components
 npm install --save @terascope/job-components
 ```
 
+This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo. See our [documentation](https://terascope.github.io/teraslice/docs/packages/job-components/overview) for more information or the [issues](https://github.com/terascope/teraslice/issues?q=is%3Aopen+is%3Aissue+label%3Apkg%2Fjob-components) associated with this package
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
@@ -22,5 +23,5 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Please make sure to update tests as appropriate.
 
 ## License
-
 [MIT](./LICENSE) licensed.
+

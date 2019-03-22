@@ -191,14 +191,14 @@ export function jobSchema(context: Context): convict.Schema<any> {
         };
 
         schemas.cpu = {
-            doc: 'minimum cpu value for teraslice workers in kubernetes',
-            default: -1,
+            doc: 'number of cpus to reserve per teraslice worker in kubernetes',
+            default: undefined,
             format: 'Number'
         };
 
         schemas.memory = {
-            doc: 'minimum cpu value for teraslice workers in kubernetes.',
-            default: -1,
+            doc: 'memory, in bytes, to reserve per teraslice worker in kubernetes',
+            default: undefined,
             format: 'Number'
         };
 
@@ -216,6 +216,12 @@ export function jobSchema(context: Context): convict.Schema<any> {
                     }
                 });
             }
+        };
+
+        schemas.kubernetes_image = {
+            doc: 'Specify a custom image name for kubernetes, this only applies to kubernetes systems',
+            default: undefined,
+            format: 'optional_String'
         };
     }
 

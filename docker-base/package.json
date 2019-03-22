@@ -1,8 +1,0 @@
-{
-    "name": "teraslice-docker-base",
-    "version": "0.2.0",
-    "license": "MIT",
-    "dependencies": {
-        "terafoundation_kafka_connector": "^0.3.0"
-    }
-}

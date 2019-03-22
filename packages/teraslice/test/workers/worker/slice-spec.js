@@ -47,6 +47,11 @@ describe('Slice', () => {
                 slice = await setupSlice(testContext, eventMocks);
 
                 results = await slice.run();
+
+                await Promise.all([
+                    slice.stateStore.refresh(),
+                    slice.analyticsStore.refresh(),
+                ]);
             });
 
             afterEach(async () => {
@@ -91,6 +96,10 @@ describe('Slice', () => {
                 slice = await setupSlice(testContext, eventMocks);
 
                 results = await slice.run();
+                await Promise.all([
+                    slice.stateStore.refresh(),
+                    slice.analyticsStore.refresh(),
+                ]);
             });
 
             afterEach(async () => {
@@ -135,6 +144,10 @@ describe('Slice', () => {
                 slice = await setupSlice(testContext, eventMocks);
 
                 results = await slice.run();
+                await Promise.all([
+                    slice.stateStore.refresh(),
+                    slice.analyticsStore.refresh(),
+                ]);
             });
 
             afterEach(async () => {
@@ -184,6 +197,11 @@ describe('Slice', () => {
                 } catch (_err) {
                     err = _err;
                 }
+
+                await Promise.all([
+                    slice.stateStore.refresh(),
+                    slice.analyticsStore.refresh(),
+                ]);
             });
 
             afterEach(async () => {
@@ -233,6 +251,11 @@ describe('Slice', () => {
                 } catch (_err) {
                     err = _err;
                 }
+
+                await Promise.all([
+                    slice.stateStore.refresh(),
+                    slice.analyticsStore.refresh(),
+                ]);
             });
 
             afterEach(async () => {
@@ -280,6 +303,11 @@ describe('Slice', () => {
                 } catch (_err) {
                     err = _err;
                 }
+
+                await Promise.all([
+                    slice.stateStore.refresh(),
+                    slice.analyticsStore.refresh(),
+                ]);
             });
 
             afterEach(async () => {

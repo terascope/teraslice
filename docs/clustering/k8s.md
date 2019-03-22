@@ -3,10 +3,16 @@ title: K8s Clustering
 sidebar_label: K8s
 ---
 
-Teraslice supports the use of Kubernetes as a cluster manager.  The supported
-versions of Kubernetes is:
+Teraslice supports the use of Kubernetes as a cluster manager.  The following
+versions of Kuberenetes have been used:
 
 * `1.10.*`
+* `1.11.*`
+* `1.12.*`
+* `1.13.2`
+
+We are not yet making an effort to ensure compatibility with older Kubernetes
+versions, so the newest version listed above is likely to be the best choice.
 
 # Setup
 
@@ -102,7 +108,7 @@ workers that translate to Kubernetes resource constraints.  Currently you
 can specify optional integer values on your job as shown below. The `cpu`
 setting is in vcores and the `memory` setting is in bytes.
 
-```
+```json
 "cpu": 1,
 "memory": 2147483648
 ```
@@ -114,32 +120,160 @@ will result in the Kubernetes `resources.requests.memory` and
 [Kubernetes Resource docs](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
 for further details on how Kubernetes interprets these values.
 
-## Node Affinity by Targets
+## Node Affinity and Tolerance Using Teraslice Job Targets
 
 If you need the workers (and execution controller) of your job to execute on
-specific set of nodes, you can use the Teraslice `targets` property on your
-job. You can specify one or more targets that will use [Kubernetes Node Affinity](
-https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity)
-to force nodes onto specific nodes.  The targets specified here will be required
-using `requiredDuringSchedulingIgnoredDuringExecution`.
+specific set of nodes or tolerate node taints, you can use the Teraslice
+`targets` property on your job.  The simplest form of using `targets` is to
+specify a single target and by default Teraslice will configure your workers to
+only run on nodes who's labels match the `key` and `value` specified as shown
+below:
 
-```
+```json
 "targets": [
     {"key": "zone", "value": "west"}
 ],
 ```
 
-For each entry in `targets` you provide, there will be a corresponding
-Kubernetes constraint, like the one shown below, added to your workers.
+More advanced options are also available to control how your Teraslice workers
+are scheduled in your Kubernetes cluster.  These options can be used by
+specifying an optional `constraint` property on the `targets` specified on your
+Teraslice job.  The available `constraint`s are:
 
+* `required` - Pods will only be scheduled to nodes that match the label.  If
+there are insufficient resources on the target nodes your job may have fewer
+workers than requested.  This is the **default** if is `constraint` is omitted.
+* `preferred` - Pods will be scheduled to nodes with this label, but if there
+are insufficient resources, they may be scheduled on nodes without this label.
+* `accepted` - Pods may be scheduled to nodes with the kubernetes taint
+provided by this label.  This uses a Kubernetes tolerance.
+
+### Examples
+
+If you want to force pods to run on nodes with a given label, you can simply
+specify a target with just a `key` and `value`:
+
+```json
+"targets": [
+    {"key": "zone", "value": "west"}
+],
 ```
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: <KEY>
-            operator: In
-            values:
-            - <VALUE>
+
+Using the `"constraint": "required"` property, as shown below, achieves the same
+thing:
+
+```json
+"targets": [
+    {"key": "zone", "value": "west", "constraint": "required"}
+],
 ```
+
+Using `"constraint": "preferred"` establishes a looser constraint on the label:
+
+```json
+"targets": [
+    {"key": "zone", "value": "west", "constraint": "preferred"}
+],
+```
+
+If you wanted your Teraslice workers to target a set of nodes with a given label
+but also wanted to guarantee the availability of these nodes for this workload
+by applying a taint, you could use `required` to target the label, then use
+`accepted` to tolerate that taint as follows:
+
+```json
+"targets": [
+    {"key": "zone", "value": "west", "constraint": "required"}
+    {"key": "region", "value": "texas", "constraint": "accepted"}
+],
+```
+
+If you are not familiar with the details of Kubernetes affinity and
+taint/tolerance mechanisms you can find more information in the Kubernetes
+documentation below:
+
+* [Kubernetes Node Affinity](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity)
+* [Kubernetes Taints and Tolerations](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
+
+### Pod Spec Details
+
+Each of the Teraslice job target `constraint`s are implemented slightly
+differently and it may be important for you to know exactly how these get
+translated into the Kubernetes manifest.  Those details are described below.
+
+#### Details of the `required` constraint
+
+For each entry in `targets` without a `constraint` or if `contraint` is set to
+`required`, the pod spec will include an entry in the `matchExpressions` list
+under the `requiredDuringSchedulingIgnoredDuringExecution` affinity property.
+The example below is what you would get if you provided two `required` targets:
+
+```yaml
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: zone
+                    operator: In
+                    values:
+                      - west
+                  - key: region
+                    operator: In
+                    values:
+                      - texas
+```
+
+
+#### Details of the `preferred` constraint
+
+For each entry in `targets` with a `constraint` set to `preferred`, the pod spec
+will include a separate preference in the list under the
+`preferredDuringSchedulingIgnoredDuringExecution` affinity property.  For now,
+all of these preferences will assume a weight of `1`.  The example
+below is what you would get if you provided two `preferred` targets:
+
+```yaml
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: zone
+                    operator: In
+                    values:
+                      - west
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: region
+                    operator: In
+                    values:
+                      - texas
+```
+
+
+#### Details of the `accepted` constraint
+
+For each entry in `targets` with a `constraint` set to `accepted`, the pod spec
+will include a separate toleration in the list under the `tolerations` property.
+Both the `key` and `value` provided in the target will be used to match the
+taint.  The example below is what you would get if you provided two `accepted`
+targets:
+
+```yaml
+      tolerations:
+        - key: zone
+          operator: Equal
+          value: west
+          effect: NoSchedule
+        - key: region
+          operator: Equal
+          value: texas
+          effect: NoSchedule
+```
+
 
 ## Attach existing volumes
 
@@ -149,7 +283,7 @@ and their volume claims must exist prior to job execution.  Note that the `name`
 property should be the name of the Kubernetes `persistentVolumeClaim`.  The
 `path` is where the volume will be mounted within the containers in your pod.
 
-```
+```json
 "volumes": [
     {"name": "teraslice-data1", "path": "/data"}
 ],
@@ -160,35 +294,67 @@ property should be the name of the Kubernetes `persistentVolumeClaim`.  The
 There is a `Makefile` I use to help bootstrap Teraslice and do repetitive tasks,
 you can type `make` to see all of the possible targets.
 
-The standard minikube based dev workflow is:
+The standard minikube based dev workflow is and requires the `teraslice-cli`
+version `0.5.1` or higher:
 
-```
-minikube start
+```bash
 cd examples/k8s
 export NAMESPACE=ts-dev1
 export TERASLICE_K8S_IMAGE=teraslice-k8sdev:1
+minikube start --memory 4096 --cpus 4
+eval $(minikube docker-env)
 make build
 make setup-all
 make show
 make register
-make example
+make start
 ```
 
-then when you need to make another change to Teraslice, redeploy and run a new
+At this point you should be able to access your Teraslice instance on port 30678
+on the minikube ip:
+
+```bash
+curl -Ss $(minikube ip):30678
+{
+    "arch": "x64",
+    "clustering_type": "kubernetes",
+    "name": "ts-dev1",
+    "node_version": "v8.12.0",
+    "platform": "linux",
+    "teraslice_version": "v0.49.0"
+}
+```
+
+And Elasticsearch should be accessible on port 30200:
+
+```bash
+curl -Ss $(minikube ip):30200
+{
+  "name" : "0iE0zM1",
+  "cluster_name" : "elasticsearch",
+  "cluster_uuid" : "_Ba0EHSLSCmN_ebEfc4eGg",
+  "version" : {
+    "number" : "5.6.10",
+    "build_hash" : "b727a60",
+    "build_date" : "2018-06-06T15:48:34.860Z",
+    "build_snapshot" : false,
+    "lucene_version" : "6.6.1"
+  },
+  "tagline" : "You Know, for Search"
+}
+```
+
+When you need to make another change to Teraslice, redeploy and run a new
 job:
 
-```
-make destroy
-export TERASLICE_K8S_IMAGE=teraslice-k8sdev:2
-make build
-make setup
-make register
-make example
+```bash
+make rebuild
 ```
 
-Note: If you build your images straight into k8s you don't need to increment
-the version number on TERASLICE_K8s_IMAGE.  You can do this by configuring
-your local docker to use minikube by running the following command:
-`eval $(minikube docker-env)`.  This can get messy in a number of ways if
-you're not carefule though (e.g: if you forget your shell is configured this
-way or you accumulate too many images in your minikube)
+To tear everything down and start over, all you have to do is run:
+
+```bash
+make destroy-all
+```
+
+and start at `make build` above.

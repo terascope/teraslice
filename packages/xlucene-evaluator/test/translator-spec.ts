@@ -22,6 +22,11 @@ describe('Translator', () => {
 
     describe.each([
         [
+            '*',
+            'query.constant_score.filter.bool.filter',
+            []
+        ],
+        [
             'hello:world',
             'query.constant_score.filter.bool.filter',
             [
@@ -140,6 +145,54 @@ describe('Translator', () => {
                                 {
                                     term: {
                                         any_count: 30,
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ],
+                should: [],
+                must_not: [],
+            }
+        ],
+        [
+            'id:(hi OR hello OR howdy OR aloha OR hey OR sup)',
+            'query.constant_score.filter.bool',
+            {
+                filter: [
+                    {
+                        bool: {
+                            filter: [],
+                            must_not: [],
+                            should: [
+                                {
+                                    term: {
+                                        id: 'hi',
+                                    }
+                                },
+                                {
+                                    term: {
+                                        id: 'hello',
+                                    }
+                                },
+                                {
+                                    term: {
+                                        id: 'howdy',
+                                    }
+                                },
+                                {
+                                    term: {
+                                        id: 'aloha',
+                                    }
+                                },
+                                {
+                                    term: {
+                                        id: 'hey',
+                                    }
+                                },
+                                {
+                                    term: {
+                                        id: 'sup',
                                     }
                                 }
                             ]
@@ -296,13 +349,14 @@ describe('Translator', () => {
             [
                 {
                     geo_distance: {
-                        distance:'5000m',
+                        distance: '5000m',
                         loc: '33.435518,-111.873616'
                     }
                 }
             ]
         ]
-    ])('when given %s', (query, property, expected, types) => {
+    // @ts-ignore because the types for test.each for some reason
+    ])('when given %s', (query: string, property: string, expected: any, types: TypeConfig) => {
         it(`should to output to have ${property} set correctly`, () => {
             const translator = new Translator(query, types);
             const result = translator.toElasticsearchDSL();

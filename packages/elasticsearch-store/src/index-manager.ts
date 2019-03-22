@@ -5,7 +5,11 @@ import { IndexConfig } from './interfaces';
 
 const _loggers = new WeakMap<IndexConfig, ts.Logger>();
 
-/** Manage Elasticsearch Indicies */
+/**
+ * Manage Elasticsearch Indicies
+ *
+ * @todo when setting up and index with multiple workers at the same it should not fail with an "index_exists"
+ */
 export default class IndexManager {
     readonly client: es.Client;
 

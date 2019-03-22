@@ -35,23 +35,21 @@ npm install --global teraslice-cli
 # Or with yarn, yarn global add teraslice-cli
 
 # To add additional connectors, use
-# npm install --global terafoundation_kafka_connector
+# npm install terafoundation_kafka_connector
 ```
 
 ### Running ###
 
-Once you have Teraslice installed you need a job specification and a configuration file to do something useful with it. See above for simple examples of each.
-
-Starting the Teraslice service on the master node is simple. Just provide it a path to the configuration file.
+Starting a single-node teraslice instance is simple, you can use the teraslice instance:
 
 ```sh
-teraslice -c master-config.yaml
+teraslice
 ```
 
-Starting a worker on a remote node is basically the same.
+If you want to get a simple cluster going use, the example docker-compose file:
 
 ```sh
-teraslice -c worker-config.yaml
+docker-compose up --build
 ```
 
 ## Documentation

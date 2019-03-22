@@ -1,4 +1,4 @@
-import { addDefaults } from '../../utils';
+import { mergeDefaults } from '../../utils';
 
 /** ElasticSearch Mapping */
 export const mapping = {
@@ -40,9 +40,9 @@ export const schema = {
 };
 
 export function addDefaultMapping(input: object) {
-    return addDefaults(input, mapping);
+    return mergeDefaults(input, mapping);
 }
 
 export function addDefaultSchema(input: object) {
-    return addDefaults(input, schema);
+    return mergeDefaults(input, schema);
 }
