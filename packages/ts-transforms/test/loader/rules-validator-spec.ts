@@ -6,7 +6,7 @@ import {
     RulesValidator,
     RulesParser,
     OperationConfig,
-    UnparsedConfig,
+    OperationConfigInput,
     OperationsManager,
     PluginList
 } from '../../src';
@@ -15,7 +15,7 @@ import { isPrimaryConfig } from '../../src/loader/utils';
 describe('rules-validator', () => {
     const testLogger = debugLogger('rules-validator-test');
 
-    function parseData(configList: UnparsedConfig[]) {
+    function parseData(configList: OperationConfigInput[]) {
         const rulesParser = new RulesParser(configList, testLogger);
         return rulesParser.parse();
     }
@@ -186,15 +186,6 @@ describe('rules-validator', () => {
         }
     ]);
 
-    const compactExtractionValidationConfig = parseData([
-        {
-            selector: 'hello:world',
-            source_field:  'txt',
-            target_field: 'hex',
-            validation: 'hexdecode'
-        }
-    ]);
-
     const cyclicRules = parseData([
         {
             source_field: 'somefield',
@@ -278,8 +269,6 @@ describe('rules-validator', () => {
     const multiOutput = parseData([
         { selector: 'some:value', source_field: 'other', target_field: 'field', tag:'hello', output: false },
         { post_process: 'extraction', target_field: 'first_copy', follow: 'hello', mutate: true },
-        { post_process: 'extraction', target_field: 'second_copy', regex: 'da.*a', follow: 'hello', mutate: true },
-        { post_process: 'extraction', target_field: 'third_copy', regex: 'so.*e', follow: 'hello', mutate: true },
         { source_field: 'key', target_field: 'key', other_match_required: true, mutate:true }
     ]);
 
@@ -350,16 +339,6 @@ describe('rules-validator', () => {
             results['hello:world'] = newJoinRules.slice(0, 2);
 
             expect(extractions['hello:world'].length).toEqual(2);
-            expect(extractions).toEqual(results);
-        });
-
-        it('can work with compactExtractionValidationConfig', () => {
-            const validator = constructValidator(compactExtractionValidationConfig);
-            const { extractions } = validator.validate();
-            const results = {
-                'hello:world': [compactExtractionValidationConfig[0]]
-            };
-
             expect(extractions).toEqual(results);
         });
 

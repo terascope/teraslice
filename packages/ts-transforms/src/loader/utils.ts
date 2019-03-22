@@ -11,13 +11,13 @@ import {
     NormalizedFields,
     ExtractionProcessingDict,
     StateDict,
-    UnparsedConfig,
+    OperationConfigInput,
     SelectorConfig,
     ExtractionConfig,
     PostProcessConfig
 } from '../interfaces';
-// @ts-ignore FIXME:
-const  { Graph, alg: { topsort, findCycles, components } } = graphlib;
+
+const  { Graph, alg: { topsort, findCycles } } = graphlib;
 
 export function parseConfig(configList: OperationConfig[], opsManager: OperationsManager, logger: Logger) {
     const graph = new Graph();
@@ -211,7 +211,7 @@ function checkForTarget(config: OperationConfig) {
     }
 }
 
-type Config = OperationConfig|UnparsedConfig;
+type Config = OperationConfig|OperationConfigInput;
 // FIXME: look to remove
 export function isPrimaryConfig(config: Config) {
     return hasSelector(config) && !isPostProcessType(config, 'selector');
@@ -245,7 +245,7 @@ function hasPostProcess(config: Config): boolean {
     return (_.has(config, 'post_process') || _.has(config, 'validation'));
 }
 
-export function isOldCompatabilityPostProcessConfig(config: Config): boolean {
+export function isDeprecatedCompactConfig(config: Config): boolean {
     return (!hasFollow(config) && hasPostProcess(config) && hasSelector(config));
 }
 

@@ -9,21 +9,6 @@ describe('transform operator', () => {
         expect(() => new Extraction(opConfig)).not.toThrow();
     });
 
-    xit('can properly throw with bad config values', () => {
-        const badConfig1 = { source_field: 1324 };
-        const badConfig2 = { target_field: [] };
-        const badConfig3 = { source_field: false, target_field: 'someField' };
-        const badConfig4 = {};
-        // @ts-ignore
-        expect(() => new Extraction(badConfig1)).toThrow();
-        // @ts-ignore
-        expect(() => new Extraction(badConfig2)).toThrow();
-        // @ts-ignore
-        expect(() => new Extraction(badConfig3)).toThrow();
-        // @ts-ignore
-        expect(() => new Extraction(badConfig4)).toThrow();
-    });
-
     it('can transform data', () => {
         const opConfig = { source_field: 'someField', target_field: 'otherField', __id: 'someId', mutate: false };
         const test = new Extraction(opConfig);

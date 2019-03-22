@@ -4,32 +4,8 @@ import { DataEntity } from '@terascope/utils';
 
 export enum NotifyType { matcher = 'matcher', transform = 'transform' }
 
-export type UnparsedConfig = {
-    selector?: string;
-    source_field?: string;
-    source_fields?: string[];
-    target_field?: string;
-    start?: string;
-    end?: string;
-    regex?: string;
-    validation?: string;
-    decoder?: string;
-    follow?: string;
-    post_process?: string;
-    registration_selector?:string;
-    mutate?: boolean;
-    other_match_required?: boolean;
-    length?: number;
-    fields?: string[];
-    delimiter?: string;
-    min?: number;
-    max?: number;
-    preserve_colons?: boolean;
-    case?: Case;
-    value?: any;
-    output?: boolean;
+export type OperationConfigInput = Partial<OperationConfig> & {
     tag?: string;
-    multi_value?: boolean;
 };
 
 export type OperationConfig = { __id: string } & Partial<SelectorConfig> & Partial<PostProcessConfig> & Partial<ExtractionConfig>;
@@ -66,7 +42,7 @@ export interface PostProcessConfig {
     value?: any;
     output?: boolean;
 
-    __pipeline: string;
+    __pipeline?: string;
 }
 
 export type Case = 'lowercase' | 'uppercase';

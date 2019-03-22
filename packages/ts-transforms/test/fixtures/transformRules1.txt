@@ -6,8 +6,9 @@
 { "selector": "some:data", "source_field": "someField", "regex": "some.*?$", "target_field": "wholeRegexResponse" }
 { "selector": "some:data", "source_field": "someField", "regex": "some(.*?)$", "target_field": "partRegexResponse" }
 
-{ "selector": "hostname:www.example.com", "source_field": "pathLat", "regex": "/path/tiles/latitude/(.*?)$", "target_field": "location.lat", "validation": "geolocation" }
-{ "selector": "hostname:www.example.com", "source_field": "pathLon", "regex": "/path/tiles/longitude/(.*?)$", "target_field": "location.lon", "validation": "geolocation" }
+{ "selector": "hostname:www.example.com", "source_field": "pathLat", "regex": "/path/tiles/latitude/(.*?)$", "target_field": "location.lat", "tag": "geoValidateME" }
+{ "selector": "hostname:www.example.com", "source_field": "pathLon", "regex": "/path/tiles/longitude/(.*?)$", "target_field": "location.lon", "tag": "geoValidateME" }
 
-{ "selector": "location:(_geo_box_top_left_: \"33.906320,  -112.758421\" _geo_box_bottom_right_:\"32.813646,-111.058902\")", "source_field": "location", "target_field": "point", "validation": "geolocation" }
+{ "selector": "location:(_geo_box_top_left_: \"33.906320,  -112.758421\" _geo_box_bottom_right_:\"32.813646,-111.058902\")", "source_field": "location", "target_field": "point", "tag": "geoValidateME" }
+{ "follow": "geoValidateME", "validation": "geolocation" }
 # some comment
