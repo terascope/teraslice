@@ -131,10 +131,7 @@ function addToBoolQuery(boolQuery: BoolQuery, node: AST, side: 'right'|'left') {
     const joinType = getJoinType(node, side);
     const query = buildAnyQuery(child, node);
 
-    logger.trace('JOIN TYPE', { side, joinType, child, query });
-
-    if (isBoolQuery(query) && canFlattenBoolQuery(node, side)) {
-        logger.trace('WILL JOIN', joinType, query);
+    if (isBoolQuery(query) && canFlattenBoolQuery(node)) {
         boolQuery.bool.filter.push(...query.bool.filter);
         boolQuery.bool.must_not.push(...query.bool.must_not);
         boolQuery.bool.should.push(...query.bool.should);
@@ -145,6 +142,7 @@ function addToBoolQuery(boolQuery: BoolQuery, node: AST, side: 'right'|'left') {
 
 export function getJoinType(node: AST, side: 'right'|'left'): 'should'|'must_not'|'filter' {
     if (node[side]!.negated) return 'must_not';
+    if (node[side]!.or) return 'should';
     if (!node.operator && node[side]!.operator) {
         if (node[side]!.operator === 'OR') {
             return 'should';
@@ -152,11 +150,11 @@ export function getJoinType(node: AST, side: 'right'|'left'): 'should'|'must_not
         return 'filter';
     }
 
-    if (side === 'right' && node.parens && node[side]!.operator === 'OR') {
+    if (node[side]!.field === IMPLICIT && node.operator === 'OR') {
         return 'should';
     }
 
-    if (side === 'left' && node.operator === 'OR' && node.parens) {
+    if (side === 'right' && node.parens && node[side]!.operator === 'OR') {
         return 'should';
     }
 
@@ -167,11 +165,10 @@ export function getJoinType(node: AST, side: 'right'|'left'): 'should'|'must_not
     return 'filter';
 }
 
-export function canFlattenBoolQuery(node: AST, side: 'right'|'left'): boolean {
+export function canFlattenBoolQuery(node: AST): boolean {
     const operator = node.operator;
     const rightOperator = node.right && node.right.operator;
     const leftOperator = node.left && node.left.operator;
-    logger.trace('CHECK CAN FLATTEN', { side, operator, rightOperator, leftOperator, node });
 
     if (leftOperator && rightOperator) {
         if (leftOperator === rightOperator && leftOperator === operator) {

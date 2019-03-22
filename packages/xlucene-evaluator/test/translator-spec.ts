@@ -376,6 +376,7 @@ describe('Translator', () => {
 
     describe('when getting the join type', () => {
         describe('when given a complex AND/OR/NOT AST', () => {
+            // _exists_:howdy AND other:>=50 OR foo:bar NOT bar:foo
             const node = {
                 type: 'conjunction',
                 left: {
@@ -404,6 +405,7 @@ describe('Translator', () => {
                             term: 'bar',
                             wildcard: false,
                             regexpr: false,
+                            or: true
                         } as AST,
                         parens: false,
                         operator: 'AND',
@@ -419,27 +421,18 @@ describe('Translator', () => {
                 } as AST
             } as AST;
 
-            it('should correctly handle the AND left join type', () => {
+            it('should correctly handle the AND join type', () => {
                 expect(getJoinType(node, 'left')).toEqual('filter');
-            });
-
-            it('should correctly handle the AND right join type', () => {
                 expect(getJoinType(node, 'right')).toEqual('filter');
             });
 
-            it('should correctly handle the OR left join type', () => {
+            it('should correctly handle the OR join type', () => {
                 expect(getJoinType(node.right!, 'left')).toEqual('filter');
-            });
-
-            it('should correctly handle the OR right join type', () => {
                 expect(getJoinType(node.right!, 'right')).toEqual('should');
             });
 
-            it('should correctly handle the NOT left join type', () => {
+            it('should correctly handle the NOT join type', () => {
                 expect(getJoinType(node.right!.right!, 'left')).toEqual('should');
-            });
-
-            it('should correctly handle the NOT right join type', () => {
                 expect(getJoinType(node.right!.right!, 'right')).toEqual('must_not');
             });
         });
@@ -491,10 +484,12 @@ describe('Translator', () => {
 
             it('should correctly handle the second OR join type', () => {
                 expect(getJoinType(node.left!, 'left')).toEqual('should');
+                expect(getJoinType(node.left!, 'right')).toEqual('should');
             });
 
             it('should correctly handle the third OR join type', () => {
-                expect(getJoinType(node.left!, 'right')).toEqual('should');
+                expect(getJoinType(node.left!.right!, 'left')).toEqual('should');
+                expect(getJoinType(node.left!.right!, 'right')).toEqual('should');
             });
         });
     });
