@@ -1,5 +1,10 @@
 import 'jest-extended';
-import { Translator, TypeConfig } from '../src';
+import get from 'lodash/get';
+import { debugLogger } from '@terascope/utils';
+import { Translator, TypeConfig, AST } from '../src';
+import { getJoinType } from '../src/translator/utils';
+
+const logger = debugLogger('translator-spec');
 
 describe('Translator', () => {
     it('should have a query property', () => {
@@ -236,9 +241,7 @@ describe('Translator', () => {
                     },
                     {
                         bool: {
-                            filter: [],
-                            must_not: [],
-                            should: [
+                            filter: [
                                 {
                                     range: {
                                         other: {
@@ -246,24 +249,20 @@ describe('Translator', () => {
                                         }
                                     }
                                 },
+                            ],
+                            must_not: [
                                 {
-                                    bool: {
-                                        filter: [],
-                                        must_not: [
-                                            {
-                                                term: {
-                                                    foo: 'bar'
-                                                }
-                                            },
-                                            {
-                                                term: {
-                                                    bar: 'foo'
-                                                }
-                                            }
-                                        ],
-                                        should: []
+                                    term: {
+                                        bar: 'foo'
                                     }
                                 }
+                            ],
+                            should: [
+                                {
+                                    term: {
+                                        foo: 'bar'
+                                    }
+                                },
                             ]
                         }
                     }
@@ -302,14 +301,15 @@ describe('Translator', () => {
             'some:query OR other:thing',
             'query.constant_score.filter.bool',
             {
-                filter: [],
-                must_not: [],
-                should: [
+                filter: [
                     {
                         term: {
                             some: 'query'
                         }
                     },
+                ],
+                must_not: [],
+                should: [
                     {
                         term: {
                             other: 'thing'
@@ -367,11 +367,139 @@ describe('Translator', () => {
         ]
     // @ts-ignore because the types for test.each for some reason
     ])('when given %s', (query: string, property: string, expected: any, types: TypeConfig) => {
-        it(`should to output to have ${property} set correctly`, () => {
+        it('should translate the query correctly', () => {
             const translator = new Translator(query, types);
             const result = translator.toElasticsearchDSL();
-            // console.log(JSON.stringify(result, null, 4));
+
+            logger.trace('test result', JSON.stringify({
+                query,
+                expected,
+                property,
+                actual: get(result, property),
+            }, null, 4));
+
             expect(result).toHaveProperty(property, expected);
+        });
+    });
+
+    describe('when getting the join type', () => {
+        describe('when given a complex AND/OR/NOT AST', () => {
+            const node = {
+                type: 'conjunction',
+                left: {
+                    type: 'exists',
+                    field: 'howdy'
+                } as AST,
+                parens: false,
+                operator: 'AND',
+                right: {
+                    type: 'conjunction',
+                    left: {
+                        type: 'range',
+                        term_min: 50,
+                        term_max: Infinity,
+                        inclusive_min: true,
+                        inclusive_max: true,
+                        field: 'other'
+                    } as AST,
+                    parens: false,
+                    operator: 'OR',
+                    right: {
+                        type: 'conjunction',
+                        left: {
+                            field: 'foo',
+                            type: 'term',
+                            term: 'bar',
+                            wildcard: false,
+                            regexpr: false,
+                        } as AST,
+                        parens: false,
+                        operator: 'AND',
+                        right: {
+                            field: 'bar',
+                            type: 'term',
+                            term: 'foo',
+                            wildcard: false,
+                            regexpr: false,
+                            negated: true
+                        } as AST
+                    } as AST
+                } as AST
+            } as AST;
+
+            it('should correctly handle the AND left join type', () => {
+                expect(getJoinType(node, 'left')).toEqual('filter');
+            });
+
+            it('should correctly handle the AND right join type', () => {
+                expect(getJoinType(node, 'right')).toEqual('filter');
+            });
+
+            it('should correctly handle the OR left join type', () => {
+                expect(getJoinType(node.right!, 'left')).toEqual('filter');
+            });
+
+            it('should correctly handle the OR right join type', () => {
+                expect(getJoinType(node.right!, 'right')).toEqual('should');
+            });
+
+            it('should correctly handle the NOT right join type', () => {
+                expect(getJoinType(node.right!.right!, 'right')).toEqual('must_not');
+            });
+        });
+
+        describe('when given a chained OR statement AST', () => {
+            const node = {
+                type: 'conjunction',
+                left: {
+                    type: 'conjunction',
+                    left: {
+                        field: '<implicit>',
+                        type: 'term',
+                        term: 50,
+                        wildcard: false,
+                        regexpr: false,
+                    } as AST,
+                    parens: true,
+                    operator: 'OR',
+                    right: {
+                        type: 'conjunction',
+                        left: {
+                            field: '<implicit>',
+                            type: 'term',
+                            term: 40,
+                            unrestricted: false,
+                            wildcard: false,
+                            regexpr: false,
+                        } as AST,
+                        parens: false,
+                        operator: 'OR',
+                        right: {
+                            field: '<implicit>',
+                            type: 'term',
+                            term: 30,
+                            unrestricted: false,
+                            wildcard: false,
+                            regexpr: false,
+                        } as AST,
+                        field: 'any_count'
+                    } as AST,
+                    field: 'any_count'
+                } as AST,
+                parens: false
+            } as AST;
+
+            it('should correctly handle the first OR join type', () => {
+                expect(getJoinType(node, 'left')).toEqual('should');
+            });
+
+            it('should correctly handle the second OR join type', () => {
+                expect(getJoinType(node.left!, 'left')).toEqual('should');
+            });
+
+            it('should correctly handle the third OR join type', () => {
+                expect(getJoinType(node.left!, 'right')).toEqual('should');
+            });
         });
     });
 });

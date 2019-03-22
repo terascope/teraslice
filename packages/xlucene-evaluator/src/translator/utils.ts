@@ -117,22 +117,23 @@ export function buildBoolQuery(node: AST): BoolQuery {
         }
     };
 
-    addToBoolQuery(boolQuery, node, node.left);
-    addToBoolQuery(boolQuery, node, node.right);
+    addToBoolQuery(boolQuery, node, 'left');
+    addToBoolQuery(boolQuery, node, 'right');
 
     logger.trace('built bool query', boolQuery, node);
     return boolQuery;
 }
 
-function addToBoolQuery(boolQuery: BoolQuery, parent: AST, node?: AST) {
-    if (!node) return;
+function addToBoolQuery(boolQuery: BoolQuery, node: AST, side: 'right'|'left') {
+    const child = node[side];
+    if (!child) return;
 
-    const joinType = getJoinType(node, parent);
-    logger.trace('JOIN TYPE', joinType, node);
+    const joinType = getJoinType(node, side);
+    logger.trace('JOIN TYPE', joinType, child);
 
-    const query = buildAnyQuery(node, parent);
+    const query = buildAnyQuery(child, node);
 
-    if (isBoolQuery(query) && canFlattenBoolQuery(parent)) {
+    if (isBoolQuery(query) && canFlattenBoolQuery(node)) {
         logger.trace('WILL JOIN', query);
         boolQuery.bool[joinType].push(...query.bool.filter);
         boolQuery.bool[joinType].push(...query.bool.must_not);
@@ -142,23 +143,50 @@ function addToBoolQuery(boolQuery: BoolQuery, parent: AST, node?: AST) {
     }
 }
 
-export function getJoinType(node: AST, parent: AST): 'should'|'must_not'|'filter' {
-    if (node.negated) return 'must_not';
-    if (node.operator === 'OR') return 'should';
-    if (parent.operator === 'OR') return 'should';
+export function getJoinType(node: AST, side: 'right'|'left'): 'should'|'must_not'|'filter' {
+    if (node[side]!.negated) return 'must_not';
+    if (!node.operator && node[side]!.operator) {
+        if (node[side]!.operator === 'OR') {
+            return 'should';
+        }
+        return 'filter';
+    }
+
+    if (side === 'right' && node.parens && node[side]!.operator === 'OR') {
+        return 'should';
+    }
+
+    if (side === 'left' && node.operator === 'OR' && node.parens) {
+        return 'should';
+    }
+
+    if (side === 'right' && node.operator === 'OR') {
+        return 'should';
+    }
+
     return 'filter';
 }
 
 export function canFlattenBoolQuery(node: AST): boolean {
     const operator = node.operator;
     const rightOperator = node.right && node.right.operator;
-    const leftOperator = (node.left && node.left.operator) || operator;
+    const leftOperator = node.left && node.left.operator;
     logger.trace('CHECK CAN FLATTEN', { operator, rightOperator, leftOperator, node });
     // if (node.parens && operator === rightOperator) return true;
-    if (leftOperator === rightOperator && leftOperator === operator) {
+    if (leftOperator && rightOperator) {
+        if (leftOperator === rightOperator && leftOperator === operator) {
+            return true;
+        }
+    }
+
+    if (rightOperator) {
+        return operator === rightOperator;
+    }
+
+    if (node.type === 'conjunction') {
         return true;
     }
-    if (node.type === 'conjunction' && !node.right) return true;
+
     return false;
 }
 
