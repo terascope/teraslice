@@ -72,11 +72,11 @@ function extractAndTransferFields(record: DataEntity, dest: DataEntity, config: 
 
         if (config.regex) {
             const checkRegex = matchRegex(config.regex);
-            extractedResult = extractField(data, checkRegex, config.multi_value);
+            extractedResult = extractField(data, checkRegex, config.multivalue);
         } else if (config.start && config.end) {
             const { start, end } = config;
             const sliceString = getSubslice(start, end);
-            extractedResult =  extractField(data, sliceString, config.multi_value);
+            extractedResult =  extractField(data, sliceString, config.multivalue);
         } else {
             extractedResult = data;
         }

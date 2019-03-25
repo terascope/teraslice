@@ -243,14 +243,14 @@ Example:
 ]
 
 ```
-- multi_value : `Boolean`(optional) = by default values extracted from arrays will have array results, while everything else will be extracted as is. If you set this value to false then the extracted value from the array will be set as a singular value, and not as an array. NOTE: if the rule just transfers fields and no additional extraction logic takes place then it directly transfers the value as is and ignores if multi_value is set to false.
+- multivalue : `Boolean`(optional) = by default values extracted from arrays will have array results, while everything else will be extracted as is. If you set this value to false then the extracted value from the array will be set as a singular value, and not as an array. NOTE: if the rule just transfers fields and no additional extraction logic takes place then it directly transfers the value as is and ignores if multivalue is set to false.
 
 Example:
 ```ts
 // rules
-{ "selector": "first:rule", "source_field": "otherField", "target_field": "otherField", "multi_value": false }
+{ "selector": "first:rule", "source_field": "otherField", "target_field": "otherField", "multivalue": false }
 { "selector": "second:rule", "source_field": "someField", "target_field": "otherField", "start": "data=", "end": "EOP" }
-{ "selector": "third:rule", "source_field": "someField", "target_field": "otherField", "start": "data=", "end": "EOP", "multi_value": false }
+{ "selector": "third:rule", "source_field": "someField", "target_field": "otherField", "start": "data=", "end": "EOP", "multivalue": false }
 
 // Incoming Data to transform
 [

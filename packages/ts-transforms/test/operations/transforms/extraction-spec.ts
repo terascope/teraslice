@@ -130,10 +130,10 @@ describe('transform operator', () => {
     });
 
     it('can maintain extract array values to array extractions and singular values to singular extractions', () => {
-        // direct field transfer ignores multi_value=false
-        const opConfig1 = { source_field: 'someField', target_field: 'otherField', __id: 'someId', mutate: false, multi_value: false };
+        // direct field transfer ignores multivalue=false
+        const opConfig1 = { source_field: 'someField', target_field: 'otherField', __id: 'someId', mutate: false, multivalue: false };
         const opConfig2 = { source_field: 'someField', target_field: 'otherField', __id: 'someId', start: 'data=', end: 'EOP', mutate: false };
-        const opConfig3 = { source_field: 'someField', target_field: 'otherField', __id: 'someId',  start: 'data=', end: 'EOP', mutate: false, multi_value: false };
+        const opConfig3 = { source_field: 'someField', target_field: 'otherField', __id: 'someId',  start: 'data=', end: 'EOP', mutate: false, multivalue: false };
 
         const test1 = new Extraction(opConfig1);
         const test2 = new Extraction(opConfig2);
@@ -160,8 +160,8 @@ describe('transform operator', () => {
         expect(results6).toEqual({ otherField: 'value' });
     });
 
-    it('multi_value:false matches only return the first match', () => {
-        const opConfig = { source_field: 'someField', target_field: 'otherField', __id: 'someId',  start: 'data=', end: 'EOP', mutate: false, multi_value: false };
+    it('multivalue:false matches only return the first match', () => {
+        const opConfig = { source_field: 'someField', target_field: 'otherField', __id: 'someId',  start: 'data=', end: 'EOP', mutate: false, multivalue: false };
 
         const test = new Extraction(opConfig);
 
