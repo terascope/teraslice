@@ -241,6 +241,113 @@ describe('ACLManager', () => {
         });
     });
 
+    describe('when updating another user as USER', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateUser({
+                    user: {
+                        id: otherUser.id,
+                        username: 'other-user',
+                    },
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to write to other users');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
+    describe('when updating another user\'s password as USER', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updatePassword({
+                    id: otherUser.id,
+                    password: 'other-user',
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to write to other users');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
+    describe('when updating another user\'s token as USER', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateToken({
+                    id: otherUser.id,
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to write to other users');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
+    describe('when updating one of your USERs as an AMDIN', () => {
+        it('should succeed', async () => {
+            await manager.updateUser({
+                user: {
+                    id: otherUser.id,
+                    firstname: 'Otherrr'
+                },
+            }, adminUser);
+        });
+    });
+
+    describe('when updating a USER\'s own record', () => {
+        it('should succeed', async () => {
+            await manager.updateUser({
+                user: {
+                    id: otherUser.id,
+                    firstname: 'Otherr'
+                },
+            }, otherUser);
+        });
+    });
+
+    describe('when updating a USER\'s own password', () => {
+        it('should succeed', async () => {
+            await manager.updatePassword({
+                id: otherUser.id,
+                password: 'password'
+            }, otherUser);
+        });
+    });
+
+    describe('when updating a USER\'s own api token', () => {
+        it('should succeed', async () => {
+            await manager.updateToken({
+                id: otherUser.id,
+            }, otherUser);
+        });
+    });
+
+    describe('when removing a user as USER', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.removeUser({
+                    id: otherUser.id,
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to write to other users');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
     describe('when creating a user and given null', () => {
         it('should throw an error', async () => {
             expect.hasAssertions();
@@ -579,6 +686,23 @@ describe('ACLManager', () => {
                     expect(err.statusCode).toEqual(422);
                 }
             });
+        });
+    });
+
+    describe('when creating a space and given null', () => {
+        it('should throw an error', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.createSpace({
+                    // @ts-ignore
+                    space: null
+                });
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Invalid Space Input');
+                expect(err.statusCode).toEqual(422);
+            }
         });
     });
 

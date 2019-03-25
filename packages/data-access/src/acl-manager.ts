@@ -195,7 +195,7 @@ export class ACLManager {
      * This cannot include private information
     */
     async updateUser(args: { user: models.UpdateUserInput }, authUser?: models.User): Promise<models.User> {
-        await this._validateUserInput(args.user);
+        await this._validateUserInput(args.user, authUser);
 
         await this.users.update(args.user);
         return this.users.findById(args.user.id);
@@ -205,6 +205,7 @@ export class ACLManager {
      * Update user's password
     */
     async updatePassword(args: { id: string, password: string }, authUser?: models.User): Promise<boolean> {
+        await this._validateUserInput({ id: args.id }, authUser);
         await this.users.updatePassword(args.id, args.password);
         return true;
     }
@@ -213,6 +214,7 @@ export class ACLManager {
      * Generate a new API Token for a user
     */
     async updateToken(args: { id: string }, authUser?: models.User): Promise<string> {
+        await this._validateUserInput({ id: args.id }, authUser);
         return await this.users.updateToken(args.id);
     }
 
@@ -223,6 +225,7 @@ export class ACLManager {
         const exists = await this.users.exists(args.id);
         if (!exists) return false;
 
+        await this._validateUserInput({ id: args.id }, authUser);
         await this.users.deleteById(args.id);
         return true;
     }
