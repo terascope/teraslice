@@ -130,8 +130,9 @@ function addToBoolQuery(boolQuery: BoolQuery, node: AST, side: 'right'|'left') {
 
     const joinType = getJoinType(node, side);
     const query = buildAnyQuery(child, node);
+    const parentJoinType = getJoinType(node);
 
-    if (isBoolQuery(query) && canFlattenBoolQuery(node)) {
+    if (isBoolQuery(query) && (joinType === parentJoinType || canFlattenBoolQuery(node))) {
         boolQuery.bool.filter.push(...query.bool.filter);
         boolQuery.bool.must_not.push(...query.bool.must_not);
         boolQuery.bool.should.push(...query.bool.should);
@@ -140,29 +141,20 @@ function addToBoolQuery(boolQuery: BoolQuery, node: AST, side: 'right'|'left') {
     }
 }
 
-export function getJoinType(node: AST, side: 'right'|'left'): 'should'|'must_not'|'filter' {
-    if (node[side]!.negated) return 'must_not';
-    if (node[side]!.or) return 'should';
-    if (!node.operator && node[side]!.operator) {
-        if (node[side]!.operator === 'OR') {
-            return 'should';
-        }
-        return 'filter';
-    }
-
-    if (node[side]!.field === IMPLICIT && node.operator === 'OR') {
+export function getJoinType(node: AST, side?: 'right'|'left'): 'should'|'must_not'|'filter' {
+    const child = side && node[side] ? node[side]! : node;
+    if (child.negated) return 'must_not';
+    if (isOrNode(child)) return 'should';
+    if (child.parens && child.operator === 'OR') {
         return 'should';
     }
-
-    if (side === 'right' && node.parens && node[side]!.operator === 'OR') {
-        return 'should';
-    }
-
-    if (side === 'right' && node.operator === 'OR') {
-        return 'should';
-    }
+    if (isOrNode(child.left) && (!node.right || isOrNode(child.right))) return 'should';
 
     return 'filter';
+}
+
+function isOrNode(node?: AST): boolean {
+    return !!(node && (node.or || node.operator === 'OR'));
 }
 
 export function canFlattenBoolQuery(node: AST): boolean {
@@ -175,6 +167,8 @@ export function canFlattenBoolQuery(node: AST): boolean {
             return true;
         }
     }
+
+    if (operator === 'OR' && node.left && node.left.field !== IMPLICIT) return false;
 
     if (node.type === 'conjunction' && !node.parens) {
         return true;

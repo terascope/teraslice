@@ -130,6 +130,10 @@
 
         if (node.parens) propagateFields(node);
 
+        if (node.operator === 'AND' && node.right && !node.right.parens && node.right.left) {
+            node.right.left.or = false;
+        }
+
         if (node.field === '_exists_' && node.term) {
             return {
                 type: 'exists',
@@ -163,6 +167,12 @@
         if (isNumber(num)) return num;
 
         return _input;
+    }
+
+    function setBool(node, field, val) {
+        if (!val || !node) return;
+        if (node[field] != null) return;
+        node[field] = val;
     }
 }
 
@@ -246,8 +256,8 @@ node
         }
     / operator:operator_exp right:node
         {
-            right.left.negated = operator === 'NOT';
-            right.left.or = operator === 'OR';
+            setBool(right.left, 'negated', operator === 'NOT')
+            setBool(right.left, 'or', operator === 'OR')
             return postProcessAST(right);
         }
 
@@ -270,15 +280,16 @@ node
             if (rightExp != null) {
                 node.operator = operator;
                 if(rightExp.type === 'conjunction') {
-                    rightExp.left.negated = operator === 'NOT';
-                    rightExp.left.or = operator === 'OR';
+                    setBool(rightExp.left, 'negated', operator === 'NOT');
+                    setBool(rightExp.left, 'or', operator === 'OR');
                 } else {
-                    rightExp.negated = operator === 'NOT';
-                    rightExp.or = operator === 'OR';
-                    node.left.or = operator === 'OR';
+                    setBool(rightExp, 'negated', operator === 'NOT');
+                    setBool(rightExp, 'or', operator === 'OR');
                 }
                 node.right = rightExp;
             }
+
+            setBool(node.left, 'or', operator === 'OR');
 
             return postProcessAST(node);
         }

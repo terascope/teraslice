@@ -1,7 +1,7 @@
 import 'jest-extended';
 import get from 'lodash/get';
 import { debugLogger } from '@terascope/utils';
-import { Translator, TypeConfig, LuceneQueryParser } from '../src';
+import { Translator, TypeConfig, LuceneQueryParser, AST } from '../src';
 import { getJoinType } from '../src/translator/utils';
 
 const logger = debugLogger('translator-spec');
@@ -246,21 +246,28 @@ describe('Translator', () => {
                             }
                         }
                     },
-                ],
-                must_not: [
                     {
-                        term: {
-                            bar: 'foo'
+                        bool: {
+                            filter: [],
+                            must_not: [
+                                {
+                                    term: {
+                                        bar: 'foo'
+                                    }
+                                }
+                            ],
+                            should: [
+                                {
+                                    term: {
+                                        foo: 'bar'
+                                    }
+                                },
+                            ]
                         }
                     }
                 ],
-                should: [
-                    {
-                        term: {
-                            foo: 'bar'
-                        }
-                    },
-                ],
+                must_not: [],
+                should: []
             }
         ],
         [
@@ -290,11 +297,9 @@ describe('Translator', () => {
             ]
         ],
         [
-            'some:query OR other:thing',
+            'some:query OR other:thing OR next:value',
             'query.constant_score.filter.bool',
             {
-                filter: [],
-                must_not: [],
                 should: [
                     {
                         term: {
@@ -306,7 +311,14 @@ describe('Translator', () => {
                             other: 'thing'
                         }
                     },
-                ]
+                    {
+                        term: {
+                            next: 'value'
+                        }
+                    },
+                ],
+                must_not: [],
+                filter: []
             }
         ],
         [
@@ -375,18 +387,21 @@ describe('Translator', () => {
 
     describe('when getting the join type', () => {
         describe('when given a complex AND/OR/NOT AST', () => {
-            const parser = new LuceneQueryParser();
-            parser.parse('_exists_:howdy AND other:>=50 OR foo:bar NOT bar:foo');
-            const node = parser._ast;
+            let node: AST;
+            beforeAll(() => {
+                const parser = new LuceneQueryParser();
+                parser.parse('_exists_:howdy AND other:>=50 OR foo:bar NOT bar:foo');
+                node = parser._ast;
+            });
 
             it('should correctly handle the AND join type', () => {
                 expect(getJoinType(node, 'left')).toEqual('filter');
-                expect(getJoinType(node, 'right')).toEqual('filter');
+                expect(getJoinType(node, 'right')).toEqual('should');
             });
 
             it('should correctly handle the OR join type', () => {
                 expect(getJoinType(node.right!, 'left')).toEqual('filter');
-                expect(getJoinType(node.right!, 'right')).toEqual('should');
+                expect(getJoinType(node.right!, 'right')).toEqual('filter');
             });
 
             it('should correctly handle the NOT join type', () => {
@@ -395,10 +410,13 @@ describe('Translator', () => {
             });
         });
 
-        describe('when given a chained OR statement AST', () => {
-            const parser = new LuceneQueryParser();
-            parser.parse('any_count:(50 OR 40 OR 30)');
-            const node = parser._ast;
+        describe('when given a range OR statement AST', () => {
+            let node: AST;
+            beforeAll(() => {
+                const parser = new LuceneQueryParser();
+                parser.parse('any_count:(50 OR 40 OR 30)');
+                node = parser._ast;
+            });
 
             it('should correctly handle the first OR join type', () => {
                 expect(getJoinType(node, 'left')).toEqual('should');
@@ -415,14 +433,18 @@ describe('Translator', () => {
             });
         });
 
-        describe('when given a simple OR statement AST', () => {
-            const parser = new LuceneQueryParser();
-            parser.parse('some:query OR other:thing');
-            const node = parser._ast;
+        describe('when given a chained OR statement AST', () => {
+            let node: AST;
+            beforeAll(() => {
+                const parser = new LuceneQueryParser();
+                parser.parse('some:query OR other:thing OR next:value');
+                node = parser._ast;
+            });
 
-            it('should correctly handle the OR join type', () => {
+            it('should correctly handle the chained OR join types', () => {
                 expect(getJoinType(node, 'left')).toEqual('should');
-                expect(getJoinType(node, 'right')).toEqual('should');
+                expect(getJoinType(node.right!, 'left')).toEqual('should');
+                expect(getJoinType(node.right!, 'right')).toEqual('should');
             });
         });
     });
