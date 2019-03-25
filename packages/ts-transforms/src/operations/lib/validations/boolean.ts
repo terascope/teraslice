@@ -1,10 +1,10 @@
 
 import _ from 'lodash';
-import { OperationConfig, BoolValidationResult } from '../../../interfaces';
+import { PostProcessConfig, BoolValidationResult } from '../../../interfaces';
 import ValidationOpBase from './base';
 
 export default class BooleanValidation extends ValidationOpBase<any> {
-    constructor(config: OperationConfig) {
+    constructor(config: PostProcessConfig) {
         super(config);
     }
 

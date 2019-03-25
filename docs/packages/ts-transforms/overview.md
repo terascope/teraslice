@@ -39,7 +39,7 @@ There are two different executions: `Matcher` and `Transform`. The former return
 
 Example rules file: `rulesFile.txt`
 ```json
-{"selector": "hello:world OR bytes:>=400"}
+{ "selector": "hello:world OR bytes:>=400" }
 ```
 
 Example code:
@@ -180,11 +180,11 @@ This phase will go through all the configurations and apply all the extractions 
 ```ts
 // rules
 
-{"selector": "hello:world", "source_field": "first", "target_field": "first_name"}
-{"selector": "hello:world", "source_field": "last", "target_field": "last_name"}
+{ "selector": "hello:world", "source_field": "first", "target_field": "first_name" }
+{ "selector": "hello:world", "source_field": "last", "target_field": "last_name" }
 
-{"selector": "some:data", "source_field": "first", "target_field": "other_first"}
-{"selector": "some:data", "source_field": "last", "target_field": "other_last"}
+{ "selector": "some:data", "source_field": "first", "target_field": "other_first" }
+{ "selector": "some:data", "source_field": "last", "target_field": "other_last" }
 
 // Incoming Data to transform
 [
@@ -217,7 +217,7 @@ This phase is for any additional processing that needs to occur after extraction
 { "selector": "some:value", "source_field": "field", "target_field": "newField", "tag": "tag_field" }
 { "follow": "tag_field", "validation": "email", "tag": "valid_email" }
 { "follow": "valid_email", "post_process": "extraction", "start": "@", "end": ".", "output": false, "target_field": "secondary", "tag": "finalTag" }
-{ "follow": "finalTag", "post_process": "array", "target_field": "final"}
+{ "follow": "finalTag", "post_process": "array", "target_field": "final" }
 
 // Incoming Data to transform
 [
@@ -234,20 +234,6 @@ This phase is for any additional processing that needs to occur after extraction
 ]
 
 ```
-**Note**
-It is possible to collapse some simple post_process configs together with the original extraction config, however its not advisable if you need to specify additional parameters so that they dont conflict with each other.
-
-```js
-
-{ "selector": "domain:example.com", "source_field": "url", "start": "field3=", "end": "EOP", "target_field": "field3", "post_process": "base64decode" }
-
-// is the same as
-
-{ "selector": "domain:example.com", "source_field": "url", "start": "field3=", "end": "EOP", "target_field": "field3", "tag": "someTag"}
-{ "follow": "someTag", "post_process": "base64decode" }
-
-// however the later is preferable when you need to do more complex chaining or any post_process or validation that requires more parameters
-```
 
 ### Output Phase
 This is the last phase. This performs final removal of fields marked by `output:false` for transform configurations. This also makes sure that `other_match_required` checks the presence of additional keys
@@ -259,7 +245,8 @@ The rules file must be in ldjson format. Which is json data separated by a new l
 - Transform:
 transformrules.txt
 ```json
-{ "selector": "host:fc2.com", "source_field": "field1", "start": "field1=", "end": "EOP", "target_field": "field1", "post_process": "base64decode" }
+{ "selector": "host:google.com", "source_field": "field1", "start": "field1=", "end": "EOP", "target_field": "field1", "tag": "decodeMe" }
+{ "follow": "decodeMe", "post_process": "base64decode" }
 { "source_field": "date", "target_field": "date", "other_match_required": true }
 ```
 
@@ -267,7 +254,7 @@ transformrules.txt
 matcherules.txt
 
 ```json
-{ "selector": "some:data AND bytes:>=1000"}
+{ "selector": "some:data AND bytes:>=1000" }
 { "selector": "other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z" }
 ```
 is equivalent to:
@@ -282,7 +269,7 @@ other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z
 Example:
 ```sh
 
-{ "selector": "some:data AND bytes:>=1000"}
+{ "selector": "some:data AND bytes:>=1000" }
 # some comment about something
 { "selector": "other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z" }
 ```
@@ -292,10 +279,10 @@ This will return all the records that match the selector rule list without any a
 
 Example file: `rulesFile2.txt`
 ```json
-{"selector": "person.age:[25 TO 35]"}
-{"selector": "ipfield:'192.198.0.0/24'"}
-{"selector": "_created:[2018-10-18T18:13:20.683Z TO *]"}
-{"selector": "key:?abc*]"}
+{ "selector": "person.age:[25 TO 35]" }
+{ "selector": "ipfield:'192.198.0.0/24'" }
+{ "selector": "_created:[2018-10-18T18:13:20.683Z TO *]" }
+{ "selector": "key:?abc*]" }
 ```
 
 Example code:
@@ -341,9 +328,9 @@ This will not only select for matching records based on the selector but it can 
 
 Example rules file:
 ```json
-{"selector": "hello:world", "source_field": "first", "target_field": "first_name", "tag": "field"}
-{"selector": "hello:world", "source_field": "last", "target_field": "last_name", "tag": "field"}
-{"follow": "field", "post_process": "join", "fields": ["first_name", "last_name"], "delimiter": " ", "target_field": "full_name"}
+{ "selector": "hello:world", "source_field": "first", "target_field": "first_name", "tag": "field" }
+{ "selector": "hello:world", "source_field": "last", "target_field": "last_name", "tag": "field" }
+{ "follow": "field", "post_process": "join", "fields": ["first_name", "last_name"], "delimiter": " ", "target_field": "full_name" }
 ```
 
 code

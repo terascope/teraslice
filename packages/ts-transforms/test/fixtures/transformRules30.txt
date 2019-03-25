@@ -1,0 +1,2 @@
+{ "selector": "hello:world", "source_field": "some", "target_field": "thing" }
+{ "selector": "other:thing", "source_field": "other", "target_field": "data" }

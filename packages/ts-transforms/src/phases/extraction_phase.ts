@@ -1,19 +1,23 @@
 
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
-import { WatcherConfig, ConfigProcessingDict } from '../interfaces';
+import { WatcherConfig, ExtractionProcessingDict } from '../interfaces';
 import PhaseBase from './base';
 import { OperationsManager } from '../operations';
 
+function hasExtracted(record: DataEntity) {
+    return record.getMetadata('hasExtractions') === true;
+}
+
 export default class ExtractionPhase extends PhaseBase {
 
-    constructor(opConfig: WatcherConfig, configList:ConfigProcessingDict, opsManager: OperationsManager) {
+    constructor(opConfig: WatcherConfig, configList:ExtractionProcessingDict, opsManager: OperationsManager) {
         super(opConfig);
         this.opConfig = opConfig;
         const Extraction = opsManager.getTransform('extraction');
 
         _.forOwn(configList, (operationList, key) => {
-            this.phase[key] = operationList.map(config => new Extraction(config));
+            this.phase[key] = [new Extraction(operationList)];
         });
 
         this.hasProcessing = Object.keys(this.phase).length > 0;
@@ -27,22 +31,18 @@ export default class ExtractionPhase extends PhaseBase {
             const record = dataArray[i];
             const metaData =  record.getMetadata();
             const { selectors } = metaData;
-            const selectorKeys = Object.keys(selectors);
-            const results = {};
+            let results = DataEntity.make({}, metaData);
 
-            selectorKeys.forEach((key) => {
-                if (this.phase[key]) {
-                    this.phase[key].forEach((fn) => {
-                        const newRecord = fn.run(record);
-                        if (newRecord) _.merge(metaData, newRecord.getMetadata());
-                        return _.merge(results, newRecord);
-                    });
-                }
+            selectors.forEach((selector: string, index:number, array:string[]) => {
+                this.phase[selector].forEach((extraction) => {
+                    // @ts-ignore TODO: review me
+                    const resultsData = extraction.run(record, results);
+                    if (resultsData) results = resultsData;
+                });
             });
 
-            if (Object.keys(results).length > 0) {
-                const newRecord = DataEntity.make(results, metaData);
-                resultsList.push(newRecord);
+            if (hasExtracted(results)) {
+                resultsList.push(results);
             }
         }
 

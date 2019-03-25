@@ -2,12 +2,12 @@
 import validator from 'validator';
 import _ from 'lodash';
 import ValidationOpBase from './base';
-import { OperationConfig } from '../../../interfaces';
+import { PostProcessConfig } from '../../../interfaces';
 
 export default class Uuid extends ValidationOpBase<any> {
     private case: 'lowercase' | 'uppercase';
 
-    constructor(config: OperationConfig) {
+    constructor(config: PostProcessConfig) {
         super(config);
         this.case = config.case || 'lowercase';
     }

@@ -1,7 +1,7 @@
 
 import _ from 'lodash';
 import { DataEntity } from '@terascope/utils';
-import { OperationConfig, InputOutputCardinality } from '../../../interfaces';
+import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces';
 import TransformOpBase from './base';
 
 export default class MakeArray extends TransformOpBase {
@@ -9,11 +9,12 @@ export default class MakeArray extends TransformOpBase {
 
     static cardinality: InputOutputCardinality = 'many-to-one';
 
-    constructor(config: OperationConfig) {
+    constructor(config: PostProcessConfig) {
         super(config);
     }
     // source work differently here so we do not use the inherited validate
-    protected validateConfig(config: OperationConfig) {
+    // @ts-ignore
+    protected validateConfig(config: PostProcessConfig) {
         const { target_field: tField } = config;
         const fields = config.fields || config.source_fields;
         if (!tField || typeof tField !== 'string' || tField.length === 0)  {
@@ -30,7 +31,7 @@ export default class MakeArray extends TransformOpBase {
         const results: any[] = [];
         this.fields.forEach(field => {
             const data = _.get(doc, field);
-            if (data) results.push(data);
+            if (data !== undefined) results.push(data);
         });
         if (results.length > 0) _.set(doc, this.target, results);
         return doc;

@@ -2,7 +2,7 @@
 import path from 'path';
 import _ from 'lodash';
 import { debugLogger } from '@terascope/utils';
-import { RulesLoader, RulesParser, OperationConfig, UnParsedConfig } from '../../src';
+import { RulesLoader, RulesParser, OperationConfig, OperationConfigInput } from '../../src';
 
 describe('Loader', () => {
     const logger = debugLogger('rules-loader-test');
@@ -15,7 +15,7 @@ describe('Loader', () => {
         return rulesParser.parse();
     }
 
-    function parseData(configList: UnParsedConfig[]) {
+    function parseData(configList: OperationConfigInput[]) {
         const rulesParser = new RulesParser(configList, logger);
         return rulesParser.parse();
     }
@@ -81,12 +81,8 @@ describe('Loader', () => {
             {
                 selector: 'hello:world',
                 source_field: 'first',
-                target_field: 'first_name'
-            },
-            {
-                selector: 'hello:world',
-                source_field: 'last',
-                target_field: 'last_name'
+                target_field: 'first_name',
+                validation: 'string'
             },
             {
                 selector: 'hello:world',
@@ -96,30 +92,7 @@ describe('Loader', () => {
                 target_field: 'full_name'
             }
         ];
+
         expect(() => parseData(configList)).toThrowError();
-    });
-
-    it('can parse old style basic post processerors', () => {
-        const parsedRules = parseData([
-            {
-                selector: 'hello:world',
-                source_field:  'txt',
-                target_field: 'hex',
-                validation: 'hexdecode'
-            }
-        ]);
-
-        const [config1, config2] = parsedRules;
-
-        expect(parsedRules).toBeArray();
-        expect(parsedRules).toBeArrayOfSize(2);
-
-        expect(config1.selector).toEqual('hello:world');
-        expect(config1.source_field).toEqual('txt');
-        expect(config1.target_field).toEqual('hex');
-        expect(config1.tags).toBeArray();
-
-        expect(config2.follow === _.get(config1, 'tags[0]')).toBeTrue();
-        expect(config2.validation).toEqual('hexdecode');
     });
 });

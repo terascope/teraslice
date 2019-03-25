@@ -67,10 +67,10 @@ describe('matcher', () => {
             { some: 'other', bytes: 1200 }
         ]);
 
-        const rules = {
-            'some:data AND bytes:>=1000': true,
-            'other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z': true
-        };
+        const rules = [
+            'some:data AND bytes:>=1000',
+            'other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z'
+        ];
 
         const test = await opTest.init(config);
         const results =  await test.run(data);

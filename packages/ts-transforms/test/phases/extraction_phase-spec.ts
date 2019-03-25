@@ -1,13 +1,13 @@
 
 import path from 'path';
 import { DataEntity, debugLogger } from '@terascope/utils';
-import { ExtractionPhase, Loader, OperationsManager, ConfigProcessingDict } from '../../src';
+import { ExtractionPhase, Loader, OperationsManager, ExtractionProcessingDict } from '../../src';
 
 describe('extraction phase', () => {
     const logger = debugLogger('extractionPhaseTest');
     const opManager = new OperationsManager();
 
-    async function getConfigList(fileName: string): Promise<ConfigProcessingDict> {
+    async function getConfigList(fileName: string): Promise<ExtractionProcessingDict> {
         const filePath = path.join(__dirname, `../fixtures/${fileName}`);
         const myFileLoader = new Loader({ rules: [filePath] }, logger);
         const { extractions } = await myFileLoader.load(opManager);
@@ -36,7 +36,7 @@ describe('extraction phase', () => {
         expect(Array.isArray(extractions1)).toEqual(true);
         expect(Array.isArray(extractions2)).toEqual(true);
         expect(extractions1.length).toEqual(1);
-        expect(extractions2.length).toEqual(2);
+        expect(extractions2.length).toEqual(1);
     });
 
     it('has the proper properties with other_match_required', async () => {
@@ -70,11 +70,11 @@ describe('extraction phase', () => {
         ];
 
         const metaArray = [
-            { selectors: { 'some:data AND bytes:<=1000': true, other: 'things' } },
-            { selectors: { 'other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z': true, someSpecialKey: true } },
-            { selectors: { 'some:data': true, date: new Date().toISOString() } },
-            { selectors: { 'hostname:www.example.com': true } },
-            { selectors: { 'location:(_geo_box_top_left_: \"33.906320,  -112.758421\" _geo_box_bottom_right_:\"32.813646,-111.058902\")': true } }
+            { selectors: ['some:data AND bytes:<=1000'] },
+            { selectors: ['other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z'] },
+            { selectors: ['some:data'] },
+            { selectors: ['hostname:www.example.com'] },
+            { selectors: ['location:(_geo_box_top_left_: \"33.906320,  -112.758421\" _geo_box_bottom_right_:\"32.813646,-111.058902\")'] }
         ];
 
         const resultsArray = [
@@ -102,7 +102,7 @@ describe('extraction phase', () => {
         const key = '12345680';
         const date = new Date().toISOString();
         const metaData = {
-            selectors: { 'domain:example.com': true, '*': true }
+            selectors: ['domain:example.com', '*']
         };
 
         const data = [
@@ -111,7 +111,7 @@ describe('extraction phase', () => {
         ];
 
         const results = extractionPhase.run(data);
-        // removal of other_match_required happens at validations, at this point a doc is still made
+        // removal of other_match_required happens at output phase, at this point a doc is still made
         expect(results.length).toEqual(2);
         expect(results[0]).toEqual({ value: 'hello', value2: 'goodbye', date, key });
         expect(results[1]).toEqual({ date, key });

@@ -2,12 +2,11 @@
 import _ from 'lodash';
 import { DataEntity } from '@terascope/utils';
 import OperationBase from '../base';
-import { OperationConfig } from '../../../interfaces';
 
 export default abstract class ValidationOpBase<T> extends OperationBase {
     private invert: boolean;
-
-    constructor(config: OperationConfig) {
+    // @ts-ignore
+    constructor(config) {
         super(config);
         this.invert = this.config.output === false ? true : false;
     }

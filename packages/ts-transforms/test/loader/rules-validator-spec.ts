@@ -6,7 +6,7 @@ import {
     RulesValidator,
     RulesParser,
     OperationConfig,
-    UnParsedConfig,
+    OperationConfigInput,
     OperationsManager,
     PluginList
 } from '../../src';
@@ -15,7 +15,7 @@ import { isPrimaryConfig } from '../../src/loader/utils';
 describe('rules-validator', () => {
     const testLogger = debugLogger('rules-validator-test');
 
-    function parseData(configList: UnParsedConfig[]) {
+    function parseData(configList: OperationConfigInput[]) {
         const rulesParser = new RulesParser(configList, testLogger);
         return rulesParser.parse();
     }
@@ -33,6 +33,43 @@ describe('rules-validator', () => {
         }
     ]);
 
+    const mutateExtractionConfig = parseData([
+        {
+            selector: 'hello:world',
+            source_field: 'first',
+            target_field: 'first_name'
+        },
+        {
+            selector:'other:thing',
+            source_field: 'other',
+            target_field: 'thing',
+            mutate: true
+        }
+    ]);
+
+    const mutateExtractionPostProcessConfig = parseData([
+        {
+            selector: 'hello:world',
+            source_field: 'first',
+            target_field: 'first_name',
+            tag: 'someTag'
+        },
+        {
+            follow: 'someTag',
+            post_process: 'extraction',
+            source_field: 'other',
+            target_field: 'thing',
+            tag: 'otherTag',
+        },
+        {
+            follow: 'otherTag',
+            post_process: 'extraction',
+            source_field: 'some',
+            target_field: 'otherthing',
+            mutate: false
+        }
+    ]);
+
     const multiSelectorConfig = parseData([
         {
             selector: 'hello:world',
@@ -46,7 +83,8 @@ describe('rules-validator', () => {
         },
         {
             source_field: 'person',
-            target_field: 'valid_person'
+            target_field: 'valid_person',
+            mutate: true
         }
     ]);
 
@@ -148,15 +186,6 @@ describe('rules-validator', () => {
         }
     ]);
 
-    const compactExtractionValidationConfig = parseData([
-        {
-            selector: 'hello:world',
-            source_field:  'txt',
-            target_field: 'hex',
-            validation: 'hexdecode'
-        }
-    ]);
-
     const cyclicRules = parseData([
         {
             source_field: 'somefield',
@@ -240,9 +269,7 @@ describe('rules-validator', () => {
     const multiOutput = parseData([
         { selector: 'some:value', source_field: 'other', target_field: 'field', tag:'hello', output: false },
         { post_process: 'extraction', target_field: 'first_copy', follow: 'hello', mutate: true },
-        { post_process: 'extraction', target_field: 'second_copy', regex: 'da.*a', follow: 'hello', mutate: true },
-        { post_process: 'extraction', target_field: 'third_copy', regex: 'so.*e', follow: 'hello', mutate: true },
-        { source_field: 'key', target_field: 'key', other_match_required: true }
+        { source_field: 'key', target_field: 'key', other_match_required: true, mutate:true }
     ]);
 
     function constructValidator(configList: OperationConfig[], Plugins?: PluginList, logger = testLogger) {
@@ -315,14 +342,12 @@ describe('rules-validator', () => {
             expect(extractions).toEqual(results);
         });
 
-        it('can work with other stuff', () => {
-            const validator = constructValidator(compactExtractionValidationConfig);
-            const { extractions } = validator.validate();
-            const results = {
-                'hello:world': [compactExtractionValidationConfig[0]]
-            };
+        it('can add mutate defaults to extraction configs', () => {
+            const validator = constructValidator(mutateExtractionConfig);
+            const { extractions: { 'hello:world': [config1], 'other:thing': [config2] } } = validator.validate();
 
-            expect(extractions).toEqual(results);
+            expect(config1.mutate).toEqual(false);
+            expect(config2.mutate).toEqual(false);
         });
     });
 
@@ -355,6 +380,14 @@ describe('rules-validator', () => {
             expect(resultsOrder).toEqual(['base64decode', 'urldecode', 'jsonparse']);
         });
 
+        it('can add mutate defaults to extraction post_process configs', () => {
+            const validator = constructValidator(mutateExtractionPostProcessConfig);
+            const { postProcessing: { 'hello:world': [config1, config2] } } = validator.validate();
+
+            expect(config1.mutate).toEqual(true);
+            expect(config2.mutate).toEqual(false);
+        });
+
         it('can throw error if graph is cyclic', () => {
             const validator = constructValidator(cyclicRules);
             expect(() => validator.validate()).toThrow();
@@ -382,7 +415,7 @@ describe('rules-validator', () => {
             });
 
             postProcessing['*'].forEach((config) => {
-                const testConfig = results.find((obj) => obj.__id === config.__id);
+                const testConfig = Object.assign({}, results.find((obj) => obj.__id === config.__id), { __pipeline: '*' });
                 expect(config).toEqual(testConfig);
             });
 

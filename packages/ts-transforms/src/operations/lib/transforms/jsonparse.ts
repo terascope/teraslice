@@ -2,10 +2,10 @@
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
 import TransformOpBase from './base';
-import { OperationConfig } from '../../../interfaces';
+import { PostProcessConfig } from '../../../interfaces';
 
 export default class JsonParse extends TransformOpBase {
-    constructor(config: OperationConfig) {
+    constructor(config: PostProcessConfig) {
         super(config);
     }
 

@@ -9,19 +9,19 @@ describe('base64 operator', () => {
     }
 
     it('can instantiate', () => {
-        const opConfig = { target_field: 'final', source_field: 'source', __id: 'someId' };
+        const opConfig = { target_field: 'final', source_field: 'source', __id: 'someId', follow: 'otherId' };
         expect(() => new HexDecode(opConfig)).not.toThrow();
     });
 
-    xit('can properly throw with bad config values', () => {
-        const badConfig1 = { target_field: 1324, __id: 'someId' };
-        const badConfig2 = { target_field: '', __id: 'someId' };
-        const badConfig3 = { target_field: {}, __id: 'someId' };
-        const badConfig4 = { target_field: null, __id: 'someId' };
-        const badConfig5 = { source_field: [], __id: 'someId' };
-        const badConfig6 = { source_field: {}, __id: 'someId' };
-        const badConfig7 = { source_field: null, __id: 'someId' };
-        const badConfig8 = { source_field: '', target_field: '', __id: 'someId' };
+    it('can properly throw with bad config values', () => {
+        const badConfig1 = { target_field: 1324, __id: 'someId', follow: 'otherId' };
+        const badConfig2 = { target_field: '', __id: 'someId', follow: 'otherId' };
+        const badConfig3 = { target_field: {}, __id: 'someId', follow: 'otherId' };
+        const badConfig4 = { target_field: null, __id: 'someId', follow: 'otherId' };
+        const badConfig5 = { source_field: [], __id: 'someId', follow: 'otherId' };
+        const badConfig6 = { source_field: {}, __id: 'someId', follow: 'otherId' };
+        const badConfig7 = { source_field: null, __id: 'someId', follow: 'otherId' };
+        const badConfig8 = { source_field: '', target_field: '', __id: 'someId', follow: 'otherId' };
         // @ts-ignore
         expect(() => new HexDecode(badConfig1)).toThrow();
         expect(() => new HexDecode(badConfig2)).toThrow();
@@ -39,7 +39,7 @@ describe('base64 operator', () => {
     });
 
     it('can hex decode fields', () => {
-        const opConfig = { source_field: 'source', target_field: 'source', __id: 'someId' };
+        const opConfig = { source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId' };
         const test =  new HexDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -88,7 +88,7 @@ describe('base64 operator', () => {
     });
 
     it('can hex decode nested fields', () => {
-        const opConfig = { source_field: 'source.field', target_field: 'source.field', __id: 'someId' };
+        const opConfig = { source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId' };
         const test =  new HexDecode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 

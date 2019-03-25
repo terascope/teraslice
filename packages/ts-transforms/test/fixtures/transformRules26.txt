@@ -1,4 +1,4 @@
 { "selector": "some:value", "source_field": "field", "target_field": "newField", "tag": "tag_field" }
 { "follow": "tag_field", "validation": "email", "tag": "valid_email" }
 { "follow": "valid_email", "post_process": "extraction", "start": "@", "end": ".", "output": false, "target_field": "secondary", "tag": "finalTag" }
-{ "follow": "finalTag", "post_process": "array", "target_field": "final"}
+{ "follow": "finalTag", "post_process": "array", "target_field": "final" }

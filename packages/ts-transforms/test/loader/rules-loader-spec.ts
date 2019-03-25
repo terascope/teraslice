@@ -2,12 +2,12 @@
 import path from 'path';
 import _ from 'lodash';
 import { debugLogger } from '@terascope/utils';
-import { RulesLoader, UnParsedConfig } from '../../src';
+import { RulesLoader, OperationConfigInput } from '../../src';
 
 describe('rules-loader', () => {
     const logger = debugLogger('rules-loader-test');
 
-    async function getConfigList(fileName: string): Promise<UnParsedConfig[]> {
+    async function getConfigList(fileName: string): Promise<OperationConfigInput[]> {
         const filePath = path.join(__dirname, `../fixtures/${fileName}`);
         const myFileLoader = new RulesLoader({ rules: [filePath] }, logger);
         return await myFileLoader.load();

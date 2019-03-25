@@ -5,11 +5,11 @@ import { DataEntity } from '@terascope/utils';
 describe('ip validation', () => {
 
     it('can instantiate', () => {
-        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId' };
+        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId' };
         expect(() => new Ip(opConfig)).not.toThrow();
     });
 
-    xit('can properly throw with bad config values', () => {
+    it('can properly throw with bad config values', () => {
         const badConfig1 = { source_field: 1324 };
         const badConfig2 = { source_field: '' };
         const badConfig3 = { source_field: {} };
@@ -25,7 +25,7 @@ describe('ip validation', () => {
     });
 
     it('can validate ip fields', () => {
-        const opConfig = { source_field: 'ipAddress', target_field: 'ipAddress', __id: 'someId' };
+        const opConfig = { source_field: 'ipAddress', target_field: 'ipAddress', __id: 'someId', follow: 'otherId' };
         const test =  new Ip(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -78,7 +78,7 @@ describe('ip validation', () => {
     });
 
     it('can validate nested fields', async() => {
-        const opConfig = { source_field: 'event.ipAddress', target_field: 'event.ipAddress', __id: 'someId' };
+        const opConfig = { source_field: 'event.ipAddress', target_field: 'event.ipAddress', __id: 'someId', follow: 'otherId' };
         const test =  new Ip(opConfig);
 
         const data1 = new DataEntity({ event: 'something' });

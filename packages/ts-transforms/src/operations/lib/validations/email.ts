@@ -1,10 +1,10 @@
-import { OperationConfig } from '../../../interfaces';
+import { PostProcessConfig } from '../../../interfaces';
 import ValidationOpBase from './base';
 
 export default class Email extends ValidationOpBase<any> {
     private regex: RegExp;
 
-    constructor(config: OperationConfig) {
+    constructor(config: PostProcessConfig) {
         super(config);
         // Email Validation as per RFC2822 standards. Straight from .net helpfiles
         this.regex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g;

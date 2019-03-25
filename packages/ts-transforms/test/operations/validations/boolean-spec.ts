@@ -5,11 +5,11 @@ import { DataEntity } from '@terascope/utils';
 describe('boolean validation', () => {
 
     it('can instantiate', () => {
-        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId' };
+        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId' };
         expect(() => new BooleanValidation(opConfig)).not.toThrow();
     });
 
-    xit('can properly throw with bad config values', () => {
+    it('can properly throw with bad config values', () => {
         const badConfig1 = { source_field: 1324 };
         const badConfig2 = { source_field: '' };
         const badConfig3 = { source_field: {} };
@@ -25,7 +25,7 @@ describe('boolean validation', () => {
     });
 
     it('can validate boolean fields', () => {
-        const opConfig = { source_field: 'isTall', target_field: 'isTall', __id: 'someId' };
+        const opConfig = { source_field: 'isTall', target_field: 'isTall', __id: 'someId', follow: 'otherId' };
         const test =  new BooleanValidation(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -62,7 +62,7 @@ describe('boolean validation', () => {
     });
 
     it('can validate special boolean fields', () => {
-        const opConfig = { source_field: 'isTall', target_field: 'isTall', __id: 'someId' };
+        const opConfig = { source_field: 'isTall', target_field: 'isTall', __id: 'someId', follow: 'otherId' };
         const test =  new BooleanValidation(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
@@ -102,7 +102,7 @@ describe('boolean validation', () => {
     });
 
     it('can validate nested fields', async() => {
-        const opConfig = { source_field: 'person.isTall', target_field: 'person.isTall', __id: 'someId' };
+        const opConfig = { source_field: 'person.isTall', target_field: 'person.isTall', __id: 'someId', follow: 'otherId' };
         const test =  new BooleanValidation(opConfig);
 
         const data1 = new DataEntity({ isTall: true });

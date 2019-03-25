@@ -2,10 +2,10 @@
 import _ from 'lodash';
 import { parseNumberList } from '@terascope/utils';
 import ValidationOpBase from './base';
-import { OperationConfig } from '../../../interfaces';
+import { PostProcessConfig } from '../../../interfaces';
 
 export default class Geolocation extends ValidationOpBase<any> {
-    constructor(config: OperationConfig) {
+    constructor(config: PostProcessConfig) {
         super(config);
         // console.log("the config", config, this.target)
         // need to change source location to target parent field

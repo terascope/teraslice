@@ -14,9 +14,9 @@ Example:
 // rules
 /* here we extract the field value and stick it on the first_name and last_name keys and we mark them as output false so they are not in the final results
 */
-{"selector": "hello:world", "source_field": "first", "target_field": "first_name", "output": false, "tag": "joinFields"}
-{"selector": "hello:world", "source_field": "last", "target_field": "last_name", "output": false, "tag": "joinFields"}
-{"follow": "joinFields", "post_process": "join","fields": ["first_name", "last_name"],"delimiter": " ","target_field": "full_name"}
+{ "selector": "hello:world", "source_field": "first", "target_field": "first_name", "output": false, "tag": "joinFields" }
+{ "selector": "hello:world", "source_field": "last", "target_field": "last_name", "output": false, "tag": "joinFields" }
+{ "follow": "joinFields", "post_process": "join","fields": ["first_name", "last_name"],"delimiter": " ","target_field": "full_name" }
 
 // Incoming Data to transform
 [{ hello: 'world', first: 'John', last: 'Wayne' }]
@@ -80,7 +80,8 @@ Example:
 
 
 ### selector
-This is a filtering operator and determines is the documnet matches a certain criteria to let it pass, otherwise the document is removed from the list.
+This is a filtering operator and determines is the documnet matches a certain criteria to let it pass, otherwise the document is removed from the list. This can also be used as a post_process rule to further filter data after initial extractions and post processing.
+
 - selector: `String` = a lucene based query from [xlucene-evaluator](https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator)
 
 **Note**
@@ -88,8 +89,8 @@ This is a filtering operator and determines is the documnet matches a certain cr
 
 rules.txt
 ```json
-{"selector": "hello:world", "source_field": "first", "target_field": "first_name"}
-{"selector": "hello:world", "source_field": "last", "target_field": "last_name"}
+{ "selector": "hello:world", "source_field": "first", "target_field": "first_name" }
+{ "selector": "hello:world", "source_field": "last", "target_field": "last_name" }
 ```
 
 ```js
@@ -121,8 +122,8 @@ console.log(results);
 
 rules.txt
 ```json
-{"source_field": "first", "target_field": "first_name"}
-{"source_field": "last", "target_field": "last_name"}
+{ "source_field": "first", "target_field": "first_name" }
+{ "source_field": "last", "target_field": "last_name" }
 ```
 
 ```js
@@ -149,15 +150,38 @@ console.log(results);
  */
 ```
 
+Can use as a post_process to further filter results
+
+```ts
+// rules
+{ "source_field": "first", "target_field": "first_name", "tag": "filterMe" }
+{ "source_field": "last", "target_field": "last_name", "tag": "filterMe"}
+{ "follow": "filterMe", "post_process": "selector", "selector": "first_name:Jane" }
+
+
+// Incoming Data to transform
+[
+    { first: 'John', last: 'Doe' },
+    { first: 'Jane', last: 'Austin' },
+    { first: 'Some', last: 'Person' }
+]
+
+// Results
+
+[
+    { first_name: 'Jane', last_name: 'Austin' }
+]
+```
+
 ### extraction
-This is the core transform class used to extract data from incoming records. If nothing can be extracted then null is returned, however if `mutate` is set to true then it will at minimum return the data it was given. Please take note of the mutate setting listed below on how it could change depending if it is used as a post_process
+This is the core transform class used to extract data from incoming records. A new object containing all succesful extractions will be returned. If nothing can be extracted then null is returned. This can also be used as a post_process for further extractions.
 
 Simple Extraction:
 ```ts
 // rules
-{"selector": "transform:me", "source_field": "lat", "target_field": "location.lat"}
-{"selector": "transform:me", "source_field": "lon", "target_field": "location.lon"}
-{"selector": "transform:me", "source_field": "first", "target_field": "first_name"}
+{ "selector": "transform:me", "source_field": "lat", "target_field": "location.lat" }
+{ "selector": "transform:me", "source_field": "lon", "target_field": "location.lon" }
+{ "selector": "transform:me", "source_field": "first", "target_field": "first_name" }
 
 // Incoming Data to transform
 [
@@ -183,7 +207,7 @@ Example:
 ```ts
 // rules
 { "selector": "domain:example.com", "source_field": "url", "start": "field1=", "end": "EOP", "target_field": "field1" }
-{"selector": "transform:me", "source_field": "string", "target_field": "extracting_string", "start": "someStuff(" , "end": ")"}
+{ "selector": "transform:me", "source_field": "string", "target_field": "extracting_string", "start": "someStuff(" , "end": ")" }
 
 // Incoming Data to transform
 [
@@ -203,8 +227,8 @@ Example:
 Example:
 ```ts
 // rules
-{"selector": "hostname:www.example.com", "source_field": "pathLat", "regex": "/path/tiles/latitude/(.*?)$", "target_field": "location.lat", "validation": "geolocation"}
-{"selector": "hostname:www.example.com", "source_field": "pathLon", "regex": "/path/tiles/longitude/(.*?)$", "target_field": "location.lon", "validation": "geolocation"}
+{ "selector": "hostname:www.example.com", "source_field": "pathLat", "regex": "/path/tiles/latitude/(.*?)$", "target_field": "location.lat" }
+{ "selector": "hostname:www.example.com", "source_field": "pathLon", "regex": "/path/tiles/longitude/(.*?)$", "target_field": "location.lon" }
 
 // Incoming Data to transform
 [
@@ -219,21 +243,80 @@ Example:
 ]
 
 ```
-
-- mutate : `Booelan`(optional) = The default of extraction is to create a brand new object with the extracted fields. If you set this to true then it will return the orignal object with the new extracted fields on it so you can keep everything else. `NOTE`: if no extraction can occur you will recieve back the object unchanged, also if extraction is used as a `post_process` this defaults to `true`
-
+- multivalue : `Boolean`(optional) = by default values extracted from arrays will have array results, while everything else will be extracted as is. If you set this value to false then the extracted value from the array will be set as a singular value, and not as an array. NOTE: if the rule just transfers fields and no additional extraction logic takes place then it directly transfers the value as is and ignores if multivalue is set to false.
 
 Example:
+```ts
+// rules
+{ "selector": "first:rule", "source_field": "otherField", "target_field": "otherField", "multivalue": false }
+{ "selector": "second:rule", "source_field": "someField", "target_field": "otherField", "start": "data=", "end": "EOP" }
+{ "selector": "third:rule", "source_field": "someField", "target_field": "otherField", "start": "data=", "end": "EOP", "multivalue": false }
+
+// Incoming Data to transform
+[
+    { first: 'rule', someField: 'data=value' },
+    { first: 'rule', someField: ['data=value', 'data=other'] },
+    { second: 'rule', someField: 'data=value' },
+    { second: 'rule', someField: ['data=value', 'data=other'] },
+    { third: 'rule', someField: 'data=value' },
+    { third: 'rule', someField: ['data=value', 'data=other'] }
+]
+
+// Results
+
+[
+    // the first rule is just a direct transfer
+    { otherField: 'data=value' },
+    { otherField: ['data=value', 'data=other'] },
+    // second rule maintains array => array and singular => singular
+    { otherField: 'value' },
+    { otherField: ['value', 'other'] },
+    //third rule extracts and only returns the first matching value
+    { otherField: 'value' },
+    { otherField: 'value' }
+]
+
+```
+- mutate : `Boolean`(optional) = when set to false, a new object will be created with only the fields from the post_process extractions. NOTE this is only applicable as a post_process extraction rule. Defaults to true.
+
+Example:
+```ts
+// rules
+{ "selector": "rule:one", "source_field": "first", "target_field": "first_name", "tag": "first" }
+{ "selector": "rule:one", "source_field": "last", "target_field": "last_name", "tag": "first"}
+{ "follow": "first", "post_process": "extraction", "source_field": "first_name", "target_field": "post_extraction" }
+
+
+{ "selector": "rule:two", "source_field": "first", "target_field": "first_name", "tag": "second" }
+{ "selector": "rule:two", "source_field": "last", "target_field": "last_name", "tag": "second"}
+{ "follow": "second", "post_process": "extraction", "source_field": "first_name", "target_field": "post_extraction", "mutate": false}
+// Incoming Data to transform
+[
+    { rule: 'one' ,first: 'John', last: 'Doe' },
+    { rule: 'two' ,first: 'John', last: 'Doe' },
+]
+
+// Results
+
+[
+    // first rule by default has mutate:true
+    { first_name: 'John', last_name: 'Doe', post_extraction: 'John' }
+    // second rule has mutate:false so only final extraction results from post_process are returned
+    { post_extraction: 'John' }
+]
+```
+
+More examples:
 ```ts
 // rules
 
 { "selector": "selectfield:value", "source_field": "url", "start": "field1=", "end": "EOP", "target_field": "myfield1", "output": false, "tag": "tag1" }
 { "selector": "selectfield:value", "source_field": "url", "start": "field2=", "end": "EOP", "target_field": "myfield2", "output": false, "tag": "tag1" }
-{"follow": "tag1", "post_process": "array", "target_field": "myfield"}
+{ "follow": "tag1", "post_process": "array", "target_field": "myfield" }
 
 // Incoming Data to transform
 [
-{ selectfield: 'value', url: `http://www.example.com/path?field1=someBlah&field2=moreblah&field3=evenmoreblah` }
+    { selectfield: 'value', url: `http://www.example.com/path?field1=someBlah&field2=moreblah&field3=evenmoreblah` }
 ]
 
 // Results
@@ -250,11 +333,11 @@ This will attempt to join to string values together (this is a `many-to-one` ope
 
 rules.txt
 ```json
-{"selector": "hello:world", "source_field": "first", "target_field": "first_name", "output": false, "tag": "joinFields"}
-{"selector": "hello:world", "source_field": "last", "target_field": "last_name", "output": false, "tag": "joinFields"}
+{ "selector": "hello:world", "source_field": "first", "target_field": "first_name", "output": false, "tag": "joinFields" }
+{ "selector": "hello:world", "source_field": "last", "target_field": "last_name", "output": false, "tag": "joinFields" }
 
 # since fields is not set it will look at the target_fields of the tags it follows  => ["first_name", "last_name"]
-{"follow": "joinFields", "post_process": "join","delimiter": " ","target_field": "full_name"}
+{ "follow": "joinFields", "post_process": "join","delimiter": " ","target_field": "full_name" }
 
 ```
 
@@ -291,9 +374,9 @@ This will take all inputs and create an array
 ``` js
 // rules
 
-{"selector": "hello:world", "source_field": "field1", "target_field": "value1", "output": false, "tag": "values"}
-{"selector": "hello:world", "source_field": "field2", "target_field": "value2", "output": false, "tag": "values"}
-{"follow": "values", "post_process": "array", "target_field": "results" }
+{ "selector": "hello:world", "source_field": "field1", "target_field": "value1", "output": false, "tag": "values" }
+{ "selector": "hello:world", "source_field": "field2", "target_field": "value2", "output": false, "tag": "values" }
+{ "follow": "values", "post_process": "array", "target_field": "results" }
 
 // Incoming data
 [
@@ -333,17 +416,6 @@ This will make sure the field is a string and lowercase it, otherwise it will re
 This will make sure the field is a string and uppercase it, otherwise it will remove the field it
 - no additional parameters
 
-```sh
-$ curl 'localhost:5678/v1'
-{
-    "arch": "x64",
-    "clustering_type": "native",
-    "name": "example-cluster",
-    "node_version": "v8.12.0",
-    "platform": "linux",
-    "teraslice_version": "v0.43.0"
-}
-```
 
 ## Validations
 this provides a list of validation operations. If the field failed a validation check then that field is removed from the final output

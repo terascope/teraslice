@@ -5,11 +5,11 @@ import { DataEntity } from '@terascope/utils';
 describe('phone number validation', () => {
 
     it('can instantiate', () => {
-        const opConfig = { refs: 'someId', source_field: 'someField', target_field: 'someField', __id: 'someId' };
+        const opConfig = { refs: 'someId', source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId' };
         expect(() => new ISDN(opConfig)).not.toThrow();
     });
 
-    xit('can properly throw with bad config values', () => {
+    it('can properly throw with bad config values', () => {
         const badConfig1 = { source_field: 1324 };
         const badConfig2 = { source_field: '' };
         const badConfig3 = { source_field: {} };
@@ -25,7 +25,7 @@ describe('phone number validation', () => {
     });
 
     it('can validate phone number fields', () => {
-        const opConfig = { refs: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig = { refs: 'someId', source_field: 'field', target_field: 'field', __id: 'someId', follow: 'otherId' };
         const test = new ISDN(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
         const validPhone1 = '14803847362';

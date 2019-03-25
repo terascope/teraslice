@@ -1,13 +1,13 @@
 
 import path from 'path';
 import { DataEntity, debugLogger } from '@terascope/utils';
-import { OperationsManager, PostProcessPhase, Loader, ConfigProcessingDict } from '../../src';
+import { OperationsManager, PostProcessPhase, Loader, PostProcessingDict } from '../../src';
 
 describe('post_process phase', () => {
     const logger = debugLogger('postProcessPhaseTest');
     const opManager = new OperationsManager();
 
-    async function getConfigList(fileName: string): Promise<ConfigProcessingDict> {
+    async function getConfigList(fileName: string): Promise<PostProcessingDict> {
         const filePath = path.join(__dirname, `../fixtures/${fileName}`);
         const myFileLoader = new Loader({ rules: [filePath] }, logger);
         const { postProcessing } = await myFileLoader.load(opManager);
@@ -51,9 +51,9 @@ describe('post_process phase', () => {
         }
         const str = 'hello';
         const data = [
-            new DataEntity({ host: 'www.example.com', field1: `${encode(str)}` }, { selectors: { 'host:example.com': true } }),
-            new DataEntity({ host: 'www.example.com', field1: {} }, { selectors: { 'host:example.com': true } }),
-            new DataEntity({ host: 'www.example.com', url: 'http://hello.com?field1=hello&value4=goodbye' }, { selectors: { 'host:example.com': true } })
+            new DataEntity({ host: 'www.example.com', field1: `${encode(str)}` }, { selectors: ['host:example.com'] }),
+            new DataEntity({ host: 'www.example.com', field1: {} }, { selectors: ['host:example.com'] }),
+            new DataEntity({ host: 'www.example.com', url: 'http://hello.com?field1=hello&value4=goodbye' }, { selectors: ['host:example.com'] })
         ];
 
         const results = postProcessPhase.run(data);
@@ -69,9 +69,9 @@ describe('post_process phase', () => {
         const postProcessPhase = new PostProcessPhase(transformOpconfig, configList, opManager);
 
         const data = [
-            new DataEntity({ newField: 'null' }, { selectors: { 'some:value': true } }),
-            new DataEntity({ newField: null }, { selectors: { 'some:value': true } }),
-            new DataEntity({ newField: 'other' }, { selectors: { 'some:value': true } })
+            new DataEntity({ newField: 'null' }, { selectors: ['some:value'] }),
+            new DataEntity({ newField: null }, { selectors: ['some:value'] }),
+            new DataEntity({ newField: 'other' }, { selectors: ['some:value'] })
         ];
 
         const results = postProcessPhase.run(data);
