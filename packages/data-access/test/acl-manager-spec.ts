@@ -135,19 +135,19 @@ describe('ACLManager', () => {
             expect(result).toHaveProperty('api_token');
         });
 
-        it('should be able to find the other user if admin', async () => {
+        it('should be able to find the other user as ADMIN', async () => {
             const result = await manager.findUser({ id: otherUser.id }, adminUser);
             expect(result.id).toEqual(otherUser.id);
             expect(result).toHaveProperty('api_token');
         });
 
-        it('should NOT be able to see the private properties if other user', async () => {
+        it('should NOT be able to see the private properties if other USER', async () => {
             const result = await manager.findUser({ id: normalUser.id }, otherUser);
             expect(result.id).toEqual(normalUser.id);
             expect(result).not.toHaveProperty('api_token');
         });
 
-        it('should throw a 404 if looking for user from another client', async () => {
+        it('should throw a 404 if looking for a USER from another client', async () => {
             expect.hasAssertions();
 
             try {
@@ -161,35 +161,83 @@ describe('ACLManager', () => {
     });
 
     describe('when finding users', () => {
-        it('should be able to find users without tokens of the same client if normal user', async () => {
+        it('should be able to find users without tokens of the same client as USER', async () => {
             const result = await manager.findUsers({ query: '*' }, normalUser);
             expect(result).toBeArray();
             expect(result.length).toBeGreaterThan(0);
             expect(result[0]).not.toHaveProperty('api_token');
         });
 
-        it('should be able to find users with tokens of the same client if admin', async () => {
+        it('should be able to find users with tokens of the same client as ADMIN', async () => {
             const result = await manager.findUsers({ query: '*' }, adminUser);
             expect(result).toBeArray();
             expect(result.length).toBeGreaterThan(0);
             expect(result[0]).toHaveProperty('api_token');
         });
 
-        it('should NOT be able to find users from another client if normal user', async () => {
+        it('should NOT be able to find users from another client as USER', async () => {
             const result = await manager.findUsers({ query: 'NOT firstname:Foreign' }, foreignUser);
             expect(result).toBeArrayOfSize(0);
         });
 
-        it('should NOT be able to find users from another client if admin', async () => {
+        it('should NOT be able to find users from another client as ADMIN', async () => {
             const result = await manager.findUsers({ query: 'NOT firstname:Foreign' }, foreignAdminUser);
             expect(result).toBeArrayOfSize(0);
         });
 
-        it('should be able to find users from another client if superadmin', async () => {
+        it('should be able to find users from another client as SUPERADMIN', async () => {
             const result = await manager.findUsers({ query: '*' }, superAdminUser);
             expect(result).toBeArray();
             expect(result.length).toBeGreaterThan(0);
             expect(result[0]).toHaveProperty('api_token');
+        });
+    });
+
+    describe('when creating a user as ADMIN', () => {
+        it('should throw if not under the same client_id', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.createUser({
+                    user: {
+                        username: 'foreign-user-2',
+                        email: 'foreign-user-2@example.com',
+                        firstname: 'Foreign',
+                        lastname: 'User 2',
+                        type: 'USER',
+                        client_id: 2,
+                    },
+                    password: 'password'
+                }, adminUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to write to users outside of the their client id');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
+    describe('when creating a user as USER', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.createUser({
+                    user: {
+                        username: 'user-2',
+                        email: 'user-2@example.com',
+                        firstname: 'User',
+                        lastname: 'User 2',
+                        type: 'USER',
+                        client_id: 1,
+                    },
+                    password: 'password'
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to write to other users');
+                expect(err.statusCode).toEqual(403);
+            }
         });
     });
 
@@ -198,8 +246,10 @@ describe('ACLManager', () => {
             expect.hasAssertions();
 
             try {
-                // @ts-ignore
-                await manager.createUser({ user: null });
+                await manager.createUser({
+                    // @ts-ignore
+                    user: null
+                }, 'password');
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.message).toInclude('Invalid User Input');
@@ -651,11 +701,25 @@ describe('ACLManager', () => {
                 }, adminUser);
             });
 
-            afterAll(() => {
-                return Promise.all([
+            afterAll(async () => {
+                await Promise.all([
                     manager.removeView({ id: viewId }, adminUser),
                     manager.removeSpace({ id: spaceId }, superAdminUser),
                 ]);
+
+                await Promise.all([
+                    manager.removeView({ id: viewId }, adminUser),
+                    manager.removeSpace({ id: spaceId }, superAdminUser),
+                ]);
+            });
+
+            it('should be able to update the view', async () => {
+                await manager.updateView({
+                    view: {
+                        id: viewId,
+                        constraint: 'hello:there'
+                    }
+                });
             });
 
             it('should be able to get config by space id', () => {
@@ -681,7 +745,8 @@ describe('ACLManager', () => {
                         name: 'Example View',
                         roles: [roleId],
                         includes: ['foo'],
-                        excludes: []
+                        excludes: [],
+                        constraint: 'hello:there'
                     },
                     space_id: spaceId,
                     search_config: {

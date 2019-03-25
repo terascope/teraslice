@@ -318,9 +318,7 @@ export class ACLManager {
         const exists = await this.dataTypes.exists(args.id);
         if (!exists) return false;
 
-        await Promise.all([
-            this.dataTypes.deleteById(args.id),
-        ]);
+        await this.dataTypes.deleteById(args.id);
 
         return true;
     }
