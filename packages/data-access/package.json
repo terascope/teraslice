@@ -31,7 +31,7 @@
     },
     "dependencies": {
         "@terascope/utils": "^0.7.0",
-        "elasticsearch-store": "^0.4.0"
+        "elasticsearch-store": "^0.4.0",
         "xlucene-evaluator": "^0.6.0"
     },
     "devDependencies": {
