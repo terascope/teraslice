@@ -10,12 +10,8 @@ import { ManagerConfig } from './interfaces';
  * high level abstraction of Spaces, Users, Roles, and Views
  *
  * @todo add multi-tenant support
- * @todo add superadmin/admin/user user type
  * @todo only superadmins can write to to everything
  * @todo an admin should only have access its "client_id"
- * @todo an admin should be able to view api_token without knowing the password
- * @todo an admin can't write to a space, a datatype, or another client
- * @todo authenticated users can query and update their user
 */
 export class ACLManager {
     static GraphQLSchema = `
@@ -691,7 +687,9 @@ export class ACLManager {
     */
     private async _validateCanCreate(resource: Resource, authUser?: models.User) {
         const type = await this._getUserType(authUser);
-        if (type === 'USER' || (type === 'ADMIN' && ['spaces'].includes(resource))) {
+        const resources: Resource[] = ['spaces', 'data types'];
+
+        if (type === 'USER' || (type === 'ADMIN' && resources.includes(resource))) {
             throw new ts.TSError(`User doesn't have permission to create ${resource}`, {
                 statusCode: 403
             });
@@ -719,7 +717,8 @@ export class ACLManager {
     */
     private async _validateCanRemove(resource: Resource, authUser?: models.User) {
         const type = await this._getUserType(authUser);
-        if (type === 'USER' || (type === 'ADMIN' && ['roles', 'spaces'].includes(resource))) {
+        const resources: Resource[] = ['spaces', 'data types'];
+        if (type === 'USER' || (type === 'ADMIN' && resources.includes(resource))) {
             throw new ts.TSError(`User doesn't have permission to remove ${resource}`, {
                 statusCode: 403
             });

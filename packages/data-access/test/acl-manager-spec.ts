@@ -521,22 +521,6 @@ describe('ACLManager', () => {
         });
     });
 
-    describe('when removing a role as a ADMIN', () => {
-        it('should throw a forbidden', async () => {
-            expect.hasAssertions();
-
-            try {
-                await manager.removeRole({
-                    id: 'random-id'
-                }, adminUser);
-            } catch (err) {
-                expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('User doesn\'t have permission to remove roles');
-                expect(err.statusCode).toEqual(403);
-            }
-        });
-    });
-
     describe('when creating a role as a ADMIN', () => {
         it('should succeed', async () => {
             await manager.createRole({
@@ -634,13 +618,13 @@ describe('ACLManager', () => {
         });
     });
 
-    describe('when creating a data type as a ADMIN', () => {
+    describe('when creating a data type as a SUPERADMIN', () => {
         it('should succeed', async () => {
             await manager.createDataType({
                 dataType: {
                     name: 'SomeRandomExampleDataType'
                 }
-            }, adminUser);
+            }, superAdminUser);
         });
     });
 
@@ -807,12 +791,12 @@ describe('ACLManager', () => {
                         dataType: {
                             name: 'DataType One'
                         }
-                    }, adminUser),
+                    }, superAdminUser),
                     await manager.createDataType({
                         dataType: {
                             name: 'DataType Two'
                         }
-                    }, adminUser)
+                    }, superAdminUser)
                 ]);
                 dataType1Id = dataType1.id;
                 dataType2Id = dataType2.id;
@@ -967,7 +951,7 @@ describe('ACLManager', () => {
                 dataType: {
                     name: 'CreateSpaceDataTypeTest',
                 }
-            }, adminUser);
+            }, superAdminUser);
 
             dataTypeId = dataType.id;
         });
@@ -1056,7 +1040,7 @@ describe('ACLManager', () => {
         });
     });
 
-    describe('when creating a data type as a ADMIN', () => {
+    describe('when creating a view as a ADMIN', () => {
         let dataTypeId: string;
 
         beforeAll(async() => {
@@ -1064,7 +1048,7 @@ describe('ACLManager', () => {
                 dataType: {
                     name: 'CreateViewDataTypeTest',
                 }
-            }, adminUser);
+            }, superAdminUser);
 
             dataTypeId = dataType.id;
         });
