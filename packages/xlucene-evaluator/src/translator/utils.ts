@@ -1,4 +1,4 @@
-import { debugLogger } from '@terascope/utils';
+import { debugLogger, TSError } from '@terascope/utils';
 import * as utils from '../utils';
 import { AST, IMPLICIT } from '../interfaces';
 
@@ -15,8 +15,13 @@ export function buildAnyQuery(node: AST, parentNode?: AST): AnyQuery|undefined {
     }
 
     if (!field) {
-        const error = new Error('Unable to determine field');
-        logger.error(error.message, node, parentNode);
+        const error = new TSError('Unable to determine field', {
+            context: {
+                node,
+                parentNode,
+            },
+        });
+        logger.error(error);
         throw error;
     }
 

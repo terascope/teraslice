@@ -1,6 +1,6 @@
 import 'jest-extended';
 import get from 'lodash/get';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger, TSError } from '@terascope/utils';
 import { Translator, TypeConfig, LuceneQueryParser, AST } from '../src';
 import { getJoinType, buildAnyQuery } from '../src/translator/utils';
 
@@ -17,6 +17,13 @@ describe('Translator', () => {
     it('should return undefined when given an invalid query', () => {
         const node: unknown = { type: 'idk', field: 'a', val: true };
         expect(buildAnyQuery(node as AST)).toBeUndefined();
+    });
+
+    it('should throw when missing field on term node', () => {
+        const node: unknown = { type: 'term', term: 'hello' };
+        expect(() => {
+            buildAnyQuery(node as AST);
+        }).toThrowWithMessage(TSError, 'Unable to determine field');
     });
 
     it('should have a types property', () => {
