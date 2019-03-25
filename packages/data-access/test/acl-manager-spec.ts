@@ -304,6 +304,25 @@ describe('ACLManager', () => {
         });
     });
 
+    describe('when updating a foreign USER as an AMDIN', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateUser({
+                    user: {
+                        id: foreignUser.id,
+                        firstname: 'Foreign'
+                    },
+                }, adminUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to write to users outside of the their client id');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
     describe('when updating a USER\'s own record', () => {
         it('should succeed', async () => {
             await manager.updateUser({
@@ -468,6 +487,84 @@ describe('ACLManager', () => {
         });
     });
 
+    describe('when creating a role as a USER', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.createRole({
+                    role: {
+                        name: 'SomeExampleRole'
+                    }
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to create roles');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
+    describe('when removing a role as a USER', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.removeRole({
+                    id: 'random-id'
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to remove roles');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
+    describe('when removing a role as a ADMIN', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.removeRole({
+                    id: 'random-id'
+                }, adminUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to remove roles');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
+    describe('when creating a role as a ADMIN', () => {
+        it('should succeed', async () => {
+            await manager.createRole({
+                role: {
+                    name: 'SomeRandomExampleRole'
+                }
+            }, adminUser);
+        });
+    });
+
+    describe('when updating a role as a USER', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateRole({
+                    role: {
+                        id: 'random-id',
+                    }
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to update roles');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
     describe('when creating a data type and given null', () => {
         it('should throw an error', async () => {
             expect.hasAssertions();
@@ -482,6 +579,68 @@ describe('ACLManager', () => {
                 expect(err.message).toInclude('Invalid DataType Input');
                 expect(err.statusCode).toEqual(422);
             }
+        });
+    });
+
+    describe('when creating a data type as a USER', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.createDataType({
+                    dataType: {
+                        name: 'SomeExampleDataType'
+                    }
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to create data types');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
+    describe('when removing a data type as a USER', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.removeDataType({
+                    id: 'random-id'
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to remove data types');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
+    describe('when updating a data type as a USER', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateDataType({
+                    dataType: {
+                        id: 'random-id',
+                    }
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to update data types');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
+    describe('when creating a data type as a ADMIN', () => {
+        it('should succeed', async () => {
+            await manager.createDataType({
+                dataType: {
+                    name: 'SomeRandomExampleDataType'
+                }
+            }, adminUser);
         });
     });
 
@@ -706,6 +865,126 @@ describe('ACLManager', () => {
         });
     });
 
+    describe('when creating a space as a USER', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.createSpace({
+                    space: {
+                        name: 'SomeExampleSpace',
+                        endpoint: 'some-example-space',
+                        data_type: 'random-id',
+                        roles: [],
+                        views: [],
+                    }
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to create spaces');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
+    describe('when removing a space as a USER', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.removeSpace({
+                    id: 'random-id'
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to remove spaces');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
+    describe('when removing a space as a ADMIN', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.removeSpace({
+                    id: 'random-id'
+                }, adminUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to remove spaces');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
+    describe('when creating a space as a ADMIN', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.createSpace({
+                    space: {
+                        name: 'SomeExampleSpace',
+                        endpoint: 'some-example-space',
+                        data_type: 'random-id',
+                        roles: [],
+                        views: [],
+                    }
+                }, adminUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to create spaces');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
+    describe('when updating a space as a USER', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateSpace({
+                    space: {
+                        id: 'random-id',
+                    }
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to update spaces');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
+    describe('when creating a space as a SUPERADMIN', () => {
+        let dataTypeId: string;
+
+        beforeAll(async() => {
+            const dataType = await manager.createDataType({
+                dataType: {
+                    name: 'CreateSpaceDataTypeTest',
+                }
+            }, adminUser);
+
+            dataTypeId = dataType.id;
+        });
+
+        it('should succeed', async () => {
+            await manager.createSpace({
+                space: {
+                    name: 'SomeRandomExampleSpace',
+                    endpoint: 'some-random-example-space',
+                    data_type: dataTypeId,
+                    roles: [],
+                    views: [],
+                }
+            }, superAdminUser);
+        });
+    });
+
     describe('when creating a view and given null', () => {
         it('should throw an error', async () => {
             expect.hasAssertions();
@@ -720,6 +999,84 @@ describe('ACLManager', () => {
                 expect(err.message).toInclude('Invalid View Input');
                 expect(err.statusCode).toEqual(422);
             }
+        });
+    });
+
+    describe('when creating a view as a USER', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.createView({
+                    view: {
+                        name: 'SomeExampleDataType',
+                        data_type: 'random-id',
+                        roles: [],
+                    }
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to create views');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
+    describe('when removing a views as a USER', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.removeView({
+                    id: 'random-id'
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to remove views');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
+    describe('when updating a data type as a USER', () => {
+        it('should throw a forbidden', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateView({
+                    view: {
+                        id: 'random-id',
+                    }
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to update views');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+    });
+
+    describe('when creating a data type as a ADMIN', () => {
+        let dataTypeId: string;
+
+        beforeAll(async() => {
+            const dataType = await manager.createDataType({
+                dataType: {
+                    name: 'CreateViewDataTypeTest',
+                }
+            }, adminUser);
+
+            dataTypeId = dataType.id;
+        });
+
+        it('should succeed', async () => {
+            await manager.createView({
+                view: {
+                    name: 'SomeRandomExampleView',
+                    data_type: dataTypeId,
+                    roles: [],
+                }
+            }, adminUser);
         });
     });
 

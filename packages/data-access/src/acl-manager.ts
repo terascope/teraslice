@@ -222,6 +222,8 @@ export class ACLManager {
      * Remove user by id
     */
     async removeUser(args: { id: string }, authUser?: models.User): Promise<boolean> {
+        await this._validateUserInput({ id: args.id }, authUser);
+
         const exists = await this.users.exists(args.id);
         if (!exists) return false;
 
@@ -248,6 +250,7 @@ export class ACLManager {
      * Create a role
     */
     async createRole(args: { role: CreateRecordInput<models.Role> }, authUser?: models.User) {
+        await this._validateCanCreate('roles', authUser);
         await this._validateRoleInput(args.role);
 
         return this.roles.create(args.role);
@@ -257,6 +260,7 @@ export class ACLManager {
      * Update a role
     */
     async updateRole(args: { role: UpdateRecordInput<models.Role> }, authUser?: models.User) {
+        await this._validateCanUpdate('roles', authUser);
         await this._validateRoleInput(args.role);
 
         await this.roles.update(args.role);
@@ -267,6 +271,8 @@ export class ACLManager {
      * Remove role and remove from any associated views or users
     */
     async removeRole(args: { id: string }, authUser?: models.User) {
+        await this._validateCanRemove('roles', authUser);
+
         const exists = await this.roles.exists(args.id);
         if (!exists) return false;
 
@@ -297,6 +303,7 @@ export class ACLManager {
      * Create a data type
     */
     async createDataType(args: { dataType: CreateRecordInput<models.DataType> }, authUser?: models.User) {
+        await this._validateCanCreate('data types', authUser);
         await this._validateDataTypeInput(args.dataType);
 
         return this.dataTypes.create(args.dataType);
@@ -306,6 +313,7 @@ export class ACLManager {
      * Update a data type
     */
     async updateDataType(args: { dataType: UpdateRecordInput<models.DataType> }, authUser?: models.User) {
+        await this._validateCanUpdate('data types', authUser);
         await this._validateDataTypeInput(args.dataType);
 
         await this.dataTypes.update(args.dataType);
@@ -318,6 +326,8 @@ export class ACLManager {
      * @question should we remove the views and spaces associated with the data-type?
     */
     async removeDataType(args: { id: string }, authUser?: models.User) {
+        await this._validateCanRemove('data types', authUser);
+
         const exists = await this.dataTypes.exists(args.id);
         if (!exists) return false;
 
@@ -347,6 +357,7 @@ export class ACLManager {
      *
     */
     async createSpace(args: { space: CreateRecordInput<models.Space> }, authUser?: models.User) {
+        await this._validateCanCreate('spaces', authUser);
         await this._validateSpaceInput(args.space);
 
         return this.spaces.create(args.space);
@@ -356,6 +367,7 @@ export class ACLManager {
      * Update a space
     */
     async updateSpace(args: { space: UpdateRecordInput<models.Space> }, authUser?: models.User) {
+        await this._validateCanUpdate('spaces', authUser);
         await this._validateSpaceInput(args.space);
 
         await this.spaces.update(args.space);
@@ -366,6 +378,8 @@ export class ACLManager {
      * Remove a space by id, this will clean up any associated views and roles
      */
     async removeSpace(args: { id: string }, authUser?: models.User) {
+        await this._validateCanRemove('spaces', authUser);
+
         const exists = await this.spaces.exists(args.id);
         if (!exists) return false;
 
@@ -391,6 +405,7 @@ export class ACLManager {
      * Create a view, this will attach to the space and the role
     */
     async createView(args: { view: CreateRecordInput<models.View> }, authUser?: models.User) {
+        await this._validateCanCreate('views', authUser);
         await this._validateViewInput(args.view);
 
         const result = await this.views.create(args.view);
@@ -401,6 +416,8 @@ export class ACLManager {
      * Update a view, this will attach to the space and the role
     */
     async updateView(args: { view: UpdateRecordInput<models.View> }, authUser?: models.User) {
+        await this._validateCanUpdate('views', authUser);
+
         const { view } = args;
         await this._validateViewInput(view);
 
@@ -426,6 +443,8 @@ export class ACLManager {
      * Remove views and remove from any associated spaces
     */
     async removeView(args: { id: string }, authUser?: models.User) {
+        await this._validateCanRemove('views', authUser);
+
         const exists = await this.views.exists(args.id);
         if (!exists) return false;
 
@@ -664,7 +683,51 @@ export class ACLManager {
             }
         }
     }
+
+    /**
+     * Validate a user can create a resource
+     *
+     * This works for all models except users
+    */
+    private async _validateCanCreate(resource: Resource, authUser?: models.User) {
+        const type = await this._getUserType(authUser);
+        if (type === 'USER' || (type === 'ADMIN' && ['spaces'].includes(resource))) {
+            throw new ts.TSError(`User doesn't have permission to create ${resource}`, {
+                statusCode: 403
+            });
+        }
+    }
+
+    /**
+     * Validate a user can update a resource
+     *
+     * This works for all models except users
+    */
+    private async _validateCanUpdate(resource: Resource, authUser?: models.User) {
+        const type = await this._getUserType(authUser);
+        if (type === 'USER') {
+            throw new ts.TSError(`User doesn't have permission to update ${resource}`, {
+                statusCode: 403
+            });
+        }
+    }
+
+    /**
+     * Validate a user can remove a resource
+     *
+     * This works for all models except users
+    */
+    private async _validateCanRemove(resource: Resource, authUser?: models.User) {
+        const type = await this._getUserType(authUser);
+        if (type === 'USER' || (type === 'ADMIN' && ['roles', 'spaces'].includes(resource))) {
+            throw new ts.TSError(`User doesn't have permission to remove ${resource}`, {
+                statusCode: 403
+            });
+        }
+    }
 }
+
+type Resource = 'roles'|'data types'|'views'|'spaces';
 
 /**
  * The definition of an ACL for limiting access to data.
