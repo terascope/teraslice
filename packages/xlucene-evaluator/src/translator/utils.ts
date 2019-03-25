@@ -36,8 +36,8 @@ export function buildAnyQuery(node: AST, parentNode?: AST): AnyQuery|undefined {
         return buildGeoQuery(node, field);
     }
 
-    // REMOVE ME when done
-    throw new Error('Unsupported query');
+    logger.error(new Error('unsupport ast node'), node);
+    return undefined;
 }
 
 export function buildGeoQuery(node: AST, field: string): GeoQuery {
@@ -159,23 +159,10 @@ function isOrNode(node?: AST): boolean {
 
 export function canFlattenBoolQuery(node: AST): boolean {
     const operator = node.operator;
-    const rightOperator = node.right && node.right.operator;
-    const leftOperator = node.left && node.left.operator;
-
-    if (leftOperator && rightOperator) {
-        if (leftOperator === rightOperator && leftOperator === operator) {
-            return true;
-        }
-    }
-
     if (operator === 'OR' && node.left && node.left.field !== IMPLICIT) return false;
 
     if (node.type === 'conjunction' && !node.parens) {
         return true;
-    }
-
-    if (rightOperator) {
-        return operator === rightOperator;
     }
 
     return false;

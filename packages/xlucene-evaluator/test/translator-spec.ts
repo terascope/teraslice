@@ -2,7 +2,7 @@ import 'jest-extended';
 import get from 'lodash/get';
 import { debugLogger } from '@terascope/utils';
 import { Translator, TypeConfig, LuceneQueryParser, AST } from '../src';
-import { getJoinType } from '../src/translator/utils';
+import { getJoinType, buildAnyQuery } from '../src/translator/utils';
 
 const logger = debugLogger('translator-spec');
 
@@ -12,6 +12,11 @@ describe('Translator', () => {
         const translator = new Translator(query);
 
         expect(translator).toHaveProperty('query', query);
+    });
+
+    it('should return undefined when given an invalid query', () => {
+        const node: unknown = { type: 'idk', field: 'a', val: true };
+        expect(buildAnyQuery(node as AST)).toBeUndefined();
     });
 
     it('should have a types property', () => {
@@ -227,6 +232,56 @@ describe('Translator', () => {
                     }
                 ],
                 should: []
+            }
+        ],
+        [
+            'a:1 OR (b:1 AND c:2) OR d:(>=1 AND <=2) AND NOT e:>2',
+            'query.constant_score.filter.bool',
+            {
+                filter: [
+                    {
+                        term: {
+                            b: 1
+                        }
+                    },
+                    {
+                        term: {
+                            c: 2
+                        }
+                    },
+                    {
+                        bool: {
+                            filter: [],
+                            must_not: [
+                                {
+                                    range: {
+                                        e: {
+                                            gt: 2
+                                        }
+                                    }
+                                }
+                            ],
+                            should: [
+                                {
+                                    range: {
+                                        d: {
+                                            gte: 1,
+                                            lte: 2
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ],
+                must_not: [],
+                should: [
+                    {
+                        term: {
+                            a: 1
+                        }
+                    }
+                ]
             }
         ],
         [
