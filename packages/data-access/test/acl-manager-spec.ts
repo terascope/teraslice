@@ -299,11 +299,30 @@ describe('ACLManager', () => {
             expect.hasAssertions();
 
             try {
-                // @ts-ignore
-                await manager.createRole({ role: null });
+                await manager.createRole({
+                    // @ts-ignore
+                    role: null
+                });
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.message).toInclude('Invalid Role Input');
+                expect(err.statusCode).toEqual(422);
+            }
+        });
+    });
+
+    describe('when creating a data type and given null', () => {
+        it('should throw an error', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.createDataType({
+                    // @ts-ignore
+                    dataType: null
+                });
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Invalid DataType Input');
                 expect(err.statusCode).toEqual(422);
             }
         });
@@ -513,6 +532,23 @@ describe('ACLManager', () => {
         });
     });
 
+    describe('when creating a view and given null', () => {
+        it('should throw an error', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.createView({
+                    // @ts-ignore
+                    view: null
+                });
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Invalid View Input');
+                expect(err.statusCode).toEqual(422);
+            }
+        });
+    });
+
     describe('when getting a view for a user', () => {
         let userId: string;
         let apiToken: string;
@@ -600,6 +636,8 @@ describe('ACLManager', () => {
                             index: 'hello',
                             require_query: true,
                             sort_dates_only: true,
+                            default_date_field: 'Updated ',
+                            default_geo_field: 'other_LOCation'
                         },
                     }
                 }, superAdminUser);
@@ -634,7 +672,9 @@ describe('ACLManager', () => {
                         id: dataTypeId,
                         type_config: {
                             created: 'date',
+                            updated: 'date',
                             location: 'geo',
+                            other_location: 'geo',
                         }
                     },
                     view: {
@@ -648,6 +688,8 @@ describe('ACLManager', () => {
                         index: 'hello',
                         require_query: true,
                         sort_dates_only: true,
+                        default_date_field: 'updated',
+                        default_geo_field: 'other_location',
                     },
                 });
             });
@@ -714,7 +756,7 @@ describe('ACLManager', () => {
                         id: dataTypeId,
                         type_config: {
                             created: 'date',
-                            location: 'geo',
+                            location: 'geo'
                         }
                     },
                     view: {
@@ -725,7 +767,7 @@ describe('ACLManager', () => {
                     search_config: {
                         index: 'howdy',
                         sort_default: 'created:asc',
-                        preserve_index_name: true,
+                        preserve_index_name: true
                     },
                 });
             });
