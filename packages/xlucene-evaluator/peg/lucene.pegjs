@@ -275,6 +275,7 @@ node
                 } else {
                     rightExp.negated = operator === 'NOT';
                     rightExp.or = operator === 'OR';
+                    node.left.or = operator === 'OR';
                 }
                 node.right = rightExp;
             }

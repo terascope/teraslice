@@ -1,7 +1,7 @@
 import 'jest-extended';
 import get from 'lodash/get';
 import { debugLogger } from '@terascope/utils';
-import { Translator, TypeConfig, AST } from '../src';
+import { Translator, TypeConfig, LuceneQueryParser } from '../src';
 import { getJoinType } from '../src/translator/utils';
 
 const logger = debugLogger('translator-spec');
@@ -293,15 +293,14 @@ describe('Translator', () => {
             'some:query OR other:thing',
             'query.constant_score.filter.bool',
             {
-                filter: [
+                filter: [],
+                must_not: [],
+                should: [
                     {
                         term: {
                             some: 'query'
                         }
                     },
-                ],
-                must_not: [],
-                should: [
                     {
                         term: {
                             other: 'thing'
@@ -376,50 +375,9 @@ describe('Translator', () => {
 
     describe('when getting the join type', () => {
         describe('when given a complex AND/OR/NOT AST', () => {
-            // _exists_:howdy AND other:>=50 OR foo:bar NOT bar:foo
-            const node = {
-                type: 'conjunction',
-                left: {
-                    type: 'exists',
-                    field: 'howdy'
-                } as AST,
-                parens: false,
-                operator: 'AND',
-                right: {
-                    type: 'conjunction',
-                    left: {
-                        type: 'range',
-                        term_min: 50,
-                        term_max: Infinity,
-                        inclusive_min: true,
-                        inclusive_max: true,
-                        field: 'other'
-                    } as AST,
-                    parens: false,
-                    operator: 'OR',
-                    right: {
-                        type: 'conjunction',
-                        left: {
-                            field: 'foo',
-                            type: 'term',
-                            term: 'bar',
-                            wildcard: false,
-                            regexpr: false,
-                            or: true
-                        } as AST,
-                        parens: false,
-                        operator: 'AND',
-                        right: {
-                            field: 'bar',
-                            type: 'term',
-                            term: 'foo',
-                            wildcard: false,
-                            regexpr: false,
-                            negated: true
-                        } as AST
-                    } as AST
-                } as AST
-            } as AST;
+            const parser = new LuceneQueryParser();
+            parser.parse('_exists_:howdy AND other:>=50 OR foo:bar NOT bar:foo');
+            const node = parser._ast;
 
             it('should correctly handle the AND join type', () => {
                 expect(getJoinType(node, 'left')).toEqual('filter');
@@ -438,45 +396,9 @@ describe('Translator', () => {
         });
 
         describe('when given a chained OR statement AST', () => {
-            const node = {
-                type: 'conjunction',
-                left: {
-                    type: 'conjunction',
-                    left: {
-                        field: '<implicit>',
-                        type: 'term',
-                        term: 50,
-                        wildcard: false,
-                        regexpr: false,
-                    } as AST,
-                    parens: true,
-                    operator: 'OR',
-                    right: {
-                        type: 'conjunction',
-                        left: {
-                            field: '<implicit>',
-                            type: 'term',
-                            term: 40,
-                            unrestricted: false,
-                            wildcard: false,
-                            regexpr: false,
-                        } as AST,
-                        parens: false,
-                        operator: 'OR',
-                        right: {
-                            field: '<implicit>',
-                            type: 'term',
-                            term: 30,
-                            unrestricted: false,
-                            wildcard: false,
-                            regexpr: false,
-                        } as AST,
-                        field: 'any_count'
-                    } as AST,
-                    field: 'any_count'
-                } as AST,
-                parens: false
-            } as AST;
+            const parser = new LuceneQueryParser();
+            parser.parse('any_count:(50 OR 40 OR 30)');
+            const node = parser._ast;
 
             it('should correctly handle the first OR join type', () => {
                 expect(getJoinType(node, 'left')).toEqual('should');
@@ -490,6 +412,17 @@ describe('Translator', () => {
             it('should correctly handle the third OR join type', () => {
                 expect(getJoinType(node.left!.right!, 'left')).toEqual('should');
                 expect(getJoinType(node.left!.right!, 'right')).toEqual('should');
+            });
+        });
+
+        describe('when given a simple OR statement AST', () => {
+            const parser = new LuceneQueryParser();
+            parser.parse('some:query OR other:thing');
+            const node = parser._ast;
+
+            it('should correctly handle the OR join type', () => {
+                expect(getJoinType(node, 'left')).toEqual('should');
+                expect(getJoinType(node, 'right')).toEqual('should');
             });
         });
     });
