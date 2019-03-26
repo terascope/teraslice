@@ -60,7 +60,32 @@ Since this project is designed to replace the teraserver teranaut plugin, and th
       - `type` since this can be achieved via a `constraint`
       - `date_range`, `date_start`, `date_end`, `geo_box_top_left`, `geo_box_bottom_right`, `geo_point`, `geo_distance`, since this should be achieved via the view constraint and the xclucene queries.
 
+## User Permission Types
+
+To manage the data access models a user is given one of the following permission types:
+
+- `USER`: a user can do the following:
+    - List the users for its client, except it cannot see the `api_token`, `hash` and `salt` on the user.
+    - Update the its own user record.
+    - List the role and the spaces, views, and data types its role has access to, except it cannot see any fields that may contain connection info, or fields.
+- `ADMIN`: an admin can do the following:
+    - List the users for its client, except it cannot see the `hash` and `salt`.
+    - Create, update, or remove any of its client's users with type `USER` or `ADMIN`.
+    - Create, update, or remove any role and view.
+    - Update a space or data type.
+    - List roles, views, spaces, and data types.
+- `SUPERADMIN`: a super admin can do the following:
+    - List, create, update, remove, any user, role, space, view, or data type.
+
 ## GraphQL Usage
+
+To provide authentication to the GraphQL API use the `Authorization` header:
+
+```json
+{
+    "authorization": "Token <API_TOKEN>"
+}
+```
 
 ### List everything
 
