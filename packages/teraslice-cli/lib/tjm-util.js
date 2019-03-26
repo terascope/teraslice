@@ -23,13 +23,14 @@ class TjmUtil {
     async stop() {
         try {
             const response = await this.client.jobs.wrap(this.job.jobId).stop();
-            if (response.status.status !== 'stopped') {
+            const jobStatus = response.status.status || response.status;
+            if (jobStatus !== 'stopped') {
                 reply.fatal(`Could not stop ${this.job.name} on ${this.job.clusterUrl}`);
             }
             reply.green(`Stopped job ${this.job.name} on ${this.job.clusterUrl}`);
         } catch (e) {
             if (e.message.includes('no execution context was found')) {
-                reply.fatal(`Job ${this.job.name} is not currently running on ${this.job.clusterUrl}`);
+                reply.green(`Job ${this.job.name} is not currently running on ${this.job.clusterUrl}`);
             }
             if (e.message.includes('Cannot update terminal job status of "stopped" to "stopping"')) {
                 reply.green(`Job ${this.job.name} on ${this.job.clusterUrl} is already stopped`);
