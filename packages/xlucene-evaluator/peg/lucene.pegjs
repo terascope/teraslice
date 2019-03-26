@@ -455,6 +455,7 @@ term
             const result = {
                 type: 'term',
                 term,
+                quoted: true,
                 regexpr: false,
                 wildcard: false,
             };
@@ -475,11 +476,14 @@ term
         }
     / op:prefix_operator_exp? term:unquoted_term similarity:fuzzy_modifier? boost:boost_modifier? _*
         {
-            const termValue = coerceValue(term);
+            let termValue = coerceValue(term);
+            if (typeof termValue === "string") {
+                termValue = termValue.trim();
+            }
             const result = {
                 type: 'term',
                 term: termValue,
-                unrestricted: false,
+                quoted: false,
                 wildcard: false,
                 regexpr: false
             };
@@ -725,8 +729,6 @@ operator
 
 not_operator
     = 'NOT'
-    // maybe we need this?
-    // / 'AND NOT' { return 'NOT'}
     / '!' { return 'NOT'}
 
 prefix_operator_exp
