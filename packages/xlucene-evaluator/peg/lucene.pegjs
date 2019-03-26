@@ -73,6 +73,8 @@
  */
 
 {
+    const IMPLICIT = '<implicit>';
+    const CONJUNCTION = 'conjunction';
     const geoParameters = {
         _geo_point_: 'geo_point',
         _geo_distance_: 'geo_distance',
@@ -138,6 +140,11 @@
             node.operator = 'AND';
         }
 
+        // "fizz" "buzz" has an implicit OR
+        if (node.operator === IMPLICIT && node.left && node.right) {
+            node.operator = 'OR';
+        }
+
         if (node.field === '_exists_' && node.term) {
             return {
                 type: 'exists',
@@ -198,14 +205,14 @@ node
     = operator:operator_exp EOF
         {
             return postProcessAST({
-                 type: 'conjunction',
+                 type: CONJUNCTION,
                  operator
             });
         }
     / rangeExp1:range_operator_exp _* operator:operator_exp _* rangeExp2:range_term _*
      {
             const node = {
-                type: 'conjunction',
+                type: CONJUNCTION,
                 left: rangeExp1,
                 operator,
                 right: rangeExp2
@@ -216,7 +223,7 @@ node
     / rangeExp1:range_term _* operator:operator_exp _* rangeExp2:range_operator_exp _*
     	{
             const node = {
-                type: 'conjunction',
+                type: CONJUNCTION,
             	left: rangeExp1,
                 operator,
                 right: rangeExp2
@@ -267,9 +274,9 @@ node
 
     / left:group_exp operator:operator_exp* right:node*
         {
-            operator = operator=='' || operator==undefined ? '<implicit>' : operator[0];
+            operator = operator=='' || operator==undefined ? IMPLICIT : operator[0];
             const node = {
-                type: 'conjunction',
+                type: CONJUNCTION,
                 left,
                 parens: false
             };
@@ -286,7 +293,7 @@ node
                 if (node.operator === 'ORNOT') {
                     node.operator = 'OR';
                 }
-                if(rightExp.type === 'conjunction') {
+                if(rightExp.type === CONJUNCTION) {
                     setBool(rightExp.left, 'negated', operator === 'NOT' || operator === 'ORNOT');
                     setBool(rightExp.left, 'or', operator === 'OR' || operator === 'ORNOT');
                 } else {
@@ -322,7 +329,7 @@ field_exp
         {
             range['field'] =
                 fieldname == '' || fieldname == undefined
-                    ? "<implicit>"
+                    ? IMPLICIT
                     : fieldname;
 
             return postProcessAST(range);
@@ -331,7 +338,7 @@ field_exp
         {
             range['field'] =
                 fieldname == '' || fieldname == undefined
-                    ? "<implicit>"
+                    ? IMPLICIT
                     : fieldname;
 
             return postProcessAST(range);
@@ -339,7 +346,7 @@ field_exp
     / fieldname:fieldname? node:paren_exp operator:operator_exp range_exp:range_term _*
         {
         	return postProcessAST({
-                type: 'conjunction',
+                type: CONJUNCTION,
                 operator,
                 left: node,
                 right: range_exp
@@ -360,7 +367,7 @@ field_exp
             const fieldexp = {
                 'field':
                     fieldname == '' || fieldname == undefined
-                        ? "<implicit>"
+                        ? IMPLICIT
                         : fieldname
                 };
 
@@ -462,6 +469,30 @@ term
 
             if('' != proximity) {
                 result.proximity = proximity;
+            }
+
+            if('' != boost) {
+                result.boost = boost;
+            }
+
+            if('' != op) {
+                result.prefix = op;
+            }
+
+            return result;
+        }
+    / op:prefix_operator_exp? term:unquoted_implicit_term similarity:fuzzy_modifier? boost:boost_modifier? _*
+        {
+
+            const termValue = coerceValue(term)
+            const result = {
+                term: termValue,
+                type: 'term',
+                quoted: false,
+            };
+
+            if('' != similarity) {
+                result.similarity = similarity;
             }
 
             if('' != boost) {
@@ -586,6 +617,21 @@ unquoted_term
 
             return res
         }
+
+unquoted_implicit_term
+    = term_start:field_char chars:implicit_term_char+ EOF &{
+        const term = term_start + chars.join('');
+        const explictChars = ['AND', 'OR', 'NOT' , '&&', '||', '!', ':', '"', '^', '~'];
+        for (const str of explictChars) {
+            if (term.includes(str)) return false;
+        }
+        return true;
+    } {
+        return term_start + chars.join('');
+    }
+
+implicit_term_char
+    = [ A-Z_a-z:0-9,'\_''\-''\+''\:''\.'\=]
 
 term_start_char
     = '.' / term_escaping_char / [^: \t\r\n\f\{\}()"+-/^~\[\]]
