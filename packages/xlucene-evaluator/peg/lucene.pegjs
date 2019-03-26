@@ -134,6 +134,10 @@
             node.right.left.or = false;
         }
 
+        if (node.operator === 'NOT') {
+            node.operator = 'AND';
+        }
+
         if (node.field === '_exists_' && node.term) {
             return {
                 type: 'exists',
@@ -193,10 +197,10 @@ start
 node
     = operator:operator_exp EOF
         {
-            return {
+            return postProcessAST({
                  type: 'conjunction',
                  operator
-            };
+            });
         }
     / rangeExp1:range_operator_exp _* operator:operator_exp _* rangeExp2:range_term _*
      {
@@ -256,8 +260,8 @@ node
         }
     / operator:operator_exp right:node
         {
-            setBool(right.left, 'negated', operator === 'NOT')
-            setBool(right.left, 'or', operator === 'OR')
+            setBool(right.left, 'negated', operator === 'NOT' || operator === 'ORNOT');
+            setBool(right.left, 'or', operator === 'OR' || operator === 'ORNOT');
             return postProcessAST(right);
         }
 
@@ -279,12 +283,15 @@ node
 
             if (rightExp != null) {
                 node.operator = operator;
+                if (node.operator === 'ORNOT') {
+                    node.operator = 'OR';
+                }
                 if(rightExp.type === 'conjunction') {
-                    setBool(rightExp.left, 'negated', operator === 'NOT');
-                    setBool(rightExp.left, 'or', operator === 'OR');
+                    setBool(rightExp.left, 'negated', operator === 'NOT' || operator === 'ORNOT');
+                    setBool(rightExp.left, 'or', operator === 'OR' || operator === 'ORNOT');
                 } else {
-                    setBool(rightExp, 'negated', operator === 'NOT');
-                    setBool(rightExp, 'or', operator === 'OR');
+                    setBool(rightExp, 'negated', operator === 'NOT' || operator === 'ORNOT');
+                    setBool(rightExp, 'or', operator === 'OR' || operator === 'ORNOT');
                 }
                 node.right = rightExp;
             }
@@ -697,6 +704,7 @@ operator_exp
  	= _* operator1:operator _* operator2:operator _*
         {
         	if (operator1 === 'AND' && operator2 === 'NOT') return 'NOT';
+            if (operator1 === 'OR' && operator2 === 'NOT') return 'ORNOT';
             throw new Error(`cannot combine operators ${operator1} and ${operator2} together`)
         }
     / _* operator:operator _+
