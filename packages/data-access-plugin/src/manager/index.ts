@@ -14,6 +14,7 @@ import schema from './schema';
 /**
  * A graphql api for managing data access
  *
+ * @todo the manager should be able to pull relational data
  * @todo add session support
 */
 export default class ManagerPlugin {
@@ -56,7 +57,7 @@ export default class ManagerPlugin {
                     };
                 }
 
-                const user = await this.manager.authenticateWithToken({
+                const user = await this.manager.authenticate({
                     api_token: token,
                 });
 
@@ -100,7 +101,7 @@ export default class ManagerPlugin {
             }
 
             rootErrorHandler(req, res, async () => {
-                const user = await this.manager.authenticateWithToken({
+                const user = await this.manager.authenticate({
                     api_token: apiToken,
                 });
 

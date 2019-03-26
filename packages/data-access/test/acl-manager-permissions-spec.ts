@@ -603,17 +603,17 @@ describe('ACLManager Permissions', () => {
 
     describe('when no user type is needed', () => {
         it('should be able to authenticate with a username and password', async () => {
-            const result = await manager.authenticateUser({ username: normalUser.username, password: 'password' });
+            const result = await manager.authenticate({ username: normalUser.username, password: 'password' });
             expect(result.id).toEqual(normalUser.id);
         });
 
         it('should be able to authenticate user with an api_token', async () => {
-            const result = await manager.authenticateUser({ api_token: normalUser.api_token });
+            const result = await manager.authenticate({ api_token: normalUser.api_token });
             expect(result.id).toEqual(normalUser.id);
         });
 
         it('should be able to authenticate with an api_token', async () => {
-            const result = await manager.authenticateWithToken({ api_token: normalUser.api_token });
+            const result = await manager.authenticate({ api_token: normalUser.api_token });
             expect(result.id).toEqual(normalUser.id);
         });
 
@@ -621,10 +621,10 @@ describe('ACLManager Permissions', () => {
             expect.hasAssertions();
 
             try {
-                await manager.authenticateUser({ });
+                await manager.authenticate({ });
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Missing user authentication fields, username, password, or api_token');
+                expect(err.message).toInclude('Missing credentials');
                 expect(err.statusCode).toEqual(401);
             }
         });

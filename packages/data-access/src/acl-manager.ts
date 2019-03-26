@@ -27,7 +27,7 @@ export class ACLManager {
         }
 
         type Query {
-            authenticateUser(username: String, password: String, api_token: String): User!
+            authenticate(username: String, password: String, api_token: String): User!
             findUser(id: ID!): User
             findUsers(query: String): [User]!
 
@@ -115,9 +115,9 @@ export class ACLManager {
     }
 
     /**
-     * Authenticate user with username and password, or an api_token
+     * Authenticate user with an api_token or username and password
      */
-    async authenticateUser(args: { username?: string, password?: string, api_token?: string }, authUser?: models.User): Promise<models.User> {
+    async authenticate(args: { username?: string, password?: string, api_token?: string }, authUser?: models.User): Promise<models.User> {
         if (args.username && args.password) {
             return this.users.authenticate(args.username, args.password);
         }
@@ -126,16 +126,9 @@ export class ACLManager {
             return this.users.authenticateWithToken(args.api_token);
         }
 
-        throw new ts.TSError('Missing user authentication fields, username, password, or api_token', {
+        throw new ts.TSError('Missing credentials', {
             statusCode: 401
         });
-    }
-
-    /**
-     * Authenticate user with api_token
-     */
-    async authenticateWithToken(args: { api_token?: string }, authUser?: models.User): Promise<models.User> {
-        return this.users.authenticateWithToken(args.api_token);
     }
 
     /**
@@ -462,7 +455,7 @@ export class ACLManager {
      * Get the User's data access configuration for a "Space"
      */
     async getViewForSpace(args: { api_token: string, space: string }, authUser?: models.User): Promise<DataAccessConfig> {
-        const user = await this.authenticateUser(args);
+        const user = await this.authenticate(args);
 
         if (!user.role) {
             const msg = `User "${user.username}" is not assigned to a role`;
@@ -781,7 +774,7 @@ export interface DataAccessConfig {
 }
 
 export const graphqlQueryMethods: (keyof ACLManager)[] = [
-    'authenticateUser',
+    'authenticate',
     'findUser',
     'findUsers',
     'findRole',
