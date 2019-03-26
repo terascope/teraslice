@@ -33,7 +33,7 @@ describe('JobSrc', () => {
         try {
             const job = new JobSrc(args); // eslint-disable-line no-unused-vars
         } catch (e) {
-            expect(e).toBe('The job file or source directory are missing');
+            expect(e.message).toBe('The job file or source directory are missing');
         }
     });
 
@@ -43,7 +43,7 @@ describe('JobSrc', () => {
             const job = new JobSrc(args);
             job.readFile();
         } catch (e) {
-            expect(e).toBe(`Cannot find ${path.join(jobPath, 'badjobname')}, check your path and file name and try again`);
+            expect(e.message).toBe(`Cannot find ${path.join(jobPath, 'badjobname')}, check your path and file name and try again`);
         }
     });
 
@@ -61,7 +61,7 @@ describe('JobSrc', () => {
             const job = new JobSrc(args); // eslint-disable-line no-unused-vars
             job.validateJob();
         } catch (e) {
-            expect(e).toBe('Job must have a name, workers, and at least 2 operations');
+            expect(e.message).toBe('Job must have a name, workers, and at least 2 operations');
         }
     });
 
@@ -184,7 +184,7 @@ describe('JobSrc', () => {
         try {
             job.init();
         } catch (e) {
-            expect(e).toBe('Job file does not contain cli data, register the job first');
+            expect(e.message).toBe('Job file does not contain cli data, register the job first');
         }
     });
 
