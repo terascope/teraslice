@@ -12,7 +12,7 @@ module.exports = () => {
 
     function fatal(err) {
         if (process.env.TJM_TEST_MODE) {
-            throw formatErr(err);
+            throw Error(err);
         } else {
             console.error(chalk.red(formatErr(err)));
             process.exit(1);

@@ -3,7 +3,7 @@
 const JobSrc = require('../../lib/job-src');
 const YargsOptions = require('../../lib/yargs-options');
 const Client = require('../../lib/utils').getTerasliceClient;
-const reply = require('../lib/reply')();
+const TjmUtil = require('../../lib/tjm-util');
 
 const yargsOptions = new YargsOptions();
 
@@ -22,16 +22,6 @@ exports.handler = async (argv) => {
     const job = new JobSrc(argv);
     job.init();
     const client = Client(job);
-
-    try {
-        const response = await client.jobs.wrap(job.jobId).start();
-
-        if (!response.job_id === job.jobId) {
-            reply.fatal(`Could not start ${job.name} on ${job.clusterUrl}`);
-        }
-
-        reply.green(`Started ${job.name} on ${job.clusterUrl}`);
-    } catch (e) {
-        reply.fatal(e.message);
-    }
+    const tjmUtil = new TjmUtil(client, job);
+    await tjmUtil.start();
 };

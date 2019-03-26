@@ -1,6 +1,6 @@
 {
     "name": "teraslice-cli",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
     "bin": {
         "teraslice-cli": "./index.js",

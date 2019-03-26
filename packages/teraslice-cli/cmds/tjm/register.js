@@ -4,6 +4,7 @@ const _ = require('lodash');
 const reply = require('../lib/reply')();
 const Config = require('../../lib/config');
 const JobSrc = require('../../lib/job-src');
+const TjmUtil = require('../../lib/tjm-util');
 const { getTerasliceClient } = require('../../lib/utils');
 const YargsOptions = require('../../lib/yargs-options');
 
@@ -26,7 +27,7 @@ exports.builder = (yargs) => {
 exports.handler = async (argv) => {
     const cliConfig = new Config(argv);
     const job = new JobSrc(argv);
-    const terasliceClient = getTerasliceClient(cliConfig);
+    const client = getTerasliceClient(cliConfig);
 
     if (job.hasMetaData) {
         const regCluster = _.get(job.content, '__metadata.cli.cluster');
@@ -35,14 +36,13 @@ exports.handler = async (argv) => {
     job.readFile();
     job.validateJob();
     try {
-        const registeredResponse = await terasliceClient.jobs
-            .submit(job.content, !cliConfig.args.start);
+        const registeredResponse = await client.jobs
+            .submit(job.content, true);
 
         const jobId = registeredResponse.id();
 
         if (registeredResponse) {
             reply.green(`Successfully registered ${job.content.name} on ${cliConfig.clusterUrl} with job id ${jobId}`);
-            if (cliConfig.args.start) reply.green(`${job.content.name} is queued to start`);
         } else {
             reply.fatal(`Failed to register ${job.content.name} on ${cliConfig.clusterUrl}`);
         }
@@ -51,5 +51,11 @@ exports.handler = async (argv) => {
         job.overwrite();
     } catch (e) {
         reply.fatal(e.message);
+    }
+
+    if (argv.start) {
+        job.init();
+        const tjmUtil = new TjmUtil(client, job);
+        tjmUtil.start();
     }
 };
