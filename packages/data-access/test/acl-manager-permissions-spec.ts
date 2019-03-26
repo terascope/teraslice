@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
-import { ACLManager, User } from '../src';
+import { ACLManager, User, DataType } from '../src';
 
 describe('ACLManager Permissions', () => {
     const client = makeClient();
@@ -12,6 +12,7 @@ describe('ACLManager Permissions', () => {
     let otherUser: User;
     let foreignUser: User;
     let foreignAdminUser: User;
+    let dataType: DataType;
 
     beforeAll(async () => {
         await cleanupIndexes(manager);
@@ -82,7 +83,12 @@ describe('ACLManager Permissions', () => {
                     client_id: 2,
                 },
                 password: 'password'
-            })
+            }),
+            manager.createDataType({
+                dataType: {
+                    name: 'SomeTestDataType',
+                }
+            }, superAdminUser),
         ]);
         ([
             superAdminUser,
@@ -91,6 +97,7 @@ describe('ACLManager Permissions', () => {
             otherUser,
             foreignUser,
             foreignAdminUser,
+            dataType
         ] = users);
     });
 
@@ -99,102 +106,55 @@ describe('ACLManager Permissions', () => {
         return manager.shutdown();
     });
 
-    describe('when authenticating the user', () => {
-        it('should be able to authenticate with a username and password', async () => {
-            const result = await manager.authenticateUser({ username: normalUser.username, password: 'password' });
-            expect(result.id).toEqual(normalUser.id);
+    describe('when acting as a SUPERADMIN', () => {
+        it('should be able to find users from another client', async () => {
+            const result = await manager.findUsers({ query: '*' }, superAdminUser);
+            expect(result).toBeArray();
+            expect(result.length).toBeGreaterThan(0);
+            expect(result[0]).toHaveProperty('api_token');
         });
 
-        it('should be able to authenticate user with an api_token', async () => {
-            const result = await manager.authenticateUser({ api_token: normalUser.api_token });
-            expect(result.id).toEqual(normalUser.id);
+        it('should be able to create a data type', async () => {
+            await manager.createDataType({
+                dataType: {
+                    name: 'SomeRandomExampleDataType'
+                }
+            }, superAdminUser);
         });
 
-        it('should be able to authenticate with an api_token', async () => {
-            const result = await manager.authenticateWithToken({ api_token: normalUser.api_token });
-            expect(result.id).toEqual(normalUser.id);
-        });
-
-        it('should throw without credentials', async () => {
-            expect.hasAssertions();
-
-            try {
-                await manager.authenticateUser({ });
-            } catch (err) {
-                expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Missing user authentication fields, username, password, or api_token');
-                expect(err.statusCode).toEqual(401);
-            }
+        it('should be able to create space', async () => {
+            await manager.createSpace({
+                space: {
+                    name: 'SomeRandomExampleSpace',
+                    endpoint: 'some-random-example-space',
+                    data_type: dataType.id,
+                    roles: [],
+                    views: [],
+                }
+            }, superAdminUser);
         });
     });
 
-    describe('when finding a user', () => {
-        it('should be able to find the authenticated user', async () => {
-            const result = await manager.findUser({ id: normalUser.id }, normalUser);
-            expect(result.id).toEqual(normalUser.id);
-            expect(result).toHaveProperty('api_token');
-        });
-
-        it('should be able to find the other user as ADMIN', async () => {
+    describe('when acting as a ADMIN', () => {
+        it('should be able to find the other user', async () => {
             const result = await manager.findUser({ id: otherUser.id }, adminUser);
             expect(result.id).toEqual(otherUser.id);
             expect(result).toHaveProperty('api_token');
         });
 
-        it('should NOT be able to see the private properties if other USER', async () => {
-            const result = await manager.findUser({ id: normalUser.id }, otherUser);
-            expect(result.id).toEqual(normalUser.id);
-            expect(result).not.toHaveProperty('api_token');
-        });
-
-        it('should throw a 404 if looking for a USER from another client', async () => {
-            expect.hasAssertions();
-
-            try {
-                await manager.findUser({ id: foreignUser.id }, normalUser);
-            } catch (err) {
-                expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Unable to find User');
-                expect(err.statusCode).toEqual(404);
-            }
-        });
-    });
-
-    describe('when finding users', () => {
-        it('should be able to find users without tokens of the same client as USER', async () => {
-            const result = await manager.findUsers({ query: '*' }, normalUser);
-            expect(result).toBeArray();
-            expect(result.length).toBeGreaterThan(0);
-            expect(result[0]).not.toHaveProperty('api_token');
-        });
-
-        it('should be able to find users with tokens of the same client as ADMIN', async () => {
+        it('should be able to find users with tokens of the same client', async () => {
             const result = await manager.findUsers({ query: '*' }, adminUser);
             expect(result).toBeArray();
             expect(result.length).toBeGreaterThan(0);
             expect(result[0]).toHaveProperty('api_token');
         });
 
-        it('should NOT be able to find users from another client as USER', async () => {
-            const result = await manager.findUsers({ query: 'NOT firstname:Foreign' }, foreignUser);
-            expect(result).toBeArrayOfSize(0);
-        });
-
-        it('should NOT be able to find users from another client as ADMIN', async () => {
+        it('should NOT be able to find users from another client', async () => {
             const result = await manager.findUsers({ query: 'NOT firstname:Foreign' }, foreignAdminUser);
             expect(result).toBeArrayOfSize(0);
         });
 
-        it('should be able to find users from another client as SUPERADMIN', async () => {
-            const result = await manager.findUsers({ query: '*' }, superAdminUser);
-            expect(result).toBeArray();
-            expect(result.length).toBeGreaterThan(0);
-            expect(result[0]).toHaveProperty('api_token');
-        });
-    });
-
-    describe('when creating a user as ADMIN', () => {
-        it('should throw if not under the same client_id', async () => {
+        it('should NOT be able to create a user for a different client', async () => {
             expect.hasAssertions();
 
             try {
@@ -215,10 +175,124 @@ describe('ACLManager Permissions', () => {
                 expect(err.statusCode).toEqual(403);
             }
         });
+
+        it('should be able to update another user', async () => {
+            await manager.updateUser({
+                user: {
+                    id: otherUser.id,
+                    firstname: 'Otherrr'
+                },
+            }, adminUser);
+        });
+
+        it('should NOT be allowed to update a user from another client', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateUser({
+                    user: {
+                        id: foreignUser.id,
+                        firstname: 'Foreign'
+                    },
+                }, adminUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to write to users outside of the their client id');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+
+        it('should be able to create a role', async () => {
+            await manager.createRole({
+                role: {
+                    name: 'SomeRandomExampleRole'
+                }
+            }, adminUser);
+        });
+
+        it('should be able to create a view', async () => {
+            await manager.createView({
+                view: {
+                    name: 'SomeRandomExampleView',
+                    data_type: dataType.id,
+                    roles: [],
+                }
+            }, adminUser);
+        });
+
+        it('should NOT be allowed to remove a space', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.removeSpace({
+                    id: 'random-id'
+                }, adminUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to remove spaces');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+
+        it('should NOT be allowed to create a space', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.createSpace({
+                    space: {
+                        name: 'SomeExampleSpace',
+                        endpoint: 'some-example-space',
+                        data_type: 'random-id',
+                        roles: [],
+                        views: [],
+                    }
+                }, adminUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to create spaces');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
     });
 
-    describe('when creating a user as USER', () => {
-        it('should throw a forbidden', async () => {
+    describe('when acting as a USER', () => {
+        it('should be able to find the authenticated user', async () => {
+            const result = await manager.findUser({ id: normalUser.id }, normalUser);
+            expect(result.id).toEqual(normalUser.id);
+            expect(result).toHaveProperty('api_token');
+        });
+
+        it('should NOT be able to see the private properties on another user', async () => {
+            const result = await manager.findUser({ id: normalUser.id }, otherUser);
+            expect(result.id).toEqual(normalUser.id);
+            expect(result).not.toHaveProperty('api_token');
+        });
+
+        it('should NOT be able to get user from another client', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.findUser({ id: foreignUser.id }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Unable to find User');
+                expect(err.statusCode).toEqual(404);
+            }
+        });
+
+        it('should be able to find users without tokens of the same client', async () => {
+            const result = await manager.findUsers({ query: '*' }, normalUser);
+            expect(result).toBeArray();
+            expect(result.length).toBeGreaterThan(0);
+            expect(result[0]).not.toHaveProperty('api_token');
+        });
+
+        it('should NOT be able to find users from another client as USER', async () => {
+            const result = await manager.findUsers({ query: 'NOT firstname:Foreign' }, foreignUser);
+            expect(result).toBeArrayOfSize(0);
+        });
+
+        it('should NOT be able to create another user', async () => {
             expect.hasAssertions();
 
             try {
@@ -239,10 +313,8 @@ describe('ACLManager Permissions', () => {
                 expect(err.statusCode).toEqual(403);
             }
         });
-    });
 
-    describe('when updating another user as USER', () => {
-        it('should throw a forbidden', async () => {
+        it('should NOT be allowed to update another user', async () => {
             expect.hasAssertions();
 
             try {
@@ -258,10 +330,8 @@ describe('ACLManager Permissions', () => {
                 expect(err.statusCode).toEqual(403);
             }
         });
-    });
 
-    describe('when updating another user\'s password as USER', () => {
-        it('should throw a forbidden', async () => {
+        it('should NOT be allowed to update another user\'s password', async () => {
             expect.hasAssertions();
 
             try {
@@ -275,10 +345,8 @@ describe('ACLManager Permissions', () => {
                 expect(err.statusCode).toEqual(403);
             }
         });
-    });
 
-    describe('when updating another user\'s token as USER', () => {
-        it('should throw a forbidden', async () => {
+        it('should NOT be allowed to updated another user', async () => {
             expect.hasAssertions();
 
             try {
@@ -291,40 +359,8 @@ describe('ACLManager Permissions', () => {
                 expect(err.statusCode).toEqual(403);
             }
         });
-    });
 
-    describe('when updating one of your USERs as an AMDIN', () => {
-        it('should succeed', async () => {
-            await manager.updateUser({
-                user: {
-                    id: otherUser.id,
-                    firstname: 'Otherrr'
-                },
-            }, adminUser);
-        });
-    });
-
-    describe('when updating a foreign USER as an AMDIN', () => {
-        it('should throw a forbidden', async () => {
-            expect.hasAssertions();
-
-            try {
-                await manager.updateUser({
-                    user: {
-                        id: foreignUser.id,
-                        firstname: 'Foreign'
-                    },
-                }, adminUser);
-            } catch (err) {
-                expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('User doesn\'t have permission to write to users outside of the their client id');
-                expect(err.statusCode).toEqual(403);
-            }
-        });
-    });
-
-    describe('when updating a USER\'s own record', () => {
-        it('should succeed', async () => {
+        it('should be allowed to update its own record', async () => {
             await manager.updateUser({
                 user: {
                     id: otherUser.id,
@@ -332,27 +368,21 @@ describe('ACLManager Permissions', () => {
                 },
             }, otherUser);
         });
-    });
 
-    describe('when updating a USER\'s own password', () => {
-        it('should succeed', async () => {
+        it('should be allowed to update its own password', async () => {
             await manager.updatePassword({
                 id: otherUser.id,
                 password: 'password'
             }, otherUser);
         });
-    });
 
-    describe('when updating a USER\'s own api token', () => {
-        it('should succeed', async () => {
+        it('should be allowed to update its own token', async () => {
             await manager.updateToken({
                 id: otherUser.id,
             }, otherUser);
         });
-    });
 
-    describe('when removing a user as USER', () => {
-        it('should throw a forbidden', async () => {
+        it('should NOT be able to remove another user', async () => {
             expect.hasAssertions();
 
             try {
@@ -365,10 +395,22 @@ describe('ACLManager Permissions', () => {
                 expect(err.statusCode).toEqual(403);
             }
         });
-    });
 
-    describe('when creating a role as a USER', () => {
-        it('should throw a forbidden', async () => {
+        it('should NOT be able to remove itself', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.removeUser({
+                    id: normalUser.id,
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to remove itself');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+
+        it('should NOT be able to create a role', async () => {
             expect.hasAssertions();
 
             try {
@@ -383,10 +425,8 @@ describe('ACLManager Permissions', () => {
                 expect(err.statusCode).toEqual(403);
             }
         });
-    });
 
-    describe('when removing a role as a USER', () => {
-        it('should throw a forbidden', async () => {
+        it('should NOT be allowed to remove a role', async () => {
             expect.hasAssertions();
 
             try {
@@ -399,20 +439,8 @@ describe('ACLManager Permissions', () => {
                 expect(err.statusCode).toEqual(403);
             }
         });
-    });
 
-    describe('when creating a role as a ADMIN', () => {
-        it('should succeed', async () => {
-            await manager.createRole({
-                role: {
-                    name: 'SomeRandomExampleRole'
-                }
-            }, adminUser);
-        });
-    });
-
-    describe('when updating a role as a USER', () => {
-        it('should throw a forbidden', async () => {
+        it('should NOT be able to update roles', async () => {
             expect.hasAssertions();
 
             try {
@@ -427,10 +455,8 @@ describe('ACLManager Permissions', () => {
                 expect(err.statusCode).toEqual(403);
             }
         });
-    });
 
-    describe('when creating a data type as a USER', () => {
-        it('should throw a forbidden', async () => {
+        it('should NOT be able to create data types', async () => {
             expect.hasAssertions();
 
             try {
@@ -445,10 +471,8 @@ describe('ACLManager Permissions', () => {
                 expect(err.statusCode).toEqual(403);
             }
         });
-    });
 
-    describe('when removing a data type as a USER', () => {
-        it('should throw a forbidden', async () => {
+        it('should NOT be able to remove a data type', async () => {
             expect.hasAssertions();
 
             try {
@@ -461,10 +485,8 @@ describe('ACLManager Permissions', () => {
                 expect(err.statusCode).toEqual(403);
             }
         });
-    });
 
-    describe('when updating a data type as a USER', () => {
-        it('should throw a forbidden', async () => {
+        it('should NOT be able to update a data type', async () => {
             expect.hasAssertions();
 
             try {
@@ -479,20 +501,8 @@ describe('ACLManager Permissions', () => {
                 expect(err.statusCode).toEqual(403);
             }
         });
-    });
 
-    describe('when creating a data type as a SUPERADMIN', () => {
-        it('should succeed', async () => {
-            await manager.createDataType({
-                dataType: {
-                    name: 'SomeRandomExampleDataType'
-                }
-            }, superAdminUser);
-        });
-    });
-
-    describe('when creating a space as a USER', () => {
-        it('should throw a forbidden', async () => {
+        it('should NOT be allowed to create space', async () => {
             expect.hasAssertions();
 
             try {
@@ -511,10 +521,8 @@ describe('ACLManager Permissions', () => {
                 expect(err.statusCode).toEqual(403);
             }
         });
-    });
 
-    describe('when removing a space as a USER', () => {
-        it('should throw a forbidden', async () => {
+        it('should NOT be allowed to remove a space', async () => {
             expect.hasAssertions();
 
             try {
@@ -527,48 +535,8 @@ describe('ACLManager Permissions', () => {
                 expect(err.statusCode).toEqual(403);
             }
         });
-    });
 
-    describe('when removing a space as a ADMIN', () => {
-        it('should throw a forbidden', async () => {
-            expect.hasAssertions();
-
-            try {
-                await manager.removeSpace({
-                    id: 'random-id'
-                }, adminUser);
-            } catch (err) {
-                expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('User doesn\'t have permission to remove spaces');
-                expect(err.statusCode).toEqual(403);
-            }
-        });
-    });
-
-    describe('when creating a space as a ADMIN', () => {
-        it('should throw a forbidden', async () => {
-            expect.hasAssertions();
-
-            try {
-                await manager.createSpace({
-                    space: {
-                        name: 'SomeExampleSpace',
-                        endpoint: 'some-example-space',
-                        data_type: 'random-id',
-                        roles: [],
-                        views: [],
-                    }
-                }, adminUser);
-            } catch (err) {
-                expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('User doesn\'t have permission to create spaces');
-                expect(err.statusCode).toEqual(403);
-            }
-        });
-    });
-
-    describe('when updating a space as a USER', () => {
-        it('should throw a forbidden', async () => {
+        it('should NOT be able to update a space', async () => {
             expect.hasAssertions();
 
             try {
@@ -583,36 +551,8 @@ describe('ACLManager Permissions', () => {
                 expect(err.statusCode).toEqual(403);
             }
         });
-    });
 
-    describe('when creating a space as a SUPERADMIN', () => {
-        let dataTypeId: string;
-
-        beforeAll(async() => {
-            const dataType = await manager.createDataType({
-                dataType: {
-                    name: 'CreateSpaceDataTypeTest',
-                }
-            }, superAdminUser);
-
-            dataTypeId = dataType.id;
-        });
-
-        it('should succeed', async () => {
-            await manager.createSpace({
-                space: {
-                    name: 'SomeRandomExampleSpace',
-                    endpoint: 'some-random-example-space',
-                    data_type: dataTypeId,
-                    roles: [],
-                    views: [],
-                }
-            }, superAdminUser);
-        });
-    });
-
-    describe('when creating a view as a USER', () => {
-        it('should throw a forbidden', async () => {
+        it('should NOT be able to create a view', async () => {
             expect.hasAssertions();
 
             try {
@@ -629,10 +569,8 @@ describe('ACLManager Permissions', () => {
                 expect(err.statusCode).toEqual(403);
             }
         });
-    });
 
-    describe('when removing a views as a USER', () => {
-        it('should throw a forbidden', async () => {
+        it('should NOT be allowed to remove a view', async () => {
             expect.hasAssertions();
 
             try {
@@ -645,10 +583,8 @@ describe('ACLManager Permissions', () => {
                 expect(err.statusCode).toEqual(403);
             }
         });
-    });
 
-    describe('when updating a data type as a USER', () => {
-        it('should throw a forbidden', async () => {
+        it('should NOT be allowed to update a view', async () => {
             expect.hasAssertions();
 
             try {
@@ -665,27 +601,32 @@ describe('ACLManager Permissions', () => {
         });
     });
 
-    describe('when creating a view as a ADMIN', () => {
-        let dataTypeId: string;
-
-        beforeAll(async() => {
-            const dataType = await manager.createDataType({
-                dataType: {
-                    name: 'CreateViewDataTypeTest',
-                }
-            }, superAdminUser);
-
-            dataTypeId = dataType.id;
+    describe('when no user type is needed', () => {
+        it('should be able to authenticate with a username and password', async () => {
+            const result = await manager.authenticateUser({ username: normalUser.username, password: 'password' });
+            expect(result.id).toEqual(normalUser.id);
         });
 
-        it('should succeed', async () => {
-            await manager.createView({
-                view: {
-                    name: 'SomeRandomExampleView',
-                    data_type: dataTypeId,
-                    roles: [],
-                }
-            }, adminUser);
+        it('should be able to authenticate user with an api_token', async () => {
+            const result = await manager.authenticateUser({ api_token: normalUser.api_token });
+            expect(result.id).toEqual(normalUser.id);
+        });
+
+        it('should be able to authenticate with an api_token', async () => {
+            const result = await manager.authenticateWithToken({ api_token: normalUser.api_token });
+            expect(result.id).toEqual(normalUser.id);
+        });
+
+        it('should throw if given no credientials', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.authenticateUser({ });
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Missing user authentication fields, username, password, or api_token');
+                expect(err.statusCode).toEqual(401);
+            }
         });
     });
 });

@@ -12,6 +12,8 @@ import { ManagerConfig } from './interfaces';
  * @todo add multi-tenant support
  * @todo only superadmins can write to to everything
  * @todo an admin should only have access its "client_id"
+ * @todo users should not be elevate their permissions
+ * @todo add read permissions for roles, views, spaces, and data types
 */
 export class ACLManager {
     static GraphQLSchema = `
@@ -218,6 +220,13 @@ export class ACLManager {
      * Remove user by id
     */
     async removeUser(args: { id: string }, authUser?: models.User): Promise<boolean> {
+        const type = await this._getUserType(authUser);
+        if (authUser && type === 'USER' && args.id === authUser.id) {
+            throw new ts.TSError('User doesn\'t have permission to remove itself', {
+                statusCode: 403
+            });
+        }
+
         await this._validateUserInput({ id: args.id }, authUser);
 
         const exists = await this.users.exists(args.id);
