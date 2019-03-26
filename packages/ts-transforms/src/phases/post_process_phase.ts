@@ -1,15 +1,15 @@
 
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
-import { OperationConfig, WatcherConfig, ConfigProcessingDict } from '../interfaces';
+import { PostProcessConfig, WatcherConfig, PostProcessingDict } from '../interfaces';
 import PhaseBase from './base';
 import { OperationsManager } from '../operations';
 
 export default class PostProcessPhase extends PhaseBase {
-    constructor(opConfig: WatcherConfig, configList: ConfigProcessingDict, opsManager: OperationsManager) {
+    constructor(opConfig: WatcherConfig, configList: PostProcessingDict, opsManager: OperationsManager) {
         super(opConfig);
 
-        function loadOp(config: OperationConfig) {
+        function loadOp(config: PostProcessConfig) {
             const opName = config.post_process || config.validation;
             const Op = opsManager.getTransform(opName as string);
             return new Op(config);
@@ -25,14 +25,15 @@ export default class PostProcessPhase extends PhaseBase {
         if (!this.hasProcessing) return dataArray;
         const resultsList: DataEntity[] = [];
 
-        _.each(dataArray, (data) => {
+        dataArray.forEach((data) => {
             const startingMetaData = data.getMetadata();
             const { selectors } = startingMetaData;
             let record: DataEntity | null = data;
 
-            _.forOwn(selectors, (_value, key) => {
-                if (this.phase[key]) {
-                    record = this.phase[key].reduce<DataEntity | null>((record, fn) => {
+            selectors.forEach((selector: string) => {
+                if (this.phase[selector]) {
+                    // @ts-ignore
+                    record = this.phase[selector].reduce<DataEntity | null>((record, fn) => {
                         if (!record) return record;
                         return fn.run(record);
                     }, record);

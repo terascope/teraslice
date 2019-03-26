@@ -1,6 +1,7 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
 import { LuceneQueryAccess } from '../src';
+import { SearchParams } from 'elasticsearch';
 
 describe('LuceneQueryAccess', () => {
     describe('when constructed without exclude', () => {
@@ -129,6 +130,26 @@ describe('LuceneQueryAccess', () => {
             expect(() => queryAccess.restrict(query)).toThrowError('Implicit queries are restricted');
         });
 
+        it('should throw when using *', () => {
+            expect.hasAssertions();
+
+            const query = '*';
+
+            expect(() => queryAccess.restrict(query)).toThrowError('Implicit queries are restricted');
+        });
+
+        it('should not throw if field implicit are allowed', () => {
+            expect.hasAssertions();
+
+            const query = '*';
+
+            const result = new LuceneQueryAccess({
+                allow_implicit_queries: true
+            }).restrict(query);
+
+            expect(result).toEqual(query);
+        });
+
         it('should throw if field is not included', () => {
             const query = 'hello:world AND bar:foo';
 
@@ -205,6 +226,60 @@ describe('LuceneQueryAccess', () => {
             const query = 'hello:world AND bytes:{2000 TO *]';
 
             expect(queryAccess.restrict(query)).toEqual(query);
+        });
+    });
+
+    describe('when converting to an elasticsearch search query', () => {
+        const queryAccess = new LuceneQueryAccess({
+            excludes: [
+                'bar',
+                'baz'
+            ],
+            includes: [
+                'foo',
+                'moo'
+            ],
+        });
+
+        it('should be able to return a restricted query', () => {
+            const params: SearchParams = {
+                q: 'idk',
+                _sourceInclude: [
+                    'moo'
+                ],
+                _sourceExclude: [
+                    'baz'
+                ]
+            };
+
+            const result = queryAccess.restrictSearchQuery('foo:bar', params);
+            expect(result).toMatchObject({
+                _sourceExclude: [
+                    'baz'
+                ],
+                _sourceInclude: [
+                    'moo'
+                ],
+            });
+
+            expect(params).toHaveProperty('q', 'idk');
+            expect(result).not.toHaveProperty('q', 'idk');
+        });
+
+        it('should be able to return a restricted query without any params', () => {
+            const result = queryAccess.restrictSearchQuery('foo:bar');
+            expect(result).toMatchObject({
+                _sourceExclude: [
+                    'bar',
+                    'baz'
+                ],
+                _sourceInclude: [
+                    'foo',
+                    'moo'
+                ],
+            });
+
+            expect(result).not.toHaveProperty('q', 'idk');
         });
     });
 });

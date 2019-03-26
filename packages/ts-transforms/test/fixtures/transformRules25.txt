@@ -1,10 +1,10 @@
-{ "selector": "some:value", "source_field": "other", "target_field": "field", "tag":"hello"}
+{ "selector": "some:value", "source_field": "other", "target_field": "field", "tag":"hello" }
 
 { "follow": "hello", "post_process": "extraction", "target_field": "first_copy", "mutate": true, "tag":"tag1" }
 { "follow": "hello","post_process": "extraction", "target_field": "second_copy", "regex": "da.*a", "mutate": true, "tag":"tag2" }
 { "follow": "hello","post_process": "extraction", "target_field": "third_copy", "regex": "so.*e", "mutate": true, "tag":"tag3" }
 
- {"follow": "tag1", "post_process": "array", "target_field": "first_copy"}
- {"follow": "tag2", "post_process": "array", "target_field": "second_copy"}
- {"follow": "tag3", "post_process": "array", "target_field": "third_copy"}
+{ "follow": "tag1", "post_process": "array", "target_field": "first_copy" }
+{ "follow": "tag2", "post_process": "array", "target_field": "second_copy" }
+{ "follow": "tag3", "post_process": "array", "target_field": "third_copy" }
 

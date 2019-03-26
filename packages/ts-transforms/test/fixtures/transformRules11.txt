@@ -1,1 +1,2 @@
-{ "selector": "domain:example.com", "source_field": "url", "start": "field3=", "end": "EOP", "target_field": "field3", "post_process": "base64decode" }
+{ "selector": "domain:example.com", "source_field": "url", "start": "field3=", "end": "EOP", "target_field": "field3", "tag": "decodeMe" }
+{ "follow": "decodeMe", "post_process": "base64decode" }

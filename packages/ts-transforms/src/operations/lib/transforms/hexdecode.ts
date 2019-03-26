@@ -1,11 +1,11 @@
 
 import _ from 'lodash';
 import { DataEntity } from '@terascope/utils';
-import { OperationConfig } from '../../../interfaces';
+import { PostProcessConfig } from '../../../interfaces';
 import TransformOpBase from './base';
 
 export default class HexDecode extends TransformOpBase {
-    constructor(config: OperationConfig) {
+    constructor(config: PostProcessConfig) {
         super(config);
     }
 

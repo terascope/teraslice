@@ -86,13 +86,13 @@ describe('selector operator', () => {
     it('can add selectors metadata to match documents', () => {
         const opConfig = { selector: 'some:data', __id: 'someId' };
         const test =  new Selector(opConfig);
-        const metaData = { 'some:data': true };
-        const secondMetaData = { 'other:data': true };
-        const mergedMetaData = Object.assign({}, metaData, secondMetaData);
+        const metaData = ['some:data'];
+        const secondMetaData = ['other:data'];
+        const mergedMetaData = [...secondMetaData, ...metaData];
 
         const data1 = new DataEntity({ some: 'data' });
         const data2 = new DataEntity({ other: 'data' });
-        const data3 = new DataEntity({ some: 'data' }, { selectors: secondMetaData });
+        const data3 = new DataEntity({ some: 'data' }, { selectors: ['other:data'] });
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);

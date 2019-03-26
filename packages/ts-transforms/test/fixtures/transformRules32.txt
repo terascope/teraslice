@@ -1,0 +1,3 @@
+{ "source_field": "id", "target_field": "valid_id", "other_match_required": true }
+{ "selector": "some:value", "source_field": "first", "target_field": "last" }
+{ "source_field": "some", "target_field": "thing" }

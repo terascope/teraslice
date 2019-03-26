@@ -27,12 +27,16 @@ export interface ConjunctionAST extends BaseAST {
 
     left?: AST;
     right?: AST;
-    operator: 'AND'|'OR'|'NOT';
+    operator: 'AND'|'OR'|'NOT'|ImplicitField;
     parens?: boolean;
+    negated?: boolean;
+    or?: boolean;
 }
 
 interface BaseFieldAST extends BaseAST {
     field: string|ImplicitField;
+    negated?: boolean;
+    or?: boolean;
 }
 
 export interface RangeAST extends BaseFieldAST {
@@ -55,6 +59,7 @@ export interface TermAST extends BaseFieldAST {
     term: string|number|boolean;
     regexpr: boolean;
     wildcard: boolean;
+    prefix?: boolean;
 }
 
 export interface RegexpAST extends TermAST {

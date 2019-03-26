@@ -1,6 +1,6 @@
 import fs from 'fs';
 import readline from 'readline';
-import { WatcherConfig, UnParsedConfig } from '../interfaces';
+import { WatcherConfig, OperationConfigInput } from '../interfaces';
 import _ from 'lodash';
 import { Logger } from '@terascope/utils';
 
@@ -14,30 +14,30 @@ export default class RulesLoader {
         this.logger = logger;
     }
 
-    public async load(): Promise<UnParsedConfig[]> {
-        const results = await Promise.all<UnParsedConfig[]>(this.opConfig.rules.map((ruleFile) => this.fileLoader(ruleFile)));
+    public async load(): Promise<OperationConfigInput[]> {
+        const results = await Promise.all<OperationConfigInput[]>(this.opConfig.rules.map((ruleFile) => this.fileLoader(ruleFile)));
         return _.flatten(results);
     }
 
-    private parseConfig(strConfig: string): UnParsedConfig {
+    private parseConfig(strConfig: string): OperationConfigInput {
         if (strConfig.charAt(0) !== '{') {
-            return { selector: strConfig as string };
+            return { selector: strConfig };
         }
         return JSON.parse(strConfig);
     }
 
-    private async fileLoader(ruleFile: string): Promise<UnParsedConfig[]> {
+    private async fileLoader(ruleFile: string): Promise<OperationConfigInput[]> {
         const parseConfig = this.parseConfig.bind(this);
-        const results: UnParsedConfig[] = [];
-        const errorResults: UnParsedConfig[] = [];
+        const results: OperationConfigInput[] = [];
+        const errorResults: string[] = [];
         let hasError = false;
 
         const rl = readline.createInterface({
             input: fs.createReadStream(ruleFile),
             crlfDelay: Infinity
         });
-        // TODO: error handling here
-        return new Promise<UnParsedConfig[]>((resolve, reject) => {
+
+        return new Promise<OperationConfigInput[]>((resolve, reject) => {
             rl.on('line', (str) => {
                 if (str) {
                     const configStr = str.trim();

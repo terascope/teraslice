@@ -3,10 +3,10 @@ import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
 import querystring from 'querystring';
 import TransformOpBase from './base';
-import { OperationConfig } from '../../../interfaces';
+import { PostProcessConfig } from '../../../interfaces';
 
 export default class UrlDecode extends TransformOpBase {
-    constructor(config: OperationConfig) {
+    constructor(config: PostProcessConfig) {
         super(config);
     }
 

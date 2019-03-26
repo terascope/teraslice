@@ -1,14 +1,14 @@
 
 import _ from 'lodash';
 import ValidationOpBase from './base';
-import { OperationConfig } from '../../../interfaces';
+import { PostProcessConfig } from '../../../interfaces';
 
 export default class StringValidation extends ValidationOpBase<any> {
     private length?: number;
     private min?: number;
     private max?: number;
 
-    constructor(config: OperationConfig) {
+    constructor(config: PostProcessConfig) {
         super(config);
         this.length = config.length;
     }

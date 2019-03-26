@@ -5,27 +5,12 @@ import { DataEntity } from '@terascope/utils';
 describe('transform operator', () => {
 
     it('can instantiate', () => {
-        const opConfig = { target_field: 'someField', source_field: 'someField', __id: 'someId' };
+        const opConfig = { target_field: 'someField', source_field: 'someField', __id: 'someId', mutate: false };
         expect(() => new Extraction(opConfig)).not.toThrow();
     });
 
-    it('can properly throw with bad config values', () => {
-        const badConfig1 = { source_field: 1324 };
-        const badConfig2 = { target_field: [] };
-        const badConfig3 = { source_field: false, target_field: 'someField' };
-        const badConfig4 = {};
-        // @ts-ignore
-        expect(() => new Extraction(badConfig1)).toThrow();
-        // @ts-ignore
-        expect(() => new Extraction(badConfig2)).toThrow();
-        // @ts-ignore
-        expect(() => new Extraction(badConfig3)).toThrow();
-        // @ts-ignore
-        expect(() => new Extraction(badConfig4)).toThrow();
-    });
-
     it('can transform data', () => {
-        const opConfig = { source_field: 'someField', target_field: 'otherField', __id: 'someId' };
+        const opConfig = { source_field: 'someField', target_field: 'otherField', __id: 'someId', mutate: false };
         const test = new Extraction(opConfig);
 
         const data1 = new DataEntity({ someField: '56.234,95.234' });
@@ -55,7 +40,7 @@ describe('transform operator', () => {
     });
 
     it('can transform data with start/end', () => {
-        const opConfig = { source_field: 'someField', target_field: 'otherField', start: 'field=', end: 'SomeStr', __id: 'someId' };
+        const opConfig = { source_field: 'someField', target_field: 'otherField', start: 'field=', end: 'SomeStr', __id: 'someId', mutate: false };
         const test = new Extraction(opConfig);
 
         const data1 = new DataEntity({ someField: '56.234,95.234' });
@@ -93,7 +78,7 @@ describe('transform operator', () => {
     });
 
     it('can transform data end = ', () => {
-        const opConfig = { source_field: 'someField', target_field: 'otherField', start: 'field=', end: 'EOP', __id: 'someId' };
+        const opConfig = { source_field: 'someField', target_field: 'otherField', start: 'field=', end: 'EOP', __id: 'someId', mutate: false };
         const test = new Extraction(opConfig);
 
         const data1 = new DataEntity({ someField: 'field=data&SomeStr' });
@@ -110,7 +95,7 @@ describe('transform operator', () => {
     });
 
     it('can transform data with regex', () => {
-        const opConfig = { regex: 'd.*ta', source_field: 'someField', target_field: 'otherField', __id: 'someId' };
+        const opConfig = { regex: /d.*ta/, source_field: 'someField', target_field: 'otherField', __id: 'someId', mutate: false };
         const test = new Extraction(opConfig);
 
         const data1 = new DataEntity({ someField: '56.234,95.234' });
@@ -144,18 +129,53 @@ describe('transform operator', () => {
         expect(results9).toEqual({ otherField: ['data', 'data'] });
     });
 
-    it('can transform data with regex that are set with //', () => {
-        const opConfig = { regex: '/d.*ta/', source_field: 'someField', target_field: 'otherField', __id: 'someId' };
+    it('can maintain extract array values to array extractions and singular values to singular extractions', () => {
+        // direct field transfer ignores multivalue=false
+        const opConfig1 = { source_field: 'someField', target_field: 'otherField', __id: 'someId', mutate: false, multivalue: false };
+        const opConfig2 = { source_field: 'someField', target_field: 'otherField', __id: 'someId', start: 'data=', end: 'EOP', mutate: false };
+        const opConfig3 = { source_field: 'someField', target_field: 'otherField', __id: 'someId',  start: 'data=', end: 'EOP', mutate: false, multivalue: false };
+
+        const test1 = new Extraction(opConfig1);
+        const test2 = new Extraction(opConfig2);
+        const test3 = new Extraction(opConfig3);
+
+        const resultsData1 = { someField: 'data=value' };
+        const resultsData2 = { someField: ['data=value'] };
+
+        const data1 = new DataEntity(resultsData1);
+        const data2 = new DataEntity(resultsData2);
+
+        const results1 = test1.run(data1);
+        const results2 = test1.run(data2);
+        const results3 = test2.run(data1);
+        const results4 = test2.run(data2);
+        const results5 = test3.run(data1);
+        const results6 = test3.run(data2);
+
+        expect(results1).toEqual({ otherField: 'data=value' });
+        expect(results2).toEqual({ otherField: ['data=value'] });
+        expect(results3).toEqual({ otherField: 'value' });
+        expect(results4).toEqual({ otherField: ['value'] });
+        expect(results5).toEqual({ otherField: 'value' });
+        expect(results6).toEqual({ otherField: 'value' });
+    });
+
+    it('multivalue:false matches only return the first match', () => {
+        const opConfig = { source_field: 'someField', target_field: 'otherField', __id: 'someId',  start: 'data=', end: 'EOP', mutate: false, multivalue: false };
+
         const test = new Extraction(opConfig);
 
-        const data1 = new DataEntity({ someField: 'data' });
-        const data2 = new DataEntity({ someField: ['other', 'data'] });
+        const resultsData1 = { someField: ['data=value'] };
+        const resultsData2 = { someField: ['data=other', 'data=value'] };
+
+        const data1 = new DataEntity(resultsData1);
+        const data2 = new DataEntity(resultsData2);
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
 
-        expect(results1).toEqual({ otherField: 'data' });
-        expect(results2).toEqual({ otherField: ['data'] });
+        expect(results1).toEqual({ otherField: 'value' });
+        expect(results2).toEqual({ otherField: 'other' });
     });
 
     it('can mutate existing doc instead of returning a new one', () => {
@@ -164,7 +184,6 @@ describe('transform operator', () => {
 
         const dataArray = DataEntity.makeArray([
             { someField: '56.234,95.234' },
-            {},
             { someField: 'data' },
             { someField: { some: 'data' } },
             { someField: false },
@@ -176,36 +195,6 @@ describe('transform operator', () => {
             if (doc.someField !== undefined) {
                 doc['otherField'] = doc.someField;
             }
-            if (Object.keys(doc).length === 0) return null;
-            return doc;
-        });
-        const resultsArray = dataArray.map(data => test.run(data));
-
-        resultsArray.forEach((result, ind) => {
-            if (result) expect(DataEntity.isDataEntity(result)).toEqual(true);
-            expect(result).toEqual(finalArray[ind]);
-        });
-    });
-
-    it('can mutate existing doc by default for post_processing', () => {
-        const opConfig = { post_process: 'extraction', source_field: 'someField', target_field: 'otherField', __id: 'someId' };
-        const test = new Extraction(opConfig);
-
-        const dataArray = DataEntity.makeArray([
-            { someField: '56.234,95.234' },
-            {},
-            { someField: 'data' },
-            { someField: { some: 'data' } },
-            { someField: false },
-            { someField: 'other' },
-            { otherField: 'data' }
-        ]);
-
-        const finalArray = dataArray.map((doc) => {
-            if (doc.someField !== undefined) {
-                doc['otherField'] = doc.someField;
-            }
-            if (Object.keys(doc).length === 0) return null;
             return doc;
         });
         const resultsArray = dataArray.map(data => test.run(data));
@@ -230,7 +219,7 @@ describe('transform operator', () => {
             __id: 'someId'
         };
 
-        const opConfig3 = { selector: 'some:data', source_field: 'someField', target_field: 'otherField', __id: 'someId' };
+        const opConfig3 = { selector: 'some:data', source_field: 'someField', target_field: 'otherField', __id: 'someId', mutate: false };
 
         const test1 =  new Extraction(opConfig);
         const test2 =  new Extraction(opConfig2);

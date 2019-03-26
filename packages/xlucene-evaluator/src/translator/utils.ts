@@ -117,46 +117,74 @@ export function buildBoolQuery(node: AST): BoolQuery {
         }
     };
 
-    let joinType;
-    if (node.operator === 'OR') {
-        joinType = 'should';
-    } else if (node.operator === 'NOT') {
-        joinType = 'must_not';
-    } else {
-        joinType = 'filter';
-    }
+    addToBoolQuery(boolQuery, node, 'left');
+    addToBoolQuery(boolQuery, node, 'right');
 
-    const queries: AnyQuery[] = [];
-
-    if (node.left) {
-        const query = buildAnyQuery(node.left, node);
-        if (query) {
-            queries.push(query);
-        }
-    }
-
-    if (node.right) {
-        const query = buildAnyQuery(node.right, node);
-        if (isBoolQuery(query) && canFlattenBoolQuery(node)) {
-            queries.push(...query.bool.filter);
-            queries.push(...query.bool.must_not);
-            queries.push(...query.bool.should);
-        } else {
-            if (query) {
-                queries.push(query);
-            }
-        }
-    }
-
-    boolQuery.bool[joinType].push(...queries);
-
-    logger.trace('built bool query', { node, boolQuery });
+    logger.trace('built bool query', boolQuery, node);
     return boolQuery;
 }
 
+function addToBoolQuery(boolQuery: BoolQuery, node: AST, side: 'right'|'left') {
+    const child = node[side];
+    if (!child) return;
+
+    const joinType = getJoinType(node, side);
+    const query = buildAnyQuery(child, node);
+
+    if (isBoolQuery(query) && canFlattenBoolQuery(node)) {
+        boolQuery.bool.filter.push(...query.bool.filter);
+        boolQuery.bool.must_not.push(...query.bool.must_not);
+        boolQuery.bool.should.push(...query.bool.should);
+    } else if (query) {
+        boolQuery.bool[joinType].push(query);
+    }
+}
+
+export function getJoinType(node: AST, side: 'right'|'left'): 'should'|'must_not'|'filter' {
+    if (node[side]!.negated) return 'must_not';
+    if (node[side]!.or) return 'should';
+    if (!node.operator && node[side]!.operator) {
+        if (node[side]!.operator === 'OR') {
+            return 'should';
+        }
+        return 'filter';
+    }
+
+    if (node[side]!.field === IMPLICIT && node.operator === 'OR') {
+        return 'should';
+    }
+
+    if (side === 'right' && node.parens && node[side]!.operator === 'OR') {
+        return 'should';
+    }
+
+    if (side === 'right' && node.operator === 'OR') {
+        return 'should';
+    }
+
+    return 'filter';
+}
+
 export function canFlattenBoolQuery(node: AST): boolean {
-    if (!node.right || node.right.parens) return false;
-    return node.right.operator === node.operator;
+    const operator = node.operator;
+    const rightOperator = node.right && node.right.operator;
+    const leftOperator = node.left && node.left.operator;
+
+    if (leftOperator && rightOperator) {
+        if (leftOperator === rightOperator && leftOperator === operator) {
+            return true;
+        }
+    }
+
+    if (node.type === 'conjunction' && !node.parens) {
+        return true;
+    }
+
+    if (rightOperator) {
+        return operator === rightOperator;
+    }
+
+    return false;
 }
 
 export function isBoolQuery(query: any): query is BoolQuery {

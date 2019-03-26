@@ -1,12 +1,12 @@
 
 import _ from 'lodash';
-import { OperationConfig, InputOutputCardinality } from '../../interfaces';
 import { DataEntity } from '@terascope/utils';
+import { OperationConfig, InputOutputCardinality } from '../../interfaces';
 
 export default class OperationBase {
     protected source!: string|string[];
     protected target!: string|string[];
-    protected config: OperationConfig;
+    readonly config: OperationConfig;
     protected destination: string|string[];
     protected hasTarget: boolean;
 

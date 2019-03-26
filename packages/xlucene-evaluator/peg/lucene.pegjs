@@ -72,58 +72,56 @@
  *
  */
 
- {
-	const geoParameters = {
-		_geo_point_: 'geo_point',
-		_geo_distance_: 'geo_distance',
-		_geo_box_top_left_: 'geo_box_top_left',
-		_geo_box_bottom_right_: 'geo_box_bottom_right',
-	};
+{
+    const geoParameters = {
+        _geo_point_: 'geo_point',
+        _geo_distance_: 'geo_distance',
+        _geo_box_top_left_: 'geo_box_top_left',
+        _geo_box_bottom_right_: 'geo_box_bottom_right',
+    };
 
-	function isGeoExpression(node) {
-		return geoParameters[node.field] != null;
-	}
+    function isGeoExpression(node) {
+        if (!node) return false;
+        return geoParameters[node.field] != null;
+    }
 
-	function walkAstReduce(node, fn, accum){
-		fn(node, accum)
-		if (node.left) walkAstReduce(node.left, fn, accum)
-		if (node.right) walkAstReduce(node.right, fn, accum)
-	}
+    function walkAstReduce(node, fn, accum) {
+        fn(node, accum);
+        if (node.left) walkAstReduce(node.left, fn, accum);
+        if (node.right) walkAstReduce(node.right, fn, accum);
+    }
 
-    function walkAstUntil(node, fn, done){
-        if (done(node)) return;
-		fn(node)
-		if (node.left) walkAstUntil(node.left, fn, done)
-		if (node.right) walkAstUntil(node.right, fn, done)
-	}
-
-	function getGeoData(node, accum) {
-		if (isGeoExpression(node)) {
-			accum[geoParameters[node.field]] = node.term;
-		}
-	}
+    function getGeoData(node, accum) {
+        if (isGeoExpression(node)) {
+            accum[geoParameters[node.field]] = node.term;
+        }
+    }
 
     // propagate fields when dealing with parens
     // this makes it easier for the other code to
     // deal with the AST
     function propagateFields(node) {
         if (node.left && !node.left.field) {
-            node.left.field = node.field;
+            if (node.field) {
+                node.left.field = node.field;
+            }
             if (node.left.type === "conjunction") {
                 propagateFields(node.left);
             }
         }
 
         if (node.right && !node.right.field) {
-            node.right.field = node.field;
+            if (node.field) {
+                node.right.field = node.field;
+            }
             if (node.right.type === "conjunction") {
                 propagateFields(node.right);
             }
         }
     }
 
-	function postProcessAST(node) {
-		if (node.left && isGeoExpression(node.left)) {
+    function postProcessAST(node) {
+		if (isGeoExpression(node.left) && isGeoExpression(node.right)) {
 			const parsedGeoNode = { field: node.field };
 			walkAstReduce(node, getGeoData, parsedGeoNode);
             parsedGeoNode.type = 'geo';
@@ -193,30 +191,30 @@ node
             };
         }
     / rangeExp1:range_operator_exp _* operator:operator_exp _* rangeExp2:range_term _*
-    	{
-            const results = {
+     {
+            const node = {
                 type: 'conjunction',
-            	left: rangeExp1,
+                left: rangeExp1,
                 operator,
                 right: rangeExp2
             };
 
-            return results;
+            return postProcessAST(node);
         }
     / rangeExp1:range_term _* operator:operator_exp _* rangeExp2:range_operator_exp _*
     	{
-            const results = {
+            const node = {
                 type: 'conjunction',
             	left: rangeExp1,
                 operator,
                 right: rangeExp2
             };
 
-            return results;
+            return postProcessAST(node);
         }
     / type:range_exp_op range_value:rangevalue _* operator_exp _* type2:range_exp_op range_value2:rangevalue _*
         {
-            const results = {
+            const node = {
                 type: 'range',
                 term_min: range_value,
                 term_max: Infinity,
@@ -229,32 +227,35 @@ node
             args[type2] = range_value2;
 
             if (args['>=']) {
-                results.inclusive_min = true;
-                results.term_min = args['>='];
+                node.inclusive_min = true;
+                node.term_min = args['>='];
             }
 
             if (args['>']) {
-                results.term_min = args['>'];
+                node.term_min = args['>'];
             }
 
             if (args['<=']) {
-                results.inclusive_max = true;
-                results.term_max = args['<='];
+                node.inclusive_max = true;
+                node.term_max = args['<='];
             }
 
             if (args['<']) {
-                results.term_max = args['<'];
+                node.term_max = args['<'];
             }
 
-            return results;
+            return postProcessAST(node);
         }
     / operator:operator_exp right:node
         {
-            return right;
+            right.left.negated = operator === 'NOT';
+            right.left.or = operator === 'OR';
+            return postProcessAST(right);
         }
 
     / left:group_exp operator:operator_exp* right:node*
         {
+            operator = operator=='' || operator==undefined ? '<implicit>' : operator[0];
             const node = {
                 type: 'conjunction',
                 left,
@@ -269,12 +270,18 @@ node
                         : right[0];
 
             if (rightExp != null) {
-                node.type = 'conjunction';
-                node.operator = operator=='' || operator==undefined ? '<implicit>' : operator[0];
+                node.operator = operator;
+                if(rightExp.type === 'conjunction') {
+                    rightExp.left.negated = operator === 'NOT';
+                    rightExp.left.or = operator === 'OR';
+                } else {
+                    rightExp.negated = operator === 'NOT';
+                    rightExp.or = operator === 'OR';
+                }
                 node.right = rightExp;
             }
 
-            return node;
+            return postProcessAST(node);
         }
 
 group_exp
@@ -290,7 +297,7 @@ paren_exp
             const results = node[0];
             // only mark if there is further logic to group
             if (results.left || results.right) results.parens = true;
-            return results;
+            return postProcessAST(results);
         }
 
 field_exp
@@ -301,7 +308,7 @@ field_exp
                     ? "<implicit>"
                     : fieldname;
 
-            return range;
+            return postProcessAST(range);
         }
     / fieldname:fieldname? range:range_term
         {
@@ -310,15 +317,16 @@ field_exp
                     ? "<implicit>"
                     : fieldname;
 
-            return range;
+            return postProcessAST(range);
         }
     / fieldname:fieldname? node:paren_exp operator:operator_exp range_exp:range_term _*
         {
-        	return {
+        	return postProcessAST({
+                type: 'conjunction',
                 operator,
                 left: node,
                 right: range_exp
-            };
+            });
         }
     / fieldname:fieldname? node:paren_exp
         {
@@ -328,7 +336,7 @@ field_exp
     / fieldname:fieldname range_exp:range_term
         {
             range_exp.field = fieldname;
-            return range_exp;
+            return postProcessAST(range_exp);
         }
     / fieldname:fieldname? term:term
         {
@@ -693,9 +701,14 @@ operator_exp
 operator
     = 'OR'
     / 'AND'
-    / 'NOT'
     / '||' { return 'OR'; }
     / '&&' { return 'AND'; }
+    / not_operator
+
+not_operator
+    = 'NOT'
+    // maybe we need this?
+    // / 'AND NOT' { return 'NOT'}
     / '!' { return 'NOT'}
 
 prefix_operator_exp

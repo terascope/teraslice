@@ -1,6 +1,6 @@
 {
     "name": "xlucene-evaluator",
-    "version": "0.5.1",
+    "version": "0.6.0",
     "srcMain": "src/index.ts",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
@@ -46,7 +46,8 @@
         "lodash": "^4.17.11"
     },
     "devDependencies": {
-        "pegjs": "^0.10.0"
+        "pegjs": "^0.10.0",
+        "elasticsearch": "^15.4.1"
     },
     "engines": {
         "node": ">=8.0.0"

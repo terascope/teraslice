@@ -9,9 +9,12 @@ import {
     OperationConfig,
     ValidationResults,
     NormalizedFields,
-    ConfigProcessingDict,
+    ExtractionProcessingDict,
     StateDict,
-    UnParsedConfig
+    OperationConfigInput,
+    SelectorConfig,
+    ExtractionConfig,
+    PostProcessConfig
 } from '../interfaces';
 
 const  { Graph, alg: { topsort, findCycles } } = graphlib;
@@ -20,94 +23,6 @@ export function parseConfig(configList: OperationConfig[], opsManager: Operation
     const graph = new Graph();
     const tagMapping: StateDict = {};
     const graphEdges: StateDict = {};
-
-    function normalizeConfig(configList: OperationConfig[]): OperationConfig[] {
-        const results: OperationConfig[] = [];
-
-        return configList.reduce((list, config) => {
-            if (hasPostProcess(config)) {
-                if (config.source_field) {
-                    if (!config.target_field) config.target_field = config.source_field;
-                    list.push(config);
-                } else {
-                    // we search inside the list of altered normalized configs.
-                    // This works becuase topsort orders them
-                    const { soureField, targetField } = findFields(config, list);
-                    if (isOneToOne(opsManager, config)) {
-                        const results = createMatchingConfig(soureField, targetField, config);
-                        list.push(...results);
-                    } else {
-                        config.source_fields = soureField;
-                        if (targetField && !Array.isArray(targetField)) {
-                            config.target_field = targetField;
-                        } else {
-                            checkForTarget(config);
-                        }
-                        list.push(config);
-                    }
-                }
-            } else {
-                list.push(config);
-            }
-            return list;
-        }, results);
-    }
-
-    function createMatchingConfig(fields: string[], targetField: undefined|string|string[], config: OperationConfig): OperationConfig[] {
-        // we clone the original to preserve the __id in reference to tag mappings and the like
-        const original = _.cloneDeep(config);
-        return fields.map((source, index) => {
-            // @ts-ignore
-            let resultsObj: OperationConfig = {};
-            if (index === 0) {
-                resultsObj = original;
-            } else {
-                resultsObj = Object.assign({}, config, { __id: shortid.generate() });
-                if (resultsObj.tags) {
-                    resultsObj.tags.forEach((tag) => {
-                        if (!tagMapping[tag]) {
-                            tagMapping[tag] = [];
-                        }
-                        tagMapping[tag].push(resultsObj.__id);
-                    });
-                }
-            }
-
-            resultsObj['source_field'] = source;
-            if (targetField === undefined) {
-                resultsObj['target_field'] = source;
-            } else if (Array.isArray(targetField)) {
-                resultsObj['target_field'] = targetField[index];
-            } else {
-                resultsObj['target_field'] = targetField;
-            }
-
-            checkForSource(resultsObj);
-            checkForTarget(resultsObj);
-            return resultsObj;
-        });
-    }
-
-    function isOneToOne(opsManager: OperationsManager, config: OperationConfig): boolean {
-        if (isOnlySelector(config)) return true;
-        const processType = config.validation || config.post_process || 'extraction';
-        const Operation = opsManager.getTransform(processType as string);
-        return Operation.cardinality === 'one-to-one';
-    }
-
-    function findFields(config:OperationConfig, configList: OperationConfig[]): NormalizedFields {
-        const targetField = config.target_field;
-        const identifier = config.follow || config.__id;
-        const nodeIds: string[] = tagMapping[identifier];
-
-        const targetFieldList = configList
-            .filter(obj => nodeIds.includes(obj.__id) && _.has(obj, 'target_field'))
-            .map(obj => obj.target_field as string);
-
-        const soureField = _.uniq(targetFieldList);
-        if (soureField === undefined || soureField.length === 0) throw new Error(`could not find source field for config ${JSON.stringify(config)}`);
-        return { targetField, soureField };
-    }
 
     configList.forEach((config) => {
         const configId = config.__id;
@@ -170,15 +85,104 @@ export function parseConfig(configList: OperationConfig[], opsManager: Operation
     const sortList = topsort(graph);
     const configListOrder: OperationConfig[] = sortList.map(id => graph.node(id));
     // we are mutating the config to make sure it has all the necessary fields
-    const normalizedConfig = normalizeConfig(configListOrder);
+    const normalizedConfig = normalizeConfig(configListOrder, opsManager, tagMapping);
     const results = createResults(normalizedConfig);
     validateOtherMatchRequired(results.extractions, logger);
     return results;
 }
 
-function validateOtherMatchRequired(configDict: ConfigProcessingDict, logger: Logger) {
+function findFields(config:OperationConfig, configList: OperationConfig[], tagMapping: StateDict): NormalizedFields {
+    const targetField = config.target_field;
+    const identifier = config.follow || config.__id;
+    const nodeIds: string[] = tagMapping[identifier];
+    let soureField: string[] = [];
+    const pipeline: string[] = [];
+
+    configList
+        .filter(obj => nodeIds.includes(obj.__id) && _.has(obj, 'target_field'))
+        .forEach(obj => {
+            soureField.push(obj.target_field as string);
+            const pipelineName = obj.__pipeline || obj.selector;
+            pipeline.push(pipelineName as string);
+        });
+    soureField = _.uniq(soureField);
+    if (soureField === undefined || soureField.length === 0) throw new Error(`could not find source field for config ${JSON.stringify(config)}`);
+    // @ts-ignore
+    return { targetField, soureField, pipeline };
+}
+
+function normalizeConfig(configList: OperationConfig[], opsManager: OperationsManager, tagMapping: StateDict): OperationConfig[] {
+    const results: OperationConfig[] = [];
+
+    return configList.reduce((list, config) => {
+        if (hasPostProcess(config)) {
+            // we search inside the list of altered normalized configs.
+            // This works becuase topsort orders them
+            const { soureField, targetField, pipeline } = findFields(config, list, tagMapping);
+            if (isOneToOne(opsManager, config)) {
+                const results = createMatchingConfig(soureField, targetField, config, pipeline, tagMapping);
+                list.push(...results);
+            } else {
+                config.__pipeline = pipeline[0];
+                config.source_fields = soureField;
+                if (targetField && !Array.isArray(targetField)) {
+                    config.target_field = targetField;
+                } else {
+                    checkForTarget(config);
+                }
+                list.push(config);
+            }
+        } else {
+            list.push(config);
+        }
+        return list;
+    }, results);
+}
+
+function createMatchingConfig(fields: string[], targetField: undefined|string|string[], config: OperationConfig, pipeline: string[], tagMapping: StateDict): OperationConfig[] {
+    // we clone the original to preserve the __id in reference to tag mappings and the like
+    const original = _.cloneDeep(config);
+
+    return fields.map((source, index) => {
+        let resultsObj: Partial<OperationConfig> = {};
+
+        let pipelineConfig = {};
+        if (pipeline.length > 0) {
+            pipelineConfig = pipeline.length > 0 ? { __pipeline: pipeline.shift() } : { __pipeline: config.selector };
+        }
+
+        if (index === 0) {
+            resultsObj = Object.assign(original, pipelineConfig);
+        } else {
+            resultsObj = Object.assign({}, config, { __id: shortid.generate() }, pipelineConfig);
+            if (resultsObj.tags) {
+                resultsObj.tags.forEach((tag) => {
+                    if (!tagMapping[tag]) {
+                        tagMapping[tag] = [];
+                    }
+                    tagMapping[tag].push(resultsObj.__id as string);
+                });
+            }
+        }
+
+        if (!resultsObj['source_field']) resultsObj['source_field'] = source;
+        if (targetField === undefined) {
+            resultsObj['target_field'] = source;
+        } else if (Array.isArray(targetField)) {
+            resultsObj['target_field'] = targetField[index];
+        } else {
+            resultsObj['target_field'] = targetField;
+        }
+
+        checkForSource(resultsObj as OperationConfig);
+        checkForTarget(resultsObj as OperationConfig);
+        return resultsObj as OperationConfig;
+    });
+}
+
+function validateOtherMatchRequired(configDict: ExtractionProcessingDict, logger: Logger) {
     _.forOwn(configDict, (opsList, selector) => {
-        const hasMatchRequired = opsList.find(op => op.other_match_required === true) !== undefined;
+        const hasMatchRequired = opsList.find(op => !!op.other_match_required) != null;
         if (hasMatchRequired && opsList.length === 1) {
             logger.warn(`
             There is only a single extraction for selector ${selector} and it has other_match_required set to true.
@@ -194,21 +198,33 @@ function checkForSource(config: OperationConfig) {
     }
 }
 
+function isOneToOne(opsManager: OperationsManager, config: OperationConfig): boolean {
+    if (isOnlySelector(config)) return true;
+    const processType = config.validation || config.post_process || 'extraction';
+    const Operation = opsManager.getTransform(processType as string);
+    return Operation.cardinality === 'one-to-one';
+}
+
 function checkForTarget(config: OperationConfig) {
     if (!config.target_field) {
         throw new Error(`could not find target fields for config ${JSON.stringify(config)}`);
     }
 }
 
-type Config = OperationConfig|UnParsedConfig;
-
+type Config = OperationConfig|OperationConfigInput;
+// FIXME: look to remove
 export function isPrimaryConfig(config: Config) {
-    return hasSelector(config) && !hasFollow(config) && !isPostProcessType(config, 'selector');
+    return hasSelector(config) && !isPostProcessType(config, 'selector');
 }
 
 export function needsDefaultSelector(config: Config) {
     return !hasSelector(config) && !hasFollow(config);
 }
+
+function isPrimarySelector(config:Config) {
+    return hasSelector(config) && !hasPostProcess(config);
+}
+
 function isOnlySelector(config:Config) {
     return hasSelector(config) && !hasExtractions(config) && !hasPostProcess(config);
 }
@@ -229,7 +245,7 @@ function hasPostProcess(config: Config): boolean {
     return (_.has(config, 'post_process') || _.has(config, 'validation'));
 }
 
-export function isOldCompatabilityPostProcessConfig(config: Config): boolean {
+export function isDeprecatedCompactConfig(config: Config): boolean {
     return (!hasFollow(config) && hasPostProcess(config) && hasSelector(config));
 }
 
@@ -284,11 +300,11 @@ function createResults(list: OperationConfig[]): ValidationResults {
             output.matchRequirements[key as string] = config.selector as string;
         }
 
-        if (isPrimaryConfig(config)) {
+        if (isPrimarySelector(config)) {
+            currentSelector = config.selector;
             if (!duplicateListing[config.selector as string]) {
                 duplicateListing[config.selector as string] = true;
-                currentSelector = config.selector;
-                results.selectors.push(config);
+                results.selectors.push(config as SelectorConfig);
             }
         }
 
@@ -296,15 +312,19 @@ function createResults(list: OperationConfig[]): ValidationResults {
             if (!results.extractions[currentSelector as string]) {
                 results.extractions[currentSelector as string] = [];
             }
-            results.extractions[currentSelector as string].push(config);
+            config.mutate = false;
+            results.extractions[currentSelector as string].push(config as ExtractionConfig);
         }
 
         if (hasPostProcess(config)) {
+            if (config.__pipeline) currentSelector = config.__pipeline;
             if (!results.postProcessing[currentSelector as string]) {
-                results.postProcessing[currentSelector as string] = [config];
-            } else {
-                results.postProcessing[currentSelector as string].push(config);
+                results.postProcessing[currentSelector as string] = [];
             }
+            if (isPostProcessType(config, 'extraction')) {
+                if (config.mutate == null) config.mutate = true;
+            }
+            results.postProcessing[currentSelector as string].push(config as PostProcessConfig);
         }
     });
 

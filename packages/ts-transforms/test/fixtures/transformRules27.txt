@@ -1,2 +1,2 @@
-{"selector": "hello:world", "source_field": "first", "target_field": "first_name"}
-{"selector": "hello:world", "validation": "string", "output": false}
+{ "selector": "hello:world", "source_field": "first", "target_field": "first_name" }
+{ "selector": "hello:world", "validation": "string", "output": false }
