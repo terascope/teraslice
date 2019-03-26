@@ -931,4 +931,22 @@ describe('can transform matches', () => {
             valid_id: '12345',
         });
     });
+
+    it('can catch all selector extractions', async () => {
+
+        const config: WatcherConfig = {
+            rules: [getPath('sameSourceDifferentSelector.txt')],
+        };
+
+        const data = [
+            new DataEntity({ some: 'selector', inputarray: ['Value1=email1@gmail.com', 'Value1=asdfasdf'] }),
+            new DataEntity({ some: 'selector2', inputarray: ['Value2=email2@gmail.com', 'Value2=asdfasdf'] }),
+        ];
+
+        const test = await opTest.init(config, [Plugins]);
+        const results =  await test.run(data);
+
+        expect(results[0]).toEqual({ email: ['email1@gmail.com'] });
+        expect(results[1]).toEqual({ email: ['email2@gmail.com'] });
+    });
 });

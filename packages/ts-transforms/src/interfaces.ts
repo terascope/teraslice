@@ -123,12 +123,6 @@ export interface ValidationResults {
     output: OutputValidation;
 }
 
-export interface NormalizedFields{
-    soureField: string[];
-    targetField: string|undefined;
-    pipeline: string[];
-}
-
 export interface StateDict {
     [field: string]: string[];
 }

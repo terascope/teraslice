@@ -1,0 +1,5 @@
+{ "selector": "some:selector", "source_field": "inputarray", "start": "Value1=", "end": "EOP", "target_field": "email", "tag": "email_address", "output": true }
+
+{ "selector": "some:selector2", "source_field": "inputarray", "start": "Value2=", "end": "EOP", "target_field": "email", "tag": "email_address", "output": true }
+
+{ "follow": "email_address", "validation": "email" }
