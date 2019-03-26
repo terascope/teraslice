@@ -73,19 +73,19 @@ export class ACLManager {
 
     logger: ts.Logger;
 
-    private readonly roles: models.Roles;
-    private readonly spaces: models.Spaces;
-    private readonly users: models.Users;
-    private readonly views: models.Views;
-    private readonly dataTypes: models.DataTypes;
+    private readonly _roles: models.Roles;
+    private readonly _spaces: models.Spaces;
+    private readonly _users: models.Users;
+    private readonly _views: models.Views;
+    private readonly _dataTypes: models.DataTypes;
 
     constructor(client: es.Client, config: ManagerConfig) {
         this.logger = config.logger || ts.debugLogger('acl-manager');
-        this.roles = new models.Roles(client, config);
-        this.spaces = new models.Spaces(client, config);
-        this.users = new models.Users(client, config);
-        this.views = new models.Views(client, config);
-        this.dataTypes = new models.DataTypes(client, config);
+        this._roles = new models.Roles(client, config);
+        this._spaces = new models.Spaces(client, config);
+        this._users = new models.Users(client, config);
+        this._views = new models.Views(client, config);
+        this._dataTypes = new models.DataTypes(client, config);
     }
 
      /**
@@ -93,11 +93,11 @@ export class ACLManager {
      */
     async initialize() {
         await Promise.all([
-            this.roles.initialize(),
-            this.spaces.initialize(),
-            this.users.initialize(),
-            this.views.initialize(),
-            this.dataTypes.initialize(),
+            this._roles.initialize(),
+            this._spaces.initialize(),
+            this._users.initialize(),
+            this._views.initialize(),
+            this._dataTypes.initialize(),
         ]);
     }
 
@@ -106,11 +106,11 @@ export class ACLManager {
      */
     async shutdown() {
         await Promise.all([
-            this.roles.shutdown(),
-            this.spaces.shutdown(),
-            this.users.shutdown(),
-            this.views.shutdown(),
-            this.dataTypes.shutdown(),
+            this._roles.shutdown(),
+            this._spaces.shutdown(),
+            this._users.shutdown(),
+            this._views.shutdown(),
+            this._dataTypes.shutdown(),
         ]);
     }
 
@@ -119,11 +119,11 @@ export class ACLManager {
      */
     async authenticate(args: { username?: string, password?: string, api_token?: string }, authUser?: models.User): Promise<models.User> {
         if (args.username && args.password) {
-            return this.users.authenticate(args.username, args.password);
+            return this._users.authenticate(args.username, args.password);
         }
 
         if (args.api_token) {
-            return this.users.authenticateWithToken(args.api_token);
+            return this._users.authenticateWithToken(args.api_token);
         }
 
         throw new ts.TSError('Missing credentials', {
@@ -147,9 +147,9 @@ export class ACLManager {
                 excludes:  canSeeToken ? ['hash', 'salt'] : ['api_token', 'hash', 'salt'],
             });
 
-            return this.users.findById(args.id, queryAccess);
+            return this._users.findById(args.id, queryAccess);
         }
-        return this.users.findById(args.id);
+        return this._users.findById(args.id);
     }
 
     /**
@@ -166,9 +166,9 @@ export class ACLManager {
                 excludes: canSeeToken ? ['hash', 'salt'] : ['api_token', 'hash', 'salt'],
                 allow_implicit_queries: true
             });
-            return this.users.find(args.query, {}, queryAccess);
+            return this._users.find(args.query, {}, queryAccess);
         }
-        return this.users.find(args.query);
+        return this._users.find(args.query);
     }
 
     /**
@@ -177,7 +177,7 @@ export class ACLManager {
     async createUser(args: { user: models.CreateUserInput, password: string }, authUser?: models.User) {
         await this._validateUserInput(args.user, authUser);
 
-        return this.users.createWithPassword(args.user, args.password);
+        return this._users.createWithPassword(args.user, args.password);
     }
 
     /**
@@ -188,8 +188,8 @@ export class ACLManager {
     async updateUser(args: { user: models.UpdateUserInput }, authUser?: models.User): Promise<models.User> {
         await this._validateUserInput(args.user, authUser);
 
-        await this.users.update(args.user);
-        return this.users.findById(args.user.id);
+        await this._users.update(args.user);
+        return this._users.findById(args.user.id);
     }
 
     /**
@@ -197,7 +197,7 @@ export class ACLManager {
     */
     async updatePassword(args: { id: string, password: string }, authUser?: models.User): Promise<boolean> {
         await this._validateUserInput({ id: args.id }, authUser);
-        await this.users.updatePassword(args.id, args.password);
+        await this._users.updatePassword(args.id, args.password);
         return true;
     }
 
@@ -206,7 +206,7 @@ export class ACLManager {
     */
     async updateToken(args: { id: string }, authUser?: models.User): Promise<string> {
         await this._validateUserInput({ id: args.id }, authUser);
-        return await this.users.updateToken(args.id);
+        return await this._users.updateToken(args.id);
     }
 
     /**
@@ -222,11 +222,11 @@ export class ACLManager {
 
         await this._validateUserInput({ id: args.id }, authUser);
 
-        const exists = await this.users.exists(args.id);
+        const exists = await this._users.exists(args.id);
         if (!exists) return false;
 
         await this._validateUserInput({ id: args.id }, authUser);
-        await this.users.deleteById(args.id);
+        await this._users.deleteById(args.id);
         return true;
     }
 
@@ -234,14 +234,14 @@ export class ACLManager {
      * Find role by id
     */
     async findRole(args: { id: string }, authUser?: models.User) {
-        return this.roles.findById(args.id);
+        return this._roles.findById(args.id);
     }
 
     /**
      * Find roles by a given query
     */
     async findRoles(args: { query?: string } = {}, authUser?: models.User) {
-        return this.roles.find(args.query);
+        return this._roles.find(args.query);
     }
 
     /**
@@ -251,7 +251,7 @@ export class ACLManager {
         await this._validateCanCreate('roles', authUser);
         await this._validateRoleInput(args.role);
 
-        return this.roles.create(args.role);
+        return this._roles.create(args.role);
     }
 
     /**
@@ -261,8 +261,8 @@ export class ACLManager {
         await this._validateCanUpdate('roles', authUser);
         await this._validateRoleInput(args.role);
 
-        await this.roles.update(args.role);
-        return this.roles.findById(args.role.id);
+        await this._roles.update(args.role);
+        return this._roles.findById(args.role.id);
     }
 
     /**
@@ -271,13 +271,13 @@ export class ACLManager {
     async removeRole(args: { id: string }, authUser?: models.User) {
         await this._validateCanRemove('roles', authUser);
 
-        const exists = await this.roles.exists(args.id);
+        const exists = await this._roles.exists(args.id);
         if (!exists) return false;
 
         await Promise.all([
-            this.views.removeRoleFromViews(args.id),
-            this.users.removeRoleFromUsers(args.id),
-            this.roles.deleteById(args.id),
+            this._views.removeRoleFromViews(args.id),
+            this._users.removeRoleFromUsers(args.id),
+            this._roles.deleteById(args.id),
         ]);
 
         return true;
@@ -287,14 +287,14 @@ export class ACLManager {
      * Find data type by id
     */
     async findDataType(args: { id: string }, authUser?: models.User) {
-        return this.dataTypes.findById(args.id);
+        return this._dataTypes.findById(args.id);
     }
 
     /**
      * Find data types by a given query
     */
     async findDataTypes(args: { query?: string } = {}, authUser?: models.User) {
-        return this.dataTypes.find(args.query);
+        return this._dataTypes.find(args.query);
     }
 
     /**
@@ -304,7 +304,7 @@ export class ACLManager {
         await this._validateCanCreate('data types', authUser);
         await this._validateDataTypeInput(args.dataType);
 
-        return this.dataTypes.create(args.dataType);
+        return this._dataTypes.create(args.dataType);
     }
 
     /**
@@ -314,8 +314,8 @@ export class ACLManager {
         await this._validateCanUpdate('data types', authUser);
         await this._validateDataTypeInput(args.dataType);
 
-        await this.dataTypes.update(args.dataType);
-        return this.dataTypes.findById(args.dataType.id);
+        await this._dataTypes.update(args.dataType);
+        return this._dataTypes.findById(args.dataType.id);
     }
 
     /**
@@ -326,10 +326,10 @@ export class ACLManager {
     async removeDataType(args: { id: string }, authUser?: models.User) {
         await this._validateCanRemove('data types', authUser);
 
-        const exists = await this.dataTypes.exists(args.id);
+        const exists = await this._dataTypes.exists(args.id);
         if (!exists) return false;
 
-        await this.dataTypes.deleteById(args.id);
+        await this._dataTypes.deleteById(args.id);
 
         return true;
     }
@@ -338,14 +338,14 @@ export class ACLManager {
      * Find space by id
     */
     async findSpace(args: { id: string }, authUser?: models.User) {
-        return this.spaces.findById(args.id);
+        return this._spaces.findById(args.id);
     }
 
     /**
      * Find spaces by a given query
     */
     async findSpaces(args: { query?: string } = {}, authUser?: models.User) {
-        return this.spaces.find(args.query);
+        return this._spaces.find(args.query);
     }
 
     /**
@@ -358,7 +358,7 @@ export class ACLManager {
         await this._validateCanCreate('spaces', authUser);
         await this._validateSpaceInput(args.space);
 
-        return this.spaces.create(args.space);
+        return this._spaces.create(args.space);
     }
 
     /**
@@ -368,8 +368,8 @@ export class ACLManager {
         await this._validateCanUpdate('spaces', authUser);
         await this._validateSpaceInput(args.space);
 
-        await this.spaces.update(args.space);
-        return this.spaces.findById(args.space.id);
+        await this._spaces.update(args.space);
+        return this._spaces.findById(args.space.id);
     }
 
     /**
@@ -378,10 +378,10 @@ export class ACLManager {
     async removeSpace(args: { id: string }, authUser?: models.User) {
         await this._validateCanRemove('spaces', authUser);
 
-        const exists = await this.spaces.exists(args.id);
+        const exists = await this._spaces.exists(args.id);
         if (!exists) return false;
 
-        await this.spaces.deleteById(args.id);
+        await this._spaces.deleteById(args.id);
         return true;
     }
 
@@ -389,14 +389,14 @@ export class ACLManager {
      * Find view by id
     */
     async findView(args: { id: string }, authUser?: models.User) {
-        return this.views.findById(args.id);
+        return this._views.findById(args.id);
     }
 
     /**
      * Find views by a given query
     */
     async findViews(args: { query?: string } = {}, authUser?: models.User) {
-        return this.views.find(args.query);
+        return this._views.find(args.query);
     }
 
     /**
@@ -406,7 +406,7 @@ export class ACLManager {
         await this._validateCanCreate('views', authUser);
         await this._validateViewInput(args.view);
 
-        const result = await this.views.create(args.view);
+        const result = await this._views.create(args.view);
         return result;
     }
 
@@ -421,7 +421,7 @@ export class ACLManager {
 
         let oldDataType: string|undefined;
         if (args.view.data_type) {
-            const currentView = await this.views.findById(view.id);
+            const currentView = await this._views.findById(view.id);
             oldDataType = currentView.data_type;
         }
 
@@ -433,8 +433,8 @@ export class ACLManager {
             }
         }
 
-        await this.views.update(args.view);
-        return this.views.findById(args.view.id);
+        await this._views.update(args.view);
+        return this._views.findById(args.view.id);
     }
 
     /**
@@ -443,11 +443,11 @@ export class ACLManager {
     async removeView(args: { id: string }, authUser?: models.User) {
         await this._validateCanRemove('views', authUser);
 
-        const exists = await this.views.exists(args.id);
+        const exists = await this._views.exists(args.id);
         if (!exists) return false;
 
-        await this.spaces.removeViewFromSpaces(args.id);
-        await this.views.deleteById(args.id);
+        await this._spaces.removeViewFromSpaces(args.id);
+        await this._views.deleteById(args.id);
         return true;
     }
 
@@ -463,8 +463,8 @@ export class ACLManager {
         }
 
         const [role, space] = await Promise.all([
-            this.roles.findById(user.role),
-            this.spaces.findByAnyId(args.space),
+            this._roles.findById(user.role),
+            this._spaces.findByAnyId(args.space),
         ]);
 
         const hasAccess = space.roles.includes(user.role);
@@ -474,8 +474,8 @@ export class ACLManager {
         }
 
         const [view, dataType] = await Promise.all([
-            this.views.getViewOfSpace(space, role.id),
-            this.dataTypes.findById(space.data_type)
+            this._views.getViewOfSpace(space, role.id),
+            this._dataTypes.findById(space.data_type)
         ]);
 
         return this._parseDataAccessConfig({
@@ -492,7 +492,7 @@ export class ACLManager {
     private async _getClientId(user?: Partial<models.User>): Promise<number> {
         if (!user) return 0;
         if (user.id && user.client_id == null) {
-            return (await this.users.findById(user.id)).client_id || 0;
+            return (await this._users.findById(user.id)).client_id || 0;
         }
         return user.client_id || 0;
     }
@@ -500,7 +500,7 @@ export class ACLManager {
     private async _getUserType(user?: Partial<models.User>): Promise<models.UserType> {
         if (!user) return 'SUPERADMIN';
         if (user.id && user.type == null) {
-            return (await this.users.findById(user.id)).type || 'USER';
+            return (await this._users.findById(user.id)).type || 'USER';
         }
         return user.type || 'USER';
     }
@@ -539,7 +539,7 @@ export class ACLManager {
             });
         }
 
-        if (this.users.isPrivateUser(user)) {
+        if (this._users.isPrivateUser(user)) {
             const fields = models.Users.PrivateFields.join(', ');
             throw new ts.TSError(`Cannot update restricted fields, ${fields}`, {
                 statusCode: 422,
@@ -547,7 +547,7 @@ export class ACLManager {
         }
 
         if (user.role) {
-            const exists = await this.roles.exists(user.role);
+            const exists = await this._roles.exists(user.role);
             if (!exists) {
                 throw new ts.TSError(`Missing role with user, ${user.role}`, {
                     statusCode: 422
@@ -589,7 +589,7 @@ export class ACLManager {
         if (space.roles) {
             space.roles = ts.uniq(space.roles);
 
-            const exists = await this.roles.exists(space.roles);
+            const exists = await this._roles.exists(space.roles);
             if (!exists) {
                 const rolesStr = space.roles.join(', ');
                 throw new ts.TSError(`Missing roles with space, ${rolesStr}`, {
@@ -599,7 +599,7 @@ export class ACLManager {
         }
 
         if (space.data_type) {
-            const exists = await this.dataTypes.exists(space.data_type);
+            const exists = await this._dataTypes.exists(space.data_type);
             if (!exists) {
                 throw new ts.TSError(`Missing data_type ${space.data_type}`, {
                     statusCode: 422
@@ -610,7 +610,7 @@ export class ACLManager {
         if (space.views) {
             space.views = ts.uniq(space.views);
 
-            const views = await this.views.findAll(space.views);
+            const views = await this._views.findAll(space.views);
             if (views.length !== space.views.length) {
                 const viewsStr = space.views.join(', ');
                 throw new ts.TSError(`Missing views with space, ${viewsStr}`, {
@@ -663,7 +663,7 @@ export class ACLManager {
         if (view.roles) {
             view.roles = ts.uniq(view.roles);
 
-            const exists = await this.roles.exists(view.roles);
+            const exists = await this._roles.exists(view.roles);
             if (!exists) {
                 const rolesStr = view.roles.join(', ');
                 throw new ts.TSError(`Missing roles with view, ${rolesStr}`, {
@@ -673,7 +673,7 @@ export class ACLManager {
         }
 
         if (view.data_type) {
-            const exists = await this.dataTypes.exists(view.data_type);
+            const exists = await this._dataTypes.exists(view.data_type);
             if (!exists) {
                 throw new ts.TSError(`Missing data_type ${view.data_type}`, {
                     statusCode: 422
