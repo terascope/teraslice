@@ -8,7 +8,7 @@ describe('document matcher', () => {
         documentMatcher = new DocumentMatcher();
     });
 
-    describe('exact match and term expressions', () => {
+    fdescribe('exact match and term expressions', () => {
         it('can match basic terms', () => {
             const data = { hello: 'world' };
             const badData = { hello: 'goodbye' };
@@ -161,7 +161,7 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data4)).toEqual(false);
         });
 
-        it('can handle _exists_', () => {
+        fit('can handle _exists_', () => {
             const data1 = { some: 'data' };
             const data2 = { other: 'data' };
             const data3 = { some: null };
