@@ -42,7 +42,7 @@ export default class RulesLoader {
                 if (str) {
                     const configStr = str.trim();
                     const isComment = configStr[0] === '#';
-                    if (!isComment) {
+                    if (!isComment && configStr.length > 0) {
                         try {
                             results.push(parseConfig(configStr));
                         } catch (err) {

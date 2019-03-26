@@ -392,6 +392,29 @@ This will take all inputs and create an array
 ]
 ```
 
+NOTE: if you have an array as an input value, the results will be put together
+
+``` js
+// rules
+
+{ "selector": "hello:world", "source_field": "field1", "target_field": "value1", "output": false, "tag": "values" }
+{ "selector": "hello:world", "source_field": "field2", "target_field": "value2", "output": false, "tag": "values" }
+{ "follow": "values", "post_process": "array", "target_field": "results" }
+
+// Incoming data
+[
+    { hello: 'world', field1: ['hello', 'there'] },
+    { hello: 'world', field2: 'world' },
+]
+
+
+// Results
+
+[
+    { results: ['hello', 'there', 'world'] }
+]
+```
+
 
 ### base64decode
 This will attempt to base64 decode the indicated field, and will remove the field on failure

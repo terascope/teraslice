@@ -37,6 +37,16 @@ describe('MakeArray operator', () => {
         expect(results).toEqual({ first: 'John', last: 'Doe', full: ['John', 'Doe'] });
     });
 
+    it('can make an array of fields if values are arrays or singular values', () => {
+        const opConfig = { post_process: 'array', fields: ['first', 'last'], target_field: 'full', __id: 'someId', follow: 'someTag' };
+        const test =  new MakeArray(opConfig);
+        const data = new DataEntity({ first: ['John', 'Jane'], last: 'Doe' });
+        const results = test.run(data);
+
+        expect(DataEntity.isDataEntity(results)).toEqual(true);
+        expect(results).toEqual({ first: ['John', 'Jane'], last: 'Doe', full: ['John', 'Jane', 'Doe'] });
+    });
+
     it('can make an array of fields of data entities through source_fields', () => {
         const opConfig = { post_process: 'array', source_fields: ['first', 'last'], target_field: 'full', __id: 'someId', follow: 'otherId' };
         const test =  new MakeArray(opConfig);
