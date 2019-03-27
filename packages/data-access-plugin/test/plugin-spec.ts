@@ -2,7 +2,7 @@ import 'jest-extended';
 import got from 'got';
 import express from 'express';
 import { Server } from 'http';
-import { request } from 'graphql-request';
+import { GraphQLClient } from 'graphql-request';
 import { TestContext } from '@terascope/job-components';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
 import { PluginConfig } from '../src/interfaces';
@@ -64,6 +64,8 @@ describe('Data Access Plugin', () => {
         return `http://localhost:${port}/api/v2/${_uri}`;
     }
 
+    let reqClient: GraphQLClient;
+
     beforeAll(async () => {
         await Promise.all([
             cleanupIndexes(manager.manager),
@@ -84,6 +86,12 @@ describe('Data Access Plugin', () => {
             manager.initialize(),
             search.initialize(),
         ]);
+
+        reqClient = new GraphQLClient(formatBaseUri('/data-access'), {
+            headers: {
+                Authorization: `Basic ${Buffer.from('admin:admin').toString('base64')}`,
+            },
+        });
 
         manager.registerRoutes();
         search.registerRoutes();
@@ -118,7 +126,6 @@ describe('Data Access Plugin', () => {
 
     describe('when using the management api', () => {
         it('should be able to create a role', async () => {
-            const uri = formatBaseUri('/data-access');
             const query = `
                 mutation {
                     createRole(role: {
@@ -131,7 +138,7 @@ describe('Data Access Plugin', () => {
                 }
             `;
 
-            const { createRole } = await request(uri, query);
+            const { createRole } = await reqClient.request(query);
             roleId = createRole.id;
             expect(roleId).toBeTruthy();
 
@@ -141,7 +148,6 @@ describe('Data Access Plugin', () => {
         });
 
         it('should be able to create a data type', async () => {
-            const uri = formatBaseUri('/data-access');
             const query = `
                 mutation {
                     createDataType(dataType: {
@@ -159,7 +165,7 @@ describe('Data Access Plugin', () => {
                 }
             `;
 
-            const { createDataType } = await request(uri, query);
+            const { createDataType } = await reqClient.request(query);
 
             dataTypeId = createDataType.id;
             expect(dataTypeId).toBeTruthy();
@@ -177,7 +183,6 @@ describe('Data Access Plugin', () => {
             expect(roleId).toBeTruthy();
             expect(dataTypeId).toBeTruthy();
 
-            const uri = formatBaseUri('/data-access');
             const query = `
                 mutation {
                     createView(view: {
@@ -196,7 +201,7 @@ describe('Data Access Plugin', () => {
                 }
             `;
 
-            const { createView } = await request(uri, query);
+            const { createView } = await reqClient.request(query);
 
             viewId = createView.id;
             expect(viewId).toBeTruthy();
@@ -213,7 +218,6 @@ describe('Data Access Plugin', () => {
             expect(dataTypeId).toBeTruthy();
             expect(viewId).toBeTruthy();
 
-            const uri = formatBaseUri('/data-access');
             const query = `
                 mutation {
                     createSpace(space: {
@@ -244,7 +248,7 @@ describe('Data Access Plugin', () => {
                 }
             `;
 
-            const { createSpace } = await request(uri, query);
+            const { createSpace } = await reqClient.request(query);
 
             spaceId = createSpace.id;
             expect(spaceId).toBeTruthy();
@@ -265,7 +269,6 @@ describe('Data Access Plugin', () => {
         it('should be able to create a user', async () => {
             expect(roleId).toBeTruthy();
 
-            const uri = formatBaseUri('/data-access');
             const query = `
                 mutation {
                     createUser(user: {
@@ -287,7 +290,7 @@ describe('Data Access Plugin', () => {
                 }
             `;
 
-            const { createUser } = await request(uri, query);
+            const { createUser } = await reqClient.request(query);
 
             userId = createUser.id;
             expect(userId).toBeTruthy();
@@ -307,7 +310,6 @@ describe('Data Access Plugin', () => {
             expect(spaceId).toBeTruthy();
             expect(viewId).toBeTruthy();
 
-            const uri = formatBaseUri('/data-access');
             const query = `
                 query {
                     findRole(id: "${roleId}") {
@@ -351,7 +353,7 @@ describe('Data Access Plugin', () => {
                 }
             `;
 
-            expect(await request(uri, query)).toEqual({
+            expect(await reqClient.request(query)).toEqual({
                 findRole: {
                     client_id: 1,
                     name: 'greeter'
@@ -368,6 +370,9 @@ describe('Data Access Plugin', () => {
                     lastname: 'hello'
                 },
                 findUsers: [
+                    {
+                        username: 'admin'
+                    },
                     {
                         username: 'hello'
                     }
@@ -433,7 +438,6 @@ describe('Data Access Plugin', () => {
         it('should be able to update a user\'s password', async () => {
             expect(userId).toBeTruthy();
 
-            const uri = formatBaseUri('/data-access');
             const query = `
                 mutation {
                     updatePassword(id: "${userId}", password: "bananas")
@@ -441,7 +445,7 @@ describe('Data Access Plugin', () => {
                 }
             `;
 
-            const result: any = await request(uri, query);
+            const result: any = await reqClient.request(query);
             expect(result.updatePassword).toBeTrue();
             expect(result.updateToken).not.toBe(apiToken);
 
@@ -618,7 +622,6 @@ describe('Data Access Plugin', () => {
             it('should be able to update the space', async () => {
                 expect(spaceId).toBeTruthy();
 
-                const uri = formatBaseUri('/data-access');
                 const query = `
                     mutation {
                         updateSpace(space: {
@@ -639,7 +642,7 @@ describe('Data Access Plugin', () => {
                     }
                 `;
 
-                expect(await request(uri, query)).toEqual({
+                expect(await reqClient.request(query)).toEqual({
                     updateSpace: {
                         id: spaceId,
                         search_config: {
@@ -688,7 +691,6 @@ describe('Data Access Plugin', () => {
         expect(roleId).toBeTruthy();
         expect(spaceId).toBeTruthy();
 
-        const uri = formatBaseUri('/data-access');
         const query = `
             mutation {
                 removeSpace(id: "${spaceId}")
@@ -697,7 +699,7 @@ describe('Data Access Plugin', () => {
             }
         `;
 
-        expect(await request(uri, query)).toEqual({
+        expect(await reqClient.request(query)).toEqual({
             removeSpace: true,
             removeRole: true,
             removeUser: true

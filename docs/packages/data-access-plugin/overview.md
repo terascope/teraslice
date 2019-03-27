@@ -23,7 +23,7 @@ data_access:
   namespace: 'test_teraserver'
   # the connection name
   connection: 'default'
-  # run without authentication for data access management
+  # [DEVELOPMENT] Enabling this flag will cause a SUPERADMIN user to be created when this plugin is initialzed and there are no other users. The SUPERADMIN's credentials are (username: admin, password: admin). Make sure to only run one worker when using this mode.
   bootstrap_mode: true
 teraserver:
   plugins:
@@ -127,6 +127,7 @@ query {
 ```js
 mutation {
   createRole(role:{
+    client_id: 1,
     name: "Example Role"
   }){
     id
@@ -139,6 +140,7 @@ mutation {
 ```js
 mutation {
   createUser(user:{
+    client_id: 1,
     username:"example-user",
     email:"user@example.com",
     firstname:"Billy",
@@ -157,6 +159,7 @@ mutation {
 ```js
 mutation {
   createDataType(dataType:{
+    client_id: 1,
     name: "Example Data Type"
     type_config: {
         created: "date",
@@ -173,6 +176,7 @@ mutation {
 ```js
 mutation {
   createView(view:{
+    client_id: 1,
     name: "Example Data Type",
     data_type: "<DATA_TYPE_ID>",
     includes: ["foo", "moo"],
@@ -190,6 +194,7 @@ mutation {
 ```js
 mutation {
   createSpace(space: {
+    client_id: 1,
     name: "My Example Space",
     endpoint: "example-space",
     data_type: "<DATA_TYPE_ID>",

@@ -24,7 +24,10 @@ const adapter: TeraserverPluginAdapter = {
                 default: false,
             },
             bootstrap_mode: {
-                doc: '[DEVELOPMENT] Remove authentication from setting up the data access models',
+                doc: '[DEVELOPMENT] Enabling this flag will cause a SUPERADMIN user to be created ' +
+                    'when this plugin is initialzed and there are no other users. ' +
+                    'The SUPERADMIN\'s credentials are (username: admin, password: admin). ' +
+                    'Make sure to only run one worker when using this mode.',
                 default: false,
             }
         };

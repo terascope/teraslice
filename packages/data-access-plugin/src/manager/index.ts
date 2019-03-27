@@ -49,20 +49,9 @@ export default class ManagerPlugin {
         this.server = new apollo.ApolloServer({
             schema,
             context: async ({ req }) => {
-                const token = getTokenFromReq(req);
-
-                if (bootstrapMode && !token) {
-                    return {
-                        manager: this.manager,
-                    };
-                }
-
-                const user = await this.manager.authenticate({
-                    api_token: token,
-                });
-
                 return {
-                    user,
+                    // @ts-ignore
+                    user: req.v2User,
                     manager: this.manager,
                 };
             },
@@ -71,7 +60,26 @@ export default class ManagerPlugin {
     }
 
     async initialize() {
-        return this.manager.initialize();
+        await this.manager.initialize();
+
+        if (!this.bootstrapMode) return;
+
+        const users = await this.manager.findUsers({ query: '*' }, false);
+        if (users.length > 0) return;
+
+        const user = await this.manager.createUser({
+            user: {
+                client_id: 0,
+                username: 'admin',
+                firstname: 'admin',
+                lastname: 'admin',
+                email: 'admin@example.com',
+                type: 'SUPERADMIN'
+            },
+            password: 'admin'
+        }, false);
+
+        this.logger.info(user, 'bootstrap mode create base admin client');
     }
 
     async shutdown() {
@@ -91,19 +99,10 @@ export default class ManagerPlugin {
             // @ts-ignore
             req.aclManager = this.manager;
 
-            const apiToken = getTokenFromReq(req);
-
-            // If we are in bootstrap mode, we want to provide
-            // unauthenticated access to the data access management
-            if (this.bootstrapMode && req.path === '/data-access') {
-                next();
-                return;
-            }
+            const creds = getCredentialsFromReq(req);
 
             rootErrorHandler(req, res, async () => {
-                const user = await this.manager.authenticate({
-                    api_token: apiToken,
-                });
+                const user = await this.manager.authenticate(creds);
 
                 // @ts-ignore
                 req.v2User = user;
@@ -145,7 +144,7 @@ export default class ManagerPlugin {
                 const accessConfig = await manager.getViewForSpace({
                     api_token: get(user, 'api_token'),
                     space,
-                });
+                }, user);
 
                 req.query.pretty = toBoolean(req.query.pretty);
 
@@ -169,16 +168,26 @@ export default class ManagerPlugin {
     }
 }
 
-export function getTokenFromReq(req: Request): string {
+export function getCredentialsFromReq(req: Request): { api_token?: string, username?: string, password?: string } {
     const queryToken: string = get(req, 'query.token');
-    if (queryToken) return queryToken;
+    if (queryToken) return { api_token: queryToken } ;
 
     const authToken: string = get(req, 'headers.authorization');
-    if (!authToken) return '';
+    if (!authToken) return { api_token: '' };
 
-    const parts = authToken.split(' ');
-    if (trim(parts[0]) === 'Token') {
-        return trim(parts[1]);
+    let [part1, part2] = authToken.split(' ');
+    part1 = trim(part1);
+    part2 = trim(part2);
+
+    if (part1 === 'Token') {
+        return { api_token: trim(part2) };
     }
-    return trim(authToken);
+
+    if (part1 === 'Basic') {
+        const parsed = Buffer.from(part2, 'base64').toString('utf8');
+        const [username, password] = parsed.split(':');
+        return { username, password };
+    }
+
+    return {};
 }
