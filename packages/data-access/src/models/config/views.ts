@@ -5,6 +5,9 @@ const config: IndexModelConfig<View> = {
     name: 'views',
     mapping: {
         properties: {
+            client_id: {
+                type: 'integer'
+            },
             name: {
                 type: 'keyword',
                 fields: {
@@ -36,6 +39,11 @@ const config: IndexModelConfig<View> = {
     },
     schema: {
         properties: {
+            client_id: {
+                type: 'number',
+                multipleOf: 1.0,
+                minimum: 0,
+            },
             name: {
                 type: 'string',
                 fields: {
@@ -83,7 +91,7 @@ const config: IndexModelConfig<View> = {
                 default: true
             }
         },
-        required: ['name', 'data_type']
+        required: ['client_id', 'name', 'data_type']
     }
 };
 
@@ -92,6 +100,11 @@ const config: IndexModelConfig<View> = {
  *
 */
 export interface View extends IndexModelRecord {
+    /**
+     * The mutli-tenant ID representing the client
+    */
+    client_id?: number;
+
     /**
      * Name of the view
     */
@@ -137,6 +150,7 @@ export interface View extends IndexModelRecord {
 
 export const GraphQLSchema = `
     type View {
+        client_id: Int!
         id: ID!
         name: String
         description: String
@@ -151,6 +165,7 @@ export const GraphQLSchema = `
     }
 
     input CreateViewInput {
+        client_id: Int
         name: String!
         description: String
         data_type: String!
@@ -162,18 +177,11 @@ export const GraphQLSchema = `
     }
 
     input UpdateViewInput {
+        client_id: Int
         id: ID!
         name: String
         description: String
         data_type: String
-        roles: [String]
-        excludes: [String]
-        includes: [String]
-        constraint: String
-        prevent_prefix_wildcard: Boolean
-    }
-
-    input CreateDefaultViewInput {
         roles: [String]
         excludes: [String]
         includes: [String]

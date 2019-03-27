@@ -21,6 +21,7 @@ describe('DataTypes', () => {
     describe('when testing data type creation', () => {
         it('should be able to create a data type', async () => {
             const created = await dataTypes.create({
+                client_id: 1,
                 name: 'hello',
                 type_config: {}
             });

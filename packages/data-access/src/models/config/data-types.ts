@@ -6,6 +6,9 @@ const config: IndexModelConfig<DataType> = {
     name: 'data_types',
     mapping: {
         properties: {
+            client_id: {
+                type: 'integer'
+            },
             name: {
                 type: 'keyword',
                 fields: {
@@ -22,6 +25,11 @@ const config: IndexModelConfig<DataType> = {
     },
     schema: {
         properties: {
+            client_id: {
+                type: 'number',
+                multipleOf: 1.0,
+                minimum: 0,
+            },
             name: {
                 type: 'string'
             },
@@ -34,7 +42,7 @@ const config: IndexModelConfig<DataType> = {
                 default: {},
             }
         },
-        required: ['name']
+        required: ['client_id', 'name']
     },
     uniqueFields: ['name']
 };
@@ -43,6 +51,11 @@ const config: IndexModelConfig<DataType> = {
  * The definition a DataType model
 */
 export interface DataType extends IndexModelRecord {
+    /**
+     * The mutli-tenant ID representing the client
+    */
+    client_id?: number;
+
     /**
      * Name of the DataType
     */
@@ -61,6 +74,7 @@ export interface DataType extends IndexModelRecord {
 
 export const GraphQLSchema = `
     type DataType {
+        client_id: Int!
         id: ID!
         name: String
         description: String
@@ -70,12 +84,14 @@ export const GraphQLSchema = `
     }
 
     input CreateDataTypeInput {
+        client_id: Int
         name: String!
         description: String
         type_config: JSON
     }
 
     input UpdateDataTypeInput {
+        client_id: Int
         id: ID!
         name: String
         description: String

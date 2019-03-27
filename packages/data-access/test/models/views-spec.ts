@@ -22,6 +22,7 @@ describe('Views', () => {
     describe('when testing view creation', () => {
         it('should be able to create a view', async () => {
             const created = await views.create({
+                client_id: 1,
                 name: 'hello',
                 data_type: 'some-data-type-id',
                 roles: ['role-id'],
@@ -43,12 +44,14 @@ describe('Views', () => {
 
         beforeAll(async () => {
             view1 = await views.create({
+                client_id: 1,
                 name: 'hello',
                 data_type: 'another-data-type-id',
                 roles: [roleId],
             });
 
             view2 = await views.create({
+                client_id: 1,
                 name: 'howdy',
                 data_type: 'another-data-type-id',
                 roles: [],

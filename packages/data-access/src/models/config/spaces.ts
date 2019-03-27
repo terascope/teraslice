@@ -5,6 +5,9 @@ const config: IndexModelConfig<Space> = {
     name: 'spaces',
     mapping: {
         properties: {
+            client_id: {
+                type: 'integer'
+            },
             name: {
                 type: 'keyword',
                 fields: {
@@ -42,6 +45,11 @@ const config: IndexModelConfig<Space> = {
     },
     schema: {
         properties: {
+            client_id: {
+                type: 'number',
+                multipleOf: 1.0,
+                minimum: 0,
+            },
             name: {
                 type: 'string'
             },
@@ -124,7 +132,7 @@ const config: IndexModelConfig<Space> = {
                 }
             }
         },
-        required: ['name', 'data_type']
+        required: ['client_id', 'name', 'data_type']
     },
     uniqueFields: ['endpoint'],
     sanitizeFields: {
@@ -134,11 +142,12 @@ const config: IndexModelConfig<Space> = {
 
 export const GraphQLSchema = `
     type Space {
+        client_id: Int!
         id: ID!
-        name: String
-        endpoint: String
+        name: String!
+        endpoint: String!
         description: String
-        data_type: String
+        data_type: String!
         views: [String]
         roles: [String]
         search_config: SpaceSearchConfig
@@ -184,6 +193,7 @@ export const GraphQLSchema = `
     }
 
     input CreateSpaceInput {
+        client_id: Int
         name: String!
         endpoint: String!
         description: String
@@ -195,6 +205,7 @@ export const GraphQLSchema = `
     }
 
     input UpdateSpaceInput {
+        client_id: Int
         id: ID!
         name: String
         endpoint: String
@@ -211,6 +222,11 @@ export const GraphQLSchema = `
  * The definition of a Space model
 */
 export interface Space extends IndexModelRecord {
+    /**
+     * The mutli-tenant ID representing the client
+    */
+    client_id?: number;
+
     /**
      * Name of the Space
     */

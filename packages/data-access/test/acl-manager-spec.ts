@@ -1,17 +1,25 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
-import { ACLManager, User } from '../src';
+import { ACLManager, User, Role } from '../src';
 
 describe('ACLManager', () => {
     const client = makeClient();
     const manager = new ACLManager(client, { namespace: 'test_manager' });
     let superAdminUser: User;
     let normalUser: User;
+    let normalRole: Role;
 
     beforeAll(async () => {
         await cleanupIndexes(manager);
         await manager.initialize();
+        normalRole = await manager.createRole({
+            role: {
+                client_id: 1,
+                name: 'Example Role',
+            }
+        }, false);
+
         ([superAdminUser, normalUser] = await Promise.all([
             manager.createUser({
                 user: {
@@ -23,7 +31,7 @@ describe('ACLManager', () => {
                     client_id: 0,
                 },
                 password: 'password'
-            }),
+            }, false),
             manager.createUser({
                 user: {
                     username: 'user-user',
@@ -31,10 +39,11 @@ describe('ACLManager', () => {
                     firstname: 'User',
                     lastname: 'User',
                     type: 'USER',
+                    role: normalRole.id,
                     client_id: 1,
                 },
                 password: 'password'
-            }),
+            }, false),
         ]));
     });
 
@@ -54,7 +63,7 @@ describe('ACLManager', () => {
                 }, 'password');
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Invalid User Input');
+                expect(err.message).toInclude('Invalid Input');
                 expect(err.statusCode).toEqual(422);
             }
         });
@@ -75,7 +84,7 @@ describe('ACLManager', () => {
                         role: 'non-existant-role-id',
                     },
                     password: 'secrets',
-                });
+                }, false);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.message).toInclude('Missing role with user, non-existant-role-id');
@@ -100,7 +109,7 @@ describe('ACLManager', () => {
                         api_token: 'oh no'
                     },
                     password: 'secrets',
-                });
+                }, false);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.message).toInclude('Cannot update restricted fields,');
@@ -154,10 +163,10 @@ describe('ACLManager', () => {
                 await manager.createDataType({
                     // @ts-ignore
                     dataType: null
-                });
+                }, false);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Invalid DataType Input');
+                expect(err.message).toInclude('Invalid Input');
                 expect(err.statusCode).toEqual(422);
             }
         });
@@ -170,13 +179,14 @@ describe('ACLManager', () => {
             try {
                 await manager.createSpace({
                     space: {
+                        client_id: 1,
                         name: 'uh-oh',
                         endpoint: 'uh-oh',
                         data_type: 'hello',
                         views: [],
                         roles: ['non-existant-role-id'],
                     }
-                });
+                }, false);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.message).toInclude('Missing roles with space, non-existant-role-id');
@@ -194,11 +204,13 @@ describe('ACLManager', () => {
             const [dt1, dt2] = await Promise.all([
                 manager.createDataType({
                     dataType: {
+                        client_id: 1,
                         name: 'ABC DataType'
                     }
                 }, superAdminUser),
                 manager.createDataType({
                     dataType: {
+                        client_id: 1,
                         name: 'BCD DataType'
                     }
                 }, superAdminUser),
@@ -208,11 +220,12 @@ describe('ACLManager', () => {
 
             const view = await manager.createView({
                 view: {
+                    client_id: 1,
                     name: 'BCD View',
                     data_type: dataType2,
                     roles: [],
                 }
-            });
+            }, superAdminUser);
             viewId = view.id;
         });
 
@@ -222,13 +235,14 @@ describe('ACLManager', () => {
             try {
                 await manager.createSpace({
                     space: {
+                        client_id: 1,
                         name: 'uh-oh',
                         endpoint: 'uh-oh',
                         data_type: dataType1,
                         views: [viewId],
                         roles: [],
                     }
-                });
+                }, false);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.message).toInclude('Views must have the same data type');
@@ -249,21 +263,25 @@ describe('ACLManager', () => {
             const [role1, role2, role3, dataType] = await Promise.all([
                 manager.createRole({
                     role: {
+                        client_id: 1,
                         name: 'Some Role 1',
                     }
                 }, superAdminUser),
                 manager.createRole({
                     role: {
+                        client_id: 1,
                         name: 'Some Role 2',
                     }
                 }, superAdminUser),
                 manager.createRole({
                     role: {
+                        client_id: 1,
                         name: 'Some Role 3',
                     }
                 }, superAdminUser),
                 manager.createDataType({
                     dataType: {
+                        client_id: 1,
                         name: 'Some DataType'
                     }
                 }, superAdminUser)
@@ -276,6 +294,7 @@ describe('ACLManager', () => {
             const [view1, view2] = await Promise.all([
                 manager.createView({
                     view: {
+                        client_id: 1,
                         name: 'Some View 1',
                         data_type: dataTypeId,
                         roles: [role1Id, role2Id],
@@ -283,6 +302,7 @@ describe('ACLManager', () => {
                 }, superAdminUser),
                 manager.createView({
                     view: {
+                        client_id: 1,
                         name: 'Some View 2',
                         data_type: dataTypeId,
                         roles: [role1Id],
@@ -299,6 +319,7 @@ describe('ACLManager', () => {
             try {
                 await manager.createSpace({
                     space: {
+                        client_id: 1,
                         name: 'uh-oh',
                         endpoint: 'uh-oh',
                         data_type: dataTypeId,
@@ -324,11 +345,13 @@ describe('ACLManager', () => {
                 const [dataType1, dataType2] = await Promise.all([
                     await manager.createDataType({
                         dataType: {
+                            client_id: 1,
                             name: 'DataType One'
                         }
                     }, superAdminUser),
                     await manager.createDataType({
                         dataType: {
+                            client_id: 1,
                             name: 'DataType Two'
                         }
                     }, superAdminUser)
@@ -338,6 +361,7 @@ describe('ACLManager', () => {
 
                 const view = await manager.createView({
                     view: {
+                        client_id: 1,
                         name: 'The View',
                         data_type: dataType1Id,
                         roles: [],
@@ -353,6 +377,7 @@ describe('ACLManager', () => {
                 try {
                     await manager.updateView({
                         view: {
+                            client_id: 1,
                             id: viewId,
                             data_type: dataType2Id,
                             roles: []
@@ -375,10 +400,10 @@ describe('ACLManager', () => {
                 await manager.createSpace({
                     // @ts-ignore
                     space: null
-                });
+                }, false);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Invalid Space Input');
+                expect(err.message).toInclude('Invalid Input');
                 expect(err.statusCode).toEqual(422);
             }
         });
@@ -392,44 +417,22 @@ describe('ACLManager', () => {
                 await manager.createView({
                     // @ts-ignore
                     view: null
-                });
+                }, false);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Invalid View Input');
+                expect(err.message).toInclude('Invalid Input');
                 expect(err.statusCode).toEqual(422);
             }
         });
     });
 
     describe('when getting a view for a user', () => {
-        let userId: string;
-        let apiToken: string;
-        let roleId: string;
         let dataTypeId: string;
 
         beforeAll(async () => {
-            const user = await manager.createUser({
-                user: {
-                    username: 'foooooo',
-                    firstname: 'Foo',
-                    lastname: 'Bar',
-                    client_id: 1,
-                    email: 'foobar@example.com',
-                },
-                password: 'secrets'
-            });
-            userId = user.id;
-            apiToken = user.api_token;
-
-            const role = await manager.createRole({
-                role: {
-                    name: 'Example Role',
-                }
-            }, superAdminUser);
-            roleId = role.id;
-
             const dataType = await manager.createDataType({
                 dataType: {
+                    client_id: 1,
                     name: 'MyExampleType',
                     type_config: {
                         created: 'date',
@@ -442,18 +445,36 @@ describe('ACLManager', () => {
 
         afterAll(() => {
             return Promise.all([
-                manager.removeUser({ id: userId }, superAdminUser),
-                manager.removeRole({ id: userId }, superAdminUser),
-                manager.removeDataType({ id: userId }, superAdminUser),
+                manager.removeUser({ id: normalUser.id }, superAdminUser),
+                manager.removeRole({ id: normalUser.id }, superAdminUser),
+                manager.removeDataType({ id: normalUser.id }, superAdminUser),
             ]);
         });
 
         describe('when no roles exists on the user', () => {
+            let otherUser: User;
+
+            beforeAll(async () => {
+                otherUser = await manager.createUser({
+                    user: {
+                        client_id: 1,
+                        username: 'foooooo',
+                        email: 'someotheruser@example.co.uk',
+                        firstname: 'other',
+                        lastname: 'user'
+                    },
+                    password: 'password'
+                }, superAdminUser);
+            });
+
             it('should throw a forbidden error', async () => {
                 expect.hasAssertions();
 
                 try {
-                    await manager.getViewForSpace({ api_token: apiToken, space: '' });
+                    await manager.getViewForSpace({
+                        api_token: otherUser.api_token,
+                        space: ''
+                    }, false);
                 } catch (err) {
                     expect(err.message).toEqual('User "foooooo" is not assigned to a role');
                     expect(err).toBeInstanceOf(TSError);
@@ -469,9 +490,10 @@ describe('ACLManager', () => {
             beforeAll(async () => {
                 const view = await manager.createView({
                     view: {
+                        client_id: 1,
                         name: 'Example View',
                         data_type: dataTypeId,
-                        roles: [roleId],
+                        roles: [normalRole.id],
                         includes: ['foo']
                     }
                 }, superAdminUser);
@@ -479,10 +501,11 @@ describe('ACLManager', () => {
 
                 const space = await manager.createSpace({
                     space: {
+                        client_id: 1,
                         name: 'Example Space',
                         data_type: dataTypeId,
                         endpoint: 'example-space',
-                        roles: [roleId],
+                        roles: [normalRole.id],
                         views: [viewId],
                         search_config: {
                             index: 'hello',
@@ -494,13 +517,6 @@ describe('ACLManager', () => {
                     }
                 }, superAdminUser);
                 spaceId = space.id;
-
-                await manager.updateUser({
-                    user: {
-                        id: userId,
-                        role: roleId
-                    }
-                }, superAdminUser);
             });
 
             afterAll(async () => {
@@ -521,19 +537,16 @@ describe('ACLManager', () => {
                         id: viewId,
                         constraint: 'hello:there'
                     }
-                });
+                }, superAdminUser);
             });
 
             it('should be able to get config by space id', () => {
-                expect(apiToken).toBeTruthy();
-                expect(spaceId).toBeTruthy();
-
                 return expect(manager.getViewForSpace({
-                    api_token: apiToken,
+                    api_token: normalUser.api_token,
                     space: spaceId
-                })).resolves.toMatchObject({
-                    user_id: userId,
-                    role_id: roleId,
+                }, normalUser)).resolves.toMatchObject({
+                    user_id: normalUser.id,
+                    role_id: normalRole.id,
                     data_type: {
                         id: dataTypeId,
                         type_config: {
@@ -545,7 +558,7 @@ describe('ACLManager', () => {
                     },
                     view: {
                         name: 'Example View',
-                        roles: [roleId],
+                        roles: [normalRole.id],
                         includes: ['foo'],
                         excludes: [],
                         constraint: 'hello:there'
@@ -562,15 +575,13 @@ describe('ACLManager', () => {
             });
 
             it('should be able to get config by space endpoint', () => {
-                expect(apiToken).toBeTruthy();
-
                 return expect(manager.getViewForSpace({
-                    api_token: apiToken,
+                    api_token: normalUser.api_token,
                     space: 'example-space'
-                })).resolves.toMatchObject({
+                }, normalUser)).resolves.toMatchObject({
                     space_id: spaceId,
-                    user_id: userId,
-                    role_id: roleId,
+                    user_id: normalUser.id,
+                    role_id: normalRole.id,
                 });
             });
         });
@@ -581,10 +592,11 @@ describe('ACLManager', () => {
             beforeAll(async () => {
                 const space = await manager.createSpace({
                     space: {
+                        client_id: 1,
                         name: 'Another Space',
                         data_type: dataTypeId,
                         endpoint: 'another-space',
-                        roles: [roleId],
+                        roles: [normalRole.id],
                         views: [],
                         search_config: {
                             index: 'howdy',
@@ -592,15 +604,8 @@ describe('ACLManager', () => {
                             preserve_index_name: true,
                         },
                     }
-                });
-                spaceId = space.id;
-
-                await manager.updateUser({
-                    user: {
-                        id: userId,
-                        role: roleId
-                    }
                 }, superAdminUser);
+                spaceId = space.id;
             });
 
             afterAll(() => {
@@ -610,15 +615,12 @@ describe('ACLManager', () => {
             });
 
             it('should be able to get the default view', () => {
-                expect(apiToken).toBeTruthy();
-                expect(spaceId).toBeTruthy();
-
                 return expect(manager.getViewForSpace({
-                    api_token: apiToken,
+                    api_token: normalUser.api_token,
                     space: spaceId
                 }, normalUser)).resolves.toMatchObject({
-                    user_id: userId,
-                    role_id: roleId,
+                    user_id: normalUser.id,
+                    role_id: normalRole.id,
                     data_type: {
                         id: dataTypeId,
                         type_config: {
@@ -627,8 +629,8 @@ describe('ACLManager', () => {
                         }
                     },
                     view: {
-                        name: `Default View for Role ${roleId}`,
-                        roles: [roleId]
+                        name: `Default View for Role ${normalRole.id}`,
+                        roles: [normalRole.id]
                     },
                     space_id: spaceId,
                     search_config: {

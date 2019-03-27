@@ -110,6 +110,7 @@ describe('ACLManager Permissions', () => {
 
         dataType = await manager.createDataType({
             dataType: {
+                client_id: 1,
                 name: 'SomeTestDataType',
             }
         }, superAdminUser);
@@ -131,6 +132,7 @@ describe('ACLManager Permissions', () => {
         it('should be able to create a data type', async () => {
             await manager.createDataType({
                 dataType: {
+                    client_id: 1,
                     name: 'SomeRandomExampleDataType'
                 }
             }, superAdminUser);
@@ -139,6 +141,7 @@ describe('ACLManager Permissions', () => {
         it('should be able to create space', async () => {
             await manager.createSpace({
                 space: {
+                    client_id: 1,
                     name: 'SomeRandomExampleSpace',
                     endpoint: 'some-random-example-space',
                     data_type: dataType.id,
@@ -303,6 +306,7 @@ describe('ACLManager Permissions', () => {
         it('should be able to create a role', async () => {
             await manager.createRole({
                 role: {
+                    client_id: 1,
                     name: 'SomeRandomExampleRole'
                 }
             }, adminUser);
@@ -311,6 +315,7 @@ describe('ACLManager Permissions', () => {
         it('should be able to create a view', async () => {
             await manager.createView({
                 view: {
+                    client_id: 1,
                     name: 'SomeRandomExampleView',
                     data_type: dataType.id,
                     roles: [],
@@ -338,6 +343,7 @@ describe('ACLManager Permissions', () => {
             try {
                 await manager.createSpace({
                     space: {
+                        client_id: 1,
                         name: 'SomeExampleSpace',
                         endpoint: 'some-example-space',
                         data_type: 'random-id',
@@ -396,12 +402,12 @@ describe('ACLManager Permissions', () => {
             try {
                 await manager.createUser({
                     user: {
+                        client_id: 1,
                         username: 'user-2',
                         email: 'user-2@example.com',
                         firstname: 'User',
                         lastname: 'User 2',
                         type: 'USER',
-                        client_id: 1,
                     },
                     password: 'password'
                 }, normalUser);
@@ -566,6 +572,7 @@ describe('ACLManager Permissions', () => {
             try {
                 await manager.createRole({
                     role: {
+                        client_id: 1,
                         name: 'SomeExampleRole'
                     }
                 }, normalUser);
@@ -612,6 +619,7 @@ describe('ACLManager Permissions', () => {
             try {
                 await manager.createDataType({
                     dataType: {
+                        client_id: 1,
                         name: 'SomeExampleDataType'
                     }
                 }, normalUser);
@@ -658,6 +666,7 @@ describe('ACLManager Permissions', () => {
             try {
                 await manager.createSpace({
                     space: {
+                        client_id: 1,
                         name: 'SomeExampleSpace',
                         endpoint: 'some-example-space',
                         data_type: 'random-id',
@@ -708,6 +717,7 @@ describe('ACLManager Permissions', () => {
             try {
                 await manager.createView({
                     view: {
+                        client_id: 1,
                         name: 'SomeExampleDataType',
                         data_type: 'random-id',
                         roles: [],

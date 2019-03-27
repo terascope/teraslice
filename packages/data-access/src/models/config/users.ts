@@ -65,7 +65,8 @@ const config: IndexModelConfig<User> = {
         properties: {
             client_id: {
                 type: 'number',
-                default: 0,
+                multipleOf: 1.0,
+                minimum: 0,
             },
             username: {
                 type: 'string'
@@ -102,6 +103,7 @@ const config: IndexModelConfig<User> = {
             }
         },
         required: [
+            'client_id',
             'username',
             'firstname',
             'lastname',
@@ -123,11 +125,11 @@ export const GraphQLSchema = `
     }
 
     type User {
+        client_id: Int!
         id: ID!
-        client_id: Int
         username: String!
-        firstname: String
-        lastname: String
+        firstname: String!
+        lastname: String!
         email: String
         role: String
         type: UserType
@@ -141,16 +143,16 @@ export const GraphQLSchema = `
     input CreateUserInput {
         client_id: Int
         username: String!
-        firstname: String
-        lastname: String
+        firstname: String!
+        lastname: String!
         email: String
         type: UserType
         role: String
     }
 
     input UpdateUserInput {
-        id: ID!
         client_id: Int
+        id: ID!
         username: String
         firstname: String
         lastname: String
@@ -165,7 +167,7 @@ export const GraphQLSchema = `
 */
 export interface User extends IndexModelRecord {
     /**
-     * The ID for the client
+     * The mutli-tenant ID representing the client
     */
     client_id?: number;
 
