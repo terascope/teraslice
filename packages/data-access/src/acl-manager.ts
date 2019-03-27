@@ -13,7 +13,6 @@ import { ManagerConfig } from './interfaces';
  * @todo only superadmins can write to to everything
  * @todo an admin should only have access its "client_id"
  * @todo add "client_id" to all of the models
- * @todo only SUPERADMIN's should able to switch clients
  * @todo add read permissions for roles, views, spaces, and data types
 */
 export class ACLManager {
@@ -568,11 +567,11 @@ export class ACLManager {
         }
 
         const authType = this._getUserType(authUser);
+        const authClientId = this._getUserClientId(authUser);
         const {
             client_id: currentClientId,
             type: currentType
         } = await this._getCurrentUserInfo(authUser, user);
-        const authClientId = this._getUserClientId(authUser);
 
         if (authType === 'ADMIN' && authClientId !== currentClientId) {
             throw new ts.TSError('User doesn\'t have permission to write to users outside of the their client id', {
@@ -586,6 +585,12 @@ export class ACLManager {
             });
         }
 
+        if (currentClientId != null && authType === 'ADMIN' && currentType === 'SUPERADMIN') {
+            throw new ts.TSError('User doesn\'t have permission to write to users with SUPERADMIN access', {
+                statusCode: 403
+            });
+        }
+
         if (user.type && user.type !== currentType) {
             if (authType === 'USER' ||
                 authType === 'ADMIN' && user.type === 'SUPERADMIN') {
@@ -595,12 +600,11 @@ export class ACLManager {
             }
         }
 
-        if (currentClientId && authType === 'ADMIN' && currentType === 'SUPERADMIN') {
-            throw new ts.TSError('User doesn\'t have permission to write to users with SUPERADMIN access', {
+        if (authType !== 'SUPERADMIN' && user.client_id != null && user.client_id !== currentClientId) {
+            throw new ts.TSError('User doesn\'t have permission to change client on user', {
                 statusCode: 403
             });
         }
-
     }
 
     private async _validateSpaceInput(space: Partial<models.Space>) {

@@ -266,6 +266,40 @@ describe('ACLManager Permissions', () => {
             }, adminUser);
         });
 
+        it('should NOT be able to change its client id', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateUser({
+                    user: {
+                        id: adminUser.id,
+                        client_id: 3
+                    }
+                }, adminUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to change client on user');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+
+        it('should NOT be able to change another admin\'s client id', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateUser({
+                    user: {
+                        id: otherAdminUser.id,
+                        client_id: 3
+                    }
+                }, adminUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to change client on user');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+
         it('should be able to create a role', async () => {
             await manager.createRole({
                 role: {
@@ -446,6 +480,24 @@ describe('ACLManager Permissions', () => {
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.message).toInclude('User doesn\'t have permission to elevate user to ADMIN');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+
+        it('should NOT be able to change its client id', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateUser({
+                    user: {
+                        id: normalUser.id,
+                        client_id: 3
+                    }
+                }, normalUser);
+
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to change client on user');
                 expect(err.statusCode).toEqual(403);
             }
         });
