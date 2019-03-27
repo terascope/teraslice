@@ -8,6 +8,7 @@ describe('ACLManager Permissions', () => {
     const manager = new ACLManager(client, { namespace: 'test_manager_permissions' });
     let superAdminUser: User;
     let adminUser: User;
+    let otherAdminUser: User;
     let normalUser: User;
     let otherUser: User;
     let foreignUser: User;
@@ -17,6 +18,7 @@ describe('ACLManager Permissions', () => {
     beforeAll(async () => {
         await cleanupIndexes(manager);
         await manager.initialize();
+
         const users = await Promise.all([
             manager.createUser({
                 user: {
@@ -28,7 +30,7 @@ describe('ACLManager Permissions', () => {
                     client_id: 0,
                 },
                 password: 'password'
-            }),
+            }, false),
             manager.createUser({
                 user: {
                     username: 'admin-admin',
@@ -39,7 +41,18 @@ describe('ACLManager Permissions', () => {
                     client_id: 1,
                 },
                 password: 'password'
-            }),
+            }, false),
+            manager.createUser({
+                user: {
+                    username: 'other-admin',
+                    email: 'other-admin@example.com',
+                    firstname: 'Other',
+                    lastname: 'Admin',
+                    type: 'ADMIN',
+                    client_id: 1,
+                },
+                password: 'password'
+            }, false),
             manager.createUser({
                 user: {
                     username: 'user-user',
@@ -50,7 +63,7 @@ describe('ACLManager Permissions', () => {
                     client_id: 1,
                 },
                 password: 'password'
-            }),
+            }, false),
             manager.createUser({
                 user: {
                     username: 'other-user',
@@ -61,7 +74,7 @@ describe('ACLManager Permissions', () => {
                     client_id: 1,
                 },
                 password: 'password'
-            }),
+            }, false),
             manager.createUser({
                 user: {
                     username: 'foreign-user',
@@ -72,7 +85,7 @@ describe('ACLManager Permissions', () => {
                     client_id: 2,
                 },
                 password: 'password'
-            }),
+            }, false),
             manager.createUser({
                 user: {
                     username: 'foreign-admin',
@@ -83,22 +96,23 @@ describe('ACLManager Permissions', () => {
                     client_id: 2,
                 },
                 password: 'password'
-            }),
-            manager.createDataType({
-                dataType: {
-                    name: 'SomeTestDataType',
-                }
-            }, superAdminUser),
+            }, false),
         ]);
         ([
             superAdminUser,
             adminUser,
+            otherAdminUser,
             normalUser,
             otherUser,
             foreignUser,
             foreignAdminUser,
-            dataType
         ] = users);
+
+        dataType = await manager.createDataType({
+            dataType: {
+                name: 'SomeTestDataType',
+            }
+        }, superAdminUser);
     });
 
     afterAll(async () => {
@@ -200,6 +214,56 @@ describe('ACLManager Permissions', () => {
                 expect(err.message).toInclude('User doesn\'t have permission to write to users outside of the their client id');
                 expect(err.statusCode).toEqual(403);
             }
+        });
+
+        it('should NOT be able to elevate its own user\'s permission to SUPERADMIN', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateUser({
+                    user: {
+                        id: adminUser.id,
+                        type: 'SUPERADMIN'
+                    }
+                }, adminUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to elevate user to SUPERADMIN');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+
+        it('should NOT be able to elevate another user\'s permission to SUPERADMIN', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateUser({
+                    user: {
+                        id: otherAdminUser.id,
+                        type: 'SUPERADMIN'
+                    }
+                }, adminUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to elevate user to SUPERADMIN');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+
+        it('should be able to update the other admin to USER and then back to ADMIN via another user', async () => {
+            await manager.updateUser({
+                user: {
+                    id: otherAdminUser.id,
+                    type: 'USER'
+                }
+            }, otherAdminUser);
+
+            await manager.updateUser({
+                user: {
+                    id: otherAdminUser.id,
+                    type: 'ADMIN'
+                }
+            }, adminUser);
         });
 
         it('should be able to create a role', async () => {
@@ -367,6 +431,40 @@ describe('ACLManager Permissions', () => {
                     firstname: 'Otherr'
                 },
             }, otherUser);
+        });
+
+        it('should NOT be allowed to elevate its permission to ADMIN', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateUser({
+                    user: {
+                        id: normalUser.id,
+                        type: 'ADMIN'
+                    }
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to elevate user to ADMIN');
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+
+        it('should NOT be allowed to elevate its permission to SUPERADMIN', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateUser({
+                    user: {
+                        id: normalUser.id,
+                        type: 'SUPERADMIN'
+                    }
+                }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('User doesn\'t have permission to elevate user to SUPERADMIN');
+                expect(err.statusCode).toEqual(403);
+            }
         });
 
         it('should be allowed to update its own password', async () => {
