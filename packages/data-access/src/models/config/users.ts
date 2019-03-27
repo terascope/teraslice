@@ -134,8 +134,6 @@ export const GraphQLSchema = `
         role: String
         type: UserType
         api_token: String
-        hash: String
-        salt: String
         created: String
         updated: String
     }

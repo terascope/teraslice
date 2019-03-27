@@ -10,9 +10,7 @@ import { ManagerConfig } from './interfaces';
  * high level abstraction of Spaces, Users, Roles, and Views
  *
  * @todo add multi-tenant support
- * @todo only superadmins can write to to everything
  * @todo an admin and user should only have access its "client_id"
- * @todo add read permissions for roles, views, spaces, and data types
 */
 export class ACLManager {
     static GraphQLSchema = `
@@ -134,40 +132,14 @@ export class ACLManager {
      * Find user by id
     */
     async findUser(args: { id: string }, authUser: models.User|false) {
-        const type = this._getUserType(authUser);
-
-        const authUserId = authUser && authUser.id;
-        if (type !== 'SUPERADMIN') {
-            const clientId = this._getUserClientId(authUser);
-            const canSeeToken = type === 'ADMIN' || authUserId === args.id;
-
-            const queryAccess = new LuceneQueryAccess<models.User>({
-                constraint: clientId ? `client_id:${clientId}` : undefined,
-                excludes:  canSeeToken ? ['hash', 'salt'] : ['api_token', 'hash', 'salt'],
-            });
-
-            return this._users.findById(args.id, queryAccess);
-        }
-        return this._users.findById(args.id);
+        return this._users.findById(args.id, {}, this._getUserQueryAccess(authUser, args.id));
     }
 
     /**
      * Find all users by a given query
     */
     async findUsers(args: { query?: string } = {}, authUser: models.User|false) {
-        const type = this._getUserType(authUser);
-        if (type !== 'SUPERADMIN') {
-            const clientId = this._getUserClientId(authUser);
-            const canSeeToken = type === 'ADMIN';
-
-            const queryAccess = new LuceneQueryAccess<models.User>({
-                constraint: clientId ? `client_id:${clientId}` : undefined,
-                excludes: canSeeToken ? ['hash', 'salt'] : ['api_token', 'hash', 'salt'],
-                allow_implicit_queries: true
-            });
-            return this._users.find(args.query, {}, queryAccess);
-        }
-        return this._users.find(args.query);
+        return this._users.find(args.query, {}, this._getUserQueryAccess(authUser));
     }
 
     /**
@@ -188,7 +160,9 @@ export class ACLManager {
         await this._validateUserInput(args.user, authUser);
 
         await this._users.update(args.user);
-        return this._users.findById(args.user.id);
+
+        const queryAccess = this._getUserQueryAccess(authUser, args.user.id);
+        return this._users.findById(args.user.id, {}, queryAccess);
     }
 
     /**
@@ -233,14 +207,14 @@ export class ACLManager {
      * Find role by id
     */
     async findRole(args: { id: string }, authUser: models.User|false) {
-        return this._roles.findById(args.id);
+        return this._roles.findById(args.id, this._getRoleQueryAccess(authUser));
     }
 
     /**
      * Find roles by a given query
     */
     async findRoles(args: { query?: string } = {}, authUser: models.User|false) {
-        return this._roles.find(args.query);
+        return this._roles.find(args.query, {}, this._getRoleQueryAccess(authUser));
     }
 
     /**
@@ -261,7 +235,7 @@ export class ACLManager {
         await this._validateRoleInput(args.role, authUser);
 
         await this._roles.update(args.role);
-        return this._roles.findById(args.role.id);
+        return this._roles.findById(args.role.id, {}, this._getRoleQueryAccess(authUser));
     }
 
     /**
@@ -286,14 +260,14 @@ export class ACLManager {
      * Find data type by id
     */
     async findDataType(args: { id: string }, authUser: models.User|false) {
-        return this._dataTypes.findById(args.id);
+        return this._dataTypes.findById(args.id, {}, this._getDataTypeQueryAccess(authUser));
     }
 
     /**
      * Find data types by a given query
     */
     async findDataTypes(args: { query?: string } = {}, authUser: models.User|false) {
-        return this._dataTypes.find(args.query);
+        return this._dataTypes.find(args.query, {}, this._getDataTypeQueryAccess(authUser));
     }
 
     /**
@@ -314,7 +288,7 @@ export class ACLManager {
         await this._validateDataTypeInput(args.dataType, authUser);
 
         await this._dataTypes.update(args.dataType);
-        return this._dataTypes.findById(args.dataType.id);
+        return this._dataTypes.findById(args.dataType.id, {}, this._getDataTypeQueryAccess(authUser));
     }
 
     /**
@@ -337,14 +311,14 @@ export class ACLManager {
      * Find space by id
     */
     async findSpace(args: { id: string }, authUser: models.User|false) {
-        return this._spaces.findById(args.id);
+        return this._spaces.findById(args.id, {}, this._getSpaceQueryAccess(authUser));
     }
 
     /**
      * Find spaces by a given query
     */
     async findSpaces(args: { query?: string } = {}, authUser: models.User|false) {
-        return this._spaces.find(args.query);
+        return this._spaces.find(args.query, {}, this._getSpaceQueryAccess(authUser));
     }
 
     /**
@@ -368,7 +342,7 @@ export class ACLManager {
         await this._validateSpaceInput(args.space, authUser);
 
         await this._spaces.update(args.space);
-        return this._spaces.findById(args.space.id);
+        return this._spaces.findById(args.space.id, {}, this._getSpaceQueryAccess(authUser));
     }
 
     /**
@@ -388,14 +362,14 @@ export class ACLManager {
      * Find view by id
     */
     async findView(args: { id: string }, authUser: models.User|false) {
-        return this._views.findById(args.id);
+        return this._views.findById(args.id, {}, this._getViewQueryAccess(authUser));
     }
 
     /**
      * Find views by a given query
     */
     async findViews(args: { query?: string } = {}, authUser: models.User|false) {
-        return this._views.find(args.query);
+        return this._views.find(args.query, {}, this._getViewQueryAccess(authUser));
     }
 
     /**
@@ -433,7 +407,7 @@ export class ACLManager {
         }
 
         await this._views.update(args.view);
-        return this._views.findById(args.view.id);
+        return this._views.findById(args.view.id, {}, this._getViewQueryAccess(authUser));
     }
 
     /**
@@ -485,6 +459,88 @@ export class ACLManager {
             streaming_config: space.streaming_config,
             data_type: dataType,
             view
+        });
+    }
+
+    private _getUserQueryAccess(authUser: models.User|false, id?: string) {
+        const type = this._getUserType(authUser);
+        const clientId = this._getUserClientId(authUser);
+        const excludes: (keyof models.User)[] = [];
+        excludes.push('hash', 'salt');
+
+        if (type === 'USER' && (!id || authUser && id !== authUser.id)) {
+            excludes.push('api_token');
+        }
+
+        return new LuceneQueryAccess<models.User>({
+            constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
+            excludes,
+            allow_implicit_queries: true
+        });
+    }
+
+    private _getRoleQueryAccess(authUser: models.User|false) {
+        const clientId = this._getUserClientId(authUser);
+        const excludes: (keyof models.Role)[] = [];
+
+        return new LuceneQueryAccess<models.Role>({
+            constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
+            excludes,
+            allow_implicit_queries: true
+        });
+    }
+
+    private _getDataTypeQueryAccess(authUser: models.User|false) {
+        const clientId = this._getUserClientId(authUser);
+        const excludes: (keyof models.DataType)[] = [];
+
+        if (this._getUserType(authUser) === 'USER') {
+            excludes.push('type_config');
+        }
+
+        return new LuceneQueryAccess<models.DataType>({
+            constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
+            excludes,
+            allow_implicit_queries: true
+        });
+    }
+
+    private _getViewQueryAccess(authUser: models.User|false) {
+        const clientId = this._getUserClientId(authUser);
+        const includes: (keyof models.View)[] = [];
+
+        if (this._getUserType(authUser) === 'USER') {
+            includes.push(
+                'name',
+                'description',
+                'data_type',
+                'updated',
+                'created',
+            );
+        }
+
+        return new LuceneQueryAccess<models.View>({
+            constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
+            includes,
+            allow_implicit_queries: true
+        });
+    }
+
+    private _getSpaceQueryAccess(authUser: models.User|false) {
+        const clientId = this._getUserClientId(authUser);
+        const excludes: (keyof models.Space)[] = [];
+
+        if (this._getUserType(authUser) === 'USER') {
+            excludes.push(
+                'search_config',
+                'streaming_config',
+            );
+        }
+
+        return new LuceneQueryAccess<models.Space>({
+            constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
+            excludes,
+            allow_implicit_queries: true
         });
     }
 

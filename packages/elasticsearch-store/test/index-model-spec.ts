@@ -188,7 +188,7 @@ describe('IndexModel', () => {
             await indexModel.deleteById(fetched.id);
 
             return expect(indexModel.findById(fetched.id))
-                .rejects.toThrowError(/Not Found/);
+                .rejects.toThrowError(/Unable to find IndexModel/);
         });
     });
 

@@ -116,7 +116,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return count === ids.length;
     }
 
-    async findBy(fields: Partial<T>, joinBy = 'AND', queryAccess?: LuceneQueryAccess<T>) {
+    async findBy(fields: Partial<T>, joinBy = 'AND', options?: FindOneOptions<T>, queryAccess?: LuceneQueryAccess<T>) {
         const query = Object.entries(fields)
             .map(([field, val]) => {
                 if (val == null) {
@@ -128,7 +128,10 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             })
             .join(` ${joinBy} `);
 
-        const results = await this._find(query, { size: 1 }, queryAccess);
+        const results = await this._find(query, {
+            ...options,
+            size: 1
+        }, queryAccess);
 
         const record = ts.getFirst(results);
         if (record == null) {
@@ -140,40 +143,38 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return record;
     }
 
-    async findById(id: string, queryAccess?: LuceneQueryAccess<T>): Promise<T> {
-        if (queryAccess) {
-            const fields: Partial<T> = { };
-            fields[this._idField] = id as any;
-            return this.findBy(fields, 'AND', queryAccess);
-        }
-        return this.store.get(id);
+    async findById(id: string, options?: FindOneOptions<T>, queryAccess?: LuceneQueryAccess<T>): Promise<T> {
+        const fields: Partial<T> = { };
+        fields[this._idField] = id as any;
+        return this.findBy(fields, 'AND', options, queryAccess);
     }
 
-    async findByAnyId(anyId: any, queryAccess?: LuceneQueryAccess<T>) {
+    async findByAnyId(anyId: any, options?: FindOneOptions<T>, queryAccess?: LuceneQueryAccess<T>) {
         const fields: Partial<T> = {};
 
         for (const field of this._uniqueFields) {
             fields[field] = anyId;
         }
 
-        return this.findBy(fields, 'OR', queryAccess);
+        return this.findBy(fields, 'OR', options, queryAccess);
     }
 
-    async findAll(ids: string[], queryAccess?: LuceneQueryAccess<T>) {
+    async findAll(ids: string[], options?: FindOneOptions<T>, queryAccess?: LuceneQueryAccess<T>) {
         if (!ids || !ids.length) return [];
 
-        if (queryAccess) {
-            const query = `${this._idField}: (${ids.join(' OR ')})`;
-            const result = await this._find(query, { size: ids.length }, queryAccess);
-            if (result.length !== ids.length) {
-                throw new ts.TSError(`Unable to find all by ids ${ids.join(', ')}`, {
-                    statusCode: 404
-                });
-            }
-            return result;
-        }
+        const query = `${this._idField}: (${ids.join(' OR ')})`;
 
-        return this.store.mget({ ids });
+        const result = await this._find(query, {
+            ...options,
+            size: ids.length
+        }, queryAccess);
+
+        if (result.length !== ids.length) {
+            throw new ts.TSError(`Unable to find all by ids ${ids.join(', ')}`, {
+                statusCode: 404
+            });
+        }
+        return result;
     }
 
     async find(q: string = '*', options: FindOptions<T> = {}, queryAccess?: LuceneQueryAccess<T>): Promise<T[]> {
@@ -335,10 +336,15 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     }
 }
 
-type FindOptions<T> = {
+export type FindOptions<T> = {
     includes?: (keyof T)[],
     excludes?: (keyof T)[],
     from?: number;
     sort?: string;
     size?: number;
+};
+
+export type FindOneOptions<T> = {
+    includes?: (keyof T)[],
+    excludes?: (keyof T)[],
 };
