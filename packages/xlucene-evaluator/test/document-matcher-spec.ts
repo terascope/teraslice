@@ -8,7 +8,7 @@ describe('document matcher', () => {
         documentMatcher = new DocumentMatcher();
     });
 
-    fdescribe('exact match and term expressions', () => {
+    describe('exact match and term expressions', () => {
         it('can match basic terms', () => {
             const data = { hello: 'world' };
             const badData = { hello: 'goodbye' };
@@ -508,7 +508,7 @@ describe('document matcher', () => {
         });
     });
 
-    describe('ip expressions', () => {
+    fdescribe('ip expressions', () => {
         it('can do exact matches, no type changes', () => {
             const data1 = { ip: '157.60.0.1' };
             const data2 = { ip: '1:2:3:4:5:6:7:8' };

@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 import { isString, debugLogger } from '@terascope/utils';
 // @ts-ignore
-import { both, either, not, path, identity, has } from 'rambda';
+import { both, either, not, path, identity, has, pipe } from 'rambda';
 import LuceneQueryParser from '../lucene-query-parser';
 import TypeManager from './type-manager';
 // @ts-ignore
@@ -78,6 +78,16 @@ function newBuilder(parser: LuceneQueryParser, typeConfig: TypeConfig|undefined)
             fnResults = fnResults(fn);
         }
 
+        if (isRangeNode(node)) {
+            let fn = parseRange(node);
+
+            if (node.negated) {
+                fn = negate(fn);
+            }
+
+            fnResults = fnResults(fn);
+        }
+
         if (isConjunctionNode(node)) {
             // console.log('what is node', node)
             let conjunctionFn:any;
@@ -115,15 +125,15 @@ function newBuilder(parser: LuceneQueryParser, typeConfig: TypeConfig|undefined)
 
     return walkAst(parsedAst, identity);
 }
-// @ts-ignore
-function parseRange(node: RangeAST, topFieldName:string, isNegation:Boolean):string {
+
+function parseRange(node: RangeAST) {
     const {
         inclusive_min: incMin,
         inclusive_max: incMax,
-        field = topFieldName
+        field
     } = node;
     let { term_min: minValue, term_max: maxValue } = node;
-    let resultStr = '';
+    let rangeFn = (_obj: any) => false;
 
     if (minValue === '*') minValue = Number.NEGATIVE_INFINITY;
     if (maxValue === '*') maxValue = Number.POSITIVE_INFINITY;
@@ -135,41 +145,46 @@ function parseRange(node: RangeAST, topFieldName:string, isNegation:Boolean):str
         return data;
     });
 
+    const getFieldValue = (obj: any) => path(field, obj);
+
     // ie age:>10 || age:(>10 AND <=20)
     if (!incMin && incMax) {
         if (isInfiniteMax(maxValue)) {
-            resultStr = `get(data, "${field}") > ${minValue}`;
+            rangeFn = (obj: any) => _.gt(obj, minValue);
         } else {
-            resultStr = `((${maxValue} >= get(data, "${field}")) && (get(data, "${field}") > ${minValue}))`;
+            rangeFn = (obj: any) => _.gt(obj, minValue) && _.lte(obj, maxValue);
         }
     }
 
     // ie age:<10 || age:(<=10 AND >20)
     if (incMin && !incMax) {
         if (isInfiniteMin(minValue)) {
-            resultStr = `get(data, "${field}") < ${maxValue}`;
+            rangeFn = (obj: any) => _.lt(obj, maxValue);
+
         } else {
-            resultStr =  `((${minValue} <= get(data, "${field}")) && (get(data, "${field}") < ${maxValue}))`;
+            rangeFn = (obj: any) => _.lt(obj, maxValue) && _.gte(obj, minValue);
         }
     }
 
     // ie age:<=10, age:>=10, age:(>=10 AND <=20)
     if (incMin && incMax) {
         if (isInfiniteMax(maxValue)) {
-            resultStr = `get(data, "${field}") >= ${minValue}`;
+            rangeFn = (obj: any) => _.gte(obj, minValue);
         } else if (isInfiniteMin(minValue)) {
-            resultStr = `get(data, "${field}") <= ${maxValue}`;
+            rangeFn = (obj: any) => _.lte(obj, maxValue);
         } else {
-            resultStr = `((${maxValue} >= get(data, "${field}")) && (get(data, "${field}") >= ${minValue}))`;
+            rangeFn = (obj: any) => _.lte(obj, maxValue) && _.gte(obj, minValue);
+
         }
     }
 
     // ie age:(>10 AND <20)
     if (!incMin && !incMax) {
-        resultStr = `((${maxValue} > get(data, "${field}")) && (get(data, "${field}") > ${minValue}))`;
+        rangeFn = (obj: any) => _.lt(obj, maxValue) && _.gt(obj, minValue);
+
     }
 
-    return resultStr;
+    return pipe(getFieldValue, rangeFn);
 }
 
 // function functionBuilder(node: AST, parent: AST, fnStrBody: string, _field: string|null) {
