@@ -7,7 +7,7 @@ import * as i from './interfaces';
 import * as utils from './utils';
 
 /**
- * @todo Add the ability to enable/disable refresh by default
+ * @todo add the ability to enable/disable refresh by default
  */
 export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     readonly client: es.Client;

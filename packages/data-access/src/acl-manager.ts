@@ -9,8 +9,8 @@ import { ManagerConfig } from './interfaces';
  * ACL Manager for Data Access Roles, essentially a
  * high level abstraction of Spaces, Users, Roles, and Views
  *
- * @todo add multi-tenant support
- * @todo an admin and user should only have access its "client_id"
+ * @todo a user should only be able to see things his role has access to
+ * @todo ensure client ids match when associating records
 */
 export class ACLManager {
     static GraphQLSchema = `

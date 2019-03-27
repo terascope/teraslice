@@ -71,7 +71,7 @@ export default class IndexManager {
     /**
      * Safely setup a versioned Index, its template and any other required resouces
      *
-     * @todo This should handle better index change detection
+     * @todo this should handle better index change detection
      *
      * @returns a boolean that indicates whether the index was created or not
     */
