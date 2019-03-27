@@ -121,7 +121,10 @@ describe('Data Access Plugin', () => {
             const uri = formatBaseUri('/data-access');
             const query = `
                 mutation {
-                    createRole(role: { name: "greeter" }) {
+                    createRole(role: {
+                        name: "greeter",
+                        client_id: 1,
+                    }) {
                         id,
                         name,
                     }
@@ -142,6 +145,7 @@ describe('Data Access Plugin', () => {
             const query = `
                 mutation {
                     createDataType(dataType: {
+                        client_id: 1,
                         name: "Greeter",
                         type_config: {
                             created: "date",
@@ -177,6 +181,7 @@ describe('Data Access Plugin', () => {
             const query = `
                 mutation {
                     createView(view: {
+                        client_id: 1,
                         name: "greetings-admin",
                         data_type: "${dataTypeId}",
                         excludes: ["created", "updated"],
@@ -212,6 +217,7 @@ describe('Data Access Plugin', () => {
             const query = `
                 mutation {
                     createSpace(space: {
+                        client_id: 1,
                         name: "Greetings Space",
                         endpoint: "greetings",
                         data_type: "${dataTypeId}",
@@ -263,12 +269,12 @@ describe('Data Access Plugin', () => {
             const query = `
                 mutation {
                     createUser(user: {
+                        client_id: 1,
                         username: "hello",
                         firstname: "hi",
                         lastname: "hello",
                         email: "hi@example.com",
                         role: "${roleId}",
-                        client_id: 1,
                         type: SUPERADMIN
                     }, password: "greeting") {
                         id,
@@ -305,12 +311,14 @@ describe('Data Access Plugin', () => {
             const query = `
                 query {
                     findRole(id: "${roleId}") {
+                        client_id,
                         name
                     }
                     findRoles(query: "*") {
                         name
                     }
                     findUser(id: "${userId}") {
+                        client_id,
                         username,
                         firstname,
                         lastname,
@@ -319,6 +327,7 @@ describe('Data Access Plugin', () => {
                         username
                     }
                     findSpace(id: "${spaceId}") {
+                        client_id,
                         views,
                         roles
                     }
@@ -326,12 +335,14 @@ describe('Data Access Plugin', () => {
                         name
                     }
                     findDataType(id: "${dataTypeId}") {
+                        client_id,
                         name
                     }
                     findDataTypes(query: "*") {
                         name
                     }
                     findView(id: "${viewId}") {
+                        client_id,
                         excludes
                     }
                     findViews(query: "*") {
@@ -342,6 +353,7 @@ describe('Data Access Plugin', () => {
 
             expect(await request(uri, query)).toEqual({
                 findRole: {
+                    client_id: 1,
                     name: 'greeter'
                 },
                 findRoles: [
@@ -350,6 +362,7 @@ describe('Data Access Plugin', () => {
                     }
                 ],
                 findUser: {
+                    client_id: 1,
                     username: 'hello',
                     firstname: 'hi',
                     lastname: 'hello'
@@ -360,6 +373,7 @@ describe('Data Access Plugin', () => {
                     }
                 ],
                 findSpace: {
+                    client_id: 1,
                     views: [viewId],
                     roles: [roleId]
                 },
@@ -369,6 +383,7 @@ describe('Data Access Plugin', () => {
                     }
                 ],
                 findDataType: {
+                    client_id: 1,
                     name: 'Greeter'
                 },
                 findDataTypes: [
@@ -377,6 +392,7 @@ describe('Data Access Plugin', () => {
                     }
                 ],
                 findView: {
+                    client_id: 1,
                     excludes: ['created', 'updated'],
                 },
                 findViews: [
