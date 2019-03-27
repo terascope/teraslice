@@ -161,7 +161,7 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data4)).toEqual(false);
         });
 
-        fit('can handle _exists_', () => {
+        it('can handle _exists_', () => {
             const data1 = { some: 'data' };
             const data2 = { other: 'data' };
             const data3 = { some: null };
@@ -170,7 +170,7 @@ describe('document matcher', () => {
 
             expect(documentMatcher.match(data1)).toEqual(true);
             expect(documentMatcher.match(data2)).toEqual(false);
-            expect(documentMatcher.match(data3)).toEqual(false);
+            expect(documentMatcher.match(data3)).toEqual(true);
         });
 
         it('can handle complex term "()" operators', () => {

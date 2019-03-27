@@ -3,11 +3,11 @@ import _ from 'lodash';
 
 import { isString, debugLogger } from '@terascope/utils';
 // @ts-ignore
-import { both, either, not, path, identity } from 'rambda';
+import { both, either, not, path, identity, has } from 'rambda';
 import LuceneQueryParser from '../lucene-query-parser';
 import TypeManager from './type-manager';
 // @ts-ignore
-import { bindThis, isInfiniteMax, isInfiniteMin, isExistsNode, isTermNode, isRangeNode, isConjunctionNode } from '../utils';
+import { bindThis, isInfiniteMax, isInfiniteMin, isExistsNode, isTermNode, isRangeNode, isConjunctionNode, isExistsNode } from '../utils';
 import { AST, TypeConfig, RangeAST, IMPLICIT } from '../interfaces';
 // @ts-ignore
 const logger = debugLogger('document-matcher');
@@ -69,10 +69,20 @@ function newBuilder(parser: LuceneQueryParser, typeConfig: TypeConfig|undefined)
             // console.log('i should be adding after', resultFn)
         }
 
+        if (isExistsNode(node)) {
+            let fn = (obj: any) =>  has(node.field, obj);
+
+            if (node.negated) {
+                fn = negate(fn);
+            }
+
+            fnResults = fnResults(fn);
+        }
+
         if (isConjunctionNode(node)) {
             // console.log('what is node', node)
             let conjunctionFn:any;
-
+            console.log('what node', node)
             if (node.operator === 'AND' || node.operator === 'NOT'|| node.operator == null) conjunctionFn = both;
             if (node.operator === 'OR' ) {
                 console.log('im setting to either', node)
