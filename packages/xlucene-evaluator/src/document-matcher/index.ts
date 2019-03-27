@@ -57,11 +57,10 @@ function newBuilder(parser: LuceneQueryParser, typeConfig: TypeConfig|undefined)
         if (isTermNode(node)) {
             // console.log('i should be here twice', node)
             let fn = (obj: any) => {
-                console.log('im executing', node, obj, path(node.field, obj), path(node.field, obj) === node.term)
+               // console.log('im executing', node, obj, path(node.field, obj), path(node.field, obj) === node.term)
                 return path(node.field, obj) === node.term;
             };
             if (node.negated) {
-                console.log('i should not be here in negation')
                 fn = negate(fn);
             }
             // console.log('i should be adding before', resultFn)
@@ -82,10 +81,10 @@ function newBuilder(parser: LuceneQueryParser, typeConfig: TypeConfig|undefined)
         if (isConjunctionNode(node)) {
             // console.log('what is node', node)
             let conjunctionFn:any;
-            console.log('what node', node)
+            //console.log('what node', node)
             if (node.operator === 'AND' || node.operator === 'NOT'|| node.operator == null) conjunctionFn = both;
-            if (node.operator === 'OR' ) {
-                console.log('im setting to either', node)
+            if (node.operator === 'OR') {
+                //console.log('im setting to either', node)
                 conjunctionFn = either;
             }
 
@@ -103,6 +102,7 @@ function newBuilder(parser: LuceneQueryParser, typeConfig: TypeConfig|undefined)
 
             } else {
                //  console.log('im setting right')
+               // FIXME: this will mess up with an either
                 conjunctionFn = conjunctionFn(() => true);
                //  console.log('im setting right', resultFn)
 
