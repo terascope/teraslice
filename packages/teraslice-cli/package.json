@@ -39,7 +39,7 @@
         "prompts": "^2.0.4",
         "syncprompt": "^2.0.0",
         "teraslice-client-js": "^0.7.0",
-        "tmp": "^0.0.33",
+        "tmp": "^0.1.0",
         "tty-table": "^2.7.0",
         "yargs": "^13.2.2"
     },
