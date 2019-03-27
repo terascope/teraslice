@@ -472,7 +472,7 @@ describe('ACLManager', () => {
 
                 try {
                     await manager.getViewForSpace({
-                        api_token: otherUser.api_token,
+                        token: otherUser.api_token,
                         space: ''
                     }, false);
                 } catch (err) {
@@ -542,7 +542,7 @@ describe('ACLManager', () => {
 
             it('should be able to get config by space id', () => {
                 return expect(manager.getViewForSpace({
-                    api_token: normalUser.api_token,
+                    token: normalUser.api_token,
                     space: spaceId
                 }, normalUser)).resolves.toMatchObject({
                     user_id: normalUser.id,
@@ -576,7 +576,7 @@ describe('ACLManager', () => {
 
             it('should be able to get config by space endpoint', () => {
                 return expect(manager.getViewForSpace({
-                    api_token: normalUser.api_token,
+                    token: normalUser.api_token,
                     space: 'example-space'
                 }, normalUser)).resolves.toMatchObject({
                     space_id: spaceId,
@@ -616,7 +616,7 @@ describe('ACLManager', () => {
 
             it('should be able to get the default view', () => {
                 return expect(manager.getViewForSpace({
-                    api_token: normalUser.api_token,
+                    token: normalUser.api_token,
                     space: spaceId
                 }, normalUser)).resolves.toMatchObject({
                     user_id: normalUser.id,

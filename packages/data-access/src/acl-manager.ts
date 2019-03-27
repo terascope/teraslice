@@ -26,7 +26,7 @@ export class ACLManager {
         }
 
         type Query {
-            authenticate(username: String, password: String, api_token: String): User!
+            authenticate(username: String, password: String, token: String): User!
             findUser(id: ID!): User
             findUsers(query: String): [User]!
 
@@ -42,7 +42,7 @@ export class ACLManager {
             findView(id: ID!): View
             findViews(query: String): [View]!
 
-            getViewForSpace(api_token: String!, space: String!): DataAccessConfig!
+            getViewForSpace(api_token: String, space: String!): DataAccessConfig!
         }
 
         type Mutation {
@@ -116,13 +116,13 @@ export class ACLManager {
     /**
      * Authenticate user with an api_token or username and password
      */
-    async authenticate(args: { username?: string, password?: string, api_token?: string }): Promise<models.User> {
+    async authenticate(args: { username?: string, password?: string, token?: string }): Promise<models.User> {
         if (args.username && args.password) {
             return this._users.authenticate(args.username, args.password);
         }
 
-        if (args.api_token) {
-            return this._users.authenticateWithToken(args.api_token);
+        if (args.token) {
+            return this._users.authenticateWithToken(args.token);
         }
 
         throw new ts.TSError('Missing credentials', {
@@ -453,7 +453,7 @@ export class ACLManager {
     /**
      * Get the User's data access configuration for a "Space"
      */
-    async getViewForSpace(args: { api_token: string, space: string }, authUser: models.User|false): Promise<DataAccessConfig> {
+    async getViewForSpace(args: { token: string, space: string }, authUser: models.User|false): Promise<DataAccessConfig> {
         const user = await this.authenticate(args);
 
         if (!user.role) {

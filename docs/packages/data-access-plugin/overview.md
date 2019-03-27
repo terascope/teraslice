@@ -84,7 +84,7 @@ To provide authentication to the GraphQL API use the `Authorization` header:
 
 ```json
 {
-    "authorization": "Token <API_TOKEN>"
+    "Authorization": "Token <API_TOKEN>"
 }
 ```
 

@@ -768,12 +768,12 @@ describe('ACLManager Permissions', () => {
         });
 
         it('should be able to authenticate user with an api_token', async () => {
-            const result = await manager.authenticate({ api_token: normalUser.api_token });
+            const result = await manager.authenticate({ token: normalUser.api_token });
             expect(result.id).toEqual(normalUser.id);
         });
 
         it('should be able to authenticate with an api_token', async () => {
-            const result = await manager.authenticate({ api_token: normalUser.api_token });
+            const result = await manager.authenticate({ token: normalUser.api_token });
             expect(result.id).toEqual(normalUser.id);
         });
 

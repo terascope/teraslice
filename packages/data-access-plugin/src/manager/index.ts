@@ -142,7 +142,7 @@ export default class ManagerPlugin {
 
             spaceErrorHandler(req, res, async () => {
                 const accessConfig = await manager.getViewForSpace({
-                    api_token: get(user, 'api_token'),
+                    token: get(user, 'api_token'),
                     space,
                 }, user);
 
@@ -168,19 +168,19 @@ export default class ManagerPlugin {
     }
 }
 
-export function getCredentialsFromReq(req: Request): { api_token?: string, username?: string, password?: string } {
+export function getCredentialsFromReq(req: Request): { token?: string, username?: string, password?: string } {
     const queryToken: string = get(req, 'query.token');
-    if (queryToken) return { api_token: queryToken } ;
+    if (queryToken) return { token: queryToken } ;
 
     const authToken: string = get(req, 'headers.authorization');
-    if (!authToken) return { api_token: '' };
+    if (!authToken) return { };
 
     let [part1, part2] = authToken.split(' ');
     part1 = trim(part1);
     part2 = trim(part2);
 
     if (part1 === 'Token') {
-        return { api_token: trim(part2) };
+        return { token: trim(part2) };
     }
 
     if (part1 === 'Basic') {
