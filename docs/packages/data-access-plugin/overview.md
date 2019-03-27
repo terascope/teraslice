@@ -65,16 +65,19 @@ Since this project is designed to replace the teraserver teranaut plugin, and th
 To manage the data access models a user is given one of the following permission types:
 
 - `USER`:
-    - List the users for its client, except it cannot see the `api_token`, `hash` and `salt` on the user.
+    - List the users for its client, it cannot see the `api_token` on any user except itself.
     - Update the its own user record.
     - A user cannot delete its own record
     - List the role and the spaces, views, and data types its role has access to, except it cannot see any fields that may contain connection info, or fields.
+    - Cannot change its `type` or `client_id`
 - `ADMIN`:
-    - List the users for its client, except it cannot see the `hash` and `salt`.
+    - List the users for its client.
     - Create, update, or remove any of its client's users with type `USER` or `ADMIN`.
     - Create, update, or remove any role and view.
     - Update a space or data type.
     - List roles, views, spaces, and data types.
+    - Cannot change its, or any other's `type` to `SUPERADMIN`.
+    - Cannot change the `client_id` on any record.
 - `SUPERADMIN`:
     - List, create, update, remove, any user, role, space, view, or data type.
 
