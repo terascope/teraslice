@@ -107,7 +107,7 @@
             if (node.field) {
                 node.left.field = node.field;
             }
-            if (node.left.type === "conjunction") {
+            if (node.left.type === CONJUNCTION) {
                 propagateFields(node.left);
             }
         }
@@ -116,7 +116,7 @@
             if (node.field) {
                 node.right.field = node.field;
             }
-            if (node.right.type === "conjunction") {
+            if (node.right.type === CONJUNCTION) {
                 propagateFields(node.right);
             }
         }
