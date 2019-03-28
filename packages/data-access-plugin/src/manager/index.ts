@@ -49,11 +49,31 @@ export default class ManagerPlugin {
         this.server = new apollo.ApolloServer({
             schema,
             context: async ({ req }) => {
-                return {
-                    // @ts-ignore
-                    user: req.v2User,
-                    manager: this.manager,
-                };
+                if (req.body.operationName === 'IntrospectionQuery') {
+                    return {
+                        user: false,
+                        manager: this.manager,
+                    };
+                }
+
+                const creds = getCredentialsFromReq(req);
+                try {
+                    const user = await this.manager.authenticate(creds);
+                    return {
+                        user,
+                        manager: this.manager,
+                    };
+                } catch (err) {
+                    this.logger.error(err, req);
+                    if (err.statusCode === 401) {
+                        throw new apollo.AuthenticationError(err.message);
+                    }
+
+                    if (err.statusCode === 403) {
+                        throw new apollo.ForbiddenError(err.message);
+                    }
+                    throw err;
+                }
             },
             formatError,
         });
@@ -71,8 +91,8 @@ export default class ManagerPlugin {
             user: {
                 client_id: 0,
                 username: 'admin',
-                firstname: 'admin',
-                lastname: 'admin',
+                firstname: 'System',
+                lastname: 'Admin',
                 email: 'admin@example.com',
                 type: 'SUPERADMIN'
             },
@@ -96,6 +116,11 @@ export default class ManagerPlugin {
         }
 
         this.app.use('/api/v2', (req, res, next) => {
+            if (req.originalUrl === managerUri) {
+                next();
+                return;
+            }
+
             // @ts-ignore
             req.aclManager = this.manager;
 

@@ -23,7 +23,7 @@ data_access:
   namespace: 'test_teraserver'
   # the connection name
   connection: 'default'
-  # [DEVELOPMENT] Enabling this flag will cause a SUPERADMIN user to be created when this plugin is initialzed and there are no other users. The SUPERADMIN's credentials are (username: admin, password: admin). Make sure to only run one worker when using this mode.
+  # Enabling this flag will cause a SUPERADMIN user to be created when this plugin is initialized and there are no other users. The SUPERADMIN's credentials are (username: admin, password: admin). Make sure to only run one worker when using this mode. Remember to change the auto-created user\'s password since the default is secure.
   bootstrap_mode: true
 teraserver:
   plugins:
@@ -65,7 +65,7 @@ Since this project is designed to replace the teraserver teranaut plugin, and th
 To manage the data access models a user is given one of the following permission types:
 
 - `USER`:
-    - List the users for its client, it cannot see the `api_token` on any user except itself.
+    - List the users for its client, but it cannot see anything about the users.
     - Update the its own user record.
     - A user cannot delete its own record
     - List the role and the spaces, views, and data types its role has access to, except it cannot see any fields that may contain connection info, or fields.
@@ -88,6 +88,14 @@ To provide authentication to the GraphQL API use the `Authorization` header:
 ```json
 {
     "Authorization": "Token <API_TOKEN>"
+}
+```
+
+If you are running in bootstrap mode and want to authenticate with the admin user use the following headers:
+
+```json
+{
+    "Authorization": "Basic YWRtaW46YWRtaW4="
 }
 ```
 
