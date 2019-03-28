@@ -4,7 +4,7 @@ import { Client } from 'elasticsearch';
 import { Logger, toBoolean, trim } from '@terascope/utils';
 import * as apollo from 'apollo-server-express';
 import { Context } from '@terascope/job-components';
-import { ACLManager } from '@terascope/data-access';
+import { ACLManager, User } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { makeSearchFn } from '../search/utils';
 import { makeErrorHandler, getESClient } from '../utils';
