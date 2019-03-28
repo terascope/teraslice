@@ -1,14 +1,12 @@
 import BaseType from './base';
 import { bindThis } from '../../../utils';
 import _ from 'lodash';
-import { AST } from '../../../interfaces';
-
-const fnBaseName = 'strFn';
+import { AST, BooleanCB } from '../../../interfaces';
 
 export default class TermType extends BaseType {
 
     constructor() {
-        super(fnBaseName);
+        super();
         bindThis(this, TermType);
     }
 
@@ -58,75 +56,51 @@ export default class TermType extends BaseType {
     }
 
     public processAst(ast: AST): AST {
-        // tslint:disable-next-line no-this-assignment
-        const {
-            walkAst,
-            isWildCard,
-            parseWildCard,
-            filterFnBuilder,
-            createParsedField,
-            recurseDownObject,
-            match
-        } = this;
 
-        function parseRegex(node: AST, _field: string) {
+        const parseStringNodes = (node: AST, _field: string) => {
             const topField = node.field || _field;
+            let stringFn: BooleanCB;
 
             if (node.regexpr) {
-                filterFnBuilder((str: string): boolean => {
+                stringFn = (str: string): boolean => {
                     if (typeof str !== 'string') return false;
-                    return match(str, node.term);
-                });
-
-                return {
-                    type: 'term',
-                    field: '__parsed',
-                    term: createParsedField(topField)
+                    return this.match(str, node.term);
                 };
             }
 
-            if (isWildCard(node.field)) {
-                const term = parseWildCard(node.term);
+            if (this.isWildCard(node.field)) {
+                const term = this.parseWildCard(node.term);
 
-                filterFnBuilder((data: AST): boolean => {
-                    const resultsArray = recurseDownObject(node.field || '', data);
+                stringFn = (data: AST): boolean => {
+                    const resultsArray = this.recurseDownObject(node.field || '', data);
                     let bool = false;
 
                     if (resultsArray.length === 0) return bool;
 
                     _.each(resultsArray, (value) => {
                         try {
-                            if (match(value, term)) bool = true;
+                            if (this.match(value, term)) bool = true;
                         } catch (err) {}
                     });
 
                     return bool;
-                });
-
-                return {
-                    type: 'term',
-                    field: '__parsed',
-                    term: createParsedField()
                 };
             }
 
             if (node.wildcard) {
-                const wildCardQuery = parseWildCard(node.term);
+                const wildCardQuery = this.parseWildCard(node.term);
 
-                filterFnBuilder((str: string): boolean => {
+                stringFn = (str: string): boolean => {
                     if (typeof str !== 'string') return false;
-                    return match(str, wildCardQuery);
-                });
-
-                return {
-                    type: 'term',
-                    field: '__parsed',
-                    term: createParsedField(topField)
+                    return this.match(str, wildCardQuery);
                 };
             }
+            // @ts-ignore
+            if (stringFn) return this.parseAST(node, stringFn, topField);
 
             return node;
-        }
-        return walkAst(ast, parseRegex);
+        };
+
+        return this.walkAst(ast, parseStringNodes);
     }
 }

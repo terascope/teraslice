@@ -7,7 +7,7 @@ export { TypeMapping };
 export type ImplicitField = '<implicit>';
 export const IMPLICIT: ImplicitField = '<implicit>';
 
-export type NodeType = 'conjunction'|'range'|'geo'|'term'|'exists';
+export type NodeType = 'conjunction'|'range'|'geo'|'term'|'exists'|'__parsed';
 
 export interface TypeConfig {
     [field: string]: keyof TypeMapping;
@@ -16,10 +16,19 @@ export interface TypeConfig {
 export type AST = RangeAST & TermAST
     & GeoAST & ExistsAST
     & WildcardAST & RegexpAST
-    & ConjunctionAST;
+    & ConjunctionAST & ParsedAst;
 
 interface BaseAST {
     type: NodeType;
+}
+
+export type BooleanCB = (data: any) => boolean;
+
+export interface ParsedAst extends BaseAST {
+    type: '__parsed';
+    negated?: boolean;
+    callback: BooleanCB;
+    or?: boolean;
 }
 
 export interface ConjunctionAST extends BaseAST {
