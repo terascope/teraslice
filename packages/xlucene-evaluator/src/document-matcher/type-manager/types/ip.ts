@@ -4,7 +4,7 @@ import ip6addr from 'ip6addr';
 import { isIPv6, isIP } from'net';
 import BaseType from'./base';
 import { bindThis, isInfiniteMin, isInfiniteMax, isRangeNode } from '../../../utils';
-import { AST } from '../../../interfaces';
+import { AST, BooleanCB } from '../../../interfaces';
 
 const MIN_IPV4_IP = '0.0.0.0';
 const MAX_IPV4_IP = '255.255.255.255';
@@ -12,31 +12,29 @@ const MAX_IPV4_IP = '255.255.255.255';
 const MIN_IPV6_IP = '::';
 const MAX_IPV6_IP = 'ffff.ffff.ffff.ffff.ffff.ffff.ffff.ffff';
 
-const fnBaseName = 'ipFn';
-
 export default class IpType extends BaseType {
     private fields: object;
 
     constructor(ipFieldDict: object) {
-        super(fnBaseName);
+        super();
         this.fields = ipFieldDict;
         bindThis(this, IpType);
     }
 
     processAst(ast: AST): AST {
-        // tslint:disable-next-line no-this-assignment
-        const { filterFnBuilder, createParsedField, fields } = this;
 
-        function populateIpQueries(node: AST, _field?: string) {
+        const populateIpQueries = (node: AST, _field?: string) => {
             const topField = node.field || _field;
 
-            if (topField && fields[topField]) {
+            if (topField && this.fields[topField]) {
+                let ipFn: BooleanCB;
+
                 if (node.term) {
                     const argeCidr = isCidr(node.term);
                     if (argeCidr > 0) {
                         const range = ip6addr.createCIDR(node.term);
 
-                        filterFnBuilder((ip: string) => {
+                        ipFn = (ip: string) => {
                             if (isCidr(ip) > 0) {
                                 const argRange = ip6addr.createCIDR(ip);
                                 const argFirst = argRange.first().toString();
@@ -47,15 +45,15 @@ export default class IpType extends BaseType {
                             }
                             if (isIP(ip) > 0) return range.contains(ip);
                             return false;
-                        });
+                        };
                     } else {
-                        filterFnBuilder((ip: string) => {
+                        ipFn = (ip: string) => {
                             if (isCidr(ip) > 0) {
                                 const argRange = ip6addr.createCIDR(ip);
                                 return argRange.contains(node.term);
                             }
                             return ip === node.term;
-                        });
+                        };
                     }
                 }
                // RANGE EXPRESSIONS
@@ -75,7 +73,7 @@ export default class IpType extends BaseType {
                     if (!incMax) maxValue = ip6addr.parse(maxValue).offset(-1).toString();
                     const range = ip6addr.createAddrRange(minValue, maxValue);
 
-                    filterFnBuilder((ip: string) => {
+                    ipFn = (ip: string) => {
                         if (isCidr(ip) > 0) {
                             const argRange = ip6addr.createCIDR(ip);
                             const argFirst = argRange.first().toString();
@@ -86,17 +84,14 @@ export default class IpType extends BaseType {
                         }
                         if (isIP(ip) > 0) return range.contains(ip);
                         return false;
-                    });
+                    };
                 }
-
-                return {
-                    type: 'term',
-                    field: '__parsed',
-                    term: createParsedField(topField)
-                };
+                // @ts-ignore
+                if (ipFn) return this.parseAST(node, ipFn, topField);
+                return node;
             }
             return node;
-        }
+        };
 
         return this.walkAst(ast, populateIpQueries);
     }

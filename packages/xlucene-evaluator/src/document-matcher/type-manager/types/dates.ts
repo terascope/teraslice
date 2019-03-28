@@ -20,7 +20,7 @@ export default class DateType extends BaseType {
 
         const parseDates = (node: AST, _field?: string) => {
             const topField = node.field || _field;
-            // TODO: verify return type of string here
+
             function convert(value: DateInput): number | null {
                 const results = new Date(value).getTime();
                 if (results) return results;
