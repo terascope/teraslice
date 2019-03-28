@@ -1,5 +1,4 @@
 import typeMapping, { BaseType, TypeMapping } from './types';
-
 import { AST, TypeConfig } from '../../interfaces';
 import { LuceneQueryParser } from '../..';
 
