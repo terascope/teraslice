@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import dateFns from 'date-fns';
 import BaseType from './base';
-import { bindThis, isInfiniteMax, isInfiniteMin } from '../../../utils';
+import { isInfiniteMax, isInfiniteMin } from '../../../utils';
 import { AST, DateInput, BooleanCB } from '../../../interfaces';
 
 // TODO: handle datemath
@@ -13,7 +13,6 @@ export default class DateType extends BaseType {
     constructor(dateFieldDict: object) {
         super();
         this.fields = dateFieldDict;
-        bindThis(this, DateType);
     }
 
     processAst(ast: AST): AST {
@@ -21,12 +20,6 @@ export default class DateType extends BaseType {
         const parseDates = (node: AST, _field?: string) => {
             const topField = node.field || _field;
 
-            function convert(value: DateInput): number | null {
-                const results = new Date(value).getTime();
-                if (results) return results;
-                return null;
-            }
-            // @ts-ignore
             if (topField && this.fields[topField]) {
                 let dateFn: BooleanCB;
                 const { inclusive_min: incMin, inclusive_max: incMax } = node;
@@ -60,4 +53,10 @@ export default class DateType extends BaseType {
 
         return this.walkAst(ast, parseDates);
     }
+}
+
+function convert(value: DateInput): number | null {
+    const results = new Date(value).getTime();
+    if (results) return results;
+    return null;
 }

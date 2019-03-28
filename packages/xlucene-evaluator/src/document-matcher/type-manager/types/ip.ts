@@ -4,7 +4,7 @@ import ip6addr from 'ip6addr';
 import { isIPv6, isIP } from'net';
 import BaseType from'./base';
 import { bindThis, isInfiniteMin, isInfiniteMax, isRangeNode } from '../../../utils';
-import { AST, BooleanCB } from '../../../interfaces';
+import { AST } from '../../../interfaces';
 
 const MIN_IPV4_IP = '0.0.0.0';
 const MAX_IPV4_IP = '255.255.255.255';
@@ -27,7 +27,7 @@ export default class IpType extends BaseType {
             const topField = node.field || _field;
 
             if (topField && this.fields[topField]) {
-                let ipFn: BooleanCB;
+                let ipFn;
 
                 if (node.term) {
                     const argeCidr = isCidr(node.term);
@@ -86,7 +86,7 @@ export default class IpType extends BaseType {
                         return false;
                     };
                 }
-                // @ts-ignore
+
                 if (ipFn) return this.parseAST(node, ipFn, topField);
                 return node;
             }

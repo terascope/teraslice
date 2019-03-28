@@ -1,7 +1,7 @@
 import BaseType from './base';
 import { bindThis } from '../../../utils';
 import _ from 'lodash';
-import { AST, BooleanCB } from '../../../interfaces';
+import { AST } from '../../../interfaces';
 
 type MaybeString = string|null;
 
@@ -58,7 +58,7 @@ export default class TermType extends BaseType {
 
         const parseStringNodes = (node: AST, _field: string) => {
             let topField: MaybeString = node.field || _field;
-            let stringFn: BooleanCB;
+            let stringFn;
 
             if (node.regexpr) {
                 stringFn = (str: string): boolean => {
@@ -92,7 +92,7 @@ export default class TermType extends BaseType {
                     return this.match(str, wildCardQuery);
                 };
             }
-            // @ts-ignore
+
             if (stringFn) return this.parseAST(node, stringFn, topField);
             return node;
         };

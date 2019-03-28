@@ -8,7 +8,6 @@ import { lineString } from '@turf/helpers';
 import BaseType from './base';
 import { AST, GeoResults, BooleanCB } from '../../../interfaces';
 import {
-    bindThis,
     isGeoNode,
     parseGeoDistance,
     parseGeoPoint
@@ -19,7 +18,6 @@ export default class GeoType extends BaseType {
 
     constructor() {
         super();
-        bindThis(this, GeoType);
     }
 
     processAst(ast: AST): AST {
