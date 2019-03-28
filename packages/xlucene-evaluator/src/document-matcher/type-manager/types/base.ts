@@ -1,32 +1,21 @@
-import { AST } from '../../../interfaces';
+import { AST, BooleanCB } from '../../../interfaces';
+import { path, pipe } from 'rambda';
+
+
 
 export default class BaseType {
-    private fnID: number;
-    private injectorFns: object;
-    private fnBaseName?: string;
-    public filterFnBuilder: Function;
-    public createParsedField: Function;
-    public injectTypeFilterFns: Function;
 
-    constructor(fnBaseName?: string) {
-        this.fnID = 0;
-        this.injectorFns = {};
-        if (fnBaseName) this.fnBaseName = fnBaseName;
+    public parseAST(srcNode: AST, parsedFn: BooleanCB, field: string): AST {
+        const getFieldValue = (obj: any) => path(field, obj);
 
-        this.filterFnBuilder = (cb: Function): void => {
-            this.fnID += 1;
-            this.injectorFns[`${this.fnBaseName}${this.fnID}`] = cb;
-        };
+        // @ts-ignore
+        const resultingAST: AST = { type: '__parsed', callback:  pipe(getFieldValue, parsedFn) };
 
-        this.createParsedField = (field?: string): string => {
-            const args = field != null ? `data.${field}` : 'data';
-            return `${this.fnBaseName}${this.fnID}(${args})`;
-        };
-
-        this.injectTypeFilterFns = () => {
-            return Object.keys(this.injectorFns).length > 0 ? this.injectorFns : null;
-        };
+        if (srcNode.negated) resultingAST.negated = true;
+        if (srcNode.or) resultingAST.or = true;
+        return resultingAST;
     }
+
     // TODO: look to see if this can be combined with other walkAst method
     public walkAst(ast: AST, cb: Function) {
 

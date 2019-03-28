@@ -46,14 +46,4 @@ export default class TypeManager {
             return type.processAst(astObj);
         }, this._parser._ast);
     }
-
-    public injectTypeFilterFns(): object {
-        return this.typeList.reduce((prev, type) => {
-            const filterFns = type.injectTypeFilterFns();
-            if (filterFns != null) {
-                Object.assign(prev, filterFns);
-            }
-            return prev;
-        }, {});
-    }
 }

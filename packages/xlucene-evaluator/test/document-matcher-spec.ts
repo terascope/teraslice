@@ -508,7 +508,7 @@ describe('document matcher', () => {
         });
     });
 
-    fdescribe('ip expressions', () => {
+    describe('ip expressions', () => {
         it('can do exact matches, no type changes', () => {
             const data1 = { ip: '157.60.0.1' };
             const data2 = { ip: '1:2:3:4:5:6:7:8' };
@@ -715,7 +715,7 @@ describe('document matcher', () => {
         });
     });
 
-    describe('date expressions', () => {
+    fdescribe('date expressions', () => {
         it('can do exact matches, no type changes', () => {
             // all of these are the same date
             const data1 = { _created: 'Thu Oct 18 2018 11:13:20 GMT-0700' };
