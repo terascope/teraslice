@@ -99,7 +99,16 @@ export default class ManagerPlugin {
             password: 'admin'
         }, false);
 
-        this.logger.info(user, 'bootstrap mode create base admin client');
+        this.logger.info({
+            id: user.id,
+            client_id: user.client_id,
+            username: user.username,
+            firstname: user.firstname,
+            lastname: user.lastname,
+            email: user.email,
+            type: user.type,
+            api_token: user.api_token,
+        }, 'bootstrap mode create base admin client');
     }
 
     async shutdown() {

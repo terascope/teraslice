@@ -15,7 +15,7 @@ export function makeErrorHandler(reason: string, logger: Logger): ErrorHandlerFn
             });
 
             logger.error(error, reason, {
-                path: req.path,
+                path: req.originalUrl,
                 query: req.query
             });
 
