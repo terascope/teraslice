@@ -1163,16 +1163,17 @@ describe('document matcher', () => {
             const data1 = { date: '2018-10-10T17:36:13Z', value: 252, type: 'example' };
             const data2 = { date: '2018-10-10T17:36:13Z', value: 253, type: 'other' };
             const data3 = { date: '["2018-10-10T17:36:13Z" TO "2018-10-10T17:36:13Z"]', value: 253, type: 'other' };
+
             const luceneQuery = 'date:["2018-10-10T17:36:13Z" TO "2018-10-10T17:36:13Z"] AND NOT value:(251 OR 252) AND NOT type:example';
             const luceneQuery2 = 'date:["2018-10-10T17:36:13Z" TO "2018-10-10T17:36:13Z"] AND ! value:(251 OR 252) AND ! type:example';
-            const typeConfig = { date: 'date' };
-            // @ts-ignore FIXME:
+            const typeConfig: TypeConfig = { date: 'date' };
+
             documentMatcher.parse(luceneQuery, typeConfig);
 
             expect(documentMatcher.match(data1)).toEqual(false);
             expect(documentMatcher.match(data2)).toEqual(true);
             expect(documentMatcher.match(data3)).toEqual(false);
-            // @ts-ignore FIXME:
+
             documentMatcher.parse(luceneQuery2, typeConfig);
 
             expect(documentMatcher.match(data1)).toEqual(false);
@@ -1183,10 +1184,10 @@ describe('document matcher', () => {
         it('can accept unquoted dates', () => {
             const data1 = { date: '2018-10-10T17:36:13Z', value: 252, type: 'example' };
             const data2 = { date: '2018-10-10T18:36:13Z', value: 253, type: 'other' };
-            const typeConfig = { date: 'date' };
+            const typeConfig: TypeConfig = { date: 'date' };
 
             const luceneQuery = 'date:[2018-10-10T17:36:13Z TO 2018-10-10T20:36:13Z]';
-            // @ts-ignore FIXME:
+
             documentMatcher.parse(luceneQuery, typeConfig);
 
             expect(documentMatcher.match(data1)).toEqual(true);

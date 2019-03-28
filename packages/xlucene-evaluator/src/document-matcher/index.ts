@@ -1,14 +1,11 @@
 import _ from 'lodash';
-// @ts-ignore
-
-import { isString, debugLogger } from '@terascope/utils';
-// @ts-ignore
+import { debugLogger } from '@terascope/utils';
 import { both, either, not, path, identity, has, pipe } from 'rambda';
 import LuceneQueryParser from '../lucene-query-parser';
 import TypeManager from './type-manager';
-// @ts-ignore
-import { bindThis, isInfiniteMax, isInfiniteMin, isExistsNode, isTermNode, isRangeNode, isConjunctionNode, isExistsNode } from '../utils';
-import { AST, TypeConfig, RangeAST, IMPLICIT } from '../interfaces';
+import { bindThis, isInfiniteMax, isInfiniteMin, isTermNode, isRangeNode, isConjunctionNode, isExistsNode } from '../utils';
+import { AST, TypeConfig, RangeAST } from '../interfaces';
+
 // @ts-ignore
 const logger = debugLogger('document-matcher');
 
@@ -31,7 +28,6 @@ export default class DocumentMatcher {
 
         parser.parse(luceneStr);
         const resultingFN = newBuilder(parser, types);
-        // console.log('what coming out', resultingFN);
         this.filterFn = resultingFN;
     }
 
@@ -49,28 +45,16 @@ function isParsedNode(node: AST) {
 
 function newBuilder(parser: LuceneQueryParser, typeConfig: TypeConfig|undefined) {
     const types = new TypeManager(parser, typeConfig);
-
     const parsedAst = types.processAst();
-    // @ts-ignore
-    const AND_MAPPING = { AND: true, NOT: true };
-    // default operator in elasticsearch is OR
-    const OR_MAPPING = { OR: true };
-    OR_MAPPING[IMPLICIT] = true;
 
     function walkAst(node: AST, resultFn: any) {
         let fnResults = resultFn;
         if (isTermNode(node)) {
-            // console.log('i should be here twice', node)
-            let fn = (obj: any) => {
-               // console.log('im executing', node, obj, path(node.field, obj), path(node.field, obj) === node.term)
-                return path(node.field, obj) === node.term;
-            };
+            let fn = (obj: any) => path(node.field, obj) === node.term;
             if (node.negated) {
                 fn = negate(fn);
             }
-            // console.log('i should be adding before', resultFn)
             fnResults = fnResults(fn);
-            // console.log('i should be adding after', resultFn)
         }
 
         if (isExistsNode(node)) {
@@ -103,17 +87,14 @@ function newBuilder(parser: LuceneQueryParser, typeConfig: TypeConfig|undefined)
         }
 
         if (isConjunctionNode(node)) {
-            // console.log('what is node', node)
             let conjunctionFn:any;
             if (node.operator === 'AND' || node.operator === 'NOT' || node.operator == null) conjunctionFn = both;
             if (node.operator === 'OR') {
-                // console.log('im setting to either', node)
                 conjunctionFn = either;
             }
 
             if (node.left) {
                 conjunctionFn = walkAst(node.left as AST, conjunctionFn);
-             // console.log('i should be recursing left', conjunctionFn)
 
             } else {
                 conjunctionFn = conjunctionFn(() => false);
@@ -121,14 +102,10 @@ function newBuilder(parser: LuceneQueryParser, typeConfig: TypeConfig|undefined)
 
             if (node.right) {
                 conjunctionFn = walkAst(node.right as AST, conjunctionFn);
-                // console.log('i should be recursing right', fnResults)
 
             } else {
-               //  console.log('im setting right')
                // FIXME: this will mess up with an either
                 conjunctionFn = conjunctionFn(() => true);
-               //  console.log('im setting right', resultFn)
-
             }
 
             if (node.negated) {
@@ -204,78 +181,3 @@ function parseRange(node: RangeAST) {
 
     return pipe(getFieldValue, rangeFn);
 }
-
-// function functionBuilder(node: AST, parent: AST, fnStrBody: string, _field: string|null) {
-//     const field = (node.field && node.field !== IMPLICIT) ? node.field : _field;
-//     let fnStr = '';
-
-//     if (node.type === 'conjunction') {
-//         if (node.parens) {
-//             fnStr += node.negated ? '!(' : '(';
-//         }
-
-//         if (node.left != null) {
-//             fnStr += '(';
-//             fnStr += functionBuilder(node.left, node, '', field);
-//             fnStr += ')';
-//         }
-
-//         if (node.left && node.right && node.operator && OR_MAPPING[node.operator]) fnStr += ' || ';
-//         if (node.left && node.right && node.operator && AND_MAPPING[node.operator]) fnStr += ' && ';
-
-//         if (node.right != null) {
-//             fnStr += '(';
-//             fnStr += functionBuilder(node.right, node, '', field);
-//             fnStr += ')';
-//         }
-
-//         if (node.parens) {
-//             fnStr += ')';
-//         }
-//     } else {
-//         fnStr += node.negated ? '!(' : '(';
-
-//         if (isExistsNode(node)) {
-//             fnStr += `data.${node.field} != null`;
-//         }
-
-//         if (field && isTermNode(node)) {
-//             if (field === '__parsed') {
-//                 fnStr += `${node.term}`;
-//             } else {
-//                 const value = isString(node.term) ? `"${node.term}"` : node.term;
-//                 fnStr += `data.${field} === ${value}`;
-//             }
-//         }
-
-//         if (isRangeNode(node)) {
-//             fnStr += parseRange(node, field || '');
-//         }
-
-//         fnStr += ')';
-//     }
-
-//     return `${fnStrBody}${fnStr}`;
-// }
-
-// const fnStr = functionBuilder(parsedAst, {} as AST, '', null);
-// const argsObj = types.injectTypeFilterFns();
-// const argsFns: Function[] = [];
-// const strFnArgs:string[] = [];
-
-// _.forOwn(argsObj, (value, key) => {
-//     strFnArgs.push(key);
-//     argsFns.push(value);
-// });
-// // injecting lodash
-// strFnArgs.push('get');
-// argsFns.push(_.get);
-// strFnArgs.push('data', `return ${fnStr}`);
-
-// logger.trace('created filter fn', fnStr);
-// try {
-//     // tslint:disable-next-line no-function-constructor-with-string-args
-//     const strFilterFunction = new Function(...strFnArgs);
-//     this.filterFn = (data:object) => strFilterFunction(...argsFns, data);
-// } catch (err) {
-//     throw new Error(`error while attempting to build filter function \n\n new function: ${fnStr} \n\nerror: ${err.message}`);
