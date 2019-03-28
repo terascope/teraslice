@@ -5,6 +5,7 @@ import { SearchAccess, View, DataType } from '../src';
 
 describe('SearchAccess', () => {
     const view: View = {
+        client_id: 1,
         id: 'example-view',
         name: 'Example View',
         data_type: 'example-data-type',
@@ -24,6 +25,7 @@ describe('SearchAccess', () => {
     };
 
     const dataType: DataType = {
+        client_id: 1,
         id: 'example-data-type',
         name: 'ExampleType',
         type_config: {},

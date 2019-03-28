@@ -54,7 +54,7 @@ export interface DataType extends IndexModelRecord {
     /**
      * The mutli-tenant ID representing the client
     */
-    client_id?: number;
+    client_id: number;
 
     /**
      * Name of the DataType
@@ -84,7 +84,7 @@ export const GraphQLSchema = `
     }
 
     input CreateDataTypeInput {
-        client_id: Int
+        client_id: Int!
         name: String!
         description: String
         type_config: JSON

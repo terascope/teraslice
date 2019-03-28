@@ -193,7 +193,7 @@ export const GraphQLSchema = `
     }
 
     input CreateSpaceInput {
-        client_id: Int
+        client_id: Int!
         name: String!
         endpoint: String!
         description: String
@@ -225,7 +225,7 @@ export interface Space extends IndexModelRecord {
     /**
      * The mutli-tenant ID representing the client
     */
-    client_id?: number;
+    client_id: number;
 
     /**
      * Name of the Space
