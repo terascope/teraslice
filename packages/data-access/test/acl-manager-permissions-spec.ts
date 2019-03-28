@@ -366,13 +366,19 @@ describe('ACLManager Permissions', () => {
             expect(result).toHaveProperty('api_token');
         });
 
-        it('should NOT be able to see the private properties on another user', async () => {
-            const result = await manager.findUser({ id: normalUser.id }, otherUser);
-            expect(result.id).toEqual(normalUser.id);
-            expect(result).not.toHaveProperty('api_token');
+        it('should NOT be able to find another user client', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.findUser({ id: otherUser.id }, normalUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Unable to find User');
+                expect(err.statusCode).toEqual(404);
+            }
         });
 
-        it('should NOT be able to get user from another client', async () => {
+        it('should NOT be able to find a user from another client', async () => {
             expect.hasAssertions();
 
             try {
@@ -386,11 +392,7 @@ describe('ACLManager Permissions', () => {
 
         it('should be able to find users without tokens of the same client', async () => {
             const result = await manager.findUsers({ query: `firstname:${otherUser.firstname}` }, normalUser);
-            expect(result).toBeArrayOfSize(1);
-            expect(result[0]).not.toHaveProperty('lastname');
-            expect(result[0]).not.toHaveProperty('email');
-            expect(result[0]).not.toHaveProperty('role');
-            expect(result[0]).not.toHaveProperty('api_token');
+            expect(result).toBeArrayOfSize(0);
         });
 
         it('should NOT be able to find users from another client as USER', async () => {

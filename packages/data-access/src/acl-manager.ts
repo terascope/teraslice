@@ -130,7 +130,7 @@ export class ACLManager {
      * Find user by id
     */
     async findUser(args: { id: string }, authUser: models.User|false) {
-        return this._users.findById(args.id, {}, this._getUserQueryAccess(authUser, args.id));
+        return this._users.findById(args.id, {}, this._getUserQueryAccess(authUser));
     }
 
     /**
@@ -159,7 +159,7 @@ export class ACLManager {
 
         await this._users.update(args.user);
 
-        const queryAccess = this._getUserQueryAccess(authUser, args.user.id);
+        const queryAccess = this._getUserQueryAccess(authUser);
         return this._users.findById(args.user.id, {}, queryAccess);
     }
 
@@ -471,26 +471,24 @@ export class ACLManager {
         });
     }
 
-    private _getUserQueryAccess(authUser: models.User|false, id?: string) {
+    private _getUserQueryAccess(authUser: models.User|false) {
         const type = this._getUserType(authUser);
         const clientId = this._getUserClientId(authUser);
+        let constraint = '';
         const excludes: (keyof models.User)[] = [];
-        const includes: (keyof models.User)[] = [];
         excludes.push('hash', 'salt');
 
-        // if type of user and not looking for itself
-        if (type === 'USER' && (!id || authUser && id !== authUser.id)) {
-            includes.push(
-                'id',
-                'firstname',
-                'created',
-                'updated'
-            );
+        if (clientId > 0) {
+            constraint += `client_id:${clientId}`;
+        }
+
+        if (type === 'USER' && authUser) {
+            if (constraint) constraint += ' AND ';
+            constraint += `id: ${authUser.id}`;
         }
 
         return new LuceneQueryAccess<models.User>({
-            constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
-            includes,
+            constraint,
             excludes,
             allow_implicit_queries: type !== 'USER'
         });

@@ -166,7 +166,7 @@ describe('IndexModel', () => {
             try {
                 await indexModel.findByAnyId('WrongBilly');
             } catch (err) {
-                expect(err.message).toEqual('Unable to find IndexModel by \'id:"WrongBilly" OR name:"WrongBilly"\'');
+                expect(err.message).toEqual('Unable to find IndexModel by id: "WrongBilly" OR name: "WrongBilly"');
                 expect(err.statusCode).toEqual(404);
                 expect(err).toBeInstanceOf(TSError);
             }

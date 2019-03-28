@@ -65,9 +65,7 @@ Since this project is designed to replace the teraserver teranaut plugin, and th
 To manage the data access models a user is given one of the following permission types:
 
 - `USER`:
-    - List the users for its client, but it cannot see anything about the other users.
-    - Update the its own user record.
-    - A user cannot delete its own record
+    - Can only read and update its own user record
     - List the role and the spaces, views, and data types its role has access to, except it cannot see any fields that may contain connection info, or fields.
     - Cannot change its `type` or `client_id`
 - `ADMIN`:

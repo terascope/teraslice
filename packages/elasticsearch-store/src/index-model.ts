@@ -124,7 +124,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
                         statusCode: 422
                     });
                 }
-                return `${field}:"${val}"`;
+                return `${field}: "${val}"`;
             })
             .join(` ${joinBy} `);
 
@@ -135,7 +135,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
 
         const record = ts.getFirst(results);
         if (record == null) {
-            throw new ts.TSError(`Unable to find ${this.name} by '${query}'`, {
+            throw new ts.TSError(`Unable to find ${this.name} by ${query}`, {
                 statusCode: 404,
             });
         }
@@ -170,7 +170,9 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         }, queryAccess);
 
         if (result.length !== ids.length) {
-            throw new ts.TSError(`Unable to find all by ids ${ids.join(', ')}`, {
+            const foundIds = result.map((doc) => doc.id);
+            const notFoundIds = ids.filter((id) => !foundIds.includes(id));
+            throw new ts.TSError(`Unable to find documents ${notFoundIds.join(', ')}`, {
                 statusCode: 404
             });
         }
