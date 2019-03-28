@@ -466,31 +466,41 @@ export class ACLManager {
         const type = this._getUserType(authUser);
         const clientId = this._getUserClientId(authUser);
         const excludes: (keyof models.User)[] = [];
+        const includes: (keyof models.User)[] = [];
         excludes.push('hash', 'salt');
 
+        // if type of user and not looking for itself
         if (type === 'USER' && (!id || authUser && id !== authUser.id)) {
-            excludes.push('api_token');
+            includes.push(
+                'id',
+                'firstname',
+                'created',
+                'updated'
+            );
         }
 
         return new LuceneQueryAccess<models.User>({
             constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
+            includes,
             excludes,
-            allow_implicit_queries: true
+            allow_implicit_queries: type !== 'USER'
         });
     }
 
     private _getRoleQueryAccess(authUser: models.User|false) {
+        const type = this._getUserType(authUser);
         const clientId = this._getUserClientId(authUser);
         const excludes: (keyof models.Role)[] = [];
 
         return new LuceneQueryAccess<models.Role>({
             constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
             excludes,
-            allow_implicit_queries: true
+            allow_implicit_queries: type !== 'USER'
         });
     }
 
     private _getDataTypeQueryAccess(authUser: models.User|false) {
+        const type = this._getUserType(authUser);
         const clientId = this._getUserClientId(authUser);
         const excludes: (keyof models.DataType)[] = [];
 
@@ -501,16 +511,19 @@ export class ACLManager {
         return new LuceneQueryAccess<models.DataType>({
             constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
             excludes,
-            allow_implicit_queries: true
+            allow_implicit_queries: type !== 'USER'
         });
     }
 
     private _getViewQueryAccess(authUser: models.User|false) {
+        const type = this._getUserType(authUser);
         const clientId = this._getUserClientId(authUser);
         const includes: (keyof models.View)[] = [];
 
-        if (this._getUserType(authUser) === 'USER') {
+        if (type === 'USER') {
             includes.push(
+                'id',
+                'client_id',
                 'name',
                 'description',
                 'data_type',
@@ -522,15 +535,16 @@ export class ACLManager {
         return new LuceneQueryAccess<models.View>({
             constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
             includes,
-            allow_implicit_queries: true
+            allow_implicit_queries: type !== 'USER'
         });
     }
 
     private _getSpaceQueryAccess(authUser: models.User|false) {
+        const type = this._getUserType(authUser);
         const clientId = this._getUserClientId(authUser);
         const excludes: (keyof models.Space)[] = [];
 
-        if (this._getUserType(authUser) === 'USER') {
+        if (type === 'USER') {
             excludes.push(
                 'search_config',
                 'streaming_config',
@@ -540,7 +554,7 @@ export class ACLManager {
         return new LuceneQueryAccess<models.Space>({
             constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
             excludes,
-            allow_implicit_queries: true
+            allow_implicit_queries: type !== 'USER'
         });
     }
 

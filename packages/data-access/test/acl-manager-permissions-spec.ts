@@ -385,9 +385,11 @@ describe('ACLManager Permissions', () => {
         });
 
         it('should be able to find users without tokens of the same client', async () => {
-            const result = await manager.findUsers({ query: '*' }, normalUser);
-            expect(result).toBeArray();
-            expect(result.length).toBeGreaterThan(0);
+            const result = await manager.findUsers({ query: `firstname:${otherUser.firstname}` }, normalUser);
+            expect(result).toBeArrayOfSize(1);
+            expect(result[0]).not.toHaveProperty('lastname');
+            expect(result[0]).not.toHaveProperty('email');
+            expect(result[0]).not.toHaveProperty('role');
             expect(result[0]).not.toHaveProperty('api_token');
         });
 
