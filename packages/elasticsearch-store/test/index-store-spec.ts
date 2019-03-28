@@ -14,7 +14,7 @@ import {
     schema
 } from './helpers/simple-index';
 import { IndexStore, IndexConfig } from '../src';
-import { makeClient } from './helpers/elasticsearch';
+import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
 
 describe('IndexStore', () => {
     const client = makeClient();
@@ -54,6 +54,7 @@ describe('IndexStore', () => {
         logger,
         bulkMaxSize: 50,
         bulkMaxWait: 300,
+        idField: 'test_id',
         ingestTimeField: '_created',
         eventTimeField: '_updated',
     };
@@ -64,17 +65,13 @@ describe('IndexStore', () => {
         const indexStore = new IndexStore<SimpleRecord, SimpleRecordInput>(client, config);
 
         beforeAll(async () => {
-            await client.indices.delete({
-                index
-            }).catch(() => {});
+            await cleanupIndexStore(indexStore);
 
             await indexStore.initialize();
         });
 
         afterAll(async () => {
-            await client.indices.delete({
-                index
-            }).catch(() => {});
+            await cleanupIndexStore(indexStore);
 
             // it should be able to call shutdown twice
             await indexStore.shutdown();
@@ -347,6 +344,14 @@ describe('IndexStore', () => {
                 }
             });
 
+            // it('test query', async () => {
+            //     const result = await indexStore._search({
+            //         q: `NOT test_id:bulk-2 AND test_keyword:${keyword}`,
+            //         size: 100
+            //     });
+            //     expect(result).toBeArrayOfSize(records.length - 1);
+            // });
+
             it('should be able to search the records', async () => {
                 const result = await indexStore.search(`test_keyword: ${keyword}`, {
                     sort: 'test_number',
@@ -432,17 +437,13 @@ describe('IndexStore', () => {
         const indexStore = new IndexStore<SimpleRecord, SimpleRecordInput>(client, configWithDataSchema);
 
         beforeAll(async () => {
-            await client.indices.delete({
-                index
-            }).catch(() => {});
+            await cleanupIndexStore(indexStore);
 
             await indexStore.initialize();
         });
 
         afterAll(async () => {
-            await client.indices.delete({
-                index
-            }).catch(() => {});
+            await cleanupIndexStore(indexStore);
 
             await indexStore.shutdown();
         });

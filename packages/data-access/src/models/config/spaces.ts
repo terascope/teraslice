@@ -1,11 +1,13 @@
-import { ModelConfig } from '../base';
-import { SpaceModel } from '../spaces';
+import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
 
-const config: ModelConfig<SpaceModel> = {
+const config: IndexModelConfig<Space> = {
     version: 1,
     name: 'spaces',
     mapping: {
         properties: {
+            client_id: {
+                type: 'integer'
+            },
             name: {
                 type: 'keyword',
                 fields: {
@@ -43,6 +45,11 @@ const config: ModelConfig<SpaceModel> = {
     },
     schema: {
         properties: {
+            client_id: {
+                type: 'number',
+                multipleOf: 1.0,
+                minimum: 0,
+            },
             name: {
                 type: 'string'
             },
@@ -125,7 +132,7 @@ const config: ModelConfig<SpaceModel> = {
                 }
             }
         },
-        required: ['name', 'data_type']
+        required: ['client_id', 'name', 'data_type']
     },
     uniqueFields: ['endpoint'],
     sanitizeFields: {
@@ -133,4 +140,150 @@ const config: ModelConfig<SpaceModel> = {
     }
 };
 
-export = config;
+export const GraphQLSchema = `
+    type Space {
+        client_id: Int!
+        id: ID!
+        name: String!
+        endpoint: String!
+        description: String
+        data_type: String!
+        views: [String]
+        roles: [String]
+        search_config: SpaceSearchConfig
+        streaming_config: SpaceStreamingConfig
+        created: String
+        updated: String
+    }
+
+    type SpaceSearchConfig {
+        index: String!
+        connection: String
+        max_query_size: Int
+        sort_default: String
+        sort_dates_only: Boolean
+        sort_enabled: Boolean
+        default_geo_field: String
+        preserve_index_name: Boolean
+        require_query: Boolean
+        default_date_field: String
+        history_prefix: String
+    }
+
+    type SpaceStreamingConfig {
+        connection: String
+    }
+
+    input SpaceSearchConfigInput {
+        index: String!
+        connection: String
+        max_query_size: Int
+        sort_default: String
+        sort_dates_only: Boolean
+        sort_enabled: Boolean
+        default_geo_field: String
+        preserve_index_name: Boolean
+        require_query: Boolean
+        default_date_field: String
+        history_prefix: String
+    }
+
+    input SpaceStreamingConfigInput {
+        connection: String
+    }
+
+    input CreateSpaceInput {
+        client_id: Int!
+        name: String!
+        endpoint: String!
+        description: String
+        data_type: String!
+        views: [String]
+        roles: [String]
+        search_config: SpaceSearchConfigInput
+        streaming_config: SpaceStreamingConfigInput
+    }
+
+    input UpdateSpaceInput {
+        client_id: Int
+        id: ID!
+        name: String
+        endpoint: String
+        description: String
+        data_type: String
+        views: [String]
+        roles: [String]
+        search_config: SpaceSearchConfigInput
+        streaming_config: SpaceStreamingConfigInput
+    }
+`;
+
+/**
+ * The definition of a Space model
+*/
+export interface Space extends IndexModelRecord {
+    /**
+     * The mutli-tenant ID representing the client
+    */
+    client_id: number;
+
+    /**
+     * Name of the Space
+    */
+    name: string;
+
+    /**
+     * A URL friendly name for endpoint that is associated with the space, this must be unique
+    */
+    endpoint: string;
+
+    /**
+     * Description of the Role
+    */
+    description?: string;
+
+    /**
+     * The associated data type
+    */
+    data_type: string;
+
+    /**
+     * A list of associated views
+    */
+    views: string[];
+
+    /**
+     * A list of associated roles
+    */
+    roles: string[];
+
+    /**
+     * Configuration for searching the space
+    */
+    search_config?: SpaceSearchConfig;
+
+    /**
+     * Configuration for streaming the space
+    */
+    streaming_config?: SpaceStreamingConfig;
+}
+
+export interface SpaceStreamingConfig {
+    connection?: string;
+}
+
+export interface SpaceSearchConfig {
+    index: string;
+    connection?: string;
+    max_query_size?: number;
+    sort_default?: string;
+    sort_dates_only?: boolean;
+    sort_enabled?: boolean;
+    default_geo_field?: string;
+    preserve_index_name?: boolean;
+    require_query?: boolean;
+    default_date_field?: string;
+    history_prefix?: string;
+}
+
+export default config;

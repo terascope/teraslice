@@ -22,6 +22,7 @@ describe('Spaces', () => {
     describe('when testing space creation', () => {
         it('should be able to create a space', async () => {
             const created = await spaces.create({
+                client_id: 1,
                 name: 'hello',
                 endpoint: '-HOWDY# 123',
                 views: ['hello'],

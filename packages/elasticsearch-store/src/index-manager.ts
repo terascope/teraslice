@@ -71,7 +71,7 @@ export default class IndexManager {
     /**
      * Safely setup a versioned Index, its template and any other required resouces
      *
-     * @todo This should handle better index change detection
+     * @todo this should handle better index change detection
      *
      * @returns a boolean that indicates whether the index was created or not
     */
@@ -172,7 +172,12 @@ export default class IndexManager {
     }
 
     protected async waitForIndexAvailability(index: string) {
-        const query = { index, q: '*', size: 1 };
+        const query = {
+            index,
+            q: '*',
+            size: 0,
+            terminate_after: '1'
+        };
 
         await ts.pRetry(() => this.client.search(query), utils.getRetryConfig());
     }

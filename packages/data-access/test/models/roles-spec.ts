@@ -21,6 +21,7 @@ describe('Roles', () => {
     describe('when testing role creation', () => {
         it('should be able to create a role', async () => {
             const created = await roles.create({
+                client_id: 1,
                 name: 'hello',
             });
 

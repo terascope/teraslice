@@ -15,7 +15,7 @@ export function makeSearchFn(client: Client, accessConfig: da.DataAccessConfig, 
         const params = getSearchParams(query, accessConfig.search_config!, accessConfig.data_type.type_config);
         const { q = '' } = params;
 
-        const esQuery = searchAccess.restrictQuery(q, params);
+        const esQuery = searchAccess.restrictSearchQuery(q, params);
 
         if (isTest) logger.debug(esQuery, 'searching...');
 

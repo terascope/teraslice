@@ -55,6 +55,7 @@ export interface ExistsAST extends BaseFieldAST {
 export interface TermAST extends BaseFieldAST {
     type: 'term';
 
+    quoted?: boolean;
     unrestricted?: boolean;
     term: string|number|boolean;
     regexpr: boolean;

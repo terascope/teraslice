@@ -1,16 +1,7 @@
-import get from 'lodash.get';
 import { Client } from 'elasticsearch';
 import { Request, Response } from 'express';
 import { Context } from '@terascope/job-components';
 import { parseErrorInfo, Logger, stripErrorMessage } from '@terascope/utils';
-
-export function getFromReq(req: Request, prop: string, defaultVal?: any): any {
-    return get(req, ['query', prop], get(req, ['body', prop], defaultVal));
-}
-
-export function getFromQuery(req: Request, prop: string, defaultVal?: any): any {
-    return get(req, ['query', prop], defaultVal);
-}
 
 export type ErrorHandlerFn = (req: Request, res: Response, fn: (...args: any[]) => Promise<any>|any) => Promise<void>;
 
@@ -24,7 +15,7 @@ export function makeErrorHandler(reason: string, logger: Logger): ErrorHandlerFn
             });
 
             logger.error(error, reason, {
-                path: req.path,
+                path: req.originalUrl,
                 query: req.query
             });
 

@@ -1,69 +1,29 @@
 import * as es from 'elasticsearch';
-import {  DataEntity, TSError } from '@terascope/utils';
-import usersConfig from './config/users';
-import { ManagerConfig } from '../interfaces';
-import * as base from './base';
+import * as store from 'elasticsearch-store';
+import { TSError, Omit } from '@terascope/utils';
+import usersConfig, {
+    GraphQLSchema,
+    User,
+    UserType
+} from './config/users';
 import * as utils from '../utils';
 
 /**
  * Manager for Users
 */
-export class Users extends base.Base<PrivateUserModel, CreatePrivateUserInput, UpdatePrivateUserInput> {
+export class Users extends store.IndexModel<User> {
     static PrivateFields: string[] = ['api_token', 'salt', 'hash'];
-    static ModelConfig = usersConfig;
-    static GraphQLSchema = `
-        enum UserType {
-            USER
-            ADMIN
-            SUPERADMIN
-        }
+    static IndexModelConfig = usersConfig;
+    static GraphQLSchema = GraphQLSchema;
 
-        type User {
-            id: ID!
-            client_id: Int
-            username: String!
-            firstname: String
-            lastname: String
-            email: String
-            role: String
-            type: UserType
-            api_token: String
-            hash: String
-            salt: String
-            created: String
-            updated: String
-        }
-
-        input CreateUserInput {
-            client_id: Int
-            username: String!
-            firstname: String
-            lastname: String
-            email: String
-            type: UserType
-            role: String
-        }
-
-        input UpdateUserInput {
-            id: ID!
-            client_id: Int
-            username: String
-            firstname: String
-            lastname: String
-            email: String
-            type: UserType
-            role: String
-        }
-    `;
-
-    constructor(client: es.Client, config: ManagerConfig) {
-        super(client, config, usersConfig);
+    constructor(client: es.Client, options: store.IndexModelOptions) {
+        super(client, options, usersConfig);
     }
 
     /**
      * Create user with password, returns private fields
      */
-    async createWithPassword(record: CreateUserInput, password: string): Promise<PrivateUserModel> {
+    async createWithPassword(record: CreateUserInput, password: string): Promise<User> {
         const salt = await utils.generateSalt();
         const hash = await utils.generatePasswordHash(password, salt);
         const apiToken = await utils.generateAPIToken(hash, record.username);
@@ -91,8 +51,8 @@ export class Users extends base.Base<PrivateUserModel, CreatePrivateUserInput, U
     /**
      * Authenticate the user
     */
-    async authenticate(username: string, password: string): Promise<PrivateUserModel> {
-        let user: PrivateUserModel;
+    async authenticate(username: string, password: string): Promise<User> {
+        let user: User;
 
         try {
             user = await super.findBy({ username });
@@ -135,7 +95,7 @@ export class Users extends base.Base<PrivateUserModel, CreatePrivateUserInput, U
     /**
      * Authenticate user by api token, returns private fields
      */
-    async authenticateWithToken(apiToken?: string): Promise<PrivateUserModel> {
+    async authenticateWithToken(apiToken?: string): Promise<User> {
         if (!apiToken) {
             throw new TSError('Missing api_token for authentication', {
                 statusCode: 401
@@ -155,74 +115,13 @@ export class Users extends base.Base<PrivateUserModel, CreatePrivateUserInput, U
         }
     }
 
-    /**
-     * Find users, returns public user fields
-     */
-    // @ts-ignore
-    async find(q: string = '*', size: number = 10, fields?: (keyof UserModel)[], sort?: string): Promise<UserModel[]> {
-        const users = await super.find(q, size, fields, sort);
-        return users.map((user) => this.omitPrivateFields(user));
-    }
-
-    /**
-     * Find user by id, returns public user fields
-     */
-    // @ts-ignore
-    async findById(id: string): Promise<UserModel> {
-        const user = await super.findById(id);
-        return this.omitPrivateFields(user);
-    }
-
-    /**
-     * Find user by any id, returns public user fields
-     */
-    // @ts-ignore
-    async findByAnyId(id: string): Promise<UserModel> {
-        const user = await super.findByAnyId(id);
-        return this.omitPrivateFields(user);
-    }
-
-    /**
-     * Find user by any id, returns public user fields
-     */
-    // @ts-ignore
-    async findBy(fields: base.FieldMap<PrivateUserModel>, joinBy = 'AND'): Promise<UserModel> {
-        const user = await super.findBy(fields, joinBy);
-        return this.omitPrivateFields(user);
-    }
-
-    /**
-     * Find multiple users by id, returns public user fields
-     */
-    // @ts-ignore
-    async findAll(ids: string[]): Promise<UserModel[]> {
-        const users = await super.findAll(ids);
-        return users.map((user) => this.omitPrivateFields(user));
-    }
-
-    isPrivateUser(user: Partial<PrivateUserModel>): user is PrivateUserModel  {
+    isPrivateUser(user: Partial<User>): boolean {
         if (!user) return false;
 
         const fields = Object.keys(user);
         return Users.PrivateFields.some((field) => {
             return fields.includes(field);
         });
-    }
-
-    omitPrivateFields(user: PrivateUserModel|UserModel): UserModel {
-        if (!this.isPrivateUser(user)) return user;
-
-        const publicUser = {};
-        const privateFields = Users.PrivateFields;
-
-        for (const [key, val] of Object.entries(user)) {
-            if (!privateFields.includes(key)) {
-                publicUser[key] = val;
-            }
-        }
-
-        // @ts-ignore
-        return DataEntity.make(publicUser, DataEntity.getMetadata(user));
     }
 
     async removeRoleFromUsers(roleId: string) {
@@ -244,76 +143,6 @@ export class Users extends base.Base<PrivateUserModel, CreatePrivateUserInput, U
     }
 }
 
-/**
- * The definition of a User model
-*/
-export interface UserModel extends base.BaseModel {
-    /**
-     * The ID for the client
-    */
-    client_id?: number;
-
-    /**
-     * The User's username
-    */
-    username: string;
-
-    /**
-     * First Name of the User
-    */
-    firstname: string;
-
-    /**
-     * Last Name of the User
-    */
-    lastname: string;
-
-    /**
-     * The User's email address
-    */
-    email: string;
-
-    /**
-     * The users attached role
-    */
-    role?: string;
-
-    /**
-     * The user's type
-     *
-     * @default "User"
-    */
-    type?: UserType;
-}
-
-export type UserType = 'SUPERADMIN'|'ADMIN'|'USER';
-
-export interface PrivateUserModel extends UserModel {
-    /**
-     * The User's API Token
-    */
-    api_token: string;
-
-    /**
-     * A hash password using:
-     *
-     * ```js
-     * const rawHash = await crypto.pbkdf2Async(user.hash, user.salt, 25000, 512, 'sha1')
-     * return Buffer.from(rawHash, 'binary').toString('hex');
-     * ```
-    */
-    hash: string;
-
-    /**
-     * A unique salt for the password
-     *
-     * `crypto.randomBytesAsync(32).toString('hex')`
-    */
-    salt: string;
-}
-
-export type CreateUserInput = base.CreateModel<UserModel>;
-export type CreatePrivateUserInput = base.CreateModel<PrivateUserModel>;
-
-export type UpdateUserInput = base.UpdateModel<UserModel>;
-export type UpdatePrivateUserInput = base.UpdateModel<PrivateUserModel>;
+type CreateUserInput = Omit<store.CreateRecordInput<User>, 'api_token'|'hash'|'salt'>;
+type UpdateUserInput = Omit<store.UpdateRecordInput<User>, 'api_token'|'hash'|'salt'>;
+export { User, UserType, CreateUserInput, UpdateUserInput };

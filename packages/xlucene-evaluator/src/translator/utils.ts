@@ -1,4 +1,4 @@
-import { debugLogger } from '@terascope/utils';
+import { debugLogger, TSError } from '@terascope/utils';
 import * as utils from '../utils';
 import { AST, IMPLICIT } from '../interfaces';
 
@@ -15,8 +15,13 @@ export function buildAnyQuery(node: AST, parentNode?: AST): AnyQuery|undefined {
     }
 
     if (!field) {
-        const error = new Error('Unable to determine field');
-        logger.error(error.message, node, parentNode);
+        const error = new TSError('Unable to determine field', {
+            context: {
+                node,
+                parentNode,
+            },
+        });
+        logger.error(error);
         throw error;
     }
 
@@ -36,8 +41,8 @@ export function buildAnyQuery(node: AST, parentNode?: AST): AnyQuery|undefined {
         return buildGeoQuery(node, field);
     }
 
-    // REMOVE ME when done
-    throw new Error('Unsupported query');
+    logger.error(new Error('unsupport ast node'), node);
+    return undefined;
 }
 
 export function buildGeoQuery(node: AST, field: string): GeoQuery {
@@ -130,8 +135,9 @@ function addToBoolQuery(boolQuery: BoolQuery, node: AST, side: 'right'|'left') {
 
     const joinType = getJoinType(node, side);
     const query = buildAnyQuery(child, node);
+    const parentJoinType = getJoinType(node);
 
-    if (isBoolQuery(query) && canFlattenBoolQuery(node)) {
+    if (isBoolQuery(query) && (joinType === parentJoinType || canFlattenBoolQuery(node))) {
         boolQuery.bool.filter.push(...query.bool.filter);
         boolQuery.bool.must_not.push(...query.bool.must_not);
         boolQuery.bool.should.push(...query.bool.should);
@@ -140,48 +146,28 @@ function addToBoolQuery(boolQuery: BoolQuery, node: AST, side: 'right'|'left') {
     }
 }
 
-export function getJoinType(node: AST, side: 'right'|'left'): 'should'|'must_not'|'filter' {
-    if (node[side]!.negated) return 'must_not';
-    if (node[side]!.or) return 'should';
-    if (!node.operator && node[side]!.operator) {
-        if (node[side]!.operator === 'OR') {
-            return 'should';
-        }
-        return 'filter';
-    }
-
-    if (node[side]!.field === IMPLICIT && node.operator === 'OR') {
+export function getJoinType(node: AST, side?: 'right'|'left'): 'should'|'must_not'|'filter' {
+    const child = side && node[side] ? node[side]! : node;
+    if (child.negated) return 'must_not';
+    if (isOrNode(child)) return 'should';
+    if (child.parens && child.operator === 'OR') {
         return 'should';
     }
-
-    if (side === 'right' && node.parens && node[side]!.operator === 'OR') {
-        return 'should';
-    }
-
-    if (side === 'right' && node.operator === 'OR') {
-        return 'should';
-    }
+    if (isOrNode(child.left) && (!node.right || isOrNode(child.right))) return 'should';
 
     return 'filter';
 }
 
+function isOrNode(node?: AST): boolean {
+    return !!(node && (node.or || node.operator === 'OR'));
+}
+
 export function canFlattenBoolQuery(node: AST): boolean {
     const operator = node.operator;
-    const rightOperator = node.right && node.right.operator;
-    const leftOperator = node.left && node.left.operator;
-
-    if (leftOperator && rightOperator) {
-        if (leftOperator === rightOperator && leftOperator === operator) {
-            return true;
-        }
-    }
+    if (operator === 'OR' && node.left && node.left.field !== IMPLICIT) return false;
 
     if (node.type === 'conjunction' && !node.parens) {
         return true;
-    }
-
-    if (rightOperator) {
-        return operator === rightOperator;
     }
 
     return false;

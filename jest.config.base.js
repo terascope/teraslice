@@ -40,7 +40,7 @@ module.exports = (projectDir) => {
             '/node_modules/',
             '/test/',
         ],
-        coverageReporters: ['lcov', 'text', 'html'],
+        coverageReporters: runInPackage ? ['html'] : ['lcov', 'text', 'html'],
         coverageDirectory: `${projectRoot}/coverage`,
         preset: 'ts-jest'
     };

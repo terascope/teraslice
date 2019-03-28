@@ -1,7 +1,7 @@
 import 'jest-extended';
-import { Views, ViewModel } from '../../src/models/views';
+import { Views, View } from '../../src/models/views';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
-import { SpaceModel } from 'packages/data-access/src';
+import { Space, Role } from '../../src';
 
 describe('Views', () => {
     const client = makeClient();
@@ -22,6 +22,7 @@ describe('Views', () => {
     describe('when testing view creation', () => {
         it('should be able to create a view', async () => {
             const created = await views.create({
+                client_id: 1,
                 name: 'hello',
                 data_type: 'some-data-type-id',
                 roles: ['role-id'],
@@ -36,19 +37,25 @@ describe('Views', () => {
     });
 
     describe('when getting a view for a role', () => {
-        let view1: ViewModel;
-        let view2: ViewModel;
+        let view1: View;
+        let view2: View;
 
         const roleId = 'some-role-id';
+        const role = {
+            client_id: 1,
+            id: roleId,
+        } as Role;
 
         beforeAll(async () => {
             view1 = await views.create({
+                client_id: 1,
                 name: 'hello',
                 data_type: 'another-data-type-id',
                 roles: [roleId],
             });
 
             view2 = await views.create({
+                client_id: 1,
                 name: 'howdy',
                 data_type: 'another-data-type-id',
                 roles: [],
@@ -57,25 +64,26 @@ describe('Views', () => {
 
         it('should return the view if using the right space', async () => {
             // @ts-ignore
-            const space: SpaceModel = {
+            const space: Space = {
                 views: [view1.id, view2.id],
             };
 
-            const found = await views.getViewOfSpace(space, roleId);
+            const found = await views.getViewOfSpace(space, role);
             expect(found).toEqual(view1);
         });
 
         it('should return a non-restrictive view if not found', async () => {
             // @ts-ignore
-            const space: SpaceModel = {
+            const space: Space = {
                 data_type: 'FakeDataType',
                 roles: [roleId],
                 views: [view2.id],
             };
 
-            const result = await views.getViewOfSpace(space, roleId);
+            const result = await views.getViewOfSpace(space, role);
 
             expect(result).toMatchObject({
+                client_id: role.client_id,
                 id: `default-view-for-role-${roleId}`,
                 name: `Default View for Role ${roleId}`,
                 data_type: space.data_type,

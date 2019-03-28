@@ -1,19 +1,20 @@
 import get from 'lodash.get';
-import { Express } from 'express';
+import { Express, Request } from 'express';
 import { Client } from 'elasticsearch';
-import { Logger, toBoolean } from '@terascope/utils';
+import { Logger, toBoolean, trim } from '@terascope/utils';
 import * as apollo from 'apollo-server-express';
 import { Context } from '@terascope/job-components';
-import { ACLManager } from '@terascope/data-access';
+import { ACLManager, User } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { makeSearchFn } from '../search/utils';
-import { getFromReq, makeErrorHandler, getESClient } from '../utils';
+import { makeErrorHandler, getESClient } from '../utils';
 import { formatError } from './utils';
 import schema from './schema';
 
 /**
  * A graphql api for managing data access
  *
+ * @todo the manager should be able to pull relational data
  * @todo add session support
 */
 export default class ManagerPlugin {
@@ -47,15 +48,67 @@ export default class ManagerPlugin {
 
         this.server = new apollo.ApolloServer({
             schema,
-            context: {
-                manager: this.manager,
+            context: async ({ req }) => {
+                if (req.body.operationName === 'IntrospectionQuery') {
+                    return {
+                        user: false,
+                        manager: this.manager,
+                    };
+                }
+
+                const creds = getCredentialsFromReq(req);
+                try {
+                    const user = await this.manager.authenticate(creds);
+                    return {
+                        user,
+                        manager: this.manager,
+                    };
+                } catch (err) {
+                    this.logger.error(err, req);
+                    if (err.statusCode === 401) {
+                        throw new apollo.AuthenticationError(err.message);
+                    }
+
+                    if (err.statusCode === 403) {
+                        throw new apollo.ForbiddenError(err.message);
+                    }
+                    throw err;
+                }
             },
             formatError,
         });
     }
 
     async initialize() {
-        return this.manager.initialize();
+        await this.manager.initialize();
+
+        if (!this.bootstrapMode) return;
+
+        const users = await this.manager.findUsers({ query: '*' }, false);
+        if (users.length > 0) return;
+
+        const user = await this.manager.createUser({
+            user: {
+                client_id: 0,
+                username: 'admin',
+                firstname: 'System',
+                lastname: 'Admin',
+                email: 'admin@example.com',
+                type: 'SUPERADMIN'
+            },
+            password: 'admin'
+        }, false);
+
+        this.logger.info({
+            id: user.id,
+            client_id: user.client_id,
+            username: user.username,
+            firstname: user.firstname,
+            lastname: user.lastname,
+            email: user.email,
+            type: user.type,
+            api_token: user.api_token,
+        }, 'bootstrap mode create base admin client');
     }
 
     async shutdown() {
@@ -72,22 +125,18 @@ export default class ManagerPlugin {
         }
 
         this.app.use('/api/v2', (req, res, next) => {
-            // @ts-ignore
-            req.aclManager = this.manager;
-
-            const apiToken = getFromReq(req, 'token');
-
-            // If we are in bootstrap mode, we want to provide
-            // unauthenticated access to the data access management
-            if (this.bootstrapMode && req.path === '/data-access') {
+            if (req.originalUrl === managerUri) {
                 next();
                 return;
             }
 
+            // @ts-ignore
+            req.aclManager = this.manager;
+
+            const creds = getCredentialsFromReq(req);
+
             rootErrorHandler(req, res, async () => {
-                const user = await this.manager.authenticateWithToken({
-                    api_token: apiToken,
-                });
+                const user = await this.manager.authenticate(creds);
 
                 // @ts-ignore
                 req.v2User = user;
@@ -115,7 +164,7 @@ export default class ManagerPlugin {
             // @ts-ignore
             const manager: ACLManager = req.aclManager;
             // @ts-ignore
-            const user: PrivateUserModel = req.v2User;
+            const user: User = req.v2User;
 
             const space: string = req.params.space;
             const logger = this.context.apis.foundation.makeLogger({
@@ -126,10 +175,7 @@ export default class ManagerPlugin {
             const spaceErrorHandler = makeErrorHandler('Failure to access /api/v2/:space', logger);
 
             spaceErrorHandler(req, res, async () => {
-                const accessConfig = await manager.getViewForSpace({
-                    api_token: get(user, 'api_token'),
-                    space,
-                });
+                const accessConfig = await manager.getViewForSpace({ space }, user);
 
                 req.query.pretty = toBoolean(req.query.pretty);
 
@@ -151,4 +197,28 @@ export default class ManagerPlugin {
         });
 
     }
+}
+
+export function getCredentialsFromReq(req: Request): { token?: string, username?: string, password?: string } {
+    const queryToken: string = get(req, 'query.token');
+    if (queryToken) return { token: queryToken } ;
+
+    const authToken: string = get(req, 'headers.authorization');
+    if (!authToken) return { };
+
+    let [part1, part2] = authToken.split(' ');
+    part1 = trim(part1);
+    part2 = trim(part2);
+
+    if (part1 === 'Token') {
+        return { token: trim(part2) };
+    }
+
+    if (part1 === 'Basic') {
+        const parsed = Buffer.from(part2, 'base64').toString('utf8');
+        const [username, password] = parsed.split(':');
+        return { username, password };
+    }
+
+    return {};
 }

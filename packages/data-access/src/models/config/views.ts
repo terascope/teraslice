@@ -1,11 +1,13 @@
-import { ModelConfig } from '../base';
-import { ViewModel } from '../views';
+import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
 
-const config: ModelConfig<ViewModel> = {
+const config: IndexModelConfig<View> = {
     version: 1,
     name: 'views',
     mapping: {
         properties: {
+            client_id: {
+                type: 'integer'
+            },
             name: {
                 type: 'keyword',
                 fields: {
@@ -37,6 +39,11 @@ const config: ModelConfig<ViewModel> = {
     },
     schema: {
         properties: {
+            client_id: {
+                type: 'number',
+                multipleOf: 1.0,
+                minimum: 0,
+            },
             name: {
                 type: 'string',
                 fields: {
@@ -84,8 +91,103 @@ const config: ModelConfig<ViewModel> = {
                 default: true
             }
         },
-        required: ['name', 'data_type']
+        required: ['client_id', 'name', 'data_type']
     }
 };
 
-export = config;
+/**
+ * The definition of a View model
+ *
+*/
+export interface View extends IndexModelRecord {
+    /**
+     * The mutli-tenant ID representing the client
+    */
+    client_id?: number;
+
+    /**
+     * Name of the view
+    */
+    name: string;
+
+    /**
+     * Description of the view usage
+    */
+    description?: string;
+
+    /**
+     * The associated data type
+    */
+    data_type: string;
+
+    /**
+     * A list of roles this view applys to
+    */
+    roles: string[];
+
+    /**
+     * Fields to exclude
+    */
+    excludes?: string[];
+
+    /**
+     * Fields to include
+    */
+    includes?: string[];
+
+    /**
+     * Constraint for queries and filtering
+    */
+    constraint?: string;
+
+    /**
+     * Restrict prefix wildcards in search values
+     *
+     * @example `foo:*bar`
+    */
+    prevent_prefix_wildcard?: boolean;
+}
+
+export const GraphQLSchema = `
+    type View {
+        client_id: Int!
+        id: ID!
+        name: String
+        description: String
+        data_type: String
+        roles: [String]
+        excludes: [String]
+        includes: [String]
+        constraint: String
+        prevent_prefix_wildcard: Boolean
+        created: String
+        updated: String
+    }
+
+    input CreateViewInput {
+        client_id: Int
+        name: String!
+        description: String
+        data_type: String!
+        roles: [String]
+        excludes: [String]
+        includes: [String]
+        constraint: String
+        prevent_prefix_wildcard: Boolean
+    }
+
+    input UpdateViewInput {
+        client_id: Int
+        id: ID!
+        name: String
+        description: String
+        data_type: String
+        roles: [String]
+        excludes: [String]
+        includes: [String]
+        constraint: String
+        prevent_prefix_wildcard: Boolean
+    }
+`;
+
+export default config;

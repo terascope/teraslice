@@ -40,3 +40,7 @@ export type Optional<T, K extends keyof T> = {
 export type WithoutNil<T> = {
     [P in keyof T]: T[P] extends (undefined|null) ? never : T[P];
 };
+
+/** A simple definitions of array */
+export interface Many<T> extends Array<T> {
+}

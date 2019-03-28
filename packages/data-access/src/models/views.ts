@@ -1,75 +1,31 @@
 import * as es from 'elasticsearch';
-import { Base, BaseModel, UpdateModel, CreateModel } from './base';
-import { ManagerConfig } from '../interfaces';
-import viewsConfig from './config/views';
-import { makeISODate } from '../utils';
-import { SpaceModel } from './spaces';
+import { makeISODate } from '@terascope/utils';
+import { IndexModel, IndexModelOptions } from 'elasticsearch-store';
+import viewsConfig, { View, GraphQLSchema } from './config/views';
+import { Space } from './config/spaces';
+import { Role } from './roles';
 
 /**
  * Manager for Views
 */
-export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
-    static ModelConfig = viewsConfig;
-    static GraphQLSchema = `
-        type View {
-            id: ID!
-            name: String
-            description: String
-            data_type: String
-            roles: [String]
-            excludes: [String]
-            includes: [String]
-            constraint: String
-            prevent_prefix_wildcard: Boolean
-            created: String
-            updated: String
-        }
+export class Views extends IndexModel<View> {
+    static IndexModelConfig = viewsConfig;
+    static GraphQLSchema = GraphQLSchema;
 
-        input CreateViewInput {
-            name: String!
-            description: String
-            data_type: String!
-            roles: [String]
-            excludes: [String]
-            includes: [String]
-            constraint: String
-            prevent_prefix_wildcard: Boolean
-        }
-
-        input UpdateViewInput {
-            id: ID!
-            name: String
-            description: String
-            data_type: String
-            roles: [String]
-            excludes: [String]
-            includes: [String]
-            constraint: String
-            prevent_prefix_wildcard: Boolean
-        }
-
-        input CreateDefaultViewInput {
-            roles: [String]
-            excludes: [String]
-            includes: [String]
-            constraint: String
-            prevent_prefix_wildcard: Boolean
-        }
-    `;
-
-    constructor(client: es.Client, config: ManagerConfig) {
+    constructor(client: es.Client, config: IndexModelOptions) {
         super(client, config, viewsConfig);
     }
 
-    async getViewOfSpace(space: SpaceModel, roleId: string): Promise<ViewModel> {
+    async getViewOfSpace(space: Space, role: Role): Promise<View> {
         const views = await this.findAll(space.views);
-        const view = views.find((view) => view.roles.includes(roleId));
+        const view = views.find((view) => view.roles.includes(role.id));
         if (view) return view;
 
         // if the view doesn't exist create a non-restrictive default view
         return {
-            id: `default-view-for-role-${roleId}`,
-            name: `Default View for Role ${roleId}`,
+            client_id: role.client_id,
+            id: `default-view-for-role-${role.id}`,
+            name: `Default View for Role ${role.id}`,
             data_type: space.data_type,
             roles: space.roles,
             created: makeISODate(),
@@ -80,59 +36,10 @@ export class Views extends Base<ViewModel, CreateViewInput, UpdateViewInput> {
     async removeRoleFromViews(roleId: string) {
         const views = await this.find(`roles: ${roleId}`);
         const promises = views.map(({ id }) => {
-            return this.removeFromArray(id, 'roles', roleId);
+            return this._removeFromArray(id, 'roles', roleId);
         });
         await Promise.all(promises);
     }
 }
 
-/**
- * The definition of a View model
- *
-*/
-export interface ViewModel extends BaseModel {
-    /**
-     * Name of the view
-    */
-    name: string;
-
-    /**
-     * Description of the view usage
-    */
-    description?: string;
-
-    /**
-     * The associated data type
-    */
-    data_type: string;
-
-    /**
-     * A list of roles this view applys to
-    */
-    roles: string[];
-
-    /**
-     * Fields to exclude
-    */
-    excludes?: string[];
-
-    /**
-     * Fields to include
-    */
-    includes?: string[];
-
-    /**
-     * Constraint for queries and filtering
-    */
-    constraint?: string;
-
-    /**
-     * Restrict prefix wildcards in search values
-     *
-     * @example `foo:*bar`
-    */
-    prevent_prefix_wildcard?: boolean;
-}
-
-export type CreateViewInput = CreateModel<ViewModel>;
-export type UpdateViewInput = UpdateModel<ViewModel>;
+export { View };

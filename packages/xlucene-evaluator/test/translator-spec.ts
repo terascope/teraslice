@@ -1,8 +1,8 @@
 import 'jest-extended';
 import get from 'lodash/get';
-import { debugLogger } from '@terascope/utils';
-import { Translator, TypeConfig, AST } from '../src';
-import { getJoinType } from '../src/translator/utils';
+import { debugLogger, TSError } from '@terascope/utils';
+import { Translator, TypeConfig, LuceneQueryParser, AST } from '../src';
+import { getJoinType, buildAnyQuery } from '../src/translator/utils';
 
 const logger = debugLogger('translator-spec');
 
@@ -12,6 +12,18 @@ describe('Translator', () => {
         const translator = new Translator(query);
 
         expect(translator).toHaveProperty('query', query);
+    });
+
+    it('should return undefined when given an invalid query', () => {
+        const node: unknown = { type: 'idk', field: 'a', val: true };
+        expect(buildAnyQuery(node as AST)).toBeUndefined();
+    });
+
+    it('should throw when missing field on term node', () => {
+        const node: unknown = { type: 'term', term: 'hello' };
+        expect(() => {
+            buildAnyQuery(node as AST);
+        }).toThrowWithMessage(TSError, 'Unable to determine field');
     });
 
     it('should have a types property', () => {
@@ -230,6 +242,56 @@ describe('Translator', () => {
             }
         ],
         [
+            'a:1 OR (b:1 AND c:2) OR d:(>=1 AND <=2) AND NOT e:>2',
+            'query.constant_score.filter.bool',
+            {
+                filter: [
+                    {
+                        term: {
+                            b: 1
+                        }
+                    },
+                    {
+                        term: {
+                            c: 2
+                        }
+                    },
+                    {
+                        bool: {
+                            filter: [],
+                            must_not: [
+                                {
+                                    range: {
+                                        e: {
+                                            gt: 2
+                                        }
+                                    }
+                                }
+                            ],
+                            should: [
+                                {
+                                    range: {
+                                        d: {
+                                            gte: 1,
+                                            lte: 2
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ],
+                must_not: [],
+                should: [
+                    {
+                        term: {
+                            a: 1
+                        }
+                    }
+                ]
+            }
+        ],
+        [
             '_exists_:howdy AND other:>=50 OR foo:bar NOT bar:foo',
             'query.constant_score.filter.bool',
             {
@@ -246,21 +308,28 @@ describe('Translator', () => {
                             }
                         }
                     },
-                ],
-                must_not: [
                     {
-                        term: {
-                            bar: 'foo'
+                        bool: {
+                            filter: [],
+                            must_not: [
+                                {
+                                    term: {
+                                        bar: 'foo'
+                                    }
+                                }
+                            ],
+                            should: [
+                                {
+                                    term: {
+                                        foo: 'bar'
+                                    }
+                                },
+                            ]
                         }
                     }
                 ],
-                should: [
-                    {
-                        term: {
-                            foo: 'bar'
-                        }
-                    },
-                ],
+                must_not: [],
+                should: []
             }
         ],
         [
@@ -290,24 +359,28 @@ describe('Translator', () => {
             ]
         ],
         [
-            'some:query OR other:thing',
+            'some:query OR other:thing OR next:value',
             'query.constant_score.filter.bool',
             {
-                filter: [
+                should: [
                     {
                         term: {
                             some: 'query'
                         }
                     },
-                ],
-                must_not: [],
-                should: [
                     {
                         term: {
                             other: 'thing'
                         }
                     },
-                ]
+                    {
+                        term: {
+                            next: 'value'
+                        }
+                    },
+                ],
+                must_not: [],
+                filter: []
             }
         ],
         [
@@ -376,59 +449,21 @@ describe('Translator', () => {
 
     describe('when getting the join type', () => {
         describe('when given a complex AND/OR/NOT AST', () => {
-            // _exists_:howdy AND other:>=50 OR foo:bar NOT bar:foo
-            const node = {
-                type: 'conjunction',
-                left: {
-                    type: 'exists',
-                    field: 'howdy'
-                } as AST,
-                parens: false,
-                operator: 'AND',
-                right: {
-                    type: 'conjunction',
-                    left: {
-                        type: 'range',
-                        term_min: 50,
-                        term_max: Infinity,
-                        inclusive_min: true,
-                        inclusive_max: true,
-                        field: 'other'
-                    } as AST,
-                    parens: false,
-                    operator: 'OR',
-                    right: {
-                        type: 'conjunction',
-                        left: {
-                            field: 'foo',
-                            type: 'term',
-                            term: 'bar',
-                            wildcard: false,
-                            regexpr: false,
-                            or: true
-                        } as AST,
-                        parens: false,
-                        operator: 'AND',
-                        right: {
-                            field: 'bar',
-                            type: 'term',
-                            term: 'foo',
-                            wildcard: false,
-                            regexpr: false,
-                            negated: true
-                        } as AST
-                    } as AST
-                } as AST
-            } as AST;
+            let node: AST;
+            beforeAll(() => {
+                const parser = new LuceneQueryParser();
+                parser.parse('_exists_:howdy AND other:>=50 OR foo:bar NOT bar:foo');
+                node = parser._ast;
+            });
 
             it('should correctly handle the AND join type', () => {
                 expect(getJoinType(node, 'left')).toEqual('filter');
-                expect(getJoinType(node, 'right')).toEqual('filter');
+                expect(getJoinType(node, 'right')).toEqual('should');
             });
 
             it('should correctly handle the OR join type', () => {
                 expect(getJoinType(node.right!, 'left')).toEqual('filter');
-                expect(getJoinType(node.right!, 'right')).toEqual('should');
+                expect(getJoinType(node.right!, 'right')).toEqual('filter');
             });
 
             it('should correctly handle the NOT join type', () => {
@@ -437,46 +472,13 @@ describe('Translator', () => {
             });
         });
 
-        describe('when given a chained OR statement AST', () => {
-            const node = {
-                type: 'conjunction',
-                left: {
-                    type: 'conjunction',
-                    left: {
-                        field: '<implicit>',
-                        type: 'term',
-                        term: 50,
-                        wildcard: false,
-                        regexpr: false,
-                    } as AST,
-                    parens: true,
-                    operator: 'OR',
-                    right: {
-                        type: 'conjunction',
-                        left: {
-                            field: '<implicit>',
-                            type: 'term',
-                            term: 40,
-                            unrestricted: false,
-                            wildcard: false,
-                            regexpr: false,
-                        } as AST,
-                        parens: false,
-                        operator: 'OR',
-                        right: {
-                            field: '<implicit>',
-                            type: 'term',
-                            term: 30,
-                            unrestricted: false,
-                            wildcard: false,
-                            regexpr: false,
-                        } as AST,
-                        field: 'any_count'
-                    } as AST,
-                    field: 'any_count'
-                } as AST,
-                parens: false
-            } as AST;
+        describe('when given a range OR statement AST', () => {
+            let node: AST;
+            beforeAll(() => {
+                const parser = new LuceneQueryParser();
+                parser.parse('any_count:(50 OR 40 OR 30)');
+                node = parser._ast;
+            });
 
             it('should correctly handle the first OR join type', () => {
                 expect(getJoinType(node, 'left')).toEqual('should');
@@ -490,6 +492,21 @@ describe('Translator', () => {
             it('should correctly handle the third OR join type', () => {
                 expect(getJoinType(node.left!.right!, 'left')).toEqual('should');
                 expect(getJoinType(node.left!.right!, 'right')).toEqual('should');
+            });
+        });
+
+        describe('when given a chained OR statement AST', () => {
+            let node: AST;
+            beforeAll(() => {
+                const parser = new LuceneQueryParser();
+                parser.parse('some:query OR other:thing OR next:value');
+                node = parser._ast;
+            });
+
+            it('should correctly handle the chained OR join types', () => {
+                expect(getJoinType(node, 'left')).toEqual('should');
+                expect(getJoinType(node.right!, 'left')).toEqual('should');
+                expect(getJoinType(node.right!, 'right')).toEqual('should');
             });
         });
     });

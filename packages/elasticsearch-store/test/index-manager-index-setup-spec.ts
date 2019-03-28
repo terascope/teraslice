@@ -4,7 +4,7 @@ import { debugLogger } from '@terascope/utils';
 import * as simple from './helpers/simple-index';
 import * as template from './helpers/template-index';
 import { IndexManager, timeseriesIndex, IndexConfig } from '../src';
-import { makeClient } from './helpers/elasticsearch';
+import { makeClient, cleanupIndex } from './helpers/elasticsearch';
 
 describe('IndexManager->indexSetup()', () => {
     const logger = debugLogger('index-manager-setup');
@@ -33,15 +33,13 @@ describe('IndexManager->indexSetup()', () => {
         let result = false;
 
         beforeAll(async () => {
-            await client.indices.delete({ index })
-                    .catch(() => {});
+            await cleanupIndex(client, index);
 
             result = await indexManager.indexSetup(config);
         });
 
         afterAll(async () => {
-            await client.indices.delete({ index })
-                    .catch(() => {});
+            await cleanupIndex(client, index);
 
             client.close();
         });
@@ -96,8 +94,7 @@ describe('IndexManager->indexSetup()', () => {
         let result = false;
 
         async function cleanup() {
-            await client.indices.delete({ index })
-                    .catch(() => {});
+            await cleanupIndex(client, index);
             await client.indices.deleteTemplate({ name: templateName })
                     .catch(() => {});
         }
@@ -223,21 +220,14 @@ describe('IndexManager->indexSetup()', () => {
         const indexManager = new IndexManager(client);
         let result = false;
 
-        async function cleanup() {
-            await client.indices.delete({ index })
-                    .catch(() => {});
-            await client.indices.deleteTemplate({ name: templateName })
-                    .catch(() => {});
-        }
-
         beforeAll(async () => {
-            await cleanup();
+            await cleanupIndex(client, index, templateName);
 
             result = await indexManager.indexSetup(config);
         });
 
         afterAll(async () => {
-            await cleanup();
+            await cleanupIndex(client, index, templateName);
 
             client.close();
         });

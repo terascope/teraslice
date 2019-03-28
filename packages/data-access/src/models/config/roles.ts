@@ -1,11 +1,13 @@
-import { ModelConfig } from '../base';
-import { RoleModel } from '../roles';
+import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
 
-const config: ModelConfig<RoleModel> = {
+const config: IndexModelConfig<Role> = {
     version: 1,
     name: 'roles',
     mapping: {
         properties: {
+            client_id: {
+                type: 'integer'
+            },
             name: {
                 type: 'keyword',
                 fields: {
@@ -19,6 +21,11 @@ const config: ModelConfig<RoleModel> = {
     },
     schema: {
         properties: {
+            client_id: {
+                type: 'number',
+                multipleOf: 1.0,
+                minimum: 0,
+            },
             name: {
                 type: 'string'
             },
@@ -26,8 +33,49 @@ const config: ModelConfig<RoleModel> = {
                 type: 'string'
             }
         },
-        required: ['name']
+        required: ['client_id', 'name']
     },
 };
 
-export = config;
+export const GraphQLSchema = `
+    type Role {
+        client_id: Int!
+        id: ID!
+        name: String
+        description: String
+        created: String
+        updated: String
+    }
+
+    input CreateRoleInput {
+        client_id: Int
+        name: String!
+        description: String
+    }
+
+    input UpdateRoleInput {
+        client_id: Int
+        id: ID!
+        name: String
+        description: String
+    }
+`;
+
+export interface Role extends IndexModelRecord {
+    /**
+     * The mutli-tenant ID representing the client
+    */
+    client_id?: number;
+
+    /**
+     * Name of the Role
+    */
+    name: string;
+
+    /**
+     * Description of the Role
+    */
+    description?: string;
+}
+
+export default config;

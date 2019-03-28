@@ -1,38 +1,37 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { IndexStore, IndexConfig } from 'elasticsearch-store';
-import { addDefaultMapping, addDefaultSchema } from './config/base';
-import { ManagerConfig } from '../interfaces';
-import * as utils from '../utils';
+import { LuceneQueryAccess } from 'xlucene-evaluator';
+import IndexStore from './index-store';
+import * as utils from './utils';
+import * as i from './interfaces';
 
 /**
- * A base class for handling the different ACL models
- *
- * @todo migrate some this code into IndexStore
+ * An abstract class for an elasticsearch resource, with a CRUD-like interface
 */
-export class Base<T extends BaseModel, C extends object = T, U extends object = T> {
+export default abstract class IndexModel<T extends i.IndexModelRecord> {
     readonly store: IndexStore<T>;
     readonly name: string;
     private _uniqueFields: (keyof T)[];
-    private _sanitizeFields: SanitizeFields;
+    private _sanitizeFields: i.SanitizeFields;
+    private _idField: keyof T;
 
-    constructor(client: es.Client, config: ManagerConfig, modelConfig: ModelConfig<T>) {
-        const indexConfig: IndexConfig = Object.assign({
+    constructor(client: es.Client, options: i.IndexModelOptions, modelConfig: i.IndexModelConfig<T>) {
+        const baseConfig: i.IndexConfig<T> = {
             version: 1,
             name: modelConfig.name,
-            namespace: config.namespace,
+            namespace: options.namespace,
             indexSchema: {
                 version: modelConfig.version,
-                mapping: addDefaultMapping(modelConfig.mapping),
+                mapping: utils.addDefaultMapping(modelConfig.mapping),
             },
             dataSchema: {
-                schema: addDefaultSchema(modelConfig.schema),
+                schema: utils.addDefaultSchema(modelConfig.schema),
                 strict: modelConfig.strictMode === false ? false : true,
                 allFormatters: true,
             },
             indexSettings: {
-                'index.number_of_shards': isProd ? 5 : 1,
-                'index.number_of_replicas': isProd ? 1 : 0,
+                'index.number_of_shards': ts.isProd ? 5 : 1,
+                'index.number_of_replicas': ts.isProd ? 1 : 0,
                 analysis: {
                     analyzer: {
                         lowercase_keyword_analyzer: {
@@ -42,15 +41,24 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
                     }
                 }
             },
+            idField: 'id',
             ingestTimeField: 'created',
             eventTimeField: 'updated',
-            logger: config.logger,
-        }, config.storeOptions, modelConfig.storeOptions);
+            logger: options.logger,
+            defaultSort: 'updated:desc'
+        };
+
+        const indexConfig = Object.assign(
+            baseConfig,
+            options.storeOptions,
+            modelConfig.storeOptions
+        );
 
         this.name = utils.toInstanceName(modelConfig.name);
         this.store = new IndexStore(client, indexConfig);
 
-        this._uniqueFields = ts.concat('id', modelConfig.uniqueFields);
+        this._idField = indexConfig.idField!;
+        this._uniqueFields = ts.concat(this._idField, modelConfig.uniqueFields);
         this._sanitizeFields = modelConfig.sanitizeFields || {};
     }
 
@@ -62,37 +70,40 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         return this.store.shutdown();
     }
 
-    async count(query: string): Promise<number> {
+    async count(query: string, queryAccess?: LuceneQueryAccess<T>): Promise<number> {
+        if (queryAccess) return this.store.count(queryAccess.restrict(query));
         return this.store.count(query);
     }
 
-    async create(record: C): Promise<T> {
-        const docInput: unknown = {
+    async create(record: i.CreateRecordInput<T>): Promise<T> {
+        const docInput = {
             ...record,
-            id: await utils.makeId(),
-            created: utils.makeISODate(),
-            updated: utils.makeISODate(),
-        };
+            created: ts.makeISODate(),
+            updated: ts.makeISODate(),
+        } as T;
+
+        const id = await utils.makeId();
+        docInput[this._idField] = id as any;
 
         const doc = this._sanitizeRecord(docInput as T);
 
         await this._ensureUnique(doc);
-        await this.store.indexWithId(doc, doc.id);
+        await this.store.indexWithId(doc, id);
 
         // @ts-ignore
         return ts.DataEntity.make(doc);
     }
 
     async deleteById(id: string): Promise<void> {
-        await this.store.remove(id);
+        await this.store.remove(id, {
+            refresh: true
+        });
     }
 
     async deleteAll(ids: string[]): Promise<void> {
         if (!ids || !ids.length) return;
 
-        await Promise.all(ids.map((id) => {
-            return this.deleteById(id);
-        }));
+        await Promise.all(ids.map((id) => this.deleteById(id)));
     }
 
     async exists(id: string[]|string): Promise<boolean> {
@@ -100,12 +111,12 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         if (!ids.length) return true;
 
         const idQuery = ids.join(' OR ');
-        const count = await this.store.count(`id: (${idQuery})`);
+        const count = await this.store.count(`${this._idField}: (${idQuery})`);
 
         return count === ids.length;
     }
 
-    async findBy(fields: FieldMap<T>, joinBy = 'AND') {
+    async findBy(fields: Partial<T>, joinBy = 'AND', options?: FindOneOptions<T>, queryAccess?: LuceneQueryAccess<T>) {
         const query = Object.entries(fields)
             .map(([field, val]) => {
                 if (val == null) {
@@ -113,14 +124,18 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
                         statusCode: 422
                     });
                 }
-                return `${field}:"${val}"`;
+                return `${field}: "${val}"`;
             })
             .join(` ${joinBy} `);
 
-        const results = await this._find(query, 1);
+        const results = await this._find(query, {
+            ...options,
+            size: 1
+        }, queryAccess);
+
         const record = ts.getFirst(results);
         if (record == null) {
-            throw new ts.TSError(`Unable to find ${this.name} by '${query}'`, {
+            throw new ts.TSError(`Unable to find ${this.name} by ${query}`, {
                 statusCode: 404,
             });
         }
@@ -128,42 +143,60 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         return record;
     }
 
-    async findById(id: string): Promise<T> {
-        return this.store.get(id);
+    async findById(id: string, options?: FindOneOptions<T>, queryAccess?: LuceneQueryAccess<T>): Promise<T> {
+        const fields: Partial<T> = { };
+        fields[this._idField] = id as any;
+        return this.findBy(fields, 'AND', options, queryAccess);
     }
 
-    async findByAnyId(anyId: string) {
-        const fields: FieldMap<T> = {};
+    async findByAnyId(anyId: any, options?: FindOneOptions<T>, queryAccess?: LuceneQueryAccess<T>) {
+        const fields: Partial<T> = {};
 
         for (const field of this._uniqueFields) {
             fields[field] = anyId;
         }
 
-        return this.findBy(fields, 'OR');
+        return this.findBy(fields, 'OR', options, queryAccess);
     }
 
-    async findAll(ids: string[]) {
+    async findAll(ids: string[], options?: FindOneOptions<T>, queryAccess?: LuceneQueryAccess<T>) {
         if (!ids || !ids.length) return [];
-        return this.store.mget({ ids });
+
+        const query = `${this._idField}: (${ids.join(' OR ')})`;
+
+        const result = await this._find(query, {
+            ...options,
+            size: ids.length
+        }, queryAccess);
+
+        if (result.length !== ids.length) {
+            const foundIds = result.map((doc) => doc.id);
+            const notFoundIds = ids.filter((id) => !foundIds.includes(id));
+            throw new ts.TSError(`Unable to find documents ${notFoundIds.join(', ')}`, {
+                statusCode: 404
+            });
+        }
+        return result;
     }
 
-    async find(q: string = '*', size: number = 10, fields?: (keyof T)[], sort?: string) {
-        return this._find(q, size, fields, sort);
+    async find(q: string = '*', options: FindOptions<T> = {}, queryAccess?: LuceneQueryAccess<T>): Promise<T[]> {
+        return this._find(q, options, queryAccess);
     }
 
-    async update(record: U|T) {
+    async update(record: i.UpdateRecordInput<T>) {
         const doc: T = this._sanitizeRecord({
             ...record,
-            updated: utils.makeISODate(),
+            updated: ts.makeISODate(),
         } as T);
 
-        if (!doc.id) {
-            throw new ts.TSError(`${this.name} update requires id`, {
+        const id: unknown = doc[this._idField];
+        if (!id) {
+            throw new ts.TSError(`${this.name} update requires ${this._idField}`, {
                 statusCode: 422
             });
         }
 
-        const existing = await this.store.get(doc.id);
+        const existing = await this.store.get(id as string);
 
         for (const field of this._uniqueFields) {
             if (field === 'id') continue;
@@ -185,14 +218,14 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         });
     }
 
-    async updateWith(id: string, body: any): Promise<void> {
+    protected async _updateWith(id: string, body: any): Promise<void> {
         await this.store.update(body, id);
     }
 
-    async appendToArray(id: string, field: keyof T, values: string[]|string): Promise<void> {
+    protected async _appendToArray(id: string, field: keyof T, values: string[]|string): Promise<void> {
         if (!values || !values.length) return;
 
-        await this.updateWith(id, {
+        await this._updateWith(id, {
             script: {
                 source: `
                     for(int i = 0; i < params.values.length; i++) {
@@ -209,11 +242,11 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         });
     }
 
-    async removeFromArray(id: string, field: keyof T, values: string[]|string): Promise<void> {
+    protected async _removeFromArray(id: string, field: keyof T, values: string[]|string): Promise<void> {
         if (!values || !values.length) return;
 
         try {
-            await this.updateWith(id, {
+            await this._updateWith(id, {
                 script: {
                     source: `
                         for(int i = 0; i < params.values.length; i++) {
@@ -237,24 +270,32 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
         }
     }
 
+    /** this is only used for counting uniq fields */
     protected async _countBy(field: keyof T, val: any): Promise<number> {
         if (!val) return 0;
         return this.store.count(`${field}:"${val}"`);
     }
 
-    protected async _find(q: string = '*', size: number = 10, fields?: (keyof T)[], sort?: string) {
-        const results = await this.store.search(q, {
-            size,
-            sort,
-            _source: fields,
-        });
+    protected async _find(q: string = '*', options: FindOptions<T> = {}, queryAccess?: LuceneQueryAccess<T>) {
+        const params: Partial<es.SearchParams> = {
+            size: options.size,
+            sort: options.sort,
+            from: options.from,
+            _sourceExclude: options.excludes as string[],
+            _sourceInclude: options.includes as string[],
+        };
 
-        return results;
+        if (queryAccess) {
+            const query = queryAccess.restrictSearchQuery(q, params);
+            return this.store._search(query);
+        }
+
+        return this.store.search(q, params);
     }
 
     protected async _ensureUnique(record: T) {
         for (const field of this._uniqueFields) {
-            if (field === 'id') continue;
+            if (field === this._idField) continue;
             if (record[field] == null) {
                 throw new ts.TSError(`${this.name} create requires field ${field}`, {
                     statusCode: 422
@@ -297,58 +338,15 @@ export class Base<T extends BaseModel, C extends object = T, U extends object = 
     }
 }
 
-export interface ModelConfig<T extends BaseModel> {
-    /** Schema Version */
-    version: number;
-
-    /** Name of the Model/Data Type */
-    name: string;
-
-    /** ElasticSearch Mapping */
-    mapping: any;
-
-    /** JSON Schema */
-    schema: any;
-
-    /** Additional IndexStore configuration */
-    storeOptions?: Partial<IndexConfig>;
-
-    /** Unqiue fields across on Index */
-    uniqueFields?: (keyof T)[];
-
-    /** Sanitize / cleanup fields mapping, like trim or trimAndToLower */
-    sanitizeFields?: SanitizeFields;
-
-    /** Specify whether the data should be strictly validated, defaults to true */
-    strictMode?: boolean;
-}
-
-export type FieldMap<T> = {
-    [field in keyof T]?: string;
+export type FindOptions<T> = {
+    includes?: (keyof T)[],
+    excludes?: (keyof T)[],
+    from?: number;
+    sort?: string;
+    size?: number;
 };
 
-export type SanitizeFields = {
-    [field: string]: 'trimAndToLower'|'trim'|'toSafeString';
+export type FindOneOptions<T> = {
+    includes?: (keyof T)[],
+    excludes?: (keyof T)[],
 };
-
-export type BaseConfig = ModelConfig<BaseModel> & ManagerConfig;
-
-export interface BaseModel {
-    /**
-     * ID of the view - nanoid 12 digit
-    */
-    readonly id: string;
-
-    /** Updated date */
-    updated: string;
-
-    /** Creation date */
-    created: string;
-}
-
-export type CreateModel<T extends BaseModel> = ts.Omit<T, (keyof BaseModel)>;
-export type UpdateModel<T extends BaseModel> = Partial<ts.Omit<T, (keyof BaseModel)>> & {
-    id: string;
-};
-
-const isProd = process.env.NODE_ENV === 'production';

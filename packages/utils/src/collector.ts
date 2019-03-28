@@ -1,4 +1,4 @@
-import { castArray } from './utils';
+import { castArray } from './arrays';
 
 /**
  * An in-memory record collector,

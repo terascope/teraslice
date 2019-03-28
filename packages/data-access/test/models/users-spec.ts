@@ -1,6 +1,7 @@
 import 'jest-extended';
-import { TSError, DataEntity } from '@terascope/utils';
-import { Users, PrivateUserModel } from '../../src/models/users';
+import { TSError } from '@terascope/utils';
+import { LuceneQueryAccess } from 'xlucene-evaluator';
+import { Users, User } from '../../src/models/users';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 
 describe('Users', () => {
@@ -23,7 +24,7 @@ describe('Users', () => {
         const username = 'billyjoe';
         let password = 'secret-password';
 
-        let created: PrivateUserModel;
+        let created: User;
 
         beforeAll(async () => {
             created = await users.createWithPassword({
@@ -44,7 +45,11 @@ describe('Users', () => {
         });
 
         it('should be able fetch the user by id', async () => {
-            const fetched = await users.findById(created.id);
+            const queryAccess = new LuceneQueryAccess({
+                excludes: ['api_token', 'hash', 'salt']
+            });
+
+            const fetched = await users.findById(created.id, queryAccess);
 
             expect(created).toMatchObject(fetched);
             expect(fetched).not.toHaveProperty('api_token');
@@ -53,16 +58,22 @@ describe('Users', () => {
         });
 
         it('should be able fetch the user by any id', async () => {
-            const fetched = await users.findByAnyId(created.username);
+            const queryAccess = new LuceneQueryAccess({
+                excludes: ['hash', 'salt']
+            });
+            const fetched = await users.findByAnyId(created.username, queryAccess);
 
             expect(created).toMatchObject(fetched);
-            expect(fetched).not.toHaveProperty('api_token');
+            expect(fetched).toHaveProperty('api_token');
             expect(fetched).not.toHaveProperty('hash');
             expect(fetched).not.toHaveProperty('salt');
         });
 
         it('should be able find all by ids', async () => {
-            const result = await users.findAll([created.id]);
+            const queryAccess = new LuceneQueryAccess({
+                excludes: ['api_token', 'hash', 'salt']
+            });
+            const result = await users.findAll([created.id], queryAccess);
 
             expect(result).toBeArrayOfSize(1);
 
@@ -71,24 +82,6 @@ describe('Users', () => {
                 expect(fetched).not.toHaveProperty('hash');
                 expect(fetched).not.toHaveProperty('salt');
             }
-        });
-
-        it('should be able to omit private fields', () => {
-            const createdMetadata = DataEntity.getMetadata(created);
-            expect(createdMetadata).not.toBeNil();
-
-            const omitted = users.omitPrivateFields(created);
-
-            expect(omitted).not.toBe(created);
-            expect(DataEntity.isDataEntity(omitted)).toBeTrue();
-
-            const ommittedMetadata = DataEntity.getMetadata(omitted);
-            expect(ommittedMetadata).not.toBeNil();
-            expect(ommittedMetadata).toEqual(createdMetadata);
-
-            expect(omitted).not.toHaveProperty('api_token');
-            expect(omitted).not.toHaveProperty('hash');
-            expect(omitted).not.toHaveProperty('salt');
         });
 
         it('should be able to update the api_token', async () => {

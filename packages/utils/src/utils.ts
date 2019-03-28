@@ -1,23 +1,7 @@
 import isPlainObject from 'is-plain-object';
 import cloneDeep from 'lodash.clonedeep';
 import kindOf from 'kind-of';
-import { WithoutNil } from './interfaces';
-
-/** A simplified implemation of lodash isString */
-export function isString(val: any): val is string {
-    return typeof val === 'string' ? true : false;
-}
-
-/** Safely convert any input to a string */
-export function toString(val: any): string {
-    if (val == null) return '';
-    if (isString(val)) return val;
-    if (val && typeof val === 'object' && val.message && val.stack) {
-        return val.toString();
-    }
-
-    return JSON.stringify(val);
-}
+import { isString, toString, firstToUpper, trimAndToLower } from './strings';
 
 /** Check if an input is empty, similar to lodash.isEmpty */
 export function isEmpty(val?: any): boolean {
@@ -79,12 +63,6 @@ export function isInteger(val: any): val is number {
 // export a few dependencies
 export { isPlainObject, cloneDeep };
 
-/** A simplified implemation of lodash castArray */
-export function castArray<T>(input: T|T[]): T[] {
-    if (Array.isArray(input)) return input;
-    return [input];
-}
-
 /** Verify an input is a function */
 export function isFunction(input: any): input is Function {
     return input && typeof input === 'function' ? true : false;
@@ -111,52 +89,9 @@ export function fastAssign<T, U>(target: T, source: U) {
     return target;
 }
 
-/** Map an array faster without sparse array handling */
-export function fastMap<T, U>(arr: T[], fn: (val: T, index: number) => U): U[] {
-    const length = arr.length;
-    const result = Array(length);
-
-    let i = -1;
-    while (++i < length) {
-        result[i] = fn(arr[i], i);
-    }
-
-    return result;
-}
-
 /** A native implemation of lodash random */
 export function random(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-/** A native implemation of lodash uniq */
-export function uniq<T>(arr: T[]): T[] {
-    return [...new Set(arr)];
-}
-
-/** A native implemation of lodash times */
-export function times(n: number): number[];
-export function times<T>(n: number, fn: (index: number) => T): T[];
-export function times<T>(n: number, fn?: (index: number) => T): T[] {
-    let i = -1;
-    const result = Array(n);
-
-    while (++i < n) {
-        result[i] = fn != null ? fn(i) : i;
-    }
-
-    return result;
-}
-
-/** A native implemation of lodash startsWith */
-export function startsWith(str: string, val: string) {
-    if (typeof str !== 'string') return false;
-    return str.startsWith(val);
-}
-
-export function truncate(str: string, len: number): string {
-    const sliceLen = (len - 4) > 0 ? len - 4 : len;
-    return str.length >= len ? `${str.slice(0, sliceLen)} ...` : str;
 }
 
 /** Check if an input is a number */
@@ -186,108 +121,6 @@ export function toBoolean(input: any): boolean {
     return thruthy.includes(val);
 }
 
-/** safely trim and to lower a input, useful for string comparison */
-export function trimAndToLower(input?: string): string {
-    return trim(input).toLowerCase();
-}
-
-/** safely trim an input */
-export function trim(input: any): string {
-    return toString(input).trim();
-}
-
-/**
- * Make a string url/elasticsearch safe.
- * safeString converts the string to lower case,
- * removes any invalid characters,
- * and replaces whitespace with _ (if it exists in the string) or -
- * Warning this may reduce the str length
-*/
-export function toSafeString(input: string): string {
-    let s = trimAndToLower(input);
-    const startReg = /^[_\-\+]+/;
-    while (startReg.test(s)) {
-        s = s.replace(startReg, '');
-    }
-
-    const whitespaceChar = s.includes('_') ? '_' : '-';
-    s = s.replace(/\s/g, whitespaceChar);
-    const reg = new RegExp('[\.\+#*?"<>|/\\\\]', 'g');
-    s = s.replace(reg, '');
-    return s;
-}
-
-/** A simplified implemation of moment(new Date(val)).isValid() */
-export function isValidDate(val: any): boolean {
-    const d = new Date(val);
-    // @ts-ignore
-    return d instanceof Date && !isNaN(d);
-}
-
-/** Check if the data is valid and return if it is */
-export function getValidDate(val: any): Date|false {
-    const d = new Date(val);
-    // @ts-ignore
-    return d instanceof Date && !isNaN(d) && d;
-}
-
-/** A native implemation of lodash flatten */
-export function flatten<T>(val: Many<T[]>): T[] {
-    return val.reduce((a, b) => a.concat(b), []);
-}
-
-/** A simple definitions of array */
-interface Many<T> extends Array<T> {
-}
-
-/**
- * Concat and unique the items in the array
- * Any non-array value will be converted to an array
-*/
-export function concat<T>(arr: T|T[], arr1?: T|T[]): T[] {
-    return uniq(
-        castArray(arr)
-            .concat(arr1 ? castArray(arr1) : []),
-    );
-}
-
-/** A decorator for locking down a method */
-export function locked() {
-    // @ts-ignore
-    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-        descriptor.configurable = false;
-        descriptor.enumerable = false;
-        descriptor.writable = false;
-    };
-}
-
-/** A decorator for making a method enumerable or none-enumerable */
-export function enumerable(enabled = true) {
-    // @ts-ignore
-    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-        descriptor.enumerable = enabled;
-    };
-}
-
-/** Change first character in string to upper case */
-export function firstToUpper(str: string): string {
-    return `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
-}
-
-/** Build a new object without null or undefined values (shallow) */
-export function withoutNil<T extends object>(input: T): WithoutNil<T> {
-    // @ts-ignore
-    const result: WithoutNil<T> = {};
-
-    for (const [key, val] of Object.entries(input)) {
-        if (val != null) {
-            result[key] = val;
-        }
-    }
-
-    return result;
-}
-
 /**
  * Maps an array of strings and and trims the result, or
  * parses a comma separated list and trims the result
@@ -312,7 +145,7 @@ export function parseList(input: any): string[] {
 }
 
 /**
- * Like parseList, except it returns number
+ * Like parseList, except it returns numbers
 */
 export function parseNumberList(input: any): number[] {
     let items: (number|string)[] = [];

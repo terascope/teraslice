@@ -6,6 +6,9 @@ import IndexManager from './index-manager';
 import * as i from './interfaces';
 import * as utils from './utils';
 
+/**
+ * @todo add the ability to enable/disable refresh by default
+ */
 export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     readonly client: es.Client;
     readonly config: i.IndexConfig;
@@ -23,7 +26,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     private readonly _getIngestTime: (input: T) => number;
     private readonly _xluceneTypes: TypeConfig|undefined;
 
-    constructor(client: es.Client, config: i.IndexConfig) {
+    constructor(client: es.Client, config: i.IndexConfig<T>) {
         if (!utils.isValidClient(client)) {
             throw new ts.TSError('IndexStore requires elasticsearch client', {
                 fatalError: true
@@ -87,8 +90,8 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         }
 
         this._toRecord = this._toRecord.bind(this);
-        this._getIngestTime = utils.getTimeByField(this.config.ingestTimeField);
-        this._getEventTime = utils.getTimeByField(this.config.eventTimeField);
+        this._getIngestTime = utils.getTimeByField(this.config.ingestTimeField as string);
+        this._getEventTime = utils.getTimeByField(this.config.eventTimeField as string);
     }
 
     /**
@@ -138,12 +141,18 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         return this.flush();
     }
 
-    /** Count records by a given Lucene Query or Elasticsearch Query DSL */
+    /** Count records by a given Lucene Query */
     async count(query: string, params?: PartialParam<es.CountParams, 'q'|'body'>): Promise<number> {
-        const p = this._getParams(params, utils.translateQuery(query, this._xluceneTypes));
+        const p = Object.assign({}, params, utils.translateQuery(query, this._xluceneTypes));
 
+        return this._count(p);
+    }
+
+    /** Count records by a given Elasticsearch Query DSL */
+    // tslint:disable-next-line
+    async _count(params: es.CountParams): Promise<number> {
         return ts.pRetry(async () => {
-            const { count } = await this.client.count(p);
+            const { count } = await this.client.count(this.getDefaultParams(params));
             return count;
         }, utils.getRetryConfig());
     }
@@ -166,7 +175,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         this.validateRecord(doc, true);
 
         const defaults = { refresh: true };
-        const p = this._getParams(defaults, params, { body: doc });
+        const p = this.getDefaultParams(defaults, params, { body: doc });
 
         return ts.pRetry(async () => {
             const result = await this.client.create(p);
@@ -197,7 +206,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
     /** Get a single document */
     async get(id: string, params?: PartialParam<es.GetParams>): Promise<T> {
-        const p = this._getParams(params, { id });
+        const p = this.getDefaultParams(params, { id });
 
         return ts.pRetry(async () => {
             const result = await this.client.get<T>(p);
@@ -228,7 +237,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         this.validateRecord(doc, true);
 
         const defaults = { refresh: true };
-        const p = this._getParams(defaults, params, {
+        const p = this.getDefaultParams(defaults, params, {
             body: doc
         });
 
@@ -248,7 +257,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
     /** Get multiple documents at the same time */
     async mget(body: any, params?: PartialParam<es.MGetParams>): Promise<T[]> {
-        const p = this._getParams(params, { body });
+        const p = this.getDefaultParams(params, { body });
 
         return ts.pRetry(async () => {
             const { docs } = await this.client.mget<T>(p);
@@ -275,7 +284,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
      * Deletes a document for a given id
     */
     async remove(id: string, params?: PartialParam<es.DeleteDocumentParams>) {
-        const p = this._getParams(params, {
+        const p = this.getDefaultParams(params, {
             id,
         });
 
@@ -301,12 +310,20 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         this.client.close();
     }
 
-    /** Search with a given Lucene Query or Elasticsearch Query DSL */
+    /** Search with a given Lucene Query */
     async search(query: string, params?: PartialParam<SearchParams<T>>): Promise<T[]> {
-        const p = this._getParams(params, utils.translateQuery(query, this._xluceneTypes));
+        const p = Object.assign({}, params, utils.translateQuery(query, this._xluceneTypes));
 
+        return this._search(p);
+    }
+
+    /** Search an Elasticsearch Query DSL */
+    // tslint:disable-next-line
+    async _search(params: PartialParam<SearchParams<T>>): Promise<T[]> {
         return ts.pRetry(async () => {
-            const results = await this.client.search<T>(p);
+            const results = await this.client.search<T>(this.getDefaultParams({
+                sort: this.config.defaultSort,
+            }, params));
 
             // @ts-ignore because failures doesn't exist in definition
             const { failures, failed } = results._shards;
@@ -341,7 +358,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             retryOnConflict: 3
         };
 
-        const p = this._getParams(defaults, params, {
+        const p = this.getDefaultParams(defaults, params, {
             id,
             body
         });
@@ -349,6 +366,13 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         await ts.pRetry(() => {
             return this.client.update(p);
         }, utils.getRetryConfig());
+    }
+
+    getDefaultParams(...params: any[]) {
+        return Object.assign({
+            index: this.indexQuery,
+            type: this.config.name
+        }, ...params);
     }
 
     private async _bulk(records: BulkRequest<I>[], body: any) {
@@ -362,13 +386,6 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             this._logger.trace('Retrying bulk requests', retry);
             this._collector.add(retry);
         }
-    }
-
-    private _getParams(...params: any[]) {
-        return Object.assign({
-            index: this.indexQuery,
-            type: this.config.name
-        }, ...params);
     }
 
     private _toRecord(result: RecordResponse<T>): T {
