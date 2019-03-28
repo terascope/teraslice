@@ -4,7 +4,7 @@ import { both, either, not, path, identity, has, pipe } from 'rambda';
 import LuceneQueryParser from '../lucene-query-parser';
 import TypeManager from './type-manager';
 import { bindThis, isInfiniteMax, isInfiniteMin, isTermNode, isRangeNode, isConjunctionNode, isExistsNode } from '../utils';
-import { AST, TypeConfig, RangeAST } from '../interfaces';
+import { AST, TypeConfig, RangeAST, BooleanCB } from '../interfaces';
 
 // @ts-ignore
 const logger = debugLogger('document-matcher');
@@ -43,76 +43,57 @@ function isParsedNode(node: AST) {
     return node.type === '__parsed';
 }
 
+const logicNode = (logicFn:any) => (boolFn: BooleanCB, isNegated:boolean|undefined) => {
+    if (isNegated) return logicFn(negate(boolFn));
+    return logicFn(boolFn);
+};
+
 function newBuilder(parser: LuceneQueryParser, typeConfig: TypeConfig|undefined) {
     const types = new TypeManager(parser, typeConfig);
     const parsedAst = types.processAst();
 
     function walkAst(node: AST, resultFn: any) {
         let fnResults = resultFn;
+        const fnLogic = logicNode(fnResults);
+
         if (isTermNode(node)) {
-            let fn = (obj: any) => path(node.field, obj) === node.term;
-            if (node.negated) {
-                fn = negate(fn);
-            }
-            fnResults = fnResults(fn);
+            const fn = (obj: any) => path(node.field, obj) === node.term;
+            fnResults = fnLogic(fn, node.negated);
         }
 
         if (isExistsNode(node)) {
-            let fn = (obj: any) =>  has(node.field, obj);
-
-            if (node.negated) {
-                fn = negate(fn);
-            }
-
-            fnResults = fnResults(fn);
+            const fn = (obj: any) =>  has(node.field, obj);
+            fnResults = fnLogic(fn, node.negated);
         }
 
         if (isRangeNode(node)) {
-            let fn = parseRange(node);
-
-            if (node.negated) {
-                fn = negate(fn);
-            }
-
-            fnResults = fnResults(fn);
+            const fn = parseRange(node);
+            fnResults = fnLogic(fn, node.negated);
         }
 
         if (isParsedNode(node)) {
-            let fn  = node.callback;
-            if (node.negated) {
-                fn = negate(fn);
-            }
-
-            fnResults = fnResults(fn);
+            const fn  = node.callback;
+            fnResults = fnLogic(fn, node.negated);
         }
 
         if (isConjunctionNode(node)) {
             let conjunctionFn:any;
-            if (node.operator === 'AND' || node.operator === 'NOT' || node.operator == null) conjunctionFn = both;
-            if (node.operator === 'OR') {
-                conjunctionFn = either;
-            }
+            if (node.operator === 'AND' || node.operator == null) conjunctionFn = both;
+            if (node.operator === 'OR') conjunctionFn = either;
 
             if (node.left) {
                 conjunctionFn = walkAst(node.left as AST, conjunctionFn);
-
             } else {
                 conjunctionFn = conjunctionFn(() => false);
             }
 
             if (node.right) {
                 conjunctionFn = walkAst(node.right as AST, conjunctionFn);
-
             } else {
-               // FIXME: this will mess up with an either
                 conjunctionFn = conjunctionFn(() => true);
             }
 
-            if (node.negated) {
-                fnResults = fnResults(negate(conjunctionFn));
-            } else {
-                fnResults = fnResults(conjunctionFn);
-            }
+            fnResults = fnLogic(conjunctionFn, node.negated);
         }
 
         return fnResults;
@@ -155,7 +136,6 @@ function parseRange(node: RangeAST) {
     if (incMin && !incMax) {
         if (isInfiniteMin(minValue)) {
             rangeFn = (obj: any) => _.lt(obj, maxValue);
-
         } else {
             rangeFn = (obj: any) => _.lt(obj, maxValue) && _.gte(obj, minValue);
         }
@@ -169,14 +149,12 @@ function parseRange(node: RangeAST) {
             rangeFn = (obj: any) => _.lte(obj, maxValue);
         } else {
             rangeFn = (obj: any) => _.lte(obj, maxValue) && _.gte(obj, minValue);
-
         }
     }
 
     // ie age:(>10 AND <20)
     if (!incMin && !incMax) {
         rangeFn = (obj: any) => _.lt(obj, maxValue) && _.gt(obj, minValue);
-
     }
 
     return pipe(getFieldValue, rangeFn);
