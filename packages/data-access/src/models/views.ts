@@ -3,6 +3,7 @@ import { makeISODate } from '@terascope/utils';
 import { IndexModel, IndexModelOptions } from 'elasticsearch-store';
 import viewsConfig, { View, GraphQLSchema } from './config/views';
 import { Space } from './config/spaces';
+import { Role } from './roles';
 
 /**
  * Manager for Views
@@ -15,15 +16,16 @@ export class Views extends IndexModel<View> {
         super(client, config, viewsConfig);
     }
 
-    async getViewOfSpace(space: Space, roleId: string): Promise<View> {
+    async getViewOfSpace(space: Space, role: Role): Promise<View> {
         const views = await this.findAll(space.views);
-        const view = views.find((view) => view.roles.includes(roleId));
+        const view = views.find((view) => view.roles.includes(role.id));
         if (view) return view;
 
         // if the view doesn't exist create a non-restrictive default view
         return {
-            id: `default-view-for-role-${roleId}`,
-            name: `Default View for Role ${roleId}`,
+            client_id: role.client_id,
+            id: `default-view-for-role-${role.id}`,
+            name: `Default View for Role ${role.id}`,
             data_type: space.data_type,
             roles: space.roles,
             created: makeISODate(),

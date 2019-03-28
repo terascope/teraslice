@@ -39,8 +39,6 @@ export class ACLManager {
 
             findView(id: ID!): View
             findViews(query: String): [View]!
-
-            getViewForSpace(api_token: String, space: String!): DataAccessConfig!
         }
 
         type Mutation {
@@ -427,8 +425,11 @@ export class ACLManager {
     /**
      * Get the User's data access configuration for a "Space"
      */
-    async getViewForSpace(args: { token: string, space: string }, authUser: models.User|false): Promise<DataAccessConfig> {
-        const user = await this.authenticate(args);
+    async getViewForSpace(args: { token?: string, space: string }, authUser: models.User|false): Promise<DataAccessConfig> {
+        // if the token is provided use the authenticated user
+        const user = args.token || !authUser ?
+            await this.authenticate(args) :
+            authUser;
 
         if (!user.role) {
             const msg = `User "${user.username}" is not assigned to a role`;
@@ -447,9 +448,17 @@ export class ACLManager {
         }
 
         const [view, dataType] = await Promise.all([
-            this._views.getViewOfSpace(space, role.id),
+            this._views.getViewOfSpace(space, role),
             this._dataTypes.findById(space.data_type)
         ]);
+
+        if (user.type !== 'SUPERADMIN') {
+            const clientIds = [role.client_id, space.client_id, dataType.client_id, view.client_id];
+            if (!clientIds.every((id) => id === user.client_id)) {
+                const msg = `User "${user.username}" does not have permission to access space "${space.id}"`;
+                throw new ts.TSError(msg, { statusCode: 403 });
+            }
+        }
 
         return this._parseDataAccessConfig({
             user_id: user.id,
@@ -890,7 +899,6 @@ export const graphqlQueryMethods: (keyof ACLManager)[] = [
     'findSpaces',
     'findView',
     'findViews',
-    'getViewForSpace',
 ];
 
 export const graphqlMutationMethods: (keyof ACLManager)[] = [

@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { Views, View } from '../../src/models/views';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
-import { Space } from 'packages/data-access/src';
+import { Space, Role } from '../../src';
 
 describe('Views', () => {
     const client = makeClient();
@@ -41,6 +41,10 @@ describe('Views', () => {
         let view2: View;
 
         const roleId = 'some-role-id';
+        const role = {
+            client_id: 1,
+            id: roleId,
+        } as Role;
 
         beforeAll(async () => {
             view1 = await views.create({
@@ -64,7 +68,7 @@ describe('Views', () => {
                 views: [view1.id, view2.id],
             };
 
-            const found = await views.getViewOfSpace(space, roleId);
+            const found = await views.getViewOfSpace(space, role);
             expect(found).toEqual(view1);
         });
 
@@ -76,9 +80,10 @@ describe('Views', () => {
                 views: [view2.id],
             };
 
-            const result = await views.getViewOfSpace(space, roleId);
+            const result = await views.getViewOfSpace(space, role);
 
             expect(result).toMatchObject({
+                client_id: role.client_id,
                 id: `default-view-for-role-${roleId}`,
                 name: `Default View for Role ${roleId}`,
                 data_type: space.data_type,

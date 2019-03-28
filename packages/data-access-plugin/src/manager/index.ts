@@ -175,10 +175,7 @@ export default class ManagerPlugin {
             const spaceErrorHandler = makeErrorHandler('Failure to access /api/v2/:space', logger);
 
             spaceErrorHandler(req, res, async () => {
-                const accessConfig = await manager.getViewForSpace({
-                    token: get(user, 'api_token'),
-                    space,
-                }, user);
+                const accessConfig = await manager.getViewForSpace({ space }, user);
 
                 req.query.pretty = toBoolean(req.query.pretty);
 
