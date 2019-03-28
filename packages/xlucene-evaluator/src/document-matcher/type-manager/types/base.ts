@@ -7,21 +7,23 @@ export default class BaseType {
         const getFieldValue = (obj: any) => {
             return path(field as string, obj);
         };
-
-        let cb;
+        const type = '__parsed';
+        let callback;
 
         if (!field) {
-            cb = parsedFn;
+            callback = parsedFn;
         } else {
-            cb = pipe(getFieldValue, parsedFn);
+            callback = pipe(getFieldValue, parsedFn);
         }
 
-        // @ts-ignore
-        const resultingAST: AST = { type: '__parsed', callback: cb };
+        const resultingAST = {
+            type,
+            callback,
+            ...srcNode.negated && { negated: true },
+            ...srcNode.or && { or: true },
+        };
 
-        if (srcNode.negated) resultingAST.negated = true;
-        if (srcNode.or) resultingAST.or = true;
-        return resultingAST;
+        return resultingAST as AST;
     }
 
     // TODO: look to see if this can be combined with other walkAst method
