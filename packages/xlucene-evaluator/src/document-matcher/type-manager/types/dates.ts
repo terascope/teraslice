@@ -50,8 +50,7 @@ export default class DateType extends BaseType {
                         if (!convertedValue) throw new Error(`was not able to convert ${maxValue} to a date value`);
                         maxValue = convertedValue - 1;
                     }
-
-                    dateFn = (date: string) => dateFns.isWithinRange(date, minValue as DateInput, maxValue as DateInput);
+                    dateFn = (date: string) =>  dateFns.isWithinRange(date, minValue as DateInput, maxValue as DateInput);
                 }
 
                 return this.parseAST(node, dateFn, topField);

@@ -983,7 +983,7 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data6)).toEqual(false);
             expect(documentMatcher.match(data7)).toEqual(false);
         });
-
+        // FIXME:
         it('can do more complex wildcard queries', () => {
             const data1 = { some: 'value', city: { key: 'abcde', field: 'other' } };
             const data2 = { some: 'value', city: { key: 'abcde', field: 'other', nowIsTrue: 'something' } };
@@ -1111,11 +1111,8 @@ describe('document matcher', () => {
             // tslint:disable-next-line
             const query = 'ipfield:[192.198.0.0 TO 192.198.0.255] AND _created:[2018-10-18T18:13:20.683Z TO *] AND key:/ab{2}c{3}/ AND location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")';
 
-            documentMatcher.parse(query);
+            documentMatcher.parse(query, typeConfig);
 
-            // This should be false but its not
-            // because "192.198.0.255" >= data.ipfield && data.ipfield >= "192.198.0.0"
-            // SHOULD THIS WORK THIS WAY?
             expect(documentMatcher.match(data1)).toEqual(true);
             expect(data1).toEqual(clone);
 
@@ -1168,14 +1165,15 @@ describe('document matcher', () => {
             const data3 = { date: '["2018-10-10T17:36:13Z" TO "2018-10-10T17:36:13Z"]', value: 253, type: 'other' };
             const luceneQuery = 'date:["2018-10-10T17:36:13Z" TO "2018-10-10T17:36:13Z"] AND NOT value:(251 OR 252) AND NOT type:example';
             const luceneQuery2 = 'date:["2018-10-10T17:36:13Z" TO "2018-10-10T17:36:13Z"] AND ! value:(251 OR 252) AND ! type:example';
-
-            documentMatcher.parse(luceneQuery);
+            const typeConfig = { date: 'date' };
+            // @ts-ignore FIXME:
+            documentMatcher.parse(luceneQuery, typeConfig);
 
             expect(documentMatcher.match(data1)).toEqual(false);
             expect(documentMatcher.match(data2)).toEqual(true);
             expect(documentMatcher.match(data3)).toEqual(false);
-
-            documentMatcher.parse(luceneQuery2);
+            // @ts-ignore FIXME:
+            documentMatcher.parse(luceneQuery2, typeConfig);
 
             expect(documentMatcher.match(data1)).toEqual(false);
             expect(documentMatcher.match(data2)).toEqual(true);
@@ -1185,10 +1183,11 @@ describe('document matcher', () => {
         it('can accept unquoted dates', () => {
             const data1 = { date: '2018-10-10T17:36:13Z', value: 252, type: 'example' };
             const data2 = { date: '2018-10-10T18:36:13Z', value: 253, type: 'other' };
+            const typeConfig = { date: 'date' };
 
             const luceneQuery = 'date:[2018-10-10T17:36:13Z TO 2018-10-10T20:36:13Z]';
-
-            documentMatcher.parse(luceneQuery);
+            // @ts-ignore FIXME:
+            documentMatcher.parse(luceneQuery, typeConfig);
 
             expect(documentMatcher.match(data1)).toEqual(true);
             expect(documentMatcher.match(data2)).toEqual(true);

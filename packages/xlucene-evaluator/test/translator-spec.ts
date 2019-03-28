@@ -7,7 +7,7 @@ import { getJoinType, buildAnyQuery } from '../src/translator/utils';
 const logger = debugLogger('translator-spec');
 
 describe('Translator', () => {
-    it('should have a query property', () => {
+    xit('should have a query property', () => {
         const query = 'foo:bar';
         const translator = new Translator(query);
 

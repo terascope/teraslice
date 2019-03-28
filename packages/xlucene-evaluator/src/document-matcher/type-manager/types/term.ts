@@ -3,6 +3,8 @@ import { bindThis } from '../../../utils';
 import _ from 'lodash';
 import { AST, BooleanCB } from '../../../interfaces';
 
+type MaybeString = string|null;
+
 export default class TermType extends BaseType {
 
     constructor() {
@@ -29,18 +31,15 @@ export default class TermType extends BaseType {
 
     // city.*   city.deeper.*   city.*.*
     private recurseDownObject(field:string, object:object):object[] {
-        // tslint:disable-next-line no-this-assignment
-        const { match, parseWildCard } = this;
-
         const results: any[] = [];
-        const fieldSequence = field.split('.').map(parseWildCard);
+        const fieldSequence = field.split('.').map(this.parseWildCard);
 
-        function recurse(arr:string[], obj:object) {
+        const recurse = (arr:string[], obj:object) =>  {
             if (arr.length === 0) return;
             const field = arr.shift() as string;
 
             _.forOwn(obj, (value, key) => {
-                if (match(key, field)) {
+                if (this.match(key, field)) {
                     if (arr.length === 0) {
                         results.push(value);
                     } else {
@@ -48,7 +47,7 @@ export default class TermType extends BaseType {
                     }
                 }
             });
-        }
+        };
 
         recurse(fieldSequence, object);
 
@@ -58,7 +57,7 @@ export default class TermType extends BaseType {
     public processAst(ast: AST): AST {
 
         const parseStringNodes = (node: AST, _field: string) => {
-            const topField = node.field || _field;
+            let topField: MaybeString = node.field || _field;
             let stringFn: BooleanCB;
 
             if (node.regexpr) {
@@ -71,10 +70,10 @@ export default class TermType extends BaseType {
             if (this.isWildCard(node.field)) {
                 const term = this.parseWildCard(node.term);
 
+                topField = null;
                 stringFn = (data: AST): boolean => {
                     const resultsArray = this.recurseDownObject(node.field || '', data);
                     let bool = false;
-
                     if (resultsArray.length === 0) return bool;
 
                     _.each(resultsArray, (value) => {
@@ -85,9 +84,7 @@ export default class TermType extends BaseType {
 
                     return bool;
                 };
-            }
-
-            if (node.wildcard) {
+            } else if (node.wildcard) {
                 const wildCardQuery = this.parseWildCard(node.term);
 
                 stringFn = (str: string): boolean => {
@@ -97,7 +94,6 @@ export default class TermType extends BaseType {
             }
             // @ts-ignore
             if (stringFn) return this.parseAST(node, stringFn, topField);
-
             return node;
         };
 

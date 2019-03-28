@@ -28,6 +28,7 @@ export default class DocumentMatcher {
     public parse(luceneStr: string, typeConfig?: TypeConfig):void {
         const parser = new LuceneQueryParser();
         const types = typeConfig || this.typeConfig;
+
         parser.parse(luceneStr);
         const resultingFN = newBuilder(parser, types);
         // console.log('what coming out', resultingFN);
@@ -94,7 +95,6 @@ function newBuilder(parser: LuceneQueryParser, typeConfig: TypeConfig|undefined)
 
         if (isParsedNode(node)) {
             let fn  = node.callback;
-
             if (node.negated) {
                 fn = negate(fn);
             }
@@ -105,7 +105,6 @@ function newBuilder(parser: LuceneQueryParser, typeConfig: TypeConfig|undefined)
         if (isConjunctionNode(node)) {
             // console.log('what is node', node)
             let conjunctionFn:any;
-            // console.log('what node', node)
             if (node.operator === 'AND' || node.operator === 'NOT' || node.operator == null) conjunctionFn = both;
             if (node.operator === 'OR') {
                 // console.log('im setting to either', node)
@@ -131,7 +130,12 @@ function newBuilder(parser: LuceneQueryParser, typeConfig: TypeConfig|undefined)
                //  console.log('im setting right', resultFn)
 
             }
-            fnResults = fnResults(conjunctionFn);
+
+            if (node.negated) {
+                fnResults = fnResults(negate(conjunctionFn));
+            } else {
+                fnResults = fnResults(conjunctionFn);
+            }
         }
 
         return fnResults;
