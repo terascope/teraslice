@@ -1,19 +1,18 @@
+import { getFieldValue } from '../../../utils';
 import { AST, BooleanCB } from '../../../interfaces';
-import { path, pipe } from 'rambda';
+import { pipe } from 'rambda';
 
 export default class BaseType {
 
     public parseAST(srcNode: AST, parsedFn: BooleanCB, field: string|null): AST {
-        const getFieldValue = (obj: any) => {
-            return path(field as string, obj);
-        };
         const type = '__parsed';
         let callback;
 
         if (!field) {
             callback = parsedFn;
         } else {
-            callback = pipe(getFieldValue, parsedFn);
+            const getField = getFieldValue(field);
+            callback = pipe(getField, parsedFn);
         }
 
         const resultingAST = {

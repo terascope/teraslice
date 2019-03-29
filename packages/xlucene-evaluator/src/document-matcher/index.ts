@@ -1,9 +1,18 @@
 import _ from 'lodash';
 import { debugLogger } from '@terascope/utils';
-import { both, either, not, path, identity, has, pipe } from 'rambda';
+import { both, either, not, identity, has, pipe } from 'rambda';
 import LuceneQueryParser from '../lucene-query-parser';
 import TypeManager from './type-manager';
-import { bindThis, isInfiniteMax, isInfiniteMin, isTermNode, isRangeNode, isConjunctionNode, isExistsNode } from '../utils';
+import {
+    bindThis,
+    isInfiniteMax,
+    isInfiniteMin,
+    isTermNode,
+    isRangeNode,
+    isConjunctionNode,
+    isExistsNode,
+    getFieldValue
+} from '../utils';
 import { AST, TypeConfig, RangeAST, BooleanCB } from '../interfaces';
 
 // @ts-ignore
@@ -57,17 +66,19 @@ function newBuilder(parser: LuceneQueryParser, typeConfig: TypeConfig|undefined)
         const fnLogic = logicNode(fnResults);
 
         if (isTermNode(node)) {
-            const fn = (obj: any) => path(node.field, obj) === node.term;
+            const getField = getFieldValue(node.field);
+            const fn = (obj: any) => getField(obj) === node.term;
             fnResults = fnLogic(fn, node.negated);
         }
 
         if (isExistsNode(node)) {
-            const fn = (obj: any) =>  has(node.field, obj);
+            const fn = (obj: any) => has(node.field, obj);
             fnResults = fnLogic(fn, node.negated);
         }
 
         if (isRangeNode(node)) {
-            const fn = parseRange(node);
+            const getField = getFieldValue(node.field);
+            const fn = pipe(getField, parseRange(node));
             fnResults = fnLogic(fn, node.negated);
         }
 
@@ -106,10 +117,9 @@ function parseRange(node: RangeAST) {
     const {
         inclusive_min: incMin,
         inclusive_max: incMax,
-        field
     } = node;
     let { term_min: minValue, term_max: maxValue } = node;
-    let rangeFn = (_obj: any) => false;
+    let rangeFn = (_data: any) => false;
 
     if (minValue === '*') minValue = Number.NEGATIVE_INFINITY;
     if (maxValue === '*') maxValue = Number.POSITIVE_INFINITY;
@@ -121,41 +131,39 @@ function parseRange(node: RangeAST) {
         return data;
     });
 
-    const getFieldValue = (obj: any) => path(field, obj);
-
     // ie age:>10 || age:(>10 AND <=20)
     if (!incMin && incMax) {
         if (isInfiniteMax(maxValue)) {
-            rangeFn = (obj: any) => _.gt(obj, minValue);
+            rangeFn = (data: any) => _.gt(data, minValue);
         } else {
-            rangeFn = (obj: any) => _.gt(obj, minValue) && _.lte(obj, maxValue);
+            rangeFn = (data: any) => _.gt(data, minValue) && _.lte(data, maxValue);
         }
     }
 
     // ie age:<10 || age:(<=10 AND >20)
     if (incMin && !incMax) {
         if (isInfiniteMin(minValue)) {
-            rangeFn = (obj: any) => _.lt(obj, maxValue);
+            rangeFn = (data: any) => _.lt(data, maxValue);
         } else {
-            rangeFn = (obj: any) => _.lt(obj, maxValue) && _.gte(obj, minValue);
+            rangeFn = (data: any) => _.lt(data, maxValue) && _.gte(data, minValue);
         }
     }
 
     // ie age:<=10, age:>=10, age:(>=10 AND <=20)
     if (incMin && incMax) {
         if (isInfiniteMax(maxValue)) {
-            rangeFn = (obj: any) => _.gte(obj, minValue);
+            rangeFn = (data: any) => _.gte(data, minValue);
         } else if (isInfiniteMin(minValue)) {
-            rangeFn = (obj: any) => _.lte(obj, maxValue);
+            rangeFn = (data: any) => _.lte(data, maxValue);
         } else {
-            rangeFn = (obj: any) => _.lte(obj, maxValue) && _.gte(obj, minValue);
+            rangeFn = (data: any) => _.lte(data, maxValue) && _.gte(data, minValue);
         }
     }
 
     // ie age:(>10 AND <20)
     if (!incMin && !incMax) {
-        rangeFn = (obj: any) => _.lt(obj, maxValue) && _.gt(obj, minValue);
+        rangeFn = (data: any) => _.lt(data, maxValue) && _.gt(data, minValue);
     }
 
-    return pipe(getFieldValue, rangeFn);
+    return rangeFn;
 }

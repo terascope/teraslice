@@ -1,6 +1,8 @@
 import { toNumber } from 'lodash';
 import { trimAndToLower, isPlainObject, parseNumberList } from '@terascope/utils';
 import geoHash from 'latlon-geohash';
+import { path } from 'rambda';
+
 import { RangeAST, AST, GeoDistance, GeoPoint } from './interfaces';
 
 export function bindThis(instance:object, cls:object): void {
@@ -83,6 +85,10 @@ export interface ParseNodeRangeResult {
     'gt'?: number|string;
     'lte'?: number|string;
     'lt'?: number|string;
+}
+
+export function getFieldValue(field: string) {
+    return (obj: any) => path(field, obj);
 }
 
 export function parseGeoDistance(str: string): GeoDistance {
