@@ -15,7 +15,7 @@ export function buildAnyQuery(node: AST, parentNode?: AST): AnyQuery|undefined {
     }
 
     if (!field) {
-        const error = new TSError('Unable to determine field', {
+        const error = new TSError('Unexpected problem when translating xlucene query', {
             context: {
                 node,
                 parentNode,

@@ -23,7 +23,7 @@ describe('Translator', () => {
         const node: unknown = { type: 'term', term: 'hello' };
         expect(() => {
             buildAnyQuery(node as AST);
-        }).toThrowWithMessage(TSError, 'Unable to determine field');
+        }).toThrowWithMessage(TSError, 'Unexpected problem when translating xlucene query');
     });
 
     it('should have a types property', () => {
