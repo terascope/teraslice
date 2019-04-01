@@ -1,6 +1,7 @@
+import { STATUS_CODES } from 'http';
+import { AnyObject } from './interfaces';
 import * as s from './strings';
 import * as utils from './utils';
-import { STATUS_CODES } from 'http';
 
 /**
  * A custom Error class with additional properties,
@@ -114,7 +115,7 @@ export interface TSErrorConfig {
     defaultErrorMsg?: string;
 }
 
-export interface TSErrorContext extends Object {
+export interface TSErrorContext extends AnyObject {
     /** ISO Date string */
     _createdAt: string;
     _cause: any;
@@ -362,14 +363,18 @@ export function getErrorStatusCode(err: any, config: TSErrorConfig = {}, default
     return defaultCode;
 }
 
-export function stripErrorMessage(message: string, reason: string = 'Internal Server Error'): string {
-    if (!message || !s.isString(message)) return reason;
+export function stripErrorMessage(error: any, reason: string = 'Internal Server Error', requireSafe = false): string {
+    const { message, context } = parseErrorInfo(error, { defaultErrorMsg: reason });
     const messages = utils.parseList(message.split('caused by,'));
 
     const firstErr = utils.getFirst(messages);
     if (!firstErr) return reason;
 
     const msg = firstErr.replace(/[A-Z]{2}Error/g, 'Error');
+    if (requireSafe) {
+        if (context && context.safe) return msg;
+        return reason;
+    }
 
     if (firstErr.includes(reason)) return msg;
     return `${reason}: ${msg}`;

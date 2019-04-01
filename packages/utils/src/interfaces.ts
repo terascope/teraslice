@@ -44,3 +44,8 @@ export type WithoutNil<T> = {
 /** A simple definitions of array */
 export interface Many<T> extends Array<T> {
 }
+
+/** A simple object with any values */
+export interface AnyObject {
+    [prop: string]: any;
+}
