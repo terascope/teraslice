@@ -345,11 +345,14 @@ describe('IndexStore', () => {
             });
 
             // it('test query', async () => {
-            //     const result = await indexStore._search({
-            //         q: `NOT test_id:bulk-2 AND test_keyword:${keyword}`,
+            //     const q = '';
+            //     const realResult = await indexStore._search({
+            //         q,
             //         size: 100
             //     });
-            //     expect(result).toBeArrayOfSize(records.length - 1);
+            //     const xluceneResult = await indexStore.search(q, { size: 100 });
+
+            //     expect(xluceneResult).toEqual(realResult);
             // });
 
             it('should be able to search the records', async () => {

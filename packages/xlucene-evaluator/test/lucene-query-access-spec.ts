@@ -174,6 +174,15 @@ describe('LuceneQueryAccess', () => {
 
             expect(queryAccess.restrict(query)).toEqual(query);
         });
+
+        it('should be able to convert an empty query to a wildcard', () => {
+            const query = '';
+
+            const result = new LuceneQueryAccess({
+                convert_empty_query_to_wildcard: true
+            }).restrict(query);
+            expect(result).toEqual('*');
+        });
     });
 
     describe('when using a constraint that is not restricted', () => {
@@ -231,6 +240,7 @@ describe('LuceneQueryAccess', () => {
 
     describe('when converting to an elasticsearch search query', () => {
         const queryAccess = new LuceneQueryAccess({
+            convert_empty_query_to_wildcard: true,
             excludes: [
                 'bar',
                 'baz'
@@ -264,6 +274,33 @@ describe('LuceneQueryAccess', () => {
 
             expect(params).toHaveProperty('q', 'idk');
             expect(result).not.toHaveProperty('q', 'idk');
+        });
+
+        it('should be able to allow empty queries when convert_empty_query_to_wildcard is set to true', () => {
+            const result = queryAccess.restrictSearchQuery('');
+            expect(result).toEqual({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                bool: {
+                                    filter: [],
+                                    must_not: [],
+                                    should: [],
+                                },
+                            },
+                        },
+                    },
+                },
+                _sourceExclude: [
+                    'bar',
+                    'baz'
+                ],
+                _sourceInclude: [
+                    'foo',
+                    'moo'
+                ],
+            });
         });
 
         it('should be able to return a restricted query without any params', () => {

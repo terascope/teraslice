@@ -431,7 +431,7 @@ describe('Translator', () => {
             ]
         ]
     // @ts-ignore because the types for test.each for some reason
-    ])('when given %s', (query: string, property: string, expected: any, types: TypeConfig) => {
+    ])('when given %j', (query: string, property: string, expected: any, types: TypeConfig) => {
         it('should translate the query correctly', () => {
             const translator = new Translator(query, types);
             const result = translator.toElasticsearchDSL();
@@ -444,6 +444,20 @@ describe('Translator', () => {
             }, null, 4));
 
             expect(result).toHaveProperty(property, expected);
+        });
+    });
+
+    describe('when given an empty string', () => {
+        it('should translate it to an empty query', () => {
+            const translator = new Translator('');
+            const result = translator.toElasticsearchDSL();
+            expect(result).toEqual({
+                query: {
+                    query_string: {
+                        query: ''
+                    }
+                }
+            });
         });
     });
 

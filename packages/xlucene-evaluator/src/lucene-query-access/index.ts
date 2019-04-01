@@ -11,6 +11,8 @@ export interface QueryAccessConfig<T extends AnyData = AnyData> {
     constraint?: string;
     prevent_prefix_wildcard?: boolean;
     allow_implicit_queries?: boolean;
+    /** allow empty an empty query, and convert it to a wildcard query */
+    convert_empty_query_to_wildcard?: boolean;
     type_config?: TypeConfig;
 }
 
@@ -20,6 +22,7 @@ export default class LuceneQueryAccess<T extends AnyData = AnyData> {
     constraint?: string;
     preventPrefixWildcard: boolean;
     allowImplicitQueries: boolean;
+    convertEmptyQueryToWildcard: boolean;
     typeConfig: TypeConfig;
 
     constructor(config: QueryAccessConfig<T> = {}) {
@@ -29,6 +32,7 @@ export default class LuceneQueryAccess<T extends AnyData = AnyData> {
             constraint,
             prevent_prefix_wildcard,
             allow_implicit_queries,
+            convert_empty_query_to_wildcard,
             type_config = {}
         } = config;
 
@@ -37,6 +41,7 @@ export default class LuceneQueryAccess<T extends AnyData = AnyData> {
         this.constraint = constraint;
         this.preventPrefixWildcard = !!prevent_prefix_wildcard;
         this.allowImplicitQueries = !!allow_implicit_queries;
+        this.convertEmptyQueryToWildcard = !!convert_empty_query_to_wildcard;
         this.typeConfig = type_config;
     }
 
@@ -46,7 +51,7 @@ export default class LuceneQueryAccess<T extends AnyData = AnyData> {
      * @returns a restricted xlucene query
     */
     restrict(query: string): string {
-        if (this.includes.length && !query.length) {
+        if (this.includes.length && !query.length && !this.convertEmptyQueryToWildcard) {
             throw new ts.TSError('Empty queries are restricted', {
                 statusCode: 403
             });
@@ -85,6 +90,14 @@ export default class LuceneQueryAccess<T extends AnyData = AnyData> {
             }
         });
 
+        if (!query && this.convertEmptyQueryToWildcard) {
+            if (this.constraint) {
+                return this.constraint;
+            }
+
+            return '*';
+        }
+
         if (this.constraint) {
             return `${query} AND ${this.constraint}`;
         }
@@ -104,6 +117,7 @@ export default class LuceneQueryAccess<T extends AnyData = AnyData> {
 
         const restricted = this.restrict(query);
         const body = Translator.toElasticsearchDSL(restricted, this.typeConfig);
+
         const {
             includes,
             excludes
