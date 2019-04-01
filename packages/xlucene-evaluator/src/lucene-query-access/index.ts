@@ -64,7 +64,7 @@ export default class LuceneQueryAccess<T extends AnyData = AnyData> {
             if (node.field && !field) {
                 if (this.allowImplicitQueries) return;
 
-                throw new ts.TSError('Implicit queries are restricted', {
+                throw new ts.TSError('Implicit fields are restricted, please specify the field', {
                     statusCode: 403
                 });
             }
@@ -72,19 +72,19 @@ export default class LuceneQueryAccess<T extends AnyData = AnyData> {
             if (!node.field || node.field === IMPLICIT) return;
 
             if (this._isFieldExcluded(node.field)) {
-                throw new ts.TSError(`Field ${node.field} is restricted`, {
+                throw new ts.TSError(`Field ${node.field} in query is restricted`, {
                     statusCode: 403
                 });
             }
 
             if (this._isFieldIncluded(node.field)) {
-                throw new ts.TSError(`Field ${node.field} is restricted`,  {
+                throw new ts.TSError(`Field ${node.field} in query is restricted`,  {
                     statusCode: 403
                 });
             }
 
             if (this.preventPrefixWildcard && startsWithWildcard(node.term)) {
-                throw new ts.TSError('Prefix wildcards are restricted',  {
+                throw new ts.TSError('Wildcard queries of the form \'fieldname:*value\' or \'fieldname:?value\' in query are restricted',  {
                     statusCode: 403
                 });
             }
