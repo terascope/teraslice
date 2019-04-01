@@ -42,7 +42,7 @@ export default class TypeManager {
 
     public processAst(): AST {
         return this.typeList.reduce((astObj, type) => {
-            return type.processAst(astObj);
+            return this._parser.mapAst(type.processAst, astObj);
         }, this._parser._ast);
     }
 }

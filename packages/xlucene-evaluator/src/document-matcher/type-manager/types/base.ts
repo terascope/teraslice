@@ -2,9 +2,9 @@ import { getFieldValue } from '../../../utils';
 import { AST, BooleanCB } from '../../../interfaces';
 import { pipe } from 'rambda';
 
-export default class BaseType {
+export default abstract class BaseType {
 
-    public parseAST(srcNode: AST, parsedFn: BooleanCB, field: string|null): AST {
+    public parseNode(srcNode: AST, parsedFn: BooleanCB, field: string|null): AST {
         const type = '__parsed';
         let callback;
 
@@ -25,27 +25,5 @@ export default class BaseType {
         return resultingAST as AST;
     }
 
-    // TODO: look to see if this can be combined with other walkAst method
-    public walkAst(ast: AST, cb: Function) {
-
-        function walk(ast: AST, _field?: string) {
-            const topField = ast.field || _field;
-            const node = cb(ast, topField);
-
-            if (node.right) {
-                node.right = walk(node.right, topField);
-            }
-
-            if (node.left) {
-                node.left = walk(node.left, topField);
-            }
-            return node;
-        }
-
-        return walk(ast);
-    }
-
-    public processAst(ast: AST) {
-        return ast;
-    }
+    abstract processAst(node: AST, _field?: string): AST;
 }

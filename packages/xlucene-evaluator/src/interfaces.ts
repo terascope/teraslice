@@ -92,7 +92,11 @@ export interface GeoAST extends BaseFieldAST {
 }
 
 export interface AstCallback {
-    (node: AST, _field: string, depth: number): void;
+    (node: AST, _field: string): void;
+}
+
+export interface MappingAstCallback {
+    (node: AST, _field?: string): AST;
 }
 
 export interface GeoResults {
