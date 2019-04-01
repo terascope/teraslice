@@ -172,7 +172,7 @@ export default class ManagerPlugin {
                 user_id: get(user, 'id')
             });
 
-            const spaceErrorHandler = makeErrorHandler('Failure to access /api/v2/:space', logger);
+            const spaceErrorHandler = makeErrorHandler('Failure to access space', logger, true);
 
             spaceErrorHandler(req, res, async () => {
                 const accessConfig = await manager.getViewForSpace({ space }, user);
@@ -186,7 +186,7 @@ export default class ManagerPlugin {
 
                 // @ts-ignore
                 req.space = {
-                    searchErrorHandler: makeErrorHandler('Search failure', logger),
+                    searchErrorHandler: makeErrorHandler('Error during query execution', logger, true),
                     accessConfig,
                     search,
                     logger,
