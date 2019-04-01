@@ -311,6 +311,20 @@ describe('Error Utils', () => {
                 expect(stripErrorMessage(error, 'Bad news', true)).toEqual('Bad news');
             });
 
+            it('should work with a forbidden error', () => {
+                const error = new TSError('Some Forbidden Message', {
+                    statusCode: 403
+                });
+                expect(stripErrorMessage(error, 'Bad news', true)).toEqual('Access Denied');
+            });
+
+            it('should work with a 404 error', () => {
+                const error = new TSError('Some Forbidden Message', {
+                    statusCode: 404
+                });
+                expect(stripErrorMessage(error, 'Bad news', true)).toEqual('Not Found');
+            });
+
             it('should be able to work with context.safe', () => {
                 const error = new TSError('Uh oh', {
                     context: {

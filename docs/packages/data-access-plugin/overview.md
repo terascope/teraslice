@@ -38,7 +38,7 @@ terafoundation:
 Since this project is designed to replace the teraserver teranaut plugin, and the search libray, there are few important breaking changes to be aware of.
 
  - The data access management api is under `GET /api/v2/data-access`
- - The search api is under `GET /api/v2/:spaceIdOrEndpoint`
+ - The search api is under `GET /api/v2/:endpoint`
  - Pre/Post process function will need to be written to use express middleware, docs comming soon.
  - The following configuration has been added to the space config:
       - `index` under `search_config.index`
@@ -228,7 +228,7 @@ curl -sS 'localhost:8000/api/v2/example-space?token=<API_TOKEN>&q=foo:bar' | jq 
 
 ### Using the search middleware
 
-The data-access-plugin sets preconfigured API for a "space" on the Request (`req.space`) so it can be used with minimal setup and configuration by using express middleware. To use the space API on the request, the route be registered under `/api/v2/:space-endpoint`, it can also be nested, for example `/api/v2/:space-endpoint/search`.
+The data-access-plugin sets preconfigured API for a "space" on the Request (`req.space`) so it can be used with minimal setup and configuration by using express middleware. To use the space API on the request, the route be registered under `/api/v2/:endpoint`, it can also be nested, for example `/api/v2/:endpoint/search`.
 
 The space request API has the following properties:
 

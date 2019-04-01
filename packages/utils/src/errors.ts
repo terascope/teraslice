@@ -376,7 +376,7 @@ export function getErrorStatusCode(err: any, config: TSErrorConfig = {}, default
 }
 
 export function stripErrorMessage(error: any, reason: string = DEFAULT_ERR_MSG, requireSafe = false): string {
-    const { message, context } = parseErrorInfo(error, {
+    const { message, context, statusCode } = parseErrorInfo(error, {
         defaultErrorMsg: reason,
         context: error && error.context,
     });
@@ -393,6 +393,8 @@ export function stripErrorMessage(error: any, reason: string = DEFAULT_ERR_MSG, 
 
     if (requireSafe) {
         if (context && context.safe) return msg;
+        if (statusCode === 403) return 'Access Denied';
+        if (statusCode === 404) return 'Not Found';
         return reason;
     }
 

@@ -74,7 +74,6 @@ services:
       - "http.port=49200"
       - "transport.tcp.port=49300"
       - "discovery.type=single-node"
-      - "bootstrap.memory_lock=true"
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     networks:

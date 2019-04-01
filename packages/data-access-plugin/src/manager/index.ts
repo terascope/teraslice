@@ -160,22 +160,24 @@ export default class ManagerPlugin {
         });
 
         // this must happen at the end
-        this.app.use('/api/v2/:space', (req, res, next) => {
+        this.app.use('/api/v2/:endpoint', (req, res, next) => {
             // @ts-ignore
             const manager: ACLManager = req.aclManager;
             // @ts-ignore
             const user: User = req.v2User;
 
-            const space: string = req.params.space;
+            const { endpoint } = req.params;
             const logger = this.context.apis.foundation.makeLogger({
-                module: `search_plugin:${space}`,
+                module: `search_plugin:${endpoint}`,
                 user_id: get(user, 'id')
             });
 
-            const spaceErrorHandler = makeErrorHandler('Failure to access space', logger, true);
+            const spaceErrorHandler = makeErrorHandler('Error accessing search endpoint', logger, true);
 
             spaceErrorHandler(req, res, async () => {
-                const accessConfig = await manager.getViewForSpace({ space }, user);
+                const accessConfig = await manager.getViewForSpace({
+                    space: endpoint
+                }, user);
 
                 req.query.pretty = toBoolean(req.query.pretty);
 
