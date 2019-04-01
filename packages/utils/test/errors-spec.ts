@@ -6,7 +6,8 @@ import {
     isRetryableError,
     parseError,
     times,
-    isTSError
+    isTSError,
+    stripErrorMessage,
 } from '../src';
 
 describe('Error Utils', () => {
@@ -281,6 +282,53 @@ describe('Error Utils', () => {
                     expect(isRetryableError(tsError)).toBeFalse();
                 });
             }
+
+        });
+    });
+
+    describe('when stripping an error message', () => {
+        it('should be able to work with a chained error', () => {
+            const err = new TSError('Uh oh');
+            const error = new TSError(err, {
+                reason: 'Failure'
+            });
+            expect(stripErrorMessage(error, 'Bad news')).toEqual('Bad news: Failure');
+        });
+
+        describe('when requireSafe=true', () => {
+            it('should be able to work', () => {
+                const error = new TSError('darn', {
+                    reason: 'Failure'
+                });
+                expect(stripErrorMessage(error, 'Bad news', true)).toEqual('Bad news');
+            });
+
+            it('should be able to work with a chained error', () => {
+                const err = new TSError('Uh oh');
+                const error = new TSError(err, {
+                    reason: 'Failure'
+                });
+                expect(stripErrorMessage(error, 'Bad news', true)).toEqual('Bad news');
+            });
+
+            it('should be able to work with context.safe', () => {
+                const error = new TSError('Uh oh', {
+                    context: {
+                        safe: true
+                    }
+                });
+                expect(stripErrorMessage(error, 'Bad news', true)).toEqual('Uh oh');
+            });
+
+            it('should NOT keep the context.safe from a chained error', () => {
+                const err = new TSError('Uh oh', {
+                    context: {
+                        safe: true
+                    }
+                });
+                const error = new TSError(err);
+                expect(stripErrorMessage(error, 'Bad news', true)).toEqual('Bad news');
+            });
         });
     });
 

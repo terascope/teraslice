@@ -618,6 +618,34 @@ describe('Data Access Plugin', () => {
             });
         });
 
+        it('should be able handle a search error', async () => {
+            expect(spaceId).toBeTruthy();
+            expect(apiToken).toBeTruthy();
+
+            const uri = formatBaseUri(spaceId);
+            const result = await got(uri, {
+                query: {
+                    token: apiToken,
+                    q: '',
+                    sort: '_id:asc',
+                    pretty: false
+                },
+                json: true,
+                throwHttpErrors: false
+            });
+
+            expect(result).toMatchObject({
+                body: {
+                    error: 'Invalid q parameter, must not be empty, was given: \"\"',
+                    debug: {
+                        message: 'Invalid q parameter, must not be empty, was given: \"\"',
+                        statusCode: 422
+                    }
+                },
+                statusCode: 422
+            });
+        });
+
         describe('when perserve index is set to true', () => {
             it('should be able to update the space', async () => {
                 expect(spaceId).toBeTruthy();
