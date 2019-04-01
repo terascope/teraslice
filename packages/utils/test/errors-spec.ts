@@ -231,7 +231,8 @@ describe('Error Utils', () => {
             ]
         ];
 
-        describe.each(testCases)('new TSError(%j, %o)', (input, config, expected) => {
+        // @ts-ignore
+        describe.each(testCases)('new TSError(%j, %o)', (input: any, config: any, expected: any) => {
             const tsError: TSError = new TSError(input, config);
 
             for (const [key, val] of Object.entries(expected)) {
@@ -271,7 +272,7 @@ describe('Error Utils', () => {
                 });
             }
 
-            if (expected.retryable && !expected.fatalError) {
+            if (expected && expected.retryable && !expected.fatalError) {
                 it('should be retryable', () => {
                     expect(isRetryableError(tsError)).toBeTrue();
                 });
