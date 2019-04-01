@@ -192,6 +192,17 @@ describe('IndexModel', () => {
         });
     });
 
+    describe('when giving an invalid input into findAll', () => {
+        it('should NOT fail when given an empty array', async () => {
+            return expect(indexModel.findAll([])).resolves.toBeArrayOfSize(0);
+        });
+
+        it('should NOT fail when given an array of falsey values', async () => {
+            const input: any = ['', undefined, null];
+            return expect(indexModel.findAll(input)).resolves.toBeArrayOfSize(0);
+        });
+    });
+
     describe('when creating mulitple records', () => {
         beforeAll(async () => {
             await Promise.all(times(5, (n) => {
@@ -235,7 +246,7 @@ describe('IndexModel', () => {
             }
         });
 
-        it('should be able to find by ids with restrictions', async () => {
+        it('should be able to find all by ids with restrictions', async () => {
             const queryAccess = new LuceneQueryAccess({
                 includes: ['id', 'name']
             });
