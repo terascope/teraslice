@@ -1,7 +1,7 @@
 {
     "name": "@terascope/data-access-plugin",
     "description": "A teraserver plugin for managing data access and searching spaces",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "publishConfig": {
         "access": "public"
     },
@@ -30,13 +30,13 @@
     },
     "dependencies": {
         "@terascope/data-access": "^0.4.0",
-        "@terascope/utils": "^0.8.0",
+        "@terascope/utils": "^0.8.1",
         "apollo-server-express": "^2.4.8",
         "elasticsearch-store": "^0.5.0",
         "graphql": "^14.2.1",
         "graphql-type-json": "^0.2.4",
         "lodash.get": "^4.4.2",
-        "xlucene-evaluator": "^0.6.1"
+        "xlucene-evaluator": "^0.6.2"
     },
     "devDependencies": {
         "@terascope/job-components": "^0.15.1",
