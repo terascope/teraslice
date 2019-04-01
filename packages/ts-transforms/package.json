@@ -59,7 +59,7 @@
         "@types/lodash": "^4.14.123",
         "@types/valid-url": "^1.0.2",
         "@types/validator": "^10.11.0",
-        "@types/yargs": "^12.0.10"
+        "@types/yargs": "^12.0.11"
     },
     "engines": {
         "node": ">=8.0.0"

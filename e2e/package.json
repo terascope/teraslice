@@ -31,7 +31,7 @@
         "bluebird": "^3.5.3",
         "bunyan": "^1.8.12",
         "elasticsearch": "^15.4.1",
-        "jest": "^24.5.0",
+        "jest": "^24.6.0",
         "jest-extended": "^0.11.1",
         "lodash": "^4.17.11",
         "semver": "^6.0.0",
