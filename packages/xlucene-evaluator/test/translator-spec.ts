@@ -246,46 +246,47 @@ describe('Translator', () => {
             'query.constant_score.filter.bool',
             {
                 filter: [
+                ],
+                must_not: [
+                    {
+                        range: {
+                            e: {
+                                gt: 2
+                            }
+                        }
+                    }
+                ],
+                should: [
                     {
                         term: {
-                            b: 1
+                            a: 1
                         }
                     },
                     {
-                        term: {
-                            c: 2
+                        bool: {
+                            filter: [
+                                {
+                                    term: {
+                                        b: 1
+                                    }
+                                },
+                                {
+                                    term: {
+                                        c: 2
+                                    }
+                                },
+                            ],
+                            must_not: [],
+                            should: [],
                         }
                     },
                     {
                         bool: {
                             filter: [],
                             must_not: [
-                                {
-                                    range: {
-                                        e: {
-                                            gt: 2
-                                        }
-                                    }
-                                }
+
                             ],
-                            should: [
-                                {
-                                    range: {
-                                        d: {
-                                            gte: 1,
-                                            lte: 2
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ],
-                must_not: [],
-                should: [
-                    {
-                        term: {
-                            a: 1
+                            should: []
                         }
                     }
                 ]
@@ -311,13 +312,19 @@ describe('Translator', () => {
                 ],
                 must_not: [
                     {
-                        term: {
-                            otherfield: 15
-                        }
-                    },
-                    {
-                        term: {
-                            sometype: 'thevalue'
+                        bool: {
+                            must_not: [
+                                {
+                                    term: {
+                                        otherfield: 15
+                                    }
+                                },
+                                {
+                                    term: {
+                                        sometype: 'thevalue'
+                                    }
+                                },
+                            ]
                         }
                     },
                     {
@@ -370,6 +377,15 @@ describe('Translator', () => {
                             field: 'howdy'
                         }
                     },
+                ],
+                must_not: [
+                    {
+                        term: {
+                            bar: 'foo'
+                        }
+                    }
+                ],
+                should: [
                     {
                         range: {
                             other: {
@@ -378,27 +394,11 @@ describe('Translator', () => {
                         }
                     },
                     {
-                        bool: {
-                            filter: [],
-                            must_not: [
-                                {
-                                    term: {
-                                        bar: 'foo'
-                                    }
-                                }
-                            ],
-                            should: [
-                                {
-                                    term: {
-                                        foo: 'bar'
-                                    }
-                                },
-                            ]
+                        term: {
+                            foo: 'bar'
                         }
-                    }
-                ],
-                must_not: [],
-                should: []
+                    },
+                ]
             }
         ],
         [
@@ -411,18 +411,26 @@ describe('Translator', () => {
                     }
                 },
                 {
-                    range: {
-                        _created: {
-                            gte: '2018-10-18T18:13:20.683Z'
-                        }
-                    }
-                },
-                {
-                    range: {
-                        bytes: {
-                            gte: 150000,
-                            lte: 1232322
-                        }
+                    bool: {
+                        filter: [
+                            {
+                                range: {
+                                    _created: {
+                                        gte: '2018-10-18T18:13:20.683Z'
+                                    }
+                                }
+                            },
+                            {
+                                range: {
+                                    bytes: {
+                                        gte: 150000,
+                                        lte: 1232322
+                                    }
+                                }
+                            }
+                        ],
+                        must_not: [],
+                        should: [],
                     }
                 }
             ]
