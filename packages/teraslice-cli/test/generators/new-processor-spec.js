@@ -6,17 +6,19 @@ const assert = require('yeoman-assert');
 const helpers = require('yeoman-test');
 
 describe('processor generator with no new flag', () => {
-    const testAssetBasePath = path.join(__dirname, '..', 'fixtures', 'generators', 'test-processor-example-asset');
-    const processPath = path.join(testAssetBasePath, 'example-asset', 'asset');
-    const testPath = path.join(testAssetBasePath, 'example-asset', 'spec');
+    const exampleAssetBasePath = path.join(__dirname, '..', 'fixtures', 'generate-new-processor');
+    const processPath = path.join(exampleAssetBasePath, 'example-asset', 'asset');
+    const testPath = path.join(exampleAssetBasePath, 'example-asset', 'spec');
 
     beforeAll(() => helpers.run(path.join(__dirname, '..', '..', 'generators', 'new-processor'))
-        .inDir(testAssetBasePath)
+        .inDir(exampleAssetBasePath)
         .withOptions({ new: undefined })
         .withArguments(['example-asset']));
 
+
     afterAll(() => {
-        fs.removeSync(path.join(__dirname, '..', 'fixtures', 'generators', 'test-processor-example-asset', 'example-asset'));
+        fs.removeSync(path.join(__dirname, '..', 'fixtures', 'generate-new-processor', 'example-asset', 'asset', 'example'));
+        fs.removeSync(path.join(__dirname, '..', 'fixtures', 'generate-new-processor', 'example-asset', 'spec', 'example-spec.js'));
     });
 
     it('should generate index.js, processor.js, and schema.js in the asset dir', () => {
@@ -31,7 +33,8 @@ describe('processor generator with no new flag', () => {
         assert.fileContent([
             [path.join(processPath, 'example', 'processor.js'), 'class Example extends BatchProcessor'],
             [path.join(processPath, 'example', 'processor.js'), 'module.exports = Example;'],
-            [path.join(processPath, 'example', 'processor.js'), 'onBatch(batch)']
+            [path.join(processPath, 'example', 'processor.js'), 'onBatch(dataArray)'],
+            [path.join(processPath, 'example', 'processor.js'), 'return dataArray.map((doc) => {']
         ]);
     });
 
@@ -39,13 +42,14 @@ describe('processor generator with no new flag', () => {
         assert.file(path.join(testPath, 'example-spec.js'));
         assert.fileContent([
             [path.join(testPath, 'example-spec.js'), 'const processor = require(\'../asset/example\');'],
-            [path.join(testPath, 'example-spec.js'), '_op: \'example\'']
+            [path.join(testPath, 'example-spec.js'), '_op: \'example\''],
+            [path.join(testPath, 'example-spec.js'), 'add dates to records if the date is missing']
         ]);
     });
 });
 
 describe('processor generator with new flag', () => {
-    const testAssetBasePath = path.join(__dirname, '..', 'fixtures', 'generators', 'test-processor-new-asset');
+    const testAssetBasePath = path.join(__dirname, '..', 'fixtures', 'generate-new-processor');
     beforeAll(() => helpers.run(path.join(__dirname, '..', '..', 'generators', 'new-processor'))
         .inDir(testAssetBasePath)
         .withOptions({ new: true })
@@ -56,27 +60,26 @@ describe('processor generator with new flag', () => {
         }));
 
     afterAll(() => {
-        fs.removeSync(path.join(__dirname, '..', 'fixtures', 'generators', 'test-processor-asset', 'test-asset2'));
+        fs.removeSync(path.join(__dirname, '..', 'fixtures', 'generate-new-processor', 'test-asset', 'asset', 'good_processor'));
+        fs.removeSync(path.join(__dirname, '..', 'fixtures', 'generate-new-processor', 'test-asset', 'spec', 'good_processor-spec.js'));
     });
 
     const processPath = path.join(testAssetBasePath, 'test-asset', 'asset');
     const testPath = path.join(testAssetBasePath, 'test-asset', 'spec');
 
     it('should generate index.js, processor.js, and schema.js in the asset dir', () => {
-        [
+        assert.file([
             path.join(processPath, 'good_processor', 'index.js'),
             path.join(processPath, 'good_processor', 'processor.js'),
             path.join(processPath, 'good_processor', 'schema.js')
-        ].forEach((file) => {
-            expect(fs.pathExistsSync(file)).toBe(true);
-        });
+        ]);
     });
 
     it('should generate a Map processor', () => {
         assert.fileContent([
             [path.join(processPath, 'good_processor', 'processor.js'), 'class GoodProcessor extends MapProcessor'],
             [path.join(processPath, 'good_processor', 'processor.js'), 'module.exports = GoodProcessor;'],
-            [path.join(processPath, 'good_processor', 'processor.js'), 'map(batch)']
+            [path.join(processPath, 'good_processor', 'processor.js'), 'map(doc)']
         ]);
     });
 

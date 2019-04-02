@@ -134,7 +134,7 @@ output:
 ```
 Asset <asset-id> deleted from <cluster-alias>
 ```
-**INIT** - Creates a new asset or add a processor with the --processor option
+**INIT** - Creates a new asset framework or adds a new processor to an existing asset with the --processor option
 ```
 teraslice-cli assets init
 ```
@@ -163,7 +163,7 @@ To create a new processor in an already made asset use the `--processor` option.
 ```
 teraslice-cli assets init --processor
 ```
-The processor will be added to the `asset` directory with an associated spec file in the spec directory.  If there is no asset directory in the dir then the cwd then the cli will not create the processor.
+The processor will be added to the `asset` directory with an associated spec file in the spec directory.  If there is no asset directory in the cwd then the cli will not create the processor.  There are three basic processor types batch, filter, and map.  The map processor expects the entire slice array for the input while the filter and map functions expect one item at a time from the slice array.  See example code in a generated processor.
 
 ### TJM (teraslice job manager) - commands to manage jobs by referencing the jobFile.json.
 **REGISTER** - Registers a job to a cluster and adds the metadata to the jobFile.json. Before a job can be registered set up cluster aliases as instructed above.  Use --start to immediately start the job after registering, also accepts the abbreviation reg.

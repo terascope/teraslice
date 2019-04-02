@@ -8,10 +8,29 @@ const opConfig = {
     _op: '<%= name %>'
 };
 
+const testData = [
+    {
+        id: 1
+    },
+    {
+        id: 2,
+        date: '2019-04-02T16:24:54.296Z'
+    },
+    {
+        id: 3
+    }
+];
+
 describe('<%= name %> should', () => {
     it('generate an empty result if no input data', async () => {
         const opHarness = await harness.init({ opConfig });
         const results = await opHarness.run([]);
         expect(results.length).toEqual(0);
+    });
+
+    it('<%= testDescription %>', async () => {
+        const opHarness = await harness.init({ opConfig });
+        const results = await opHarness.run(testData);
+        <%- testResult %>
     });
 });

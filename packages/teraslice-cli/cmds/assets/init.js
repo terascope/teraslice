@@ -1,10 +1,11 @@
 'use strict';
 
 const path = require('path');
+const fs = require('fs-extra');
 const { spawn } = require('node-pty');
 const Config = require('../../lib/config');
 const YargsOptions = require('../../lib/yargs-options');
-const reply = require('../lib/reply');
+const reply = require('../lib/reply')();
 
 const yargsOptions = new YargsOptions();
 
@@ -49,6 +50,11 @@ exports.handler = async (argv) => {
 
             term.on('exit', () => resolve('done'));
         });
+    }
+
+    // if just adding a new processor AssetBaseDir needs to have an asset dir
+    if (argv.proc && !fs.pathExistsSync(path.join(assetBaseDir, 'asset'))) {
+        reply.fatal('Execute the command in the base directory of an asset or use the --base-dir with the asset\'s full path');
     }
 
     try {

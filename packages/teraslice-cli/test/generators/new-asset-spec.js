@@ -6,7 +6,7 @@ const assert = require('yeoman-assert');
 const helpers = require('yeoman-test');
 
 describe('new asset generator should', () => {
-    const testAssetBasePath = path.join(__dirname, '..', 'fixtures', 'generators');
+    const testAssetBasePath = path.join(__dirname, '..', 'fixtures', 'generate-new-asset');
     const rootAssetPath = path.join(testAssetBasePath, 'generated-asset', 'new_asset');
     const assetAssetPath = path.join(testAssetBasePath, 'generated-asset', 'new_asset', 'asset');
     const deps = [
@@ -23,7 +23,7 @@ describe('new asset generator should', () => {
         }));
 
     afterAll(() => {
-        fs.removeSync(path.join(__dirname, '..', 'fixtures', 'generators', 'generated-asset', 'new_asset'));
+        fs.removeSync(path.join(__dirname, '..', 'fixtures', 'generate-new-asset', 'generated-asset', 'new_asset'));
     });
 
     it('should create the correct asset dir tree and put files in the correct dir', () => {
