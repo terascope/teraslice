@@ -154,6 +154,7 @@ export function getJoinType(node: AST, side?: 'right'|'left'): 'should'|'must_no
         return 'should';
     }
     if (isOrNode(child.left) && (!node.right || isOrNode(child.right))) return 'should';
+    if (node.parens && node.negated) return 'must_not';
 
     return 'filter';
 }

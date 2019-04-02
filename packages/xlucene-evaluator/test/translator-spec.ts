@@ -292,6 +292,75 @@ describe('Translator', () => {
             }
         ],
         [
+            'date:[2019-04-01T01:00:00Z TO *] AND field:value AND otherfield:(1 OR 2 OR 5 OR 15 OR 33 OR 28) AND NOT (otherfield:15 AND sometype:thevalue) AND NOT anotherfield:value',
+            'query.constant_score.filter.bool',
+            {
+                filter: [
+                    {
+                        range: {
+                            date: {
+                                gte: '2019-04-01T01:00:00Z'
+                            }
+                        }
+                    },
+                    {
+                        term: {
+                            field: 'value'
+                        }
+                    }
+                ],
+                must_not: [
+                    {
+                        term: {
+                            otherfield: 15
+                        }
+                    },
+                    {
+                        term: {
+                            sometype: 'thevalue'
+                        }
+                    },
+                    {
+                        term: {
+                            anotherfield: 'value'
+                        }
+                    }
+                ],
+                should: [
+                    {
+                        term: {
+                            otherfield: 1
+                        }
+                    },
+                    {
+                        term: {
+                            otherfield: 2
+                        }
+                    },
+                    {
+                        term: {
+                            otherfield: 5
+                        }
+                    },
+                    {
+                        term: {
+                            otherfield: 15
+                        }
+                    },
+                    {
+                        term: {
+                            otherfield: 33
+                        }
+                    },
+                    {
+                        term: {
+                            otherfield: 28
+                        }
+                    }
+                ]
+            }
+        ],
+        [
             '_exists_:howdy AND other:>=50 OR foo:bar NOT bar:foo',
             'query.constant_score.filter.bool',
             {
@@ -521,6 +590,19 @@ describe('Translator', () => {
                 expect(getJoinType(node, 'left')).toEqual('should');
                 expect(getJoinType(node.right!, 'left')).toEqual('should');
                 expect(getJoinType(node.right!, 'right')).toEqual('should');
+            });
+        });
+
+        describe('when given a deeply negated statement with parens', () => {
+            let node: AST;
+            beforeAll(() => {
+                const parser = new LuceneQueryParser();
+                parser.parse('a:1 AND NOT (b:2 AND c:3) AND NOT d:4');
+                node = parser._ast;
+            });
+
+            it('should correctly handle the first AND NOT value join types', () => {
+                expect(getJoinType(node.right!.left!, 'left')).toEqual('must_not');
             });
         });
     });
