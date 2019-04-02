@@ -23,7 +23,7 @@ describe('Translator', () => {
         const node: unknown = { type: 'term', term: 'hello' };
         expect(() => {
             buildAnyQuery(node as AST);
-        }).toThrowWithMessage(TSError, 'Unable to determine field');
+        }).toThrowWithMessage(TSError, 'Unexpected problem when translating xlucene query');
     });
 
     it('should have a types property', () => {
@@ -241,123 +241,200 @@ describe('Translator', () => {
                 should: []
             }
         ],
-        [
-            'a:1 OR (b:1 AND c:2) OR d:(>=1 AND <=2) AND NOT e:>2',
-            'query.constant_score.filter.bool',
-            {
-                filter: [
-                    {
-                        term: {
-                            b: 1
-                        }
-                    },
-                    {
-                        term: {
-                            c: 2
-                        }
-                    },
-                    {
-                        bool: {
-                            filter: [],
-                            must_not: [
-                                {
-                                    range: {
-                                        e: {
-                                            gt: 2
-                                        }
-                                    }
-                                }
-                            ],
-                            should: [
-                                {
-                                    range: {
-                                        d: {
-                                            gte: 1,
-                                            lte: 2
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ],
-                must_not: [],
-                should: [
-                    {
-                        term: {
-                            a: 1
-                        }
-                    }
-                ]
-            }
-        ],
-        [
-            '_exists_:howdy AND other:>=50 OR foo:bar NOT bar:foo',
-            'query.constant_score.filter.bool',
-            {
-                filter: [
-                    {
-                        exists: {
-                            field: 'howdy'
-                        }
-                    },
-                    {
-                        range: {
-                            other: {
-                                gte: 50
-                            }
-                        }
-                    },
-                    {
-                        bool: {
-                            filter: [],
-                            must_not: [
-                                {
-                                    term: {
-                                        bar: 'foo'
-                                    }
-                                }
-                            ],
-                            should: [
-                                {
-                                    term: {
-                                        foo: 'bar'
-                                    }
-                                },
-                            ]
-                        }
-                    }
-                ],
-                must_not: [],
-                should: []
-            }
-        ],
-        [
-            'some:key AND (_created:>="2018-10-18T18:13:20.683Z" && bytes:(>=150000 AND <=1232322))',
-            'query.constant_score.filter.bool.filter',
-            [
-                {
-                    term: {
-                        some: 'key'
-                    }
-                },
-                {
-                    range: {
-                        _created: {
-                            gte: '2018-10-18T18:13:20.683Z'
-                        }
-                    }
-                },
-                {
-                    range: {
-                        bytes: {
-                            gte: 150000,
-                            lte: 1232322
-                        }
-                    }
-                }
-            ]
-        ],
+        // [
+        //     'a:1 OR (b:1 AND c:2) OR d:(>=1 AND <=2) AND NOT e:>2',
+        //     'query.constant_score.filter.bool',
+        //     {
+        //         filter: [
+        //         ],
+        //         must_not: [
+        //             {
+        //                 range: {
+        //                     e: {
+        //                         gt: 2
+        //                     }
+        //                 }
+        //             }
+        //         ],
+        //         should: [
+        //             {
+        //                 term: {
+        //                     a: 1
+        //                 }
+        //             },
+        //             {
+        //                 bool: {
+        //                     filter: [
+        //                         {
+        //                             term: {
+        //                                 b: 1
+        //                             }
+        //                         },
+        //                         {
+        //                             term: {
+        //                                 c: 2
+        //                             }
+        //                         },
+        //                     ],
+        //                     must_not: [],
+        //                     should: [],
+        //                 }
+        //             },
+        //             {
+        //                 bool: {
+        //                     filter: [],
+        //                     must_not: [
+
+        //                     ],
+        //                     should: []
+        //                 }
+        //             }
+        //         ]
+        //     }
+        // ],
+        // [
+        //     'date:[2019-04-01T01:00:00Z TO *] AND field:value AND otherfield:(1 OR 2 OR 5 OR 15 OR 33 OR 28) AND NOT (otherfield:15 AND sometype:thevalue) AND NOT anotherfield:value',
+        //     'query.constant_score.filter.bool',
+        //     {
+        //         filter: [
+        //             {
+        //                 range: {
+        //                     date: {
+        //                         gte: '2019-04-01T01:00:00Z'
+        //                     }
+        //                 }
+        //             },
+        //             {
+        //                 term: {
+        //                     field: 'value'
+        //                 }
+        //             }
+        //         ],
+        //         must_not: [
+        //             {
+        //                 bool: {
+        //                     must_not: [
+        //                         {
+        //                             term: {
+        //                                 otherfield: 15
+        //                             }
+        //                         },
+        //                         {
+        //                             term: {
+        //                                 sometype: 'thevalue'
+        //                             }
+        //                         },
+        //                     ]
+        //                 }
+        //             },
+        //             {
+        //                 term: {
+        //                     anotherfield: 'value'
+        //                 }
+        //             }
+        //         ],
+        //         should: [
+        //             {
+        //                 term: {
+        //                     otherfield: 1
+        //                 }
+        //             },
+        //             {
+        //                 term: {
+        //                     otherfield: 2
+        //                 }
+        //             },
+        //             {
+        //                 term: {
+        //                     otherfield: 5
+        //                 }
+        //             },
+        //             {
+        //                 term: {
+        //                     otherfield: 15
+        //                 }
+        //             },
+        //             {
+        //                 term: {
+        //                     otherfield: 33
+        //                 }
+        //             },
+        //             {
+        //                 term: {
+        //                     otherfield: 28
+        //                 }
+        //             }
+        //         ]
+        //     }
+        // ],
+        // [
+        //     '_exists_:howdy AND other:>=50 OR foo:bar NOT bar:foo',
+        //     'query.constant_score.filter.bool',
+        //     {
+        //         filter: [
+        //             {
+        //                 exists: {
+        //                     field: 'howdy'
+        //                 }
+        //             },
+        //         ],
+        //         must_not: [
+        //             {
+        //                 term: {
+        //                     bar: 'foo'
+        //                 }
+        //             }
+        //         ],
+        //         should: [
+        //             {
+        //                 range: {
+        //                     other: {
+        //                         gte: 50
+        //                     }
+        //                 }
+        //             },
+        //             {
+        //                 term: {
+        //                     foo: 'bar'
+        //                 }
+        //             },
+        //         ]
+        //     }
+        // ],
+        // [
+        //     'some:key AND (_created:>="2018-10-18T18:13:20.683Z" && bytes:(>=150000 AND <=1232322))',
+        //     'query.constant_score.filter.bool.filter',
+        //     [
+        //         {
+        //             term: {
+        //                 some: 'key'
+        //             }
+        //         },
+        //         {
+        //             bool: {
+        //                 filter: [
+        //                     {
+        //                         range: {
+        //                             _created: {
+        //                                 gte: '2018-10-18T18:13:20.683Z'
+        //                             }
+        //                         }
+        //                     },
+        //                     {
+        //                         range: {
+        //                             bytes: {
+        //                                 gte: 150000,
+        //                                 lte: 1232322
+        //                             }
+        //                         }
+        //                     }
+        //                 ],
+        //                 must_not: [],
+        //                 should: [],
+        //             }
+        //         }
+        //     ]
+        // ],
         [
             'some:query OR other:thing OR next:value',
             'query.constant_score.filter.bool',
@@ -431,7 +508,7 @@ describe('Translator', () => {
             ]
         ]
     // @ts-ignore because the types for test.each for some reason
-    ])('when given %s', (query: string, property: string, expected: any, types: TypeConfig) => {
+    ])('when given %j', (query: string, property: string, expected: any, types: TypeConfig) => {
         it('should translate the query correctly', () => {
             const translator = new Translator(query, types);
             const result = translator.toElasticsearchDSL();
@@ -444,6 +521,20 @@ describe('Translator', () => {
             }, null, 4));
 
             expect(result).toHaveProperty(property, expected);
+        });
+    });
+
+    describe('when given an empty string', () => {
+        it('should translate it to an empty query', () => {
+            const translator = new Translator('');
+            const result = translator.toElasticsearchDSL();
+            expect(result).toEqual({
+                query: {
+                    query_string: {
+                        query: ''
+                    }
+                }
+            });
         });
     });
 
@@ -507,6 +598,19 @@ describe('Translator', () => {
                 expect(getJoinType(node, 'left')).toEqual('should');
                 expect(getJoinType(node.right!, 'left')).toEqual('should');
                 expect(getJoinType(node.right!, 'right')).toEqual('should');
+            });
+        });
+
+        describe('when given a deeply negated statement with parens', () => {
+            let node: AST;
+            beforeAll(() => {
+                const parser = new LuceneQueryParser();
+                parser.parse('a:1 AND NOT (b:2 AND c:3) AND NOT d:4');
+                node = parser._ast;
+            });
+
+            it('should correctly handle the first AND NOT value join types', () => {
+                expect(getJoinType(node.right!.left!, 'left')).toEqual('must_not');
             });
         });
     });

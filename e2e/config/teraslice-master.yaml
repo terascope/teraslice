@@ -20,7 +20,7 @@ terafoundation:
 teraslice:
     worker_disconnect_timeout: 120000
     node_disconnect_timeout: 120000
-    slicer_timeout: 120000
+    slicer_timeout: 180000
     shutdown_timeout: 30000
     action_timeout: 30000
     assets_directory: '/app/assets'

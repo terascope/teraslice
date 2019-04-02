@@ -132,6 +132,10 @@ export default class ManagerPlugin {
 
             // @ts-ignore
             req.aclManager = this.manager;
+            // @ts-ignore
+            if (req.user) {
+                return next();
+            }
 
             const creds = getCredentialsFromReq(req);
 
@@ -139,14 +143,14 @@ export default class ManagerPlugin {
                 const user = await this.manager.authenticate(creds);
 
                 // @ts-ignore
-                req.v2User = user;
+                req.user = user;
                 next();
             });
         });
 
         this.app.all('/api/v2', (req, res) => {
             // @ts-ignore
-            if (req.aclManager != null && req.v2User != null) {
+            if (req.aclManager != null && req.user != null) {
                 res.sendStatus(204);
             } else {
                 res.sendStatus(500);
@@ -160,22 +164,24 @@ export default class ManagerPlugin {
         });
 
         // this must happen at the end
-        this.app.use('/api/v2/:space', (req, res, next) => {
+        this.app.use('/api/v2/:endpoint', (req, res, next) => {
             // @ts-ignore
             const manager: ACLManager = req.aclManager;
             // @ts-ignore
-            const user: User = req.v2User;
+            const user: User = req.user;
 
-            const space: string = req.params.space;
+            const { endpoint } = req.params;
             const logger = this.context.apis.foundation.makeLogger({
-                module: `search_plugin:${space}`,
+                module: `search_plugin:${endpoint}`,
                 user_id: get(user, 'id')
             });
 
-            const spaceErrorHandler = makeErrorHandler('Failure to access /api/v2/:space', logger);
+            const spaceErrorHandler = makeErrorHandler('Error accessing search endpoint', logger, true);
 
             spaceErrorHandler(req, res, async () => {
-                const accessConfig = await manager.getViewForSpace({ space }, user);
+                const accessConfig = await manager.getViewForSpace({
+                    space: endpoint
+                }, user);
 
                 req.query.pretty = toBoolean(req.query.pretty);
 
@@ -186,7 +192,7 @@ export default class ManagerPlugin {
 
                 // @ts-ignore
                 req.space = {
-                    searchErrorHandler: makeErrorHandler('Search failure', logger),
+                    searchErrorHandler: makeErrorHandler('Error during query execution', logger, true),
                     accessConfig,
                     search,
                     logger,

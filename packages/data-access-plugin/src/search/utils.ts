@@ -15,11 +15,30 @@ export function makeSearchFn(client: Client, accessConfig: da.DataAccessConfig, 
         const params = getSearchParams(query, accessConfig.search_config!, accessConfig.data_type.type_config);
         const { q = '' } = params;
 
-        const esQuery = searchAccess.restrictSearchQuery(q, params);
+        let esQuery: SearchParams;
+        try {
+            esQuery = searchAccess.restrictSearchQuery(q, params);
+        } catch (err) {
+            const error = new ts.TSError(err, {
+                reason: 'Query restricted',
+                context: {
+                    config: accessConfig.search_config,
+                    query,
+                    safe: true
+                }
+            });
+            throw error;
+        }
 
         if (isTest) logger.debug(esQuery, 'searching...');
 
-        const response = await client.search(esQuery);
+        let response: any = {};
+        try {
+            response = await client.search(esQuery);
+        } catch (err) {
+            response.error = err;
+        }
+
         if (isTest) logger.trace(response, 'got response...');
 
         return getSearchResponse(response, accessConfig.search_config!, query, params);
@@ -134,18 +153,28 @@ export function getGeoSort(field: string, point: string, order: i.SortOrder, uni
     return sort;
 }
 
-/** @todo we should add index context to the error */
 export function getSearchResponse(response: SearchResponse<any>, config: da.SpaceSearchConfig, query: i.InputQuery, params: SearchParams) {
     // I don't think this property actually exists
     const error = get(response, 'error');
     if (error) {
-        throw new ts.TSError(error);
+        throw new ts.TSError(error, {
+            context: {
+                config,
+                query,
+                safe: false
+            }
+        });
     }
 
     const totalShards = get(response, '_shards.total', 0);
     if (!totalShards) {
         throw new ts.TSError('No results returned from query', {
-            statusCode: 502
+            statusCode: 502,
+            context: {
+                config,
+                query,
+                safe: true
+            }
         });
     }
 
@@ -187,7 +216,10 @@ function validationErr(param: keyof i.InputQuery, msg: string, query: i.InputQue
         `Invalid ${param} parameter, ${msg}, was given: "${given}"`,
         {
             statusCode: 422,
-            context: query
+            context: {
+                safe: true,
+                query,
+            }
         }
     ];
 }

@@ -42,7 +42,7 @@ describe('LuceneQueryAccess', () => {
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
                     expect(err.statusCode).toEqual(403);
-                    expect(err.message).toEqual('Field bar is restricted');
+                    expect(err.message).toEqual('Field bar in query is restricted');
                 }
             });
 
@@ -50,7 +50,7 @@ describe('LuceneQueryAccess', () => {
                 const query = 'bar.hello:example';
 
                 expect(() => queryAccess.restrict(query))
-                    .toThrowError('Field bar.hello is restricted');
+                    .toThrowError('Field bar.hello in query is restricted');
             });
         });
 
@@ -59,7 +59,7 @@ describe('LuceneQueryAccess', () => {
                 const query = 'moo:example';
 
                 expect(() => queryAccess.restrict(query))
-                    .toThrowError('Field moo is restricted');
+                    .toThrowError('Field moo in query is restricted');
             });
         });
 
@@ -68,7 +68,7 @@ describe('LuceneQueryAccess', () => {
                 const query = 'baa.maa:example';
 
                 expect(() => queryAccess.restrict(query))
-                    .toThrowError('Field baa.maa is restricted');
+                    .toThrowError('Field baa.maa in query is restricted');
             });
         });
 
@@ -86,7 +86,7 @@ describe('LuceneQueryAccess', () => {
                 const query = 'a.b.c:example';
 
                 expect(() => queryAccess.restrict(query))
-                    .toThrowError('Field a.b.c is restricted');
+                    .toThrowError('Field a.b.c in query is restricted');
             });
         });
 
@@ -118,7 +118,7 @@ describe('LuceneQueryAccess', () => {
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(403);
-                expect(err.message).toEqual('Field hello is restricted');
+                expect(err.message).toEqual('Field hello in query is restricted');
             }
         });
 
@@ -127,7 +127,7 @@ describe('LuceneQueryAccess', () => {
 
             const query = 'hello';
 
-            expect(() => queryAccess.restrict(query)).toThrowError('Implicit queries are restricted');
+            expect(() => queryAccess.restrict(query)).toThrowError('Implicit fields are restricted, please specify the field');
         });
 
         it('should throw when using *', () => {
@@ -135,7 +135,7 @@ describe('LuceneQueryAccess', () => {
 
             const query = '*';
 
-            expect(() => queryAccess.restrict(query)).toThrowError('Implicit queries are restricted');
+            expect(() => queryAccess.restrict(query)).toThrowError('Implicit fields are restricted, please specify the field');
         });
 
         it('should not throw if field implicit are allowed', () => {
@@ -173,6 +173,15 @@ describe('LuceneQueryAccess', () => {
             const query = 'bar:[0 TO *] OR star:(0 OR 2)';
 
             expect(queryAccess.restrict(query)).toEqual(query);
+        });
+
+        it('should be able to convert an empty query to a wildcard', () => {
+            const query = '';
+
+            const result = new LuceneQueryAccess({
+                convert_empty_query_to_wildcard: true
+            }).restrict(query);
+            expect(result).toEqual('*');
         });
     });
 
@@ -218,7 +227,7 @@ describe('LuceneQueryAccess', () => {
         ])('when using a query of "%s"', (query) => {
             it('should throw an error', () => {
                 expect(() => queryAccess.restrict(query))
-                    .toThrowWithMessage(TSError, 'Prefix wildcards are restricted');
+                    .toThrowWithMessage(TSError, 'Wildcard queries of the form \'fieldname:*value\' or \'fieldname:?value\' in query are restricted');
             });
         });
 
@@ -231,6 +240,7 @@ describe('LuceneQueryAccess', () => {
 
     describe('when converting to an elasticsearch search query', () => {
         const queryAccess = new LuceneQueryAccess({
+            convert_empty_query_to_wildcard: true,
             excludes: [
                 'bar',
                 'baz'
@@ -264,6 +274,33 @@ describe('LuceneQueryAccess', () => {
 
             expect(params).toHaveProperty('q', 'idk');
             expect(result).not.toHaveProperty('q', 'idk');
+        });
+
+        it('should be able to allow empty queries when convert_empty_query_to_wildcard is set to true', () => {
+            const result = queryAccess.restrictSearchQuery('');
+            expect(result).toEqual({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                bool: {
+                                    filter: [],
+                                    must_not: [],
+                                    should: [],
+                                },
+                            },
+                        },
+                    },
+                },
+                _sourceExclude: [
+                    'bar',
+                    'baz'
+                ],
+                _sourceInclude: [
+                    'foo',
+                    'moo'
+                ],
+            });
         });
 
         it('should be able to return a restricted query without any params', () => {

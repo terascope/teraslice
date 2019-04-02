@@ -27,7 +27,7 @@ export default class SearchPlugin {
     async shutdown() {}
 
     registerRoutes() {
-        const searchUrl = '/api/v2/:space';
+        const searchUrl = '/api/v2/:endpoint';
         this.logger.info(`Registering data-access-plugin search endpoint at ${searchUrl}`);
 
         this.app.get(searchUrl, (req, res) => {

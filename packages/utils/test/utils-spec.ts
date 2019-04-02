@@ -61,6 +61,7 @@ describe('Utils', () => {
             [[1, 2], false],
             [[null], false],
             ['howdy', false],
+        // @ts-ignore
         ])('when given %p', (input, expected) => {
             it(`should return ${expected ? 'true' : 'false'}`, () => {
                 expect(isEmpty(input)).toBe(expected);
@@ -139,6 +140,7 @@ describe('Utils', () => {
             ['a , b,c,   ', ['a', 'b', 'c']],
             [['a ', ' b ', 'c ', false, '', null], ['a', 'b', 'c']],
             [null, []]
+        // @ts-ignore
         ])('should parse %j to be %j', (input, expected) => {
             expect(parseList(input)).toEqual(expected);
         });
@@ -153,6 +155,7 @@ describe('Utils', () => {
             [[Infinity, 0, 'c ', '', null, 10], [Infinity, 0, 10]],
             [[Infinity, 0, 'c ', '', null, 10], [Infinity, 0, 10]],
             [null, []]
+        // @ts-ignore
         ])('should parse %j to be %j', (input, expected) => {
             expect(parseNumberList(input)).toEqual(expected);
         });
@@ -179,6 +182,7 @@ describe('Utils', () => {
             [{ }, Number.NaN],
             [[], 0],
             [[1], 1],
+        // @ts-ignore
         ])('should convert %j to be %j', (input, expected) => {
             expect(toNumber(input)).toEqual(expected);
         });

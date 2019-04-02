@@ -21,6 +21,7 @@ export class SearchAccess {
         this.config = config;
 
         this._queryAccess = new LuceneQueryAccess({
+            convert_empty_query_to_wildcard: true,
             excludes: this.config.view.excludes,
             includes: this.config.view.includes,
             constraint: this.config.view.constraint,

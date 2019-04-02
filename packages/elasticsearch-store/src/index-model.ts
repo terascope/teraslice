@@ -159,7 +159,8 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return this.findBy(fields, 'OR', options, queryAccess);
     }
 
-    async findAll(ids: string[], options?: FindOneOptions<T>, queryAccess?: LuceneQueryAccess<T>) {
+    async findAll(input: string[]|string, options?: FindOneOptions<T>, queryAccess?: LuceneQueryAccess<T>) {
+        const ids: string[] = ts.parseList(input);
         if (!ids || !ids.length) return [];
 
         const query = `${this._idField}: (${ids.join(' OR ')})`;
