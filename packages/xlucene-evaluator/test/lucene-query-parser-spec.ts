@@ -530,7 +530,7 @@ describe('luceneQueryParser', () => {
                 left: {
                     type: 'conjunction',
                     left: {
-                        field: IMPLICIT,
+                        field: 'example',
                         term: 50,
                         type: 'term',
                     },
@@ -539,7 +539,7 @@ describe('luceneQueryParser', () => {
                     right: {
                         type: 'conjunction',
                         left: {
-                            field: IMPLICIT,
+                            field: 'example',
                             term: 30,
                             type: 'term',
                         },
@@ -550,7 +550,7 @@ describe('luceneQueryParser', () => {
                             term_min: Number.NEGATIVE_INFINITY,
                             inclusive_min: true,
                             inclusive_max: false,
-                            field: IMPLICIT
+                            field: 'example'
                         },
                         field: 'example'
                     },
@@ -832,11 +832,12 @@ describe('luceneQueryParser', () => {
 
             const leftNode = luceneQueryParser._ast['left']!;
 
-            expect(leftNode['left']!['field']).toBe(IMPLICIT);
+            expect(leftNode['left']!['field']).toBe('title');
             expect(leftNode['left']!['term']).toBe('return');
             expect(leftNode['left']!['prefix']).toBe('+');
+
             expect(leftNode['operator']).toBe('OR');
-            expect(leftNode['right']!['field']).toBe(IMPLICIT);
+            expect(leftNode['right']!['field']).toBe('title');
             expect(leftNode['right']!['term']).toBe('pink panther');
             expect(leftNode['right']!['prefix']).toBe('+');
             expect(leftNode['field']).toBe('title');

@@ -1,5 +1,4 @@
 import typeMapping, { BaseType, TypeMapping } from './types';
-
 import { AST, TypeConfig } from '../../interfaces';
 import { LuceneQueryParser } from '../..';
 
@@ -43,17 +42,7 @@ export default class TypeManager {
 
     public processAst(): AST {
         return this.typeList.reduce((astObj, type) => {
-            return type.processAst(astObj);
+            return this._parser.mapAst(type.processAst, astObj);
         }, this._parser._ast);
-    }
-
-    public injectTypeFilterFns(): object {
-        return this.typeList.reduce((prev, type) => {
-            const filterFns = type.injectTypeFilterFns();
-            if (filterFns != null) {
-                Object.assign(prev, filterFns);
-            }
-            return prev;
-        }, {});
     }
 }
