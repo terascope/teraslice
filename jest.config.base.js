@@ -42,6 +42,7 @@ module.exports = (projectDir) => {
             '/node_modules/',
             '/test/',
         ],
+        watchPathIgnorePatterns: [],
         coverageReporters: runInPackage ? ['html'] : ['lcov', 'text', 'html'],
         coverageDirectory: `${projectRoot}/coverage`,
         preset: 'ts-jest'
@@ -99,6 +100,7 @@ module.exports = (projectDir) => {
     }
 
     if (fs.pathExistsSync(path.join(projectDir, 'peg'))) {
+        config.watchPathIgnorePatterns.push(`${projectRoot}/peg/*engine*.js`);
         config.roots.push(`${projectRoot}/peg`);
     }
 
