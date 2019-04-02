@@ -15,11 +15,6 @@ services:
     ]
     scale: 1
     stop_grace_period: 30s
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:45678/"]
-      interval: 15s
-      timeout: 10s
-      retries: 5
     ports:
       - "45678:45678"
     environment:
@@ -43,11 +38,6 @@ services:
       "--max-old-space-size=512",
       "service.js"
     ]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://teraslice-master:45678/"]
-      interval: 15s
-      timeout: 10s
-      retries: 5
     scale: 2
     stop_grace_period: 30s
     environment:
@@ -60,11 +50,6 @@ services:
       - ./config:/app/config:delegated
   elasticsearch:
     image: blacktop/elasticsearch:6
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:49200"]
-      interval: 15s
-      timeout: 10s
-      retries: 3
     ports:
       - "49200:49200"
       - "49300:49300"
