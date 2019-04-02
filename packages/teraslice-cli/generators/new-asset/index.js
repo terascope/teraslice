@@ -80,7 +80,7 @@ module.exports = class extends Generator {
         this.useYarn = false;
 
         // prefer yarn to install packages, check that yarn is on the machine
-        // TODO: teraslice-cli could use the global config for a package manager
+        // TODO: teraslice-cli could use the global config for a package manager preference
         const yarnPath = this.spawnCommandSync('which', ['yarn'], {
             stdio: [process.stdout],
             encoding: 'utf8'
@@ -98,7 +98,7 @@ module.exports = class extends Generator {
     }
 
     end() {
-        // need to install dependencies in the asset_home/asset directory
+        // installs dependencies in the asset_home/asset directory
         if (this.useYarn) {
             return this.yarnInstall('', {}, { cwd: path.join(path.join(this.options.new_asset_path, this.answers.name, 'asset')) });
         }

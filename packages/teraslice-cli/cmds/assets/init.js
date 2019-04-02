@@ -59,6 +59,7 @@ exports.handler = async (argv) => {
 
     try {
         await execute();
+        reply.green('All done!');
     } catch (e) {
         reply.fatal(e);
     }
