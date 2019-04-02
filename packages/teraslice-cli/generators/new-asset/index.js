@@ -50,6 +50,8 @@ module.exports = class extends Generator {
             description: this.answers.description
         });
         this.fs.copyTpl(this.templatePath('editorConfig'), this.destinationPath('.editorconfig'));
+        this.fs.copyTpl(this.templatePath('jest.config.js'), this.destinationPath('jest.config.js'));
+        this.fs.copyTpl(this.templatePath('gitignore'), this.destinationPath('.gitignore'));
 
         // copy asset files
         this.fs.copyTpl(
@@ -70,6 +72,7 @@ module.exports = class extends Generator {
             },
         );
     }
+
 
     addExampleProcessor() {
         const assetPath = path.join(this.options.new_asset_path, this.answers.name);

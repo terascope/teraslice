@@ -4,32 +4,20 @@
   "description": "<%= description %>",
   "main": "index.js",
   "scripts": {
-    "test": "nyc -x spec/ --reporter=text-summary jasmine spec/**/*spec.js && nyc report --reporter=html"
-  },
-  "nyc": {
-    "cache": true,
-    "all": true,
-    "include": [
-      "*.js",
-      "asset/**/*.js"
-    ],
-    "reporter": [
-      "text-summary",
-      "html",
-      "lcov",
-      "json"
-    ]
+    "test": "jest",
+    "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
   },
   "devDependencies": {
-    "@terascope/teraslice-op-test-harness": "^1.0.0",
-    "bluebird": "^3.5.3",
-    "codecov": "^3.0.4",
-    "eslint": "^5.10.0",
+    "jest": "^24.5.0",
+    "jest-extended": "^0.11.1",
+    "jest-fixtures": "^0.6.0",
+    "jest-haste-map": "^24.5.0",
+    "jest-resolve": "^24.5.0",
+    "eslint": "^5.15.3",
     "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.14.0",
-    "jasmine": "^2.8.0",
-    "jasmine-spec-reporter": "^4.2.1",
-    "nyc": "^13.0.1"
+    "eslint-plugin-import": "^2.16.0",
+    "teraslice-test-harness": "^0.5.4",
+    "ts-jest": "^24.0.0"
   },
   "dependencies": {}
 }

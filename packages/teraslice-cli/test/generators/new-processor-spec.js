@@ -8,7 +8,7 @@ const helpers = require('yeoman-test');
 describe('processor generator with no new flag', () => {
     const exampleAssetBasePath = path.join(__dirname, '..', 'fixtures', 'generate-new-processor');
     const processPath = path.join(exampleAssetBasePath, 'example-asset', 'asset');
-    const testPath = path.join(exampleAssetBasePath, 'example-asset', 'spec');
+    const testPath = path.join(exampleAssetBasePath, 'example-asset', 'test');
 
     beforeAll(() => helpers.run(path.join(__dirname, '..', '..', 'generators', 'new-processor'))
         .inDir(exampleAssetBasePath)
@@ -23,7 +23,6 @@ describe('processor generator with no new flag', () => {
 
     it('should generate index.js, processor.js, and schema.js in the asset dir', () => {
         assert.file([
-            path.join(processPath, 'example', 'index.js'),
             path.join(processPath, 'example', 'processor.js'),
             path.join(processPath, 'example', 'schema.js')
         ]);
@@ -34,16 +33,16 @@ describe('processor generator with no new flag', () => {
             [path.join(processPath, 'example', 'processor.js'), 'class Example extends BatchProcessor'],
             [path.join(processPath, 'example', 'processor.js'), 'module.exports = Example;'],
             [path.join(processPath, 'example', 'processor.js'), 'onBatch(dataArray)'],
-            [path.join(processPath, 'example', 'processor.js'), 'return dataArray.map((doc) => {']
+            [path.join(processPath, 'example', 'processor.js'), 'dataArray.forEach((doc) => {']
         ]);
     });
 
     it('should create an associated test', () => {
         assert.file(path.join(testPath, 'example-spec.js'));
         assert.fileContent([
-            [path.join(testPath, 'example-spec.js'), 'const processor = require(\'../asset/example\');'],
+            [path.join(testPath, 'example-spec.js'), 'const Processor = require(\'../asset/example/processor.js\')'],
             [path.join(testPath, 'example-spec.js'), '_op: \'example\''],
-            [path.join(testPath, 'example-spec.js'), 'add dates to records if the date is missing']
+            [path.join(testPath, 'example-spec.js'), 'add type to all the docs']
         ]);
     });
 });
@@ -65,11 +64,10 @@ describe('processor generator with new flag', () => {
     });
 
     const processPath = path.join(testAssetBasePath, 'test-asset', 'asset');
-    const testPath = path.join(testAssetBasePath, 'test-asset', 'spec');
+    const testPath = path.join(testAssetBasePath, 'test-asset', 'test');
 
     it('should generate index.js, processor.js, and schema.js in the asset dir', () => {
         assert.file([
-            path.join(processPath, 'good_processor', 'index.js'),
             path.join(processPath, 'good_processor', 'processor.js'),
             path.join(processPath, 'good_processor', 'schema.js')
         ]);
@@ -85,7 +83,7 @@ describe('processor generator with new flag', () => {
 
     it('should generate an assiated spec file', () => {
         assert.file(path.join(testPath, 'good_processor-spec.js'));
-        assert.fileContent(path.join(testPath, 'good_processor-spec.js'), 'const processor = require(\'../asset/good_processor\');');
+        assert.fileContent(path.join(testPath, 'good_processor-spec.js'), 'const Processor = require(\'../asset/good_processor/processor.js\');');
         assert.fileContent(path.join(testPath, 'good_processor-spec.js'), '_op: \'good_processor\'');
     });
 });

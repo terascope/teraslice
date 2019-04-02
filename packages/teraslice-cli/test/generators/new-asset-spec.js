@@ -32,6 +32,8 @@ describe('new asset generator should', () => {
             path.join(rootAssetPath, '.eslintrc'),
             path.join(rootAssetPath, '.editorconfig'),
             path.join(rootAssetPath, 'README.md'),
+            path.join(rootAssetPath, 'jest.config.js'),
+            path.join(rootAssetPath, '.gitignore'),
             path.join(assetAssetPath, 'package.json'),
             path.join(assetAssetPath, 'asset.json')
         ]);
