@@ -1,42 +1,55 @@
 /** Control Flow **/
 start
-    = ws* dataType:String ws* {
+    = TermExpression
+
+/** Expressions */
+
+TermExpression
+    = ws* leftHand:Field rightHand:String ws* {
+        return {
+            type: 'term',
+            data_type: 'string',
+            ...leftHand,
+            ...rightHand
+        }
+    }
+    / ws* rightHand:String ws* {
         return {
             type: 'term',
             data_type: 'string',
             field: null,
-            ...dataType
+            ...rightHand
         }
     }
 
-/** DataTypes **/
+/** Entities? **/
+
+Field
+    = chars:FieldChar+ ':' {
+       return { field: chars.join("") }
+    }
 
 String
     = QuotedString
     / UnqoutedString
 
 QuotedString
-    = '"' chars:QuotedStringCharacter* '"' {
+    = '"' chars:Char* '"' {
         return { quoted: true, value: chars.join("") };
     }
 
 UnqoutedString
-    = chars:SourceCharacter* {
+    = chars:Char* {
        return { quoted: false, value: chars.join("") };
     }
 
 /** Characters **/
-QuotedStringCharacter
-  = !('"' / "\\") SourceCharacter { return text(); }
-  / "\\" sequence:EscapeSequence { return sequence; }
 
-EscapeSequence
-  = CharacterEscapeSequence
-  / "0" !DecimalDigit { return "\0"; }
+FieldChar
+  = [_a-zA-Z0-9-\.\?\*]
 
-CharacterEscapeSequence
-  = SingleEscapeCharacter
-  / NonEscapeCharacter
+TermOperatorChar
+  = ':'
 
 SingleEscapeCharacter
   = "'"
@@ -49,21 +62,25 @@ SingleEscapeCharacter
   / "t"  { return "\t"; }
   / "v"  { return "\v"; }
 
-NonEscapeCharacter
-  = !(EscapeCharacter) SourceCharacter { return text(); }
+Char
+  = UnescapedChar
+  / EscapeChar
+    sequence:SingleEscapeCharacter {
+        return sequence;
+    }
 
-EscapeCharacter
-  = SingleEscapeCharacter
-  / DecimalDigit
-  / "x"
-  / "u"
+EscapeChar
+  = "\\"
 
-DecimalDigit
-  = [0-9]
-
-SourceCharacter
-  = .
+UnescapedChar
+  = [^\0-\x1F\x22\x5C]
 
 // whitespace
 ws
   = [ \t\r\n\f]+
+
+// See RFC 4234, Appendix B (http://tools.ietf.org/html/rfc4234).
+DIGIT
+    = [0-9]
+HEXDIG
+    = [0-9a-f]i
