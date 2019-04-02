@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { debugLogger } from '@terascope/utils';
-import { both, either, not, identity, pipe } from 'rambda';
+import { both, either, not, identity } from 'rambda';
 import LuceneQueryParser from '../lucene-query-parser';
 import TypeManager from './type-manager';
 import {
@@ -11,7 +11,6 @@ import {
     isRangeNode,
     isConjunctionNode,
     isExistsNode,
-    getFieldValue,
     checkValue
 } from '../utils';
 import { AST, TypeConfig, RangeAST, BooleanCB } from '../interfaces';
@@ -79,8 +78,7 @@ function newBuilder(parser: LuceneQueryParser, typeConfig: TypeConfig|undefined)
         }
 
         if (isRangeNode(node)) {
-            const getField = getFieldValue(node.field);
-            const fn = pipe(getField, parseRange(node));
+            const fn = checkValue(node.field, parseRange(node));
             fnResults = fnLogic(fn, node.negated);
         }
 

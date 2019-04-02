@@ -1256,57 +1256,99 @@ describe('document matcher', () => {
         });
 
         it('can handle more complex queries part2', () => {
-            const data1 = {
-                date: '2018-10-10T19:30:00Z',
+            const query1Data1 = {
+                date: '2018-11-10T19:30:00Z',
                 field1: { subfield: 'value' },
                 field2: 60,
                 field3: 15,
-                field4: 'value2',
+                field4: 'other',
+                field5: 'other'
             };
-            const data2 = {
+            const query1Data2 = {
+                date: '2018-10-10T19:30:00Z',
+                field1: { subfield: 'value' },
+                field2: 2,
+                field3: 25,
+                field4: 'sometext',
+                field5: 'other'
+            };
+            const query1Data3 = {
+                date: '2018-10-10T19:30:00Z',
+                field1: { subfield: 'value' },
+                field2: 60,
+                field3: 25,
+                field4: 'sometext',
+                field5: 'value2'
+            };
+            const query1Data4 = {
                 date: '2018-10-10T19:30:00Z',
                 field1: { subfield: 'value' },
                 field2: 60,
                 field3: 15,
                 field4: 'sometext',
+                field5: 'other'
             };
-            const data3 = {
+            const query1Data5 = {
+                date: '2018-10-10T19:30:00Z',
+                field1: { subfield: 'value' },
+                field2: 62,
+                field3: 15,
+                field4: 'other',
+                field5: 'other'
+            };
+            const query1Data6 = {
                 date: '2018-10-10T19:30:00Z',
                 field1: { subfield: 'other' },
+                field2: 62,
+                field3: 15,
+                field4: 'other',
+                field5: 'other'
+            };
+            const query1Data7 = {
+                date: '2018-09-10T19:30:00Z',
+                field1: { subfield: 'value' },
+                field2: 62,
+                field3: 15,
+                field4: 'other',
+                field5: 'other'
+            };
+            const query1Data8 = {
+                date: '2018-11-10T19:30:00Z',
+                field1: { subfield: 'value' },
                 field2: 60,
                 field3: 15,
-                field4: 'othertext',
+                field4: 'other'
             };
-            const data4 = {
-                date: '2018-10-10T19:30:00Z',
+            const query1Data9 = {
+                date: '2018-11-10T19:30:00Z',
                 field1: { subfield: 'value' },
                 field2: 60,
-                field3: 16,
-                field4: 'othertext',
+                field3: 15,
+                field5: 'other'
             };
-            const data5 = {
-                date: '2018-10-10T19:30:00Z',
+            const query1Data10 = {
+                date: '2018-11-10T19:30:00Z',
                 field1: { subfield: 'value' },
-                field2: 60
-            };
-            const data6 = {
-                date: '2018-10-10T19:30:00Z',
-                field1: { subfield: 'value' },
-                field2: 33,
-                field3: 16,
-                field4: 'othertext',
+                field2: 60,
+                field4: 'other',
+                field5: 'other'
             };
 
-            const query1 = 'date:[2018-10-10T19:30:00Z TO *] AND field1.subfield:value AND field2:(1 OR 2 OR 5 OR 20 OR 50 OR 60) AND NOT (field3:15 AND field4:sometext) AND NOT field4:value2';
+            const query1 = 'date:[2018-10-10T19:30:00Z TO *] AND field1.subfield:value AND field2:(1 OR 2 OR 5 OR 20 OR 50 OR 60) AND NOT (field3:15 AND field4:sometext) AND NOT field5:value2';
+
             expect(() => documentMatcher.parse(query1)).not.toThrow();
             documentMatcher.parse(query1, { date: 'date' });
 
-            expect(documentMatcher.match(data1)).toEqual(false);
-            expect(documentMatcher.match(data2)).toEqual(false);
-            expect(documentMatcher.match(data3)).toEqual(false);
-            expect(documentMatcher.match(data4)).toEqual(true);
-            expect(documentMatcher.match(data5)).toEqual(true);
-            expect(documentMatcher.match(data6)).toEqual(false);
+            expect(documentMatcher.match(query1Data1)).toEqual(true);
+            expect(documentMatcher.match(query1Data2)).toEqual(true);
+            expect(documentMatcher.match(query1Data3)).toEqual(false);
+            expect(documentMatcher.match(query1Data4)).toEqual(false);
+            expect(documentMatcher.match(query1Data5)).toEqual(false);
+            expect(documentMatcher.match(query1Data6)).toEqual(false);
+            expect(documentMatcher.match(query1Data7)).toEqual(false);
+            expect(documentMatcher.match(query1Data8)).toEqual(true);
+            expect(documentMatcher.match(query1Data9)).toEqual(true);
+            expect(documentMatcher.match(query1Data10)).toEqual(true);
 
             const data7 = {
                 date1: '2018-09-16T04:30:00Z',
