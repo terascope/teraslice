@@ -1,9 +1,8 @@
 import { toNumber } from 'lodash';
 import { trimAndToLower, isPlainObject, parseNumberList } from '@terascope/utils';
 import geoHash from 'latlon-geohash';
-import { path } from 'rambda';
-
-import { RangeAST, AST, GeoDistance, GeoPoint } from './interfaces';
+import { path, any } from 'rambda';
+import { RangeAST, AST, GeoDistance, GeoPoint, BooleanCB } from './interfaces';
 
 export function bindThis(instance:object, cls:object): void {
     return Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
@@ -89,6 +88,16 @@ export interface ParseNodeRangeResult {
 
 export function getFieldValue(field: string) {
     return (obj: any) => path(field, obj);
+}
+
+export function checkValue(field: string, cb: BooleanCB) {
+    return (data: any) => {
+        const values = path(field, data);
+        if (Array.isArray(values)) {
+            return any(cb, values);
+        }
+        return cb(values);
+    };
 }
 
 export function parseGeoDistance(str: string): GeoDistance {

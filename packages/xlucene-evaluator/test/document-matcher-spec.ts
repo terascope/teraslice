@@ -23,6 +23,20 @@ describe('document matcher', () => {
             expect(documentMatcher.match(badData3)).toEqual(false);
         });
 
+        it('can match basic terms in objects', () => {
+            const data = { foo: 'bar' };
+            const badData = { other: 'thing' };
+            const data2 = { foo: ['bar'] };
+            const data3 = { foo: ['baz', 'bar'] };
+
+            documentMatcher.parse('foo:bar');
+
+            expect(documentMatcher.match(data)).toEqual(true);
+            expect(documentMatcher.match(badData)).toEqual(false);
+            expect(documentMatcher.match(data2)).toEqual(true);
+            expect(documentMatcher.match(data3)).toEqual(true);
+        });
+
         it('can match boolean terms', () => {
             const data1 = { bool: false };
             const data2 = { bool: true };
@@ -165,12 +179,20 @@ describe('document matcher', () => {
             const data1 = { some: 'data' };
             const data2 = { other: 'data' };
             const data3 = { some: null };
+            const data4 = { some: '' };
+            const data5 = { some: [] };
+            const data6 = { some: [null] };
+            const data7 = { some: ['data', null] };
 
             documentMatcher.parse('_exists_:some');
 
             expect(documentMatcher.match(data1)).toEqual(true);
             expect(documentMatcher.match(data2)).toEqual(false);
-            expect(documentMatcher.match(data3)).toEqual(true);
+            expect(documentMatcher.match(data3)).toEqual(false);
+            expect(documentMatcher.match(data4)).toEqual(true);
+            expect(documentMatcher.match(data5)).toEqual(false);
+            expect(documentMatcher.match(data6)).toEqual(false);
+            expect(documentMatcher.match(data7)).toEqual(true);
         });
 
         it('can handle complex term "()" operators', () => {
