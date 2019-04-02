@@ -1,14 +1,19 @@
 import 'jest-extended';
-import { Parser } from '../src/parser';
+import { Parser, V2AST } from '../src/parser';
 
 describe('Parser (v2)', () => {
-    it('should be able to detect bar as an entity', () => {
-        const parser = new Parser('bar');
-        expect(parser.ast).toMatchObject({
+    const testCases: ([string, string, V2AST])[] = [
+        ['bar', 'parse an implicit string', {
             type: 'term',
             data_type: 'string',
             field: null,
             value: 'bar'
+        }]
+    ];
+    describe.each(testCases)('when given %s', (query, msg, ast) => {
+        it(`should be able ${msg}`, () => {
+            const parser = new Parser(query);
+            expect(parser.ast).toMatchObject(ast);
         });
     });
 });

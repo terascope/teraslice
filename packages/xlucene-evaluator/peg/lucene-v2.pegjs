@@ -14,7 +14,6 @@ ImplicitString
       return chars.join("");
     }
 
-
 SourceCharacter
   = .
 
