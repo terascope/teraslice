@@ -15,7 +15,7 @@ export class Parser {
     private _parse() {
         try {
             this.ast = engine.parse(this.query);
-            this.logger.trace(`parsed ${this.query} to `, this.ast);
+            this.logger.debug(`parsed ${this.query} to `, this.ast);
         } catch (err) {
             throw new TSError(err, {
                 reason: `Failure to parse xlucene query ${this.query}`

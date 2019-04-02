@@ -34,7 +34,8 @@ module.exports = (projectDir) => {
             'ts',
             'js',
             'json',
-            'node'
+            'node',
+            'pegjs'
         ],
         collectCoverage: true,
         coveragePathIgnorePatterns: [
@@ -95,6 +96,10 @@ module.exports = (projectDir) => {
 
     if (fs.pathExistsSync(path.join(projectDir, 'src'))) {
         config.roots.push(`${projectRoot}/src`);
+    }
+
+    if (fs.pathExistsSync(path.join(projectDir, 'peg'))) {
+        config.roots.push(`${projectRoot}/peg`);
     }
 
     return config;
