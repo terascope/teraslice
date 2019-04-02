@@ -134,12 +134,36 @@ output:
 ```
 Asset <asset-id> deleted from <cluster-alias>
 ```
-**INIT** - Creates a new asset directory structure including a README, config files, and basic dependencies.
-command:
+**INIT** - Creates a new asset or add a processor with the --processor option
 ```
-teraslice-cli assets init <new-asset-name>
+teraslice-cli assets init
 ```
-The cli will then ask a series of questions about the asset and then create the asset file structure.
+An asset is composed of processors that reside in the asset_name/asset directory.  This command creates the basic asset directory structure.  The teraslice-cli will ask for an asset name and brief description then create a new asset directory based on the user input.  The cli will also create a test framework and it's needed dependencies.  Use `yarn test` or `npm test` to run the test suite.
+
+Asset directory contents
+```
+  asset_name
+    - asset
+      package.json
+      asset.json
+      yarn.lock
+      node_modules
+      - processor
+        index.js
+        processor.js
+        schema.js
+    - spec
+        asset-spec.js
+    node_modules
+    package.json
+    .eslintrc
+    yarn.loc
+```
+To create a new processor in an already made asset use the `--processor` option.
+```
+teraslice-cli assets init --processor
+```
+The processor will be added to the `asset` directory with an associated spec file in the spec directory.  If there is no asset directory in the dir then the cwd then the cli will not create the processor.
 
 ### TJM (teraslice job manager) - commands to manage jobs by referencing the jobFile.json.
 **REGISTER** - Registers a job to a cluster and adds the metadata to the jobFile.json. Before a job can be registered set up cluster aliases as instructed above.  Use --start to immediately start the job after registering, also accepts the abbreviation reg.

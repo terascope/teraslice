@@ -78,6 +78,12 @@ class Options {
                 type: 'boolean',
                 default: false
             }),
+            processor: () => ({
+                describe: 'Option to add a new processor to an asset',
+                alias: 'proc',
+                type: 'boolean',
+                default: false
+            }),
             'skip-upload': () => ({
                 describe: 'Skips upload to Teraslice, useful to just download the asset.',
                 type: 'boolean',

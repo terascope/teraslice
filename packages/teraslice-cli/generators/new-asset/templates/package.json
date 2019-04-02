@@ -1,0 +1,35 @@
+{
+  "name": "<%= name %>",
+  "version": "0.0.1",
+  "description": "<%= description %>",
+  "main": "index.js",
+  "scripts": {
+    "test": "nyc -x spec/ --reporter=text-summary jasmine spec/**/*spec.js && nyc report --reporter=html"
+  },
+  "nyc": {
+    "cache": true,
+    "all": true,
+    "include": [
+      "*.js",
+      "asset/**/*.js"
+    ],
+    "reporter": [
+      "text-summary",
+      "html",
+      "lcov",
+      "json"
+    ]
+  },
+  "devDependencies": {
+    "@terascope/teraslice-op-test-harness": "^1.0.0",
+    "bluebird": "^3.5.3",
+    "codecov": "^3.0.4",
+    "eslint": "^5.10.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "jasmine": "^2.8.0",
+    "jasmine-spec-reporter": "^4.2.1",
+    "nyc": "^13.0.1"
+  },
+  "dependencies": {}
+}
