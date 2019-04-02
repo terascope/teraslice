@@ -5,18 +5,16 @@ start
 /** Expressions */
 
 TermExpression
-    = ws* leftHand:Field rightHand:String ws* {
+    = ws* leftHand:Field rightHand:Value ws* {
         return {
             type: 'term',
-            data_type: 'string',
             ...leftHand,
             ...rightHand
         }
     }
-    / ws* rightHand:String ws* {
+    / ws* rightHand:Value ws* {
         return {
             type: 'term',
-            data_type: 'string',
             field: null,
             ...rightHand
         }
@@ -29,21 +27,55 @@ Field
        return { field: chars.join("") }
     }
 
+Value
+    = Integer
+    / String
+
 String
     = QuotedString
+    / WildcardString
     / UnqoutedString
 
 QuotedString
-    = '"' chars:Char* '"' {
-        return { quoted: true, value: chars.join("") };
+    = '"' chars:Char+ '"' {
+        return {
+            data_type: 'string',
+            quoted: true,
+            value: chars.join("")
+        };
+    }
+
+WildcardString
+  = &WildcardChar+ chars:Char* {
+       return {
+           data_type: 'wildcard',
+           quoted: false,
+           value: chars.join("")
+       };
     }
 
 UnqoutedString
     = chars:Char* {
-       return { quoted: false, value: chars.join("") };
+       return {
+           data_type: 'string',
+           quoted: false,
+           value: chars.join("")
+       };
+    }
+
+Integer
+    = chars:DIGIT+ {
+        const digits = chars.join("");
+        const num = parseInt(digits, 10);
+        return {
+           data_type: 'number',
+           value: num
+       };
     }
 
 /** Characters **/
+WildcardChar
+    = [\?\*]
 
 FieldChar
   = [_a-zA-Z0-9-\.\?\*]

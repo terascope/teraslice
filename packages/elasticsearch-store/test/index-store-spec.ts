@@ -415,6 +415,17 @@ describe('IndexStore', () => {
                 console.dir(xluceneResult);
             });
 
+            fit('test lucene query', async () => {
+                const result = await indexStore._search({
+                    q: 'test_number:*',
+                    size: 200,
+                    sort: 'test_number:asc',
+                });
+                expect(result).toBeArrayOfSize(0);
+                // tslint:disable-next-line
+                console.dir(result);
+            });
+
             it('should be able to search the records', async () => {
                 const result = await indexStore.search(`test_keyword: ${keyword}`, {
                     sort: 'test_number',

@@ -33,13 +33,45 @@ describe('Parser (v2)', () => {
             quoted: true,
             value: 'foo'
         }],
-        ['foo:bar', 'parse field and value term', {
+        ['foo:bar', 'parse field and string value', {
             type: 'term',
             data_type: 'string',
             field: 'foo',
             quoted: false,
             value: 'bar'
-        }]
+        }],
+        ['foo:"bar"', 'parse field and quoted string value', {
+            type: 'term',
+            data_type: 'string',
+            field: 'foo',
+            quoted: true,
+            value: 'bar'
+        }],
+        ['count:123', 'parse field and number value', {
+            type: 'term',
+            data_type: 'number',
+            field: 'count',
+            value: 123
+        }],
+        ['count:"123"', 'parse field and number value', {
+            type: 'term',
+            data_type: 'string',
+            field: 'count',
+            quoted: true,
+            value: '123'
+        }],
+        ['fo?:bar', 'parse field name with wildcard', {
+            type: 'term',
+            data_type: 'string',
+            field: 'fo?',
+            value: 'bar'
+        }],
+        ['hi:the?e', 'parse value with wildcard', {
+            type: 'term',
+            data_type: 'wildcard',
+            field: 'hi',
+            value: 'the?e'
+        }],
     ];
 
     describe.each(testCases)('when given query %j', (query, msg, ast) => {
