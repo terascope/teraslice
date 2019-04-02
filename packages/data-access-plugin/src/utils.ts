@@ -22,7 +22,7 @@ export function makeErrorHandler(reason: string, logger: ts.Logger, requireSafe 
                 error: ts.stripErrorMessage(error, reason, requireSafe)
             };
 
-            const user = get(req, 'v2User', { type: 'USER' });
+            const user = get(req, 'user', { type: 'USER' });
             if (user.type !== 'USER') {
                 resp.debug = {
                     timestamp: ts.makeISODate()

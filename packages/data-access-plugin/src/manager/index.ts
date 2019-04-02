@@ -132,6 +132,10 @@ export default class ManagerPlugin {
 
             // @ts-ignore
             req.aclManager = this.manager;
+            // @ts-ignore
+            if (req.user) {
+                return next();
+            }
 
             const creds = getCredentialsFromReq(req);
 
@@ -139,14 +143,14 @@ export default class ManagerPlugin {
                 const user = await this.manager.authenticate(creds);
 
                 // @ts-ignore
-                req.v2User = user;
+                req.user = user;
                 next();
             });
         });
 
         this.app.all('/api/v2', (req, res) => {
             // @ts-ignore
-            if (req.aclManager != null && req.v2User != null) {
+            if (req.aclManager != null && req.user != null) {
                 res.sendStatus(204);
             } else {
                 res.sendStatus(500);
@@ -164,7 +168,7 @@ export default class ManagerPlugin {
             // @ts-ignore
             const manager: ACLManager = req.aclManager;
             // @ts-ignore
-            const user: User = req.v2User;
+            const user: User = req.user;
 
             const { endpoint } = req.params;
             const logger = this.context.apis.foundation.makeLogger({
