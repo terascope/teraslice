@@ -15,8 +15,16 @@ describe('Parser (v2)', () => {
         ['bar', 'parse an unquoted string', {
             type: 'term',
             data_type: 'string',
+            quoted: false,
             field: null,
             value: 'bar'
+        }],
+        ['"foo"', 'parse an quoted string', {
+            type: 'term',
+            data_type: 'string',
+            field: null,
+            quoted: true,
+            value: 'foo'
         }]
     ];
 
