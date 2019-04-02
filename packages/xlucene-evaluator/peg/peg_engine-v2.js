@@ -303,7 +303,7 @@ function peg$parse(input, options) {
       s2 = peg$parsews();
     }
     if (s1 !== peg$FAILED) {
-      s2 = peg$parseImplicitString();
+      s2 = peg$parseUnqoutedString();
       if (s2 !== peg$FAILED) {
         s3 = [];
         s4 = peg$parsews();
@@ -331,7 +331,7 @@ function peg$parse(input, options) {
     return s0;
   }
 
-  function peg$parseImplicitString() {
+  function peg$parseUnqoutedString() {
     var s0, s1, s2;
 
     s0 = peg$currPos;

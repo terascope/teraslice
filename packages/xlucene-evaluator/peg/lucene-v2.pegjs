@@ -1,6 +1,6 @@
 // Start here
 start
-    = ws* value:ImplicitString ws* {
+    = ws* value:UnqoutedString ws* {
         return {
             type: 'term',
             data_type: 'string',
@@ -9,7 +9,7 @@ start
         }
     }
 
-ImplicitString
+UnqoutedString
     = chars:SourceCharacter* {
       return chars.join("");
     }
