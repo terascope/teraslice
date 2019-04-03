@@ -1,6 +1,6 @@
 import { debugLogger } from '@terascope/utils';
 import parser from '../peg';
-import { AST, AstCallback, IMPLICIT } from '../interfaces';
+import { AST, AstCallback, IMPLICIT, MappingAstCallback } from '../interfaces';
 
 const logger = debugLogger('lucene-query-parser');
 
@@ -20,24 +20,42 @@ export default class LuceneQueryParser {
         }
     }
 
-    public walkLuceneAst(preCb: AstCallback, postCb?: AstCallback|null, _argAst?: AST): any {
+    public mapAst(cb: MappingAstCallback, _argAst?: AST) {
         const ast = _argAst || this._ast;
 
-        function walk(node: AST, _field: string, depth: number): void {
-            const topField = (node.field && node.field !== IMPLICIT) ? node.field : _field;
-
-            if (node.left) {
-                walk(node.left, topField, depth + 1);
-            }
-
-            preCb(node, topField, depth);
+        function walk(ast: AST, _field?: string) {
+            const topField = (ast.field && ast.field !== IMPLICIT) ? ast.field : _field;
+            const node = cb(ast, topField);
 
             if (node.right) {
-                walk(node.right, topField, depth + 1);
+                node.right = walk(node.right, topField);
             }
-            if (postCb) postCb(node, topField, depth);
+
+            if (node.left) {
+                node.left = walk(node.left, topField);
+            }
+            return node;
         }
 
-        return walk(ast, '', 0);
+        return walk(ast);
+    }
+
+    public walkLuceneAst(cb: AstCallback, _argAst?: AST): any {
+        const ast = _argAst || this._ast;
+
+        function walk(node: AST, _field: string): void {
+            const topField = (node.field && node.field !== IMPLICIT) ? node.field : _field;
+            cb(node, topField);
+
+            if (node.left) {
+                walk(node.left, topField);
+            }
+
+            if (node.right) {
+                walk(node.right, topField);
+            }
+        }
+
+        return walk(ast, '');
     }
 }

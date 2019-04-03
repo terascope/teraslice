@@ -1,7 +1,7 @@
-import { debugLogger } from '@terascope/utils';
+import { debugLogger, trim } from '@terascope/utils';
 import { TypeConfig } from '../interfaces';
 import LuceneQueryParser from '../lucene-query-parser';
-import { buildAnyQuery } from './utils';
+import { buildAnyQuery, AnyQuery } from './utils';
 
 const logger = debugLogger('xlucene-translator');
 
@@ -15,15 +15,24 @@ export default class Translator {
     }
 
     constructor(query: string, types?: TypeConfig) {
-        this.query = query;
+        this.query = trim(query);
         this.types = types;
         this.parser = new LuceneQueryParser();
-        this.parser.parse(query);
+        this.parser.parse(this.query);
     }
 
-    toElasticsearchDSL() {
-        const query = buildAnyQuery(this.parser._ast);
+    toElasticsearchDSL(): ElasticsearchDSLResult {
+        if (!this.query) {
+            return {
+                query: {
+                    query_string: {
+                        query: ''
+                    }
+                }
+            };
+        }
 
+        const query = buildAnyQuery(this.parser._ast);
         const dslQuery = {
             query: {
                 constant_score: {
@@ -35,4 +44,16 @@ export default class Translator {
         logger.trace(`translated ${this.query} query to`, JSON.stringify(query));
         return dslQuery;
     }
+}
+
+export interface ElasticsearchDSLResult {
+    query: {
+        constant_score: {
+            filter: AnyQuery | never[];
+        }
+    } | {
+        query_string: {
+            query: ''
+        }
+    };
 }

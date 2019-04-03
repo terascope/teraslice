@@ -6,7 +6,8 @@ import {
     isRetryableError,
     parseError,
     times,
-    isTSError
+    isTSError,
+    stripErrorMessage,
 } from '../src';
 
 describe('Error Utils', () => {
@@ -231,7 +232,8 @@ describe('Error Utils', () => {
             ]
         ];
 
-        describe.each(testCases)('new TSError(%j, %o)', (input, config, expected) => {
+        // @ts-ignore
+        describe.each(testCases)('new TSError(%j, %o)', (input: any, config: any, expected: any) => {
             const tsError: TSError = new TSError(input, config);
 
             for (const [key, val] of Object.entries(expected)) {
@@ -271,7 +273,7 @@ describe('Error Utils', () => {
                 });
             }
 
-            if (expected.retryable && !expected.fatalError) {
+            if (expected && expected.retryable && !expected.fatalError) {
                 it('should be retryable', () => {
                     expect(isRetryableError(tsError)).toBeTrue();
                 });
@@ -280,6 +282,67 @@ describe('Error Utils', () => {
                     expect(isRetryableError(tsError)).toBeFalse();
                 });
             }
+
+        });
+    });
+
+    describe('when stripping an error message', () => {
+        it('should be able to work with a chained error', () => {
+            const err = new TSError('Uh oh');
+            const error = new TSError(err, {
+                reason: 'Failure'
+            });
+            expect(stripErrorMessage(error, 'Bad news')).toEqual('Bad news: Failure');
+        });
+
+        describe('when requireSafe=true', () => {
+            it('should be able to work', () => {
+                const error = new TSError('darn', {
+                    reason: 'Failure'
+                });
+                expect(stripErrorMessage(error, 'Bad news', true)).toEqual('Bad news');
+            });
+
+            it('should be able to work with a chained error', () => {
+                const err = new TSError('Uh oh');
+                const error = new TSError(err, {
+                    reason: 'Failure'
+                });
+                expect(stripErrorMessage(error, 'Bad news', true)).toEqual('Bad news');
+            });
+
+            it('should work with a forbidden error', () => {
+                const error = new TSError('Some Forbidden Message', {
+                    statusCode: 403
+                });
+                expect(stripErrorMessage(error, 'Bad news', true)).toEqual('Access Denied');
+            });
+
+            it('should work with a 404 error', () => {
+                const error = new TSError('Some Forbidden Message', {
+                    statusCode: 404
+                });
+                expect(stripErrorMessage(error, 'Bad news', true)).toEqual('Not Found');
+            });
+
+            it('should be able to work with context.safe', () => {
+                const error = new TSError('Uh oh', {
+                    context: {
+                        safe: true
+                    }
+                });
+                expect(stripErrorMessage(error, 'Bad news', true)).toEqual('Uh oh');
+            });
+
+            it('should NOT keep the context.safe from a chained error', () => {
+                const err = new TSError('Uh oh', {
+                    context: {
+                        safe: true
+                    }
+                });
+                const error = new TSError(err);
+                expect(stripErrorMessage(error, 'Bad news', true)).toEqual('Bad news');
+            });
         });
     });
 

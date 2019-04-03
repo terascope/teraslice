@@ -33,7 +33,7 @@
     },
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator#readme",
     "dependencies": {
-        "@terascope/utils": "^0.8.0",
+        "@terascope/utils": "^0.8.1",
         "@turf/bbox": "^6.0.1",
         "@turf/bbox-polygon": "^6.0.1",
         "@turf/boolean-point-in-polygon": "^6.0.1",
@@ -43,7 +43,8 @@
         "ip6addr": "^0.2.2",
         "is-cidr": "^3.0.0",
         "latlon-geohash": "^1.1.0",
-        "lodash": "^4.17.11"
+        "lodash": "^4.17.11",
+        "rambda": "^2.4.1"
     },
     "devDependencies": {
         "pegjs": "^0.10.0",

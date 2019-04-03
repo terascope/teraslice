@@ -9,6 +9,7 @@ const wait = require('./wait');
 const { cluster, jobs } = misc.teraslice();
 
 async function resetState() {
+    const startTime = Date.now();
     const state = await cluster.state();
 
     await Promise.all([
@@ -24,6 +25,7 @@ async function resetState() {
             });
 
             await Promise.map(_.uniq(cleanupJobs), async (jobId) => {
+                signale.warn(`resetting job ${jobId}`);
                 try {
                     await jobs.wrap(jobId).stop({ blocking: true });
                 } catch (err) {
@@ -34,11 +36,17 @@ async function resetState() {
         (async () => {
             const count = _.keys(state).length;
             if (count !== misc.DEFAULT_NODES) {
+                signale.warn(`resetting cluster state of ${count} nodes`);
                 await misc.scaleWorkers();
                 await wait.forWorkers();
             }
         })()
     ]);
+
+    const elapsed = Date.now() - startTime;
+    if (elapsed > 1000) {
+        signale.warn(`resetting took ${elapsed}ms`);
+    }
 }
 
 async function submitAndStart(jobSpec, delay) {

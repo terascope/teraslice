@@ -1,27 +1,43 @@
+import get from 'lodash.get';
 import { Client } from 'elasticsearch';
 import { Request, Response } from 'express';
 import { Context } from '@terascope/job-components';
-import { parseErrorInfo, Logger, stripErrorMessage } from '@terascope/utils';
+import * as ts from '@terascope/utils';
 
 export type ErrorHandlerFn = (req: Request, res: Response, fn: (...args: any[]) => Promise<any>|any) => Promise<void>;
 
-export function makeErrorHandler(reason: string, logger: Logger): ErrorHandlerFn {
+export function makeErrorHandler(reason: string, logger: ts.Logger, requireSafe = false): ErrorHandlerFn {
     return async (req, res, fn) => {
         try {
             await fn();
         } catch (error) {
-            const { statusCode, message } = parseErrorInfo(error, {
-                defaultErrorMsg: reason
-            });
+            const statusCode = ts.getErrorStatusCode(error);
 
             logger.error(error, reason, {
                 path: req.originalUrl,
                 query: req.query
             });
 
-            res.status(statusCode).json({
-                error: stripErrorMessage(message, reason)
-            });
+            const resp: any = {
+                error: ts.stripErrorMessage(error, reason, requireSafe)
+            };
+
+            const user = get(req, 'user', { type: 'USER' });
+            if (user.type !== 'USER') {
+                resp.debug = {
+                    timestamp: ts.makeISODate()
+                };
+
+                if (ts.isString(error)) {
+                    resp.debug.message = error;
+                } else {
+                    resp.debug.message = error.message;
+                    resp.debug.stack = error.stack;
+                    resp.debug.statusCode = statusCode;
+                }
+            }
+
+            res.status(statusCode).json(resp);
         }
     };
 }

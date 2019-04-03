@@ -85,14 +85,16 @@ class Job extends Client {
         };
 
         const startTime = Date.now();
+        let uri = `/jobs/${this._jobId}/ex`;
 
         const checkStatus = async () => {
             let result;
             try {
-                const ex = await this.get(`/jobs/${this._jobId}/ex`, {
+                const ex = await this.get(uri, {
                     json: true,
                     timeout: intervalMs < 1000 ? 1000 : intervalMs,
                 });
+                uri = `/ex/${ex.ex_id}`;
                 result = ex._status;
             } catch (err) {
                 if (_.toString(err).includes('TIMEDOUT')) {
@@ -117,7 +119,7 @@ class Job extends Client {
 
             const elapsed = Date.now() - startTime;
             if (timeoutMs > 0 && elapsed >= timeoutMs) {
-                const error = new Error(`Job status failed to change from status "${result}" within ${timeoutMs}ms`);
+                const error = new Error(`Job status failed to change from status "${result}" to "${target}" within ${timeoutMs}ms`);
                 error.lastStatus = result;
                 throw error;
             }

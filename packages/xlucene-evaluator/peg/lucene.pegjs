@@ -52,7 +52,7 @@
  *
  * Other Notes:
  *
- * - For any field name, unnamed/default fields will have the value "<implicit>".
+ * - For any field name, unnamed/default fields will have the value '<implicit>'.
  * - Wildcards (fo*, f?o) and fuzzy search modifiers (foo~.8) will be part of the term value.
  * - Escaping is not supported and generally speaking, will break the parser.
  * - Conjunction operators that appear at the beginning of the query violate the logic of the
@@ -66,7 +66,7 @@
  *       Return: { "operator": "AND" }
  *
  *       Query: OR AND foo
- *       Return: { "left": { "field": "<implicit>", "term": "foo" } }
+ *       Return: { "left": { "field": '<implicit>', "term": "foo" } }
  *
  *  To test the grammar, use the online parser generator at http://pegjs.majda.cz/online
  *
@@ -102,8 +102,13 @@
     // propagate fields when dealing with parens
     // this makes it easier for the other code to
     // deal with the AST
+
+    function needsField(node) {
+        return node.field === '<implicit>' || !node.field
+    }
+
     function propagateFields(node) {
-        if (node.left && !node.left.field) {
+        if (node.left && needsField(node.left)) {
             if (node.field) {
                 node.left.field = node.field;
             }
@@ -112,7 +117,7 @@
             }
         }
 
-        if (node.right && !node.right.field) {
+        if (node.right && needsField(node.right)) {
             if (node.field) {
                 node.right.field = node.field;
             }

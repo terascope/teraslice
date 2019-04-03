@@ -10,12 +10,12 @@ const misc = require('./misc');
  * then waits for the length of that array to match 'value'.
  */
 function forLength(func, value, iterations) {
-    const fn = async () => {
+    async function _forLength() {
         const result = await func();
         return result.length;
-    };
+    }
 
-    return forValue(fn, value, iterations);
+    return forValue(_forLength, value, iterations);
 }
 
 /*
@@ -30,14 +30,14 @@ function forValue(func, value, iterations = 100) {
     // to keep compatibility since I change delay to 100 from 500
     const _iterations = 100 * 2;
 
-    async function checkValue() {
+    async function _forValue() {
         counter++;
 
         const result = await func();
-        if (result === value) return Promise.resolve(result);
+        if (result === value) return result;
 
         if (counter > _iterations) {
-            signale.debug('forValue last target value', {
+            signale.warn('forValue last target value', {
                 actual: result,
                 expected: value,
                 iterations,
@@ -48,31 +48,31 @@ function forValue(func, value, iterations = 100) {
         }
 
         await Promise.delay(250);
-        return checkValue();
+        return _forValue();
     }
 
-    return checkValue();
+    return _forValue();
 }
 
 /*
  * Wait for 'node_count' nodes to be available.
  */
 function forNodes(nodeCount = misc.DEFAULT_NODES) {
-    const fn = async () => {
+    async function _forNodes() {
         const state = await misc.teraslice().cluster.state();
         return Object.keys(state);
-    };
+    }
 
-    return forLength(fn, nodeCount);
+    return forLength(_forNodes, nodeCount);
 }
 
 function forWorkers(workerCount = misc.DEFAULT_WORKERS) {
-    const fn = async () => {
+    async function _forWorkers() {
         const state = await misc.teraslice().cluster.state();
         return Object.keys(state);
-    };
+    }
 
-    return forLength(fn, workerCount + 1);
+    return forLength(_forWorkers, workerCount + 1);
 }
 
 function scaleWorkersAndWait(workersToAdd = 0) {
@@ -90,14 +90,14 @@ function scaleWorkersAndWait(workersToAdd = 0) {
  * 'joined'
  */
 function forWorkersJoined(jobId, workerCount, iterations) {
-    const fn = async () => {
+    async function _forWorkersJoined() {
         const controllers = await misc.teraslice().cluster.controllers();
         const controller = _.find(controllers, s => s.job_id === jobId);
         if (!controller) return 0;
         return controller.workers_joined;
-    };
+    }
 
-    return forValue(fn, workerCount, iterations);
+    return forValue(_forWorkersJoined, workerCount, iterations);
 }
 
 function waitForClusterState(timeoutMs = 120000) {
@@ -105,7 +105,7 @@ function waitForClusterState(timeoutMs = 120000) {
     const { cluster } = misc.teraslice();
     const requiredNodes = misc.DEFAULT_NODES - 2;
 
-    async function _try() {
+    async function _waitForClusterState() {
         if (Date.now() > endAt) {
             throw new Error(`Failure to communicate with the Cluster Master as ${timeoutMs}ms`);
         }
@@ -118,14 +118,14 @@ function waitForClusterState(timeoutMs = 120000) {
             });
             nodes = _.size(_.keys(result));
         } catch (err) {
-            return _try();
+            return _waitForClusterState();
         }
 
         if (nodes >= requiredNodes) return nodes;
-        return _try();
+        return _waitForClusterState();
     }
 
-    return _try();
+    return _waitForClusterState();
 }
 
 async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
@@ -135,7 +135,7 @@ async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
     async function logExErrors() {
         try {
             const errors = await job.errors();
-            signale.debug(`waitForStatus: ${jobId} errors`, printObj(errors));
+            signale.warn(`waitForStatus: ${jobId} errors`, printObj(errors));
             return null;
         } catch (err) {
             return null;
@@ -164,7 +164,7 @@ async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
                 'job_duration',
             ]);
 
-            signale.debug(`Job Status Failure:
+            signale.warn(`Job Status Failure:
                 job: "${exStatus.job_id}";
                 job name: "${exStatus.name}";
                 ex: "${exStatus.ex_id}";

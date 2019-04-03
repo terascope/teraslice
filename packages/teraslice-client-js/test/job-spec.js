@@ -447,7 +447,6 @@ describe('Teraslice Job', () => {
                         _status: 'example'
                     });
 
-
                 new Job({ baseUrl }, 'some-job-id')
                     .waitForStatus('example')
                     .then((_result) => {
@@ -470,12 +469,11 @@ describe('Teraslice Job', () => {
                         _status: 'not-example'
                     });
 
-                scope.get('/jobs/some-job-id/ex')
+                scope.get('/ex/example-ex-id')
                     .reply(200, {
                         ex_id: 'example-ex-id',
                         _status: 'example'
                     });
-
 
                 new Job({ baseUrl }, 'some-job-id')
                     .waitForStatus('example')
@@ -501,6 +499,12 @@ describe('Teraslice Job', () => {
                         _status: 'not-example'
                     });
 
+                scope.get('/ex/example-ex-id')
+                    .times(11)
+                    .reply(200, {
+                        ex_id: 'example-ex-id',
+                        _status: 'not-example'
+                    });
 
                 new Job({ baseUrl }, 'some-job-id')
                     .waitForStatus('example', 100, 1000)
@@ -513,7 +517,7 @@ describe('Teraslice Job', () => {
             });
 
             it('should reject with a timeout error', () => {
-                expect(err.toString()).toEqual('Error: Job status failed to change from status "not-example" within 1000ms');
+                expect(err.toString()).toEqual('Error: Job status failed to change from status "not-example" to "example" within 1000ms');
             });
         });
 
@@ -534,7 +538,6 @@ describe('Teraslice Job', () => {
                         _status: 'example'
                     });
 
-
                 new Job({ baseUrl }, 'some-job-id')
                     .waitForStatus('example', 100, 1500)
                     .then(() => {
@@ -554,12 +557,17 @@ describe('Teraslice Job', () => {
 
             beforeEach((done) => {
                 scope.get('/jobs/some-job-id/ex')
-                    .times(11)
                     .reply(200, {
                         ex_id: 'example-ex-id',
                         _status: 'failed'
                     });
 
+                scope.get('/ex/example-ex-id')
+                    .times(10)
+                    .reply(200, {
+                        ex_id: 'example-ex-id',
+                        _status: 'failed'
+                    });
 
                 new Job({ baseUrl }, 'some-job-id')
                     .waitForStatus('example')

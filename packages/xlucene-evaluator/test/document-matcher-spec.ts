@@ -23,6 +23,20 @@ describe('document matcher', () => {
             expect(documentMatcher.match(badData3)).toEqual(false);
         });
 
+        it('can match basic terms in objects', () => {
+            const data = { foo: 'bar' };
+            const badData = { other: 'thing' };
+            const data2 = { foo: ['bar'] };
+            const data3 = { foo: ['baz', 'bar'] };
+
+            documentMatcher.parse('foo:bar');
+
+            expect(documentMatcher.match(data)).toEqual(true);
+            expect(documentMatcher.match(badData)).toEqual(false);
+            expect(documentMatcher.match(data2)).toEqual(true);
+            expect(documentMatcher.match(data3)).toEqual(true);
+        });
+
         it('can match boolean terms', () => {
             const data1 = { bool: false };
             const data2 = { bool: true };
@@ -165,12 +179,20 @@ describe('document matcher', () => {
             const data1 = { some: 'data' };
             const data2 = { other: 'data' };
             const data3 = { some: null };
+            const data4 = { some: '' };
+            const data5 = { some: [] };
+            const data6 = { some: [null] };
+            const data7 = { some: ['data', null] };
 
             documentMatcher.parse('_exists_:some');
 
             expect(documentMatcher.match(data1)).toEqual(true);
             expect(documentMatcher.match(data2)).toEqual(false);
             expect(documentMatcher.match(data3)).toEqual(false);
+            expect(documentMatcher.match(data4)).toEqual(true);
+            expect(documentMatcher.match(data5)).toEqual(false);
+            expect(documentMatcher.match(data6)).toEqual(false);
+            expect(documentMatcher.match(data7)).toEqual(true);
         });
 
         it('can handle complex term "()" operators', () => {
@@ -983,7 +1005,7 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data6)).toEqual(false);
             expect(documentMatcher.match(data7)).toEqual(false);
         });
-
+        // FIXME:
         it('can do more complex wildcard queries', () => {
             const data1 = { some: 'value', city: { key: 'abcde', field: 'other' } };
             const data2 = { some: 'value', city: { key: 'abcde', field: 'other', nowIsTrue: 'something' } };
@@ -1111,11 +1133,8 @@ describe('document matcher', () => {
             // tslint:disable-next-line
             const query = 'ipfield:[192.198.0.0 TO 192.198.0.255] AND _created:[2018-10-18T18:13:20.683Z TO *] AND key:/ab{2}c{3}/ AND location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")';
 
-            documentMatcher.parse(query);
+            documentMatcher.parse(query, typeConfig);
 
-            // This should be false but its not
-            // because "192.198.0.255" >= data.ipfield && data.ipfield >= "192.198.0.0"
-            // SHOULD THIS WORK THIS WAY?
             expect(documentMatcher.match(data1)).toEqual(true);
             expect(data1).toEqual(clone);
 
@@ -1166,16 +1185,18 @@ describe('document matcher', () => {
             const data1 = { date: '2018-10-10T17:36:13Z', value: 252, type: 'example' };
             const data2 = { date: '2018-10-10T17:36:13Z', value: 253, type: 'other' };
             const data3 = { date: '["2018-10-10T17:36:13Z" TO "2018-10-10T17:36:13Z"]', value: 253, type: 'other' };
+
             const luceneQuery = 'date:["2018-10-10T17:36:13Z" TO "2018-10-10T17:36:13Z"] AND NOT value:(251 OR 252) AND NOT type:example';
             const luceneQuery2 = 'date:["2018-10-10T17:36:13Z" TO "2018-10-10T17:36:13Z"] AND ! value:(251 OR 252) AND ! type:example';
+            const typeConfig: TypeConfig = { date: 'date' };
 
-            documentMatcher.parse(luceneQuery);
+            documentMatcher.parse(luceneQuery, typeConfig);
 
             expect(documentMatcher.match(data1)).toEqual(false);
             expect(documentMatcher.match(data2)).toEqual(true);
             expect(documentMatcher.match(data3)).toEqual(false);
 
-            documentMatcher.parse(luceneQuery2);
+            documentMatcher.parse(luceneQuery2, typeConfig);
 
             expect(documentMatcher.match(data1)).toEqual(false);
             expect(documentMatcher.match(data2)).toEqual(true);
@@ -1185,10 +1206,11 @@ describe('document matcher', () => {
         it('can accept unquoted dates', () => {
             const data1 = { date: '2018-10-10T17:36:13Z', value: 252, type: 'example' };
             const data2 = { date: '2018-10-10T18:36:13Z', value: 253, type: 'other' };
+            const typeConfig: TypeConfig = { date: 'date' };
 
             const luceneQuery = 'date:[2018-10-10T17:36:13Z TO 2018-10-10T20:36:13Z]';
 
-            documentMatcher.parse(luceneQuery);
+            documentMatcher.parse(luceneQuery, typeConfig);
 
             expect(documentMatcher.match(data1)).toEqual(true);
             expect(documentMatcher.match(data2)).toEqual(true);
@@ -1234,57 +1256,99 @@ describe('document matcher', () => {
         });
 
         it('can handle more complex queries part2', () => {
-            const data1 = {
-                date: '2018-10-10T19:30:00Z',
+            const query1Data1 = {
+                date: '2018-11-10T19:30:00Z',
                 field1: { subfield: 'value' },
                 field2: 60,
                 field3: 15,
-                field4: 'value2',
+                field4: 'other',
+                field5: 'other'
             };
-            const data2 = {
+            const query1Data2 = {
+                date: '2018-10-10T19:30:00Z',
+                field1: { subfield: 'value' },
+                field2: 2,
+                field3: 25,
+                field4: 'sometext',
+                field5: 'other'
+            };
+            const query1Data3 = {
+                date: '2018-10-10T19:30:00Z',
+                field1: { subfield: 'value' },
+                field2: 60,
+                field3: 25,
+                field4: 'sometext',
+                field5: 'value2'
+            };
+            const query1Data4 = {
                 date: '2018-10-10T19:30:00Z',
                 field1: { subfield: 'value' },
                 field2: 60,
                 field3: 15,
                 field4: 'sometext',
+                field5: 'other'
             };
-            const data3 = {
+            const query1Data5 = {
+                date: '2018-10-10T19:30:00Z',
+                field1: { subfield: 'value' },
+                field2: 62,
+                field3: 15,
+                field4: 'other',
+                field5: 'other'
+            };
+            const query1Data6 = {
                 date: '2018-10-10T19:30:00Z',
                 field1: { subfield: 'other' },
+                field2: 62,
+                field3: 15,
+                field4: 'other',
+                field5: 'other'
+            };
+            const query1Data7 = {
+                date: '2018-09-10T19:30:00Z',
+                field1: { subfield: 'value' },
+                field2: 62,
+                field3: 15,
+                field4: 'other',
+                field5: 'other'
+            };
+            const query1Data8 = {
+                date: '2018-11-10T19:30:00Z',
+                field1: { subfield: 'value' },
                 field2: 60,
                 field3: 15,
-                field4: 'othertext',
+                field4: 'other'
             };
-            const data4 = {
-                date: '2018-10-10T19:30:00Z',
+            const query1Data9 = {
+                date: '2018-11-10T19:30:00Z',
                 field1: { subfield: 'value' },
                 field2: 60,
-                field3: 16,
-                field4: 'othertext',
+                field3: 15,
+                field5: 'other'
             };
-            const data5 = {
-                date: '2018-10-10T19:30:00Z',
+            const query1Data10 = {
+                date: '2018-11-10T19:30:00Z',
                 field1: { subfield: 'value' },
-                field2: 60
-            };
-            const data6 = {
-                date: '2018-10-10T19:30:00Z',
-                field1: { subfield: 'value' },
-                field2: 33,
-                field3: 16,
-                field4: 'othertext',
+                field2: 60,
+                field4: 'other',
+                field5: 'other'
             };
 
-            const query1 = 'date:[2018-10-10T19:30:00Z TO *] AND field1.subfield:value AND field2:(1 OR 2 OR 5 OR 20 OR 50 OR 60) AND NOT (field3:15 AND field4:sometext) AND NOT field4:value2';
+            const query1 = 'date:[2018-10-10T19:30:00Z TO *] AND field1.subfield:value AND field2:(1 OR 2 OR 5 OR 20 OR 50 OR 60) AND NOT (field3:15 AND field4:sometext) AND NOT field5:value2';
+
             expect(() => documentMatcher.parse(query1)).not.toThrow();
             documentMatcher.parse(query1, { date: 'date' });
 
-            expect(documentMatcher.match(data1)).toEqual(false);
-            expect(documentMatcher.match(data2)).toEqual(false);
-            expect(documentMatcher.match(data3)).toEqual(false);
-            expect(documentMatcher.match(data4)).toEqual(true);
-            expect(documentMatcher.match(data5)).toEqual(true);
-            expect(documentMatcher.match(data6)).toEqual(false);
+            expect(documentMatcher.match(query1Data1)).toEqual(true);
+            expect(documentMatcher.match(query1Data2)).toEqual(true);
+            expect(documentMatcher.match(query1Data3)).toEqual(false);
+            expect(documentMatcher.match(query1Data4)).toEqual(false);
+            expect(documentMatcher.match(query1Data5)).toEqual(false);
+            expect(documentMatcher.match(query1Data6)).toEqual(false);
+            expect(documentMatcher.match(query1Data7)).toEqual(false);
+            expect(documentMatcher.match(query1Data8)).toEqual(true);
+            expect(documentMatcher.match(query1Data9)).toEqual(true);
+            expect(documentMatcher.match(query1Data10)).toEqual(true);
 
             const data7 = {
                 date1: '2018-09-16T04:30:00Z',

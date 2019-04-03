@@ -434,7 +434,7 @@ describe('rules-validator', () => {
             expect(logger.warn).toHaveBeenCalled();
         });
 
-        it('if op cardinality is one-to-one then multi inputs will make multiiple ops.', () => {
+        it('if op cardinality is one-to-one then multi inputs will make multiple ops.', () => {
             const validator = constructValidator(oneToOne);
             const { postProcessing: { 'hello:world': results } } = validator.validate();
 

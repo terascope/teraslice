@@ -56,7 +56,7 @@ describe('SearchAccess', () => {
     it('should be able to restrict the query for bar', () => {
         expect(() => {
             searchAccess.restrictSearchQuery('bar:foo');
-        }).toThrowWithMessage(TSError, 'Field bar is restricted');
+        }).toThrowWithMessage(TSError, 'Field bar in query is restricted');
     });
 
     it('should be able to return a restricted query', () => {

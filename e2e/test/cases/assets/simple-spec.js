@@ -36,7 +36,7 @@ describe('assets', () => {
         const job = await teraslice.jobs.submit(jobSpec);
 
         await waitForJobStatus(job, 'running');
-        const r = await wait.forWorkersJoined(job.id(), workers, 20);
+        const r = await wait.forWorkersJoined(job.id(), workers, 25);
         expect(r).toEqual(workers);
         return job.stop();
     }
@@ -108,7 +108,7 @@ describe('assets', () => {
         const job = await teraslice.jobs.submit(jobSpec);
         await waitForJobStatus(job, 'running');
 
-        const waitResponse = await wait.forWorkersJoined(job.id(), workers, 20);
+        const waitResponse = await wait.forWorkersJoined(job.id(), workers, 25);
         expect(waitResponse).toEqual(workers);
 
         const execution = await job.execution();
@@ -128,7 +128,7 @@ describe('assets', () => {
         const job = await teraslice.jobs.submit(jobSpec);
         await waitForJobStatus(job, 'running');
 
-        const waitResponse = await wait.forWorkersJoined(job.id(), workers, 20);
+        const waitResponse = await wait.forWorkersJoined(job.id(), workers, 25);
         expect(waitResponse).toEqual(workers);
 
         const execution = await job.execution();

@@ -15,6 +15,7 @@ import {
 } from './helpers/simple-index';
 import { IndexStore, IndexConfig } from '../src';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
+import { Translator } from 'xlucene-evaluator';
 
 describe('IndexStore', () => {
     const client = makeClient();
@@ -315,7 +316,7 @@ describe('IndexStore', () => {
                 test_keyword: keyword,
                 test_object: { bulk: true },
                 test_number: (n + 10) * 2,
-                test_boolean: true,
+                test_boolean: n % 2 === 0,
                 _updated: new Date().toISOString(),
             }));
 
@@ -344,13 +345,75 @@ describe('IndexStore', () => {
                 }
             });
 
-            // it('test query', async () => {
-            //     const result = await indexStore._search({
-            //         q: `NOT test_id:bulk-2 AND test_keyword:${keyword}`,
-            //         size: 100
-            //     });
-            //     expect(result).toBeArrayOfSize(records.length - 1);
-            // });
+            xit('compare xlucene query', async () => {
+                const q = '_exists_:test_number OR test_number:<0 OR test_number:100000 NOT test_keyword:other-keyword';
+                const realResult = await indexStore._search({
+                    q,
+                    _sourceInclude: ['test_id', 'test_boolean'],
+                    sort: 'test_number:asc',
+                    size: 200
+                });
+                const xluceneResult = await indexStore.search(q, {
+                    size: 200,
+                    _sourceInclude: ['test_id', 'test_boolean'],
+                    sort: 'test_number:asc',
+                });
+
+                // @ts-ignore
+                const modifiedResult = await indexStore._search({
+                    body: {
+                        query: {
+                            constant_score: {
+                                filter: {
+                                    bool: {
+                                        filter: [
+                                            {
+                                                exists: {
+                                                    field: 'test_number'
+                                                }
+                                            },
+                                        ],
+                                        must_not: [
+                                            {
+                                                term: {
+                                                    test_keyword: 'other-keyword'
+                                                }
+                                            }
+                                        ],
+                                        should: [
+                                            {
+                                                range: {
+                                                    test_number: {
+                                                        gte: 10
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                term: {
+                                                    test_boolean: false
+                                                }
+                                            },
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    _sourceInclude: ['test_id', 'test_boolean'],
+                    sort: 'test_number:asc',
+                    size: 200
+                });
+
+                // @ts-ignore
+                const translated = new Translator(q, indexStore._xluceneTypes).toElasticsearchDSL();
+                // tslint:disable-next-line
+                console.log(JSON.stringify({ q, translated }, null, 4));
+
+                // expect(realResult).toEqual(modifiedResult);
+                expect(xluceneResult).toEqual(realResult);
+                // tslint:disable-next-line
+                console.dir(xluceneResult);
+            });
 
             it('should be able to search the records', async () => {
                 const result = await indexStore.search(`test_keyword: ${keyword}`, {

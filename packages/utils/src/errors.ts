@@ -1,6 +1,7 @@
+import { STATUS_CODES } from 'http';
+import { AnyObject } from './interfaces';
 import * as s from './strings';
 import * as utils from './utils';
-import { STATUS_CODES } from 'http';
 
 /**
  * A custom Error class with additional properties,
@@ -108,16 +109,20 @@ export interface TSErrorConfig {
     /**
      * Attach any context metadata to the error
     */
-    context?: object;
+    context?: AnyObject;
 
     defaultStatusCode?: number;
     defaultErrorMsg?: string;
 }
 
-export interface TSErrorContext extends Object {
+export interface TSErrorContext extends AnyObject {
     /** ISO Date string */
     _createdAt: string;
     _cause: any;
+    /**
+     * Used to indicate the error message is safe to log and send to the user
+    */
+    safe?: boolean;
 }
 
 type ErrorInfo = {
@@ -128,9 +133,12 @@ type ErrorInfo = {
     code: string,
 };
 
+const DEFAULT_STATUS_CODE = 500;
+const DEFAULT_ERR_MSG = STATUS_CODES[DEFAULT_STATUS_CODE] as string;
+
 /** parse error for info */
 export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInfo {
-    const { defaultErrorMsg, defaultStatusCode = 500 } = config;
+    const { defaultErrorMsg, defaultStatusCode = DEFAULT_STATUS_CODE } = config;
 
     const statusCode = getErrorStatusCode(input, config, defaultStatusCode);
 
@@ -191,6 +199,11 @@ function createErrorContext(input: any, config: TSErrorConfig = {}) {
             enumerable: false,
         }
     });
+
+    // don't propogate safe
+    if (context.safe && !(config.context && config.context.safe)) {
+        context.safe = false;
+    }
 
     return context;
 }
@@ -253,7 +266,7 @@ function _parseESErrorInfo(input: ElasticsearchError): { message: string, contex
 }
 
 function toErrorCode(input: string): string {
-    if (!s.isString(input)) return 'UNKNOWN_TSERROR';
+    if (!s.isString(input)) return 'UNKNOWN_ERROR';
     return input
         .trim()
         .toUpperCase()
@@ -345,7 +358,7 @@ function coerceStatusCode(input: any): number|null {
     return STATUS_CODES[input] != null ? input : null;
 }
 
-export function getErrorStatusCode(err: any, config: TSErrorConfig = {}, defaultCode = 500): number {
+export function getErrorStatusCode(err: any, config: TSErrorConfig = {}, defaultCode = DEFAULT_STATUS_CODE): number {
     const metadata = isElasticsearchError(err) ? err.toJSON() : {};
 
     for (const key of ['statusCode', 'status', 'code']) {
@@ -362,14 +375,28 @@ export function getErrorStatusCode(err: any, config: TSErrorConfig = {}, default
     return defaultCode;
 }
 
-export function stripErrorMessage(message: string, reason: string = 'Internal Server Error'): string {
-    if (!message || !s.isString(message)) return reason;
-    const messages = utils.parseList(message.split('caused by,'));
+export function stripErrorMessage(error: any, reason: string = DEFAULT_ERR_MSG, requireSafe = false): string {
+    const { message, context, statusCode } = parseErrorInfo(error, {
+        defaultErrorMsg: reason,
+        context: error && error.context,
+    });
+    const messages = utils.parseList(message.split('caused by'));
 
     const firstErr = utils.getFirst(messages);
     if (!firstErr) return reason;
 
-    const msg = firstErr.replace(/[A-Z]{2}Error/g, 'Error');
+    const msg = firstErr
+        .replace(/^\s*,\s*/, '')
+        .replace(/\s*,\s*$/, '')
+        .replace(/TSError/g, 'Error')
+        .trim();
+
+    if (requireSafe) {
+        if (context && context.safe) return msg;
+        if (statusCode === 403) return 'Access Denied';
+        if (statusCode === 404) return 'Not Found';
+        return reason;
+    }
 
     if (firstErr.includes(reason)) return msg;
     return `${reason}: ${msg}`;
