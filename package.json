@@ -11,6 +11,7 @@
         "docs:update": "./scripts/update-docs.sh",
         "bump": "./scripts/bump.js",
         "test": "jest --silent --maxWorkers=4 --detectOpenHandles --forceExit",
+        "test:ci": "jest --silent --maxWorkers=50% --forceExit",
         "test:debug": "jest --colors --coverage=false --detectOpenHandles --runInBand  --forceExit $JEST_ARGS",
         "test:watch": "jest --maxWorkers=1 --coverage=false --notify --onlyChanged --watch",
         "test:e2e": "yarn --cwd ./e2e test",

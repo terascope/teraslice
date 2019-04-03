@@ -35,7 +35,7 @@ jobs:
         - . ./scripts/travis-install-yarn.sh
         - . ./scripts/travis-install-es.sh
     script:
-        - yarn test
+        - yarn test:ci
     after_success:
       - bash <(curl -s https://codecov.io/bash)
 
