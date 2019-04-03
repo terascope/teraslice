@@ -26,12 +26,26 @@ describe('Parser (v2)', () => {
             field: null,
             value: 'foo bar'
         }],
-        ['"foo"', 'parse an quoted string', {
+        ['"foo"', 'parse a quoted string', {
             type: 'term',
             data_type: 'string',
             field: null,
             quoted: true,
             value: 'foo'
+        }],
+        ['\\"foo\\"', 'parse an escaped quoted string', {
+            type: 'term',
+            data_type: 'string',
+            field: null,
+            quoted: false,
+            value: '\\"foo\\"'
+        }],
+        ['foo:\\"bar\\"', 'parse field and escaped quoted string', {
+            type: 'term',
+            data_type: 'string',
+            field: 'foo',
+            quoted: false,
+            value: '\\"bar\\"'
         }],
         ['foo:bar', 'parse field and string value', {
             type: 'term',
@@ -39,6 +53,20 @@ describe('Parser (v2)', () => {
             field: 'foo',
             quoted: false,
             value: 'bar'
+        }],
+        ['foo:   bar', 'parse field and space between string value', {
+            type: 'term',
+            data_type: 'string',
+            field: 'foo',
+            quoted: false,
+            value: 'bar'
+        }],
+        ['foo:   bar baz', 'parse field and space between string value with more spaces and values', {
+            type: 'term',
+            data_type: 'string',
+            field: 'foo',
+            quoted: false,
+            value: 'bar baz'
         }],
         ['foo:"bar"', 'parse field and quoted string value', {
             type: 'term',
@@ -98,7 +126,7 @@ describe('Parser (v2)', () => {
         }],
     ];
 
-    describe.each(testCases)('when given query %j', (query, msg, ast) => {
+    describe.each(testCases)('when given query %s', (query, msg, ast) => {
         it(`should be able ${msg}`, () => {
             const parser = new Parser(query);
             expect(parser.ast).toMatchObject(ast);

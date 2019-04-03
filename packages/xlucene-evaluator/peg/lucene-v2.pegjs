@@ -5,7 +5,7 @@ start
 /** Expressions */
 
 TermExpression
-    = ws* leftHand:Field rightHand:Value ws* {
+    = ws* leftHand:Field ws* rightHand:Value ws* {
         return {
             type: 'term',
             ...leftHand,
@@ -23,7 +23,7 @@ TermExpression
 /** Entities? **/
 
 Field
-    = chars:FieldChar+ ':' {
+    = chars:FieldChar+ TermOperatorChar {
        return { field: chars.join("") }
     }
 
@@ -37,11 +37,11 @@ String
     / UnqoutedString
 
 QuotedString
-    = '"' chars:Char+ '"' {
+    = value:QuotedTerm {
         return {
             data_type: 'string',
             quoted: true,
-            value: chars.join("")
+            value
         };
     }
 
@@ -55,7 +55,7 @@ WildcardString
     }
 
 UnqoutedString
-    = chars:Char+ {
+    = chars:TermChar+ {
        return {
            data_type: 'string',
            quoted: false,
@@ -83,29 +83,39 @@ FieldChar
 TermOperatorChar
   = ':'
 
-SingleEscapeCharacter
-  = "'"
-  / '"'
+TermChar
+  =  "\\" sequence:EscapeSequence { return '\\' + sequence; }
+  / '.' / [^:\{\}()"/^~\[\]]
+
+QuotedTerm
+  = '"' chars:DoubleStringChar* '"' { return chars.join(''); }
+
+DoubleStringChar
+  = !('"' / "\\") char:. { return char; }
+  / "\\" sequence:EscapeSequence { return '\\' + sequence; }
+
+EscapeSequence
+  = "+"
+  / "-"
+  / "!"
+  / "("
+  / ")"
+  / "{"
+  / "}"
+  / "["
+  / "]"
+  / "^"
+  / "\""
+  / "?"
+  / ":"
   / "\\"
-  / "b"  { return "\b"; }
-  / "f"  { return "\f"; }
-  / "n"  { return "\n"; }
-  / "r"  { return "\r"; }
-  / "t"  { return "\t"; }
-  / "v"  { return "\v"; }
-
-Char
-  = UnescapedChar
-  / EscapeChar
-    sequence:SingleEscapeCharacter {
-        return sequence;
-    }
-
-EscapeChar
-  = "\\"
-
-UnescapedChar
-  = [^\0-\x1F\x22\x5C]
+  / "&"
+  / "|"
+  / "'"
+  / "/"
+  / "~"
+  / "*"
+  / " "
 
 // whitespace
 ws
