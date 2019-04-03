@@ -60,7 +60,7 @@ describe('processor generator with new flag', () => {
 
     afterAll(() => {
         fs.removeSync(path.join(__dirname, '..', 'fixtures', 'generate-new-processor', 'test-asset', 'asset', 'good_processor'));
-        fs.removeSync(path.join(__dirname, '..', 'fixtures', 'generate-new-processor', 'test-asset', 'spec', 'good_processor-spec.js'));
+        fs.removeSync(path.join(__dirname, '..', 'fixtures', 'generate-new-processor', 'test-asset', 'test', 'good_processor-spec.js'));
     });
 
     const processPath = path.join(testAssetBasePath, 'test-asset', 'asset');

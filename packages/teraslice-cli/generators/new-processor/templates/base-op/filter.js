@@ -3,13 +3,8 @@
 const { FilterProcessor } = require('@terascope/job-components');
 
 class <%= name %> extends FilterProcessor {
-    constructor(...args) {
-        super(...args);
-        // the args are context, opConfig, executionConfig
-        this.opConfig.type = 'string';
-    }
-
     filter(doc) {
+        // example code, processor code goes here
         if (doc.type === this.opConfig.type) {
             return true;
         }

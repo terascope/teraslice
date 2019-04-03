@@ -3,13 +3,8 @@
 const { BatchProcessor } = require('@terascope/job-components');
 
 class <%= name %> extends BatchProcessor {
-    constructor(...args) {
-        super(...args);
-        // the args are context, opConfig, executionConfig
-        this.opConfig.type = 'string';
-    }
-
     onBatch(dataArray) {
+        // example code, processor code goes here
         dataArray.forEach((doc) => {
             doc.type = this.opConfig.type;
         });

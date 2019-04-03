@@ -5,7 +5,8 @@ const Processor = require('../asset/<%= name %>/processor.js');
 const Schema = require('../asset/<%= name %>/schema.js');
 
 const opConfig = {
-    _op: '<%= name %>'
+    _op: '<%= name %>',
+    type: 'string'
 };
 
 const testData = [

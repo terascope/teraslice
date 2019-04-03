@@ -5,7 +5,8 @@ const Processor = require('../asset/<%= name %>/processor.js');
 const Schema = require('../asset/<%= name %>/schema.js');
 
 const opConfig = {
-    _op: '<%= name %>'
+    _op: '<%= name %>',
+    type: 'string'
 };
 
 const testData = [
@@ -13,11 +14,11 @@ const testData = [
         id: 1
     },
     {
-        id: 2,
-        type: 'string'
+        id: 2
     },
     {
-        id: 3
+        id: 3,
+        type: 'string'
     }
 ];
 
