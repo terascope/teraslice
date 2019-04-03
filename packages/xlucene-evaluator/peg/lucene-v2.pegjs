@@ -5,36 +5,36 @@ start
 /** Expressions */
 
 TermExpression
-    = ws* leftHand:Field ws* rightHand:Value ws* {
+    = ws* leftHand:Field ws* rightHand:TermValue ws* {
         return {
-            type: 'term',
             ...leftHand,
             ...rightHand
         }
     }
-    / ws* rightHand:Value ws* {
+    / ws* rightHand:TermValue ws* {
         return {
-            type: 'term',
             field: null,
             ...rightHand
         }
     }
 
 /** Entities? **/
-
 Field
     = field:FieldName TermOperatorChar {
        return { field }
     }
 
-Value
+TermValue
     = Number
     / Boolean
+    / Regexp
+    / Wildcard
     / String
 
 Boolean
-  =  value:BooleanKeyword {
+  = value:BooleanKeyword {
       return {
+        type: 'term',
         data_type: 'boolean',
         value
       }
@@ -42,22 +42,32 @@ Boolean
 
 String
     = QuotedString
-    / WildcardString
     / UnqoutedString
+
+Regexp
+    = value:RegexTerm {
+        return {
+            type: 'regexp',
+            data_type: 'string',
+            value
+        }
+    }
 
 QuotedString
     = value:QuotedTerm {
         return {
+            type: 'term',
             data_type: 'string',
             quoted: true,
             value
         };
     }
 
-WildcardString
+Wildcard
   = value:WildcardTerm {
        return {
-           data_type: 'wildcard',
+           type: 'wildcard',
+           data_type: 'string',
            quoted: false,
            value
        };
@@ -66,6 +76,7 @@ WildcardString
 UnqoutedString
     = value:UnquotedTerm {
        return {
+           type: 'term',
            data_type: 'string',
            quoted: false,
            value
@@ -75,13 +86,14 @@ UnqoutedString
 Number
     = value:Integer {
         return {
+           type: 'term',
            data_type: 'number',
            value
        };
     }
 
 Integer
-   = chars:DIGIT+ {
+   = chars:Digit+ {
         const digits = chars.join("");
         return parseInt(digits, 10);
    }
@@ -125,6 +137,13 @@ DoubleStringChar
   = !('"' / "\\") char:. { return char; }
   / "\\" sequence:EscapeSequence { return '\\' + sequence; }
 
+RegexTerm
+  = '/' chars:RegexStringChar* '/' { return chars.join(''); }
+
+RegexStringChar
+  = !('/' / "\\") char:. { return char; }
+  / "\\" sequence:EscapeSequence { return '\\' + sequence; }
+
 EscapeSequence
   = "+"
   / "-"
@@ -153,7 +172,5 @@ ws
   = [ \t\r\n\f]+
 
 // See RFC 4234, Appendix B (http://tools.ietf.org/html/rfc4234).
-DIGIT
+Digit
     = [0-9]
-HEXDIG
-    = [0-9a-f]i
