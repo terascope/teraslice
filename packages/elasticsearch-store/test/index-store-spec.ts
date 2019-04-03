@@ -415,9 +415,9 @@ describe('IndexStore', () => {
                 console.dir(xluceneResult);
             });
 
-            fit('test lucene query', async () => {
+            xit('test lucene query', async () => {
                 const result = await indexStore._search({
-                    q: 'test_number:*',
+                    q: 'test_number: >0',
                     size: 200,
                     sort: 'test_number:asc',
                 });

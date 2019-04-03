@@ -5,13 +5,19 @@ start
 /** Expressions */
 
 TermExpression
-    = ws* ExistsKeyword FieldSeparator field:FieldName ws* {
+    = ws* ExistsKeyword ws* FieldSeparator ws* field:FieldName ws* {
         return {
             type: 'exists',
             field
         }
     }
-    / ws* field:FieldName FieldSeparator term:TermType ws* {
+    / ws* field:FieldName ws* FieldSeparator ws* range:RangeExpression ws* {
+        return {
+            field,
+            ...range
+        }
+    }
+    / ws* field:FieldName ws* FieldSeparator ws* term:TermType ws* {
         return {
             field,
             ...term
@@ -24,8 +30,17 @@ TermExpression
         }
     }
 
+RangeExpression
+    = operator:RangeOperator value:IntegerValue {
+        const result = {
+            type: 'range'
+        }
+        result[operator] = value;
+        return result;
+    }
+
 FieldSeparator
-    = ws* FieldSeparatorChar ws*
+    = FieldSeparatorChar
 
 TermType
     = NumberType
@@ -137,6 +152,11 @@ BooleanKeyword
   = "true" { return true }
   / "false" { return false }
 
+RangeOperator
+    = '>=' { return 'gte' }
+    / '>' { return 'gt' }
+    / '<=' { return 'lte' }
+    / '<' { return 'lt' }
 
 /** Characters **/
 WildcardCharSet
