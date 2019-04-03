@@ -150,13 +150,19 @@ describe('Parser (v2)', () => {
             field: 'hi',
             value: 'th?r*'
         }],
-        ['example:/[a-z]+/', 'parse value with a basic regex', {
+        ['example:/[a-z]+/', 'parse a basic regexp', {
             type: 'regexp',
             data_type: 'string',
             field: 'example',
             value: '[a-z]+'
         }],
-        ['example:/0-9+\\//', 'parse value with an escaped forward slash in the regex', {
+        ['example:/foo:bar/', 'parse a regexp with a colon', {
+            type: 'regexp',
+            data_type: 'string',
+            field: 'example',
+            value: 'foo:bar'
+        }],
+        ['example:/0-9+\\//', 'parse regex with an escaped forward slash', {
             type: 'regexp',
             data_type: 'string',
             field: 'example',
