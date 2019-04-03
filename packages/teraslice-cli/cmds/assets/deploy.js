@@ -39,14 +39,11 @@ exports.builder = (yargs) => {
     yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
     yargs.conflicts('asset', ['build', 'file']);
     yargs.conflicts('replace', 'skip-upload');
-    yargs.example('$0 assets deploy ts-test1 terascope/file-assets');
-    yargs.example('$0 assets deploy ts-test1 terascope/file-assets --arch x64 --platform linux --node-version v8.10.1');
-    yargs.example('$0 assets deploy ts-test1 -f /tmp/file-assets-v0.2.1-node-8-linux-x64.zip');
+    yargs.example('$0 assets deploy ts-test1');
     yargs.example('$0 assets deploy ts-test1 --build');
-    yargs.example('$0 assets deploy ts-test1 --build --replace');
-    yargs.example('$0 assets deploy ts-test1 --build --src-dir /path/to/assetSrc');
+    yargs.example('$0 assets deploy ts-test1 terascope/file-assets');
+    yargs.example('$0 assets deploy ts-test1 -f /tmp/my-assets.zip');
     yargs.implies('replace', 'build');
-    // yargs.example('$0 assets deploy ts-test1 --build-dir ./file-assets'); TODO
 };
 
 
