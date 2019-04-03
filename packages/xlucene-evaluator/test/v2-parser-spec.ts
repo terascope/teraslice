@@ -47,6 +47,20 @@ describe('Parser (v2)', () => {
             quoted: false,
             value: '\\"bar\\"'
         }],
+        ['foo:\\"bar', 'parse field and one escaped quoted string', {
+            type: 'term',
+            data_type: 'string',
+            field: 'foo',
+            quoted: false,
+            value: '\\"bar'
+        }],
+        ['foo:"\\""', 'parse field and using a quoted escaped quote', {
+            type: 'term',
+            data_type: 'string',
+            field: 'foo',
+            quoted: true,
+            value: '\\"'
+        }],
         ['foo:bar', 'parse field and string value', {
             type: 'term',
             data_type: 'string',
