@@ -5,44 +5,44 @@ start
 /** Expressions */
 
 TermExpression
-    = ws* ExistsKeyword TermOperator field:FieldName ws* {
+    = ws* ExistsKeyword FieldSeparator field:FieldName ws* {
         return {
             type: 'exists',
             field
         }
     }
-    / ws* field:FieldName TermOperator term:TermValue ws* {
+    / ws* field:FieldName FieldSeparator term:TermType ws* {
         return {
             field,
             ...term
         }
     }
-    / ws* term:TermValue ws* {
+    / ws* term:TermType ws* {
         return {
             field: null,
             ...term
         }
     }
 
-TermOperator
-    = ws* TermOperatorChar ws*
+FieldSeparator
+    = ws* FieldSeparatorChar ws*
 
-TermValue
-    = Number
-    / Boolean
-    / Regexp
-    / Wildcard
-    / String
+TermType
+    = NumberType
+    / BooleanType
+    / RegexpType
+    / WildcardType
+    / StringType
 
-Number
-    = value:Float {
+NumberType
+    = value:FloatValue {
         return {
             type: 'term',
             data_type: 'float',
             value
         }
     }
-    / value:Integer {
+    / value:IntegerValue {
         return {
            type: 'term',
            data_type: 'integer',
@@ -50,19 +50,7 @@ Number
        };
     }
 
-
-Float
-    = value:FloatValue {
-        return parseFloat(value, 10)
-    }
-
-Integer
-   = chars:Digit+ {
-        const digits = chars.join("");
-        return parseInt(digits, 10);
-   }
-
-Boolean
+BooleanType
   = value:BooleanKeyword {
       return {
         type: 'term',
@@ -71,8 +59,8 @@ Boolean
       }
   }
 
-Regexp
-    = value:RegexTerm {
+RegexpType
+    = value:RegexValue {
         return {
             type: 'regexp',
             data_type: 'string',
@@ -80,8 +68,8 @@ Regexp
         }
     }
 
-Wildcard
-  = value:WildcardTerm {
+WildcardType
+  = value:WildcardValue {
        return {
            type: 'wildcard',
            data_type: 'string',
@@ -90,13 +78,12 @@ Wildcard
        };
     }
 
+StringType
+    = QuotedStringType
+    / UnqoutedStringType
 
-String
-    = QuotedString
-    / UnqoutedString
-
-QuotedString
-    = value:QuotedTerm {
+QuotedStringType
+    = value:QuotedTermValue {
         return {
             type: 'term',
             data_type: 'string',
@@ -105,8 +92,8 @@ QuotedString
         };
     }
 
-UnqoutedString
-    = value:UnquotedTerm {
+UnqoutedStringType
+    = value:UnquotedTermValue {
        return {
            type: 'term',
            data_type: 'string',
@@ -115,19 +102,34 @@ UnqoutedString
        };
     }
 
-UnquotedTerm
+FieldName
+    = chars:FieldChar+ { return chars.join('') }
+
+UnquotedTermValue
     = chars:TermChar+ {
         return chars.join('');
     }
 
-WildcardTerm
+WildcardValue
     = chars:WildcardCharSet+ {
         return chars.join('');
     }
 
-FieldName
-    = chars:FieldChar+ { return chars.join('') }
+RegexValue
+  = '/' chars:RegexStringChar* '/' { return chars.join(''); }
 
+IntegerValue
+   = chars:Digit+ {
+        const digits = chars.join("");
+        return parseInt(digits, 10);
+   }
+
+FloatValue
+  = value:$(Digit+ '.' Digit+) {
+        return parseFloat(value, 10)
+    }
+
+/** keywords **/
 ExistsKeyword
     = '_exists_'
 
@@ -135,33 +137,27 @@ BooleanKeyword
   = "true" { return true }
   / "false" { return false }
 
+
 /** Characters **/
-
-FloatValue
-  = $(Digit+ '.' Digit+)
-
 WildcardCharSet
   = $([^\?\*]* ('?' / '*')+ [^\?\*]*)
 
 FieldChar
   = [_a-zA-Z0-9-\.\?\*]
 
-TermOperatorChar
+FieldSeparatorChar
   = ':'
 
 TermChar
   =  "\\" sequence:EscapeSequence { return '\\' + sequence; }
   / '.' / [^:\{\}()"/^~\[\]]
 
-QuotedTerm
+QuotedTermValue
   = '"' chars:DoubleStringChar* '"' { return chars.join(''); }
 
 DoubleStringChar
   = !('"' / "\\") char:. { return char; }
   / "\\" sequence:EscapeSequence { return '\\' + sequence; }
-
-RegexTerm
-  = '/' chars:RegexStringChar* '/' { return chars.join(''); }
 
 RegexStringChar
   = !('/' / "\\") char:. { return char; }

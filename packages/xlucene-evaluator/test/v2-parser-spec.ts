@@ -185,6 +185,26 @@ describe('Parser (v2)', () => {
             type: 'exists',
             field: 'hello',
         }],
+        ['count: >=10', 'parse gte ranges', {
+            type: 'range',
+            field: 'count',
+            gte: 10
+        }],
+        ['count:>10', 'parse gt ranges', {
+            type: 'range',
+            field: 'count',
+            gt: 10
+        }],
+        ['count:<=20', 'parse lte ranges', {
+            type: 'range',
+            field: 'count',
+            lte: 20
+        }],
+        ['count:<20', 'parse lt ranges', {
+            type: 'range',
+            field: 'count',
+            lt: 20
+        }],
     ];
 
     describe.each(testCases)('when given query %s', (query, msg, ast) => {
