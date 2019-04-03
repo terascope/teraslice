@@ -46,11 +46,11 @@ QuotedString
     }
 
 WildcardString
-  = chars:WildcardChar {
+  = chars:WildcardCharSet+ {
        return {
            data_type: 'wildcard',
            quoted: false,
-           value: chars
+           value: chars.join('')
        };
     }
 
@@ -74,7 +74,7 @@ Integer
     }
 
 /** Characters **/
-WildcardChar
+WildcardCharSet
   = $([^\?\*]* ('?' / '*')+ [^\?\*]*)
 
 FieldChar
