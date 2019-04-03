@@ -37,9 +37,9 @@ exports.handler = async (argv) => {
 
             let term;
             if (argv.proc) {
-                term = spawn('yarn', ['yo', path.join(__dirname, '..', '..', 'generators', 'new-processor'), assetBaseDir, '--new'], { cwd: __dirname });
+                term = spawn('yarn', ['yo', '--no-insight', '--no-update-notifier', path.join(__dirname, '..', '..', 'generators', 'new-processor'), assetBaseDir, '--new'], { cwd: __dirname });
             } else {
-                term = spawn('yarn', ['yo', path.join(__dirname, '..', '..', 'generators', 'new-asset'), assetBaseDir], { cwd: __dirname });
+                term = spawn('yarn', ['yo', '--no-insight', '--no-update-notifier', path.join(__dirname, '..', '..', 'generators', 'new-asset'), assetBaseDir], { cwd: __dirname });
             }
 
             term.on('data', data => process.stdout.write(data));
