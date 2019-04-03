@@ -44,7 +44,7 @@ publish() {
             echoerr "$name@$currentVersion -> $targetVersion [DRAFT]"
 
             prepublishScript="$(jq -r '.scripts.prepublishOnly' package.json)"
-            if [ -n "$prepublishScript" ] || [ "$prepublishScript" != 'null' ]; then
+            if [ -n "$prepublishScript" ] && [ "$prepublishScript" != 'null' ]; then
                 yarn run prepublishOnly
             fi
         fi
