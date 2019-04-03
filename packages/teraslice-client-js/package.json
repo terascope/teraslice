@@ -28,7 +28,7 @@
     ],
     "dependencies": {
         "auto-bind": "^2.0.0",
-        "bluebird": "^3.5.3",
+        "bluebird": "^3.5.4",
         "lodash": "^4.17.11",
         "request": "^2.88.0",
         "request-promise": "^4.2.4"

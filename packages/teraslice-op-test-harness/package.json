@@ -24,7 +24,7 @@
     },
     "dependencies": {
         "@terascope/job-components": "^0.15.1",
-        "bluebird": "^3.5.3",
+        "bluebird": "^3.5.4",
         "lodash": "^4.17.11"
     },
     "devDependencies": {}
