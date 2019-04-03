@@ -66,11 +66,35 @@ describe('Parser (v2)', () => {
             field: 'fo?',
             value: 'bar'
         }],
-        ['hi:the?e', 'parse value with wildcard', {
+        ['hi:the?e', 'parse value with ? wildcard', {
             type: 'term',
             data_type: 'wildcard',
             field: 'hi',
             value: 'the?e'
+        }],
+        ['hi:?here', 'parse value with a prefix wildcard', {
+            type: 'term',
+            data_type: 'wildcard',
+            field: 'hi',
+            value: '?here'
+        }],
+        ['hi:ther*', 'parse value with a * wildcard', {
+            type: 'term',
+            data_type: 'wildcard',
+            field: 'hi',
+            value: 'ther*'
+        }],
+        ['hi:the?*', 'parse value with a * and ? wildcard', {
+            type: 'term',
+            data_type: 'wildcard',
+            field: 'hi',
+            value: 'the?*'
+        }],
+        ['hi:th?r*', 'parse value with a * and ? wildcard', {
+            type: 'term',
+            data_type: 'wildcard',
+            field: 'hi',
+            value: 'th?r*'
         }],
     ];
 
