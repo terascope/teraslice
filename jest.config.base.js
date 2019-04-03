@@ -27,6 +27,7 @@ module.exports = (projectDir) => {
             '<rootDir>/assets',
             `<rootDir>/${workspaceName}/*/node_modules`,
             `<rootDir>/${workspaceName}/*/dist`,
+            `<rootDir>/${workspaceName}/teraslice-cli/test/fixtures/`,
         ],
         moduleNameMapper: lernaAliases({ mainFields: ['srcMain', 'main'] }),
         moduleFileExtensions: [
