@@ -35,12 +35,25 @@ TermValue
     / String
 
 Number
-    = value:Integer {
+    = value:Float {
+        return {
+            type: 'term',
+            data_type: 'float',
+            value
+        }
+    }
+    / value:Integer {
         return {
            type: 'term',
-           data_type: 'number',
+           data_type: 'integer',
            value
        };
+    }
+
+
+Float
+    = value:FloatValue {
+        return parseFloat(value, 10)
     }
 
 Integer
@@ -123,6 +136,9 @@ BooleanKeyword
   / "false" { return false }
 
 /** Characters **/
+
+FloatValue
+  = $(Digit+ '.' Digit+)
 
 WildcardCharSet
   = $([^\?\*]* ('?' / '*')+ [^\?\*]*)

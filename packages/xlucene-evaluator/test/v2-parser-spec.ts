@@ -89,18 +89,31 @@ describe('Parser (v2)', () => {
             quoted: true,
             value: 'bar'
         }],
-        ['count:123', 'parse field and number value', {
+        ['count:123', 'parse field and integer value', {
             type: 'term',
-            data_type: 'number',
+            data_type: 'integer',
             field: 'count',
             value: 123
         }],
-        ['count:"123"', 'parse field and number value', {
+        ['count:"123"', 'parse field and integer value', {
             type: 'term',
             data_type: 'string',
             field: 'count',
             quoted: true,
             value: '123'
+        }],
+        ['cash:50.50', 'parse field and float value', {
+            type: 'term',
+            data_type: 'float',
+            field: 'cash',
+            value: 50.50
+        }],
+        ['cash:"50.50"', 'parse field and float value', {
+            type: 'term',
+            data_type: 'string',
+            field: 'cash',
+            quoted: true,
+            value: '50.50'
         }],
         ['bool:false', 'parse field and bool false', {
             type: 'term',
