@@ -168,6 +168,10 @@ describe('Parser (v2)', () => {
             field: 'example',
             value: '0-9+\\/'
         }],
+        ['_exists_:hello', 'parse _exists_ with a value', {
+            type: 'exists',
+            field: 'hello',
+        }],
     ];
 
     describe.each(testCases)('when given query %s', (query, msg, ast) => {

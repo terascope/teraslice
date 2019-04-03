@@ -5,24 +5,27 @@ start
 /** Expressions */
 
 TermExpression
-    = ws* leftHand:Field ws* rightHand:TermValue ws* {
+    = ws* ExistsKeyword TermOperator field:FieldName ws* {
         return {
-            ...leftHand,
-            ...rightHand
+            type: 'exists',
+            field
         }
     }
-    / ws* rightHand:TermValue ws* {
+    / ws* field:FieldName TermOperator term:TermValue ws* {
+        return {
+            field,
+            ...term
+        }
+    }
+    / ws* term:TermValue ws* {
         return {
             field: null,
-            ...rightHand
+            ...term
         }
     }
 
-/** Entities? **/
-Field
-    = field:FieldName TermOperatorChar {
-       return { field }
-    }
+TermOperator
+    = ws* TermOperatorChar ws*
 
 TermValue
     = Number
@@ -30,58 +33,6 @@ TermValue
     / Regexp
     / Wildcard
     / String
-
-Boolean
-  = value:BooleanKeyword {
-      return {
-        type: 'term',
-        data_type: 'boolean',
-        value
-      }
-  }
-
-String
-    = QuotedString
-    / UnqoutedString
-
-Regexp
-    = value:RegexTerm {
-        return {
-            type: 'regexp',
-            data_type: 'string',
-            value
-        }
-    }
-
-QuotedString
-    = value:QuotedTerm {
-        return {
-            type: 'term',
-            data_type: 'string',
-            quoted: true,
-            value
-        };
-    }
-
-Wildcard
-  = value:WildcardTerm {
-       return {
-           type: 'wildcard',
-           data_type: 'string',
-           quoted: false,
-           value
-       };
-    }
-
-UnqoutedString
-    = value:UnquotedTerm {
-       return {
-           type: 'term',
-           data_type: 'string',
-           quoted: false,
-           value
-       };
-    }
 
 Number
     = value:Integer {
@@ -98,6 +49,59 @@ Integer
         return parseInt(digits, 10);
    }
 
+Boolean
+  = value:BooleanKeyword {
+      return {
+        type: 'term',
+        data_type: 'boolean',
+        value
+      }
+  }
+
+Regexp
+    = value:RegexTerm {
+        return {
+            type: 'regexp',
+            data_type: 'string',
+            value
+        }
+    }
+
+Wildcard
+  = value:WildcardTerm {
+       return {
+           type: 'wildcard',
+           data_type: 'string',
+           quoted: false,
+           value
+       };
+    }
+
+
+String
+    = QuotedString
+    / UnqoutedString
+
+QuotedString
+    = value:QuotedTerm {
+        return {
+            type: 'term',
+            data_type: 'string',
+            quoted: true,
+            value
+        };
+    }
+
+UnqoutedString
+    = value:UnquotedTerm {
+       return {
+           type: 'term',
+           data_type: 'string',
+           quoted: false,
+           value
+       };
+    }
+
 UnquotedTerm
     = chars:TermChar+ {
         return chars.join('');
@@ -110,6 +114,9 @@ WildcardTerm
 
 FieldName
     = chars:FieldChar+ { return chars.join('') }
+
+ExistsKeyword
+    = '_exists_'
 
 BooleanKeyword
   = "true" { return true }
