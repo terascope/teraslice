@@ -55,7 +55,7 @@ describe('processor generator with new flag', () => {
         .withArguments(['test-asset'])
         .withPrompts({
             name: 'good_processor',
-            type: 'Map'
+            type: 'map'
         }));
 
     afterAll(() => {
