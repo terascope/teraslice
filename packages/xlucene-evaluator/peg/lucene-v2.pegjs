@@ -31,11 +31,12 @@ TermExpression
     }
 
 RangeExpression
-    = operator:RangeOperator value:IntegerValue {
+    = operator:RangeOperator type:NumberType {
         const result = {
-            type: 'range'
+            type: 'range',
+            data_type: type.data_type,
         }
-        result[operator] = value;
+        result[operator] = type.value;
         return result;
     }
 
