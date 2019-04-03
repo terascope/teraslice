@@ -32,7 +32,7 @@
     "dependencies": {
         "@terascope/utils": "^0.8.1",
         "elasticsearch-store": "^0.5.0",
-        "xlucene-evaluator": "^0.6.0"
+        "xlucene-evaluator": "^0.6.1"
     },
     "devDependencies": {
         "elasticsearch": "^15.4.1"

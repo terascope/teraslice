@@ -36,7 +36,7 @@
         "graphql": "^14.2.1",
         "graphql-type-json": "^0.2.4",
         "lodash.get": "^4.4.2",
-        "xlucene-evaluator": "^0.6.0"
+        "xlucene-evaluator": "^0.6.1"
     },
     "devDependencies": {
         "@terascope/job-components": "^0.15.1",
