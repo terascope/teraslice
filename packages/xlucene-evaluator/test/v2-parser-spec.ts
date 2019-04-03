@@ -102,6 +102,18 @@ describe('Parser (v2)', () => {
             quoted: true,
             value: '123'
         }],
+        ['bool:false', 'parse field and bool false', {
+            type: 'term',
+            data_type: 'boolean',
+            field: 'bool',
+            value: false
+        }],
+        ['bool:true', 'parse field and bool true', {
+            type: 'term',
+            data_type: 'boolean',
+            field: 'bool',
+            value: true
+        }],
         ['fo?:bar', 'parse field name with wildcard', {
             type: 'term',
             data_type: 'string',

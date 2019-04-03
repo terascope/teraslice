@@ -23,13 +23,22 @@ TermExpression
 /** Entities? **/
 
 Field
-    = chars:FieldChar+ TermOperatorChar {
-       return { field: chars.join("") }
+    = field:FieldName TermOperatorChar {
+       return { field }
     }
 
 Value
-    = Integer
+    = Number
+    / Boolean
     / String
+
+Boolean
+  =  value:BooleanKeyword {
+      return {
+        data_type: 'boolean',
+        value
+      }
+  }
 
 String
     = QuotedString
@@ -46,34 +55,56 @@ QuotedString
     }
 
 WildcardString
-  = chars:WildcardCharSet+ {
+  = value:WildcardTerm {
        return {
            data_type: 'wildcard',
            quoted: false,
-           value: chars.join('')
+           value
        };
     }
 
 UnqoutedString
-    = chars:TermChar+ {
+    = value:UnquotedTerm {
        return {
            data_type: 'string',
            quoted: false,
-           value: chars.join("")
+           value
+       };
+    }
+
+Number
+    = value:Integer {
+        return {
+           data_type: 'number',
+           value
        };
     }
 
 Integer
-    = chars:DIGIT+ {
+   = chars:DIGIT+ {
         const digits = chars.join("");
-        const num = parseInt(digits, 10);
-        return {
-           data_type: 'number',
-           value: num
-       };
+        return parseInt(digits, 10);
+   }
+
+UnquotedTerm
+    = chars:TermChar+ {
+        return chars.join('');
     }
 
+WildcardTerm
+    = chars:WildcardCharSet+ {
+        return chars.join('');
+    }
+
+FieldName
+    = chars:FieldChar+ { return chars.join('') }
+
+BooleanKeyword
+  = "true" { return true }
+  / "false" { return false }
+
 /** Characters **/
+
 WildcardCharSet
   = $([^\?\*]* ('?' / '*')+ [^\?\*]*)
 
