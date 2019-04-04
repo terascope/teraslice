@@ -3,6 +3,8 @@
 // TODO: Implement tests of handler using nock
 // TODO: Let's rework all of the IO that the `reply` module provides and ensure
 //       our commands are as Unix like as possible.
+const path = require('path');
+
 const fs = require('fs-extra');
 
 const AssetSrc = require('../../lib/asset-src');
@@ -17,14 +19,6 @@ const yargsOptions = new YargsOptions();
 exports.command = 'deploy <cluster-alias> [<asset>]';
 exports.desc = 'Uploads asset from zipfile, github, or source to Teraslice\n';
 exports.builder = (yargs) => {
-    // TODO: The UX on this is terrible.  I'm probably doing it wrong.
-    yargs.check((argv) => {
-        if (!(argv.file || argv.asset || argv.build)) {
-            reply.yellow('You must specify an asset, --file /path/to/file.zip, or --build');
-            return false;
-        }
-        return true;
-    });
     yargs.positional('cluster-alias', yargsOptions.buildPositional('cluster-alias'));
     yargs.positional('asset', yargsOptions.buildPositional('asset'));
     yargs.option('arch', yargsOptions.buildOption('arch'));
@@ -43,12 +37,13 @@ exports.builder = (yargs) => {
     yargs.example('$0 assets deploy ts-test1 --build');
     yargs.example('$0 assets deploy ts-test1 terascope/file-assets');
     yargs.example('$0 assets deploy ts-test1 -f /tmp/my-assets.zip');
-    yargs.implies('replace', 'build');
 };
 
 
 exports.handler = async (argv) => {
-    let assetPath;
+    const assetJsonPath = path.join('.', 'asset', 'asset.json');
+    const assetJsonExists = fs.existsSync(assetJsonPath);
+    let assetPath; // path to completed asset zipfile
     let assetZip;
     let clusterInfo = {};
     const cliConfig = new Config(argv);
@@ -95,19 +90,19 @@ exports.handler = async (argv) => {
 
         try {
             assetPath = await asset.download(cliConfig.assetDir, cliConfig.args.quiet);
-            if (!cliConfig.args.quiet) {
-                reply.green(`${cliConfig.args.asset} has either been downloaded or was already present on disk.`);
-            }
         } catch (err) {
             reply.fatal(`Unable to download ${cliConfig.args.asset} asset: ${err.stack}`);
         }
-    } else if (cliConfig.args.build) {
-        // assetPath from a zipFile created by building from a local asset
-        // source directory (--build) PWD ONLY for now
+    } else if (cliConfig.args.build || assetJsonExists) {
         let asset;
 
         try {
-            asset = new AssetSrc(cliConfig.args.srcDir);
+            if (assetJsonExists) {
+                asset = new AssetSrc('.');
+            } else {
+                asset = new AssetSrc(cliConfig.args.srcDir);
+            }
+            reply.green('Beginning asset build.');
             assetPath = await asset.build();
             if (!cliConfig.args.quiet) reply.green(`Asset created:\n\t${assetPath}`);
         } catch (err) {
@@ -120,7 +115,7 @@ exports.handler = async (argv) => {
         // have to extract the asset name from the zipfile.
         if (cliConfig.args.replace) {
             reply.yellow('*** Warning ***\n'
-                + 'This function is intended for asset development only.  \n'
+                + 'The --replace option is intended for asset development only.\n'
                 + 'Using it for production asset management is a bad idea.');
             const clusterAssetData = await terasliceClient.assets.get(asset.name);
 
@@ -142,9 +137,11 @@ exports.handler = async (argv) => {
             }
         }
     } else {
-        // The yargs.check() function should prevent users from reaching this
-        // error.
-        reply.fatal('You must specify an asset name or use -f /path/to/asset.zip');
+        reply.fatal(
+            'You must be in a directory containing asset/asset.json, specify\n'
+            + 'an asset name or use -f /path/to/asset.zip.  Call with -h for\n'
+            + 'details.'
+        );
     }
 
     if (!cliConfig.args.skipUpload) {
