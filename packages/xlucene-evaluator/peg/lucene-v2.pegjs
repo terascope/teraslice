@@ -5,33 +5,49 @@ start
 
 /** Expressions */
 LogicalGroup
-   = flow:Conjunction {
+   = flow:Conjunction+ {
         return {
             type: 'logical-group',
-            flow: [flow]
+            flow
         };
    }
 
 Conjunction
-    = left:TermExpression ws* AndConjunctionOperator ws* right:TermExpression {
+    = nodes:AndConjunctionLeft+ {
         return {
             type: 'conjunction',
             operator: 'AND',
-            nodes: [
-                left,
-                right
-            ]
-        };
+            nodes: [].concat(...nodes),
+        }
     }
-    / left:TermExpression ws* OrConjunctionOperator ws* right:TermExpression {
+    / nodes:OrConjunctionLeft+ {
         return {
             type: 'conjunction',
             operator: 'OR',
-            nodes: [
-                left,
-                right
-            ]
-        };
+            nodes: [].concat(...nodes),
+        }
+    }
+
+AndConjunctionLeft
+    = left:TermExpression ws+ nodes:AndConjunctionRight {
+        return [left, ...nodes]
+    }
+
+AndConjunctionRight
+    = ws* AndConjunctionOperator ws+ right:TermExpression nodes:AndConjunctionRight? {
+        if (!nodes) return [ right ];
+        return [ right, ...nodes];
+    }
+
+OrConjunctionLeft
+    = left:TermExpression ws+ nodes:OrConjunctionRight {
+        return [left, ...nodes]
+    }
+
+OrConjunctionRight
+    = ws* OrConjunctionOperator ws+ right:TermExpression nodes:OrConjunctionRight? {
+        if (!nodes) return [ right ];
+        return [ right, ...nodes];
     }
 
 TermExpression
@@ -307,12 +323,7 @@ AndConjunctionOperator
     / '&&'
 
 OrConjunctionOperator
-    = 'OR'
-    / '||'
-    / 'AND NOT'
-    / 'OR NOT'
-    / '&&' { return 'AND' }
-    / '||' { return 'OR' }
+    = 'OR' / '||'
 
 ZeroChar
     = '0'
@@ -352,6 +363,11 @@ EndChar
   / "~"
   / "*"
   / " "
+  / AndConjunctionOperator
+  / OrConjunctionOperator
+
+ReservedChars
+    = [^(AND)(OR):&?\[\]\{\}\(\)\!]
 
 EOF
   = !.

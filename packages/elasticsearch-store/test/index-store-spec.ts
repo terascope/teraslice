@@ -417,7 +417,7 @@ describe('IndexStore', () => {
 
             xit('test lucene query', async () => {
                 const result = await indexStore._search({
-                    q: `_updated: [${new Date(Date.now() - 10000).toISOString()} TO *]`,
+                    q: 'test_id: AND',
                     size: 200,
                     _sourceInclude: ['test_id'],
                     sort: 'test_number:asc',

@@ -32,7 +32,7 @@ function createV2() {
         optimize: 'speed',
         parser: {},
         format: 'commonjs',
-        trace: true
+        trace: false
     });
 
     if (output === updated) return;
