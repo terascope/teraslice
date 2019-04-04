@@ -31,12 +31,19 @@ TermExpression
     }
 
 RangeExpression
-    = operator:RangeOperator type:NumberType {
+    = leftOperator:LeftRangeOperator ws* leftValue:NumberType ws* 'TO' ws* rightValue:NumberType ws* rightOperator:RightRangeOperator {
+       const result = {
+            type: 'range',
+        }
+        result[leftOperator] = leftValue;
+        result[rightOperator] = rightValue;
+        return result;
+    }
+    / operator:RangeOperator value:NumberType {
         const result = {
             type: 'range',
-            data_type: type.data_type,
         }
-        result[operator] = type.value;
+        result[operator] = value;
         return result;
     }
 
@@ -159,6 +166,14 @@ RangeOperator
     / '<=' { return 'lte' }
     / '<' { return 'lt' }
 
+LeftRangeOperator
+    = '[' { return 'gte' }
+    / '{' { return 'gt' }
+
+RightRangeOperator
+    = ']' { return 'lte' }
+    / '}' { return 'lt' }
+
 /** Characters **/
 WildcardCharSet
   = $([^\?\*]* ('?' / '*')+ [^\?\*]*)
@@ -183,6 +198,15 @@ DoubleStringChar
 RegexStringChar
   = !('/' / "\\") char:. { return char; }
   / "\\" sequence:EscapeSequence { return '\\' + sequence; }
+
+ConjunctionOperator
+    = 'AND'
+    / 'NOT'
+    / 'NOT'
+    / 'AND NOT'
+    / 'OR NOT'
+    / '&&' { return 'AND' }
+    / '||' { return 'NOT' }
 
 EscapeSequence
   = "+"
