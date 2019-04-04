@@ -1,29 +1,29 @@
 /** Control Flow **/
 start
-    = TermExpression
+    = ws* parsed:TermExpression ws* { return parsed; }
 
 /** Expressions */
 
 TermExpression
-    = ws* ExistsKeyword ws* FieldSeparator ws* field:FieldName ws* {
+    = ExistsKeyword ws* FieldSeparator ws* field:FieldName {
         return {
             type: 'exists',
             field
         }
     }
-    / ws* field:FieldName ws* FieldSeparator ws* range:RangeExpression ws* {
+    / field:FieldName ws* FieldSeparator ws* range:RangeExpression {
         return {
             field,
             ...range
         }
     }
-    / ws* field:FieldName ws* FieldSeparator ws* term:TermType ws* {
+    / field:FieldName ws* FieldSeparator ws* term:TermType {
         return {
             field,
             ...term
         }
     }
-    / ws* term:TermType ws* {
+    / term:TermType {
         return {
             field: null,
             ...term
@@ -31,7 +31,7 @@ TermExpression
     }
 
 RangeExpression
-    = leftOperator:LeftRangeOperator ws* leftValue:NumberType ws* 'TO' ws* rightValue:NumberType ws* rightOperator:RightRangeOperator {
+    = leftOperator:LeftRangeOperator ws* leftValue:RangeType ws+ RangeJoinOperator ws+ rightValue:RangeType ws* rightOperator:RightRangeOperator {
        const result = {
             type: 'range',
         }
@@ -39,7 +39,7 @@ RangeExpression
         result[rightOperator] = rightValue;
         return result;
     }
-    / operator:RangeOperator value:NumberType {
+    / operator:RangeOperator value:RangeType {
         const result = {
             type: 'range',
         }
@@ -50,14 +50,22 @@ RangeExpression
 FieldSeparator
     = FieldSeparatorChar
 
+RangeType
+    = FloatType
+    / IntegerType
+    / QuotedStringType
+    / RestrictedTermType
+
 TermType
-    = NumberType
+    = FloatType
+    / IntegerType
     / BooleanType
     / RegexpType
     / WildcardType
-    / StringType
+    / QuotedStringType
+    / UnqoutedStringType
 
-NumberType
+FloatType
     = value:FloatValue {
         return {
             type: 'term',
@@ -65,12 +73,14 @@ NumberType
             value
         }
     }
-    / value:IntegerValue {
+
+IntegerType
+    = value:IntegerValue {
         return {
-           type: 'term',
-           data_type: 'integer',
-           value
-       };
+            type: 'term',
+            data_type: 'integer',
+            value
+        }
     }
 
 BooleanType
@@ -96,14 +106,9 @@ WildcardType
        return {
            type: 'wildcard',
            data_type: 'string',
-           quoted: false,
            value
        };
     }
-
-StringType
-    = QuotedStringType
-    / UnqoutedStringType
 
 QuotedStringType
     = value:QuotedTermValue {
@@ -125,11 +130,26 @@ UnqoutedStringType
        };
     }
 
+RestrictedTermType
+    = value:RestrictedTermValue {
+       return {
+           type: 'term',
+           data_type: 'string',
+           restricted: true,
+           value
+       };
+    }
+
 FieldName
     = chars:FieldChar+ { return chars.join('') }
 
 UnquotedTermValue
     = chars:TermChar+ {
+        return chars.join('');
+    }
+
+RestrictedTermValue
+    = chars:RestrictedTermChar+ {
         return chars.join('');
     }
 
@@ -142,15 +162,10 @@ RegexValue
   = '/' chars:RegexStringChar* '/' { return chars.join(''); }
 
 IntegerValue
-   = chars:Digit+ {
-        const digits = chars.join("");
-        return parseInt(digits, 10);
-   }
+   = int:$('0' / OneToNine Digit*) &NumEndChar { return parseInt(int, 10); }
 
 FloatValue
-  = value:$(Digit+ '.' Digit+) {
-        return parseFloat(value, 10)
-    }
+  = float:$(Digit* '.' Digit+) &NumEndChar { return parseFloat(float) }
 
 /** keywords **/
 ExistsKeyword
@@ -174,6 +189,9 @@ RightRangeOperator
     = ']' { return 'lte' }
     / '}' { return 'lt' }
 
+RangeJoinOperator
+    = 'TO'
+
 /** Characters **/
 WildcardCharSet
   = $([^\?\*]* ('?' / '*')+ [^\?\*]*)
@@ -185,19 +203,23 @@ FieldSeparatorChar
   = ':'
 
 TermChar
-  =  "\\" sequence:EscapeSequence { return '\\' + sequence; }
+  = "\\" sequence:EndChar { return '\\' + sequence; }
   / '.' / [^:\{\}()"/^~\[\]]
+
+RestrictedTermChar
+  =  "\\" sequence:EndChar { return '\\' + sequence; }
+  / '.' / [^: \t\r\n\f\{\}()"/^~\[\]]
 
 QuotedTermValue
   = '"' chars:DoubleStringChar* '"' { return chars.join(''); }
 
 DoubleStringChar
   = !('"' / "\\") char:. { return char; }
-  / "\\" sequence:EscapeSequence { return '\\' + sequence; }
+  / "\\" sequence:EndChar { return '\\' + sequence; }
 
 RegexStringChar
   = !('/' / "\\") char:. { return char; }
-  / "\\" sequence:EscapeSequence { return '\\' + sequence; }
+  / "\\" sequence:EndChar { return '\\' + sequence; }
 
 ConjunctionOperator
     = 'AND'
@@ -208,7 +230,23 @@ ConjunctionOperator
     / '&&' { return 'AND' }
     / '||' { return 'NOT' }
 
-EscapeSequence
+ZeroChar
+    = '0'
+
+OneToNine
+    = [1-9]
+
+Digit
+    = [0-9]
+
+NumEndChar
+  = " "
+  / "]"
+  / "}"
+  / ")"
+  / EOF
+
+EndChar
   = "+"
   / "-"
   / "!"
@@ -231,10 +269,12 @@ EscapeSequence
   / "*"
   / " "
 
-// whitespace
-ws
-  = [ \t\r\n\f]+
+EOF
+  = !.
 
-// See RFC 4234, Appendix B (http://tools.ietf.org/html/rfc4234).
-Digit
-    = [0-9]
+// whitespace
+ws "whitespace"
+  = "\t"
+  / "\v"
+  / "\f"
+  / " "

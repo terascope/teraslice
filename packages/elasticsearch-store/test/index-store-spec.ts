@@ -417,11 +417,12 @@ describe('IndexStore', () => {
 
             xit('test lucene query', async () => {
                 const result = await indexStore._search({
-                    q: 'test_number: (>0 OR NOT >100)',
+                    q: `_updated: [${new Date(Date.now() - 10000).toISOString()} TO *]`,
                     size: 200,
+                    _sourceInclude: ['test_id'],
                     sort: 'test_number:asc',
                 });
-                expect(result).toBeArrayOfSize(0);
+                // expect(result).toBeArrayOfSize(0);
                 // tslint:disable-next-line
                 console.dir(result);
             });

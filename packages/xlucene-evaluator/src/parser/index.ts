@@ -1,4 +1,6 @@
 import { debugLogger, Logger, TSError } from '@terascope/utils';
+// @ts-ignore
+import Tracer from 'pegjs-backtrace';
 import engine from './engine';
 
 export class Parser {
@@ -13,14 +15,18 @@ export class Parser {
     }
 
     private _parse() {
+        const tracer = new Tracer(this.query, {
+            showTrace: true
+        });
         try {
-            this.ast = engine.parse(this.query);
+            this.ast = engine.parse(this.query, { tracer });
             this.logger.debug(`parsed ${this.query} to `, this.ast);
         } catch (err) {
             throw new TSError(err, {
                 reason: `Failure to parse xlucene query ${this.query}`
             });
         }
+        this.logger.debug(tracer.getBacktraceString());
     }
 }
 

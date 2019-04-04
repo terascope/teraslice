@@ -81,4 +81,46 @@ export default [
             value: 5.3,
         }
     }],
+    ['val:[alpha TO omega]', 'inclusive range of strings', {
+        type: 'range',
+        field: 'val',
+        gte: {
+            data_type: 'string',
+            restricted: true,
+            value: 'alpha',
+        },
+        lte: {
+            data_type: 'string',
+            restricted: true,
+            value: 'omega',
+        }
+    }],
+    ['val:{"alpha" TO "omega"}', 'exclusive range of quoted', {
+        type: 'range',
+        field: 'val',
+        gt: {
+            data_type: 'string',
+            quoted: true,
+            value: 'alpha',
+        },
+        lt: {
+            data_type: 'string',
+            quoted: true,
+            value: 'omega',
+        }
+    }],
+    ['val:[2012-01-01 TO 2012-12-31]', 'inclusive date range', {
+        type: 'range',
+        field: 'val',
+        gte: {
+            data_type: 'string',
+            restricted: true,
+            value: '2012-01-01',
+        },
+        lte: {
+            data_type: 'string',
+            restricted: true,
+            value: '2012-12-31',
+        }
+    }],
 ] as TestCase[];

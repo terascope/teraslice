@@ -48,8 +48,9 @@
         "rambda": "^2.4.1"
     },
     "devDependencies": {
+        "elasticsearch": "^15.4.1",
         "pegjs": "^0.10.0",
-        "elasticsearch": "^15.4.1"
+        "pegjs-backtrace": "^0.1.2"
     },
     "engines": {
         "node": ">=8.0.0"

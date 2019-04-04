@@ -8585,6 +8585,11 @@ pathval@^1.1.0:
   resolved "https://registry.yarnpkg.com/pathval/-/pathval-1.1.0.tgz#b942e6d4bde653005ef6b71361def8727d0645e0"
   integrity sha1-uULm1L3mUwBe9rcTYd74cn0GReA=
 
+pegjs-backtrace@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/pegjs-backtrace/-/pegjs-backtrace-0.1.2.tgz#e3062e9777da0d9a8580b6ca73e17a69112e77c6"
+  integrity sha512-JLlZdt1AU6Jw8iTrhUKZwqSxt0seqGXZUGFId7400Bq6+k2gcT6vWLYGebZ+1y1DN5BIZORISyoA3GpqK6T7aQ==
+
 pegjs@^0.10.0:
   version "0.10.0"
   resolved "https://registry.yarnpkg.com/pegjs/-/pegjs-0.10.0.tgz#cf8bafae6eddff4b5a7efb185269eaaf4610ddbd"
