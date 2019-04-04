@@ -31,24 +31,47 @@ TermExpression
     }
 
 RangeExpression
-    = leftOperator:LeftRangeOperator ws* leftValue:RangeType ws+ RangeJoinOperator ws+ rightValue:RangeType ws* rightOperator:RightRangeOperator {
-       const result = {
+    = left:LeftRangeExpression ws+ RangeJoinOperator ws+ right:RightRangeExpression {
+        return {
             type: 'range',
+            left,
+            right,
         }
-        result[leftOperator] = leftValue;
-        result[rightOperator] = rightValue;
-        return result;
     }
     / operator:RangeOperator value:RangeType {
-        const result = {
+        return {
             type: 'range',
+            left: {
+                operator,
+                ...value,
+            },
         }
-        result[operator] = value;
-        return result;
     }
 
 FieldSeparator
     = FieldSeparatorChar
+
+LeftRangeExpression
+    = operator:StartRangeChar ws* value:LeftRangeType {
+        return {
+            operator,
+            ...value,
+        }
+    }
+
+RightRangeExpression
+    = ws* value:RightRangeType operator:EndRangeChar {
+        return {
+            operator,
+            ...value,
+        }
+    }
+
+LeftRangeType
+    = NegativeInfinityType / RangeType
+
+RightRangeType
+    = PostiveInfinityType / RangeType
 
 RangeType
     = FloatType
@@ -64,6 +87,24 @@ TermType
     / WildcardType
     / QuotedStringType
     / UnqoutedStringType
+
+NegativeInfinityType
+    = '*' {
+        return {
+            type: 'term',
+            data_type: 'number',
+            value: Number.NEGATIVE_INFINITY
+        }
+    }
+
+PostiveInfinityType
+    = '*' {
+        return {
+            type: 'term',
+            data_type: 'number',
+            value: Number.POSITIVE_INFINITY
+        }
+    }
 
 FloatType
     = value:FloatValue {
@@ -181,11 +222,11 @@ RangeOperator
     / '<=' { return 'lte' }
     / '<' { return 'lt' }
 
-LeftRangeOperator
+StartRangeChar
     = '[' { return 'gte' }
     / '{' { return 'gt' }
 
-RightRangeOperator
+EndRangeChar
     = ']' { return 'lte' }
     / '}' { return 'lt' }
 
