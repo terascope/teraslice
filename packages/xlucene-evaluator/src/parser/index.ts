@@ -16,17 +16,17 @@ export class Parser {
 
     private _parse() {
         const tracer = new Tracer(this.query, {
-            showTrace: true
+            showTrace: false
         });
         try {
             this.ast = engine.parse(this.query, { tracer });
             this.logger.debug(`parsed ${this.query} to `, this.ast);
         } catch (err) {
+            this.logger.debug(tracer.getBacktraceString());
             throw new TSError(err, {
                 reason: `Failure to parse xlucene query ${this.query}`
             });
         }
-        this.logger.debug(tracer.getBacktraceString());
     }
 }
 

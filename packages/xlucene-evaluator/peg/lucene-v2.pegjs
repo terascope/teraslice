@@ -1,21 +1,38 @@
 /** Control Flow **/
 start
     = ws* logic:LogicalGroup ws* { return logic; }
+    / term:TermExpression { return term; }
 
 /** Expressions */
 LogicalGroup
-    = leftTerm:TermExpression ws* operator:ConjunctionOperator ws* rightTerm:TermExpression {
-        const conjuction = {
-            type: 'conjunction',
-            operator,
-            nodes: [leftTerm, rightTerm]
-        };
+   = flow:Conjunction {
         return {
             type: 'logical-group',
-            flow: [conjuction]
-        }
+            flow: [flow]
+        };
+   }
+
+Conjunction
+    = left:TermExpression ws* AndConjunctionOperator ws* right:TermExpression {
+        return {
+            type: 'conjunction',
+            operator: 'AND',
+            nodes: [
+                left,
+                right
+            ]
+        };
     }
-    / term:TermExpression { return term; }
+    / left:TermExpression ws* OrConjunctionOperator ws* right:TermExpression {
+        return {
+            type: 'conjunction',
+            operator: 'OR',
+            nodes: [
+                left,
+                right
+            ]
+        };
+    }
 
 TermExpression
     = ExistsKeyword ws* FieldSeparator ws* field:FieldName {
@@ -278,11 +295,24 @@ RegexStringChar
 ConjunctionOperator
     = 'AND'
     / 'NOT'
-    / 'NOT'
+    / 'OR'
     / 'AND NOT'
     / 'OR NOT'
     / '&&' { return 'AND' }
-    / '||' { return 'NOT' }
+    / '||' { return 'OR' }
+
+AndConjunctionOperator
+    = 'AND'
+    / 'NOT'
+    / '&&'
+
+OrConjunctionOperator
+    = 'OR'
+    / '||'
+    / 'AND NOT'
+    / 'OR NOT'
+    / '&&' { return 'AND' }
+    / '||' { return 'OR' }
 
 ZeroChar
     = '0'

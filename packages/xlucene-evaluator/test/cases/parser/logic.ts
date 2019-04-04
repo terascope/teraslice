@@ -21,5 +21,26 @@ export default [
                 ]
             }
         ]
+    }],
+    ['a:1 OR b:1', 'a simple OR conjunction', {
+        type: 'logical-group',
+        flow: [
+            {
+                type: 'conjunction',
+                operator: 'OR',
+                nodes: [
+                    {
+                        type: 'term',
+                        field: 'a',
+                        value: 1,
+                    },
+                    {
+                        type: 'term',
+                        field: 'b',
+                        value: 1,
+                    }
+                ]
+            }
+        ]
     }]
 ] as TestCase[];
