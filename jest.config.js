@@ -18,6 +18,7 @@ module.exports = {
         '/examples/',
         '<rootDir>/e2e/',
         '<rootDir>/packages/*/dist',
+        '<rootDir>/packages/teraslice-cli/test/fixtures/'
     ],
     collectCoverage: true,
     collectCoverageFrom: [
