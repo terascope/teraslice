@@ -1,19 +1,19 @@
 import { TestCase } from './interfaces';
 
 export default [
-    ['example:/[a-z]+/', 'parse a basic regexp', {
+    ['example:/[a-z]+/', 'a basic regexp', {
         type: 'regexp',
         data_type: 'string',
         field: 'example',
         value: '[a-z]+'
     }],
-    ['example:/foo:bar/', 'parse a regexp with a colon', {
+    ['example:/foo:bar/', 'a regexp with a colon', {
         type: 'regexp',
         data_type: 'string',
         field: 'example',
         value: 'foo:bar'
     }],
-    ['example:/0-9+\\//', 'parse regex with an escaped forward slash', {
+    ['example:/0-9+\\//', 'regex with an escaped forward slash', {
         type: 'regexp',
         data_type: 'string',
         field: 'example',
