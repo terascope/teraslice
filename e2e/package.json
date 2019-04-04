@@ -34,8 +34,6 @@
         "elasticsearch": "^15.4.1",
         "jest": "^24.7.0",
         "jest-extended": "^0.11.1",
-        "jest-haste-map": "^24.7.0",
-        "jest-resolve": "^24.7.0",
         "lodash": "^4.17.11",
         "semver": "^6.0.0",
         "signale": "^1.4.0",

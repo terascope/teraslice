@@ -35,7 +35,7 @@ jobs:
         - . ./scripts/travis-install-yarn.sh
         - . ./scripts/travis-install-es.sh
     script:
-        - yarn test:ci
+        - node --max-old-space-size=512 --expose-gc ./node_modules/.bin/jest --silent --logHeapUsage --runInBand --forceExit
     after_success:
       - bash <(curl -s https://codecov.io/bash)
 
