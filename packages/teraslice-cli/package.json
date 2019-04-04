@@ -45,5 +45,8 @@
     },
     "devDependencies": {
         "jest-fixtures": "^0.6.0"
+    },
+    "pkg": {
+        "scripts": "cmds/**/*.js"
     }
 }
