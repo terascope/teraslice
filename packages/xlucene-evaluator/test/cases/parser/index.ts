@@ -1,3 +1,4 @@
+import logic from './logic';
 import misc from './misc';
 import range from './range';
 import regexp from './regexp';
@@ -6,9 +7,10 @@ import wildcard from './wildcard';
 
 export * from './interfaces';
 export default {
-    misc,
-    range,
-    regexp,
     terms,
-    wildcard
+    misc,
+    regexp,
+    wildcard,
+    range,
+    logic,
 };

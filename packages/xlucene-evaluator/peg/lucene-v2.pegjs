@@ -1,8 +1,21 @@
 /** Control Flow **/
 start
-    = ws* parsed:TermExpression ws* { return parsed; }
+    = ws* logic:LogicalGroup ws* { return logic; }
 
 /** Expressions */
+LogicalGroup
+    = leftTerm:TermExpression ws* operator:ConjunctionOperator ws* rightTerm:TermExpression {
+        const conjuction = {
+            type: 'conjunction',
+            operator,
+            nodes: [leftTerm, rightTerm]
+        };
+        return {
+            type: 'logical-group',
+            flow: [conjuction]
+        }
+    }
+    / term:TermExpression { return term; }
 
 TermExpression
     = ExistsKeyword ws* FieldSeparator ws* field:FieldName {
