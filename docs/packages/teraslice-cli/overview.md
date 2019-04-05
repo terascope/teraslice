@@ -134,12 +134,36 @@ output:
 ```
 Asset <asset-id> deleted from <cluster-alias>
 ```
-**INIT** - Creates a new asset directory structure including a README, config files, and basic dependencies.
-command:
+**INIT** - Creates a new asset framework or adds a new processor to an existing asset with the --processor option
 ```
-teraslice-cli assets init <new-asset-name>
+teraslice-cli assets init
 ```
-The cli will then ask a series of questions about the asset and then create the asset file structure.
+An asset is composed of processors that reside in the asset_name/asset directory.  This command creates the basic asset directory structure.  The teraslice-cli will ask for an asset name and brief description before creating the asset file structure, test framework, and it's needed dependencies.  It will create working tests in the test directory.  If `yarn` is installed then the cli will use `yarn` to install the dependencies, otherwise it will use `npm`.  Use `yarn test` or `npm test` to run the test suite.
+
+Asset directory contents
+```
+  asset_name
+    - asset
+      package.json
+      asset.json
+      yarn.lock or package-lock.json
+      node_modules
+      - processor
+        index.js
+        processor.js
+        schema.js
+    - spec
+        asset-spec.js
+    node_modules
+    package.json
+    .eslintrc
+    yarn.lock or package-lock.json
+```
+To create a new processor in an already made asset use the `--processor` option.
+```
+teraslice-cli assets init --processor
+```
+The processor will be added to the `asset` directory with an associated test file in the test directory.  If there is no asset directory in the cwd then the cli will not create the processor.  The cli will prompt for a name and type before creating the new processor.  The three processor types are batch, filter, and map.  The batch processor expects the entire slice array for the input while the filter and map functions expect one item at a time.  See example code in a generated processor.
 
 ### TJM (teraslice job manager) - commands to manage jobs by referencing the jobFile.json.
 **REGISTER** - Registers a job to a cluster and adds the metadata to the jobFile.json. Before a job can be registered set up cluster aliases as instructed above.  Use --start to immediately start the job after registering, also accepts the abbreviation reg.
