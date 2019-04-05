@@ -64,13 +64,6 @@ export default [
         quoted: false,
         value: 'bar'
     }],
-    ['foo:   bar baz', 'field and space between string value with more spaces and values', {
-        type: 'term',
-        data_type: 'string',
-        field: 'foo',
-        quoted: false,
-        value: 'bar baz'
-    }],
     ['foo:"bar"', 'field and quoted string value', {
         type: 'term',
         data_type: 'string',

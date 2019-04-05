@@ -211,4 +211,29 @@ export default [
             }
         ]
     }],
+    [' foo:   bar baz', 'field and space between multiple values into a conjunction', {
+        type: 'logical-group',
+        flow: [
+            {
+                type: 'conjunction',
+                operator: 'OR',
+                nodes: [
+                    {
+                        type: 'term',
+                        data_type: 'string',
+                        field: 'foo',
+                        quoted: false,
+                        value: 'bar'
+                    },
+                    {
+                        type: 'term',
+                        data_type: 'string',
+                        field: null,
+                        quoted: false,
+                        value: 'baz'
+                    }
+                ],
+            }
+        ]
+    }]
 ] as TestCase[];
