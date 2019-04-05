@@ -32,7 +32,7 @@ function createV2() {
         optimize: 'speed',
         parser: {},
         format: 'commonjs',
-        trace: false
+        trace: process.env.DEBUG_LUCENE === '1'
     });
 
     if (output === updated) return;

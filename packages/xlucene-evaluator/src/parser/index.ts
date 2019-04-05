@@ -22,10 +22,14 @@ export class Parser {
             this.ast = engine.parse(this.query, { tracer });
             this.logger.debug(`parsed ${this.query} to `, this.ast);
         } catch (err) {
-            this.logger.debug(tracer.getBacktraceString());
             throw new TSError(err, {
                 reason: `Failure to parse xlucene query ${this.query}`
             });
+        } finally {
+            if (process.env.DEBUG_LUCENE === '1')  {
+                // tslint:disable-next-line no-console
+                console.error(tracer.getBacktraceString());
+            }
         }
     }
 }

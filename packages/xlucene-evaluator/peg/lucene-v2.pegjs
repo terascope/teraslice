@@ -27,6 +27,20 @@ Conjunction
             nodes: [].concat(...nodes),
         }
     }
+    / nodes:AndConjunctionRight+ {
+        return {
+            type: 'conjunction',
+            operator: 'AND',
+            nodes: [].concat(...nodes),
+        }
+    }
+    / nodes:OrConjunctionRight+ {
+        return {
+            type: 'conjunction',
+            operator: 'OR',
+            nodes: [].concat(...nodes),
+        }
+    }
 
 AndConjunctionLeft
     = left:TermExpression ws+ nodes:AndConjunctionRight {
@@ -35,8 +49,8 @@ AndConjunctionLeft
 
 AndConjunctionRight
     = ws* AndConjunctionOperator ws+ right:TermExpression nodes:AndConjunctionRight? {
-        if (!nodes) return [ right ];
-        return [ right, ...nodes];
+        if (!nodes) return [right];
+        return [right, ...nodes];
     }
 
 OrConjunctionLeft
