@@ -57,18 +57,21 @@ FieldOrQuotedTermGroup
     = ParensGroup / FieldOrQuotedTermExpression
 
 NegationExpression
-    = 'NOT' ws+ node:RestrictedTermExpression {
+    = 'NOT' ws+ node:NegatedTermGroup {
         return {
             type: 'negation',
             node
         }
     }
-    / '!' ws* node:RestrictedTermExpression {
+    / '!' ws* node:NegatedTermGroup {
         return {
             type: 'negation',
             node
         }
     }
+
+NegatedTermGroup
+    = node:ParensGroup / node:RestrictedTermExpression
 
 AndConjunctionLeft
     = left:TermGroup ws+ nodes:AndConjunctionRight {
