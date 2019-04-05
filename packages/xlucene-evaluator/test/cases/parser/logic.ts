@@ -136,6 +136,79 @@ export default [
                 ]
             }
         ]
-    }]
-
+    }],
+    ['foo "bar"', 'implicit OR conjunction', {
+        type: 'logical-group',
+        flow: [
+            {
+                type: 'conjunction',
+                operator: 'OR',
+                nodes: [
+                    {
+                        type: 'term',
+                        data_type: 'string',
+                        restricted: true,
+                        field: null,
+                        value: 'foo'
+                    },
+                    {
+                        type: 'term',
+                        data_type: 'string',
+                        field: null,
+                        quoted: true,
+                        value: 'bar'
+                    }
+                ]
+            }
+        ]
+    }],
+    ['"foo" bar:baz', 'implicit OR conjunction', {
+        type: 'logical-group',
+        flow: [
+            {
+                type: 'conjunction',
+                operator: 'OR',
+                nodes: [
+                    {
+                        type: 'term',
+                        data_type: 'string',
+                        field: null,
+                        quoted: true,
+                        value: 'foo'
+                    },
+                    {
+                        type: 'term',
+                        data_type: 'string',
+                        field: 'bar',
+                        value: 'baz'
+                    }
+                ]
+            }
+        ]
+    }],
+    ['hi:"foo" hello:"bar"', 'implicit OR conjunction', {
+        type: 'logical-group',
+        flow: [
+            {
+                type: 'conjunction',
+                operator: 'OR',
+                nodes: [
+                    {
+                        type: 'term',
+                        data_type: 'string',
+                        field: 'hi',
+                        quoted: true,
+                        value: 'foo'
+                    },
+                    {
+                        type: 'term',
+                        data_type: 'string',
+                        field: 'hello',
+                        quoted: true,
+                        value: 'bar'
+                    }
+                ]
+            }
+        ]
+    }],
 ] as TestCase[];

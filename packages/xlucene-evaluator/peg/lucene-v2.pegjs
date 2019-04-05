@@ -1,7 +1,10 @@
 /** Control Flow **/
 start
     = ws* logic:LogicalGroup ws* { return logic; }
-    / term:TermExpression { return term; }
+    / ws* term:UnqoutedTermType ws* EOF { return term; }
+    / ws* term:RestrictedTermExpression ws* EOF { return term; }
+    / EOF { return {} }
+
 
 /** Expressions */
 LogicalGroup
@@ -43,50 +46,116 @@ Conjunction
     }
 
 AndConjunctionLeft
-    = left:TermExpression ws+ nodes:AndConjunctionRight {
+    = left:RestrictedTermExpression ws+ nodes:AndConjunctionRight {
         return [left, ...nodes]
     }
 
 AndConjunctionRight
-    = ws* AndConjunctionOperator ws+ right:TermExpression nodes:AndConjunctionRight? {
+    = ws* AndConjunctionOperator ws+ right:RestrictedTermExpression nodes:AndConjunctionRight? {
         if (!nodes) return [right];
         return [right, ...nodes];
     }
 
 OrConjunctionLeft
-    = left:TermExpression ws+ nodes:OrConjunctionRight {
+    = left:RestrictedTermExpression ws+ nodes:OrConjunctionRight {
         return [left, ...nodes]
+    }
+    / left:OrTermExpression ws+ right:RestrictedTermExpression {
+        return [left, right]
+    }
+    / left:RestrictedTermExpression ws+ right:OrTermExpression {
+        return [left, right]
     }
 
 OrConjunctionRight
-    = ws* OrConjunctionOperator ws+ right:TermExpression nodes:OrConjunctionRight? {
+    = ws* OrConjunctionOperator ws+ right:RestrictedTermExpression nodes:OrConjunctionRight? {
         if (!nodes) return [ right ];
-        return [ right, ...nodes];
+        return [right, ...nodes];
     }
 
 TermExpression
     = ExistsKeyword ws* FieldSeparator ws* field:FieldName {
         return {
             type: 'exists',
-            field
+            field,
         }
     }
     / field:FieldName ws* FieldSeparator ws* range:RangeExpression {
         return {
+            ...range,
             field,
-            ...range
         }
     }
     / field:FieldName ws* FieldSeparator ws* term:TermType {
         return {
+            ...term,
             field,
-            ...term
         }
     }
     / term:TermType {
         return {
+            ...term,
             field: null,
-            ...term
+        }
+    }
+
+RestrictedTermExpression
+    = ExistsKeyword ws* FieldSeparator ws* field:FieldName {
+        return {
+            type: 'exists',
+            field,
+        }
+    }
+    / field:FieldName ws* FieldSeparator ws* range:RangeExpression {
+        return {
+            ...range,
+            field,
+        }
+    }
+    / field:FieldName ws* FieldSeparator ws* term:RestrictedTermType {
+        return {
+            ...term,
+            field,
+        }
+    }
+    / term:RestrictedTermType {
+        return {
+            ...term,
+            field: null,
+        }
+    }
+
+OrTermExpression
+    = ExistsKeyword ws* FieldSeparator ws* field:FieldName {
+        return {
+            type: 'exists',
+            field,
+        }
+    }
+    / field:FieldName ws* FieldSeparator ws* range:RangeExpression {
+        return {
+            ...range,
+            field,
+        }
+    }
+    / field:FieldName ws* FieldSeparator ws* term:RestrictedTermType {
+        return {
+            ...term,
+            field,
+        }
+    }
+    / term:QuotedStringType {
+        return {
+            ...term,
+            field: null,
+        }
+    }
+
+UnqoutedTermType
+    = term:UnqoutedStringType {
+        return {
+            ...term,
+            field: null,
         }
     }
 
@@ -98,7 +167,7 @@ RangeExpression
             right,
         }
     }
-    / operator:RangeOperator value:RangeType {
+    / operator:RangeOperator value:RestrictedTermType {
         return {
             type: 'range',
             left: {
@@ -114,39 +183,46 @@ FieldSeparator
 LeftRangeExpression
     = operator:StartRangeChar ws* value:LeftRangeType {
         return {
-            operator,
             ...value,
+            operator,
         }
     }
 
 RightRangeExpression
     = ws* value:RightRangeType operator:EndRangeChar {
         return {
-            operator,
             ...value,
+            operator,
         }
     }
 
 LeftRangeType
-    = NegativeInfinityType / RangeType
+    = NegativeInfinityType / RangeTermType
 
 RightRangeType
-    = PostiveInfinityType / RangeType
+    = PostiveInfinityType / RangeTermType
 
-RangeType
+RangeTermType
     = FloatType
     / IntegerType
     / QuotedStringType
-    / RestrictedTermType
+    / RestrictedStringType
+
+RestrictedTermType
+    = term:TermType {
+        return { field: null, ...term };
+    }
+    / term:RestrictedStringType {
+        return { field: null, ...term };
+    }
 
 TermType
     = FloatType
     / IntegerType
-    / BooleanType
     / RegexpType
+    / BooleanType
     / WildcardType
     / QuotedStringType
-    / UnqoutedStringType
 
 NegativeInfinityType
     = '*' {
@@ -231,12 +307,13 @@ UnqoutedStringType
        };
     }
 
-RestrictedTermType
-    = value:RestrictedTermValue {
+RestrictedStringType
+    = value:RestrictedStringValue {
        return {
            type: 'term',
            data_type: 'string',
            restricted: true,
+           quoted: false,
            value
        };
     }
@@ -249,7 +326,7 @@ UnquotedTermValue
         return chars.join('');
     }
 
-RestrictedTermValue
+RestrictedStringValue
     = chars:RestrictedTermChar+ {
         return chars.join('');
     }
