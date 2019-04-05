@@ -1,14 +1,13 @@
 /** Control Flow **/
 start
-    = ws* logic:LogicalGroup ws* { return logic; }
+    = logic:LogicalGroup { return logic; }
     / ws* term:UnqoutedTermType ws* EOF { return term; }
     / ws* term:RestrictedTermExpression ws* EOF { return term; }
-    / EOF { return {} }
-
+    / ws* EOF { return {} }
 
 /** Expressions */
 LogicalGroup
-   = flow:Conjunction+ {
+   = ws* flow:Conjunction+ ws* {
         return {
             type: 'logical-group',
             flow
@@ -45,30 +44,42 @@ Conjunction
         }
     }
 
+TermGroup
+    = ws* '(' ws* group:LogicalGroup ws* ')' ws* {
+        return group;
+    }
+    / RestrictedTermExpression
+
+OrTermGroup
+    = ws* '(' ws* group:LogicalGroup ws* ')' ws* {
+        return group;
+    }
+    / OrTermExpression
+
 AndConjunctionLeft
-    = left:RestrictedTermExpression ws+ nodes:AndConjunctionRight {
+    = left:TermGroup ws+ nodes:AndConjunctionRight {
         return [left, ...nodes]
     }
 
 AndConjunctionRight
-    = ws* AndConjunctionOperator ws+ right:RestrictedTermExpression nodes:AndConjunctionRight? {
+    = ws* AndConjunctionOperator ws+ right:TermGroup nodes:AndConjunctionRight? {
         if (!nodes) return [right];
         return [right, ...nodes];
     }
 
 OrConjunctionLeft
-    = left:RestrictedTermExpression ws+ nodes:OrConjunctionRight {
+    = left:TermGroup ws+ nodes:OrConjunctionRight {
         return [left, ...nodes]
     }
-    / left:OrTermExpression ws+ right:RestrictedTermExpression {
+    / left:OrTermGroup ws+ right:TermGroup {
         return [left, right]
     }
-    / left:RestrictedTermExpression ws+ right:OrTermExpression {
+    / left:TermGroup ws+ right:OrTermGroup {
         return [left, right]
     }
 
 OrConjunctionRight
-    = ws* OrConjunctionOperator ws+ right:RestrictedTermExpression nodes:OrConjunctionRight? {
+    = ws* OrConjunctionOperator ws+ right:TermGroup nodes:OrConjunctionRight? {
         if (!nodes) return [ right ];
         return [right, ...nodes];
     }

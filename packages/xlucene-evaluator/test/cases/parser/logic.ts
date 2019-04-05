@@ -235,5 +235,47 @@ export default [
                 ],
             }
         ]
-    }]
+    }],
+    ['a:1 AND (b:1 OR c:1) AND d:1', 'AND conjunction with parens', {
+        type: 'logical-group',
+        flow: [
+            {
+                type: 'conjunction',
+                operator: 'AND',
+                nodes: [
+                    {
+                        type: 'term',
+                        field: 'a',
+                        value: 1,
+                    },
+                    {
+                        type: 'logical-group',
+                        flow: [
+                            {
+                                type: 'conjunction',
+                                operator: 'OR',
+                                nodes: [
+                                    {
+                                        type: 'term',
+                                        field: 'b',
+                                        value: 1,
+                                    },
+                                    {
+                                        type: 'term',
+                                        field: 'c',
+                                        value: 1,
+                                    },
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        type: 'term',
+                        field: 'd',
+                        value: 1,
+                    }
+                ]
+            }
+        ]
+    }],
 ] as TestCase[];
