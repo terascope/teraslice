@@ -1,5 +1,6 @@
 import logic from './logic';
 import misc from './misc';
+import negation from './negation';
 import range from './range';
 import regexp from './regexp';
 import terms from './terms';
@@ -13,4 +14,5 @@ export default {
     wildcard,
     range,
     logic,
+    negation,
 };

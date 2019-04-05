@@ -1,6 +1,7 @@
 /** Control Flow **/
 start
-    = ws* logic:LogicalGroup ws* { return logic; }
+    = ws* negate:NegationExpression ws* EOF { return negate }
+    / ws* logic:LogicalGroup ws* { return logic; }
     / ws* term:UnqoutedTermType ws* EOF { return term; }
     / ws* term:RestrictedTermExpression ws* EOF { return term; }
     / ws* EOF { return {} }
@@ -22,17 +23,17 @@ Conjunction
             nodes: [].concat(...nodes),
         }
     }
-    / nodes:OrConjunctionLeft+ {
-        return {
-            type: 'conjunction',
-            operator: 'OR',
-            nodes: [].concat(...nodes),
-        }
-    }
     / nodes:AndConjunctionRight+ {
         return {
             type: 'conjunction',
             operator: 'AND',
+            nodes: [].concat(...nodes),
+        }
+    }
+    / nodes:OrConjunctionLeft+ {
+        return {
+            type: 'conjunction',
+            operator: 'OR',
             nodes: [].concat(...nodes),
         }
     }
@@ -50,10 +51,24 @@ ParensGroup
     }
 
 TermGroup
-    = ParensGroup / RestrictedTermExpression
+    = NegationExpression / ParensGroup / RestrictedTermExpression
 
 FieldOrQuotedTermGroup
     = ParensGroup / FieldOrQuotedTermExpression
+
+NegationExpression
+    = 'NOT' ws+ node:RestrictedTermExpression {
+        return {
+            type: 'negation',
+            node
+        }
+    }
+    / '!' ws* node:RestrictedTermExpression {
+        return {
+            type: 'negation',
+            node
+        }
+    }
 
 AndConjunctionLeft
     = left:TermGroup ws+ nodes:AndConjunctionRight {
@@ -61,7 +76,11 @@ AndConjunctionLeft
     }
 
 AndConjunctionRight
-    = ws* AndConjunctionOperator ws+ right:TermGroup nodes:AndConjunctionRight? {
+    = ws* &'NOT' ws* right:TermGroup nodes:AndConjunctionRight? {
+        if (!nodes) return [right];
+        return [right, ...nodes];
+    }
+    / ws* AndConjunctionOperator ws+ right:TermGroup nodes:AndConjunctionRight? {
         if (!nodes) return [right];
         return [right, ...nodes];
     }
@@ -387,22 +406,14 @@ RegexStringChar
   = !('/' / "\\") char:. { return char; }
   / "\\" sequence:ReservedChar { return '\\' + sequence; }
 
-ConjunctionOperator
-    = 'AND'
-    / 'NOT'
-    / 'OR'
-    / 'AND NOT'
-    / 'OR NOT'
-    / '&&' { return 'AND' }
-    / '||' { return 'OR' }
-
 AndConjunctionOperator
-    = 'AND'
-    / 'NOT'
-    / '&&'
+    = 'AND' / '&&'
 
 OrConjunctionOperator
     = 'OR' / '||'
+
+NotOperator
+    = 'NOT' / '!'
 
 ZeroChar
     = '0'
@@ -444,9 +455,7 @@ ReservedChar
   / " "
   / AndConjunctionOperator
   / OrConjunctionOperator
-
-ReservedChars
-    = [^(AND)(OR):&?\[\]\{\}\(\)\!]
+  / NotOperator
 
 EOF
   = !.
