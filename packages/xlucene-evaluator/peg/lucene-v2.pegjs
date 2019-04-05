@@ -44,17 +44,16 @@ Conjunction
         }
     }
 
-TermGroup
+ParensGroup
     = ws* '(' ws* group:LogicalGroup ws* ')' ws* {
         return group;
     }
-    / RestrictedTermExpression
 
-OrTermGroup
-    = ws* '(' ws* group:LogicalGroup ws* ')' ws* {
-        return group;
-    }
-    / OrTermExpression
+TermGroup
+    = ParensGroup / RestrictedTermExpression
+
+FieldOrQuotedTermGroup
+    = ParensGroup / FieldOrQuotedTermExpression
 
 AndConjunctionLeft
     = left:TermGroup ws+ nodes:AndConjunctionRight {
@@ -71,10 +70,10 @@ OrConjunctionLeft
     = left:TermGroup ws+ nodes:OrConjunctionRight {
         return [left, ...nodes]
     }
-    / left:OrTermGroup ws+ right:TermGroup {
+    / left:FieldOrQuotedTermGroup ws+ right:TermGroup {
         return [left, right]
     }
-    / left:TermGroup ws+ right:OrTermGroup {
+    / left:TermGroup ws+ right:FieldOrQuotedTermGroup {
         return [left, right]
     }
 
@@ -84,7 +83,7 @@ OrConjunctionRight
         return [right, ...nodes];
     }
 
-TermExpression
+BaseTermExpression
     = ExistsKeyword ws* FieldSeparator ws* field:FieldName {
         return {
             type: 'exists',
@@ -97,6 +96,9 @@ TermExpression
             field,
         }
     }
+
+TermExpression
+    = BaseTermExpression
     / field:FieldName ws* FieldSeparator ws* term:TermType {
         return {
             ...term,
@@ -111,18 +113,7 @@ TermExpression
     }
 
 RestrictedTermExpression
-    = ExistsKeyword ws* FieldSeparator ws* field:FieldName {
-        return {
-            type: 'exists',
-            field,
-        }
-    }
-    / field:FieldName ws* FieldSeparator ws* range:RangeExpression {
-        return {
-            ...range,
-            field,
-        }
-    }
+    = BaseTermExpression
     / field:FieldName ws* FieldSeparator ws* term:RestrictedTermType {
         return {
             ...term,
@@ -136,19 +127,8 @@ RestrictedTermExpression
         }
     }
 
-OrTermExpression
-    = ExistsKeyword ws* FieldSeparator ws* field:FieldName {
-        return {
-            type: 'exists',
-            field,
-        }
-    }
-    / field:FieldName ws* FieldSeparator ws* range:RangeExpression {
-        return {
-            ...range,
-            field,
-        }
-    }
+FieldOrQuotedTermExpression
+    = BaseTermExpression
     / field:FieldName ws* FieldSeparator ws* term:RestrictedTermType {
         return {
             ...term,
@@ -187,9 +167,6 @@ RangeExpression
             },
         }
     }
-
-FieldSeparator
-    = FieldSeparatorChar
 
 LeftRangeExpression
     = operator:StartRangeChar ws* value:LeftRangeType {
@@ -351,10 +328,10 @@ RegexValue
   = '/' chars:RegexStringChar* '/' { return chars.join(''); }
 
 IntegerValue
-   = int:$('0' / OneToNine Digit*) &NumEndChar { return parseInt(int, 10); }
+   = int:$('0' / OneToNine Digit*) &NumReservedChar { return parseInt(int, 10); }
 
 FloatValue
-  = float:$(Digit* '.' Digit+) &NumEndChar { return parseFloat(float) }
+  = float:$(Digit* '.' Digit+) &NumReservedChar { return parseFloat(float) }
 
 /** keywords **/
 ExistsKeyword
@@ -388,15 +365,15 @@ WildcardCharSet
 FieldChar
   = [_a-zA-Z0-9-\.\?\*]
 
-FieldSeparatorChar
+FieldSeparator
   = ':'
 
 TermChar
-  = "\\" sequence:EndChar { return '\\' + sequence; }
+  = "\\" sequence:ReservedChar { return '\\' + sequence; }
   / '.' / [^:\{\}()"/^~\[\]]
 
 RestrictedTermChar
-  =  "\\" sequence:EndChar { return '\\' + sequence; }
+  =  "\\" sequence:ReservedChar { return '\\' + sequence; }
   / '.' / [^: \t\r\n\f\{\}()"/^~\[\]]
 
 QuotedTermValue
@@ -404,11 +381,11 @@ QuotedTermValue
 
 DoubleStringChar
   = !('"' / "\\") char:. { return char; }
-  / "\\" sequence:EndChar { return '\\' + sequence; }
+  / "\\" sequence:ReservedChar { return '\\' + sequence; }
 
 RegexStringChar
   = !('/' / "\\") char:. { return char; }
-  / "\\" sequence:EndChar { return '\\' + sequence; }
+  / "\\" sequence:ReservedChar { return '\\' + sequence; }
 
 ConjunctionOperator
     = 'AND'
@@ -436,14 +413,14 @@ OneToNine
 Digit
     = [0-9]
 
-NumEndChar
+NumReservedChar
   = " "
   / "]"
   / "}"
   / ")"
   / EOF
 
-EndChar
+ReservedChar
   = "+"
   / "-"
   / "!"
