@@ -1,13 +1,13 @@
 /** Control Flow **/
 start
-    = logic:LogicalGroup { return logic; }
+    = ws* logic:LogicalGroup ws* { return logic; }
     / ws* term:UnqoutedTermType ws* EOF { return term; }
     / ws* term:RestrictedTermExpression ws* EOF { return term; }
     / ws* EOF { return {} }
 
 /** Expressions */
 LogicalGroup
-   = ws* flow:Conjunction+ ws* {
+   = flow:Conjunction+ {
         return {
             type: 'logical-group',
             flow
@@ -45,7 +45,7 @@ Conjunction
     }
 
 ParensGroup
-    = ws* '(' ws* group:LogicalGroup ws* ')' ws* {
+    = '(' ws* group:LogicalGroup ws* ')' {
         return group;
     }
 

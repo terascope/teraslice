@@ -236,7 +236,7 @@ export default [
             }
         ]
     }],
-    ['a:1 AND (b:1 OR c:1) AND d:1', 'AND conjunction with parens', {
+    ['a:1 AND (b:1 OR c:1) AND d:1', 'AND/OR conjunction with parens', {
         type: 'logical-group',
         flow: [
             {
@@ -278,4 +278,57 @@ export default [
             }
         ]
     }],
+    ['(a:1 OR b:1) AND (c:1 OR d:1)', 'AND/OR conjunction with two parens', {
+        type: 'logical-group',
+        flow: [
+            {
+                type: 'conjunction',
+                operator: 'AND',
+                nodes: [
+                    {
+                        type: 'logical-group',
+                        flow: [
+                            {
+                                operator: 'OR',
+                                type: 'conjunction',
+                                nodes: [
+                                    {
+                                        data_type: 'integer',
+                                        field: 'a',
+                                        value: 1
+                                    },
+                                    {
+                                        data_type: 'integer',
+                                        field: 'b',
+                                        value: 1
+                                    }
+                                ],
+                            }
+                        ],
+                    },
+                    {
+                        type: 'logical-group',
+                        flow: [
+                            {
+                                operator: 'OR',
+                                type: 'conjunction',
+                                nodes: [
+                                    {
+                                        data_type: 'integer',
+                                        field: 'c',
+                                        value: 1
+                                    },
+                                    {
+                                        data_type: 'integer',
+                                        field: 'd',
+                                        value: 1
+                                    }
+                                ],
+                            }
+                        ],
+                    },
+                ]
+            },
+        ]
+    }]
 ] as TestCase[];
