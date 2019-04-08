@@ -1,5 +1,7 @@
 /** Functions **/
 {
+    const { parseGeoDistance } = require('xlucene-evaluator');
+
     /**
     * Propagate the default field on a field group expression
     */
@@ -33,22 +35,6 @@
        }
     }
 
-    function parseGeoDistance(str) {
-        const trimed = str.trim().toLowerCase();
-        const matches = trimed.match(/(\d+)(.*)$/);
-        if (!matches || !matches.length) {
-            throw new Error(`Incorrect geo distance parameter provided: ${str}`);
-        }
-
-        const distance = parseFloat(matches[1]);
-        const unit = GEO_DISTANCE_UNITS[matches[2]];
-        if (!unit) {
-            throw new Error(`Incorrect distance unit provided: ${matches[2]}`);
-        }
-
-        return { distance, unit };
-    }
-
     function parseGeoPoint(str) {
         const points = str.split(',');
 
@@ -57,62 +43,6 @@
             lon: parseFloat(points[1]),
         }
     }
-
-    const MileUnits = {
-        mi: 'miles',
-        miles: 'miles',
-        mile: 'miles',
-    };
-
-    const NMileUnits = {
-        NM:'nauticalmiles',
-        nmi: 'nauticalmiles',
-        nauticalmile: 'nauticalmiles',
-        nauticalmiles: 'nauticalmiles'
-    };
-
-    const inchUnits = {
-        in: 'inches',
-        inch: 'inches',
-        inches: 'inches'
-    };
-
-    const yardUnits = {
-        yd: 'yards',
-        yard: 'yards',
-        yards: 'yards'
-    };
-
-    const meterUnits = {
-        m: 'meters',
-        meter: 'meters',
-        meters: 'meters'
-    };
-
-    const kilometerUnits = {
-        km: 'kilometers',
-        kilometer: 'kilometers',
-        kilometers: 'kilometers'
-    };
-
-    const millimeterUnits = {
-        mm: 'millimeters',
-        millimeter: 'millimeters',
-        millimeters: 'millimeters'
-    };
-
-    const centimetersUnits = {
-        cm: 'centimeters',
-        centimeter: 'centimeters',
-        centimeters: 'centimeters'
-    };
-
-    const feetUnits = {
-        ft: 'feet',
-        feet: 'feet'
-    };
-
-    const GEO_DISTANCE_UNITS = Object.assign({}, MileUnits, NMileUnits, inchUnits, yardUnits, meterUnits, kilometerUnits, millimeterUnits, centimetersUnits, feetUnits);
 }
 
 

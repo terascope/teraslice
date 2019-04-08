@@ -120,5 +120,11 @@ export type GeoPoint = GeoPointArr | GeoPointStr | GeoObjShort | GeoObjLong;
 export type DateInput = string | number;
 
 export interface PegEngine {
-    parse(input: string, options?: { tracer: any }): AST;
+    parse(input: string, options?: PegEngineOptions): AST;
+}
+
+export interface PegEngineOptions {
+    tracer?: any;
+    filename?: string;
+    startRule?: string;
 }

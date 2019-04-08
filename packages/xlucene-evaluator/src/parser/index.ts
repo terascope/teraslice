@@ -19,7 +19,9 @@ export class Parser {
             showTrace: false
         });
         try {
-            this.ast = engine.parse(this.query, { tracer });
+            this.ast = engine.parse(this.query, {
+                tracer,
+            });
             this.logger.debug(`parsed ${this.query} to `, this.ast);
         } catch (err) {
             throw new TSError(err, {
