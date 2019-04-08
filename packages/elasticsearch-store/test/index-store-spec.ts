@@ -417,9 +417,9 @@ describe('IndexStore', () => {
 
             xit('test lucene query', async () => {
                 const result = await indexStore._search({
-                    q: 'test_id: AND',
+                    q: '>=20',
                     size: 200,
-                    _sourceInclude: ['test_id'],
+                    _sourceInclude: ['test_id', 'test_number'],
                     sort: 'test_number:asc',
                 });
                 // expect(result).toBeArrayOfSize(0);

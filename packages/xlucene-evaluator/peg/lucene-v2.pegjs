@@ -3,7 +3,7 @@ start
     = ws* negate:NegationExpression ws* EOF { return negate }
     / ws* logic:LogicalGroup ws* { return logic; }
     / ws* term:UnqoutedTermType ws* EOF { return term; }
-    / ws* term:RestrictedTermExpression ws* EOF { return term; }
+    / ws* term:TermExpression ws* EOF { return term; }
     / ws* EOF { return {} }
 
 /** Expressions */
@@ -51,7 +51,7 @@ ParensGroup
     }
 
 TermGroup
-    = NegationExpression / ParensGroup / RestrictedTermExpression
+    = NegationExpression / ParensGroup / TermExpression
 
 FieldOrQuotedTermGroup
     = ParensGroup / FieldOrQuotedTermExpression
@@ -71,7 +71,7 @@ NegationExpression
     }
 
 NegatedTermGroup
-    = node:ParensGroup / node:RestrictedTermExpression
+    = node:ParensGroup / node:TermExpression
 
 AndConjunctionLeft
     = left:TermGroup ws+ nodes:AndConjunctionRight {
@@ -118,102 +118,26 @@ BaseTermExpression
             field,
         }
     }
-    / field:FieldName ws* FieldSeparator ws* group:FieldGroupExpression {
+    / field:FieldName ws* FieldSeparator ws* group:ParensGroup {
         return {
             ...group,
-            field,
-        }
-    }
-
-FieldGroupExpression
-    = '(' ws* flow:FieldConjunction+ ws* ')' {
-        return {
             type: 'field-group',
-            flow,
-        }
-    }
-
-FieldConjunction
-    = nodes:AndFieldConjunctionLeft+ {
-        return {
-            type: 'conjunction',
-            operator: 'AND',
-            nodes: [].concat(...nodes),
-        }
-    }
-    / nodes:AndFieldConjunctionRight+ {
-        return {
-            type: 'conjunction',
-            operator: 'AND',
-            nodes: [].concat(...nodes),
-        }
-    }
-    / nodes:OrFieldConjunctionLeft+ {
-        return {
-            type: 'conjunction',
-            operator: 'OR',
-            nodes: [].concat(...nodes),
-        }
-    }
-    / nodes:OrFieldConjunctionRight+ {
-        return {
-            type: 'conjunction',
-            operator: 'OR',
-            nodes: [].concat(...nodes),
-        }
-    }
-
-AndFieldConjunctionLeft
-    = left:ImplicitTermExpression ws+ nodes:AndFieldConjunctionRight {
-        return [left, ...nodes]
-    }
-
-AndFieldConjunctionRight
-    = ws* &'NOT' ws* right:ImplicitTermExpression nodes:AndFieldConjunctionRight? {
-        if (!nodes) return [right];
-        return [right, ...nodes];
-    }
-    / ws* AndConjunctionOperator ws+ right:ImplicitTermExpression nodes:AndFieldConjunctionRight? {
-        if (!nodes) return [right];
-        return [right, ...nodes];
-    }
-
-OrFieldConjunctionLeft
-    = left:ImplicitTermExpression ws+ nodes:OrFieldConjunctionRight {
-        return [left, ...nodes]
-    }
-
-OrFieldConjunctionRight
-    = ws* OrConjunctionOperator ws+ right:ImplicitTermExpression nodes:OrFieldConjunctionRight? {
-        if (!nodes) return [right];
-        return [right, ...nodes];
-    }
-
-ImplicitTermExpression
-    = RangeExpression
-    / RestrictedTermType
-
-TermExpression
-    = BaseTermExpression
-    / field:FieldName ws* FieldSeparator ws* term:TermType {
-        return {
-            ...term,
             field,
         }
     }
-    / term:TermType {
-        return {
-            ...term,
-            field: null,
-        }
-    }
-
-RestrictedTermExpression
-    = BaseTermExpression
     / field:FieldName ws* FieldSeparator ws* term:RestrictedTermType {
         return {
             ...term,
             field,
+        }
+    }
+
+TermExpression
+    = BaseTermExpression
+    / range:RangeExpression {
+        return {
+            ...range,
+            field: null,
         }
     }
     / term:RestrictedTermType {
@@ -225,12 +149,6 @@ RestrictedTermExpression
 
 FieldOrQuotedTermExpression
     = BaseTermExpression
-    / field:FieldName ws* FieldSeparator ws* term:RestrictedTermType {
-        return {
-            ...term,
-            field,
-        }
-    }
     / term:QuotedStringType {
         return {
             ...term,

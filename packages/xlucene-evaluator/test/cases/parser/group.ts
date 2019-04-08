@@ -73,4 +73,52 @@ export default [
             }
         ]
     }],
+    ['count:(155 "223")', 'implicit or grouping', {
+        type: 'field-group',
+        field: 'count',
+        flow: [
+            {
+                type: 'conjunction',
+                operator: 'OR',
+                nodes: [
+                    {
+                        type: 'term',
+                        data_type: 'integer',
+                        value: 155
+                    },
+                    {
+                        type: 'term',
+                        data_type: 'string',
+                        quoted: true,
+                        value: '223'
+                    }
+                ]
+            }
+        ]
+    }],
+    ['val:(NOT 1 AND 2)', 'negated field group', {
+        type: 'field-group',
+        field: 'val',
+        flow: [
+            {
+                type: 'conjunction',
+                operator: 'AND',
+                nodes: [
+                    {
+                        type: 'negation',
+                        node: {
+                            type: 'term',
+                            data_type: 'integer',
+                            value: 1,
+                        }
+                    },
+                    {
+                        type: 'term',
+                        data_type: 'integer',
+                        value: 2
+                    }
+                ]
+            }
+        ]
+    }],
 ] as TestCase[];

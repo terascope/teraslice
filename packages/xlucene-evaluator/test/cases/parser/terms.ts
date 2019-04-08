@@ -114,5 +114,12 @@ export default [
         data_type: 'string',
         field: 'fo?',
         value: 'bar'
-    }]
+    }],
+    // ['val:(155 223)', 'a parens unqouted string', {
+    //     type: 'term',
+    //     data_type: 'string',
+    //     field: 'val',
+    //     quoted: false,
+    //     value: '155 223'
+    // }],
 ] as TestCase[];
