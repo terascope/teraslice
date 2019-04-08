@@ -1,3 +1,4 @@
+import geo from './geo';
 import group from './group';
 import logic from './logic';
 import misc from './misc';
@@ -17,4 +18,5 @@ export default {
     group,
     logic,
     negation,
+    geo,
 };

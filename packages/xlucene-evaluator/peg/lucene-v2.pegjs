@@ -32,6 +32,87 @@
            return;
        }
     }
+
+    function parseGeoDistance(str) {
+        const trimed = str.trim().toLowerCase();
+        const matches = trimed.match(/(\d+)(.*)$/);
+        if (!matches || !matches.length) {
+            throw new Error(`Incorrect geo distance parameter provided: ${str}`);
+        }
+
+        const distance = parseFloat(matches[1]);
+        const unit = GEO_DISTANCE_UNITS[matches[2]];
+        if (!unit) {
+            throw new Error(`Incorrect distance unit provided: ${matches[2]}`);
+        }
+
+        return { distance, unit };
+    }
+
+    function parseGeoPoint(str) {
+        const points = str.split(',');
+
+        return {
+            lat: parseFloat(points[0]),
+            lon: parseFloat(points[1]),
+        }
+    }
+
+    const MileUnits = {
+        mi: 'miles',
+        miles: 'miles',
+        mile: 'miles',
+    };
+
+    const NMileUnits = {
+        NM:'nauticalmiles',
+        nmi: 'nauticalmiles',
+        nauticalmile: 'nauticalmiles',
+        nauticalmiles: 'nauticalmiles'
+    };
+
+    const inchUnits = {
+        in: 'inches',
+        inch: 'inches',
+        inches: 'inches'
+    };
+
+    const yardUnits = {
+        yd: 'yards',
+        yard: 'yards',
+        yards: 'yards'
+    };
+
+    const meterUnits = {
+        m: 'meters',
+        meter: 'meters',
+        meters: 'meters'
+    };
+
+    const kilometerUnits = {
+        km: 'kilometers',
+        kilometer: 'kilometers',
+        kilometers: 'kilometers'
+    };
+
+    const millimeterUnits = {
+        mm: 'millimeters',
+        millimeter: 'millimeters',
+        millimeters: 'millimeters'
+    };
+
+    const centimetersUnits = {
+        cm: 'centimeters',
+        centimeter: 'centimeters',
+        centimeters: 'centimeters'
+    };
+
+    const feetUnits = {
+        ft: 'feet',
+        feet: 'feet'
+    };
+
+    const GEO_DISTANCE_UNITS = Object.assign({}, MileUnits, NMileUnits, inchUnits, yardUnits, meterUnits, kilometerUnits, millimeterUnits, centimetersUnits, feetUnits);
 }
 
 
@@ -110,6 +191,16 @@ NegationExpression
 NegatedTermGroup
     = node:ParensGroup / node:TermExpression
 
+FieldGroup
+    = field:FieldName ws* FieldSeparator ws* group:ParensGroup {
+        propagateDefaultField(group, field);
+        return {
+            ...group,
+            type: 'field-group',
+            field,
+        }
+    }
+
 AndConjunctionLeft
     = left:TermGroup ws+ nodes:AndConjunctionRight {
         return [left, ...nodes]
@@ -155,14 +246,7 @@ BaseTermExpression
             field,
         }
     }
-    / field:FieldName ws* FieldSeparator ws* group:ParensGroup {
-        propagateDefaultField(group, field);
-        return {
-            ...group,
-            type: 'field-group',
-            field,
-        }
-    }
+    / FieldGroup
     / field:FieldName ws* FieldSeparator ws* term:TermType {
         return {
             ...term,
@@ -171,7 +255,8 @@ BaseTermExpression
     }
 
 TermExpression
-    = BaseTermExpression
+    = GeoTermExpression
+    / BaseTermExpression
     / range:RangeExpression {
         return {
             ...range,
@@ -192,6 +277,14 @@ FieldOrQuotedTermExpression
             ...term,
             field: null,
         }
+    }
+
+GeoTermExpression
+    = field:FieldName ws* FieldSeparator ws* '(' ws* term:GeoTermType ws* ')' {
+        return {
+            ...term,
+            field,
+        };
     }
 
 ParensStringType
@@ -238,6 +331,36 @@ RightRangeExpression
         return {
             ...value,
             operator,
+        }
+    }
+
+GeoTermType
+    = point:GeoPointValue ws* distance:GeoDistanceValue {
+        return {
+            type: 'geo-distance',
+            ...point,
+            ...distance
+        }
+    }
+    / distance:GeoDistanceValue ws* point:GeoPointValue {
+        return {
+            type: 'geo-distance',
+            ...point,
+            ...distance
+        }
+    }
+    / topLeft:GeoTopLeftValue ws* bottomRight:GeoBottomRightValue {
+        return {
+            type: 'geo-bounding-box',
+            ...topLeft,
+            ...bottomRight
+        }
+    }
+    / bottomRight:GeoBottomRightValue ws* topLeft:GeoTopLeftValue  {
+        return {
+            type: 'geo-bounding-box',
+            ...topLeft,
+            ...bottomRight
         }
     }
 
@@ -300,7 +423,7 @@ IntegerType
     }
 
 BooleanType
-  = value:BooleanKeyword {
+  = value:Boolean {
       return {
         type: 'term',
         data_type: 'boolean',
@@ -360,6 +483,31 @@ RestrictedStringType
 FieldName
     = chars:FieldChar+ { return chars.join('') }
 
+GeoPointValue
+    = GeoPointKeyword ws* FieldSeparator ws* term:QuotedStringType {
+        return parseGeoPoint(term.value);
+    }
+
+GeoDistanceValue
+    = GeoDistanceKeyword ws* FieldSeparator ws* term:RestrictedStringType {
+        return parseGeoDistance(term.value);
+    }
+
+GeoTopLeftValue
+    = GeoTopLeftKeyword ws* FieldSeparator ws* term:QuotedStringType {
+         return {
+             top_left: parseGeoPoint(term.value)
+         }
+    }
+
+GeoBottomRightValue
+    = GeoBottomRightKeyword ws* FieldSeparator ws* term:QuotedStringType {
+         return {
+             bottom_right: parseGeoPoint(term.value)
+         }
+    }
+
+
 UnquotedTermValue
     = chars:TermChar+ {
         return chars.join('');
@@ -385,12 +533,24 @@ FloatValue
   = float:$(Digit* '.' Digit+) &NumReservedChar { return parseFloat(float) }
 
 /** keywords **/
+GeoPointKeyword
+    = '_geo_point_'
+
+GeoDistanceKeyword
+    = '_geo_distance_'
+
+GeoTopLeftKeyword
+    = '_geo_box_top_left_'
+
+GeoBottomRightKeyword
+    = '_geo_box_bottom_right_'
+
 ExistsKeyword
     = '_exists_'
 
-BooleanKeyword
-  = "true" { return true }
-  / "false" { return false }
+Boolean
+  = 'true' { return true }
+  / 'false' { return false }
 
 RangeOperator
     = '>=' { return 'gte' }
