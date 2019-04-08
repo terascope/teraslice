@@ -2,11 +2,30 @@ import { TestCase } from './interfaces';
 
 export default [
     ['count:(>=10 AND <=20)', 'a field group expression with ranges', {
-        type: 'term-set',
+        type: 'field-group',
         field: 'count',
-        nodes: [
+        flow: [
             {
-                type: 'range',
+                type: 'conjunction',
+                operator: 'AND',
+                nodes: [
+                    {
+                        type: 'range',
+                        left: {
+                            operator: 'gte',
+                            data_type: 'integer',
+                            value: 10,
+                        }
+                    },
+                    {
+                        type: 'range',
+                        left: {
+                            operator: 'lte',
+                            data_type: 'integer',
+                            value: 20,
+                        }
+                    }
+                ]
             }
         ]
     }],

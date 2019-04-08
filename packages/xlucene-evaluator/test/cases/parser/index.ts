@@ -1,4 +1,4 @@
-// import group from './group';
+import group from './group';
 import logic from './logic';
 import misc from './misc';
 import negation from './negation';
@@ -14,7 +14,7 @@ export default {
     regexp,
     wildcard,
     range,
-    // group,
+    group,
     logic,
     negation,
 };

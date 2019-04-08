@@ -118,6 +118,56 @@ BaseTermExpression
             field,
         }
     }
+    / field:FieldName ws* FieldSeparator ws* group:FieldGroupExpression {
+        return {
+            ...group,
+            field,
+        }
+    }
+
+
+FieldGroupExpression
+    = '(' ws* flow:FieldConjunction+ ws* ')' {
+        return {
+            type: 'field-group',
+            flow,
+        }
+    }
+
+FieldConjunction
+    = nodes:AndFieldConjunctionLeft+ {
+        return {
+            type: 'conjunction',
+            operator: 'AND',
+            nodes: [].concat(...nodes),
+        }
+    }
+    / nodes:AndFieldGroupRight+ {
+        return {
+            type: 'conjunction',
+            operator: 'AND',
+            nodes: [].concat(...nodes),
+        }
+    }
+
+AndFieldConjunctionLeft
+    = left:ImplicitTermExpression ws+ nodes:AndFieldGroupRight {
+        return [left, ...nodes]
+    }
+
+AndFieldGroupRight
+    = ws* &'NOT' ws* right:ImplicitTermExpression nodes:ImplicitTermExpression? {
+        if (!nodes) return [right];
+        return [right, ...nodes];
+    }
+    / ws* AndConjunctionOperator ws+ right:ImplicitTermExpression nodes:ImplicitTermExpression? {
+        if (!nodes) return [right];
+        return [right, ...nodes];
+    }
+
+ImplicitTermExpression
+    = RangeExpression
+    / RestrictedTermType
 
 TermExpression
     = BaseTermExpression
