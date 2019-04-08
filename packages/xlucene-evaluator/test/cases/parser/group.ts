@@ -96,6 +96,67 @@ export default [
             }
         ]
     }],
+    ['example:("foo" AND ("bar" OR "baz"))', 'implicit or grouping', {
+        type: 'field-group',
+        field: 'example',
+        flow: [
+            {
+                type: 'conjunction',
+                operator: 'AND',
+                nodes: [
+                    {
+                        type: 'term',
+                        data_type: 'string',
+                        value: 'foo'
+                    },
+                    {
+                        type: 'logical-group',
+                        flow: [
+                            {
+                                type: 'conjunction',
+                                operator: 'OR',
+                                nodes: [
+                                    {
+                                        type: 'term',
+                                        data_type: 'string',
+                                        value: 'bar'
+                                    },
+                                    {
+                                        type: 'term',
+                                        data_type: 'string',
+                                        value: 'baz'
+                                    },
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }],
+    ['example:("foo" AND other:"bar")', 'implicit or grouping', {
+        type: 'field-group',
+        field: 'example',
+        flow: [
+            {
+                type: 'conjunction',
+                operator: 'AND',
+                nodes: [
+                    {
+                        type: 'term',
+                        data_type: 'string',
+                        value: 'foo'
+                    },
+                    {
+                        type: 'term',
+                        field: 'other',
+                        data_type: 'string',
+                        value: 'bar'
+                    },
+                ]
+            }
+        ]
+    }],
     ['val:(NOT 1 AND 2)', 'negated field group', {
         type: 'field-group',
         field: 'val',
