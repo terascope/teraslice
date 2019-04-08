@@ -11,6 +11,7 @@ export default [
                 nodes: [
                     {
                         type: 'range',
+                        field: 'count',
                         left: {
                             operator: 'gte',
                             data_type: 'integer',
@@ -19,6 +20,7 @@ export default [
                     },
                     {
                         type: 'range',
+                        field: 'count',
                         left: {
                             operator: 'lte',
                             data_type: 'integer',
@@ -27,6 +29,7 @@ export default [
                     },
                     {
                         type: 'range',
+                        field: 'count',
                         left: {
                             operator: 'gte',
                             data_type: 'integer',
@@ -47,6 +50,7 @@ export default [
                 nodes: [
                     {
                         type: 'range',
+                        field: 'count',
                         left: {
                             operator: 'gte',
                             data_type: 'integer',
@@ -55,6 +59,7 @@ export default [
                     },
                     {
                         type: 'range',
+                        field: 'count',
                         left: {
                             operator: 'lte',
                             data_type: 'integer',
@@ -63,6 +68,7 @@ export default [
                     },
                     {
                         type: 'range',
+                        field: 'count',
                         left: {
                             operator: 'gte',
                             data_type: 'integer',
@@ -83,11 +89,13 @@ export default [
                 nodes: [
                     {
                         type: 'term',
+                        field: 'count',
                         data_type: 'integer',
                         value: 155
                     },
                     {
                         type: 'term',
+                        field: 'count',
                         data_type: 'string',
                         quoted: true,
                         value: '223'
@@ -106,6 +114,7 @@ export default [
                 nodes: [
                     {
                         type: 'term',
+                        field: 'example',
                         data_type: 'string',
                         value: 'foo'
                     },
@@ -118,11 +127,13 @@ export default [
                                 nodes: [
                                     {
                                         type: 'term',
+                                        field: 'example',
                                         data_type: 'string',
                                         value: 'bar'
                                     },
                                     {
                                         type: 'term',
+                                        field: 'example',
                                         data_type: 'string',
                                         value: 'baz'
                                     },
@@ -145,6 +156,7 @@ export default [
                     {
                         type: 'term',
                         data_type: 'string',
+                        field: 'example',
                         value: 'foo'
                     },
                     {
@@ -169,12 +181,14 @@ export default [
                         type: 'negation',
                         node: {
                             type: 'term',
+                            field: 'val',
                             data_type: 'integer',
                             value: 1,
                         }
                     },
                     {
                         type: 'term',
+                        field: 'val',
                         data_type: 'integer',
                         value: 2
                     }

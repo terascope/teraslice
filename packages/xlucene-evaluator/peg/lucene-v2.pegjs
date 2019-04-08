@@ -1,3 +1,40 @@
+/** Functions **/
+{
+    /**
+    * Propagate the default field on a field group expression
+    */
+    function propagateDefaultField(node, field) {
+       if (!node) return;
+
+       const termTypes = ['term', 'regexp', 'range', 'wildcard'];
+       if (termTypes.includes(node.type) && !node.field) {
+           node.field = field;
+           return;
+       }
+
+       if (node.type === 'negation') {
+           propagateDefaultField(node.node, field);
+           return;
+       }
+
+       const groupTypes = ['logical-group', 'field-group'];
+       if (groupTypes.includes(node.type)) {
+           for (const conj of node.flow) {
+               propagateDefaultField(conj, field);
+           }
+           return;
+       }
+
+       if (node.type === 'conjunction') {
+           for (const conj of node.nodes) {
+               propagateDefaultField(conj, field);
+           }
+           return;
+       }
+    }
+}
+
+
 /** Control Flow **/
 start
     = ws* negate:NegationExpression ws* EOF { return negate }
@@ -119,6 +156,7 @@ BaseTermExpression
         }
     }
     / field:FieldName ws* FieldSeparator ws* group:ParensGroup {
+        propagateDefaultField(group, field);
         return {
             ...group,
             type: 'field-group',
