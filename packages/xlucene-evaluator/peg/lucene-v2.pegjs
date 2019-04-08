@@ -267,28 +267,28 @@ RightRangeExpression
     }
 
 GeoTermType
-    = point:GeoPointValue ws* distance:GeoDistanceValue {
+    = point:GeoPoint ws* distance:GeoDistance {
         return {
             type: 'geo-distance',
             ...point,
             ...distance
         }
     }
-    / distance:GeoDistanceValue ws* point:GeoPointValue {
+    / distance:GeoDistance ws* point:GeoPoint {
         return {
             type: 'geo-distance',
             ...point,
             ...distance
         }
     }
-    / topLeft:GeoTopLeftValue ws* bottomRight:GeoBottomRightValue {
+    / topLeft:GeoTopLeft ws* bottomRight:GeoBottomRight {
         return {
             type: 'geo-bounding-box',
             ...topLeft,
             ...bottomRight
         }
     }
-    / bottomRight:GeoBottomRightValue ws* topLeft:GeoTopLeftValue  {
+    / bottomRight:GeoBottomRight ws* topLeft:GeoTopLeft  {
         return {
             type: 'geo-bounding-box',
             ...topLeft,
@@ -337,7 +337,7 @@ PostiveInfinityType
     }
 
 FloatType
-    = value:FloatValue {
+    = value:Float {
         return {
             type: 'term',
             data_type: 'float',
@@ -346,7 +346,7 @@ FloatType
     }
 
 IntegerType
-    = value:IntegerValue {
+    = value:Integer {
         return {
             type: 'term',
             data_type: 'integer',
@@ -364,7 +364,7 @@ BooleanType
   }
 
 RegexpType
-    = value:RegexValue {
+    = value:Regex {
         return {
             type: 'regexp',
             data_type: 'string',
@@ -373,7 +373,7 @@ RegexpType
     }
 
 WildcardType
-  = value:WildcardValue {
+  = value:Wildcard {
        return {
            type: 'wildcard',
            data_type: 'string',
@@ -382,7 +382,7 @@ WildcardType
     }
 
 QuotedStringType
-    = value:QuotedTermValue {
+    = value:QuotedTerm {
         return {
             type: 'term',
             data_type: 'string',
@@ -392,7 +392,7 @@ QuotedStringType
     }
 
 UnqoutedStringType
-    = value:UnquotedTermValue {
+    = value:UnquotedTerm {
        return {
            type: 'term',
            data_type: 'string',
@@ -402,7 +402,7 @@ UnqoutedStringType
     }
 
 RestrictedStringType
-    = value:RestrictedStringValue {
+    = value:RestrictedString {
        return {
            type: 'term',
            data_type: 'string',
@@ -415,52 +415,52 @@ RestrictedStringType
 FieldName
     = chars:FieldChar+ { return chars.join('') }
 
-GeoPointValue
+GeoPoint
     = GeoPointKeyword ws* FieldSeparator ws* term:QuotedStringType {
         return parseGeoPoint(term.value);
     }
 
-GeoDistanceValue
+GeoDistance
     = GeoDistanceKeyword ws* FieldSeparator ws* term:RestrictedStringType {
         return x.parseGeoDistance(term.value);
     }
 
-GeoTopLeftValue
+GeoTopLeft
     = GeoTopLeftKeyword ws* FieldSeparator ws* term:QuotedStringType {
          return {
              top_left: parseGeoPoint(term.value)
          }
     }
 
-GeoBottomRightValue
+GeoBottomRight
     = GeoBottomRightKeyword ws* FieldSeparator ws* term:QuotedStringType {
          return {
              bottom_right: parseGeoPoint(term.value)
          }
     }
 
-UnquotedTermValue
+UnquotedTerm
     = chars:TermChar+ {
         return chars.join('');
     }
 
-RestrictedStringValue
+RestrictedString
     = chars:RestrictedTermChar+ {
         return chars.join('');
     }
 
-WildcardValue
+Wildcard
     = chars:WildcardCharSet+ {
         return chars.join('');
     }
 
-RegexValue
+Regex
   = '/' chars:RegexStringChar* '/' { return chars.join(''); }
 
-IntegerValue
+Integer
    = int:$(Zero / OneToNine Digit*) &NumReservedChar { return parseInt(int, 10); }
 
-FloatValue
+Float
   = float:$(Digit* Dot Digit+) &NumReservedChar { return parseFloat(float) }
 
 /** keywords **/
@@ -533,7 +533,7 @@ RestrictedTermChar
 CharWithWS "term"
     = [^: \t\r\n\f\{\}()"/^~\[\]]
 
-QuotedTermValue
+QuotedTerm
   = '"' chars:DoubleStringChar* '"' { return chars.join(''); }
 
 DoubleStringChar
