@@ -24,8 +24,12 @@ export class Parser {
             });
             this.logger.debug(`parsed ${this.query} to `, this.ast);
         } catch (err) {
+            if (err && err.message.includes('Expected ,')) {
+                err.message = err.message.replace('Expected ,', 'Expected');
+            }
+
             throw new TSError(err, {
-                reason: `Failure to parse xlucene query ${this.query}`
+                reason: `Failure to parse xlucene query "${this.query}"`
             });
         } finally {
             if (process.env.DEBUG_LUCENE === '1')  {

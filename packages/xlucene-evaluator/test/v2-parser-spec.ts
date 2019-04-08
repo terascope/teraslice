@@ -1,4 +1,5 @@
 import 'jest-extended';
+import { TSError } from '@terascope/utils';
 import allTestCases from './cases/parser';
 import { Parser } from '../src/parser';
 
@@ -13,4 +14,20 @@ describe('Parser (v2)', () => {
             });
         });
     }
+
+    describe('when given an empty query', () => {
+        it('should return an empty object', () => {
+            const parser = new Parser('');
+            expect(parser.ast).toEqual({});
+        });
+    });
+
+    describe('when given a invalid query', () => {
+        it('should throw an error', () => {
+            const errMsg = 'Failure to parse xlucene query "(ba", caused by SyntaxError: Expected ")", field, term, or whitespace but end of input found.';
+            expect(() => {
+                new Parser('(ba');
+            }).toThrowWithMessage(TSError, errMsg);
+        });
+    });
 });

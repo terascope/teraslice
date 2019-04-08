@@ -90,7 +90,7 @@ Conjunction
     }
 
 ParensGroup
-    = '(' ws* group:LogicalGroup ws* ')' {
+    = ParensStart ws* group:LogicalGroup ws* ParensEnd {
         return group;
     }
 
@@ -212,7 +212,7 @@ FieldOrQuotedTermExpression
     }
 
 GeoTermExpression
-    = field:FieldName ws* FieldSeparator ws* '(' ws* term:GeoTermType ws* ')' {
+    = field:FieldName ws* FieldSeparator ws* ParensStart ws* term:GeoTermType ws* ParensEnd {
         return {
             ...term,
             field,
@@ -220,7 +220,7 @@ GeoTermExpression
     }
 
 ParensStringType
-    = '(' ws* term:UnqoutedStringType ws* ')' {
+    = ParensStart ws* term:UnqoutedStringType ws* ParensEnd {
         return term;
     }
 
@@ -461,7 +461,7 @@ IntegerValue
    = int:$(Zero / OneToNine Digit*) &NumReservedChar { return parseInt(int, 10); }
 
 FloatValue
-  = float:$(Digit* '.' Digit+) &NumReservedChar { return parseFloat(float) }
+  = float:$(Digit* Dot Digit+) &NumReservedChar { return parseFloat(float) }
 
 /** keywords **/
 GeoPointKeyword
@@ -501,33 +501,48 @@ RangeJoinOperator
     = 'TO'
 
 /** Characters **/
-WildcardCharSet
+ParensStart
+    = '('
+
+ParensEnd
+    = ')'
+
+WildcardCharSet "wildcard"
   = $([^\?\* ]* ('?' / '*')+ [^\?\* ]*)
 
-FieldChar
+FieldChar "field"
   = [_a-zA-Z0-9-\.\?\*]
 
-FieldSeparator
+FieldSeparator ""
   = ':'
 
 TermChar
-  = "\\" sequence:ReservedChar { return '\\' + sequence; }
-  / '.' / [^:\*\?\{\}()"/^~\[\]]
+  = Escape sequence:ReservedChar { return '\\' + sequence; }
+  / Dot / CharWithoutWS
+
+Dot ""
+    = '.'
+
+CharWithoutWS "term"
+    = [^:\*\?\{\}()"/^~\[\]]
 
 RestrictedTermChar
-  =  "\\" sequence:ReservedChar { return '\\' + sequence; }
-  / '.' / [^: \t\r\n\f\{\}()"/^~\[\]]
+  =  Escape sequence:ReservedChar { return '\\' + sequence; }
+  / Dot / CharWithWS
+
+CharWithWS "term"
+    = [^: \t\r\n\f\{\}()"/^~\[\]]
 
 QuotedTermValue
   = '"' chars:DoubleStringChar* '"' { return chars.join(''); }
 
 DoubleStringChar
-  = !('"' / "\\") char:. { return char; }
-  / "\\" sequence:ReservedChar { return '\\' + sequence; }
+  = !('"' / Escape) char:. { return char; }
+  / Escape sequence:ReservedChar { return '\\' + sequence; }
 
 RegexStringChar
-  = !('/' / "\\") char:. { return char; }
-  / "\\" sequence:ReservedChar { return '\\' + sequence; }
+  = !('/' / Escape) char:. { return char; }
+  / Escape sequence:ReservedChar { return '\\' + sequence; }
 
 AndConjunctionOperator
     = 'AND' / '&&'
@@ -541,6 +556,9 @@ NotOperator
 Zero
     = '0'
 
+Escape ""
+    = '\\'
+
 OneToNine
     = [1-9]
 
@@ -551,15 +569,14 @@ NumReservedChar
   = " "
   / "]"
   / "}"
-  / ")"
+  / ParensEnd
   / EOF
 
 ReservedChar
   = "+"
   / "-"
-  / "!"
-  / "("
-  / ")"
+  / ParensStart
+  / ParensEnd
   / "{"
   / "}"
   / "["
@@ -567,8 +584,8 @@ ReservedChar
   / "^"
   / "\""
   / "?"
-  / ":"
-  / "\\"
+  / FieldChar
+  / Escape
   / "&"
   / "|"
   / "'"
