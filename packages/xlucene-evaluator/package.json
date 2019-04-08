@@ -18,7 +18,7 @@
         "lint:fix": "yarn lint --fix",
         "prepare": "yarn run build:prepare",
         "prepublishOnly": "yarn build",
-        "build:prepare": "pegjs -o peg/peg_engine.js peg/lucene.pegjs && pegjs -o peg/peg_engine-v2.js peg/lucene-v2.pegjs",
+        "build:prepare": "./scripts/generate-engine.js && ./scripts/generate-engine.js '-v2'",
         "build": "yarn run build:prepare && tsc --build --pretty",
         "build:watch": "yarn build --watch",
         "test": "jest",
@@ -45,12 +45,12 @@
         "is-cidr": "^3.0.0",
         "latlon-geohash": "^1.1.0",
         "lodash": "^4.17.11",
+        "pegjs-backtrace": "^0.1.2",
         "rambda": "^2.4.1"
     },
     "devDependencies": {
         "elasticsearch": "^15.4.1",
-        "pegjs": "^0.10.0",
-        "pegjs-backtrace": "^0.1.2"
+        "pegjs": "^0.10.0"
     },
     "engines": {
         "node": ">=8.0.0"

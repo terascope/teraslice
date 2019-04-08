@@ -1,3 +1,4 @@
+import { ASTType } from '../../../src/parser';
 import { TestCase } from './interfaces';
 
 export default [
@@ -10,7 +11,7 @@ export default [
                 operator: 'AND',
                 nodes: [
                     {
-                        type: 'range',
+                        type: ASTType.Range,
                         field: 'count',
                         left: {
                             operator: 'gte',
@@ -19,7 +20,7 @@ export default [
                         }
                     },
                     {
-                        type: 'range',
+                        type: ASTType.Range,
                         field: 'count',
                         left: {
                             operator: 'lte',
@@ -28,7 +29,7 @@ export default [
                         }
                     },
                     {
-                        type: 'range',
+                        type: ASTType.Range,
                         field: 'count',
                         left: {
                             operator: 'gte',
@@ -49,7 +50,7 @@ export default [
                 operator: 'OR',
                 nodes: [
                     {
-                        type: 'range',
+                        type: ASTType.Range,
                         field: 'count',
                         left: {
                             operator: 'gte',
@@ -58,7 +59,7 @@ export default [
                         }
                     },
                     {
-                        type: 'range',
+                        type: ASTType.Range,
                         field: 'count',
                         left: {
                             operator: 'lte',
@@ -67,7 +68,7 @@ export default [
                         }
                     },
                     {
-                        type: 'range',
+                        type: ASTType.Range,
                         field: 'count',
                         left: {
                             operator: 'gte',
@@ -88,13 +89,13 @@ export default [
                 operator: 'OR',
                 nodes: [
                     {
-                        type: 'term',
+                        type: ASTType.Term,
                         field: 'count',
                         data_type: 'integer',
                         value: 155
                     },
                     {
-                        type: 'term',
+                        type: ASTType.Term,
                         field: 'count',
                         data_type: 'string',
                         quoted: true,
@@ -113,26 +114,26 @@ export default [
                 operator: 'AND',
                 nodes: [
                     {
-                        type: 'term',
+                        type: ASTType.Term,
                         field: 'example',
                         data_type: 'string',
                         value: 'foo'
                     },
                     {
-                        type: 'logical-group',
+                        type: ASTType.LogicalGroup,
                         flow: [
                             {
                                 type: 'conjunction',
                                 operator: 'OR',
                                 nodes: [
                                     {
-                                        type: 'term',
+                                        type: ASTType.Term,
                                         field: 'example',
                                         data_type: 'string',
                                         value: 'bar'
                                     },
                                     {
-                                        type: 'term',
+                                        type: ASTType.Term,
                                         field: 'example',
                                         data_type: 'string',
                                         value: 'baz'
@@ -154,13 +155,13 @@ export default [
                 operator: 'AND',
                 nodes: [
                     {
-                        type: 'term',
+                        type: ASTType.Term,
                         data_type: 'string',
                         field: 'example',
                         value: 'foo'
                     },
                     {
-                        type: 'term',
+                        type: ASTType.Term,
                         field: 'other',
                         data_type: 'string',
                         value: 'bar'
@@ -178,16 +179,16 @@ export default [
                 operator: 'AND',
                 nodes: [
                     {
-                        type: 'negation',
+                        type: ASTType.Negation,
                         node: {
-                            type: 'term',
+                            type: ASTType.Term,
                             field: 'val',
                             data_type: 'integer',
                             value: 1,
                         }
                     },
                     {
-                        type: 'term',
+                        type: ASTType.Term,
                         field: 'val',
                         data_type: 'integer',
                         value: 2

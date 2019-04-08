@@ -1,40 +1,41 @@
+import { ASTType } from '../../../src/parser';
 import { TestCase } from './interfaces';
 
 export default [
     ['NOT name:Madman', 'negate a single field/value', {
-        type: 'negation',
+        type: ASTType.Negation,
         node: {
-            type: 'term',
+            type: ASTType.Term,
             data_type: 'string',
             field: 'name',
             value: 'Madman'
         }
     }],
     ['!name:Madman', 'negate a single field/value', {
-        type: 'negation',
+        type: ASTType.Negation,
         node: {
-            type: 'term',
+            type: ASTType.Term,
             data_type: 'string',
             field: 'name',
             value: 'Madman'
         }
     }],
     ['foo:bar NOT name:Madman', 'simple NOT conjunction', {
-        type: 'logical-group',
+        type: ASTType.LogicalGroup,
         flow: [
             {
                 type: 'conjunction',
                 operator: 'AND',
                 nodes: [
                     {
-                        type: 'term',
+                        type: ASTType.Term,
                         field: 'foo',
                         value: 'bar',
                     },
                     {
-                        type: 'negation',
+                        type: ASTType.Negation,
                         node: {
-                            type: 'term',
+                            type: ASTType.Term,
                             data_type: 'string',
                             field: 'name',
                             value: 'Madman'
@@ -45,21 +46,21 @@ export default [
         ]
     }],
     ['foo:bar AND NOT name:Madman', 'simple AND NOT conjunction', {
-        type: 'logical-group',
+        type: ASTType.LogicalGroup,
         flow: [
             {
                 type: 'conjunction',
                 operator: 'AND',
                 nodes: [
                     {
-                        type: 'term',
+                        type: ASTType.Term,
                         field: 'foo',
                         value: 'bar',
                     },
                     {
-                        type: 'negation',
+                        type: ASTType.Negation,
                         node: {
-                            type: 'term',
+                            type: ASTType.Term,
                             data_type: 'string',
                             field: 'name',
                             value: 'Madman'
@@ -70,21 +71,21 @@ export default [
         ]
     }],
     ['foo:bar OR NOT name:Madman', 'simple OR NOT conjunction', {
-        type: 'logical-group',
+        type: ASTType.LogicalGroup,
         flow: [
             {
                 type: 'conjunction',
                 operator: 'OR',
                 nodes: [
                     {
-                        type: 'term',
+                        type: ASTType.Term,
                         field: 'foo',
                         value: 'bar',
                     },
                     {
-                        type: 'negation',
+                        type: ASTType.Negation,
                         node: {
-                            type: 'term',
+                            type: ASTType.Term,
                             data_type: 'string',
                             field: 'name',
                             value: 'Madman'
@@ -95,21 +96,21 @@ export default [
         ]
     }],
     ['foo:bar OR !name:Madman', 'simple OR ! conjunction', {
-        type: 'logical-group',
+        type: ASTType.LogicalGroup,
         flow: [
             {
                 type: 'conjunction',
                 operator: 'OR',
                 nodes: [
                     {
-                        type: 'term',
+                        type: ASTType.Term,
                         field: 'foo',
                         value: 'bar',
                     },
                     {
-                        type: 'negation',
+                        type: ASTType.Negation,
                         node: {
-                            type: 'term',
+                            type: ASTType.Term,
                             data_type: 'string',
                             field: 'name',
                             value: 'Madman'
@@ -120,33 +121,33 @@ export default [
         ]
     }],
     ['a:1 AND !(b:1 OR c:1)', 'a parens negation conjunction', {
-        type: 'logical-group',
+        type: ASTType.LogicalGroup,
         flow: [
             {
                 type: 'conjunction',
                 operator: 'AND',
                 nodes: [
                     {
-                        type: 'term',
+                        type: ASTType.Term,
                         field: 'a',
                         value: 1,
                     },
                     {
-                        type: 'negation',
+                        type: ASTType.Negation,
                         node: {
-                            type: 'logical-group',
+                            type: ASTType.LogicalGroup,
                             flow: [
                                 {
                                     type: 'conjunction',
                                     operator: 'OR',
                                     nodes: [
                                         {
-                                            type: 'term',
+                                            type: ASTType.Term,
                                             field: 'b',
                                             value: 1,
                                         },
                                         {
-                                            type: 'term',
+                                            type: ASTType.Term,
                                             field: 'c',
                                             value: 1,
                                         },
