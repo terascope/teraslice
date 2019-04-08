@@ -125,7 +125,6 @@ BaseTermExpression
         }
     }
 
-
 FieldGroupExpression
     = '(' ws* flow:FieldConjunction+ ws* ')' {
         return {
@@ -142,25 +141,50 @@ FieldConjunction
             nodes: [].concat(...nodes),
         }
     }
-    / nodes:AndFieldGroupRight+ {
+    / nodes:AndFieldConjunctionRight+ {
         return {
             type: 'conjunction',
             operator: 'AND',
             nodes: [].concat(...nodes),
         }
     }
+    / nodes:OrFieldConjunctionLeft+ {
+        return {
+            type: 'conjunction',
+            operator: 'OR',
+            nodes: [].concat(...nodes),
+        }
+    }
+    / nodes:OrFieldConjunctionRight+ {
+        return {
+            type: 'conjunction',
+            operator: 'OR',
+            nodes: [].concat(...nodes),
+        }
+    }
 
 AndFieldConjunctionLeft
-    = left:ImplicitTermExpression ws+ nodes:AndFieldGroupRight {
+    = left:ImplicitTermExpression ws+ nodes:AndFieldConjunctionRight {
         return [left, ...nodes]
     }
 
-AndFieldGroupRight
-    = ws* &'NOT' ws* right:ImplicitTermExpression nodes:ImplicitTermExpression? {
+AndFieldConjunctionRight
+    = ws* &'NOT' ws* right:ImplicitTermExpression nodes:AndFieldConjunctionRight? {
         if (!nodes) return [right];
         return [right, ...nodes];
     }
-    / ws* AndConjunctionOperator ws+ right:ImplicitTermExpression nodes:ImplicitTermExpression? {
+    / ws* AndConjunctionOperator ws+ right:ImplicitTermExpression nodes:AndFieldConjunctionRight? {
+        if (!nodes) return [right];
+        return [right, ...nodes];
+    }
+
+OrFieldConjunctionLeft
+    = left:ImplicitTermExpression ws+ nodes:OrFieldConjunctionRight {
+        return [left, ...nodes]
+    }
+
+OrFieldConjunctionRight
+    = ws* OrConjunctionOperator ws+ right:ImplicitTermExpression nodes:OrFieldConjunctionRight? {
         if (!nodes) return [right];
         return [right, ...nodes];
     }
