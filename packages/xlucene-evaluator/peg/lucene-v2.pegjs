@@ -125,7 +125,7 @@ BaseTermExpression
             field,
         }
     }
-    / field:FieldName ws* FieldSeparator ws* term:RestrictedTermType {
+    / field:FieldName ws* FieldSeparator ws* term:TermType {
         return {
             ...term,
             field,
@@ -140,7 +140,7 @@ TermExpression
             field: null,
         }
     }
-    / term:RestrictedTermType {
+    / term:TermType {
         return {
             ...term,
             field: null,
@@ -154,6 +154,11 @@ FieldOrQuotedTermExpression
             ...term,
             field: null,
         }
+    }
+
+ParensStringType
+    = '(' ws* term:UnqoutedStringType ws* ')' {
+        return term;
     }
 
 UnqoutedTermType
@@ -172,7 +177,7 @@ RangeExpression
             right,
         }
     }
-    / operator:RangeOperator value:RestrictedTermType {
+    / operator:RangeOperator value:TermType {
         return {
             type: 'range',
             left: {
@@ -210,21 +215,15 @@ RangeTermType
     / QuotedStringType
     / RestrictedStringType
 
-RestrictedTermType
-    = term:TermType {
-        return { field: null, ...term };
-    }
-    / term:RestrictedStringType {
-        return { field: null, ...term };
-    }
-
 TermType
     = FloatType
     / IntegerType
     / RegexpType
     / BooleanType
     / WildcardType
+    / ParensStringType
     / QuotedStringType
+    / RestrictedStringType
 
 NegativeInfinityType
     = '*' {
