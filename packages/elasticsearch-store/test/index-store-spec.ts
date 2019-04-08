@@ -309,7 +309,7 @@ describe('IndexStore', () => {
         });
 
         describe('when bulk sending records', () => {
-            const keyword = 'bulk-record';
+            const keyword = 'bulk record';
 
             const records: SimpleRecordInput[] = times(100, (n) => ({
                 test_id: `bulk-${n + 1}`,
@@ -417,7 +417,7 @@ describe('IndexStore', () => {
 
             xit('test lucene query', async () => {
                 const result = await indexStore._search({
-                    q: '(20)',
+                    q: '*rec?rd',
                     size: 200,
                     _sourceInclude: ['test_id', 'test_number'],
                     sort: 'test_number:asc',

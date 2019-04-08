@@ -64,6 +64,27 @@ export default [
             }
         ],
     }],
+    ['foo:"bar" fo?', 'a implicit OR with wildcard', {
+        type: 'logical-group',
+        flow: [
+            {
+                type: 'conjunction',
+                operator: 'OR',
+                nodes: [
+                    {
+                        type: 'term',
+                        field: 'foo',
+                        value: 'bar',
+                    },
+                    {
+                        type: 'wildcard',
+                        field: null,
+                        value: 'fo?',
+                    }
+                ]
+            }
+        ],
+    }],
     ['a:1 || b:1', 'a simple || conjunction', {
         type: 'logical-group',
         flow: [

@@ -1,7 +1,7 @@
 import exists from './exists';
 import geo from './geo';
-import fieldGroup from './field-group';
-import logicGroup from './logic-group';
+import field_group from './field-group';
+import logic_group from './logic-group';
 import negation from './negation';
 import range from './range';
 import regexp from './regexp';
@@ -15,8 +15,8 @@ export default {
     regexp,
     wildcard,
     range,
-    fieldGroup,
-    logicGroup,
+    field_group,
+    logic_group,
     negation,
     geo,
 };

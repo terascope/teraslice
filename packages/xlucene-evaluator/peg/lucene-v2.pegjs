@@ -172,6 +172,7 @@ BaseTermExpression
             field,
         }
     }
+    / GeoTermExpression
     / FieldGroup
     / field:FieldName ws* FieldSeparator ws* term:TermType {
         return {
@@ -181,8 +182,7 @@ BaseTermExpression
     }
 
 TermExpression
-    = GeoTermExpression
-    / BaseTermExpression
+    = BaseTermExpression
     / range:RangeExpression {
         return {
             ...range,
@@ -458,7 +458,7 @@ RegexValue
   = '/' chars:RegexStringChar* '/' { return chars.join(''); }
 
 IntegerValue
-   = int:$('0' / OneToNine Digit*) &NumReservedChar { return parseInt(int, 10); }
+   = int:$(Zero / OneToNine Digit*) &NumReservedChar { return parseInt(int, 10); }
 
 FloatValue
   = float:$(Digit* '.' Digit+) &NumReservedChar { return parseFloat(float) }
@@ -502,7 +502,7 @@ RangeJoinOperator
 
 /** Characters **/
 WildcardCharSet
-  = $([^\?\*]* ('?' / '*')+ [^\?\*]*)
+  = $([^\?\* ]* ('?' / '*')+ [^\?\* ]*)
 
 FieldChar
   = [_a-zA-Z0-9-\.\?\*]
@@ -538,7 +538,7 @@ OrConjunctionOperator
 NotOperator
     = 'NOT' / '!'
 
-ZeroChar
+Zero
     = '0'
 
 OneToNine
