@@ -1,6 +1,6 @@
 /** Functions **/
 {
-    const { parseGeoDistance } = require('xlucene-evaluator');
+    const x = require('xlucene-evaluator');
 
     /**
     * Propagate the default field on a field group expression
@@ -36,12 +36,8 @@
     }
 
     function parseGeoPoint(str) {
-        const points = str.split(',');
-
-        return {
-            lat: parseFloat(points[0]),
-            lon: parseFloat(points[1]),
-        }
+        const [lon, lat] = x.parseGeoPoint(str);
+        return { lat, lon };
     }
 }
 
@@ -190,6 +186,12 @@ TermExpression
     / range:RangeExpression {
         return {
             ...range,
+            field: null,
+        }
+    }
+    / term:WildcardType {
+        return {
+            ...term,
             field: null,
         }
     }
@@ -420,7 +422,7 @@ GeoPointValue
 
 GeoDistanceValue
     = GeoDistanceKeyword ws* FieldSeparator ws* term:RestrictedStringType {
-        return parseGeoDistance(term.value);
+        return x.parseGeoDistance(term.value);
     }
 
 GeoTopLeftValue
@@ -436,7 +438,6 @@ GeoBottomRightValue
              bottom_right: parseGeoPoint(term.value)
          }
     }
-
 
 UnquotedTermValue
     = chars:TermChar+ {
@@ -511,7 +512,7 @@ FieldSeparator
 
 TermChar
   = "\\" sequence:ReservedChar { return '\\' + sequence; }
-  / '.' / [^:\{\}()"/^~\[\]]
+  / '.' / [^:\*\?\{\}()"/^~\[\]]
 
 RestrictedTermChar
   =  "\\" sequence:ReservedChar { return '\\' + sequence; }

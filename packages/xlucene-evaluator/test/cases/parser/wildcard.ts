@@ -31,4 +31,14 @@ export default [
         field: 'hi',
         value: 'th?r*'
     }],
+    ['*', 'a field-less * query', {
+        type: 'wildcard',
+        field: null,
+        value: '*',
+    }],
+    ['?', 'a field-less ? query', {
+        type: 'wildcard',
+        field: null,
+        value: '?',
+    }],
 ] as TestCase[];
