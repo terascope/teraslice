@@ -2,11 +2,13 @@ import * as parser from '../parser';
 
 export type BoolQuery = {
     bool: {
-        filter: AnyQuery[],
-        must_not: AnyQuery[],
-        should: AnyQuery[],
+        filter?: AnyQuery[],
+        must_not?: AnyQuery[],
+        should?: AnyQuery[],
     }
 };
+
+export type BoolQueryTypes = 'filter'|'should'|'must_not';
 
 export type AnyQuery = BoolQuery|GeoQuery|TermQuery|WildcardQuery|ExistsQuery|RegExprQuery|RangeQuery;
 
@@ -63,7 +65,7 @@ export interface RangeExpression {
 export interface ElasticsearchDSLResult {
     query: {
         constant_score: {
-            filter: BoolQuery | never[]
+            filter: AnyQuery|AnyQuery[]
         }
     } | {
         query_string: {

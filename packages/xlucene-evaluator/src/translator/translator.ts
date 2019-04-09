@@ -32,13 +32,14 @@ export class Translator {
             };
         }
 
-        const query = utils.buildAnyQuery(this.parser.ast);
+        const anyQuery = utils.buildAnyQuery(this.parser.ast);
+        const query = utils.compactFinalQuery(anyQuery);
         logger.trace(`translated ${this.query} query to`, JSON.stringify(query));
 
         return {
             query: {
                 constant_score: {
-                    filter: utils.ensureBoolQuery(query),
+                    filter: query,
                 },
             }
         };

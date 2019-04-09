@@ -130,67 +130,80 @@ export function buildExistsQuery(node: parser.Exists, field: string): i.ExistsQu
     return existsQuery;
 }
 
-export function buildBoolQuery(group: parser.LogicalGroup|parser.FieldGroup): i.BoolQuery {
+export function buildBoolQuery(group: parser.LogicalGroup|parser.FieldGroup): i.BoolQuery|undefined {
+    const should: i.AnyQuery[] = [];
+
+    for (const conj of group.flow) {
+        const query = buildConjunctionQuery(conj);
+        should.push(...flattenQuery(query, 'should'));
+    }
+    if (!should.length) return;
+
     const boolQuery: i.BoolQuery = {
         bool: {
-            filter: [],
-            must_not: [],
-            should: [],
+            should
         }
     };
 
-    for (const conj of group.flow) {
-        for (const node of conj.nodes) {
-            if (parser.isNegation(node)) {
-                const query = buildAnyQuery(node.node);
-                if (query) {
-                    boolQuery.bool.must_not.push(query);
-                }
-            } else {
-                // const query = buildAnyQuery(node);
-                // if (query && conj.operator === 'OR') {
-                //     boolQuery.bool.should.push(query);
-                // }
-                // if (query && conj.operator === 'AND') {
-                //     boolQuery.bool.filter.push(query);
-                // }
-            }
-        }
-    }
-
     logger.trace('built bool query', boolQuery, group);
     return boolQuery;
+}
+
+export function buildConjunctionQuery(conj: parser.Conjunction): i.BoolQuery {
+    const filter: i.AnyQuery[] = [];
+    for (const node of conj.nodes) {
+        const query = buildAnyQuery(node);
+        filter.push(...flattenQuery(query, 'filter'));
+    }
+
+    return {
+        bool: {
+            filter,
+        }
+    };
+}
+
+export function flattenQuery(query: i.AnyQuery|undefined, flattenTo: i.BoolQueryTypes): i.AnyQuery[] {
+    if (!query) return [];
+    if (isBoolQuery(query) && canFlattenBoolQuery(query, flattenTo)) {
+        return query.bool[flattenTo]!;
+    }
+    return [query];
+}
+
+/** This prevents double nested queries that do the same thing */
+export function canFlattenBoolQuery(query: i.BoolQuery, flattenTo: i.BoolQueryTypes) {
+    const types = Object.keys(query.bool);
+    if (types.length !== 1) return false;
+    return types[0] === flattenTo;
 }
 
 export function buildNegationQuery(node: parser.Negation): i.BoolQuery|undefined {
     const query = buildAnyQuery(node.node);
     if (!query) return;
 
-    const result: i.BoolQuery = {
+    const mustNot = flattenQuery(query, 'must_not');
+    logger.trace('built negation query', mustNot, node);
+    return {
         bool: {
-            filter: [],
-            should: [],
-            must_not: [query],
+            must_not: mustNot
         }
     };
-
-    logger.trace('built negation query', node, result);
-    return result;
 }
 
 export function isBoolQuery(query: any): query is i.BoolQuery {
     return query && query.bool != null;
 }
 
-export function ensureBoolQuery(query?: i.AnyQuery): i.BoolQuery|never[] {
+export function compactFinalQuery(query?: i.AnyQuery): i.AnyQuery|i.AnyQuery[] {
     if (!query) return [];
-    if (isBoolQuery(query)) return query;
-
-    return {
-        bool: {
-            filter: [query],
-            should: [],
-            must_not: []
+    if (isBoolQuery(query) && canFlattenBoolQuery(query, 'filter')) {
+        const filter = query.bool.filter!;
+        if (!filter || !filter.length) return [];
+        if (filter.length === 1) {
+            return filter[0];
         }
-    };
+        return filter;
+    }
+    return query;
 }

@@ -282,13 +282,7 @@ describe('LuceneQueryAccess', () => {
                 body: {
                     query: {
                         constant_score: {
-                            filter: {
-                                bool: {
-                                    filter: [],
-                                    must_not: [],
-                                    should: [],
-                                },
-                            },
+                            filter: []
                         },
                     },
                 },

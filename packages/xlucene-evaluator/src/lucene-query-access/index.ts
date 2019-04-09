@@ -2,7 +2,7 @@ import _ from 'lodash';
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import LuceneQueryParser from '../lucene-query-parser';
-import Translator from '../translator';
+import { Translator } from '../translator';
 import { AST, IMPLICIT, TypeConfig } from '../interfaces';
 
 export interface QueryAccessConfig<T extends AnyData = AnyData> {
