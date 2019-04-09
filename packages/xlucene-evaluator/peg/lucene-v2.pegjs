@@ -549,7 +549,7 @@ RestrictedTermChar
   / Dot / CharWithoutWS
 
 CharWithoutWS "term"
-    = [^ \t\r\n\f\{\}:\(\)\|"/\\/^~\[\]\&\!\?\=\<\>(AND)(OR)]
+    = [^ \t\r\n\f\{\}\(\)\|"/\\/^~\[\]\&\!\?\=\<\>(AND)(OR)]
 
 QuotedTerm
   = '"' chars:DoubleStringChar* '"' { return chars.join(''); }
