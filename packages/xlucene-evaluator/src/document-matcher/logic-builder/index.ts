@@ -2,26 +2,15 @@
 import _ from 'lodash';
 import { not, allPass, anyPass } from 'rambda';
 
-import {
-    checkValue,
-    parseGeoPoint
-} from '../../utils';
+import { checkValue } from '../../utils';
 
 import { TypeConfig, BooleanCB } from '../../interfaces';
-
-import pointInPolygon from '@turf/boolean-point-in-polygon';
-// @ts-ignore
-import createCircle from '@turf/circle';
-import bbox from '@turf/bbox';
-import bboxPolygon from '@turf/bbox-polygon';
-import { lineString } from '@turf/helpers';
-
+import { geoDistance,  geoBoundingBox } from './geo';
+import { regexp, wildcard } from './string';
 import {
     Parser,
     AST,
     Range,
-    GeoDistance,
-    GeoBoundingBox,
 
     getAnyValue,
     getField,
@@ -29,13 +18,13 @@ import {
     isTerm,
     isExists,
     isRange,
-    // @ts-ignore
-    isConjunction,
     isLogicalGroup,
     isNegation,
     isFieldGroup,
     isGeoDistance,
-    isGeoBoundingBox
+    isGeoBoundingBox,
+    isRegexp,
+    isWildcard
 } from '../../parser';
 
 const negate = (fn:any) => (data:any) => not(fn(data));
@@ -70,12 +59,12 @@ export default function buildLogicFn(parser: Parser, typeConfig: TypeConfig|unde
         }
 
         if (isGeoDistance(node)) {
-            const fn = checkValue(field as string, geoDistanceFn(node));
+            const fn = checkValue(field as string, geoDistance(node));
             fnResults = logicNode(fn, node);
         }
 
         if (isGeoBoundingBox(node)) {
-            const fn = checkValue(field as string, geoBoundingBoxFn(node));
+            const fn = checkValue(field as string, geoBoundingBox(node));
             fnResults = logicNode(fn, node);
         }
 
@@ -87,6 +76,16 @@ export default function buildLogicFn(parser: Parser, typeConfig: TypeConfig|unde
 
         if (isRange(node)) {
             const fn = checkValue(field, rangeFn(node));
+            fnResults = logicNode(fn, node);
+        }
+
+        if (isRegexp(node)) {
+            const fn = checkValue(field, regexp(node.value));
+            fnResults = logicNode(fn, node);
+        }
+
+        if (isWildcard(node)) {
+            const fn = checkValue(field, wildcard(node.value));
             fnResults = logicNode(fn, node);
         }
 
@@ -122,46 +121,4 @@ function rangeFn(node: Range): BooleanCB {
     }
 
     return (data: any) => mapping[left.operator](data, left.value) && mapping[right.operator](data, right.value);
-}
-
-const testGeoPolygon = (polygon: any) => (fieldData: string) => {
-    const point = parseGeoPoint(fieldData, false);
-    if (!point) return false;
-    return pointInPolygon(point, polygon);
-};
-
-function geoDistanceFn(node:GeoDistance) {
-    const { distance, unit, lat, lon } = node;
-    const geoPoint = [lon, lat];
-    const config = { units: unit };
-    let polygon: createCircle;
-
-    if (lat != null && lon != null) {
-        polygon = createCircle(
-            geoPoint,
-            distance,
-            config
-        );
-    }
-
-    // Nothing matches so return false
-    if (polygon == null) return () => false;
-    return testGeoPolygon(polygon);
-}
-
-function geoBoundingBoxFn(node:GeoBoundingBox) {
-    const topLeft = [node.top_left.lon, node.top_left.lat];
-    const bottomRight = [node.bottom_right.lon, node.bottom_right.lat];
-
-    const line = lineString([
-        topLeft,
-        bottomRight,
-    ]);
-
-    const box = bbox(line);
-    const polygon = bboxPolygon(box);
-
-    // Nothing matches so return false
-    if (polygon == null) return () => false;
-    return testGeoPolygon(polygon);
 }

@@ -919,7 +919,7 @@ describe('document matcher', () => {
         });
     });
 
-    fdescribe('geo expressions', () => {
+    describe('geo expressions', () => {
         it('can do basic matches', () => {
             const data1 = { location: '33.435967,-111.867710' };
             const data2 = { location: '22.435967,-150.867710' };
