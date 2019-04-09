@@ -1,4 +1,5 @@
 import * as i from './interfaces';
+import { isString } from '@terascope/utils';
 
 export function isLogicalGroup(node: any): node is i.LogicalGroup {
     return node && node.type === i.ASTType.LogicalGroup;
@@ -56,6 +57,16 @@ export function isNumberDataType(node: any): node is i.NumberDataType {
 
 export function isBooleanDataType(node: any): node is i.BooleanDataType {
     return node && node.data_type === 'boolean';
+}
+
+export function getAnyValue(node: any): any {
+    return node && node.value;
+}
+
+export function getField(node: any): string|undefined {
+    if (!node) return;
+    if (!node.field || !isString(node.field)) return;
+    return node.field;
 }
 
 export const termTypes: i.ASTType[] = [i.ASTType.Term, i.ASTType.Regexp, i.ASTType.Range, i.ASTType.Wildcard];
