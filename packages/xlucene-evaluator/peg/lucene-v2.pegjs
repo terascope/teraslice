@@ -74,14 +74,7 @@ ParensGroup
 
 Conjunction
     // group all AND nodes together
-    = nodes:AndConjunctionLeft+ {
-        return [{
-            type: 'conjunction',
-            nodes: [].concat(...nodes),
-        }]
-    }
-    // group all AND nodes together
-    / nodes:AndConjunctionRight+ {
+    = nodes:AndConjunctionStart+ {
         return [{
             type: 'conjunction',
             nodes: [].concat(...nodes),
@@ -111,32 +104,32 @@ Conjunction
     }
 
 
-AndConjunctionLeft
-    = left:TermGroup ws+ nodes:AndConjunctionRight {
+AndConjunctionStart
+    = left:TermGroup ws+ nodes:AndConjunction {
         return [left, ...nodes]
     }
 
-AndConjunctionRight
+AndConjunction
     // this implicitly converts NOT to an AND
     // IMPORTANT this does not consume `NOT` so negation can detect it
-    = ws* &'NOT' ws* right:TermGroup nodes:AndConjunctionRight? {
+    = ws* &'NOT' ws* right:TermGroup nodes:AndConjunction? {
         if (!nodes) return [right];
         return [right, ...nodes];
     }
-    / ws* AndConjunctionOperator ws+ right:TermGroup nodes:AndConjunctionRight? {
+    / ws* AndConjunctionOperator ws+ right:TermGroup nodes:AndConjunction? {
         if (!nodes) return [right];
         return [right, ...nodes];
     }
 
 OrConjunction
-    = left:TermGroup ws+ OrConjunctionOperator ws+ right:TermGroup nodes:AndConjunctionRight? {
+    = left:TermGroup ws+ OrConjunctionOperator ws+ right:TermGroup nodes:AndConjunction? {
         // if nodes exists that means the right should be joined with the next AND statements
         if (nodes) {
             return [ left, [ right, ...nodes ] ];
         }
         return [ left, right ];
     }
-    / ws+ OrConjunctionOperator ws+ right:TermGroup nodes:AndConjunctionRight? {
+    / ws+ OrConjunctionOperator ws+ right:TermGroup nodes:AndConjunction? {
         // if nodes exists that means the right should be joined with the next AND statements
         if (nodes) {
             return [ [ right, ...nodes ] ];
@@ -543,20 +536,20 @@ FieldSeparator ""
 
 TermChar
   = Escape sequence:ReservedChar { return '\\' + sequence; }
-  / Dot / CharWithoutWS
+  / Dot / CharWithWS
 
 Dot ""
     = '.'
 
-CharWithoutWS "term"
+CharWithWS "term"
     = [^:\*\?\{\}()"/^~\[\]]
 
 RestrictedTermChar
-  =  Escape sequence:ReservedChar { return '\\' + sequence; }
-  / Dot / CharWithWS
+  = Escape sequence:ReservedChar { return '\\' + sequence; }
+  / Dot / CharWithoutWS
 
-CharWithWS "term"
-    = [^: \t\r\n\f\{\}()"/^~\[\]]
+CharWithoutWS "term"
+    = [^ \t\r\n\f\{\}:\(\)\|"/\\/^~\[\]\&\!\?\=\<\>(AND)(OR)]
 
 QuotedTerm
   = '"' chars:DoubleStringChar* '"' { return chars.join(''); }

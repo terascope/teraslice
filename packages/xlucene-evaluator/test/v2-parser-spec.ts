@@ -15,11 +15,29 @@ describe('Parser (v2)', () => {
         });
     }
 
-    describe('when given a invalid query', () => {
+    describe('when given a invalid query "(ba"', () => {
         it('should throw an error', () => {
             const errMsg = 'Failure to parse xlucene query "(ba", caused by SyntaxError: Expected ")", field, term, or whitespace but end of input found.';
             expect(() => {
                 new Parser('(ba');
+            }).toThrowWithMessage(TSError, errMsg);
+        });
+    });
+
+    describe('when given a invalid query "AND foo:bar"', () => {
+        it('should throw an error', () => {
+            const errMsg = 'Failure to parse xlucene query "AND foo:bar", caused by SyntaxError: Expected term, or whitespace but ":" found.';
+            expect(() => {
+                new Parser('AND foo:bar');
+            }).toThrowWithMessage(TSError, errMsg);
+        });
+    });
+
+    describe('when given a invalid query "OR foo:bar"', () => {
+        it('should throw an error', () => {
+            const errMsg = 'Failure to parse xlucene query "OR foo:bar", caused by SyntaxError: Expected term, or whitespace but ":" found.';
+            expect(() => {
+                new Parser('OR foo:bar');
             }).toThrowWithMessage(TSError, errMsg);
         });
     });
