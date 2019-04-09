@@ -1,19 +1,31 @@
 import _ from 'lodash';
 import { debugLogger } from '@terascope/utils';
-import { both, either, not, identity } from 'rambda';
-import LuceneQueryParser from '../lucene-query-parser';
-import TypeManager from './type-manager';
+// @ts-ignore
+import { both, either, not, identity, allPass, anyPass } from 'rambda';
+import {
+    Parser,
+    AST,
+    isTerm,
+    isExists,
+    // @ts-ignore
+
+    isRange,
+    // @ts-ignore
+    isConjunction,
+    isLogicalGroup,
+    getAnyValue,
+    getField,
+    isNegation
+} from '../parser';
+
+// import TypeManager from './type-manager';
+
 import {
     bindThis,
-    isInfiniteMax,
-    isInfiniteMin,
-    isTermNode,
-    isRangeNode,
-    isConjunctionNode,
-    isExistsNode,
     checkValue
 } from '../utils';
-import { AST, TypeConfig, RangeAST, BooleanCB } from '../interfaces';
+
+import { TypeConfig, BooleanCB } from '../interfaces';
 
 // @ts-ignore
 const logger = debugLogger('document-matcher');
@@ -32,11 +44,9 @@ export default class DocumentMatcher {
     }
 
     public parse(luceneStr: string, typeConfig?: TypeConfig):void {
-        const parser = new LuceneQueryParser();
+        const parser = new Parser(luceneStr);
         const types = typeConfig || this.typeConfig;
-
-        parser.parse(luceneStr);
-        const resultingFN = newBuilder(parser, types);
+        const resultingFN = buildLogicFn(parser, types);
         this.filterFn = resultingFN;
     }
 
@@ -48,122 +58,147 @@ export default class DocumentMatcher {
 
 const negate = (fn:any) => (data:any) => not(fn(data));
 
-function isParsedNode(node: AST) {
-    return node.type === '__parsed';
-}
-
-const logicNode = (logicFn:any) => (boolFn: BooleanCB, isNegated:boolean|undefined) => {
-    if (isNegated) return logicFn(negate(boolFn));
-    return logicFn(boolFn);
+const logicNode = (boolFn: BooleanCB, node:AST) => {
+    if (isNegation(node)) return negate(boolFn);
+    return boolFn;
 };
 
-function newBuilder(parser: LuceneQueryParser, typeConfig: TypeConfig|undefined) {
-    const types = new TypeManager(parser, typeConfig);
-    const parsedAst = types.processAst();
+function buildLogicFn(parser: Parser, typeConfig: TypeConfig|undefined) {
+    // const types = new TypeManager(parser, typeConfig);
+    // const parsedAst = types.processAst();
+    console.log('original ast', JSON.stringify(parser.ast, null, 4))
+    function walkAst(node: AST): BooleanCB {
+        let fnResults;
+        const value = getAnyValue(node);
+        const field = getField(node);
 
-    function walkAst(node: AST, resultFn: any) {
-        let fnResults = resultFn;
-        const fnLogic = logicNode(fnResults);
-
-        if (isTermNode(node)) {
-            const isValue = (value: any) => value === node.term;
-            const fn = checkValue(node.field, isValue);
-            fnResults = fnLogic(fn, node.negated);
+        if (isNegation(node)) {
+            // @ts-ignore
+            const childLogic = walkAst(node.node);
+            fnResults = negate(childLogic);
         }
 
-        if (isExistsNode(node)) {
+        // TODO: Deal with regex and wildcard
+        if (isTerm(node)) {
+            const isValue = (data: any) => {
+                return data === value;
+            };
+            const fn = checkValue(field as string, isValue);
+            fnResults = logicNode(fn, node);
+        }
+
+        if (isExists(node)) {
             const valueExists = (value: any) => value != null;
-            const fn = checkValue(node.field, valueExists);
-            fnResults = fnLogic(fn, node.negated);
+            const fn = checkValue(field, valueExists);
+            fnResults = logicNode(fn, node);
         }
 
-        if (isRangeNode(node)) {
-            const fn = checkValue(node.field, parseRange(node));
-            fnResults = fnLogic(fn, node.negated);
+        // if (isRange(node)) {
+        //     const fn = checkValue(node.field, parseRange(node));
+        //     fnResults = logicNode(fn, node);
+        // }
+
+        // if (isParsedNode(node)) {
+        //     const fn  = node.callback;
+        //     fnResults = logicNode(fn, node.negated);
+        // }
+
+        if (isLogicalGroup(node)) {
+            const rules: BooleanCB[] = [];
+
+            node.flow.forEach(conjunction => {
+                const conjunctionRules = conjunction.nodes.map(node => walkAst(node));
+                if (conjunction.operator === 'AND') {
+                    // @ts-ignore
+                    rules.push(allPass(conjunctionRules));
+                }
+
+                if (conjunction.operator === 'OR') {
+                     // @ts-ignore
+                    rules.push(anyPass(conjunctionRules));
+                }
+
+            });
+
+            // if (node.operator === 'AND') {
+            //     // conjunctionFn = both;
+            //     const rules = node.flow.map(childNode => walkAst(childNode))
+            //     conjunctionFn = allPass(rules)
+            // }
+            // if (node.operator === 'OR') conjunctionFn = either;
+
+            // if (node.left) {
+            //     conjunctionFn = walkAst(node.left as AST, conjunctionFn);
+            // } else {
+            //     conjunctionFn = conjunctionFn(() => false);
+            // }
+
+            // if (node.right) {
+            //     conjunctionFn = walkAst(node.right as AST, conjunctionFn);
+            // } else {
+            //     conjunctionFn = conjunctionFn(() => true);
+            // }
+
+            fnResults = logicNode(allPass(rules), node);
         }
-
-        if (isParsedNode(node)) {
-            const fn  = node.callback;
-            fnResults = fnLogic(fn, node.negated);
-        }
-
-        if (isConjunctionNode(node)) {
-            let conjunctionFn:any;
-            if (node.operator === 'AND' || node.operator == null) conjunctionFn = both;
-            if (node.operator === 'OR') conjunctionFn = either;
-
-            if (node.left) {
-                conjunctionFn = walkAst(node.left as AST, conjunctionFn);
-            } else {
-                conjunctionFn = conjunctionFn(() => false);
-            }
-
-            if (node.right) {
-                conjunctionFn = walkAst(node.right as AST, conjunctionFn);
-            } else {
-                conjunctionFn = conjunctionFn(() => true);
-            }
-
-            fnResults = fnLogic(conjunctionFn, node.negated);
-        }
-
+        if (!fnResults) fnResults = () => false;
         return fnResults;
     }
 
-    return walkAst(parsedAst, identity);
+    return walkAst(parser.ast);
 }
 
-function parseRange(node: RangeAST) {
-    const {
-        inclusive_min: incMin,
-        inclusive_max: incMax,
-    } = node;
-    let { term_min: minValue, term_max: maxValue } = node;
-    let rangeFn = (_data: any) => false;
+// function parseRange(node: RangeAST) {
+//     const {
+//         inclusive_min: incMin,
+//         inclusive_max: incMax,
+//     } = node;
+//     let { term_min: minValue, term_max: maxValue } = node;
+//     let rangeFn = (_data: any) => false;
 
-    if (minValue === '*') minValue = Number.NEGATIVE_INFINITY;
-    if (maxValue === '*') maxValue = Number.POSITIVE_INFINITY;
+//     if (minValue === '*') minValue = Number.NEGATIVE_INFINITY;
+//     if (maxValue === '*') maxValue = Number.POSITIVE_INFINITY;
 
-    // IPs can use range syntax, if no type is set it needs to return
-    // a hard coded string interpolated value
-    [minValue, maxValue] = [minValue, maxValue].map((data) => {
-        if (typeof data === 'string') return `"${data}"`;
-        return data;
-    });
+//     // IPs can use range syntax, if no type is set it needs to return
+//     // a hard coded string interpolated value
+//     [minValue, maxValue] = [minValue, maxValue].map((data) => {
+//         if (typeof data === 'string') return `"${data}"`;
+//         return data;
+//     });
 
-    // ie age:>10 || age:(>10 AND <=20)
-    if (!incMin && incMax) {
-        if (isInfiniteMax(maxValue)) {
-            rangeFn = (data: any) => _.gt(data, minValue);
-        } else {
-            rangeFn = (data: any) => _.gt(data, minValue) && _.lte(data, maxValue);
-        }
-    }
+//     // ie age:>10 || age:(>10 AND <=20)
+//     if (!incMin && incMax) {
+//         if (isInfiniteMax(maxValue)) {
+//             rangeFn = (data: any) => _.gt(data, minValue);
+//         } else {
+//             rangeFn = (data: any) => _.gt(data, minValue) && _.lte(data, maxValue);
+//         }
+//     }
 
-    // ie age:<10 || age:(<=10 AND >20)
-    if (incMin && !incMax) {
-        if (isInfiniteMin(minValue)) {
-            rangeFn = (data: any) => _.lt(data, maxValue);
-        } else {
-            rangeFn = (data: any) => _.lt(data, maxValue) && _.gte(data, minValue);
-        }
-    }
+//     // ie age:<10 || age:(<=10 AND >20)
+//     if (incMin && !incMax) {
+//         if (isInfiniteMin(minValue)) {
+//             rangeFn = (data: any) => _.lt(data, maxValue);
+//         } else {
+//             rangeFn = (data: any) => _.lt(data, maxValue) && _.gte(data, minValue);
+//         }
+//     }
 
-    // ie age:<=10, age:>=10, age:(>=10 AND <=20)
-    if (incMin && incMax) {
-        if (isInfiniteMax(maxValue)) {
-            rangeFn = (data: any) => _.gte(data, minValue);
-        } else if (isInfiniteMin(minValue)) {
-            rangeFn = (data: any) => _.lte(data, maxValue);
-        } else {
-            rangeFn = (data: any) => _.lte(data, maxValue) && _.gte(data, minValue);
-        }
-    }
+//     // ie age:<=10, age:>=10, age:(>=10 AND <=20)
+//     if (incMin && incMax) {
+//         if (isInfiniteMax(maxValue)) {
+//             rangeFn = (data: any) => _.gte(data, minValue);
+//         } else if (isInfiniteMin(minValue)) {
+//             rangeFn = (data: any) => _.lte(data, maxValue);
+//         } else {
+//             rangeFn = (data: any) => _.lte(data, maxValue) && _.gte(data, minValue);
+//         }
+//     }
 
-    // ie age:(>10 AND <20)
-    if (!incMin && !incMax) {
-        rangeFn = (data: any) => _.lt(data, maxValue) && _.gt(data, minValue);
-    }
+//     // ie age:(>10 AND <20)
+//     if (!incMin && !incMax) {
+//         rangeFn = (data: any) => _.lt(data, maxValue) && _.gt(data, minValue);
+//     }
 
-    return rangeFn;
-}
+//     return rangeFn;
+// }

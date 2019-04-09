@@ -1,7 +1,7 @@
 import { toNumber } from 'lodash';
 import { trimAndToLower, isPlainObject, parseNumberList } from '@terascope/utils';
 import geoHash from 'latlon-geohash';
-import { path, any } from 'rambda';
+import { path, any, values } from 'rambda';
 import { RangeAST, AST, GeoDistance, GeoPoint, BooleanCB } from './interfaces';
 
 export function bindThis(instance:object, cls:object): void {
@@ -90,13 +90,19 @@ export function getFieldValue(field: string) {
     return (obj: any) => path(field, obj);
 }
 
-export function checkValue(field: string, cb: BooleanCB) {
-    return (data: any) => {
-        const values = path(field, data);
-        if (Array.isArray(values)) {
-            return any(cb, values);
+export function checkValue(field: string|undefined, cb: BooleanCB) {
+    return (obj: any) => {
+        let data;
+        if (field) {
+            data = path(field, obj);
+        } else {
+            data = values(obj);
         }
-        return cb(values);
+
+        if (Array.isArray(data)) {
+            return any(cb, data);
+        }
+        return cb(data);
     };
 }
 

@@ -90,7 +90,35 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data4)).toEqual(true);
         });
 
-        it('can handle "NOT !" operators', () => {
+        it('can handle single "NOT" operators', () => {
+            const data1 = { some: 'data' };
+            const data2 = { some: 'otherData', other: 'things' };
+            const data3 = { some: 'otherData', other: 'stuff' };
+            const data4 = { some: 'data', other: 'stuff' };
+
+            documentMatcher.parse('NOT other:stuff');
+
+            expect(documentMatcher.match(data1)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(true);
+            expect(documentMatcher.match(data3)).toEqual(false);
+            expect(documentMatcher.match(data4)).toEqual(false);
+        });
+
+        it('can handle single "!" operators', () => {
+            const data1 = { some: 'data' };
+            const data2 = { some: 'otherData', other: 'things' };
+            const data3 = { some: 'otherData', other: 'stuff' };
+            const data4 = { some: 'data', other: 'stuff' };
+
+            documentMatcher.parse('NOT other:stuff');
+
+            expect(documentMatcher.match(data1)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(true);
+            expect(documentMatcher.match(data3)).toEqual(false);
+            expect(documentMatcher.match(data4)).toEqual(false);
+        });
+
+        it('can handle "NOT" operators', () => {
             const data1 = { some: 'data' };
             const data2 = { some: 'otherData', other: 'things' };
             const data3 = { some: 'otherData', other: 'stuff' };
@@ -102,8 +130,31 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data2)).toEqual(false);
             expect(documentMatcher.match(data3)).toEqual(false);
             expect(documentMatcher.match(data4)).toEqual(false);
+        });
 
+        it('can handle compound non conjunction operator with "!" operators', () => {
+            const data1 = { some: 'data' };
+            const data2 = { some: 'otherData', other: 'things' };
+            const data3 = { some: 'otherData', other: 'stuff' };
+            const data4 = { some: 'data', other: 'stuff' };
+
+            // ! by itself is an OR
             documentMatcher.parse('some:data ! other:stuff');
+
+            expect(documentMatcher.match(data1)).toEqual(true);
+            expect(documentMatcher.match(data2)).toEqual(true);
+            expect(documentMatcher.match(data3)).toEqual(false);
+            expect(documentMatcher.match(data4)).toEqual(true);
+        });
+
+        it('can handle conjunction operators with "!" operators', () => {
+            const data1 = { some: 'data' };
+            const data2 = { some: 'otherData', other: 'things' };
+            const data3 = { some: 'otherData', other: 'stuff' };
+            const data4 = { some: 'data', other: 'stuff' };
+
+            // ! by itself is an OR
+            documentMatcher.parse('some:data AND !other:stuff');
 
             expect(documentMatcher.match(data1)).toEqual(true);
             expect(documentMatcher.match(data2)).toEqual(false);
