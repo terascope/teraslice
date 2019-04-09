@@ -1,8 +1,9 @@
 import 'jest-extended';
 import get from 'lodash/get';
 import { debugLogger, TSError } from '@terascope/utils';
-import { Translator, TypeConfig, LuceneQueryParser, AST } from '../src';
-import { getJoinType, buildAnyQuery } from '../src/translator/utils';
+import { Translator, TypeConfig } from '../src';
+import { AST } from '../src/parser';
+import { buildAnyQuery } from '../src/translator/utils';
 
 const logger = debugLogger('translator-spec');
 
@@ -40,7 +41,7 @@ describe('Translator', () => {
     describe.each([
         [
             '*',
-            'query.constant_score.filter.bool.filter',
+            'query.constant_score.filter',
             []
         ],
         [
@@ -488,8 +489,14 @@ describe('Translator', () => {
                 {
                     geo_bounding_box: {
                         location: {
-                            top_left: '34.5234,79.42345',
-                            bottom_right: '54.5234,80.3456'
+                            top_left: {
+                                lat: 34.5234,
+                                lon: 79.42345,
+                            },
+                            bottom_right: {
+                                lat: 54.5234,
+                                lon: 80.3456
+                            }
                         }
                     }
                 }
@@ -501,8 +508,11 @@ describe('Translator', () => {
             [
                 {
                     geo_distance: {
-                        distance: '5000m',
-                        loc: '33.435518,-111.873616'
+                        distance: '5000meters',
+                        loc: {
+                            lat: 33.435518,
+                            lon: -111.873616,
+                        }
                     }
                 }
             ]
@@ -538,80 +548,4 @@ describe('Translator', () => {
         });
     });
 
-    describe('when getting the join type', () => {
-        describe('when given a complex AND/OR/NOT AST', () => {
-            let node: AST;
-            beforeAll(() => {
-                const parser = new LuceneQueryParser();
-                parser.parse('_exists_:howdy AND other:>=50 OR foo:bar NOT bar:foo');
-                node = parser._ast;
-            });
-
-            it('should correctly handle the AND join type', () => {
-                expect(getJoinType(node, 'left')).toEqual('filter');
-                expect(getJoinType(node, 'right')).toEqual('should');
-            });
-
-            it('should correctly handle the OR join type', () => {
-                expect(getJoinType(node.right!, 'left')).toEqual('filter');
-                expect(getJoinType(node.right!, 'right')).toEqual('filter');
-            });
-
-            it('should correctly handle the NOT join type', () => {
-                expect(getJoinType(node.right!.right!, 'left')).toEqual('should');
-                expect(getJoinType(node.right!.right!, 'right')).toEqual('must_not');
-            });
-        });
-
-        describe('when given a range OR statement AST', () => {
-            let node: AST;
-            beforeAll(() => {
-                const parser = new LuceneQueryParser();
-                parser.parse('any_count:(50 OR 40 OR 30)');
-                node = parser._ast;
-            });
-
-            it('should correctly handle the first OR join type', () => {
-                expect(getJoinType(node, 'left')).toEqual('should');
-            });
-
-            it('should correctly handle the second OR join type', () => {
-                expect(getJoinType(node.left!, 'left')).toEqual('should');
-                expect(getJoinType(node.left!, 'right')).toEqual('should');
-            });
-
-            it('should correctly handle the third OR join type', () => {
-                expect(getJoinType(node.left!.right!, 'left')).toEqual('should');
-                expect(getJoinType(node.left!.right!, 'right')).toEqual('should');
-            });
-        });
-
-        describe('when given a chained OR statement AST', () => {
-            let node: AST;
-            beforeAll(() => {
-                const parser = new LuceneQueryParser();
-                parser.parse('some:query OR other:thing OR next:value');
-                node = parser._ast;
-            });
-
-            it('should correctly handle the chained OR join types', () => {
-                expect(getJoinType(node, 'left')).toEqual('should');
-                expect(getJoinType(node.right!, 'left')).toEqual('should');
-                expect(getJoinType(node.right!, 'right')).toEqual('should');
-            });
-        });
-
-        describe('when given a deeply negated statement with parens', () => {
-            let node: AST;
-            beforeAll(() => {
-                const parser = new LuceneQueryParser();
-                parser.parse('a:1 AND NOT (b:2 AND c:3) AND NOT d:4');
-                node = parser._ast;
-            });
-
-            it('should correctly handle the first AND NOT value join types', () => {
-                expect(getJoinType(node.right!.left!, 'left')).toEqual('must_not');
-            });
-        });
-    });
 });

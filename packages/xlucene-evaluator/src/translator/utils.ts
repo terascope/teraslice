@@ -1,109 +1,125 @@
 import { debugLogger, TSError } from '@terascope/utils';
-import * as utils from '../utils';
-import { AST, IMPLICIT } from '../interfaces';
+import * as parser from '../parser';
 
 const logger = debugLogger('xlucene-translator-utils');
 
-export function buildAnyQuery(node: AST, parentNode?: AST): AnyQuery|undefined {
-    const field = getFieldFromNode(node, parentNode);
-    if (!field && node.term === '*') {
+export function buildAnyQuery(node: parser.AST): AnyQuery|undefined {
+    const field = parser.getField(node);
+    if (parser.isWildcard(node) && node.value === '*') {
         return;
     }
 
-    if (utils.isConjunctionNode(node)) {
+    if (parser.isLogicalGroup(node) || parser.isFieldGroup(node)) {
         return buildBoolQuery(node);
+    }
+
+    if (parser.isNegation(node)) {
+        return buildNegationQuery(node);
     }
 
     if (!field) {
         const error = new TSError('Unexpected problem when translating xlucene query', {
             context: {
                 node,
-                parentNode,
             },
         });
         logger.error(error);
         throw error;
     }
 
-    if (utils.isExistsNode(node)) {
+    if (parser.isExists(node)) {
         return buildExistsQuery(node, field);
     }
 
-    if (utils.isTermNode(node)) {
+    if (parser.isTerm(node)) {
         return buildTermQuery(node, field);
     }
 
-    if (utils.isRangeNode(node)) {
+    if (parser.isRegexp(node)) {
+        return buildRegExprQuery(node, field);
+    }
+
+    if (parser.isWildcard(node)) {
+        return buildWildcardQuery(node, field);
+    }
+
+    if (parser.isRange(node)) {
         return buildRangeQuery(node, field);
     }
 
-    if (utils.isGeoNode(node)) {
-        return buildGeoQuery(node, field);
+    if (parser.isGeoBoundingBox(node)) {
+        return buildGeoBoundingBoxQuery(node, field);
+    }
+
+    if (parser.isGeoDistance(node)) {
+        return buildGeoDistanceQuery(node, field);
     }
 
     logger.error(new Error('unsupport ast node'), node);
-    return undefined;
+    return;
 }
 
-export function buildGeoQuery(node: AST, field: string): GeoQuery {
+export function buildGeoBoundingBoxQuery(node: parser.GeoBoundingBox, field: string): GeoQuery {
     const geoQuery: GeoQuery = {};
-    if (node.geo_box_top_left != null && node.geo_box_bottom_right != null) {
-        geoQuery['geo_bounding_box'] = {};
-        geoQuery['geo_bounding_box'][field] = {
-            top_left:  node.geo_box_top_left,
-            bottom_right: node.geo_box_bottom_right
-        };
-    }
+    geoQuery['geo_bounding_box'] = {};
+    geoQuery['geo_bounding_box'][field] = {
+        top_left:  node.top_left,
+        bottom_right: node.bottom_right
+    };
 
-    if (node.geo_distance != null && node.geo_point != null) {
-        geoQuery['geo_distance'] = {
-            distance: node.geo_distance,
-        };
-        geoQuery['geo_distance'][field] = node.geo_point;
-    }
-
-    logger.trace('built geo query', { node, geoQuery });
+    logger.trace('built geo bounding box query', { node, geoQuery });
     return geoQuery;
 }
 
-export function buildRangeQuery(node: AST, field: string): RangeQuery {
-    const range = utils.parseNodeRange(node);
+export function buildGeoDistanceQuery(node: parser.GeoDistance, field: string): GeoQuery {
+    const geoQuery: GeoQuery = {};
+    geoQuery['geo_distance'] = {
+        distance: `${node.distance}${node.unit}`,
+    };
+    geoQuery['geo_distance'][field] = {
+        lat: node.lat,
+        lon: node.lon,
+    };
+
+    logger.trace('built geo distance query', { node, geoQuery });
+    return geoQuery;
+}
+
+export function buildRangeQuery(node: parser.Range, field: string): RangeQuery {
     const rangeQuery: RangeQuery = { range: {} };
-    rangeQuery.range[field] = range;
+    rangeQuery.range[field] = {};
+    if (node.left) {
+        rangeQuery.range[field][node.left.operator] = node.left.value;
+    }
+    if (node.right) {
+        rangeQuery.range[field][node.right.operator] = node.right.value;
+    }
     logger.trace('built range query', { node, rangeQuery });
     return rangeQuery;
 }
 
-export function buildTermQuery(node: AST, field: string): TermQuery|RegExprQuery|WildcardQuery {
-    if (utils.isRegexNode(node)) {
-        return buildRegExprQuery(node, field);
-    }
-
-    if (utils.isWildcardNode(node)) {
-        return buildWildCardQuery(node, field);
-    }
-
+export function buildTermQuery(node: parser.Term, field: string): TermQuery|RegExprQuery|WildcardQuery {
     const termQuery: TermQuery = { term: {} };
-    termQuery.term[field] = node.term;
+    termQuery.term[field] = node.value;
     logger.trace('built term query', node, termQuery);
     return termQuery;
 }
 
-export function buildWildCardQuery(node: AST, field: string): WildcardQuery {
+export function buildWildcardQuery(node: parser.Wildcard, field: string): WildcardQuery {
     const wildcardQuery: WildcardQuery = { wildcard: {} };
-    wildcardQuery.wildcard[field] = node.term;
+    wildcardQuery.wildcard[field] = node.value;
     logger.trace('built wildcard query', { node, wildcardQuery });
     return wildcardQuery;
 }
 
-export function buildRegExprQuery(node: AST, field: string): RegExprQuery {
+export function buildRegExprQuery(node: parser.Regexp, field: string): RegExprQuery {
     const regexQuery: RegExprQuery = { regexp: {} };
-    regexQuery.regexp[field] = node.term;
+    regexQuery.regexp[field] = node.value;
     logger.trace('built regexpr query', { node, regexQuery });
     return regexQuery;
 }
 
-export function buildExistsQuery(node: AST, field: string): ExistsQuery {
+export function buildExistsQuery(node: parser.Exists, field: string): ExistsQuery {
     const existsQuery: ExistsQuery = {
         exists: {
             field
@@ -113,7 +129,7 @@ export function buildExistsQuery(node: AST, field: string): ExistsQuery {
     return existsQuery;
 }
 
-export function buildBoolQuery(node: AST): BoolQuery {
+export function buildBoolQuery(group: parser.LogicalGroup|parser.FieldGroup): BoolQuery {
     const boolQuery: BoolQuery = {
         bool: {
             filter: [],
@@ -122,73 +138,60 @@ export function buildBoolQuery(node: AST): BoolQuery {
         }
     };
 
-    addToBoolQuery(boolQuery, node, 'left');
-    addToBoolQuery(boolQuery, node, 'right');
+    for (const conj of group.flow) {
+        for (const node of conj.nodes) {
+            if (parser.isNegation(node)) {
+                const query = buildAnyQuery(node.node);
+                if (query) {
+                    boolQuery.bool.must_not.push(query);
+                }
+            } else {
+                const query = buildAnyQuery(node);
+                if (query && conj.operator === 'OR') {
+                    boolQuery.bool.should.push(query);
+                }
+                if (query && conj.operator === 'AND') {
+                    boolQuery.bool.filter.push(query);
+                }
+            }
+        }
+    }
 
-    logger.trace('built bool query', boolQuery, node);
+    logger.trace('built bool query', boolQuery, group);
     return boolQuery;
 }
 
-function addToBoolQuery(boolQuery: BoolQuery, node: AST, side: 'right'|'left') {
-    const child = node[side];
-    if (!child) return;
+export function buildNegationQuery(node: parser.Negation): BoolQuery|undefined {
+    const query = buildAnyQuery(node.node);
+    if (!query) return;
 
-    const joinType = getJoinType(node, side);
-    const query = buildAnyQuery(child, node);
-    const parentJoinType = getJoinType(node);
+    const result: BoolQuery = {
+        bool: {
+            filter: [],
+            should: [],
+            must_not: [query],
+        }
+    };
 
-    if (isBoolQuery(query) && (joinType === parentJoinType || canFlattenBoolQuery(node))) {
-        boolQuery.bool.filter.push(...query.bool.filter);
-        boolQuery.bool.must_not.push(...query.bool.must_not);
-        boolQuery.bool.should.push(...query.bool.should);
-    } else if (query) {
-        boolQuery.bool[joinType].push(query);
-    }
-}
-
-export function getJoinType(node: AST, side?: 'right'|'left'): 'should'|'must_not'|'filter' {
-    const child = side && node[side] ? node[side]! : node;
-    if (child.negated) return 'must_not';
-    if (isOrNode(child)) return 'should';
-    if (child.parens && child.operator === 'OR') {
-        return 'should';
-    }
-    if (isOrNode(child.left) && (!node.right || isOrNode(child.right))) return 'should';
-    if (node.parens && node.negated) return 'must_not';
-
-    return 'filter';
-}
-
-function isOrNode(node?: AST): boolean {
-    return !!(node && (node.or || node.operator === 'OR'));
-}
-
-export function canFlattenBoolQuery(node: AST): boolean {
-    const operator = node.operator;
-    if (operator === 'OR' && node.left && node.left.field !== IMPLICIT) return false;
-
-    if (node.type === 'conjunction' && !node.parens) {
-        return true;
-    }
-
-    return false;
+    logger.trace('built negation query', node, result);
+    return result;
 }
 
 export function isBoolQuery(query: any): query is BoolQuery {
     return query && query.bool != null;
 }
 
-export function getFieldFromNode(node: AST, parentNode?: AST): string|undefined {
-    const parentNodeField = _getFieldFromNode(parentNode);
-    const nodeField = _getFieldFromNode(node);
-    return nodeField || parentNodeField;
-}
+export function ensureBoolQuery(query?: AnyQuery): BoolQuery|never[] {
+    if (!query) return [];
+    if (isBoolQuery(query)) return query;
 
-export function _getFieldFromNode(node?: AST): string|undefined {
-    if (!node) return;
-    if (!node.field) return;
-    if (node.field === IMPLICIT) return;
-    return node.field;
+    return {
+        bool: {
+            filter: [query],
+            should: [],
+            must_not: []
+        }
+    };
 }
 
 export type BoolQuery = {
@@ -210,13 +213,13 @@ export interface ExistsQuery {
 export interface GeoQuery {
     geo_bounding_box?: {
         [field: string]: {
-            top_left: string;
-            bottom_right: string;
+            top_left: parser.GeoPoint|string;
+            bottom_right: parser.GeoPoint|string;
         }
     };
     geo_distance?: {
         distance: string;
-        [field: string]: string;
+        [field: string]: parser.GeoPoint|string;
     };
 }
 
