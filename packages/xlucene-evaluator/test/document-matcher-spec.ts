@@ -8,7 +8,7 @@ describe('document matcher', () => {
         documentMatcher = new DocumentMatcher();
     });
 
-    fdescribe('exact match and term expressions', () => {
+    describe('exact match and term expressions', () => {
         it('can match basic terms', () => {
             const data = { hello: 'world' };
             const badData = { hello: 'goodbye' };

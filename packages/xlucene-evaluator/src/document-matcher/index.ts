@@ -16,7 +16,8 @@ import {
     getAnyValue,
     getField,
     isNegation,
-    isFieldGroup
+    isFieldGroup,
+    Range
 } from '../parser';
 
 // import TypeManager from './type-manager';
@@ -67,7 +68,7 @@ const logicNode = (boolFn: BooleanCB, node:AST) => {
 function buildLogicFn(parser: Parser, typeConfig: TypeConfig|undefined) {
     // const types = new TypeManager(parser, typeConfig);
     // const parsedAst = types.processAst();
-    // console.log('original ast', JSON.stringify(parser.ast, null, 4));
+    console.log('original ast', JSON.stringify(parser.ast, null, 4));
     function walkAst(node: AST): BooleanCB {
         let fnResults;
         const value = getAnyValue(node);
@@ -91,6 +92,11 @@ function buildLogicFn(parser: Parser, typeConfig: TypeConfig|undefined) {
         if (isExists(node)) {
             const valueExists = (value: any) => value != null;
             const fn = checkValue(field, valueExists);
+            fnResults = logicNode(fn, node);
+        }
+
+        if (isRange(node)) {
+            const fn = checkValue(field, rangeFn(node));
             fnResults = logicNode(fn, node);
         }
 
@@ -120,6 +126,22 @@ function buildLogicFn(parser: Parser, typeConfig: TypeConfig|undefined) {
     }
 
     return walkAst(parser.ast);
+}
+
+function rangeFn(node: Range): BooleanCB {
+    const mapping = {
+        gte: _.gte,
+        gt: _.gt,
+        lte: _.lte,
+        lt: _.lt
+    };
+    const { left, right } = node;
+
+    if (!right) {
+        return (data: any) => mapping[left.operator](data, left.value);
+    }
+
+    return (data: any) => mapping[left.operator](data, left.value) && mapping[right.operator](data, right.value);
 }
 
 // function parseRange(node: RangeAST) {
