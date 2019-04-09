@@ -1,5 +1,3 @@
-import { ConjunctionAST } from '../interfaces';
-
 export type AST = EmptyAST & LogicalGroup & Term
     & Conjunction & Negation & FieldGroup
     & Exists & Range & GeoDistance
@@ -67,7 +65,7 @@ export interface Negation {
 export interface FieldGroup {
     type: ASTType.FieldGroup;
     field: string;
-    flow: ConjunctionAST;
+    flow: Conjunction[];
 }
 
 export interface Exists {
