@@ -88,6 +88,66 @@ export default [
             }
         ]
     }],
+    ['id: (AqMvPMCS76u0 OR 497qIZuha9_u OR Oc2DG0O2gbcY)', 'chained ORs with restricted strings', {
+        type: 'field-group',
+        field: 'id',
+        flow: [
+            {
+                type: ASTType.Conjunction,
+                nodes: [
+                    {
+                        type: ASTType.Term,
+                        data_type: 'string',
+                        value: 'AqMvPMCS76u0',
+                    }
+                ]
+            },
+            {
+                type: ASTType.Conjunction,
+                nodes: [
+                    {
+                        type: ASTType.Term,
+                        data_type: 'string',
+                        value: '497qIZuha9_u',
+                    }
+                ]
+            },
+            {
+                type: ASTType.Conjunction,
+                nodes: [
+                    {
+                        type: ASTType.Term,
+                        data_type: 'string',
+                        value: 'Oc2DG0O2gbcY',
+                    }
+                ]
+            }
+        ]
+    }],
+    ['name:(Bob* OR Joe*)', 'chained ORs with wildcards', {
+        type: 'field-group',
+        field: 'name',
+        flow: [
+            {
+                type: ASTType.Conjunction,
+                nodes: [
+                    {
+                        type: ASTType.Wildcard,
+                        value: 'Bob*',
+                    }
+                ]
+            },
+            {
+                type: ASTType.Conjunction,
+                nodes: [
+                    {
+                        type: ASTType.Wildcard,
+                        value: 'Joe*',
+                    }
+                ]
+            },
+        ]
+    }],
     ['count:(155 "223")', 'implicit or grouping', {
         type: 'field-group',
         field: 'count',

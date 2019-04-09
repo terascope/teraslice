@@ -177,6 +177,31 @@ export default [
             }
         ]
     }],
+    ['AqMvPMCS76u0 OR foo', 'OR with unqouted strings', {
+        type: 'logical-group',
+        flow: [
+            {
+                type: ASTType.Conjunction,
+                nodes: [
+                    {
+                        type: ASTType.Term,
+                        data_type: 'string',
+                        value: 'AqMvPMCS76u0',
+                    }
+                ]
+            },
+            {
+                type: ASTType.Conjunction,
+                nodes: [
+                    {
+                        type: ASTType.Term,
+                        data_type: 'string',
+                        value: 'foo',
+                    }
+                ]
+            },
+        ]
+    }],
     ['a:1 OR b:1 OR c:1 AND d:1 AND e:1', 'a chained AND/OR conjunctions', {
         type: ASTType.LogicalGroup,
         flow: [

@@ -60,7 +60,7 @@ LogicalGroup
     // recursively go through and chain conjunctions together so
     // the operations evaluated. If any operation passes
     // then you can stop early.
-   = conjunctions:Conjunction+ {
+   = !ConjunctionOperator conjunctions:Conjunction+ {
         return {
             type: 'logical-group',
             flow: [].concat(...conjunctions)
@@ -549,7 +549,7 @@ RestrictedTermChar
   / Dot / CharWithoutWS
 
 CharWithoutWS "term"
-    = [^ \t\r\n\f\{\}\(\)\|"/\\/^~\[\]\&\!\?\=\<\>(AND)(OR)]
+    = [^ \t\r\n\f\{\}\(\)\|"/\\/^~\[\]\&\!\?\=\<\>]
 
 QuotedTerm
   = '"' chars:DoubleStringChar* '"' { return chars.join(''); }
@@ -567,6 +567,9 @@ AndConjunctionOperator
 
 OrConjunctionOperator
     = 'OR' / '||'
+
+ConjunctionOperator
+    = AndConjunctionOperator / OrConjunctionOperator
 
 NotOperator
     = 'NOT' / '!'
@@ -611,8 +614,7 @@ ReservedChar
   / "~"
   / "*"
   / " "
-  / AndConjunctionOperator
-  / OrConjunctionOperator
+  / ConjunctionOperator
   / NotOperator
 
 EOF
