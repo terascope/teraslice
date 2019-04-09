@@ -1,6 +1,7 @@
 import { debugLogger, trim } from '@terascope/utils';
 import { TypeConfig } from '../interfaces';
 import { Parser } from '../parser';
+import * as i from './interfaces';
 import * as utils from './utils';
 
 const logger = debugLogger('xlucene-translator');
@@ -20,7 +21,7 @@ export default class Translator {
         this.parser = new Parser(this.query);
     }
 
-    toElasticsearchDSL(): ElasticsearchDSLResult {
+    toElasticsearchDSL(): i.ElasticsearchDSLResult {
         if (!this.query) {
             return {
                 query: {
@@ -42,16 +43,4 @@ export default class Translator {
             }
         };
     }
-}
-
-export interface ElasticsearchDSLResult {
-    query: {
-        constant_score: {
-            filter: utils.BoolQuery | never[]
-        }
-    } | {
-        query_string: {
-            query: ''
-        }
-    };
 }

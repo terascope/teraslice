@@ -1,9 +1,10 @@
 import { debugLogger, TSError } from '@terascope/utils';
 import * as parser from '../parser';
+import * as i from './interfaces';
 
 const logger = debugLogger('xlucene-translator-utils');
 
-export function buildAnyQuery(node: parser.AST): AnyQuery|undefined {
+export function buildAnyQuery(node: parser.AST): i.AnyQuery|undefined {
     const field = parser.getField(node);
     if (parser.isWildcard(node) && node.value === '*') {
         return;
@@ -59,8 +60,8 @@ export function buildAnyQuery(node: parser.AST): AnyQuery|undefined {
     return;
 }
 
-export function buildGeoBoundingBoxQuery(node: parser.GeoBoundingBox, field: string): GeoQuery {
-    const geoQuery: GeoQuery = {};
+export function buildGeoBoundingBoxQuery(node: parser.GeoBoundingBox, field: string): i.GeoQuery {
+    const geoQuery: i.GeoQuery = {};
     geoQuery['geo_bounding_box'] = {};
     geoQuery['geo_bounding_box'][field] = {
         top_left:  node.top_left,
@@ -71,8 +72,8 @@ export function buildGeoBoundingBoxQuery(node: parser.GeoBoundingBox, field: str
     return geoQuery;
 }
 
-export function buildGeoDistanceQuery(node: parser.GeoDistance, field: string): GeoQuery {
-    const geoQuery: GeoQuery = {};
+export function buildGeoDistanceQuery(node: parser.GeoDistance, field: string): i.GeoQuery {
+    const geoQuery: i.GeoQuery = {};
     geoQuery['geo_distance'] = {
         distance: `${node.distance}${node.unit}`,
     };
@@ -85,8 +86,8 @@ export function buildGeoDistanceQuery(node: parser.GeoDistance, field: string): 
     return geoQuery;
 }
 
-export function buildRangeQuery(node: parser.Range, field: string): RangeQuery {
-    const rangeQuery: RangeQuery = { range: {} };
+export function buildRangeQuery(node: parser.Range, field: string): i.RangeQuery {
+    const rangeQuery: i.RangeQuery = { range: {} };
     rangeQuery.range[field] = {};
     if (node.left) {
         rangeQuery.range[field][node.left.operator] = node.left.value;
@@ -98,29 +99,29 @@ export function buildRangeQuery(node: parser.Range, field: string): RangeQuery {
     return rangeQuery;
 }
 
-export function buildTermQuery(node: parser.Term, field: string): TermQuery|RegExprQuery|WildcardQuery {
-    const termQuery: TermQuery = { term: {} };
+export function buildTermQuery(node: parser.Term, field: string): i.TermQuery|i.RegExprQuery|i.WildcardQuery {
+    const termQuery: i.TermQuery = { term: {} };
     termQuery.term[field] = node.value;
     logger.trace('built term query', node, termQuery);
     return termQuery;
 }
 
-export function buildWildcardQuery(node: parser.Wildcard, field: string): WildcardQuery {
-    const wildcardQuery: WildcardQuery = { wildcard: {} };
+export function buildWildcardQuery(node: parser.Wildcard, field: string): i.WildcardQuery {
+    const wildcardQuery: i.WildcardQuery = { wildcard: {} };
     wildcardQuery.wildcard[field] = node.value;
     logger.trace('built wildcard query', { node, wildcardQuery });
     return wildcardQuery;
 }
 
-export function buildRegExprQuery(node: parser.Regexp, field: string): RegExprQuery {
-    const regexQuery: RegExprQuery = { regexp: {} };
+export function buildRegExprQuery(node: parser.Regexp, field: string): i.RegExprQuery {
+    const regexQuery: i.RegExprQuery = { regexp: {} };
     regexQuery.regexp[field] = node.value;
     logger.trace('built regexpr query', { node, regexQuery });
     return regexQuery;
 }
 
-export function buildExistsQuery(node: parser.Exists, field: string): ExistsQuery {
-    const existsQuery: ExistsQuery = {
+export function buildExistsQuery(node: parser.Exists, field: string): i.ExistsQuery {
+    const existsQuery: i.ExistsQuery = {
         exists: {
             field
         }
@@ -129,8 +130,8 @@ export function buildExistsQuery(node: parser.Exists, field: string): ExistsQuer
     return existsQuery;
 }
 
-export function buildBoolQuery(group: parser.LogicalGroup|parser.FieldGroup): BoolQuery {
-    const boolQuery: BoolQuery = {
+export function buildBoolQuery(group: parser.LogicalGroup|parser.FieldGroup): i.BoolQuery {
+    const boolQuery: i.BoolQuery = {
         bool: {
             filter: [],
             must_not: [],
@@ -161,11 +162,11 @@ export function buildBoolQuery(group: parser.LogicalGroup|parser.FieldGroup): Bo
     return boolQuery;
 }
 
-export function buildNegationQuery(node: parser.Negation): BoolQuery|undefined {
+export function buildNegationQuery(node: parser.Negation): i.BoolQuery|undefined {
     const query = buildAnyQuery(node.node);
     if (!query) return;
 
-    const result: BoolQuery = {
+    const result: i.BoolQuery = {
         bool: {
             filter: [],
             should: [],
@@ -177,11 +178,11 @@ export function buildNegationQuery(node: parser.Negation): BoolQuery|undefined {
     return result;
 }
 
-export function isBoolQuery(query: any): query is BoolQuery {
+export function isBoolQuery(query: any): query is i.BoolQuery {
     return query && query.bool != null;
 }
 
-export function ensureBoolQuery(query?: AnyQuery): BoolQuery|never[] {
+export function ensureBoolQuery(query?: i.AnyQuery): i.BoolQuery|never[] {
     if (!query) return [];
     if (isBoolQuery(query)) return query;
 
@@ -192,64 +193,4 @@ export function ensureBoolQuery(query?: AnyQuery): BoolQuery|never[] {
             must_not: []
         }
     };
-}
-
-export type BoolQuery = {
-    bool: {
-        filter: AnyQuery[],
-        must_not: AnyQuery[],
-        should: AnyQuery[],
-    }
-};
-
-export type AnyQuery = BoolQuery|GeoQuery|TermQuery|WildcardQuery|ExistsQuery|RegExprQuery|RangeQuery;
-
-export interface ExistsQuery {
-    exists: {
-        field: string;
-    };
-}
-
-export interface GeoQuery {
-    geo_bounding_box?: {
-        [field: string]: {
-            top_left: parser.GeoPoint|string;
-            bottom_right: parser.GeoPoint|string;
-        }
-    };
-    geo_distance?: {
-        distance: string;
-        [field: string]: parser.GeoPoint|string;
-    };
-}
-
-export interface RegExprQuery {
-    regexp: {
-        [field: string]: string;
-    };
-}
-
-export interface TermQuery {
-    term: {
-        [field: string]: string|number|boolean;
-    };
-}
-
-export interface WildcardQuery {
-    wildcard: {
-        [field: string]: string;
-    };
-}
-
-export interface RangeQuery {
-    range: {
-        [field: string]: RangeExpression
-    };
-}
-
-export interface RangeExpression {
-    gte?: string|number;
-    lte?: string|number;
-    gt?: string|number;
-    lt?: string|number;
 }
