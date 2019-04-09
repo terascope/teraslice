@@ -147,13 +147,13 @@ export function buildBoolQuery(group: parser.LogicalGroup|parser.FieldGroup): i.
                     boolQuery.bool.must_not.push(query);
                 }
             } else {
-                const query = buildAnyQuery(node);
-                if (query && conj.operator === 'OR') {
-                    boolQuery.bool.should.push(query);
-                }
-                if (query && conj.operator === 'AND') {
-                    boolQuery.bool.filter.push(query);
-                }
+                // const query = buildAnyQuery(node);
+                // if (query && conj.operator === 'OR') {
+                //     boolQuery.bool.should.push(query);
+                // }
+                // if (query && conj.operator === 'AND') {
+                //     boolQuery.bool.filter.push(query);
+                // }
             }
         }
     }

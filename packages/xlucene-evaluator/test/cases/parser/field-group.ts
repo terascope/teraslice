@@ -7,8 +7,7 @@ export default [
         field: 'count',
         flow: [
             {
-                type: 'conjunction',
-                operator: 'AND',
+                type: ASTType.Conjunction,
                 nodes: [
                     {
                         type: ASTType.Range,
@@ -46,8 +45,7 @@ export default [
         field: 'count',
         flow: [
             {
-                type: 'conjunction',
-                operator: 'OR',
+                type: ASTType.Conjunction,
                 nodes: [
                     {
                         type: ASTType.Range,
@@ -58,6 +56,11 @@ export default [
                             value: 10,
                         }
                     },
+                ]
+            },
+            {
+                type: ASTType.Conjunction,
+                nodes: [
                     {
                         type: ASTType.Range,
                         field: 'count',
@@ -67,6 +70,11 @@ export default [
                             value: 20,
                         }
                     },
+                ]
+            },
+            {
+                type: ASTType.Conjunction,
+                nodes: [
                     {
                         type: ASTType.Range,
                         field: 'count',
@@ -85,8 +93,7 @@ export default [
         field: 'count',
         flow: [
             {
-                type: 'conjunction',
-                operator: 'OR',
+                type: ASTType.Conjunction,
                 nodes: [
                     {
                         type: ASTType.Term,
@@ -94,6 +101,11 @@ export default [
                         data_type: 'integer',
                         value: 155
                     },
+                ]
+            },
+            {
+                type: ASTType.Conjunction,
+                nodes: [
                     {
                         type: ASTType.Term,
                         field: 'count',
@@ -110,8 +122,7 @@ export default [
         field: 'example',
         flow: [
             {
-                type: 'conjunction',
-                operator: 'AND',
+                type: ASTType.Conjunction,
                 nodes: [
                     {
                         type: ASTType.Term,
@@ -123,8 +134,7 @@ export default [
                         type: ASTType.LogicalGroup,
                         flow: [
                             {
-                                type: 'conjunction',
-                                operator: 'OR',
+                                type: ASTType.Conjunction,
                                 nodes: [
                                     {
                                         type: ASTType.Term,
@@ -132,6 +142,11 @@ export default [
                                         data_type: 'string',
                                         value: 'bar'
                                     },
+                                ]
+                            },
+                            {
+                                type: ASTType.Conjunction,
+                                nodes: [
                                     {
                                         type: ASTType.Term,
                                         field: 'example',
@@ -151,8 +166,7 @@ export default [
         field: 'example',
         flow: [
             {
-                type: 'conjunction',
-                operator: 'AND',
+                type: ASTType.Conjunction,
                 nodes: [
                     {
                         type: ASTType.Term,
@@ -175,8 +189,7 @@ export default [
         field: 'val',
         flow: [
             {
-                type: 'conjunction',
-                operator: 'AND',
+                type: ASTType.Conjunction,
                 nodes: [
                     {
                         type: ASTType.Negation,

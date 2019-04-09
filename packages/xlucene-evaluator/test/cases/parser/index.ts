@@ -2,7 +2,7 @@ import empty from './empty';
 import exists from './exists';
 import geo from './geo';
 import field_group from './field-group';
-import logic_group from './logic-group';
+import logical_group from './logic-group';
 import negation from './negation';
 import range from './range';
 import regexp from './regexp';
@@ -18,7 +18,7 @@ export default {
     wildcard,
     range,
     field_group,
-    logic_group,
+    logical_group,
     negation,
     geo,
 };

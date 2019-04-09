@@ -24,8 +24,7 @@ export default [
         type: ASTType.LogicalGroup,
         flow: [
             {
-                type: 'conjunction',
-                operator: 'AND',
+                type: ASTType.Conjunction,
                 nodes: [
                     {
                         type: ASTType.Term,
@@ -49,14 +48,18 @@ export default [
         type: ASTType.LogicalGroup,
         flow: [
             {
-                type: 'conjunction',
-                operator: 'OR',
+                type: ASTType.Conjunction,
                 nodes: [
                     {
                         type: ASTType.Term,
                         field: 'foo',
                         value: 'bar',
                     },
+                ]
+            },
+            {
+                type: ASTType.Conjunction,
+                nodes: [
                     {
                         type: ASTType.Negation,
                         node: {
@@ -74,8 +77,7 @@ export default [
         type: ASTType.LogicalGroup,
         flow: [
             {
-                type: 'conjunction',
-                operator: 'AND',
+                type: ASTType.Conjunction,
                 nodes: [
                     {
                         type: ASTType.Term,
@@ -99,14 +101,18 @@ export default [
         type: ASTType.LogicalGroup,
         flow: [
             {
-                type: 'conjunction',
-                operator: 'OR',
+                type: ASTType.Conjunction,
                 nodes: [
                     {
                         type: ASTType.Term,
                         field: 'foo',
                         value: 'bar',
                     },
+                ]
+            },
+            {
+                type: ASTType.Conjunction,
+                nodes: [
                     {
                         type: ASTType.Negation,
                         node: {
@@ -124,14 +130,18 @@ export default [
         type: ASTType.LogicalGroup,
         flow: [
             {
-                type: 'conjunction',
-                operator: 'OR',
+                type: ASTType.Conjunction,
                 nodes: [
                     {
                         type: ASTType.Term,
                         field: 'foo',
                         value: 'bar',
                     },
+                ]
+            },
+            {
+                type: ASTType.Conjunction,
+                nodes: [
                     {
                         type: ASTType.Negation,
                         node: {
@@ -149,8 +159,7 @@ export default [
         type: ASTType.LogicalGroup,
         flow: [
             {
-                type: 'conjunction',
-                operator: 'AND',
+                type: ASTType.Conjunction,
                 nodes: [
                     {
                         type: ASTType.Term,
@@ -163,14 +172,18 @@ export default [
                             type: ASTType.LogicalGroup,
                             flow: [
                                 {
-                                    type: 'conjunction',
-                                    operator: 'OR',
+                                    type: ASTType.Conjunction,
                                     nodes: [
                                         {
                                             type: ASTType.Term,
                                             field: 'b',
                                             value: 1,
                                         },
+                                    ]
+                                },
+                                {
+                                    type: ASTType.Conjunction,
+                                    nodes: [
                                         {
                                             type: ASTType.Term,
                                             field: 'c',

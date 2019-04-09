@@ -11,7 +11,7 @@ export class Parser {
         this.logger = logger;
         this.query = query;
         const tracer = new Tracer(this.query, {
-            showTrace: false
+            showTrace: false,
         });
         try {
             this.ast = engine.parse(this.query, {

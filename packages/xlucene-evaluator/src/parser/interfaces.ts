@@ -8,10 +8,10 @@ export interface EmptyAST {
 }
 
 export enum ASTType {
-    Conjunction = 'conjunction',
     LogicalGroup = 'logical-group',
-    Negation = 'negation',
     FieldGroup = 'field-group',
+    Conjunction = 'conjunction',
+    Negation = 'negation',
     Term = 'term',
     Exists = 'exists',
     Range = 'range',
@@ -19,7 +19,7 @@ export enum ASTType {
     GeoBoundingBox = 'geo-bounding-box',
     Regexp = 'regexp',
     Wildcard = 'wildcard',
-    Empty = 'empty'
+    Empty = 'empty',
 }
 
 export type Field = string|null;
@@ -50,10 +50,8 @@ export interface LogicalGroup {
     flow: Conjunction[];
 }
 
-export type Operator = 'AND'|'OR';
 export interface Conjunction {
     type: ASTType.Conjunction;
-    operator: Operator;
     nodes: AST[];
 }
 

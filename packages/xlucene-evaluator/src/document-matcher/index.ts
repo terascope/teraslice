@@ -66,7 +66,7 @@ const logicNode = (boolFn: BooleanCB, node:AST) => {
 function buildLogicFn(parser: Parser, typeConfig: TypeConfig|undefined) {
     // const types = new TypeManager(parser, typeConfig);
     // const parsedAst = types.processAst();
-    console.log('original ast', JSON.stringify(parser.ast, null, 4))
+    console.log('original ast', JSON.stringify(parser.ast, null, 4));
     function walkAst(node: AST): BooleanCB {
         let fnResults;
         const value = getAnyValue(node);
@@ -107,16 +107,16 @@ function buildLogicFn(parser: Parser, typeConfig: TypeConfig|undefined) {
             const rules: BooleanCB[] = [];
 
             node.flow.forEach(conjunction => {
-                const conjunctionRules = conjunction.nodes.map(node => walkAst(node));
-                if (conjunction.operator === 'AND') {
-                    // @ts-ignore
-                    rules.push(allPass(conjunctionRules));
-                }
+                // const conjunctionRules = conjunction.nodes.map(node => walkAst(node));
+                // if (conjunction.operator === 'AND') {
+                //     // @ts-ignore
+                //     rules.push(allPass(conjunctionRules));
+                // }
 
-                if (conjunction.operator === 'OR') {
-                     // @ts-ignore
-                    rules.push(anyPass(conjunctionRules));
-                }
+                // if (conjunction.operator === 'OR') {
+                //      // @ts-ignore
+                //     rules.push(anyPass(conjunctionRules));
+                // }
 
             });
 

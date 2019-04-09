@@ -57,46 +57,98 @@ start
 
 /** Expressions */
 LogicalGroup
-   = flow:Conjunction+ {
+    // recursively go through and chain conjunctions together so
+    // the operations evaluated. If any operation passes
+    // then you can stop early.
+   = conjunctions:Conjunction+ {
         return {
             type: 'logical-group',
-            flow
+            flow: [].concat(...conjunctions)
         };
    }
-
-Conjunction
-    = nodes:AndConjunctionLeft+ {
-        return {
-            type: 'conjunction',
-            operator: 'AND',
-            nodes: [].concat(...nodes),
-        }
-    }
-    / nodes:AndConjunctionRight+ {
-        return {
-            type: 'conjunction',
-            operator: 'AND',
-            nodes: [].concat(...nodes),
-        }
-    }
-    / nodes:OrConjunctionLeft+ {
-        return {
-            type: 'conjunction',
-            operator: 'OR',
-            nodes: [].concat(...nodes),
-        }
-    }
-    / nodes:OrConjunctionRight+ {
-        return {
-            type: 'conjunction',
-            operator: 'OR',
-            nodes: [].concat(...nodes),
-        }
-    }
 
 ParensGroup
     = ParensStart ws* group:LogicalGroup ws* ParensEnd {
         return group;
+    }
+
+Conjunction
+    // group all AND nodes together
+    = nodes:AndConjunctionLeft+ {
+        return [{
+            type: 'conjunction',
+            nodes: [].concat(...nodes),
+        }]
+    }
+    // group all AND nodes together
+    / nodes:AndConjunctionRight+ {
+        return [{
+            type: 'conjunction',
+            nodes: [].concat(...nodes),
+        }]
+    }
+    /*
+    * nodes:OrConjunction+ returns
+    [
+        // if not nested in an array, they will not be grouped together
+        [ { "type": "term", ... } ]
+        [
+            // if there is a nest array those nodes ARE grouped together
+            [{ "type": "term", ... }]
+        ]
+    ]
+    **/
+    / nodes:OrConjunction+ {
+        return nodes.reduce((prev, current) => {
+            current.forEach((node) => {
+                prev.push({
+                    type: 'conjunction',
+                    nodes: Array.isArray(node) ? node : [node]
+                })
+            });
+            return prev;
+        }, []);
+    }
+
+
+AndConjunctionLeft
+    = left:TermGroup ws+ nodes:AndConjunctionRight {
+        return [left, ...nodes]
+    }
+
+AndConjunctionRight
+    // this implicitly converts NOT to an AND
+    // IMPORTANT this does not consume `NOT` so negation can detect it
+    = ws* &'NOT' ws* right:TermGroup nodes:AndConjunctionRight? {
+        if (!nodes) return [right];
+        return [right, ...nodes];
+    }
+    / ws* AndConjunctionOperator ws+ right:TermGroup nodes:AndConjunctionRight? {
+        if (!nodes) return [right];
+        return [right, ...nodes];
+    }
+
+OrConjunction
+    = left:TermGroup ws+ OrConjunctionOperator ws+ right:TermGroup nodes:AndConjunctionRight? {
+        // if nodes exists that means the right should be joined with the next AND statements
+        if (nodes) {
+            return [ left, [ right, ...nodes ] ];
+        }
+        return [ left, right ];
+    }
+    / ws+ OrConjunctionOperator ws+ right:TermGroup nodes:AndConjunctionRight? {
+        // if nodes exists that means the right should be joined with the next AND statements
+        if (nodes) {
+            return [ [ right, ...nodes ] ];
+        }
+        return [right]
+    }
+    // Implicit ORs only work with at least one quoted, field/value pair or parens group
+    / left:FieldOrQuotedTermGroup ws+ right:TermGroup {
+        return [left, right]
+    }
+    / left:TermGroup ws+ right:FieldOrQuotedTermGroup {
+        return [left, right]
     }
 
 TermGroup
@@ -130,38 +182,6 @@ FieldGroup
             type: 'field-group',
             field,
         }
-    }
-
-AndConjunctionLeft
-    = left:TermGroup ws+ nodes:AndConjunctionRight {
-        return [left, ...nodes]
-    }
-
-AndConjunctionRight
-    = ws* &'NOT' ws* right:TermGroup nodes:AndConjunctionRight? {
-        if (!nodes) return [right];
-        return [right, ...nodes];
-    }
-    / ws* AndConjunctionOperator ws+ right:TermGroup nodes:AndConjunctionRight? {
-        if (!nodes) return [right];
-        return [right, ...nodes];
-    }
-
-OrConjunctionLeft
-    = left:TermGroup ws+ nodes:OrConjunctionRight {
-        return [left, ...nodes]
-    }
-    / left:FieldOrQuotedTermGroup ws+ right:TermGroup {
-        return [left, right]
-    }
-    / left:TermGroup ws+ right:FieldOrQuotedTermGroup {
-        return [left, right]
-    }
-
-OrConjunctionRight
-    = ws* OrConjunctionOperator ws+ right:TermGroup nodes:OrConjunctionRight? {
-        if (!nodes) return [ right ];
-        return [right, ...nodes];
     }
 
 BaseTermExpression
