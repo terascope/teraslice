@@ -15,7 +15,8 @@ import {
     isLogicalGroup,
     getAnyValue,
     getField,
-    isNegation
+    isNegation,
+    isFieldGroup
 } from '../parser';
 
 // import TypeManager from './type-manager';
@@ -66,7 +67,7 @@ const logicNode = (boolFn: BooleanCB, node:AST) => {
 function buildLogicFn(parser: Parser, typeConfig: TypeConfig|undefined) {
     // const types = new TypeManager(parser, typeConfig);
     // const parsedAst = types.processAst();
-    console.log('original ast', JSON.stringify(parser.ast, null, 4));
+    // console.log('original ast', JSON.stringify(parser.ast, null, 4));
     function walkAst(node: AST): BooleanCB {
         let fnResults;
         const value = getAnyValue(node);
@@ -103,44 +104,17 @@ function buildLogicFn(parser: Parser, typeConfig: TypeConfig|undefined) {
         //     fnResults = logicNode(fn, node.negated);
         // }
 
-        if (isLogicalGroup(node)) {
-            const rules: BooleanCB[] = [];
+        if (isLogicalGroup(node) || isFieldGroup(node)) {
+            const logicGroups: BooleanCB[] = [];
 
             node.flow.forEach(conjunction => {
-                // const conjunctionRules = conjunction.nodes.map(node => walkAst(node));
-                // if (conjunction.operator === 'AND') {
-                //     // @ts-ignore
-                //     rules.push(allPass(conjunctionRules));
-                // }
-
-                // if (conjunction.operator === 'OR') {
-                //      // @ts-ignore
-                //     rules.push(anyPass(conjunctionRules));
-                // }
-
+                const conjunctionRules = conjunction.nodes.map(node => walkAst(node));
+                logicGroups.push(allPass(conjunctionRules));
             });
 
-            // if (node.operator === 'AND') {
-            //     // conjunctionFn = both;
-            //     const rules = node.flow.map(childNode => walkAst(childNode))
-            //     conjunctionFn = allPass(rules)
-            // }
-            // if (node.operator === 'OR') conjunctionFn = either;
-
-            // if (node.left) {
-            //     conjunctionFn = walkAst(node.left as AST, conjunctionFn);
-            // } else {
-            //     conjunctionFn = conjunctionFn(() => false);
-            // }
-
-            // if (node.right) {
-            //     conjunctionFn = walkAst(node.right as AST, conjunctionFn);
-            // } else {
-            //     conjunctionFn = conjunctionFn(() => true);
-            // }
-
-            fnResults = logicNode(allPass(rules), node);
+            fnResults = logicNode(anyPass(logicGroups), node);
         }
+
         if (!fnResults) fnResults = () => false;
         return fnResults;
     }
