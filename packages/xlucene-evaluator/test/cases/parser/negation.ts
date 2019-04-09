@@ -45,6 +45,31 @@ export default [
             }
         ]
     }],
+    ['foo:bar ! name:Madman', 'an implicit OR with ! negation', {
+        type: ASTType.LogicalGroup,
+        flow: [
+            {
+                type: 'conjunction',
+                operator: 'OR',
+                nodes: [
+                    {
+                        type: ASTType.Term,
+                        field: 'foo',
+                        value: 'bar',
+                    },
+                    {
+                        type: ASTType.Negation,
+                        node: {
+                            type: ASTType.Term,
+                            data_type: 'string',
+                            field: 'name',
+                            value: 'Madman'
+                        }
+                    }
+                ]
+            }
+        ]
+    }],
     ['foo:bar AND NOT name:Madman', 'simple AND NOT conjunction', {
         type: ASTType.LogicalGroup,
         flow: [
