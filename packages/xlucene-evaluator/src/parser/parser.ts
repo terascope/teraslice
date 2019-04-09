@@ -1,21 +1,15 @@
 import { debugLogger, Logger, TSError } from '@terascope/utils';
-// @ts-ignore
-import Tracer from 'pegjs-backtrace';
 import { AST } from './interfaces';
-import engine from './engine';
+import engine, { Tracer } from './engine';
 
 export class Parser {
-    ast: AST = {};
+    ast: AST;
     query: string;
     logger: Logger;
 
     constructor(query: string, logger: Logger = debugLogger('parser-v2')) {
         this.logger = logger;
         this.query = query;
-        this._parse();
-    }
-
-    private _parse() {
         const tracer = new Tracer(this.query, {
             showTrace: false
         });

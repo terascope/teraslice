@@ -1,5 +1,17 @@
 
-import { PegEngine } from '../interfaces';
+// @ts-ignore
+import Tracer from 'pegjs-backtrace';
+import { AST } from './interfaces';
+
+export interface PegEngine {
+    parse(input: string, options?: PegEngineOptions): AST;
+}
+
+export interface PegEngineOptions {
+    tracer?: any;
+    filename?: string;
+    startRule?: string;
+}
 
 let parser: PegEngine;
 
@@ -11,4 +23,5 @@ try {
     parser = require('../../../peg/peg_engine-v2.js');
 }
 
+export { Tracer };
 export default parser;

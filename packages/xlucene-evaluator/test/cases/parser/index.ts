@@ -1,3 +1,4 @@
+import empty from './empty';
 import exists from './exists';
 import geo from './geo';
 import field_group from './field-group';
@@ -10,6 +11,7 @@ import wildcard from './wildcard';
 
 export * from './interfaces';
 export default {
+    empty,
     terms,
     exists,
     regexp,

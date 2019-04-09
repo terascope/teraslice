@@ -4,6 +4,7 @@
 
     /**
     * Propagate the default field on a field group expression
+    * @todo use the types from the new xlucene-parse
     */
     function propagateDefaultField(node, field) {
        if (!node) return;
@@ -48,7 +49,11 @@ start
     / ws* logic:LogicalGroup ws* { return logic; }
     / ws* term:UnqoutedTermType ws* EOF { return term; }
     / ws* term:TermExpression ws* EOF { return term; }
-    / ws* EOF { return {} }
+    / ws* EOF {
+        return {
+            type: 'empty',
+        }
+    }
 
 /** Expressions */
 LogicalGroup

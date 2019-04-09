@@ -1,6 +1,13 @@
 import { ConjunctionAST } from '../interfaces';
 
-export type AST = {} | (LogicalGroup & Term & Conjunction & Negation & FieldGroup & Exists & Range & GeoDistance & GeoBoundingBox & Regexp & Wildcard);
+export type AST = EmptyAST & LogicalGroup & Term
+    & Conjunction & Negation & FieldGroup
+    & Exists & Range & GeoDistance
+    & GeoBoundingBox & Regexp & Wildcard;
+
+export interface EmptyAST {
+    type: ASTType.Empty;
+}
 
 export enum ASTType {
     Conjunction = 'conjunction',
@@ -13,13 +20,15 @@ export enum ASTType {
     GeoDistance = 'geo-distance',
     GeoBoundingBox = 'geo-bounding-box',
     Regexp = 'regexp',
-    Wildcard = 'wildcard'
+    Wildcard = 'wildcard',
+    Empty = 'empty'
 }
 
 export type Field = string|null;
 
+export type DataType = 'string'|'number'|'integer'|'float'|'boolean';
 export interface AnyDataType {
-    data_type: 'string'|'number'|'integer'|'float'|'boolean';
+    data_type: DataType;
     value: string|number|boolean;
 }
 
