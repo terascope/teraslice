@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import dateFns from 'date-fns';
 import { Term, Range } from '../../parser';
-import { isInfiniteMax, isInfiniteMin, ParseNodeRangeResult} from '../../utils';
+import { isInfiniteMax, isInfiniteMin, ParseNodeRangeResult } from '../../utils';
 import { DateInput } from '../../interfaces';
 
 // TODO: handle datemath
