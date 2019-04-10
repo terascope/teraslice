@@ -309,7 +309,7 @@ describe('IndexStore', () => {
         });
 
         describe('when bulk sending records', () => {
-            const keyword = 'bulk record';
+            const keyword = 'bulk-record';
 
             const records: SimpleRecordInput[] = times(100, (n) => ({
                 test_id: `bulk-${n + 1}`,
