@@ -137,6 +137,9 @@ OrConjunction
         return [right]
     }
     // Implicit ORs only work with at least one quoted, field/value pair or parens group
+    / left:FieldOrQuotedTermGroup ws+ right:FieldOrQuotedTermGroup {
+        return [left, right]
+    }
     / left:FieldOrQuotedTermGroup ws+ right:TermGroup {
         return [left, right]
     }
@@ -526,7 +529,7 @@ ParensEnd
     = ')'
 
 WildcardCharSet "wildcard"
-  = $([^\?\* ]* ('?' / '*')+ [^\?\* ]*)
+  = $([^\?\*\( ]* ('?' / '*')+ [^\?\*\) ]*)
 
 FieldChar "field"
   = [_a-zA-Z0-9-\.\?\*]
