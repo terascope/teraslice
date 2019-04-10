@@ -4,8 +4,8 @@ import * as i from './interfaces';
 import * as utils from './utils';
 
 export class Parser {
-    ast: i.AST;
-    query: string;
+    readonly ast: i.AST;
+    readonly query: string;
     logger: Logger;
 
     constructor(query: string, logger: Logger = debugLogger('parser-v2')) {

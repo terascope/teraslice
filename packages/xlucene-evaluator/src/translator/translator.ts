@@ -1,4 +1,4 @@
-import { debugLogger, trim } from '@terascope/utils';
+import { debugLogger, isString } from '@terascope/utils';
 import { TypeConfig } from '../interfaces';
 import { Parser, isEmptyAST } from '../parser';
 import * as i from './interfaces';
@@ -11,14 +11,18 @@ export class Translator {
     public types?: TypeConfig;
     private parser: Parser;
 
-    static toElasticsearchDSL(query: string, types?: TypeConfig) {
+    static toElasticsearchDSL(query: string|Parser, types?: TypeConfig) {
         return new Translator(query, types).toElasticsearchDSL();
     }
 
-    constructor(query: string, types?: TypeConfig) {
-        this.query = trim(query);
+    constructor(input: string|Parser, types?: TypeConfig) {
+        if (isString(input)) {
+            this.parser = new Parser(input);
+        } else {
+            this.parser = input;
+        }
+        this.query = this.parser.query;
         this.types = types;
-        this.parser = new Parser(this.query);
     }
 
     toElasticsearchDSL(): i.ElasticsearchDSLResult {

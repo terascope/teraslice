@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { Parser, TermLikeAST, isWildcard } from '../parser';
-import { Translator } from '../translator';
+import { TermLikeAST, isWildcard, CachedParser } from '../parser';
+import { CachedTranslator } from '../translator';
 import { QueryAccessConfig } from './interfaces';
 import { TypeConfig } from '../interfaces';
 
@@ -14,6 +14,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     allowImplicitQueries: boolean;
     convertEmptyQueryToWildcard: boolean;
     typeConfig: TypeConfig;
+    private _parser: CachedParser = new CachedParser();
+    private _translator: CachedTranslator = new CachedTranslator();
 
     constructor(config: QueryAccessConfig<T> = {}) {
         const {
@@ -47,7 +49,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             });
         }
 
-        const parser = new Parser(query);
+        const parser = this._parser.parse(query);
         parser.forTermTypes((node: TermLikeAST) => {
             // restrict when a term is specified without a field
             if (!node.field) {
@@ -105,7 +107,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         }
 
         const restricted = this.restrict(query);
-        const body = Translator.toElasticsearchDSL(restricted, this.typeConfig);
+        const parsed = this._parser.parse(restricted);
+        const translated = this._translator.toElasticsearchDSL(parsed, this.typeConfig);
 
         const {
             includes,
@@ -113,7 +116,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         } = this.restrictSourceFields(params._sourceInclude as (keyof T)[], params._sourceExclude as (keyof T)[]);
 
         const searchParams = _.defaultsDeep({}, params, {
-            body,
+            body: translated,
             _sourceInclude: includes,
             _sourceExclude: excludes
         });
