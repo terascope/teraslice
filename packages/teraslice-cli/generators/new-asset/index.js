@@ -80,13 +80,30 @@ module.exports = class extends Generator {
     }
 
     install() {
+        this.useYarn = false;
+
+        // prefer yarn to install packages, check that yarn is on the machine
+        // TODO: teraslice-cli could use the global config for a package manager preference
+        const yarnPath = this.spawnCommandSync('which', ['yarn'], {
+            stdio: [process.stdout],
+            encoding: 'utf8'
+        });
+
+        if (yarnPath.stdout) {
+            this.useYarn = true;
+        }
+
         return this.installDependencies({
-            npm: true,
-            bower: false
+            npm: !this.useYarn,
+            bower: false,
+            yarn: this.useYarn
         });
     }
 
     end() {
+        if (this.useYarn) {
+            return this.yarnInstall('', {}, { cwd: path.join(path.join(this.options.new_asset_path, this.answers.name, 'asset')) });
+        }
         return this.npmInstall('', {}, { cwd: path.join(path.join(this.options.new_asset_path, this.answers.name, 'asset')) });
     }
 };
