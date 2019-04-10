@@ -3,6 +3,7 @@ import { trimAndToLower, isPlainObject, parseNumberList } from '@terascope/utils
 import geoHash from 'latlon-geohash';
 import { path, any, values } from 'rambda';
 import { RangeAST, AST, GeoDistance, GeoPoint, BooleanCB } from './interfaces';
+import { Range } from './parser';
 
 export function bindThis(instance:object, cls:object): void {
     return Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
@@ -84,6 +85,13 @@ export interface ParseNodeRangeResult {
     'gt'?: number|string;
     'lte'?: number|string;
     'lt'?: number|string;
+}
+
+export function parseRange(node:Range): ParseNodeRangeResult {
+    const results = {};
+    results[node.left.operator] = node.left.value;
+    if (node.right) results[node.right.operator] = node.right.value;
+    return results;
 }
 
 export function getFieldValue(field: string) {

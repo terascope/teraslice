@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import dateFns from 'date-fns';
 import { Term, Range } from '../../parser';
-import { isInfiniteMax, isInfiniteMin, ParseNodeRangeResult } from '../../utils';
+import { isInfiniteMax, isInfiniteMin, parseRange } from '../../utils';
 import { DateInput } from '../../interfaces';
 
 // TODO: handle datemath
@@ -11,13 +11,6 @@ export function compareTermDates(node: Term) {
     const nodeTermTime = convert(node.value as string);
     if (!nodeTermTime) throw new Error(`was not able to convert ${node.value} to a date value`);
     return (date: string) =>  convert(date) === nodeTermTime;
-}
-
-function parseRange(node:Range): ParseNodeRangeResult {
-    const results = {};
-    results[node.left.operator] = node.left.value;
-    if (node.right) results[node.right.operator] = node.right.value;
-    return results;
 }
 
 export function dateRange(node: Range) {

@@ -7,6 +7,7 @@ import { checkValue } from '../../utils';
 import { TypeConfig, BooleanCB } from '../../interfaces';
 import { geoDistance,  geoBoundingBox } from './geo';
 import { compareTermDates, dateRange } from './dates';
+import { ipTerm, ipRange } from './ip';
 import { regexp, wildcard } from './string';
 import {
     Parser,
@@ -46,12 +47,12 @@ export default function buildLogicFn(parser: Parser, typeConfig: TypeConfig|unde
             return compareTermDates(node);
         }
 
-        // if (type === 'date') {
-        //     if (isRange(node)) {
-        //         return dateRange;
-        //     }
-        //     return compareTermDates;
-        // }
+        if (type === 'ip') {
+            if (isRange(node)) {
+                return ipRange(node);
+            }
+            return ipTerm(node);
+        }
 
         return defaultCb;
     }
