@@ -1,6 +1,6 @@
 import { debugLogger, trim } from '@terascope/utils';
 import { TypeConfig } from '../interfaces';
-import { Parser } from '../parser';
+import { Parser, isEmptyAST } from '../parser';
 import * as i from './interfaces';
 import * as utils from './utils';
 
@@ -22,7 +22,7 @@ export class Translator {
     }
 
     toElasticsearchDSL(): i.ElasticsearchDSLResult {
-        if (!this.query) {
+        if (isEmptyAST(this.parser.ast)) {
             return {
                 query: {
                     query_string: {
@@ -32,16 +32,16 @@ export class Translator {
             };
         }
 
-        const anyQuery = utils.buildAnyQuery(this.parser.ast);
-        const query = utils.compactFinalQuery(anyQuery);
-        logger.trace(`translated ${this.query} query to`, JSON.stringify(query));
+        const anyQuery = utils.buildAnyQuery(this.parser.ast, this.parser);
 
-        return {
-            query: {
-                constant_score: {
-                    filter: query,
-                },
-            }
+        const query = {
+            constant_score: {
+                filter: utils.compactFinalQuery(anyQuery),
+            },
         };
+
+        logger.trace(`translated ${this.query} query to`, JSON.stringify(query, null, 2));
+
+        return { query };
     }
 }

@@ -1,4 +1,5 @@
 import { TypeConfig } from '../../../src';
+import { AnyQuery } from '../../../src/translator/interfaces';
 
 export type TestCase = [
     // when given %s
@@ -6,7 +7,7 @@ export type TestCase = [
     // property in dot notation form
     string,
     // toHaveProperty($property, %j)
-    any,
+    AnyQuery,
     // optional types config
     TypeConfig?
 ];

@@ -282,8 +282,10 @@ describe('QueryAccess', () => {
                     body: {
                         query: {
                             constant_score: {
-                                bool: {
-                                    filter: []
+                                filter: {
+                                    bool: {
+                                        filter: []
+                                    }
                                 }
                             },
                         },

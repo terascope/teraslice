@@ -1,9 +1,9 @@
 import 'jest-extended';
 import get from 'lodash/get';
-import { debugLogger, TSError } from '@terascope/utils';
+import { debugLogger } from '@terascope/utils';
 import { buildAnyQuery } from '../src/translator/utils';
 import { Translator, TypeConfig } from '../src';
-import { AST } from '../src/parser';
+import { AST, Parser } from '../src/parser';
 import allTestCases from './cases/translator';
 
 const logger = debugLogger('translator-spec');
@@ -18,14 +18,7 @@ describe('Translator', () => {
 
     it('should return undefined when given an invalid query', () => {
         const node: unknown = { type: 'idk', field: 'a', val: true };
-        expect(buildAnyQuery(node as AST)).toBeUndefined();
-    });
-
-    it('should throw when missing field on term node', () => {
-        const node: unknown = { type: 'term', term: 'hello' };
-        expect(() => {
-            buildAnyQuery(node as AST);
-        }).toThrowWithMessage(TSError, 'Unexpected problem when translating xlucene query');
+        expect(buildAnyQuery(node as AST, new Parser(''))).toBeUndefined();
     });
 
     it('should have a types property', () => {

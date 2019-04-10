@@ -10,7 +10,7 @@ export type BoolQuery = {
 
 export type BoolQueryTypes = 'filter'|'should'|'must_not';
 
-export type AnyQuery = BoolQuery|GeoQuery|TermQuery|WildcardQuery|ExistsQuery|RegExprQuery|RangeQuery;
+export type AnyQuery = BoolQuery|GeoQuery|TermQuery|WildcardQuery|ExistsQuery|RegExprQuery|RangeQuery|MultiMatchQuery;
 
 export interface ExistsQuery {
     exists: {
@@ -52,6 +52,13 @@ export interface WildcardQuery {
 export interface RangeQuery {
     range: {
         [field: string]: RangeExpression
+    };
+}
+
+export interface MultiMatchQuery {
+    multi_match: {
+        query: string,
+        fields?: string[],
     };
 }
 

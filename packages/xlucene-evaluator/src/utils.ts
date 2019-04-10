@@ -90,6 +90,7 @@ export interface ParseNodeRangeResult {
 
 export function parseRange(node: Range, excludeInfinite = false): ParseNodeRangeResult {
     const results = {};
+
     if (!excludeInfinite || !isInfiniteValue(node.left.value)) {
         results[node.left.operator] = node.left.value;
     }

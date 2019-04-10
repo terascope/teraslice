@@ -54,4 +54,14 @@ export default [
             }
         }
     }],
+    ['hello-there', 'query.constant_score.filter', {
+        multi_match: {
+            query: 'hello-there'
+        }
+    }],
+    ['nested.*:hello-there', 'query.constant_score.filter', {
+        term: {
+            'nested.*': 'hello-there'
+        }
+    }],
 ] as TestCase[];
