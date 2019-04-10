@@ -3,8 +3,24 @@ export type AST = EmptyAST & LogicalGroup & Term
     & Exists & Range & GeoDistance
     & GeoBoundingBox & Regexp & Wildcard;
 
-export interface EmptyAST {
-    type: ASTType.Empty;
+export type AnyAST = EmptyAST | LogicalGroup | Term
+    | Conjunction | Negation | FieldGroup
+    | Exists | Range | GeoDistance
+    | GeoBoundingBox | Regexp | Wildcard;
+
+export type GroupLike = FieldGroup|LogicalGroup;
+export type GroupLikeType = ASTType.LogicalGroup|ASTType.FieldGroup;
+
+export interface GroupLikeAST {
+    type: GroupLikeType;
+    flow: Conjunction[];
+}
+
+export type TermLike = Term|Regexp|Range|Wildcard|GeoBoundingBox|GeoDistance;
+export type TermLikeType = ASTType.Term|ASTType.Regexp|ASTType.Range|ASTType.Wildcard|ASTType.GeoBoundingBox|ASTType.GeoDistance;
+export interface TermLikeAST {
+    type: TermLikeType;
+    field: Field;
 }
 
 export enum ASTType {
@@ -20,6 +36,10 @@ export enum ASTType {
     Regexp = 'regexp',
     Wildcard = 'wildcard',
     Empty = 'empty',
+}
+
+export interface EmptyAST {
+    type: ASTType.Empty;
 }
 
 export type Field = string|null;
@@ -45,9 +65,8 @@ export interface BooleanDataType {
     value: boolean;
 }
 
-export interface LogicalGroup {
+export interface LogicalGroup extends GroupLikeAST {
     type: ASTType.LogicalGroup;
-    flow: Conjunction[];
 }
 
 export interface Conjunction {
@@ -60,10 +79,9 @@ export interface Negation {
     node: AST;
 }
 
-export interface FieldGroup {
+export interface FieldGroup extends GroupLikeAST {
     type: ASTType.FieldGroup;
     field: string;
-    flow: Conjunction[];
 }
 
 export interface Exists {
@@ -72,17 +90,19 @@ export interface Exists {
 }
 
 export type RangeOperator = 'gte'|'gt'|'lt'|'lte';
-export interface Range {
+export interface Range extends TermLikeAST {
     type: ASTType.Range;
-    field: Field;
     left: RangeNode;
     right?: RangeNode;
 }
 
+export interface RangeNode extends NumberDataType {
+    operator: RangeOperator;
+}
+
 export type GeoDistanceUnit = 'millimeters'|'centimeters'|'inches'|'feet'|'meters'|'yards'|'kilometers'|'nauticalmiles'|'miles';
-export interface GeoDistance extends GeoPoint {
+export interface GeoDistance extends GeoPoint, TermLikeAST {
     type: ASTType.GeoDistance;
-    field: Field;
     distance: number;
     unit: GeoDistanceUnit;
 }
@@ -92,28 +112,20 @@ export interface GeoPoint {
     lon: number;
 }
 
-export interface GeoBoundingBox {
+export interface GeoBoundingBox extends TermLikeAST {
     type: ASTType.GeoBoundingBox;
-    field: string;
     top_left: GeoPoint;
     bottom_right: GeoPoint;
 }
 
-export interface RangeNode extends NumberDataType {
-    operator: RangeOperator;
-}
-
-export interface Regexp extends StringDataType {
+export interface Regexp extends StringDataType, TermLikeAST {
     type: ASTType.Regexp;
-    field: Field;
 }
 
-export interface Wildcard extends StringDataType {
+export interface Wildcard extends StringDataType, TermLikeAST {
     type: ASTType.Wildcard;
-    field: Field;
 }
 
-export interface Term extends AnyDataType {
+export interface Term extends AnyDataType, TermLikeAST {
     type: ASTType.Term;
-    field: Field;
 }

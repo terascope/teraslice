@@ -69,5 +69,23 @@ export function getField(node: any): string|undefined {
     return node.field;
 }
 
-export const termTypes: i.ASTType[] = [i.ASTType.Term, i.ASTType.Regexp, i.ASTType.Range, i.ASTType.Wildcard];
+/** term level queries with field (string|null)  */
+export const termTypes: i.ASTType[] = [
+    i.ASTType.Term,
+    i.ASTType.Regexp,
+    i.ASTType.Range,
+    i.ASTType.Wildcard,
+    i.ASTType.GeoBoundingBox,
+    i.ASTType.GeoDistance,
+];
+
+export function isTermType(node: any): node is i.TermLike {
+    return node && termTypes.includes(node.type);
+}
+
+/** logical group or field group with flow */
 export const groupTypes: i.ASTType[] = [i.ASTType.LogicalGroup, i.ASTType.FieldGroup];
+
+export function isGroupLike(node: any): node is i.GroupLikeAST {
+    return node && groupTypes.includes(node.type);
+}

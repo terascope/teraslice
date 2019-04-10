@@ -1,22 +1,12 @@
 import _ from 'lodash';
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import LuceneQueryParser from '../lucene-query-parser';
+import { Parser, TermLikeAST, isWildcard } from '../parser';
 import { Translator } from '../translator';
-import { AST, IMPLICIT, TypeConfig } from '../interfaces';
+import { QueryAccessConfig } from './interfaces';
+import { TypeConfig } from '../interfaces';
 
-export interface QueryAccessConfig<T extends AnyData = AnyData> {
-    excludes?: (keyof T)[];
-    includes?: (keyof T)[];
-    constraint?: string;
-    prevent_prefix_wildcard?: boolean;
-    allow_implicit_queries?: boolean;
-    /** allow empty an empty query, and convert it to a wildcard query */
-    convert_empty_query_to_wildcard?: boolean;
-    type_config?: TypeConfig;
-}
-
-export default class LuceneQueryAccess<T extends AnyData = AnyData> {
+export default class LuceneQueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     excludes: (keyof T)[];
     includes: (keyof T)[];
     constraint?: string;
@@ -57,19 +47,16 @@ export default class LuceneQueryAccess<T extends AnyData = AnyData> {
             });
         }
 
-        const parser = new LuceneQueryParser();
-        parser.parse(query);
-        parser.walkLuceneAst((node: AST, field: string) => {
+        const parser = new Parser(query);
+        parser.forTermTypes((node: TermLikeAST) => {
             // restrict when a term is specified without a field
-            if (node.field && !field) {
+            if (!node.field) {
                 if (this.allowImplicitQueries) return;
 
                 throw new ts.TSError('Implicit fields are restricted, please specify the field', {
                     statusCode: 403
                 });
             }
-
-            if (!node.field || node.field === IMPLICIT) return;
 
             if (this._isFieldExcluded(node.field)) {
                 throw new ts.TSError(`Field ${node.field} in query is restricted`, {
@@ -83,10 +70,12 @@ export default class LuceneQueryAccess<T extends AnyData = AnyData> {
                 });
             }
 
-            if (this.preventPrefixWildcard && startsWithWildcard(node.term)) {
-                throw new ts.TSError('Wildcard queries of the form \'fieldname:*value\' or \'fieldname:?value\' in query are restricted',  {
-                    statusCode: 403
-                });
+            if (isWildcard(node)) {
+                if (this.preventPrefixWildcard && startsWithWildcard(node.value)) {
+                    throw new ts.TSError('Wildcard queries of the form \'fieldname:*value\' or \'fieldname:?value\' in query are restricted',  {
+                        statusCode: 403
+                    });
+                }
             }
         });
 
@@ -176,10 +165,6 @@ export default class LuceneQueryAccess<T extends AnyData = AnyData> {
         if (!this.includes.length) return false;
         return !this.includes.some((str) => ts.startsWith(field, str as string));
     }
-}
-
-export interface AnyData {
-    [prop: string]: any;
 }
 
 function startsWithWildcard(input?: string|number) {

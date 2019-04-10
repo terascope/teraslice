@@ -1,9 +1,10 @@
 import { debugLogger, Logger, TSError } from '@terascope/utils';
-import { AST } from './interfaces';
 import engine, { Tracer } from './engine';
+import * as i from './interfaces';
+import * as utils from './utils';
 
 export class Parser {
-    ast: AST;
+    ast: i.AST;
     query: string;
     logger: Logger;
 
@@ -32,5 +33,38 @@ export class Parser {
                 console.error(tracer.getBacktraceString());
             }
         }
+    }
+
+    forTypes<T extends i.ASTType[]>(types: T, cb: (node: i.AnyAST) => void) {
+        const walkNode = (node: i.AnyAST) => {
+            if (types.includes(node.type)) {
+                cb(node);
+            }
+
+            if (utils.isNegation(node)) {
+                walkNode(node.node);
+                return;
+            }
+
+            if (utils.isGroupLike(node)) {
+                for (const conj of node.flow) {
+                    walkNode(conj);
+                }
+                return;
+            }
+
+            if (utils.isConjunction(node)) {
+                for (const conj of node.nodes) {
+                    walkNode(conj);
+                }
+                return;
+            }
+        };
+
+        walkNode(this.ast);
+    }
+
+    forTermTypes(cb: (node: i.TermLike) => void) {
+        this.forTypes(utils.termTypes, cb as (node: i.AnyAST) => void);
     }
 }

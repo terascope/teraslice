@@ -9,7 +9,7 @@
     function propagateDefaultField(node, field) {
        if (!node) return;
 
-       const termTypes = ['term', 'regexp', 'range', 'wildcard'];
+       const termTypes = ['term', 'regexp', 'range', 'wildcard', 'geo-distance', 'geo-bounding-box'];
        if (termTypes.includes(node.type) && !node.field) {
            node.field = field;
            return;

@@ -223,7 +223,6 @@ describe('LuceneQueryAccess', () => {
         describe.each([
             ['hello:*world'],
             ['hello:?world'],
-            ['hello:" *world"'],
         ])('when using a query of "%s"', (query) => {
             it('should throw an error', () => {
                 expect(() => queryAccess.restrict(query))
