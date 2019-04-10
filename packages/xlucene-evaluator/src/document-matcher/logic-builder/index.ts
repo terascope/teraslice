@@ -6,6 +6,7 @@ import { checkValue } from '../../utils';
 
 import { TypeConfig, BooleanCB } from '../../interfaces';
 import { geoDistance,  geoBoundingBox } from './geo';
+import { compareTermDates, dateRange } from './dates';
 import { regexp, wildcard } from './string';
 import {
     Parser,
@@ -34,10 +35,27 @@ const logicNode = (boolFn: BooleanCB, node:AST) => {
     return boolFn;
 };
 
-export default function buildLogicFn(parser: Parser, typeConfig: TypeConfig|undefined) {
-    // const types = new TypeManager(parser, typeConfig);
-    // const parsedAst = types.processAst();
+export default function buildLogicFn(parser: Parser, typeConfig: TypeConfig|undefined = {}) {
     // console.log('original ast', JSON.stringify(parser.ast, null, 4));
+    function typeFunctions(node:AST, defaultCb: BooleanCB) {
+        const type = typeConfig[node.field];
+        if (type === 'date') {
+            if (isRange(node)) {
+                return dateRange(node);
+            }
+            return compareTermDates(node);
+        }
+
+        // if (type === 'date') {
+        //     if (isRange(node)) {
+        //         return dateRange;
+        //     }
+        //     return compareTermDates;
+        // }
+
+        return defaultCb;
+    }
+
     function walkAst(node: AST): BooleanCB {
         let fnResults;
         const value = getAnyValue(node);
@@ -49,12 +67,15 @@ export default function buildLogicFn(parser: Parser, typeConfig: TypeConfig|unde
             fnResults = negate(childLogic);
         }
 
-        // TODO: Deal with regex and wildcard
+        // TODO: Deal with ips, dates
         if (isTerm(node)) {
-            const isValue = (data: any) => {
-                return data === value;
-            };
-            const fn = checkValue(field as string, isValue);
+            const isValue = (data: any) => data === value;
+            const fn = checkValue(field as string, typeFunctions(node, isValue));
+            fnResults = logicNode(fn, node);
+        }
+
+        if (isRange(node)) {
+            const fn = checkValue(field, typeFunctions(node, rangeFn(node)));
             fnResults = logicNode(fn, node);
         }
 
@@ -71,11 +92,6 @@ export default function buildLogicFn(parser: Parser, typeConfig: TypeConfig|unde
         if (isExists(node)) {
             const valueExists = (value: any) => value != null;
             const fn = checkValue(field, valueExists);
-            fnResults = logicNode(fn, node);
-        }
-
-        if (isRange(node)) {
-            const fn = checkValue(field, rangeFn(node));
             fnResults = logicNode(fn, node);
         }
 
@@ -122,3 +138,5 @@ function rangeFn(node: Range): BooleanCB {
 
     return (data: any) => mapping[left.operator](data, left.value) && mapping[right.operator](data, right.value);
 }
+
+
