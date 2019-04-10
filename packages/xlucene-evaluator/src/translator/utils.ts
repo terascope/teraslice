@@ -93,7 +93,7 @@ export function buildGeoDistanceQuery(node: parser.GeoDistance, field: string): 
 
 export function buildRangeQuery(node: parser.Range, field: string): i.RangeQuery {
     const rangeQuery: i.RangeQuery = { range: {} };
-    rangeQuery.range[field] = parseRange(node);
+    rangeQuery.range[field] = parseRange(node, true);
     logger.trace('built range query', { node, rangeQuery });
     return rangeQuery;
 }

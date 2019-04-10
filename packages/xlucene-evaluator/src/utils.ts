@@ -88,10 +88,17 @@ export interface ParseNodeRangeResult {
     'lt'?: number|string;
 }
 
-export function parseRange(node:Range): ParseNodeRangeResult {
+export function parseRange(node: Range, excludeInfinite = false): ParseNodeRangeResult {
     const results = {};
-    results[node.left.operator] = node.left.value;
-    if (node.right) results[node.right.operator] = node.right.value;
+    if (!excludeInfinite || !isInfiniteValue(node.left.value)) {
+        results[node.left.operator] = node.left.value;
+    }
+
+    if (node.right) {
+        if (!excludeInfinite || !isInfiniteValue(node.right.value)) {
+            results[node.right.operator] = node.right.value;
+        }
+    }
     return results;
 }
 
