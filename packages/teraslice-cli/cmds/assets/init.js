@@ -2,12 +2,23 @@
 
 const path = require('path');
 const fs = require('fs-extra');
-const { spawn } = require('node-pty');
+const yeoman = require('yeoman-environment');
+
 const Config = require('../../lib/config');
 const YargsOptions = require('../../lib/yargs-options');
 const reply = require('../lib/reply')();
+const newProcessor = require('../../generators/new-processor');
+const newAsset = require('../../generators/new-asset');
 
 const yargsOptions = new YargsOptions();
+const env = yeoman.createEnv();
+
+env.registerStub(newProcessor, 'new-processor', path.join(
+    __dirname, '..', '..', 'generators', 'new-processor', 'index.js'
+));
+env.registerStub(newAsset, 'new-asset', path.join(
+    __dirname, '..', '..', 'generators', 'new-asset', 'index.js'
+));
 
 
 exports.command = 'init';
@@ -24,41 +35,17 @@ exports.handler = async (argv) => {
     const cliConfig = new Config(argv);
     const assetBaseDir = cliConfig.args.baseDir;
 
-    function execute() {
-        return new Promise((resolve, reject) => {
-            const answers = process.stdin;
-            answers.setRawMode(true);
-            answers.resume();
-            answers.setEncoding('utf8');
-
-            answers.on('data', (key) => {
-                if (key === '\u0003') resolve();
-            });
-
-            let term;
-            if (argv.proc) {
-                term = spawn('yarn', ['yo', '--no-insight', '--no-update-notifier', path.join(__dirname, '..', '..', 'generators', 'new-processor'), assetBaseDir, '--new'], { cwd: __dirname });
-            } else {
-                term = spawn('yarn', ['yo', '--no-insight', '--no-update-notifier', path.join(__dirname, '..', '..', 'generators', 'new-asset'), assetBaseDir], { cwd: __dirname });
-            }
-
-            term.on('data', data => process.stdout.write(data));
-            term.on('error', error => reject(error));
-
-            answers.on('error', error => reject(error));
-            answers.pipe(term);
-
-            term.on('exit', () => resolve('done'));
-        });
-    }
-
     // if just adding a new processor AssetBaseDir needs to have an asset dir
     if (argv.proc && !fs.pathExistsSync(path.join(assetBaseDir, 'asset'))) {
         reply.fatal('Execute the command in the base directory of an asset or use the --base-dir with the asset\'s full path');
     }
 
     try {
-        await execute();
+        if (argv.proc) {
+            await env.run(`new-processor ${assetBaseDir} --new`);
+        } else {
+            await env.run(`new-asset ${assetBaseDir}`);
+        }
         reply.green('All done!');
     } catch (e) {
         reply.fatal(e);
