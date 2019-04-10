@@ -101,7 +101,6 @@ module.exports = class extends Generator {
     }
 
     end() {
-        // installs dependencies in the asset_home/asset directory
         if (this.useYarn) {
             return this.yarnInstall('', {}, { cwd: path.join(path.join(this.options.new_asset_path, this.answers.name, 'asset')) });
         }
