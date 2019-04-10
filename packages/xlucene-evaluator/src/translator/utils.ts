@@ -1,16 +1,21 @@
 import { debugLogger, TSError } from '@terascope/utils';
 import * as parser from '../parser';
 import * as i from './interfaces';
+import { parseRange } from '../utils';
 
 const logger = debugLogger('xlucene-translator-utils');
 
 export function buildAnyQuery(node: parser.AST): i.AnyQuery|undefined {
     const field = parser.getField(node);
-    if (parser.isWildcard(node) && node.value === '*') {
-        return;
+    if (parser.isWildcard(node) && !node.field && node.value === '*') {
+        return {
+            bool: {
+                filter: []
+            }
+        };
     }
 
-    if (parser.isLogicalGroup(node) || parser.isFieldGroup(node)) {
+    if (parser.isGroupLike(node)) {
         return buildBoolQuery(node);
     }
 
@@ -88,13 +93,7 @@ export function buildGeoDistanceQuery(node: parser.GeoDistance, field: string): 
 
 export function buildRangeQuery(node: parser.Range, field: string): i.RangeQuery {
     const rangeQuery: i.RangeQuery = { range: {} };
-    rangeQuery.range[field] = {};
-    if (node.left) {
-        rangeQuery.range[field][node.left.operator] = node.left.value;
-    }
-    if (node.right) {
-        rangeQuery.range[field][node.right.operator] = node.right.value;
-    }
+    rangeQuery.range[field] = parseRange(node);
     logger.trace('built range query', { node, rangeQuery });
     return rangeQuery;
 }
@@ -130,7 +129,7 @@ export function buildExistsQuery(node: parser.Exists, field: string): i.ExistsQu
     return existsQuery;
 }
 
-export function buildBoolQuery(group: parser.LogicalGroup|parser.FieldGroup): i.BoolQuery|undefined {
+export function buildBoolQuery(group: parser.GroupLikeAST): i.BoolQuery|undefined {
     const should: i.AnyQuery[] = [];
 
     for (const conj of group.flow) {
@@ -199,7 +198,7 @@ export function compactFinalQuery(query?: i.AnyQuery): i.AnyQuery|i.AnyQuery[] {
     if (!query) return [];
     if (isBoolQuery(query) && canFlattenBoolQuery(query, 'filter')) {
         const filter = query.bool.filter!;
-        if (!filter || !filter.length) return [];
+        if (!filter.length) return query;
         if (filter.length === 1) {
             return filter[0];
         }

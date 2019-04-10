@@ -42,7 +42,11 @@ describe('Translator', () => {
         [
             '*',
             'query.constant_score.filter',
-            []
+            {
+                bool: {
+                    filter:[]
+                }
+            }
         ],
         [
             'hello:world',
