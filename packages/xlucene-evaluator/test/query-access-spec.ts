@@ -1,19 +1,19 @@
 import 'jest-extended';
 import { SearchParams } from 'elasticsearch';
 import { TSError } from '@terascope/utils';
-import { LuceneQueryAccess } from '../src';
+import { QueryAccess } from '../src';
 
-describe('LuceneQueryAccess', () => {
+describe('QueryAccess', () => {
     describe('when constructed without exclude', () => {
         it('should set an empty array', () => {
-            const queryAccess = new LuceneQueryAccess({});
+            const queryAccess = new QueryAccess({});
 
             expect(queryAccess.excludes).toBeArrayOfSize(0);
         });
     });
 
     describe('when constructed with exclusive fields', () => {
-        const queryAccess = new LuceneQueryAccess({
+        const queryAccess = new QueryAccess({
             excludes: [
                 'bar',
                 'moo',
@@ -101,7 +101,7 @@ describe('LuceneQueryAccess', () => {
     });
 
     describe('when constructed with include fields', () => {
-        const queryAccess = new LuceneQueryAccess({
+        const queryAccess = new QueryAccess({
             includes: [
                 'bar',
                 'star'
@@ -143,7 +143,7 @@ describe('LuceneQueryAccess', () => {
 
             const query = '*';
 
-            const result = new LuceneQueryAccess({
+            const result = new QueryAccess({
                 allow_implicit_queries: true
             }).restrict(query);
 
@@ -178,7 +178,7 @@ describe('LuceneQueryAccess', () => {
         it('should be able to convert an empty query to a wildcard', () => {
             const query = '';
 
-            const result = new LuceneQueryAccess({
+            const result = new QueryAccess({
                 convert_empty_query_to_wildcard: true
             }).restrict(query);
             expect(result).toEqual('*');
@@ -187,7 +187,7 @@ describe('LuceneQueryAccess', () => {
 
     describe('when using a constraint that is not restricted', () => {
         const constraint = 'foo:bar';
-        const queryAccess = new LuceneQueryAccess({
+        const queryAccess = new QueryAccess({
             constraint,
         });
 
@@ -200,7 +200,7 @@ describe('LuceneQueryAccess', () => {
 
     describe('when using a constraint that is restricted', () => {
         const constraint = 'hello:world';
-        const queryAccess = new LuceneQueryAccess({
+        const queryAccess = new QueryAccess({
             constraint,
             excludes: [
                 'hello'
@@ -216,7 +216,7 @@ describe('LuceneQueryAccess', () => {
     });
 
     describe('when resticting prefix wildcards', () => {
-        const queryAccess = new LuceneQueryAccess({
+        const queryAccess = new QueryAccess({
             prevent_prefix_wildcard: true,
         });
 
@@ -238,7 +238,7 @@ describe('LuceneQueryAccess', () => {
     });
 
     describe('when converting to an elasticsearch search query', () => {
-        const queryAccess = new LuceneQueryAccess({
+        const queryAccess = new QueryAccess({
             convert_empty_query_to_wildcard: true,
             excludes: [
                 'bar',
@@ -275,24 +275,28 @@ describe('LuceneQueryAccess', () => {
             expect(result).not.toHaveProperty('q', 'idk');
         });
 
-        it('should be able to allow empty queries when convert_empty_query_to_wildcard is set to true', () => {
-            const result = queryAccess.restrictSearchQuery('');
-            expect(result).toEqual({
-                body: {
-                    query: {
-                        constant_score: {
-                            filter: []
+        describe('when convert_empty_query_to_wildcard is set to true', () => {
+            it('should be able to allow empty queries', () => {
+                const result = queryAccess.restrictSearchQuery('');
+                expect(result).toEqual({
+                    body: {
+                        query: {
+                            constant_score: {
+                                bool: {
+                                    filter: []
+                                }
+                            },
                         },
                     },
-                },
-                _sourceExclude: [
-                    'bar',
-                    'baz'
-                ],
-                _sourceInclude: [
-                    'foo',
-                    'moo'
-                ],
+                    _sourceExclude: [
+                        'bar',
+                        'baz'
+                    ],
+                    _sourceInclude: [
+                        'foo',
+                        'moo'
+                    ],
+                });
             });
         });
 

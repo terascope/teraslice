@@ -6,7 +6,7 @@ import { Translator } from '../translator';
 import { QueryAccessConfig } from './interfaces';
 import { TypeConfig } from '../interfaces';
 
-export class LuceneQueryAccess<T extends ts.AnyObject = ts.AnyObject> {
+export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     excludes: (keyof T)[];
     includes: (keyof T)[];
     constraint?: string;

@@ -3,7 +3,7 @@ import { Client } from 'elasticsearch';
 import { times, TSError } from '@terascope/utils';
 import { IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions } from '../src';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
-import { LuceneQueryAccess } from 'xlucene-evaluator';
+import { QueryAccess } from 'xlucene-evaluator';
 
 describe('IndexModel', () => {
     interface ExampleRecord extends IndexModelRecord {
@@ -81,7 +81,7 @@ describe('IndexModel', () => {
         });
 
         it('should be able to find the record with restrictions', async () => {
-            const queryAccess = new LuceneQueryAccess({
+            const queryAccess = new QueryAccess({
                 excludes: ['updated']
             });
             const result = await indexModel.findById(fetched.id, queryAccess);
@@ -224,7 +224,7 @@ describe('IndexModel', () => {
         });
 
         it('should be able to count with restrictions', async () => {
-            const queryAccess = new LuceneQueryAccess({
+            const queryAccess = new QueryAccess({
                 includes: ['name']
             });
 
@@ -247,7 +247,7 @@ describe('IndexModel', () => {
         });
 
         it('should be able to find all by ids with restrictions', async () => {
-            const queryAccess = new LuceneQueryAccess({
+            const queryAccess = new QueryAccess({
                 includes: ['id', 'name']
             });
 
@@ -269,7 +269,7 @@ describe('IndexModel', () => {
         });
 
         it('should be able to find all of the Bobs', async () => {
-            const queryAccess = new LuceneQueryAccess({
+            const queryAccess = new QueryAccess({
                 constraint: 'name:Bob*',
                 excludes: ['created']
             });

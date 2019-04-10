@@ -1,7 +1,7 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import { CreateRecordInput, UpdateRecordInput } from 'elasticsearch-store';
-import { TypeConfig, LuceneQueryAccess } from 'xlucene-evaluator';
+import { TypeConfig, QueryAccess } from 'xlucene-evaluator';
 import * as models from './models';
 import { ManagerConfig } from './interfaces';
 
@@ -487,7 +487,7 @@ export class ACLManager {
             constraint += `id: ${authUser.id}`;
         }
 
-        return new LuceneQueryAccess<models.User>({
+        return new QueryAccess<models.User>({
             constraint,
             excludes,
             allow_implicit_queries: type !== 'USER'
@@ -499,7 +499,7 @@ export class ACLManager {
         const clientId = this._getUserClientId(authUser);
         const excludes: (keyof models.Role)[] = [];
 
-        return new LuceneQueryAccess<models.Role>({
+        return new QueryAccess<models.Role>({
             constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
             excludes,
             allow_implicit_queries: type !== 'USER'
@@ -515,7 +515,7 @@ export class ACLManager {
             excludes.push('type_config');
         }
 
-        return new LuceneQueryAccess<models.DataType>({
+        return new QueryAccess<models.DataType>({
             constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
             excludes,
             allow_implicit_queries: type !== 'USER'
@@ -539,7 +539,7 @@ export class ACLManager {
             );
         }
 
-        return new LuceneQueryAccess<models.View>({
+        return new QueryAccess<models.View>({
             constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
             includes,
             allow_implicit_queries: type !== 'USER'
@@ -558,7 +558,7 @@ export class ACLManager {
             );
         }
 
-        return new LuceneQueryAccess<models.Space>({
+        return new QueryAccess<models.Space>({
             constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
             excludes,
             allow_implicit_queries: type !== 'USER'

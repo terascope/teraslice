@@ -1,6 +1,6 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { LuceneQueryAccess } from 'xlucene-evaluator';
+import { QueryAccess } from 'xlucene-evaluator';
 import IndexStore from './index-store';
 import * as utils from './utils';
 import * as i from './interfaces';
@@ -70,7 +70,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return this.store.shutdown();
     }
 
-    async count(query: string, queryAccess?: LuceneQueryAccess<T>): Promise<number> {
+    async count(query: string, queryAccess?: QueryAccess<T>): Promise<number> {
         if (queryAccess) return this.store.count(queryAccess.restrict(query));
         return this.store.count(query);
     }
@@ -116,7 +116,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return count === ids.length;
     }
 
-    async findBy(fields: Partial<T>, joinBy = 'AND', options?: FindOneOptions<T>, queryAccess?: LuceneQueryAccess<T>) {
+    async findBy(fields: Partial<T>, joinBy = 'AND', options?: FindOneOptions<T>, queryAccess?: QueryAccess<T>) {
         const query = Object.entries(fields)
             .map(([field, val]) => {
                 if (val == null) {
@@ -143,13 +143,13 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return record;
     }
 
-    async findById(id: string, options?: FindOneOptions<T>, queryAccess?: LuceneQueryAccess<T>): Promise<T> {
+    async findById(id: string, options?: FindOneOptions<T>, queryAccess?: QueryAccess<T>): Promise<T> {
         const fields: Partial<T> = { };
         fields[this._idField] = id as any;
         return this.findBy(fields, 'AND', options, queryAccess);
     }
 
-    async findByAnyId(anyId: any, options?: FindOneOptions<T>, queryAccess?: LuceneQueryAccess<T>) {
+    async findByAnyId(anyId: any, options?: FindOneOptions<T>, queryAccess?: QueryAccess<T>) {
         const fields: Partial<T> = {};
 
         for (const field of this._uniqueFields) {
@@ -159,7 +159,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return this.findBy(fields, 'OR', options, queryAccess);
     }
 
-    async findAll(input: string[]|string, options?: FindOneOptions<T>, queryAccess?: LuceneQueryAccess<T>) {
+    async findAll(input: string[]|string, options?: FindOneOptions<T>, queryAccess?: QueryAccess<T>) {
         const ids: string[] = ts.parseList(input);
         if (!ids || !ids.length) return [];
 
@@ -180,7 +180,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return result;
     }
 
-    async find(q: string = '*', options: FindOptions<T> = {}, queryAccess?: LuceneQueryAccess<T>): Promise<T[]> {
+    async find(q: string = '*', options: FindOptions<T> = {}, queryAccess?: QueryAccess<T>): Promise<T[]> {
         return this._find(q, options, queryAccess);
     }
 
@@ -277,7 +277,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return this.store.count(`${field}:"${val}"`);
     }
 
-    protected async _find(q: string = '*', options: FindOptions<T> = {}, queryAccess?: LuceneQueryAccess<T>) {
+    protected async _find(q: string = '*', options: FindOptions<T> = {}, queryAccess?: QueryAccess<T>) {
         const params: Partial<es.SearchParams> = {
             size: options.size,
             sort: options.sort,

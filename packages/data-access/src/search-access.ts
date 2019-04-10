@@ -1,5 +1,5 @@
 import * as ts from '@terascope/utils';
-import { LuceneQueryAccess } from 'xlucene-evaluator';
+import { QueryAccess } from 'xlucene-evaluator';
 import { DataAccessConfig } from './acl-manager';
 import { SearchParams } from 'elasticsearch';
 
@@ -11,7 +11,7 @@ import { SearchParams } from 'elasticsearch';
 */
 export class SearchAccess {
     config: DataAccessConfig;
-    private _queryAccess: LuceneQueryAccess;
+    private _queryAccess: QueryAccess;
 
     constructor(config: DataAccessConfig) {
         if (!config.search_config || ts.isEmpty(config.search_config) || !config.search_config.index) {
@@ -20,7 +20,7 @@ export class SearchAccess {
 
         this.config = config;
 
-        this._queryAccess = new LuceneQueryAccess({
+        this._queryAccess = new QueryAccess({
             convert_empty_query_to_wildcard: true,
             excludes: this.config.view.excludes,
             includes: this.config.view.includes,
