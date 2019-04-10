@@ -2,7 +2,7 @@ import empty from './empty';
 import exists from './exists';
 import geo from './geo';
 import field_group from './field-group';
-import logical_group from './logic-group';
+import logical_group from './logical-group';
 import negation from './negation';
 import range from './range';
 import regexp from './regexp';
