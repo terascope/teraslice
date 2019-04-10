@@ -2,7 +2,6 @@
 import _ from 'lodash';
 import { debugLogger } from '@terascope/utils';
 import { Parser } from '../parser';
-import { bindThis } from '../utils';
 import { TypeConfig, BooleanCB } from '../interfaces';
 import logicBuilder from './logic-builder';
 
@@ -15,7 +14,6 @@ export default class DocumentMatcher {
 
     constructor(luceneStr: string, typeConfig?: TypeConfig) {
         this.typeConfig = typeConfig;
-        bindThis(this, DocumentMatcher);
         const parser = new Parser(luceneStr);
         this.filterFn = logicBuilder(parser, typeConfig);
     }
