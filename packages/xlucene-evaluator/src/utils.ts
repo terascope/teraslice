@@ -4,6 +4,7 @@ import geoHash from 'latlon-geohash';
 import { path, any, values } from 'rambda';
 import { RangeAST, AST, GeoDistance, GeoPoint, BooleanCB } from './interfaces';
 import { Range } from './parser';
+import { isWildCard, findWildcardField } from './document-matcher/logic-builder/string';
 
 export function bindThis(instance:object, cls:object): void {
     return Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
@@ -99,6 +100,9 @@ export function getFieldValue(field: string) {
 }
 
 export function checkValue(field: string|undefined, cb: BooleanCB) {
+    if (field && isWildCard(field)) {
+        return findWildcardField(field, cb);
+    }
     return (obj: any) => {
         let data;
         if (field) {

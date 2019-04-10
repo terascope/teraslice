@@ -1,5 +1,7 @@
 
 import _ from 'lodash';
+import { BooleanCB } from '../../interfaces';
+import { any } from 'rambda';
 
 export function regexp(term: string) {
     return (str:string) => {
@@ -16,7 +18,7 @@ export function wildcard(term: string) {
     };
 }
 
-function isWildCard(term: string):boolean {
+export function isWildCard(term: string):boolean {
     let bool = false;
     if (typeof term === 'string') {
         if (term.match('[\?+\*+]')) bool = true;
@@ -24,28 +26,12 @@ function isWildCard(term: string):boolean {
     return bool;
 }
 
-export function wildcardField(field: string) {
-    if (isWildCard(field)) {
-        // @ts-ignore
-        const term = parseWildCard(term);
-
-        // topField = null;
-         // @ts-ignore
-        return (data: AST): boolean => {
-            const resultsArray = recurseDownObject(field || '', data);
-            let bool = false;
-            if (resultsArray.length === 0) return bool;
-
-            _.each(resultsArray, (value) => {
-                try {
-                    if (match(value, term)) bool = true;
-                } catch (err) {}
-            });
-
-            return bool;
-        };
-    }
-    return () => false;
+export function findWildcardField(field: string, cb: BooleanCB) {
+    return (data: any): boolean => {
+        const resultsArray = recurseDownObject(field || '', data);
+        if (resultsArray.length === 0) return false;
+        return any(cb, resultsArray);
+    };
 }
 
 function parseWildCard(term:string):string {

@@ -13,10 +13,8 @@ import {
     Parser,
     AST,
     Range,
-
     getAnyValue,
     getField,
-
     isTerm,
     isExists,
     isRange,
@@ -68,7 +66,6 @@ export default function buildLogicFn(parser: Parser, typeConfig: TypeConfig|unde
             fnResults = negate(childLogic);
         }
 
-        // TODO: Deal with ips, dates
         if (isTerm(node)) {
             const isValue = (data: any) => data === value;
             const fn = checkValue(field as string, typeFunctions(node, isValue));
@@ -139,5 +136,3 @@ function rangeFn(node: Range): BooleanCB {
 
     return (data: any) => mapping[left.operator](data, left.value) && mapping[right.operator](data, right.value);
 }
-
-

@@ -1057,12 +1057,12 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data6)).toEqual(false);
             expect(documentMatcher.match(data7)).toEqual(false);
         });
-        // FIXME:
+
         it('can do more complex wildcard queries', () => {
             const data1 = { some: 'value', city: { key: 'abcde', field: 'other' } };
             const data2 = { some: 'value', city: { key: 'abcde', field: 'other', nowIsTrue: 'something' } };
             const data3 = { some: 'value', city: { key: 'abcde', deeper: { nowIsTrue: 'something' } } };
-            // const data4 = { some: 'value', city: { key: 'abcde', deeper: { other: 'thing' } } };
+            const data4 = { some: 'value', city: { key: 'abcde', deeper: { other: 'thing' } } };
 
             documentMatcher.parse('city.*:something');
 
@@ -1088,13 +1088,12 @@ describe('document matcher', () => {
             expect(documentMatcher.match(data2)).toEqual(false);
             expect(documentMatcher.match(data3)).toEqual(true);
 
-            // FIXME: THIS tentativley could be any value ip,date,num etc etc
-            // documentMatcher.parse('city.*.*:(someth* OR thin?)');
+            documentMatcher.parse('city.*.*:(someth* OR thin?)');
 
-            // expect(documentMatcher.match(data1)).toEqual(false);
-            // expect(documentMatcher.match(data2)).toEqual(false);
-            // expect(documentMatcher.match(data3)).toEqual(true);
-            // expect(documentMatcher.match(data4)).toEqual(true);
+            expect(documentMatcher.match(data1)).toEqual(false);
+            expect(documentMatcher.match(data2)).toEqual(false);
+            expect(documentMatcher.match(data3)).toEqual(true);
+            expect(documentMatcher.match(data4)).toEqual(true);
         });
     });
 
