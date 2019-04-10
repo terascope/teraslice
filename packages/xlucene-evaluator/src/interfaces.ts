@@ -1,16 +1,14 @@
 
 import { Units } from '@turf/helpers';
-import { TypeMapping } from './document-matcher/type-manager/types';
-
-export { TypeMapping };
 
 export type ImplicitField = '<implicit>';
 export const IMPLICIT: ImplicitField = '<implicit>';
 
 export type NodeType = 'conjunction'|'range'|'geo'|'term'|'exists'|'__parsed';
 
+export type FieldType = 'geo'|'date'|'ip';
 export interface TypeConfig {
-    [field: string]: keyof TypeMapping;
+    [field: string]: FieldType;
 }
 
 export type AST = RangeAST & TermAST
