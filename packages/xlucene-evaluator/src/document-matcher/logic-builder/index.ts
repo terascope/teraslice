@@ -3,7 +3,6 @@ import _ from 'lodash';
 import { not, allPass, anyPass } from 'rambda';
 
 import { checkValue } from '../../utils';
-
 import { TypeConfig, BooleanCB } from '../../interfaces';
 import { geoDistance,  geoBoundingBox } from './geo';
 import { compareTermDates, dateRange } from './dates';

@@ -10,7 +10,7 @@ import { DateInput } from '../../interfaces';
 export function compareTermDates(node: Term) {
     const nodeTermTime = convert(node.value as string);
     if (!nodeTermTime) throw new Error(`was not able to convert ${node.value} to a date value`);
-    return (date: string) =>  convert(date) === nodeTermTime;
+    return (date: string) => convert(date) === nodeTermTime;
 }
 
 export function dateRange(node: Range) {
@@ -25,12 +25,12 @@ export function dateRange(node: Range) {
     if (isInfiniteMax(maxValue)) maxValue = 8640000000000000;
 
     if (!incMin) {
-        const convertedValue = typeof minValue === 'number' ? minValue : convert(minValue as DateInput);
+        const convertedValue = convert(minValue);
         if (!convertedValue) throw new Error(`was not able to convert ${minValue} to a date value`);
         minValue = convertedValue + 1;
     }
     if (!incMax) {
-        const convertedValue = typeof maxValue === 'number' ? maxValue : convert(maxValue as DateInput);
+        const convertedValue = convert(maxValue);
         if (!convertedValue) throw new Error(`was not able to convert ${maxValue} to a date value`);
         maxValue = convertedValue - 1;
     }
