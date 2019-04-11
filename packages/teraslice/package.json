@@ -36,7 +36,7 @@
     "dependencies": {
         "@terascope/elasticsearch-api": "^2.0.1",
         "@terascope/error-parser": "^1.0.2",
-        "@terascope/job-components": "^0.15.1",
+        "@terascope/job-components": "^0.15.2",
         "@terascope/queue": "^1.1.6",
         "@terascope/teraslice-messaging": "^0.3.1",
         "@terascope/utils": "^0.8.1",
