@@ -23,13 +23,13 @@ describe('Translator', () => {
 
     it('should have a types property', () => {
         const query = 'foo:bar';
-        const types: TypeConfig = {
+        const typeConfig: TypeConfig = {
             location: 'geo',
         };
 
-        const translator = new Translator(query, types);
+        const translator = new Translator(query, typeConfig);
 
-        expect(translator).toHaveProperty('types', types);
+        expect(translator).toHaveProperty('typeConfig', typeConfig);
     });
 
     for (const [key, testCases] of Object.entries(allTestCases)) {

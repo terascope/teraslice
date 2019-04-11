@@ -18,14 +18,14 @@ export function isInfiniteMax(max?: number|string) {
     return max === '*' || max === Number.POSITIVE_INFINITY;
 }
 
-export interface ParseNodeRangeResult {
+export interface ParsedRange {
     'gte'?: number|string;
     'gt'?: number|string;
     'lte'?: number|string;
     'lt'?: number|string;
 }
 
-export function parseRange(node: Range, excludeInfinite = false): ParseNodeRangeResult {
+export function parseRange(node: Range, excludeInfinite = false): ParsedRange {
     const results = {};
 
     if (!excludeInfinite || !isInfiniteValue(node.left.value)) {
