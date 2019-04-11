@@ -1,3 +1,5 @@
+import { Units } from '@turf/helpers';
+
 export type AST = EmptyAST & LogicalGroup & Term
     & Conjunction & Negation & FieldGroup
     & Exists & Range & GeoDistance
@@ -100,11 +102,10 @@ export interface RangeNode extends NumberDataType {
     operator: RangeOperator;
 }
 
-export type GeoDistanceUnit = 'millimeters'|'centimeters'|'inches'|'feet'|'meters'|'yards'|'kilometers'|'nauticalmiles'|'miles';
 export interface GeoDistance extends GeoPoint, TermLikeAST {
     type: ASTType.GeoDistance;
     distance: number;
-    unit: GeoDistanceUnit;
+    unit: Units;
 }
 
 export interface GeoPoint {
