@@ -25,7 +25,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     private readonly _getEventTime: (input: T) => number;
     private readonly _getIngestTime: (input: T) => number;
     private readonly _xluceneTypes: TypeConfig|undefined;
-    private readonly _translator = CachedTranslator();
+    private readonly _translator = new CachedTranslator();
 
     constructor(client: es.Client, config: i.IndexConfig<T>) {
         if (!utils.isValidClient(client)) {
@@ -407,7 +407,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     private _translateQuery(query: string) {
-        const translator = this._translator.translator(query, this._xluceneTypes, this._logger);
+        const translator = this._translator.make(query, this._xluceneTypes, this._logger);
         return {
             q: null,
             body: translator.toElasticsearchDSL(),
