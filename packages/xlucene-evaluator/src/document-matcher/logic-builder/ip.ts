@@ -15,7 +15,7 @@ export function ipTerm(node: Term) {
     if (argeCidr > 0) {
         const range = ip6addr.createCIDR(node.value);
 
-        return (ip: string) => {
+        return function isCidrIpTerm(ip: string) {
             if (isCidr(ip) > 0) {
                 const argRange = ip6addr.createCIDR(ip);
                 const argFirst = argRange.first().toString();
@@ -29,7 +29,7 @@ export function ipTerm(node: Term) {
         };
     }
 
-    return (ip: string) => {
+    return function isIpterm(ip: string) {
         if (isCidr(ip) > 0) {
             const argRange = ip6addr.createCIDR(ip);
             return argRange.contains(node.value);
@@ -52,7 +52,7 @@ export function ipRange(node: Range) {
     if (!incMax) maxValue = ip6addr.parse(maxValue).offset(-1).toString();
     const range = ip6addr.createAddrRange(minValue, maxValue);
 
-    return(ip: string) => {
+    return function pRangeTerm(ip: string) {
         if (isCidr(ip) > 0) {
             const argRange = ip6addr.createCIDR(ip);
             const argFirst = argRange.first().toString();

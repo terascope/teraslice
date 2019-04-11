@@ -69,8 +69,14 @@ async function dataFileLoader(dataPath: string): Promise<object[]> {
     return new Promise((resolve, reject) => {
         fs.readFile(dataPath, { encoding: 'utf8' }, (err, data) => {
             if (err) return reject(err);
+            if (/^\s*\[.*\]$/.test(data)) {
+                resolve(JSON.parse(data));
+                return;
+            }
+
             const parsedData = formatData(data);
             if (!parsedData) return reject('could not parse data');
+
             resolve(parsedData);
         });
     });
@@ -149,17 +155,13 @@ async function getData(dataPath: string) {
         const dataFilePath = path.resolve(dataPath);
 
         try {
-            parsedData = parseStreamResponse(require(dataFilePath));
-        } catch (err) {
+            const fileData = await dataFileLoader(dataFilePath);
+            parsedData = parseStreamResponse(fileData);
+        } catch (error) {
             try {
-                const fileData = await dataFileLoader(dataFilePath);
-                parsedData = parseStreamResponse(fileData);
-            } catch (error) {
-                try {
-                    const response = await fetchUri(dataPath);
-                    parsedData = parseStreamResponse(response.body);
-                } catch (err) {}
-            }
+                const response = await fetchUri(dataPath);
+                parsedData = parseStreamResponse(response.body);
+            } catch (err) {}
         }
     } else {
         parsedData = await getPipedData();
@@ -203,10 +205,11 @@ async function initCommand() {
             // tslint:disable-next-line
             console.time('execution-time');
         }
+        // @ts-ignore
         const results = manager.run(data);
         // tslint:disable-next-line
         if (command.perf) console.timeEnd('execution-time');
-        process.stdout.write(`${JSON.stringify(results, null, 4)} \n`);
+        // process.stdout.write(`${JSON.stringify(results, null, 4)} \n`);
     } catch (err) {
         console.error(err);
         process.exit(1);

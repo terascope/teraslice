@@ -1,10 +1,9 @@
 
 import _ from 'lodash';
 import { BooleanCB } from '../../interfaces';
-import { any } from 'rambda';
 
 export function regexp(term: string) {
-    return (str:string) => {
+    return function regexpTerm(str:string) {
         if (typeof str !== 'string') return false;
         return match(str, term);
     };
@@ -12,7 +11,7 @@ export function regexp(term: string) {
 
 export function wildcard(term: string) {
     const wildCardQuery = parseWildCard(term);
-    return (str: string) => {
+    return function wildcardTerm(str: string) {
         if (typeof str !== 'string') return false;
         return match(str, wildCardQuery);
     };
@@ -27,10 +26,10 @@ export function isWildCard(term: string):boolean {
 }
 
 export function findWildcardField(field: string, cb: BooleanCB) {
-    return (data: any): boolean => {
+    return function WildcardField(data: any): boolean {
         const resultsArray = recurseDownObject(field || '', data);
         if (resultsArray.length === 0) return false;
-        return any(cb, resultsArray);
+        return _.some(resultsArray, cb);
     };
 }
 
@@ -45,25 +44,25 @@ function match(field: any, wildCardQuery: string): boolean {
 
 // city.*   city.deeper.*   city.*.*
 function recurseDownObject(field:string, object:object):object[] {
-    const results: any[] = [];
     const fieldSequence = field.split('.').map(parseWildCard);
+    return recurse(fieldSequence, object);
+}
 
-    const recurse = (arr:string[], obj:object) =>  {
-        if (arr.length === 0) return;
-        const field = arr.shift() as string;
+function recurse(arr:string[], obj:object): any[] {
+    if (arr.length === 0) return [];
+    const field = arr.shift()!;
 
-        _.forOwn(obj, (value, key) => {
-            if (match(key, field)) {
-                if (arr.length === 0) {
-                    results.push(value);
-                } else {
-                    if (_.isPlainObject(value)) recurse(arr.slice(), value);
+    const results:any[] = [];
+    for (const [key, value] of Object.entries(obj)) {
+        if (match(key, field)) {
+            if (arr.length === 0) {
+                results.push(value);
+            } else {
+                if (_.isPlainObject(value)) {
+                    results.push(...recurse(arr.slice(), value));
                 }
             }
-        });
-    };
-
-    recurse(fieldSequence, object);
-
+        }
+    }
     return results;
 }
