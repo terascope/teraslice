@@ -34,10 +34,10 @@ jobs:
         - . ./scripts/travis-install-docker-compose.sh
         - . ./scripts/travis-install-yarn.sh
         - . ./scripts/travis-install-es.sh
-    script:
-        - yarn test
+    # We are waiting on a new version of jest (>24.7.1)
+    script: ./scripts/run-tests.sh
     after_success:
-      - bash <(curl -s https://codecov.io/bash)
+        - bash <(curl -s https://codecov.io/bash)
 
   # benchmarks and linting, only on pull-requests
   - script:

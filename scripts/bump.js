@@ -33,6 +33,11 @@ const { argv } = yargs.usage('$0 [options] <package-name> <release>', desc, (_ya
             default: 'rc',
             description: 'Specify the prerelease identifier, defaults to RC'
         })
+        .option('deps', {
+            default: true,
+            type: 'boolean',
+            description: 'Bump all of the child dependencies to change, (if the child depedency is teraslice it will skip it)'
+        })
         .positional('package-name', {
             choices: packages,
             description: 'The name of the package to bump'
@@ -62,7 +67,7 @@ const { argv } = yargs.usage('$0 [options] <package-name> <release>', desc, (_ya
     .detectLocale(false)
     .wrap(yargs.terminalWidth());
 
-const { release } = argv;
+const { release, deps } = argv;
 const pkgName = argv['package-name'];
 const preId = argv['prelease-id'];
 
@@ -114,7 +119,13 @@ function updatePkgVersion(fileName) {
             return;
         }
 
-        console.log(`* Updating ${otherPkgJSON.name} dependency version to ^${newVersion}`);
+        if (deps && fileName !== 'teraslice') {
+            const updatedVersion = bumpVersion(otherPkgJSON.version);
+            console.log(`* Updating dependency ${otherPkgJSON.name} to version ${updatedVersion}`);
+            otherPkgJSON.version = updatedVersion;
+        }
+
+        console.log(`* Updating dependency ${otherPkgJSON.name}'s version of ${pkgJSON.name} to ^${newVersion}`);
         fse.writeJSONSync(otherPkgPath, otherPkgJSON, {
             spaces: 4,
         });

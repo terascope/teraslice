@@ -45,7 +45,7 @@
         "@types/got": "^9.4.1",
         "@types/graphlib": "^2.1.4",
         "@types/shortid": "^0.0.29",
-        "awesome-phonenumber": "^2.7.0",
+        "awesome-phonenumber": "^2.8.0",
         "got": "^9.6.0",
         "graphlib": "^2.1.7",
         "lodash": "^4.17.11",
@@ -59,7 +59,7 @@
         "@types/lodash": "^4.14.123",
         "@types/valid-url": "^1.0.2",
         "@types/validator": "^10.11.0",
-        "@types/yargs": "^12.0.11"
+        "@types/yargs": "^13.0.0"
     },
     "engines": {
         "node": ">=8.0.0"
