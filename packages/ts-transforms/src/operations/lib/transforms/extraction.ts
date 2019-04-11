@@ -127,8 +127,7 @@ export default class Extraction {
             if (destinationObj) {
                 record = destinationObj;
             } else {
-                const metaData = doc.getMetadata();
-                record = DataEntity.make({}, metaData);
+                record = DataEntity.makeRaw({}, doc.getMetadata()).entity;
             }
         }
 
@@ -138,5 +137,11 @@ export default class Extraction {
 
         if (hasExtracted(record) || this.isMutation) return record;
         return null;
+    }
+
+    extractRun(results: { entity: DataEntity, metadata: any }) {
+        for (let i = 0; i < this.configs.length; i += 1) {
+            extractAndTransferFields(results.entity, results.entity, this.configs[i]);
+        }
     }
 }

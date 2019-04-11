@@ -25,12 +25,16 @@ export class DataEntity<T extends object = object> {
      * is recommended to use this in production.
     */
     static make<T extends object = object>(input: DataInput, metadata?: object): DataEntity<T> {
-        if (input == null) return new DataEntity({});
+        if (input == null) return DataEntity.makeRaw({}, metadata).entity;
         if (DataEntity.isDataEntity(input)) return input;
         if (!isPlainObject(input)) {
             throw new Error(`Invalid data source, must be an object, got "${getTypeOf(input)}"`);
         }
 
+        return DataEntity.makeRaw(input, metadata).entity;
+    }
+
+    static makeRaw<T extends object = object>(input: T, metadata?: object): { entity: DataEntity<T>, metadata: DataEntityMetadata } {
         Object.defineProperties(input, {
             __isDataEntity: {
                 value: true,
@@ -61,8 +65,13 @@ export class DataEntity<T extends object = object> {
         });
 
         const entity = input as DataEntity<T>;
-        _metadata.set(entity, Object.assign({ createdAt: Date.now() }, metadata));
-        return entity as DataEntity<T>;
+        const meta = { createdAt: Date.now(), ...metadata };
+        _metadata.set(entity, meta);
+
+        return {
+            entity,
+            metadata: meta,
+        };
     }
 
     /**
@@ -85,7 +94,7 @@ export class DataEntity<T extends object = object> {
      * or an array of objects, to an array of DataEntities.
      * This will detect if passed an already converted input and return it.
     */
-    static makeArray<T extends object = object>(input: DataInput|DataInput[]): DataEntity<T>[] {
+    static makeArray<T extends object = object>(input: DataInput | DataInput[]): DataEntity<T>[] {
         if (!Array.isArray(input)) {
             return [DataEntity.make(input)];
         }
@@ -94,7 +103,7 @@ export class DataEntity<T extends object = object> {
             return input;
         }
 
-        return fastMap(input, (d) =>  DataEntity.make(d));
+        return fastMap(input, (d) => DataEntity.make(d));
     }
 
     /**
@@ -156,7 +165,7 @@ export class DataEntity<T extends object = object> {
 
     getMetadata(): DataEntityMetadata;
     getMetadata(key: string): any;
-    getMetadata(key?: string): DataEntityMetadata|any {
+    getMetadata(key?: string): DataEntityMetadata | any {
         return getMetadata(this, key);
     }
 
@@ -173,7 +182,7 @@ export class DataEntity<T extends object = object> {
     }
 }
 
-function getMetadata(ctx: any, key?: string): DataEntityMetadata|any {
+function getMetadata(ctx: any, key?: string): DataEntityMetadata | any {
     const metadata = _metadata.get(ctx) as DataEntityMetadata;
     if (key) {
         return metadata[key];
@@ -181,7 +190,7 @@ function getMetadata(ctx: any, key?: string): DataEntityMetadata|any {
     return metadata;
 }
 
-function setMetadata(ctx: any, key: string, value: string):void {
+function setMetadata(ctx: any, key: string, value: string): void {
     const readonlyMetadataKeys: string[] = ['createdAt'];
     if (readonlyMetadataKeys.includes(key)) {
         throw new Error(`Cannot set readonly metadata property ${key}`);
@@ -207,8 +216,8 @@ export interface EncodingConfig {
     _encoding?: DataEncoding;
 }
 
-export type DataInput = object|DataEntity;
-export type DataArrayInput = DataInput|DataInput[];
+export type DataInput = object | DataEntity;
+export type DataArrayInput = DataInput | DataInput[];
 
 interface DataEntityMetadata {
     // The date at which this entity was created

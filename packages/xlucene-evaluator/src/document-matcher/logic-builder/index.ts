@@ -13,15 +13,24 @@ export default function buildLogicFn(parser: p.Parser, typeConfig: TypeConfig = 
     return walkAst(parser.ast, typeConfig);
 }
 
+function makeGetFn(field?: string) {
+    if (!field) return fp.values;
+    if (field.includes('.')) return fp.get(field);
+
+    return function getProp(obj: any) {
+        return obj[field];
+    };
+}
+
 function logicNode(field: string|undefined, cb: BooleanCB) {
     if (field && isWildCard(field)) {
         return findWildcardField(field, cb);
     }
-    const getData = field ? fp.get(field) : fp.values;
+    const get = makeGetFn(field);
     const getAnyData = makeSomeFn(cb);
 
     return function _logicNode(obj: any) {
-        const data = getData(obj);
+        const data = get(obj);
 
         if (Array.isArray(data)) {
             return getAnyData(data);
