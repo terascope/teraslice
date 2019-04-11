@@ -77,27 +77,27 @@ export default [
         [
             { _created: 'Thu Oct 18 2018 11:13:20 GMT-0700' },
             { _created: '2018-10-18T18:13:20.683Z' },
-            { _created: 'Thu, 18 Oct 2018 18:13:20 GMT' },
+            { _created: 'Thu, 18 Oct 2018 18:15:20 GMT' },
         ],
         [
-            false,
             true,
+            false,
             false,
         ],
         { _created: 'date' }
     ],
     [
         'can match dates, with type changes',
-        '_created:"Thu, 18 Oct 2018 18:13:20 GMT"',
+        '_created:"Thu, 18 Oct 2018 18:15:20 GMT"',
         [
             { _created: 'Thu Oct 18 2018 11:13:20 GMT-0700' },
             { _created: '2018-10-18T18:13:20.683Z' },
-            { _created: 'Thu, 18 Oct 2018 18:13:20 GMT' },
+            { _created: 'Thu, 18 Oct 2018 18:15:20 GMT' },
         ],
         [
             false,
-            true,
             false,
+            true,
         ],
         { _created: 'date' }
     ],
@@ -174,7 +174,7 @@ export default [
     ],
     [
         'can can handle "<=", with type changes',
-        '_created:<="2018-10-18T18:13:20.683Z"',,
+        '_created:<="2018-10-18T18:13:20.683Z"',
         [
             { _created: 'Thu Oct 18 2018 22:13:20 GMT-0700' },
             { _created: '2018-10-18T18:13:20.683Z' },
@@ -191,40 +191,61 @@ export default [
         ],
         { _created: 'date' }
     ],
-
-
-
-'can can handle [] {} {], with type changes'
-     { _created: 'Thu Oct 18 2018 22:13:20 GMT-0700' },
-     { _created: '2018-10-18T18:13:20.683Z' },
-     { _created: '2018-10-18T18:15:34.123Z' },
-     { _created: 'Thu, 18 Oct 2020 18:13:20 GMT' },
-     { _created: 'Thu, 13 Oct 2018 18:13:20 GMT' },
-
-    '_created:[2018-10-18T18:13:20.683Z TO *]', { _created: 'date' });
-
-    true,
-    true,
-    true,
-    true,
-    false,
-
-    '_created:{"2018-10-10" TO "Thu Oct 18 2018 11:13:20 GMT-0700"}', { _created: 'date' });
-
-    false,
-    false,
-    false,
-    false,
-    true,
-
-    '_created:[2018-10-18T18:13:20.000Z TO 2018-10-18T18:13:20.783Z]', { _created: 'date' });
-
-    false,
-    true,
-    false,
-    false,
-    false,
-});
-});
-
-]
+    [
+        'can can handle "[]", with type changes',
+        '_created:[2018-10-18T18:13:20.683Z TO *]',
+        [
+            { _created: 'Thu Oct 18 2018 22:13:20 GMT-0700' },
+            { _created: '2018-10-18T18:13:20.683Z' },
+            { _created: '2018-10-18T18:15:34.123Z' },
+            { _created: 'Thu, 18 Oct 2020 18:13:20 GMT' },
+            { _created: 'Thu, 13 Oct 2018 18:13:20 GMT' },
+        ],
+        [
+            true,
+            true,
+            true,
+            true,
+            false,
+        ],
+        { _created: 'date' }
+    ],
+    [
+        'can can handle "{}", with type changes',
+        '_created:{"2018-10-10" TO "Thu Oct 18 2018 11:13:20 GMT-0700"}',
+        [
+            { _created: 'Thu Oct 18 2018 22:13:20 GMT-0700' },
+            { _created: '2018-10-18T18:13:20.683Z' },
+            { _created: '2018-10-18T18:15:34.123Z' },
+            { _created: 'Thu, 18 Oct 2020 18:13:20 GMT' },
+            { _created: 'Thu, 13 Oct 2018 18:13:20 GMT' },
+        ],
+        [
+            false,
+            false,
+            false,
+            false,
+            true,
+        ],
+        { _created: 'date' }
+    ],
+    [
+        'can can handle mixed"[}", with type changes',
+        '_created:{2018-10-18T18:13:20.000Z TO 2018-10-18T18:13:20.783Z]',
+        [
+            { _created: '2018-10-18T18:13:20.000Z' },
+            { _created: '2018-10-18T18:13:20.683Z' },
+            { _created: '2018-10-18T18:15:34.123Z' },
+            { _created: 'Thu, 18 Oct 2020 18:13:20 GMT' },
+            { _created: 'Thu, 13 Oct 2018 18:13:20 GMT' },
+        ],
+        [
+            false,
+            true,
+            false,
+            false,
+            false,
+        ],
+        { _created: 'date' }
+    ],
+];
