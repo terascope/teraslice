@@ -1,10 +1,8 @@
 import { toNumber } from 'lodash';
 import { trimAndToLower, isPlainObject, parseNumberList } from '@terascope/utils';
 import geoHash from 'latlon-geohash';
-import { path, any, values } from 'rambda';
-import { GeoDistanceObj, GeoPointInput, BooleanCB } from './interfaces';
+import { GeoDistanceObj, GeoPointInput } from './interfaces';
 import { Range } from './parser';
-import { isWildCard, findWildcardField } from './document-matcher/logic-builder/string';
 
 export function isInfiniteValue(input?: number|string) {
     return input === '*' || input === Number.NEGATIVE_INFINITY || input === Number.POSITIVE_INFINITY;
@@ -40,25 +38,6 @@ export function parseRange(node: Range, excludeInfinite = false): ParseNodeRange
         }
     }
     return results;
-}
-
-export function checkValue(field: string|undefined, cb: BooleanCB) {
-    if (field && isWildCard(field)) {
-        return findWildcardField(field, cb);
-    }
-    return (obj: any) => {
-        let data;
-        if (field) {
-            data = path(field, obj);
-        } else {
-            data = values(obj);
-        }
-
-        if (Array.isArray(data)) {
-            return any(cb, data);
-        }
-        return cb(data);
-    };
 }
 
 export function parseGeoDistance(str: string): GeoDistanceObj {

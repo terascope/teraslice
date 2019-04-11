@@ -1,12 +1,11 @@
 
 import _ from 'lodash';
-import { not, allPass, anyPass } from 'rambda';
+import { path, any, values, not, allPass, anyPass } from 'rambda';
 import { geoDistance,  geoBoundingBox } from './geo';
 import { compareTermDates, dateRange } from './dates';
 import { ipTerm, ipRange } from './ip';
-import { regexp, wildcard } from './string';
+import { regexp, wildcard, isWildCard, findWildcardField } from './string';
 import * as p from '../../parser';
-import { checkValue } from '../../utils';
 import { TypeConfig, BooleanCB } from '../../interfaces';
 
 export default function buildLogicFn(parser: p.Parser, typeConfig: TypeConfig|undefined = {}) {
@@ -47,39 +46,32 @@ export default function buildLogicFn(parser: p.Parser, typeConfig: TypeConfig|un
 
         if (p.isTerm(node)) {
             const isValue = (data: any) => data === value;
-            const fn = checkValue(field, typeFunctions(node, isValue));
-            return logicNode(fn, node);
+            return logicNode(field, typeFunctions(node, isValue));
         }
 
         if (p.isRange(node)) {
-            const fn = checkValue(field, typeFunctions(node, rangeFn(node)));
-            return logicNode(fn, node);
+            return logicNode(field, typeFunctions(node, rangeFn(node)));
         }
 
         if (p.isGeoDistance(node)) {
-            const fn = checkValue(field, geoDistance(node));
-            return logicNode(fn, node);
+            return logicNode(field, geoDistance(node));
         }
 
         if (p.isGeoBoundingBox(node)) {
-            const fn = checkValue(field, geoBoundingBox(node));
-            return logicNode(fn, node);
+            return logicNode(field, geoBoundingBox(node));
         }
 
         if (p.isExists(node)) {
             const valueExists = (value: any) => value != null;
-            const fn = checkValue(field, valueExists);
-            return logicNode(fn, node);
+            return logicNode(field, valueExists);
         }
 
         if (p.isRegexp(node)) {
-            const fn = checkValue(field, regexp(node.value));
-            return logicNode(fn, node);
+            return logicNode(field, regexp(node.value));
         }
 
         if (p.isWildcard(node)) {
-            const fn = checkValue(field, wildcard(node.value));
-            return logicNode(fn, node);
+            return logicNode(field, wildcard(node.value));
         }
 
         if (p.isLogicalGroup(node) || p.isFieldGroup(node)) {
@@ -90,7 +82,7 @@ export default function buildLogicFn(parser: p.Parser, typeConfig: TypeConfig|un
                 logicGroups.push(allPass(conjunctionRules));
             });
 
-            return logicNode(anyPass(logicGroups), node);
+            return anyPass(logicGroups);
         }
 
         // nothing was found so return a fn that returns false
@@ -100,13 +92,27 @@ export default function buildLogicFn(parser: p.Parser, typeConfig: TypeConfig|un
     return walkAst(parser.ast);
 }
 
-function negate(fn:any) {
-    return (data:any) => not(fn(data));
+function logicNode(field: string|undefined, cb: BooleanCB) {
+    if (field && isWildCard(field)) {
+        return findWildcardField(field, cb);
+    }
+    return (obj: any) => {
+        let data;
+        if (field) {
+            data = path(field, obj);
+        } else {
+            data = values(obj);
+        }
+
+        if (Array.isArray(data)) {
+            return any(cb, data);
+        }
+        return cb(data);
+    };
 }
 
-function logicNode(boolFn: BooleanCB, node:p.AnyAST) {
-    if (p.isNegation(node)) return negate(boolFn);
-    return boolFn;
+function negate(fn:any) {
+    return (data:any) => not(fn(data));
 }
 
 function rangeFn(node: p.Range): BooleanCB {

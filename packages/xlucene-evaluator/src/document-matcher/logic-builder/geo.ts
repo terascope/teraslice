@@ -5,7 +5,6 @@ import createCircle from '@turf/circle';
 import bbox from '@turf/bbox';
 import bboxPolygon from '@turf/bbox-polygon';
 import { lineString } from '@turf/helpers';
-
 import { parseGeoPoint } from '../../utils';
 import { GeoDistance, GeoBoundingBox } from '../../parser';
 
