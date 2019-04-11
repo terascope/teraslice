@@ -1,3 +1,5 @@
+import { Units } from '@turf/helpers';
+
 export type FieldType = 'geo'|'date'|'ip';
 export interface TypeConfig {
     [field: string]: FieldType;
@@ -11,3 +13,7 @@ export type GeoObjShort = {lat: string | number, lon: string | number};
 export type GeoObjLong = {latitude: string | number, longitude: string | number};
 export type GeoPoint = GeoPointArr | GeoPointStr | GeoObjShort | GeoObjLong;
 export type DateInput = string | number;
+export interface GeoDistance {
+    distance: number;
+    unit: Units;
+}
