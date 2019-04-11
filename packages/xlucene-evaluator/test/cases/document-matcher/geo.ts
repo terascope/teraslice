@@ -11,7 +11,6 @@ export default [
             true,
             false,
         ],
-        { location: 'geo' }
     ],
     [
         'can do basic geodistance matches',
@@ -24,7 +23,6 @@ export default [
             true,
             false,
         ],
-        { location: 'geo' }
     ],
     [
         'can do basic matches with funky spaces in geopoints in a boundingbox query',
@@ -37,7 +35,6 @@ export default [
             true,
             false,
         ],
-        { location: 'geo' }
     ],
     [
         'can do basic matches with funky spaces in geopoints in a geodistance query',
@@ -50,7 +47,6 @@ export default [
             true,
             false,
         ],
-        { location: 'geo' }
     ],
     [
         'geo fields do not throw with wrong data',
@@ -71,7 +67,6 @@ export default [
             false,
             false,
         ],
-        { location: 'geo' }
     ],
     [
         'can do basic matches with non string based geo points',
@@ -90,7 +85,6 @@ export default [
             true,
             true,
         ],
-        { location: 'geo' }
     ],
     [
         'can do complicated matches',
@@ -105,6 +99,5 @@ export default [
             true,
             false,
         ],
-        { location: 'geo' }
     ],
 ];
