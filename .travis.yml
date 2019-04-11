@@ -36,7 +36,7 @@ jobs:
         - . ./scripts/travis-install-es.sh
     script:
         # We are waiting on a new version of jest (>24.7.1)
-        - for package in ./packages/*; do yarn --cwd="$package" test --coverageDirectory="$PWD/coverage" || exit 1; done;
+        - for package in ./packages/*; do yarn --cwd="$package" test --silent --detectOpenHandles --forceExit --bail --coverageDirectory="$PWD/coverage" || exit 1; done;
     after_success:
         - bash <(curl -s https://codecov.io/bash)
 
