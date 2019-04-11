@@ -407,9 +407,10 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     private _translateQuery(query: string) {
+        const translator = this._translator.translator(query, this._xluceneTypes, this._logger);
         return {
             q: null,
-            body: this._translator.toElasticsearchDSL(query, this._xluceneTypes),
+            body: translator.toElasticsearchDSL(),
         };
     }
 }

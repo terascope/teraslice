@@ -3,14 +3,17 @@ import engine, { Tracer } from './engine';
 import * as i from './interfaces';
 import * as utils from './utils';
 
+const _logger = debugLogger('xlucene-parser');
+
 export class Parser {
     readonly ast: i.AST;
     readonly query: string;
     logger: Logger;
 
-    constructor(query: string, logger: Logger = debugLogger('parser-v2')) {
-        this.logger = logger;
+    constructor(query: string, logger?: Logger) {
+        this.logger = logger != null ? logger.child({ module: 'xlucene-parser' }) : _logger;
         this.query = query;
+
         const tracer = new Tracer(this.query, {
             showTrace: false,
         });

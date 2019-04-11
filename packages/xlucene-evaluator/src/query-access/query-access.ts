@@ -6,6 +6,8 @@ import { CachedTranslator } from '../translator';
 import { QueryAccessConfig } from './interfaces';
 import { TypeConfig } from '../interfaces';
 
+const _logger = ts.debugLogger('xlucene-query-access');
+
 export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     readonly excludes: (keyof T)[];
     readonly includes: (keyof T)[];
@@ -14,10 +16,12 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     readonly allowImplicitQueries: boolean;
     readonly convertEmptyQueryToWildcard: boolean;
     readonly typeConfig: TypeConfig;
+    logger: ts.Logger;
+
     private readonly _parser: CachedParser = new CachedParser();
     private readonly _translator: CachedTranslator = new CachedTranslator();
 
-    constructor(config: QueryAccessConfig<T> = {}) {
+    constructor(config: QueryAccessConfig<T> = {}, logger?: ts.Logger) {
         const {
             excludes = [],
             includes = [],
@@ -28,6 +32,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             type_config = {}
         } = config;
 
+        this.logger = logger != null ? logger.child({ module: 'xlucene-query-access' }) : _logger;
         this.excludes = excludes;
         this.includes = includes;
         this.constraint = constraint;
@@ -54,7 +59,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             });
         }
 
-        const parser = this._parser.parse(query);
+        const parser = this._parser.make(query, this.logger);
         parser.forTermTypes((node: TermLikeAST) => {
             // restrict when a term is specified without a field
             if (!node.field) {
@@ -112,8 +117,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         }
 
         const restricted = this.restrict(query);
-        const parsed = this._parser.parse(restricted);
-        const translated = this._translator.toElasticsearchDSL(parsed, this.typeConfig);
+        const parsed = this._parser.make(restricted, this.logger);
+        const translated = this._translator.make(parsed, this.typeConfig, this.logger);
 
         const {
             includes,

@@ -1,5 +1,6 @@
 import { QueryAccess } from './query-access';
 import { QueryAccessConfig } from './interfaces';
+import { Logger } from '@terascope/utils';
 
 type Cached = { [key: string]: QueryAccess<any> };
 const _cache = new WeakMap<CachedQueryAccess, Cached>();
@@ -9,12 +10,12 @@ export class CachedQueryAccess {
         _cache.set(this, {});
     }
 
-    build<T>(config: QueryAccessConfig<T>): QueryAccess<T> {
+    make<T>(config: QueryAccessConfig<T>, logger?: Logger): QueryAccess<T> {
         const key = JSON.stringify(config);
         const cached = _cache.get(this)!;
         if (cached[key] != null) return cached[key];
 
-        const queryAccess = new QueryAccess(config);
+        const queryAccess = new QueryAccess(config, logger);
 
         cached[key] = queryAccess;
         _cache.set(this, cached);
