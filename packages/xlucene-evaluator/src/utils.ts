@@ -2,70 +2,9 @@ import { toNumber } from 'lodash';
 import { trimAndToLower, isPlainObject, parseNumberList } from '@terascope/utils';
 import geoHash from 'latlon-geohash';
 import { path, any, values } from 'rambda';
-import { RangeAST, AST, GeoDistance, GeoPoint, BooleanCB } from './interfaces';
+import { GeoDistance, GeoPoint, BooleanCB } from './interfaces';
 import { Range } from './parser';
 import { isWildCard, findWildcardField } from './document-matcher/logic-builder/string';
-
-export function bindThis(instance:object, cls:object): void {
-    return Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
-        .filter((name) => {
-            const method = instance[name];
-            return method instanceof Function && method !== cls;
-        })
-        .forEach((mtd) => {
-            instance[mtd] = instance[mtd].bind(instance);
-        });
-}
-
-export function isConjunctionNode(node: AST): boolean {
-    return node.type === 'conjunction';
-}
-
-export function isRangeNode(node: AST): boolean {
-    return node.term_min != null || node.term_max != null;
-}
-
-export function isGeoNode(node: AST): boolean {
-    return node.type === 'geo';
-}
-
-export function isTermNode(node: AST): boolean {
-    return node.type === 'term' && node.term != null;
-}
-
-export function isRegexNode(node: AST): boolean {
-    return isTermNode(node) && node.regexpr;
-}
-
-export function isWildcardNode(node: AST): boolean {
-    return isTermNode(node) && node.wildcard;
-}
-
-export function isExistsNode(node: AST): boolean {
-    return node.type === 'exists';
-}
-
-export function parseNodeRange(node: RangeAST): ParseNodeRangeResult  {
-    const result: ParseNodeRangeResult = {};
-
-    if (!isInfiniteValue(node.term_min)) {
-        if (node.inclusive_min) {
-            result.gte = node.term_min;
-        } else {
-            result.gt = node.term_min;
-        }
-    }
-
-    if (!isInfiniteValue(node.term_max)) {
-        if (node.inclusive_max) {
-            result.lte = node.term_max;
-        } else {
-            result.lt = node.term_max;
-        }
-    }
-
-    return result;
-}
 
 export function isInfiniteValue(input?: number|string) {
     return input === '*' || input === Number.NEGATIVE_INFINITY || input === Number.POSITIVE_INFINITY;
@@ -101,10 +40,6 @@ export function parseRange(node: Range, excludeInfinite = false): ParseNodeRange
         }
     }
     return results;
-}
-
-export function getFieldValue(field: string) {
-    return (obj: any) => path(field, obj);
 }
 
 export function checkValue(field: string|undefined, cb: BooleanCB) {
@@ -182,13 +117,13 @@ export function parseGeoPoint(point: GeoPoint | number[] | object, throwInvalid 
     return results;
 }
 
-const MileUnits = {
+const mileUnits = {
     mi: 'miles',
     miles: 'miles',
     mile: 'miles',
 };
 
-const NMileUnits = {
+const nmileUnits = {
     NM:'nauticalmiles',
     nmi: 'nauticalmiles',
     nauticalmile: 'nauticalmiles',
@@ -236,4 +171,14 @@ const feetUnits = {
     feet: 'feet'
 };
 
-export const GEO_DISTANCE_UNITS = Object.assign({}, MileUnits, NMileUnits, inchUnits, yardUnits, meterUnits, kilometerUnits, millimeterUnits, centimetersUnits, feetUnits);
+export const GEO_DISTANCE_UNITS = {
+    ...mileUnits,
+    ...nmileUnits,
+    ...inchUnits,
+    ...yardUnits,
+    ...meterUnits,
+    ...kilometerUnits,
+    ...millimeterUnits,
+    ...centimetersUnits,
+    ...feetUnits
+};
