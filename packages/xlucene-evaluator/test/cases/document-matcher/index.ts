@@ -4,7 +4,7 @@ import range from './range';
 import regexp from './regexp';
 import ip from './ip';
 import dates from './dates';
-// import wildcard from './wildcard';
+import wildcard from './wildcard';
 import complex_queries from './complex-queries';
 
 export default {
@@ -13,7 +13,7 @@ export default {
     dates,
     ip,
     regexp,
-    // wildcard,
+    wildcard,
     geo,
     complex_queries
 };
