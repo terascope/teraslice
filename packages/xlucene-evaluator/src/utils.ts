@@ -2,7 +2,7 @@ import { toNumber } from 'lodash';
 import { trimAndToLower, isPlainObject, parseNumberList } from '@terascope/utils';
 import geoHash from 'latlon-geohash';
 import { path, any, values } from 'rambda';
-import { GeoDistance, GeoPoint, BooleanCB } from './interfaces';
+import { GeoDistanceObj, GeoPointInput, BooleanCB } from './interfaces';
 import { Range } from './parser';
 import { isWildCard, findWildcardField } from './document-matcher/logic-builder/string';
 
@@ -61,7 +61,7 @@ export function checkValue(field: string|undefined, cb: BooleanCB) {
     };
 }
 
-export function parseGeoDistance(str: string): GeoDistance {
+export function parseGeoDistance(str: string): GeoDistanceObj {
     const trimed = trimAndToLower(str);
     const matches = trimed.match(/(\d+)(.*)$/);
     if (!matches || !matches.length) {
@@ -88,10 +88,10 @@ export function getLonAndLat(input: any, throwInvalid = true): [number, number] 
     return [toNumber(lat), toNumber(lon)];
 }
 
-export function parseGeoPoint(point: GeoPoint | number[] | object): number[];
-export function parseGeoPoint(point: GeoPoint | number[] | object, throwInvalid: true): number[];
-export function parseGeoPoint(point: GeoPoint | number[] | object, throwInvalid: false): number[] | null;
-export function parseGeoPoint(point: GeoPoint | number[] | object, throwInvalid = true): number[] | null {
+export function parseGeoPoint(point: GeoPointInput | number[] | object): number[];
+export function parseGeoPoint(point: GeoPointInput | number[] | object, throwInvalid: true): number[];
+export function parseGeoPoint(point: GeoPointInput | number[] | object, throwInvalid: false): number[] | null;
+export function parseGeoPoint(point: GeoPointInput | number[] | object, throwInvalid = true): number[] | null {
     let results = null;
 
     if (typeof point === 'string') {
