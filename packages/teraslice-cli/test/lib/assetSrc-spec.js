@@ -50,7 +50,7 @@ xdescribe('AssetSrc', () => {
     });
 });
 
-describe('AssetSrc with build', () => {
+xdescribe('AssetSrc with build', () => {
     const AssetSrc = require('../../lib/asset-src');
 
     let testAsset;
