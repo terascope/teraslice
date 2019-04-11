@@ -47,7 +47,7 @@ describe('AssetSrc', () => {
         const outFile = 'out.zip';
         const zipOutput = await AssetSrc.zip(path.join(__dirname, 'fixtures', 'testAsset', 'asset'), outFile);
         expect(zipOutput.success).toEqual('out.zip');
-        fs.removeSync(outFile);
+        // fs.removeSync(outFile);
     });
 });
 
