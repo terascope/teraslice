@@ -27,7 +27,7 @@
         "elasticsearch"
     ],
     "dependencies": {
-        "auto-bind": "^2.0.0",
+        "auto-bind": "^2.1.0",
         "bluebird": "^3.5.4",
         "lodash": "^4.17.11",
         "request": "^2.88.0",

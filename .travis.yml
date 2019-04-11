@@ -35,9 +35,11 @@ jobs:
         - . ./scripts/travis-install-yarn.sh
         - . ./scripts/travis-install-es.sh
     script:
-        - node --max-old-space-size=512 --expose-gc ./node_modules/.bin/jest --silent --logHeapUsage --runInBand --forceExit
+        # We are waiting on a new version of jest (>24.7.1)
+        # This means the coverage will likely be broken
+        - for package in ./packages/*; do yarn --cwd="$package" test || exit 1; done;
     after_success:
-      - bash <(curl -s https://codecov.io/bash)
+        - bash <(curl -s https://codecov.io/bash)
 
   # benchmarks and linting, only on pull-requests
   - script:
