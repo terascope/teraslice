@@ -3,5 +3,5 @@
 const generate = require('../scripts/generate-engine');
 
 module.exports = () => {
-    generate('-v2');
+    generate();
 };

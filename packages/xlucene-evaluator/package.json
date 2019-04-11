@@ -6,7 +6,7 @@
     "typings": "dist/src/index.d.ts",
     "files": [
         "dist/src/**/*",
-        "peg/peg_engine-v2.js"
+        "peg/peg-engine.js"
     ],
     "directories": {
         "lib": "dist/src",
@@ -17,7 +17,7 @@
         "lint:fix": "yarn lint --fix",
         "prepare": "yarn run build:prepare",
         "prepublishOnly": "yarn build",
-        "build:prepare": "./scripts/generate-engine.js '-v2'",
+        "build:prepare": "./scripts/generate-engine.js",
         "build": "yarn run build:prepare && tsc --build --pretty",
         "build:watch": "yarn build --watch",
         "test": "jest",
