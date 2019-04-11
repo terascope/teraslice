@@ -1,7 +1,7 @@
 import { Parser } from './parser';
 
-type Parsers = { [query: string]: Parser };
-const _cache = new WeakMap<CachedParser, Parsers>();
+type Cached = { [query: string]: Parser };
+const _cache = new WeakMap<CachedParser, Cached>();
 
 export class CachedParser {
     constructor() {
@@ -18,5 +18,10 @@ export class CachedParser {
         _cache.set(this, cached);
 
         return parser;
+    }
+
+    reset() {
+        _cache.delete(this);
+        _cache.set(this, {});
     }
 }

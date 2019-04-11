@@ -1,5 +1,5 @@
 import * as R from 'rambda';
-import { TypeConfig, Translator, FieldType } from 'xlucene-evaluator';
+import { TypeConfig, FieldType } from 'xlucene-evaluator';
 import { TSError, isPlainObject, isEmpty } from '@terascope/utils';
 import * as i from '../interfaces';
 import {
@@ -164,12 +164,3 @@ export function getXluceneTypeFromESType(type?: string): FieldType|undefined {
 
     return;
 }
-
-export function translateQuery(query: string, types?: TypeConfig): { q: null, body: TranslatedDSL } {
-    return {
-        q: null,
-        body: Translator.toElasticsearchDSL(query, types)
-    };
-}
-
-export type TranslatedDSL = ReturnType<Translator['toElasticsearchDSL']>;

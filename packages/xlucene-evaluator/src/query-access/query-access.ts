@@ -7,15 +7,15 @@ import { QueryAccessConfig } from './interfaces';
 import { TypeConfig } from '../interfaces';
 
 export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
-    excludes: (keyof T)[];
-    includes: (keyof T)[];
-    constraint?: string;
-    preventPrefixWildcard: boolean;
-    allowImplicitQueries: boolean;
-    convertEmptyQueryToWildcard: boolean;
-    typeConfig: TypeConfig;
-    private _parser: CachedParser = new CachedParser();
-    private _translator: CachedTranslator = new CachedTranslator();
+    readonly excludes: (keyof T)[];
+    readonly includes: (keyof T)[];
+    readonly constraint?: string;
+    readonly preventPrefixWildcard: boolean;
+    readonly allowImplicitQueries: boolean;
+    readonly convertEmptyQueryToWildcard: boolean;
+    readonly typeConfig: TypeConfig;
+    private readonly _parser: CachedParser = new CachedParser();
+    private readonly _translator: CachedTranslator = new CachedTranslator();
 
     constructor(config: QueryAccessConfig<T> = {}) {
         const {
@@ -35,6 +35,11 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         this.allowImplicitQueries = !!allow_implicit_queries;
         this.convertEmptyQueryToWildcard = !!convert_empty_query_to_wildcard;
         this.typeConfig = type_config;
+    }
+
+    clearCache() {
+        this._parser.reset();
+        this._translator.reset();
     }
 
     /**

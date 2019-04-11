@@ -12,17 +12,22 @@ export class CachedTranslator {
         _cache.set(this, {});
     }
 
-    toElasticsearchDSL(input: string|Parser, types?: TypeConfig): ElasticsearchDSLResult {
+    toElasticsearchDSL(input: string|Parser, typeConfig?: TypeConfig): ElasticsearchDSLResult {
         const query = isString(input) ? input : input.query;
         const cached = _cache.get(this)!;
         if (cached[query] != null) return cached[query];
 
-        const translate = new Translator(query, types);
+        const translate = new Translator(query, typeConfig);
         const result = translate.toElasticsearchDSL();
 
         cached[query] = result;
         _cache.set(this, cached);
 
         return result;
+    }
+
+    reset() {
+        _cache.delete(this);
+        _cache.set(this, {});
     }
 }

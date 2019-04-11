@@ -7,26 +7,22 @@ import * as utils from './utils';
 const logger = debugLogger('xlucene-translator');
 
 export class Translator {
-    query: string;
-    public types?: TypeConfig;
-    private parser: Parser;
+    readonly query: string;
+    public readonly typeConfig?: TypeConfig;
+    private readonly _parser: Parser;
 
-    static toElasticsearchDSL(query: string|Parser, types?: TypeConfig) {
-        return new Translator(query, types).toElasticsearchDSL();
-    }
-
-    constructor(input: string|Parser, types?: TypeConfig) {
+    constructor(input: string|Parser, typeConfig?: TypeConfig) {
         if (isString(input)) {
-            this.parser = new Parser(input);
+            this._parser = new Parser(input);
         } else {
-            this.parser = input;
+            this._parser = input;
         }
-        this.query = this.parser.query;
-        this.types = types;
+        this.query = this._parser.query;
+        this.typeConfig = typeConfig;
     }
 
     toElasticsearchDSL(): i.ElasticsearchDSLResult {
-        if (isEmptyAST(this.parser.ast)) {
+        if (isEmptyAST(this._parser.ast)) {
             return {
                 query: {
                     query_string: {
@@ -36,7 +32,7 @@ export class Translator {
             };
         }
 
-        const anyQuery = utils.buildAnyQuery(this.parser.ast, this.parser);
+        const anyQuery = utils.buildAnyQuery(this._parser.ast, this._parser);
 
         const query = {
             constant_score: {

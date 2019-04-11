@@ -1,7 +1,7 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import { CreateRecordInput, UpdateRecordInput } from 'elasticsearch-store';
-import { TypeConfig, QueryAccess } from 'xlucene-evaluator';
+import { TypeConfig, CachedQueryAccess } from 'xlucene-evaluator';
 import * as models from './models';
 import { ManagerConfig } from './interfaces';
 
@@ -73,6 +73,7 @@ export class ACLManager {
     private readonly _users: models.Users;
     private readonly _views: models.Views;
     private readonly _dataTypes: models.DataTypes;
+    private readonly _queryAccess = new CachedQueryAccess();
 
     constructor(client: es.Client, config: ManagerConfig) {
         this.logger = config.logger || ts.debugLogger('acl-manager');
@@ -487,7 +488,7 @@ export class ACLManager {
             constraint += `id: ${authUser.id}`;
         }
 
-        return new QueryAccess<models.User>({
+        return this._queryAccess.build<models.User>({
             constraint,
             excludes,
             allow_implicit_queries: type !== 'USER'
@@ -499,7 +500,7 @@ export class ACLManager {
         const clientId = this._getUserClientId(authUser);
         const excludes: (keyof models.Role)[] = [];
 
-        return new QueryAccess<models.Role>({
+        return this._queryAccess.build<models.Role>({
             constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
             excludes,
             allow_implicit_queries: type !== 'USER'
@@ -515,7 +516,7 @@ export class ACLManager {
             excludes.push('type_config');
         }
 
-        return new QueryAccess<models.DataType>({
+        return this._queryAccess.build<models.DataType>({
             constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
             excludes,
             allow_implicit_queries: type !== 'USER'
@@ -539,7 +540,7 @@ export class ACLManager {
             );
         }
 
-        return new QueryAccess<models.View>({
+        return this._queryAccess.build<models.View>({
             constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
             includes,
             allow_implicit_queries: type !== 'USER'
@@ -558,7 +559,7 @@ export class ACLManager {
             );
         }
 
-        return new QueryAccess<models.Space>({
+        return this._queryAccess.build<models.Space>({
             constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
             excludes,
             allow_implicit_queries: type !== 'USER'
