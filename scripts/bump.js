@@ -34,7 +34,7 @@ const { argv } = yargs.usage('$0 [options] <package-name> <release>', desc, (_ya
             description: 'Specify the prerelease identifier, defaults to RC'
         })
         .option('deps', {
-            default: true,
+            default: false,
             type: 'boolean',
             description: 'Bump all of the child dependencies to change, (if the child depedency is teraslice it will skip it)'
         })

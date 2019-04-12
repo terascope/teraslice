@@ -1,6 +1,6 @@
 {
     "name": "xlucene-evaluator",
-    "version": "0.8.0",
+    "version": "0.7.0",
     "srcMain": "src/index.ts",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",

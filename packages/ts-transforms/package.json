@@ -1,6 +1,6 @@
 {
     "name": "ts-transforms",
-    "version": "0.20.0",
+    "version": "0.19.0",
     "description": "An ETL framework built upon xlucene-evaluator",
     "publishConfig": {
         "access": "public"
@@ -50,7 +50,7 @@
         "shortid": "^2.2.14",
         "valid-url": "^1.0.9",
         "validator": "^10.10.0",
-        "xlucene-evaluator": "^0.8.0",
+        "xlucene-evaluator": "^0.7.0",
         "yargs": "^13.2.2"
     },
     "devDependencies": {
