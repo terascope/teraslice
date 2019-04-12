@@ -66,7 +66,6 @@ function matchRegex(regex: RegExp) {
 
 function extractAndTransferFields(record: DataEntity, dest: DataEntity, config: ExtractionConfig) {
     const data = _.get(record, config.source_field);
-
     if (data !== undefined) {
         let extractedResult;
 
@@ -139,9 +138,9 @@ export default class Extraction {
         return null;
     }
 
-    extractRun(results: { entity: DataEntity, metadata: any }) {
+    extractRun(doc: DataEntity, results: { entity: DataEntity, metadata: any }) {
         for (let i = 0; i < this.configs.length; i += 1) {
-            extractAndTransferFields(results.entity, results.entity, this.configs[i]);
+            extractAndTransferFields(doc, results.entity, this.configs[i]);
         }
     }
 }

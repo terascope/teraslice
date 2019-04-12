@@ -24,9 +24,8 @@ export default class ExtractionPhase extends PhaseBase {
         const resultsList: DataEntity[] = [];
 
         for (let i = 0; i < dataArray.length; i += 1) {
-            const results = handleRecord(dataArray[i]);
-            runSelectors(this.phase, results);
-
+            const results = createTargetResults(dataArray[i]);
+            runSelectors(this.phase, dataArray[i], results);
             if (results.metadata.hasExtractions) {
                 resultsList.push(results.entity);
             }
@@ -36,7 +35,7 @@ export default class ExtractionPhase extends PhaseBase {
     }
 }
 
-function handleRecord(input: DataEntity) {
+function createTargetResults(input: DataEntity) {
     const { entity, metadata } = DataEntity.makeRaw({}, input.getMetadata());
     return {
         metadata,
@@ -44,16 +43,16 @@ function handleRecord(input: DataEntity) {
     };
 }
 
-function runSelectors(phase: OperationsPipline, results: { entity: DataEntity, metadata: any }) {
+function runSelectors(phase: OperationsPipline, doc: DataEntity, results: { entity: DataEntity, metadata: any }) {
     for (let i = 0; i < results.metadata.selectors.length; i++) {
-        runSelector(phase[results.metadata.selectors[i]], results);
+        runSelector(phase[results.metadata.selectors[i]], doc, results);
     }
     return results;
 }
 
-function runSelector(selectorPhase: Operation[], results: { entity: DataEntity, metadata: any }) {
+function runSelector(selectorPhase: Operation[], doc: DataEntity, results: { entity: DataEntity, metadata: any }) {
     for (let i = 0; i < selectorPhase.length; i++) {
         // @ts-ignore
-        selectorPhase[i].extractRun(results);
+        selectorPhase[i].extractRun(doc, results);
     }
 }
