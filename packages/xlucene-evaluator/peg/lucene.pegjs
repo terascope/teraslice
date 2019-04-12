@@ -1,823 +1,631 @@
-/**
-*
-* Reference: https://github.com/thoward/lucene-query-parser.js/blob/master/LICENSE
-*
-* Copyright 2017, Troy Howard
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*   http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*
-*/
-
-/*
- * Lucene Query Grammar for PEG.js
- * ========================================
- *
- * This grammar supports many of the constructs contained in the Lucene Query Syntax.
- *
- * Supported features:
- * - conjunction operators (AND, OR, ||, &&, NOT, !)
- * - prefix operators (+, -)
- * - quoted values ("foo bar")
- * - named fields (foo:bar)
- * - range expressions (foo:[bar TO baz], foo:{bar TO baz})
- * - proximity search expressions ("foo bar"~5)
- * - boost expressions (foo^5, "foo bar"^5)
- * - fuzzy search expressions (foo~, foo~0.5)
- * - parentheses grouping ( (foo OR bar) AND baz )
- * - field groups ( foo:(bar OR baz) )
- *
- * The grammar will create a parser which returns an AST for the query in the form of a tree
- * of nodes, which are dictionaries. There are three basic types of expression dictionaries:
- *
- * A node expression generally has the following structure:
- *
- * {
- *     'left' : dictionary,     // field expression or node
- *     'operator': string,      // operator value
- *     'right': dictionary,     // field expression OR node
- *     'field': string          // field name (for field group syntax) [OPTIONAL]
- * }
- *
- *
- * A field expression has the following structure:
- *
- * {
- *     'field': string,         // field name
- *     'term': string,          // term value
- *     'prefix': string         // prefix operator (+/-) [OPTIONAL]
- *     'boost': float           // boost value, (value > 1 must be integer) [OPTIONAL]
- *     'similarity': float      // similarity value, (value must be > 0 and < 1) [OPTIONAL]
- *     'proximity': integer     // proximity value [OPTIONAL]
- * }
- *
- *
- * A range expression has the following structure:
- *
- * {
- *     'field': string,         // field name
- *     'term_min': string,      // minimum value (left side) of range
- *     'term_max': string,      // maximum value (right side) of range
- *     'inclusive': boolean     // inclusive ([...]) or exclusive ({...})
- * }
- *
- * Other Notes:
- *
- * - For any field name, unnamed/default fields will have the value '<implicit>'.
- * - Wildcards (fo*, f?o) and fuzzy search modifiers (foo~.8) will be part of the term value.
- * - Escaping is not supported and generally speaking, will break the parser.
- * - Conjunction operators that appear at the beginning of the query violate the logic of the
- *   syntax, and are currently "mostly" ignored. The last element will be returned.
- *
- *   For example:
- *       Query: OR
- *       Return: { "operator": "OR" }
- *
- *       Query: OR AND
- *       Return: { "operator": "AND" }
- *
- *       Query: OR AND foo
- *       Return: { "left": { "field": '<implicit>', "term": "foo" } }
- *
- *  To test the grammar, use the online parser generator at http://pegjs.majda.cz/online
- *
- */
-
+/** Functions **/
 {
-    const IMPLICIT = '<implicit>';
-    const CONJUNCTION = 'conjunction';
-    const geoParameters = {
-        _geo_point_: 'geo_point',
-        _geo_distance_: 'geo_distance',
-        _geo_box_top_left_: 'geo_box_top_left',
-        _geo_box_bottom_right_: 'geo_box_bottom_right',
-    };
+    const x = require('xlucene-evaluator');
 
-    function isGeoExpression(node) {
-        if (!node) return false;
-        return geoParameters[node.field] != null;
+    /**
+    * Propagate the default field on a field group expression
+    * @todo use the types from the new xlucene-parse
+    */
+    function propagateDefaultField(node, field) {
+       if (!node) return;
+
+       const termTypes = ['term', 'regexp', 'range', 'wildcard', 'geo-distance', 'geo-bounding-box'];
+       if (termTypes.includes(node.type) && !node.field) {
+           node.field = field;
+           return;
+       }
+
+       if (node.type === 'negation') {
+           propagateDefaultField(node.node, field);
+           return;
+       }
+
+       const groupTypes = ['logical-group', 'field-group'];
+       if (groupTypes.includes(node.type)) {
+           for (const conj of node.flow) {
+               propagateDefaultField(conj, field);
+           }
+           return;
+       }
+
+       if (node.type === 'conjunction') {
+           for (const conj of node.nodes) {
+               propagateDefaultField(conj, field);
+           }
+           return;
+       }
     }
 
-    function walkAstReduce(node, fn, accum) {
-        fn(node, accum);
-        if (node.left) walkAstReduce(node.left, fn, accum);
-        if (node.right) walkAstReduce(node.right, fn, accum);
-    }
-
-    function getGeoData(node, accum) {
-        if (isGeoExpression(node)) {
-            accum[geoParameters[node.field]] = node.term;
-        }
-    }
-
-    // propagate fields when dealing with parens
-    // this makes it easier for the other code to
-    // deal with the AST
-
-    function needsField(node) {
-        return node.field === '<implicit>' || !node.field
-    }
-
-    function propagateFields(node) {
-        if (node.left && needsField(node.left)) {
-            if (node.field) {
-                node.left.field = node.field;
-            }
-            if (node.left.type === CONJUNCTION) {
-                propagateFields(node.left);
-            }
-        }
-
-        if (node.right && needsField(node.right)) {
-            if (node.field) {
-                node.right.field = node.field;
-            }
-            if (node.right.type === CONJUNCTION) {
-                propagateFields(node.right);
-            }
-        }
-    }
-
-    function postProcessAST(node) {
-		if (isGeoExpression(node.left) && isGeoExpression(node.right)) {
-			const parsedGeoNode = { field: node.field };
-			walkAstReduce(node, getGeoData, parsedGeoNode);
-            parsedGeoNode.type = 'geo';
-            return parsedGeoNode;
-		}
-
-        if (node.parens) propagateFields(node);
-
-        if (node.operator === 'AND' && node.right && !node.right.parens && node.right.left) {
-            node.right.left.or = false;
-        }
-
-        if (node.operator === 'NOT') {
-            node.operator = 'AND';
-        }
-
-        // "fizz" "buzz" has an implicit OR
-        if (node.operator === IMPLICIT && node.left && node.right) {
-            node.operator = 'OR';
-        }
-
-        if (node.field === '_exists_' && node.term) {
-            return {
-                type: 'exists',
-                field: node.term,
-            };
-        }
-
-		return node;
-	}
-
-    function isNumber(input) {
-        return typeof input === 'number' && !Number.isNaN(input);
-    }
-
-    function toNumber(input) {
-        if (input == null) return Number.NaN;
-        if (typeof input === 'number') return input;
-        if (typeof input === 'string' && !input.trim().length) return Number.NaN;
-        return Number(input);
-    }
-
-    function coerceValue(input) {
-        if (typeof input !== 'string') return input;
-        let _input = input.trim();
-
-        if (_input === 'false') return false;
-        if (_input === 'true') return true;
-        if (!_input.length) return '';
-
-        const num = Number(_input);
-        if (isNumber(num)) return num;
-
-        return _input;
-    }
-
-    function setBool(node, field, val) {
-        if (!val || !node) return;
-        if (node[field] != null) return;
-        node[field] = val;
+    function parseGeoPoint(str) {
+        const [lon, lat] = x.parseGeoPoint(str);
+        return { lat, lon };
     }
 }
 
+
+/** Control Flow **/
 start
-    = _* node:node+
-        {
-            return node[0];
+    = ws* negate:NegationExpression ws* EOF { return negate }
+    / ws* logic:LogicalGroup ws* { return logic; }
+    / ws* term:UnqoutedTermType ws* EOF { return term; }
+    / ws* term:TermExpression ws* EOF { return term; }
+    / ws* EOF {
+        return {
+            type: 'empty',
         }
-    / _*
-        {
-            return {};
-        }
-    / EOF
-        {
-            return {};
-        }
-
-node
-    = operator:operator_exp EOF
-        {
-            return postProcessAST({
-                 type: CONJUNCTION,
-                 operator
-            });
-        }
-    / rangeExp1:range_operator_exp _* operator:operator_exp _* rangeExp2:range_term _*
-     {
-            const node = {
-                type: CONJUNCTION,
-                left: rangeExp1,
-                operator,
-                right: rangeExp2
-            };
-
-            return postProcessAST(node);
-        }
-    / rangeExp1:range_term _* operator:operator_exp _* rangeExp2:range_operator_exp _*
-    	{
-            const node = {
-                type: CONJUNCTION,
-            	left: rangeExp1,
-                operator,
-                right: rangeExp2
-            };
-
-            return postProcessAST(node);
-        }
-    / type:range_exp_op range_value:rangevalue _* operator_exp _* type2:range_exp_op range_value2:rangevalue _*
-        {
-            const node = {
-                type: 'range',
-                term_min: range_value,
-                term_max: Infinity,
-                inclusive_min: false,
-                inclusive_max: false
-            };
-
-            const args = {};
-            args[type] = range_value;
-            args[type2] = range_value2;
-
-            if (args['>=']) {
-                node.inclusive_min = true;
-                node.term_min = args['>='];
-            }
-
-            if (args['>']) {
-                node.term_min = args['>'];
-            }
-
-            if (args['<=']) {
-                node.inclusive_max = true;
-                node.term_max = args['<='];
-            }
-
-            if (args['<']) {
-                node.term_max = args['<'];
-            }
-
-            return postProcessAST(node);
-        }
-    / operator:operator_exp right:node
-        {
-            setBool(right.left, 'negated', operator === 'NOT' || operator === 'ORNOT');
-            setBool(right.left, 'or', operator === 'OR' || operator === 'ORNOT');
-            return postProcessAST(right);
-        }
-
-    / left:group_exp operator:operator_exp* right:node*
-        {
-            operator = operator=='' || operator==undefined ? IMPLICIT : operator[0];
-            const node = {
-                type: CONJUNCTION,
-                left,
-                parens: false
-            };
-
-            const rightExp =
-                    right.length == 0
-                    ? null
-                    : right[0]['right'] == null
-                        ? right[0]['left']
-                        : right[0];
-
-            if (rightExp != null) {
-                node.operator = operator;
-                if (node.operator === 'ORNOT') {
-                    node.operator = 'OR';
-                }
-                if(rightExp.type === CONJUNCTION) {
-                    setBool(rightExp.left, 'negated', operator === 'NOT' || operator === 'ORNOT');
-                    setBool(rightExp.left, 'or', operator === 'OR' || operator === 'ORNOT');
-                } else {
-                    setBool(rightExp, 'negated', operator === 'NOT' || operator === 'ORNOT');
-                    setBool(rightExp, 'or', operator === 'OR' || operator === 'ORNOT');
-                }
-                node.right = rightExp;
-            }
-
-            setBool(node.left, 'or', operator === 'OR');
-
-            return postProcessAST(node);
-        }
-
-group_exp
-    = field_exp:field_exp _*
-        {
-            return field_exp;
-        }
-    / paren_exp
-
-paren_exp
-    = "(" _* node:node+ _* ")" _*
-        {
-            const results = node[0];
-            // only mark if there is further logic to group
-            if (results.left || results.right) results.parens = true;
-            return postProcessAST(results);
-        }
-
-field_exp
-    = fieldname:fieldname? range:range_operator_exp
-        {
-            range['field'] =
-                fieldname == '' || fieldname == undefined
-                    ? IMPLICIT
-                    : fieldname;
-
-            return postProcessAST(range);
-        }
-    / fieldname:fieldname? range:range_term
-        {
-            range['field'] =
-                fieldname == '' || fieldname == undefined
-                    ? IMPLICIT
-                    : fieldname;
-
-            return postProcessAST(range);
-        }
-    / fieldname:fieldname? node:paren_exp operator:operator_exp range_exp:range_term _*
-        {
-        	return postProcessAST({
-                type: CONJUNCTION,
-                operator,
-                left: node,
-                right: range_exp
-            });
-        }
-    / fieldname:fieldname? node:paren_exp
-        {
-            node.field = fieldname;
-            return postProcessAST(node);
-        }
-    / fieldname:fieldname range_exp:range_term
-        {
-            range_exp.field = fieldname;
-            return postProcessAST(range_exp);
-        }
-    / fieldname:fieldname? term:term
-        {
-            const fieldexp = {
-                'field':
-                    fieldname == '' || fieldname == undefined
-                        ? IMPLICIT
-                        : fieldname
-                };
-
-            for(var key in term)
-                fieldexp[key] = term[key];
-
-            return postProcessAST(fieldexp);
-        }
-
-
-range_exp_op
-	= optype:">=" { return optype; }
-    / optype:"<=" { return optype; }
-	/ optype:"<" { return optype; }
-    / optype:">" { return optype; }
-    / faulty_range_term
- 		{
-            const error = new Error('malformed range syntax, please use (<=, >=) and not(=<, =>)');
-            error.name = 'SyntaxError';
-            throw error;
-        }
-
-range_term
-    = type:range_exp_op _+ value:rangevalue
-        {
-            const error = new Error('cannot have a space between a (<, <=, >, >=) and the value')
-            error.name = 'SyntaxError';
-            throw error
-        }
-    / type:range_exp_op value:rangevalue _*
-        {
-            if(type === '>') {
-                return {
-                    type: 'range',
-                    term_min: value,
-                    term_max: Number.POSITIVE_INFINITY,
-                    inclusive_min: false,
-                    inclusive_max: true
-                };
-            }
-            if(type === '>=') {
-                return {
-                    type: 'range',
-                    term_min: value,
-                    term_max: Number.POSITIVE_INFINITY,
-                    inclusive_min: true,
-                    inclusive_max: true
-                };
-            }
-            if(type === '<') {
-                return {
-                    type: 'range',
-                    term_min: Number.NEGATIVE_INFINITY,
-                    term_max: value,
-                    inclusive_min: true,
-                    inclusive_max: false
-                };
-            }
-            if(type === '<=') {
-                return {
-                    type: 'range',
-                    term_min: Number.NEGATIVE_INFINITY,
-                    term_max: value,
-                    inclusive_min: true,
-                    inclusive_max: true
-                };
-            }
     }
 
-rangevalue
-    = termValue:range_chars
-        {
-            const { term } = termValue;
-            const num = toNumber(term);
-            if (isNumber(num)) return num;
-            return term
-        }
-   / termValue:quoted_term
-        {
-            return termValue
-        }
+/** Expressions */
+LogicalGroup
+    // recursively go through and chain conjunctions together so
+    // the operations evaluated. If any operation passes
+    // then you can stop early.
+   = !ConjunctionOperator conjunctions:Conjunction+ {
+        return {
+            type: 'logical-group',
+            flow: [].concat(...conjunctions)
+        };
+   }
 
-fieldname
-    = fieldname:unquoted_restricted_term _* [:] _*
-        {
-            return fieldname;
-        }
-
-term
-    = op:prefix_operator_exp? term:quoted_term proximity:proximity_modifier? boost:boost_modifier? _*
-        {
-            const result = {
-                type: 'term',
-                term,
-                quoted: true,
-                regexpr: false,
-                wildcard: false,
-            };
-
-            if('' != proximity) {
-                result.proximity = proximity;
-            }
-
-            if('' != boost) {
-                result.boost = boost;
-            }
-
-            if('' != op) {
-                result.prefix = op;
-            }
-
-            return result;
-        }
-    / op:prefix_operator_exp? term:unquoted_implicit_term similarity:fuzzy_modifier? boost:boost_modifier? _*
-        {
-
-            const termValue = coerceValue(term)
-            const result = {
-                term: termValue,
-                type: 'term',
-                quoted: false,
-            };
-
-            if('' != similarity) {
-                result.similarity = similarity;
-            }
-
-            if('' != boost) {
-                result.boost = boost;
-            }
-
-            if('' != op) {
-                result.prefix = op;
-            }
-
-            return result;
-        }
-    / op:prefix_operator_exp? term:unquoted_term similarity:fuzzy_modifier? boost:boost_modifier? _*
-        {
-            let termValue = coerceValue(term);
-            if (typeof termValue === "string") {
-                termValue = termValue.trim();
-            }
-            const result = {
-                type: 'term',
-                term: termValue,
-                quoted: false,
-                wildcard: false,
-                regexpr: false
-            };
-
-            if (typeof termValue === 'string') {
-                result.wildcard = /[\?\*]/.test(termValue);
-                result.regexpr = false;
-            }
-
-            if('' != similarity) {
-                result.similarity = similarity;
-            }
-
-            if('' != boost) {
-                result.boost = boost;
-            }
-
-            if('' != op) {
-                result.prefix = op;
-            }
-
-            return result;
-        }
-    / op:prefix_operator_exp? term:unquoted_restricted_term similarity:fuzzy_modifier? boost:boost_modifier? _*
-        {
-
-            const termValue = coerceValue(term)
-            const result = {
-                term: termValue,
-                type: 'term',
-                unrestricted: true,
-            };
-
-            if('' != similarity) {
-                result.similarity = similarity;
-            }
-
-            if('' != boost) {
-                result.boost = boost;
-            }
-
-            if('' != op) {
-                result.prefix = op;
-            }
-
-            return result;
-        }
-    / op:prefix_operator_exp? term:regexpr_term boost:boost_modifier? _*
-        {
-            const result = {
-                term,
-                type: 'term',
-                wildcard: false,
-                regexpr: true
-            };
-
-            if('' != boost) {
-                result.boost = boost;
-            }
-            if('' != op) {
-                result.prefix = op;
-            }
-
-            return result;
-        }
-
-range_chars
-    =  term_start:term_start_char terms:guarded_char*
-        {
-            const term = term_start + terms.join('');
-            return { term };
-        }
-
-unquoted_restricted_term
-    = term_start:term_start_char term:field_char*
-        {
-            const res = term_start + term.join('');
-
-            if (/^(?:AND|OR|NOT|\|\||&&)$/.test(res)) {
-                const e = new Error('Term can not be AND, OR, NOT, ||, &&')
-                e.name = 'SyntaxError'
-                e.column = location
-                throw e
-            }
-
-            return res
-        }
-
-unquoted_term
-    = term_start:term_start_char term:term_char*
-        {
-            const res = term_start + term.join('');
-
-            if (/^(?:AND|OR|NOT|\|\||&&)$/.test(res)) {
-                const e = new Error('Term can not be AND, OR, NOT, ||, &&')
-                e.name = 'SyntaxError'
-                e.column = location
-                throw e
-            }
-
-            return res
-        }
-
-unquoted_implicit_term
-    = term_start:field_char chars:implicit_term_char+ EOF &{
-        const term = term_start + chars.join('');
-        const explictChars = ['AND', 'OR', 'NOT' , '&&', '||', '!', ':', '"', '^', '~'];
-        for (const str of explictChars) {
-            if (term.includes(str)) return false;
-        }
-        return true;
-    } {
-        return term_start + chars.join('');
+ParensGroup
+    = ParensStart ws* group:LogicalGroup ws* ParensEnd {
+        return group;
     }
 
-implicit_term_char
-    = [ A-Z_a-z:0-9,'\_''\-''\+''\:''\.'\=]
+Conjunction
+    // group all AND nodes together
+    = nodes:AndConjunctionStart+ {
+        return [{
+            type: 'conjunction',
+            nodes: [].concat(...nodes),
+        }]
+    }
+    /*
+    * nodes:OrConjunction+ returns
+    [
+        // if not nested in an array, they will not be grouped together
+        [ { "type": "term", ... } ]
+        [
+            // if there is a nest array those nodes ARE grouped together
+            [{ "type": "term", ... }]
+        ]
+    ]
+    **/
+    / nodes:OrConjunction+ {
+        return nodes.reduce((prev, current) => {
+            current.forEach((node) => {
+                prev.push({
+                    type: 'conjunction',
+                    nodes: Array.isArray(node) ? node : [node]
+                })
+            });
+            return prev;
+        }, []);
+    }
 
-term_start_char
-    = '.' / term_escaping_char / [^: \t\r\n\f\{\}()"+-/^~\[\]]
 
-term_escaping_char
-    = '\\' escaping_char:[: \t\r\n\f\{\}()"/^~\[\]]
-        {
-            return '\\' + escaping_char;
+AndConjunctionStart
+    = left:TermGroup ws+ nodes:AndConjunction {
+        return [left, ...nodes]
+    }
+
+AndConjunction
+    // this implicitly converts NOT to an AND
+    // IMPORTANT this does not consume `NOT` so negation can detect it
+    = ws* &'NOT' ws* right:TermGroup nodes:AndConjunction? {
+        if (!nodes) return [right];
+        return [right, ...nodes];
+    }
+    / ws* AndConjunctionOperator ws+ right:TermGroup nodes:AndConjunction? {
+        if (!nodes) return [right];
+        return [right, ...nodes];
+    }
+
+OrConjunction
+    = left:TermGroup ws+ OrConjunctionOperator ws+ right:TermGroup nodes:AndConjunction? {
+        // if nodes exists that means the right should be joined with the next AND statements
+        if (nodes) {
+            return [ left, [ right, ...nodes ] ];
         }
-
-field_char
-    = '+' / '-' / term_escaping_char / term_start_char
-
-term_char
-    = field_char / other_chars
-
-other_chars
-    = guarded_char / ['\[''\{''\]''\}''\*']
-
-guarded_char
-    = [A-Z_a-z:0-9,'\_''\-''\+''\:''\.']
-
-regexpr_term
-    = '/' term:regexpr_char+ '/'
-        {
-            return term.join('').replace('\\/', '/');
+        return [ left, right ];
+    }
+    / ws+ OrConjunctionOperator ws+ right:TermGroup nodes:AndConjunction? {
+        // if nodes exists that means the right should be joined with the next AND statements
+        if (nodes) {
+            return [ [ right, ...nodes ] ];
         }
+        return [right]
+    }
+    // Implicit ORs only work with at least one quoted, field/value pair or parens group
+    / left:FieldOrQuotedTermGroup ws+ right:FieldOrQuotedTermGroup {
+        return [left, right]
+    }
+    / left:FieldOrQuotedTermGroup ws+ right:TermGroup {
+        return [left, right]
+    }
+    / left:TermGroup ws+ right:FieldOrQuotedTermGroup {
+        return [left, right]
+    }
 
-regexpr_char
-    = '.' / '\\/' / [^/]
+TermGroup
+    = NegationExpression / ParensGroup / TermExpression
 
+FieldOrQuotedTermGroup
+    = ParensGroup / FieldOrQuotedTermExpression
 
-quoted_term
-    = '"' term:[^"]+ '"'
-        {
-            return term.join('');
+NegationExpression
+    = 'NOT' ws+ node:NegatedTermGroup {
+        return {
+            type: 'negation',
+            node
         }
-
-proximity_modifier
-    = '~' proximity:int_exp
-        {
-            return proximity;
+    }
+    / '!' ws* node:NegatedTermGroup {
+        return {
+            type: 'negation',
+            node
         }
+    }
 
-boost_modifier
-    = '^' boost:decimal_or_int_exp
-        {
-            return boost;
+NegatedTermGroup
+    = node:ParensGroup / node:TermExpression
+
+FieldGroup
+    = field:FieldName ws* FieldSeparator ws* group:ParensGroup {
+        propagateDefaultField(group, field);
+        return {
+            ...group,
+            type: 'field-group',
+            field,
         }
+    }
 
-fuzzy_modifier
-    = '~' fuzziness:decimal_exp?
-        {
-            return fuzziness == '' || fuzziness == undefined ? 0.5 : fuzziness;
+BaseTermExpression
+    = ExistsKeyword ws* FieldSeparator ws* field:FieldName {
+        return {
+            type: 'exists',
+            field,
         }
-
-decimal_or_int_exp
-    = decimal_exp
-    / int_exp
-
-decimal_exp
-    = '0.' val:[0-9]+ _*
-        {
-            return parseFloat(`0.${val.join('')}`);
+    }
+    / field:FieldName ws* FieldSeparator ws* range:RangeExpression {
+        return {
+            ...range,
+            field,
         }
-
-int_exp
-    = val:[0-9]+ _*
-        {
-            return parseInt(val.join(''));
+    }
+    / GeoTermExpression
+    / FieldGroup
+    / field:FieldName ws* FieldSeparator ws* term:TermType {
+        return {
+            ...term,
+            field,
         }
+    }
 
-range_operator_exp
-    = '[' term_min:rangevalue _* 'TO' _+ term_max:rangevalue ']'
-        {
-            return {
-                type: 'range',
-                term_min,
-                term_max,
-                inclusive: true,
-                inclusive_min: true,
-                inclusive_max: true
-            };
+TermExpression
+    = BaseTermExpression
+    / range:RangeExpression {
+        return {
+            ...range,
+            field: null,
         }
-    / '{' term_min:rangevalue _* 'TO' _+ term_max:rangevalue '}'
-        {
-            return {
-                type: 'range',
-                term_min,
-                term_max,
-                inclusive: false,
-                inclusive_min: false,
-                inclusive_max: false
-            };
+    }
+    / term:WildcardType {
+        return {
+            ...term,
+            field: null,
         }
-    / '{' term_min:rangevalue _* 'TO' _+ term_max:rangevalue ']'
-        {
-            return {
-                type: 'range',
-                term_min,
-                term_max,
-                inclusive: false,
-                inclusive_min: false,
-                inclusive_max: true
-            };
+    }
+    / term:TermType {
+        return {
+            ...term,
+            field: null,
         }
-    / '[' term_min:rangevalue _* 'TO' _+ term_max:rangevalue '}'
-        {
-            return {
-                type: 'range',
-                term_min,
-                term_max,
-                inclusive: false,
-                inclusive_min: true,
-                inclusive_max: false
-            };
-        }
+    }
 
-operator_exp
- 	= _* operator1:operator _* operator2:operator _*
-        {
-        	if (operator1 === 'AND' && operator2 === 'NOT') return 'NOT';
-            if (operator1 === 'OR' && operator2 === 'NOT') return 'ORNOT';
-            throw new Error(`cannot combine operators ${operator1} and ${operator2} together`)
+FieldOrQuotedTermExpression
+    = BaseTermExpression
+    / term:QuotedStringType {
+        return {
+            ...term,
+            field: null,
         }
-    / _* operator:operator _+
-        {
-            return operator;
+    }
+
+GeoTermExpression
+    = field:FieldName ws* FieldSeparator ws* ParensStart ws* term:GeoTermType ws* ParensEnd {
+        return {
+            ...term,
+            field,
+        };
+    }
+
+ParensStringType
+    = ParensStart ws* term:UnqoutedStringType ws* ParensEnd {
+        return term;
+    }
+
+UnqoutedTermType
+    = term:UnqoutedStringType {
+        return {
+            ...term,
+            field: null,
         }
-    / _* operator:operator EOF
-        {
-            return operator;
+    }
+
+RangeExpression
+    = left:LeftRangeExpression ws+ RangeJoinOperator ws+ right:RightRangeExpression {
+        return {
+            type: 'range',
+            left,
+            right,
         }
-
-operator
-    = 'OR'
-    / 'AND'
-    / '||' { return 'OR'; }
-    / '&&' { return 'AND'; }
-    / not_operator
-
-not_operator
-    = 'NOT'
-    / '!' { return 'NOT'}
-
-prefix_operator_exp
-    = _* operator:prefix_operator
-        {
-            return operator;
+    }
+    / operator:RangeOperator value:TermType {
+        return {
+            type: 'range',
+            left: {
+                operator,
+                ...value,
+            },
         }
+    }
 
-faulty_range_term
-	= '=>'
-    / '=<'
+LeftRangeExpression
+    = operator:StartRangeChar ws* value:LeftRangeType {
+        return {
+            ...value,
+            operator,
+        }
+    }
 
-prefix_operator
-    = '+'
-    / '-'
+RightRangeExpression
+    = ws* value:RightRangeType operator:EndRangeChar {
+        return {
+            ...value,
+            operator,
+        }
+    }
 
-_ "whitespace"
-    = [ \t\r\n\f]+
+GeoTermType
+    = point:GeoPoint ws* distance:GeoDistance {
+        return {
+            type: 'geo-distance',
+            ...point,
+            ...distance
+        }
+    }
+    / distance:GeoDistance ws* point:GeoPoint {
+        return {
+            type: 'geo-distance',
+            ...point,
+            ...distance
+        }
+    }
+    / topLeft:GeoTopLeft ws* bottomRight:GeoBottomRight {
+        return {
+            type: 'geo-bounding-box',
+            ...topLeft,
+            ...bottomRight
+        }
+    }
+    / bottomRight:GeoBottomRight ws* topLeft:GeoTopLeft  {
+        return {
+            type: 'geo-bounding-box',
+            ...topLeft,
+            ...bottomRight
+        }
+    }
+
+LeftRangeType
+    = NegativeInfinityType / RangeTermType
+
+RightRangeType
+    = PostiveInfinityType / RangeTermType
+
+RangeTermType
+    = FloatType
+    / IntegerType
+    / QuotedStringType
+    / RestrictedStringType
+
+TermType
+    = FloatType
+    / IntegerType
+    / RegexpType
+    / BooleanType
+    / WildcardType
+    / ParensStringType
+    / QuotedStringType
+    / RestrictedStringType
+
+NegativeInfinityType
+    = '*' {
+        return {
+            type: 'term',
+            data_type: 'number',
+            value: Number.NEGATIVE_INFINITY
+        }
+    }
+
+PostiveInfinityType
+    = '*' {
+        return {
+            type: 'term',
+            data_type: 'number',
+            value: Number.POSITIVE_INFINITY
+        }
+    }
+
+FloatType
+    = value:Float {
+        return {
+            type: 'term',
+            data_type: 'float',
+            value
+        }
+    }
+
+IntegerType
+    = value:Integer {
+        return {
+            type: 'term',
+            data_type: 'integer',
+            value
+        }
+    }
+
+BooleanType
+  = value:Boolean {
+      return {
+        type: 'term',
+        data_type: 'boolean',
+        value
+      }
+  }
+
+RegexpType
+    = value:Regex {
+        return {
+            type: 'regexp',
+            data_type: 'string',
+            value
+        }
+    }
+
+WildcardType
+  = value:Wildcard {
+       return {
+           type: 'wildcard',
+           data_type: 'string',
+           value
+       };
+    }
+
+QuotedStringType
+    = value:QuotedTerm {
+        return {
+            type: 'term',
+            data_type: 'string',
+            quoted: true,
+            value
+        };
+    }
+
+UnqoutedStringType
+    = value:UnquotedTerm {
+       return {
+           type: 'term',
+           data_type: 'string',
+           quoted: false,
+           value
+       };
+    }
+
+RestrictedStringType
+    = value:RestrictedString {
+       return {
+           type: 'term',
+           data_type: 'string',
+           restricted: true,
+           quoted: false,
+           value
+       };
+    }
+
+FieldName
+    = chars:FieldChar+ { return chars.join('') }
+
+GeoPoint
+    = GeoPointKeyword ws* FieldSeparator ws* term:QuotedStringType {
+        return parseGeoPoint(term.value);
+    }
+
+GeoDistance
+    = GeoDistanceKeyword ws* FieldSeparator ws* term:RestrictedStringType {
+        return x.parseGeoDistance(term.value);
+    }
+
+GeoTopLeft
+    = GeoTopLeftKeyword ws* FieldSeparator ws* term:QuotedStringType {
+         return {
+             top_left: parseGeoPoint(term.value)
+         }
+    }
+
+GeoBottomRight
+    = GeoBottomRightKeyword ws* FieldSeparator ws* term:QuotedStringType {
+         return {
+             bottom_right: parseGeoPoint(term.value)
+         }
+    }
+
+UnquotedTerm
+    = chars:TermChar+ {
+        return chars.join('');
+    }
+
+RestrictedString
+    = chars:RestrictedTermChar+ {
+        return chars.join('');
+    }
+
+Wildcard
+    = chars:WildcardCharSet+ {
+        return chars.join('');
+    }
+
+Regex
+  = '/' chars:RegexStringChar* '/' { return chars.join(''); }
+
+Integer
+   = int:$(Zero / OneToNine Digit*) &NumReservedChar { return parseInt(int, 10); }
+
+Float
+  = float:$(Digit* Dot Digit+) &NumReservedChar { return parseFloat(float) }
+
+/** keywords **/
+GeoPointKeyword
+    = '_geo_point_'
+
+GeoDistanceKeyword
+    = '_geo_distance_'
+
+GeoTopLeftKeyword
+    = '_geo_box_top_left_'
+
+GeoBottomRightKeyword
+    = '_geo_box_bottom_right_'
+
+ExistsKeyword
+    = '_exists_'
+
+Boolean
+  = 'true' { return true }
+  / 'false' { return false }
+
+RangeOperator
+    = '>=' { return 'gte' }
+    / '>' { return 'gt' }
+    / '<=' { return 'lte' }
+    / '<' { return 'lt' }
+
+StartRangeChar
+    = '[' { return 'gte' }
+    / '{' { return 'gt' }
+
+EndRangeChar
+    = ']' { return 'lte' }
+    / '}' { return 'lt' }
+
+RangeJoinOperator
+    = 'TO'
+
+/** Characters **/
+ParensStart
+    = '('
+
+ParensEnd
+    = ')'
+
+WildcardCharSet "wildcard"
+  = $([^\?\*\( ]* ('?' / '*')+ [^\?\*\) ]*)
+
+FieldChar "field"
+  = [_a-zA-Z0-9-\.\?\*]
+
+FieldSeparator ""
+  = ':'
+
+TermChar
+  = Escape sequence:ReservedChar { return '\\' + sequence; }
+  / Dot / CharWithWS
+
+Dot ""
+    = '.'
+
+CharWithWS "term"
+    = [^:\*\?\{\}()"/^~\[\]]
+
+RestrictedTermChar
+  = Escape sequence:ReservedChar { return '\\' + sequence; }
+  / Dot / CharWithoutWS
+
+CharWithoutWS "term"
+    = [^ \t\r\n\f\{\}\(\)\|"/\\/^~\[\]\&\!\?\=\<\>]
+
+QuotedTerm
+  = '"' chars:DoubleStringChar* '"' { return chars.join(''); }
+
+DoubleStringChar
+  = !('"' / Escape) char:. { return char; }
+  / Escape sequence:ReservedChar { return '\\' + sequence; }
+
+RegexStringChar
+  = !('/' / Escape) char:. { return char; }
+  / Escape sequence:ReservedChar { return '\\' + sequence; }
+
+AndConjunctionOperator
+    = 'AND' / '&&'
+
+OrConjunctionOperator
+    = 'OR' / '||'
+
+ConjunctionOperator
+    = AndConjunctionOperator / OrConjunctionOperator
+
+NotOperator
+    = 'NOT' / '!'
+
+Zero
+    = '0'
+
+Escape ""
+    = '\\'
+
+OneToNine
+    = [1-9]
+
+Digit
+    = [0-9]
+
+NumReservedChar
+  = " "
+  / "]"
+  / "}"
+  / ParensEnd
+  / EOF
+
+ReservedChar
+  = "+"
+  / "-"
+  / ParensStart
+  / ParensEnd
+  / "{"
+  / "}"
+  / "["
+  / "]"
+  / "^"
+  / "\""
+  / "?"
+  / FieldChar
+  / Escape
+  / "&"
+  / "|"
+  / "'"
+  / "/"
+  / "~"
+  / "*"
+  / " "
+  / ConjunctionOperator
+  / NotOperator
 
 EOF
-    = !.
+  = !.
+
+// whitespace
+ws "whitespace"
+  = "\t"
+  / "\v"
+  / "\f"
+  / " "

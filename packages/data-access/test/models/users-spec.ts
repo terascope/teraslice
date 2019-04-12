@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
-import { LuceneQueryAccess } from 'xlucene-evaluator';
+import { QueryAccess } from 'xlucene-evaluator';
 import { Users, User } from '../../src/models/users';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 
@@ -45,7 +45,7 @@ describe('Users', () => {
         });
 
         it('should be able fetch the user by id', async () => {
-            const queryAccess = new LuceneQueryAccess({
+            const queryAccess = new QueryAccess({
                 excludes: ['api_token', 'hash', 'salt']
             });
 
@@ -58,7 +58,7 @@ describe('Users', () => {
         });
 
         it('should be able fetch the user by any id', async () => {
-            const queryAccess = new LuceneQueryAccess({
+            const queryAccess = new QueryAccess({
                 excludes: ['hash', 'salt']
             });
             const fetched = await users.findByAnyId(created.username, queryAccess);
@@ -70,7 +70,7 @@ describe('Users', () => {
         });
 
         it('should be able find all by ids', async () => {
-            const queryAccess = new LuceneQueryAccess({
+            const queryAccess = new QueryAccess({
                 excludes: ['api_token', 'hash', 'salt']
             });
             const result = await users.findAll([created.id], queryAccess);

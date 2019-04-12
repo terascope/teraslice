@@ -1,252 +1,288 @@
 import { debugLogger, TSError } from '@terascope/utils';
-import * as utils from '../utils';
-import { AST, IMPLICIT } from '../interfaces';
+import * as p from '../parser';
+import * as i from './interfaces';
+import { parseRange } from '../utils';
 
 const logger = debugLogger('xlucene-translator-utils');
 
-export function buildAnyQuery(node: AST, parentNode?: AST): AnyQuery|undefined {
-    const field = getFieldFromNode(node, parentNode);
-    if (!field && node.term === '*') {
-        return;
+export function buildAnyQuery(node: p.AST, parser: p.Parser): i.AnyQuery|undefined {
+    // if no field and is wildcard
+    if (p.isWildcard(node) && !node.field && node.value === '*') {
+        return {
+            bool: {
+                filter: []
+            }
+        };
     }
 
-    if (utils.isConjunctionNode(node)) {
-        return buildBoolQuery(node);
+    if (p.isGroupLike(node)) {
+        return buildBoolQuery(node, parser);
     }
 
-    if (!field) {
-        const error = new TSError('Unexpected problem when translating xlucene query', {
-            context: {
-                node,
-                parentNode,
-            },
-        });
-        logger.error(error);
-        throw error;
+    if (p.isNegation(node)) {
+        return buildNegationQuery(node, parser);
     }
 
-    if (utils.isExistsNode(node)) {
-        return buildExistsQuery(node, field);
+    if (p.isExists(node)) {
+        return buildExistsQuery(node);
     }
 
-    if (utils.isTermNode(node)) {
-        return buildTermQuery(node, field);
+    if (p.isTermType(node)) {
+        const query = buildTermLevelQuery(node);
+        if (query) return query;
     }
 
-    if (utils.isRangeNode(node)) {
-        return buildRangeQuery(node, field);
-    }
-
-    if (utils.isGeoNode(node)) {
-        return buildGeoQuery(node, field);
-    }
-
-    logger.error(new Error('unsupport ast node'), node);
-    return undefined;
+    const error = new TSError(`Unexpected problem when translating xlucene query ${parser.query}`, {
+        context: {
+            node,
+            ast: parser.ast,
+        },
+    });
+    logger.error(error);
+    return;
 }
 
-export function buildGeoQuery(node: AST, field: string): GeoQuery {
-    const geoQuery: GeoQuery = {};
-    if (node.geo_box_top_left != null && node.geo_box_bottom_right != null) {
-        geoQuery['geo_bounding_box'] = {};
-        geoQuery['geo_bounding_box'][field] = {
-            top_left:  node.geo_box_top_left,
-            bottom_right: node.geo_box_bottom_right
-        };
+export function buildTermLevelQuery(node: p.TermLikeAST): i.AnyQuery|undefined {
+    if (p.isTerm(node)) {
+        return buildTermQuery(node);
     }
 
-    if (node.geo_distance != null && node.geo_point != null) {
-        geoQuery['geo_distance'] = {
-            distance: node.geo_distance,
-        };
-        geoQuery['geo_distance'][field] = node.geo_point;
+    if (p.isRegexp(node)) {
+        return buildRegExprQuery(node);
     }
 
-    logger.trace('built geo query', { node, geoQuery });
+    if (p.isWildcard(node)) {
+        return buildWildcardQuery(node);
+    }
+
+    if (p.isRange(node)) {
+        return buildRangeQuery(node);
+    }
+
+    if (p.isGeoBoundingBox(node)) {
+        return buildGeoBoundingBoxQuery(node);
+    }
+
+    if (p.isGeoDistance(node)) {
+        return buildGeoDistanceQuery(node);
+    }
+
+    return;
+}
+
+export function isMultiMatch(node: p.TermLikeAST) {
+    return !node.field || node.field === '*';
+}
+
+export function buildMultiMatchQuery(node: p.TermLikeAST, query: string): i.MultiMatchQuery {
+    const multiMatchQuery: i.MultiMatchQuery = {
+        multi_match: {
+            query,
+        }
+    };
+
+    logger.trace('built mutli-match query', { node, multiMatchQuery });
+    return multiMatchQuery;
+}
+
+export function getTermField(node: p.TermLikeAST): string {
+    return node.field!;
+}
+
+export function buildGeoBoundingBoxQuery(node: p.GeoBoundingBox): i.GeoQuery|undefined {
+    if (isMultiMatch(node)) return;
+
+    const field = getTermField(node);
+
+    const geoQuery: i.GeoQuery = {};
+    geoQuery['geo_bounding_box'] = {};
+    geoQuery['geo_bounding_box'][field] = {
+        top_left:  node.top_left,
+        bottom_right: node.bottom_right
+    };
+
+    logger.trace('built geo bounding box query', { node, geoQuery });
     return geoQuery;
 }
 
-export function buildRangeQuery(node: AST, field: string): RangeQuery {
-    const range = utils.parseNodeRange(node);
-    const rangeQuery: RangeQuery = { range: {} };
-    rangeQuery.range[field] = range;
+export function buildGeoDistanceQuery(node: p.GeoDistance): i.GeoQuery|undefined {
+    if (isMultiMatch(node)) return;
+
+    const field = getTermField(node);
+
+    const geoQuery: i.GeoQuery = {};
+    geoQuery['geo_distance'] = {
+        distance: `${node.distance}${node.unit}`,
+    };
+    geoQuery['geo_distance'][field] = {
+        lat: node.lat,
+        lon: node.lon,
+    };
+
+    logger.trace('built geo distance query', { node, geoQuery });
+    return geoQuery;
+}
+
+export function buildRangeQuery(node: p.Range): i.RangeQuery|i.MultiMatchQuery|undefined {
+    if (isMultiMatch(node)) {
+        if (!node.right) {
+            return;
+        }
+        const query = `${node.left.operator}${node.left.value}`;
+        return buildMultiMatchQuery(node, query);
+    }
+
+    const field = getTermField(node);
+
+    const rangeQuery: i.RangeQuery = {
+        range: {
+            [field]: parseRange(node, true)
+        }
+    };
+
     logger.trace('built range query', { node, rangeQuery });
     return rangeQuery;
 }
 
-export function buildTermQuery(node: AST, field: string): TermQuery|RegExprQuery|WildcardQuery {
-    if (utils.isRegexNode(node)) {
-        return buildRegExprQuery(node, field);
+export function buildTermQuery(node: p.Term): i.TermQuery|i.MultiMatchQuery {
+    if (isMultiMatch(node)) {
+        const query = `${node.value}`;
+        return buildMultiMatchQuery(node, query);
     }
 
-    if (utils.isWildcardNode(node)) {
-        return buildWildCardQuery(node, field);
-    }
+    const field = getTermField(node);
 
-    const termQuery: TermQuery = { term: {} };
-    termQuery.term[field] = node.term;
-    logger.trace('built term query', node, termQuery);
+    const termQuery: i.TermQuery = {
+        term: {
+            [field]: node.value
+        }
+    };
+
+    logger.trace('built term query', { node, termQuery });
     return termQuery;
 }
 
-export function buildWildCardQuery(node: AST, field: string): WildcardQuery {
-    const wildcardQuery: WildcardQuery = { wildcard: {} };
-    wildcardQuery.wildcard[field] = node.term;
+export function buildWildcardQuery(node: p.Wildcard): i.WildcardQuery|i.MultiMatchQuery {
+    if (isMultiMatch(node)) {
+        const query = `${node.value}`;
+        return buildMultiMatchQuery(node, query);
+    }
+
+    const field = getTermField(node);
+
+    const wildcardQuery: i.WildcardQuery = {
+        wildcard: {
+            [field]: node.value
+        }
+    };
+
     logger.trace('built wildcard query', { node, wildcardQuery });
     return wildcardQuery;
 }
 
-export function buildRegExprQuery(node: AST, field: string): RegExprQuery {
-    const regexQuery: RegExprQuery = { regexp: {} };
-    regexQuery.regexp[field] = node.term;
+export function buildRegExprQuery(node: p.Regexp): i.RegExprQuery|i.MultiMatchQuery {
+    if (isMultiMatch(node)) {
+        const query = `${node.value}`;
+        return buildMultiMatchQuery(node, query);
+    }
+
+    const field = getTermField(node);
+
+    const regexQuery: i.RegExprQuery = {
+        regexp: {
+            [field]: node.value
+        }
+    };
+
     logger.trace('built regexpr query', { node, regexQuery });
     return regexQuery;
 }
 
-export function buildExistsQuery(node: AST, field: string): ExistsQuery {
-    const existsQuery: ExistsQuery = {
+export function buildExistsQuery(node: p.Exists): i.ExistsQuery {
+    const existsQuery: i.ExistsQuery = {
         exists: {
-            field
+            field: node.field
         }
     };
+
     logger.trace('built exists query', { node, existsQuery });
     return existsQuery;
 }
 
-export function buildBoolQuery(node: AST): BoolQuery {
-    const boolQuery: BoolQuery = {
+export function buildBoolQuery(node: p.GroupLikeAST, parser: p.Parser): i.BoolQuery|undefined {
+    const should: i.AnyQuery[] = [];
+
+    for (const conj of node.flow) {
+        const query = buildConjunctionQuery(conj, parser);
+        should.push(...flattenQuery(query, 'should'));
+    }
+    if (!should.length) return;
+
+    const boolQuery: i.BoolQuery = {
         bool: {
-            filter: [],
-            must_not: [],
-            should: [],
+            should
         }
     };
 
-    addToBoolQuery(boolQuery, node, 'left');
-    addToBoolQuery(boolQuery, node, 'right');
-
-    logger.trace('built bool query', boolQuery, node);
+    logger.trace('built bool query', { node, boolQuery });
     return boolQuery;
 }
 
-function addToBoolQuery(boolQuery: BoolQuery, node: AST, side: 'right'|'left') {
-    const child = node[side];
-    if (!child) return;
-
-    const joinType = getJoinType(node, side);
-    const query = buildAnyQuery(child, node);
-    const parentJoinType = getJoinType(node);
-
-    if (isBoolQuery(query) && (joinType === parentJoinType || canFlattenBoolQuery(node))) {
-        boolQuery.bool.filter.push(...query.bool.filter);
-        boolQuery.bool.must_not.push(...query.bool.must_not);
-        boolQuery.bool.should.push(...query.bool.should);
-    } else if (query) {
-        boolQuery.bool[joinType].push(query);
-    }
-}
-
-export function getJoinType(node: AST, side?: 'right'|'left'): 'should'|'must_not'|'filter' {
-    const child = side && node[side] ? node[side]! : node;
-    if (child.negated) return 'must_not';
-    if (isOrNode(child)) return 'should';
-    if (child.parens && child.operator === 'OR') {
-        return 'should';
-    }
-    if (isOrNode(child.left) && (!node.right || isOrNode(child.right))) return 'should';
-    if (node.parens && node.negated) return 'must_not';
-
-    return 'filter';
-}
-
-function isOrNode(node?: AST): boolean {
-    return !!(node && (node.or || node.operator === 'OR'));
-}
-
-export function canFlattenBoolQuery(node: AST): boolean {
-    const operator = node.operator;
-    if (operator === 'OR' && node.left && node.left.field !== IMPLICIT) return false;
-
-    if (node.type === 'conjunction' && !node.parens) {
-        return true;
+export function buildConjunctionQuery(conj: p.Conjunction, parser: p.Parser): i.BoolQuery {
+    const filter: i.AnyQuery[] = [];
+    for (const node of conj.nodes) {
+        const query = buildAnyQuery(node, parser);
+        filter.push(...flattenQuery(query, 'filter'));
     }
 
-    return false;
+    return {
+        bool: {
+            filter,
+        }
+    };
 }
 
-export function isBoolQuery(query: any): query is BoolQuery {
+export function flattenQuery(query: i.AnyQuery|undefined, flattenTo: i.BoolQueryTypes): i.AnyQuery[] {
+    if (!query) return [];
+    if (isBoolQuery(query) && canFlattenBoolQuery(query, flattenTo)) {
+        return query.bool[flattenTo]!;
+    }
+    return [query];
+}
+
+/** This prevents double nested queries that do the same thing */
+export function canFlattenBoolQuery(query: i.BoolQuery, flattenTo: i.BoolQueryTypes) {
+    const types = Object.keys(query.bool);
+    if (types.length !== 1) return false;
+    return types[0] === flattenTo;
+}
+
+export function buildNegationQuery(node: p.Negation, parser: p.Parser): i.BoolQuery|undefined {
+    const query = buildAnyQuery(node.node, parser);
+    if (!query) return;
+
+    const mustNot = flattenQuery(query, 'must_not');
+    logger.trace('built negation query', mustNot, node);
+    return {
+        bool: {
+            must_not: mustNot
+        }
+    };
+}
+
+export function isBoolQuery(query: any): query is i.BoolQuery {
     return query && query.bool != null;
 }
 
-export function getFieldFromNode(node: AST, parentNode?: AST): string|undefined {
-    const parentNodeField = _getFieldFromNode(parentNode);
-    const nodeField = _getFieldFromNode(node);
-    return nodeField || parentNodeField;
-}
-
-export function _getFieldFromNode(node?: AST): string|undefined {
-    if (!node) return;
-    if (!node.field) return;
-    if (node.field === IMPLICIT) return;
-    return node.field;
-}
-
-export type BoolQuery = {
-    bool: {
-        filter: AnyQuery[],
-        must_not: AnyQuery[],
-        should: AnyQuery[],
-    }
-};
-
-export type AnyQuery = BoolQuery|GeoQuery|TermQuery|WildcardQuery|ExistsQuery|RegExprQuery|RangeQuery;
-
-export interface ExistsQuery {
-    exists: {
-        field: string;
-    };
-}
-
-export interface GeoQuery {
-    geo_bounding_box?: {
-        [field: string]: {
-            top_left: string;
-            bottom_right: string;
+export function compactFinalQuery(query?: i.AnyQuery): i.AnyQuery|i.AnyQuery[] {
+    if (!query) return [];
+    if (isBoolQuery(query) && canFlattenBoolQuery(query, 'filter')) {
+        const filter = query.bool.filter!;
+        if (!filter.length) return query;
+        if (filter.length === 1) {
+            return filter[0];
         }
-    };
-    geo_distance?: {
-        distance: string;
-        [field: string]: string;
-    };
-}
-
-export interface RegExprQuery {
-    regexp: {
-        [field: string]: string;
-    };
-}
-
-export interface TermQuery {
-    term: {
-        [field: string]: string|number|boolean;
-    };
-}
-
-export interface WildcardQuery {
-    wildcard: {
-        [field: string]: string;
-    };
-}
-
-export interface RangeQuery {
-    range: {
-        [field: string]: RangeExpression
-    };
-}
-
-export interface RangeExpression {
-    gte?: string|number;
-    lte?: string|number;
-    gt?: string|number;
-    lt?: string|number;
+        return filter;
+    }
+    return query;
 }

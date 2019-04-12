@@ -45,8 +45,7 @@ export default class PhaseManager {
     }
 
     public run(input: object[]): DataEntity[] {
-        let data = input;
-        if (!DataEntity.isDataEntityArray(data)) data = DataEntity.makeArray(data);
+        const data = DataEntity.makeArray(input);
         return this.sequence.reduce<DataEntity[]>((dataArray, phase:PhaseBase) => {
             return phase.run(dataArray);
         }, data as DataEntity[]);
