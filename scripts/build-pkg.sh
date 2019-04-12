@@ -1,8 +1,11 @@
 #!/bin/bash
 
 scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-pkgdir=$(realpath ${scriptdir}/../builds)
+topdir=$(realpath ${scriptdir}/..)
+pkgdir=$(realpath ${topdir}/builds)
 cmdname=$(basename "$0")
+
+pkgtargets="node10-linux-x64,node10-macos-x64,node10-win-x64"
 
 set -e
 
@@ -20,8 +23,8 @@ USAGE
 
 build_teraslice_pkg() {
     echo "Build Teraslice Pkg"
-    cd packages/teraslice
-    pkg -t node10-linux-x64,node10-macos-x64,node10-win-x64 \
+    cd ${topdir}/packages/teraslice
+    pkg -t ${pkgtargets} \
         --out-path ${pkgdir} \
         .
     cd -
@@ -29,15 +32,23 @@ build_teraslice_pkg() {
 
 build_teraslice-cli_pkg() {
     echo "Build Teraslice-cli Pkg"
-    cd packages/teraslice-cli
-    pkg -t node10-linux-x64,node10-macos-x64,node10-win-x64 \
+    cd ${topdir}/packages/teraslice-cli
+    pkg -t ${pkgtargets} \
         --out-path ${pkgdir} \
         .
     cd -
 }
 
+check() {
+    command -v pkg >/dev/null 2>&1 || { echoerr "pkg must be installed: npm install -g pkg"; exit 1; }
+}
+
 setup() {
     mkdir -p ${pkgdir}
+}
+
+finish() {
+    ls -lh ${pkgdir}
 }
 
 main() {
@@ -49,10 +60,11 @@ main() {
         ;;
     esac
 
-    setup &&
+    check &&
+        setup &&
         build_teraslice_pkg &&
         build_teraslice-cli_pkg &&
-        ls -lh ${pkgdir}
+        finish
 }
 
 main "$@"

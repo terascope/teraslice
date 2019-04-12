@@ -53,6 +53,6 @@
     },
     "pkg": {
         "scripts": "cmds/**/*.js",
-        "generator-templates": "generators/**/templates/*"
+        "assets": ["generators/**/templates/*"]
     }
 }

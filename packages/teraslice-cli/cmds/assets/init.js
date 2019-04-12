@@ -14,10 +14,10 @@ const yargsOptions = new YargsOptions();
 const env = yeoman.createEnv();
 
 env.registerStub(newProcessor, 'new-processor', path.join(
-    __dirname, '..', '..', 'generators', 'new-processor', 'index.js'
+    __dirname, '../../generators/new-processor/index.js'
 ));
 env.registerStub(newAsset, 'new-asset', path.join(
-    __dirname, '..', '..', 'generators', 'new-asset', 'index.js'
+    __dirname, '../../generators/new-asset/index.js'
 ));
 
 
