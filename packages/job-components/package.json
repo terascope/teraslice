@@ -34,7 +34,7 @@
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
         "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
-        "benchmark": "yarn build; node bench/index.js"
+        "benchmark": "yarn build && node bench/index.js"
     },
     "dependencies": {
         "@terascope/queue": "^1.1.6",

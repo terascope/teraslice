@@ -5,7 +5,6 @@
 const { times } = require('@terascope/utils');
 const { Suite } = require('./helpers');
 const FakeDataEntity = require('./fixtures/fake-data-entity');
-const makeProxyEntity = require('./fixtures/proxy-entity');
 const { DataEntity } = require('../dist/src');
 
 const data = {};
@@ -59,15 +58,6 @@ const run = async () => Suite('DataEntity (large records)')
     .add('DataEntity.make with metadata', {
         fn() {
             let entity = DataEntity.make(data, metadata);
-            entity.hello = Math.random();
-            entity.hello;
-            entity = null;
-            return entity;
-        }
-    })
-    .add('new proxy entity with metadata', {
-        fn() {
-            let entity = makeProxyEntity(data, metadata);
             entity.hello = Math.random();
             entity.hello;
             entity = null;

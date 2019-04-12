@@ -25,7 +25,8 @@
         "build:watch": "yarn build --watch",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
+        "benchmark": "yarn build && node bench/index.js"
     },
     "dependencies": {
         "debug": "^4.1.1",
@@ -33,5 +34,7 @@
         "kind-of": "^6.0.2",
         "lodash.clonedeep": "^4.5.0"
     },
-    "devDependencies": {}
+    "devDependencies": {
+        "benchmark": "^2.1.4"
+    }
 }

@@ -22,7 +22,7 @@ function Suite(name) {
             }
         })
         .on('start', function _start() {
-            console.log(`\n${banner(90, this.name, '=')}\n`);
+            printHeader(this.name, '=');
         })
         .on('complete', function _complete() {
             process.stdout.write('\n');
@@ -63,4 +63,8 @@ function banner(n, s, c = '-') {
     return s;
 }
 
-module.exports = { Suite };
+function printHeader(msg, sep) {
+    process.stdout.write(` \n${banner(90, msg, sep)}\n `);
+}
+
+module.exports = { Suite, printHeader };

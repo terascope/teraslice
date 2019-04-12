@@ -7,7 +7,7 @@
         "cleanup": "./scripts/cleanup.sh",
         "build": "lerna run build:prepare && tsc --build --pretty",
         "build:watch": "yarn run build --watch",
-        "benchmark": "lerna run benchmark",
+        "benchmark": "lerna run --concurrency=1 --no-prefix --stream benchmark",
         "docs:update": "./scripts/update-docs.sh",
         "bump": "./scripts/bump.js",
         "test": "jest --silent --detectOpenHandles --forceExit",

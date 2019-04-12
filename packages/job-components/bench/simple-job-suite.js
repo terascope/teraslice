@@ -1,7 +1,7 @@
 'use strict';
 
 const path = require('path');
-const { Suite } = require('./helpers');
+const { Suite } = require('../../utils/bench/helpers');
 const {
     TestContext,
     newTestExecutionConfig,
