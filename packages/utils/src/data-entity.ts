@@ -34,43 +34,15 @@ export class DataEntity<T extends object = object> {
         return DataEntity.makeRaw(input, metadata).entity;
     }
 
-    static makeRaw<T extends object = object>(input: T, metadata?: object): { entity: DataEntity<T>, metadata: DataEntityMetadata } {
-        Object.defineProperties(input, {
-            __isDataEntity: {
-                value: true,
-                enumerable: false,
-                writable: false,
-            },
-            getMetadata: {
-                value(key?: string) {
-                    return getMetadata(this, key);
-                },
-                enumerable: false,
-                writable: false
-            },
-            setMetadata: {
-                value(key: string, value: any) {
-                    return setMetadata(this, key, value);
-                },
-                enumerable: false,
-                writable: false
-            },
-            toBuffer: {
-                value(opConfig: EncodingConfig = {}) {
-                    return toBuffer(this, opConfig);
-                },
-                enumerable: false,
-                writable: false
-            }
-        });
-
-        const entity = input as DataEntity<T>;
-        const meta = { createdAt: Date.now(), ...metadata };
-        _metadata.set(entity, meta);
-
+    /**
+     * A barebones method for creating data-entities. This does not do type detection
+     * and returns both the metadata and entity
+    */
+    static makeRaw<T extends object = object>(input?: T, metadata?: object): { entity: DataEntity<T>, metadata: DataEntityMetadata } {
+        const entity = makeEntity(input || {});
         return {
             entity,
-            metadata: meta,
+            metadata: makeMetadata(entity, metadata),
         };
     }
 
@@ -146,7 +118,7 @@ export class DataEntity<T extends object = object> {
     [prop: string]: any;
 
     constructor(data: T, metadata?: object) {
-        _metadata.set(this, fastAssign({ createdAt: Date.now() }, metadata));
+        makeMetadata(this, metadata);
 
         Object.defineProperty(this, '__isDataEntity', {
             value: true,
@@ -209,6 +181,47 @@ function toBuffer(ctx: any, opConfig: EncodingConfig): Buffer {
 
     throw new Error(`Unsupported encoding type, got "${_encoding}"`);
 }
+
+function makeMetadata<T extends object, M extends object>(entity: T, metadata?: M) {
+    const newMetadata = { createdAt: Date.now(), ...metadata };
+    _metadata.set(entity, newMetadata);
+    return newMetadata;
+}
+
+function makeEntity<T extends object>(input: T): DataEntity<T> {
+    const entity = input as DataEntity<T>;
+    Object.defineProperties(entity, dataEntityProperties);
+    return entity;
+}
+
+const dataEntityProperties = {
+    __isDataEntity: {
+        value: true,
+        enumerable: false,
+        writable: false,
+    },
+    getMetadata: {
+        value(key?: string) {
+            return getMetadata(this, key);
+        },
+        enumerable: false,
+        writable: false
+    },
+    setMetadata: {
+        value(key: string, value: any) {
+            return setMetadata(this, key, value);
+        },
+        enumerable: false,
+        writable: false
+    },
+    toBuffer: {
+        value(opConfig: EncodingConfig = {}) {
+            return toBuffer(this, opConfig);
+        },
+        enumerable: false,
+        writable: false
+    }
+};
 
 /** an encoding focused interfaces */
 export interface EncodingConfig {
