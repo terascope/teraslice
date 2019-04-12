@@ -24,7 +24,7 @@
     "devDependencies": {
         "@types/bluebird": "^3.5.26",
         "@types/convict": "^4.2.1",
-        "@types/debug": "^4.1.3",
+        "@types/debug": "^4.1.4",
         "@types/elasticsearch": "^5.0.32",
         "@types/fs-extra": "^5.0.5",
         "@types/jest": "^24.0.11",
