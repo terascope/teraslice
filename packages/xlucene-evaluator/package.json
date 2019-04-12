@@ -1,6 +1,6 @@
 {
     "name": "xlucene-evaluator",
-    "version": "0.6.1",
+    "version": "0.8.0",
     "srcMain": "src/index.ts",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
@@ -33,7 +33,7 @@
     },
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator#readme",
     "dependencies": {
-        "@terascope/utils": "^0.8.1",
+        "@terascope/utils": "^0.9.0",
         "@turf/bbox": "^6.0.1",
         "@turf/bbox-polygon": "^6.0.1",
         "@turf/boolean-point-in-polygon": "^6.0.1",
