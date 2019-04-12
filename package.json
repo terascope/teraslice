@@ -7,7 +7,7 @@
         "cleanup": "./scripts/cleanup.sh",
         "build": "lerna run build:prepare && tsc --build --pretty",
         "build:watch": "yarn run build --watch",
-        "benchmark": "lerna run benchmark",
+        "benchmark": "lerna run --concurrency=1 --no-prefix --stream benchmark",
         "docs:update": "./scripts/update-docs.sh",
         "bump": "./scripts/bump.js",
         "test": "jest --silent --detectOpenHandles --forceExit",
@@ -24,7 +24,7 @@
     "devDependencies": {
         "@types/bluebird": "^3.5.26",
         "@types/convict": "^4.2.1",
-        "@types/debug": "^4.1.3",
+        "@types/debug": "^4.1.4",
         "@types/elasticsearch": "^5.0.32",
         "@types/fs-extra": "^5.0.5",
         "@types/jest": "^24.0.11",

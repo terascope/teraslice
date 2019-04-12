@@ -34,7 +34,7 @@ const { argv } = yargs.usage('$0 [options] <package-name> <release>', desc, (_ya
             description: 'Specify the prerelease identifier, defaults to RC'
         })
         .option('deps', {
-            default: true,
+            default: false,
             type: 'boolean',
             description: 'Bump all of the child dependencies to change, (if the child depedency is teraslice it will skip it)'
         })
@@ -111,7 +111,9 @@ function updatePkgVersion(fileName) {
             return;
         }
 
+        let isProdDev = false;
         if (otherPkgJSON.dependencies && otherPkgJSON.dependencies[realPkgName]) {
+            isProdDev = true;
             otherPkgJSON.dependencies[realPkgName] = `^${newVersion}`;
         } else if (otherPkgJSON.devDependencies && otherPkgJSON.devDependencies[realPkgName]) {
             otherPkgJSON.devDependencies[realPkgName] = `^${newVersion}`;
@@ -119,7 +121,7 @@ function updatePkgVersion(fileName) {
             return;
         }
 
-        if (deps && fileName !== 'teraslice') {
+        if (deps && isProdDev && fileName !== 'teraslice') {
             const updatedVersion = bumpVersion(otherPkgJSON.version);
             console.log(`* Updating dependency ${otherPkgJSON.name} to version ${updatedVersion}`);
             otherPkgJSON.version = updatedVersion;

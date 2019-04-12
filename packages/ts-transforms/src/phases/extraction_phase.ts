@@ -1,13 +1,9 @@
 
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
-import { WatcherConfig, ExtractionProcessingDict } from '../interfaces';
+import { WatcherConfig, ExtractionProcessingDict, OperationsPipline, Operation } from '../interfaces';
 import PhaseBase from './base';
 import { OperationsManager } from '../operations';
-
-function hasExtracted(record: DataEntity) {
-    return record.getMetadata('hasExtractions') === true;
-}
 
 export default class ExtractionPhase extends PhaseBase {
 
@@ -28,24 +24,35 @@ export default class ExtractionPhase extends PhaseBase {
         const resultsList: DataEntity[] = [];
 
         for (let i = 0; i < dataArray.length; i += 1) {
-            const record = dataArray[i];
-            const metaData =  record.getMetadata();
-            const { selectors } = metaData;
-            let results = DataEntity.make({}, metaData);
-
-            selectors.forEach((selector: string, index:number, array:string[]) => {
-                this.phase[selector].forEach((extraction) => {
-                    // @ts-ignore TODO: review me
-                    const resultsData = extraction.run(record, results);
-                    if (resultsData) results = resultsData;
-                });
-            });
-
-            if (hasExtracted(results)) {
-                resultsList.push(results);
+            const results = createTargetResults(dataArray[i]);
+            runSelectors(this.phase, dataArray[i], results);
+            if (results.metadata.hasExtractions) {
+                resultsList.push(results.entity);
             }
         }
 
         return resultsList;
+    }
+}
+
+function createTargetResults(input: DataEntity) {
+    const { entity, metadata } = DataEntity.makeRaw({}, input.getMetadata());
+    return {
+        metadata,
+        entity,
+    };
+}
+
+function runSelectors(phase: OperationsPipline, doc: DataEntity, results: { entity: DataEntity, metadata: any }) {
+    for (let i = 0; i < results.metadata.selectors.length; i++) {
+        runSelector(phase[results.metadata.selectors[i]], doc, results);
+    }
+    return results;
+}
+
+function runSelector(selectorPhase: Operation[], doc: DataEntity, results: { entity: DataEntity, metadata: any }) {
+    for (let i = 0; i < selectorPhase.length; i++) {
+        // @ts-ignore
+        selectorPhase[i].extractRun(doc, results);
     }
 }

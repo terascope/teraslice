@@ -349,7 +349,6 @@ await transform.init();
 const results = transform.run(data);
 
 console.log(results);   //   [ { full_name: 'John Doe' }]
-
 ```
 
 
@@ -369,37 +368,19 @@ Most of the command arguments have a direct correlcation with the configuration:
 
 - `-r`  rules path
 - `-p`  plugins path
-- `-d`  data path or uri
+- `-d`  data path
 - `-t`  types
 
 NOTE: in any case that you would specify an object or array, it must be set to a comma deliminated string
 
 ```sh
-ts-transform -t location:geo,_created:date -r ./rules/path,./otherRules/path -d ./data/path
-```
-
-#### Fetching data from a uri
-If you specify a uri then it is expected the the returning data from that endpoint to be formatted in a certain way. It may either be a direct elasticsearch database response, an array of data or an object that has a results field that has the array of data (teraserver compatability reasons)
-
-Uri Response Types:
-```js
-{ hits: { hits: [{ _source: { some: 'data'} }] }
-[{ some: 'data'}]
-{ results: [{ some: 'data'}] }
-```
-
-Example
-```sh
-ts-transform -r someRules.txt -d 'http://localhost:9200/test_index/_search?q=bytes:>=5642500'
+ts-transform -t 'location:geo,_created:date' -r ./rules/path,./otherRules/path -d ./data/path
 ```
 
 #### Piping
 You may pipe the data into the cli command and omit `-d`
 
-Equivalent:
 ```sh
-ts-transform -r someRules.txt -d 'http://localhost:9200/test_index/_search?q=bytes:>=5642500'
-
 curl 'http://localhost:9200/test_index/_search?q=bytes:>=5642500' | ts-transform -r someRules.txt
 ```
 

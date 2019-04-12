@@ -18,11 +18,10 @@ rl.on('line', (input) => {
         let matcher;
         if (input.length > 0 && input.trim()[0] !== '#') matcher = new DocumentMatcher(input);
     } catch (err) {
-        console.log(`error while parsing input ${input}
-        
-        
-    `, err);
+        // eslint-disable-next-line no-console
+        console.log(`error while parsing input ${input}`, err);
     }
 });
 
+// eslint-disable-next-line no-console
 console.log('done parsing all queries');

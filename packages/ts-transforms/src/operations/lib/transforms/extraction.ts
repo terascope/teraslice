@@ -66,7 +66,6 @@ function matchRegex(regex: RegExp) {
 
 function extractAndTransferFields(record: DataEntity, dest: DataEntity, config: ExtractionConfig) {
     const data = _.get(record, config.source_field);
-
     if (data !== undefined) {
         let extractedResult;
 
@@ -127,8 +126,7 @@ export default class Extraction {
             if (destinationObj) {
                 record = destinationObj;
             } else {
-                const metaData = doc.getMetadata();
-                record = DataEntity.make({}, metaData);
+                record = DataEntity.makeRaw({}, doc.getMetadata()).entity;
             }
         }
 
@@ -138,5 +136,11 @@ export default class Extraction {
 
         if (hasExtracted(record) || this.isMutation) return record;
         return null;
+    }
+
+    extractRun(doc: DataEntity, results: { entity: DataEntity, metadata: any }) {
+        for (let i = 0; i < this.configs.length; i += 1) {
+            extractAndTransferFields(doc, results.entity, this.configs[i]);
+        }
     }
 }

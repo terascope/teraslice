@@ -1,69 +1,8 @@
 import { toNumber } from 'lodash';
 import { trimAndToLower, isPlainObject, parseNumberList } from '@terascope/utils';
 import geoHash from 'latlon-geohash';
-import { path, any } from 'rambda';
-import { RangeAST, AST, GeoDistance, GeoPoint, BooleanCB } from './interfaces';
-
-export function bindThis(instance:object, cls:object): void {
-    return Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
-        .filter((name) => {
-            const method = instance[name];
-            return method instanceof Function && method !== cls;
-        })
-        .forEach((mtd) => {
-            instance[mtd] = instance[mtd].bind(instance);
-        });
-}
-
-export function isConjunctionNode(node: AST): boolean {
-    return node.type === 'conjunction';
-}
-
-export function isRangeNode(node: AST): boolean {
-    return node.term_min != null || node.term_max != null;
-}
-
-export function isGeoNode(node: AST): boolean {
-    return node.type === 'geo';
-}
-
-export function isTermNode(node: AST): boolean {
-    return node.type === 'term' && node.term != null;
-}
-
-export function isRegexNode(node: AST): boolean {
-    return isTermNode(node) && node.regexpr;
-}
-
-export function isWildcardNode(node: AST): boolean {
-    return isTermNode(node) && node.wildcard;
-}
-
-export function isExistsNode(node: AST): boolean {
-    return node.type === 'exists';
-}
-
-export function parseNodeRange(node: RangeAST): ParseNodeRangeResult  {
-    const result: ParseNodeRangeResult = {};
-
-    if (!isInfiniteValue(node.term_min)) {
-        if (node.inclusive_min) {
-            result.gte = node.term_min;
-        } else {
-            result.gt = node.term_min;
-        }
-    }
-
-    if (!isInfiniteValue(node.term_max)) {
-        if (node.inclusive_max) {
-            result.lte = node.term_max;
-        } else {
-            result.lt = node.term_max;
-        }
-    }
-
-    return result;
-}
+import { GeoDistanceObj, GeoPointInput } from './interfaces';
+import { Range } from './parser';
 
 export function isInfiniteValue(input?: number|string) {
     return input === '*' || input === Number.NEGATIVE_INFINITY || input === Number.POSITIVE_INFINITY;
@@ -79,28 +18,29 @@ export function isInfiniteMax(max?: number|string) {
     return max === '*' || max === Number.POSITIVE_INFINITY;
 }
 
-export interface ParseNodeRangeResult {
+export interface ParsedRange {
     'gte'?: number|string;
     'gt'?: number|string;
     'lte'?: number|string;
     'lt'?: number|string;
 }
 
-export function getFieldValue(field: string) {
-    return (obj: any) => path(field, obj);
-}
+export function parseRange(node: Range, excludeInfinite = false): ParsedRange {
+    const results = {};
 
-export function checkValue(field: string, cb: BooleanCB) {
-    return (data: any) => {
-        const values = path(field, data);
-        if (Array.isArray(values)) {
-            return any(cb, values);
+    if (!excludeInfinite || !isInfiniteValue(node.left.value)) {
+        results[node.left.operator] = node.left.value;
+    }
+
+    if (node.right) {
+        if (!excludeInfinite || !isInfiniteValue(node.right.value)) {
+            results[node.right.operator] = node.right.value;
         }
-        return cb(values);
-    };
+    }
+    return results;
 }
 
-export function parseGeoDistance(str: string): GeoDistance {
+export function parseGeoDistance(str: string): GeoDistanceObj {
     const trimed = trimAndToLower(str);
     const matches = trimed.match(/(\d+)(.*)$/);
     if (!matches || !matches.length) {
@@ -127,10 +67,10 @@ export function getLonAndLat(input: any, throwInvalid = true): [number, number] 
     return [toNumber(lat), toNumber(lon)];
 }
 
-export function parseGeoPoint(point: GeoPoint | number[] | object): number[];
-export function parseGeoPoint(point: GeoPoint | number[] | object, throwInvalid: true): number[];
-export function parseGeoPoint(point: GeoPoint | number[] | object, throwInvalid: false): number[] | null;
-export function parseGeoPoint(point: GeoPoint | number[] | object, throwInvalid = true): number[] | null {
+export function parseGeoPoint(point: GeoPointInput | number[] | object): number[];
+export function parseGeoPoint(point: GeoPointInput | number[] | object, throwInvalid: true): number[];
+export function parseGeoPoint(point: GeoPointInput | number[] | object, throwInvalid: false): number[] | null;
+export function parseGeoPoint(point: GeoPointInput | number[] | object, throwInvalid = true): number[] | null {
     let results = null;
 
     if (typeof point === 'string') {
@@ -156,13 +96,13 @@ export function parseGeoPoint(point: GeoPoint | number[] | object, throwInvalid 
     return results;
 }
 
-const MileUnits = {
+const mileUnits = {
     mi: 'miles',
     miles: 'miles',
     mile: 'miles',
 };
 
-const NMileUnits = {
+const nmileUnits = {
     NM:'nauticalmiles',
     nmi: 'nauticalmiles',
     nauticalmile: 'nauticalmiles',
@@ -210,4 +150,14 @@ const feetUnits = {
     feet: 'feet'
 };
 
-export const GEO_DISTANCE_UNITS = Object.assign({}, MileUnits, NMileUnits, inchUnits, yardUnits, meterUnits, kilometerUnits, millimeterUnits, centimetersUnits, feetUnits);
+export const GEO_DISTANCE_UNITS = {
+    ...mileUnits,
+    ...nmileUnits,
+    ...inchUnits,
+    ...yardUnits,
+    ...meterUnits,
+    ...kilometerUnits,
+    ...millimeterUnits,
+    ...centimetersUnits,
+    ...feetUnits
+};

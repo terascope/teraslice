@@ -1,5 +1,5 @@
 import * as R from 'rambda';
-import { TypeConfig, Translator, TypeMapping } from 'xlucene-evaluator';
+import { TypeConfig, FieldType } from 'xlucene-evaluator';
 import { TSError, isPlainObject, isEmpty } from '@terascope/utils';
 import * as i from '../interfaces';
 import {
@@ -132,7 +132,7 @@ export function getXLuceneTypesFromMapping(mapping: any): TypeConfig|undefined {
     return result;
 }
 
-type TypeMappingPair = [string, (keyof TypeMapping)];
+type TypeMappingPair = [string, FieldType];
 type MappingProperties = { [key: string]: MappingProperty };
 type MappingProperty = { type? : string, properties: MappingProperties };
 
@@ -155,7 +155,7 @@ export function getTypesFromProperties(properties: MappingProperties, basePath =
     return result;
 }
 
-export function getXluceneTypeFromESType(type?: string): (keyof TypeMapping)|undefined {
+export function getXluceneTypeFromESType(type?: string): FieldType|undefined {
     if (!type) return;
 
     if (['geo_point', 'geo_shape'].includes(type)) return 'geo';
@@ -164,12 +164,3 @@ export function getXluceneTypeFromESType(type?: string): (keyof TypeMapping)|und
 
     return;
 }
-
-export function translateQuery(query: string, types?: TypeConfig): { q: null, body: TranslatedDSL } {
-    return {
-        q: null,
-        body: Translator.toElasticsearchDSL(query, types)
-    };
-}
-
-export type TranslatedDSL = ReturnType<Translator['toElasticsearchDSL']>;

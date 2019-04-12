@@ -4,10 +4,8 @@ import path from 'path';
 import fs from 'fs';
 import { DataEntity, debugLogger, parseList } from '@terascope/utils';
 import _ from 'lodash';
-import got from 'got';
 import { PhaseManager } from './index';
 import { PhaseConfig } from './interfaces';
-import validator from 'validator';
 
 const logger = debugLogger('ts-transform-cli');
 // change pathing due to /dist/src issues
@@ -65,35 +63,16 @@ if (!filePath) {
     process.exit(1);
 }
 
-async function dataFileLoader(dataPath: string): Promise<object[]> {
+async function dataFileLoader(dataPath: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        fs.readFile(dataPath, { encoding: 'utf8' }, (err, data) => {
+        fs.readFile(path.resolve(dataPath), { encoding: 'utf8' }, (err, data) => {
             if (err) return reject(err);
-            const parsedData = formatData(data);
-            if (!parsedData) return reject('could not parse data');
-            resolve(parsedData);
+            resolve(data);
         });
     });
 }
 
-function parseStreamResponse(data: string | object[]): object[] {
-    const json = typeof data === 'string' ? JSON.parse(data) : data;
-    if (Array.isArray(json)) return json;
-    // input from elasticsearch
-    const elasticSearchResults = _.get(json, 'hits.hits', null);
-    if (elasticSearchResults) {
-        return elasticSearchResults.map((doc:ESData) => doc._source);
-    }
-    // input from teraserver
-    const teraserverResults = _.get(json, 'results', null);
-    if (teraserverResults) {
-        return teraserverResults;
-    }
-
-    throw new Error('could not get parse data');
-}
-
-function getPipedData() {
+function getPipedData(): Promise<string> {
     return new Promise((resolve, reject) => {
         let strResults = '';
         if (process.stdin.isTTY) {
@@ -107,66 +86,75 @@ function getPipedData() {
         });
 
         process.stdin.on('end', () => {
-            const finalData = formatData(strResults);
-            if (finalData) return resolve(finalData);
-            reject('could not parse data');
+            resolve(strResults);
         });
     });
 }
 
-function formatData(strResults: string): object[] | null {
-    try {
-        return parseStreamResponse(strResults);
-    } catch (err) {
-        // try to see if its line delimited JSON;
+function parseData(data: string): object[] | null {
+    // handle json array input
+    if (/^\s*\[.*\]$/.test(data)) {
         try {
-            const results: object[] = [];
-            const data = strResults.split('\n');
-            data.forEach(jsonStr => {
-                // if its not an empty space or a comment then parse it
-                if (jsonStr.length > 0 && jsonStr.trim()[0] !== '#') {
-                    results.push(JSON.parse(jsonStr));
-                }
-            });
-            return results;
-        } catch (_secondError) {
+            return JSON.parse(data);
+        } catch (err) {
+            logger.error(`Failed to parse "${data}"`);
             return null;
         }
     }
-}
 
-function fetchUri(uri: string) {
-    if (validator.isURL(uri,  { require_tld: false })) {
-        return got(uri);
-    }
-    throw new Error('is not a uri');
-}
-
-async function getData(dataPath: string) {
-    let parsedData;
-
-    if (dataPath) {
-        const dataFilePath = path.resolve(dataPath);
-
+    // handle elasticsearch and teraserver data
+    // if error continue on because that means it is probably ldjson
+    if (data) {
         try {
-            parsedData = parseStreamResponse(require(dataFilePath));
-        } catch (err) {
+            return JSON.parse(data);
+        } catch (err) {}
+    }
+
+    // handle ldjson
+    const results: object[] = [];
+    const lines = _.split(data, '\n');
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = _.trim(lines[i]);
+        // if its not an empty space or a comment then parse it
+        if (line.length > 0 && line[0] !== '#') {
             try {
-                const fileData = await dataFileLoader(dataFilePath);
-                parsedData = parseStreamResponse(fileData);
-            } catch (error) {
-                try {
-                    const response = await fetchUri(dataPath);
-                    parsedData = parseStreamResponse(response.body);
-                } catch (err) {}
+                results.push(JSON.parse(line));
+            } catch (err) {
+                logger.error(`Failed to parse "${line}"`);
+                return null;
             }
         }
-    } else {
-        parsedData = await getPipedData();
     }
-    if (!parsedData) throw new Error('could not get data, please provide a data file or pipe an elasticsearch request');
 
-    return DataEntity.makeArray(parsedData);
+    return results;
+}
+
+function handleParsedData(data: object[]|object): DataEntity<object>[] {
+    if (Array.isArray(data)) return DataEntity.makeArray(data);
+    // input from elasticsearch
+    const elasticSearchResults = _.get(data, 'hits.hits', null);
+    if (elasticSearchResults) {
+        return elasticSearchResults.map((doc:ESData) => DataEntity.make(doc._source));
+    }
+    // input from teraserver
+    const teraserverResults = _.get(data, 'results', null);
+    if (teraserverResults) {
+        return DataEntity.makeArray(teraserverResults);
+    }
+
+    throw new Error('could not get parse data');
+}
+
+async function getData(dataPath?: string) {
+    const rawData = dataPath ? await dataFileLoader(dataPath) : await getPipedData();
+    const parsedData = parseData(rawData);
+
+    if (!parsedData) {
+        throw new Error('could not get data, please provide a data file or pipe an elasticsearch request');
+    }
+
+    return handleParsedData(parsedData);
 }
 
 async function initCommand() {
@@ -203,6 +191,7 @@ async function initCommand() {
             // tslint:disable-next-line
             console.time('execution-time');
         }
+        // @ts-ignore
         const results = manager.run(data);
         // tslint:disable-next-line
         if (command.perf) console.timeEnd('execution-time');

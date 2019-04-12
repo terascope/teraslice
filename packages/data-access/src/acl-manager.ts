@@ -1,7 +1,7 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import { CreateRecordInput, UpdateRecordInput } from 'elasticsearch-store';
-import { TypeConfig, LuceneQueryAccess } from 'xlucene-evaluator';
+import { TypeConfig, CachedQueryAccess } from 'xlucene-evaluator';
 import * as models from './models';
 import { ManagerConfig } from './interfaces';
 
@@ -73,6 +73,7 @@ export class ACLManager {
     private readonly _users: models.Users;
     private readonly _views: models.Views;
     private readonly _dataTypes: models.DataTypes;
+    private readonly _queryAccess = new CachedQueryAccess();
 
     constructor(client: es.Client, config: ManagerConfig) {
         this.logger = config.logger || ts.debugLogger('acl-manager');
@@ -487,11 +488,11 @@ export class ACLManager {
             constraint += `id: ${authUser.id}`;
         }
 
-        return new LuceneQueryAccess<models.User>({
+        return this._queryAccess.make<models.User>({
             constraint,
             excludes,
             allow_implicit_queries: type !== 'USER'
-        });
+        }, this.logger);
     }
 
     private _getRoleQueryAccess(authUser: models.User|false) {
@@ -499,11 +500,11 @@ export class ACLManager {
         const clientId = this._getUserClientId(authUser);
         const excludes: (keyof models.Role)[] = [];
 
-        return new LuceneQueryAccess<models.Role>({
+        return this._queryAccess.make<models.Role>({
             constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
             excludes,
             allow_implicit_queries: type !== 'USER'
-        });
+        }, this.logger);
     }
 
     private _getDataTypeQueryAccess(authUser: models.User|false) {
@@ -515,11 +516,11 @@ export class ACLManager {
             excludes.push('type_config');
         }
 
-        return new LuceneQueryAccess<models.DataType>({
+        return this._queryAccess.make<models.DataType>({
             constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
             excludes,
             allow_implicit_queries: type !== 'USER'
-        });
+        }, this.logger);
     }
 
     private _getViewQueryAccess(authUser: models.User|false) {
@@ -539,11 +540,11 @@ export class ACLManager {
             );
         }
 
-        return new LuceneQueryAccess<models.View>({
+        return this._queryAccess.make<models.View>({
             constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
             includes,
             allow_implicit_queries: type !== 'USER'
-        });
+        }, this.logger);
     }
 
     private _getSpaceQueryAccess(authUser: models.User|false) {
@@ -558,11 +559,11 @@ export class ACLManager {
             );
         }
 
-        return new LuceneQueryAccess<models.Space>({
+        return this._queryAccess.make<models.Space>({
             constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
             excludes,
             allow_implicit_queries: type !== 'USER'
-        });
+        }, this.logger);
     }
 
     private _getUserClientId(authUser: models.User|false): number {
@@ -713,9 +714,9 @@ export class ACLManager {
         if (space.roles) {
             space.roles = ts.uniq(space.roles);
 
-            const exists = await this._roles.exists(space.roles);
+            const exists = await this._roles.exists(space.roles!);
             if (!exists) {
-                const rolesStr = space.roles.join(', ');
+                const rolesStr = space.roles!.join(', ');
                 throw new ts.TSError(`Missing roles with space, ${rolesStr}`, {
                     statusCode: 422
                 });
@@ -734,9 +735,9 @@ export class ACLManager {
         if (space.views) {
             space.views = ts.uniq(space.views);
 
-            const views = await this._views.findAll(space.views);
-            if (views.length !== space.views.length) {
-                const viewsStr = space.views.join(', ');
+            const views = await this._views.findAll(space.views!);
+            if (views.length !== space.views!.length) {
+                const viewsStr = space.views!.join(', ');
                 throw new ts.TSError(`Missing views with space, ${viewsStr}`, {
                     statusCode: 422
                 });
@@ -775,9 +776,9 @@ export class ACLManager {
         if (view.roles) {
             view.roles = ts.uniq(view.roles);
 
-            const exists = await this._roles.exists(view.roles);
+            const exists = await this._roles.exists(view.roles!);
             if (!exists) {
-                const rolesStr = view.roles.join(', ');
+                const rolesStr = view.roles!.join(', ');
                 throw new ts.TSError(`Missing roles with view, ${rolesStr}`, {
                     statusCode: 422
                 });

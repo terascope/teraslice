@@ -1,6 +1,6 @@
 {
     "name": "teraslice-test-harness",
-    "version": "0.5.5",
+    "version": "0.5.6",
     "publishConfig": {
         "access": "public"
     },
@@ -37,8 +37,8 @@
         "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.15.2",
-        "@terascope/teraslice-op-test-harness": "^1.5.5",
+        "@terascope/job-components": "^0.16.0",
+        "@terascope/teraslice-op-test-harness": "^1.5.7",
         "@types/lodash": "^4.14.123",
         "lodash": "^4.17.11"
     },

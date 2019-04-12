@@ -1,7 +1,7 @@
 import Ajv from 'ajv';
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { TypeConfig } from 'xlucene-evaluator';
+import { TypeConfig, CachedTranslator } from 'xlucene-evaluator';
 import IndexManager from './index-manager';
 import * as i from './interfaces';
 import * as utils from './utils';
@@ -25,6 +25,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     private readonly _getEventTime: (input: T) => number;
     private readonly _getIngestTime: (input: T) => number;
     private readonly _xluceneTypes: TypeConfig|undefined;
+    private readonly _translator = new CachedTranslator();
 
     constructor(client: es.Client, config: i.IndexConfig<T>) {
         if (!utils.isValidClient(client)) {
@@ -143,7 +144,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
     /** Count records by a given Lucene Query */
     async count(query: string, params?: PartialParam<es.CountParams, 'q'|'body'>): Promise<number> {
-        const p = Object.assign({}, params, utils.translateQuery(query, this._xluceneTypes));
+        const p = Object.assign({}, params, this._translateQuery(query));
 
         return this._count(p);
     }
@@ -312,7 +313,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
     /** Search with a given Lucene Query */
     async search(query: string, params?: PartialParam<SearchParams<T>>): Promise<T[]> {
-        const p = Object.assign({}, params, utils.translateQuery(query, this._xluceneTypes));
+        const p = Object.assign({}, params, this._translateQuery(query));
 
         return this._search(p);
     }
@@ -403,6 +404,14 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
         // @ts-ignore because it easier to assume it isn't a data-entity
         return entity as T;
+    }
+
+    private _translateQuery(query: string) {
+        const translator = this._translator.make(query, this._xluceneTypes, this._logger);
+        return {
+            q: null,
+            body: translator.toElasticsearchDSL(),
+        };
     }
 }
 
