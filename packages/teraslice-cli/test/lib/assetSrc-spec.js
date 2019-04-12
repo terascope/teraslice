@@ -3,9 +3,10 @@
 const path = require('path');
 
 const fs = require('fs-extra');
+const tmp = require('tmp');
 
 
-xdescribe('AssetSrc', () => {
+describe('AssetSrc', () => {
     const AssetSrc = require('../../lib/asset-src');
 
     let testAsset;
@@ -40,17 +41,19 @@ xdescribe('AssetSrc', () => {
     test('build', async () => {
         const r = await testAsset.build();
         expect(r).toInclude('.zip');
+        fs.removeSync(r);
     });
 
     test('->zip', async () => {
-        const outFile = 'out.zip';
+        const tmpDir = tmp.dirSync();
+        const outFile = path.join(tmpDir.name, 'out.zip');
         const zipOutput = await AssetSrc.zip(path.join(__dirname, 'fixtures', 'testAsset', 'asset'), outFile);
-        expect(zipOutput.success).toEqual('out.zip');
-        fs.removeSync(outFile);
+        expect(zipOutput.success).toEqual(outFile);
+        fs.removeSync(tmpDir.name);
     });
 });
 
-xdescribe('AssetSrc with build', () => {
+describe('AssetSrc with build', () => {
     const AssetSrc = require('../../lib/asset-src');
 
     let testAsset;

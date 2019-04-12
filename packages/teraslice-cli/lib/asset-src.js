@@ -52,10 +52,7 @@ class AssetSrc {
      * @param {Array} yarnArgs - Array of arguments or options to be passed to yarn command
      */
     _yarnCmd(dir, yarnArgs) {
-        const yarn = spawnSync(
-            'yarn',
-            ['--cwd', dir].concat(yarnArgs)
-        );
+        const yarn = spawnSync('yarn', yarnArgs, { cwd: dir });
 
         if (yarn.status !== 0) {
             throw new Error(
