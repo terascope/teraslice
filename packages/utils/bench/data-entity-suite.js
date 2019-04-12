@@ -26,7 +26,7 @@ data['big-array'] = times(100, n => `item-${n}`);
 
 const metadata = { id: Math.random() * 1000 * 1000 };
 
-const run = async () => Suite('DataEntity (large records)')
+const run = async () => Suite('DataEntity')
     .add('new data with metadata', {
         fn() {
             let entity = Object.assign({}, data);

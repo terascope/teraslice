@@ -64,7 +64,7 @@ function banner(n, s, c = '-') {
 }
 
 function printHeader(msg, sep) {
-    process.stdout.write(` \n${banner(90, msg, sep)}\n `);
+    process.stdout.write(` \n${banner(90, msg, sep)}\n \n`);
 }
 
 module.exports = { Suite, printHeader };
