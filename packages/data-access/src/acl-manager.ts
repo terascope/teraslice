@@ -714,9 +714,9 @@ export class ACLManager {
         if (space.roles) {
             space.roles = ts.uniq(space.roles);
 
-            const exists = await this._roles.exists(space.roles);
+            const exists = await this._roles.exists(space.roles!);
             if (!exists) {
-                const rolesStr = space.roles.join(', ');
+                const rolesStr = space.roles!.join(', ');
                 throw new ts.TSError(`Missing roles with space, ${rolesStr}`, {
                     statusCode: 422
                 });
@@ -735,9 +735,9 @@ export class ACLManager {
         if (space.views) {
             space.views = ts.uniq(space.views);
 
-            const views = await this._views.findAll(space.views);
-            if (views.length !== space.views.length) {
-                const viewsStr = space.views.join(', ');
+            const views = await this._views.findAll(space.views!);
+            if (views.length !== space.views!.length) {
+                const viewsStr = space.views!.join(', ');
                 throw new ts.TSError(`Missing views with space, ${viewsStr}`, {
                     statusCode: 422
                 });
@@ -776,9 +776,9 @@ export class ACLManager {
         if (view.roles) {
             view.roles = ts.uniq(view.roles);
 
-            const exists = await this._roles.exists(view.roles);
+            const exists = await this._roles.exists(view.roles!);
             if (!exists) {
-                const rolesStr = view.roles.join(', ');
+                const rolesStr = view.roles!.join(', ');
                 throw new ts.TSError(`Missing roles with view, ${rolesStr}`, {
                     statusCode: 422
                 });

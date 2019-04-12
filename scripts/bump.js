@@ -111,7 +111,9 @@ function updatePkgVersion(fileName) {
             return;
         }
 
+        let isProdDev = false;
         if (otherPkgJSON.dependencies && otherPkgJSON.dependencies[realPkgName]) {
+            isProdDev = true;
             otherPkgJSON.dependencies[realPkgName] = `^${newVersion}`;
         } else if (otherPkgJSON.devDependencies && otherPkgJSON.devDependencies[realPkgName]) {
             otherPkgJSON.devDependencies[realPkgName] = `^${newVersion}`;
@@ -119,7 +121,7 @@ function updatePkgVersion(fileName) {
             return;
         }
 
-        if (deps && fileName !== 'teraslice') {
+        if (deps && isProdDev && fileName !== 'teraslice') {
             const updatedVersion = bumpVersion(otherPkgJSON.version);
             console.log(`* Updating dependency ${otherPkgJSON.name} to version ${updatedVersion}`);
             otherPkgJSON.version = updatedVersion;
