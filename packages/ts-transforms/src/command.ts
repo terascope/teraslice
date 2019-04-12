@@ -88,7 +88,7 @@ function handleParsedData(data: object[]|object): DataEntity<object>[] {
     throw new Error('could not get parse data');
 }
 
-function getPipedData() {
+function getPipedData(): Promise<string> {
     return new Promise((resolve, reject) => {
         let strResults = '';
         if (process.stdin.isTTY) {
@@ -102,8 +102,7 @@ function getPipedData() {
         });
 
         process.stdin.on('end', () => {
-            const finalData = parseData(strResults);
-            if (finalData) return resolve(finalData);
+            resolve(strResults);
         });
     });
 }
@@ -137,14 +136,9 @@ function parseData(data: string): object[] | null {
     return results;
 }
 
-async function getData(dataPath: string) {
-    let parsedData;
-
-    if (dataPath) {
-        parsedData = await dataFileLoader(dataPath);
-    } else {
-        parsedData = await getPipedData();
-    }
+async function getData(dataPath?: string) {
+    const rawData = dataPath ? await dataFileLoader(dataPath) : await getPipedData();
+    const parsedData = parseData(rawData);
 
     if (!parsedData) {
         throw new Error('could not get data, please provide a data file or pipe an elasticsearch request');
