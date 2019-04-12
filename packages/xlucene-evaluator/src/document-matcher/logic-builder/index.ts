@@ -1,7 +1,6 @@
 
 import _ from 'lodash';
 import fp from 'lodash/fp';
-// import * as R from 'rambda';
 import { geoDistance,  geoBoundingBox } from './geo';
 import { compareTermDates, dateRange } from './dates';
 import { ipTerm, ipRange } from './ip';

@@ -15,12 +15,19 @@ export function compareTermDates(node: Term) {
     };
 }
 
-export function dateRange(node: Range) {
+export function getRangeValues(node: Range) {
     const rangeQuery = parseRange(node);
     const incMin = rangeQuery.gte != null;
     const incMax = rangeQuery.lte != null;
-    let minValue = rangeQuery.gte || rangeQuery.gt || '*';
-    let maxValue = rangeQuery.lte || rangeQuery.lt || '*';
+    const minValue = rangeQuery.gte || rangeQuery.gt || '*';
+    const maxValue = rangeQuery.lte || rangeQuery.lt || '*';
+
+    return { incMin, incMax, minValue, maxValue };
+}
+
+function validateRangeValues(node: Range) {
+   // tslint:disable-next-line
+    let { incMin, incMax, minValue, maxValue } = getRangeValues(node);
 
     // javascript min/max date allowable http://www.ecma-international.org/ecma-262/5.1/#sec-15.9.1.1
     if (isInfiniteMin(minValue)) minValue = -8640000000000000;
@@ -36,6 +43,11 @@ export function dateRange(node: Range) {
         if (!convertedValue) throw new Error(`was not able to convert ${maxValue} to a date value`);
         maxValue = convertedValue - 1;
     }
+    return { minValue, maxValue };
+}
+
+export function dateRange(node: Range) {
+    const { minValue, maxValue } = validateRangeValues(node);
 
     return function dateRangeTerm(date: string) {
         return dateFns.isWithinRange(date, minValue as DateInput, maxValue as DateInput);
