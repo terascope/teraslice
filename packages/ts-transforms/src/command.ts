@@ -72,22 +72,6 @@ async function dataFileLoader(dataPath: string): Promise<string> {
     });
 }
 
-function handleParsedData(data: object[]|object): DataEntity<object>[] {
-    if (Array.isArray(data)) return DataEntity.makeArray(data);
-    // input from elasticsearch
-    const elasticSearchResults = _.get(data, 'hits.hits', null);
-    if (elasticSearchResults) {
-        return elasticSearchResults.map((doc:ESData) => DataEntity.make(doc._source));
-    }
-    // input from teraserver
-    const teraserverResults = _.get(data, 'results', null);
-    if (teraserverResults) {
-        return DataEntity.makeArray(teraserverResults);
-    }
-
-    throw new Error('could not get parse data');
-}
-
 function getPipedData(): Promise<string> {
     return new Promise((resolve, reject) => {
         let strResults = '';
@@ -108,6 +92,7 @@ function getPipedData(): Promise<string> {
 }
 
 function parseData(data: string): object[] | null {
+    // handle json array input
     if (/^\s*\[.*\]$/.test(data)) {
         try {
             return JSON.parse(data);
@@ -117,11 +102,20 @@ function parseData(data: string): object[] | null {
         }
     }
 
+    // handle elasticsearch and teraserver data
+    // if error continue on because that means it is probably ldjson
+    if (data) {
+        try {
+            return JSON.parse(data);
+        } catch (err) {}
+    }
+
+    // handle ldjson
     const results: object[] = [];
-    const lines = data.split('\n');
+    const lines = _.split(data, '\n');
 
     for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].trim();
+        const line = _.trim(lines[i]);
         // if its not an empty space or a comment then parse it
         if (line.length > 0 && line[0] !== '#') {
             try {
@@ -134,6 +128,22 @@ function parseData(data: string): object[] | null {
     }
 
     return results;
+}
+
+function handleParsedData(data: object[]|object): DataEntity<object>[] {
+    if (Array.isArray(data)) return DataEntity.makeArray(data);
+    // input from elasticsearch
+    const elasticSearchResults = _.get(data, 'hits.hits', null);
+    if (elasticSearchResults) {
+        return elasticSearchResults.map((doc:ESData) => DataEntity.make(doc._source));
+    }
+    // input from teraserver
+    const teraserverResults = _.get(data, 'results', null);
+    if (teraserverResults) {
+        return DataEntity.makeArray(teraserverResults);
+    }
+
+    throw new Error('could not get parse data');
 }
 
 async function getData(dataPath?: string) {
