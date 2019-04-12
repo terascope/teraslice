@@ -21,14 +21,14 @@ class AssetSrc {
     constructor(srcDir) {
         this.srcDir = path.resolve(srcDir);
         this.assetFile = path.join(this.srcDir, 'asset', 'asset.json');
-        this.packageJson = require(path.join(this.srcDir, 'package.json'));
-        this.assetPackageJson = require(path.join(this.srcDir, 'asset', 'package.json'));
+        this.packageJson = JSON.parse(fs.readFileSync(path.join(this.srcDir, 'package.json')));
+        this.assetPackageJson = JSON.parse(fs.readFileSync(path.join(this.srcDir, 'asset', 'package.json')));
 
         if (!fs.pathExistsSync(this.assetFile)) {
             throw new Error(`${this.srcDir} is not a valid asset source directory.`);
         }
 
-        const asset = require(this.assetFile);
+        const asset = JSON.parse(fs.readFileSync(this.assetFile));
         this.name = asset.name;
         this.version = asset.version;
     }
