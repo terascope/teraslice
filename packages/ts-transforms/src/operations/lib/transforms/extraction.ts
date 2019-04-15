@@ -7,14 +7,6 @@ function isMutation(configs: ExtractionConfig[]): boolean {
     return _.some(configs, 'mutate');
 }
 
-function isWildCard(term: string):boolean {
-    let bool = false;
-    if (typeof term === 'string') {
-        if (term.match('[\?+\*+]')) bool = true;
-    }
-    return bool;
-}
-
 function formatRegex(str: string): RegExp {
     if (str[0] === '/' && str[str.length - 1] === '/') {
         const fullExp = /\/(.*)\/(.*)/.exec(str);
@@ -127,7 +119,7 @@ export default class Extraction {
             // @ts-ignore
             if (config.regex) config.regex = formatRegex(config.regex);
             if (config.end === 'EOP') config.end = '&';
-            if (isWildCard(config.source_field)) config.sourceFieldWildcard = true;
+            if (config.source_field.includes('.')) config.sourceFieldWildcard = true;
             return config;
         });
         this.configs = configs;
@@ -142,7 +134,7 @@ export default class Extraction {
         }
 
         for (let i = 0; i < this.configs.length; i += 1) {
-            const data = getData(this.configs[i], record);
+            const data = getData(this.configs[i], doc);
             extractAndTransferFields(data, record, this.configs[i]);
         }
 
