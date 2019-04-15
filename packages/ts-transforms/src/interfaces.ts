@@ -62,6 +62,7 @@ export interface ExtractionConfig {
     target_field: string;
     other_match_required?: boolean;
     multivalue?: boolean;
+    sourceFieldWildcard?: boolean;
 }
 
 export type PluginClassConstructor = { new (): PluginClassType };
