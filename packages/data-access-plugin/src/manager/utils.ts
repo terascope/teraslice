@@ -31,30 +31,31 @@ export function formatError(err: any) {
     return error;
 }
 
-export function setLoggedInUser(req: Request, user: User): void {
-    set(req, '_passport.session.user', user);
-    set(req, 'session.passport', user);
+export function setLoggedInUser(req: Request, user: User, storeInSession = true): void {
+    if (storeInSession) {
+        set(req, '_passport.session.user', user);
+        set(req, 'session.passport', user);
+    }
     set(req, 'user', user);
 }
 
 export function getLoggedInUser(req: Request): User|null {
     const user = get(req, 'user', get(req, 'session.passport'));
     // the user must be the latest type
-    if (user && user.type) {
-        setLoggedInUser(req, user);
+    if (user && user.type && user.id) {
         return user;
     }
     return null;
 }
 
-export async function login(manager: ACLManager, req: Request): Promise<User> {
+export async function login(manager: ACLManager, req: Request, storeInSession = true): Promise<User> {
     const loggedInUser = getLoggedInUser(req);
     if (loggedInUser) return loggedInUser;
 
     const creds = getCredentialsFromReq(req);
 
     const user = await manager.authenticate(creds);
-    setLoggedInUser(req, user);
+    setLoggedInUser(req, user, storeInSession);
     return user;
 }
 

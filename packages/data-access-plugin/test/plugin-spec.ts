@@ -86,6 +86,18 @@ describe('Data Access Plugin', () => {
             search.initialize(),
         ]);
 
+        await manager.manager.createUser({
+            user: {
+                client_id: 0,
+                username: 'admin',
+                firstname: 'System',
+                lastname: 'Admin',
+                email: 'admin@example.com',
+                type: 'SUPERADMIN'
+            },
+            password: 'admin'
+        }, false);
+
         reqClient = new GraphQLClient(formatBaseUri('/data-access'), {
             headers: {
                 Authorization: `Basic ${Buffer.from('admin:admin').toString('base64')}`,

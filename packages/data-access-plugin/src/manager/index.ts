@@ -45,8 +45,17 @@ export default class ManagerPlugin {
         this.server = new apollo.ApolloServer({
             schema,
             context: async ({ req }) => {
-                if (req.body.operationName === 'IntrospectionQuery') {
+                let skipAuth = false;
+                const { query, operationName } = req.body;
+                if (operationName === 'IntrospectionQuery') {
+                    skipAuth = true;
+                } else if (query && query.includes('authenticate(')) {
+                    skipAuth = true;
+                }
+
+                if (skipAuth) {
                     return {
+                        req,
                         user: false,
                         manager: this.manager,
                     };
@@ -55,6 +64,7 @@ export default class ManagerPlugin {
                 try {
                     const user = await utils.login(this.manager, req);
                     return {
+                        req,
                         user,
                         manager: this.manager,
                     };
@@ -71,6 +81,11 @@ export default class ManagerPlugin {
                 }
             },
             formatError: utils.formatError,
+            playground: {
+                settings: {
+                    'request.credentials': 'include',
+                }
+            } as apollo.PlaygroundConfig
         });
     }
 
@@ -97,7 +112,8 @@ export default class ManagerPlugin {
             req.aclManager = this.manager;
 
             rootErrorHandler(req, res, async () => {
-                await utils.login(this.manager, req);
+                // login but don't presist session
+                await utils.login(this.manager, req, false);
                 next();
             });
         });

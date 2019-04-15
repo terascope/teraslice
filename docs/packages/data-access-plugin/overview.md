@@ -31,6 +31,17 @@ terafoundation:
 # ...
 ```
 
+## Create initial SUPERADMIN
+
+From inside the teraserver root directory, run the `create-superadmin` script to create the initial `SUPERADMIN` that will be used to create setup everything.
+
+```sh
+cd path/to/teraserver
+./node_modules/@terascope/data-access-plugin/bin/create-superadmin.js -c './path/to/teraserver-config.yml'
+```
+
+If `@terascope/data-access-plugin` installed globally, you can run just run `create-superadmin -c './path/to/teraserver-config.yml'`.
+
 ## Important Changes
 
 Since this project is designed to replace the teraserver teranaut plugin, and the search libray, there are few important breaking changes to be aware of.
@@ -77,7 +88,10 @@ To manage the data access models a user is given one of the following permission
 - `SUPERADMIN`:
     - List, create, update, remove, any user, role, space, view, or data type.
 
+
 ## GraphQL Usage
+
+The simpiliest way is to call `authenticate(username: "admin", password: "admin")` when making the request. This will persist the request in the session store.
 
 To provide authentication to the GraphQL API use the `Authorization` header:
 
@@ -87,7 +101,7 @@ To provide authentication to the GraphQL API use the `Authorization` header:
 }
 ```
 
-If you are running in bootstrap mode and want to authenticate with the admin user use the following headers:
+When using the default SUPERADMIN user, you can use the following authentication headers:
 
 ```json
 {
