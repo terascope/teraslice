@@ -1,9 +1,7 @@
-import get from 'lodash.get';
-import set from 'lodash.set';
 import { Request } from 'express';
 import { User, ACLManager } from '@terascope/data-access';
 import * as apollo from 'apollo-server-express';
-import { parseErrorInfo, trim } from '@terascope/utils';
+import { parseErrorInfo, trim, get, set } from '@terascope/utils';
 
 export function formatError(err: any) {
     if (err && err.extensions != null) return err;

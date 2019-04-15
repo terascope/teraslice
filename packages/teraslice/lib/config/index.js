@@ -1,7 +1,7 @@
 'use strict';
 
-const get = require('lodash/get');
 const path = require('path');
+const { get } = require('@terascope/utils');
 const { formats } = require('@terascope/job-components');
 const { configSchema } = require('./schemas/system');
 

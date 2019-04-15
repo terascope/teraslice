@@ -1,8 +1,12 @@
 'use strict';
 
-const get = require('lodash/get');
-const toString = require('lodash/toString');
-const { TSError, parseError, pRetry } = require('@terascope/utils');
+const {
+    TSError,
+    parseError,
+    pRetry,
+    get,
+    toString
+} = require('@terascope/utils');
 const { makeLogger } = require('../helpers/terafoundation');
 const { logOpStats } = require('../helpers/op-analytics');
 

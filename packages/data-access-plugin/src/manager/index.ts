@@ -1,9 +1,8 @@
-import get from 'lodash.get';
 import { Express } from 'express';
 import { Client } from 'elasticsearch';
 import * as apollo from 'apollo-server-express';
 import { Context } from '@terascope/job-components';
-import { Logger, toBoolean } from '@terascope/utils';
+import { Logger, toBoolean, get } from '@terascope/utils';
 import { ACLManager, User } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { makeSearchFn } from '../search/utils';
@@ -15,7 +14,6 @@ import schema from './schema';
  * A graphql api for managing data access
  *
  * @todo the manager should be able to pull relational data
- * @todo add session support
 */
 export default class ManagerPlugin {
     readonly config: TeraserverConfig;

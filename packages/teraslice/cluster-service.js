@@ -1,7 +1,7 @@
 'use strict';
 
 const Promise = require('bluebird');
-const get = require('lodash/get');
+const { get } = require('@terascope/utils');
 const { shutdownHandler } = require('./lib/workers/helpers/worker-shutdown');
 const makeTerafoundationContext = require('./lib/workers/context/terafoundation-context');
 const makeClusterMaster = require('./lib/cluster/cluster_master');

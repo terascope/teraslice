@@ -8,7 +8,7 @@ process.env.USE_DEBUG_LOGGER = 'true';
 
 const fs = require('fs');
 const path = require('path');
-const get = require('lodash.get');
+const { get } = require('@terascope/utils');
 const { SimpleContext } = require('terafoundation');
 const { ACLManager } = require('@terascope/data-access');
 

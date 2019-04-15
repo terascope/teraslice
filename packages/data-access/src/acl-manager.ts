@@ -3,7 +3,7 @@ import * as ts from '@terascope/utils';
 import { CreateRecordInput, UpdateRecordInput } from 'elasticsearch-store';
 import { TypeConfig, CachedQueryAccess } from 'xlucene-evaluator';
 import * as models from './models';
-import { ManagerConfig } from './interfaces';
+import { ManagerConfig, DataAccessConfig } from './interfaces';
 
 /**
  * ACL Manager for Data Access Roles, essentially a
@@ -842,49 +842,6 @@ export class ACLManager {
 }
 
 type Resource = 'roles'|'data types'|'views'|'spaces';
-
-/**
- * The definition of an ACL for limiting access to data.
- *
- * This will be passed in in to non-admin data-access tools,
- * like FilterAccess and SearchAccess
-*/
-export interface DataAccessConfig {
-    /**
-     * The id of the user authenticated
-    */
-    user_id: string;
-
-    /**
-     * The id of the Role used
-    */
-    role_id: string;
-
-    /**
-     * The id of the space
-    */
-    space_id: string;
-
-    /**
-     * The space's search configuration
-    */
-    search_config?: models.SpaceSearchConfig;
-
-    /**
-     * The space's streaming configuration
-    */
-    streaming_config?: models.SpaceStreamingConfig;
-
-    /**
-     * The data type associated with the view
-    */
-    data_type: models.DataType;
-
-    /**
-     * The authenticated user's view of the space
-    */
-    view: models.View;
-}
 
 export const graphqlQueryMethods: (keyof ACLManager)[] = [
     'authenticate',
