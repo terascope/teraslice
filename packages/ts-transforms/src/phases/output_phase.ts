@@ -1,6 +1,7 @@
 
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
+import { hasKeys } from './utils';
 import { WatcherConfig, OutputValidation } from '../interfaces';
 import PhaseBase from './base';
 import { OperationsManager } from '../operations';
@@ -55,16 +56,12 @@ function removeKeys(doc: DataEntity, dict: any) {
     }
 }
 
-function hasKeysRemaining(doc: DataEntity) {
-    return Object.keys(doc).length > 0;
-}
-
 function restrictFields(data: DataEntity[], restrictOutput: any) {
     const restrictedData: DataEntity[] = [];
     for (let i = 0; i < data.length; i++) {
         const doc = data[i];
         removeKeys(doc, restrictOutput);
-        if (hasKeysRemaining(doc)) restrictedData.push(doc);
+        if (hasKeys(doc)) restrictedData.push(doc);
     }
     return restrictedData;
 }
