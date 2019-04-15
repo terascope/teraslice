@@ -91,7 +91,7 @@ function hasExtracted(record: DataEntity) {
 }
 
 function getData(config: ExtractionConfig, record: DataEntity) {
-    if (config.sourceFieldWildcard) {
+    if (config.deepSourceField) {
         return _.get(record, config.source_field);
     }
     return record[config.source_field];
@@ -119,7 +119,7 @@ export default class Extraction {
             // @ts-ignore
             if (config.regex) config.regex = formatRegex(config.regex);
             if (config.end === 'EOP') config.end = '&';
-            if (config.source_field.includes('.')) config.sourceFieldWildcard = true;
+            if (config.source_field.includes('.')) config.deepSourceField = true;
             return config;
         });
         this.configs = configs;
