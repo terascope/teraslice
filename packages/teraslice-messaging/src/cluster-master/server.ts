@@ -1,4 +1,4 @@
-import { isNumber, cloneDeep, forOwn } from 'lodash';
+import { isNumber, cloneDeep } from '@terascope/utils';
 import * as i from './interfaces';
 import * as core from '../messenger';
 
@@ -92,11 +92,11 @@ export class Server extends core.Server {
                 return;
             }
 
-            forOwn(data.stats, (value, field) => {
+            for (const [field, value] of Object.entries(data.stats)) {
                 if (this.clusterAnalytics[data.kind][field] != null) {
                     this.clusterAnalytics[data.kind][field] += value;
                 }
-            });
+            }
 
             this.emit('cluster:analytics', {
                 scope: exId,

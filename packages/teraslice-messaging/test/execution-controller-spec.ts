@@ -68,10 +68,12 @@ describe('ExecutionController', () => {
     describe('Client & Server', () => {
         let client: ExecutionController.Client;
         let server: ExecutionController.Server;
-        const workerId: string = newMsgId();
+        let workerId: string;
         const executionFinishedFn: () => void = jest.fn();
 
         beforeAll(async () => {
+            workerId = await newMsgId();
+
             const slicerPort = await findPort();
             const executionControllerUrl = formatURL('localhost', slicerPort);
             server = new ExecutionController.Server({

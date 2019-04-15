@@ -1,4 +1,4 @@
-import { isString, pickBy } from 'lodash';
+import { isString, withoutNil } from '@terascope/utils';
 import * as core from '../messenger';
 import * as i from './interfaces';
 
@@ -77,7 +77,7 @@ export class Client extends core.Client {
     }
 
     sendSliceComplete(payload: i.SliceCompletePayload) {
-        return this.send('worker:slice:complete', pickBy(payload), {
+        return this.send('worker:slice:complete', withoutNil(payload), {
             response: true,
             volatile: false,
         });

@@ -1,6 +1,6 @@
 // @ts-ignore
 import porty from 'porty';
-import random from 'lodash/random';
+import { random } from '@terascope/utils';
 
 const usedPorts: number[] = [];
 

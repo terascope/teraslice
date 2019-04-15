@@ -1,10 +1,9 @@
-import { isNumber, get } from 'lodash';
-import debugFn from 'debug';
+import { isNumber, get, debugLogger } from '@terascope/utils';
 import Queue from '@terascope/queue';
 import * as core from '../messenger';
 import * as i from './interfaces';
 
-const debug = debugFn('teraslice-messaging:execution-controller:server');
+const logger = debugLogger('teraslice-messaging:execution-controller:server');
 
 const { Available, Unavailable } = core.ClientState;
 
@@ -80,7 +79,7 @@ export class Server extends core.Server {
     async dispatchSlice(slice: i.Slice, workerId: string): Promise<boolean> {
         const isAvailable = this._clients[workerId] && this._clients[workerId].state === Available;
         if (!isAvailable) {
-            debug(`worker ${workerId} is not available`);
+            logger.warn(`worker ${workerId} is not available`);
             return false;
         }
 
@@ -95,11 +94,11 @@ export class Server extends core.Server {
                 dispatched = response.payload.willProcess;
             }
         } catch (error) {
-            debug(`got error when dispatching slice ${slice.slice_id}`, error);
+            logger.warn(`got error when dispatching slice ${slice.slice_id}`, error);
         }
 
         if (!dispatched) {
-            debug(`failure to dispatch slice ${slice.slice_id} to worker ${workerId}`);
+            logger.warn(`failure to dispatch slice ${slice.slice_id} to worker ${workerId}`);
             this._activeWorkers[workerId] = false;
         } else {
             process.nextTick(() => {

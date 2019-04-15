@@ -68,14 +68,16 @@ describe('Messenger', () => {
         });
 
         describe('when constructed without a valid clientType', () => {
-            it('should throw an error', () => {
+            it('should throw an error', async () => {
+                const clientId = await newMsgId();
+
                 expect(() => {
                     // @ts-ignore
                     new Messenger.Client({
                         actionTimeout: 1,
                         networkLatencyBuffer: 0,
                         hostUrl: 'some-host',
-                        clientId: newMsgId(),
+                        clientId,
                     });
                 }).toThrowError('Messenger.Client requires a valid clientType');
             });
@@ -183,7 +185,7 @@ describe('Messenger', () => {
     });
 
     describe('Client & Server', () => {
-        const clientId = newMsgId();
+        let clientId: string;
         let client: Messenger.Client;
         let server: Messenger.Server;
         type clientFn = (clientId: string) => void;
@@ -200,6 +202,7 @@ describe('Messenger', () => {
             clientAvailableFn = jest.fn(() => { done(); });
 
             async function setup() {
+                clientId = await newMsgId();
                 const port = await findPort();
                 const hostUrl = formatURL('localhost', port);
                 server = new Messenger.Server({
