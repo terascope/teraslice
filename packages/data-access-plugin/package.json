@@ -1,7 +1,7 @@
 {
     "name": "@terascope/data-access-plugin",
     "description": "A teraserver plugin for managing data access and searching spaces",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "publishConfig": {
         "access": "public"
     },
@@ -40,7 +40,7 @@
         "graphql-type-json": "^0.3.0",
         "lodash.get": "^4.4.2",
         "lodash.set": "^4.3.2",
-        "terafoundation": "^0.8.1",
+        "terafoundation": "^0.9.0",
         "xlucene-evaluator": "^0.7.0"
     },
     "devDependencies": {
