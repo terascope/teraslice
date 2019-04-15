@@ -1,11 +1,7 @@
 import GraphQLJSON from 'graphql-type-json';
 import * as a from 'apollo-server-express';
 import * as d from '@terascope/data-access';
-
-interface ManagerContext {
-    manager: d.ACLManager;
-    user?: d.User;
-}
+import { ManagerContext } from './interfaces';
 
 const queryResolvers: a.IResolverObject<any, ManagerContext, any> = {};
 d.graphqlQueryMethods.forEach((method) => {

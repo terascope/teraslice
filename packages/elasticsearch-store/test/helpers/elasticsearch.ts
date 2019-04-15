@@ -16,12 +16,14 @@ export function makeClient(): Client {
 export async function cleanupIndex(client: Client, index: string, template?: string) {
     await client.indices.delete({
         index,
+        requestTimeout: 3000,
         ignoreUnavailable: true
     }).catch(() => {});
 
     if (template) {
         await client.indices.deleteTemplate({
-            name: template
+            name: template,
+            requestTimeout: 3000,
         }).catch(() => {});
     }
 }

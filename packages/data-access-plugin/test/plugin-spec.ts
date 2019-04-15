@@ -99,21 +99,13 @@ describe('Data Access Plugin', () => {
 
     afterAll(async () => {
         await Promise.all([
-            cleanupIndexes(manager.manager),
-            (() => {
-                return new Promise((resolve, reject) => {
-                    listener.close((err: any) => {
-                        if (err) reject(err);
-                        else resolve();
-                    });
-                });
-            })()
-        ]);
-
-        await Promise.all([
             manager.shutdown(),
             search.shutdown(),
         ]);
+
+        await cleanupIndexes(manager.manager);
+
+        listener && listener.close();
     });
 
     let userId: string;
@@ -477,6 +469,7 @@ describe('Data Access Plugin', () => {
         beforeAll(async () => {
             await client.indices.delete({
                 index,
+                requestTimeout: 1000,
                 ignoreUnavailable: true,
             });
 
@@ -576,6 +569,7 @@ describe('Data Access Plugin', () => {
         afterAll(async () => {
             await client.indices.delete({
                 index,
+                requestTimeout: 3000,
                 ignoreUnavailable: true,
             });
         });

@@ -1,14 +1,14 @@
 import get from 'lodash.get';
-import { Express, Request } from 'express';
+import { Express } from 'express';
 import { Client } from 'elasticsearch';
-import { Logger, toBoolean, trim } from '@terascope/utils';
 import * as apollo from 'apollo-server-express';
 import { Context } from '@terascope/job-components';
+import { Logger, toBoolean } from '@terascope/utils';
 import { ACLManager, User } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { makeSearchFn } from '../search/utils';
 import { makeErrorHandler, getESClient } from '../utils';
-import { formatError } from './utils';
+import * as utils from './utils';
 import schema from './schema';
 
 /**
@@ -56,9 +56,8 @@ export default class ManagerPlugin {
                     };
                 }
 
-                const creds = getCredentialsFromReq(req);
                 try {
-                    const user = await this.manager.authenticate(creds);
+                    const user = await utils.login(this.manager, req);
                     return {
                         user,
                         manager: this.manager,
@@ -75,7 +74,7 @@ export default class ManagerPlugin {
                     throw err;
                 }
             },
-            formatError,
+            formatError: utils.formatError,
         });
     }
 
@@ -112,7 +111,7 @@ export default class ManagerPlugin {
     }
 
     async shutdown() {
-        return this.manager.shutdown();
+        await this.manager.shutdown();
     }
 
     registerRoutes() {
@@ -132,18 +131,9 @@ export default class ManagerPlugin {
 
             // @ts-ignore
             req.aclManager = this.manager;
-            // @ts-ignore
-            if (req.user) {
-                return next();
-            }
-
-            const creds = getCredentialsFromReq(req);
 
             rootErrorHandler(req, res, async () => {
-                const user = await this.manager.authenticate(creds);
-
-                // @ts-ignore
-                req.user = user;
+                await utils.login(this.manager, req);
                 next();
             });
         });
@@ -203,28 +193,4 @@ export default class ManagerPlugin {
         });
 
     }
-}
-
-export function getCredentialsFromReq(req: Request): { token?: string, username?: string, password?: string } {
-    const queryToken: string = get(req, 'query.token');
-    if (queryToken) return { token: queryToken } ;
-
-    const authToken: string = get(req, 'headers.authorization');
-    if (!authToken) return { };
-
-    let [part1, part2] = authToken.split(' ');
-    part1 = trim(part1);
-    part2 = trim(part2);
-
-    if (part1 === 'Token') {
-        return { token: trim(part2) };
-    }
-
-    if (part1 === 'Basic') {
-        const parsed = Buffer.from(part2, 'base64').toString('utf8');
-        const [username, password] = parsed.split(':');
-        return { username, password };
-    }
-
-    return {};
 }
