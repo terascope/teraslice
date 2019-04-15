@@ -23,8 +23,6 @@ data_access:
   namespace: 'test_teraserver'
   # the connection name
   connection: 'default'
-  # Enabling this flag will cause a SUPERADMIN user to be created when this plugin is initialized and there are no other users. The SUPERADMIN's credentials are (username: admin, password: admin). Make sure to only run one worker when using this mode. Remember to change the auto-created user\'s password since the default is secure.
-  bootstrap_mode: true
 teraserver:
   plugins:
     names:

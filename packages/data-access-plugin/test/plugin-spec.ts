@@ -43,7 +43,6 @@ describe('Data Access Plugin', () => {
         server_config: {
             data_access: {
                 namespace: 'test_da_plugin',
-                bootstrap_mode: true,
             },
             teraserver: {
                 shutdown_timeout: 1,

@@ -15,6 +15,9 @@
     "files": [
         "dist/src/**/*"
     ],
+    "bin": {
+        "create-superadmin": "./bin/create-superadmin.js"
+    },
     "srcMain": "src/index.ts",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
@@ -37,6 +40,7 @@
         "graphql-type-json": "^0.3.0",
         "lodash.get": "^4.4.2",
         "lodash.set": "^4.3.2",
+        "terafoundation": "^0.8.1",
         "xlucene-evaluator": "^0.7.0"
     },
     "devDependencies": {

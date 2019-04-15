@@ -22,7 +22,6 @@ export interface TeraserverConfig {
     };
     data_access?: {
         namespace?: string;
-        bootstrap_mode?: boolean;
         connection?: string;
     };
     teraserver: {

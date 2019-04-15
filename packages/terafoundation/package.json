@@ -27,6 +27,7 @@
     },
     "dependencies": {
         "@terascope/elasticsearch-api": "^2.0.2",
+        "@terascope/utils": "^0.9.0",
         "agentkeepalive": "^4.0.2",
         "bluebird": "^3.5.4",
         "bunyan": "^1.8.12",
@@ -39,9 +40,8 @@
         "node-statsd": "0.1.1",
         "node-webhdfs": "^1.0.2",
         "redis": "^2.8.0",
+        "shortid": "^2.2.14",
         "yargs": "^13.2.2"
     },
-    "devDependencies": {
-        "@terascope/utils": "^0.9.0"
-    }
+    "devDependencies": {}
 }

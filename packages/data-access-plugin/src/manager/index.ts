@@ -23,7 +23,6 @@ export default class ManagerPlugin {
     readonly app: Express;
     readonly manager: ACLManager;
     readonly server: apollo.ApolloServer;
-    readonly bootstrapMode: boolean;
     readonly client: Client;
     readonly context: Context;
 
@@ -33,13 +32,10 @@ export default class ManagerPlugin {
         this.app = pluginConfig.app;
         this.context = pluginConfig.context;
 
-        const connection: string = get(this.config, 'data_access.connect', 'default');
+        const connection: string = get(this.config, 'data_access.connection', 'default');
         const namespace: string = get(this.config, 'data_access.namespace');
-        const bootstrapMode: boolean = get(this.config, 'data_access.bootstrap_mode', false);
 
         this.client = getESClient(this.context, connection);
-
-        this.bootstrapMode = bootstrapMode;
 
         this.manager = new ACLManager(this.client, {
             namespace,
@@ -80,34 +76,6 @@ export default class ManagerPlugin {
 
     async initialize() {
         await this.manager.initialize();
-
-        if (!this.bootstrapMode) return;
-
-        const users = await this.manager.findUsers({ query: '*' }, false);
-        if (users.length > 0) return;
-
-        const user = await this.manager.createUser({
-            user: {
-                client_id: 0,
-                username: 'admin',
-                firstname: 'System',
-                lastname: 'Admin',
-                email: 'admin@example.com',
-                type: 'SUPERADMIN'
-            },
-            password: 'admin'
-        }, false);
-
-        this.logger.info({
-            id: user.id,
-            client_id: user.client_id,
-            username: user.username,
-            firstname: user.firstname,
-            lastname: user.lastname,
-            email: user.email,
-            type: user.type,
-            api_token: user.api_token,
-        }, 'bootstrap mode create base admin client');
     }
 
     async shutdown() {
@@ -118,10 +86,6 @@ export default class ManagerPlugin {
         const managerUri = '/api/v2/data-access';
 
         const rootErrorHandler = makeErrorHandler('Failure to access /api/v2', this.logger);
-
-        if (this.bootstrapMode) {
-            this.logger.warn('Running data-access-plugin in bootstrap mode');
-        }
 
         this.app.use('/api/v2', (req, res, next) => {
             if (req.originalUrl === managerUri) {
@@ -191,6 +155,5 @@ export default class ManagerPlugin {
                 next();
             });
         });
-
     }
 }
