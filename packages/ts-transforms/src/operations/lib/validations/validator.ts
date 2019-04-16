@@ -63,10 +63,8 @@ export class ValidatorPlugins implements PluginClassType {
             rfc3339: setup('isRFC3339'),
             iso31661alpha2: setup('isISO31661Alpha2'),
             iso31661alpha3: setup('isISO31661Alpha3'),
-            isrc: setup('isISRC'),
             in: setup('isIn'),
             int: setup('isInt'),
-            jwt: setup('isJWT'),
             latlong: setup('isLatLong'), // - This is different that our internal geolocation validation.
             length: setup('isLength'),
             md5: setup('isMD5'),

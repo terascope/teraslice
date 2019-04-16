@@ -1,6 +1,7 @@
 
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
+import { hasKeys } from './utils';
 import { WatcherConfig, OutputValidation } from '../interfaces';
 import PhaseBase from './base';
 import { OperationsManager } from '../operations';
@@ -19,49 +20,17 @@ export default class OutputPhase extends PhaseBase {
         this.hasRestrictedOutput = _.keys(this.restrictOutput).length > 0;
     }
 
-    restrictFields(data: DataEntity[]) {
-        const restrictedData: DataEntity[] = [];
-        _.each(data, (doc: DataEntity) => {
-            _.forOwn(this.restrictOutput, (_value, key) => {
-                _.unset(doc, key);
-            });
-            if (_.keys(doc).length > 0) restrictedData.push(doc);
-        });
-        return restrictedData;
-    }
-
-    isKeyMatchRequired(key: string, docSelectorData: object): boolean {
-        let bool = false;
-        const requiredKey = this.matchRequirements[key];
-
-        if (requiredKey !== undefined) {
-            if (requiredKey === '*') bool = true;
-            if (requiredKey !== '*' && docSelectorData[requiredKey]) bool = true;
-        }
-
-        return bool;
-    }
-
     requiredExtractions(data: DataEntity[]) {
         const finalResults: DataEntity[] = [];
+        const isKeyMatchRequired = isKeyMatchRequiredFn(this.matchRequirements);
 
-        _.each(data, (doc: DataEntity) => {
-            let otherExtractionsFound = false;
-            let requireExtractionsFound = false;
-            const docSelectorData = doc.getMetadata('selectors');
-
-            _.forOwn(doc, (_value, key) => {
-                if (this.isKeyMatchRequired(key, docSelectorData)) {
-                    requireExtractionsFound = true;
-                } else {
-                    otherExtractionsFound = true;
-                }
-            });
-
+        for (let i = 0; i < data.length; i++) {
+            const doc = data[i];
+            const { otherExtractionsFound, requireExtractionsFound } = checkDoc(doc, isKeyMatchRequired);
             if (!requireExtractionsFound || (requireExtractionsFound && otherExtractionsFound)) {
                 finalResults.push(doc);
             }
-        });
+        }
 
         return finalResults;
     }
@@ -70,7 +39,7 @@ export default class OutputPhase extends PhaseBase {
         let results = data;
 
         if (this.hasRestrictedOutput) {
-            results = this.restrictFields(results);
+            results = restrictFields(results, this.restrictOutput);
         }
 
         if (this.hasRequirements) {
@@ -79,4 +48,48 @@ export default class OutputPhase extends PhaseBase {
 
         return results;
     }
+}
+
+function removeKeys(doc: DataEntity, dict: any) {
+    for (const key in dict) {
+        if (doc[key]) _.unset(doc, key);
+    }
+}
+
+function restrictFields(data: DataEntity[], restrictOutput: any) {
+    const restrictedData: DataEntity[] = [];
+    for (let i = 0; i < data.length; i++) {
+        const doc = data[i];
+        removeKeys(doc, restrictOutput);
+        if (hasKeys(doc)) restrictedData.push(doc);
+    }
+    return restrictedData;
+}
+
+function isKeyMatchRequiredFn(matchRequirements:any) {
+    return function isKeyMatchRequired(key: string, docSelectorData: object) {
+        let bool = false;
+        const requiredKey = matchRequirements[key];
+
+        if (requiredKey !== undefined) {
+            if (requiredKey === '*') bool = true;
+            if (requiredKey !== '*' && docSelectorData[requiredKey]) bool = true;
+        }
+
+        return bool;
+    };
+}
+
+function checkDoc(doc: DataEntity, fn:any) {
+    const docSelectorData = doc.getMetadata('selectors');
+    let otherExtractionsFound = false;
+    let requireExtractionsFound = false;
+    for (const key in doc) {
+        if (fn(key, docSelectorData)) {
+            requireExtractionsFound = true;
+        } else {
+            otherExtractionsFound = true;
+        }
+    }
+    return { otherExtractionsFound, requireExtractionsFound };
 }
