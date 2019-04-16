@@ -2,7 +2,6 @@ import * as es from 'elasticsearch';
 import { TSError } from '@terascope/utils';
 import { IndexModel, IndexModelOptions } from 'elasticsearch-store';
 import spacesConfig, {
-    GraphQLSchema,
     Space,
     SpaceSearchConfig,
     SpaceStreamingConfig,
@@ -13,7 +12,6 @@ import spacesConfig, {
 */
 export class Spaces extends IndexModel<Space> {
     static IndexModelConfig = spacesConfig;
-    static GraphQLSchema = GraphQLSchema;
 
     constructor(client: es.Client, options: IndexModelOptions) {
         super(client, options, spacesConfig);

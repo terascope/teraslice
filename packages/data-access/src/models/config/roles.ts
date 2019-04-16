@@ -1,5 +1,4 @@
 import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
-import { graphQLModel } from './common';
 
 const config: IndexModelConfig<Role> = {
     version: 1,
@@ -37,27 +36,6 @@ const config: IndexModelConfig<Role> = {
         required: ['client_id', 'name']
     },
 };
-
-export const GraphQLSchema = `
-    type Role {
-        ${graphQLModel}
-        name: String
-        description: String
-    }
-
-    input CreateRoleInput {
-        client_id: Int
-        name: String!
-        description: String
-    }
-
-    input UpdateRoleInput {
-        client_id: Int
-        id: ID!
-        name: String
-        description: String
-    }
-`;
 
 export interface Role extends IndexModelRecord {
     /**

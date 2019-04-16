@@ -1,5 +1,4 @@
 import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
-import { graphQLModel } from './common';
 
 const config: IndexModelConfig<User> = {
     version: 1,
@@ -117,46 +116,6 @@ const config: IndexModelConfig<User> = {
     },
     strictMode: false,
 };
-
-export const GraphQLSchema = `
-    enum UserType {
-        USER
-        ADMIN
-        SUPERADMIN
-    }
-
-    type User {
-        ${graphQLModel}
-        username: String!
-        firstname: String!
-        lastname: String!
-        email: String
-        role: Role
-        type: UserType
-        api_token: String
-    }
-
-    input CreateUserInput {
-        client_id: Int
-        username: String!
-        firstname: String!
-        lastname: String!
-        email: String
-        type: UserType
-        role: ID
-    }
-
-    input UpdateUserInput {
-        client_id: Int
-        id: ID!
-        username: String
-        firstname: String
-        lastname: String
-        email: String
-        type: UserType
-        role: ID
-    }
-`;
 
 /**
  * The definition of a User model

@@ -1,7 +1,7 @@
 import * as es from 'elasticsearch';
 import { makeISODate } from '@terascope/utils';
 import { IndexModel, IndexModelOptions } from 'elasticsearch-store';
-import viewsConfig, { View, GraphQLSchema } from './config/views';
+import viewsConfig, { View } from './config/views';
 import { Space } from './config/spaces';
 import { Role } from './roles';
 
@@ -10,7 +10,6 @@ import { Role } from './roles';
 */
 export class Views extends IndexModel<View> {
     static IndexModelConfig = viewsConfig;
-    static GraphQLSchema = GraphQLSchema;
 
     constructor(client: es.Client, config: IndexModelOptions) {
         super(client, config, viewsConfig);

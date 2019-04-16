@@ -2,7 +2,6 @@ import * as es from 'elasticsearch';
 import * as store from 'elasticsearch-store';
 import { TSError, Omit } from '@terascope/utils';
 import usersConfig, {
-    GraphQLSchema,
     User,
     UserType
 } from './config/users';
@@ -14,7 +13,6 @@ import * as utils from '../utils';
 export class Users extends store.IndexModel<User> {
     static PrivateFields: string[] = ['api_token', 'salt', 'hash'];
     static IndexModelConfig = usersConfig;
-    static GraphQLSchema = GraphQLSchema;
 
     constructor(client: es.Client, options: store.IndexModelOptions) {
         super(client, options, usersConfig);

@@ -13,17 +13,6 @@ import * as i from './interfaces';
  * @todo ensure client ids match when associating records
 */
 export class ACLManager {
-    static GraphQLSchema = `
-        type DataAccessConfig {
-            user_id: String!
-            role_id: String!
-            search_config: SpaceSearchConfig
-            streaming_config: SpaceStreamingConfig
-            data_type: DataType!
-            view: View!
-        }
-    `;
-
     logger: ts.Logger;
 
     private readonly _roles: models.Roles;
@@ -798,12 +787,3 @@ export class ACLManager {
         }
     }
 }
-
-export const graphqlSchemas = [
-    ACLManager.GraphQLSchema,
-    models.DataTypes.GraphQLSchema,
-    models.Roles.GraphQLSchema,
-    models.Spaces.GraphQLSchema,
-    models.Users.GraphQLSchema,
-    models.Views.GraphQLSchema,
-];

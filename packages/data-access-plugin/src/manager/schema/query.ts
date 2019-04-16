@@ -1,14 +1,98 @@
 import * as ts from '@terascope/utils';
 import * as a from 'apollo-server-express';
+import { flattenSchemas, commonViewModel } from './misc';
 import { setLoggedInUser } from '../utils';
 import { ManagerContext } from '../interfaces';
 import { ModelName } from '@terascope/data-access';
 
-let schema = `
-    type Query {
+const schemas = [
+    `type Query {
         authenticate(username: String, password: String, token: String): User!
-    }
-`;
+    }`,
+    `input CreateRoleInput {
+        client_id: Int
+        name: String!
+        description: String
+    }`,
+    `input UpdateRoleInput {
+        client_id: Int
+        id: ID!
+        name: String
+        description: String
+    }`,
+    `input CreateDataTypeInput {
+        client_id: Int!
+        name: String!
+        description: String
+        type_config: JSON
+    }`,
+    `input UpdateDataTypeInput {
+        client_id: Int
+        id: ID!
+        name: String
+        description: String
+        type_config: JSON
+    }`,
+    `input CreateSpaceInput {
+        client_id: Int!
+        name: String!
+        endpoint: String!
+        description: String
+        data_type: ID!
+        views: [ID!]
+        roles: [ID!]
+        search_config: SpaceSearchConfigInput
+        streaming_config: SpaceStreamingConfigInput
+    }`,
+    `input UpdateSpaceInput {
+        client_id: Int
+        id: ID!
+        name: String
+        endpoint: String
+        description: String
+        data_type: String
+        views: [ID!]
+        roles: [ID!]
+        search_config: SpaceSearchConfigInput
+        streaming_config: SpaceStreamingConfigInput
+    }`,
+    `input CreateUserInput {
+        client_id: Int
+        username: String!
+        firstname: String!
+        lastname: String!
+        email: String
+        type: UserType
+        role: ID
+    }`,
+    `input UpdateUserInput {
+        client_id: Int
+        id: ID!
+        username: String
+        firstname: String
+        lastname: String
+        email: String
+        type: UserType
+        role: ID
+    }`,
+    `input CreateViewInput {
+        client_id: Int
+        name: String!
+        description: String
+        data_type: ID!
+        roles: [ID]
+        ${commonViewModel}
+    }`,
+    `input UpdateViewInput {
+        client_id: Int
+        id: ID!
+        name: String
+        description: String
+        data_type: ID
+        roles: [ID]
+        ${commonViewModel}
+    }`
+];
 
 const resolvers: a.IResolverObject<any, ManagerContext, any> = {
     ...queryForModel('User'),
@@ -36,11 +120,10 @@ function queryForModel(model: ModelName) {
     const findOneMethod = `find${model}`;
     const findManyMethod = `find${model}s`;
 
-    schema += `
-        extend type Query {
-            ${findOneMethod}(id: ID!): ${model}!
-            ${findManyMethod}(query: String): [${model}!]!
-        }`;
+    schemas.push(`extend type Query {
+        ${findOneMethod}(id: ID!): ${model}!
+        ${findManyMethod}(query: String): [${model}!]!
+    }`);
 
     async function _findOne(parent: any, args: any, ctx: ManagerContext): Promise<any> {
         const id = getQueryId(parent, args);
@@ -64,4 +147,5 @@ function queryForModel(model: ModelName) {
     };
 }
 
+const schema = flattenSchemas(schemas);
 export { schema, resolvers };
