@@ -22,48 +22,6 @@ export class ACLManager {
             data_type: DataType!
             view: View!
         }
-
-        type Query {
-            authenticate(username: String, password: String, token: String): User!
-            findUser(id: ID!): User!
-            findUsers(query: String): [User]!
-
-            findRole(id: ID!): Role!
-            findRoles(query: String): [Role]!
-
-            findDataType(id: ID!): DataType!
-            findDataTypes(query: String): [DataType]!
-
-            findSpace(id: ID!): Space!
-            findSpaces(query: String): [Space]!
-
-            findView(id: ID!): View!
-            findViews(query: String): [View]!
-        }
-
-        type Mutation {
-            createUser(user: CreateUserInput!, password: String!): User!
-            updateUser(user: UpdateUserInput!): User!
-            updatePassword(id: String!, password: String!): Boolean!
-            updateToken(id: String!): String!
-            removeUser(id: ID!): Boolean!
-
-            createRole(role: CreateRoleInput!): Role!
-            updateRole(role: UpdateRoleInput!): Role!
-            removeRole(id: ID!): Boolean!
-
-            createDataType(dataType: CreateDataTypeInput!): DataType!
-            updateDataType(dataType: UpdateDataTypeInput!): DataType!
-            removeDataType(id: ID!): Boolean!
-
-            createView(view: CreateViewInput!): View!
-            updateView(view: UpdateViewInput!): View!
-            removeView(id: ID!): Boolean!
-
-            createSpace(space: CreateSpaceInput!): Space!
-            updateSpace(space: UpdateSpaceInput!): Space!
-            removeSpace(id: ID!): Boolean!
-        }
     `;
 
     logger: ts.Logger;
