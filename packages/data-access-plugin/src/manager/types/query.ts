@@ -1,8 +1,8 @@
-import { modelNames } from '@terascope/data-access';
+import { forEachModel } from '../utils';
 
 const methods: string[] = [];
 
-modelNames.forEach((model) => {
+forEachModel((model) => {
     const findOneMethod = `find${model}`;
     const findManyMethod = `find${model}s`;
 

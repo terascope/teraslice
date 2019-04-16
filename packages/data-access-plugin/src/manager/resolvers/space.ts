@@ -11,7 +11,7 @@ export default {
         views(space: Space, args: any, ctx: ManagerContext) {
             if (!space.views || !space.views.length) return [];
             const query = `id: (${space.views.join(' OR ')})`;
-            return ctx.manager.findRoles({ query }, ctx.user);
+            return ctx.manager.findViews({ query }, ctx.user);
         },
         data_type(space: Space, args: any, ctx: ManagerContext) {
             if (!space.data_type) return null;

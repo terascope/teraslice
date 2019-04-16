@@ -3,7 +3,6 @@ import * as models from './models';
 import { Logger } from '@terascope/utils';
 
 export type ModelName = 'User'|'Role'|'DataType'|'Space'|'View';
-export const modelNames: ModelName[] = ['User', 'Role', 'DataType', 'Space', 'View'];
 export type AuthUser = models.User|false;
 
 export type FindArgs<T> = { query?: string } & FindOptions<T>;

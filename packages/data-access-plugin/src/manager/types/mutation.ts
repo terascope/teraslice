@@ -1,9 +1,9 @@
 import * as ts from '@terascope/utils';
-import { modelNames } from '@terascope/data-access';
+import { forEachModel } from '../utils';
 
 const methods: string[] = [];
 
-modelNames.forEach((model) => {
+forEachModel((model) => {
     const createMethod = `create${model}`;
     const updateMethod = `update${model}`;
     const removeMethod = `remove${model}`;

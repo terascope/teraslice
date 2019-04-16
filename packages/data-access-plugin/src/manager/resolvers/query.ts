@@ -1,5 +1,4 @@
-import { modelNames } from '@terascope/data-access';
-import { setLoggedInUser } from '../utils';
+import { setLoggedInUser, forEachModel } from '../utils';
 import { ManagerContext } from '../interfaces';
 
 const resolvers = {
@@ -11,7 +10,7 @@ const resolvers = {
     },
 };
 
-modelNames.forEach((model) => {
+forEachModel((model) => {
     const findOneMethod = `find${model}`;
     const findManyMethod = `find${model}s`;
     resolvers[findOneMethod] = proxyMethod(findOneMethod);

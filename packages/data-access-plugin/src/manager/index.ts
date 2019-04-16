@@ -7,6 +7,8 @@ import { ACLManager, User } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { makeSearchFn } from '../search/utils';
 import { makeErrorHandler, getESClient } from '../utils';
+import typeDefs from './types';
+import resolvers from './resolvers';
 import * as utils from './utils';
 
 /**
@@ -40,7 +42,11 @@ export default class ManagerPlugin {
         });
 
         this.server = new apollo.ApolloServer({
-            schema: utils.makeGraphqlSchema(),
+            schema: apollo.makeExecutableSchema({
+                typeDefs,
+                resolvers,
+                inheritResolversFromInterfaces: true,
+            }),
             context: async ({ req }) => {
                 let skipAuth = false;
                 const { query, operationName } = req.body;

@@ -1,5 +1,5 @@
-import { modelNames } from '@terascope/data-access';
 import { ManagerContext } from '../interfaces';
+import { forEachModel } from '../utils';
 
 const resolvers = {
     async updatePassword(root: any, args: any, ctx: ManagerContext) {
@@ -10,7 +10,7 @@ const resolvers = {
     },
 };
 
-modelNames.forEach((model) => {
+forEachModel((model) => {
     const createMethod = `create${model}`;
     const updateMethod = `update${model}`;
     const removeMethod = `remove${model}`;

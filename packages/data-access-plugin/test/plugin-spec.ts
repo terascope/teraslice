@@ -350,13 +350,13 @@ describe('Data Access Plugin', () => {
                     }
                     findView(id: "${viewId}") {
                         client_id,
-                        excludes
-                    }
-                    findViews(query: "*") {
-                        name,
+                        excludes,
                         roles {
                             id
                         }
+                    }
+                    findViews(query: "*") {
+                        name
                     }
                 }
             `;
@@ -423,7 +423,7 @@ describe('Data Access Plugin', () => {
                     excludes: ['created', 'updated'],
                     roles: [
                         {
-                            id: viewId
+                            id: roleId
                         }
                     ]
                 },

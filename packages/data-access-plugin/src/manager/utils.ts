@@ -1,9 +1,12 @@
 import { Request } from 'express';
-import { User, ACLManager } from '@terascope/data-access';
 import * as apollo from 'apollo-server-express';
+import { User, ACLManager, ModelName } from '@terascope/data-access';
 import { parseErrorInfo, trim, get, set } from '@terascope/utils';
-import typeDefs from './types';
-import resolvers from './resolvers';
+
+export function forEachModel(fn: (model: ModelName) => void) {
+    const models: ModelName[] = ['User', 'Role', 'DataType', 'Space', 'View'];
+    return models.forEach((model) => fn(model));
+}
 
 export function formatError(err: any) {
     if (err && err.extensions != null) return err;
@@ -81,12 +84,4 @@ export function getCredentialsFromReq(req: Request): { token?: string, username?
     }
 
     return {};
-}
-
-export function makeGraphqlSchema() {
-    return apollo.makeExecutableSchema({
-        typeDefs,
-        resolvers,
-        inheritResolversFromInterfaces: true,
-    });
 }
