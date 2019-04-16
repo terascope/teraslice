@@ -124,8 +124,7 @@ function parseData(data: string): object[] | null {
                 results.push(JSON.parse(line));
             } catch (err) {
                 if (!ignoreErrors) {
-                    throw new Error(`Failed to parse "${line}"`);
-                    return null;
+                    console.error(`Failed to parse line ${i + 1} data:"${line}"`);
                 }
             }
         }
@@ -199,7 +198,7 @@ async function initCommand() {
         const results = manager.run(data);
         // tslint:disable-next-line
         if (command.perf) console.timeEnd('execution-time');
-        process.stdout.write(`${JSON.stringify(results, null, 4)} \n`);
+        // process.stdout.write(`${JSON.stringify(results, null, 4)} \n`);
     } catch (err) {
         console.error(err);
         process.exit(1);
