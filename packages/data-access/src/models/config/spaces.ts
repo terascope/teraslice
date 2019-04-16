@@ -154,6 +154,31 @@ export const GraphQLSchema = `
         streaming_config: SpaceStreamingConfig
     }
 
+    input CreateSpaceInput {
+        client_id: Int!
+        name: String!
+        endpoint: String!
+        description: String
+        data_type: ID!
+        views: [ID!]
+        roles: [ID!]
+        search_config: SpaceSearchConfigInput
+        streaming_config: SpaceStreamingConfigInput
+    }
+
+    input UpdateSpaceInput {
+        client_id: Int
+        id: ID!
+        name: String
+        endpoint: String
+        description: String
+        data_type: String
+        views: [ID!]
+        roles: [ID!]
+        search_config: SpaceSearchConfigInput
+        streaming_config: SpaceStreamingConfigInput
+    }
+
     type SpaceSearchConfig {
         index: String!
         connection: String
@@ -190,30 +215,6 @@ export const GraphQLSchema = `
         connection: String
     }
 
-    input CreateSpaceInput {
-        client_id: Int!
-        name: String!
-        endpoint: String!
-        description: String
-        data_type: ID!
-        views: [ID!]
-        roles: [ID!]
-        search_config: SpaceSearchConfigInput
-        streaming_config: SpaceStreamingConfigInput
-    }
-
-    input UpdateSpaceInput {
-        client_id: Int
-        id: ID!
-        name: String
-        endpoint: String
-        description: String
-        data_type: String
-        views: [ID!]
-        roles: [ID!]
-        search_config: SpaceSearchConfigInput
-        streaming_config: SpaceStreamingConfigInput
-    }
 `;
 
 /**

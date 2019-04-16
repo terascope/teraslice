@@ -149,17 +149,19 @@ export interface View extends IndexModelRecord {
     prevent_prefix_wildcard?: boolean;
 }
 
+const commonGraphQL = `excludes: [String]
+        includes: [String]
+        constraint: String
+        prevent_prefix_wildcard: Boolean`;
+
 export const GraphQLSchema = `
     type View {
         ${graphQLModel}
-        name: String
+        name: String!
         description: String
         data_type: DataType
-        roles: [ID]
-        excludes: [String]
-        includes: [String]
-        constraint: String
-        prevent_prefix_wildcard: Boolean
+        roles: [Role]
+        ${commonGraphQL}
     }
 
     input CreateViewInput {
@@ -168,10 +170,7 @@ export const GraphQLSchema = `
         description: String
         data_type: ID!
         roles: [ID]
-        excludes: [String]
-        includes: [String]
-        constraint: String
-        prevent_prefix_wildcard: Boolean
+        ${commonGraphQL}
     }
 
     input UpdateViewInput {
@@ -181,10 +180,7 @@ export const GraphQLSchema = `
         description: String
         data_type: ID
         roles: [ID]
-        excludes: [String]
-        includes: [String]
-        constraint: String
-        prevent_prefix_wildcard: Boolean
+        ${commonGraphQL}
     }
 `;
 
