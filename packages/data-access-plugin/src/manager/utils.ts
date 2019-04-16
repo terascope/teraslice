@@ -2,7 +2,7 @@ import { Request } from 'express';
 import { User, ACLManager } from '@terascope/data-access';
 import * as apollo from 'apollo-server-express';
 import { parseErrorInfo, trim, get, set } from '@terascope/utils';
-import schema from './schema';
+import typeDefs from './types';
 import resolvers from './resolvers';
 
 export function formatError(err: any) {
@@ -85,7 +85,7 @@ export function getCredentialsFromReq(req: Request): { token?: string, username?
 
 export function makeGraphqlSchema() {
     return apollo.makeExecutableSchema({
-        typeDefs: schema,
+        typeDefs,
         resolvers,
         inheritResolversFromInterfaces: true,
     });
