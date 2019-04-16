@@ -1,7 +1,7 @@
 import * as ts from '@terascope/utils';
 import * as a from 'apollo-server-express';
-import { setLoggedInUser } from './utils';
-import { ManagerContext } from './interfaces';
+import { setLoggedInUser } from '../utils';
+import { ManagerContext } from '../interfaces';
 import { ModelName } from '@terascope/data-access';
 
 let schema = `

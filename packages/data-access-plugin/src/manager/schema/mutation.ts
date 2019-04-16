@@ -1,7 +1,7 @@
 import * as a from 'apollo-server-express';
 import * as ts from '@terascope/utils';
 import { ModelName } from '@terascope/data-access';
-import { ManagerContext } from './interfaces';
+import { ManagerContext } from '../interfaces';
 
 let schema = `
     type Mutation {
