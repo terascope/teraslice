@@ -319,12 +319,24 @@ describe('Data Access Plugin', () => {
                         username,
                         firstname,
                         lastname,
+                        role {
+                            id
+                        }
                     }
                     findUsers(query: "*") {
                         username
                     }
                     findSpace(id: "${spaceId}") {
                         client_id,
+                        data_type {
+                            id
+                        }
+                        views {
+                            id
+                        }
+                        roles {
+                            id
+                        }
                     }
                     findSpaces(query: "*") {
                         name
@@ -341,7 +353,10 @@ describe('Data Access Plugin', () => {
                         excludes
                     }
                     findViews(query: "*") {
-                        name
+                        name,
+                        roles {
+                            id
+                        }
                     }
                 }
             `;
@@ -360,7 +375,10 @@ describe('Data Access Plugin', () => {
                     client_id: 1,
                     username: 'hello',
                     firstname: 'hi',
-                    lastname: 'hello'
+                    lastname: 'hello',
+                    role: {
+                        id: roleId
+                    }
                 },
                 findUsers: [
                     {
@@ -372,6 +390,19 @@ describe('Data Access Plugin', () => {
                 ],
                 findSpace: {
                     client_id: 1,
+                    data_type: {
+                        id: dataTypeId,
+                    },
+                    views: [
+                        {
+                            id: viewId,
+                        }
+                    ],
+                    roles: [
+                        {
+                            id: roleId
+                        }
+                    ]
                 },
                 findSpaces: [
                     {
@@ -390,6 +421,11 @@ describe('Data Access Plugin', () => {
                 findView: {
                     client_id: 1,
                     excludes: ['created', 'updated'],
+                    roles: [
+                        {
+                            id: viewId
+                        }
+                    ]
                 },
                 findViews: [
                     {

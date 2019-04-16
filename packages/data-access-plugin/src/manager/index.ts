@@ -8,7 +8,6 @@ import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { makeSearchFn } from '../search/utils';
 import { makeErrorHandler, getESClient } from '../utils';
 import * as utils from './utils';
-import schema from './schema';
 
 /**
  * A graphql api for managing data access
@@ -41,7 +40,7 @@ export default class ManagerPlugin {
         });
 
         this.server = new apollo.ApolloServer({
-            schema,
+            schema: utils.makeGraphqlSchema(),
             context: async ({ req }) => {
                 let skipAuth = false;
                 const { query, operationName } = req.body;

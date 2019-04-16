@@ -77,14 +77,14 @@ export class ACLManager {
     /**
      * Find user by id
     */
-    async findUser(args: { id: string }, authUser: i.AuthUser) {
+    async findUser(args: i.FindOneArgs<models.User>, authUser: i.AuthUser) {
         return this._users.findById(args.id, {}, this._getUserQueryAccess(authUser));
     }
 
     /**
      * Find all users by a given query
     */
-    async findUsers(args: { query?: string } = {}, authUser: i.AuthUser) {
+    async findUsers(args: i.FindArgs<models.User> = {}, authUser: i.AuthUser) {
         return this._users.find(args.query, {}, this._getUserQueryAccess(authUser));
     }
 
@@ -152,14 +152,14 @@ export class ACLManager {
     /**
      * Find role by id
     */
-    async findRole(args: { id: string }, authUser: i.AuthUser) {
+    async findRole(args: i.FindOneArgs<models.Role>, authUser: i.AuthUser) {
         return this._roles.findById(args.id, this._getRoleQueryAccess(authUser));
     }
 
     /**
      * Find roles by a given query
     */
-    async findRoles(args: { query?: string } = {}, authUser: i.AuthUser) {
+    async findRoles(args: i.FindArgs<models.Role> = {}, authUser: i.AuthUser) {
         return this._roles.find(args.query, {}, this._getRoleQueryAccess(authUser));
     }
 
@@ -205,14 +205,14 @@ export class ACLManager {
     /**
      * Find data type by id
     */
-    async findDataType(args: { id: string }, authUser: i.AuthUser) {
+    async findDataType(args: i.FindOneArgs<models.DataType>, authUser: i.AuthUser) {
         return this._dataTypes.findById(args.id, {}, this._getDataTypeQueryAccess(authUser));
     }
 
     /**
      * Find data types by a given query
     */
-    async findDataTypes(args: { query?: string } = {}, authUser: i.AuthUser) {
+    async findDataTypes(args: i.FindArgs<models.DataType> = {}, authUser: i.AuthUser) {
         return this._dataTypes.find(args.query, {}, this._getDataTypeQueryAccess(authUser));
     }
 
@@ -256,14 +256,14 @@ export class ACLManager {
     /**
      * Find space by id
     */
-    async findSpace(args: { id: string }, authUser: i.AuthUser) {
+    async findSpace(args: i.FindOneArgs<models.Space>, authUser: i.AuthUser) {
         return this._spaces.findById(args.id, {}, this._getSpaceQueryAccess(authUser));
     }
 
     /**
      * Find spaces by a given query
     */
-    async findSpaces(args: { query?: string } = {}, authUser: i.AuthUser) {
+    async findSpaces(args: i.FindArgs<models.Space> = {}, authUser: i.AuthUser) {
         return this._spaces.find(args.query, {}, this._getSpaceQueryAccess(authUser));
     }
 
@@ -307,14 +307,14 @@ export class ACLManager {
     /**
      * Find view by id
     */
-    async findView(args: { id: string }, authUser: i.AuthUser) {
+    async findView(args: i.FindOneArgs<models.View>, authUser: i.AuthUser) {
         return this._views.findById(args.id, {}, this._getViewQueryAccess(authUser));
     }
 
     /**
      * Find views by a given query
     */
-    async findViews(args: { query?: string } = {}, authUser: i.AuthUser) {
+    async findViews(args: i.FindArgs<models.View> = {}, authUser: i.AuthUser) {
         return this._views.find(args.query, {}, this._getViewQueryAccess(authUser));
     }
 

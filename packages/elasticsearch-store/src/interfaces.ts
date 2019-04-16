@@ -229,3 +229,16 @@ export interface IndexModelOptions {
     storeOptions?: Partial<IndexConfig>;
     logger?: Logger;
 }
+
+export type FindOptions<T> = {
+    includes?: (keyof T)[],
+    excludes?: (keyof T)[],
+    from?: number;
+    sort?: string;
+    size?: number;
+};
+
+export type FindOneOptions<T> = {
+    includes?: (keyof T)[],
+    excludes?: (keyof T)[],
+};

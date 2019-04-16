@@ -1,26 +1,19 @@
-import GraphQLJSON from 'graphql-type-json';
-import { GraphQLDateTime } from 'graphql-iso-date';
-import * as a from 'apollo-server-express';
-import * as query from './query';
-import * as mutation from './mutation';
-import { schema } from './misc';
-import { ManagerContext } from '../interfaces';
+import DataType from './data-type';
+import Mutation from './mutation';
+import Query from './query';
+import Role from './role';
+import Space from './space';
+import User from './user';
+import View from './view';
 
-const resolvers: a.IResolvers<any, ManagerContext> = {
-    Query: query.resolvers,
-    Mutation: mutation.resolvers,
-    JSON: GraphQLJSON,
-    DateTime: GraphQLDateTime,
-};
-
-export = a.makeExecutableSchema({
-    typeDefs: [
-        'scalar JSON',
-        'scalar DateTime',
-        schema,
-        query.schema,
-        mutation.schema,
-    ],
-    resolvers,
-    inheritResolversFromInterfaces: true,
-});
+export default [
+    'scalar JSON',
+    'scalar DateTime',
+    DataType,
+    Role,
+    Space,
+    User,
+    View,
+    Query,
+    Mutation,
+];
