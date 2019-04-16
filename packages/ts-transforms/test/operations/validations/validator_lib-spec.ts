@@ -469,21 +469,6 @@ describe('validator lib', () => {
         expect(test.run(results2)).toEqual(results2);
     });
 
-    it('can call the isrc method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
-        const test = getValidator(opConfig, 'isrc');
-
-        const results1 = new DataEntity({ field: 'US-S1Z-99-00001' });
-        const results2 = new DataEntity({ field: 'USS1Z9900001' });
-
-        const results = data.map(obj => test.run(obj));
-        results.forEach(result => expect(result).toEqual({}));
-
-        // FIXME: this should not equal {};
-        expect(test.run(results1)).toEqual(results1);
-        expect(test.run(results2)).toEqual(results2);
-    });
-
     it('can call the in method', () => {
         const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', value: ['hello world'], __id: 'someId' };
         const test = getValidator(opConfig, 'in');
@@ -510,18 +495,6 @@ describe('validator lib', () => {
         const results = data.map(obj => test.run(obj));
         results.forEach(result => expect(result).toEqual({}));
         expect(results1).toEqual(obj);
-    });
-
-    xit('can call the jwt method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
-        const test = getValidator(opConfig, 'jwt');
-
-        const data1 = new DataEntity({ field: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJiMDhmODZhZi0zNWRhLTQ4ZjItOGZhYi1jZWYzOTA0NjYwYmQifQ.-xN_h82PHVTCMA9vdoHrcZxH-x5mb11y1537t3rGzcM' });
-        const results1 = { field: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJiMDhmODZhZi0zNWRhLTQ4ZjItOGZhYi1jZWYzOTA0NjYwYmQifQ.-xN_h82PHVTCMA9vdoHrcZxH-x5mb11y1537t3rGzcM' };
-        // TODO: jwt does not work it breaks with "56.234" as value
-        const results = data.map(obj => test.run(obj));
-        results.forEach(result => expect(result).toEqual({}));
-        expect(test.run(data1)).toEqual(results1);
     });
 
     it('can call the latlong method', () => {
