@@ -2,6 +2,9 @@ import { IndexConfig } from 'elasticsearch-store';
 import * as models from './models';
 import { Logger } from '@terascope/utils';
 
+export type ModelName = 'DataType'|'Role'|'Space'|'View'|'User';
+export type AuthUser = models.User|false;
+
 export interface ManagerConfig {
     namespace?: string;
     storeOptions?: Partial<IndexConfig>;

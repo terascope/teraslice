@@ -60,6 +60,11 @@ export function firstToUpper(str: string): string {
     return `${getFirstChar(str).toUpperCase()}${str.slice(1)}`;
 }
 
+/** Change first character in string to lower case */
+export function firstToLower(str: string): string {
+    return `${getFirstChar(str).toLowerCase()}${str.slice(1)}`;
+}
+
 export function getFirstChar(input: string): string {
     return trim(input).charAt(0);
 }

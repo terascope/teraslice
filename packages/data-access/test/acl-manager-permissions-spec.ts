@@ -332,7 +332,7 @@ describe('ACLManager Permissions', () => {
                 }, adminUser);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('User doesn\'t have permission to remove spaces');
+                expect(err.message).toInclude('User doesn\'t have permission to remove Space');
                 expect(err.statusCode).toEqual(403);
             }
         });
@@ -353,7 +353,7 @@ describe('ACLManager Permissions', () => {
                 }, adminUser);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('User doesn\'t have permission to create spaces');
+                expect(err.message).toInclude('User doesn\'t have permission to create Space');
                 expect(err.statusCode).toEqual(403);
             }
         });
@@ -582,7 +582,7 @@ describe('ACLManager Permissions', () => {
                 }, normalUser);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('User doesn\'t have permission to create roles');
+                expect(err.message).toInclude('User doesn\'t have permission to create Role');
                 expect(err.statusCode).toEqual(403);
             }
         });
@@ -596,7 +596,7 @@ describe('ACLManager Permissions', () => {
                 }, normalUser);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('User doesn\'t have permission to remove roles');
+                expect(err.message).toInclude('User doesn\'t have permission to remove Role');
                 expect(err.statusCode).toEqual(403);
             }
         });
@@ -612,7 +612,7 @@ describe('ACLManager Permissions', () => {
                 }, normalUser);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('User doesn\'t have permission to update roles');
+                expect(err.message).toInclude('User doesn\'t have permission to update Role');
                 expect(err.statusCode).toEqual(403);
             }
         });
@@ -629,7 +629,7 @@ describe('ACLManager Permissions', () => {
                 }, normalUser);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('User doesn\'t have permission to create data types');
+                expect(err.message).toInclude('User doesn\'t have permission to create DataType');
                 expect(err.statusCode).toEqual(403);
             }
         });
@@ -643,7 +643,7 @@ describe('ACLManager Permissions', () => {
                 }, normalUser);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('User doesn\'t have permission to remove data types');
+                expect(err.message).toInclude('User doesn\'t have permission to remove DataType');
                 expect(err.statusCode).toEqual(403);
             }
         });
@@ -659,7 +659,7 @@ describe('ACLManager Permissions', () => {
                 }, normalUser);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('User doesn\'t have permission to update data types');
+                expect(err.message).toInclude('User doesn\'t have permission to update DataType');
                 expect(err.statusCode).toEqual(403);
             }
         });
@@ -680,7 +680,7 @@ describe('ACLManager Permissions', () => {
                 }, normalUser);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('User doesn\'t have permission to create spaces');
+                expect(err.message).toInclude('User doesn\'t have permission to create Space');
                 expect(err.statusCode).toEqual(403);
             }
         });
@@ -694,7 +694,7 @@ describe('ACLManager Permissions', () => {
                 }, normalUser);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('User doesn\'t have permission to remove spaces');
+                expect(err.message).toInclude('User doesn\'t have permission to remove Space');
                 expect(err.statusCode).toEqual(403);
             }
         });
@@ -710,7 +710,7 @@ describe('ACLManager Permissions', () => {
                 }, normalUser);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('User doesn\'t have permission to update spaces');
+                expect(err.message).toInclude('User doesn\'t have permission to update Space');
                 expect(err.statusCode).toEqual(403);
             }
         });
@@ -729,7 +729,7 @@ describe('ACLManager Permissions', () => {
                 }, normalUser);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('User doesn\'t have permission to create views');
+                expect(err.message).toInclude('User doesn\'t have permission to create View');
                 expect(err.statusCode).toEqual(403);
             }
         });
@@ -743,7 +743,7 @@ describe('ACLManager Permissions', () => {
                 }, normalUser);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('User doesn\'t have permission to remove views');
+                expect(err.message).toInclude('User doesn\'t have permission to remove View');
                 expect(err.statusCode).toEqual(403);
             }
         });
@@ -759,7 +759,7 @@ describe('ACLManager Permissions', () => {
                 }, normalUser);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('User doesn\'t have permission to update views');
+                expect(err.message).toInclude('User doesn\'t have permission to update View');
                 expect(err.statusCode).toEqual(403);
             }
         });

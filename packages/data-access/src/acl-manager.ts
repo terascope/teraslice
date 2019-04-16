@@ -3,7 +3,7 @@ import * as ts from '@terascope/utils';
 import { CreateRecordInput, UpdateRecordInput } from 'elasticsearch-store';
 import { TypeConfig, CachedQueryAccess } from 'xlucene-evaluator';
 import * as models from './models';
-import { ManagerConfig, DataAccessConfig } from './interfaces';
+import * as i from './interfaces';
 
 /**
  * ACL Manager for Data Access Roles, essentially a
@@ -33,7 +33,7 @@ export class ACLManager {
     private readonly _dataTypes: models.DataTypes;
     private readonly _queryAccess = new CachedQueryAccess();
 
-    constructor(client: es.Client, config: ManagerConfig) {
+    constructor(client: es.Client, config: i.ManagerConfig) {
         this.logger = config.logger || ts.debugLogger('acl-manager');
         this._roles = new models.Roles(client, config);
         this._spaces = new models.Spaces(client, config);
@@ -88,21 +88,21 @@ export class ACLManager {
     /**
      * Find user by id
     */
-    async findUser(args: { id: string }, authUser: models.User|false) {
+    async findUser(args: { id: string }, authUser: i.AuthUser) {
         return this._users.findById(args.id, {}, this._getUserQueryAccess(authUser));
     }
 
     /**
      * Find all users by a given query
     */
-    async findUsers(args: { query?: string } = {}, authUser: models.User|false) {
+    async findUsers(args: { query?: string } = {}, authUser: i.AuthUser) {
         return this._users.find(args.query, {}, this._getUserQueryAccess(authUser));
     }
 
     /**
      * Create a user
     */
-    async createUser(args: { user: models.CreateUserInput, password: string }, authUser: models.User|false) {
+    async createUser(args: { user: models.CreateUserInput, password: string }, authUser: i.AuthUser) {
         await this._validateUserInput(args.user, authUser);
 
         return this._users.createWithPassword(args.user, args.password);
@@ -113,7 +113,7 @@ export class ACLManager {
      *
      * This cannot include private information
     */
-    async updateUser(args: { user: models.UpdateUserInput }, authUser: models.User|false): Promise<models.User> {
+    async updateUser(args: { user: models.UpdateUserInput }, authUser: i.AuthUser): Promise<models.User> {
         await this._validateUserInput(args.user, authUser);
 
         await this._users.update(args.user);
@@ -125,7 +125,7 @@ export class ACLManager {
     /**
      * Update user's password
     */
-    async updatePassword(args: { id: string, password: string }, authUser: models.User|false): Promise<boolean> {
+    async updatePassword(args: { id: string, password: string }, authUser: i.AuthUser): Promise<boolean> {
         await this._validateUserInput({ id: args.id }, authUser);
         await this._users.updatePassword(args.id, args.password);
         return true;
@@ -134,7 +134,7 @@ export class ACLManager {
     /**
      * Generate a new API Token for a user
     */
-    async updateToken(args: { id: string }, authUser: models.User|false): Promise<string> {
+    async updateToken(args: { id: string }, authUser: i.AuthUser): Promise<string> {
         await this._validateUserInput({ id: args.id }, authUser);
         return await this._users.updateToken(args.id);
     }
@@ -142,7 +142,7 @@ export class ACLManager {
     /**
      * Remove user by id
     */
-    async removeUser(args: { id: string }, authUser: models.User|false): Promise<boolean> {
+    async removeUser(args: { id: string }, authUser: i.AuthUser): Promise<boolean> {
         const type = this._getUserType(authUser);
         if (authUser && type === 'USER' && args.id === authUser.id) {
             throw new ts.TSError('User doesn\'t have permission to remove itself', {
@@ -163,22 +163,22 @@ export class ACLManager {
     /**
      * Find role by id
     */
-    async findRole(args: { id: string }, authUser: models.User|false) {
+    async findRole(args: { id: string }, authUser: i.AuthUser) {
         return this._roles.findById(args.id, this._getRoleQueryAccess(authUser));
     }
 
     /**
      * Find roles by a given query
     */
-    async findRoles(args: { query?: string } = {}, authUser: models.User|false) {
+    async findRoles(args: { query?: string } = {}, authUser: i.AuthUser) {
         return this._roles.find(args.query, {}, this._getRoleQueryAccess(authUser));
     }
 
     /**
      * Create a role
     */
-    async createRole(args: { role: CreateRecordInput<models.Role> }, authUser: models.User|false) {
-        await this._validateCanCreate('roles', authUser);
+    async createRole(args: { role: CreateRecordInput<models.Role> }, authUser: i.AuthUser) {
+        await this._validateCanCreate('Role', authUser);
         await this._validateRoleInput(args.role, authUser);
 
         return this._roles.create(args.role);
@@ -187,8 +187,8 @@ export class ACLManager {
     /**
      * Update a role
     */
-    async updateRole(args: { role: UpdateRecordInput<models.Role> }, authUser: models.User|false) {
-        await this._validateCanUpdate('roles', authUser);
+    async updateRole(args: { role: UpdateRecordInput<models.Role> }, authUser: i.AuthUser) {
+        await this._validateCanUpdate('Role', authUser);
         await this._validateRoleInput(args.role, authUser);
 
         await this._roles.update(args.role);
@@ -198,8 +198,8 @@ export class ACLManager {
     /**
      * Remove role and remove from any associated views or users
     */
-    async removeRole(args: { id: string }, authUser: models.User|false) {
-        await this._validateCanRemove('roles', authUser);
+    async removeRole(args: { id: string }, authUser: i.AuthUser) {
+        await this._validateCanRemove('Role', authUser);
 
         const exists = await this._roles.exists(args.id);
         if (!exists) return false;
@@ -216,22 +216,22 @@ export class ACLManager {
     /**
      * Find data type by id
     */
-    async findDataType(args: { id: string }, authUser: models.User|false) {
+    async findDataType(args: { id: string }, authUser: i.AuthUser) {
         return this._dataTypes.findById(args.id, {}, this._getDataTypeQueryAccess(authUser));
     }
 
     /**
      * Find data types by a given query
     */
-    async findDataTypes(args: { query?: string } = {}, authUser: models.User|false) {
+    async findDataTypes(args: { query?: string } = {}, authUser: i.AuthUser) {
         return this._dataTypes.find(args.query, {}, this._getDataTypeQueryAccess(authUser));
     }
 
     /**
      * Create a data type
     */
-    async createDataType(args: { dataType: CreateRecordInput<models.DataType> }, authUser: models.User|false) {
-        await this._validateCanCreate('data types', authUser);
+    async createDataType(args: { dataType: CreateRecordInput<models.DataType> }, authUser: i.AuthUser) {
+        await this._validateCanCreate('DataType', authUser);
         await this._validateDataTypeInput(args.dataType, authUser);
 
         return this._dataTypes.create(args.dataType);
@@ -240,8 +240,8 @@ export class ACLManager {
     /**
      * Update a data type
     */
-    async updateDataType(args: { dataType: UpdateRecordInput<models.DataType> }, authUser: models.User|false) {
-        await this._validateCanUpdate('data types', authUser);
+    async updateDataType(args: { dataType: UpdateRecordInput<models.DataType> }, authUser: i.AuthUser) {
+        await this._validateCanUpdate('DataType', authUser);
         await this._validateDataTypeInput(args.dataType, authUser);
 
         await this._dataTypes.update(args.dataType);
@@ -253,8 +253,8 @@ export class ACLManager {
      *
      * @question should we remove the views and spaces associated with the data-type?
     */
-    async removeDataType(args: { id: string }, authUser: models.User|false) {
-        await this._validateCanRemove('data types', authUser);
+    async removeDataType(args: { id: string }, authUser: i.AuthUser) {
+        await this._validateCanRemove('DataType', authUser);
 
         const exists = await this._dataTypes.exists(args.id);
         if (!exists) return false;
@@ -267,14 +267,14 @@ export class ACLManager {
     /**
      * Find space by id
     */
-    async findSpace(args: { id: string }, authUser: models.User|false) {
+    async findSpace(args: { id: string }, authUser: i.AuthUser) {
         return this._spaces.findById(args.id, {}, this._getSpaceQueryAccess(authUser));
     }
 
     /**
      * Find spaces by a given query
     */
-    async findSpaces(args: { query?: string } = {}, authUser: models.User|false) {
+    async findSpaces(args: { query?: string } = {}, authUser: i.AuthUser) {
         return this._spaces.find(args.query, {}, this._getSpaceQueryAccess(authUser));
     }
 
@@ -284,8 +284,8 @@ export class ACLManager {
      * attached the space to those roles.
      *
     */
-    async createSpace(args: { space: CreateRecordInput<models.Space> }, authUser: models.User|false) {
-        await this._validateCanCreate('spaces', authUser);
+    async createSpace(args: { space: CreateRecordInput<models.Space> }, authUser: i.AuthUser) {
+        await this._validateCanCreate('Space', authUser);
         await this._validateSpaceInput(args.space, authUser);
 
         return this._spaces.create(args.space);
@@ -294,8 +294,8 @@ export class ACLManager {
     /**
      * Update a space
     */
-    async updateSpace(args: { space: UpdateRecordInput<models.Space> }, authUser: models.User|false) {
-        await this._validateCanUpdate('spaces', authUser);
+    async updateSpace(args: { space: UpdateRecordInput<models.Space> }, authUser: i.AuthUser) {
+        await this._validateCanUpdate('Space', authUser);
         await this._validateSpaceInput(args.space, authUser);
 
         await this._spaces.update(args.space);
@@ -305,8 +305,8 @@ export class ACLManager {
     /**
      * Remove a space by id, this will clean up any associated views and roles
      */
-    async removeSpace(args: { id: string }, authUser: models.User|false) {
-        await this._validateCanRemove('spaces', authUser);
+    async removeSpace(args: { id: string }, authUser: i.AuthUser) {
+        await this._validateCanRemove('Space', authUser);
 
         const exists = await this._spaces.exists(args.id);
         if (!exists) return false;
@@ -318,22 +318,22 @@ export class ACLManager {
     /**
      * Find view by id
     */
-    async findView(args: { id: string }, authUser: models.User|false) {
+    async findView(args: { id: string }, authUser: i.AuthUser) {
         return this._views.findById(args.id, {}, this._getViewQueryAccess(authUser));
     }
 
     /**
      * Find views by a given query
     */
-    async findViews(args: { query?: string } = {}, authUser: models.User|false) {
+    async findViews(args: { query?: string } = {}, authUser: i.AuthUser) {
         return this._views.find(args.query, {}, this._getViewQueryAccess(authUser));
     }
 
     /**
      * Create a view, this will attach to the space and the role
     */
-    async createView(args: { view: CreateRecordInput<models.View> }, authUser: models.User|false) {
-        await this._validateCanCreate('views', authUser);
+    async createView(args: { view: CreateRecordInput<models.View> }, authUser: i.AuthUser) {
+        await this._validateCanCreate('View', authUser);
         await this._validateViewInput(args.view, authUser);
 
         const result = await this._views.create(args.view);
@@ -343,8 +343,8 @@ export class ACLManager {
     /**
      * Update a view, this will attach to the space and the role
     */
-    async updateView(args: { view: UpdateRecordInput<models.View> }, authUser: models.User|false) {
-        await this._validateCanUpdate('views', authUser);
+    async updateView(args: { view: UpdateRecordInput<models.View> }, authUser: i.AuthUser) {
+        await this._validateCanUpdate('View', authUser);
 
         const { view } = args;
         await this._validateViewInput(view, authUser);
@@ -370,8 +370,8 @@ export class ACLManager {
     /**
      * Remove views and remove from any associated spaces
     */
-    async removeView(args: { id: string }, authUser: models.User|false) {
-        await this._validateCanRemove('views', authUser);
+    async removeView(args: { id: string }, authUser: i.AuthUser) {
+        await this._validateCanRemove('View', authUser);
 
         const exists = await this._views.exists(args.id);
         if (!exists) return false;
@@ -384,7 +384,7 @@ export class ACLManager {
     /**
      * Get the User's data access configuration for a "Space"
      */
-    async getViewForSpace(args: { token?: string, space: string }, authUser: models.User|false): Promise<DataAccessConfig> {
+    async getViewForSpace(args: { token?: string, space: string }, authUser: i.AuthUser): Promise<i.DataAccessConfig> {
         // if the token is provided use the authenticated user
         const user = args.token || !authUser ?
             await this.authenticate(args) :
@@ -430,7 +430,7 @@ export class ACLManager {
         });
     }
 
-    private _getUserQueryAccess(authUser: models.User|false) {
+    private _getUserQueryAccess(authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
         const clientId = this._getUserClientId(authUser);
         let constraint = '';
@@ -453,7 +453,7 @@ export class ACLManager {
         }, this.logger);
     }
 
-    private _getRoleQueryAccess(authUser: models.User|false) {
+    private _getRoleQueryAccess(authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
         const clientId = this._getUserClientId(authUser);
         const excludes: (keyof models.Role)[] = [];
@@ -465,7 +465,7 @@ export class ACLManager {
         }, this.logger);
     }
 
-    private _getDataTypeQueryAccess(authUser: models.User|false) {
+    private _getDataTypeQueryAccess(authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
         const clientId = this._getUserClientId(authUser);
         const excludes: (keyof models.DataType)[] = [];
@@ -481,7 +481,7 @@ export class ACLManager {
         }, this.logger);
     }
 
-    private _getViewQueryAccess(authUser: models.User|false) {
+    private _getViewQueryAccess(authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
         const clientId = this._getUserClientId(authUser);
         const includes: (keyof models.View)[] = [];
@@ -505,7 +505,7 @@ export class ACLManager {
         }, this.logger);
     }
 
-    private _getSpaceQueryAccess(authUser: models.User|false) {
+    private _getSpaceQueryAccess(authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
         const clientId = this._getUserClientId(authUser);
         const excludes: (keyof models.Space)[] = [];
@@ -524,14 +524,14 @@ export class ACLManager {
         }, this.logger);
     }
 
-    private _getUserClientId(authUser: models.User|false): number {
+    private _getUserClientId(authUser: i.AuthUser): number {
         if (!authUser || authUser.type === 'SUPERADMIN') return 0;
         if (authUser.client_id == null) return -1;
         return authUser.client_id;
     }
 
-    private async _getCurrentUserInfo(authUser: models.User|false, user: Partial<models.User>): Promise<{ client_id: number, type: models.UserType }> {
-        let currentUser: models.User|false;
+    private async _getCurrentUserInfo(authUser: i.AuthUser, user: Partial<models.User>): Promise<{ client_id: number, type: models.UserType }> {
+        let currentUser: i.AuthUser;
         if (!user.id) {
             currentUser = user as models.User;
         } else if (authUser && authUser.id !== user.id) {
@@ -546,12 +546,12 @@ export class ACLManager {
         };
     }
 
-    private _getUserType(authUser: models.User|false): models.UserType {
+    private _getUserType(authUser: i.AuthUser): models.UserType {
         if (!authUser) return 'SUPERADMIN';
         return authUser.type || 'USER';
     }
 
-    private _parseDataAccessConfig(config: DataAccessConfig): DataAccessConfig {
+    private _parseDataAccessConfig(config: i.DataAccessConfig): i.DataAccessConfig {
         const searchConfig = config.search_config!;
 
         if (searchConfig.default_date_field) {
@@ -578,7 +578,7 @@ export class ACLManager {
         return config;
     }
 
-    private _validateAnyInput(input: { id?: string, client_id?: number }|undefined, authUser: models.User|false) {
+    private _validateAnyInput(input: { id?: string, client_id?: number }|undefined, authUser: i.AuthUser) {
         if (!input) {
             throw new ts.TSError('Invalid Input', {
                 statusCode: 422
@@ -602,7 +602,7 @@ export class ACLManager {
         }
     }
 
-    private async _validateUserInput(user: Partial<models.User>, authUser: models.User|false) {
+    private async _validateUserInput(user: Partial<models.User>, authUser: i.AuthUser) {
         if (!user) {
             throw new ts.TSError('Invalid Input', {
                 statusCode: 422
@@ -666,7 +666,7 @@ export class ACLManager {
         }
     }
 
-    private async _validateSpaceInput(space: Partial<models.Space>, authUser: models.User|false) {
+    private async _validateSpaceInput(space: Partial<models.Space>, authUser: i.AuthUser) {
         this._validateAnyInput(space, authUser);
 
         if (space.roles) {
@@ -720,15 +720,15 @@ export class ACLManager {
         }
     }
 
-    private async _validateRoleInput(role: Partial<models.Role>, authUser: models.User|false) {
+    private async _validateRoleInput(role: Partial<models.Role>, authUser: i.AuthUser) {
         this._validateAnyInput(role, authUser);
     }
 
-    private async _validateDataTypeInput(dataType: Partial<models.DataType>, authUser: models.User|false) {
+    private async _validateDataTypeInput(dataType: Partial<models.DataType>, authUser: i.AuthUser) {
         this._validateAnyInput(dataType, authUser);
     }
 
-    private async _validateViewInput(view: Partial<models.View>, authUser: models.User|false) {
+    private async _validateViewInput(view: Partial<models.View>, authUser: i.AuthUser) {
         this._validateAnyInput(view, authUser);
 
         if (view.roles) {
@@ -754,52 +754,50 @@ export class ACLManager {
     }
 
     /**
-     * Validate a user can create a resource
+     * Validate a user can create a model
      *
      * This works for all models except users
     */
-    private async _validateCanCreate(resource: Resource, authUser: models.User|false) {
+    private async _validateCanCreate(model: i.ModelName, authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
-        const resources: Resource[] = ['spaces', 'data types'];
+        const models: i.ModelName[] = ['Space', 'DataType'];
 
-        if (type === 'USER' || (type === 'ADMIN' && resources.includes(resource))) {
-            throw new ts.TSError(`User doesn't have permission to create ${resource}`, {
+        if (type === 'USER' || (type === 'ADMIN' && models.includes(model))) {
+            throw new ts.TSError(`User doesn't have permission to create ${model}`, {
                 statusCode: 403
             });
         }
     }
 
     /**
-     * Validate a user can update a resource
+     * Validate a user can update a model
      *
      * This works for all models except users
     */
-    private async _validateCanUpdate(resource: Resource, authUser: models.User|false) {
+    private async _validateCanUpdate(model: i.ModelName, authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
         if (type === 'USER') {
-            throw new ts.TSError(`User doesn't have permission to update ${resource}`, {
+            throw new ts.TSError(`User doesn't have permission to update ${model}`, {
                 statusCode: 403
             });
         }
     }
 
     /**
-     * Validate a user can remove a resource
+     * Validate a user can remove a model
      *
      * This works for all models except users
     */
-    private async _validateCanRemove(resource: Resource, authUser: models.User|false) {
+    private async _validateCanRemove(model: i.ModelName, authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
-        const resources: Resource[] = ['spaces', 'data types'];
-        if (type === 'USER' || (type === 'ADMIN' && resources.includes(resource))) {
-            throw new ts.TSError(`User doesn't have permission to remove ${resource}`, {
+        const models: i.ModelName[] = ['Space', 'DataType'];
+        if (type === 'USER' || (type === 'ADMIN' && models.includes(model))) {
+            throw new ts.TSError(`User doesn't have permission to remove ${model}`, {
                 statusCode: 403
             });
         }
     }
 }
-
-type Resource = 'roles'|'data types'|'views'|'spaces';
 
 export const graphqlSchemas = [
     ACLManager.GraphQLSchema,
