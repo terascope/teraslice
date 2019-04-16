@@ -481,7 +481,7 @@ describe('Data Access Plugin', () => {
                         'index.number_of_replicas': 0
                     },
                     mappings: {
-                        _doc: {
+                        hello: {
                             _all: {
                                 enabled: false
                             },
@@ -510,7 +510,7 @@ describe('Data Access Plugin', () => {
 
             await client.create({
                 index,
-                type: '_doc',
+                type: 'hello',
                 id: '1',
                 refresh: true,
                 body: {
@@ -524,7 +524,7 @@ describe('Data Access Plugin', () => {
 
             await client.create({
                 index,
-                type: '_doc',
+                type: 'hello',
                 id: '2',
                 refresh: true,
                 body: {
@@ -538,7 +538,7 @@ describe('Data Access Plugin', () => {
 
             await client.create({
                 index,
-                type: '_doc',
+                type: 'hello',
                 id: '3',
                 refresh: true,
                 body: {
@@ -552,7 +552,7 @@ describe('Data Access Plugin', () => {
 
             await client.create({
                 index,
-                type: '_doc',
+                type: 'hello',
                 id: '4',
                 refresh: true,
                 body: {
