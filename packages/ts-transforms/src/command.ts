@@ -123,8 +123,11 @@ function parseData(data: string): object[] | null {
             try {
                 results.push(JSON.parse(line));
             } catch (err) {
-                if (!ignoreErrors) {
-                    console.error(`Failed to parse line ${i + 1} data:"${line}"`);
+                const errorMsg = `Failed to parse line ${i + 1} -- "${line}"`;
+                if (ignoreErrors === true) {
+                    console.error(errorMsg);
+                } else {
+                    throw new Error(errorMsg);
                 }
             }
         }
