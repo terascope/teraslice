@@ -1,4 +1,5 @@
 import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
+import { graphQLModel } from './common';
 
 const config: IndexModelConfig<Space> = {
     version: 1,
@@ -142,18 +143,15 @@ const config: IndexModelConfig<Space> = {
 
 export const GraphQLSchema = `
     type Space {
-        client_id: Int!
-        id: ID!
+        ${graphQLModel}
         name: String!
         endpoint: String!
         description: String
-        data_type: String!
-        views: [String]
-        roles: [String]
+        data_type: DataType!
+        views: [View]!
+        roles: [Role]!
         search_config: SpaceSearchConfig
         streaming_config: SpaceStreamingConfig
-        created: String
-        updated: String
     }
 
     type SpaceSearchConfig {
@@ -197,9 +195,9 @@ export const GraphQLSchema = `
         name: String!
         endpoint: String!
         description: String
-        data_type: String!
-        views: [String]
-        roles: [String]
+        data_type: ID!
+        views: [ID!]
+        roles: [ID!]
         search_config: SpaceSearchConfigInput
         streaming_config: SpaceStreamingConfigInput
     }
@@ -211,8 +209,8 @@ export const GraphQLSchema = `
         endpoint: String
         description: String
         data_type: String
-        views: [String]
-        roles: [String]
+        views: [ID!]
+        roles: [ID!]
         search_config: SpaceSearchConfigInput
         streaming_config: SpaceStreamingConfigInput
     }

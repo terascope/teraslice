@@ -1,4 +1,5 @@
 import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
+import { graphQLModel } from './common';
 
 const config: IndexModelConfig<View> = {
     version: 1,
@@ -150,26 +151,23 @@ export interface View extends IndexModelRecord {
 
 export const GraphQLSchema = `
     type View {
-        client_id: Int!
-        id: ID!
+        ${graphQLModel}
         name: String
         description: String
-        data_type: String
-        roles: [String]
+        data_type: DataType
+        roles: [ID]
         excludes: [String]
         includes: [String]
         constraint: String
         prevent_prefix_wildcard: Boolean
-        created: String
-        updated: String
     }
 
     input CreateViewInput {
         client_id: Int
         name: String!
         description: String
-        data_type: String!
-        roles: [String]
+        data_type: ID!
+        roles: [ID]
         excludes: [String]
         includes: [String]
         constraint: String
@@ -181,8 +179,8 @@ export const GraphQLSchema = `
         id: ID!
         name: String
         description: String
-        data_type: String
-        roles: [String]
+        data_type: ID
+        roles: [ID]
         excludes: [String]
         includes: [String]
         constraint: String

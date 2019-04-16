@@ -197,9 +197,7 @@ describe('Data Access Plugin', () => {
                         roles: ["${roleId}"]
                     }) {
                         id,
-                        name,
-                        roles,
-                        data_type
+                        name
                     }
                 }
             `;
@@ -211,8 +209,6 @@ describe('Data Access Plugin', () => {
 
             expect(createView).toMatchObject({
                 name: 'greetings-admin',
-                roles: [roleId],
-                data_type: dataTypeId,
             });
         });
 
@@ -246,7 +242,6 @@ describe('Data Access Plugin', () => {
                             require_query,
                             sort_enabled
                         }
-                        data_type
                     }
                 }
             `;
@@ -259,7 +254,6 @@ describe('Data Access Plugin', () => {
             expect(createSpace).toMatchObject({
                 name: 'Greetings Space',
                 endpoint: 'greetings',
-                data_type: dataTypeId,
                 search_config: {
                     require_query: true,
                     sort_enabled: true,
@@ -287,7 +281,6 @@ describe('Data Access Plugin', () => {
                         username,
                         email,
                         api_token,
-                        role,
                         type
                     }
                 }
@@ -303,7 +296,6 @@ describe('Data Access Plugin', () => {
             expect(createUser).toMatchObject({
                 username: 'hello',
                 email: 'hi@example.com',
-                role: roleId,
                 type: 'SUPERADMIN'
             });
         });
@@ -333,8 +325,6 @@ describe('Data Access Plugin', () => {
                     }
                     findSpace(id: "${spaceId}") {
                         client_id,
-                        views,
-                        roles
                     }
                     findSpaces(query: "*") {
                         name
@@ -382,8 +372,6 @@ describe('Data Access Plugin', () => {
                 ],
                 findSpace: {
                     client_id: 1,
-                    views: [viewId],
-                    roles: [roleId]
                 },
                 findSpaces: [
                     {

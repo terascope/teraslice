@@ -1,4 +1,5 @@
 import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
+import { graphQLModel } from './common';
 
 const config: IndexModelConfig<User> = {
     version: 1,
@@ -125,17 +126,14 @@ export const GraphQLSchema = `
     }
 
     type User {
-        client_id: Int!
-        id: ID!
+        ${graphQLModel}
         username: String!
         firstname: String!
         lastname: String!
         email: String
-        role: String
+        role: Role
         type: UserType
         api_token: String
-        created: String
-        updated: String
     }
 
     input CreateUserInput {
@@ -145,7 +143,7 @@ export const GraphQLSchema = `
         lastname: String!
         email: String
         type: UserType
-        role: String
+        role: ID
     }
 
     input UpdateUserInput {
@@ -156,7 +154,7 @@ export const GraphQLSchema = `
         lastname: String
         email: String
         type: UserType
-        role: String
+        role: ID
     }
 `;
 

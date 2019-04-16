@@ -25,19 +25,19 @@ export class ACLManager {
 
         type Query {
             authenticate(username: String, password: String, token: String): User!
-            findUser(id: ID!): User
+            findUser(id: ID!): User!
             findUsers(query: String): [User]!
 
-            findRole(id: ID!): Role
+            findRole(id: ID!): Role!
             findRoles(query: String): [Role]!
 
-            findDataType(id: ID!): DataType
+            findDataType(id: ID!): DataType!
             findDataTypes(query: String): [DataType]!
 
-            findSpace(id: ID!): Space
+            findSpace(id: ID!): Space!
             findSpaces(query: String): [Space]!
 
-            findView(id: ID!): View
+            findView(id: ID!): View!
             findViews(query: String): [View]!
         }
 
@@ -842,40 +842,6 @@ export class ACLManager {
 }
 
 type Resource = 'roles'|'data types'|'views'|'spaces';
-
-export const graphqlQueryMethods: (keyof ACLManager)[] = [
-    'authenticate',
-    'findUser',
-    'findUsers',
-    'findRole',
-    'findRoles',
-    'findDataType',
-    'findDataTypes',
-    'findSpace',
-    'findSpaces',
-    'findView',
-    'findViews',
-];
-
-export const graphqlMutationMethods: (keyof ACLManager)[] = [
-    'createUser',
-    'updateUser',
-    'updatePassword',
-    'updateToken',
-    'removeUser',
-    'createRole',
-    'updateRole',
-    'removeRole',
-    'createDataType',
-    'updateDataType',
-    'removeDataType',
-    'createSpace',
-    'updateSpace',
-    'removeSpace',
-    'createView',
-    'updateView',
-    'removeView',
-];
 
 export const graphqlSchemas = [
     ACLManager.GraphQLSchema,

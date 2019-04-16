@@ -54,7 +54,8 @@ export default class ManagerPlugin {
                 if (skipAuth) {
                     return {
                         req,
-                        user: false,
+                        // set this to truthy value so it is only valid for authenticate
+                        user: true,
                         manager: this.manager,
                     };
                 }
