@@ -31,4 +31,12 @@ describe('Terafoundation (SimpleContext)', () => {
 
         context.apis.foundation.getSystemEvents().removeAllListeners();
     });
+
+    it('should throw an error when given an invalid system config', () => {
+        expect(() => { SimpleContext({ a: true }, { sysconfig: 'invalid' }); }).toThrowError('Terafoundation requires a valid system configuration');
+    });
+
+    it('should throw an error when given an invalid application config', () => {
+        expect(() => { SimpleContext('invalid'); }).toThrowError('Terafoundation requires a valid application configuration');
+    });
 });
