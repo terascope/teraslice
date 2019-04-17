@@ -310,29 +310,29 @@ describe('Data Access Plugin', () => {
 
             const query = `
                 query {
-                    findRoles(query: "*") {
+                    roles(query: "*") {
                         client_id,
                         id,
                         name
                     }
-                    findUsers(query: "*") {
+                    users(query: "*") {
                         client_id,
                         id,
                         username,
                         firstname,
                         lastname
                     }
-                    findSpaces(query: "*") {
+                    spaces(query: "*") {
                         client_id,
                         id,
                         name
                     }
-                    findDataTypes(query: "*") {
+                    dataTypes(query: "*") {
                         client_id,
                         id,
                         name
                     }
-                    findViews(query: "*") {
+                    views(query: "*") {
                         client_id,
                         id,
                         name,
@@ -342,14 +342,14 @@ describe('Data Access Plugin', () => {
             `;
 
             expect(await reqClient.request(query)).toEqual({
-                findRoles: [
+                roles: [
                     {
                         client_id: 1,
                         id: roleId,
                         name: 'greeter',
                     }
                 ],
-                findUsers: [
+                users: [
                     {
                         client_id: 0,
                         id: adminUserId,
@@ -365,21 +365,21 @@ describe('Data Access Plugin', () => {
                         lastname: 'hello',
                     }
                 ],
-                findSpaces: [
+                spaces: [
                     {
                         client_id: 1,
                         id: spaceId,
                         name: 'Greetings Space'
                     }
                 ],
-                findDataTypes: [
+                dataTypes: [
                     {
                         client_id: 1,
                         id: dataTypeId,
                         name: 'Greeter'
                     }
                 ],
-                findViews: [
+                views: [
                     {
                         client_id: 1,
                         id: viewId,
@@ -398,7 +398,7 @@ describe('Data Access Plugin', () => {
 
             const query = `
                 query {
-                    findRole(id: "${roleId}") {
+                    role(id: "${roleId}") {
                         spaces {
                             id
                         },
@@ -406,12 +406,12 @@ describe('Data Access Plugin', () => {
                             id
                         }
                     }
-                    findUser(id: "${userId}") {
+                    user(id: "${userId}") {
                         role {
                             id
                         }
                     }
-                    findSpace(id: "${spaceId}") {
+                    space(id: "${spaceId}") {
                         data_type {
                             id
                         },
@@ -422,7 +422,7 @@ describe('Data Access Plugin', () => {
                             id
                         }
                     }
-                    findDataType(id: "${dataTypeId}") {
+                    dataType(id: "${dataTypeId}") {
                         spaces {
                             id
                         },
@@ -430,7 +430,7 @@ describe('Data Access Plugin', () => {
                             id
                         }
                     }
-                    findView(id: "${viewId}") {
+                    view(id: "${viewId}") {
                         roles {
                             id
                         }
@@ -439,7 +439,7 @@ describe('Data Access Plugin', () => {
             `;
 
             expect(await reqClient.request(query)).toEqual({
-                findRole: {
+                role: {
                     users: [
                         {
                             id: userId,
@@ -451,12 +451,12 @@ describe('Data Access Plugin', () => {
                         }
                     ]
                 },
-                findUser: {
+                user: {
                     role: {
                         id: roleId
                     }
                 },
-                findSpace: {
+                space: {
                     data_type: {
                         id: dataTypeId,
                     },
@@ -471,7 +471,7 @@ describe('Data Access Plugin', () => {
                         }
                     ]
                 },
-                findDataType: {
+                dataType: {
                     views: [
                         {
                             id: viewId
@@ -483,7 +483,7 @@ describe('Data Access Plugin', () => {
                         }
                     ]
                 },
-                findView: {
+                view: {
                     roles: [
                         {
                             id: roleId

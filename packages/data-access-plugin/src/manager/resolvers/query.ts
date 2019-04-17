@@ -1,3 +1,4 @@
+import { firstToLower } from '@terascope/utils';
 import { setLoggedInUser, forEachModel } from '../utils';
 import { ManagerContext } from '../interfaces';
 
@@ -11,10 +12,8 @@ const resolvers = {
 };
 
 forEachModel((model) => {
-    const findOneMethod = `find${model}`;
-    const findManyMethod = `find${model}s`;
-    resolvers[findOneMethod] = proxyMethod(findOneMethod);
-    resolvers[findManyMethod] = proxyMethod(findManyMethod);
+    resolvers[`${firstToLower(model)}`] = proxyMethod(`find${model}`);
+    resolvers[`${firstToLower(model)}s`] = proxyMethod(`find${model}s`);
 });
 
 function proxyMethod(method: string) {

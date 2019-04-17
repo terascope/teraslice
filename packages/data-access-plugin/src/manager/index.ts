@@ -13,8 +13,6 @@ import * as utils from './utils';
 
 /**
  * A graphql api for managing data access
- *
- * @todo the manager should be able to pull relational data
 */
 export default class ManagerPlugin {
     readonly config: TeraserverConfig;
