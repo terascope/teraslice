@@ -64,6 +64,7 @@ describe('Data Access Plugin', () => {
     }
 
     let reqClient: GraphQLClient;
+    let adminUserId: string;
 
     beforeAll(async () => {
         await Promise.all([
@@ -86,7 +87,7 @@ describe('Data Access Plugin', () => {
             search.initialize(),
         ]);
 
-        await manager.manager.createUser({
+        const adminUser = await manager.manager.createUser({
             user: {
                 client_id: 0,
                 username: 'admin',
@@ -97,6 +98,7 @@ describe('Data Access Plugin', () => {
             },
             password: 'admin'
         }, false);
+        adminUserId = adminUser.id;
 
         reqClient = new GraphQLClient(formatBaseUri('/data-access'), {
             headers: {
@@ -300,96 +302,161 @@ describe('Data Access Plugin', () => {
             });
         });
 
-        it('should be able to find everything', async () => {
+        it('should be able to find records', async () => {
             expect(userId).toBeTruthy();
             expect(spaceId).toBeTruthy();
             expect(viewId).toBeTruthy();
+            expect(dataTypeId).toBeTruthy();
+
+            const query = `
+                query {
+                    findRoles(query: "*") {
+                        client_id,
+                        id,
+                        name
+                    }
+                    findUsers(query: "*") {
+                        client_id,
+                        id,
+                        username,
+                        firstname,
+                        lastname
+                    }
+                    findSpaces(query: "*") {
+                        client_id,
+                        id,
+                        name
+                    }
+                    findDataTypes(query: "*") {
+                        client_id,
+                        id,
+                        name
+                    }
+                    findViews(query: "*") {
+                        client_id,
+                        id,
+                        name,
+                        excludes
+                    }
+                }
+            `;
+
+            expect(await reqClient.request(query)).toEqual({
+                findRoles: [
+                    {
+                        client_id: 1,
+                        id: roleId,
+                        name: 'greeter',
+                    }
+                ],
+                findUsers: [
+                    {
+                        client_id: 0,
+                        id: adminUserId,
+                        username: 'admin',
+                        firstname: 'System',
+                        lastname: 'Admin',
+                    },
+                    {
+                        client_id: 1,
+                        id: userId,
+                        username: 'hello',
+                        firstname: 'hi',
+                        lastname: 'hello',
+                    }
+                ],
+                findSpaces: [
+                    {
+                        client_id: 1,
+                        id: spaceId,
+                        name: 'Greetings Space'
+                    }
+                ],
+                findDataTypes: [
+                    {
+                        client_id: 1,
+                        id: dataTypeId,
+                        name: 'Greeter'
+                    }
+                ],
+                findViews: [
+                    {
+                        client_id: 1,
+                        id: viewId,
+                        name: 'greetings-admin',
+                        excludes: ['created', 'updated'],
+                    }
+                ]
+            });
+        });
+
+        it('should be able to find relational data', async () => {
+            expect(userId).toBeTruthy();
+            expect(spaceId).toBeTruthy();
+            expect(viewId).toBeTruthy();
+            expect(dataTypeId).toBeTruthy();
 
             const query = `
                 query {
                     findRole(id: "${roleId}") {
-                        client_id,
-                        name
-                    }
-                    findRoles(query: "*") {
-                        name
+                        spaces {
+                            id
+                        },
+                        users {
+                            id
+                        }
                     }
                     findUser(id: "${userId}") {
-                        client_id,
-                        username,
-                        firstname,
-                        lastname,
                         role {
                             id
                         }
                     }
-                    findUsers(query: "*") {
-                        username
-                    }
                     findSpace(id: "${spaceId}") {
-                        client_id,
                         data_type {
                             id
+                        },
+                        views {
+                            id
+                        },
+                        roles {
+                            id
                         }
+                    }
+                    findDataType(id: "${dataTypeId}") {
+                        spaces {
+                            id
+                        },
                         views {
                             id
                         }
-                        roles {
-                            id
-                        }
-                    }
-                    findSpaces(query: "*") {
-                        name
-                    }
-                    findDataType(id: "${dataTypeId}") {
-                        client_id,
-                        name
-                    }
-                    findDataTypes(query: "*") {
-                        name
                     }
                     findView(id: "${viewId}") {
-                        client_id,
-                        excludes,
                         roles {
                             id
                         }
-                    }
-                    findViews(query: "*") {
-                        name
                     }
                 }
             `;
 
             expect(await reqClient.request(query)).toEqual({
                 findRole: {
-                    client_id: 1,
-                    name: 'greeter'
+                    users: [
+                        {
+                            id: userId,
+                        }
+                    ],
+                    spaces: [
+                        {
+                            id: spaceId,
+                        }
+                    ]
                 },
-                findRoles: [
-                    {
-                        name: 'greeter'
-                    }
-                ],
                 findUser: {
-                    client_id: 1,
-                    username: 'hello',
-                    firstname: 'hi',
-                    lastname: 'hello',
                     role: {
                         id: roleId
                     }
                 },
-                findUsers: [
-                    {
-                        username: 'admin'
-                    },
-                    {
-                        username: 'hello'
-                    }
-                ],
                 findSpace: {
-                    client_id: 1,
                     data_type: {
                         id: dataTypeId,
                     },
@@ -404,34 +471,25 @@ describe('Data Access Plugin', () => {
                         }
                     ]
                 },
-                findSpaces: [
-                    {
-                        name: 'Greetings Space'
-                    }
-                ],
                 findDataType: {
-                    client_id: 1,
-                    name: 'Greeter'
+                    views: [
+                        {
+                            id: viewId
+                        }
+                    ],
+                    spaces: [
+                        {
+                            id: spaceId
+                        }
+                    ]
                 },
-                findDataTypes: [
-                    {
-                        name: 'Greeter'
-                    }
-                ],
                 findView: {
-                    client_id: 1,
-                    excludes: ['created', 'updated'],
                     roles: [
                         {
                             id: roleId
                         }
                     ]
                 },
-                findViews: [
-                    {
-                        name: 'greetings-admin',
-                    }
-                ]
             });
         });
     });

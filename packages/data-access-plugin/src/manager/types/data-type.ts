@@ -6,6 +6,9 @@ export default `
         name: String
         description: String
         type_config: JSON
+        # virutal references
+        spaces: [Space]
+        views: [View]
     }
     input CreateDataTypeInput {
         client_id: Int!

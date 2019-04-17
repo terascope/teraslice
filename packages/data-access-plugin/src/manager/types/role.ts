@@ -5,6 +5,9 @@ export default `
         ${baseModel}
         name: String
         description: String
+        # virtual references
+        users: [Role]
+        spaces: [Space]
     }
     input CreateRoleInput {
         client_id: Int
