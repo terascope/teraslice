@@ -1,7 +1,8 @@
 
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
-import { PostProcessConfig, WatcherConfig, PostProcessingDict } from '../interfaces';
+import { hasKeys } from './utils';
+import { PostProcessConfig, WatcherConfig, PostProcessingDict, OperationsPipline, Operation } from '../interfaces';
 import PhaseBase from './base';
 import { OperationsManager } from '../operations';
 
@@ -18,39 +19,41 @@ export default class PostProcessPhase extends PhaseBase {
             this.phase[key] = operationList.map(loadOp);
         });
 
-        this.hasProcessing = Object.keys(this.phase).length > 0;
+        this.hasProcessing = hasKeys(this.phase);
     }
 
     run(dataArray: DataEntity[]): DataEntity[] {
         if (!this.hasProcessing) return dataArray;
         const resultsList: DataEntity[] = [];
 
-        dataArray.forEach((data) => {
-            const startingMetaData = data.getMetadata();
-            const { selectors } = startingMetaData;
-            let record: DataEntity | null = data;
-
-            selectors.forEach((selector: string) => {
-                if (this.phase[selector]) {
-                    // @ts-ignore
-                    record = this.phase[selector].reduce<DataEntity | null>((record, fn) => {
-                        if (!record) return record;
-                        return fn.run(record);
-                    }, record);
-                }
-            });
-
-            if (record != null && Object.keys(record).length > 0) {
-                const postMetaData = record.getMetadata();
-                const finalMetaData = _.merge(postMetaData, startingMetaData);
-                _.forOwn(finalMetaData, (value, key) => {
-                    // @ts-ignore
-                    if (key !== 'createdAt') record.setMetadata(key, value);
-                });
-                resultsList.push(record);
+        for (let i = 0; i < dataArray.length; i += 1) {
+            const record = dataArray[i];
+            const results = runProcessors(this.phase, record, record.getMetadata());
+            if (results != null && hasKeys(results)) {
+                resultsList.push(results);
             }
-        });
+        }
 
         return resultsList;
     }
 }
+
+function runProcessors(phase: OperationsPipline, record: DataEntity, metadata: any): MaybeRecord {
+    let results: MaybeRecord = record;
+    for (let i = 0; i < metadata.selectors.length; i++) {
+        const pipeline = phase[metadata.selectors[i]];
+        if (pipeline) results = process(pipeline, results);
+    }
+    return results;
+}
+
+function process(phase: Operation[], record: MaybeRecord): MaybeRecord {
+    let results = record;
+    for (let i = 0; i < phase.length; i++) {
+        if (!results) continue;
+        results = phase[i].run(results);
+    }
+    return results;
+}
+
+type MaybeRecord = DataEntity<object>|null;

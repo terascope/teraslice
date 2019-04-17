@@ -17,6 +17,7 @@ const command = yargs
     .alias('t', 'types-fields')
     .alias('T', 'types-file')
     .alias('r', 'rules')
+    .alias('i', 'ignore')
     .alias('d', 'data')
     .alias('perf', 'performance')
     .alias('m', 'match')
@@ -24,7 +25,8 @@ const command = yargs
     .help('h')
     .alias('h', 'help')
     .describe('r', 'path to load the rules file')
-    .describe('d', 'path to load  the data file')
+    .describe('d', 'path to load the data file')
+    .describe('i', 'ignore data records that cannot be parsed')
     .describe('t', 'specify type configs ie field:value, otherfield:value')
     .describe('T', 'specify type configs from file')
     .describe('p', 'output the time it took to run the data')
@@ -34,7 +36,7 @@ const command = yargs
 
 const filePath = command.rules as string;
 const dataPath = command.data;
-
+const ignoreErrors = command.i || false;
 let typesConfig = {};
 const type = command.m ? 'matcher' : 'transform';
 
@@ -121,8 +123,12 @@ function parseData(data: string): object[] | null {
             try {
                 results.push(JSON.parse(line));
             } catch (err) {
-                logger.error(`Failed to parse "${line}"`);
-                return null;
+                const errorMsg = `Failed to parse line ${i + 1} -- "${line}"`;
+                if (ignoreErrors === true) {
+                    console.error(errorMsg);
+                } else {
+                    throw new Error(errorMsg);
+                }
             }
         }
     }

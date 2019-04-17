@@ -689,10 +689,6 @@ check if the string is a valid ISO 3166-1 alpha-2 officially assigned country co
 check if the string is a valid ISO 3166-1 alpha-3 officially assigned country code.
 - no additional parameters
 
-### isrc
-check if the string is a ISRC.
-- no additional parameters
-
 ### in
 check if the string is in a array/object of specified in the param `value`.
 - value: `Array of Strings or Object`(required) = list of strings that are allowed
@@ -705,10 +701,6 @@ check if the string is an integer.
 - gt : `Number`(optional) = same as min but not inclusive
 - lt : `Number`(optional) = same as max but not inclusive
 - allow_leading_zeroes: `Boolean`(optional) = defaults to true, which when set to false will disallow integer values with leading zeroes
-
-### jwt
-check if the string is an integer.
-- no additional parameters
 
 ### latlong
 check if the string is a valid latitude-longitude coordinate in the format lat,long or lat, long.

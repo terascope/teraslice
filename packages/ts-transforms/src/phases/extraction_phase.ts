@@ -1,6 +1,7 @@
 
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
+import  { hasKeys } from './utils';
 import { WatcherConfig, ExtractionProcessingDict, OperationsPipline, Operation } from '../interfaces';
 import PhaseBase from './base';
 import { OperationsManager } from '../operations';
@@ -16,7 +17,7 @@ export default class ExtractionPhase extends PhaseBase {
             this.phase[key] = [new Extraction(operationList)];
         });
 
-        this.hasProcessing = Object.keys(this.phase).length > 0;
+        this.hasProcessing = hasKeys(this.phase);
     }
 
     run(dataArray: DataEntity[]): DataEntity[] {

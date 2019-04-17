@@ -64,8 +64,7 @@ function matchRegex(regex: RegExp) {
     };
 }
 
-function extractAndTransferFields(record: DataEntity, dest: DataEntity, config: ExtractionConfig) {
-    const data = _.get(record, config.source_field);
+function extractAndTransferFields(data: any, dest: DataEntity, config: ExtractionConfig) {
     if (data !== undefined) {
         let extractedResult;
 
@@ -91,6 +90,13 @@ function hasExtracted(record: DataEntity) {
     return record.getMetadata('hasExtractions') === true;
 }
 
+function getData(config: ExtractionConfig, record: DataEntity) {
+    if (config.deepSourceField) {
+        return _.get(record, config.source_field);
+    }
+    return record[config.source_field];
+}
+
 export default class Extraction {
     private isMutation: Boolean;
     private configs: ExtractionConfig[];
@@ -113,25 +119,23 @@ export default class Extraction {
             // @ts-ignore
             if (config.regex) config.regex = formatRegex(config.regex);
             if (config.end === 'EOP') config.end = '&';
+            if (config.source_field.includes('.')) config.deepSourceField = true;
             return config;
         });
         this.configs = configs;
     }
 
-    run(doc: DataEntity, destinationObj?: null|DataEntity): DataEntity | null {
+    run(doc: DataEntity): DataEntity | null {
         let record;
         if (this.isMutation) {
             record = doc;
         } else {
-            if (destinationObj) {
-                record = destinationObj;
-            } else {
-                record = DataEntity.makeRaw({}, doc.getMetadata()).entity;
-            }
+            record = DataEntity.makeRaw({}, doc.getMetadata()).entity;
         }
 
         for (let i = 0; i < this.configs.length; i += 1) {
-            extractAndTransferFields(doc, record, this.configs[i]);
+            const data = getData(this.configs[i], doc);
+            extractAndTransferFields(data, record, this.configs[i]);
         }
 
         if (hasExtracted(record) || this.isMutation) return record;
@@ -140,7 +144,8 @@ export default class Extraction {
 
     extractRun(doc: DataEntity, results: { entity: DataEntity, metadata: any }) {
         for (let i = 0; i < this.configs.length; i += 1) {
-            extractAndTransferFields(doc, results.entity, this.configs[i]);
+            const data = getData(this.configs[i], doc);
+            extractAndTransferFields(data, results.entity, this.configs[i]);
         }
     }
 }
