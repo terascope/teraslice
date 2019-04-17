@@ -6,6 +6,12 @@ describe('Terafoundation (SimpleContext)', () => {
     it('should be able to return a valid context', () => {
         const context = new SimpleContext({
             name: 'example',
+        }, {
+            sysconfig: {
+                terafoundation: {
+                    environment: process.env.NODE_ENV,
+                }
+            }
         });
         expect(context).toHaveProperty('assignment');
         expect(context).toHaveProperty('name', 'example');
@@ -22,5 +28,7 @@ describe('Terafoundation (SimpleContext)', () => {
         expect(context).toHaveProperty('foundation.getConnection');
         expect(context).toHaveProperty('apis.foundation.getSystemEvents');
         expect(context).toHaveProperty('foundation.getEventEmitter');
+
+        context.apis.foundation.getSystemEvents().removeAllListeners();
     });
 });
