@@ -52,6 +52,7 @@
         "yeoman-test": "^1.9.1"
     },
     "pkg": {
-        "scripts": "cmds/**/*.js"
+        "scripts": "cmds/**/*.js",
+        "assets": ["generators/**/templates/*"]
     }
 }
