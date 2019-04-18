@@ -1,8 +1,11 @@
 import { Request } from 'express';
-import { ACLManager, User } from '@terascope/data-access';
+import { Logger } from '@terascope/utils';
+import { ACLManager, AuthUser } from '@terascope/data-access';
 
 export interface ManagerContext {
     manager: ACLManager;
-    user: User|false;
+    user: AuthUser;
     req: Request;
+    authenticating: boolean;
+    logger: Logger;
 }

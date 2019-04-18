@@ -10,6 +10,7 @@ import { makeErrorHandler, getESClient } from '../utils';
 import typeDefs from './types';
 import resolvers from './resolvers';
 import * as utils from './utils';
+import { ManagerContext } from './interfaces';
 
 /**
  * A graphql api for managing data access
@@ -46,6 +47,14 @@ export default class ManagerPlugin {
                 inheritResolversFromInterfaces: true,
             }),
             context: async ({ req }) => {
+                const ctx: ManagerContext = {
+                    req,
+                    user: false,
+                    logger: this.logger,
+                    manager: this.manager,
+                    authenticating: false,
+                };
+
                 let skipAuth = false;
                 const { query, operationName } = req.body;
                 if (operationName === 'IntrospectionQuery') {
@@ -55,21 +64,14 @@ export default class ManagerPlugin {
                 }
 
                 if (skipAuth) {
-                    return {
-                        req,
-                        // set this to truthy value so it is only valid for authenticate
-                        user: true,
-                        manager: this.manager,
-                    };
+                    ctx.authenticating = true;
+                    return ctx;
                 }
 
                 try {
                     const user = await utils.login(this.manager, req);
-                    return {
-                        req,
-                        user,
-                        manager: this.manager,
-                    };
+                    ctx.user = user;
+                    return ctx;
                 } catch (err) {
                     this.logger.error(err, req);
                     if (err.statusCode === 401) {
