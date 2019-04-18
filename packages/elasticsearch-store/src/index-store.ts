@@ -63,7 +63,13 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         }
 
         if (config.dataSchema != null) {
-            const { allFormatters, schema, strict } = config.dataSchema;
+            const {
+                allFormatters,
+                schema,
+                strict,
+                log_level = 'warn'
+            } = config.dataSchema;
+
             const ajv = new Ajv({
                 useDefaults: true,
                 format: allFormatters ? 'full' : 'fast',
@@ -82,8 +88,8 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
                 if (strictMode) {
                     utils.throwValidationError(validate.errors);
-                } else {
-                    this._logger.warn('Invalid record', input, validate.errors);
+                } else if (log_level !== 'none') {
+                    this._logger[log_level]('Invalid record', input, validate.errors);
                 }
             };
         } else {
@@ -242,11 +248,11 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             body: doc
         });
 
-        return ts.pRetry(async () => {
-            const result = await this.client.index(p);
-            result._source = doc;
-            return this._toRecord(result);
+        const result = await ts.pRetry(() => {
+            return this.client.index(p);
         }, utils.getRetryConfig());
+        result._source = doc;
+        return this._toRecord(result);
     }
 
     /**
@@ -260,12 +266,11 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     async mget(body: any, params?: PartialParam<es.MGetParams>): Promise<T[]> {
         const p = this.getDefaultParams(params, { body });
 
-        return ts.pRetry(async () => {
+        const docs = await ts.pRetry(async () => {
             const { docs } = await this.client.mget<T>(p);
-            if (!docs) return [];
-
-            return docs.map(this._toRecord);
+            return docs || [];
         }, utils.getRetryConfig());
+        return docs.map(this._toRecord);
     }
 
     /**
@@ -276,7 +281,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             index: this.indexQuery
         }, params);
 
-        return ts.pRetry(() => {
+        await ts.pRetry(() => {
             return this.client.indices.refresh(p);
         }, utils.getRetryConfig());
     }
@@ -321,33 +326,33 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     /** Search an Elasticsearch Query DSL */
     // tslint:disable-next-line
     async _search(params: PartialParam<SearchParams<T>>): Promise<T[]> {
-        return ts.pRetry(async () => {
-            const results = await this.client.search<T>(this.getDefaultParams({
+        const results = await ts.pRetry(async () => {
+            return this.client.search<T>(this.getDefaultParams({
                 sort: this.config.defaultSort,
             }, params));
-
-            // @ts-ignore because failures doesn't exist in definition
-            const { failures, failed } = results._shards;
-
-            if (failed) {
-                const failureTypes = failures.flatMap((shard: any) => shard.reason.type);
-                const reasons = ts.uniq(failureTypes);
-
-                if (reasons.length > 1 || reasons[0] !== 'es_rejected_execution_exception') {
-                    const errorReason = reasons.join(' | ');
-                    throw new ts.TSError(errorReason, {
-                        reason: 'Not all shards returned successful, shard errors: '
-                    });
-                } else {
-                    const error = new ts.TSError('Retryable Search Failure', {
-                        retryable: true,
-                    });
-                    throw error;
-                }
-            }
-
-            return results.hits.hits.map(this._toRecord);
         }, utils.getRetryConfig());
+
+        // @ts-ignore because failures doesn't exist in definition
+        const { failures, failed } = results._shards;
+
+        if (failed) {
+            const failureTypes = failures.flatMap((shard: any) => shard.reason.type);
+            const reasons = ts.uniq(failureTypes);
+
+            if (reasons.length > 1 || reasons[0] !== 'es_rejected_execution_exception') {
+                const errorReason = reasons.join(' | ');
+                throw new ts.TSError(errorReason, {
+                    reason: 'Not all shards returned successful, shard errors: '
+                });
+            } else {
+                const error = new ts.TSError('Retryable Search Failure', {
+                    retryable: true,
+                });
+                throw error;
+            }
+        }
+
+        return results.hits.hits.map(this._toRecord);
     }
 
     /** Update a document with a given id */

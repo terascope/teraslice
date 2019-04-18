@@ -12,7 +12,7 @@ export class Parser {
 
     constructor(query: string, logger?: Logger) {
         this.logger = logger != null ? logger.child({ module: 'xlucene-parser' }) : _logger;
-        this.query = query;
+        this.query = query || '';
 
         const tracer = new Tracer(this.query, {
             showTrace: false,

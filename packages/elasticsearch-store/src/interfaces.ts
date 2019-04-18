@@ -134,6 +134,11 @@ export interface DataSchema {
     strict?: boolean;
 
     /**
+     * When logging invalid record, optionally set the log level
+     */
+    log_level?: Logger.LogLevel|'none';
+
+    /**
      * If enabled this will allow the use of some of
      * the slower but more correct JSON Schema's formatters:
      *

@@ -44,7 +44,8 @@ const config: IndexModelConfig<DataType> = {
         },
         required: ['client_id', 'name']
     },
-    uniqueFields: ['name']
+    uniqueFields: ['name'],
+    strictMode: false,
 };
 
 /**

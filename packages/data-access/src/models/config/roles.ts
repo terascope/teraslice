@@ -35,6 +35,7 @@ const config: IndexModelConfig<Role> = {
         },
         required: ['client_id', 'name']
     },
+    strictMode: false,
 };
 
 export interface Role extends IndexModelRecord {

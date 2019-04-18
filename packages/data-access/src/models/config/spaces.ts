@@ -137,7 +137,8 @@ const config: IndexModelConfig<Space> = {
     uniqueFields: ['endpoint'],
     sanitizeFields: {
         endpoint: 'toSafeString'
-    }
+    },
+    strictMode: false,
 };
 
 /**

@@ -6,7 +6,7 @@ export default `
         name: String
         description: String
         # virtual references
-        users: [Role]
+        users: [User]
         spaces: [Space]
     }
     input CreateRoleInput {

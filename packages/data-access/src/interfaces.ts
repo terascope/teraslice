@@ -1,9 +1,10 @@
+import { Logger } from '@terascope/utils';
 import { IndexConfig, FindOptions, FindOneOptions } from 'elasticsearch-store';
 import * as models from './models';
-import { Logger } from '@terascope/utils';
 
 export type ModelName = 'User'|'Role'|'DataType'|'Space'|'View';
 export type AuthUser = models.User|false;
+export type AnyModel = models.User|models.Role|models.DataType|models.Space|models.View;
 
 export type FindArgs<T> = { query?: string } & FindOptions<T>;
 export type FindOneArgs<T> = { id: string } & FindOneOptions<T>;

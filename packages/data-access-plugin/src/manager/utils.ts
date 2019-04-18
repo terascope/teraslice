@@ -1,7 +1,7 @@
 import { Request } from 'express';
+import * as ts from '@terascope/utils';
 import * as apollo from 'apollo-server-express';
-import { User, ACLManager, ModelName } from '@terascope/data-access';
-import { parseErrorInfo, trim, get, set } from '@terascope/utils';
+import { User, ACLManager, ModelName, AnyModel } from '@terascope/data-access';
 
 export function forEachModel(fn: (model: ModelName) => void) {
     const models: ModelName[] = ['User', 'Role', 'DataType', 'Space', 'View'];
@@ -11,7 +11,7 @@ export function forEachModel(fn: (model: ModelName) => void) {
 export function formatError(err: any) {
     if (err && err.extensions != null) return err;
 
-    const { statusCode, message, code } = parseErrorInfo(err);
+    const { statusCode, message, code } = ts.parseErrorInfo(err);
 
     let error: any;
 
@@ -36,14 +36,14 @@ export function formatError(err: any) {
 
 export function setLoggedInUser(req: Request, user: User, storeInSession = true): void {
     if (storeInSession) {
-        set(req, '_passport.session.user', user);
-        set(req, 'session.passport', user);
+        ts.set(req, '_passport.session.user', user);
+        ts.set(req, 'session.passport', user);
     }
-    set(req, 'user', user);
+    ts.set(req, 'user', user);
 }
 
 export function getLoggedInUser(req: Request): User|null {
-    const user = get(req, 'user', get(req, 'session.passport'));
+    const user = ts.get(req, 'user', ts.get(req, 'session.passport'));
     // the user must be the latest type
     if (user && user.type && user.id) {
         return user;
@@ -63,18 +63,18 @@ export async function login(manager: ACLManager, req: Request, storeInSession = 
 }
 
 export function getCredentialsFromReq(req: Request): { token?: string, username?: string, password?: string } {
-    const queryToken: string = get(req, 'query.token');
+    const queryToken: string = ts.get(req, 'query.token');
     if (queryToken) return { token: queryToken } ;
 
-    const authToken: string = get(req, 'headers.authorization');
+    const authToken: string = ts.get(req, 'headers.authorization');
     if (!authToken) return { };
 
     let [part1, part2] = authToken.split(' ');
-    part1 = trim(part1);
-    part2 = trim(part2);
+    part1 = ts.trim(part1);
+    part2 = ts.trim(part2);
 
     if (part1 === 'Token') {
-        return { token: trim(part2) };
+        return { token: ts.trim(part2) };
     }
 
     if (part1 === 'Basic') {
@@ -84,4 +84,12 @@ export function getCredentialsFromReq(req: Request): { token?: string, username?
     }
 
     return {};
+}
+
+export async function findAll<T extends AnyModel>(ids: string[]|undefined, fn: (query: string) => Promise<T[]>): Promise<T[]> {
+    const _ids = ts.castArray(ids || []).filter((id) => !!id);
+    if (!_ids.length) return [];
+
+    const query = `id: (${_ids.join(' OR ')})`;
+    return fn(query);
 }

@@ -19,7 +19,7 @@ export default `
         name: String!
         description: String
         data_type: ID!
-        roles: [ID]
+        roles: [ID!]
         ${commonViewModel}
     }
     input UpdateViewInput {
@@ -28,7 +28,7 @@ export default `
         name: String
         description: String
         data_type: ID
-        roles: [ID]
+        roles: [ID!]
         ${commonViewModel}
     }
 `;

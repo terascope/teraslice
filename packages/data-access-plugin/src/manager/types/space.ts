@@ -17,7 +17,7 @@ export default `
         name: String!
         endpoint: String!
         description: String
-        data_type: ID!
+        data_type: ID
         views: [ID!]
         roles: [ID!]
         search_config: SpaceSearchConfigInput

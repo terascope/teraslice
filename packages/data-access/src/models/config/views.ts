@@ -92,7 +92,8 @@ const config: IndexModelConfig<View> = {
             }
         },
         required: ['client_id', 'name', 'data_type']
-    }
+    },
+    strictMode: false,
 };
 
 /**

@@ -23,7 +23,6 @@ export class SearchAccess {
 
         this._logger = logger;
         this._queryAccess = new x.QueryAccess({
-            convert_empty_query_to_wildcard: true,
             excludes: this.config.view.excludes,
             includes: this.config.view.includes,
             constraint: this.config.view.constraint,
@@ -35,17 +34,16 @@ export class SearchAccess {
     /**
      * Converts a restricted xlucene query to an elasticsearch search query
     */
-    restrictSearchQuery(query: string, params?: es.SearchParams): es.SearchParams {
+    restrictSearchQuery(query: string = '*', params?: es.SearchParams): es.SearchParams {
         return this._queryAccess.restrictSearchQuery(query, params);
     }
 
     async performSearch(client: es.Client, query: i.InputQuery) {
         const params = this.getSearchParams(query);
-        const { q = '' } = params;
 
         let esQuery: es.SearchParams;
         try {
-            esQuery = this.restrictSearchQuery(q, params);
+            esQuery = this.restrictSearchQuery(params.q, params);
         } catch (err) {
             throw new ts.TSError(err, {
                 reason: 'Query restricted',

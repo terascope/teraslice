@@ -85,7 +85,7 @@ export class ACLManager {
      * Find all users by a given query
     */
     async findUsers(args: i.FindArgs<models.User> = {}, authUser: i.AuthUser) {
-        return this._users.find(args.query, {}, this._getUserQueryAccess(authUser));
+        return this._users.find(args.query || '', {}, this._getUserQueryAccess(authUser));
     }
 
     /**
@@ -104,7 +104,6 @@ export class ACLManager {
     */
     async updateUser(args: { user: models.UpdateUserInput }, authUser: i.AuthUser): Promise<models.User> {
         await this._validateUserInput(args.user, authUser);
-
         await this._users.update(args.user);
 
         const queryAccess = this._getUserQueryAccess(authUser);
@@ -125,7 +124,7 @@ export class ACLManager {
     */
     async updateToken(args: { id: string }, authUser: i.AuthUser): Promise<string> {
         await this._validateUserInput({ id: args.id }, authUser);
-        return await this._users.updateToken(args.id);
+        return this._users.updateToken(args.id);
     }
 
     /**
@@ -160,7 +159,7 @@ export class ACLManager {
      * Find roles by a given query
     */
     async findRoles(args: i.FindArgs<models.Role> = {}, authUser: i.AuthUser) {
-        return this._roles.find(args.query, {}, this._getRoleQueryAccess(authUser));
+        return this._roles.find(args.query || '', {}, this._getRoleQueryAccess(authUser));
     }
 
     /**
@@ -213,7 +212,7 @@ export class ACLManager {
      * Find data types by a given query
     */
     async findDataTypes(args: i.FindArgs<models.DataType> = {}, authUser: i.AuthUser) {
-        return this._dataTypes.find(args.query, {}, this._getDataTypeQueryAccess(authUser));
+        return this._dataTypes.find(args.query || '', {}, this._getDataTypeQueryAccess(authUser));
     }
 
     /**
@@ -264,7 +263,7 @@ export class ACLManager {
      * Find spaces by a given query
     */
     async findSpaces(args: i.FindArgs<models.Space> = {}, authUser: i.AuthUser) {
-        return this._spaces.find(args.query, {}, this._getSpaceQueryAccess(authUser));
+        return this._spaces.find(args.query || '', {}, this._getSpaceQueryAccess(authUser));
     }
 
     /**
@@ -315,7 +314,7 @@ export class ACLManager {
      * Find views by a given query
     */
     async findViews(args: i.FindArgs<models.View> = {}, authUser: i.AuthUser) {
-        return this._views.find(args.query, {}, this._getViewQueryAccess(authUser));
+        return this._views.find(args.query || '', {}, this._getViewQueryAccess(authUser));
     }
 
     /**
@@ -430,9 +429,16 @@ export class ACLManager {
             constraint += `client_id:${clientId}`;
         }
 
-        if (type === 'USER' && authUser) {
-            if (constraint) constraint += ' AND ';
-            constraint += `id: ${authUser.id}`;
+        if (type === 'USER') {
+            if (authUser && authUser.id) {
+                excludes.push('client_id');
+                if (constraint) constraint += ' AND ';
+                constraint += `id: ${authUser.id}`;
+            } else {
+                throw new ts.TSError('User query forbidden', {
+                    statusCode: 403
+                });
+            }
         }
 
         return this._queryAccess.make<models.User>({
@@ -445,11 +451,28 @@ export class ACLManager {
     private _getRoleQueryAccess(authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
         const clientId = this._getUserClientId(authUser);
-        const excludes: (keyof models.Role)[] = [];
+        const includes: (keyof models.Role)[] = [];
+
+        let constraint = '';
+        if (clientId > 0) {
+            constraint += `client_id:${clientId}`;
+        }
+
+        if (type === 'USER') {
+            if (authUser && authUser.role) {
+                includes.push('id', 'name', 'description');
+                if (constraint) constraint += ' AND ';
+                constraint += `id: ${authUser.role}`;
+            } else {
+                throw new ts.TSError('Role query forbidden', {
+                    statusCode: 403
+                });
+            }
+        }
 
         return this._queryAccess.make<models.Role>({
-            constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
-            excludes,
+            constraint,
+            includes,
             allow_implicit_queries: type !== 'USER'
         }, this.logger);
     }
@@ -457,15 +480,25 @@ export class ACLManager {
     private _getDataTypeQueryAccess(authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
         const clientId = this._getUserClientId(authUser);
-        const excludes: (keyof models.DataType)[] = [];
+        const includes: (keyof models.DataType)[] = [];
+        let constraint = '';
+        if (clientId > 0) {
+            constraint += `client_id:${clientId}`;
+        }
 
-        if (this._getUserType(authUser) === 'USER') {
-            excludes.push('type_config');
+        if (type === 'USER') {
+            if (authUser && authUser.role) {
+                includes.push('id');
+            } else {
+                throw new ts.TSError('DataType query forbidden', {
+                    statusCode: 403
+                });
+            }
         }
 
         return this._queryAccess.make<models.DataType>({
-            constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
-            excludes,
+            constraint,
+            includes,
             allow_implicit_queries: type !== 'USER'
         }, this.logger);
     }
@@ -475,20 +508,29 @@ export class ACLManager {
         const clientId = this._getUserClientId(authUser);
         const includes: (keyof models.View)[] = [];
 
+        let constraint = '';
+        if (clientId > 0) {
+            constraint += `client_id:${clientId}`;
+        }
+
         if (type === 'USER') {
-            includes.push(
-                'id',
-                'client_id',
-                'name',
-                'description',
-                'data_type',
-                'updated',
-                'created',
-            );
+            if (authUser && authUser.role) {
+                includes.push(
+                    'id',
+                    'name',
+                );
+
+                if (constraint) constraint += ' AND ';
+                constraint += `roles: ${authUser.role}`;
+            } else {
+                throw new ts.TSError('View query forbidden', {
+                    statusCode: 403
+                });
+            }
         }
 
         return this._queryAccess.make<models.View>({
-            constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
+            constraint,
             includes,
             allow_implicit_queries: type !== 'USER'
         }, this.logger);
@@ -497,18 +539,33 @@ export class ACLManager {
     private _getSpaceQueryAccess(authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
         const clientId = this._getUserClientId(authUser);
-        const excludes: (keyof models.Space)[] = [];
+        const includes: (keyof models.Space)[] = [];
+
+        let constraint = '';
+        if (clientId > 0) {
+            constraint += `client_id:${clientId}`;
+        }
 
         if (type === 'USER') {
-            excludes.push(
-                'search_config',
-                'streaming_config',
-            );
+            if (authUser && authUser.role) {
+                includes.push(
+                    'id',
+                    'name',
+                    'endpoint'
+                );
+
+                if (constraint) constraint += ' AND ';
+                constraint += `roles: ${authUser.role}`;
+            } else {
+                throw new ts.TSError('Space query forbidden', {
+                    statusCode: 403
+                });
+            }
         }
 
         return this._queryAccess.make<models.Space>({
-            constraint: clientId > 0 ? `client_id:${clientId}` : undefined,
-            excludes,
+            constraint,
+            includes,
             allow_implicit_queries: type !== 'USER'
         }, this.logger);
     }

@@ -27,6 +27,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             dataSchema: {
                 schema: utils.addDefaultSchema(modelConfig.schema),
                 strict: modelConfig.strictMode === false ? false : true,
+                log_level: modelConfig.strictMode === false ? 'trace' : 'warn',
                 allFormatters: true,
             },
             indexSettings: {

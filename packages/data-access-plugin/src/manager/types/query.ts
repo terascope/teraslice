@@ -5,7 +5,7 @@ const methods: string[] = [];
 
 forEachModel((model) => {
     methods.push(`${firstToLower(model)}(id: ID!): ${model}!`);
-    methods.push(`${firstToLower(model)}s(query: String = "*", from: Int = 0, sort: String, size: Int): [${model}!]!`);
+    methods.push(`${firstToLower(model)}s(query: String, size: Int, from: Int, sort: String): [${model}!]!`);
 });
 
 export default `
