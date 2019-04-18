@@ -12,6 +12,7 @@ import spacesConfig, {
 */
 export class Spaces extends IndexModel<Space> {
     static IndexModelConfig = spacesConfig;
+    static ReservedEndpoints = ['data-access'];
 
     constructor(client: es.Client, options: IndexModelOptions) {
         super(client, options, spacesConfig);

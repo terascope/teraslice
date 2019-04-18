@@ -4,10 +4,10 @@ import { ManagerContext } from '../interfaces';
 
 const resolvers = {
     async authenticate(root: any, args: any, ctx: ManagerContext) {
-        const authToken = get(ctx, 'req.user.api_token');
+        const authToken = get(ctx, 'req.v2User.api_token');
         const argToken = get(args, 'token');
         if (authToken && argToken && argToken === authToken) {
-            ctx.user = get(ctx, 'req.user');
+            ctx.user = get(ctx, 'req.v2User');
             return ctx.user;
         }
 

@@ -62,11 +62,17 @@ export class ACLManager {
      */
     async authenticate(args: { username?: string, password?: string, token?: string }): Promise<models.User> {
         if (args.username && args.password) {
-            return this._users.authenticate(args.username, args.password);
+            const user = await this._users.authenticate(args.username, args.password);
+            delete user.hash;
+            delete user.salt;
+            return user;
         }
 
         if (args.token) {
-            return this._users.authenticateWithToken(args.token);
+            const user = await this._users.authenticateWithToken(args.token);
+            delete user.hash;
+            delete user.salt;
+            return user;
         }
 
         throw new ts.TSError('Missing credentials', {
@@ -276,6 +282,13 @@ export class ACLManager {
         await this._validateCanCreate('Space', authUser);
         await this._validateSpaceInput(args.space, authUser);
 
+        const endpoint = ts.get(args, 'space.endpoint');
+        if (models.Spaces.ReservedEndpoints.includes(endpoint)) {
+            throw new ts.TSError(`Space endpoint "${endpoint}" is reserved`, {
+                statusCode: 422
+            });
+        }
+
         return this._spaces.create(args.space);
     }
 
@@ -285,6 +298,13 @@ export class ACLManager {
     async updateSpace(args: { space: UpdateRecordInput<models.Space> }, authUser: i.AuthUser) {
         await this._validateCanUpdate('Space', authUser);
         await this._validateSpaceInput(args.space, authUser);
+
+        const endpoint = ts.get(args, 'space.endpoint');
+        if (models.Spaces.ReservedEndpoints.includes(endpoint)) {
+            throw new ts.TSError(`Space endpoint ${endpoint} is reserved`, {
+                statusCode: 422
+            });
+        }
 
         await this._spaces.update(args.space);
         return this._spaces.findById(args.space.id, {}, this._getSpaceQueryAccess(authUser));

@@ -124,7 +124,7 @@ export default class ManagerPlugin {
 
         this.app.all('/api/v2', (req, res) => {
             // @ts-ignore
-            if (req.aclManager != null && req.user != null) {
+            if (req.aclManager != null && req.v2User != null) {
                 res.sendStatus(204);
             } else {
                 res.sendStatus(500);
@@ -139,10 +139,8 @@ export default class ManagerPlugin {
 
         // this must happen at the end
         this.app.use('/api/v2/:endpoint', (req, res, next) => {
-            // @ts-ignore
-            const manager: ACLManager = req.aclManager;
-            // @ts-ignore
-            const user: User = req.user;
+            const manager: ACLManager = get(req, 'aclManager');
+            const user: User = utils.getLoggedInUser(req)!;
 
             const { endpoint } = req.params;
             const logger = this.context.apis.foundation.makeLogger({

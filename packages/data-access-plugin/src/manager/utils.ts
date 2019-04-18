@@ -36,14 +36,13 @@ export function formatError(err: any) {
 
 export function setLoggedInUser(req: Request, user: User, storeInSession = true): void {
     if (storeInSession) {
-        ts.set(req, '_passport.session.user', user);
-        ts.set(req, 'session.passport', user);
+        ts.set(req, 'session.v2User', user);
     }
-    ts.set(req, 'user', user);
+    ts.set(req, 'v2User', user);
 }
 
 export function getLoggedInUser(req: Request): User|null {
-    const user = ts.get(req, 'user', ts.get(req, 'session.passport'));
+    const user = ts.get(req, 'v2User', ts.get(req, 'session.v2User'));
     // the user must be the latest type
     if (user && user.type && user.id) {
         return user;
