@@ -85,7 +85,7 @@ export class ACLManager {
      * Find all users by a given query
     */
     async findUsers(args: i.FindArgs<models.User> = {}, authUser: i.AuthUser) {
-        return this._users.find(args.query || '', {}, this._getUserQueryAccess(authUser));
+        return this._users.find(args.query, {}, this._getUserQueryAccess(authUser));
     }
 
     /**
@@ -159,7 +159,7 @@ export class ACLManager {
      * Find roles by a given query
     */
     async findRoles(args: i.FindArgs<models.Role> = {}, authUser: i.AuthUser) {
-        return this._roles.find(args.query || '', {}, this._getRoleQueryAccess(authUser));
+        return this._roles.find(args.query, {}, this._getRoleQueryAccess(authUser));
     }
 
     /**
@@ -212,7 +212,7 @@ export class ACLManager {
      * Find data types by a given query
     */
     async findDataTypes(args: i.FindArgs<models.DataType> = {}, authUser: i.AuthUser) {
-        return this._dataTypes.find(args.query || '', {}, this._getDataTypeQueryAccess(authUser));
+        return this._dataTypes.find(args.query, {}, this._getDataTypeQueryAccess(authUser));
     }
 
     /**
@@ -263,7 +263,7 @@ export class ACLManager {
      * Find spaces by a given query
     */
     async findSpaces(args: i.FindArgs<models.Space> = {}, authUser: i.AuthUser) {
-        return this._spaces.find(args.query || '', {}, this._getSpaceQueryAccess(authUser));
+        return this._spaces.find(args.query, {}, this._getSpaceQueryAccess(authUser));
     }
 
     /**
@@ -314,7 +314,7 @@ export class ACLManager {
      * Find views by a given query
     */
     async findViews(args: i.FindArgs<models.View> = {}, authUser: i.AuthUser) {
-        return this._views.find(args.query || '', {}, this._getViewQueryAccess(authUser));
+        return this._views.find(args.query, {}, this._getViewQueryAccess(authUser));
     }
 
     /**
@@ -444,7 +444,7 @@ export class ACLManager {
         return this._queryAccess.make<models.User>({
             constraint,
             excludes,
-            allow_implicit_queries: type !== 'USER'
+            allow_implicit_queries: true
         }, this.logger);
     }
 
@@ -473,7 +473,7 @@ export class ACLManager {
         return this._queryAccess.make<models.Role>({
             constraint,
             includes,
-            allow_implicit_queries: type !== 'USER'
+            allow_implicit_queries: true
         }, this.logger);
     }
 
@@ -499,7 +499,7 @@ export class ACLManager {
         return this._queryAccess.make<models.DataType>({
             constraint,
             includes,
-            allow_implicit_queries: type !== 'USER'
+            allow_implicit_queries: true
         }, this.logger);
     }
 
@@ -532,7 +532,7 @@ export class ACLManager {
         return this._queryAccess.make<models.View>({
             constraint,
             includes,
-            allow_implicit_queries: type !== 'USER'
+            allow_implicit_queries: true
         }, this.logger);
     }
 
@@ -566,7 +566,7 @@ export class ACLManager {
         return this._queryAccess.make<models.Space>({
             constraint,
             includes,
-            allow_implicit_queries: type !== 'USER'
+            allow_implicit_queries: true
         }, this.logger);
     }
 
