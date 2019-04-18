@@ -1,9 +1,7 @@
-import { PRetryConfig } from '@terascope/utils';
+import { PRetryConfig, isTest } from '@terascope/utils';
 
-const isTestMode = process.env.NODE_ENV === 'test';
-
-export const MAX_RETRIES = isTestMode ? 2 : 100;
-export const RETRY_DELAY = isTestMode ? 50 : 500;
+export const MAX_RETRIES = isTest ? 2 : 100;
+export const RETRY_DELAY = isTest ? 50 : 500;
 
 export function getRetryConfig(): Partial<PRetryConfig> {
     return {

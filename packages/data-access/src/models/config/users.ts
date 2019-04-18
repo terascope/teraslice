@@ -117,49 +117,6 @@ const config: IndexModelConfig<User> = {
     strictMode: false,
 };
 
-export const GraphQLSchema = `
-    enum UserType {
-        USER
-        ADMIN
-        SUPERADMIN
-    }
-
-    type User {
-        client_id: Int!
-        id: ID!
-        username: String!
-        firstname: String!
-        lastname: String!
-        email: String
-        role: String
-        type: UserType
-        api_token: String
-        created: String
-        updated: String
-    }
-
-    input CreateUserInput {
-        client_id: Int
-        username: String!
-        firstname: String!
-        lastname: String!
-        email: String
-        type: UserType
-        role: String
-    }
-
-    input UpdateUserInput {
-        client_id: Int
-        id: ID!
-        username: String
-        firstname: String
-        lastname: String
-        email: String
-        type: UserType
-        role: String
-    }
-`;
-
 /**
  * The definition of a User model
 */

@@ -7,8 +7,6 @@ const _loggers = new WeakMap<IndexConfig, ts.Logger>();
 
 /**
  * Manage Elasticsearch Indicies
- *
- * @todo when setting up and index with multiple workers at the same it should not fail with an "index_exists"
  */
 export default class IndexManager {
     readonly client: es.Client;
@@ -81,17 +79,17 @@ export default class IndexManager {
         const indexName = this.formatIndexName(config, false);
         const logger = this._logger(config);
 
-        if (await this.exists(indexName)) {
-            logger.debug(`Index "${indexName}" already exists`);
-            return false;
-        }
-
         const settings = Object.assign({}, config.indexSettings);
 
         const body: any = {
             settings,
             mappings: {}
         };
+
+        if (!ts.isTest) {
+            // stagger the index creation in start up when in non test mode
+            await ts.pDelay(ts.random(0, 1000));
+        }
 
         body.mappings[config.name] = utils.getIndexMapping(config);
 
@@ -104,6 +102,11 @@ export default class IndexManager {
 
             logger.debug(`Upserting template "${templateName}"...`, body);
             await this.upsertTemplate(body);
+        }
+
+        if (await this.exists(indexName)) {
+            logger.debug(`Index "${indexName}" already exists`);
+            return false;
         }
 
         logger.debug(`Creating "${indexName}"...`, body);

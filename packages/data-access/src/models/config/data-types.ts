@@ -44,7 +44,8 @@ const config: IndexModelConfig<DataType> = {
         },
         required: ['client_id', 'name']
     },
-    uniqueFields: ['name']
+    uniqueFields: ['name'],
+    strictMode: false,
 };
 
 /**
@@ -71,32 +72,5 @@ export interface DataType extends IndexModelRecord {
     */
     type_config?: TypeConfig;
 }
-
-export const GraphQLSchema = `
-    type DataType {
-        client_id: Int!
-        id: ID!
-        name: String
-        description: String
-        type_config: JSON
-        created: String
-        updated: String
-    }
-
-    input CreateDataTypeInput {
-        client_id: Int!
-        name: String!
-        description: String
-        type_config: JSON
-    }
-
-    input UpdateDataTypeInput {
-        client_id: Int
-        id: ID!
-        name: String
-        description: String
-        type_config: JSON
-    }
-`;
 
 export default config;

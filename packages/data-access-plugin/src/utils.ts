@@ -1,4 +1,3 @@
-import get from 'lodash.get';
 import { Client } from 'elasticsearch';
 import { Request, Response } from 'express';
 import { Context } from '@terascope/job-components';
@@ -22,7 +21,7 @@ export function makeErrorHandler(reason: string, logger: ts.Logger, requireSafe 
                 error: ts.stripErrorMessage(error, reason, requireSafe)
             };
 
-            const user = get(req, 'user', { type: 'USER' });
+            const user = ts.get(req, 'v2User', { type: 'USER' });
             if (user.type !== 'USER') {
                 resp.debug = {
                     timestamp: ts.makeISODate()

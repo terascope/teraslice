@@ -92,7 +92,8 @@ const config: IndexModelConfig<View> = {
             }
         },
         required: ['client_id', 'name', 'data_type']
-    }
+    },
+    strictMode: false,
 };
 
 /**
@@ -147,47 +148,5 @@ export interface View extends IndexModelRecord {
     */
     prevent_prefix_wildcard?: boolean;
 }
-
-export const GraphQLSchema = `
-    type View {
-        client_id: Int!
-        id: ID!
-        name: String
-        description: String
-        data_type: String
-        roles: [String]
-        excludes: [String]
-        includes: [String]
-        constraint: String
-        prevent_prefix_wildcard: Boolean
-        created: String
-        updated: String
-    }
-
-    input CreateViewInput {
-        client_id: Int
-        name: String!
-        description: String
-        data_type: String!
-        roles: [String]
-        excludes: [String]
-        includes: [String]
-        constraint: String
-        prevent_prefix_wildcard: Boolean
-    }
-
-    input UpdateViewInput {
-        client_id: Int
-        id: ID!
-        name: String
-        description: String
-        data_type: String
-        roles: [String]
-        excludes: [String]
-        includes: [String]
-        constraint: String
-        prevent_prefix_wildcard: Boolean
-    }
-`;
 
 export default config;

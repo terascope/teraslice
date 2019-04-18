@@ -134,6 +134,11 @@ export interface DataSchema {
     strict?: boolean;
 
     /**
+     * When logging invalid record, optionally set the log level
+     */
+    log_level?: Logger.LogLevel|'none';
+
+    /**
      * If enabled this will allow the use of some of
      * the slower but more correct JSON Schema's formatters:
      *
@@ -229,3 +234,16 @@ export interface IndexModelOptions {
     storeOptions?: Partial<IndexConfig>;
     logger?: Logger;
 }
+
+export type FindOptions<T> = {
+    includes?: (keyof T)[],
+    excludes?: (keyof T)[],
+    from?: number;
+    sort?: string;
+    size?: number;
+};
+
+export type FindOneOptions<T> = {
+    includes?: (keyof T)[],
+    excludes?: (keyof T)[],
+};

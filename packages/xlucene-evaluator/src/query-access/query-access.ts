@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { TermLikeAST, isWildcard, CachedParser } from '../parser';
+import { TermLikeAST, isWildcard, CachedParser, isEmptyAST } from '../parser';
 import { CachedTranslator } from '../translator';
 import { QueryAccessConfig } from './interfaces';
 import { TypeConfig } from '../interfaces';
@@ -14,7 +14,6 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     readonly constraint?: string;
     readonly preventPrefixWildcard: boolean;
     readonly allowImplicitQueries: boolean;
-    readonly convertEmptyQueryToWildcard: boolean;
     readonly typeConfig: TypeConfig;
     logger: ts.Logger;
 
@@ -28,7 +27,6 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             constraint,
             prevent_prefix_wildcard,
             allow_implicit_queries,
-            convert_empty_query_to_wildcard,
             type_config = {}
         } = config;
 
@@ -38,7 +36,6 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         this.constraint = constraint;
         this.preventPrefixWildcard = !!prevent_prefix_wildcard;
         this.allowImplicitQueries = !!allow_implicit_queries;
-        this.convertEmptyQueryToWildcard = !!convert_empty_query_to_wildcard;
         this.typeConfig = type_config;
     }
 
@@ -53,13 +50,17 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      * @returns a restricted xlucene query
     */
     restrict(query: string): string {
-        if (this.includes.length && !query.length && !this.convertEmptyQueryToWildcard) {
-            throw new ts.TSError('Empty queries are restricted', {
-                statusCode: 403
-            });
+        const parser = this._parser.make(query, this.logger);
+
+        if (isEmptyAST(parser.ast)) {
+            if (!this.constraint) {
+                throw new ts.TSError('Empty queries are restricted', {
+                    statusCode: 403
+                });
+            }
+            return this.constraint;
         }
 
-        const parser = this._parser.make(query, this.logger);
         parser.forTermTypes((node: TermLikeAST) => {
             // restrict when a term is specified without a field
             if (!node.field) {
@@ -90,14 +91,6 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
                 }
             }
         });
-
-        if (!query && this.convertEmptyQueryToWildcard) {
-            if (this.constraint) {
-                return this.constraint;
-            }
-
-            return '*';
-        }
 
         if (this.constraint) {
             return `${query} AND ${this.constraint}`;

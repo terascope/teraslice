@@ -1,7 +1,7 @@
 'use strict';
 
 const Promise = require('bluebird');
-const get = require('lodash/get');
+const { get } = require('@terascope/utils');
 const { JobValidator } = require('@terascope/job-components');
 const { terasliceOpPath } = require('../../config');
 const { makeJobStore, makeExStore } = require('../../cluster/storage');

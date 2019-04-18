@@ -1,6 +1,5 @@
 import 'jest-extended';
-import get from 'lodash/get';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger, get } from '@terascope/utils';
 import { buildAnyQuery } from '../src/translator/utils';
 import { Translator, TypeConfig } from '../src';
 import { AST, Parser } from '../src/parser';

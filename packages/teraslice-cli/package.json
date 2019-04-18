@@ -44,7 +44,7 @@
         "yargs": "^13.2.2",
         "yeoman-environment": "^2.3.4",
         "yeoman-generator": "^3.2.0",
-        "yo": "^2.0.5"
+        "yo": "^2.0.6"
     },
     "devDependencies": {
         "jest-fixtures": "^0.6.0",

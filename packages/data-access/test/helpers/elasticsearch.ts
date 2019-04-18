@@ -20,6 +20,8 @@ export function cleanupIndex(model: Model) {
 
     return client.indices.delete({
         index: indexQuery,
+        requestTimeout: 3000,
+        ignoreUnavailable: true,
     }).catch(() => {});
 }
 

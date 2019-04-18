@@ -35,31 +35,8 @@ const config: IndexModelConfig<Role> = {
         },
         required: ['client_id', 'name']
     },
+    strictMode: false,
 };
-
-export const GraphQLSchema = `
-    type Role {
-        client_id: Int!
-        id: ID!
-        name: String
-        description: String
-        created: String
-        updated: String
-    }
-
-    input CreateRoleInput {
-        client_id: Int
-        name: String!
-        description: String
-    }
-
-    input UpdateRoleInput {
-        client_id: Int
-        id: ID!
-        name: String
-        description: String
-    }
-`;
 
 export interface Role extends IndexModelRecord {
     /**

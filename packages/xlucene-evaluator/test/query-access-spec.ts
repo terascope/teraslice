@@ -175,13 +175,37 @@ describe('QueryAccess', () => {
             expect(queryAccess.restrict(query)).toEqual(query);
         });
 
-        it('should be able to convert an empty query to a wildcard', () => {
-            const query = '';
+        describe('when given an empty query', () => {
+            it('should be able to default to constraint query', () => {
+                const result = new QueryAccess({
+                    constraint: 'foo:bar'
+                }).restrict('');
+                expect(result).toEqual('foo:bar');
+            });
+        });
 
-            const result = new QueryAccess({
-                convert_empty_query_to_wildcard: true
-            }).restrict(query);
-            expect(result).toEqual('*');
+        describe('when given null', () => {
+            it('should be able to default to constraint query', () => {
+                // @ts-ignore
+                const query: string = null;
+
+                const result = new QueryAccess({
+                    constraint: 'foo:bar'
+                }).restrict(query);
+                expect(result).toEqual('foo:bar');
+            });
+        });
+
+        describe('when given undefined', () => {
+            it('should be able to default to constraint query', () => {
+                // @ts-ignore
+                const query: string = undefined;
+
+                const result = new QueryAccess({
+                    constraint: 'foo:bar'
+                }).restrict(query);
+                expect(result).toEqual('foo:bar');
+            });
         });
     });
 
@@ -239,7 +263,7 @@ describe('QueryAccess', () => {
 
     describe('when converting to an elasticsearch search query', () => {
         const queryAccess = new QueryAccess({
-            convert_empty_query_to_wildcard: true,
+            allow_implicit_queries: true,
             excludes: [
                 'bar',
                 'baz'
@@ -275,30 +299,28 @@ describe('QueryAccess', () => {
             expect(result).not.toHaveProperty('q', 'idk');
         });
 
-        describe('when convert_empty_query_to_wildcard is set to true', () => {
-            it('should be able to allow empty queries', () => {
-                const result = queryAccess.restrictSearchQuery('');
-                expect(result).toEqual({
-                    body: {
-                        query: {
-                            constant_score: {
-                                filter: {
-                                    bool: {
-                                        filter: []
-                                    }
+        it('should be able to allow * queries', () => {
+            const result = queryAccess.restrictSearchQuery('*');
+            expect(result).toEqual({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                bool: {
+                                    filter: []
                                 }
-                            },
+                            }
                         },
                     },
-                    _sourceExclude: [
-                        'bar',
-                        'baz'
-                    ],
-                    _sourceInclude: [
-                        'foo',
-                        'moo'
-                    ],
-                });
+                },
+                _sourceExclude: [
+                    'bar',
+                    'baz'
+                ],
+                _sourceInclude: [
+                    'foo',
+                    'moo'
+                ],
             });
         });
 

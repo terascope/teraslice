@@ -1,8 +1,9 @@
 'use strict';
 
 const _ = require('lodash');
+const SimpleContext = require('./lib/simple-context');
 
-module.exports = function module(config) {
+module.exports = function clusterContext(config) {
     const domain = require('domain');
     const primary = domain.create();
     const cluster = require('cluster');
@@ -151,3 +152,5 @@ module.exports = function module(config) {
 
     return primary;
 };
+
+module.exports.SimpleContext = SimpleContext;

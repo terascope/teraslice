@@ -27,6 +27,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             dataSchema: {
                 schema: utils.addDefaultSchema(modelConfig.schema),
                 strict: modelConfig.strictMode === false ? false : true,
+                log_level: modelConfig.strictMode === false ? 'trace' : 'warn',
                 allFormatters: true,
             },
             indexSettings: {
@@ -116,7 +117,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return count === ids.length;
     }
 
-    async findBy(fields: Partial<T>, joinBy = 'AND', options?: FindOneOptions<T>, queryAccess?: QueryAccess<T>) {
+    async findBy(fields: Partial<T>, joinBy = 'AND', options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>) {
         const query = Object.entries(fields)
             .map(([field, val]) => {
                 if (val == null) {
@@ -143,13 +144,13 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return record;
     }
 
-    async findById(id: string, options?: FindOneOptions<T>, queryAccess?: QueryAccess<T>): Promise<T> {
+    async findById(id: string, options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>): Promise<T> {
         const fields: Partial<T> = { };
         fields[this._idField] = id as any;
         return this.findBy(fields, 'AND', options, queryAccess);
     }
 
-    async findByAnyId(anyId: any, options?: FindOneOptions<T>, queryAccess?: QueryAccess<T>) {
+    async findByAnyId(anyId: any, options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>) {
         const fields: Partial<T> = {};
 
         for (const field of this._uniqueFields) {
@@ -159,7 +160,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return this.findBy(fields, 'OR', options, queryAccess);
     }
 
-    async findAll(input: string[]|string, options?: FindOneOptions<T>, queryAccess?: QueryAccess<T>) {
+    async findAll(input: string[]|string, options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>) {
         const ids: string[] = ts.parseList(input);
         if (!ids || !ids.length) return [];
 
@@ -180,7 +181,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return result;
     }
 
-    async find(q: string = '*', options: FindOptions<T> = {}, queryAccess?: QueryAccess<T>): Promise<T[]> {
+    async find(q: string = '*', options: i.FindOptions<T> = {}, queryAccess?: QueryAccess<T>): Promise<T[]> {
         return this._find(q, options, queryAccess);
     }
 
@@ -277,7 +278,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return this.store.count(`${field}:"${val}"`);
     }
 
-    protected async _find(q: string = '*', options: FindOptions<T> = {}, queryAccess?: QueryAccess<T>) {
+    protected async _find(q: string = '*', options: i.FindOptions<T> = {}, queryAccess?: QueryAccess<T>) {
         const params: Partial<es.SearchParams> = {
             size: options.size,
             sort: options.sort,
@@ -338,16 +339,3 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return record;
     }
 }
-
-export type FindOptions<T> = {
-    includes?: (keyof T)[],
-    excludes?: (keyof T)[],
-    from?: number;
-    sort?: string;
-    size?: number;
-};
-
-export type FindOneOptions<T> = {
-    includes?: (keyof T)[],
-    excludes?: (keyof T)[],
-};

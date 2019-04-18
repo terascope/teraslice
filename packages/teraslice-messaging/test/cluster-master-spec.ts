@@ -68,9 +68,10 @@ describe('ClusterMaster', () => {
     describe('Client & AssetClient & Server', () => {
         let client: ClusterMaster.Client;
         let server: ClusterMaster.Server;
-        const exId = newMsgId();
+        let exId: string;
 
         beforeAll(async () => {
+            exId = await newMsgId();
             const slicerPort = await findPort();
             const clusterMasterUrl = formatURL('localhost', slicerPort);
             server = new ClusterMaster.Server({

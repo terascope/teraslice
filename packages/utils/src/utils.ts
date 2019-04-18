@@ -1,5 +1,7 @@
 import isPlainObject from 'is-plain-object';
 import cloneDeep from 'lodash.clonedeep';
+import get from 'lodash.get';
+import set from 'lodash.set';
 import kindOf from 'kind-of';
 import { isString, toString, firstToUpper, trimAndToLower } from './strings';
 
@@ -61,7 +63,7 @@ export function isInteger(val: any): val is number {
 }
 
 // export a few dependencies
-export { isPlainObject, cloneDeep };
+export { isPlainObject, cloneDeep, get, set };
 
 /** Verify an input is a function */
 export function isFunction(input: any): input is Function {

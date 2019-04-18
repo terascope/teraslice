@@ -1,4 +1,4 @@
-import { isString } from 'lodash';
+import { isString } from '@terascope/utils';
 import * as i from './interfaces';
 import * as core from '../messenger';
 

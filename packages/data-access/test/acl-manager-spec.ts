@@ -195,6 +195,32 @@ describe('ACLManager', () => {
         });
     });
 
+    describe('when creating a space and given data-access as the endpoint', () => {
+        it('should throw an error', async () => {
+            expect.hasAssertions();
+
+            // @ts-ignore
+            const dataType: string = undefined;
+
+            try {
+                await manager.createSpace({
+                    space: {
+                        client_id: 1,
+                        name: 'uh-oh',
+                        endpoint: 'data-access',
+                        data_type: dataType,
+                        views: [],
+                        roles: [],
+                    }
+                }, false);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Space endpoint "data-access" is reserved');
+                expect(err.statusCode).toEqual(422);
+            }
+        });
+    });
+
     describe('when creating a space with a invalid data type', () => {
         let dataType1: string;
         let dataType2: string;

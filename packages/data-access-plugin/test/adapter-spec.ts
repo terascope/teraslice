@@ -55,7 +55,6 @@ describe('TeraserverAdapterPlugin', () => {
             server_config: {
                 data_access: {
                     namespace: 'test_da_adapter',
-                    bootstrap_mode: true,
                 },
                 teraserver: {
                     shutdown_timeout: 1,

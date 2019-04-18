@@ -43,7 +43,6 @@ describe('Data Access Plugin', () => {
         server_config: {
             data_access: {
                 namespace: 'test_da_plugin',
-                bootstrap_mode: true,
             },
             teraserver: {
                 shutdown_timeout: 1,
@@ -65,6 +64,7 @@ describe('Data Access Plugin', () => {
     }
 
     let reqClient: GraphQLClient;
+    let adminUserId: string;
 
     beforeAll(async () => {
         await Promise.all([
@@ -87,6 +87,19 @@ describe('Data Access Plugin', () => {
             search.initialize(),
         ]);
 
+        const adminUser = await manager.manager.createUser({
+            user: {
+                client_id: 0,
+                username: 'admin',
+                firstname: 'System',
+                lastname: 'Admin',
+                email: 'admin@example.com',
+                type: 'SUPERADMIN'
+            },
+            password: 'admin'
+        }, false);
+        adminUserId = adminUser.id;
+
         reqClient = new GraphQLClient(formatBaseUri('/data-access'), {
             headers: {
                 Authorization: `Basic ${Buffer.from('admin:admin').toString('base64')}`,
@@ -99,21 +112,13 @@ describe('Data Access Plugin', () => {
 
     afterAll(async () => {
         await Promise.all([
-            cleanupIndexes(manager.manager),
-            (() => {
-                return new Promise((resolve, reject) => {
-                    listener.close((err: any) => {
-                        if (err) reject(err);
-                        else resolve();
-                    });
-                });
-            })()
-        ]);
-
-        await Promise.all([
             manager.shutdown(),
             search.shutdown(),
         ]);
+
+        await cleanupIndexes(manager.manager);
+
+        listener && listener.close();
     });
 
     let userId: string;
@@ -194,9 +199,7 @@ describe('Data Access Plugin', () => {
                         roles: ["${roleId}"]
                     }) {
                         id,
-                        name,
-                        roles,
-                        data_type
+                        name
                     }
                 }
             `;
@@ -208,8 +211,6 @@ describe('Data Access Plugin', () => {
 
             expect(createView).toMatchObject({
                 name: 'greetings-admin',
-                roles: [roleId],
-                data_type: dataTypeId,
             });
         });
 
@@ -243,7 +244,6 @@ describe('Data Access Plugin', () => {
                             require_query,
                             sort_enabled
                         }
-                        data_type
                     }
                 }
             `;
@@ -256,7 +256,6 @@ describe('Data Access Plugin', () => {
             expect(createSpace).toMatchObject({
                 name: 'Greetings Space',
                 endpoint: 'greetings',
-                data_type: dataTypeId,
                 search_config: {
                     require_query: true,
                     sort_enabled: true,
@@ -284,7 +283,6 @@ describe('Data Access Plugin', () => {
                         username,
                         email,
                         api_token,
-                        role,
                         type
                     }
                 }
@@ -300,111 +298,198 @@ describe('Data Access Plugin', () => {
             expect(createUser).toMatchObject({
                 username: 'hello',
                 email: 'hi@example.com',
-                role: roleId,
                 type: 'SUPERADMIN'
             });
         });
 
-        it('should be able to find everything', async () => {
+        it('should be able to find records', async () => {
             expect(userId).toBeTruthy();
             expect(spaceId).toBeTruthy();
             expect(viewId).toBeTruthy();
+            expect(dataTypeId).toBeTruthy();
 
             const query = `
                 query {
-                    findRole(id: "${roleId}") {
+                    roles(query: "*") {
                         client_id,
+                        id,
                         name
                     }
-                    findRoles(query: "*") {
-                        name
-                    }
-                    findUser(id: "${userId}") {
+                    users(query: "*") {
                         client_id,
+                        id,
                         username,
                         firstname,
-                        lastname,
+                        lastname
                     }
-                    findUsers(query: "*") {
-                        username
-                    }
-                    findSpace(id: "${spaceId}") {
+                    spaces(query: "*") {
                         client_id,
-                        views,
-                        roles
-                    }
-                    findSpaces(query: "*") {
+                        id,
                         name
                     }
-                    findDataType(id: "${dataTypeId}") {
+                    dataTypes(query: "*") {
                         client_id,
+                        id,
                         name
                     }
-                    findDataTypes(query: "*") {
-                        name
-                    }
-                    findView(id: "${viewId}") {
+                    views(query: "*") {
                         client_id,
+                        id,
+                        name,
                         excludes
-                    }
-                    findViews(query: "*") {
-                        name
                     }
                 }
             `;
 
             expect(await reqClient.request(query)).toEqual({
-                findRole: {
-                    client_id: 1,
-                    name: 'greeter'
-                },
-                findRoles: [
+                roles: [
                     {
-                        name: 'greeter'
+                        client_id: 1,
+                        id: roleId,
+                        name: 'greeter',
                     }
                 ],
-                findUser: {
-                    client_id: 1,
-                    username: 'hello',
-                    firstname: 'hi',
-                    lastname: 'hello'
-                },
-                findUsers: [
+                users: [
                     {
-                        username: 'admin'
+                        client_id: 0,
+                        id: adminUserId,
+                        username: 'admin',
+                        firstname: 'System',
+                        lastname: 'Admin',
                     },
                     {
-                        username: 'hello'
+                        client_id: 1,
+                        id: userId,
+                        username: 'hello',
+                        firstname: 'hi',
+                        lastname: 'hello',
                     }
                 ],
-                findSpace: {
-                    client_id: 1,
-                    views: [viewId],
-                    roles: [roleId]
-                },
-                findSpaces: [
+                spaces: [
                     {
+                        client_id: 1,
+                        id: spaceId,
                         name: 'Greetings Space'
                     }
                 ],
-                findDataType: {
-                    client_id: 1,
-                    name: 'Greeter'
-                },
-                findDataTypes: [
+                dataTypes: [
                     {
+                        client_id: 1,
+                        id: dataTypeId,
                         name: 'Greeter'
                     }
                 ],
-                findView: {
-                    client_id: 1,
-                    excludes: ['created', 'updated'],
-                },
-                findViews: [
+                views: [
                     {
+                        client_id: 1,
+                        id: viewId,
                         name: 'greetings-admin',
+                        excludes: ['created', 'updated'],
                     }
                 ]
+            });
+        });
+
+        it('should be able to find relational data', async () => {
+            expect(userId).toBeTruthy();
+            expect(spaceId).toBeTruthy();
+            expect(viewId).toBeTruthy();
+            expect(dataTypeId).toBeTruthy();
+
+            const query = `
+                query {
+                    role(id: "${roleId}") {
+                        spaces {
+                            id
+                        },
+                        users {
+                            id
+                        }
+                    }
+                    user(id: "${userId}") {
+                        role {
+                            id
+                        }
+                    }
+                    space(id: "${spaceId}") {
+                        data_type {
+                            id
+                        },
+                        views {
+                            id
+                        },
+                        roles {
+                            id
+                        }
+                    }
+                    dataType(id: "${dataTypeId}") {
+                        spaces {
+                            id
+                        },
+                        views {
+                            id
+                        }
+                    }
+                    view(id: "${viewId}") {
+                        roles {
+                            id
+                        }
+                    }
+                }
+            `;
+
+            expect(await reqClient.request(query)).toEqual({
+                role: {
+                    users: [
+                        {
+                            id: userId,
+                        }
+                    ],
+                    spaces: [
+                        {
+                            id: spaceId,
+                        }
+                    ]
+                },
+                user: {
+                    role: {
+                        id: roleId
+                    }
+                },
+                space: {
+                    data_type: {
+                        id: dataTypeId,
+                    },
+                    views: [
+                        {
+                            id: viewId,
+                        }
+                    ],
+                    roles: [
+                        {
+                            id: roleId
+                        }
+                    ]
+                },
+                dataType: {
+                    views: [
+                        {
+                            id: viewId
+                        }
+                    ],
+                    spaces: [
+                        {
+                            id: spaceId
+                        }
+                    ]
+                },
+                view: {
+                    roles: [
+                        {
+                            id: roleId
+                        }
+                    ]
+                },
             });
         });
     });
@@ -477,6 +562,7 @@ describe('Data Access Plugin', () => {
         beforeAll(async () => {
             await client.indices.delete({
                 index,
+                requestTimeout: 1000,
                 ignoreUnavailable: true,
             });
 
@@ -489,7 +575,7 @@ describe('Data Access Plugin', () => {
                         'index.number_of_replicas': 0
                     },
                     mappings: {
-                        _doc: {
+                        hello: {
                             _all: {
                                 enabled: false
                             },
@@ -518,7 +604,7 @@ describe('Data Access Plugin', () => {
 
             await client.create({
                 index,
-                type: '_doc',
+                type: 'hello',
                 id: '1',
                 refresh: true,
                 body: {
@@ -532,7 +618,7 @@ describe('Data Access Plugin', () => {
 
             await client.create({
                 index,
-                type: '_doc',
+                type: 'hello',
                 id: '2',
                 refresh: true,
                 body: {
@@ -546,7 +632,7 @@ describe('Data Access Plugin', () => {
 
             await client.create({
                 index,
-                type: '_doc',
+                type: 'hello',
                 id: '3',
                 refresh: true,
                 body: {
@@ -560,7 +646,7 @@ describe('Data Access Plugin', () => {
 
             await client.create({
                 index,
-                type: '_doc',
+                type: 'hello',
                 id: '4',
                 refresh: true,
                 body: {
@@ -576,6 +662,7 @@ describe('Data Access Plugin', () => {
         afterAll(async () => {
             await client.indices.delete({
                 index,
+                requestTimeout: 3000,
                 ignoreUnavailable: true,
             });
         });

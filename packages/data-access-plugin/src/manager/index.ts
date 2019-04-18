@@ -1,21 +1,19 @@
-import get from 'lodash.get';
-import { Express, Request } from 'express';
+import { Express } from 'express';
 import { Client } from 'elasticsearch';
-import { Logger, toBoolean, trim } from '@terascope/utils';
 import * as apollo from 'apollo-server-express';
 import { Context } from '@terascope/job-components';
+import { Logger, toBoolean, get } from '@terascope/utils';
 import { ACLManager, User } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { makeSearchFn } from '../search/utils';
 import { makeErrorHandler, getESClient } from '../utils';
-import { formatError } from './utils';
-import schema from './schema';
+import typeDefs from './types';
+import resolvers from './resolvers';
+import * as utils from './utils';
+import { ManagerContext } from './interfaces';
 
 /**
  * A graphql api for managing data access
- *
- * @todo the manager should be able to pull relational data
- * @todo add session support
 */
 export default class ManagerPlugin {
     readonly config: TeraserverConfig;
@@ -23,7 +21,6 @@ export default class ManagerPlugin {
     readonly app: Express;
     readonly manager: ACLManager;
     readonly server: apollo.ApolloServer;
-    readonly bootstrapMode: boolean;
     readonly client: Client;
     readonly context: Context;
 
@@ -33,13 +30,10 @@ export default class ManagerPlugin {
         this.app = pluginConfig.app;
         this.context = pluginConfig.context;
 
-        const connection: string = get(this.config, 'data_access.connect', 'default');
+        const connection: string = get(this.config, 'data_access.connection', 'default');
         const namespace: string = get(this.config, 'data_access.namespace');
-        const bootstrapMode: boolean = get(this.config, 'data_access.bootstrap_mode', false);
 
         this.client = getESClient(this.context, connection);
-
-        this.bootstrapMode = bootstrapMode;
 
         this.manager = new ACLManager(this.client, {
             namespace,
@@ -47,22 +41,37 @@ export default class ManagerPlugin {
         });
 
         this.server = new apollo.ApolloServer({
-            schema,
+            schema: apollo.makeExecutableSchema({
+                typeDefs,
+                resolvers,
+                inheritResolversFromInterfaces: true,
+            }),
             context: async ({ req }) => {
-                if (req.body.operationName === 'IntrospectionQuery') {
-                    return {
-                        user: false,
-                        manager: this.manager,
-                    };
+                const ctx: ManagerContext = {
+                    req,
+                    user: false,
+                    logger: this.logger,
+                    manager: this.manager,
+                    authenticating: false,
+                };
+
+                let skipAuth = false;
+                const { query, operationName } = req.body;
+                if (operationName === 'IntrospectionQuery') {
+                    skipAuth = true;
+                } else if (query && query.includes('authenticate(')) {
+                    skipAuth = true;
                 }
 
-                const creds = getCredentialsFromReq(req);
+                if (skipAuth) {
+                    ctx.authenticating = true;
+                    return ctx;
+                }
+
                 try {
-                    const user = await this.manager.authenticate(creds);
-                    return {
-                        user,
-                        manager: this.manager,
-                    };
+                    const user = await utils.login(this.manager, req);
+                    ctx.user = user;
+                    return ctx;
                 } catch (err) {
                     this.logger.error(err, req);
                     if (err.statusCode === 401) {
@@ -75,54 +84,27 @@ export default class ManagerPlugin {
                     throw err;
                 }
             },
-            formatError,
+            formatError: utils.formatError,
+            playground: {
+                settings: {
+                    'request.credentials': 'include',
+                }
+            } as apollo.PlaygroundConfig
         });
     }
 
     async initialize() {
         await this.manager.initialize();
-
-        if (!this.bootstrapMode) return;
-
-        const users = await this.manager.findUsers({ query: '*' }, false);
-        if (users.length > 0) return;
-
-        const user = await this.manager.createUser({
-            user: {
-                client_id: 0,
-                username: 'admin',
-                firstname: 'System',
-                lastname: 'Admin',
-                email: 'admin@example.com',
-                type: 'SUPERADMIN'
-            },
-            password: 'admin'
-        }, false);
-
-        this.logger.info({
-            id: user.id,
-            client_id: user.client_id,
-            username: user.username,
-            firstname: user.firstname,
-            lastname: user.lastname,
-            email: user.email,
-            type: user.type,
-            api_token: user.api_token,
-        }, 'bootstrap mode create base admin client');
     }
 
     async shutdown() {
-        return this.manager.shutdown();
+        await this.manager.shutdown();
     }
 
     registerRoutes() {
         const managerUri = '/api/v2/data-access';
 
         const rootErrorHandler = makeErrorHandler('Failure to access /api/v2', this.logger);
-
-        if (this.bootstrapMode) {
-            this.logger.warn('Running data-access-plugin in bootstrap mode');
-        }
 
         this.app.use('/api/v2', (req, res, next) => {
             if (req.originalUrl === managerUri) {
@@ -132,25 +114,17 @@ export default class ManagerPlugin {
 
             // @ts-ignore
             req.aclManager = this.manager;
-            // @ts-ignore
-            if (req.user) {
-                return next();
-            }
-
-            const creds = getCredentialsFromReq(req);
 
             rootErrorHandler(req, res, async () => {
-                const user = await this.manager.authenticate(creds);
-
-                // @ts-ignore
-                req.user = user;
+                // login but don't presist session
+                await utils.login(this.manager, req, false);
                 next();
             });
         });
 
         this.app.all('/api/v2', (req, res) => {
             // @ts-ignore
-            if (req.aclManager != null && req.user != null) {
+            if (req.aclManager != null && req.v2User != null) {
                 res.sendStatus(204);
             } else {
                 res.sendStatus(500);
@@ -165,10 +139,8 @@ export default class ManagerPlugin {
 
         // this must happen at the end
         this.app.use('/api/v2/:endpoint', (req, res, next) => {
-            // @ts-ignore
-            const manager: ACLManager = req.aclManager;
-            // @ts-ignore
-            const user: User = req.user;
+            const manager: ACLManager = get(req, 'aclManager');
+            const user: User = utils.getLoggedInUser(req)!;
 
             const { endpoint } = req.params;
             const logger = this.context.apis.foundation.makeLogger({
@@ -201,30 +173,5 @@ export default class ManagerPlugin {
                 next();
             });
         });
-
     }
-}
-
-export function getCredentialsFromReq(req: Request): { token?: string, username?: string, password?: string } {
-    const queryToken: string = get(req, 'query.token');
-    if (queryToken) return { token: queryToken } ;
-
-    const authToken: string = get(req, 'headers.authorization');
-    if (!authToken) return { };
-
-    let [part1, part2] = authToken.split(' ');
-    part1 = trim(part1);
-    part2 = trim(part2);
-
-    if (part1 === 'Token') {
-        return { token: trim(part2) };
-    }
-
-    if (part1 === 'Basic') {
-        const parsed = Buffer.from(part2, 'base64').toString('utf8');
-        const [username, password] = parsed.split(':');
-        return { username, password };
-    }
-
-    return {};
 }

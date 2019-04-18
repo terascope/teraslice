@@ -12,7 +12,7 @@ export class Parser {
 
     constructor(query: string, logger?: Logger) {
         this.logger = logger != null ? logger.child({ module: 'xlucene-parser' }) : _logger;
-        this.query = query;
+        this.query = query || '';
 
         const tracer = new Tracer(this.query, {
             showTrace: false,
@@ -21,7 +21,7 @@ export class Parser {
             this.ast = engine.parse(this.query, {
                 tracer,
             });
-            this.logger.debug(`parsed ${this.query} to `, this.ast);
+            this.logger.trace(`parsed ${this.query} to `, this.ast);
         } catch (err) {
             if (err && err.message.includes('Expected ,')) {
                 err.message = err.message.replace('Expected ,', 'Expected');

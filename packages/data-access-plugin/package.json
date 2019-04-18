@@ -1,7 +1,7 @@
 {
     "name": "@terascope/data-access-plugin",
     "description": "A teraserver plugin for managing data access and searching spaces",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "publishConfig": {
         "access": "public"
     },
@@ -15,6 +15,9 @@
     "files": [
         "dist/src/**/*"
     ],
+    "bin": {
+        "create-superadmin": "./bin/create-superadmin.js"
+    },
     "srcMain": "src/index.ts",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
@@ -29,21 +32,22 @@
         "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "@terascope/data-access": "^0.5.0",
-        "@terascope/utils": "^0.9.0",
+        "@terascope/data-access": "^0.6.0",
+        "@terascope/utils": "^0.10.0",
         "apollo-server-express": "^2.4.8",
-        "elasticsearch-store": "^0.6.0",
+        "elasticsearch-store": "^0.6.1",
         "graphql": "^14.2.1",
+        "graphql-iso-date": "^3.6.1",
         "graphql-type-json": "^0.3.0",
-        "lodash.get": "^4.4.2",
-        "xlucene-evaluator": "^0.7.0"
+        "terafoundation": "^0.9.0",
+        "xlucene-evaluator": "^0.8.0"
     },
     "devDependencies": {
         "@terascope/job-components": "^0.16.0",
         "@types/express": "^4.16.1",
-        "@types/got": "^9.4.1",
+        "@types/got": "^9.4.2",
+        "@types/graphql-iso-date": "^3.3.1",
         "@types/graphql-type-json": "^0.1.3",
-        "@types/lodash.get": "^4.4.6",
         "elasticsearch": "^15.4.1",
         "express": "^4.16.4",
         "got": "^9.6.0",
