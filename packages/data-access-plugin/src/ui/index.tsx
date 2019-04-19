@@ -1,7 +1,8 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './app.tsx';
 
 ReactDOM.render(
-    <p>Hello</p>,
+    <App />,
     document.getElementById('root'),
 );
