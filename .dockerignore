@@ -12,6 +12,8 @@
 **/examples
 **/e2e
 **/dist
+**/.cache
+.cache
 .vscode
 assets
 autoload

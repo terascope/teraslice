@@ -29,7 +29,10 @@
         "build:watch": "yarn build --watch",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
+        "ui:dev": "parcel serve -d ./dist/ui ./src/ui/index.html",
+        "ui:watch": "parcel watch -d ./dist/ui ./src/ui/index.html",
+        "ui:build": "parcel build -d ./dist/ui ./src/ui/index.html"
     },
     "dependencies": {
         "@terascope/data-access": "^0.6.0",
@@ -39,6 +42,8 @@
         "graphql": "^14.2.1",
         "graphql-iso-date": "^3.6.1",
         "graphql-type-json": "^0.3.0",
+        "react": "^16.8.6",
+        "react-dom": "^16.8.6",
         "terafoundation": "^0.9.0",
         "xlucene-evaluator": "^0.8.0"
     },
@@ -48,9 +53,12 @@
         "@types/got": "^9.4.2",
         "@types/graphql-iso-date": "^3.3.1",
         "@types/graphql-type-json": "^0.1.3",
+        "@types/react": "^16.8.13",
+        "@types/react-dom": "^16.8.4",
         "elasticsearch": "^15.4.1",
         "express": "^4.16.4",
         "got": "^9.6.0",
-        "graphql-request": "^1.8.2"
+        "graphql-request": "^1.8.2",
+        "parcel-bundler": "^1.12.3"
     }
 }

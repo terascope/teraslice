@@ -2,10 +2,18 @@
     "extends": "../../tsconfig",
     "compilerOptions": {
         "outDir": "dist",
-        "rootDir": "."
+        "rootDir": ".",
+        "lib": [
+            "dom",
+            "es2018"
+        ],
+        "jsx": "react"
     },
     "include": [
         "./src/**/*",
         "./test/**/*"
+    ],
+    "exclude": [
+        "./src/ui/**/*"
     ]
 }
