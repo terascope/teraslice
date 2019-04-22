@@ -32,7 +32,7 @@ export default class App extends React.Component {
             <ApolloProvider client={this.createClient()}>
                 <MuiThemeProvider theme={theme}>
                     <AppNavBar />
-                    <Users query="*" />
+                    <Users />
                 </MuiThemeProvider>
             </ApolloProvider>
         );
