@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import Table from '@material-ui/core/Table';
 import Tooltip from '@material-ui/core/Tooltip';
 import Checkbox from '@material-ui/core/Checkbox';
-import { AnyObject, get } from '@terascope/utils';
+import { AnyObject, get, uniq } from '@terascope/utils';
 import TableRow from '@material-ui/core/TableRow';
 import TableBody from '@material-ui/core/TableBody';
 import TableHead from '@material-ui/core/TableHead';
@@ -59,13 +59,12 @@ class EnhancedTableHead extends React.Component<EnhancedTableHeadProps> {
             <TableRow>
             <TableCell padding="checkbox">
                 <Checkbox
-                indeterminate={numSelected > 0 && numSelected < rowCount}
-                checked={numSelected === rowCount}
-                onChange={onSelectAllClick}
+                    indeterminate={numSelected > 0 && numSelected < rowCount}
+                    checked={numSelected === rowCount}
+                    onChange={onSelectAllClick}
                 />
             </TableCell>
-                {rows.map((row) => (
-                    <TableCell
+                {rows.map((row) => (<TableCell
                         key={row.id}
                         align={row.numeric ? 'right' : 'left'}
                         padding={row.disablePadding ? 'none' : 'default'}
@@ -181,6 +180,7 @@ type UsersTableProps = {
     users: ResolvedUser[];
     classes?: AnyObject;
     handleQueryChange: (options: QueryState) => void;
+    defaultRowsPerPage?: number;
 };
 
 type TableState = {
@@ -196,11 +196,19 @@ class Users extends React.Component<UsersTableProps, TableState> {
         classes: PropTypes.object.isRequired,
         handleQueryChange: PropTypes.func.isRequired,
         users: PropTypes.array.isRequired,
+        defaultRowsPerPage: PropTypes.number,
     };
+
+    static getDerivedStateFromProps(props: UsersTableProps, state: TableState) {
+        if (props.defaultRowsPerPage) {
+            state.rowsPerPage = props.defaultRowsPerPage;
+        }
+        return state;
+    }
 
     state: TableState = {
         page: 0,
-        rowsPerPage: 1,
+        rowsPerPage: 25,
         selected: [],
         order: 'asc',
         orderBy: 'updated'
@@ -285,8 +293,8 @@ class Users extends React.Component<UsersTableProps, TableState> {
         } = this.state;
 
         const emptyRows = rowsPerPage - Math.min(rowsPerPage, users.length - page * rowsPerPage);
+        const rowsPerPageOptions = uniq([1, 5, 10, 25, rowsPerPage]).sort();
 
-        const isSelected = false;
         return (
             <div className={classes.tableWrapper}>
                 <Table className={classes.table}>
@@ -299,26 +307,29 @@ class Users extends React.Component<UsersTableProps, TableState> {
                         rowCount={users.length}
                     />
                     <TableBody>
-                        {users.map(user => (
-                            <TableRow
-                                hover
-                                onClick={(event: any) => this.handleClick(event, user.id)}
-                                role="checkbox"
-                                aria-checked={isSelected}
-                                tabIndex={-1}
-                                key={user.id}
-                                selected={isSelected}
-                            >
-                                <TableCell padding="checkbox">
-                                    <Checkbox checked={isSelected} />
-                                </TableCell>
-                                <TableCell>{user.firstname}</TableCell>
-                                <TableCell>{user.lastname}</TableCell>
-                                <TableCell>{user.username}</TableCell>
-                                <TableCell>{get(user, 'role.name') || user.type}</TableCell>
-                                <TableCell>{user.created}</TableCell>
-                            </TableRow>
-                        ))}
+                        {users.map(user => {
+                            const isSelected = this.isSelected(user.id);
+                            return (
+                                <TableRow
+                                    hover
+                                    onClick={(event: any) => this.handleClick(event, user.id)}
+                                    role="checkbox"
+                                    aria-checked={isSelected}
+                                    tabIndex={-1}
+                                    key={user.id}
+                                    selected={isSelected}
+                                >
+                                    <TableCell padding="checkbox">
+                                        <Checkbox checked={isSelected} />
+                                    </TableCell>
+                                    <TableCell>{user.firstname}</TableCell>
+                                    <TableCell>{user.lastname}</TableCell>
+                                    <TableCell>{user.username}</TableCell>
+                                    <TableCell>{get(user, 'role.name') || user.type}</TableCell>
+                                    <TableCell>{user.created}</TableCell>
+                                </TableRow>
+                            );
+                        })}
                         {emptyRows > 0 && (
                             <TableRow style={{ height: 49 * emptyRows }}>
                             <TableCell colSpan={6} />
@@ -327,7 +338,7 @@ class Users extends React.Component<UsersTableProps, TableState> {
                     </TableBody>
                 </Table>
                 <TablePagination
-                    rowsPerPageOptions={[1, 5, 10, 25]}
+                    rowsPerPageOptions={rowsPerPageOptions}
                     component="div"
                     colSpan={5}
                     count={users.length}

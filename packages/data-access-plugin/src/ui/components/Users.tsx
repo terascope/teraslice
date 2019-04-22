@@ -43,7 +43,7 @@ class Users extends React.Component<UsersProps, QueryState> {
 
     render() {
         const { classes } = this.props;
-        const { sort, query, from, size = 1 } = this.state;
+        const { sort, query, from, size } = this.state;
 
         return (
             <Paper className={classes.root}>
@@ -55,6 +55,7 @@ class Users extends React.Component<UsersProps, QueryState> {
                         return <UsersTable
                             users={data.users}
                             handleQueryChange={this.handleQueryChange}
+                            defaultRowsPerPage={1}
                         />;
                     }}
                 </UsersQuery>
