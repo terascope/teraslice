@@ -32,6 +32,7 @@ type UsersTableProps = {
     classes?: AnyObject;
     defaultRowsPerPage?: number;
     total: number;
+    query: string;
 };
 
 type TableState = {
@@ -40,6 +41,7 @@ type TableState = {
     selected: string[];
     order: 'asc'|'desc';
     orderBy: string;
+    query: string;
 };
 
 class Users extends React.Component<UsersTableProps, TableState> {
@@ -49,6 +51,7 @@ class Users extends React.Component<UsersTableProps, TableState> {
         users: PropTypes.array.isRequired,
         defaultRowsPerPage: PropTypes.number,
         total: PropTypes.number.isRequired,
+        query: PropTypes.string
     };
 
     static getDerivedStateFromProps(props: UsersTableProps, state: TableState) {
@@ -63,21 +66,20 @@ class Users extends React.Component<UsersTableProps, TableState> {
         rowsPerPage: 25,
         selected: [],
         order: 'asc',
-        orderBy: 'created'
+        orderBy: 'created',
+        query: '',
     };
 
-    updateQueryState = (updates: Partial<TableState>) => {
-        const { page, rowsPerPage, order, orderBy } = {
-            ...this.state,
-            ...updates
-        };
-
-        const options = {
-            from: page * rowsPerPage,
-            size: rowsPerPage,
-            sort: `${orderBy}:${order}`
-        };
-        this.props.handleQueryChange(options);
+    updateQueryState = (updates: any) => {
+        this.setState(updates, () => {
+            const { query, page, rowsPerPage, order, orderBy } = this.state;
+            this.props.handleQueryChange({
+                from: page * rowsPerPage,
+                size: rowsPerPage,
+                sort: `${orderBy}:${order}`,
+                query,
+            });
+        });
     }
 
     handleRequestSort = (event: any, property: string) => {
@@ -87,8 +89,8 @@ class Users extends React.Component<UsersTableProps, TableState> {
         if (this.state.orderBy === property && this.state.order === 'desc') {
             order = 'asc';
         }
+
         const updates = { order, orderBy };
-        this.setState(updates);
         this.updateQueryState(updates);
     }
 
@@ -126,23 +128,22 @@ class Users extends React.Component<UsersTableProps, TableState> {
     isSelected = (id: string) => this.state.selected.indexOf(id) !== -1;
 
     handleChangePage = (event: any, page: number) => {
-        const updates = { page };
-        this.setState(updates);
-        this.updateQueryState(updates);
+        this.updateQueryState({ page });
     }
 
     handleChangeRowsPerPage = (event: any) => {
-        const updates = {
+        this.updateQueryState({
             page: 0,
             rowsPerPage: event.target.value
-        };
+        });
+    }
 
-        this.setState(updates);
-        this.updateQueryState(updates);
+    handleQueryChange = (query: string) => {
+        this.updateQueryState({ query });
     }
 
     render() {
-        const { classes, users, total } = this.props;
+        const { classes, users, total, query } = this.props;
         const {
             page,
             rowsPerPage,
@@ -156,7 +157,13 @@ class Users extends React.Component<UsersTableProps, TableState> {
 
         return (
             <div className={classes.tableWrapper}>
-                <UsersTableToolbar numSelected={selected.length} />
+                <UsersTableToolbar
+                    title="Users"
+                    selected={selected}
+                    query={query}
+                    onQueryFilter={this.handleQueryChange}
+                    onRemoveSelection={() => {}}
+                />
                 <Table className={classes.table}>
                     <UsersTableHeader
                         numSelected={selected.length}

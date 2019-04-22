@@ -46,9 +46,16 @@ class Users extends React.Component<UsersProps, QueryState> {
         const { classes } = this.props;
         const { sort, query, from, size = defaultRowsPerPage } = this.state;
 
+        const variables: QueryState = {
+            query: query || '*',
+            sort,
+            from,
+            size
+        };
+
         return (
             <Paper className={classes.root}>
-                <UsersQuery query={FIND_USERS} variables={{ sort, query, from, size }}>
+                <UsersQuery query={FIND_USERS} variables={variables}>
                     {({ loading, error, data }) => {
                         if (loading) return 'Loading...';
                         if (error) return `Error! ${error.message}`;
@@ -56,6 +63,7 @@ class Users extends React.Component<UsersProps, QueryState> {
                         return <UsersTable
                             users={data.users}
                             total={data.usersCount}
+                            query={query}
                             handleQueryChange={this.handleQueryChange}
                             defaultRowsPerPage={defaultRowsPerPage}
                         />;
