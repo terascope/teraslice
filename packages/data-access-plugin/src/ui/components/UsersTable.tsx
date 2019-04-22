@@ -114,52 +114,54 @@ const toolbarStyles = theme => ({
     },
 });
 
-let EnhancedTableToolbar = ({ numSelected, classes }) => {
-    return (
-        <Toolbar
-            className={classNames(classes.root, {
-                [classes.highlight]: numSelected > 0,
-            })}
-        >
-            <div className={classes.title}>
-                {numSelected > 0 ? (
-                <Typography color="inherit" variant="subtitle1">
-                    {numSelected} selected
-                </Typography>
-                ) : (
-                <Typography variant="h6" id="tableTitle">
-                    Nutrition
-                </Typography>
-                )}
-            </div>
-            <div className={classes.spacer} />
-            <div className={classes.actions}>
-                {numSelected > 0 ? (
-                <Tooltip title="Delete">
-                    <IconButton aria-label="Delete">
-                    <DeleteIcon />
-                    </IconButton>
-                </Tooltip>
-                ) : (
-                <Tooltip title="Filter list">
-                    <IconButton aria-label="Filter list">
-                    <FilterListIcon />
-                    </IconButton>
-                </Tooltip>
-                )}
-            </div>
-        </Toolbar>
-    );
-};
+class EnhancedTableToolbar extends React.Component<{ numSelected: number, classes: any }> {
+    static propTypes = {
+        classes: PropTypes.object.isRequired,
+        numSelected: PropTypes.number.isRequired,
+    };
 
-// @ts-ignore
-EnhancedTableToolbar.propTypes = {
-    classes: PropTypes.object.isRequired,
-    numSelected: PropTypes.number.isRequired,
-};
+    render() {
+        const { numSelected, classes } = this.props;
 
-// @ts-ignore
-EnhancedTableToolbar = withStyles(toolbarStyles)(EnhancedTableToolbar);
+        return (
+            <Toolbar
+                className={classNames(classes.root, {
+                    [classes.highlight]: numSelected > 0,
+                })}
+            >
+                <div className={classes.title}>
+                    {numSelected > 0 ? (
+                    <Typography color="inherit" variant="subtitle1">
+                        {numSelected} selected
+                    </Typography>
+                    ) : (
+                    <Typography variant="h6" id="tableTitle">
+                        Nutrition
+                    </Typography>
+                    )}
+                </div>
+                <div className={classes.spacer} />
+                <div className={classes.actions}>
+                    {numSelected > 0 ? (
+                    <Tooltip title="Delete">
+                        <IconButton aria-label="Delete">
+                        <DeleteIcon />
+                        </IconButton>
+                    </Tooltip>
+                    ) : (
+                    <Tooltip title="Filter list">
+                        <IconButton aria-label="Filter list">
+                        <FilterListIcon />
+                        </IconButton>
+                    </Tooltip>
+                    )}
+                </div>
+            </Toolbar>
+        );
+    }
+}
+
+const EnhancedTableToolbarWithStyles = withStyles(toolbarStyles)(EnhancedTableToolbar);
 
 const styles = (theme: Theme) => createStyles({
     root: {
@@ -304,6 +306,7 @@ class Users extends React.Component<UsersTableProps, TableState> {
 
         return (
             <div className={classes.tableWrapper}>
+                <EnhancedTableToolbarWithStyles numSelected={selected.length} />
                 <Table className={classes.table}>
                     <EnhancedTableHead
                         numSelected={selected.length}
