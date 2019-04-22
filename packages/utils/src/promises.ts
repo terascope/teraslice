@@ -1,4 +1,3 @@
-import { promisify } from 'util';
 import { debugLogger } from './logger';
 import { isEmpty } from './utils';
 import {
@@ -177,10 +176,14 @@ type PRetryContext = {
 };
 
 /** promisified setTimeout */
-export const pDelay = promisify(setTimeout);
+export const pDelay = (delay: number = 1) => {
+    return new Promise((resolve) => { setTimeout(resolve, delay); });
+};
 
 /** promisified setImmediate */
-export const pImmediate = promisify(setImmediate);
+export const pImmediate = () => {
+    return new Promise((resolve) => { setImmediate(resolve); });
+};
 
 interface PromiseFn<T = any> {
     (...args: any[]): Promise<T>;

@@ -4,8 +4,8 @@ import { ApolloProvider } from 'react-apollo';
 import blue from '@material-ui/core/colors/blue';
 import blueGrey from '@material-ui/core/colors/blueGrey';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core';
-import Users from './components/Users';
 import AppNavBar from './components/AppNavBar';
+import Users from './components/Users';
 
 const theme = createMuiTheme({
     typography: {

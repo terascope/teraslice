@@ -30,8 +30,7 @@
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
         "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
-        "ui:dev": "parcel serve -d ./dist/ui ./src/ui/index.html",
-        "ui:watch": "parcel watch -d ./dist/ui ./src/ui/index.html",
+        "ui:dev": "parcel serve --log-level=3 --no-hmr -d ./dist/ui ./src/ui/index.html",
         "ui:build": "parcel build -d ./dist/ui ./src/ui/index.html"
     },
     "dependencies": {
@@ -41,6 +40,7 @@
         "@terascope/utils": "^0.10.0",
         "apollo-boost": "^0.3.1",
         "apollo-server-express": "^2.4.8",
+        "classnames": "^2.2.6",
         "elasticsearch-store": "^0.6.1",
         "graphql": "^14.2.1",
         "graphql-iso-date": "^3.6.1",
@@ -50,6 +50,7 @@
         "react": "^16.8.6",
         "react-apollo": "^2.5.4",
         "react-dom": "^16.8.6",
+        "setimmediate": "^1.0.5",
         "terafoundation": "^0.9.0",
         "xlucene-evaluator": "^0.8.0"
     },

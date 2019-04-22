@@ -1,6 +1,7 @@
+import 'setimmediate';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './app.tsx';
+import App from './App';
 
 ReactDOM.render(
     <App />,
