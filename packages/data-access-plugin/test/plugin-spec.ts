@@ -492,6 +492,26 @@ describe('Data Access Plugin', () => {
                 },
             });
         });
+
+        it('should be able to count records', async () => {
+            const query = `
+                query {
+                    rolesCount,
+                    usersCount,
+                    spacesCount,
+                    dataTypesCount,
+                    viewsCount
+                }
+            `;
+
+            expect(await reqClient.request(query)).toEqual({
+                rolesCount: 1,
+                usersCount: 2,
+                spacesCount: 1,
+                dataTypesCount: 1,
+                viewsCount: 1,
+            });
+        });
     });
 
     describe('when using the api', () => {

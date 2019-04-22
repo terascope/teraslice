@@ -95,6 +95,13 @@ export class ACLManager {
     }
 
     /**
+     * Count users by a given query
+    */
+    async countUsers(args: { query?: string } = {}, authUser: i.AuthUser) {
+        return this._users.count(args.query, this._getUserQueryAccess(authUser));
+    }
+
+    /**
      * Create a user
     */
     async createUser(args: { user: models.CreateUserInput, password: string }, authUser: i.AuthUser) {
@@ -169,6 +176,13 @@ export class ACLManager {
     }
 
     /**
+     * Count roles by a given query
+    */
+    async countRoles(args: { query?: string } = {}, authUser: i.AuthUser) {
+        return this._roles.count(args.query, this._getRoleQueryAccess(authUser));
+    }
+
+    /**
      * Create a role
     */
     async createRole(args: { role: CreateRecordInput<models.Role> }, authUser: i.AuthUser) {
@@ -222,6 +236,13 @@ export class ACLManager {
     }
 
     /**
+     * Count data types by a given query
+    */
+    async countDataTypes(args: { query?: string } = {}, authUser: i.AuthUser) {
+        return this._dataTypes.count(args.query, this._getDataTypeQueryAccess(authUser));
+    }
+
+    /**
      * Create a data type
     */
     async createDataType(args: { dataType: CreateRecordInput<models.DataType> }, authUser: i.AuthUser) {
@@ -270,6 +291,13 @@ export class ACLManager {
     */
     async findSpaces(args: i.FindArgs<models.Space> = {}, authUser: i.AuthUser) {
         return this._spaces.find(args.query, args, this._getSpaceQueryAccess(authUser));
+    }
+
+    /**
+     * Count spaces by a given query
+    */
+    async countSpaces(args: { query?: string } = {}, authUser: i.AuthUser) {
+        return this._spaces.count(args.query, this._getSpaceQueryAccess(authUser));
     }
 
     /**
@@ -335,6 +363,13 @@ export class ACLManager {
     */
     async findViews(args: i.FindArgs<models.View> = {}, authUser: i.AuthUser) {
         return this._views.find(args.query, args, this._getViewQueryAccess(authUser));
+    }
+
+    /**
+     * Count views by a given query
+    */
+    async countViews(args: { query?: string } = {}, authUser: i.AuthUser) {
+        return this._views.count(args.query, this._getViewQueryAccess(authUser));
     }
 
     /**

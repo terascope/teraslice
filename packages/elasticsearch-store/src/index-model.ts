@@ -71,9 +71,9 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return this.store.shutdown();
     }
 
-    async count(query: string, queryAccess?: QueryAccess<T>): Promise<number> {
-        if (queryAccess) return this.store.count(queryAccess.restrict(query));
-        return this.store.count(query);
+    async count(q: string = '*', queryAccess?: QueryAccess<T>): Promise<number> {
+        if (queryAccess) return this.store.count(queryAccess.restrict(q));
+        return this.store.count(q);
     }
 
     async create(record: i.CreateRecordInput<T>): Promise<T> {

@@ -20,8 +20,10 @@ const resolvers = {
 };
 
 forEachModel((model) => {
-    resolvers[`${firstToLower(model)}`] = proxyMethod(`find${model}`);
-    resolvers[`${firstToLower(model)}s`] = proxyMethod(`find${model}s`);
+    const modelName = firstToLower(model);
+    resolvers[`${modelName}`] = proxyMethod(`find${model}`);
+    resolvers[`${modelName}s`] = proxyMethod(`find${model}s`);
+    resolvers[`${modelName}sCount`] = proxyMethod(`count${model}s`);
 });
 
 function proxyMethod(method: string) {

@@ -21,11 +21,11 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
 
 const rows = [
-  { id: 'firstname', numeric: false, disablePadding: true, label: 'First Name' },
-  { id: 'lastname', numeric: false, disablePadding: false, label: 'Last Name' },
-  { id: 'username', numeric: false, disablePadding: false, label: 'Username' },
-  { id: 'role', numeric: false, disablePadding: false, label: 'Role' },
-  { id: 'created', numeric: false, disablePadding: false, label: 'Created' },
+  { id: 'firstname', label: 'First Name' },
+  { id: 'lastname', label: 'Last Name' },
+  { id: 'username', label: 'Username' },
+  { id: 'role', label: 'Role' },
+  { id: 'created', label: 'Created' },
 ];
 
 type EnhancedTableHeadProps = {
@@ -55,38 +55,36 @@ class EnhancedTableHead extends React.Component<EnhancedTableHeadProps> {
         const { onSelectAllClick, order, orderBy, numSelected, rowCount } = this.props;
 
         return (
-        <TableHead>
-            <TableRow>
-            <TableCell padding="checkbox">
-                <Checkbox
-                    indeterminate={numSelected > 0 && numSelected < rowCount}
-                    checked={numSelected === rowCount}
-                    onChange={onSelectAllClick}
-                />
-            </TableCell>
-                {rows.map((row) => (<TableCell
-                        key={row.id}
-                        align={row.numeric ? 'right' : 'left'}
-                        padding={row.disablePadding ? 'none' : 'default'}
-                        sortDirection={orderBy === row.id ? order : false}
-                    >
+            <TableHead>
+                <TableRow>
+                    <TableCell padding="checkbox">
+                        <Checkbox
+                            indeterminate={numSelected > 0 && numSelected < rowCount}
+                            checked={numSelected === rowCount}
+                            onChange={onSelectAllClick}
+                        />
+                    </TableCell>
+                    {rows.map((row) => (<TableCell
+                            key={row.id}
+                            align="left"
+                            sortDirection={orderBy === row.id ? order : false}
+                        >
                         <Tooltip
                             title="Sort"
-                            placement={row.numeric ? 'bottom-end' : 'bottom-start'}
+                            placement="bottom-start"
                             enterDelay={300}
                         >
-                        <TableSortLabel
-                            active={orderBy === row.id}
-                            direction={order as 'asc'|'desc'}
-                            onClick={this.createSortHandler(row.id)}
-                        >
-                            {row.label}
-                        </TableSortLabel>
+                            <TableSortLabel
+                                active={orderBy === row.id}
+                                direction={order as 'asc'|'desc'}
+                                onClick={this.createSortHandler(row.id)}
+                            >
+                                {row.label}
+                            </TableSortLabel>
                         </Tooltip>
-                    </TableCell>
-                ), this)}
-            </TableRow>
-        </TableHead>
+                    </TableCell>), this)}
+                </TableRow>
+            </TableHead>
         );
     }
 }
@@ -178,9 +176,10 @@ const styles = (theme: Theme) => createStyles({
 
 type UsersTableProps = {
     users: ResolvedUser[];
-    classes?: AnyObject;
     handleQueryChange: (options: QueryState) => void;
+    classes?: AnyObject;
     defaultRowsPerPage?: number;
+    total: number;
 };
 
 type TableState = {
@@ -197,6 +196,7 @@ class Users extends React.Component<UsersTableProps, TableState> {
         handleQueryChange: PropTypes.func.isRequired,
         users: PropTypes.array.isRequired,
         defaultRowsPerPage: PropTypes.number,
+        total: PropTypes.number.isRequired,
     };
 
     static getDerivedStateFromProps(props: UsersTableProps, state: TableState) {
@@ -211,17 +211,21 @@ class Users extends React.Component<UsersTableProps, TableState> {
         rowsPerPage: 25,
         selected: [],
         order: 'asc',
-        orderBy: 'updated'
+        orderBy: 'created'
     };
 
-    updateQueryState = () => {
-        const { page, rowsPerPage, order, orderBy } = this.state;
+    updateQueryState = (updates: Partial<TableState>) => {
+        const { page, rowsPerPage, order, orderBy } = {
+            ...this.state,
+            ...updates
+        };
 
-        this.props.handleQueryChange({
+        const options = {
             from: page * rowsPerPage,
             size: rowsPerPage,
             sort: `${orderBy}:${order}`
-        });
+        };
+        this.props.handleQueryChange(options);
     }
 
     handleRequestSort = (event: any, property: string) => {
@@ -231,9 +235,9 @@ class Users extends React.Component<UsersTableProps, TableState> {
         if (this.state.orderBy === property && this.state.order === 'desc') {
             order = 'asc';
         }
-
-        this.setState({ order, orderBy });
-        this.updateQueryState();
+        const updates = { order, orderBy };
+        this.setState(updates);
+        this.updateQueryState(updates);
     }
 
     handleSelectAllClick = (event: any) => {
@@ -270,20 +274,23 @@ class Users extends React.Component<UsersTableProps, TableState> {
     isSelected = (id: string) => this.state.selected.indexOf(id) !== -1;
 
     handleChangePage = (event: any, page: number) => {
-        this.setState({ page });
-        this.updateQueryState();
+        const updates = { page };
+        this.setState(updates);
+        this.updateQueryState(updates);
     }
 
     handleChangeRowsPerPage = (event: any) => {
-        this.setState({
+        const updates = {
             page: 0,
             rowsPerPage: event.target.value
-        });
-        this.updateQueryState();
+        };
+
+        this.setState(updates);
+        this.updateQueryState(updates);
     }
 
     render() {
-        const { classes, users } = this.props;
+        const { classes, users, total } = this.props;
         const {
             page,
             rowsPerPage,
@@ -292,8 +299,8 @@ class Users extends React.Component<UsersTableProps, TableState> {
             orderBy,
         } = this.state;
 
-        const emptyRows = rowsPerPage - Math.min(rowsPerPage, users.length - page * rowsPerPage);
-        const rowsPerPageOptions = uniq([1, 5, 10, 25, rowsPerPage]).sort();
+        const emptyRows = rowsPerPage - Math.min(rowsPerPage, total - page * rowsPerPage);
+        const rowsPerPageOptions = uniq([1, 5, 10, 25, rowsPerPage]).sort((a, b) => a - b);
 
         return (
             <div className={classes.tableWrapper}>
@@ -332,18 +339,17 @@ class Users extends React.Component<UsersTableProps, TableState> {
                         })}
                         {emptyRows > 0 && (
                             <TableRow style={{ height: 49 * emptyRows }}>
-                            <TableCell colSpan={6} />
+                                <TableCell colSpan={rows.length + 1} />
                             </TableRow>
                         )}
                     </TableBody>
                 </Table>
                 <TablePagination
-                    rowsPerPageOptions={rowsPerPageOptions}
                     component="div"
-                    colSpan={5}
-                    count={users.length}
-                    rowsPerPage={rowsPerPage}
                     page={page}
+                    count={total}
+                    rowsPerPage={rowsPerPage}
+                    rowsPerPageOptions={rowsPerPageOptions}
                     backIconButtonProps={{
                         'aria-label': 'Previous Page',
                     }}

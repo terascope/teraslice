@@ -42,8 +42,9 @@ class Users extends React.Component<UsersProps, QueryState> {
     }
 
     render() {
+        const defaultRowsPerPage = 2;
         const { classes } = this.props;
-        const { sort, query, from, size } = this.state;
+        const { sort, query, from, size = defaultRowsPerPage } = this.state;
 
         return (
             <Paper className={classes.root}>
@@ -54,8 +55,9 @@ class Users extends React.Component<UsersProps, QueryState> {
 
                         return <UsersTable
                             users={data.users}
+                            total={data.usersCount}
                             handleQueryChange={this.handleQueryChange}
-                            defaultRowsPerPage={1}
+                            defaultRowsPerPage={defaultRowsPerPage}
                         />;
                     }}
                 </UsersQuery>
@@ -82,11 +84,13 @@ const FIND_USERS = gql`
             updated,
             created,
         }
+        usersCount(query: $query)
     }
 `;
 
-interface Data {
+interface Response {
     users: ResolvedUser[];
+    usersCount: number;
 }
 
-class UsersQuery extends Query<Data, QueryState> {}
+class UsersQuery extends Query<Response, QueryState> {}
