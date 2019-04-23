@@ -27,7 +27,7 @@ export default class EnhancedTableHead extends React.Component<EnhancedTableHead
         rowCount: PropTypes.number.isRequired,
     };
 
-    createSortHandler = property => event => {
+    createSortHandler = (property: string) => (event: any) => {
         this.props.onRequestSort(event, property);
     }
 

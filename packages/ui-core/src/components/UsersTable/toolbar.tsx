@@ -8,7 +8,6 @@ import SearchIcon from '@material-ui/icons/Search';
 import InputBase from '@material-ui/core/InputBase';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
-import FilterListIcon from '@material-ui/icons/FilterList';
 import { lighten } from '@material-ui/core/styles/colorManipulator';
 import { Theme, createStyles, withStyles } from '@material-ui/core/styles';
 
@@ -91,7 +90,7 @@ class UsersTableToolbar extends React.Component<UsersTableToolbarProps, UsersTab
     }
 
     submitQueryChange = () => {
-        const query = this.state.query || this.props.query;
+        const query = this.state.query || this.props.query || '';
         this.props.onQueryFilter(query);
     }
 

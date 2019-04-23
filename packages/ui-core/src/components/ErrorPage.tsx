@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { withStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { getErrorInfo } from '../utils';
+import { parseErrorInfo } from '@terascope/utils';
 
 const styles = (theme: Theme) => createStyles({
     root: {
@@ -20,9 +20,13 @@ const styles = (theme: Theme) => createStyles({
     }
 });
 
-// tslint:disable-next-line function-name
-function ErrorPage({ classes, error }) {
-    const { message, statusCode } = getErrorInfo(error);
+type ErrorPageProps = {
+    classes: any;
+    error: any;
+};
+
+const ErrorPage: React.FC<ErrorPageProps> = ({ classes, error }) => {
+    const { message, statusCode } = parseErrorInfo(error);
     return (
         <div>
             <Paper className={classes.root} elevation={1}>
@@ -38,7 +42,7 @@ function ErrorPage({ classes, error }) {
             </Paper>
         </div>
     );
-}
+};
 
 ErrorPage.propTypes = {
     classes: PropTypes.object.isRequired,

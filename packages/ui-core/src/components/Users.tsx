@@ -2,10 +2,9 @@ import React from 'react';
 import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
-import { AnyObject } from '@terascope/utils';
 import Paper from '@material-ui/core/Paper';
 import { Theme, createStyles, withStyles } from '@material-ui/core/styles';
-import { ResolvedUser, QueryState } from '../interfaces';
+import { ResolvedUser, QueryState } from '../helpers';
 import UsersTable from './UsersTable';
 import Loading from './Loading';
 import ErrorPage from './ErrorPage';
@@ -18,7 +17,7 @@ const styles = (theme: Theme) => createStyles({
 
 type UsersProps = {
     query?: string;
-    classes?: AnyObject;
+    classes: any;
 };
 
 class Users extends React.Component<UsersProps, QueryState> {
@@ -26,7 +25,7 @@ class Users extends React.Component<UsersProps, QueryState> {
         classes: PropTypes.object.isRequired,
     };
 
-    static getDerivedStateFromProps(props, state) {
+    static getDerivedStateFromProps(props: UsersProps, state: QueryState) {
         if (props.query) {
             return {
                 ...state,
@@ -61,6 +60,7 @@ class Users extends React.Component<UsersProps, QueryState> {
                     {({ loading, error, data }) => {
                         if (loading) return <Loading />;
                         if (error) return <ErrorPage error={error} />;
+                        if (!data) return <div>Uh oh</div>;
 
                         return <UsersTable
                             users={data.users}

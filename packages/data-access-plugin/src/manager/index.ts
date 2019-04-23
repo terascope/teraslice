@@ -1,6 +1,5 @@
-import path from 'path';
 import cors from 'cors';
-import * as express from 'express';
+import { Express } from 'express';
 import { Client } from 'elasticsearch';
 import * as apollo from 'apollo-server-express';
 import { Context } from '@terascope/job-components';
@@ -13,7 +12,6 @@ import typeDefs from './types';
 import resolvers from './resolvers';
 import * as utils from './utils';
 import { ManagerContext } from './interfaces';
-import { existsSync } from 'fs';
 
 /**
  * A graphql api for managing data access
@@ -21,7 +19,7 @@ import { existsSync } from 'fs';
 export default class ManagerPlugin {
     readonly config: TeraserverConfig;
     readonly logger: Logger;
-    readonly app: express.Express;
+    readonly app: Express;
     readonly manager: ACLManager;
     readonly server: apollo.ApolloServer;
     readonly client: Client;
@@ -62,21 +60,9 @@ export default class ManagerPlugin {
                             return;
                         }
 
-                        try {
-                            const user = await utils.login(this.manager, req);
-                            this.user = user;
-                            this.authenticating = false;
-                        } catch (err) {
-                            this.logger.error(err, req);
-                            if (err.statusCode === 401) {
-                                throw new apollo.AuthenticationError(err.message);
-                            }
-
-                            if (err.statusCode === 403) {
-                                throw new apollo.ForbiddenError(err.message);
-                            }
-                            throw err;
-                        }
+                        const user = await utils.login(this.manager, req);
+                        this.user = user;
+                        this.authenticating = false;
                     }
                 };
 
@@ -84,17 +70,28 @@ export default class ManagerPlugin {
                 const { query, operationName } = req.body;
                 if (operationName === 'IntrospectionQuery') {
                     skipAuth = true;
-                } else if (query && query.includes('authenticate(')) {
-                    skipAuth = true;
-                } else if (query && query.includes('logout')) {
-                    skipAuth = true;
+                } else if (query) {
+                    skipAuth = query.includes('authenticate') || query.includes('loggedIn');
                 }
 
                 if (skipAuth) {
                     return ctx;
                 }
 
-                ctx.login();
+                try {
+                    ctx.login();
+                } catch (err) {
+                    this.logger.error(err, req);
+                    if (err.statusCode === 401) {
+                        throw new apollo.AuthenticationError(err.message);
+                    }
+
+                    if (err.statusCode === 403) {
+                        throw new apollo.ForbiddenError(err.message);
+                    }
+                    throw err;
+                }
+
                 return ctx;
             },
             formatError: utils.formatError,
@@ -157,13 +154,6 @@ export default class ManagerPlugin {
             app: this.app,
             path: managerUri,
         });
-
-        const staticPath = path.join(__dirname, '../../ui');
-
-        if (existsSync(staticPath)) {
-            this.logger.info('Registering data-access-plugin ui at /data-access');
-            this.app.use('/data-access', express.static(staticPath));
-        }
 
         // this must happen at the end
         this.app.use('/api/v2/:endpoint', (req, res, next) => {

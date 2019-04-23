@@ -32,3 +32,4 @@ packages/teraslice-cli
 packages/teraslice-test-harness
 packages/ts-transforms
 packages/xlucene-evaluator
+pacakges/ui-core

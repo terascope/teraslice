@@ -40,7 +40,7 @@ type AppNavBarProps = {
 
 type AppNavBarState = {
     open: boolean;
-    anchorEl: any;
+    anchorEl?: any;
 };
 
 class AppNavBar extends React.Component<AppNavBarProps, AppNavBarState> {
@@ -50,8 +50,7 @@ class AppNavBar extends React.Component<AppNavBarProps, AppNavBarState> {
         onLogout: PropTypes.func.isRequired,
     };
 
-    state = {
-        anchorEl: null,
+    state: AppNavBarState = {
         open: false,
     };
 
@@ -63,7 +62,8 @@ class AppNavBar extends React.Component<AppNavBarProps, AppNavBarState> {
     }
 
     handleClose = (event: any, action?: string) => {
-        if (this.state.anchorEl && this.state.anchorEl.contains(event.target)) {
+        const { anchorEl } = this.state;
+        if (anchorEl && anchorEl.contains(event.target)) {
             return;
         }
 

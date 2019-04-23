@@ -4,10 +4,8 @@ import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
 import { withStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Login from './Login';
-import { ResolvedUser } from '../interfaces';
 import Loading from './Loading';
 import ErrorPage from './ErrorPage';
-import { getErrorInfo } from '../utils';
 
 const styles = (theme: Theme) => createStyles({
     root: {
@@ -19,6 +17,7 @@ const styles = (theme: Theme) => createStyles({
 
 type AuthenticateProps = {
     classes: any;
+    authenticated: boolean;
     onLogin: () => void;
 };
 
@@ -29,32 +28,35 @@ class Authenticate extends React.Component<AuthenticateProps, AuthenticateState>
     static propTypes = {
         classes: PropTypes.object.isRequired,
         onLogin: PropTypes.func.isRequired,
+        authenticated: PropTypes.bool.isRequired,
     };
 
     state: AuthenticateState = {};
 
-    handleLogin(username: string, password: string) {
-        // tslint:disable-next-line no-console
-        console.log('login', { username, password });
+    onCompleted(data: VerifyResponse) {
+        if (data && data.loggedIn) {
+            this.props.onLogin();
+        }
     }
 
     render() {
-        const { children, onLogin } = this.props;
+        const { children, authenticated } = this.props;
 
         return (
-            <AuthenticateQuery
+            <VerifyAuthQuery
                 query={AUTHENTICATE}
+                skip={authenticated}
+                onCompleted={this.onCompleted}
                 notifyOnNetworkStatusChange
             >
                 {({ loading, error, data }) => {
                     if (loading) return <Loading />;
                     if (error) {
-                        const { statusCode } = getErrorInfo(error);
-                        if ([401, 403].includes(statusCode)) {
-                            return <Login login={this.handleLogin} />;
-                        }
-
                         return <ErrorPage error={error} />;
+                    }
+
+                    if (data && !data.loggedIn) {
+                        return <Login onLogin={this.props.onLogin} />;
                     }
 
                     return (
@@ -63,7 +65,7 @@ class Authenticate extends React.Component<AuthenticateProps, AuthenticateState>
                         </div>
                     );
                 }}
-            </AuthenticateQuery>
+            </VerifyAuthQuery>
         );
     }
 }
@@ -73,24 +75,12 @@ export default withStyles(styles)(Authenticate);
 // Query
 const AUTHENTICATE = gql`
     {
-        authenticate {
-            id,
-            firstname,
-            lastname,
-            username,
-            email,
-            role {
-                id,
-                name,
-            }
-            updated,
-            created,
-        }
+        loggedIn
     }
 `;
 
-interface Response {
-    authenticate: ResolvedUser;
+interface VerifyResponse {
+    loggedIn: boolean;
 }
 
-class AuthenticateQuery extends Query<Response, {}> {}
+class VerifyAuthQuery extends Query<VerifyResponse, {}> {}

@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Table from '@material-ui/core/Table';
 import Checkbox from '@material-ui/core/Checkbox';
-import { AnyObject, get, uniq } from '@terascope/utils';
+import { get, uniq } from '@terascope/utils';
 import TableRow from '@material-ui/core/TableRow';
 import TableBody from '@material-ui/core/TableBody';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableCell, { SortDirection } from '@material-ui/core/TableCell';
 import { Theme, createStyles, withStyles } from '@material-ui/core/styles';
-import { ResolvedUser, QueryState } from '../../interfaces';
+import { ResolvedUser, QueryState } from '../../helpers';
 import UsersTableToolbar from './toolbar';
 import UsersTableHeader from './header';
 import { rows } from './shared';
@@ -29,7 +29,7 @@ const styles = (theme: Theme) => createStyles({
 type UsersTableProps = {
     users: ResolvedUser[];
     handleQueryChange: (options: QueryState) => void;
-    classes?: AnyObject;
+    classes: any;
     defaultRowsPerPage?: number;
     total: number;
     query: string;
@@ -44,7 +44,7 @@ type TableState = {
     query: string;
 };
 
-class Users extends React.Component<UsersTableProps, TableState> {
+class UsersTable extends React.Component<UsersTableProps, TableState> {
     static propTypes = {
         classes: PropTypes.object.isRequired,
         handleQueryChange: PropTypes.func.isRequired,
@@ -107,7 +107,7 @@ class Users extends React.Component<UsersTableProps, TableState> {
     handleClick = (event: any, id: string) => {
         const { selected } = this.state;
         const selectedIndex = selected.indexOf(id);
-        let newSelected = [];
+        let newSelected: string[] = [];
 
         if (selectedIndex === -1) {
             newSelected = newSelected.concat(selected, id);
@@ -224,4 +224,5 @@ class Users extends React.Component<UsersTableProps, TableState> {
     }
 }
 
-export default withStyles(styles)(Users);
+// @ts-ignore
+export default withStyles(styles)(UsersTable);

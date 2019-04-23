@@ -12,8 +12,11 @@ const styles = (theme: Theme) => createStyles({
     },
 });
 
-// tslint:disable-next-line function-name
-function Welcome({ classes }) {
+type WelcomeProps = {
+    classes: any;
+};
+
+const Welcome: React.FC<WelcomeProps> = ({ classes }) => {
     return (
         <div>
             <Paper className={classes.root} elevation={1}>
@@ -26,7 +29,7 @@ function Welcome({ classes }) {
             </Paper>
         </div>
     );
-}
+};
 
 Welcome.propTypes = {
     classes: PropTypes.object.isRequired,

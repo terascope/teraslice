@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from 'react-apollo';
 import blue from '@material-ui/core/colors/blue';
@@ -16,11 +16,15 @@ const theme = createMuiTheme({
     }
 });
 
+const apiPath = '/api/v2/data-access';
+
 export default class App extends React.Component {
     createClient() {
         return new ApolloClient({
-            uri: '/api/v2/data-access',
-            credentials: 'include'
+            uri: process.env.REACT_APP_START_MODE ? `http://localhost:8000${apiPath}` : apiPath,
+            fetchOptions: {
+                credentials: 'include'
+            }
         });
     }
 

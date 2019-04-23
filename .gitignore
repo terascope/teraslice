@@ -47,6 +47,9 @@ packages/*/assets/*
 
 # package dist directory
 packages/**/dist
+# package build directory
+packages/**/build
+
 
 # documentation website
 website/translated_docs

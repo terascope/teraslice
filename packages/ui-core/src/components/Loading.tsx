@@ -17,8 +17,11 @@ const styles = (theme: Theme) => createStyles({
     },
 });
 
-// tslint:disable-next-line function-name
-function Loading({ classes }) {
+type LoadingProps = {
+    classes: any;
+};
+
+const Loading: React.FC<LoadingProps> = ({ classes }) => {
     return (
         <div>
             <Paper className={classes.root}>
@@ -29,7 +32,7 @@ function Loading({ classes }) {
             </Paper>
         </div>
     );
-}
+};
 
 Loading.propTypes = {
     classes: PropTypes.object.isRequired,

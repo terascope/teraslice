@@ -1,0 +1,60 @@
+{
+    "name": "ui-core",
+    "version": "0.1.0",
+    "description": "A teraserver ui framework",
+    "publishConfig": {
+        "access": "public"
+    },
+    "scripts": {
+        "start": "env REACT_APP_START_MODE=true react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject"
+    },
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/ui-core#readme",
+    "repository": "git@github.com:terascope/teraslice.git",
+    "author": "Terascope, LLC <info@terascope.io>",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
+    },
+    "bin": {
+        "create-superadmin": "./bin/create-superadmin.js"
+    },
+    "dependencies": {
+        "@material-ui/core": "^3.9.3",
+        "@material-ui/icons": "^3.0.2",
+        "@terascope/utils": "^0.10.0",
+        "apollo-boost": "^0.3.1",
+        "classnames": "^2.2.6",
+        "express": "^4.16.4",
+        "prop-types": "^15.7.2",
+        "react": "^16.8.6",
+        "react-apollo": "^2.5.5",
+        "react-dom": "^16.8.6",
+        "react-router-dom": "^5.0.0",
+        "setimmediate": "^1.0.5"
+    },
+    "devDependencies": {
+        "@types/classnames": "^2.2.7",
+        "@types/jest": "24.0.11",
+        "@types/node": "11.13.7",
+        "@types/react": "16.8.14",
+        "@types/react-dom": "16.8.4",
+        "@types/react-router-dom": "^4.3.2",
+        "react-scripts": "3.0.0",
+        "typescript": "3.4.5"
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    }
+}
