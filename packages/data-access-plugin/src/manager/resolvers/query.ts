@@ -1,3 +1,4 @@
+import { AuthenticationError, ForbiddenError } from 'apollo-server-express';
 import { firstToLower, get, TSError, isEmpty } from '@terascope/utils';
 import { setLoggedInUser, forEachModel, logoutUser } from '../utils';
 import { ManagerContext } from '../interfaces';
@@ -15,11 +16,23 @@ const resolvers = {
             return ctx.user;
         }
 
-        const user = await ctx.manager.authenticate(args);
-        setLoggedInUser(ctx.req, user);
-        ctx.user = user;
-        ctx.authenticating = false;
-        return user;
+        try {
+            const user = await ctx.manager.authenticate(args);
+            setLoggedInUser(ctx.req, user);
+            ctx.user = user;
+            ctx.authenticating = false;
+            return user;
+        } catch (err) {
+            if (err.statusCode === 401) {
+                throw new AuthenticationError(err.message);
+            }
+
+            if (err.statusCode === 403) {
+                throw new ForbiddenError(err.message);
+            }
+
+            throw err;
+        }
     },
     logout(root: any, args: any, ctx: ManagerContext) {
         logoutUser(ctx.req);

@@ -1,14 +1,14 @@
 import * as ts from '@terascope/utils';
 
 export function getErrorInfo(err: any): { message: string, statusCode: number } {
-    // apollo likes to hide the original error
-    const hiddenErr = ts.get(err, 'networkError.result.errors[0]');
-    if (!hiddenErr) {
-        const { message, statusCode } = ts.parseErrorInfo(err);
+    const networkError = ts.get(err, 'networkError.result.errors[0]');
+    const graphqlError = ts.get(err, 'graphQLErrors[0].extensions.exception');
+    if (!networkError) {
+        const { message, statusCode } = ts.parseErrorInfo(graphqlError || err);
         return { message, statusCode };
     }
-    const message = ts.get(hiddenErr, 'message');
-    const code = ts.get(hiddenErr, 'extensions.code');
+    const message = ts.get(networkError, 'message');
+    const code = ts.get(networkError, 'extensions.code');
     if (code === 'UNAUTHENTICATED') {
         return {
             statusCode: 401,

@@ -2,9 +2,8 @@ import React from 'react';
 import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
 import { withStyles, Theme, createStyles } from '@material-ui/core/styles';
+import Login from './Login';
 import { ResolvedUser } from '../interfaces';
 import Loading from './Loading';
 import ErrorPage from './ErrorPage';
@@ -34,23 +33,25 @@ class Authenticate extends React.Component<AuthenticateProps, AuthenticateState>
 
     state: AuthenticateState = {};
 
+    handleLogin(username: string, password: string) {
+        // tslint:disable-next-line no-console
+        console.log('login', { username, password });
+    }
+
     render() {
-        const { classes, children } = this.props;
+        const { children, onLogin } = this.props;
 
         return (
-            <AuthenticateQuery query={AUTHENTICATE}>
+            <AuthenticateQuery
+                query={AUTHENTICATE}
+                notifyOnNetworkStatusChange
+            >
                 {({ loading, error, data }) => {
                     if (loading) return <Loading />;
                     if (error) {
                         const { statusCode } = getErrorInfo(error);
                         if ([401, 403].includes(statusCode)) {
-                            return (
-                                <Paper className={classes.root} elevation={1}>
-                                    <Typography variant="h4" component="h4" align="center">
-                                        Login
-                                    </Typography>
-                                </Paper>
-                            );
+                            return <Login login={this.handleLogin} />;
                         }
 
                         return <ErrorPage error={error} />;

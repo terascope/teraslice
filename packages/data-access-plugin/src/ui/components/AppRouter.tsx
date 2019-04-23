@@ -27,8 +27,8 @@ export default class AppRouter extends React.Component<{}, AppRouterState> {
 
         return (
             <Router>
+                <AppNavBar onLogout={this.onLogout} authenticated={authenticated} />
                 <Authenticate onLogin={this.onLogin}>
-                    <AppNavBar onLogout={this.onLogout} authenticated={authenticated} />
                     <Route path="/" exact component={Welcome} />
                     <Route path="/users/" component={Users} />
                 </Authenticate>
