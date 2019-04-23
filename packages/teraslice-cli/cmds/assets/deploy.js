@@ -117,16 +117,15 @@ exports.handler = async (argv) => {
             reply.yellow('*** Warning ***\n'
                 + 'The --replace option is intended for asset development only.\n'
                 + 'Using it for production asset management is a bad idea.');
+
             const clusterAssetData = await terasliceClient.assets.get(asset.name);
 
-            // NOTE: We assume the 0th element of the list is the one that needs
-            // to be deleted.  This probably only works due to the order that
-            // assets are typically posted to a server is by increasing version.
-            // Basically, this assumes the asset currently being deployed has
-            // the same version of the last asset posted to the cluster.
-            if (clusterAssetData.length >= 1) {
-                const response = await terasliceClient.assets
-                    .delete(clusterAssetData[0].id);
+            const assetToReplace = clusterAssetData
+                .filter(clusterAsset => clusterAsset.version === asset.version)[0];
+
+            if (assetToReplace && assetToReplace.id !== undefined) {
+                const response = await terasliceClient.assets.delete(assetToReplace.id);
+
                 if (!cliConfig.args.quiet) {
                     // Support different teraslice api/client versions
                     const assetId = response._id || response.assetId;

@@ -5,6 +5,8 @@ const TjmUtil = require('../../lib/tjm-util');
 
 let startResponse = null;
 let stopResponse = null;
+let statusResponse = null;
+let waitStatus = null;
 let job = {};
 
 const client = {
@@ -12,7 +14,9 @@ const client = {
         wrap: () => {
             const functions = {
                 start: () => startResponse,
-                stop: () => stopResponse
+                stop: () => stopResponse,
+                status: () => statusResponse,
+                waitForStatus: () => waitStatus
             };
             return functions;
         }
@@ -93,6 +97,8 @@ describe('tjm-util stop function', () => {
         job.name = 'testJobName';
         job.clusterUrl = 'testCluster';
 
+        statusResponse = 'running';
+
         stopResponse = { status: 'stopped' };
 
         const tjmUtil = new TjmUtil(client, job);
@@ -101,11 +107,11 @@ describe('tjm-util stop function', () => {
         expect(response).toBeUndefined();
     });
 
-    it('should throw an error is the status is not stopped', async () => {
+    it('should throw an error if the status is not stopped', async () => {
         job.jobId = 'testJobId';
         job.name = 'testJobName';
         job.clusterUrl = 'testCluster';
-
+        statusResponse = 'running';
         stopResponse = { status: 'running' };
 
         const tjmUtil = new TjmUtil(client, job);
@@ -116,29 +122,42 @@ describe('tjm-util stop function', () => {
         }
     });
 
-    it('should not throw a fatal error if job is not running', async () => {
+    it('should wait for job to stop if status is stopping', async () => {
         job.jobId = 'testJobId';
         job.name = 'testJobName';
         job.clusterUrl = 'testCluster';
-
-        stopResponse = Promise.reject(new Error('no execution context was found'));
+        statusResponse = 'stopping';
+        waitStatus = 'stopped';
 
         const tjmUtil = new TjmUtil(client, job);
-
         const response = await tjmUtil.stop();
+        // no errors should return nothing
         expect(response).toBeUndefined();
     });
 
-    it('should not throw a fatal error if job is already stopped', async () => {
+    it('should not throw a fatal error if job has a terminal status', async () => {
         job.jobId = 'testJobId';
         job.name = 'testJobName';
         job.clusterUrl = 'testCluster';
 
-        stopResponse = Promise.reject(new Error('Cannot update terminal job status of "stopped" to "stopping"'));
+        statusResponse = 'failed';
 
-        const tjmUtil = new TjmUtil(client, job);
+        let tjmUtil = new TjmUtil(client, job);
+
         const response = await tjmUtil.stop();
         expect(response).toBeUndefined();
+
+        statusResponse = 'stopped';
+        tjmUtil = new TjmUtil(client, job);
+
+        const response2 = await tjmUtil.stop();
+        expect(response2).toBeUndefined();
+
+        statusResponse = 'terminated';
+        tjmUtil = new TjmUtil(client, job);
+
+        const response3 = await tjmUtil.stop();
+        expect(response3).toBeUndefined();
     });
 
     it('should throw a fatal error if error not listed', async () => {
@@ -146,6 +165,7 @@ describe('tjm-util stop function', () => {
         job.name = 'testJobName';
         job.clusterUrl = 'testCluster';
 
+        statusResponse = 'running';
         stopResponse = Promise.reject(new Error('this is a terrible error'));
 
         const tjmUtil = new TjmUtil(client, job);
