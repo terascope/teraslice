@@ -4,8 +4,8 @@
 // TODO: Let's rework all of the IO that the `reply` module provides and ensure
 //       our commands are as Unix like as possible.
 const path = require('path');
-
 const fs = require('fs-extra');
+const _ = require('lodash');
 
 const AssetSrc = require('../../lib/asset-src');
 const GithubAsset = require('../../lib/github-asset');
@@ -123,7 +123,7 @@ exports.handler = async (argv) => {
             const assetToReplace = clusterAssetData
                 .filter(clusterAsset => clusterAsset.version === asset.version)[0];
 
-            if (assetToReplace && assetToReplace.id !== undefined) {
+            if (_.has(assetToReplace, 'id')) {
                 const response = await terasliceClient.assets.delete(assetToReplace.id);
 
                 if (!cliConfig.args.quiet) {
@@ -133,6 +133,8 @@ exports.handler = async (argv) => {
                         `Asset ${assetId} deleted from ${cliConfig.args.clusterAlias}`
                     );
                 }
+            } else {
+                reply.green(`Asset: ${asset.name}, version: ${asset.version}, was not found on ${cliConfig.args.clusterAlias}`);
             }
         }
     } else {
