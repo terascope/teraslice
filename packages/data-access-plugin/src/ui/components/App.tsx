@@ -4,8 +4,7 @@ import { ApolloProvider } from 'react-apollo';
 import blue from '@material-ui/core/colors/blue';
 import blueGrey from '@material-ui/core/colors/blueGrey';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core';
-import AppNavBar from './components/AppNavBar';
-import Users from './components/Users';
+import AppRouter from './AppRouter';
 
 const theme = createMuiTheme({
     typography: {
@@ -20,10 +19,8 @@ const theme = createMuiTheme({
 export default class App extends React.Component {
     createClient() {
         return new ApolloClient({
-            uri: 'http://localhost:8000/api/v2/data-access',
-            headers: {
-                Authorization: 'Basic YWRtaW46YWRtaW4=',
-            },
+            uri: '/api/v2/data-access',
+            credentials: 'include'
         });
     }
 
@@ -31,8 +28,7 @@ export default class App extends React.Component {
         return (
             <ApolloProvider client={this.createClient()}>
                 <MuiThemeProvider theme={theme}>
-                    <AppNavBar />
-                    <Users />
+                    <AppRouter />
                 </MuiThemeProvider>
             </ApolloProvider>
         );

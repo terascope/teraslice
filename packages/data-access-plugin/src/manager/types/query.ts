@@ -13,5 +13,6 @@ export default `
 type Query {
     ${methods.join('\n    ')}
     authenticate(username: String, password: String, token: String): User!
+    logout: Boolean
 }
 `;

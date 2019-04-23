@@ -1,5 +1,5 @@
-import gql from 'graphql-tag';
 import React from 'react';
+import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
 import { AnyObject } from '@terascope/utils';

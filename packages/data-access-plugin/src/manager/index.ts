@@ -1,4 +1,6 @@
-import { Express } from 'express';
+import path from 'path';
+import cors from 'cors';
+import * as express from 'express';
 import { Client } from 'elasticsearch';
 import * as apollo from 'apollo-server-express';
 import { Context } from '@terascope/job-components';
@@ -11,6 +13,7 @@ import typeDefs from './types';
 import resolvers from './resolvers';
 import * as utils from './utils';
 import { ManagerContext } from './interfaces';
+import { existsSync } from 'fs';
 
 /**
  * A graphql api for managing data access
@@ -18,7 +21,7 @@ import { ManagerContext } from './interfaces';
 export default class ManagerPlugin {
     readonly config: TeraserverConfig;
     readonly logger: Logger;
-    readonly app: Express;
+    readonly app: express.Express;
     readonly manager: ACLManager;
     readonly server: apollo.ApolloServer;
     readonly client: Client;
@@ -52,7 +55,29 @@ export default class ManagerPlugin {
                     user: false,
                     logger: this.logger,
                     manager: this.manager,
-                    authenticating: false,
+                    authenticating: true,
+                    async login() {
+                        if (this.user) {
+                            this.authenticating = false;
+                            return;
+                        }
+
+                        try {
+                            const user = await utils.login(this.manager, req);
+                            this.user = user;
+                            this.authenticating = false;
+                        } catch (err) {
+                            this.logger.error(err, req);
+                            if (err.statusCode === 401) {
+                                throw new apollo.AuthenticationError(err.message);
+                            }
+
+                            if (err.statusCode === 403) {
+                                throw new apollo.ForbiddenError(err.message);
+                            }
+                            throw err;
+                        }
+                    }
                 };
 
                 let skipAuth = false;
@@ -61,28 +86,16 @@ export default class ManagerPlugin {
                     skipAuth = true;
                 } else if (query && query.includes('authenticate(')) {
                     skipAuth = true;
+                } else if (query && query.includes('logout')) {
+                    skipAuth = true;
                 }
 
                 if (skipAuth) {
-                    ctx.authenticating = true;
                     return ctx;
                 }
 
-                try {
-                    const user = await utils.login(this.manager, req);
-                    ctx.user = user;
-                    return ctx;
-                } catch (err) {
-                    this.logger.error(err, req);
-                    if (err.statusCode === 401) {
-                        throw new apollo.AuthenticationError(err.message);
-                    }
-
-                    if (err.statusCode === 403) {
-                        throw new apollo.ForbiddenError(err.message);
-                    }
-                    throw err;
-                }
+                ctx.login();
+                return ctx;
             },
             formatError: utils.formatError,
             playground: {
@@ -105,6 +118,14 @@ export default class ManagerPlugin {
         const managerUri = '/api/v2/data-access';
 
         const rootErrorHandler = makeErrorHandler('Failure to access /api/v2', this.logger);
+
+        // this is definitely not secure but needed for the ui
+        this.app.use(cors({
+            origin (origin, callback) {
+                callback(null, true);
+            },
+            credentials: true
+        }));
 
         this.app.use('/api/v2', (req, res, next) => {
             if (req.originalUrl === managerUri) {
@@ -136,6 +157,13 @@ export default class ManagerPlugin {
             app: this.app,
             path: managerUri,
         });
+
+        const staticPath = path.join(__dirname, '../../ui');
+
+        if (existsSync(staticPath)) {
+            this.logger.info('Registering data-access-plugin ui at /data-access');
+            this.app.use('/data-access', express.static(staticPath));
+        }
 
         // this must happen at the end
         this.app.use('/api/v2/:endpoint', (req, res, next) => {

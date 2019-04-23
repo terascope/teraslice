@@ -1,5 +1,5 @@
-import { firstToLower, get, TSError } from '@terascope/utils';
-import { setLoggedInUser, forEachModel } from '../utils';
+import { firstToLower, get, TSError, isEmpty } from '@terascope/utils';
+import { setLoggedInUser, forEachModel, logoutUser } from '../utils';
 import { ManagerContext } from '../interfaces';
 
 const resolvers = {
@@ -10,6 +10,10 @@ const resolvers = {
             ctx.user = get(ctx, 'req.v2User');
             return ctx.user;
         }
+        if (isEmpty(args)) {
+            await ctx.login();
+            return ctx.user;
+        }
 
         const user = await ctx.manager.authenticate(args);
         setLoggedInUser(ctx.req, user);
@@ -17,6 +21,11 @@ const resolvers = {
         ctx.authenticating = false;
         return user;
     },
+    logout(root: any, args: any, ctx: ManagerContext) {
+        logoutUser(ctx.req);
+        // @ts-ignore
+        ctx.user = { loggedOut: true };
+    }
 };
 
 forEachModel((model) => {
