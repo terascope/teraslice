@@ -1,6 +1,6 @@
 {
     "name": "teraslice-cli",
-    "version": "0.7.0",
+    "version": "0.7.1",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
     "bin": {
         "teraslice-cli": "./index.js",
@@ -53,6 +53,8 @@
     },
     "pkg": {
         "scripts": "cmds/**/*.js",
-        "assets": ["generators/**/templates/*"]
+        "assets": [
+            "generators/**/templates/*"
+        ]
     }
 }
