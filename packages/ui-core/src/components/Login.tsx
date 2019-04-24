@@ -2,34 +2,8 @@ import React from 'react';
 import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
-import { withStyles, Theme, createStyles } from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import Loading from '../ui-components/Loading';
-import ErrorPage from '../ui-components/ErrorInfo';
-
-const styles = (theme: Theme) => createStyles({
-    root: {
-        ...theme.mixins.gutters(),
-        paddingTop: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 2,
-    },
-    container: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center'
-    },
-    textField: {
-        marginLeft: theme.spacing.unit,
-        marginRight: theme.spacing.unit,
-        width: 200,
-    },
-    button: {
-        margin: theme.spacing.unit,
-    },
-});
+import { Form, Button, InputOnChangeData } from 'semantic-ui-react';
+import { Loading, ErrorInfo, Page } from '../ui-components';
 
 type LoginState = {
     username?: string;
@@ -38,13 +12,11 @@ type LoginState = {
 };
 
 type LoginProps = {
-    classes: any;
     onLogin: () => void;
 };
 
 class Login extends React.Component<LoginProps, LoginState> {
     static propTypes = {
-        classes: PropTypes.object.isRequired,
         onLogin: PropTypes.func.isRequired,
     };
 
@@ -54,9 +26,9 @@ class Login extends React.Component<LoginProps, LoginState> {
         ready: false
     };
 
-    handleChange = (prop: 'username'|'password') => (event: any) => {
+    handleChange = (event: any, { name, value }: InputOnChangeData) => {
         this.setState({
-            [prop]: event.target.value,
+            [name]: value,
             ready: false,
         });
     }
@@ -73,54 +45,44 @@ class Login extends React.Component<LoginProps, LoginState> {
     }
 
     render() {
-        const { classes } = this.props;
         const { username, password, ready } = this.state;
 
         const variables: LoginVariables = { username, password };
         return (
-            <LoginQuery query={LOGIN} variables={variables} skip={!ready} onCompleted={this.onCompleted}>
-                {({ loading, error }) => {
-                    if (loading) return <Loading />;
-                    if (error) return <ErrorPage error={error} />;
+            <Page title="Login">
+                <LoginQuery query={LOGIN} variables={variables} skip={!ready} onCompleted={this.onCompleted}>
+                    {({ loading, error }) => {
+                        if (loading) return <Loading />;
+                        if (error) return <ErrorInfo error={error} />;
 
-                    return (
-                        <div>
-                            <Paper className={classes.root} elevation={1}>
-                                <Typography variant="h4" component="h4" align="center">
-                                    Login
-                                </Typography>
-                                <form className={classes.container}>
-                                    <TextField
-                                        id="standard-name"
-                                        label="Username"
-                                        className={classes.textField}
-                                        value={username}
-                                        onChange={this.handleChange('username')}
-                                        margin="normal"
-                                    />
-                                    <TextField
-                                        id="standard-password-input"
-                                        label="Password"
-                                        className={classes.textField}
-                                        type="password"
-                                        value={password}
-                                        onChange={this.handleChange('password')}
-                                        margin="normal"
-                                    />
-                                    <Button color="primary" className={classes.button} onClick={this.handleSubmit}>
-                                        Login
-                                    </Button>
-                                </form>
-                            </Paper>
-                        </div>
-                    );
-                }}
-            </LoginQuery>
+                        return (
+                            <Form onSubmit={this.handleSubmit}>
+                                <Form.Input
+                                    label="Username"
+                                    name="username"
+                                    value={username}
+                                    onChange={this.handleChange}
+                                    required={true}
+                                />
+                                <Form.Input
+                                    label="Password"
+                                    name="password"
+                                    type="password"
+                                    value={password}
+                                    onChange={this.handleChange}
+                                    required={true}
+                                />
+                                <Button type="submit">Submit</Button>
+                            </Form>
+                        );
+                    }}
+                </LoginQuery>
+            </Page>
         );
     }
 }
 
-export default withStyles(styles)(Login);
+export default Login;
 
 // Query...
 const LOGIN = gql`

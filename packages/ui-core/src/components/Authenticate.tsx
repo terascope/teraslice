@@ -2,35 +2,19 @@ import React from 'react';
 import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
-import { withStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { Loading, ErrorInfo } from '../ui-components';
 import Login from './Login';
 
-const styles = (theme: Theme) => createStyles({
-    root: {
-        ...theme.mixins.gutters(),
-        paddingTop: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 2,
-    },
-});
-
 type AuthenticateProps = {
-    classes: any;
     authenticated: boolean;
     onLogin: () => void;
 };
 
-type AuthenticateState = {
-};
-
-class Authenticate extends React.Component<AuthenticateProps, AuthenticateState> {
+class Authenticate extends React.Component<AuthenticateProps> {
     static propTypes = {
-        classes: PropTypes.object.isRequired,
         onLogin: PropTypes.func.isRequired,
         authenticated: PropTypes.bool.isRequired,
     };
-
-    state: AuthenticateState = {};
 
     onCompleted = (data: VerifyResponse) => {
         if (data && data.loggedIn) {
@@ -50,26 +34,20 @@ class Authenticate extends React.Component<AuthenticateProps, AuthenticateState>
             >
                 {({ loading, error, data }) => {
                     if (loading) return <Loading />;
-                    if (error) {
-                        return <ErrorInfo error={error} />;
-                    }
+                    if (error) return <ErrorInfo error={error} />;
 
                     if (data && !data.loggedIn) {
                         return <Login onLogin={this.props.onLogin} />;
                     }
 
-                    return (
-                        <div>
-                            {children}
-                        </div>
-                    );
+                    return children;
                 }}
             </VerifyAuthQuery>
         );
     }
 }
 
-export default withStyles(styles)(Authenticate);
+export default Authenticate;
 
 // Query
 const AUTHENTICATE = gql`

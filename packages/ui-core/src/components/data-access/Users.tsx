@@ -2,26 +2,17 @@ import React from 'react';
 import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
-import Paper from '@material-ui/core/Paper';
-import { Theme, createStyles, withStyles } from '@material-ui/core/styles';
-import { ResolvedUser, QueryState } from '../helpers';
+import { Loading, ErrorInfo, Page } from '../../ui-components';
+import { ResolvedUser, QueryState } from '../../helpers';
 import UsersTable from './UsersTable';
-import { Loading, ErrorInfo } from '../ui-components';
-
-const styles = (theme: Theme) => createStyles({
-    root: {
-        margin: theme.spacing.unit * 2,
-    },
-});
 
 type UsersProps = {
     query?: string;
-    classes: any;
 };
 
 class Users extends React.Component<UsersProps, QueryState> {
     static propTypes = {
-        classes: PropTypes.object.isRequired,
+        query: PropTypes.string,
     };
 
     static getDerivedStateFromProps(props: UsersProps, state: QueryState) {
@@ -43,7 +34,6 @@ class Users extends React.Component<UsersProps, QueryState> {
 
     render() {
         const defaultRowsPerPage = 2;
-        const { classes } = this.props;
         const { sort, query, from, size = defaultRowsPerPage } = this.state;
 
         const variables: QueryState = {
@@ -54,7 +44,7 @@ class Users extends React.Component<UsersProps, QueryState> {
         };
 
         return (
-            <Paper className={classes.root}>
+            <Page title="Users Management">
                 <UsersQuery query={FIND_USERS} variables={variables}>
                     {({ loading, error, data }) => {
                         if (loading) return <Loading />;
@@ -70,12 +60,12 @@ class Users extends React.Component<UsersProps, QueryState> {
                         />;
                     }}
                 </UsersQuery>
-            </Paper>
+            </Page>
         );
     }
 }
 
-export default withStyles(styles)(Users);
+export default Users;
 
 // Query
 const FIND_USERS = gql`
