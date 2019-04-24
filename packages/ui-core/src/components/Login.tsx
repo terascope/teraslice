@@ -7,8 +7,8 @@ import Typography from '@material-ui/core/Typography';
 import { withStyles, Theme, createStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import Loading from './Loading';
-import ErrorPage from './ErrorPage';
+import Loading from '../ui-components/Loading';
+import ErrorPage from '../ui-components/ErrorInfo';
 
 const styles = (theme: Theme) => createStyles({
     root: {

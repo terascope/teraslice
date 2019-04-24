@@ -3,9 +3,8 @@ import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
 import { withStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { Loading, ErrorInfo } from '../ui-components';
 import Login from './Login';
-import Loading from './Loading';
-import ErrorPage from './ErrorPage';
 
 const styles = (theme: Theme) => createStyles({
     root: {
@@ -52,7 +51,7 @@ class Authenticate extends React.Component<AuthenticateProps, AuthenticateState>
                 {({ loading, error, data }) => {
                     if (loading) return <Loading />;
                     if (error) {
-                        return <ErrorPage error={error} />;
+                        return <ErrorInfo error={error} />;
                     }
 
                     if (data && !data.loggedIn) {

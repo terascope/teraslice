@@ -1,24 +1,34 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import * as ui from 'semantic-ui-react';
+import styled from 'styled-components';
+import {
+    Responsive,
+    Container,
+    Segment,
+    Header,
+} from 'semantic-ui-react';
 
 type Props = {
     title: string;
 };
 
+const Footer = styled.footer`
+    padding: 1rem;
+`;
+
 const Page: React.FC<Props> = ({ children, title }) => {
     return (
-        <ui.Responsive>
-            <ui.Container fluid>
-                <ui.Segment>
-                    <ui.Header>{title}</ui.Header>
+        <Responsive>
+            <Container fluid>
+                <Segment>
+                    <Header>{title}</Header>
                     {children}
-                </ui.Segment>
-            </ui.Container>
-            <ui.Container textAlign="center" text>
-                <footer>Copyright ©2019</footer>
-            </ui.Container>
-        </ui.Responsive>
+                </Segment>
+            </Container>
+            <Container textAlign="center" text>
+                <Footer>Copyright &copy; 2019</Footer>
+            </Container>
+        </Responsive>
     );
 };
 

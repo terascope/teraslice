@@ -39,7 +39,7 @@ export class Server extends Core {
     readonly httpServer: http.Server;
     readonly serverName: string;
     readonly clientDisconnectTimeout: number;
-    private _cleanupClients: NodeJS.Timer|undefined;
+    private _cleanupClients: any;
     protected _clients: i.ConnectedClients;
 
     constructor(opts: i.ServerOptions) {

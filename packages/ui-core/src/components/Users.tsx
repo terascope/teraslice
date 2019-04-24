@@ -6,8 +6,7 @@ import Paper from '@material-ui/core/Paper';
 import { Theme, createStyles, withStyles } from '@material-ui/core/styles';
 import { ResolvedUser, QueryState } from '../helpers';
 import UsersTable from './UsersTable';
-import Loading from './Loading';
-import ErrorPage from './ErrorPage';
+import { Loading, ErrorInfo } from '../ui-components';
 
 const styles = (theme: Theme) => createStyles({
     root: {
@@ -59,7 +58,7 @@ class Users extends React.Component<UsersProps, QueryState> {
                 <UsersQuery query={FIND_USERS} variables={variables}>
                     {({ loading, error, data }) => {
                         if (loading) return <Loading />;
-                        if (error) return <ErrorPage error={error} />;
+                        if (error) return <ErrorInfo error={error} />;
                         if (!data) return <div>Uh oh</div>;
 
                         return <UsersTable
