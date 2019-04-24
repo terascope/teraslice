@@ -33,7 +33,7 @@ class Authenticate extends React.Component<AuthenticateProps, AuthenticateState>
 
     state: AuthenticateState = {};
 
-    onCompleted(data: VerifyResponse) {
+    onCompleted = (data: VerifyResponse) => {
         if (data && data.loggedIn) {
             this.props.onLogin();
         }

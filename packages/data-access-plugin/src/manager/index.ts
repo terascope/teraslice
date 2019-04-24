@@ -1,9 +1,8 @@
-import cors from 'cors';
 import { Express } from 'express';
 import { Client } from 'elasticsearch';
 import * as apollo from 'apollo-server-express';
 import { Context } from '@terascope/job-components';
-import { Logger, toBoolean, get } from '@terascope/utils';
+import { Logger, toBoolean, get, isProd } from '@terascope/utils';
 import { ACLManager, User } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { makeSearchFn } from '../search/utils';
@@ -79,9 +78,15 @@ export default class ManagerPlugin {
                 }
 
                 try {
-                    ctx.login();
+                    await ctx.login();
                 } catch (err) {
-                    this.logger.error(err, req);
+                    const obj = {
+                        query: req.query,
+                        body: req.body,
+                        headers: req.headers,
+                        method: req.method
+                    };
+                    this.logger.error(err, obj, 'failure when authentication');
                     if (err.statusCode === 401) {
                         throw new apollo.AuthenticationError(err.message);
                     }
@@ -116,14 +121,6 @@ export default class ManagerPlugin {
 
         const rootErrorHandler = makeErrorHandler('Failure to access /api/v2', this.logger);
 
-        // this is definitely not secure but needed for the ui
-        this.app.use(cors({
-            origin (origin, callback) {
-                callback(null, true);
-            },
-            credentials: true
-        }));
-
         this.app.use('/api/v2', (req, res, next) => {
             if (req.originalUrl === managerUri) {
                 next();
@@ -151,6 +148,10 @@ export default class ManagerPlugin {
 
         this.logger.info(`Registering data-access-plugin manager at ${managerUri}`);
         this.server.applyMiddleware({
+            cors: isProd ? false : {
+                origin: ['http://localhost:3000', 'http://localhost:8000'],
+                credentials: true
+            },
             app: this.app,
             path: managerUri,
         });

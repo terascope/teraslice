@@ -22,9 +22,7 @@ export default class App extends React.Component {
     createClient() {
         return new ApolloClient({
             uri: process.env.REACT_APP_START_MODE ? `http://localhost:8000${apiPath}` : apiPath,
-            fetchOptions: {
-                credentials: 'include'
-            }
+            credentials: 'include',
         });
     }
 

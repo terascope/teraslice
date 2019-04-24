@@ -35,7 +35,6 @@
         "@terascope/data-access": "^0.6.0",
         "@terascope/utils": "^0.10.0",
         "apollo-server-express": "^2.4.8",
-        "cors": "^2.8.5",
         "elasticsearch-store": "^0.6.1",
         "graphql": "^14.2.1",
         "graphql-iso-date": "^3.6.1",
