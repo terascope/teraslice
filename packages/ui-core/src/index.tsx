@@ -1,6 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+
+// Add global css here
+import 'semantic-ui-css/semantic.css';
 import './index.css';
+
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 

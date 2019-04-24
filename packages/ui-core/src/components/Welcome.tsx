@@ -1,38 +1,15 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
-import { withStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { Container } from 'semantic-ui-react';
+import Page from '../ui-components/Page';
 
-const styles = (theme: Theme) => createStyles({
-    root: {
-        ...theme.mixins.gutters(),
-        paddingTop: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 2,
-    },
-});
-
-type WelcomeProps = {
-    classes: any;
-};
-
-const Welcome: React.FC<WelcomeProps> = ({ classes }) => {
+const Welcome: React.FC = () => {
     return (
-        <div>
-            <Paper className={classes.root} elevation={1}>
-                <Typography variant="h4" component="h4" align="center">
-                    Welcome
-                </Typography>
-                <Typography variant="h5" component="h5" align="center">
-                    ...
-                </Typography>
-            </Paper>
-        </div>
+        <Page title="Welcome">
+            <Container text>
+            ...
+            </Container>
+        </Page>
     );
 };
 
-Welcome.propTypes = {
-    classes: PropTypes.object.isRequired,
-};
-
-export default withStyles(styles)(Welcome);
+export default Welcome;
