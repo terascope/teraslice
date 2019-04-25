@@ -55,7 +55,7 @@ const adapter: TeraserverPluginAdapter = {
             throw new Error('Plugin has not been initialized');
         }
 
-        this._search.registerRoutes();
+        this._search.postRegistration();
     },
 
     routes() {
@@ -69,6 +69,9 @@ const adapter: TeraserverPluginAdapter = {
         }
 
         this._manager.registerRoutes();
+        // FIXME: why is this ignored?
+        // @ts-ignore
+        this._search.registerRoutes();
     },
 };
 

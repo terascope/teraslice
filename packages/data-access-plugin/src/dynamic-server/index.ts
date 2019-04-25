@@ -19,6 +19,7 @@ export class DynamicApolloServer extends ApolloServer {
     }: ServerRegistration) {
         /* Adds project specific middleware inside, just to keep in one place */
         app.use(path, json(), (req, res, next) => {
+            // @ts-ignore
             if (this.playgroundOptions && req.method === 'GET') {
                 // perform more expensive content-type check only if necessary
                 // XXX We could potentially move this logic into the GuiOptions lambda,
