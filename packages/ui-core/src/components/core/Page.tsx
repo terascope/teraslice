@@ -25,7 +25,11 @@ const Page: React.FC<Props> = ({ children, title, classes }) => {
     return (
         <div className={classes.root}>
             <Paper className={classes.paper}>
-                <Typography variant="h4" component="h4" align="center" className={classes.item}>
+                <Typography
+                    variant="h5"
+                    component="h2"
+                    className={classes.item}
+                >
                     {title}
                 </Typography>
                 {children}

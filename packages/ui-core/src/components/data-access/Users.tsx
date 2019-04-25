@@ -44,7 +44,7 @@ class Users extends React.Component<UsersProps, QueryState> {
         };
 
         return (
-            <Page title="Users Management">
+            <Page title="Users">
                 <UsersQuery query={FIND_USERS} variables={variables}>
                     {({ loading, error, data }) => {
                         if (loading) return <Loading />;

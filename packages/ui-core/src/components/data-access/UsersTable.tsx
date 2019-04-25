@@ -99,6 +99,7 @@ class Users extends React.Component<Props, State> {
         this.updateQueryState(updates);
     }
 
+    /** @todo FIX select all */
     handleSelectAllClick = (checked: boolean) => {
         if (checked) {
             this.setState({

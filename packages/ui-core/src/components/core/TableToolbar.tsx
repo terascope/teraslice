@@ -32,8 +32,14 @@ const toolbarStyles = (theme: Theme) => createStyles({
     actions: {
         color: theme.palette.text.secondary,
     },
-    title: {
-        flex: '0 0 auto',
+    selected: {
+        flex: '1 1 100%',
+        paddingTop: theme.spacing.unit,
+        paddingRight: theme.spacing.unit,
+        paddingBottom: theme.spacing.unit,
+        paddingLeft: theme.spacing.unit * 3,
+        maxWidth: '10rem',
+        justifySelf: 'flex-start'
     },
     inputRoot: {
         color: 'inherit',
@@ -103,22 +109,16 @@ class UsersTableToolbar extends React.Component<Props, State> {
         const query = this.state.query || this.props.query;
 
         return (
-            <Toolbar
-                className={classNames(classes.root, {
-                    [classes.highlight]: selected.length > 0,
-                })}
-            >
-                <div className={classes.title}>
-                    {selected.length > 0 ? (
+            <Toolbar className={classes.root}>
+                {selected.length > 0 && (
+                    <div className={classNames(classes.selected, {
+                        [classes.highlight]: selected.length > 0,
+                    })}>
                         <Typography color="inherit" variant="subtitle1">
-                            {selected.length} selected
+                            {`${selected.length} selected`}
                         </Typography>
-                        ) : (
-                        <Typography variant="h6" id="tableTitle">
-                            {title}
-                        </Typography>
-                    )}
-                </div>
+                    </div>
+                )}
                 <div className={classes.spacer} />
                 <InputBase
                     placeholder={`Search ${title}...`}

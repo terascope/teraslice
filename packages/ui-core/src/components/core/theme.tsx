@@ -1,13 +1,25 @@
-import blue from '@material-ui/core/colors/blue';
-import blueGrey from '@material-ui/core/colors/blueGrey';
 import { createMuiTheme } from '@material-ui/core';
 
 export default createMuiTheme({
+    overrides: {
+        MuiFormControlLabel: {
+            label: {
+                lineHeight: 1
+            }
+        }
+    },
+    spacing: {
+        unit: 8 // 8 is the default
+    },
     typography: {
-        useNextVariants: true
+        useNextVariants: true,
     },
     palette: {
-        primary: blue,
-        secondary: blueGrey
+        secondary: {
+            main: '#1e88e5',
+        },
+        primary: {
+            main: '#0277bd',
+        },
     }
 });
