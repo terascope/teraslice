@@ -1,11 +1,4 @@
-import React from 'react';
-import { Route } from 'react-router-dom';
-import Users from './Users';
+import SidebarMenu from './SidebarMenu';
+import Routes from './Routes';
 
-const DataAccess: React.FC = () => {
-    return (
-        <Route path="/users/" component={Users} />
-    );
-};
-
-export default DataAccess;
+export { SidebarMenu, Routes };
