@@ -2,7 +2,7 @@ import React from 'react';
 import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
-import { Loading, ErrorInfo } from '../ui-components';
+import { Loading, ErrorInfo } from '../core';
 import Login from './Login';
 
 type AuthenticateProps = {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container } from 'semantic-ui-react';
-import { Page } from '../ui-components';
+import { Page } from '../core';
 
 const Welcome: React.FC = () => {
     return (

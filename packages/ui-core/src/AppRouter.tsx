@@ -1,9 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
-import Welcome from './components/Welcome';
-import Authenticate from './components/Authenticate';
-import Users from './components/data-access/Users';
-import AppWrapper from './components/AppWrapper';
+import { Welcome, Authenticate, AppWrapper } from './components/framework';
+import DataAccess from './components/data-access';
 
 type AppRouterState = {
     authenticated: boolean;
@@ -30,7 +28,7 @@ export default class AppRouter extends React.Component<{}, AppRouterState> {
                 <AppWrapper authenticated={authenticated}>
                     <Authenticate onLogin={this.onLogin} authenticated={authenticated}>
                         <Route path="/" exact component={Welcome} />
-                        <Route path="/users/" component={Users} />
+                        <DataAccess />
                     </Authenticate>
                 </AppWrapper>
             </Router>

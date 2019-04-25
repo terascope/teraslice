@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
 import { Form, Button, InputOnChangeData } from 'semantic-ui-react';
-import { Loading, ErrorInfo, Page } from '../ui-components';
+import { Loading, ErrorInfo, Page } from '../core';
 
 type LoginState = {
     username?: string;
