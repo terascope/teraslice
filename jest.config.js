@@ -1,9 +1,22 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
+
+const excluded = ['ui-core'];
+const packagesPath = path.join(__dirname, 'packages');
+const projects = fs.readdirSync(packagesPath).filter((pkgName) => {
+    const pkgDir = path.join(packagesPath, pkgName);
+
+    if (!fs.statSync(pkgDir).isDirectory()) return false;
+    if (excluded.includes(pkgName)) return false;
+    return fs.existsSync(path.join(pkgDir, 'package.json'));
+}).map(pkgName => `<rootDir>/packages/${pkgName}`);
+
 module.exports = {
     rootDir: '.',
     verbose: true,
-    projects: ['<rootDir>/packages/*'],
+    projects,
     globals: {
         availableExtensions: ['.js', '.ts']
     },
