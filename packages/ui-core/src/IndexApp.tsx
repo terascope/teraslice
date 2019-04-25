@@ -2,7 +2,7 @@ import React from 'react';
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from 'react-apollo';
 import { MuiThemeProvider } from '@material-ui/core';
-import { theme } from './core';
+import { theme } from './components/core';
 import CoreRouter from './IndexRouter';
 
 const apiPath = '/api/v2/data-access';
