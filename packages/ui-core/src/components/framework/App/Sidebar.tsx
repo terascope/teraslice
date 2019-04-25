@@ -1,22 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import List from '@material-ui/core/List';
+import Drawer from '@material-ui/core/Drawer';
+import HomeIcon from '@material-ui/icons/Home';
+import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
+import IconButton from '@material-ui/core/IconButton';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import HomeIcon from '@material-ui/icons/Home';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import { CoreProps, corePropTypes } from '../../../helpers';
-import Divider from '@material-ui/core/Divider';
-import Drawer from '@material-ui/core/Drawer';
-import IconButton from '@material-ui/core/IconButton';
+import { SidebarItem } from '../../core';
 import withStyles from './styles';
 
 type Props = CoreProps & {
     authenticated?: boolean;
     sideBarOpen?: boolean;
     handleSidebarClose?: () => void;
+    menus: React.FunctionComponent[];
 };
 
 class Sidebar extends React.Component<Props> {
@@ -25,18 +27,17 @@ class Sidebar extends React.Component<Props> {
         authenticated: PropTypes.bool.isRequired,
         sideBarOpen: PropTypes.bool,
         handleSidebarClose: PropTypes.func.isRequired,
+        menus: PropTypes.arrayOf(PropTypes.func.isRequired).isRequired,
     };
 
     render() {
         const {
             authenticated,
-            children,
+            menus,
             classes,
             sideBarOpen,
             handleSidebarClose,
         } = this.props;
-
-        if (!authenticated) return <div></div>;
 
         return (
             <Drawer
@@ -55,13 +56,12 @@ class Sidebar extends React.Component<Props> {
                 </div>
                 <Divider />
                 <List>
-                    <ListItem button key="/">
-                        <ListItemIcon><HomeIcon /></ListItemIcon>
-                        <ListItemText primary="Home" />
-                    </ListItem>
+                    <SidebarItem link="/" label="Home" icon={<HomeIcon />} />
                 </List>
-                <Divider />
-                {children}
+                {authenticated && menus.map((Menu: React.FunctionComponent) => ([
+                    <Divider />,
+                    <Menu />
+                ]))}
             </Drawer>
         );
     }

@@ -23,7 +23,7 @@ export default class IndexRouter extends React.Component<{}, State> {
     render() {
         const { authenticated } = this.state;
 
-        const menus = <DataAccess.SidebarMenu />;
+        const menus = [DataAccess.SidebarMenu];
         return (
             <Router>
                 <App authenticated={authenticated} menus={menus} >

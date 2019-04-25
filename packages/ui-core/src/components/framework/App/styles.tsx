@@ -41,6 +41,7 @@ export default withStyles((theme: Theme) => createStyles({
         ...theme.mixins.toolbar,
         justifyContent: 'flex-end',
     },
+    main: {},
     content: {
         flexGrow: 1,
         padding: theme.spacing.unit * 3,
@@ -63,6 +64,9 @@ export default withStyles((theme: Theme) => createStyles({
     toolbar: {
         alignItems: 'center',
         justifyContent: 'space-between',
+    },
+    footer: {
+        padding: theme.spacing.unit * 3
     },
     rightMenu: {
         display: 'flex',

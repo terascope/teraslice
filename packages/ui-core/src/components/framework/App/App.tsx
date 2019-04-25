@@ -10,7 +10,7 @@ import { CoreProps } from '../../../helpers';
 
 type Props = CoreProps & {
     authenticated: boolean;
-    menus: React.ReactNode;
+    menus: React.FunctionComponent[];
 };
 
 type State = {
@@ -20,7 +20,7 @@ type State = {
 class App extends React.Component<Props, State> {
     static propTypes =  {
         authenticated: PropTypes.bool.isRequired,
-        menus: PropTypes.any.isRequired,
+        menus: PropTypes.arrayOf(PropTypes.func.isRequired).isRequired,
     };
 
     state = {
@@ -58,16 +58,15 @@ class App extends React.Component<Props, State> {
                     authenticated={authenticated}
                     sideBarOpen={sidebarOpen}
                     handleSidebarClose={this.handleSidebarClose}
-                >{menus}</Sidebar>
+                    menus={menus}
+                />
                 <main
                     className={classNames(classes.content, {
                         [classes.contentShift]: sidebarOpen,
                     })}
                     >
                     <div className={classes.drawerHeader} />
-                    <div>
-                        {children}
-                    </div>
+                    <div>{children}</div>
                     <Footer />
                 </main>
             </div>

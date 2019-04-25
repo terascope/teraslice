@@ -29,23 +29,23 @@ const styles = (theme: Theme) => createStyles({
     },
 });
 
-type LoginState = {
+type State = {
     username?: string;
     password?: string;
     ready?: boolean;
 };
 
-type LoginProps = CoreProps & {
+type Props = CoreProps & {
     onLogin: () => void;
 };
 
-class Login extends React.Component<LoginProps, LoginState> {
+class Login extends React.Component<Props, State> {
     static propTypes = {
         ...corePropTypes,
         onLogin: PropTypes.func.isRequired,
     };
 
-    state: LoginState = {
+    state: State = {
         username: '',
         password: '',
         ready: false

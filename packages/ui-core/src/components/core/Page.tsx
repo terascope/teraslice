@@ -12,23 +12,25 @@ type Props = CoreProps & {
 const styles = (theme: Theme) => createStyles({
     root: {
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'space-around',
         flexDirection: 'column',
-        padding: theme.spacing.unit * 2,
+        padding: theme.spacing.unit,
     },
-    progress: {
-        margin: theme.spacing.unit * 2,
-    },
+    paper: {
+        padding: theme.spacing.unit * 3,
+    }
 });
 
 const Page: React.FC<Props> = ({ children, title, classes }) => {
     return (
-        <Paper>
-            <Typography variant="h4" component="h4" align="center" className={classes.item}>
-                {title}
-            </Typography>
-            {children}
-        </Paper>
+        <div className={classes.root}>
+            <Paper className={classes.paper}>
+                <Typography variant="h4" component="h4" align="center" className={classes.item}>
+                    {title}
+                </Typography>
+                {children}
+            </Paper>
+        </div>
     );
 };
 

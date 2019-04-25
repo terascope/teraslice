@@ -1,5 +1,4 @@
 import React from 'react';
-import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles, Theme, createStyles } from '@material-ui/core/styles';
@@ -19,12 +18,12 @@ const styles = (theme: Theme) => createStyles({
 
 const Loading: React.FC<CoreProps> = ({ classes }) => {
     return (
-        <Paper className={classes.root}>
+        <div className={classes.root}>
             <CircularProgress className={classes.progress} />
             <Typography component="h3" align="center">
                 Loading...
             </Typography>
-        </Paper>
+        </div>
     );
 };
 
