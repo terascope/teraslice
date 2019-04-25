@@ -17,7 +17,7 @@ type State = {
     sidebarOpen: boolean;
 };
 
-class AppWrapper extends React.Component<Props, State> {
+class App extends React.Component<Props, State> {
     static propTypes =  {
         authenticated: PropTypes.bool.isRequired,
         menus: PropTypes.any.isRequired,
@@ -75,4 +75,4 @@ class AppWrapper extends React.Component<Props, State> {
     }
 }
 
-export default withStyles(AppWrapper);
+export default withStyles(App);

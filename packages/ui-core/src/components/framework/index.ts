@@ -1,10 +1,10 @@
-import AppWrapper from './AppWrapper';
+import App from './App';
 import Authenticate from './Authenticate';
 import Login from './Login';
 import Welcome from './Welcome';
 
 export {
-    AppWrapper,
+    App,
     Authenticate,
     Login,
     Welcome,

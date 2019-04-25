@@ -1,14 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
-import { Welcome, Authenticate, AppWrapper } from './components/framework';
+import { Welcome, Authenticate, App } from './components/framework';
 import * as DataAccess from './components/data-access';
 
-type AppRouterState = {
+type State = {
     authenticated: boolean;
 };
 
-export default class AppRouter extends React.Component<{}, AppRouterState> {
-    state: AppRouterState = {
+export default class IndexRouter extends React.Component<{}, State> {
+    state: State = {
         authenticated: false,
     };
 
@@ -26,12 +26,12 @@ export default class AppRouter extends React.Component<{}, AppRouterState> {
         const menus = <DataAccess.SidebarMenu />;
         return (
             <Router>
-                <AppWrapper authenticated={authenticated} menus={menus} >
+                <App authenticated={authenticated} menus={menus} >
                     <Authenticate onLogin={this.onLogin} authenticated={authenticated}>
                         <Route path="/" exact component={Welcome} />
                         <DataAccess.Routes />
                     </Authenticate>
-                </AppWrapper>
+                </App>
             </Router>
         );
     }
