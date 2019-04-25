@@ -61,9 +61,10 @@ export function getLoggedInUser(req: Request): User|null {
 
 export async function login(manager: ACLManager, req: Request, storeInSession = true): Promise<User> {
     const loggedInUser = getLoggedInUser(req);
-    if (loggedInUser) return loggedInUser;
-
     const creds = getCredentialsFromReq(req);
+    if (loggedInUser && creds.token && loggedInUser.api_token === creds.token) { 
+        return loggedInUser;
+    }
 
     const user = await manager.authenticate(creds);
     setLoggedInUser(req, user, storeInSession);
