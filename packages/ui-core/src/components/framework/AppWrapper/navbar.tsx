@@ -34,14 +34,22 @@ class Navbar extends React.Component<Props, State> {
         rightMenuOpen: false,
     };
 
-    handleToggle = (event: any) => {
+    handleToggle = () => {
         this.setState(state => ({
             rightMenuOpen: !state.rightMenuOpen,
         }));
     }
 
-    handleClose = (event: any) => {
+    handleClose = () => {
         this.setState({ rightMenuOpen: false });
+    }
+
+    handleMyAccount = () => {
+        this.handleClose();
+    }
+
+    handleLogin = () => {
+        this.handleClose();
     }
 
     render() {
@@ -60,7 +68,7 @@ class Navbar extends React.Component<Props, State> {
                     [classes.appBarShift]: sideBarOpen,
                 })}
             >
-                <Toolbar disableGutters={!sideBarOpen}>
+                <Toolbar disableGutters={!sideBarOpen} className={classes.toolbar}>
                     <IconButton
                         color="inherit"
                         aria-label="Open drawer"
@@ -72,6 +80,7 @@ class Navbar extends React.Component<Props, State> {
                     <Typography variant="h6" color="inherit" noWrap>
                         Teraserver
                     </Typography>
+                    <div className={classes.grow} />
                     {authenticated && (
                         <div className={classes.rightMenu}>
                             <IconButton
@@ -95,10 +104,10 @@ class Navbar extends React.Component<Props, State> {
                                 open={rightMenuOpen}
                                 onClose={this.handleClose}
                             >
-                                <MenuItem onClick={this.handleClose}>
+                                <MenuItem onClick={this.handleMyAccount}>
                                     My Account
                                 </MenuItem>
-                                <MenuItem onClick={this.handleClose}>
+                                <MenuItem onClick={this.handleLogin}>
                                     Logout
                                 </MenuItem>
                             </Menu>

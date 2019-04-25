@@ -10,7 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import { lighten } from '@material-ui/core/styles/colorManipulator';
 import { Theme, createStyles, withStyles } from '@material-ui/core/styles';
-import { CoreProps, corePropTypes } from '../../../helpers';
+import { CoreProps, corePropTypes } from '../../helpers';
 
 const toolbarStyles = (theme: Theme) => createStyles({
     root: {
@@ -52,7 +52,6 @@ const toolbarStyles = (theme: Theme) => createStyles({
 });
 
 type Props = CoreProps & {
-    classes: any;
     title: string;
     selected: string[];
     query?: string;
@@ -95,7 +94,7 @@ class UsersTableToolbar extends React.Component<Props, State> {
         this.props.onQueryFilter(query);
     }
 
-    handleRemoveSelection = (event: any) => {
+    handleRemoveSelection = () => {
         this.props.onRemoveSelection(this.props.selected);
     }
 

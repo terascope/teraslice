@@ -8,10 +8,16 @@ import TableBody from '@material-ui/core/TableBody';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableCell, { SortDirection } from '@material-ui/core/TableCell';
 import { Theme, createStyles, withStyles } from '@material-ui/core/styles';
-import { ResolvedUser, QueryState, CoreProps, corePropTypes } from '../../../helpers';
-import UsersTableToolbar from './toolbar';
-import UsersTableHeader from './header';
-import { rows } from './shared';
+import { ResolvedUser, QueryState, CoreProps, corePropTypes } from '../../helpers';
+import { TableHeader, TableToolbar } from '../core';
+
+const rowDefs = [
+  { id: 'firstname', label: 'First Name' },
+  { id: 'lastname', label: 'Last Name' },
+  { id: 'username', label: 'Username' },
+  { id: 'role', label: 'Role' },
+  { id: 'created', label: 'Created' },
+];
 
 const styles = (theme: Theme) => createStyles({
     root: {
@@ -38,7 +44,7 @@ type State = {
     page: number;
     rowsPerPage: number;
     selected: string[];
-    order: 'asc'|'desc';
+    order: SortDirection;
     orderBy: string;
     query: string;
 };
@@ -81,7 +87,7 @@ class Users extends React.Component<Props, State> {
         });
     }
 
-    handleRequestSort = (event: any, property: string) => {
+    handleRequestSort = (property: string) => {
         const orderBy = property;
         let order: SortDirection = 'desc';
 
@@ -93,8 +99,8 @@ class Users extends React.Component<Props, State> {
         this.updateQueryState(updates);
     }
 
-    handleSelectAllClick = (event: any) => {
-        if (event.target.checked) {
+    handleSelectAllClick = (checked: boolean) => {
+        if (checked) {
             this.setState({
                 selected: this.props.users.map(n => n.id)
             });
@@ -156,7 +162,7 @@ class Users extends React.Component<Props, State> {
 
         return (
             <div className={classes.tableWrapper}>
-                <UsersTableToolbar
+                <TableToolbar
                     title="Users"
                     selected={selected}
                     query={query}
@@ -164,13 +170,14 @@ class Users extends React.Component<Props, State> {
                     onRemoveSelection={() => {}}
                 />
                 <Table className={classes.table}>
-                    <UsersTableHeader
+                    <TableHeader
                         numSelected={selected.length}
                         order={order}
                         orderBy={orderBy}
                         onSelectAllClick={this.handleSelectAllClick}
                         onRequestSort={this.handleRequestSort}
                         rowCount={users.length}
+                        rowDefs={rowDefs}
                     />
                     <TableBody>
                         {users.map(user => {
@@ -198,7 +205,7 @@ class Users extends React.Component<Props, State> {
                         })}
                         {emptyRows > 0 && (
                             <TableRow style={{ height: 49 * emptyRows }}>
-                                <TableCell colSpan={rows.length + 1} />
+                                <TableCell colSpan={rowDefs.length + 1} />
                             </TableRow>
                         )}
                     </TableBody>
