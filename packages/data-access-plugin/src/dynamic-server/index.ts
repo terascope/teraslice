@@ -5,9 +5,12 @@ import {
   RenderPageOptions as PlaygroundRenderPageOptions,
 } from '@apollographql/graphql-playground-html';
 import { ApolloServer, ServerRegistration, makeExecutableSchema } from 'apollo-server-express';
+import * as utils from '../manager/utils';
 
 /* Don't think it's exported normally, get directly */
 import { graphqlExpress } from 'apollo-server-express/dist/expressApollo';
+// tslint:disable-next-line
+import * as apollo from 'apollo-server-express';
 
 import typeDefs from '../manager/types';
 import resolvers from '../manager/resolvers';
@@ -66,6 +69,12 @@ export class DynamicApolloServer extends ApolloServer {
                         resolvers,
                         inheritResolversFromInterfaces: true,
                     }),
+                    formatError: utils.formatError,
+                    playground: {
+                        settings: {
+                            'request.credentials': 'include',
+                        }
+                    } as apollo.PlaygroundConfig
                 })
             )(req, res, next);
         });

@@ -1,11 +1,13 @@
 import ManagerPlugin from './manager';
 import SearchPlugin from './search';
+import SpacesPlugin from './spaces';
 import { PluginConfig } from './interfaces';
 
 const adapter: TeraserverPluginAdapter = {
     _initialized: false,
     _manager: undefined,
     _search: undefined,
+    _spaces: undefined,
     _config: undefined,
 
     config_schema() {
@@ -29,17 +31,19 @@ const adapter: TeraserverPluginAdapter = {
     config(config: PluginConfig) {
         this._manager = new ManagerPlugin(config);
         this._search = new SearchPlugin(config);
+        this._spaces = new SpacesPlugin(config);
         this._config = config;
     },
 
     async init() {
-        if (this._manager == null || this._search == null) {
+        if (this._manager == null || this._search == null || this._spaces == null) {
             throw new Error('Plugin has not been configured');
         }
 
         return Promise.all([
             this._manager.initialize(),
             this._search.initialize(),
+            this._spaces.initialize(),
         ])
             .then(() => {
                 this._initialized = true;
@@ -60,6 +64,8 @@ const adapter: TeraserverPluginAdapter = {
 
     routes() {
         if (this._manager == null
+            || this._search == null
+            || this._spaces == null
             || this._config == null) {
             throw new Error('Plugin has not been configured');
         }
@@ -68,9 +74,9 @@ const adapter: TeraserverPluginAdapter = {
             throw new Error('Plugin has not been initialized');
         }
 
+        // ORDER MATTERS
         this._manager.registerRoutes();
-        // FIXME: why is this ignored?
-        // @ts-ignore
+        this._spaces.registerRoutes();
         this._search.registerRoutes();
     },
 };
@@ -81,6 +87,7 @@ interface TeraserverPluginAdapter {
     _config?: PluginConfig;
     _manager?: ManagerPlugin;
     _search?: SearchPlugin;
+    _spaces?: SpacesPlugin;
     _initialized: boolean;
 
     config_schema(): any;
