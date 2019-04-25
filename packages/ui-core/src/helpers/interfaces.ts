@@ -1,6 +1,10 @@
 import { User, Role } from '@terascope/data-access';
 import { Overwrite } from '@terascope/utils';
 
+export interface CoreProps {
+    classes: any;
+}
+
 export type ResolvedUser = Overwrite<User, {
     role?: Role
 }>;

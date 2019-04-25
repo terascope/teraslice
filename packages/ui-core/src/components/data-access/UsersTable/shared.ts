@@ -1,5 +1,3 @@
-export type SortDirection = 'asc'|'desc';
-
 export const rows = [
   { id: 'firstname', label: 'First Name' },
   { id: 'lastname', label: 'Last Name' },

@@ -1,14 +1,15 @@
 import React from 'react';
-import { Menu } from 'semantic-ui-react';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
 
 const SidebarMenu: React.FC = () => {
     return (
-        <Menu.Menu>
-            <Menu.Header>Data Access</Menu.Header>
-            <Menu.Item>
-                Users
-            </Menu.Item>
-        </Menu.Menu>
+       <List>
+            <ListItem button key="/users">
+                <ListItemText primary="Users" />
+            </ListItem>
+        </List>
     );
 };
 

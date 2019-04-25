@@ -1,13 +1,32 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { get } from '@terascope/utils';
-import { Pagination, Table, Segment, Checkbox } from 'semantic-ui-react';
-import { ResolvedUser, QueryState } from '../../../helpers';
+import Table from '@material-ui/core/Table';
+import Checkbox from '@material-ui/core/Checkbox';
+import { get, uniq } from '@terascope/utils';
+import TableRow from '@material-ui/core/TableRow';
+import TableBody from '@material-ui/core/TableBody';
+import TablePagination from '@material-ui/core/TablePagination';
+import TableCell, { SortDirection } from '@material-ui/core/TableCell';
+import { Theme, createStyles, withStyles } from '@material-ui/core/styles';
+import { ResolvedUser, QueryState, CoreProps, corePropTypes } from '../../../helpers';
 import UsersTableToolbar from './toolbar';
 import UsersTableHeader from './header';
-import { rows, SortDirection } from './shared';
+import { rows } from './shared';
 
-type UsersTableProps = {
+const styles = (theme: Theme) => createStyles({
+    root: {
+        width: '100%',
+        marginTop: theme.spacing.unit * 3,
+    },
+    table: {
+        minWidth: 500,
+    },
+    tableWrapper: {
+        overflowX: 'auto',
+    },
+});
+
+type Props = CoreProps & {
     users: ResolvedUser[];
     handleQueryChange: (options: QueryState) => void;
     defaultRowsPerPage?: number;
@@ -15,7 +34,7 @@ type UsersTableProps = {
     query?: string;
 };
 
-type TableState = {
+type State = {
     page: number;
     rowsPerPage: number;
     selected: string[];
@@ -24,8 +43,9 @@ type TableState = {
     query: string;
 };
 
-class UsersTable extends React.Component<UsersTableProps, TableState> {
+class Users extends React.Component<Props, State> {
     static propTypes = {
+        ...corePropTypes,
         handleQueryChange: PropTypes.func.isRequired,
         users: PropTypes.array.isRequired,
         defaultRowsPerPage: PropTypes.number,
@@ -33,14 +53,14 @@ class UsersTable extends React.Component<UsersTableProps, TableState> {
         query: PropTypes.string
     };
 
-    static getDerivedStateFromProps(props: UsersTableProps, state: TableState) {
+    static getDerivedStateFromProps(props: any, state: any) {
         if (props.defaultRowsPerPage) {
             state.rowsPerPage = props.defaultRowsPerPage;
         }
         return state;
     }
 
-    state: TableState = {
+    state: State = {
         page: 0,
         rowsPerPage: 25,
         selected: [],
@@ -122,7 +142,7 @@ class UsersTable extends React.Component<UsersTableProps, TableState> {
     }
 
     render() {
-        const { users, total, query } = this.props;
+        const { classes, users, total, query } = this.props;
         const {
             page,
             rowsPerPage,
@@ -132,9 +152,10 @@ class UsersTable extends React.Component<UsersTableProps, TableState> {
         } = this.state;
 
         const emptyRows = rowsPerPage - Math.min(rowsPerPage, total - page * rowsPerPage);
+        const rowsPerPageOptions = uniq([1, 5, 10, 25, rowsPerPage]).sort((a, b) => a - b);
 
         return (
-            <Segment>
+            <div className={classes.tableWrapper}>
                 <UsersTableToolbar
                     title="Users"
                     selected={selected}
@@ -142,7 +163,7 @@ class UsersTable extends React.Component<UsersTableProps, TableState> {
                     onQueryFilter={this.handleQueryChange}
                     onRemoveSelection={() => {}}
                 />
-                <Table basic>
+                <Table className={classes.table}>
                     <UsersTableHeader
                         numSelected={selected.length}
                         order={order}
@@ -151,11 +172,12 @@ class UsersTable extends React.Component<UsersTableProps, TableState> {
                         onRequestSort={this.handleRequestSort}
                         rowCount={users.length}
                     />
-                    <Table.Body>
+                    <TableBody>
                         {users.map(user => {
                             const isSelected = this.isSelected(user.id);
                             return (
-                                <Table.Row
+                                <TableRow
+                                    hover
                                     onClick={(event: any) => this.handleClick(event, user.id)}
                                     role="checkbox"
                                     aria-checked={isSelected}
@@ -163,36 +185,42 @@ class UsersTable extends React.Component<UsersTableProps, TableState> {
                                     key={user.id}
                                     selected={isSelected}
                                 >
-                                    <Table.Cell padding="checkbox">
+                                    <TableCell padding="checkbox">
                                         <Checkbox checked={isSelected} />
-                                    </Table.Cell>
-                                    <Table.Cell>{user.firstname}</Table.Cell>
-                                    <Table.Cell>{user.lastname}</Table.Cell>
-                                    <Table.Cell>{user.username}</Table.Cell>
-                                    <Table.Cell>{get(user, 'role.name') || user.type}</Table.Cell>
-                                    <Table.Cell>{user.created}</Table.Cell>
-                                </Table.Row>
+                                    </TableCell>
+                                    <TableCell>{user.firstname}</TableCell>
+                                    <TableCell>{user.lastname}</TableCell>
+                                    <TableCell>{user.username}</TableCell>
+                                    <TableCell>{get(user, 'role.name') || user.type}</TableCell>
+                                    <TableCell>{user.created}</TableCell>
+                                </TableRow>
                             );
                         })}
                         {emptyRows > 0 && (
-                            <Table.Row style={{ height: 49 * emptyRows }}>
-                                <Table.Cell cells={rows.length + 1} />
-                            </Table.Row>
+                            <TableRow style={{ height: 49 * emptyRows }}>
+                                <TableCell colSpan={rows.length + 1} />
+                            </TableRow>
                         )}
-                    </Table.Body>
+                    </TableBody>
                 </Table>
-                <Pagination
-                    activePage={page}
+                <TablePagination
+                    component="div"
+                    page={page}
+                    count={total}
+                    rowsPerPage={rowsPerPage}
+                    rowsPerPageOptions={rowsPerPageOptions}
+                    backIconButtonProps={{
+                        'aria-label': 'Previous Page',
+                    }}
+                    nextIconButtonProps={{
+                        'aria-label': 'Next Page',
+                    }}
                     onChangePage={this.handleChangePage}
-                    totalPages={total / rowsPerPage}
-                    firstItem={null}
-                    lastItem={null}
-                    pointing
-                    secondary
+                    onChangeRowsPerPage={this.handleChangeRowsPerPage}
                 />
-            </Segment>
+            </div>
         );
     }
 }
 
-export default UsersTable;
+export default withStyles(styles)(Users);

@@ -2,8 +2,32 @@ import React from 'react';
 import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
-import { Form, Button, InputOnChangeData } from 'semantic-ui-react';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import { withStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { Loading, ErrorInfo, Page } from '../core';
+import { CoreProps, corePropTypes } from '../../helpers';
+
+const styles = (theme: Theme) => createStyles({
+    root: {
+        ...theme.mixins.gutters(),
+        paddingTop: theme.spacing.unit * 2,
+        paddingBottom: theme.spacing.unit * 2,
+    },
+    container: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center'
+    },
+    textField: {
+        marginLeft: theme.spacing.unit,
+        marginRight: theme.spacing.unit,
+        width: 200,
+    },
+    button: {
+        margin: theme.spacing.unit,
+    },
+});
 
 type LoginState = {
     username?: string;
@@ -11,12 +35,13 @@ type LoginState = {
     ready?: boolean;
 };
 
-type LoginProps = {
+type LoginProps = CoreProps & {
     onLogin: () => void;
 };
 
 class Login extends React.Component<LoginProps, LoginState> {
     static propTypes = {
+        ...corePropTypes,
         onLogin: PropTypes.func.isRequired,
     };
 
@@ -26,9 +51,9 @@ class Login extends React.Component<LoginProps, LoginState> {
         ready: false
     };
 
-    handleChange = (event: any, { name, value }: InputOnChangeData) => {
+    handleChange = (name: 'username'|'password') => (event: any) => {
         this.setState({
-            [name]: value,
+            [name]: event.target.value,
             ready: false,
         });
     }
@@ -45,6 +70,7 @@ class Login extends React.Component<LoginProps, LoginState> {
     }
 
     render() {
+        const { classes } = this.props;
         const { username, password, ready } = this.state;
 
         const variables: LoginVariables = { username, password };
@@ -56,24 +82,28 @@ class Login extends React.Component<LoginProps, LoginState> {
                         if (error) return <ErrorInfo error={error} />;
 
                         return (
-                            <Form onSubmit={this.handleSubmit}>
-                                <Form.Input
+                            <form className={classes.container}>
+                                <TextField
+                                    id="standard-name"
                                     label="Username"
-                                    name="username"
+                                    className={classes.textField}
                                     value={username}
-                                    onChange={this.handleChange}
-                                    required={true}
+                                    onChange={this.handleChange('username')}
+                                    margin="normal"
                                 />
-                                <Form.Input
+                                <TextField
+                                    id="standard-password-input"
                                     label="Password"
-                                    name="password"
+                                    className={classes.textField}
                                     type="password"
                                     value={password}
-                                    onChange={this.handleChange}
-                                    required={true}
+                                    onChange={this.handleChange('password')}
+                                    margin="normal"
                                 />
-                                <Button type="submit">Submit</Button>
-                            </Form>
+                                <Button color="primary" className={classes.button} onClick={this.handleSubmit}>
+                                    Login
+                                </Button>
+                            </form>
                         );
                     }}
                 </LoginQuery>
@@ -82,7 +112,7 @@ class Login extends React.Component<LoginProps, LoginState> {
     }
 }
 
-export default Login;
+export default withStyles(styles)(Login);
 
 // Query...
 const LOGIN = gql`

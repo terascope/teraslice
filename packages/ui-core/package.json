@@ -22,25 +22,25 @@
         "create-superadmin": "./bin/create-superadmin.js"
     },
     "dependencies": {
+        "@material-ui/core": "^3.9.3",
+        "@material-ui/icons": "^3.0.2",
         "@terascope/utils": "^0.10.0",
         "apollo-boost": "^0.3.1",
+        "classnames": "^2.2.6",
         "express": "^4.16.4",
         "prop-types": "^15.7.2",
         "react": "^16.8.6",
         "react-apollo": "^2.5.5",
         "react-dom": "^16.8.6",
-        "react-router-dom": "^5.0.0",
-        "semantic-ui-css": "^2.4.1",
-        "semantic-ui-react": "^0.86.0",
-        "styled-components": "^4.2.0"
+        "react-router-dom": "^5.0.0"
     },
     "devDependencies": {
+        "@types/classnames": "^2.2.7",
         "@types/jest": "24.0.11",
         "@types/node": "11.13.7",
         "@types/react": "16.8.14",
         "@types/react-dom": "16.8.4",
         "@types/react-router-dom": "^4.3.2",
-        "@types/styled-components": "^4.1.14",
         "react-scripts": "3.0.0",
         "typescript": "3.4.5"
     },

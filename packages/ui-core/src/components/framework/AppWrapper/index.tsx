@@ -1,16 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-    Container,
-    Sidebar,
-    Menu,
-    Icon,
-    Button,
-} from 'semantic-ui-react';
-import { Footer, HeaderTitle, Content } from './misc';
-import SidebarMenu from './sidebar-menu';
+import classNames from 'classnames';
+import withStyles from './styles';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Navbar from './navbar';
+import Sidebar from './sidebar-menu';
+import { CoreProps } from '../../../helpers';
 
-type Props = {
+type Props = CoreProps & {
     authenticated: boolean;
     menus: React.ReactNode;
 };
@@ -29,11 +26,11 @@ class AppWrapper extends React.Component<Props, State> {
         sidebarOpen: false,
     };
 
-    handleSidebarToggle = () => {
-        this.setState((state) => ({ sidebarOpen: !state.sidebarOpen }));
+    handleSidebarOpen = () => {
+        this.setState({ sidebarOpen: true });
     }
 
-    handleSidebarHide = () => {
+    handleSidebarClose = () => {
         this.setState({ sidebarOpen: false });
     }
 
@@ -46,45 +43,35 @@ class AppWrapper extends React.Component<Props, State> {
     }
 
     render() {
-        const { authenticated, children, menus } = this.props;
+        const { classes, authenticated, children, menus } = this.props;
         const { sidebarOpen } = this.state;
 
         return (
-            <Content>
-                <Sidebar.Pushable>
-                    <SidebarMenu
-                        authenticated={authenticated}
-                        visible={sidebarOpen}
-                        onHide={this.handleSidebarHide}
-                    >{menus}</SidebarMenu>
-                    <Sidebar.Pusher>
-                        <Menu>
-                            <Button as={Menu.Item} icon onClick={this.handleSidebarToggle}>
-                                <Icon name="bars"></Icon>
-                            </Button>
-                            <Menu.Item as={HeaderTitle} header>
-                            Teraserver
-                            </Menu.Item>
-                            {authenticated && (
-                                <Menu.Menu position="right">
-                                    <Button as={Menu.Item} icon onClick={this.goToAccount}>
-                                        <Icon name="user circle" size="large"></Icon>
-                                    </Button>
-                                    <Button as={Menu.Item} onClick={this.handleLogout}>
-                                        Logout
-                                    </Button>
-                                </Menu.Menu>
-                            )}
-                        </Menu>
+            <div className={classes.root}>
+                <CssBaseline />
+                <Navbar
+                    authenticated
+                    handleSidebarOpen={this.handleSidebarOpen}
+                 />
+                <Sidebar
+                    authenticated={authenticated}
+                    sideBarOpen={sidebarOpen}
+                    handleSidebarClose={this.handleSidebarClose}
+                >{menus}</Sidebar>
+                <main
+                    className={classNames(classes.content, {
+                        [classes.contentShift]: sidebarOpen,
+                    })}
+                    >
+                    <div className={classes.drawerHeader} />
+                    <div>
                         {children}
-                        <Container textAlign="center" text>
-                            <Footer>Copyright &copy; 2019</Footer>
-                        </Container>
-                    </Sidebar.Pusher>
-                </Sidebar.Pushable>
-            </Content>
+                    </div>
+                    <footer className={classes.footer}>Copyright &copy; 2019</footer>
+                </main>
+            </div>
         );
     }
 }
 
-export default AppWrapper;
+export default withStyles(AppWrapper);
