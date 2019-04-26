@@ -63,16 +63,12 @@ export class ACLManager {
     async authenticate(args: { username?: string, password?: string, token?: string }): Promise<models.User> {
         if (args.username && args.password) {
             const user = await this._users.authenticate(args.username, args.password);
-            delete user.hash;
-            delete user.salt;
-            return user;
+            return this._postProcessAuthenticatedUser(user);
         }
 
         if (args.token) {
             const user = await this._users.authenticateWithToken(args.token);
-            delete user.hash;
-            delete user.salt;
-            return user;
+            return this._postProcessAuthenticatedUser(user);
         }
 
         throw new ts.TSError('Missing credentials', {
@@ -107,7 +103,8 @@ export class ACLManager {
     async createUser(args: { user: models.CreateUserInput, password: string }, authUser: i.AuthUser) {
         await this._validateUserInput(args.user, authUser);
 
-        return this._users.createWithPassword(args.user, args.password);
+        const user = await this._users.createWithPassword(args.user, args.password);
+        return this._postProcessAuthenticatedUser(user);
     }
 
     /**
@@ -471,6 +468,21 @@ export class ACLManager {
             data_type: dataType,
             view
         });
+    }
+
+    private async _postProcessAuthenticatedUser(user: models.User): Promise<models.User> {
+        if (user.role) {
+            const role = await this._roles.findById(user.role, {
+                includes: ['name']
+            });
+            user.role_name = role.name;
+        }
+
+        // remove hidden properties
+        delete user.hash;
+        delete user.salt;
+
+        return user;
     }
 
     private _getUserQueryAccess(authUser: i.AuthUser) {
