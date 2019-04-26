@@ -25,7 +25,7 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "dependencies": {
-        "@terascope/utils": "^0.10.0",
+        "@terascope/utils": "^0.10.1",
         "bluebird": "^3.5.4",
         "csvtojson": "^2.0.8",
         "lodash": "^4.17.11"

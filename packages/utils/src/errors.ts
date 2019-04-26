@@ -273,11 +273,6 @@ export function toStatusErrorCode(input: string|undefined): string {
         .replace(/\W+/g, '_');
 }
 
-export const STATUS_ERROR_CODES: { [statusCode: number]: string } = {};
-for (const [statusCode, message] of Object.entries(STATUS_CODES)) {
-    STATUS_ERROR_CODES[statusCode] = toStatusErrorCode(message);
-}
-
 function _normalizeESError(message?: string) {
     if (!message) return '';
 

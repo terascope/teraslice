@@ -1,7 +1,7 @@
 {
     "name": "@terascope/data-access",
     "description": "A tool designed to limit access to reading and querying data",
-    "version": "0.6.0",
+    "version": "0.7.0",
     "publishConfig": {
         "access": "public"
     },
@@ -30,8 +30,8 @@
         "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "@terascope/utils": "^0.10.0",
-        "elasticsearch-store": "^0.6.1",
+        "@terascope/utils": "^0.10.1",
+        "elasticsearch-store": "^0.6.2",
         "xlucene-evaluator": "^0.8.0"
     },
     "devDependencies": {
