@@ -70,6 +70,7 @@ export default class ManagerPlugin {
                 if (operationName === 'IntrospectionQuery') {
                     skipAuth = true;
                 } else if (query) {
+                    /** @todo this should handle the query detection using the query AST */
                     skipAuth = query.includes('authenticate') || query.includes('loggedIn');
                 }
 
