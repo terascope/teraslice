@@ -12,6 +12,7 @@
 **/examples
 **/e2e
 **/dist
+**/build
 **/.cache
 .cache
 .vscode

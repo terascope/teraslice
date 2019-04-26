@@ -7,6 +7,10 @@ type State = {
     authenticated: boolean;
 };
 
+const { REACT_APP_DEV_MODE } = process.env;
+
+const baseUri = REACT_APP_DEV_MODE ?  undefined : '/v2/ui';
+
 export default class IndexRouter extends React.Component<{}, State> {
     state: State = {
         authenticated: false,
@@ -25,7 +29,7 @@ export default class IndexRouter extends React.Component<{}, State> {
 
         const menus = [DataAccess.SidebarMenu];
         return (
-            <Router>
+            <Router basename={baseUri}>
                 <App authenticated={authenticated} menus={menus} >
                     <Authenticate onLogin={this.onLogin} authenticated={authenticated}>
                         <Route path="/" exact component={Welcome} />

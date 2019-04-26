@@ -5,12 +5,15 @@ import { MuiThemeProvider } from '@material-ui/core';
 import { theme } from './components/core';
 import CoreRouter from './IndexRouter';
 
+const { REACT_APP_DEV_MODE } = process.env;
+
 const apiPath = '/api/v2/data-access';
+const apiUri = REACT_APP_DEV_MODE ? `http://localhost:8000${apiPath}` : apiPath;
 
 export default class IndexApp extends React.Component {
     createClient() {
         return new ApolloClient({
-            uri: process.env.REACT_APP_START_MODE ? `http://localhost:8000${apiPath}` : apiPath,
+            uri: apiUri,
             credentials: 'include',
         });
     }

@@ -13,11 +13,14 @@ module.exports = {
     },
 
     routes() {
+        const uri = '/v2/ui';
         const staticPath = join(__dirname, 'build');
 
-        if (existsSync(staticPath)) {
-            logger.info('Registering ui-core at /data-access');
-            app.use('/ui-core', express.static(staticPath));
+        if (existsSync(join(staticPath, 'index.html'))) {
+            logger.info(`Registering UI at ${uri}`);
+            app.use(uri, express.static(staticPath));
+        } else {
+            throw new Error(`Failure to add UI at ${uri}, please build ui-core first`);
         }
     },
 };
