@@ -48,16 +48,16 @@ class Sidebar extends React.Component<Props> {
             >
                 <div className={classes.drawerHeader}>
                     <IconButton onClick={handleSidebarClose}>
-                    {sideBarOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                        {sideBarOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
                     </IconButton>
                 </div>
                 <Divider />
                 <List>
                     <SidebarItem link="/" label="Home" icon={<HomeIcon />} />
                 </List>
-                {authenticated && menus.map((Menu: React.FunctionComponent) => ([
-                    <Divider />,
-                    <Menu />
+                {authenticated && menus.map((Menu: React.FunctionComponent, i) => ([
+                    <Divider key={`divider-${i}`} />,
+                    <Menu key={`menu-${i}`} />
                 ]))}
             </Drawer>
         );
