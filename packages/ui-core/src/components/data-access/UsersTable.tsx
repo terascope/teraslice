@@ -37,6 +37,7 @@ type Props = CoreProps & {
     handleQueryChange: (options: QueryState) => void;
     defaultRowsPerPage?: number;
     total: number;
+    title: string;
     query?: string;
 };
 
@@ -55,6 +56,7 @@ class Users extends React.Component<Props, State> {
         handleQueryChange: PropTypes.func.isRequired,
         users: PropTypes.array.isRequired,
         defaultRowsPerPage: PropTypes.number,
+        title: PropTypes.string.isRequired,
         total: PropTypes.number.isRequired,
         query: PropTypes.string
     };
@@ -149,7 +151,7 @@ class Users extends React.Component<Props, State> {
     }
 
     render() {
-        const { classes, users, total, query } = this.props;
+        const { classes, users, total, query, title } = this.props;
         const {
             page,
             rowsPerPage,
@@ -164,7 +166,7 @@ class Users extends React.Component<Props, State> {
         return (
             <div className={classes.tableWrapper}>
                 <TableToolbar
-                    title="Users"
+                    title={title}
                     selected={selected}
                     query={query}
                     onQueryFilter={this.handleQueryChange}

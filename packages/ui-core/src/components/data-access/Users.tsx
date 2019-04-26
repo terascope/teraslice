@@ -52,6 +52,7 @@ class Users extends React.Component<UsersProps, QueryState> {
                         if (!data) return <div>Uh oh</div>;
 
                         return <UsersTable
+                            title="Users"
                             users={data.users}
                             total={data.usersCount}
                             query={query}
