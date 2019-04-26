@@ -1,11 +1,11 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
+import { Redirect } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { withStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { Loading, ErrorInfo, Page } from '../core';
+import { Loading, ErrorInfo, Page, CoreContext } from '../core';
 import { CoreProps, corePropTypes } from '../../helpers';
 
 const styles = (theme: Theme) => createStyles({
@@ -32,22 +32,21 @@ const styles = (theme: Theme) => createStyles({
 type State = {
     username?: string;
     password?: string;
+    redirectToReferrer?: boolean;
     ready?: boolean;
 };
 
-type Props = CoreProps & {
-    onLogin: () => void;
-};
-
-class Login extends React.Component<Props, State> {
+class Login extends React.Component<CoreProps, State> {
     static propTypes = {
         ...corePropTypes,
-        onLogin: PropTypes.func.isRequired,
     };
+
+    static contextType = CoreContext;
 
     state: State = {
         username: '',
         password: '',
+        redirectToReferrer: false,
         ready: false
     };
 
@@ -63,25 +62,35 @@ class Login extends React.Component<Props, State> {
     }
 
     onCompleted = (data: LoginResponse) => {
-        this.setState({ ready: false });
-        if (data && data.authenticate.id) {
-            this.props.onLogin();
-        }
+        const authenticated = !!(data && data.authenticate.id);
+        this.context.updateAuth(authenticated);
+        this.setState({ ready: false, redirectToReferrer: authenticated });
     }
 
     render() {
         const { classes } = this.props;
+        // @ts-ignore
+        const { from } = this.props.location.state || { from: { pathname: '/' } };
+
+        if (this.state.redirectToReferrer) return <Redirect to={from} />;
         const { username, password, ready } = this.state;
 
         const variables: LoginVariables = { username, password };
-        return (
-            <Page title="Login">
-                <LoginQuery query={LOGIN} variables={variables} skip={!ready} onCompleted={this.onCompleted}>
-                    {({ loading, error }) => {
-                        if (loading) return <Loading />;
-                        if (error) return <ErrorInfo error={error} />;
 
-                        return (
+        return (
+            <LoginQuery
+                query={LOGIN}
+                variables={variables}
+                skip={!ready}
+                onCompleted={this.onCompleted}
+                notifyOnNetworkStatusChange
+            >
+                {({ loading, error }) => {
+                    if (loading) return <Loading />;
+                    if (error) return <ErrorInfo error={error} />;
+
+                    return (
+                        <Page title="Login">
                             <form className={classes.container}>
                                 <TextField
                                     id="standard-name"
@@ -104,10 +113,10 @@ class Login extends React.Component<Props, State> {
                                     Login
                                 </Button>
                             </form>
-                        );
-                    }}
-                </LoginQuery>
-            </Page>
+                        </Page>
+                    );
+                }}
+            </LoginQuery>
         );
     }
 }

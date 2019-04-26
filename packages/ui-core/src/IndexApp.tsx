@@ -2,7 +2,7 @@ import React from 'react';
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from 'react-apollo';
 import { MuiThemeProvider } from '@material-ui/core';
-import { theme } from './components/core';
+import { theme, CoreContextProvider } from './components/core';
 import CoreRouter from './IndexRouter';
 
 const { REACT_APP_DEV_MODE } = process.env;
@@ -11,6 +11,7 @@ const apiPath = '/api/v2/data-access';
 const apiUri = REACT_APP_DEV_MODE ? `http://localhost:8000${apiPath}` : apiPath;
 
 export default class IndexApp extends React.Component {
+
     createClient() {
         return new ApolloClient({
             uri: apiUri,
@@ -22,7 +23,9 @@ export default class IndexApp extends React.Component {
         return (
             <ApolloProvider client={this.createClient()}>
                 <MuiThemeProvider theme={theme}>
-                    <CoreRouter />
+                    <CoreContextProvider>
+                        <CoreRouter />
+                    </CoreContextProvider>
                 </MuiThemeProvider>
             </ApolloProvider>
         );

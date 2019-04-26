@@ -1,7 +1,6 @@
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import { CoreProps, corePropTypes } from '../../../helpers';
-import withStyles from './styles';
 
 const Footer: React.FC<CoreProps> = ({ classes }) => {
     return (
@@ -18,4 +17,4 @@ const Footer: React.FC<CoreProps> = ({ classes }) => {
 
 Footer.propTypes = { ...corePropTypes };
 
-export default withStyles(Footer);
+export default Footer;

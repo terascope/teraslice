@@ -44,24 +44,26 @@ class Users extends React.Component<UsersProps, QueryState> {
         };
 
         return (
-            <Page title="Users">
-                <UsersQuery query={FIND_USERS} variables={variables}>
-                    {({ loading, error, data }) => {
-                        if (loading) return <Loading />;
-                        if (error) return <ErrorInfo error={error} />;
-                        if (!data) return <div>Uh oh</div>;
+            <UsersQuery query={FIND_USERS} variables={variables}>
+                {({ loading, error, data }) => {
+                    if (loading) return <Loading />;
+                    if (error) return <ErrorInfo error={error} />;
+                    if (!data) return <ErrorInfo error="Unexpected Error" />;
 
-                        return <UsersTable
-                            title="Users"
-                            users={data.users}
-                            total={data.usersCount}
-                            query={query}
-                            handleQueryChange={this.handleQueryChange}
-                            defaultRowsPerPage={defaultRowsPerPage}
-                        />;
-                    }}
-                </UsersQuery>
-            </Page>
+                    return (
+                        <Page title="Users">
+                            <UsersTable
+                                title="Users"
+                                users={data.users}
+                                total={data.usersCount}
+                                query={query}
+                                handleQueryChange={this.handleQueryChange}
+                                defaultRowsPerPage={defaultRowsPerPage}
+                            />;
+                        </Page>
+                    );
+                }}
+            </UsersQuery>
         );
     }
 }

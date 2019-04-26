@@ -1,29 +1,18 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
-import { Loading, ErrorInfo } from '../core';
-import Login from './Login';
+import { Loading, ErrorInfo, CoreContext } from '../core';
 
-type AuthenticateProps = {
-    authenticated: boolean;
-    onLogin: () => void;
-};
-
-class Authenticate extends React.Component<AuthenticateProps> {
-    static propTypes = {
-        onLogin: PropTypes.func.isRequired,
-        authenticated: PropTypes.bool.isRequired,
-    };
+class Authenticate extends React.Component {
+    static contextType = CoreContext;
 
     onCompleted = (data: VerifyResponse) => {
-        if (data && data.loggedIn) {
-            this.props.onLogin();
-        }
+        this.context.updateAuth(data && data.loggedIn);
     }
 
     render() {
-        const { children, authenticated } = this.props;
+        const { children } = this.props;
+        const { authenticated } = this.context;
 
         return (
             <VerifyAuthQuery
@@ -32,14 +21,9 @@ class Authenticate extends React.Component<AuthenticateProps> {
                 onCompleted={this.onCompleted}
                 notifyOnNetworkStatusChange
             >
-                {({ loading, error, data }) => {
+                {({ loading, error }) => {
                     if (loading) return <Loading />;
                     if (error) return <ErrorInfo error={error} />;
-
-                    if (data && !data.loggedIn) {
-                        return <Login onLogin={this.props.onLogin} />;
-                    }
-
                     return children;
                 }}
             </VerifyAuthQuery>

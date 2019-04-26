@@ -1,15 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import withStyles from './styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Navbar from './Navbar';
+import { CoreProps, corePropTypes } from '../../../helpers';
+import { CoreContext } from '../../core';
+import withStyles from './styles';
 import Sidebar from './Sidebar';
+import Navbar from './Navbar';
 import Footer from './Footer';
-import { CoreProps } from '../../../helpers';
 
 type Props = CoreProps & {
-    authenticated: boolean;
+    theme: any;
     menus: React.FunctionComponent[];
 };
 
@@ -19,9 +19,12 @@ type State = {
 
 class App extends React.Component<Props, State> {
     static propTypes =  {
-        authenticated: PropTypes.bool.isRequired,
+        ...corePropTypes,
+        theme: PropTypes.any.isRequired,
         menus: PropTypes.arrayOf(PropTypes.func.isRequired).isRequired,
     };
+
+    static contextType = CoreContext;
 
     state = {
         sidebarOpen: false,
@@ -35,39 +38,28 @@ class App extends React.Component<Props, State> {
         this.setState({ sidebarOpen: false });
     }
 
-    goToAccount = () => {
-
-    }
-
-    handleLogout = () => {
-
-    }
-
     render() {
-        const { classes, authenticated, children, menus } = this.props;
+        const { classes, theme, children, menus } = this.props;
         const { sidebarOpen } = this.state;
 
         return (
             <div className={classes.root}>
                 <CssBaseline />
                 <Navbar
-                    authenticated
+                    classes={classes}
                     handleSidebarOpen={this.handleSidebarOpen}
-                 />
+                />
                 <Sidebar
-                    authenticated={authenticated}
+                    theme={theme}
                     sideBarOpen={sidebarOpen}
                     handleSidebarClose={this.handleSidebarClose}
+                    classes={classes}
                     menus={menus}
                 />
-                <main
-                    className={classNames(classes.content, {
-                        [classes.contentShift]: sidebarOpen,
-                    })}
-                    >
-                    <div className={classes.drawerHeader} />
+                <main className={classes.content}>
+                    <div className={classes.toolbar} />
                     <div>{children}</div>
-                    <Footer />
+                    <Footer classes={classes} />
                 </main>
             </div>
         );

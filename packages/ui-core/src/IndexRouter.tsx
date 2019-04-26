@@ -1,41 +1,28 @@
 import React from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
-import { Welcome, Authenticate, App } from './components/framework';
+import * as core from './components/core';
+import * as framework from './components/framework';
 import * as DataAccess from './components/data-access';
-
-type State = {
-    authenticated: boolean;
-};
 
 const { REACT_APP_DEV_MODE } = process.env;
 
 const baseUri = REACT_APP_DEV_MODE ?  undefined : '/v2/ui';
 
-export default class IndexRouter extends React.Component<{}, State> {
-    state: State = {
-        authenticated: false,
-    };
-
-    onLogout = () => {
-        this.setState({ authenticated: false });
-    }
-
-    onLogin = () => {
-        this.setState({ authenticated: true });
-    }
+export default class IndexRouter extends React.Component {
+    static contextType = core.CoreContext;
 
     render() {
-        const { authenticated } = this.state;
-
         const menus = [DataAccess.SidebarMenu];
         return (
             <Router basename={baseUri}>
-                <App authenticated={authenticated} menus={menus} >
-                    <Authenticate onLogin={this.onLogin} authenticated={authenticated}>
-                        <Route path="/" exact component={Welcome} />
+                <framework.App menus={menus} >
+                    <framework.Authenticate>
+                        <core.ProtectedRoute path="/" component={framework.Welcome} exact />
+                        <Route path="/logout" exact component={framework.Logout} />
+                        <Route path="/login" exact component={framework.Login} />
                         <DataAccess.Routes />
-                    </Authenticate>
-                </App>
+                    </framework.Authenticate>
+                </framework.App>
             </Router>
         );
     }

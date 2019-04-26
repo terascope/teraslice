@@ -34,6 +34,7 @@ const resolvers = {
         logoutUser(ctx.req);
         // @ts-ignore
         ctx.user = { loggedOut: true };
+        return true;
     }
 };
 

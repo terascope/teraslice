@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import List from '@material-ui/core/List';
 import Drawer from '@material-ui/core/Drawer';
 import HomeIcon from '@material-ui/icons/Home';
@@ -8,47 +9,55 @@ import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import { CoreProps, corePropTypes } from '../../../helpers';
-import { SidebarItem } from '../../core';
-import withStyles from './styles';
+import { SidebarItem, CoreContext } from '../../core';
 
 type Props = CoreProps & {
-    authenticated?: boolean;
     sideBarOpen?: boolean;
     handleSidebarClose?: () => void;
     menus: React.FunctionComponent[];
+    theme: any;
 };
 
 class Sidebar extends React.Component<Props> {
     static propTypes = {
         ...corePropTypes,
-        authenticated: PropTypes.bool.isRequired,
+        theme: PropTypes.any.isRequired,
         sideBarOpen: PropTypes.bool,
         handleSidebarClose: PropTypes.func.isRequired,
         menus: PropTypes.arrayOf(PropTypes.func.isRequired).isRequired,
     };
 
+    static contextType = CoreContext;
+
     render() {
         const {
-            authenticated,
             menus,
             classes,
             sideBarOpen,
             handleSidebarClose,
+            theme,
         } = this.props;
+
+        const { authenticated } = this.context;
 
         return (
             <Drawer
-                className={classes.drawer}
-                variant="persistent"
-                anchor="left"
+                variant="permanent"
                 open={sideBarOpen}
+                className={classNames(classes.drawer, {
+                    [classes.drawerOpen]: sideBarOpen,
+                    [classes.drawerClose]: !sideBarOpen,
+                })}
                 classes={{
-                    paper: classes.drawerPaper,
+                    paper: classNames({
+                        [classes.drawerOpen]: sideBarOpen,
+                        [classes.drawerClose]: !sideBarOpen,
+                    }),
                 }}
             >
-                <div className={classes.drawerHeader}>
+                <div className={classes.toolbar}>
                     <IconButton onClick={handleSidebarClose}>
-                        {sideBarOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                         {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
                     </IconButton>
                 </div>
                 <Divider />
@@ -64,4 +73,4 @@ class Sidebar extends React.Component<Props> {
     }
 }
 
-export default withStyles(Sidebar);
+export default Sidebar;

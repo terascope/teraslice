@@ -7,22 +7,23 @@ export default withStyles((theme: Theme) => createStyles({
         display: 'flex',
     },
     appBar: {
-        transition: theme.transitions.create(['margin', 'width'], {
+        zIndex: theme.zIndex.drawer + 1,
+        transition: theme.transitions.create(['width', 'margin'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
         }),
     },
     appBarShift: {
-        width: `calc(100% - ${drawerWidth}px)`,
         marginLeft: drawerWidth,
-        transition: theme.transitions.create(['margin', 'width'], {
-            easing: theme.transitions.easing.easeOut,
+        width: `calc(100% - ${drawerWidth}px)`,
+        transition: theme.transitions.create(['width', 'margin'], {
+            easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.enteringScreen,
         }),
     },
     menuButton: {
         marginLeft: 12,
-        marginRight: 20,
+        marginRight: 36,
     },
     hide: {
         display: 'none',
@@ -30,46 +31,41 @@ export default withStyles((theme: Theme) => createStyles({
     drawer: {
         width: drawerWidth,
         flexShrink: 0,
+        whiteSpace: 'nowrap',
     },
-    drawerPaper: {
+    drawerOpen: {
         width: drawerWidth,
+        transition: theme.transitions.create('width', {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+        }),
     },
-    drawerHeader: {
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 8px',
-        ...theme.mixins.toolbar,
-        justifyContent: 'flex-end',
-    },
-    main: {},
-    content: {
-        flexGrow: 1,
-        padding: theme.spacing.unit * 3,
-        transition: theme.transitions.create('margin', {
+    drawerClose: {
+        transition: theme.transitions.create('width', {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
         }),
-        marginLeft: -drawerWidth,
-    },
-    contentShift: {
-        transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-        marginLeft: 0,
-    },
-    grow: {
-        flexGrow: 1,
+        overflowX: 'hidden',
+        width: theme.spacing.unit * 7 + 1,
+        [theme.breakpoints.up('sm')]: {
+            width: theme.spacing.unit * 9 + 1,
+        },
     },
     toolbar: {
+        display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end',
+        padding: '0 8px',
+        ...theme.mixins.toolbar,
+    },
+    content: {
+        flexGrow: 1,
+        padding: theme.spacing.unit * 3,
+    },
+    alignRight: {
+        marginLeft: 'auto'
     },
     footer: {
         padding: theme.spacing.unit * 3
     },
-    rightMenu: {
-        display: 'flex',
-        alignItems: 'center'
-    }
-}));
+}), { withTheme: true });

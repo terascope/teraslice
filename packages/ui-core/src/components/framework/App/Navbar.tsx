@@ -1,19 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import MenuIcon from '@material-ui/icons/Menu';
+import { Link } from 'react-router-dom';
+import Menu from '@material-ui/core/Menu';
 import AppBar from '@material-ui/core/AppBar';
+import Button from '@material-ui/core/Button';
+import MenuIcon from '@material-ui/icons/Menu';
 import Toolbar from '@material-ui/core/Toolbar';
+import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import MenuItem from '@material-ui/core/MenuItem';
-import Menu from '@material-ui/core/Menu';
-import withStyles from './styles';
 import { CoreProps, corePropTypes } from '../../../helpers';
+import { CoreContext } from '../../core';
 
 type Props = CoreProps & {
-    authenticated: boolean;
     sideBarOpen?: boolean;
     handleSidebarOpen: () => void;
 };
@@ -22,13 +23,18 @@ type State = {
     rightMenuOpen: boolean;
 };
 
+const LogoutLink: React.FC = ({ children }) => (
+    <Link to="/logout">{children}</Link>
+);
+
 class Navbar extends React.Component<Props, State> {
     static propTypes = {
         ...corePropTypes,
         sideBarOpen: PropTypes.bool,
-        authenticated: PropTypes.bool.isRequired,
         handleSidebarOpen: PropTypes.func.isRequired,
     };
+
+    static contextType = CoreContext;
 
     state: State = {
         rightMenuOpen: false,
@@ -44,22 +50,14 @@ class Navbar extends React.Component<Props, State> {
         this.setState({ rightMenuOpen: false });
     }
 
-    handleMyAccount = () => {
-        this.handleClose();
-    }
-
-    handleLogin = () => {
-        this.handleClose();
-    }
-
     render() {
         const {
             classes,
-            authenticated,
             sideBarOpen,
             handleSidebarOpen
         } = this.props;
         const { rightMenuOpen } = this.state;
+        const { authenticated } = this.context;
 
         return (
             <AppBar
@@ -68,21 +66,22 @@ class Navbar extends React.Component<Props, State> {
                     [classes.appBarShift]: sideBarOpen,
                 })}
             >
-                <Toolbar disableGutters={!sideBarOpen} className={classes.toolbar}>
+                <Toolbar disableGutters={!sideBarOpen}>
                     <IconButton
                         color="inherit"
                         aria-label="Open drawer"
                         onClick={handleSidebarOpen}
-                        className={classNames(classes.menuButton, sideBarOpen && classes.hide)}
+                        className={classNames(classes.menuButton, {
+                            [classes.hide]: sideBarOpen,
+                        })}
                     >
-                    <MenuIcon />
+                        <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" color="inherit" noWrap>
                         Teraserver
                     </Typography>
-                    <div className={classes.grow} />
                     {authenticated && (
-                        <div className={classes.rightMenu}>
+                        <div className={classes.alignRight}>
                             <IconButton
                                 aria-owns={rightMenuOpen ? 'menu-appbar' : undefined}
                                 aria-haspopup="true"
@@ -104,11 +103,8 @@ class Navbar extends React.Component<Props, State> {
                                 open={rightMenuOpen}
                                 onClose={this.handleClose}
                             >
-                                <MenuItem onClick={this.handleMyAccount}>
-                                    My Account
-                                </MenuItem>
-                                <MenuItem onClick={this.handleLogin}>
-                                    Logout
+                                <MenuItem>
+                                    <Button component={LogoutLink}>Logout</Button>
                                 </MenuItem>
                             </Menu>
                         </div>
@@ -119,4 +115,4 @@ class Navbar extends React.Component<Props, State> {
     }
 }
 
-export default withStyles(Navbar);
+export default Navbar;
