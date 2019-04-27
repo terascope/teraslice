@@ -9,7 +9,6 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 
 type Props = CoreProps & {
-    theme: any;
     menus: React.FunctionComponent[];
 };
 
@@ -20,7 +19,6 @@ type State = {
 class App extends React.Component<Props, State> {
     static propTypes =  {
         ...corePropTypes,
-        theme: PropTypes.any.isRequired,
         menus: PropTypes.arrayOf(PropTypes.func.isRequired).isRequired,
     };
 
@@ -30,16 +28,14 @@ class App extends React.Component<Props, State> {
         sidebarOpen: false,
     };
 
-    handleSidebarOpen = () => {
-        this.setState({ sidebarOpen: true });
-    }
-
-    handleSidebarClose = () => {
-        this.setState({ sidebarOpen: false });
+    toggleSidebar = () => {
+        this.setState((state) => ({
+            sidebarOpen: !state.sidebarOpen
+        }));
     }
 
     render() {
-        const { classes, theme, children, menus } = this.props;
+        const { classes, children, menus } = this.props;
         const { sidebarOpen } = this.state;
 
         return (
@@ -47,12 +43,10 @@ class App extends React.Component<Props, State> {
                 <CssBaseline />
                 <Navbar
                     classes={classes}
-                    handleSidebarOpen={this.handleSidebarOpen}
+                    toggleSidebar={this.toggleSidebar}
                 />
                 <Sidebar
-                    theme={theme}
                     sideBarOpen={sidebarOpen}
-                    handleSidebarClose={this.handleSidebarClose}
                     classes={classes}
                     menus={menus}
                 />

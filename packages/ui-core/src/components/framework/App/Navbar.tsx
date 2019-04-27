@@ -16,48 +16,51 @@ import { CoreContext } from '../../core';
 
 type Props = CoreProps & {
     sideBarOpen?: boolean;
-    handleSidebarOpen: () => void;
+    toggleSidebar: () => void;
 };
 
 type State = {
-    rightMenuOpen: boolean;
+    anchorEl: any;
 };
 
-const LogoutLink: React.FC = ({ children }) => (
-    <Link to="/logout">{children}</Link>
-);
+const LogoutLink: React.FC = ({ children }) => {
+    return (
+        // @ts-ignore
+        <Button component={Link} to="/logout">{children}</Button>
+    );
+};
 
 class Navbar extends React.Component<Props, State> {
     static propTypes = {
         ...corePropTypes,
         sideBarOpen: PropTypes.bool,
-        handleSidebarOpen: PropTypes.func.isRequired,
+        toggleSidebar: PropTypes.func.isRequired,
     };
 
     static contextType = CoreContext;
 
     state: State = {
-        rightMenuOpen: false,
+        anchorEl: null,
     };
 
-    handleToggle = () => {
-        this.setState(state => ({
-            rightMenuOpen: !state.rightMenuOpen,
-        }));
+    handleToggle = (event: any) => {
+        this.setState({ anchorEl: event.currentTarget });
     }
 
     handleClose = () => {
-        this.setState({ rightMenuOpen: false });
+        this.setState({ anchorEl: null });
     }
 
     render() {
         const {
             classes,
             sideBarOpen,
-            handleSidebarOpen
+            toggleSidebar
         } = this.props;
-        const { rightMenuOpen } = this.state;
+        const { anchorEl } = this.state;
         const { authenticated } = this.context;
+
+        const rightMenuOpen = Boolean(anchorEl);
 
         return (
             <AppBar
@@ -66,11 +69,11 @@ class Navbar extends React.Component<Props, State> {
                     [classes.appBarShift]: sideBarOpen,
                 })}
             >
-                <Toolbar disableGutters={!sideBarOpen}>
+                <Toolbar disableGutters={!sideBarOpen} >
                     <IconButton
                         color="inherit"
                         aria-label="Open drawer"
-                        onClick={handleSidebarOpen}
+                        onClick={toggleSidebar}
                         className={classNames(classes.menuButton, {
                             [classes.hide]: sideBarOpen,
                         })}
@@ -92,19 +95,21 @@ class Navbar extends React.Component<Props, State> {
                             </IconButton>
                             <Menu
                                 id="menu-appbar"
+                                anchorEl={anchorEl}
+                                getContentAnchorEl={null}
                                 anchorOrigin={{
-                                    vertical: 'top',
-                                    horizontal: 'right',
+                                    vertical: 'bottom',
+                                    horizontal: 'center',
                                 }}
                                 transformOrigin={{
                                     vertical: 'top',
-                                    horizontal: 'right',
+                                    horizontal: 'center',
                                 }}
                                 open={rightMenuOpen}
                                 onClose={this.handleClose}
                             >
-                                <MenuItem>
-                                    <Button component={LogoutLink}>Logout</Button>
+                                <MenuItem component={LogoutLink}>
+                                    Logout
                                 </MenuItem>
                             </Menu>
                         </div>

@@ -68,4 +68,4 @@ export default withStyles((theme: Theme) => createStyles({
     footer: {
         padding: theme.spacing.unit * 3
     },
-}), { withTheme: true });
+}));

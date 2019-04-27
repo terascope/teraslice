@@ -91,7 +91,7 @@ class Login extends React.Component<CoreProps, State> {
 
                     return (
                         <Page title="Login">
-                            <form className={classes.container}>
+                            <form className={classes.container} onSubmit={this.handleSubmit}>
                                 <TextField
                                     id="standard-name"
                                     label="Username"
@@ -109,7 +109,12 @@ class Login extends React.Component<CoreProps, State> {
                                     onChange={this.handleChange('password')}
                                     margin="normal"
                                 />
-                                <Button color="primary" className={classes.button} onClick={this.handleSubmit}>
+                                <Button
+                                    color="primary"
+                                    type="submit"
+                                    className={classes.button}
+                                    onClick={this.handleSubmit}
+                                >
                                     Login
                                 </Button>
                             </form>
