@@ -1,10 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { Link } from 'react-router-dom';
 import Menu from '@material-ui/core/Menu';
 import AppBar from '@material-ui/core/AppBar';
-import Button from '@material-ui/core/Button';
 import MenuIcon from '@material-ui/icons/Menu';
 import Toolbar from '@material-ui/core/Toolbar';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -12,6 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import { CoreProps, corePropTypes } from '../../../helpers';
+import LogoutLink from './LogoutLink';
 import { CoreContext } from '../../core';
 
 type Props = CoreProps & {
@@ -21,13 +20,6 @@ type Props = CoreProps & {
 
 type State = {
     anchorEl: any;
-};
-
-const LogoutLink: React.FC = ({ children }) => {
-    return (
-        // @ts-ignore
-        <Button component={Link} to="/logout">{children}</Button>
-    );
 };
 
 class Navbar extends React.Component<Props, State> {
