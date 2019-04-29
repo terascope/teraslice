@@ -54,6 +54,7 @@ COPY packages /app/source/packages
 # Build just the production node_modules and copy them over
 RUN yarn \
     --prod=true \
+    --frozen-lockfile \
     --no-progress \
     --no-emoji \
     && cp -Rp node_modules /app/node_modules
@@ -63,6 +64,7 @@ ENV NODE_ENV development
 # install both dev and production dependencies
 RUN yarn \
     --prod=false \
+    --frozen-lockfile \
     --no-progress \
     --ignore-optional \
     --no-emoji

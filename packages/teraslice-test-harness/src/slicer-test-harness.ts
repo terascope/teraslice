@@ -28,7 +28,7 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
         }
     };
 
-    private _emitInterval: NodeJS.Timer|undefined;
+    private _emitInterval: any;
 
     constructor(job: JobConfig, options: JobHarnessOptions) {
         super(job, options, 'execution_controller');

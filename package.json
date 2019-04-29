@@ -32,7 +32,7 @@
         "@types/lodash": "^4.14.123",
         "@types/lodash.clonedeep": "^4.5.6",
         "@types/nanoid": "^1.2.1",
-        "@types/node": "^11.13.4",
+        "@types/node": "^11.13.7",
         "@types/socket.io": "^2.1.2",
         "@types/socket.io-client": "^1.4.32",
         "@types/uuid": "^3.4.4",
@@ -42,14 +42,14 @@
         "fs-extra": "^7.0.1",
         "jest": "^24.7.1",
         "jest-extended": "^0.11.1",
-        "lerna": "^3.13.3",
+        "lerna": "^3.13.4",
         "lerna-alias": "^3.0.2",
         "markdown-table": "^1.1.2",
         "semver": "^6.0.0",
         "ts-jest": "^24.0.2",
         "tslint": "^5.16.0",
         "tslint-config-airbnb": "^5.11.1",
-        "typescript": "^3.4.3"
+        "typescript": "^3.4.5"
     },
     "workspaces": [
         "packages/*",

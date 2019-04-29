@@ -7,15 +7,15 @@
         "bootstrap": {
             "forceLocal": true,
             "npmClientArgs": [
-                "--no-progress"
+                "--no-progress",
+                "--frozen-lockfile"
             ]
         },
         "publish": {
             "npmClient": "npm"
         },
         "run": {
-            "ignore": "teraslice-e2e",
-            "concurrency": 4
+            "ignore": "teraslice-e2e"
         }
     },
     "sort": true,

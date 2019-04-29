@@ -8,4 +8,5 @@ export interface ManagerContext {
     req: Request;
     authenticating: boolean;
     logger: Logger;
+    login: () => Promise<void>;
 }

@@ -63,16 +63,12 @@ export class ACLManager {
     async authenticate(args: { username?: string, password?: string, token?: string }): Promise<models.User> {
         if (args.username && args.password) {
             const user = await this._users.authenticate(args.username, args.password);
-            delete user.hash;
-            delete user.salt;
-            return user;
+            return this._postProcessAuthenticatedUser(user);
         }
 
         if (args.token) {
             const user = await this._users.authenticateWithToken(args.token);
-            delete user.hash;
-            delete user.salt;
-            return user;
+            return this._postProcessAuthenticatedUser(user);
         }
 
         throw new ts.TSError('Missing credentials', {
@@ -84,14 +80,21 @@ export class ACLManager {
      * Find user by id
     */
     async findUser(args: i.FindOneArgs<models.User>, authUser: i.AuthUser) {
-        return this._users.findById(args.id, {}, this._getUserQueryAccess(authUser));
+        return this._users.findById(args.id, args, this._getUserQueryAccess(authUser));
     }
 
     /**
      * Find all users by a given query
     */
     async findUsers(args: i.FindArgs<models.User> = {}, authUser: i.AuthUser) {
-        return this._users.find(args.query, {}, this._getUserQueryAccess(authUser));
+        return this._users.find(args.query, args, this._getUserQueryAccess(authUser));
+    }
+
+    /**
+     * Count users by a given query
+    */
+    async countUsers(args: { query?: string } = {}, authUser: i.AuthUser) {
+        return this._users.count(args.query, this._getUserQueryAccess(authUser));
     }
 
     /**
@@ -100,7 +103,8 @@ export class ACLManager {
     async createUser(args: { user: models.CreateUserInput, password: string }, authUser: i.AuthUser) {
         await this._validateUserInput(args.user, authUser);
 
-        return this._users.createWithPassword(args.user, args.password);
+        const user = await this._users.createWithPassword(args.user, args.password);
+        return this._postProcessAuthenticatedUser(user);
     }
 
     /**
@@ -165,7 +169,14 @@ export class ACLManager {
      * Find roles by a given query
     */
     async findRoles(args: i.FindArgs<models.Role> = {}, authUser: i.AuthUser) {
-        return this._roles.find(args.query, {}, this._getRoleQueryAccess(authUser));
+        return this._roles.find(args.query, args, this._getRoleQueryAccess(authUser));
+    }
+
+    /**
+     * Count roles by a given query
+    */
+    async countRoles(args: { query?: string } = {}, authUser: i.AuthUser) {
+        return this._roles.count(args.query, this._getRoleQueryAccess(authUser));
     }
 
     /**
@@ -211,14 +222,21 @@ export class ACLManager {
      * Find data type by id
     */
     async findDataType(args: i.FindOneArgs<models.DataType>, authUser: i.AuthUser) {
-        return this._dataTypes.findById(args.id, {}, this._getDataTypeQueryAccess(authUser));
+        return this._dataTypes.findById(args.id, args, this._getDataTypeQueryAccess(authUser));
     }
 
     /**
      * Find data types by a given query
     */
     async findDataTypes(args: i.FindArgs<models.DataType> = {}, authUser: i.AuthUser) {
-        return this._dataTypes.find(args.query, {}, this._getDataTypeQueryAccess(authUser));
+        return this._dataTypes.find(args.query, args, this._getDataTypeQueryAccess(authUser));
+    }
+
+    /**
+     * Count data types by a given query
+    */
+    async countDataTypes(args: { query?: string } = {}, authUser: i.AuthUser) {
+        return this._dataTypes.count(args.query, this._getDataTypeQueryAccess(authUser));
     }
 
     /**
@@ -262,14 +280,21 @@ export class ACLManager {
      * Find space by id
     */
     async findSpace(args: i.FindOneArgs<models.Space>, authUser: i.AuthUser) {
-        return this._spaces.findById(args.id, {}, this._getSpaceQueryAccess(authUser));
+        return this._spaces.findById(args.id, args, this._getSpaceQueryAccess(authUser));
     }
 
     /**
      * Find spaces by a given query
     */
     async findSpaces(args: i.FindArgs<models.Space> = {}, authUser: i.AuthUser) {
-        return this._spaces.find(args.query, {}, this._getSpaceQueryAccess(authUser));
+        return this._spaces.find(args.query, args, this._getSpaceQueryAccess(authUser));
+    }
+
+    /**
+     * Count spaces by a given query
+    */
+    async countSpaces(args: { query?: string } = {}, authUser: i.AuthUser) {
+        return this._spaces.count(args.query, this._getSpaceQueryAccess(authUser));
     }
 
     /**
@@ -327,14 +352,21 @@ export class ACLManager {
      * Find view by id
     */
     async findView(args: i.FindOneArgs<models.View>, authUser: i.AuthUser) {
-        return this._views.findById(args.id, {}, this._getViewQueryAccess(authUser));
+        return this._views.findById(args.id, args, this._getViewQueryAccess(authUser));
     }
 
     /**
      * Find views by a given query
     */
     async findViews(args: i.FindArgs<models.View> = {}, authUser: i.AuthUser) {
-        return this._views.find(args.query, {}, this._getViewQueryAccess(authUser));
+        return this._views.find(args.query, args, this._getViewQueryAccess(authUser));
+    }
+
+    /**
+     * Count views by a given query
+    */
+    async countViews(args: { query?: string } = {}, authUser: i.AuthUser) {
+        return this._views.count(args.query, this._getViewQueryAccess(authUser));
     }
 
     /**
@@ -436,6 +468,21 @@ export class ACLManager {
             data_type: dataType,
             view
         });
+    }
+
+    private async _postProcessAuthenticatedUser(user: models.User): Promise<models.User> {
+        if (user.role) {
+            const role = await this._roles.findById(user.role, {
+                includes: ['name']
+            });
+            user.role_name = role.name;
+        }
+
+        // remove hidden properties
+        delete user.hash;
+        delete user.salt;
+
+        return user;
     }
 
     private _getUserQueryAccess(authUser: i.AuthUser) {

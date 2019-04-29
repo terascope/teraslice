@@ -165,12 +165,12 @@ export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInf
 
     let code: string;
     if (config.code && s.isString(config.code)) {
-        code = toErrorCode(config.code);
+        code = toStatusErrorCode(config.code);
     } else if (input && input.code && s.isString(input.code)) {
-        code = toErrorCode(input.code);
+        code = toStatusErrorCode(input.code);
     } else {
         const httpMsg = STATUS_CODES[statusCode] as string;
-        code = toErrorCode(httpMsg);
+        code = toStatusErrorCode(httpMsg);
     }
 
     return {
@@ -251,7 +251,7 @@ function _parseESErrorInfo(input: ElasticsearchError): { message: string, contex
 
     const message = `Elasticsearch Error: ${_normalizeESError(metadata.msg)}`;
 
-    const code = toErrorCode(reason ? `${name} ${reason}` : name);
+    const code = toStatusErrorCode(reason ? `${name} ${reason}` : name);
 
     return {
         message,
@@ -265,7 +265,7 @@ function _parseESErrorInfo(input: ElasticsearchError): { message: string, contex
     };
 }
 
-function toErrorCode(input: string): string {
+export function toStatusErrorCode(input: string|undefined): string {
     if (!s.isString(input)) return 'UNKNOWN_ERROR';
     return input
         .trim()

@@ -41,6 +41,15 @@ export function setLoggedInUser(req: Request, user: User, storeInSession = true)
     ts.set(req, 'v2User', user);
 }
 
+export function logoutUser(req: Request): void {
+    // @ts-ignore
+    if (req.session) delete req.session.v2User;
+    // @ts-ignore
+    if (req.v2user) delete req.v2user;
+    // @ts-ignore
+    if (ts.isFunction(req.logout)) req.logout();
+}
+
 export function getLoggedInUser(req: Request): User|null {
     const user = ts.get(req, 'v2User', ts.get(req, 'session.v2User'));
     // the user must be the latest type

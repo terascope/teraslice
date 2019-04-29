@@ -16,7 +16,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     readonly manager: IndexManager;
 
     validateRecord: ValidateFn<I|T>;
-    private _interval: NodeJS.Timer|undefined;
+    private _interval: any;
 
     private readonly _logger: ts.Logger;
     private readonly _collector: ts.Collector<BulkRequest<I>>;

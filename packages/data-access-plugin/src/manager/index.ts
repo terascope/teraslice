@@ -2,7 +2,7 @@ import { Express } from 'express';
 import { Client } from 'elasticsearch';
 import * as apollo from 'apollo-server-express';
 import { Context } from '@terascope/job-components';
-import { Logger, toBoolean, get } from '@terascope/utils';
+import { Logger, toBoolean, get, isProd } from '@terascope/utils';
 import { ACLManager, User } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { makeSearchFn } from '../search/utils';
@@ -52,28 +52,42 @@ export default class ManagerPlugin {
                     user: false,
                     logger: this.logger,
                     manager: this.manager,
-                    authenticating: false,
+                    authenticating: true,
+                    async login() {
+                        if (this.user) {
+                            this.authenticating = false;
+                            return;
+                        }
+
+                        const user = await utils.login(this.manager, req);
+                        this.user = user;
+                        this.authenticating = false;
+                    }
                 };
 
                 let skipAuth = false;
                 const { query, operationName } = req.body;
                 if (operationName === 'IntrospectionQuery') {
                     skipAuth = true;
-                } else if (query && query.includes('authenticate(')) {
-                    skipAuth = true;
+                } else if (query) {
+                    /** @todo this should handle the query detection using the query AST */
+                    skipAuth = query.includes('authenticate') || query.includes('loggedIn');
                 }
 
                 if (skipAuth) {
-                    ctx.authenticating = true;
                     return ctx;
                 }
 
                 try {
-                    const user = await utils.login(this.manager, req);
-                    ctx.user = user;
-                    return ctx;
+                    await ctx.login();
                 } catch (err) {
-                    this.logger.error(err, req);
+                    const obj = {
+                        query: req.query,
+                        body: req.body,
+                        headers: req.headers,
+                        method: req.method
+                    };
+                    this.logger.error(err, obj, 'failure when authentication');
                     if (err.statusCode === 401) {
                         throw new apollo.AuthenticationError(err.message);
                     }
@@ -83,6 +97,8 @@ export default class ManagerPlugin {
                     }
                     throw err;
                 }
+
+                return ctx;
             },
             formatError: utils.formatError,
             playground: {
@@ -133,6 +149,10 @@ export default class ManagerPlugin {
 
         this.logger.info(`Registering data-access-plugin manager at ${managerUri}`);
         this.server.applyMiddleware({
+            cors: isProd ? false : {
+                origin: ['http://localhost:3000', 'http://localhost:8000'],
+                credentials: true
+            },
             app: this.app,
             path: managerUri,
         });

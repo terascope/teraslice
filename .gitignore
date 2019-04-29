@@ -28,6 +28,9 @@ build/Release
 # pkg binary builds
 builds/*
 
+# cache directory
+.cache
+
 # Dependency directory
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
@@ -44,6 +47,9 @@ packages/*/assets/*
 
 # package dist directory
 packages/**/dist
+# package build directory
+packages/**/build
+
 
 # documentation website
 website/translated_docs

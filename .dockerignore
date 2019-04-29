@@ -12,6 +12,9 @@
 **/examples
 **/e2e
 **/dist
+**/build
+**/.cache
+.cache
 .vscode
 assets
 autoload
@@ -30,3 +33,4 @@ packages/teraslice-cli
 packages/teraslice-test-harness
 packages/ts-transforms
 packages/xlucene-evaluator
+packages/ui-core

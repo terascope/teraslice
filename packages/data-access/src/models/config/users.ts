@@ -152,6 +152,13 @@ export interface User extends IndexModelRecord {
     role?: string;
 
     /**
+     * This used to provide compatibility with legacy roles
+     *
+     * **IMPORTANT** Avoid depending on this field since it is subject to change
+    */
+    role_name?: string;
+
+    /**
      * The user's type
      *
      * @default "User"

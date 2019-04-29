@@ -1,5 +1,5 @@
-import { firstToLower, get, TSError } from '@terascope/utils';
-import { setLoggedInUser, forEachModel } from '../utils';
+import { firstToLower, get, TSError, isEmpty } from '@terascope/utils';
+import { setLoggedInUser, forEachModel, logoutUser } from '../utils';
 import { ManagerContext } from '../interfaces';
 
 const resolvers = {
@@ -10,6 +10,10 @@ const resolvers = {
             ctx.user = get(ctx, 'req.v2User');
             return ctx.user;
         }
+        if (isEmpty(args)) {
+            await ctx.login();
+            return ctx.user;
+        }
 
         const user = await ctx.manager.authenticate(args);
         setLoggedInUser(ctx.req, user);
@@ -17,11 +21,28 @@ const resolvers = {
         ctx.authenticating = false;
         return user;
     },
+    async loggedIn(root: any, args: any, ctx: ManagerContext) {
+        try {
+            await ctx.login();
+            return true;
+        } catch (err) {
+            if (err.statusCode === 401) return false;
+            throw err;
+        }
+    },
+    logout(root: any, args: any, ctx: ManagerContext) {
+        logoutUser(ctx.req);
+        // @ts-ignore
+        ctx.user = { loggedOut: true };
+        return true;
+    }
 };
 
 forEachModel((model) => {
-    resolvers[`${firstToLower(model)}`] = proxyMethod(`find${model}`);
-    resolvers[`${firstToLower(model)}s`] = proxyMethod(`find${model}s`);
+    const modelName = firstToLower(model);
+    resolvers[`${modelName}`] = proxyMethod(`find${model}`);
+    resolvers[`${modelName}s`] = proxyMethod(`find${model}s`);
+    resolvers[`${modelName}sCount`] = proxyMethod(`count${model}s`);
 });
 
 function proxyMethod(method: string) {

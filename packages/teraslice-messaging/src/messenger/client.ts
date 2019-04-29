@@ -85,7 +85,7 @@ export class Client extends Core {
         }
 
         await new Promise((resolve, reject) => {
-            let connectTimeout: NodeJS.Timer | undefined;
+            let connectTimeout: any;
 
             const cleanup = () => {
                 if (connectTimeout != null) {
