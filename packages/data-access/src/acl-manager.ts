@@ -463,6 +463,7 @@ export class ACLManager {
             user_id: user.id,
             role_id: role.id,
             space_id: space.id,
+            endpoint: space.endpoint,
             search_config: space.search_config,
             streaming_config: space.streaming_config,
             data_type: dataType,

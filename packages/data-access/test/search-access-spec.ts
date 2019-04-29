@@ -418,6 +418,7 @@ function makeWith(searchConfig: Partial<SpaceSearchConfig> = {}, typeConfig: Typ
     return new SearchAccess({
         view,
         data_type: dataType,
+        endpoint: 'example-endpoint',
         search_config: Object.assign({
             index: 'example-index'
         }, searchConfig),

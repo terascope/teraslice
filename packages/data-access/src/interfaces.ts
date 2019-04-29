@@ -74,6 +74,11 @@ export interface DataAccessConfig {
     space_id: string;
 
     /**
+     * The endpoint of the space
+    */
+    endpoint: string;
+
+    /**
      * The space's search configuration
     */
     search_config?: models.SpaceSearchConfig;
