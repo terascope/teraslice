@@ -1,24 +1,21 @@
 import { Express } from 'express';
-import { Client } from 'elasticsearch';
 import * as apollo from 'apollo-server-express';
 import { Context } from '@terascope/job-components';
-import { Logger, get } from '@terascope/utils';
-import { SpacesContext } from './interfaces';
+import { Logger } from '@terascope/utils';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
-import { getESClient } from '../utils';
-import { DynamicApolloServer } from '../dynamic-server';
-import * as utils from '../manager/utils';
-import typeDefs from '../manager/types';
-import resolvers from '../manager/resolvers';
+import { DynamicApolloServer } from './dynamic-server';
+import typeDefs from './types';
+import { defaultResolvers as resolvers } from './resolvers';
+
 /**
- * A graphql api for managing data access
+ * A graphql api for managing spaces
 */
+
 export default class SpacesPlugin {
     readonly config: TeraserverConfig;
     readonly logger: Logger;
     readonly app: Express;
     readonly server: apollo.ApolloServer;
-    readonly client: Client;
     readonly context: Context;
 
     constructor(pluginConfig: PluginConfig) {
@@ -27,54 +24,20 @@ export default class SpacesPlugin {
         this.app = pluginConfig.app;
         this.context = pluginConfig.context;
 
-        const connection: string = get(this.config, 'data_access.connection', 'default');
-
-        this.client = getESClient(this.context, connection);
-
         this.server = new DynamicApolloServer({
             schema: apollo.makeExecutableSchema({
                 typeDefs,
                 resolvers,
                 inheritResolversFromInterfaces: true,
             }),
-            context: async ({ req }) => {
-                let skipAuth = false;
-                const { query, operationName } = req.body;
-                if (operationName === 'IntrospectionQuery') {
-                    skipAuth = true;
-                } else if (query && query.includes('authenticate(')) {
-                    skipAuth = true;
-                }
-
-                const ctx: SpacesContext = {
-                    req,
-                    user: false,
-                    logger: this.logger,
-                    authenticating: false,
-                };
-
-                if (skipAuth) {
-                    ctx.authenticating = true;
-                    return ctx;
-                }
-
-                try {
-                    const user = await utils.login(get(req, 'aclManager'), req);
-                    ctx.user = user;
-                    return ctx;
-                } catch (err) {
-                    this.logger.error(err, req);
-                    if (err.statusCode === 401) {
-                        throw new apollo.AuthenticationError(err.message);
-                    }
-
-                    if (err.statusCode === 403) {
-                        throw new apollo.ForbiddenError(err.message);
-                    }
-                    throw err;
-                }
-            }
+            introspection: false,
         });
+
+        // FIXME: this is code smell
+        // @ts-ignore
+        this.server.pluginContext = pluginConfig.context;
+        // @ts-ignore
+        this.server.logger = this.logger;
     }
 
     async initialize() {}

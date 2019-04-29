@@ -1,39 +1,27 @@
+
+import { get } from '@terascope/utils';
+import * as apollo from 'apollo-server-express';
 import accepts from 'accepts';
 import { json } from 'body-parser';
+import { User } from '@terascope/data-access';
 import {
   renderPlaygroundPage,
   RenderPageOptions as PlaygroundRenderPageOptions,
 } from '@apollographql/graphql-playground-html';
-import { ApolloServer, ServerRegistration, makeExecutableSchema } from 'apollo-server-express';
-import * as utils from '../manager/utils';
-import { get } from '@terascope/utils';
-
 /* Don't think it's exported normally, get directly */
 import { graphqlExpress } from 'apollo-server-express/dist/expressApollo';
-// tslint:disable-next-line
-import * as apollo from 'apollo-server-express';
 
-import typeDefs from '../manager/types';
-import resolvers from '../manager/resolvers';
+import * as utils from '../manager/utils';
 import { SpacesContext } from './interfaces';
+import getSchemaByRole from './dynamic-schema';
 
-function getUser(req:any, _res: any, next: any) {
-    console.log('is the getUser even called?')
-    return utils.login(get(req, 'aclManager'), req)
-        .then(_user => {
-            console.log('what is user', _user)
-            console.log('the req part', utils.getLoggedInUser(req))
-            next();
-        });
-}
-
-export class DynamicApolloServer extends ApolloServer {
+export class DynamicApolloServer extends apollo.ApolloServer {
     applyMiddleware({
         app,
         path = '/graphql',
-    }: ServerRegistration) {
+    }: apollo.ServerRegistration) {
         /* Adds project specific middleware inside, just to keep in one place */
-        app.use(path, json(), getUser, (req, res, next) => {
+        app.use(path, json(), async (req, res, next) => {
             // @ts-ignore
             if (this.playgroundOptions && req.method === 'GET') {
                 // perform more expensive content-type check only if necessary
@@ -59,16 +47,36 @@ export class DynamicApolloServer extends ApolloServer {
                     return;
                 }
             }
-            // @ts-ignore
-            // console.log('\n\nwhat is req.space', req)
-            // @ts-ignore
-            console.log('\n\nwhat is req.v2User', req.v2User)
-
-            // @ts-ignore
-            // console.log('\n\n what is req.aclManager', req.aclManager)
             /* Not necessary, but removing to ensure schema built on the request */
             // tslint:disable-next-line
             const { schema, ...serverObj } = this;
+            let user: User;
+            let roleSchema: any;
+            try {
+                user = await utils.login(get(req, 'aclManager'), req) as User;
+            } catch (err) {
+                // @ts-ignore
+                console.log('the req logger', this.logger)
+                console.log('the err', err)
+                // @ts-ignore
+                this.logger.error(err, req);
+                if (err.statusCode === 401) {
+                    throw new apollo.AuthenticationError(err.message);
+                }
+                if (err.statusCode === 403) {
+                    throw new apollo.ForbiddenError(err.message);
+                }
+                throw err;
+            }
+
+            try {
+                // TODO: check if user is false
+                // @ts-ignore
+                roleSchema = await getSchemaByRole(req.aclManager, user, req.logger, this.pluginContext);
+            } catch (err) {
+                // @ts-ignore
+                this.logger.error(err, req);
+            }
 
             /**
              * This is the main reason to extend, to access graphqlExpress(),
@@ -76,20 +84,16 @@ export class DynamicApolloServer extends ApolloServer {
              * It binds to our new object, since the parent accesses the schema
              * from this.schema etc.
              */
-            console.log('what is v2User', !!get(req, 'v2User'))
+            // TODO: should this be returned
             return graphqlExpress(
                 // @ts-ignore
                 super.createGraphQLServerOptions.bind({
                     ...serverObj,
                     graphqlPath: path,
                     /* Retrieves a custom graphql schema based on request */
-                    schema: makeExecutableSchema({
-                        typeDefs,
-                        resolvers,
-                        inheritResolversFromInterfaces: true,
-                    }),
+                    schema: roleSchema,
                     formatError: utils.formatError,
-                    introspection: !!get(req, 'v2User'),
+                    introspection: !!user,
                     playground: {
                         settings: {
                             'request.credentials': 'include',
@@ -115,21 +119,8 @@ export class DynamicApolloServer extends ApolloServer {
                             return ctx;
                         }
 
-                        try {
-                            const user = await utils.login(get(req, 'aclManager'), req);
-                            ctx.user = user;
-                            return ctx;
-                        } catch (err) {
-                            req.logger.error(err, req);
-                            if (err.statusCode === 401) {
-                                throw new apollo.AuthenticationError(err.message);
-                            }
-
-                            if (err.statusCode === 403) {
-                                throw new apollo.ForbiddenError(err.message);
-                            }
-                            throw err;
-                        }
+                        ctx.user = user;
+                        return ctx;
                     }
                 })
             )(req, res, next);
