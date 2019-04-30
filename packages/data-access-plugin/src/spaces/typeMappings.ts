@@ -28,7 +28,7 @@ const geoMapping = {
 };
 
 const booleanMapping = {
-    boolean: 'boolean'
+    boolean: 'Boolean'
 };
 
 const ipMapping = {

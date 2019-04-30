@@ -56,7 +56,6 @@ export class DynamicApolloServer extends apollo.ApolloServer {
                 user = await utils.login(get(req, 'aclManager'), req) as User;
             } catch (err) {
                 // @ts-ignore
-                console.log('the req logger', this.logger)
                 console.log('the err', err)
                 // @ts-ignore
                 this.logger.error(err, req);
@@ -85,6 +84,7 @@ export class DynamicApolloServer extends apollo.ApolloServer {
              * from this.schema etc.
              */
             // TODO: should this be returned
+            console.log('what about introspection', !!user)
             return graphqlExpress(
                 // @ts-ignore
                 super.createGraphQLServerOptions.bind({

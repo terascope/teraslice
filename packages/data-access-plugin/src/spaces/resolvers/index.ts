@@ -9,6 +9,7 @@ import { SpacesContext } from '../interfaces';
 import User from './user';
 import Misc from './misc';
 import Query from './query';
+import _ from 'lodash';
 
 const defaultResolvers = {
     ...Misc,
@@ -23,24 +24,48 @@ export {
 
 // TODO: deal with auth like manager/query
 // TODO: if fields are not one-to-one mapping then we need to add a resolver for it
+// TODO: check query to see if allowed to search by terms given
+// TODO: use contraints/includes/excludes
 function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: Context) {
+    const results = {
+        ...Misc,
+        ...Query,
+        ...User,
+    } as IResolvers<any, SpacesContext>;
+    const endpoints = {};
+    // we create the master resolver list
     viewList.forEach((view) => {
         console.log('internal view', view)
         const esClient = getESClient(context, get(view, 'search_config.connection', 'default'));
         const client = elasticsearchApi(esClient, logger);
-        console.log('i should be altering Query', view.endpoint)
-        Query.Query[view.endpoint] = (root: any, args: any, ctx: any) => {
+
+        endpoints[view.endpoint] = (root: any, args: any, ctx: any) => {
             console.log(`inside resolver for ${view.endpoint}`);
-            console.log('root', root);
+            console.log('root', root); // is undefined top level
             console.log('args', args);
-            console.log('ctx', ctx);
-            return client.search({ index: 'testdata', q: '*' });
+            // @ts-ignore
+            const { size, sort, from, join } = args;
+            let { query: q } = args;
+
+            if (root && root[join] !== null) {
+                if (q) {
+                    q = `${join}:${root[join]} AND ${q}`;
+                } else {
+                    q = `${join}:${root[join]}`;
+                }
+            }
+            console.log('what is my q', q)
+            console.log('index searched', view.search_config!.index)
+            return client.search({ index: view.search_config!.index, q, from, sort, size });
         };
     });
 
-    return {
-        ...Misc,
-        ...Query,
-        ...User
-    } as IResolvers<any, SpacesContext>;
+    for (const key in endpoints) {
+        // we set the query
+        results.Query[key] = endpoints[key];
+        // we create individual resolver
+        results[key] = _.omit(endpoints, key);
+    }
+
+    return results;
 }

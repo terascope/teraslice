@@ -47,12 +47,11 @@ export default async function getSchemaByRole(aclManager: ACLManager, user: User
 
 function createTypings(configs: DataAccessConfig[]) {
     const results: string[] = ['scalar JSON', 'scalar DateTime', Usertype];
-    console.log('starting types', results)
-    const queryEndpoints: string[] = [];
+    const queryEndpoints: string[] = configs.map(config => config.endpoint);
     // create individual types
     configs.forEach((config) => {
-        queryEndpoints.push(config.endpoint);
-        results.push(`type ${config.endpoint} { ${collectAllowedFields(config)} }`);
+        const otherEndpoints = queryEndpoints.filter(endpoint => endpoint !== config.endpoint);
+        results.push(`type ${config.endpoint} { ${collectAllowedFields(config, otherEndpoints)} }`);
     });
     // create query type
     results.push(
@@ -65,7 +64,7 @@ function createTypings(configs: DataAccessConfig[]) {
     return results;
 }
 
-function collectAllowedFields(config: DataAccessConfig) {
+function collectAllowedFields(config: DataAccessConfig, endpointList: string[]) {
     const { view: { excludes = [], includes = [] }, data_type: { type_config: types, id } } = config;
     const results: string[] = [];
     let typeObj = types;
@@ -79,6 +78,8 @@ function collectAllowedFields(config: DataAccessConfig) {
             results.push(` ${key}: ${getMappingValue(typeObj[key], id)} `);
         }
     }
+    // if (config.endpoint === 'testdata') results.push(' id: Boolean ');
+    endpointList.forEach(endpoint => results.push(` ${endpoint}(join: String, query: String, size: Int, from: Int, sort: String): [${endpoint}] `));
 
     return results.join(' ');
 }
