@@ -5,6 +5,7 @@ import ManagerPlugin from '../src/manager';
 import SearchPlugin from '../src/search';
 import { PluginConfig } from '../src/interfaces';
 import index from '../src';
+import SpacesPlugin from '../src/spaces';
 
 describe('TeraserverAdapterPlugin', () => {
     const client = makeClient();
@@ -49,7 +50,7 @@ describe('TeraserverAdapterPlugin', () => {
             elasticsearch: client,
             url_base: '',
             // @ts-ignore
-            app: {},
+            app: { all() {} },
             context,
             logger: context.logger,
             server_config: {
@@ -69,20 +70,29 @@ describe('TeraserverAdapterPlugin', () => {
         expect(index._initialized).toBeFalse();
 
         expect(index._manager).toBeInstanceOf(ManagerPlugin);
+        expect(index._spaces).toBeInstanceOf(SpacesPlugin);
         expect(index._search).toBeInstanceOf(SearchPlugin);
 
         // @ts-ignore
         index._manager = {
             async initialize() {},
             async shutdown() {},
-            registerRoutes() {}
+            registerRoutes() {},
+        };
+
+        // @ts-ignore
+        index._spaces = {
+            async initialize() {},
+            async shutdown() {},
+            registerRoutes() {},
         };
 
         // @ts-ignore
         index._search = {
             async initialize() {},
             async shutdown() {},
-            registerRoutes() {}
+            registerRoutes() {},
+            postRegistration() {},
         };
     });
 
