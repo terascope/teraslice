@@ -40,10 +40,6 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
         const client = elasticsearchApi(esClient, logger);
 
         endpoints[view.endpoint] = (root: any, args: any, ctx: any) => {
-            console.log(`inside resolver for ${view.endpoint}`);
-            console.log('root', root); // is undefined top level
-            console.log('args', args);
-            // @ts-ignore
             const { size, sort, from, join } = args;
             let { query: q } = args;
 

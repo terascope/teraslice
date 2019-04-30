@@ -46,17 +46,7 @@ export default class SpacesPlugin {
 
     registerRoutes() {
         const managerUri = '/api/v2/spaces';
-
-        this.app.all('/api/v2', (req, res) => {
-            // @ts-ignore
-            if (req.aclManager != null && req.v2User != null) {
-                res.sendStatus(204);
-            } else {
-                res.sendStatus(500);
-            }
-        });
-
-        this.logger.info(`Registering data-access-plugin manager at ${managerUri}`);
+        this.logger.info(`Registering data-access-plugin spacemanager at ${managerUri}`);
         this.server.applyMiddleware({
             app: this.app,
             path: managerUri,

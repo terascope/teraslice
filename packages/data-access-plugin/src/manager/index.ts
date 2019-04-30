@@ -118,19 +118,13 @@ export default class ManagerPlugin {
 
     registerRoutes() {
         const managerUri = '/api/v2/data-access';
-
         const rootErrorHandler = makeErrorHandler('Failure to access /api/v2', this.logger);
 
         this.app.use('/api/v2', (req, res, next) => {
-            if (req.originalUrl === managerUri) {
-                next();
-                return;
-            }
-
             // @ts-ignore
             req.aclManager = this.manager;
 
-            if (req.originalUrl === '/api/v2/spaces') {
+            if (req.originalUrl === managerUri || req.originalUrl === '/api/v2/spaces') {
                 next();
                 return;
             }

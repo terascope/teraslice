@@ -59,7 +59,7 @@ const adapter: TeraserverPluginAdapter = {
             throw new Error('Plugin has not been initialized');
         }
 
-        this._search.postRegistration();
+        this._search.registerRoutes();
     },
 
     routes() {
@@ -77,7 +77,6 @@ const adapter: TeraserverPluginAdapter = {
         // ORDER MATTERS
         this._manager.registerRoutes();
         this._spaces.registerRoutes();
-        this._search.registerRoutes();
     },
 };
 

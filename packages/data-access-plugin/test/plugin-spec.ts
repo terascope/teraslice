@@ -8,6 +8,7 @@ import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
 import { PluginConfig } from '../src/interfaces';
 import ManagerPlugin from '../src/manager';
 import SearchPlugin from '../src/search';
+import SpacesPlugin from '../src/spaces';
 
 describe('Data Access Plugin', () => {
     const client = makeClient();
@@ -53,6 +54,7 @@ describe('Data Access Plugin', () => {
     };
 
     const manager = new ManagerPlugin(pluginConfig);
+    const spaces = new SpacesPlugin(pluginConfig);
     const search = new SearchPlugin(pluginConfig);
 
     function formatBaseUri(uri: string = ''): string {
@@ -84,6 +86,7 @@ describe('Data Access Plugin', () => {
 
         await Promise.all([
             manager.initialize(),
+            spaces.initialize(),
             search.initialize(),
         ]);
 
@@ -106,7 +109,9 @@ describe('Data Access Plugin', () => {
             },
         });
 
+        // ORDER MATTERS
         manager.registerRoutes();
+        spaces.registerRoutes();
         search.registerRoutes();
     });
 
@@ -114,6 +119,7 @@ describe('Data Access Plugin', () => {
         await Promise.all([
             manager.shutdown(),
             search.shutdown(),
+            spaces.shutdown()
         ]);
 
         await cleanupIndexes(manager.manager);

@@ -28,7 +28,6 @@ export default class SearchPlugin {
     }
 
     async initialize() {}
-
     async shutdown() {}
 
     registerRoutes() {
@@ -36,32 +35,6 @@ export default class SearchPlugin {
         this.logger.info(`Registering data-access-plugin search endpoint at ${searchUrl}`);
 
         this.app.get(searchUrl, (req, res) => {
-            // @ts-ignore
-            const space: SpaceSearch = req.space;
-            if (!space) {
-                res.sendStatus(500);
-                return;
-            }
-
-            space.searchErrorHandler(req, res, async () => {
-                const result = await space.search(req.query);
-
-                res
-                    .status(200)
-                    .set('Content-type', 'application/json; charset=utf-8');
-
-                if (req.query.pretty) {
-                    res.send(JSON.stringify(result, null, 2));
-                } else {
-                    res.json(result);
-                }
-            });
-        });
-    }
-
-    postRegistration() {
-        // this must happen at the end
-        this.app.use('/api/v2/:endpoint', (req, res, next) => {
             const manager: ACLManager = get(req, 'aclManager');
             const user: User = managerUtils.getLoggedInUser(req)!;
 
@@ -72,8 +45,10 @@ export default class SearchPlugin {
             });
 
             const spaceErrorHandler = makeErrorHandler('Error accessing search endpoint', logger, true);
+            const searchErrorHandler = makeErrorHandler('Error during query execution', logger, true);
 
             spaceErrorHandler(req, res, async () => {
+
                 const accessConfig = await manager.getViewForSpace({
                     space: endpoint
                 }, user);
@@ -85,15 +60,19 @@ export default class SearchPlugin {
 
                 const search = makeSearchFn(client, accessConfig, logger);
 
-                // @ts-ignore
-                req.space = {
-                    searchErrorHandler: makeErrorHandler('Error during query execution', logger, true),
-                    accessConfig,
-                    search,
-                    logger,
-                };
+                searchErrorHandler(req, res, async () => {
+                    const result = await search(req.query);
 
-                next();
+                    res
+                        .status(200)
+                        .set('Content-type', 'application/json; charset=utf-8');
+
+                    if (req.query.pretty) {
+                        res.send(JSON.stringify(result, null, 2));
+                    } else {
+                        res.json(result);
+                    }
+                });
             });
         });
     }

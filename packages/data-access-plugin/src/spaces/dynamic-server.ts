@@ -53,6 +53,7 @@ export class DynamicApolloServer extends apollo.ApolloServer {
             let user: User;
             let roleSchema: any;
             try {
+                console.log('in dynamic server')
                 user = await utils.login(get(req, 'aclManager'), req) as User;
             } catch (err) {
                 // @ts-ignore

@@ -92,7 +92,6 @@ describe('TeraserverAdapterPlugin', () => {
             async initialize() {},
             async shutdown() {},
             registerRoutes() {},
-            postRegistration() {},
         };
     });
 
