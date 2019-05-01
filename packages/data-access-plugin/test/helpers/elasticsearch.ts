@@ -25,6 +25,42 @@ export function cleanupIndex(model: Model) {
     }).catch(() => {});
 }
 
+function format(arr: any[]) {
+    const results: any[] = [];
+    arr.forEach((data) => {
+        results.push({ index: { _index: 'space2', _type: 'events' } }, data);
+    });
+    return results;
+}
+
+export async function populateIndex(client: es.Client, index: string, properties: any, data: any[]) {
+    await client.indices.create({
+        index,
+        waitForActiveShards: 'all',
+        body: {
+            settings: {
+                'index.number_of_shards': 1,
+                'index.number_of_replicas': 0
+            },
+            mappings: {
+                events: {
+                    _all: {
+                        enabled: false
+                    },
+                    dynamic: false,
+                    properties
+                }
+            },
+        }
+    });
+
+    await client.bulk({ index, type: 'events', body: format(data), refresh: true });
+}
+
+export function deleteIndices(client: es.Client, list: string[]) {
+    return Promise.all(list.map(index => client.indices.delete({ index, requestTimeout: 1000, ignoreUnavailable: true, })));
+}
+
 export function cleanupIndexes(manager: ACLManager) {
     // @ts-ignore
     const models = [manager._roles, manager._spaces, manager._users, manager._views, manager._dataTypes];
