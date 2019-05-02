@@ -4,6 +4,7 @@ import { DataAccessConfig } from '@terascope/data-access';
 import elasticsearchApi from '@terascope/elasticsearch-api';
 import { Logger, get } from '@terascope/utils';
 import { Context } from '@terascope/job-components';
+import { QueryAccess } from 'xlucene-evaluator';
 import { getESClient } from '../../utils';
 import { SpacesContext } from '../interfaces';
 import User from './user';
@@ -38,6 +39,17 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
         console.log('internal view', view)
         const esClient = getESClient(context, get(view, 'search_config.connection', 'default'));
         const client = elasticsearchApi(esClient, logger);
+        // TODO: allow_implicit_queries for query access ??? would this work with search_config.require_query? by space?
+        const { data_type: {  type_config }, view: { includes, excludes, constraint, prevent_prefix_wildcard } } = view;
+        const accessData = {
+            includes,
+            excludes,
+            constraint,
+            prevent_prefix_wildcard,
+            allow_implicit_queries: true,
+            type_config,
+        };
+        const queryAccess = new QueryAccess(accessData, logger);
 
         endpoints[view.endpoint] = (root: any, args: any, ctx: any) => {
             const { size, sort, from, join } = args;
@@ -52,7 +64,9 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
             }
             console.log('what is my q', q)
             console.log('index searched', view.search_config!.index)
-            return client.search({ index: view.search_config!.index, q, from, sort, size });
+            const query = queryAccess.restrictSearchQuery(q, { index: view.search_config!.index, from, sort, size });
+            console.log('what is result from query access', JSON.stringify(query, null, 4))
+            return client.search(query);
         };
     });
 

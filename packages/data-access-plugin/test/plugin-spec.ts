@@ -1292,8 +1292,23 @@ describe('Data Access Plugin', () => {
             expect(results2[0].bool).toBeDefined();
         });
 
-        it('can limit endpoint by role', async() => {
+        it('can limit fields on endpoint by role', async() => {
+            // location is not accessible by this role
+            const query = `
+            query {
+                ${space2}(query: "*", size: 1){
+                    bytes,
+                    bool,
+                    location
+                }
+            }`;
 
+            try {
+                await limitedRoleClient.request(query);
+            } catch (err) {
+                const { response: { status } } = err;
+                expect(status).toEqual(400);
+            }
         });
 
         it('can prevent access to endpoint by role', async() => {
@@ -1313,6 +1328,21 @@ describe('Data Access Plugin', () => {
                 const { response: { status } } = err;
                 expect(status).toEqual(400);
             }
+        });
+
+        it('can add constraints on endpoint by role', async() => {
+            // it is constrained to bytes:>=1300
+            const query = `
+            query {
+                ${space2}(query: "*"){
+                    bytes,
+                    bool,
+                }
+            }`;
+            const { [space2]: results } = await limitedRoleClient.request(query);
+
+            expect(results).toBeArrayOfSize(1);
+            expect(results[0]).toEqual({ bytes: 1500, bool: true });
         });
 
         it('can do basic join queries', async() => {
