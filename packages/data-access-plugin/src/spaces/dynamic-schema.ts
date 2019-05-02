@@ -67,7 +67,7 @@ function collectAllowedFields(config: DataAccessConfig, endpointList: string[]) 
             results.push(` ${key}: ${getMappingValue(typeObj[key], id)} `);
         }
     }
-    // if (config.endpoint === 'testdata') results.push(' id: Boolean ');
+
     endpointList.forEach(endpoint => results.push(` ${endpoint}(join: String, query: String, size: Int, from: Int, sort: String): [${endpoint}] `));
 
     return results.join(' ');

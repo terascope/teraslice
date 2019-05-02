@@ -34,7 +34,6 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
     } as IResolvers<any, SpacesContext>;
     const endpoints = {};
     // we create the master resolver list
-    console.log('orignial Query', Query)
     viewList.forEach((view) => {
         console.log('internal view', view)
         const esClient = getESClient(context, get(view, 'search_config.connection', 'default'));
@@ -54,7 +53,6 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
         endpoints[view.endpoint] = (root: any, args: any, ctx: any) => {
             const { size, sort, from, join } = args;
             let { query: q } = args;
-
             if (root && root[join] !== null) {
                 if (q) {
                     q = `${join}:${root[join]} AND ${q}`;
@@ -62,8 +60,8 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
                     q = `${join}:${root[join]}`;
                 }
             }
-            console.log('what is my q', q)
-            console.log('index searched', view.search_config!.index)
+            console.log('what is the q', q)
+
             const query = queryAccess.restrictSearchQuery(q, { index: view.search_config!.index, from, sort, size });
             console.log('what is result from query access', JSON.stringify(query, null, 4))
             return client.search(query);

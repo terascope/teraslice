@@ -1345,6 +1345,27 @@ describe('Data Access Plugin', () => {
             expect(results[0]).toEqual({ bytes: 1500, bool: true });
         });
 
+        it('can limit query on endpoint by role', async() => {
+            // created is not allowed to be searched
+            const query = `
+                query {
+                    ${space2}(query: "created:2019-04-26T08:07:23.207-07:00"){
+                        bytes,
+                        bool,
+                    }
+                }
+            `;
+            try {
+                await limitedRoleClient.request(query);
+            } catch (errorResponse) {
+                const { response: { errors: [error], data, status } } = errorResponse;
+                // GraphQl rule for resolver errors to be 200
+                expect(status).toEqual(200);
+                expect(data).toBeNull();
+                expect(error.message).toEqual('Field created in query is restricted');
+            }
+        });
+
         it('can do basic join queries', async() => {
             const query1 = `
                 query {
