@@ -25,10 +25,10 @@ export function cleanupIndex(model: Model) {
     }).catch(() => {});
 }
 
-function format(arr: any[]) {
+function format(arr: any[], index: string) {
     const results: any[] = [];
     arr.forEach((data) => {
-        results.push({ index: { _index: 'space2', _type: 'events' } }, data);
+        results.push({ index: { _index: index, _type: 'events' } }, data);
     });
     return results;
 }
@@ -54,7 +54,7 @@ export async function populateIndex(client: es.Client, index: string, properties
         }
     });
 
-    await client.bulk({ index, type: 'events', body: format(data), refresh: true });
+    return client.bulk({ index, type: 'events', body: format(data, index), refresh: true });
 }
 
 export function deleteIndices(client: es.Client, list: string[]) {

@@ -53,29 +53,30 @@ export class DynamicApolloServer extends apollo.ApolloServer {
             let user: User;
             let roleSchema: any;
             try {
-                console.log('in dynamic server')
                 user = await utils.login(get(req, 'aclManager'), req) as User;
             } catch (err) {
                 // @ts-ignore
-                console.log('the err', err)
-                // @ts-ignore
                 this.logger.error(err, req);
                 if (err.statusCode === 401) {
-                    throw new apollo.AuthenticationError(err.message);
+                    return res.status(401).send(new apollo.AuthenticationError(err.message));
                 }
                 if (err.statusCode === 403) {
-                    throw new apollo.ForbiddenError(err.message);
+                    return res.status(403).send(new apollo.ForbiddenError(err.message));
                 }
-                throw err;
+                // TODO: how should I send back this error?
+                return res.status(500).send(err.message);
             }
 
             try {
                 // TODO: check if user is false
                 // @ts-ignore
-                roleSchema = await getSchemaByRole(req.aclManager, user, req.logger, this.pluginContext);
+                roleSchema = await getSchemaByRole(req.aclManager, user, this.logger, this.pluginContext);
             } catch (err) {
+                console.log('what is the error', err)
                 // @ts-ignore
                 this.logger.error(err, req);
+                // TODO: how should I send back this error?
+                return res.status(500).send({ error: 'could not build schema for this user' });
             }
 
             /**
@@ -111,7 +112,8 @@ export class DynamicApolloServer extends apollo.ApolloServer {
                         const ctx: SpacesContext = {
                             req,
                             user: false,
-                            logger: req.logger,
+                            // @ts-ignore
+                            logger: this.logger,
                             authenticating: false,
                         };
 

@@ -1,11 +1,6 @@
 
-// @ts-ignore
-import typeDefs from './types';
-// @ts-ignore
-
 import Usertype from './types/user';
-// @ts-ignore
-import { defaultResolvers, createResolvers } from './resolvers';
+import { createResolvers } from './resolvers';
 import { makeExecutableSchema } from 'apollo-server-express';
 import { ACLManager, User, DataAccessConfig } from '@terascope/data-access';
 import { Context } from '@terascope/job-components';
@@ -35,14 +30,8 @@ export default async function getSchemaByRole(aclManager: ACLManager, user: User
         resolvers: myResolvers,
         inheritResolversFromInterfaces: true,
     });
-    console.log('the final schema', schema)
 
     return schema;
-    // return makeExecutableSchema({
-    //     typeDefs,
-    //     resolvers: defaultResolvers,
-    //     inheritResolversFromInterfaces: true,
-    // });
 }
 
 function createTypings(configs: DataAccessConfig[]) {

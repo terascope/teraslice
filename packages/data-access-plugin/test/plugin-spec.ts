@@ -125,7 +125,7 @@ describe('Data Access Plugin', () => {
             search.shutdown(),
             spaces.shutdown()
         ]);
-
+        console.log('is this calling manager cleanup?')
         await cleanupIndexes(manager.manager);
 
         listener && listener.close();
@@ -854,12 +854,12 @@ describe('Data Access Plugin', () => {
     describe('Spaces api', () => {
         const space1 = 'test_space1';
         const space2 = 'test_space2';
-        // const space3 = 'space3';
+        const space3 = 'test_space3';
 
         function createTypes(obj: any) {
             const results = [];
             for (const key in obj) {
-                results.push(` ${key}: ${obj[key].type} `);
+                results.push(` ${key}: "${obj[key].type}" `);
             }
             return results.join(',');
         }
@@ -881,6 +881,13 @@ describe('Data Access Plugin', () => {
             created: { type: 'date' },
             id: { type: 'keyword' },
             bool: { type: 'boolean' }
+        };
+
+        const space3Properties = {
+            location: { type: 'geo_point' },
+            bytes: { type: 'long' },
+            bool: { type: 'boolean' },
+            date: { type: 'date' },
         };
 
         const space1Data: any[] = [
@@ -940,30 +947,50 @@ describe('Data Access Plugin', () => {
             },
         ];
 
+        const space3Data: any[] = [
+            {
+                location : '0.05102, -41.82129',
+                bytes : 1234,
+                bool: true,
+                date: new Date().toISOString(),
+            },
+            {
+                location : '81.90873, -98.281',
+                bytes : 210,
+                bool: false,
+                date: new Date().toISOString(),
+            },
+            {
+                location : '61.90873, -118.281',
+                bytes : 1500,
+                bool: true,
+                date: new Date().toISOString(),
+            },
+        ];
+
         let spaceUrl: string;
-        // @ts-ignore
-        let user1Client: GraphQLClient;
-        // @ts-ignore
-        let user2Client: GraphQLClient;
+        let fullRoleClient: GraphQLClient;
+        let limitedRoleClient: GraphQLClient;
+
+        function createGQLClient(token: string) {
+            return new GraphQLClient(spaceUrl, {
+                headers: {
+                    Authorization: `Token ${token}`,
+                },
+            });
+        }
 
         beforeAll(async () => {
+
+            spaceUrl = formatBaseUri('/spaces');
+
             await deleteIndices(client, [space1, space2]);
 
             await Promise.all([
                 populateIndex(client, space1, space1Properties, space1Data),
                 populateIndex(client, space2, space2Properties, space2Data),
+                populateIndex(client, space3, space3Properties, space3Data),
             ]);
-
-            spaceUrl = formatBaseUri('/spaces');
-            console.log('i set spaceUrl', spaceUrl)
-            // @ts-ignore
-            function createGQLClient(token: string) {
-                return new GraphQLClient(spaceUrl, {
-                    headers: {
-                        Authorization: `Token ${token}`,
-                    },
-                });
-            }
 
             const highRoleQuery = `
                 mutation {
@@ -977,8 +1004,6 @@ describe('Data Access Plugin', () => {
                 }
             `;
 
-            const { createRole: { id:  highRoleId } } = await reqClient.request(highRoleQuery);
-
             const lowRoleQuery = `
                 mutation {
                     createRole(role: {
@@ -991,7 +1016,19 @@ describe('Data Access Plugin', () => {
                 }
             `;
 
-            const { createRole: { id: lowRoleId } } = await reqClient.request(lowRoleQuery);
+            interface CreateRole {
+                createRole: {
+                    id: string;
+                };
+            }
+
+            const [
+                { createRole: { id:  highRoleId } },
+                { createRole: { id: lowRoleId } }
+            ] = await Promise.all([
+                reqClient.request<CreateRole>(highRoleQuery),
+                reqClient.request<CreateRole>(lowRoleQuery),
+            ]);
 
             const user1Query = `mutation {
                 createUser(user:{
@@ -1023,37 +1060,70 @@ describe('Data Access Plugin', () => {
                 }
               }`;
 
-            // @ts-ignore
-            const { createUser: { id:  user1, api_token: token1 } } = await reqClient.request(user1Query);
-            // @ts-ignore
-            const { createUser: { id:  user2, api_token: token2 } } = await reqClient.request(user2Query);
-
             const dataTypeSpace1 = `mutation {
                 createDataType(dataType:{
-                  client_id: 1,
-                  name: "Data Type 1"
-                  type_config: {
-                      ${createTypes(space1Properties)}
-                  }
-                }){
-                  id,
+                        client_id: 1,
+                        name: "Data Type 1"
+                        type_config: {
+                            ${createTypes(space1Properties)}
+                        }
+                    }){
+                    id,
+                    }
                 }
-              }`;
+            `;
 
             const dataTypeSpace2 = `mutation {
                 createDataType(dataType:{
+                        client_id: 1,
+                        name: "Data Type 2"
+                        type_config: {
+                            ${createTypes(space2Properties)}
+                        }
+                    }){
+                    id,
+                    }
+                }
+            `;
+
+            const dataTypeSpace3 = `mutation {
+                createDataType(dataType:{
                     client_id: 1,
-                    name: "Data Type 2"
+                    name: "Data Type 3"
                     type_config: {
-                        ${createTypes(space2Properties)}
+                        ${createTypes(space3Properties)}
                     }
                 }){
                     id,
                 }
             }`;
 
-            const { createDataType: { id:  dataType1 } } = await reqClient.request(dataTypeSpace1);
-            const { createDataType: { id:  dataType2 } } = await reqClient.request(dataTypeSpace2);
+            interface CreateUser {
+                createUser: {
+                    id: string;
+                    api_token: string;
+                };
+            }
+
+            interface CreateDataType {
+                createDataType: {
+                    id: string;
+                };
+            }
+
+            const [
+                { createUser: { api_token: token1 } },
+                { createUser: { api_token: token2 } },
+                { createDataType: { id:  dataType1 } },
+                { createDataType: { id:  dataType2 } },
+                { createDataType: { id:  dataType3 } },
+            ] = await Promise.all([
+                reqClient.request<CreateUser>(user1Query),
+                reqClient.request<CreateUser>(user2Query),
+                reqClient.request<CreateDataType>(dataTypeSpace1),
+                reqClient.request<CreateDataType>(dataTypeSpace2),
+                reqClient.request<CreateDataType>(dataTypeSpace3),
+            ]);
 
             const view1Query = `mutation {
                 createView(view:{
@@ -1068,7 +1138,7 @@ describe('Data Access Plugin', () => {
                   id
                 }
               }`;
-
+              // only "high" role has full access
             const view2Query = `mutation {
                 createView(view:{
                     client_id: 1,
@@ -1076,15 +1146,58 @@ describe('Data Access Plugin', () => {
                     data_type: "${dataType2}",
                     includes: [],
                     excludes: [],
-                    roles: ["${highRoleId}", "${lowRoleId}"],
+                    roles: ["${highRoleId}"],
+                    constraint:""
+                }){
+                    id
+                }
+            }`;
+            // "low" role has limited access
+            const view2BQuery = `mutation {
+                createView(view:{
+                    client_id: 1,
+                    name: "Test View 2B",
+                    data_type: "${dataType2}",
+                    includes: ["url", "bytes", "bool", "ip"],
+                    excludes: [],
+                    roles: ["${lowRoleId}"],
+                    constraint: "bytes:>=1300"
+                }){
+                    id
+                }
+            }`;
+            // low role has no access
+            const view3Query = `mutation {
+                createView(view:{
+                    client_id: 1,
+                    name: "Test View 3",
+                    data_type: "${dataType3}",
+                    includes: [],
+                    excludes: [],
+                    roles: ["${highRoleId}"],
                     constraint:""
                 }){
                     id
                 }
             }`;
 
-            const { createView: { id:  view1ID } } = await reqClient.request(view1Query);
-            const { createView: { id:  view2ID } } = await reqClient.request(view2Query);
+            interface CreateView {
+                createView: {
+                    id: string;
+                };
+            }
+
+            const [
+                { createView: { id:  view1ID } },
+                { createView: { id:  view2ID } },
+                { createView: { id:  view2BID } },
+                { createView: { id:  view3ID } },
+            ] = await Promise.all([
+                reqClient.request<CreateView>(view1Query),
+                reqClient.request<CreateView>(view2Query),
+                reqClient.request<CreateView>(view2BQuery),
+                reqClient.request<CreateView>(view3Query),
+            ]);
 
             const space1Query = `mutation {
                     createSpace(space: {
@@ -1106,11 +1219,11 @@ describe('Data Access Plugin', () => {
             const space2Query = `mutation {
                 createSpace(space: {
                     client_id: 1,
-                    name: "Test Space 1",
+                    name: "Test Space 2",
                     endpoint: "${space2}",
                     data_type: "${dataType2}",
                     roles: ["${highRoleId}", "${lowRoleId}"],
-                    views: ["${view2ID}"],
+                    views: ["${view2ID}", "${view2BID}"],
                     search_config: {
                     index:"${space2}",
                     require_query: true
@@ -1121,28 +1234,126 @@ describe('Data Access Plugin', () => {
                 }
             }`;
 
-            await reqClient.request(space1Query);
-            await reqClient.request(space2Query);
+            const space3Query = `mutation {
+                createSpace(space: {
+                    client_id: 1,
+                    name: "Test Space 3",
+                    endpoint: "${space3}",
+                    data_type: "${dataType3}",
+                    roles: ["${highRoleId}"],
+                    views: ["${view3ID}"],
+                    search_config: {
+                    index:"${space3}",
+                    require_query: true
+                    },
+                }) {
+                    id
+                }
+            }`;
 
-            // @ts-ignore
-            user1Client = createGQLClient(token1);
-            // @ts-ignore
-            user2Client = createGQLClient(token2);
+            await Promise.all([reqClient.request(space1Query), reqClient.request(space2Query), reqClient.request(space3Query)]);
 
+            fullRoleClient = createGQLClient(token1);
+            limitedRoleClient = createGQLClient(token2);
+        });
+
+        it('queries against the endpoint without auth will fail', async() => {
+            const result = await got(spaceUrl, {
+                json: true,
+                throwHttpErrors: false
+            });
+            expect(result.statusCode).toEqual(401);
         });
 
         it('can query the endpoint', async() => {
-            console.log('what is spaceUrl', spaceUrl)
-            expect(true).toEqual(true);
-            // const result = await got(spaceUrl, {
-            //     json: true,
-            //     throwHttpErrors: false
-            // });
-            // expect(result.statusCode).toEqual(401);
+            const query1 = `
+                query {
+                    ${space1}(query: "*", size: 1){
+                        bytes
+                    }
+                }`;
+
+            const query2 = `
+                query {
+                    ${space2}(query: "*", size: 1){
+                        bytes,
+                        bool
+                    }
+                }`;
+            // @ts-ignore
+            const [{ [space1]: results1 }, { [space2]: results2 }] = await Promise.all([fullRoleClient.request(query1), limitedRoleClient.request(query2)]);
+
+            expect(results1).toBeArrayOfSize(1);
+            expect(results1[0].bytes).toBeDefined();
+            expect(results1[0].bool).not.toBeDefined();
+
+            expect(results2).toBeArrayOfSize(1);
+            expect(results2[0].bytes).toBeDefined();
+            expect(results2[0].bool).toBeDefined();
+        });
+
+        it('can limit endpoint by role', async() => {
+
+        });
+
+        it('can prevent access to endpoint by role', async() => {
+            expect.hasAssertions();
+
+            const query = `
+                query {
+                    ${space3}(query: "*", size: 1){
+                        bytes,
+                        bool
+                    }
+                }`;
+
+            try {
+                await limitedRoleClient.request(query);
+            } catch (err) {
+                const { response: { status } } = err;
+                expect(status).toEqual(400);
+            }
+        });
+
+        it('can do basic join queries', async() => {
+            const query1 = `
+                query {
+                    ${space1}(query: "bytes:>=1000"){
+                        bytes
+                        ${space2}(join:"bytes"){
+                            bool
+                        }
+                    }
+                }
+            `;
+
+            const results = {
+                [space1]: [
+                    {
+                        bytes: 1234,
+                        [space2]: [
+                            {
+                                bool: true
+                            }
+                        ]
+                    },
+                    {
+                        bytes: 1500,
+                        [space2]: [
+                            {
+                                bool: true
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const queryResults = await fullRoleClient.request(query1);
+            expect(queryResults).toEqual(results);
         });
 
         afterAll(async () => {
-            await deleteIndices(client, [space1, space2]);
+            await deleteIndices(client, [space1, space2, space3]);
         });
 
     });

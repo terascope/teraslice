@@ -29,11 +29,11 @@ export {
 function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: Context) {
     const results = {
         ...Misc,
-        ...Query,
         ...User,
     } as IResolvers<any, SpacesContext>;
     const endpoints = {};
     // we create the master resolver list
+    console.log('orignial Query', Query)
     viewList.forEach((view) => {
         console.log('internal view', view)
         const esClient = getESClient(context, get(view, 'search_config.connection', 'default'));
@@ -57,11 +57,14 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
     });
 
     for (const key in endpoints) {
-        // we set the query
-        results.Query[key] = endpoints[key];
         // we create individual resolver
         results[key] = _.omit(endpoints, key);
     }
+    // @ts-ignore TODO: fix typing
+    results.Query = {
+        ...Query.Query,
+        ...endpoints,
+    };
 
     return results;
 }
