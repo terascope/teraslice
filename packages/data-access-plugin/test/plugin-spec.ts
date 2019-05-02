@@ -1030,73 +1030,90 @@ describe('Data Access Plugin', () => {
                 reqClient.request<CreateRole>(lowRoleQuery),
             ]);
 
-            const user1Query = `mutation {
-                createUser(user:{
-                  client_id: 1,
-                  username:"billy",
-                  email:"billy@example.com",
-                  firstname:"Billy",
-                  lastname:"Joe",
-                  role: "${highRoleId}",
-                  type: ADMIN,
-                }, password: "password") {
-                  id,
-                  api_token
-                }
-              }`;
-
-            const user2Query = `mutation {
-                createUser(user:{
-                  client_id: 1,
-                  username:"jimmy",
-                  email:"jimmy@example.com",
-                  firstname:"Jimmy",
-                  lastname:"Dean",
-                  role: "${lowRoleId}",
-                  type: USER,
-                }, password: "password") {
-                  id,
-                  api_token
-                }
-              }`;
-
-            const dataTypeSpace1 = `mutation {
-                createDataType(dataType:{
-                        client_id: 1,
-                        name: "Data Type 1"
-                        type_config: {
-                            ${createTypes(space1Properties)}
-                        }
-                    }){
-                    id,
+            const user1Query = `
+                mutation {
+                    createUser(
+                        user:{
+                            client_id: 1,
+                            username:"billy",
+                            email:"billy@example.com",
+                            firstname:"Billy",
+                            lastname:"Joe",
+                            role: "${highRoleId}",
+                            type: ADMIN,
+                        },
+                        password: "password"
+                    ){
+                        id,
+                        api_token
                     }
                 }
             `;
 
-            const dataTypeSpace2 = `mutation {
-                createDataType(dataType:{
-                        client_id: 1,
-                        name: "Data Type 2"
-                        type_config: {
-                            ${createTypes(space2Properties)}
-                        }
-                    }){
-                    id,
+            const user2Query = `
+                mutation {
+                    createUser(
+                        user:{
+                            client_id: 1,
+                            username:"jimmy",
+                            email:"jimmy@example.com",
+                            firstname:"Jimmy",
+                            lastname:"Dean",
+                            role: "${lowRoleId}",
+                            type: USER,
+                        },
+                        password: "password"
+                    ){
+                        id,
+                        api_token
                     }
                 }
             `;
 
-            const dataTypeSpace3 = `mutation {
-                createDataType(dataType:{
-                    client_id: 1,
-                    name: "Data Type 3"
-                    type_config: {
-                        ${createTypes(space3Properties)}
+            const dataTypeSpace1 = `
+                mutation {
+                    createDataType(
+                        dataType:{
+                            client_id: 1,
+                            name: "Data Type 1"
+                            type_config: {
+                                ${createTypes(space1Properties)}
+                            }
+                    }){
+                        id,
                     }
-                }){
-                    id,
                 }
-            }`;
+            `;
+
+            const dataTypeSpace2 = `
+                mutation {
+                    createDataType(
+                        dataType:{
+                            client_id: 1,
+                            name: "Data Type 2"
+                            type_config: {
+                                ${createTypes(space2Properties)}
+                            }
+                    }){
+                        id,
+                    }
+                }
+            `;
+
+            const dataTypeSpace3 = `
+                mutation {
+                    createDataType(
+                        dataType:{
+                            client_id: 1,
+                            name: "Data Type 3"
+                            type_config: {
+                                ${createTypes(space3Properties)}
+                            }
+                    }){
+                        id,
+                    }
+                }
+            `;
 
             interface CreateUser {
                 createUser: {
@@ -1125,61 +1142,77 @@ describe('Data Access Plugin', () => {
                 reqClient.request<CreateDataType>(dataTypeSpace3),
             ]);
 
-            const view1Query = `mutation {
-                createView(view:{
-                  client_id: 1,
-                  name: "Test View 1",
-                  data_type: "${dataType1}",
-                  includes: [],
-                  excludes: [],
-                  roles: ["${highRoleId}", "${lowRoleId}"],
-                  constraint:""
-                }){
-                  id
+            const view1Query = `
+                mutation {
+                    createView(
+                        view:{
+                            client_id: 1,
+                            name: "Test View 1",
+                            data_type: "${dataType1}",
+                            includes: [],
+                            excludes: [],
+                            roles: ["${highRoleId}", "${lowRoleId}"],
+                            constraint:""
+                        }
+                    ){
+                        id
+                    }
                 }
-              }`;
+            `;
               // only "high" role has full access
-            const view2Query = `mutation {
-                createView(view:{
-                    client_id: 1,
-                    name: "Test View 2",
-                    data_type: "${dataType2}",
-                    includes: [],
-                    excludes: [],
-                    roles: ["${highRoleId}"],
-                    constraint:""
-                }){
-                    id
+            const view2Query = `
+                mutation {
+                    createView(
+                        view:{
+                            client_id: 1,
+                            name: "Test View 2",
+                            data_type: "${dataType2}",
+                            includes: [],
+                            excludes: [],
+                            roles: ["${highRoleId}"],
+                            constraint:""
+                        }
+                    ){
+                        id
+                    }
                 }
-            }`;
+            `;
             // "low" role has limited access
-            const view2BQuery = `mutation {
-                createView(view:{
-                    client_id: 1,
-                    name: "Test View 2B",
-                    data_type: "${dataType2}",
-                    includes: ["url", "bytes", "bool", "ip"],
-                    excludes: [],
-                    roles: ["${lowRoleId}"],
-                    constraint: "bytes:>=1300"
-                }){
-                    id
+            const view2BQuery = `
+                mutation {
+                    createView(
+                        view:{
+                            client_id: 1,
+                            name: "Test View 2B",
+                            data_type: "${dataType2}",
+                            includes: ["url", "bytes", "bool", "ip"],
+                            excludes: [],
+                            roles: ["${lowRoleId}"],
+                            constraint: "bytes:>=1300"
+                        }
+                    ){
+                        id
+                    }
                 }
-            }`;
+            `;
             // low role has no access
-            const view3Query = `mutation {
-                createView(view:{
-                    client_id: 1,
-                    name: "Test View 3",
-                    data_type: "${dataType3}",
-                    includes: [],
-                    excludes: [],
-                    roles: ["${highRoleId}"],
-                    constraint:""
-                }){
-                    id
+            const view3Query = `
+                mutation {
+                    createView(
+                        view:{
+                            client_id: 1,
+                            name: "Test View 3",
+                            data_type: "${dataType3}",
+                            includes: [],
+                            excludes: [],
+                            roles: ["${highRoleId}"],
+                            constraint:""
+                        }
+                    ){
+                        id
+                    }
                 }
-            }`;
+            `;
 
             interface CreateView {
                 createView: {
@@ -1199,57 +1232,68 @@ describe('Data Access Plugin', () => {
                 reqClient.request<CreateView>(view3Query),
             ]);
 
-            const space1Query = `mutation {
-                    createSpace(space: {
-                        client_id: 1,
-                        name: "Test Space 1",
-                        endpoint: "${space1}",
-                        data_type: "${dataType1}",
-                        roles: ["${highRoleId}", "${lowRoleId}"],
-                        views: ["${view1ID}"],
-                        search_config: {
-                        index:"${space1}",
-                        require_query: true
-                        },
-                    }) {
+            const space1Query = `
+                mutation {
+                    createSpace(
+                        space: {
+                            client_id: 1,
+                            name: "Test Space 1",
+                            endpoint: "${space1}",
+                            data_type: "${dataType1}",
+                            roles: ["${highRoleId}", "${lowRoleId}"],
+                            views: ["${view1ID}"],
+                            search_config: {
+                                index:"${space1}",
+                                require_query: true
+                            },
+                        }
+                    ){
                         id
                     }
-                }`;
-
-            const space2Query = `mutation {
-                createSpace(space: {
-                    client_id: 1,
-                    name: "Test Space 2",
-                    endpoint: "${space2}",
-                    data_type: "${dataType2}",
-                    roles: ["${highRoleId}", "${lowRoleId}"],
-                    views: ["${view2ID}", "${view2BID}"],
-                    search_config: {
-                    index:"${space2}",
-                    require_query: true
-                    },
-
-                }) {
-                    id
                 }
-            }`;
+            `;
 
-            const space3Query = `mutation {
-                createSpace(space: {
-                    client_id: 1,
-                    name: "Test Space 3",
-                    endpoint: "${space3}",
-                    data_type: "${dataType3}",
-                    roles: ["${highRoleId}"],
-                    views: ["${view3ID}"],
-                    search_config: {
-                    index:"${space3}",
-                    require_query: true
-                    },
-                }) {
-                    id
+            const space2Query = `
+                mutation {
+                    createSpace(
+                        space: {
+                            client_id: 1,
+                            name: "Test Space 2",
+                            endpoint: "${space2}",
+                            data_type: "${dataType2}",
+                            roles: ["${highRoleId}", "${lowRoleId}"],
+                            views: ["${view2ID}", "${view2BID}"],
+                            search_config: {
+                                index:"${space2}",
+                                require_query: true
+                            },
+                        }
+                    ){
+                        id
+                    }
                 }
-            }`;
+            `;
+
+            const space3Query = `
+                mutation {
+                    createSpace(
+                        space: {
+                            client_id: 1,
+                            name: "Test Space 3",
+                            endpoint: "${space3}",
+                            data_type: "${dataType3}",
+                            roles: ["${highRoleId}"],
+                            views: ["${view3ID}"],
+                            search_config: {
+                                index:"${space3}",
+                                require_query: true
+                            },
+                        }
+                    ){
+                        id
+                    }
+                }
+            `;
 
             await Promise.all([reqClient.request(space1Query), reqClient.request(space2Query), reqClient.request(space3Query)]);
 
@@ -1333,12 +1377,14 @@ describe('Data Access Plugin', () => {
         it('can add constraints on endpoint by role', async() => {
             // it is constrained to bytes:>=1300
             const query = `
-            query {
-                ${space2}(query: "*"){
-                    bytes,
-                    bool,
+                query {
+                    ${space2}(query: "*"){
+                        bytes,
+                        bool,
+                    }
                 }
-            }`;
+             `;
+
             const { [space2]: results } = await limitedRoleClient.request(query);
 
             expect(results).toBeArrayOfSize(1);
@@ -1403,9 +1449,10 @@ describe('Data Access Plugin', () => {
             expect(queryResults).toEqual(results);
         });
 
+        // TODO: add test for three deep join
+        // TODO: test with more queries => ip / dates / geo
         afterAll(async () => {
             await deleteIndices(client, [space1, space2, space3]);
         });
-
     });
 });
