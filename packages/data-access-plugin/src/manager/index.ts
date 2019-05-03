@@ -124,7 +124,7 @@ export default class ManagerPlugin {
             // @ts-ignore
             req.aclManager = this.manager;
 
-            if (req.originalUrl === managerUri || req.originalUrl === '/api/v2/spaces') {
+            if (req.originalUrl === managerUri) {
                 next();
                 return;
             }
@@ -132,7 +132,7 @@ export default class ManagerPlugin {
             rootErrorHandler(req, res, async () => {
                 // login but don't presist session
                 await utils.login(this.manager, req, false);
-                next();
+                return next();
             });
         });
 

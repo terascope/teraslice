@@ -45,7 +45,6 @@ function createTypings(configs: DataAccessConfig[]) {
     // create query type
     results.push(
         ` type Query {
-            authenticate(username: String, password: String, token: String): User!
             ${queryEndpoints.map((endpoint) => `${endpoint}(join: String, query: String, size: Int, from: Int, sort: String): [${endpoint}!]!`).join('\n    ')}
         }
         `);

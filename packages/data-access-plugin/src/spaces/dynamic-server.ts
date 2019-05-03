@@ -12,6 +12,7 @@ import {
 import { graphqlExpress } from 'apollo-server-express/dist/expressApollo';
 
 import * as utils from '../manager/utils';
+// @ts-ignore
 import { SpacesContext } from './interfaces';
 import getSchemaByRole from './dynamic-schema';
 
@@ -21,12 +22,14 @@ export class DynamicApolloServer extends apollo.ApolloServer {
         path = '/graphql',
     }: apollo.ServerRegistration) {
         /* Adds project specific middleware inside, just to keep in one place */
+        // @ts-ignore
         app.use(path, json(), async (req, res, next) => {
             // @ts-ignore
             if (this.playgroundOptions && req.method === 'GET') {
                 // perform more expensive content-type check only if necessary
                 // XXX We could potentially move this logic into the GuiOptions lambda,
                 // but I don't think it needs any overriding
+                // @ts-ignore
                 const accept = accepts(req);
                 const types = accept.types() as string[];
                 const prefersHTML =
@@ -72,7 +75,6 @@ export class DynamicApolloServer extends apollo.ApolloServer {
                 // @ts-ignore
                 roleSchema = await getSchemaByRole(req.aclManager, user, this.logger, this.pluginContext);
             } catch (err) {
-                console.log('what is the error', err)
                 // @ts-ignore
                 this.logger.error(err, req);
                 // TODO: how should I send back this error?
@@ -85,8 +87,7 @@ export class DynamicApolloServer extends apollo.ApolloServer {
              * It binds to our new object, since the parent accesses the schema
              * from this.schema etc.
              */
-            // TODO: should this be returned
-            console.log('what about introspection', !!user)
+
             return graphqlExpress(
                 // @ts-ignore
                 super.createGraphQLServerOptions.bind({
@@ -102,29 +103,30 @@ export class DynamicApolloServer extends apollo.ApolloServer {
                         }
                     } as apollo.PlaygroundConfig,
                     // @ts-ignore
-                    context: async ({ req }) => {
-                        let skipAuth = false;
-                        const { operationName } = req.body;
-                        if (operationName === 'IntrospectionQuery') {
-                            skipAuth = true;
-                        }
+                    // context: async ({ req }) => {
+                    //     console.log('anything calling in context here')
+                    //     let skipAuth = false;
+                    //     const { operationName } = req.body;
+                    //     if (operationName === 'IntrospectionQuery') {
+                    //         skipAuth = true;
+                    //     }
 
-                        const ctx: SpacesContext = {
-                            req,
-                            user: false,
-                            // @ts-ignore
-                            logger: this.logger,
-                            authenticating: false,
-                        };
+                    //     const ctx: SpacesContext = {
+                    //         req,
+                    //         user: false,
+                    //         // @ts-ignore
+                    //         logger: this.logger,
+                    //         authenticating: false,
+                    //     };
 
-                        if (skipAuth) {
-                            ctx.authenticating = true;
-                            return ctx;
-                        }
+                    //     if (skipAuth) {
+                    //         ctx.authenticating = true;
+                    //         return ctx;
+                    //     }
 
-                        ctx.user = user;
-                        return ctx;
-                    }
+                    //     ctx.user = user;
+                    //     return ctx;
+                    // }
                 })
             )(req, res, next);
         });

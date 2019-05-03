@@ -30,7 +30,7 @@ export default class SpacesPlugin {
                 resolvers,
                 inheritResolversFromInterfaces: true,
             }),
-            introspection: false,
+            introspection: true,
         });
 
         // FIXME: this is code smell

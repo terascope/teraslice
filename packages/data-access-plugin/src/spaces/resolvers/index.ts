@@ -7,15 +7,12 @@ import { Context } from '@terascope/job-components';
 import { QueryAccess } from 'xlucene-evaluator';
 import { getESClient } from '../../utils';
 import { SpacesContext } from '../interfaces';
-import User from './user';
 import Misc from './misc';
-import Query from './query';
 import _ from 'lodash';
 
 const defaultResolvers = {
     ...Misc,
-    ...Query,
-    ...User
+    Query: {},
 } as IResolvers<any, SpacesContext>;
 
 export {
@@ -30,7 +27,6 @@ export {
 function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: Context) {
     const results = {
         ...Misc,
-        ...User,
     } as IResolvers<any, SpacesContext>;
     const endpoints = {};
     // we create the master resolver list
@@ -73,10 +69,7 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
         results[key] = _.omit(endpoints, key);
     }
     // @ts-ignore TODO: fix typing
-    results.Query = {
-        ...Query.Query,
-        ...endpoints,
-    };
+    results.Query = endpoints;
 
     return results;
 }

@@ -125,7 +125,7 @@ describe('Data Access Plugin', () => {
             search.shutdown(),
             spaces.shutdown()
         ]);
-        console.log('is this calling manager cleanup?')
+
         await cleanupIndexes(manager.manager);
 
         listener && listener.close();
