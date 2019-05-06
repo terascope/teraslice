@@ -855,6 +855,11 @@ describe('Data Access Plugin', () => {
         const space1 = 'test_space1';
         const space2 = 'test_space2';
         const space3 = 'test_space3';
+        // @ts-ignore
+        const startingDate = new Date();
+        const date1 = new Date(startingDate.getTime() + 1000000);
+        const date2 = new Date(startingDate.getTime() + 2000000);
+        const date3 = new Date(startingDate.getTime() + 3000000);
 
         function createTypes(obj: any) {
             const results = [];
@@ -886,7 +891,7 @@ describe('Data Access Plugin', () => {
         const space3Properties = {
             location: { type: 'geo_point' },
             bytes: { type: 'long' },
-            bool: { type: 'boolean' },
+            wasFound: { type: 'boolean' },
             date: { type: 'date' },
         };
 
@@ -951,20 +956,20 @@ describe('Data Access Plugin', () => {
             {
                 location : '0.05102, -41.82129',
                 bytes : 1234,
-                bool: true,
-                date: new Date().toISOString(),
+                wasFound: true,
+                date: date1.toISOString(),
             },
             {
                 location : '81.90873, -98.281',
                 bytes : 210,
-                bool: false,
-                date: new Date().toISOString(),
+                wasFound: false,
+                date: date2.toISOString(),
             },
             {
                 location : '61.90873, -118.281',
                 bytes : 1500,
-                bool: true,
-                date: new Date().toISOString(),
+                wasFound: true,
+                date: date3.toISOString(),
             },
         ];
 
@@ -1449,8 +1454,61 @@ describe('Data Access Plugin', () => {
             expect(queryResults).toEqual(results);
         });
 
+        it('can do joins off different keys', async() => {
+            const query1 = `
+                query {
+                    ${space2}(query: "bytes:>=1000"){
+                        bytes
+                        bool
+                        ${space3}(join:"bool:wasFound"){
+                            wasFound
+                            date
+                        }
+                    }
+                }
+            `;
+
+            const results = {
+                [space2]: [
+                    {
+                        bytes: 1234,
+                        bool: true,
+                        [space3]: [
+                            {
+                                wasFound: true,
+                                date: date1.toISOString(),
+                            },
+                            {
+                                wasFound: true,
+                                date: date3.toISOString(),
+                            }
+                        ]
+                    },
+                    {
+                        bytes: 1500,
+                        bool: true,
+                        [space3]: [
+                            {
+                                wasFound: true,
+                                date: date1.toISOString(),
+                            },
+                            {
+                                wasFound: true,
+                                date: date3.toISOString(),
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const queryResults = await fullRoleClient.request(query1);
+            console.log('what are the queryResults', JSON.stringify(queryResults, null, 4))
+            expect(queryResults).toEqual(results);
+        });
+
         // TODO: add test for three deep join
         // TODO: test with more queries => ip / dates / geo
+        // TODO: deal with duplicate returns
         afterAll(async () => {
             await deleteIndices(client, [space1, space2, space3]);
         });

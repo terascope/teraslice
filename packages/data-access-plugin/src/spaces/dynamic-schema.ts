@@ -45,8 +45,8 @@ function createTypings(configs: DataAccessConfig[]) {
     // create query type
     results.push(
         ` type Query {
-            ${queryEndpoints.map((endpoint) => `${endpoint}(join: String, query: String, size: Int, from: Int, sort: String): [${endpoint}!]!`).join('\n    ')}
-        }
+                ${queryEndpoints.map((endpoint) => `${endpoint}(join: String, query: String, size: Int, from: Int, sort: String): [${endpoint}!]!`).join('\n    ')}
+            }
         `);
 
     return results;

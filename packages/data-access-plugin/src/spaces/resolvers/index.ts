@@ -20,10 +20,18 @@ export {
     createResolvers
  };
 
-// TODO: deal with auth like manager/query
+function joinQuery(root: any, join: string, q: string) {
+    const [orig, target] = join.split(':') || [join, join];
+    // @ts-ignore
+    const selector = target || orig; // In case there's no colon in field.
+    if (q) {
+        return `${selector}:${root[orig]} AND ${q}`;
+    }
+
+    return `${selector}:${root[orig]}`;
+}
+
 // TODO: if fields are not one-to-one mapping then we need to add a resolver for it
-// TODO: check query to see if allowed to search by terms given
-// TODO: use contraints/includes/excludes
 function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: Context) {
     const results = {
         ...Misc,
@@ -50,11 +58,7 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
             const { size, sort, from, join } = args;
             let { query: q } = args;
             if (root && root[join] !== null) {
-                if (q) {
-                    q = `${join}:${root[join]} AND ${q}`;
-                } else {
-                    q = `${join}:${root[join]}`;
-                }
+                q = joinQuery(root, join, q);
             }
             console.log('what is the q', q)
 
