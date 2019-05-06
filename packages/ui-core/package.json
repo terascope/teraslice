@@ -6,11 +6,11 @@
         "access": "public"
     },
     "scripts": {
-        "start": "env REACT_APP_DEV_MODE=true react-scripts start",
-        "build": "react-scripts build",
-        "test": "CI=true FORCE_COLOR=1 react-scripts test --colors",
-        "test:watch": "react-scripts test",
-        "eject": "react-scripts eject"
+        "start": "env REACT_APP_DEV_MODE=true craco start",
+        "build": "craco build",
+        "test": "CI=true FORCE_COLOR=1 craco test --colors",
+        "test:watch": "craco test",
+        "eject": "craco eject"
     },
     "files": [
         "build/**/*",
@@ -38,16 +38,21 @@
         "react": "^16.8.6",
         "react-apollo": "^2.5.5",
         "react-dom": "^16.8.6",
-        "react-router-dom": "^5.0.0"
+        "react-router-dom": "^5.0.0",
+        "semantic-ui-react": "^0.87.0"
     },
     "devDependencies": {
+        "@craco/craco": "^5.0.2",
         "@types/classnames": "^2.2.7",
         "@types/jest": "24.0.11",
         "@types/node": "12.0.0",
         "@types/react": "16.8.17",
         "@types/react-dom": "16.8.4",
         "@types/react-router-dom": "^4.3.3",
+        "cpy-cli": "^2.0.0",
+        "craco-less": "^1.7.0",
         "react-scripts": "3.0.1",
+        "semantic-ui-less": "^2.4.1",
         "typescript": "3.4.5"
     },
     "browserslist": {
