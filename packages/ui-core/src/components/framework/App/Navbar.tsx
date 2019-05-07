@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Icon, Menu, Dropdown } from 'semantic-ui-react';
 import { useCoreContext } from '../../core';
 import LogoutLink from './LogoutLink';
@@ -9,17 +8,12 @@ type Props = {
     toggleSidebar: () => void;
 };
 
-const Navbar: React.FC<Props> = ({ sidebarOpen, toggleSidebar }) => {
+const Navbar: React.FC = () => {
     const { authenticated } = useCoreContext();
-
-    const toggleSidebarIcon = sidebarOpen ? 'right' : 'left';
 
     return (
         <Menu>
-            <Menu.Item as="a" onClick={toggleSidebar}>
-                <Icon name={`chevron ${toggleSidebarIcon}` as any} />
-            </Menu.Item>
-            <Menu.Item header>
+            <Menu.Item header className="navbarTitle">
                 Teraserver
             </Menu.Item>
             {authenticated && (
@@ -31,11 +25,6 @@ const Navbar: React.FC<Props> = ({ sidebarOpen, toggleSidebar }) => {
             )}
         </Menu>
     );
-};
-
-Navbar.propTypes = {
-    sidebarOpen: PropTypes.bool.isRequired,
-    toggleSidebar: PropTypes.func.isRequired,
 };
 
 export default Navbar;

@@ -16,13 +16,24 @@
     padding-right: 2.1rem;
 }
 
+.navbarTitle {
+    display: flex !important;
+    flex: 1 !important;
+}
+
 .minimalSidebarIcon {
     padding-right: 0;
 }
 
 .sidebarPluginHeader {
-    padding: 0.5rem !important;
+    padding: 0.8rem 0.5rem !important;
     margin-bottom: 0 !important;
+}
+
+.sidebarToggle {
+    display: flex !important;
+    flex-direction: column;
+    align-items: flex-end;
 }
 
 .appRoot {
