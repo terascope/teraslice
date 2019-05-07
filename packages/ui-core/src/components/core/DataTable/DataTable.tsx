@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { times } from '@terascope/utils';
-import { Table, Checkbox } from 'semantic-ui-react';
-import TableHeader from './TableHeader';
-import TableToolbar from './TableToolbar';
+import { Table } from 'semantic-ui-react';
+import Header from './Header';
+import Toolbar from './Toolbar';
+import Body from './Body';
 import * as utils from './utils';
 import * as i from './interfaces';
 
 type Props = {
     rowMapping: i.RowMapping;
-    data: any[];
+    records: any[];
     updateQueryState: (options: i.QueryState) => void;
     total: number;
     title: string;
@@ -17,7 +18,7 @@ type Props = {
 };
 
 const DataTable: React.FC<Props> = (props) => {
-    const { data, total, title, updateQueryState, rowMapping } = props;
+    const { records, total, title, updateQueryState, rowMapping } = props;
     const queryState = {
         from: 0,
         size: 25,
@@ -28,7 +29,7 @@ const DataTable: React.FC<Props> = (props) => {
 
     const [selected, setSelected] = useState<string[]>([]);
 
-    const handleRequestSort = (field: string) => {
+    const handleSort = (field: string) => {
         const current = utils.parseSortBy(queryState.sort);
         let direction: i.SortDirection = 'asc';
         if (current.field === field && current.direction === 'asc') {
@@ -61,14 +62,9 @@ const DataTable: React.FC<Props> = (props) => {
     // const rowsPerPageOptions = utils.uniqIntArray([1, 5, 10, 25, queryState.size]);
     // const page = queryState.from / queryState.size;
 
-    const emptyRows = queryState.size - Math.min(queryState.size, total - queryState.from);
-    const columns = Object.entries(rowMapping.columns);
-    const numCols: any = columns.length + 1;
-    const allSelected = selected.length === total;
-
     return (
         <div>
-            <TableToolbar
+            <Toolbar
                 title={title}
                 numSelected={selected.length}
                 query={queryState.query}
@@ -79,48 +75,27 @@ const DataTable: React.FC<Props> = (props) => {
                     // TODO
                 }}
             />
-            <Table sortable celled fixed>
-                <TableHeader
+            <Table sortable celled compact definition>
+                <Header
                     numSelected={selected.length}
                     sort={queryState.sort}
-                    onSelectAllClick={(checked) => {
+                    handleSelectAll={(checked) => {
                         if (!checked) return setSelected([]);
                         setSelected(times(total, () => '<all>'));
                     }}
-                    onRequestSort={handleRequestSort}
-                    rowCount={data.length}
+                    handleSort={handleSort}
+                    rowCount={records.length}
                     columnMapping={rowMapping.columns}
                 />
-                <Table.Body>
-                    {data.map(item => {
-                        const id = rowMapping.getId(item);
-                        const isSelected = selected.includes(id) || allSelected;
-                        return (
-                            <Table.Row
-                                onClick={(e: any) => handleSelect(id)}
-                                tabIndex={-1}
-                                key={id}
-                                selected={isSelected}
-                            >
-                                <Table.Cell padding="checkbox">
-                                    <Checkbox checked={isSelected} />
-                                </Table.Cell>
-                                {columns.map(([key, col]) => {
-                                    return (
-                                        <Table.Cell key={key}>
-                                            {col.format(data)}
-                                        </Table.Cell>
-                                    );
-                                })}
-                            </Table.Row>
-                        );
-                    })}
-                    {emptyRows > 0 && (
-                        <Table.Row>
-                            <Table.Cell width={numCols} />
-                        </Table.Row>
-                    )}
-                </Table.Body>
+                <Body
+                    rowMapping={rowMapping}
+                    records={records}
+                    handleSelect={handleSelect}
+                    selected={selected}
+                    size={queryState.size}
+                    from={queryState.from}
+                    total={total}
+                />
             </Table>
         </div>
     );
@@ -128,11 +103,11 @@ const DataTable: React.FC<Props> = (props) => {
 
 DataTable.propTypes = {
     updateQueryState: PropTypes.func.isRequired,
-    data: PropTypes.array.isRequired,
+    records: PropTypes.array.isRequired,
     title: PropTypes.string.isRequired,
     total: PropTypes.number.isRequired,
-    rowMapping: utils.rowMappingProp.isRequired,
-    queryState: utils.queryStateProp
+    rowMapping: i.RowMappingProp.isRequired,
+    queryState: i.QueryStateProp
 };
 
 //     isSelected = (id: string) => this.state.selected.indexOf(id) !== -1;
@@ -169,8 +144,8 @@ DataTable.propTypes = {
 //                         numSelected={selected.length}
 //                         order={order}
 //                         orderBy={orderBy}
-//                         onSelectAllClick={this.handleSelectAllClick}
-//                         onRequestSort={this.handleRequestSort}
+//                         handleSelectAll={this.handleSelectAllClick}
+//                         handleSort={this.handleSort}
 //                         rowCount={users.length}
 //                         rowDefs={rowDefs}
 //                     />

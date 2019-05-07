@@ -10,7 +10,7 @@ type Props = {
     onRemoveSelection: () => void
 };
 
-const TableToolbar: React.FC<Props> = (props) => {
+const Toolbar: React.FC<Props> = (props) => {
     const { numSelected, title, onQueryFilter, onRemoveSelection } = props;
     const [query, updateQuery] = useState(props.query || '');
 
@@ -18,9 +18,7 @@ const TableToolbar: React.FC<Props> = (props) => {
         <Menu>
             <Menu.Header>
                 {numSelected > 0 && (
-                    <Menu.Item
-                        header
-                        color={numSelected > 0 ? 'teal' : 'grey'}>
+                    <Menu.Item header color={numSelected > 0 ? 'teal' : 'grey'}>
                         {`${numSelected} selected`}
                     </Menu.Item>
                 )}
@@ -50,7 +48,7 @@ const TableToolbar: React.FC<Props> = (props) => {
     );
 };
 
-TableToolbar.propTypes = {
+Toolbar.propTypes = {
     numSelected: PropTypes.number.isRequired,
     title: PropTypes.string.isRequired,
     query: PropTypes.string,
@@ -58,4 +56,4 @@ TableToolbar.propTypes = {
     onQueryFilter: PropTypes.func.isRequired
 };
 
-export default TableToolbar;
+export default Toolbar;

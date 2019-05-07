@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
+import { get } from '@terascope/utils';
 import { DataTable, Loading, ErrorInfo, Page, RowMapping, QueryState } from '../core';
 import { ResolvedUser, } from '../../helpers';
 
 const rowMapping: RowMapping = {
     getId(data) { return data.id; },
     columns: {
-        firstname: { label: 'First Name', format(data) { return data.firstname; } },
-        lastname: { label: 'Last Name', format(data) { return data.lastname; } },
-        username: { label: 'Username', format(data) { return data.username; } },
-        role: { label: 'Role', format(data) { return data.role || data.type; } },
-        created: { label: 'Created', format(data) { return data.created; } },
+        firstname: { label: 'First Name' },
+        lastname: { label: 'Last Name' },
+        username: { label: 'Username' },
+        role: { label: 'Role', format(data) { return get(data, 'role.name') || data.type; } },
+        created: { label: 'Created' },
     }
 };
 
@@ -37,7 +38,7 @@ const Users: React.FC = () => {
                         <DataTable
                             rowMapping={rowMapping}
                             title="Users"
-                            data={data.users}
+                            records={data.users}
                             total={data.usersCount}
                             queryState={state}
                             updateQueryState={updateQueryState}
