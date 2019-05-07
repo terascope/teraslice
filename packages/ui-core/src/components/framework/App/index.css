@@ -32,18 +32,29 @@
 	flex-direction: row;
 }
 
+.contentMain {
+    height: 100%;
+    flex: 1;
+}
+
 .contentWrapper {
     display: flex;
     flex-flow: column nowrap;
     flex: 1;
-    z-index: 2;
-    margin: 0 !important;
+    z-index: 1;
+    margin: -3px 0 0 -1px !important;
     padding: 0 !important;
 }
 
 .sidebarWrapper {
     display: flex;
     flex-flow: row nowrap;
-    z-index: 1;
-    margin-right: -0.2rem;
+    margin-top: -3px !important;
+    z-index: 9999;
+}
+
+.contentFooter {
+    align-self: flex-end;
+    width: 100%;
+    flex: 1;
 }

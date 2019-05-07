@@ -14,9 +14,9 @@ const App: React.FC = ({ children }) => {
             <div className="sidebarWrapper">
                 <Sidebar sidebarOpen={sidebarOpen} />
             </div>
-            <Segment secondary className="contentWrapper">
+            <Segment secondary basic className="contentWrapper">
                 <Navbar toggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
-                <main>{children}</main>
+                <main className="contentMain">{children}</main>
                 <Footer />
             </Segment>
         </div>
