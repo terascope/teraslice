@@ -21,14 +21,14 @@ export const queryStateProp = PropTypes.shape({
     from: PropTypes.number,
 });
 
-export const columnMappingProp = PropTypes.shape({
+export const columnMappingProp = PropTypes.objectOf(PropTypes.shape({
     label: PropTypes.string.isRequired,
     format: PropTypes.func.isRequired,
-});
+}).isRequired);
 
 export const rowMappingProp = PropTypes.shape({
     getId: PropTypes.func.isRequired,
-    columns: PropTypes.objectOf(columnMappingProp.isRequired).isRequired,
+    columns: columnMappingProp.isRequired,
 });
 
 export function uniqIntArray(arr: number[]) {

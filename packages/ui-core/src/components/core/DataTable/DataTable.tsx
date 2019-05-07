@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { times } from '@terascope/utils';
-import { Segment, Table, Checkbox } from 'semantic-ui-react';
+import { Table, Checkbox } from 'semantic-ui-react';
 import TableHeader from './TableHeader';
 import TableToolbar from './TableToolbar';
 import * as utils from './utils';
@@ -67,7 +67,7 @@ const DataTable: React.FC<Props> = (props) => {
     const allSelected = selected.length === total;
 
     return (
-        <Segment>
+        <div>
             <TableToolbar
                 title={title}
                 numSelected={selected.length}
@@ -97,9 +97,7 @@ const DataTable: React.FC<Props> = (props) => {
                         const isSelected = selected.includes(id) || allSelected;
                         return (
                             <Table.Row
-                                hover
                                 onClick={(e: any) => handleSelect(id)}
-                                role="checkbox"
                                 tabIndex={-1}
                                 key={id}
                                 selected={isSelected}
@@ -113,7 +111,7 @@ const DataTable: React.FC<Props> = (props) => {
                                             {col.format(data)}
                                         </Table.Cell>
                                     );
-                                })};
+                                })}
                             </Table.Row>
                         );
                     })}
@@ -124,7 +122,7 @@ const DataTable: React.FC<Props> = (props) => {
                     )}
                 </Table.Body>
             </Table>
-        </Segment>
+        </div>
     );
 };
 
