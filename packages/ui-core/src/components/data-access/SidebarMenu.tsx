@@ -1,13 +1,13 @@
 import React from 'react';
-import { Menu, Icon } from 'semantic-ui-react';
+import { Menu } from 'semantic-ui-react';
 import { SidebarItem } from '../core';
 
 const SidebarMenu: React.FC = () => {
     return (
-       <Menu.Menu>
-            <Menu.Header>Data Access</Menu.Header>
-            <SidebarItem link="/users" label="Users" icon={<Icon name="users" />} />
-       </Menu.Menu>
+       <Menu.Item header fitted>
+            <div style={{ padding: '0.7rem' }}>Data Access</div>
+            <SidebarItem link="/users" label="Users" icon="users" />
+       </Menu.Item>
     );
 };
 

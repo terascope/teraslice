@@ -10,10 +10,6 @@ type Props = {
     onRemoveSelection: () => void
 };
 
-type State = {
-    query: string;
-};
-
 const TableToolbar: React.FC<Props> = (props) => {
     const { numSelected, title, onQueryFilter, onRemoveSelection } = props;
     const [query, updateQuery] = useState(props.query || '');

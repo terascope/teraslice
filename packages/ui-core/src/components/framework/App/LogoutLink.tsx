@@ -1,10 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from 'semantic-ui-react';
+import { Button, Icon } from 'semantic-ui-react';
 
-const LogoutLink: React.FC = ({ children }) => {
+const LogoutLink: React.FC = () => {
+    const style = { boxShadow: 'none' };
     return (
-        <Button as={Link} to="/logout">{children}</Button>
+        <Button basic as={Link} to="/logout" style={style}>
+            <Icon name="sign out" />
+            Logout
+        </Button>
     );
 };
 

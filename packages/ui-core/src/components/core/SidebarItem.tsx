@@ -1,19 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { Menu } from 'semantic-ui-react';
+import { Menu, Icon } from 'semantic-ui-react';
 
 const SidebarItem: React.FC<Props> = ({ icon, link, label }) => {
     return (
-        <Menu.Item
-            dense
-            as={Link}
-            button
-            key={`${link}-${label}`}
-            to={link}
-        >
-            {icon}
-            {label}
+        <Menu.Item key={`${link}-${label}`}>
+            <Link to={link}>{label}</Link>
+            {icon && <Icon name={icon as any} />}
         </Menu.Item>
     );
 };
@@ -21,13 +15,13 @@ const SidebarItem: React.FC<Props> = ({ icon, link, label }) => {
 type Props = {
     link: string;
     label: string;
-    icon?: React.ReactElement,
+    icon?: string,
 };
 
 SidebarItem.propTypes = {
     link: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
-    icon: PropTypes.element,
+    icon: PropTypes.string,
 };
 
 export default SidebarItem;

@@ -16,13 +16,17 @@ const rowMapping: RowMapping = {
 };
 
 const Users: React.FC = () => {
-    const [queryState, updateQueryState] = useState<QueryState>({
+    const [state, setState] = useState<QueryState>({
         query: '*',
         size: 2
     });
 
+    const updateQueryState = (queryState: QueryState) => {
+        setState({ ...state, ...queryState });
+    };
+
     return (
-        <UsersQuery query={FIND_USERS} variables={queryState}>
+        <UsersQuery query={FIND_USERS} variables={state}>
             {({ loading, error, data }) => {
                 if (loading) return <Loading />;
                 if (error) return <ErrorInfo error={error} />;
@@ -35,7 +39,7 @@ const Users: React.FC = () => {
                             title="Users"
                             data={data.users}
                             total={data.usersCount}
-                            queryState={queryState}
+                            queryState={state}
                             updateQueryState={updateQueryState}
                         />;
                     </Page>

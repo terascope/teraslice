@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import { Grid } from 'semantic-ui-react';
 
 type Props = {
     menus: React.FunctionComponent[];
@@ -19,11 +20,21 @@ const App: React.FC<Props> = ({ children, menus }) => {
     return (
         <div>
             <Navbar toggleSidebar={toggleSidebar} />
-            <Sidebar sidebarOpen={sidebarOpen} menus={menus} />
-            <main>
-                <div>{children}</div>
-                <Footer />
-            </main>
+            <Grid columns={2} divided>
+                <Grid.Row stretched>
+                    <Grid.Column width={2}>
+                        <Sidebar sidebarOpen={sidebarOpen} menus={menus} />
+                    </Grid.Column>
+                    <main>
+                        {children}
+                    </main>
+                </Grid.Row>
+                <Grid.Row centered>
+                    <Grid.Column width={16}>
+                        <Footer />
+                    </Grid.Column>
+                </Grid.Row>
+            </Grid>
         </div>
     );
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { Segment, Icon, Menu, Dropdown, Button } from 'semantic-ui-react';
+import { Icon, Menu, Dropdown } from 'semantic-ui-react';
 import { useCoreContext } from '../../core';
 import LogoutLink from './LogoutLink';
 
@@ -19,27 +19,21 @@ const Navbar: React.FC<Props> = ({ sidebarOpen, toggleSidebar }) => {
     });
 
     return (
-        <Segment position="fixed">
+        <Menu>
             <Menu.Item onClick={toggleSidebar}>
                 <Icon name={openSidebarIconName} />
             </Menu.Item>
-            <Menu.Header>
+            <Menu.Item header>
                 Teraserver
-            </Menu.Header>
+            </Menu.Item>
             {authenticated && (
-                <Dropdown position="right">
-                    <Button icon>
-                        <Icon name="sign out">
-                    </Icon>
-                    </Button>
+                <Dropdown item icon="user circle" className="right">
                     <Dropdown.Menu>
-                        <Dropdown.Item as={LogoutLink}>
-                            Logout
-                        </Dropdown.Item>
+                        <Dropdown.Item as={LogoutLink} />
                     </Dropdown.Menu>
                 </Dropdown>
             )}
-        </Segment>
+        </Menu>
     );
 };
 

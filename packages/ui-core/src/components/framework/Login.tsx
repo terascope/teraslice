@@ -28,6 +28,10 @@ const Login: React.FC = (props: any) => {
 
     const { ready, username, password } = state;
     const variables: LoginVariables = { username, password };
+    const onChange = (e: any, { name, value }: any) => {
+        setState({ ...state, [name]: value, ready: false });
+    };
+    const onSubmit = () => setState({ ...state, ready: true });
 
     return (
         <LoginQuery
@@ -50,28 +54,22 @@ const Login: React.FC = (props: any) => {
 
                 return (
                     <Page title="Login">
-                        <Form onSubmit={() => {
-                            setState({ ready: true });
-                        }}>
-                            <Form.Field
+                        <Form onSubmit={onSubmit}>
+                            <Form.Input
                                 label="Username"
+                                name="username"
                                 value={username}
-                                onChange={(e: any, { value }: any) => {
-                                    setState({ username: value, ready: false });
-                                }}
+                                onChange={onChange}
                             />
-                            <Form.Field
+                            <Form.Input
                                 label="Password"
+                                name="password"
                                 type="password"
                                 value={password}
-                                onChange={(e: any, { value }: any) => {
-                                    setState({ password: value, ready: false });
-                                }}
+                                onChange={onChange}
                             />
-                            <Button type="submit" onClick={() => {
-                                setState({ ready: true });
-                            }}>
-                                Login
+                            <Button type="submit" onClick={onSubmit}>
+                                Submit
                             </Button>
                         </Form>
                     </Page>
