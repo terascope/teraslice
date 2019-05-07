@@ -45,7 +45,6 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
         // @ts-ignore
         const { fieldNodes: [{ selectionSet: { selections } }] } = info;
         const results: string[] = [];
-        console.log('what are teh selections', selections)
         selections.forEach((selector: any) => {
             const { name: { value } } = selector;
             if (endpoints[value] == null) results.push(value);
@@ -54,7 +53,6 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
     }
 
     viewList.forEach((view) => {
-        console.log('internal view', view)
         const esClient = getESClient(context, get(view, 'search_config.connection', 'default'));
         const client = elasticsearchApi(esClient, logger);
         // TODO: allow_implicit_queries for query access ??? would this work with search_config.require_query? by space?
@@ -91,16 +89,8 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
                     }
                 });
             }
-            console.log('what is the q', q)
-            console.log('what is queryParams', queryParams)
             const query = queryAccess.restrictSearchQuery(q, queryParams);
-            const data = await client.search(query);
-            console.log('the data', data)
-            const deduped = dedup(data);
-            console.log('the deduped', deduped)
-
-            return deduped;
-            // return dedup(data);
+            return dedup(await client.search(query));
         };
     });
 

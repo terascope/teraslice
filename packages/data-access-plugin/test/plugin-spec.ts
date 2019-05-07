@@ -855,22 +855,27 @@ describe('Data Access Plugin', () => {
         const space1 = 'test_space1';
         const space2 = 'test_space2';
         const space3 = 'test_space3';
-        // @ts-ignore
+
         const startingDate = new Date();
         const date1 = new Date(startingDate.getTime() + 1000000);
         const date2 = new Date(startingDate.getTime() + 2000000);
         const date3 = new Date(startingDate.getTime() + 3000000);
 
+        // TODO: this needa a better story
         function createTypes(obj: any) {
+            const xluceneSpecialTypes = { geo_point: 'geo' };
             const results = [];
             for (const key in obj) {
-                results.push(` ${key}: "${obj[key].type}" `);
+                const value = obj[key].type;
+                const type = xluceneSpecialTypes[value] || value;
+                results.push(` ${key}: "${type}" `);
             }
             return results.join(',');
         }
 
         const space1Properties = {
             ip: { type: 'ip' },
+            ipv6: { type: 'ip' },
             url: { type: 'keyword' },
             location: { type: 'geo_point' },
             id: { type: 'keyword' },
@@ -898,6 +903,7 @@ describe('Data Access Plugin', () => {
         const space1Data: any[] = [
             {
                 ip : '152.223.244.212',
+                ipv6 : 'ab88:805e:55db:0750:b143:61ce:e07a:7180',
                 url : 'http://hello.com',
                 location : '0.05102, -41.82129',
                 id : '96669a45-3e2a-4dbe-a34e-3aeb97d1419b',
@@ -906,6 +912,7 @@ describe('Data Access Plugin', () => {
             },
             {
                 ip : '152.113.244.212',
+                ipv6 : 'bb88:805e:55db:0750:b143:61ce:e07a:7180',
                 url : 'http://other.com',
                 location : '81.90873, -98.281',
                 id : '68aa96f8-372a-498d-94c4-5d05a407526e',
@@ -914,6 +921,7 @@ describe('Data Access Plugin', () => {
             },
             {
                 ip : '152.113.244.200',
+                ipv6 : 'cb88:805e:55db:0750:b143:61ce:e07a:7180',
                 url : 'http://last.com',
                 location : '61.90873, -118.281',
                 id : 'a0fa3951-8c12-4ccf-814f-134abaf561ae',
@@ -1320,7 +1328,8 @@ describe('Data Access Plugin', () => {
                     ${space1}(query: "*", size: 1){
                         bytes
                     }
-                }`;
+                }
+            `;
 
             const query2 = `
                 query {
@@ -1328,7 +1337,8 @@ describe('Data Access Plugin', () => {
                         bytes,
                         bool
                     }
-                }`;
+                }
+            `;
             // @ts-ignore
             const [{ [space1]: results1 }, { [space2]: results2 }] = await Promise.all([fullRoleClient.request(query1), limitedRoleClient.request(query2)]);
 
@@ -1349,7 +1359,8 @@ describe('Data Access Plugin', () => {
                     ${space1}(size: 1){
                         bytes
                     }
-                }`;
+                }
+            `;
 
             try {
                 await fullRoleClient.request(query);
@@ -1363,13 +1374,14 @@ describe('Data Access Plugin', () => {
         it('can limit fields on endpoint by role', async() => {
             // location is not accessible by this role
             const query = `
-            query {
-                ${space2}(query: "*", size: 1){
-                    bytes,
-                    bool,
-                    location
+                query {
+                    ${space2}(query: "*", size: 1){
+                        bytes,
+                        bool,
+                        location
+                    }
                 }
-            }`;
+            `;
 
             try {
                 await limitedRoleClient.request(query);
@@ -1388,7 +1400,8 @@ describe('Data Access Plugin', () => {
                         bytes,
                         bool
                     }
-                }`;
+                }
+            `;
 
             try {
                 await limitedRoleClient.request(query);
@@ -1434,6 +1447,73 @@ describe('Data Access Plugin', () => {
                 expect(data).toBeNull();
                 expect(error.message).toEqual('Field created in query is restricted');
             }
+        });
+
+        it('can handle dates/ip/geo queries', async() => {
+            const query1 = `
+                query {
+                    ${space1}(query: "ipv6:ab88:805e:55db:0750:b143:61ce:e07a:7180" , size: 1){
+                        bytes
+                        url
+                    }
+                }
+            `;
+
+            const query2 = `
+                query {
+                    ${space2}(query: "created:>=2019-04-26T08:00:00.000-07:00", size: 2){
+                        bytes,
+                        bool
+                    }
+                }
+            `;
+
+            const query3 = `
+                query {
+                    ${space2}(query: "location:(_geo_box_top_left_:\\"83.906320,-100.058902\\" _geo_box_bottom_right_:\\"80.813646,-97.758421\\")", size: 2){
+                        bytes,
+                        location
+                    }
+                }
+            `;
+
+            function getDateTime(date: string) {
+                return new Date(date).getTime();
+            }
+
+            const finalResults1 = space1Data
+                .filter((data) => data.ipv6 === 'ab88:805e:55db:0750:b143:61ce:e07a:7180')
+                .map((obj) => ({ bytes: obj.bytes, url: obj.url }));
+
+            const finalResults2 = space2Data
+                .filter((data) => getDateTime(data.created) >= getDateTime('2019-04-26T08:00:00.000-07:00'))
+                .map((obj) => ({ bytes: obj.bytes, bool: obj.bool }));
+
+            const finalResults3 = space2Data
+                .filter((data) => data.location === '81.90873, -98.281')
+                .map((obj) => ({ bytes: obj.bytes, location: obj.location }));
+
+            const [
+            // @ts-ignore
+            { [space1]: results1 },
+            // @ts-ignore
+            { [space2]: results2 },
+             // @ts-ignore
+            { [space2]: results3 },
+            ] = await Promise.all([
+                fullRoleClient.request(query1),
+                fullRoleClient.request(query2),
+                fullRoleClient.request(query3),
+            ]);
+
+            expect(results1).toBeArrayOfSize(1);
+            expect(results1).toEqual(finalResults1);
+
+            expect(results2).toBeArrayOfSize(2);
+            expect(results2).toEqual(finalResults2);
+
+            expect(results3).toBeArrayOfSize(1);
+            expect(results3).toEqual(finalResults3);
         });
 
         it('can do basic join queries', async() => {
@@ -1606,9 +1686,70 @@ describe('Data Access Plugin', () => {
             expect(queryResults).toEqual(results);
         });
 
-        // TODO: add test for three deep join
-        // TODO: test with more queries => ip / dates / geo
-        // TODO: deal with duplicate returns
+        it('can join multiple times', async() => {
+            const query1 = `
+                query {
+                    ${space1}(query: "bytes:>=1000"){
+                        bytes,
+                        ip,
+                        ${space2}(join:["bytes"]) {
+                            bool
+                            ${space3}(join:["bool:wasFound"]){
+                                wasFound,
+                                date
+                            }
+                        }
+                    }
+                }
+            `;
+
+            const results = {
+                [space1]: [
+                    {
+                        bytes: 1234,
+                        ip: '152.223.244.212',
+                        [space2]: [
+                            {
+                                bool: true,
+                                [space3]: [
+                                    {
+                                        wasFound: true,
+                                        date: date1.toISOString()
+                                    },
+                                    {
+                                        wasFound: true,
+                                        date: date3.toISOString()
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        bytes: 1500,
+                        ip: '152.113.244.200',
+                        [space2]: [
+                            {
+                                bool: true,
+                                [space3]: [
+                                    {
+                                        wasFound: true,
+                                        date: date1.toISOString()
+                                    },
+                                    {
+                                        wasFound: true,
+                                        date: date3.toISOString()
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const queryResults = await fullRoleClient.request(query1);
+            expect(queryResults).toEqual(results);
+        });
+
         afterAll(async () => {
             await deleteIndices(client, [space1, space2, space3]);
         });

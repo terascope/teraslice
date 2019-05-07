@@ -12,17 +12,12 @@ import allTypeMappings from './typeMappings';
 // TODO: check for roleId undefined
 // TODO: respect prevent_prefix_wildcard
 export default async function getSchemaByRole(aclManager: ACLManager, user: User, logger: ts.Logger, context: Context) {
-    console.log('the user', user)
     const query = `roles: ${user.role}`;
     const spaces = await aclManager.findSpaces({ query }, false);
     const fetchViews = spaces.map(space => aclManager.getViewForSpace({ space: space.id }, user));
     const list = await Promise.all(fetchViews);
-    console.log('\n\nthe views', JSON.stringify(list, null, 4))
-    // @ts-ignore
     const types = createTypings(list);
     const myResolvers = createResolvers(list, logger, context);
-    console.log('\n\n what are the output types', types)
-    console.log('\n\n what are the myResolvers', myResolvers)
 
     // TODO: figure how to pass spaces constraints to ctx
     const schema = makeExecutableSchema({

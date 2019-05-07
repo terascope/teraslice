@@ -12,8 +12,6 @@ import {
 import { graphqlExpress } from 'apollo-server-express/dist/expressApollo';
 
 import * as utils from '../manager/utils';
-// @ts-ignore
-import { SpacesContext } from './interfaces';
 import getSchemaByRole from './dynamic-schema';
 
 export class DynamicApolloServer extends apollo.ApolloServer {
@@ -22,14 +20,12 @@ export class DynamicApolloServer extends apollo.ApolloServer {
         path = '/graphql',
     }: apollo.ServerRegistration) {
         /* Adds project specific middleware inside, just to keep in one place */
-        // @ts-ignore
+
         app.use(path, json(), async (req, res, next) => {
-            // @ts-ignore
             if (this.playgroundOptions && req.method === 'GET') {
                 // perform more expensive content-type check only if necessary
                 // XXX We could potentially move this logic into the GuiOptions lambda,
                 // but I don't think it needs any overriding
-                // @ts-ignore
                 const accept = accepts(req);
                 const types = accept.types() as string[];
                 const prefersHTML =
@@ -102,31 +98,6 @@ export class DynamicApolloServer extends apollo.ApolloServer {
                             'request.credentials': 'include',
                         }
                     } as apollo.PlaygroundConfig,
-                    // @ts-ignore
-                    // context: async ({ req }) => {
-                    //     console.log('anything calling in context here')
-                    //     let skipAuth = false;
-                    //     const { operationName } = req.body;
-                    //     if (operationName === 'IntrospectionQuery') {
-                    //         skipAuth = true;
-                    //     }
-
-                    //     const ctx: SpacesContext = {
-                    //         req,
-                    //         user: false,
-                    //         // @ts-ignore
-                    //         logger: this.logger,
-                    //         authenticating: false,
-                    //     };
-
-                    //     if (skipAuth) {
-                    //         ctx.authenticating = true;
-                    //         return ctx;
-                    //     }
-
-                    //     ctx.user = user;
-                    //     return ctx;
-                    // }
                 })
             )(req, res, next);
         });
