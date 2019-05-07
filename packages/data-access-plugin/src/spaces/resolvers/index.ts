@@ -1,5 +1,7 @@
 
-import { IResolvers } from 'apollo-server-express';
+import crypto from 'crypto';
+import { IResolvers, UserInputError } from 'apollo-server-express';
+import { GraphQLResolveInfo } from 'graphql';
 import { DataAccessConfig } from '@terascope/data-access';
 import elasticsearchApi from '@terascope/elasticsearch-api';
 import { Logger, get } from '@terascope/utils';
@@ -20,15 +22,15 @@ export {
     createResolvers
  };
 
-function joinQuery(root: any, join: string, q: string) {
-    const [orig, target] = join.split(':') || [join, join];
-    // @ts-ignore
-    const selector = target || orig; // In case there's no colon in field.
-    if (q) {
-        return `${selector}:${root[orig]} AND ${q}`;
-    }
+function dedup(records: any[]): any[] {
+    const dedup = {};
+    records.forEach((record: any) => {
+        const shasum = crypto.createHash('md5').update(JSON.stringify(record));
+        // @ts-ignore
+        dedup[shasum.digest()] = record;
+    });
 
-    return `${selector}:${root[orig]}`;
+    return _.values(dedup);
 }
 
 // TODO: if fields are not one-to-one mapping then we need to add a resolver for it
@@ -38,6 +40,19 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
     } as IResolvers<any, SpacesContext>;
     const endpoints = {};
     // we create the master resolver list
+
+    function getSelectionKeys(info: GraphQLResolveInfo) {
+        // @ts-ignore
+        const { fieldNodes: [{ selectionSet: { selections } }] } = info;
+        const results: string[] = [];
+        console.log('what are teh selections', selections)
+        selections.forEach((selector: any) => {
+            const { name: { value } } = selector;
+            if (endpoints[value] == null) results.push(value);
+        });
+        return results;
+    }
+
     viewList.forEach((view) => {
         console.log('internal view', view)
         const esClient = getESClient(context, get(view, 'search_config.connection', 'default'));
@@ -54,17 +69,38 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
         };
         const queryAccess = new QueryAccess(accessData, logger);
 
-        endpoints[view.endpoint] = (root: any, args: any, ctx: any) => {
+        endpoints[view.endpoint] = async function resolverFn(root: any, args: any, ctx: any, info: GraphQLResolveInfo) {
+            const _sourceInclude = getSelectionKeys(info);
             const { size, sort, from, join } = args;
+            const queryParams = { index: view.search_config!.index, from, sort, size, _sourceInclude };
             let { query: q } = args;
-            if (root && root[join] !== null) {
-                q = joinQuery(root, join, q);
+
+            if (root == null && q == null) throw new UserInputError('a query must be provided for the root query');
+            if (root && join == null) throw new UserInputError('a join must be provided when querying a space against another space');
+
+            if (join) {
+                if (!Array.isArray(join)) throw new UserInputError('a join must be an array of values');
+                join.forEach((field) => {
+                    const [orig, target] = field.split(':') || [field, field];
+                    const selector = target || orig; // In case there's no colon in field.
+                    if (root && root[orig] !== null) {
+                        if (q) {
+                            q = `${selector}:${root[orig]} AND ${q}`;
+                        }
+                        q = `${selector}:${root[orig]}`;
+                    }
+                });
             }
             console.log('what is the q', q)
+            console.log('what is queryParams', queryParams)
+            const query = queryAccess.restrictSearchQuery(q, queryParams);
+            const data = await client.search(query);
+            console.log('the data', data)
+            const deduped = dedup(data);
+            console.log('the deduped', deduped)
 
-            const query = queryAccess.restrictSearchQuery(q, { index: view.search_config!.index, from, sort, size });
-            console.log('what is result from query access', JSON.stringify(query, null, 4))
-            return client.search(query);
+            return deduped;
+            // return dedup(data);
         };
     });
 

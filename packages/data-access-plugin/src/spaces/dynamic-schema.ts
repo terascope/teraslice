@@ -67,7 +67,7 @@ function collectAllowedFields(config: DataAccessConfig, endpointList: string[]) 
         }
     }
 
-    endpointList.forEach(endpoint => results.push(` ${endpoint}(join: String, query: String, size: Int, from: Int, sort: String): [${endpoint}] `));
+    endpointList.forEach(endpoint => results.push(` ${endpoint}(join: [String], query: String, size: Int, from: Int, sort: String): [${endpoint}] `));
 
     return results.join(' ');
 }

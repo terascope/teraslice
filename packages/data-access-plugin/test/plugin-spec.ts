@@ -1341,6 +1341,25 @@ describe('Data Access Plugin', () => {
             expect(results2[0].bool).toBeDefined();
         });
 
+        it('will throw if no query is provided for top level query', async() => {
+            expect.hasAssertions();
+
+            const query = `
+                query {
+                    ${space1}(size: 1){
+                        bytes
+                    }
+                }`;
+
+            try {
+                await fullRoleClient.request(query);
+            } catch (err) {
+                const { response: { status, errors: [{ message }] } } = err;
+                expect(message).toEqual('a query must be provided for the root query');
+                expect(status).toEqual(200);
+            }
+        });
+
         it('can limit fields on endpoint by role', async() => {
             // location is not accessible by this role
             const query = `
@@ -1422,7 +1441,7 @@ describe('Data Access Plugin', () => {
                 query {
                     ${space1}(query: "bytes:>=1000"){
                         bytes
-                        ${space2}(join:"bytes"){
+                        ${space2}(join:["bytes"]){
                             bool
                         }
                     }
@@ -1460,7 +1479,7 @@ describe('Data Access Plugin', () => {
                     ${space2}(query: "bytes:>=1000"){
                         bytes
                         bool
-                        ${space3}(join:"bool:wasFound"){
+                        ${space3}(join:["bool:wasFound"]){
                             wasFound
                             date
                         }
@@ -1502,7 +1521,88 @@ describe('Data Access Plugin', () => {
             };
 
             const queryResults = await fullRoleClient.request(query1);
-            console.log('what are the queryResults', JSON.stringify(queryResults, null, 4))
+            expect(queryResults).toEqual(results);
+        });
+
+        it('will error if secondary space does not have a join', async() => {
+            const query = `
+                query {
+                    ${space1}(query: "bytes:>=1000"){
+                        bytes
+                        ${space2}(query: "*", size: 1){
+                            bool
+                        }
+                    }
+                }
+            `;
+
+            try {
+                await fullRoleClient.request(query);
+            } catch (err) {
+                const { response: { status, errors: [{ message }] } } = err;
+                expect(message).toEqual('a join must be provided when querying a space against another space');
+                expect(status).toEqual(200);
+            }
+        });
+
+        it('can dedup basic results', async() => {
+            const query1 = `
+                query {
+                    ${space2}(query: "bytes:>=1000"){
+                        bool
+                    }
+                }
+            `;
+
+            const results = {
+                [space2]: [
+                    {
+                        bool: true,
+                    }
+                ]
+            };
+
+            const queryResults = await fullRoleClient.request(query1);
+            expect(queryResults).toEqual(results);
+        });
+
+        it('can dedup joined results', async() => {
+            const query1 = `
+                query {
+                    ${space2}(query: "bytes:>=1000"){
+                        bytes
+                        bool
+                        ${space3}(join:["bool:wasFound"]){
+                            wasFound
+                        }
+                    }
+                }
+            `;
+
+            const results = {
+                [space2]: [
+                    {
+                        bytes: 1234,
+                        bool: true,
+                        [space3]: [
+                            {
+                                wasFound: true,
+                            }
+                        ]
+                    },
+                    {
+                        bytes: 1500,
+                        bool: true,
+                        [space3]: [
+                            {
+                                wasFound: true,
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const queryResults = await fullRoleClient.request(query1);
             expect(queryResults).toEqual(results);
         });
 
