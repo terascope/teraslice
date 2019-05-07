@@ -5,21 +5,33 @@ const {
     loaderByName,
     throwUnexpectedConfigError,
 } = require('@craco/craco');
+const path = require('path');
+const CracoLess = require('craco-less');
 
 module.exports = {
     webpack: {
         alias: {
-            '../../theme.config$': require('path').join(
+            '../../theme.config$': path.join(
                 __dirname,
                 '/src/semantic-ui/theme.config',
             ),
         },
+        configure: (webpackConfig) => {
+            webpackConfig.resolve.mainFields = ['module', 'main'];
+            return webpackConfig;
+        }
     },
     plugins: [
-        { plugin: require('craco-less') },
+        {
+            plugin: CracoLess,
+            options: {
+                noIeCompat: true
+            }
+        },
         {
             plugin: {
-                overrideWebpackConfig: ({ context, webpackConfig }) => {
+                overrideWebpackConfig: (ctx) => {
+                    const { context, webpackConfig } = ctx;
                     const { isFound, match: fileLoaderMatch } = getLoader(
                         webpackConfig,
                         loaderByName('file-loader'),

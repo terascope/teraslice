@@ -1,8 +1,7 @@
 import React from 'react';
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from 'react-apollo';
-import { MuiThemeProvider } from '@material-ui/core';
-import { theme, CoreContextProvider } from './components/core';
+import { CoreContextProvider } from './components/core';
 import CoreRouter from './IndexRouter';
 
 const { REACT_APP_DEV_MODE } = process.env;
@@ -22,11 +21,9 @@ export default class IndexApp extends React.Component {
     render() {
         return (
             <ApolloProvider client={this.createClient()}>
-                <MuiThemeProvider theme={theme}>
-                    <CoreContextProvider>
-                        <CoreRouter />
-                    </CoreContextProvider>
-                </MuiThemeProvider>
+                <CoreContextProvider>
+                    <CoreRouter />
+                </CoreContextProvider>
             </ApolloProvider>
         );
     }

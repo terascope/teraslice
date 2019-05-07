@@ -1,32 +1,12 @@
 import React from 'react';
-import Typography from '@material-ui/core/Typography';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import { withStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { corePropTypes, CoreProps } from '../../helpers';
+import { Loader, Segment } from 'semantic-ui-react';
 
-const styles = (theme: Theme) => createStyles({
-    root: {
-        display: 'flex',
-        alignItems: 'center',
-        flexDirection: 'column',
-        padding: theme.spacing.unit * 2,
-    },
-    progress: {
-        margin: theme.spacing.unit * 2,
-    },
-});
-
-const Loading: React.FC<CoreProps> = ({ classes }) => {
+const Loading: React.FC = () => {
     return (
-        <div className={classes.root}>
-            <CircularProgress className={classes.progress} />
-            <Typography component="h3" align="center">
-                Loading...
-            </Typography>
-        </div>
+        <Segment>
+            <Loader inverted content="Loading" />
+        </Segment>
     );
 };
 
-Loading.propTypes = { ...corePropTypes };
-
-export default withStyles(styles)(Loading);
+export default Loading;

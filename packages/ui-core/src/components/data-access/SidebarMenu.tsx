@@ -1,13 +1,13 @@
 import React from 'react';
-import List from '@material-ui/core/List';
-import PeopleIcon from '@material-ui/icons/People';
+import { Menu, Icon } from 'semantic-ui-react';
 import { SidebarItem } from '../core';
 
 const SidebarMenu: React.FC = () => {
     return (
-       <List>
-            <SidebarItem link="/users" label="Users" icon={<PeopleIcon />} />
-       </List>
+       <Menu.Menu>
+            <Menu.Header>Data Access</Menu.Header>
+            <SidebarItem link="/users" label="Users" icon={<Icon name="users" />} />
+       </Menu.Menu>
     );
 };
 

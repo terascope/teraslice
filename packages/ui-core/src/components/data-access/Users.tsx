@@ -1,72 +1,49 @@
-import React from 'react';
+import React, { useState } from 'react';
 import gql from 'graphql-tag';
-import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
-import { Loading, ErrorInfo, Page } from '../core';
-import { ResolvedUser, QueryState } from '../../helpers';
-import UsersTable from './UsersTable';
+import { DataTable, Loading, ErrorInfo, Page, RowMapping, QueryState } from '../core';
+import { ResolvedUser, } from '../../helpers';
 
-type UsersProps = {
-    query?: string;
+const rowMapping: RowMapping = {
+    getId(data) { return data.id; },
+    columns: {
+        firstname: { label: 'First Name', format(data) { return data.firstname; } },
+        lastname: { label: 'Last Name', format(data) { return data.lastname; } },
+        username: { label: 'Username', format(data) { return data.username; } },
+        role: { label: 'Role', format(data) { return data.role || data.type; } },
+        created: { label: 'Created', format(data) { return data.created; } },
+    }
 };
 
-class Users extends React.Component<UsersProps, QueryState> {
-    static propTypes = {
-        query: PropTypes.string,
-    };
+const Users: React.FC = () => {
+    const [queryState, updateQueryState] = useState<QueryState>({
+        query: '*',
+        size: 2
+    });
 
-    static getDerivedStateFromProps(props: UsersProps, state: QueryState) {
-        if (props.query) {
-            return {
-                ...state,
-                query: props.query
-            };
-        }
+    return (
+        <UsersQuery query={FIND_USERS} variables={queryState}>
+            {({ loading, error, data }) => {
+                if (loading) return <Loading />;
+                if (error) return <ErrorInfo error={error} />;
+                if (!data) return <ErrorInfo error="Unexpected Error" />;
 
-        return state;
-    }
-
-    state: QueryState = {};
-
-    handleQueryChange = (options: QueryState) => {
-        this.setState({ ...options });
-    }
-
-    render() {
-        const defaultRowsPerPage = 2;
-        const { sort, query, from, size = defaultRowsPerPage } = this.state;
-
-        const variables: QueryState = {
-            query: query || '*',
-            sort,
-            from,
-            size
-        };
-
-        return (
-            <UsersQuery query={FIND_USERS} variables={variables}>
-                {({ loading, error, data }) => {
-                    if (loading) return <Loading />;
-                    if (error) return <ErrorInfo error={error} />;
-                    if (!data) return <ErrorInfo error="Unexpected Error" />;
-
-                    return (
-                        <Page title="Users">
-                            <UsersTable
-                                title="Users"
-                                users={data.users}
-                                total={data.usersCount}
-                                query={query}
-                                handleQueryChange={this.handleQueryChange}
-                                defaultRowsPerPage={defaultRowsPerPage}
-                            />;
-                        </Page>
-                    );
-                }}
-            </UsersQuery>
-        );
-    }
-}
+                return (
+                    <Page title="Users">
+                        <DataTable
+                            rowMapping={rowMapping}
+                            title="Users"
+                            data={data.users}
+                            total={data.usersCount}
+                            queryState={queryState}
+                            updateQueryState={updateQueryState}
+                        />;
+                    </Page>
+                );
+            }}
+        </UsersQuery>
+    );
+};
 
 export default Users;
 

@@ -1,3 +1,5 @@
+import STATUS_CODES from './status-codes';
+
 export * from './arrays';
 export * from './collector';
 export * from './data-entity';
@@ -9,3 +11,4 @@ export * from './promises';
 export * from './errors';
 export * from './strings';
 export * from './utils';
+export { STATUS_CODES };

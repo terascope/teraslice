@@ -1,24 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Button from '@material-ui/core/Button';
-import { withStyles, createStyles, Theme } from '@material-ui/core/styles';
-import { CoreProps } from '../../../helpers';
+import { Button } from 'semantic-ui-react';
 
-const styles = (theme: Theme) => createStyles({
-    link: {
-        textTransform: 'none',
-        padding: theme.spacing.unit,
-    }
-});
-
-const LogoutLink: React.FC<CoreProps> = ({ classes, children }) => {
+const LogoutLink: React.FC = ({ children }) => {
     return (
-        <Button
-            className={classes.link}
-            // @ts-ignore
-            component={Link} to="/logout"
-        >{children}</Button>
+        <Button as={Link} to="/logout">{children}</Button>
     );
 };
 
-export default withStyles(styles)(LogoutLink) as React.FC;
+export default LogoutLink;

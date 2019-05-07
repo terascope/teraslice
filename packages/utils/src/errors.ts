@@ -1,4 +1,4 @@
-import { STATUS_CODES } from 'http';
+import STATUS_CODES from './status-codes';
 import { AnyObject } from './interfaces';
 import * as s from './strings';
 import * as utils from './utils';

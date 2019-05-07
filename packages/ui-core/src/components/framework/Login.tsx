@@ -1,33 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import { Redirect } from 'react-router-dom';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import { withStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { Loading, ErrorInfo, Page, CoreContext } from '../core';
-import { CoreProps, corePropTypes } from '../../helpers';
-
-const styles = (theme: Theme) => createStyles({
-    root: {
-        ...theme.mixins.gutters(),
-        paddingTop: theme.spacing.unit * 2,
-        paddingBottom: theme.spacing.unit * 2,
-    },
-    container: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center'
-    },
-    textField: {
-        marginLeft: theme.spacing.unit,
-        marginRight: theme.spacing.unit,
-        width: 200,
-    },
-    button: {
-        margin: theme.spacing.unit,
-    },
-});
+import { Form, Button } from 'semantic-ui-react';
+import { Loading, ErrorInfo, Page, useCoreContext } from '../core';
 
 type State = {
     username?: string;
@@ -36,97 +12,76 @@ type State = {
     ready?: boolean;
 };
 
-class Login extends React.Component<CoreProps, State> {
-    static propTypes = {
-        ...corePropTypes,
-    };
-
-    static contextType = CoreContext;
-
-    state: State = {
+const Login: React.FC = (props: any) => {
+    const { updateAuth } = useCoreContext();
+    const [state, setState] = useState<State>({
         username: '',
         password: '',
         redirectToReferrer: false,
         ready: false
-    };
+    });
 
-    handleChange = (name: 'username'|'password') => (event: any) => {
-        this.setState({
-            [name]: event.target.value,
-            ready: false,
-        });
+    if (state.redirectToReferrer) {
+        const { from } = props.location.state || { from: { pathname: '/' } };
+        return <Redirect to={from} />;
     }
 
-    handleSubmit = () => {
-        this.setState({ ready: true });
-    }
+    const { ready, username, password } = state;
+    const variables: LoginVariables = { username, password };
 
-    onCompleted = (data: LoginResponse) => {
-        const authenticated = !!(data && data.authenticate.id);
-        this.context.updateAuth(authenticated);
-        this.setState({ ready: false, redirectToReferrer: authenticated });
-    }
+    return (
+        <LoginQuery
+            query={LOGIN}
+            variables={variables}
+            skip={!ready}
+            onCompleted={(data) => {
+                const authenticated = !!(data && data.authenticate.id);
+                updateAuth(authenticated);
+                setState({
+                    ready: false,
+                    redirectToReferrer: authenticated
+                });
+            }}
+            notifyOnNetworkStatusChange
+        >
+            {({ loading, error }) => {
+                if (loading) return <Loading />;
+                if (error) return <ErrorInfo error={error} />;
 
-    render() {
-        const { classes } = this.props;
-        // @ts-ignore
-        const { from } = this.props.location.state || { from: { pathname: '/' } };
+                return (
+                    <Page title="Login">
+                        <Form onSubmit={() => {
+                            setState({ ready: true });
+                        }}>
+                            <Form.Field
+                                label="Username"
+                                value={username}
+                                onChange={(e: any, { value }: any) => {
+                                    setState({ username: value, ready: false });
+                                }}
+                            />
+                            <Form.Field
+                                label="Password"
+                                type="password"
+                                value={password}
+                                onChange={(e: any, { value }: any) => {
+                                    setState({ password: value, ready: false });
+                                }}
+                            />
+                            <Button type="submit" onClick={() => {
+                                setState({ ready: true });
+                            }}>
+                                Login
+                            </Button>
+                        </Form>
+                    </Page>
+                );
+            }}
+        </LoginQuery>
+    );
+};
 
-        if (this.state.redirectToReferrer) return <Redirect to={from} />;
-        const { username, password, ready } = this.state;
-
-        const variables: LoginVariables = { username, password };
-
-        return (
-            <LoginQuery
-                query={LOGIN}
-                variables={variables}
-                skip={!ready}
-                onCompleted={this.onCompleted}
-                notifyOnNetworkStatusChange
-            >
-                {({ loading, error }) => {
-                    if (loading) return <Loading />;
-                    if (error) return <ErrorInfo error={error} />;
-
-                    return (
-                        <Page title="Login">
-                            <form className={classes.container} onSubmit={this.handleSubmit}>
-                                <TextField
-                                    id="standard-name"
-                                    label="Username"
-                                    className={classes.textField}
-                                    value={username}
-                                    onChange={this.handleChange('username')}
-                                    margin="normal"
-                                />
-                                <TextField
-                                    id="standard-password-input"
-                                    label="Password"
-                                    className={classes.textField}
-                                    type="password"
-                                    value={password}
-                                    onChange={this.handleChange('password')}
-                                    margin="normal"
-                                />
-                                <Button
-                                    color="primary"
-                                    type="submit"
-                                    className={classes.button}
-                                    onClick={this.handleSubmit}
-                                >
-                                    Login
-                                </Button>
-                            </form>
-                        </Page>
-                    );
-                }}
-            </LoginQuery>
-        );
-    }
-}
-
-export default withStyles(styles)(Login);
+export default Login;
 
 // Query...
 const LOGIN = gql`

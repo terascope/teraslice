@@ -1,20 +1,12 @@
 import React from 'react';
-import Typography from '@material-ui/core/Typography';
-import { CoreProps, corePropTypes } from '../../../helpers';
+import { Segment } from 'semantic-ui-react';
 
-const Footer: React.FC<CoreProps> = ({ classes }) => {
+const Footer: React.FC = () => {
     return (
-        <Typography
-            component="footer"
-            align="center"
-            variant="subtitle1"
-            className={classes.footer}
-        >
+        <Segment>
             Copyright &copy; 2019
-        </Typography>
+        </Segment>
     );
 };
-
-Footer.propTypes = { ...corePropTypes };
 
 export default Footer;
