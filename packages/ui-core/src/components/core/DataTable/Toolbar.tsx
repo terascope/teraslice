@@ -25,7 +25,7 @@ const Toolbar: React.FC<Props> = (props) => {
                                 </Button>
                                 {numSelected > 0 && (
                                     <Label basic pointing="left">
-                                        {`Delete ${numSelected} selected`}
+                                        {`Delete (${numSelected} selected)`}
                                     </Label>
                                 )}
                             </Button>
@@ -34,7 +34,6 @@ const Toolbar: React.FC<Props> = (props) => {
                             <form onSubmit={submitQuery}>
                                 <Input
                                     icon="search"
-                                    type="submit0"
                                     value={query === '*' ? '' : query}
                                     onChange={(e: any, { value }) => updateQuery(value)}
                                     onClick={submitQuery}
