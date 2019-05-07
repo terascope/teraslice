@@ -1,11 +1,9 @@
 import 'jest-extended';
-// @ts-ignore
 import got from 'got';
 import express from 'express';
 import { Server } from 'http';
 import { GraphQLClient } from 'graphql-request';
 import { TestContext } from '@terascope/job-components';
-// @ts-ignore
 
 import { makeClient, cleanupIndexes, deleteIndices, populateIndex } from './helpers/elasticsearch';
 import { PluginConfig } from '../src/interfaces';
@@ -67,9 +65,8 @@ describe('Data Access Plugin', () => {
         const _uri = uri.replace(/^\//, '');
         return `http://localhost:${port}/api/v2/${_uri}`;
     }
- // @ts-ignore
+
     let reqClient: GraphQLClient;
-    // @ts-ignore FIXME:
     let adminUserId: string;
 
     beforeAll(async () => {
