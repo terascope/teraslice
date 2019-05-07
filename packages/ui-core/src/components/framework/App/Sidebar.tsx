@@ -13,6 +13,8 @@ type Props = {
 const SidebarMenuIcon: React.FC<{ icon: string, sidebarOpen: boolean }> = ({ icon, sidebarOpen }) => {
     return <Icon
         name={icon as any}
+        fitted
+        size="large"
         className={classNames({
             sidebarMenuIcon: !!sidebarOpen,
             minimalSidebarIcon: !sidebarOpen

@@ -4,10 +4,12 @@
 
 .sidebarWrapper .item a {
     color: rgba(0, 0, 0, 0.87);
+    font-size: 1.1em;
 }
 
-.sidebarWrapper .item a i {
+.sidebarWrapper .item a .icon {
     color: #4183C4;
+    font-size: 1.2em;
 }
 
 .sidebarMenuIcon {

@@ -23,7 +23,7 @@ const Navbar: React.FC<Props> = ({ sidebarOpen, toggleSidebar }) => {
                 Teraserver
             </Menu.Item>
             {authenticated && (
-                <Dropdown item icon="user circle" className="right">
+                <Dropdown item icon={<Icon fitted size="large" name="user circle" />} className="right">
                     <Dropdown.Menu>
                         <Dropdown.Item as={LogoutLink} />
                     </Dropdown.Menu>
