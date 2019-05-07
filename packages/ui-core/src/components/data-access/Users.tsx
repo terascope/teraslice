@@ -38,6 +38,7 @@ const Users: React.FC = () => {
                         <DataTable
                             rowMapping={rowMapping}
                             title="Users"
+                            removeRecords={() => {}}
                             records={data.users}
                             total={data.usersCount}
                             queryState={state}

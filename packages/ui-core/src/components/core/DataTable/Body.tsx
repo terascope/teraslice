@@ -1,18 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { get } from '@terascope/utils';
+import { get, times } from '@terascope/utils';
 import { Table, Checkbox } from 'semantic-ui-react';
 import { RowMappingProp, RowMapping } from './interfaces';
-
-type Props = {
-    rowMapping: RowMapping;
-    records: any[];
-    selected: string[];
-    handleSelect: (id: string) => void;
-    total: number;
-    size: number;
-    from: number;
-};
 
 const Body: React.FC<Props> = (props) => {
     const {
@@ -22,12 +12,11 @@ const Body: React.FC<Props> = (props) => {
         from,
         total,
         rowMapping,
-        handleSelect
+        selectRecord
     } = props;
 
     const emptyRows = size - Math.min(size, total - from);
     const columns = Object.entries(rowMapping.columns);
-    const numCols: any = columns.length + 1;
     const allSelected = selected.length === total;
 
     return (
@@ -37,12 +26,12 @@ const Body: React.FC<Props> = (props) => {
                 const isSelected = selected.includes(id) || allSelected;
                 return (
                     <Table.Row
-                        onClick={(e: any) => handleSelect(id)}
+                        onClick={(e: any) => selectRecord(id)}
                         tabIndex={-1}
                         key={`record-${id}`}
                         selected={isSelected}
                     >
-                        <Table.Cell collapsing>
+                        <Table.Cell collapsing width={1} textAlign="center">
                             <Checkbox checked={isSelected} />
                         </Table.Cell>
                         {columns.map(([key, col]) => {
@@ -58,15 +47,28 @@ const Body: React.FC<Props> = (props) => {
             })}
             {emptyRows > 0 && (
                 <Table.Row>
-                    <Table.Cell width={numCols} />
+                    <Table.Cell collapsing width={1} />
+                    {times(columns.length, (n) => (
+                        <Table.Cell key={`empty-row-${n}`} />
+                    ))}
                 </Table.Row>
             )}
         </Table.Body>
     );
 };
 
+type Props = {
+    rowMapping: RowMapping;
+    records: any[];
+    selected: string[];
+    selectRecord: (id: string) => void;
+    total: number;
+    size: number;
+    from: number;
+};
+
 Body.propTypes = {
-    handleSelect: PropTypes.func.isRequired,
+    selectRecord: PropTypes.func.isRequired,
     records: PropTypes.array.isRequired,
     selected: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
     total: PropTypes.number.isRequired,

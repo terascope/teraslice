@@ -7,6 +7,8 @@ export type QueryState = {
     sort?: string
 };
 
+export type UpdateQueryState = (query: QueryState) => void;
+
 export const QueryStateProp = PropTypes.shape({
     query: PropTypes.string,
     size: PropTypes.number,

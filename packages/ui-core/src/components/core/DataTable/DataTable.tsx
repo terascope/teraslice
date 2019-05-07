@@ -5,20 +5,11 @@ import { Table } from 'semantic-ui-react';
 import Header from './Header';
 import Toolbar from './Toolbar';
 import Body from './Body';
-import * as utils from './utils';
+import Footer from './Footer';
 import * as i from './interfaces';
 
-type Props = {
-    rowMapping: i.RowMapping;
-    records: any[];
-    updateQueryState: (options: i.QueryState) => void;
-    total: number;
-    title: string;
-    queryState?: i.QueryState;
-};
-
 const DataTable: React.FC<Props> = (props) => {
-    const { records, total, title, updateQueryState, rowMapping } = props;
+    const { records, total, title, updateQueryState, removeRecords, rowMapping } = props;
     const queryState = {
         from: 0,
         size: 25,
@@ -29,16 +20,7 @@ const DataTable: React.FC<Props> = (props) => {
 
     const [selected, setSelected] = useState<string[]>([]);
 
-    const handleSort = (field: string) => {
-        const current = utils.parseSortBy(queryState.sort);
-        let direction: i.SortDirection = 'asc';
-        if (current.field === field && current.direction === 'asc') {
-            direction = 'desc';
-        }
-        updateQueryState({ sort: utils.formatSortBy({ field, direction }) });
-    };
-
-    const handleSelect = (id: string) => {
+    const selectRecord = (id: string) => {
         const selectedIndex = selected.indexOf(id);
         let newSelected: string[] = [];
 
@@ -58,24 +40,21 @@ const DataTable: React.FC<Props> = (props) => {
         setSelected(newSelected);
     };
 
-    // FIXME
-    // const rowsPerPageOptions = utils.uniqIntArray([1, 5, 10, 25, queryState.size]);
-    // const page = queryState.from / queryState.size;
+    const numCols = Object.keys(rowMapping.columns).length + 1;
 
     return (
         <div>
-            <Toolbar
-                title={title}
-                numSelected={selected.length}
-                query={queryState.query}
-                onQueryFilter={(query) => {
-                    updateQueryState({ query });
-                }}
-                onRemoveSelection={() => {
-                    // TODO
-                }}
-            />
             <Table sortable celled compact definition>
+                <Toolbar
+                    title={title}
+                    numSelected={selected.length}
+                    query={queryState.query}
+                    numCols={numCols}
+                    updateQueryState={updateQueryState}
+                    removeRecords={() => {
+                        removeRecords(selected.slice());
+                    }}
+                />
                 <Header
                     numSelected={selected.length}
                     sort={queryState.sort}
@@ -83,22 +62,39 @@ const DataTable: React.FC<Props> = (props) => {
                         if (!checked) return setSelected([]);
                         setSelected(times(total, () => '<all>'));
                     }}
-                    handleSort={handleSort}
+                    updateQueryState={updateQueryState}
                     rowCount={records.length}
                     columnMapping={rowMapping.columns}
                 />
                 <Body
                     rowMapping={rowMapping}
                     records={records}
-                    handleSelect={handleSelect}
+                    selectRecord={selectRecord}
                     selected={selected}
                     size={queryState.size}
                     from={queryState.from}
                     total={total}
                 />
+                <Footer
+                    total={total}
+                    numCols={numCols}
+                    size={queryState.size}
+                    from={queryState.from}
+                    updateQueryState={updateQueryState}
+                />
             </Table>
         </div>
     );
+};
+
+type Props = {
+    rowMapping: i.RowMapping;
+    records: any[];
+    updateQueryState: i.UpdateQueryState;
+    removeRecords: (ids: string[]) => void;
+    total: number;
+    title: string;
+    queryState?: i.QueryState;
 };
 
 DataTable.propTypes = {
@@ -106,6 +102,7 @@ DataTable.propTypes = {
     records: PropTypes.array.isRequired,
     title: PropTypes.string.isRequired,
     total: PropTypes.number.isRequired,
+    removeRecords: PropTypes.func.isRequired,
     rowMapping: i.RowMappingProp.isRequired,
     queryState: i.QueryStateProp
 };
@@ -136,8 +133,8 @@ DataTable.propTypes = {
 //                     title={title}
 //                     selected={selected}
 //                     query={query}
-//                     onQueryFilter={this.handleQueryChange}
-//                     onRemoveSelection={() => {}}
+//                     updateQuery={this.handleQueryChange}
+//                     removeRecords={() => {}}
 //                 />
 //                 <Table className={classes.table}>
 //                     <TableHeader

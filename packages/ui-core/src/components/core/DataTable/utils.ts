@@ -16,3 +16,11 @@ export function formatSortBy(sort: ParsedSort|string): string {
 export function uniqIntArray(arr: number[]) {
     return uniq(arr).sort((a, b) => a - b);
 }
+
+export function getSortDirection(field: string, sortBy: ParsedSort): 'ascending'|'descending' {
+    const none: any = null;
+    if (sortBy.field !== field) return none;
+    if (sortBy.direction === 'asc') return 'ascending';
+    if (sortBy.direction === 'desc') return 'descending';
+    return none;
+}
