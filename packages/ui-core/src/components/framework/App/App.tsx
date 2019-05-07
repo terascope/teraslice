@@ -16,9 +16,7 @@ const App: React.FC = ({ children }) => {
                     <Grid.Column width={2}>
                         <Sidebar sidebarOpen={sidebarOpen} />
                     </Grid.Column>
-                    <main>
-                        {children}
-                    </main>
+                    <main>{children}</main>
                 </Grid.Row>
                 <Grid.Row centered>
                     <Grid.Column width={16}>

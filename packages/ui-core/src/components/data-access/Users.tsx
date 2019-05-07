@@ -41,7 +41,7 @@ const Users: React.FC = () => {
                             total={data.usersCount}
                             queryState={state}
                             updateQueryState={updateQueryState}
-                        />;
+                        />
                     </Page>
                 );
             }}

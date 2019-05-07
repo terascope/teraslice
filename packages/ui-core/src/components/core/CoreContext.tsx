@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { PluginConfig, PluginsProp } from './interfaces';
 
 export type CoreContextState = {
@@ -17,40 +17,24 @@ type Props = {
     plugins: PluginConfig[];
 };
 
-type State = {
-    authenticated: boolean;
+const CoreContextProvider: React.FC<Props> = ({ children, plugins }) => {
+    const [authenticated, updateAuth] = useState(false);
+
+    const value: CoreContextState = {
+        authenticated,
+        updateAuth,
+        plugins,
+    };
+
+    return (
+        <CoreContext.Provider value={value}>{children}</CoreContext.Provider>
+    );
 };
 
-export class CoreContextProvider extends React.Component<Props, State> {
-    static propTypes = {
-        plugins: PluginsProp,
-    };
+CoreContextProvider.propTypes = {
+    plugins: PluginsProp,
+};
 
-    state = {
-        authenticated: false,
-    };
-
-    updateAuth = (authenticated: boolean) => {
-        this.setState({
-            authenticated,
-        });
-    }
-
-    render() {
-        const { children, plugins } = this.props;
-
-        const value: CoreContextState = {
-            authenticated: this.state.authenticated,
-            updateAuth: this.updateAuth,
-            plugins,
-        };
-
-        return (
-            <CoreContext.Provider value={value}>
-                {children}
-            </CoreContext.Provider>
-        );
-    }
-}
+export { CoreContextProvider };
 
 export const useCoreContext = () => useContext(CoreContext);

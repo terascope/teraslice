@@ -10,23 +10,21 @@ const { REACT_APP_DEV_MODE } = process.env;
 const apiPath = '/api/v2/data-access';
 const apiUri = REACT_APP_DEV_MODE ? `http://localhost:8000${apiPath}` : apiPath;
 
-export default class IndexApp extends React.Component {
-    createClient() {
-        return new ApolloClient({
-            uri: apiUri,
-            credentials: 'include',
-        });
-    }
+const IndexApp: React.FC = () => {
+    const client = new ApolloClient({
+        uri: apiUri,
+        credentials: 'include',
+    });
 
-    render() {
-        const plugins = [DataAccessPlugin];
+    const plugins = [DataAccessPlugin];
 
-        return (
-            <ApolloProvider client={this.createClient()}>
-                <CoreContextProvider plugins={plugins}>
-                    <CoreRouter />
-                </CoreContextProvider>
-            </ApolloProvider>
-        );
-    }
-}
+    return (
+        <ApolloProvider client={client}>
+            <CoreContextProvider plugins={plugins}>
+                <CoreRouter />
+            </CoreContextProvider>
+        </ApolloProvider>
+    );
+};
+
+export default IndexApp;

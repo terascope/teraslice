@@ -9,6 +9,7 @@ import {
 
 const Authenticate: React.FC = ({ children }) => {
     const { updateAuth, authenticated } = useCoreContext();
+
     return (
         <VerifyAuthQuery
             query={AUTHENTICATE}
