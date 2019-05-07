@@ -19,7 +19,6 @@ export default async function getSchemaByRole(aclManager: ACLManager, user: User
     const types = createTypings(list);
     const myResolvers = createResolvers(list, logger, context);
 
-    // TODO: figure how to pass spaces constraints to ctx
     const schema = makeExecutableSchema({
         typeDefs: types,
         resolvers: myResolvers,
@@ -40,7 +39,7 @@ function createTypings(configs: DataAccessConfig[]) {
     // create query type
     results.push(
         ` type Query {
-                ${queryEndpoints.map((endpoint) => `${endpoint}(join: String, query: String, size: Int, from: Int, sort: String): [${endpoint}!]!`).join('\n    ')}
+                ${queryEndpoints.map((endpoint) => `${endpoint}(join: [String], query: String, size: Int, from: Int, sort: String): [${endpoint}!]!`).join('\n    ')}
             }
         `);
 

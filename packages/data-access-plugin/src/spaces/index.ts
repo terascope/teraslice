@@ -32,8 +32,6 @@ export default class SpacesPlugin {
             }),
             introspection: true,
         });
-
-        // FIXME: this is code smell
         // @ts-ignore
         this.server.pluginContext = pluginConfig.context;
         // @ts-ignore
