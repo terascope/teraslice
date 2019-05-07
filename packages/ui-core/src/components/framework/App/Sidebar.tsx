@@ -11,7 +11,7 @@ const Sidebar: React.FC = () => {
     const [sidebarOpen, setState] = useState(false);
     const toggleSidebar = () => setState(!sidebarOpen);
 
-    const toggleSidebarIcon = sidebarOpen ? 'right' : 'left';
+    const toggleSidebarIcon = !sidebarOpen ? 'right' : 'left';
 
     const SidebarMenuIcon: React.FC<{ icon: string, color?: string }> = ({ icon, color }) => {
         return <Icon

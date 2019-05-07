@@ -7,7 +7,7 @@ const Toolbar: React.FC<Props> = (props) => {
     const { numCols, numSelected, title, updateQueryState, removeRecords } = props;
     const [query, updateQuery] = useState(props.query || '');
 
-    const submitQuery = () => updateQueryState({ query: query || '' });
+    const submitQuery = () => updateQueryState({ query: query || '*' });
 
     return (
         <Table.Header fullWidth>

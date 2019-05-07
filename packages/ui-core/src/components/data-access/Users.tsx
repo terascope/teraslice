@@ -2,8 +2,16 @@ import React, { useState } from 'react';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import { get } from '@terascope/utils';
-import { DataTable, Loading, ErrorInfo, Page, RowMapping, QueryState } from '../core';
 import { ResolvedUser, } from '../../helpers';
+import {
+    DataTable,
+    Loading,
+    ErrorInfo,
+    Page,
+    RowMapping,
+    QueryState,
+    formatRegexQuery
+} from '../core';
 
 const rowMapping: RowMapping = {
     getId(data) { return data.id; },
@@ -26,8 +34,16 @@ const Users: React.FC = () => {
         setState({ ...state, ...queryState });
     };
 
+    const searchFields = ['firstname', 'lastname', 'username', 'email'];
+
+    const variables = state.query && state.query !== '*'
+        ? {
+            ...state,
+            query: formatRegexQuery(state.query || '', searchFields)
+        } : state;
+
     return (
-        <UsersQuery query={FIND_USERS} variables={state}>
+        <UsersQuery query={FIND_USERS} variables={variables}>
             {({ loading, error, data }) => {
                 if (loading) return <Loading />;
                 if (error) return <ErrorInfo error={error} />;

@@ -24,3 +24,9 @@ export function getSortDirection(field: string, sortBy: ParsedSort): 'ascending'
     if (sortBy.direction === 'desc') return 'descending';
     return none;
 }
+
+export function formatRegexQuery(query: string, searchFields: string[]) {
+    const fields = searchFields.map(field => `${field}.text`);
+    const fieldList = fields.map((val) => `${val}:/.*${query}.*/`);
+    return fieldList.join(' OR ');
+}

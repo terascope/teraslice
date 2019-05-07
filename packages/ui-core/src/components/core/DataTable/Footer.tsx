@@ -14,16 +14,18 @@ const Footer: React.FC<Props> = ({ total, size, from, numCols, updateQueryState 
         <Table.Footer fullWidth>
             <Table.Row>
                 <Table.HeaderCell colSpan={numCols}>
-                    <div style={{
-                        float: 'right'
-                    }}>
+                    <div style={{ float: 'left' }}>
+                        {total} results
+                    </div>
+                    <div style={{ float: 'right'  }}>
                         <Pagination
+                            disabled={total < size}
                             boundaryRange={0}
                             defaultActivePage={currentPage}
                             ellipsisItem={null}
                             firstItem={null}
                             lastItem={null}
-                            siblingRange={2}
+                            siblingRange={1}
                             onPageChange={(e: any, data: any) => {
                                 const { activePage = 1 } = data;
                                 const newFrom = (activePage - 1) * size;
