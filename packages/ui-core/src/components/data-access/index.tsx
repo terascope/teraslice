@@ -1,4 +1,16 @@
-import SidebarMenu from './SidebarMenu';
-import Routes from './Routes';
+import Users from './Users';
+import { PluginConfig } from '../core';
 
-export { SidebarMenu, Routes };
+const config: PluginConfig = {
+    name: 'Data Access',
+    routes: [
+        {
+            name: 'Users',
+            path: '/users/',
+            icon: 'users',
+            component: Users
+        }
+    ]
+};
+
+export default config;

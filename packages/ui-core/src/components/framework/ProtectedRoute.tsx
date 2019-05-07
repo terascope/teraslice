@@ -1,18 +1,12 @@
 import React from 'react';
 import { Route, Redirect } from 'react-router-dom';
-import { CoreContext } from './CoreContext';
+import { useCoreContext } from '../core';
 
-type Props = any;
+const ProtectedRoute: React.FC<any> = ({ component: Component, ...rest }) => {
+    const { authenticated } = useCoreContext();
 
-class ProtectedRoute extends React.Component<Props> {
-    static contextType = CoreContext;
-
-    render() {
-        const { component: Component, ...rest } = this.props;
-        const { authenticated } = this.context;
-
-        return (
-            <Route
+    return (
+        <Route
             {...rest}
             render={props =>
                 authenticated ? (
@@ -26,9 +20,8 @@ class ProtectedRoute extends React.Component<Props> {
                     />
                 )
             }
-            />
-        );
-    }
-}
+        />
+    );
+};
 
 export default ProtectedRoute;

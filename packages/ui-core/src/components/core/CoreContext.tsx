@@ -1,21 +1,31 @@
 import React, { createContext, useContext } from 'react';
+import { PluginConfig, PluginsProp } from './interfaces';
 
 export type CoreContextState = {
     authenticated: boolean;
+    plugins: PluginConfig[];
     updateAuth(authenticated: boolean): void;
 };
 
 export const CoreContext = createContext<CoreContextState>({
     authenticated: false,
+    plugins: [],
     updateAuth(authenticated: boolean) {}
 });
 
-type Props = {};
+type Props = {
+    plugins: PluginConfig[];
+};
+
 type State = {
     authenticated: boolean;
 };
 
 export class CoreContextProvider extends React.Component<Props, State> {
+    static propTypes = {
+        plugins: PluginsProp,
+    };
+
     state = {
         authenticated: false,
     };
@@ -27,11 +37,12 @@ export class CoreContextProvider extends React.Component<Props, State> {
     }
 
     render() {
-        const { children } = this.props;
+        const { children, plugins } = this.props;
 
         const value: CoreContextState = {
             authenticated: this.state.authenticated,
             updateAuth: this.updateAuth,
+            plugins,
         };
 
         return (
