@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Grid } from 'semantic-ui-react';
+import { Segment } from 'semantic-ui-react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import Footer from './Footer';
@@ -8,22 +8,17 @@ const App: React.FC = ({ children }) => {
     const [sidebarOpen, setState] = useState(false);
 
     const toggleSidebar = () => setState(!sidebarOpen);
+
     return (
-        <div>
-            <Navbar toggleSidebar={toggleSidebar} />
-            <Grid columns={2} divided>
-                <Grid.Row stretched>
-                    <Grid.Column width={2}>
-                        <Sidebar sidebarOpen={sidebarOpen} />
-                    </Grid.Column>
-                    <main>{children}</main>
-                </Grid.Row>
-                <Grid.Row centered>
-                    <Grid.Column width={16}>
-                        <Footer />
-                    </Grid.Column>
-                </Grid.Row>
-            </Grid>
+        <div className="appRoot">
+            <div className="sidebarWrapper">
+                <Sidebar sidebarOpen={sidebarOpen} />
+            </div>
+            <Segment secondary className="contentWrapper">
+                <Navbar toggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
+                <main>{children}</main>
+                <Footer />
+            </Segment>
         </div>
     );
 };

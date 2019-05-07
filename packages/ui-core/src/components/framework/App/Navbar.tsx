@@ -1,27 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { Icon, Menu, Dropdown } from 'semantic-ui-react';
 import { useCoreContext } from '../../core';
 import LogoutLink from './LogoutLink';
 
 type Props = {
-    sidebarOpen?: boolean;
+    sidebarOpen: boolean;
     toggleSidebar: () => void;
 };
 
 const Navbar: React.FC<Props> = ({ sidebarOpen, toggleSidebar }) => {
     const { authenticated } = useCoreContext();
 
-    const openSidebarIconName: any = classNames('chevron', {
-        right: sidebarOpen,
-        left: !sidebarOpen,
-    });
+    const toggleSidebarIcon = sidebarOpen ? 'right' : 'left';
 
     return (
         <Menu>
-            <Menu.Item onClick={toggleSidebar}>
-                <Icon name={openSidebarIconName} />
+            <Menu.Item as="a" onClick={toggleSidebar}>
+                <Icon name={`chevron ${toggleSidebarIcon}` as any} />
             </Menu.Item>
             <Menu.Item header>
                 Teraserver
@@ -38,7 +34,7 @@ const Navbar: React.FC<Props> = ({ sidebarOpen, toggleSidebar }) => {
 };
 
 Navbar.propTypes = {
-    sidebarOpen: PropTypes.bool,
+    sidebarOpen: PropTypes.bool.isRequired,
     toggleSidebar: PropTypes.func.isRequired,
 };
 
