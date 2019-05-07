@@ -6,10 +6,9 @@ import { parseSortBy, getSortDirection, formatSortBy } from './utils';
 
 const Header: React.FC<Props> = (props) => {
     const {
-        handleSelectAll,
+        toggleSelectAll,
         sort,
-        numSelected,
-        rowCount,
+        selectedAll,
         columnMapping,
         updateQueryState,
     } = props;
@@ -21,11 +20,8 @@ const Header: React.FC<Props> = (props) => {
             <Table.Row>
                 <Table.HeaderCell width={1} textAlign="center">
                     <Checkbox
-                        indeterminate={numSelected > 0 && numSelected < rowCount}
-                        checked={numSelected === rowCount}
-                        onChange={(event: any) => {
-                            handleSelectAll(event.target.checked);
-                        }}
+                        checked={selectedAll}
+                        onChange={toggleSelectAll}
                     />
                 </Table.HeaderCell>
                 {Object.entries(columnMapping).map(([field, col]) => (
@@ -52,18 +48,18 @@ const Header: React.FC<Props> = (props) => {
 type Props = {
     numSelected: number;
     updateQueryState: UpdateQueryState;
-    handleSelectAll: (checked: boolean) => void;
+    toggleSelectAll: () => void;
     sort: string;
-    rowCount: number;
+    selectedAll: boolean;
     columnMapping: ColumnMapping,
 };
 
 Header.propTypes = {
     numSelected: PropTypes.number.isRequired,
     updateQueryState: PropTypes.func.isRequired,
-    handleSelectAll: PropTypes.func.isRequired,
+    toggleSelectAll: PropTypes.func.isRequired,
     sort: PropTypes.string.isRequired,
-    rowCount: PropTypes.number.isRequired,
+    selectedAll: PropTypes.bool.isRequired,
     columnMapping: ColumnMappingProp.isRequired,
 };
 

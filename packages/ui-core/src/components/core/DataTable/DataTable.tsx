@@ -9,7 +9,15 @@ import Footer from './Footer';
 import * as i from './interfaces';
 
 const DataTable: React.FC<Props> = (props) => {
-    const { records, total, title, updateQueryState, removeRecords, rowMapping } = props;
+    const {
+        records,
+        total,
+        title,
+        updateQueryState,
+        removeRecords,
+        rowMapping
+    } = props;
+
     const queryState = {
         from: 0,
         size: 25,
@@ -41,6 +49,7 @@ const DataTable: React.FC<Props> = (props) => {
     };
 
     const numCols = Object.keys(rowMapping.columns).length + 1;
+    const selectedAll = total === selected.length;
 
     return (
         <div>
@@ -58,12 +67,17 @@ const DataTable: React.FC<Props> = (props) => {
                 <Header
                     numSelected={selected.length}
                     sort={queryState.sort}
-                    handleSelectAll={(checked) => {
-                        if (!checked) return setSelected([]);
-                        setSelected(times(total, () => '<all>'));
+                    toggleSelectAll={() => {
+                        if (selectedAll) return setSelected([]);
+
+                        const fillCount = total - records.length;
+                        setSelected([
+                            ...records.map((record) => rowMapping.getId(record)),
+                            ...times(fillCount, () => '<any>')
+                        ]);
                     }}
                     updateQueryState={updateQueryState}
-                    rowCount={records.length}
+                    selectedAll={selectedAll}
                     columnMapping={rowMapping.columns}
                 />
                 <Body
@@ -71,8 +85,6 @@ const DataTable: React.FC<Props> = (props) => {
                     records={records}
                     selectRecord={selectRecord}
                     selected={selected}
-                    size={queryState.size}
-                    from={queryState.from}
                     total={total}
                 />
                 <Footer
@@ -106,95 +118,5 @@ DataTable.propTypes = {
     rowMapping: i.RowMappingProp.isRequired,
     queryState: i.QueryStateProp
 };
-
-//     isSelected = (id: string) => this.state.selected.indexOf(id) !== -1;
-
-//     handleChangePage = (event: any, page: number) => {
-//         this.updateQueryState({ page });
-//     }
-
-//     handleChangeRowsPerPage = (event: any) => {
-//         this.updateQueryState({
-//             page: 0,
-//             rowsPerPage: event.target.value
-//         });
-//     }
-
-//     handleQueryChange = (query: string) => {
-//         this.updateQueryState({ query });
-//     }
-
-//     render() {
-//         const { classes, users, total, query, title } = this.props;
-
-//         return (
-//             <div className={classes.tableWrapper}>
-//                 <TableToolbar
-//                     title={title}
-//                     selected={selected}
-//                     query={query}
-//                     updateQuery={this.handleQueryChange}
-//                     removeRecords={() => {}}
-//                 />
-//                 <Table className={classes.table}>
-//                     <TableHeader
-//                         numSelected={selected.length}
-//                         order={order}
-//                         orderBy={orderBy}
-//                         handleSelectAll={this.handleSelectAllClick}
-//                         handleSort={this.handleSort}
-//                         rowCount={users.length}
-//                         rowDefs={rowDefs}
-//                     />
-//                     <TableBody>
-//                         {users.map(user => {
-//                             const isSelected = this.isSelected(user.id);
-//                             return (
-//                                 <TableRow
-//                                     hover
-//                                     onClick={(event: any) => this.handleClick(event, user.id)}
-//                                     role="checkbox"
-//                                     aria-checked={isSelected}
-//                                     tabIndex={-1}
-//                                     key={user.id}
-//                                     selected={isSelected}
-//                                 >
-//                                     <TableCell padding="checkbox">
-//                                         <Checkbox checked={isSelected} />
-//                                     </TableCell>
-//                                     <TableCell>{user.firstname}</TableCell>
-//                                     <TableCell>{user.lastname}</TableCell>
-//                                     <TableCell>{user.username}</TableCell>
-//                                     <TableCell>{get(user, 'role.name') || user.type}</TableCell>
-//                                     <TableCell>{user.created}</TableCell>
-//                                 </TableRow>
-//                             );
-//                         })}
-//                         {emptyRows > 0 && (
-//                             <TableRow style={{ height: 49 * emptyRows }}>
-//                                 <TableCell colSpan={rowDefs.length + 1} />
-//                             </TableRow>
-//                         )}
-//                     </TableBody>
-//                 </Table>
-//                 <TablePagination
-//                     component="div"
-//                     page={page}
-//                     count={total}
-//                     rowsPerPage={rowsPerPage}
-//                     rowsPerPageOptions={rowsPerPageOptions}
-//                     backIconButtonProps={{
-//                         'aria-label': 'Previous Page',
-//                     }}
-//                     nextIconButtonProps={{
-//                         'aria-label': 'Next Page',
-//                     }}
-//                     onChangePage={this.handleChangePage}
-//                     onChangeRowsPerPage={this.handleChangeRowsPerPage}
-//                 />
-//             </div>
-//         );
-//     }
-// }
 
 export default DataTable;

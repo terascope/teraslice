@@ -1,44 +1,47 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Menu, Input, Form, Icon, Table } from 'semantic-ui-react';
+import { Menu, Input, Icon, Table, Button, Label } from 'semantic-ui-react';
 import { UpdateQueryState } from './interfaces';
 
 const Toolbar: React.FC<Props> = (props) => {
     const { numCols, numSelected, title, updateQueryState, removeRecords } = props;
     const [query, updateQuery] = useState(props.query || '');
 
+    const submitQuery = () => updateQueryState({ query: query || '' });
+
     return (
         <Table.Header fullWidth>
             <Table.Row>
-                <Table.HeaderCell colSpan={numCols} style={{
-                    padding: '0',
-                }}>
-                    <Menu attached="top" compact borderless>
-                        {numSelected > 0 && (
-                            <Menu.Item header color={numSelected > 0 ? 'teal' : 'grey'}>
-                                {`${numSelected} selected`}
-                            </Menu.Item>
-                        )}
-                        <Menu.Menu position="right">
-                            <Menu.Item>
+                <Table.HeaderCell colSpan={numCols} style={{ padding: 0 }}>
+                    <Menu secondary size="small">
+                        <Menu.Item
+                            icon
+                            onClick={() => removeRecords()}
+                            disabled={!numSelected}
+                        >
+                            <Button as="div" labelPosition="right" disabled={!numSelected}>
+                                <Button icon color={numSelected > 0 ? 'red' : undefined}>
+                                    <Icon name="trash alternate" />
+                                </Button>
+                                {numSelected > 0 && (
+                                    <Label basic pointing="left">
+                                        {`Delete ${numSelected} selected`}
+                                    </Label>
+                                )}
+                            </Button>
+                        </Menu.Item>
+                        <Menu.Item position="right">
+                            <form onSubmit={submitQuery}>
                                 <Input
-                                    fluid
-                                    action={{ icon: 'search' }}
-                                    type="submit"
+                                    icon="search"
+                                    type="submit0"
                                     value={query === '*' ? '' : query}
                                     onChange={(e: any, { value }) => updateQuery(value)}
-                                    onClick={() => updateQueryState({ query: query || '' })}
+                                    onClick={submitQuery}
                                     placeholder={`Search ${title}...`}
                                 />
-                            </Menu.Item>
-                            <Menu.Item
-                                onClick={() => removeRecords()}
-                                disabled={!numSelected}
-                                name={`Delete ${!numSelected ? '(disabled)' : ''}`}
-                            >
-                                <Icon name="delete"></Icon>
-                            </Menu.Item>
-                        </Menu.Menu>
+                            </form>
+                        </Menu.Item>
                     </Menu>
                 </Table.HeaderCell>
             </Table.Row>

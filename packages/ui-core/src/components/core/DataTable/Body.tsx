@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { get, times } from '@terascope/utils';
+import { get } from '@terascope/utils';
 import { Table, Checkbox } from 'semantic-ui-react';
 import { RowMappingProp, RowMapping } from './interfaces';
 
@@ -8,14 +8,11 @@ const Body: React.FC<Props> = (props) => {
     const {
         records,
         selected,
-        size,
-        from,
         total,
         rowMapping,
         selectRecord
     } = props;
 
-    const emptyRows = size - Math.min(size, total - from);
     const columns = Object.entries(rowMapping.columns);
     const allSelected = selected.length === total;
 
@@ -45,14 +42,6 @@ const Body: React.FC<Props> = (props) => {
                     </Table.Row>
                 );
             })}
-            {emptyRows > 0 && (
-                <Table.Row>
-                    <Table.Cell collapsing width={1} />
-                    {times(columns.length, (n) => (
-                        <Table.Cell key={`empty-row-${n}`} />
-                    ))}
-                </Table.Row>
-            )}
         </Table.Body>
     );
 };
@@ -63,8 +52,6 @@ type Props = {
     selected: string[];
     selectRecord: (id: string) => void;
     total: number;
-    size: number;
-    from: number;
 };
 
 Body.propTypes = {
@@ -72,8 +59,6 @@ Body.propTypes = {
     records: PropTypes.array.isRequired,
     selected: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
     total: PropTypes.number.isRequired,
-    size: PropTypes.number.isRequired,
-    from: PropTypes.number.isRequired,
     rowMapping: RowMappingProp.isRequired,
 };
 

@@ -32,6 +32,7 @@ const Footer: React.FC<Props> = ({ total, size, from, numCols, updateQueryState 
                                 });
                             }}
                             totalPages={totalPages}
+                            size="small"
                         />
                     </div>
                 </Table.HeaderCell>
