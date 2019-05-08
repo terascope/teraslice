@@ -1,62 +1,94 @@
 import React, { useState } from 'react';
-import classNames from 'classnames';
 import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 import { Menu, Icon } from 'semantic-ui-react';
 import { formatPath } from '../../../helpers';
 import { useCoreContext } from '../../core';
 
+const SidebarLink = styled(Link)`
+    color: rgba(0, 0, 0, 0.87);
+    font-size: 1.1em;
+`;
+
+const SidebarIcon = styled(Icon)`
+    color: #4183C4;
+    font-size: 1.2em;
+`;
+
+const FullIcon = styled(SidebarIcon)`
+    padding-right: 2.1rem;
+`;
+
+const MinimalIcon = styled(SidebarIcon)`
+    padding-right: 0;
+`;
+
+const SidebarMenuIcon: React.FC<any> = ({ icon, color, open }) => {
+    const props = {
+        name: icon as any,
+        color: color as any,
+        fitted: true,
+        size: 'large'
+    };
+
+    if (open) {
+        return <FullIcon {...props} />;
+    }
+    return <MinimalIcon {...props} />;
+};
+
+const PluginHeader = styled(Menu.Header)`
+    padding: 0.8rem 0.5rem !important;
+    margin-bottom: 0 !important;
+`;
+
+const SidebarToggle = styled.a`
+    display: flex !important;
+    flex-direction: column;
+    align-items: flex-end;
+`;
+
+const SidebarMenu = styled(Menu)`
+    ${props => props.open ? '' : 'width: 4rem !important;'};
+`;
+
 const Sidebar: React.FC = () => {
     const { authenticated, plugins } = useCoreContext();
 
-    const [sidebarOpen, setState] = useState(false);
-    const toggleSidebar = () => setState(!sidebarOpen);
+    const [open, setState] = useState(false);
+    const toggleSidebar = () => setState(!open);
 
-    const toggleSidebarIcon = !sidebarOpen ? 'right' : 'left';
-
-    const SidebarMenuIcon: React.FC<{ icon: string, color?: string }> = ({ icon, color }) => {
-        return <Icon
-            name={icon as any}
-            color={color as any}
-            fitted
-            size="large"
-            className={classNames({
-                sidebarMenuIcon: !!sidebarOpen,
-                minimalSidebarIcon: !sidebarOpen
-            })}
-        />;
-    };
+    const toggleSidebarIcon = !open ? 'right' : 'left';
 
     return (
-        <Menu vertical className={classNames({
-            minimalSidebar: !sidebarOpen
-        })}>
-            <Menu.Item as="a" onClick={toggleSidebar} className="sidebarToggle">
-                <SidebarMenuIcon icon={`chevron ${toggleSidebarIcon}`} color="grey" />
+        <SidebarMenu open={open} vertical>
+            <Menu.Item as={SidebarToggle} onClick={toggleSidebar}>
+                <SidebarMenuIcon icon={`chevron ${toggleSidebarIcon}`} color="grey" open={open} />
             </Menu.Item>
             <Menu.Item>
-                <Link to="/">
-                    <SidebarMenuIcon icon="home" />
-                    {sidebarOpen && 'Home'}
-                </Link>
+                <SidebarLink to="/">
+                    <SidebarMenuIcon icon="home" open={open} />
+                    {open && 'Home'}
+                </SidebarLink>
             </Menu.Item>
             {authenticated && plugins.map((plugin, pi) => (
                 <Menu.Item key={`plugin-menu-${pi}`} header fitted>
-                    {sidebarOpen && (
-                        <Menu.Header className="ui small grey sidebarPluginHeader">
+                    {open && (
+                        <PluginHeader className="ui small grey">
                             {plugin.name}
-                        </Menu.Header>
+                        </PluginHeader>
                     )}
                     {plugin.routes.map((route, ri) => (
                         <Menu.Item key={`plugin-menu-${pi}-route-${ri}`}>
-                            <Link to={formatPath(plugin.basepath, route.path)}>
-                                <SidebarMenuIcon icon={route.icon} />
-                                {sidebarOpen && route.name}
-                            </Link>
+                            <SidebarLink to={formatPath(plugin.basepath, route.path)}>
+                                <SidebarMenuIcon icon={route.icon} open={open} />
+                                {open && route.name}
+                            </SidebarLink>
                         </Menu.Item>
                     ))}
                 </Menu.Item>
             ))}
-        </Menu>
+        </SidebarMenu>
     );
 };
 

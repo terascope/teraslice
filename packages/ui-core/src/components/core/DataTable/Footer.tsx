@@ -1,7 +1,30 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import { Table, Pagination } from 'semantic-ui-react';
 import { UpdateQueryState } from './interfaces';
+
+const FooterCell = styled.div`
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+`;
+
+const FooterResultCount = styled.div`
+    text-align: center;
+`;
+
+const TableFooter: React.FC<{ numCols: number }> = ({ numCols, children }) => {
+    return (
+        <Table.Footer fullWidth>
+            <Table.Row>
+                <Table.HeaderCell colSpan={numCols}>
+                    {children}
+                </Table.HeaderCell>
+            </Table.Row>
+        </Table.Footer>
+    );
+};
 
 const Footer: React.FC<Props> = ({ total, size, from, numCols, updateQueryState }) => {
     const totalPages = Math.ceil(total / size);
@@ -11,35 +34,29 @@ const Footer: React.FC<Props> = ({ total, size, from, numCols, updateQueryState 
     // const rowsPerPageOptions = utils.uniqIntArray([1, 5, 10, 25, queryState.size]);
 
     return (
-        <Table.Footer fullWidth>
-            <Table.Row>
-                <Table.HeaderCell colSpan={numCols}>
-                    <div style={{ float: 'left' }}>
-                        {total} results
-                    </div>
-                    <div style={{ float: 'right'  }}>
-                        <Pagination
-                            disabled={total < size}
-                            boundaryRange={0}
-                            defaultActivePage={currentPage}
-                            ellipsisItem={null}
-                            firstItem={null}
-                            lastItem={null}
-                            siblingRange={1}
-                            onPageChange={(e: any, data: any) => {
-                                const { activePage = 1 } = data;
-                                const newFrom = (activePage - 1) * size;
-                                updateQueryState({
-                                    from: newFrom,
-                                });
-                            }}
-                            totalPages={totalPages}
-                            size="small"
-                        />
-                    </div>
-                </Table.HeaderCell>
-            </Table.Row>
-        </Table.Footer>
+        <TableFooter numCols={numCols}>
+            <FooterCell>
+                <FooterResultCount>{total} results</FooterResultCount>
+                <Pagination
+                    disabled={total < size}
+                    boundaryRange={0}
+                    defaultActivePage={currentPage}
+                    ellipsisItem={null}
+                    firstItem={null}
+                    lastItem={null}
+                    siblingRange={1}
+                    onPageChange={(e: any, data: any) => {
+                        const { activePage = 1 } = data;
+                        const newFrom = (activePage - 1) * size;
+                        updateQueryState({
+                            from: newFrom,
+                        });
+                    }}
+                    totalPages={totalPages}
+                    size="small"
+                />
+            </FooterCell>
+        </TableFooter>
     );
 };
 

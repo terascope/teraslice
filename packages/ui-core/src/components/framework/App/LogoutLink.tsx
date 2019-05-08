@@ -1,11 +1,15 @@
 import React from 'react';
+import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { Button, Icon } from 'semantic-ui-react';
 
+const StyledLink = styled(Link)`
+    box-shadow: none;
+`;
+
 const LogoutLink: React.FC = () => {
-    const style = { boxShadow: 'none' };
     return (
-        <Button basic as={Link} to="/logout" style={style}>
+        <Button basic as={StyledLink} to="/logout">
             <Icon name="sign out" />
             Logout
         </Button>
