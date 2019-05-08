@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { times } from '@terascope/utils';
-import { Table } from 'semantic-ui-react';
+import { Table, Segment } from 'semantic-ui-react';
 import Header from './Header';
 import Toolbar from './Toolbar';
 import Body from './Body';
@@ -13,6 +13,7 @@ const DataTable: React.FC<Props> = (props) => {
         records,
         total,
         title,
+        loading,
         updateQueryState,
         removeRecords,
         rowMapping
@@ -52,7 +53,7 @@ const DataTable: React.FC<Props> = (props) => {
     const selectedAll = total === selected.length;
 
     return (
-        <div>
+        <Segment loading={loading}>
             <Table sortable celled compact definition>
                 <Toolbar
                     title={title}
@@ -95,7 +96,7 @@ const DataTable: React.FC<Props> = (props) => {
                     updateQueryState={updateQueryState}
                 />
             </Table>
-        </div>
+        </Segment>
     );
 };
 
@@ -104,8 +105,9 @@ type Props = {
     records: any[];
     updateQueryState: i.UpdateQueryState;
     removeRecords: (ids: string[]) => void;
-    total: number;
     title: string;
+    total: number;
+    loading?: boolean;
     queryState?: i.QueryState;
 };
 
@@ -114,6 +116,7 @@ DataTable.propTypes = {
     records: PropTypes.array.isRequired,
     title: PropTypes.string.isRequired,
     total: PropTypes.number.isRequired,
+    loading: PropTypes.bool,
     removeRecords: PropTypes.func.isRequired,
     rowMapping: i.RowMappingProp.isRequired,
     queryState: i.QueryStateProp

@@ -5,7 +5,6 @@ import { get } from '@terascope/utils';
 import { ResolvedUser, } from '../../helpers';
 import {
     DataTable,
-    Loading,
     ErrorInfo,
     Page,
     RowMapping,
@@ -45,9 +44,10 @@ const Users: React.FC = () => {
     return (
         <UsersQuery query={FIND_USERS} variables={variables}>
             {({ loading, error, data }) => {
-                if (loading) return <Loading />;
                 if (error) return <ErrorInfo error={error} />;
-                if (!data) return <ErrorInfo error="Unexpected Error" />;
+                if (!data && !loading) return <ErrorInfo error="Unexpected Error" />;
+                const records = (data && data.users) || [];
+                const total = (data && data.usersCount) || 0;
 
                 return (
                     <Page title="Users">
@@ -55,8 +55,9 @@ const Users: React.FC = () => {
                             rowMapping={rowMapping}
                             title="Users"
                             removeRecords={() => {}}
-                            records={data.users}
-                            total={data.usersCount}
+                            loading={loading}
+                            records={records}
+                            total={total}
                             queryState={state}
                             updateQueryState={updateQueryState}
                         />

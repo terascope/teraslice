@@ -12,13 +12,17 @@ const FooterCell = styled.div`
 
 const FooterResultCount = styled.div`
     text-align: center;
+    font-size: 1rem;
+    align-self: center;
+    padding-left: 1rem;
 `;
 
 const TableFooter: React.FC<{ numCols: number }> = ({ numCols, children }) => {
     return (
         <Table.Footer fullWidth>
             <Table.Row>
-                <Table.HeaderCell colSpan={numCols}>
+                <Table.HeaderCell />
+                <Table.HeaderCell colSpan={numCols - 1}>
                     {children}
                 </Table.HeaderCell>
             </Table.Row>
@@ -36,7 +40,7 @@ const Footer: React.FC<Props> = ({ total, size, from, numCols, updateQueryState 
     return (
         <TableFooter numCols={numCols}>
             <FooterCell>
-                <FooterResultCount>{total} results</FooterResultCount>
+                <FooterResultCount>Found {total} results</FooterResultCount>
                 <Pagination
                     disabled={total < size}
                     boundaryRange={0}
