@@ -13,6 +13,7 @@ const Routes: React.FC = () => {
                     key={`route-${pi}-${ri}`}
                     path={formatPath(plugin.basepath, route.path)}
                     component={route.component}
+                    exact
                 />
             )))}
         </div>

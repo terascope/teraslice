@@ -9,7 +9,8 @@ import {
     Page,
     RowMapping,
     QueryState,
-    formatRegexQuery
+    formatRegexQuery,
+    PageAction
 } from '../core';
 
 const rowMapping: RowMapping = {
@@ -23,6 +24,8 @@ const rowMapping: RowMapping = {
     }
 };
 
+const searchFields = ['firstname', 'lastname', 'username', 'email'];
+
 const ListUsers: React.FC = () => {
     const [state, setState] = useState<QueryState>({
         query: '*',
@@ -33,7 +36,13 @@ const ListUsers: React.FC = () => {
         setState({ ...state, ...queryState });
     };
 
-    const searchFields = ['firstname', 'lastname', 'username', 'email'];
+    const actions: PageAction[] = [
+        {
+            label: 'Create user',
+            icon: 'plus',
+            to: '/users/create'
+        }
+    ];
 
     const variables = state.query && state.query !== '*'
         ? {
@@ -50,7 +59,7 @@ const ListUsers: React.FC = () => {
                 const total = (data && data.usersCount) || 0;
 
                 return (
-                    <Page title="Users">
+                    <Page title="Users" actions={actions}>
                         <DataTable
                             rowMapping={rowMapping}
                             title="Users"

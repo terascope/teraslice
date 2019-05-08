@@ -1,5 +1,6 @@
-import ListUsers from './ListUsers';
 import { PluginConfig } from '../core';
+import CreateUser from './CreateUser';
+import ListUsers from './ListUsers';
 
 const config: PluginConfig = {
     name: 'Data Access',
@@ -9,6 +10,13 @@ const config: PluginConfig = {
             path: '/users/',
             icon: 'users',
             component: ListUsers
+        },
+        {
+            name: 'Create User',
+            path: '/users/create',
+            icon: 'plus',
+            hidden: true,
+            component: CreateUser
         }
     ]
 };

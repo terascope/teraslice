@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { History } from 'history';
 import styled from 'styled-components';
+import { withRouter } from 'react-router-dom';
 import { Menu, Icon } from 'semantic-ui-react';
 import { formatPath } from '../../../helpers';
-import { useCoreContext } from '../../core';
-
-const SidebarLink = styled(Link)`
-    color: rgba(0, 0, 0, 0.87);
-    font-size: 1.1em;
-`;
+import {
+    useCoreContext,
+    PluginConfig,
+} from '../../core';
 
 const SidebarIcon = styled(Icon)`
-    color: #4183C4;
-    font-size: 1.2em;
+    font-size: 1.6em !important;
 `;
 
 const FullIcon = styled(SidebarIcon)`
@@ -23,12 +21,36 @@ const MinimalIcon = styled(SidebarIcon)`
     padding-right: 0;
 `;
 
+const SidebarToggle = styled.a`
+    display: flex !important;
+    flex-direction: column;
+    align-items: flex-end;
+    min-height: 3.9rem !important;
+    justify-content: center;
+`;
+
+const SidebarMenu = styled(Menu)`
+    ${props => props.open ? '' : 'width: 4rem !important;'};
+    display: flex !important;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+`;
+
+const ItemName = styled.div`
+    padding-top: 0.3rem;
+    font-weight: 600;
+`;
+
+const MenuItem = styled(Menu.Item)`
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+`;
+
 const SidebarMenuIcon: React.FC<any> = ({ icon, color, open }) => {
     const props = {
         name: icon as any,
         color: color as any,
-        fitted: true,
-        size: 'large'
     };
 
     if (open) {
@@ -37,22 +59,40 @@ const SidebarMenuIcon: React.FC<any> = ({ icon, color, open }) => {
     return <MinimalIcon {...props} />;
 };
 
-const PluginHeader = styled(Menu.Header)`
-    padding: 0.8rem 0.5rem !important;
-    margin-bottom: 0 !important;
-`;
+const makePluginLinks = (plugins: PluginConfig[], history: History, open: boolean) => {
+    const links: any[] = [];
+    plugins.forEach((plugin, pi) => {
+        if (open && plugin.name) {
+            links.push((
+                <Menu.Item key={`plugin-${pi}`}>
+                    {plugin.name}
+                </Menu.Item>
+            ));
+        }
+        plugin.routes.forEach((route, ri) => {
+            if (route.hidden) return;
+            links.push(
+                <MenuItem
+                    key={`route-${ri}`}
+                    name={route.name}
+                    icon={!open}
+                    onClick={() => {
+                        const path = formatPath(plugin.basepath, route.path);
+                        history.push(path);
+                    }}
+                >
+                    <SidebarMenuIcon icon={route.icon} open={open} />
+                    {open && (
+                        <ItemName>{route.name}</ItemName>
+                    )}
+                </MenuItem>
+            );
+        });
+    });
 
-const SidebarToggle = styled.a`
-    display: flex !important;
-    flex-direction: column;
-    align-items: flex-end;
-`;
-
-const SidebarMenu = styled(Menu)`
-    ${props => props.open ? '' : 'width: 4rem !important;'};
-`;
-
-const Sidebar: React.FC = () => {
+    return links;
+};
+const Sidebar: React.FC<any> = ({ history }) => {
     const { authenticated, plugins } = useCoreContext();
 
     const [open, setState] = useState(false);
@@ -65,31 +105,16 @@ const Sidebar: React.FC = () => {
             <Menu.Item as={SidebarToggle} onClick={toggleSidebar}>
                 <SidebarMenuIcon icon={`chevron ${toggleSidebarIcon}`} color="grey" open={open} />
             </Menu.Item>
-            <Menu.Item>
-                <SidebarLink to="/">
-                    <SidebarMenuIcon icon="home" open={open} />
-                    {open && 'Home'}
-                </SidebarLink>
-            </Menu.Item>
-            {authenticated && plugins.map((plugin, pi) => (
-                <Menu.Item key={`plugin-menu-${pi}`} header fitted>
-                    {open && (
-                        <PluginHeader className="ui small grey">
-                            {plugin.name}
-                        </PluginHeader>
-                    )}
-                    {plugin.routes.map((route, ri) => (
-                        <Menu.Item key={`plugin-menu-${pi}-route-${ri}`}>
-                            <SidebarLink to={formatPath(plugin.basepath, route.path)}>
-                                <SidebarMenuIcon icon={route.icon} open={open} />
-                                {open && route.name}
-                            </SidebarLink>
-                        </Menu.Item>
-                    ))}
-                </Menu.Item>
-            ))}
+            <MenuItem
+                icon={!open}
+                onClick={() => history.push('/')}
+            >
+                <SidebarMenuIcon icon="home" open={open} />
+                {open && <ItemName>Home</ItemName>}
+            </MenuItem>
+            {authenticated && makePluginLinks(plugins, history, open)}
         </SidebarMenu>
     );
 };
 
-export default Sidebar;
+export default  withRouter(Sidebar);

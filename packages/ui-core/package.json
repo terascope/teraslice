@@ -30,7 +30,6 @@
     "dependencies": {
         "@terascope/utils": "^0.10.1",
         "apollo-boost": "^0.3.1",
-        "express": "^4.16.4",
         "prop-types": "^15.7.2",
         "react": "^16.8.6",
         "react-apollo": "^2.5.5",
@@ -49,6 +48,8 @@
         "@types/styled-components": "^4.1.14",
         "cpy-cli": "^2.0.0",
         "craco-less": "^1.7.0",
+        "express": "^4.16.4",
+        "history": "^4.9.0",
         "react-scripts": "3.0.1",
         "semantic-ui-less": "^2.4.1",
         "typescript": "3.4.5"
