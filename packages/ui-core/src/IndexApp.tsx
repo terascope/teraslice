@@ -3,6 +3,7 @@ import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from 'react-apollo';
 import { CoreContextProvider } from './components/core';
 import DataAccessPlugin from './components/data-access';
+import { Welcome } from './components/framework';
 import CoreRouter from './IndexRouter';
 
 const { REACT_APP_DEV_MODE } = process.env;
@@ -16,7 +17,20 @@ const IndexApp: React.FC = () => {
         credentials: 'include',
     });
 
-    const plugins = [DataAccessPlugin];
+    const plugins = [
+        {
+            name: '',
+            routes: [
+                {
+                    name: 'Home',
+                    path: '/',
+                    icon: 'home',
+                    component: Welcome
+                },
+            ]
+        },
+        DataAccessPlugin
+    ];
 
     return (
         <ApolloProvider client={client}>

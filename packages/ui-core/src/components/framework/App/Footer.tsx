@@ -1,12 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
 import { Segment } from 'semantic-ui-react';
-
-const FooterContent = styled.footer`
-    align-self: flex-end;
-    width: 100%;
-    flex: 1;
-`;
+import { FooterContent } from './styled';
 
 const Footer: React.FC = () => {
     return (

@@ -1,19 +1,12 @@
 import React from 'react';
-import styled from 'styled-components';
-import { Link } from 'react-router-dom';
 import { Button, Icon } from 'semantic-ui-react';
+import { BasicLink } from './styled';
 
-const StyledLink = styled(Link)`
-    box-shadow: none;
-`;
-
-const LogoutLink: React.FC = () => {
-    return (
-        <Button basic as={StyledLink} to="/logout">
-            <Icon name="sign out" />
-            Logout
-        </Button>
-    );
-};
+const LogoutLink: React.FC = () => (
+    <Button basic as={BasicLink} to="/logout">
+        <Icon name="sign out" />
+        Logout
+    </Button>
+);
 
 export default LogoutLink;

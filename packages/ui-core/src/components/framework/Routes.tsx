@@ -1,7 +1,7 @@
 import React from 'react';
-import { Route } from 'react-router-dom';
 import { useCoreContext } from '../core';
 import { formatPath } from '../../helpers';
+import ProtectedRoute from './ProtectedRoute';
 
 const Routes: React.FC = () => {
     const { plugins } = useCoreContext();
@@ -9,7 +9,7 @@ const Routes: React.FC = () => {
     return (
         <div>
             {plugins.map((plugin, pi) => plugin.routes.map((route, ri) => (
-                <Route
+                <ProtectedRoute
                     key={`route-${pi}-${ri}`}
                     path={formatPath(plugin.basepath, route.path)}
                     component={route.component}

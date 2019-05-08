@@ -11,7 +11,6 @@ const IndexRouter: React.FC = () => {
         <Router basename={baseUri}>
             <framework.App>
                 <framework.Authenticate>
-                    <framework.ProtectedRoute path="/" component={framework.Welcome} exact />
                     <Route path="/logout" exact component={framework.Logout} />
                     <Route path="/login" exact component={framework.Login} />
                     <framework.Routes />

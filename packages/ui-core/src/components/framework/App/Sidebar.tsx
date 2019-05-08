@@ -1,51 +1,10 @@
 import React, { useState } from 'react';
 import { History } from 'history';
-import styled from 'styled-components';
+import { Menu } from 'semantic-ui-react';
 import { withRouter } from 'react-router-dom';
-import { Menu, Icon } from 'semantic-ui-react';
+import { useCoreContext, PluginConfig } from '../../core';
 import { formatPath } from '../../../helpers';
-import {
-    useCoreContext,
-    PluginConfig,
-} from '../../core';
-
-const SidebarIcon = styled(Icon)`
-    font-size: 1.6em !important;
-`;
-
-const FullIcon = styled(SidebarIcon)`
-    padding-right: 2.1rem;
-`;
-
-const MinimalIcon = styled(SidebarIcon)`
-    padding-right: 0;
-`;
-
-const SidebarToggle = styled.a`
-    display: flex !important;
-    flex-direction: column;
-    align-items: flex-end;
-    min-height: 3.9rem !important;
-    justify-content: center;
-`;
-
-const SidebarMenu = styled(Menu)`
-    ${props => props.open ? '' : 'width: 4rem !important;'};
-    display: flex !important;
-    flex-flow: column nowrap;
-    justify-content: flex-start;
-`;
-
-const ItemName = styled.div`
-    padding-top: 0.3rem;
-    font-weight: 600;
-`;
-
-const MenuItem = styled(Menu.Item)`
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: space-between;
-`;
+import * as s from './styled';
 
 const SidebarMenuIcon: React.FC<any> = ({ icon, color, open }) => {
     const props = {
@@ -53,11 +12,18 @@ const SidebarMenuIcon: React.FC<any> = ({ icon, color, open }) => {
         color: color as any,
     };
 
-    if (open) {
-        return <FullIcon {...props} />;
-    }
-    return <MinimalIcon {...props} />;
+    if (open) return <s.SidebarOpenedIcon {...props} />;
+
+    return <s.SidebarClosedIcon {...props} />;
 };
+
+const SidebarToggleIcon: React.FC<{ open: boolean }> = ({ open }) => (
+    <SidebarMenuIcon
+        icon={`chevron ${!open ? 'right' : 'left'}`}
+        color="grey"
+        open={open}
+    />
+);
 
 const makePluginLinks = (plugins: PluginConfig[], history: History, open: boolean) => {
     const links: any[] = [];
@@ -72,7 +38,7 @@ const makePluginLinks = (plugins: PluginConfig[], history: History, open: boolea
         plugin.routes.forEach((route, ri) => {
             if (route.hidden) return;
             links.push(
-                <MenuItem
+                <s.SidebarMenuItem
                     key={`route-${ri}`}
                     name={route.name}
                     icon={!open}
@@ -83,37 +49,28 @@ const makePluginLinks = (plugins: PluginConfig[], history: History, open: boolea
                 >
                     <SidebarMenuIcon icon={route.icon} open={open} />
                     {open && (
-                        <ItemName>{route.name}</ItemName>
+                        <s.SidebarItemName>{route.name}</s.SidebarItemName>
                     )}
-                </MenuItem>
+                </s.SidebarMenuItem>
             );
         });
     });
 
     return links;
 };
+
 const Sidebar: React.FC<any> = ({ history }) => {
     const { authenticated, plugins } = useCoreContext();
 
     const [open, setState] = useState(false);
-    const toggleSidebar = () => setState(!open);
-
-    const toggleSidebarIcon = !open ? 'right' : 'left';
 
     return (
-        <SidebarMenu open={open} vertical>
-            <Menu.Item as={SidebarToggle} onClick={toggleSidebar}>
-                <SidebarMenuIcon icon={`chevron ${toggleSidebarIcon}`} color="grey" open={open} />
-            </Menu.Item>
-            <MenuItem
-                icon={!open}
-                onClick={() => history.push('/')}
-            >
-                <SidebarMenuIcon icon="home" open={open} />
-                {open && <ItemName>Home</ItemName>}
-            </MenuItem>
+        <s.SidebarMenu open={open} vertical>
+            <s.SidebarToggle onClick={() => setState(!open)}>
+                <SidebarToggleIcon open={open} />
+            </s.SidebarToggle>
             {authenticated && makePluginLinks(plugins, history, open)}
-        </SidebarMenu>
+        </s.SidebarMenu>
     );
 };
 
