@@ -1,4 +1,4 @@
-import Users from './Users';
+import ListUsers from './ListUsers';
 import { PluginConfig } from '../core';
 
 const config: PluginConfig = {
@@ -8,7 +8,7 @@ const config: PluginConfig = {
             name: 'Users',
             path: '/users/',
             icon: 'users',
-            component: Users
+            component: ListUsers
         }
     ]
 };

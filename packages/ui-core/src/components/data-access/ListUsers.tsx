@@ -23,7 +23,7 @@ const rowMapping: RowMapping = {
     }
 };
 
-const Users: React.FC = () => {
+const ListUsers: React.FC = () => {
     const [state, setState] = useState<QueryState>({
         query: '*',
         size: 2
@@ -68,7 +68,7 @@ const Users: React.FC = () => {
     );
 };
 
-export default Users;
+export default ListUsers;
 
 // Query
 const FIND_USERS = gql`
