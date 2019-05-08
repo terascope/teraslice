@@ -39,7 +39,7 @@ const makePluginLinks = (plugins: PluginConfig[], history: History, open: boolea
             if (route.hidden) return;
             links.push(
                 <s.SidebarMenuItem
-                    key={`route-${ri}`}
+                    key={`plugin-${pi}-route-${ri}`}
                     name={route.name}
                     icon={!open}
                     onClick={() => {
