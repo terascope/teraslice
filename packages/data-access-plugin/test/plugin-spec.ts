@@ -1363,7 +1363,7 @@ describe('Data Access Plugin', () => {
                 await fullRoleClient.request(query);
             } catch (err) {
                 const { response: { status, errors: [{ message }] } } = err;
-                expect(message).toEqual('a query must be provided for the root query');
+                expect(message).toEqual('Invalid request, expected query to nested');
                 expect(status).toEqual(200);
             }
         });
@@ -1617,7 +1617,7 @@ describe('Data Access Plugin', () => {
                 await fullRoleClient.request(query);
             } catch (err) {
                 const { response: { status, errors: [{ message }] } } = err;
-                expect(message).toEqual('a join must be provided when querying a space against another space');
+                expect(message).toEqual('Invalid query, expected join when querying against another space');
                 expect(status).toEqual(200);
             }
         });
