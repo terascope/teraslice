@@ -35,7 +35,7 @@
         "react-apollo": "^2.5.5",
         "react-dom": "^16.8.6",
         "react-router-dom": "^5.0.0",
-        "semantic-ui-react": "^0.87.0",
+        "semantic-ui-react": "^0.87.1",
         "styled-components": "^4.2.0"
     },
     "devDependencies": {

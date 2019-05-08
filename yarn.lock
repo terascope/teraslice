@@ -14601,10 +14601,10 @@ semantic-ui-less@^2.4.1:
   dependencies:
     jquery x.*
 
-semantic-ui-react@^0.87.0:
-  version "0.87.0"
-  resolved "https://registry.yarnpkg.com/semantic-ui-react/-/semantic-ui-react-0.87.0.tgz#cf532e31f21ce791454a7989f7c897cc361a677e"
-  integrity sha512-ZhIEPjOug+md+QuNsfy1xzRqoeZDop5/2XSMgQhlhM2jn1WSeFD62E82LkHtjnhaLHKQ2k6mfnDgVs/VF7MCWg==
+semantic-ui-react@^0.87.1:
+  version "0.87.1"
+  resolved "https://registry.yarnpkg.com/semantic-ui-react/-/semantic-ui-react-0.87.1.tgz#249cca258fe05ee0a7095d8be0b3a749f34a1837"
+  integrity sha512-eHSuYEJWYz9EEiM4r0b/Q2t/RPvQC/xMU5ucrsdk1TZHqEzLkyMzSBdVnXhhqHwUaHA2kt9NRxDaRUmLlGx4wg==
   dependencies:
     "@babel/runtime" "^7.1.2"
     "@semantic-ui-react/event-stack" "^3.1.0"
