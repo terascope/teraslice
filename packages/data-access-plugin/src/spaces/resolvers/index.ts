@@ -67,17 +67,17 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
         };
         const queryAccess = new QueryAccess(accessData, logger);
 
-        endpoints[view.endpoint] = async function resolverFn(root: any, args: any, ctx: any, info: GraphQLResolveInfo) {
+        endpoints[view.space_endpoint] = async function resolverFn(root: any, args: any, ctx: any, info: GraphQLResolveInfo) {
             const _sourceInclude = getSelectionKeys(info);
             const { size, sort, from, join } = args;
             const queryParams = { index: view.search_config!.index, from, sort, size, _sourceInclude };
             let { query: q } = args;
 
-            if (root == null && q == null) throw new UserInputError('a query must be provided for the root query');
-            if (root && join == null) throw new UserInputError('a join must be provided when querying a space against another space');
+            if (root == null && q == null) throw new UserInputError('Invalid request, expected query to nested');
+            if (root && join == null) throw new UserInputError('Invalid query, expected join when querying against another space');
 
             if (join) {
-                if (!Array.isArray(join)) throw new UserInputError('a join must be an array of values');
+                if (!Array.isArray(join)) throw new UserInputError('Invalid join, must be an array of values');
                 join.forEach((field) => {
                     const [orig, target] = field.split(':') || [field, field];
                     const selector = target || orig; // In case there's no colon in field.

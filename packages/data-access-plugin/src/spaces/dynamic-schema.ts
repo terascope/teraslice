@@ -1,17 +1,15 @@
 
 import Usertype from './types/user';
 import { createResolvers } from './resolvers';
-import { makeExecutableSchema } from 'apollo-server-express';
+import { makeExecutableSchema, ForbiddenError } from 'apollo-server-express';
 import { ACLManager, User, DataAccessConfig } from '@terascope/data-access';
 import { Context } from '@terascope/job-components';
-
-import _ from 'lodash';
 import * as ts from '@terascope/utils';
 import allTypeMappings from './typeMappings';
 
-// TODO: check for roleId undefined
 // TODO: respect prevent_prefix_wildcard
 export default async function getSchemaByRole(aclManager: ACLManager, user: User, logger: ts.Logger, context: Context) {
+    if (user.role == null) throw new ForbiddenError(`user: ${user.id} does not have a role specified`);
     const query = `roles: ${user.role}`;
     const spaces = await aclManager.findSpaces({ query }, false);
     const fetchViews = spaces.map(space => aclManager.getViewForSpace({ space: space.id }, user));
@@ -30,11 +28,11 @@ export default async function getSchemaByRole(aclManager: ACLManager, user: User
 
 function createTypings(configs: DataAccessConfig[]) {
     const results: string[] = ['scalar JSON', 'scalar DateTime', Usertype];
-    const queryEndpoints: string[] = configs.map(config => config.endpoint);
+    const queryEndpoints: string[] = configs.map(config => config.space_endpoint);
     // create individual types
     configs.forEach((config) => {
-        const otherEndpoints = queryEndpoints.filter(endpoint => endpoint !== config.endpoint);
-        results.push(`type ${config.endpoint} { ${collectAllowedFields(config, otherEndpoints)} }`);
+        const otherEndpoints = queryEndpoints.filter(endpoint => endpoint !== config.space_endpoint);
+        results.push(`type ${config.space_endpoint} { ${collectAllowedFields(config, otherEndpoints)} }`);
     });
     // create query type
     results.push(
@@ -46,13 +44,20 @@ function createTypings(configs: DataAccessConfig[]) {
     return results;
 }
 
+function pick(obj: object = {}, keys: string[]) {
+    const results = {};
+    keys.forEach((key) => {
+        if (obj[key] !== null) results[key] = obj[key];
+    });
+    return results;
+}
+
 function collectAllowedFields(config: DataAccessConfig, endpointList: string[]) {
     const { view: { excludes = [], includes = [] }, data_type: { type_config: types, id } } = config;
     const results: string[] = [];
     let typeObj = types;
     if (includes.length > 0) {
-        // @ts-ignore
-        typeObj = _.pick(types, includes);
+        typeObj = pick(types, includes);
     }
 
     for (const key in typeObj) {
@@ -68,6 +73,6 @@ function collectAllowedFields(config: DataAccessConfig, endpointList: string[]) 
 
 function getMappingValue(type: string, id: string) {
     const results = allTypeMappings[type];
-    if (results == null) throw new ts.TSError(`could not convert mapping type: ${type} from data_type id: ${id}`);
+    if (results == null) throw new ts.TSError(`Invalid mapping type "${type}" for data type "${name}"`);
     return results;
 }

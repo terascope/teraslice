@@ -76,7 +76,7 @@ export interface DataAccessConfig {
     /**
      * The endpoint of the space
     */
-    endpoint: string;
+    space_endpoint: string;
 
     /**
      * The space's search configuration
