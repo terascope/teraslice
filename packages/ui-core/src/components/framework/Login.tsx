@@ -68,7 +68,7 @@ const Login: React.FC = (props: any) => {
                                 value={password}
                                 onChange={onChange}
                             />
-                            <Button type="submit" onClick={onSubmit}>
+                            <Button type="submit" primary>
                                 Submit
                             </Button>
                         </Form>
