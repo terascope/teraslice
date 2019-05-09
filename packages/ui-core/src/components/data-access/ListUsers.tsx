@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import { get } from '@terascope/utils';
-import { ResolvedUser, } from '../../helpers';
 import {
     DataTable,
     ErrorInfo,
@@ -10,7 +9,8 @@ import {
     RowMapping,
     QueryState,
     formatRegexQuery,
-    PageAction
+    PageAction,
+    ResolvedUser
 } from '../core';
 
 const rowMapping: RowMapping = {
@@ -91,7 +91,8 @@ const FIND_USERS = gql`
             role {
                 id,
                 name,
-            }
+            },
+            type,
             updated,
             created,
         }

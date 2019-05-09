@@ -1,38 +1,34 @@
 import React, { createContext, useContext, useState } from 'react';
-import { PluginConfig, PluginsProp } from './interfaces';
+import * as i from './interfaces';
 
-export type CoreContextState = {
-    authenticated: boolean;
-    plugins: PluginConfig[];
-    updateAuth(authenticated: boolean): void;
-};
-
-export const CoreContext = createContext<CoreContextState>({
+export const CoreContext = createContext<i.CoreContextState>({
     authenticated: false,
     plugins: [],
-    updateAuth(authenticated: boolean) {}
+    updateState(updates) {}
 });
 
 type Props = {
-    plugins: PluginConfig[];
+    plugins: i.PluginConfig[];
 };
 
-const CoreContextProvider: React.FC<Props> = ({ children, plugins }) => {
-    const [authenticated, updateAuth] = useState(false);
-
-    const value: CoreContextState = {
-        authenticated,
-        updateAuth,
+const CoreContextProvider: React.FC<Props> = ({ children, plugins = [] }) => {
+    const [state, setState] = useState<i.CoreContextState>({
+        authenticated: false,
+        updateState,
         plugins,
-    };
+    });
+
+    function updateState(updates: Partial<i.CoreContextState>) {
+        setState({ ...state, ...updates });
+    }
 
     return (
-        <CoreContext.Provider value={value}>{children}</CoreContext.Provider>
+        <CoreContext.Provider value={state}>{children}</CoreContext.Provider>
     );
 };
 
 CoreContextProvider.propTypes = {
-    plugins: PluginsProp,
+    plugins: i.PluginsProp,
 };
 
 export { CoreContextProvider };

@@ -13,7 +13,7 @@ type State = {
 };
 
 const Login: React.FC = (props: any) => {
-    const { updateAuth } = useCoreContext();
+    const { updateState } = useCoreContext();
     const [state, setState] = useState<State>({
         username: '',
         password: '',
@@ -40,7 +40,7 @@ const Login: React.FC = (props: any) => {
             skip={!ready}
             onCompleted={(data) => {
                 const authenticated = !!(data && data.authenticate.id);
-                updateAuth(authenticated);
+                updateState({ authenticated });
                 setState({
                     ready: false,
                     redirectToReferrer: authenticated

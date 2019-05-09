@@ -3,11 +3,14 @@ import { UserType } from '@terascope/data-access';
 import { parseErrorInfo, get } from '@terascope/utils';
 import { Form, Message, Button } from 'semantic-ui-react';
 import { ComponentProps } from './Query';
+import { useCoreContext } from '../../core';
 
 const userTypes: UserType[] = ['USER', 'ADMIN', 'SUPERADMIN'];
 
 const CreateUserForm: React.FC<ComponentProps> = (props) => {
-    const { loading, roles, error, authUser } = props;
+    const { loading, roles, error } = props;
+    const authUser = useCoreContext().authUser!;
+
     const errMsg = error && parseErrorInfo(error).message;
 
     const roleOptions = roles.map((role) => ({

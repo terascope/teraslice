@@ -10,9 +10,9 @@ const IndexRouter: React.FC = () => {
     return (
         <Router basename={baseUri}>
             <framework.App>
+                <Route path="/logout" exact component={framework.Logout} />
+                <Route path="/login" exact component={framework.Login} />
                 <framework.Authenticate>
-                    <Route path="/logout" exact component={framework.Logout} />
-                    <Route path="/login" exact component={framework.Login} />
                     <framework.Routes />
                 </framework.Authenticate>
             </framework.App>

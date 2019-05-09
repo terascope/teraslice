@@ -6,14 +6,17 @@ import { parseErrorInfo } from '@terascope/utils';
 import { Loading, ErrorInfo, useCoreContext } from '../core';
 
 const Logout: React.FC = () => {
-    const { authenticated, updateAuth } = useCoreContext();
+    const { authenticated, updateState } = useCoreContext();
     if (!authenticated) return <Redirect to="/login" />;
 
     return (
         <LogoutQuery
             query={LOGOUT}
             onCompleted={(data) => {
-                updateAuth(!(data && data.logout));
+                updateState({
+                    authUser: undefined,
+                    authenticated: !(data && data.logout)
+                });
             }}
             notifyOnNetworkStatusChange
         >

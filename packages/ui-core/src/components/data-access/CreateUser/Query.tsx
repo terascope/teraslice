@@ -3,18 +3,14 @@ import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import { get } from '@terascope/utils';
 import { ApolloError } from 'apollo-boost';
-import { ResolvedUser } from '../../../helpers';
-import { QueryState } from '../../core';
 
 const CreateUserQuery: React.FC<Props> = ({ component: Component }) => {
     return (
         <CreateUserInfoQuery query={CREATE_USER_INFO_QUERY}>
             {({ loading, error, data }) => {
                 const roles: Role[] = get(data, 'roles', []);
-                const authUser = get(data, 'authenticate', {}) as ResolvedUser;
 
                 return <Component
-                    authUser={authUser}
                     roles={roles}
                     loading={loading}
                     error={error}
@@ -31,7 +27,6 @@ export type Role = {
 
 export type ComponentProps = {
     roles: Role[];
-    authUser: ResolvedUser;
     error?: ApolloError|Error|string;
     loading: boolean;
 };
@@ -48,21 +43,12 @@ const CREATE_USER_INFO_QUERY = gql`
         roles(query: "*") {
             id,
             name,
-        },
-        authenticate {
-            username,
-            client_id,
-            type,
-            role {
-                id
-            }
         }
     }
 `;
 
 interface Response {
     roles: Role[];
-    authenticate: ResolvedUser;
 }
 
-class CreateUserInfoQuery extends Query<Response, QueryState> {}
+class CreateUserInfoQuery extends Query<Response> {}
