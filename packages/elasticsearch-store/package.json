@@ -29,7 +29,7 @@
         "@terascope/utils": "^0.10.1",
         "ajv": "^6.10.0",
         "nanoid": "^2.0.1",
-        "rambda": "^2.4.1",
+        "rambda": "^2.5.0",
         "xlucene-evaluator": "^0.8.0"
     },
     "devDependencies": {
