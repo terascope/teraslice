@@ -1,7 +1,7 @@
 
 import Usertype from './types/user';
 import { createResolvers } from './resolvers';
-import { makeExecutableSchema, ForbiddenError } from 'apollo-server-express';
+import { makeExecutableSchema } from 'apollo-server-express';
 import { ACLManager, User, DataAccessConfig } from '@terascope/data-access';
 import { Context } from '@terascope/job-components';
 import * as ts from '@terascope/utils';
@@ -9,7 +9,6 @@ import allTypeMappings from './typeMappings';
 
 // TODO: respect prevent_prefix_wildcard
 export default async function getSchemaByRole(aclManager: ACLManager, user: User, logger: ts.Logger, context: Context) {
-    if (user.role == null) throw new ForbiddenError(`user: ${user.id} does not have a role specified`);
     const query = `roles: ${user.role}`;
     const spaces = await aclManager.findSpaces({ query }, false);
     const fetchViews = spaces.map(space => aclManager.getViewForSpace({ space: space.id }, user));

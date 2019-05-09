@@ -1,5 +1,5 @@
 
-import { get } from '@terascope/utils';
+import { get, TSError } from '@terascope/utils';
 import * as apollo from 'apollo-server-express';
 import accepts from 'accepts';
 import { json } from 'body-parser';
@@ -30,7 +30,14 @@ export class DynamicApolloServer extends apollo.ApolloServer {
             // @ts-ignore
             loginErrorHanlder(req, res, async () => {
                 const user = await utils.login(get(req, 'aclManager'), req) as User;
-                if (user.role == null) return res.status(403).send(new apollo.ForbiddenError(`no role is assigned to user ${user.id}`));
+                if (user.role == null) {
+                    throw new TSError(`User ${user.username} missing role `, {
+                        statusCode: 403,
+                        context: {
+                            user,
+                        }
+                    });
+                }
 
                 if (this.playgroundOptions && req.method === 'GET') {
                     // perform more expensive content-type check only if necessary
