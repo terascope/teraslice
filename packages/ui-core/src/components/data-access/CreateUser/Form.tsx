@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
-import { UserType } from '@terascope/data-access';
-import { parseErrorInfo, get, AnyObject } from '@terascope/utils';
-import { Form, Message, InputOnChangeData, DropdownProps, Icon, Segment } from 'semantic-ui-react';
+import { AnyObject, get } from '@terascope/utils';
+import { DropdownProps, Form, Icon, InputOnChangeData, Message } from 'semantic-ui-react';
+import React, { FormEvent, useState } from 'react';
+import { ResolvedUser, useCoreContext } from '../../core';
+
 import { ComponentProps } from './Query';
-import { useCoreContext } from '../../core';
+import { Mutation } from 'react-apollo';
+import { UserType } from '@terascope/data-access';
+import gql from 'graphql-tag';
 
 const userTypes: UserType[] = ['USER', 'ADMIN', 'SUPERADMIN'];
 const userTypeOptions = userTypes.map(type => ({
@@ -12,8 +15,7 @@ const userTypeOptions = userTypes.map(type => ({
     value: type,
 }));
 
-const CreateUserForm: React.FC<ComponentProps> = props => {
-    const { loading, roles, error } = props;
+const CreateUserForm: React.FC<ComponentProps> = ({ roles }) => {
     const authUser = useCoreContext().authUser!;
 
     const [user, setUser] = useState<AnyObject>({
@@ -30,7 +32,6 @@ const CreateUserForm: React.FC<ComponentProps> = props => {
 
     const updateUser = (updates: AnyObject) => setUser(Object.assign(user, updates));
 
-    const requestErr = error && parseErrorInfo(error).message;
     const [errors, setErrors] = useState<ErrorsState>({
         fields: [],
         messages: [],
@@ -47,7 +48,7 @@ const CreateUserForm: React.FC<ComponentProps> = props => {
         validate();
     };
 
-    const validate = () => {
+    const validate = (): boolean => {
         const updated: ErrorsState = {
             fields: [],
             messages: [],
@@ -59,10 +60,8 @@ const CreateUserForm: React.FC<ComponentProps> = props => {
         }
 
         setErrors(updated);
-    };
 
-    const onSubmit = () => {
-        validate();
+        return !updated.messages.length || !updated.fields.length;
     };
 
     const getFieldProps = ({ name, label, placeholder }: FieldOptions): any => {
@@ -81,108 +80,151 @@ const CreateUserForm: React.FC<ComponentProps> = props => {
     const hasErrors = errors.messages.length > 0;
 
     return (
-        <Segment basic>
-            <Form loading={loading} onSubmit={onSubmit}>
-                <Form.Group>
-                    <Form.Input
-                        {...getFieldProps({
-                            name: 'username',
-                            label: 'User Name',
-                        })}
-                    />
-                    <Form.Input
-                        {...getFieldProps({
-                            name: 'client_id',
-                            label: 'Client ID',
-                        })}
-                        disabled={authUser.type !== 'SUPERADMIN'}
-                    />
-                </Form.Group>
-                <Form.Group>
-                    <Form.Input
-                        {...getFieldProps({
-                            name: 'firstname',
-                            label: 'First Name',
-                        })}
-                    />
-                    <Form.Input
-                        {...getFieldProps({
-                            name: 'lastname',
-                            label: 'Last Name',
-                        })}
-                    />
-                </Form.Group>
-                <Form.Group>
-                    <Form.Input
-                        type="email"
-                        {...getFieldProps({
-                            name: 'email',
-                            label: 'Email',
-                        })}
-                    />
-                </Form.Group>
-                <Form.Group />
-                <Form.Group>
-                    <Form.Select
-                        {...getFieldProps({
-                            name: 'role',
-                            label: 'Role',
-                            placeholder: 'Select Role',
-                        })}
-                        options={roleOptions}
-                    />
-                    <Form.Select
-                        {...getFieldProps({
-                            name: 'type',
-                            label: 'Type',
-                            placeholder: 'Select User Type',
-                        })}
-                        disabled={authUser.type === 'USER'}
-                        options={userTypeOptions}
-                    />
-                </Form.Group>
-                <Form.Group>
-                    <Form.Input
-                        type="password"
-                        {...getFieldProps({
-                            name: 'password',
-                            label: 'Password',
-                        })}
-                    />
-                    <Form.Input
-                        type="password"
-                        {...getFieldProps({
-                            name: 'repeat_password',
-                            label: 'Repeat Password',
-                        })}
-                    />
-                </Form.Group>
+        <CreateUserMutation mutation={CREATE_USER}>
+            {(createUser, { data, loading, error }: any) => {
+                const onSubmit = (e: FormEvent) => {
+                    e.preventDefault();
+                    if (validate()) {
+                        const password = user.password as string;
+                        delete user.password;
+                        delete user.repeat_password;
+                        createUser({
+                            variables: {
+                                user,
+                                password,
+                            },
+                        });
+                    }
+                };
 
-                <Form.Group>
-                    <Form.Button width={16} type="submit" floated="right">
-                        Submit
-                    </Form.Button>
-                </Form.Group>
-            </Form>
-            {requestErr && (
-                <Message error attached="bottom">
-                    <Icon name="times circle outline" />
-                    {requestErr}
-                </Message>
-            )}
-            {hasErrors && (
-                <Message error attached="bottom">
-                    <Message.Header>Validation Error</Message.Header>
-                    <Message.List>
-                        {errors.messages.map((msg, i) => (
-                            <Message.Item key={`valid-err-${i}`}>{msg}</Message.Item>
-                        ))}
-                    </Message.List>
-                </Message>
-            )}
-        </Segment>
+                return (
+                    <div>
+                        <Form loading={loading} onSubmit={onSubmit}>
+                            <Form.Group>
+                                <Form.Input
+                                    {...getFieldProps({
+                                        name: 'username',
+                                        label: 'User Name',
+                                    })}
+                                />
+                                <Form.Input
+                                    {...getFieldProps({
+                                        name: 'client_id',
+                                        label: 'Client ID',
+                                    })}
+                                    disabled={authUser.type !== 'SUPERADMIN'}
+                                />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Input
+                                    {...getFieldProps({
+                                        name: 'firstname',
+                                        label: 'First Name',
+                                    })}
+                                />
+                                <Form.Input
+                                    {...getFieldProps({
+                                        name: 'lastname',
+                                        label: 'Last Name',
+                                    })}
+                                />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Input
+                                    type="email"
+                                    {...getFieldProps({
+                                        name: 'email',
+                                        label: 'Email',
+                                    })}
+                                />
+                            </Form.Group>
+                            <Form.Group />
+                            <Form.Group>
+                                <Form.Select
+                                    {...getFieldProps({
+                                        name: 'role',
+                                        label: 'Role',
+                                        placeholder: 'Select Role',
+                                    })}
+                                    options={roleOptions}
+                                />
+                                <Form.Select
+                                    {...getFieldProps({
+                                        name: 'type',
+                                        label: 'Type',
+                                        placeholder: 'Select User Type',
+                                    })}
+                                    disabled={authUser.type === 'USER'}
+                                    options={userTypeOptions}
+                                />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Input
+                                    type="password"
+                                    {...getFieldProps({
+                                        name: 'password',
+                                        label: 'Password',
+                                    })}
+                                />
+                                <Form.Input
+                                    type="password"
+                                    {...getFieldProps({
+                                        name: 'repeat_password',
+                                        label: 'Repeat Password',
+                                    })}
+                                />
+                            </Form.Group>
+
+                            <Form.Group>
+                                <Form.Button
+                                    width={16}
+                                    type="submit"
+                                    floated="right"
+                                    disabled={data != null}
+                                >
+                                    Submit
+                                </Form.Button>
+                            </Form.Group>
+                        </Form>
+                        {error && (
+                            <Message error attached="bottom">
+                                <Icon name="times circle outline" size="large" />
+                                <Message.Header>Request Error</Message.Header>
+                                {JSON.stringify(error)}
+                            </Message>
+                        )}
+                        {hasErrors && (
+                            <Message error attached="bottom">
+                                <Message.Header>Validation Error</Message.Header>
+                                <Message.List>
+                                    {errors.messages.map((msg, i) => (
+                                        <Message.Item key={`valid-err-${i}`}>{msg}</Message.Item>
+                                    ))}
+                                </Message.List>
+                            </Message>
+                        )}
+                        {data && (
+                            <Message success attached="bottom">
+                                <Icon name="thumbs up outline" size="large" />
+                                <Message.Header>Success!</Message.Header>
+                            </Message>
+                        )}
+                    </div>
+                );
+            }}
+        </CreateUserMutation>
     );
 };
+
+const CREATE_USER = gql`
+    mutation CreateUser($user: CreateUserInput!, $password: String!) {
+        createUser(user: $user, password: $password) {
+            id
+            username
+            type
+        }
+    }
+`;
 
 type ChangeFn = (e: any, data: InputOnChangeData | DropdownProps) => void;
 
@@ -193,5 +235,16 @@ type FieldOptions = {
 };
 
 type ErrorsState = { fields: string[]; messages: string[] };
+
+type Response = {
+    createUser: ResolvedUser;
+};
+
+type Variables = {
+    user: AnyObject;
+    password: string;
+};
+
+class CreateUserMutation extends Mutation<Response, Variables> {}
 
 export default CreateUserForm;
