@@ -101,9 +101,11 @@ cleanup_e2e_tests() {
     fi
 
     for asset in e2e/autoload/*; do
-        prompt "Autoload asset $asset exists, do you want to remove it?" &&
-            echoerr "* removing $asset" &&
-            rm -rf "$asset"
+        if [ -f "$asset" ]; then
+            prompt "Autoload asset $asset exists, do you want to remove it?" &&
+                echoerr "* removing $asset" &&
+                rm -rf "$asset"
+        fi
     done
 
     return 0

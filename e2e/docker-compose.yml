@@ -54,7 +54,7 @@ services:
       - "49200:49200"
       - "49300:49300"
     environment:
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
       - "network.host=0.0.0.0"
       - "http.port=49200"
       - "transport.tcp.port=49300"
@@ -73,7 +73,7 @@ services:
     cap_add:
       - IPC_LOCK
   kafka:
-    image: terascope/kafka-zookeeper:v1.1.0
+    image: terascope/kafka-zookeeper:v1.1.1
     ports:
       - "42181:42181"
       - "49092:49092"
