@@ -4,14 +4,8 @@ import { Table, Checkbox } from 'semantic-ui-react';
 import { ColumnMapping, ColumnMappingProp, SortDirection, UpdateQueryState } from './interfaces';
 import { parseSortBy, getSortDirection, formatSortBy } from './utils';
 
-const Header: React.FC<Props> = (props) => {
-    const {
-        toggleSelectAll,
-        sort,
-        selectedAll,
-        columnMapping,
-        updateQueryState,
-    } = props;
+const Header: React.FC<Props> = props => {
+    const { toggleSelectAll, sort, selectedAll, columnMapping, updateQueryState } = props;
 
     const sortBy = parseSortBy(sort);
 
@@ -19,24 +13,21 @@ const Header: React.FC<Props> = (props) => {
         <Table.Header fullWidth>
             <Table.Row>
                 <Table.HeaderCell width={1} textAlign="center">
-                    <Checkbox
-                        checked={selectedAll}
-                        onChange={toggleSelectAll}
-                    />
+                    <Checkbox checked={selectedAll} onChange={toggleSelectAll} />
                 </Table.HeaderCell>
                 {Object.entries(columnMapping).map(([field, col]) => (
                     <Table.HeaderCell
-                            key={field}
-                            sorted={getSortDirection(field, sortBy)}
-                            onClick={() => {
-                                const current = parseSortBy(sort);
-                                let direction: SortDirection = 'asc';
-                                if (current.field === field && current.direction === 'asc') {
-                                    direction = 'desc';
-                                }
-                                updateQueryState({ sort: formatSortBy({ field, direction }) });
-                            }}
-                        >
+                        key={field}
+                        sorted={getSortDirection(field, sortBy)}
+                        onClick={() => {
+                            const current = parseSortBy(sort);
+                            let direction: SortDirection = 'asc';
+                            if (current.field === field && current.direction === 'asc') {
+                                direction = 'desc';
+                            }
+                            updateQueryState({ sort: formatSortBy({ field, direction }) });
+                        }}
+                    >
                         {col.label}
                     </Table.HeaderCell>
                 ))}
@@ -51,7 +42,7 @@ type Props = {
     toggleSelectAll: () => void;
     sort: string;
     selectedAll: boolean;
-    columnMapping: ColumnMapping,
+    columnMapping: ColumnMapping;
 };
 
 Header.propTypes = {

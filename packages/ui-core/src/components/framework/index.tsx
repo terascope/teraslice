@@ -6,12 +6,4 @@ import ProtectedRoute from './ProtectedRoute';
 import Routes from './Routes';
 import Welcome from './Welcome';
 
-export {
-    App,
-    Authenticate,
-    Login,
-    Logout,
-    ProtectedRoute,
-    Routes,
-    Welcome,
-};
+export { App, Authenticate, Login, Logout, ProtectedRoute, Routes, Welcome };

@@ -6,11 +6,11 @@ const StyledContainer = styled(Container)`
     height: 100%;
     min-height: 100%;
     display: flex;
-	flex-direction: row;
+    flex-direction: row;
 `;
 
 const StyledSegment = styled(Segment)`
-   flex: 1;
+    flex: 1;
 `;
 
 const Loading: React.FC = () => {

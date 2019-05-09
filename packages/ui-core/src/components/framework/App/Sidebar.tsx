@@ -18,22 +18,14 @@ const SidebarMenuIcon: React.FC<any> = ({ icon, color, open }) => {
 };
 
 const SidebarToggleIcon: React.FC<{ open: boolean }> = ({ open }) => (
-    <SidebarMenuIcon
-        icon={`chevron ${!open ? 'right' : 'left'}`}
-        color="grey"
-        open={open}
-    />
+    <SidebarMenuIcon icon={`chevron ${!open ? 'right' : 'left'}`} color="grey" open={open} />
 );
 
 const makePluginLinks = (plugins: PluginConfig[], history: History, open: boolean) => {
     const links: any[] = [];
     plugins.forEach((plugin, pi) => {
         if (open && plugin.name) {
-            links.push((
-                <Menu.Item key={`plugin-${pi}`}>
-                    {plugin.name}
-                </Menu.Item>
-            ));
+            links.push(<Menu.Item key={`plugin-${pi}`}>{plugin.name}</Menu.Item>);
         }
         plugin.routes.forEach((route, ri) => {
             if (route.hidden) return;
@@ -48,9 +40,7 @@ const makePluginLinks = (plugins: PluginConfig[], history: History, open: boolea
                     }}
                 >
                     <SidebarMenuIcon icon={route.icon} open={open} />
-                    {open && (
-                        <s.SidebarItemName>{route.name}</s.SidebarItemName>
-                    )}
+                    {open && <s.SidebarItemName>{route.name}</s.SidebarItemName>}
                 </s.SidebarMenuItem>
             );
         });
@@ -74,4 +64,4 @@ const Sidebar: React.FC<any> = ({ history }) => {
     );
 };
 
-export default  withRouter(Sidebar);
+export default withRouter(Sidebar);

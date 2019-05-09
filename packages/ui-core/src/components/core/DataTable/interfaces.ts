@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
 
 export type QueryState = {
-    from?: number,
-    size?: number,
-    query?: string,
-    sort?: string
+    from?: number;
+    size?: number;
+    query?: string;
+    sort?: string;
 };
 
 export type UpdateQueryState = (query: QueryState) => void;
@@ -16,14 +16,14 @@ export const QueryStateProp = PropTypes.shape({
     from: PropTypes.number,
 });
 
-export type SortDirection = 'asc'|'desc';
-export type ParsedSort = { field: string, direction: SortDirection };
+export type SortDirection = 'asc' | 'desc';
+export type ParsedSort = { field: string; direction: SortDirection };
 
 export type ColumnMapping = {
     [field: string]: {
         label: string;
         format?: (data: any) => any;
-    }
+    };
 };
 
 export type RowMapping = {
@@ -31,10 +31,12 @@ export type RowMapping = {
     columns: ColumnMapping;
 };
 
-export const ColumnMappingProp = PropTypes.objectOf(PropTypes.shape({
-    label: PropTypes.string.isRequired,
-    format: PropTypes.func,
-}).isRequired);
+export const ColumnMappingProp = PropTypes.objectOf(
+    PropTypes.shape({
+        label: PropTypes.string.isRequired,
+        format: PropTypes.func,
+    }).isRequired
+);
 
 export const RowMappingProp = PropTypes.shape({
     getId: PropTypes.func.isRequired,

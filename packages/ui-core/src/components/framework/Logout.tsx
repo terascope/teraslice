@@ -12,10 +12,10 @@ const Logout: React.FC = () => {
     return (
         <LogoutQuery
             query={LOGOUT}
-            onCompleted={(data) => {
+            onCompleted={data => {
                 updateState({
                     authUser: undefined,
-                    authenticated: !(data && data.logout)
+                    authenticated: !(data && data.logout),
                 });
             }}
             notifyOnNetworkStatusChange
@@ -49,4 +49,4 @@ interface LogoutResponse {
     logout: boolean;
 }
 
-class LogoutQuery extends Query <LogoutResponse,  {}> {}
+class LogoutQuery extends Query<LogoutResponse, {}> {}

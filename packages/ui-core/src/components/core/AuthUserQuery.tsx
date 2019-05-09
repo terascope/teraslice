@@ -20,13 +20,13 @@ const AuthUserQuery: React.FC<Props> = ({ children, history }) => {
         <AuthQuery
             query={AUTH_QUERY}
             skip={authUser != null && authenticated}
-            onCompleted={(data) => {
+            onCompleted={data => {
                 updateState({
                     authUser: data.authenticate,
                     authenticated: true,
                 });
             }}
-            onError={(error) => {
+            onError={error => {
                 if (error && isAuthError(error)) {
                     history.replace('/logout');
                 } else {
@@ -47,7 +47,7 @@ const AuthUserQuery: React.FC<Props> = ({ children, history }) => {
 function isAuthError(error: ApolloError) {
     const graphQLErrors = get(error, 'graphQLErrors');
     if (graphQLErrors && graphQLErrors.length) {
-        const authErr = graphQLErrors.find((err) => {
+        const authErr = graphQLErrors.find(err => {
             if (!err || !err.path) return false;
             if (!err.path.includes('authenticate')) return false;
             return true;
@@ -59,7 +59,7 @@ function isAuthError(error: ApolloError) {
 }
 
 type Props = {
-    history: History
+    history: History;
 };
 
 AuthUserQuery.propTypes = {
@@ -72,17 +72,17 @@ export default withRouter(AuthUserQuery);
 const AUTH_QUERY = gql`
     {
         authenticate {
-            id,
-            firstname,
-            lastname,
-            username,
-            email,
-            type,
+            id
+            firstname
+            lastname
+            username
+            email
+            type
             role {
-                id,
-                name,
+                id
+                name
             }
-            updated,
+            updated
             created
         }
     }

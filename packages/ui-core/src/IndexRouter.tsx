@@ -4,7 +4,7 @@ import * as framework from './components/framework';
 
 const { REACT_APP_DEV_MODE } = process.env;
 
-const baseUri = REACT_APP_DEV_MODE ?  undefined : '/v2/ui';
+const baseUri = REACT_APP_DEV_MODE ? undefined : '/v2/ui';
 
 const IndexRouter: React.FC = () => {
     return (

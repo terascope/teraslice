@@ -10,18 +10,25 @@ import {
     QueryState,
     formatRegexQuery,
     PageAction,
-    ResolvedUser
+    ResolvedUser,
 } from '../core';
 
 const rowMapping: RowMapping = {
-    getId(data) { return data.id; },
+    getId(data) {
+        return data.id;
+    },
     columns: {
         firstname: { label: 'First Name' },
         lastname: { label: 'Last Name' },
         username: { label: 'Username' },
-        role: { label: 'Role', format(data) { return get(data, 'role.name') || data.type; } },
+        role: {
+            label: 'Role',
+            format(data) {
+                return get(data, 'role.name') || data.type;
+            },
+        },
         created: { label: 'Created' },
-    }
+    },
 };
 
 const searchFields = ['firstname', 'lastname', 'username', 'email'];
@@ -29,7 +36,7 @@ const searchFields = ['firstname', 'lastname', 'username', 'email'];
 const ListUsers: React.FC = () => {
     const [state, setState] = useState<QueryState>({
         query: '*',
-        size: 2
+        size: 2,
     });
 
     const updateQueryState = (queryState: QueryState) => {
@@ -40,15 +47,17 @@ const ListUsers: React.FC = () => {
         {
             label: 'Create user',
             icon: 'plus',
-            to: '/users/create'
-        }
+            to: '/users/create',
+        },
     ];
 
-    const variables = state.query && state.query !== '*'
-        ? {
-            ...state,
-            query: formatRegexQuery(state.query || '', searchFields)
-        } : state;
+    const variables =
+        state.query && state.query !== '*'
+            ? {
+                ...state,
+                query: formatRegexQuery(state.query || '', searchFields),
+            }
+            : state;
 
     return (
         <UsersQuery query={FIND_USERS} variables={variables}>
@@ -83,18 +92,18 @@ export default ListUsers;
 const FIND_USERS = gql`
     query Users($query: String, $from: Int, $size: Int, $sort: String) {
         users(query: $query, from: $from, size: $size, sort: $sort) {
-            id,
-            firstname,
-            lastname,
-            username,
-            email,
+            id
+            firstname
+            lastname
+            username
+            email
             role {
-                id,
-                name,
-            },
-            type,
-            updated,
-            created,
+                id
+                name
+            }
+            type
+            updated
+            created
         }
         usersCount(query: $query)
     }

@@ -23,7 +23,7 @@ export const SidebarToggle = styled(Menu.Item)`
 `;
 
 export const SidebarMenu = styled(Menu)`
-    ${props => props.open ? '' : 'width: 4rem !important;'};
+    ${props => (props.open ? '' : 'width: 4rem !important;')};
     display: flex !important;
     flex-flow: column nowrap;
     justify-content: flex-start;
@@ -69,7 +69,7 @@ export const AppRoot = styled.div`
     height: 100%;
     min-height: 100%;
     display: flex;
-	flex-direction: row;
+    flex-direction: row;
 `;
 
 export const SidebarWrapper = styled.div`

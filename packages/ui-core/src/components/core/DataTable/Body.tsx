@@ -4,14 +4,8 @@ import { get } from '@terascope/utils';
 import { Table, Checkbox } from 'semantic-ui-react';
 import { RowMappingProp, RowMapping } from './interfaces';
 
-const Body: React.FC<Props> = (props) => {
-    const {
-        records,
-        selected,
-        total,
-        rowMapping,
-        selectRecord
-    } = props;
+const Body: React.FC<Props> = props => {
+    const { records, selected, total, rowMapping, selectRecord } = props;
 
     const columns = Object.entries(rowMapping.columns);
     const allSelected = selected.length === total;
@@ -33,11 +27,7 @@ const Body: React.FC<Props> = (props) => {
                         </Table.Cell>
                         {columns.map(([key, col]) => {
                             const value = col.format ? col.format(record) : get(record, key);
-                            return (
-                                <Table.Cell key={`record-${id}-${key}`}>
-                                    {value}
-                                </Table.Cell>
-                            );
+                            return <Table.Cell key={`record-${id}-${key}`}>{value}</Table.Cell>;
                         })}
                     </Table.Row>
                 );

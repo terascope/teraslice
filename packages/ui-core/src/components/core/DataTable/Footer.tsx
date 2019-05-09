@@ -22,9 +22,7 @@ const TableFooter: React.FC<{ numCols: number }> = ({ numCols, children }) => {
         <Table.Footer fullWidth>
             <Table.Row>
                 <Table.HeaderCell />
-                <Table.HeaderCell colSpan={numCols - 1}>
-                    {children}
-                </Table.HeaderCell>
+                <Table.HeaderCell colSpan={numCols - 1}>{children}</Table.HeaderCell>
             </Table.Row>
         </Table.Footer>
     );
@@ -32,7 +30,7 @@ const TableFooter: React.FC<{ numCols: number }> = ({ numCols, children }) => {
 
 const Footer: React.FC<Props> = ({ total, size, from, numCols, updateQueryState }) => {
     const totalPages = Math.ceil(total / size);
-    const currentPage =  Math.floor(from / size) + 1;
+    const currentPage = Math.floor(from / size) + 1;
 
     // FIXME
     // const rowsPerPageOptions = utils.uniqIntArray([1, 5, 10, 25, queryState.size]);

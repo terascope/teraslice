@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Menu, Input, Icon, Table, Button, Label } from 'semantic-ui-react';
 import { UpdateQueryState } from './interfaces';
 
-const Toolbar: React.FC<Props> = (props) => {
+const Toolbar: React.FC<Props> = props => {
     const { numCols, numSelected, title, updateQueryState, removeRecords } = props;
     const [query, updateQuery] = useState(props.query || '');
 
@@ -14,11 +14,7 @@ const Toolbar: React.FC<Props> = (props) => {
             <Table.Row>
                 <Table.HeaderCell colSpan={numCols} style={{ padding: 0 }}>
                     <Menu secondary size="small">
-                        <Menu.Item
-                            icon
-                            onClick={() => removeRecords()}
-                            disabled={!numSelected}
-                        >
+                        <Menu.Item icon onClick={() => removeRecords()} disabled={!numSelected}>
                             <Button as="div" labelPosition="right" disabled={!numSelected}>
                                 <Button icon color={numSelected > 0 ? 'red' : undefined}>
                                     <Icon name="trash alternate" />

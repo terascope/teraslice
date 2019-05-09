@@ -1,26 +1,18 @@
 import React, { useState } from 'react';
 import { UserType } from '@terascope/data-access';
 import { parseErrorInfo, get, AnyObject } from '@terascope/utils';
-import {
-    Form,
-    Message,
-    Button,
-    InputOnChangeData,
-    DropdownProps,
-    Grid,
-    Icon
-} from 'semantic-ui-react';
+import { Form, Message, InputOnChangeData, DropdownProps, Icon, Segment } from 'semantic-ui-react';
 import { ComponentProps } from './Query';
 import { useCoreContext } from '../../core';
 
 const userTypes: UserType[] = ['USER', 'ADMIN', 'SUPERADMIN'];
-const userTypeOptions = userTypes.map((type) => ({
+const userTypeOptions = userTypes.map(type => ({
     key: type,
     text: type,
     value: type,
 }));
 
-const CreateUserForm: React.FC<ComponentProps> = (props) => {
+const CreateUserForm: React.FC<ComponentProps> = props => {
     const { loading, roles, error } = props;
     const authUser = useCoreContext().authUser!;
 
@@ -33,7 +25,7 @@ const CreateUserForm: React.FC<ComponentProps> = (props) => {
         repeat_password: '',
         email: '',
         role: get(authUser, 'role.id'),
-        type: 'USER'
+        type: 'USER',
     });
 
     const updateUser = (updates: AnyObject) => setUser(Object.assign(user, updates));
@@ -44,10 +36,10 @@ const CreateUserForm: React.FC<ComponentProps> = (props) => {
         messages: [],
     });
 
-    const roleOptions = roles.map((role) => ({
+    const roleOptions = roles.map(role => ({
         key: role.id,
         text: role.name,
-        value: role.id
+        value: role.id,
     }));
 
     const onChange: ChangeFn = (e, { name, value }) => {
@@ -89,7 +81,7 @@ const CreateUserForm: React.FC<ComponentProps> = (props) => {
     const hasErrors = errors.messages.length > 0;
 
     return (
-        <div>
+        <Segment basic>
             <Form loading={loading} onSubmit={onSubmit}>
                 <Form.Group>
                     <Form.Input
@@ -167,7 +159,9 @@ const CreateUserForm: React.FC<ComponentProps> = (props) => {
                 </Form.Group>
 
                 <Form.Group>
-                    <Form.Button width={8} type="submit" floated="right">Submit</Form.Button>
+                    <Form.Button width={16} type="submit" floated="right">
+                        Submit
+                    </Form.Button>
                 </Form.Group>
             </Form>
             {requestErr && (
@@ -181,25 +175,23 @@ const CreateUserForm: React.FC<ComponentProps> = (props) => {
                     <Message.Header>Validation Error</Message.Header>
                     <Message.List>
                         {errors.messages.map((msg, i) => (
-                            <Message.Item key={`valid-err-${i}`}>
-                                {msg}
-                            </Message.Item>
+                            <Message.Item key={`valid-err-${i}`}>{msg}</Message.Item>
                         ))}
                     </Message.List>
                 </Message>
             )}
-        </div>
+        </Segment>
     );
 };
 
-type ChangeFn = (e: any, data: InputOnChangeData|DropdownProps) => void;
+type ChangeFn = (e: any, data: InputOnChangeData | DropdownProps) => void;
 
 type FieldOptions = {
-    name: string,
-    label: string,
-    placeholder?: string
+    name: string;
+    label: string;
+    placeholder?: string;
 };
 
-type ErrorsState = { fields: string[], messages: string[] };
+type ErrorsState = { fields: string[]; messages: string[] };
 
 export default CreateUserForm;

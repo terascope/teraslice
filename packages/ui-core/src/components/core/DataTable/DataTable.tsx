@@ -8,23 +8,15 @@ import Body from './Body';
 import Footer from './Footer';
 import * as i from './interfaces';
 
-const DataTable: React.FC<Props> = (props) => {
-    const {
-        records,
-        total,
-        title,
-        loading,
-        updateQueryState,
-        removeRecords,
-        rowMapping
-    } = props;
+const DataTable: React.FC<Props> = props => {
+    const { records, total, title, loading, updateQueryState, removeRecords, rowMapping } = props;
 
     const queryState = {
         from: 0,
         size: 25,
         query: '*',
         sort: 'created:asc',
-        ...props.queryState
+        ...props.queryState,
     };
 
     const [selected, setSelected] = useState<string[]>([]);
@@ -42,7 +34,7 @@ const DataTable: React.FC<Props> = (props) => {
         } else if (selectedIndex > 0) {
             newSelected = newSelected.concat(
                 selected.slice(0, selectedIndex),
-                selected.slice(selectedIndex + 1),
+                selected.slice(selectedIndex + 1)
             );
         }
 
@@ -73,8 +65,8 @@ const DataTable: React.FC<Props> = (props) => {
 
                         const fillCount = total - records.length;
                         setSelected([
-                            ...records.map((record) => rowMapping.getId(record)),
-                            ...times(fillCount, () => '<any>')
+                            ...records.map(record => rowMapping.getId(record)),
+                            ...times(fillCount, () => '<any>'),
                         ]);
                     }}
                     updateQueryState={updateQueryState}
@@ -119,7 +111,7 @@ DataTable.propTypes = {
     loading: PropTypes.bool,
     removeRecords: PropTypes.func.isRequired,
     rowMapping: i.RowMappingProp.isRequired,
-    queryState: i.QueryStateProp
+    queryState: i.QueryStateProp,
 };
 
 export default DataTable;

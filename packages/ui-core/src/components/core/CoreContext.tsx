@@ -4,7 +4,7 @@ import * as i from './interfaces';
 export const CoreContext = createContext<i.CoreContextState>({
     authenticated: false,
     plugins: [],
-    updateState(updates) {}
+    updateState(updates) {},
 });
 
 type Props = {
@@ -22,9 +22,7 @@ const CoreContextProvider: React.FC<Props> = ({ children, plugins = [] }) => {
         setState({ ...state, ...updates });
     }
 
-    return (
-        <CoreContext.Provider value={state}>{children}</CoreContext.Provider>
-    );
+    return <CoreContext.Provider value={state}>{children}</CoreContext.Provider>;
 };
 
 CoreContextProvider.propTypes = {

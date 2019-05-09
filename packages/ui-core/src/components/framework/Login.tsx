@@ -18,7 +18,7 @@ const Login: React.FC = (props: any) => {
         username: '',
         password: '',
         redirectToReferrer: false,
-        ready: false
+        ready: false,
     });
 
     if (state.redirectToReferrer) {
@@ -38,12 +38,12 @@ const Login: React.FC = (props: any) => {
             query={LOGIN}
             variables={variables}
             skip={!ready}
-            onCompleted={(data) => {
+            onCompleted={data => {
                 const authenticated = !!(data && data.authenticate.id);
                 updateState({ authenticated });
                 setState({
                     ready: false,
-                    redirectToReferrer: authenticated
+                    redirectToReferrer: authenticated,
                 });
             }}
             notifyOnNetworkStatusChange
@@ -85,7 +85,7 @@ export default Login;
 const LOGIN = gql`
     query Login($username: String, $password: String) {
         authenticate(username: $username, password: $password) {
-             id,
+            id
         }
     }
 `;
@@ -101,4 +101,4 @@ interface LoginResponse {
     };
 }
 
-class LoginQuery extends Query <LoginResponse,  LoginVariables> {}
+class LoginQuery extends Query<LoginResponse, LoginVariables> {}

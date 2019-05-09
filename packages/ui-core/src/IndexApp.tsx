@@ -25,11 +25,11 @@ const IndexApp: React.FC = () => {
                     name: 'Home',
                     path: '/',
                     icon: 'home',
-                    component: Welcome
+                    component: Welcome,
                 },
-            ]
+            ],
         },
-        DataAccessPlugin
+        DataAccessPlugin,
     ];
 
     return (

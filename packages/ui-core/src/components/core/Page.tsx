@@ -21,21 +21,17 @@ const Page: React.FC<Props> = ({ title, actions = [], ...props }) => {
                 <Menu secondary>
                     <Menu.Header as={Title}>{title}</Menu.Header>
                     {actions.map((action, i) => {
-                        const onClick = action.onClick ? action.onClick : () => {
-                            if (!action.to) return;
-                            history.push(action.to);
-                        };
+                        const onClick = action.onClick
+                            ? action.onClick
+                            : () => {
+                                if (!action.to) return;
+                                history.push(action.to);
+                            };
 
                         return (
-                            <Menu.Item
-                                onClick={onClick}
-                                key={`page-item-${i}`}
-                                position="right"
-                            >
+                            <Menu.Item onClick={onClick} key={`page-item-${i}`} position="right">
                                 <Button>
-                                    {action.icon && (
-                                        <Icon name={action.icon as any} />
-                                    )}
+                                    {action.icon && <Icon name={action.icon as any} />}
                                     {action.label}
                                 </Button>
                             </Menu.Item>

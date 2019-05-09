@@ -9,16 +9,16 @@ const config: PluginConfig = {
             name: 'Users',
             path: '/users/',
             icon: 'users',
-            component: ListUsers
+            component: ListUsers,
         },
         {
             name: 'Create User',
             path: '/users/create',
             icon: 'plus',
             hidden: true,
-            component: CreateUser
-        }
-    ]
+            component: CreateUser,
+        },
+    ],
 };
 
 export default config;

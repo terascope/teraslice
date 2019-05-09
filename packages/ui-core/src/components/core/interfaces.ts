@@ -4,24 +4,26 @@ import { Overwrite } from '@terascope/utils';
 import { User, Role } from '@terascope/data-access';
 
 export type PluginRoute = {
-    name: string,
-    path: string,
-    icon: string,
-    hidden?: boolean,
-    component: React.FunctionComponent,
+    name: string;
+    path: string;
+    icon: string;
+    hidden?: boolean;
+    component: React.FunctionComponent;
 };
 
-export const PluginRoutesProp = PropTypes.arrayOf(PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    path: PropTypes.string.isRequired,
-    icon: PropTypes.string.isRequired,
-    component: PropTypes.func.isRequired,
-    hidden: PropTypes.bool,
-}).isRequired);
+export const PluginRoutesProp = PropTypes.arrayOf(
+    PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        path: PropTypes.string.isRequired,
+        icon: PropTypes.string.isRequired,
+        component: PropTypes.func.isRequired,
+        hidden: PropTypes.bool,
+    }).isRequired
+);
 
 export type PluginConfig = {
-    name: string,
-    basepath?: string,
+    name: string;
+    basepath?: string;
     routes: PluginRoute[];
 };
 
@@ -34,10 +36,10 @@ export const PluginConfigProp = PropTypes.shape({
 export const PluginsProp = PropTypes.arrayOf(PluginConfigProp.isRequired).isRequired;
 
 export type PageAction = {
-    label: string,
-    icon?: string,
-    to?: string,
-    onClick?: () => void
+    label: string;
+    icon?: string;
+    to?: string;
+    onClick?: () => void;
 };
 
 export const PageActionProp = PropTypes.shape({
@@ -47,9 +49,12 @@ export const PageActionProp = PropTypes.shape({
     to: PropTypes.string,
 });
 
-export type ResolvedUser = Overwrite<User, {
-    role?: Role
-}>;
+export type ResolvedUser = Overwrite<
+    User,
+    {
+        role?: Role;
+    }
+>;
 
 export type CoreContextState = {
     authenticated: boolean;

@@ -10,11 +10,7 @@ const CreateUserQuery: React.FC<Props> = ({ component: Component }) => {
             {({ loading, error, data }) => {
                 const roles: Role[] = get(data, 'roles', []);
 
-                return <Component
-                    roles={roles}
-                    loading={loading}
-                    error={error}
-                />;
+                return <Component roles={roles} loading={loading} error={error} />;
             }}
         </CreateUserInfoQuery>
     );
@@ -27,7 +23,7 @@ export type Role = {
 
 export type ComponentProps = {
     roles: Role[];
-    error?: ApolloError|Error|string;
+    error?: ApolloError | Error | string;
     loading: boolean;
 };
 
@@ -41,8 +37,8 @@ export default CreateUserQuery;
 const CREATE_USER_INFO_QUERY = gql`
     {
         roles(query: "*") {
-            id,
-            name,
+            id
+            name
         }
     }
 `;

@@ -8,14 +8,16 @@ const Routes: React.FC = () => {
 
     return (
         <div>
-            {plugins.map((plugin, pi) => plugin.routes.map((route, ri) => (
-                <ProtectedRoute
-                    key={`route-${pi}-${ri}`}
-                    path={formatPath(plugin.basepath, route.path)}
-                    component={route.component}
-                    exact
-                />
-            )))}
+            {plugins.map((plugin, pi) =>
+                plugin.routes.map((route, ri) => (
+                    <ProtectedRoute
+                        key={`route-${pi}-${ri}`}
+                        path={formatPath(plugin.basepath, route.path)}
+                        component={route.component}
+                        exact
+                    />
+                ))
+            )}
         </div>
     );
 };

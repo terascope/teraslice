@@ -10,9 +10,7 @@ const Navbar: React.FC = () => {
 
     return (
         <s.NavbarMenu>
-            <s.TitleMenuItem header>
-                Teraserver
-            </s.TitleMenuItem>
+            <s.TitleMenuItem header>Teraserver</s.TitleMenuItem>
             {authenticated && (
                 <Dropdown item icon={AccountIcon} className="right">
                     <Dropdown.Menu>

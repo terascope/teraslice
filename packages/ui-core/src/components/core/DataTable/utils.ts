@@ -7,7 +7,7 @@ export function parseSortBy(sort: string, defaultSort = 'created:asc'): ParsedSo
     return { field, direction };
 }
 
-export function formatSortBy(sort: ParsedSort|string): string {
+export function formatSortBy(sort: ParsedSort | string): string {
     if (isString(sort)) return sort;
     if (!sort.field || !sort.direction) return 'created:asc';
     return `${sort.field}:${sort.direction}`;
@@ -17,7 +17,7 @@ export function uniqIntArray(arr: number[]) {
     return uniq(arr).sort((a, b) => a - b);
 }
 
-export function getSortDirection(field: string, sortBy: ParsedSort): 'ascending'|'descending' {
+export function getSortDirection(field: string, sortBy: ParsedSort): 'ascending' | 'descending' {
     const none: any = null;
     if (sortBy.field !== field) return none;
     if (sortBy.direction === 'asc') return 'ascending';
@@ -27,6 +27,6 @@ export function getSortDirection(field: string, sortBy: ParsedSort): 'ascending'
 
 export function formatRegexQuery(query: string, searchFields: string[]) {
     const fields = searchFields.map(field => `${field}.text`);
-    const fieldList = fields.map((val) => `${val}:/.*${query}.*/`);
+    const fieldList = fields.map(val => `${val}:/.*${query}.*/`);
     return fieldList.join(' OR ');
 }
