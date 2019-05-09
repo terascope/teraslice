@@ -43,7 +43,7 @@ function hasNewerAsset(assets, assetName) {
 }
 
 function filterRelease(release) {
-    return !release.draft;
+    return !release.draft && !release.prerelease;
 }
 
 function filterAsset(asset) {
