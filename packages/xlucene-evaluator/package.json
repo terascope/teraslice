@@ -45,7 +45,7 @@
         "latlon-geohash": "^1.1.0",
         "lodash": "^4.17.11",
         "pegjs-backtrace": "^0.1.2",
-        "rambda": "^2.4.1"
+        "rambda": "^2.5.0"
     },
     "devDependencies": {
         "elasticsearch": "^15.4.1",
