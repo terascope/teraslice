@@ -10,9 +10,14 @@ forEachModel((model) => {
     const varName = ts.firstToLower(model);
 
     const createExtraArgs = model === 'User' ? ', password: String!' : '';
+    const updateExtraArgs = model === 'User' ? ', password: String' : '';
 
-    methods.push(`${createMethod}(${varName}: Create${model}Input!${createExtraArgs}): ${model}!`);
-    methods.push(`${updateMethod}(${varName}: Update${model}Input!): ${model}!`);
+    methods.push(
+        `${createMethod}(${varName}: Create${model}Input!${createExtraArgs}): ${model}!`
+    );
+    methods.push(
+        `${updateMethod}(${varName}: Update${model}Input!${updateExtraArgs}): ${model}!`
+    );
     methods.push(`${removeMethod}(id: ID!): Boolean!`);
 });
 

@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Overwrite } from '@terascope/utils';
-import { User, Role } from '@terascope/data-access';
+import { Role, UserType } from '@terascope/data-access';
 
 export type PluginRoute = {
     name: string;
@@ -51,12 +50,20 @@ export const PageActionProp = PropTypes.shape({
     to: PropTypes.string,
 });
 
-export type ResolvedUser = Overwrite<
-    User,
-    {
-        role?: Role;
-    }
->;
+export type ResolvedUser = {
+    id: string;
+    client_id: number;
+    firstname: string;
+    lastname: string;
+    username: string;
+    email: string;
+    password: string;
+    repeat_password: string;
+    type: UserType;
+    role: Partial<Role>;
+    created?: string;
+    updated?: string;
+};
 
 export type CoreContextState = {
     authenticated: boolean;

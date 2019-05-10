@@ -2,10 +2,10 @@ import React from 'react';
 import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
-import { get, withoutNil, isString } from '@terascope/utils';
-import { User } from '@terascope/data-access';
+import { get } from '@terascope/utils';
 import { Segment } from 'semantic-ui-react';
 import { ErrorInfo, Loading, ResolvedUser, useCoreContext } from '../../core';
+import * as i from './interfaces';
 
 const UserQuery: React.FC<Props> = ({ component: Component, id }) => {
     const QUERY = id ? USER_AND_ROLES_QUERY : ROLES_QUERY;
@@ -14,32 +14,16 @@ const UserQuery: React.FC<Props> = ({ component: Component, id }) => {
     return (
         <UserInfoQuery query={QUERY} variables={{ id }}>
             {({ loading, error, data }) => {
-                const roles: Role[] = get(data, 'roles', []);
-                const initUser: Partial<ResolvedUser> = Object.assign(
-                    withoutNil({
-                        id,
-                        client_id: authUser.client_id || 0,
-                        firstname: '',
-                        lastname: '',
-                        username: '',
-                        // @ts-ignore
-                        password: '',
-                        email: '',
-                        role: authUser.role,
-                        type: 'USER',
-                    }),
-                    withoutNil(get(data, 'user', {}))
-                );
-                if (!isString(initUser.role)) {
-                    initUser.role = get(initUser, 'role.id');
-                }
+                const roles: i.Role[] = get(data, 'roles', []);
 
                 if (loading) return <Loading />;
                 if (error) return <ErrorInfo error={error} />;
 
+                const userInput = getUserInput(authUser, get(data, 'user'));
+
                 return (
                     <Segment basic>
-                        <Component roles={roles} initUser={initUser} id={id} />
+                        <Component roles={roles} userInput={userInput} id={id} />
                     </Segment>
                 );
             }}
@@ -47,31 +31,25 @@ const UserQuery: React.FC<Props> = ({ component: Component, id }) => {
     );
 };
 
-export type Role = {
-    id: string;
-    name: string;
-};
-
-export type ComponentProps = {
-    roles: Role[];
-    initUser: Partial<User>;
-    id?: string;
-};
-
-export const ComponentPropTypes = {
-    roles: PropTypes.arrayOf(
-        PropTypes.shape({
-            id: PropTypes.string.isRequired,
-            name: PropTypes.string.isRequired,
-        }).isRequired
-    ).isRequired,
-    id: PropTypes.string,
-    initUser: PropTypes.object.isRequired,
-};
+function getUserInput(authUser: ResolvedUser, user: any = {}): i.UserInput {
+    const userInput = {} as i.UserInput;
+    for (const field of i.userInputFields) {
+        if (field === 'role') {
+            userInput.role = get(user, 'role.id') || '';
+        } else {
+            userInput[field] = get(user, field) || '';
+        }
+    }
+    if (!userInput.client_id) {
+        userInput.client_id = authUser.client_id || 0;
+    }
+    if (!userInput.type) userInput.type = 'USER';
+    return userInput;
+}
 
 type Props = {
     id?: string;
-    component: React.FunctionComponent<ComponentProps>;
+    component: React.FunctionComponent<i.ComponentProps>;
 };
 
 UserQuery.propTypes = {
@@ -99,6 +77,7 @@ const USER_AND_ROLES_QUERY = gql`
         }
         user(id: $id) {
             id
+            client_id
             firstname
             lastname
             username
@@ -108,14 +87,12 @@ const USER_AND_ROLES_QUERY = gql`
                 name
             }
             type
-            updated
-            created
         }
     }
 `;
 
 interface Response {
-    roles: Role[];
+    roles: i.Role[];
     user?: ResolvedUser;
 }
 

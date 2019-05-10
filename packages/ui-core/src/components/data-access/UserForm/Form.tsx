@@ -1,54 +1,46 @@
 import React, { FormEvent, useState } from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import { AnyObject, get, toInteger } from '@terascope/utils';
-import { UserType } from '@terascope/data-access';
-import { DropdownProps, Form, Icon, InputOnChangeData, Message } from 'semantic-ui-react';
-import Mutation from './Mutation';
-import { ComponentProps, ComponentPropTypes } from './Query';
+import { Form, Icon, Message } from 'semantic-ui-react';
 import { useCoreContext } from '../../core';
+import UserMutation from './Mutation';
+import * as i from './interfaces';
 
-const userTypes: UserType[] = ['USER', 'ADMIN', 'SUPERADMIN'];
-const userTypeOptions = userTypes.map(type => ({
-    key: type,
-    text: type,
-    value: type,
-}));
-
-const UserForm: React.FC<ComponentProps> = ({ roles, id, initUser }) => {
+const UserForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
     const authUser = useCoreContext().authUser!;
+    const update = Boolean(id);
 
-    const [user, setUser] = useState<AnyObject>({
-        ...initUser,
-        repeat_password: '',
-    });
+    const [user, setUser] = useState<i.UserInput>(userInput);
 
     const updateUser = (updates: AnyObject) => setUser(Object.assign(user, updates));
 
-    const [errors, setErrors] = useState<ErrorsState>({
+    const [errors, setErrors] = useState<i.ErrorsState>({
         fields: [],
         messages: [],
     });
 
-    const roleOptions = roles.map(role => ({
+    const roleOptions = roles.map((role) => ({
         key: role.id,
         text: role.name,
         value: role.id,
     }));
 
-    const onChange: ChangeFn = (e, { name, value }) => {
+    const onChange: i.ChangeFn = (e, { name, value }) => {
         updateUser({ [name]: value });
         validate();
     };
 
     const validate = (isSubmit = false): boolean => {
-        const errs: ErrorsState = {
+        const errs: i.ErrorsState = {
             fields: [],
             messages: [],
         };
 
-        if (user.password && user.password !== user.repeat_password) {
-            errs.messages.push('Password must match');
-            errs.fields.push('password', 'repeat_password');
+        if (!update) {
+            if (user.password && user.password !== user.repeat_password) {
+                errs.messages.push('Password must match');
+                errs.fields.push('password', 'repeat_password');
+            }
         }
 
         const clientId = toInteger(user.client_id);
@@ -60,19 +52,21 @@ const UserForm: React.FC<ComponentProps> = ({ roles, id, initUser }) => {
         }
 
         if (isSubmit) {
-            const required = [
+            const required: (keyof i.UserInput)[] = [
                 'username',
                 'firstname',
                 'lastname',
                 'type',
-                'password',
-                'repeat_password',
                 'client_id',
             ];
 
+            if (!update) {
+                required.push('password', 'repeat_password');
+            }
+
             let missingRequired = false;
 
-            required.forEach(field => {
+            required.forEach((field) => {
                 const d = user[field];
                 if (!d && !(d === '0' || d === 0)) {
                     missingRequired = true;
@@ -90,7 +84,7 @@ const UserForm: React.FC<ComponentProps> = ({ roles, id, initUser }) => {
         return !errs.messages.length || !errs.fields.length;
     };
 
-    const getFieldProps = ({ name, label, placeholder }: FieldOptions): any => {
+    const getFieldProps = ({ name, label, placeholder }: i.FieldOptions): any => {
         const hasError = errors.fields.includes(name);
         return {
             name,
@@ -106,7 +100,7 @@ const UserForm: React.FC<ComponentProps> = ({ roles, id, initUser }) => {
     const hasErrors = errors.messages.length > 0;
 
     return (
-        <Mutation>
+        <UserMutation update={update}>
             {(submit, { data, loading, error }: any) => {
                 const onSubmit = (e: FormEvent) => {
                     e.preventDefault();
@@ -117,10 +111,13 @@ const UserForm: React.FC<ComponentProps> = ({ roles, id, initUser }) => {
 
                         const userInput = { ...user };
                         if (!userInput.role) delete userInput.role;
+                        if (!update) {
+                            delete userInput.id;
+                        }
 
                         submit({
                             variables: {
-                                user: { ...user },
+                                user: { ...userInput },
                                 password,
                             },
                         });
@@ -185,7 +182,7 @@ const UserForm: React.FC<ComponentProps> = ({ roles, id, initUser }) => {
                                         placeholder: 'Select User Type',
                                     })}
                                     disabled={authUser.type === 'USER'}
-                                    options={userTypeOptions}
+                                    options={i.userTypeOptions}
                                 />
                             </Form.Group>
                             <Form.Group>
@@ -221,49 +218,55 @@ const UserForm: React.FC<ComponentProps> = ({ roles, id, initUser }) => {
                                     </Form.Button>
                                 </Form.Group>
                             )}
+                            {data && update && (
+                                <Form.Group>
+                                    <Form.Button basic floated="right" width={15}>
+                                        <Link to="/users">Done</Link>
+                                    </Form.Button>
+                                </Form.Group>
+                            )}
                         </Form>
                         {error && (
-                            <Message error attached="bottom">
-                                <Icon name="times circle outline" size="large" />
-                                <Message.Header>Request Error</Message.Header>
-                                {JSON.stringify(error)}
+                            <Message icon error attached="bottom" size="large">
+                                <Icon name="times circle outline" />
+                                <Message.Content>
+                                    <Message.Header>Request Error</Message.Header>
+                                    {JSON.stringify(error)}
+                                </Message.Content>
                             </Message>
                         )}
                         {hasErrors && (
-                            <Message error attached="bottom">
-                                <Message.Header>Validation Error</Message.Header>
-                                <Message.List>
-                                    {errors.messages.map((msg, i) => (
-                                        <Message.Item key={`valid-err-${i}`}>
-                                            {msg}
-                                        </Message.Item>
-                                    ))}
-                                </Message.List>
+                            <Message icon error attached="bottom" size="large">
+                                <Icon name="times circle outline" />
+                                <Message.Content>
+                                    <Message.Header>Validation Error</Message.Header>
+                                    <Message.List>
+                                        {errors.messages.map((msg, i) => (
+                                            <Message.Item key={`valid-err-${i}`}>
+                                                {msg}
+                                            </Message.Item>
+                                        ))}
+                                    </Message.List>
+                                </Message.Content>
                             </Message>
                         )}
                         {data && (
-                            <Message success attached="bottom">
-                                <Icon name="thumbs up outline" size="large" />
-                                <Message.Header>Success!</Message.Header>
-                                <Redirect to="/users/" />
+                            <Message icon success attached="bottom" size="large">
+                                <Icon name="thumbs up outline" loading={!update} />
+                                <Message.Content>
+                                    <Message.Header>Success!</Message.Header>
+                                    {!update && (
+                                        <Redirect to={`/users/edit/${data.user.id}`} />
+                                    )}
+                                </Message.Content>
                             </Message>
                         )}
                     </div>
                 );
             }}
-        </Mutation>
+        </UserMutation>
     );
 };
 
-type ChangeFn = (e: any, data: InputOnChangeData | DropdownProps) => void;
-
-type FieldOptions = {
-    name: string;
-    label: string;
-    placeholder?: string;
-};
-
-type ErrorsState = { fields: string[]; messages: string[] };
-
-UserForm.propTypes = ComponentPropTypes;
+UserForm.propTypes = i.ComponentPropTypes;
 export default UserForm;
