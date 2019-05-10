@@ -18,9 +18,9 @@ const rowMapping: RowMapping = {
         return data.id;
     },
     columns: {
+        username: { label: 'Username' },
         firstname: { label: 'First Name' },
         lastname: { label: 'Last Name' },
-        username: { label: 'Username' },
         role: {
             label: 'Role',
             format(data) {
@@ -72,6 +72,7 @@ const ListUsers: React.FC = () => {
                         <DataTable
                             rowMapping={rowMapping}
                             title="Users"
+                            baseEditPath="/users/edit"
                             removeRecords={() => {}}
                             loading={loading}
                             records={records}

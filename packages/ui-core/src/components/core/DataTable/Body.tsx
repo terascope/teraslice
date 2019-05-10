@@ -1,11 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { get } from '@terascope/utils';
+import { Link } from 'react-router-dom';
 import { Table, Checkbox } from 'semantic-ui-react';
 import { RowMappingProp, RowMapping } from './interfaces';
+import { formatPath } from '../utils';
 
 const Body: React.FC<Props> = props => {
-    const { records, selected, total, rowMapping, selectRecord } = props;
+    const { records, selected, total, baseEditPath, rowMapping, selectRecord } = props;
 
     const columns = Object.entries(rowMapping.columns);
     const allSelected = selected.length === total;
@@ -25,9 +27,17 @@ const Body: React.FC<Props> = props => {
                         <Table.Cell collapsing width={1} textAlign="center">
                             <Checkbox checked={isSelected} />
                         </Table.Cell>
-                        {columns.map(([key, col]) => {
-                            const value = col.format ? col.format(record) : get(record, key);
-                            return <Table.Cell key={`record-${id}-${key}`}>{value}</Table.Cell>;
+                        {columns.map(([key, col], i) => {
+                            const value = col.format
+                                ? col.format(record)
+                                : get(record, key);
+
+                            const editPath = formatPath(baseEditPath, id);
+                            return (
+                                <Table.Cell key={`record-${id}-${key}`}>
+                                    {i > 0 ? value : <Link to={editPath}>{value}</Link>}
+                                </Table.Cell>
+                            );
                         })}
                     </Table.Row>
                 );
@@ -41,6 +51,7 @@ type Props = {
     records: any[];
     selected: string[];
     selectRecord: (id: string) => void;
+    baseEditPath: string;
     total: number;
 };
 
@@ -49,6 +60,7 @@ Body.propTypes = {
     records: PropTypes.array.isRequired,
     selected: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
     total: PropTypes.number.isRequired,
+    baseEditPath: PropTypes.string.isRequired,
     rowMapping: RowMappingProp.isRequired,
 };
 

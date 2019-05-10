@@ -9,7 +9,16 @@ import Footer from './Footer';
 import * as i from './interfaces';
 
 const DataTable: React.FC<Props> = props => {
-    const { records, total, title, loading, updateQueryState, removeRecords, rowMapping } = props;
+    const {
+        records,
+        total,
+        baseEditPath,
+        title,
+        loading,
+        updateQueryState,
+        removeRecords,
+        rowMapping,
+    } = props;
 
     const queryState = {
         from: 0,
@@ -76,6 +85,7 @@ const DataTable: React.FC<Props> = props => {
                 <Body
                     rowMapping={rowMapping}
                     records={records}
+                    baseEditPath={baseEditPath}
                     selectRecord={selectRecord}
                     selected={selected}
                     total={total}
@@ -97,6 +107,7 @@ type Props = {
     records: any[];
     updateQueryState: i.UpdateQueryState;
     removeRecords: (ids: string[]) => void;
+    baseEditPath: string;
     title: string;
     total: number;
     loading?: boolean;
@@ -107,6 +118,7 @@ DataTable.propTypes = {
     updateQueryState: PropTypes.func.isRequired,
     records: PropTypes.array.isRequired,
     title: PropTypes.string.isRequired,
+    baseEditPath: PropTypes.string.isRequired,
     total: PropTypes.number.isRequired,
     loading: PropTypes.bool,
     removeRecords: PropTypes.func.isRequired,

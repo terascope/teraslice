@@ -8,6 +8,7 @@ export type PluginRoute = {
     path: string;
     icon: string;
     hidden?: boolean;
+    exact?: boolean;
     component: React.FunctionComponent;
 };
 
@@ -16,8 +17,9 @@ export const PluginRoutesProp = PropTypes.arrayOf(
         name: PropTypes.string.isRequired,
         path: PropTypes.string.isRequired,
         icon: PropTypes.string.isRequired,
-        component: PropTypes.func.isRequired,
         hidden: PropTypes.bool,
+        exact: PropTypes.bool,
+        component: PropTypes.func.isRequired,
     }).isRequired
 );
 

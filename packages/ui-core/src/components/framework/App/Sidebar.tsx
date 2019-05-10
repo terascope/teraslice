@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { History } from 'history';
 import { Menu } from 'semantic-ui-react';
 import { withRouter } from 'react-router-dom';
-import { useCoreContext, PluginConfig } from '../../core';
-import { formatPath } from '../../../helpers';
+import { useCoreContext, PluginConfig, formatPath } from '../../core';
 import * as s from './styled';
 
 const SidebarMenuIcon: React.FC<any> = ({ icon, color, open }) => {
@@ -18,7 +17,11 @@ const SidebarMenuIcon: React.FC<any> = ({ icon, color, open }) => {
 };
 
 const SidebarToggleIcon: React.FC<{ open: boolean }> = ({ open }) => (
-    <SidebarMenuIcon icon={`chevron ${!open ? 'right' : 'left'}`} color="grey" open={open} />
+    <SidebarMenuIcon
+        icon={`chevron ${!open ? 'right' : 'left'}`}
+        color="grey"
+        open={open}
+    />
 );
 
 const makePluginLinks = (plugins: PluginConfig[], history: History, open: boolean) => {

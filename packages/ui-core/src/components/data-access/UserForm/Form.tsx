@@ -1,12 +1,11 @@
 import React, { FormEvent, useState } from 'react';
-import gql from 'graphql-tag';
-import { Mutation } from 'react-apollo';
 import { Link, Redirect } from 'react-router-dom';
 import { AnyObject, get, toInteger } from '@terascope/utils';
 import { UserType } from '@terascope/data-access';
 import { DropdownProps, Form, Icon, InputOnChangeData, Message } from 'semantic-ui-react';
-import { ResolvedUser, useCoreContext } from '../../core';
-import { ComponentProps } from './Query';
+import Mutation from './Mutation';
+import { ComponentProps, ComponentPropTypes } from './Query';
+import { useCoreContext } from '../../core';
 
 const userTypes: UserType[] = ['USER', 'ADMIN', 'SUPERADMIN'];
 const userTypeOptions = userTypes.map(type => ({
@@ -15,19 +14,12 @@ const userTypeOptions = userTypes.map(type => ({
     value: type,
 }));
 
-const CreateUserForm: React.FC<ComponentProps> = ({ roles }) => {
+const UserForm: React.FC<ComponentProps> = ({ roles, id, initUser }) => {
     const authUser = useCoreContext().authUser!;
 
     const [user, setUser] = useState<AnyObject>({
-        client_id: authUser.client_id || 0,
-        firstname: '',
-        lastname: '',
-        username: '',
-        password: '',
+        ...initUser,
         repeat_password: '',
-        email: '',
-        role: get(authUser, 'role.id'),
-        type: 'USER',
     });
 
     const updateUser = (updates: AnyObject) => setUser(Object.assign(user, updates));
@@ -114,18 +106,21 @@ const CreateUserForm: React.FC<ComponentProps> = ({ roles }) => {
     const hasErrors = errors.messages.length > 0;
 
     return (
-        <CreateUserMutation mutation={CREATE_USER}>
-            {(createUser, { data, loading, error }: any) => {
+        <Mutation>
+            {(submit, { data, loading, error }: any) => {
                 const onSubmit = (e: FormEvent) => {
                     e.preventDefault();
                     if (validate(true)) {
                         const password = user.password as string;
                         delete user.password;
                         delete user.repeat_password;
-                        if (!user.role) delete user.role;
-                        createUser({
+
+                        const userInput = { ...user };
+                        if (!userInput.role) delete userInput.role;
+
+                        submit({
                             variables: {
-                                user,
+                                user: { ...user },
                                 password,
                             },
                         });
@@ -256,19 +251,9 @@ const CreateUserForm: React.FC<ComponentProps> = ({ roles }) => {
                     </div>
                 );
             }}
-        </CreateUserMutation>
+        </Mutation>
     );
 };
-
-const CREATE_USER = gql`
-    mutation CreateUser($user: CreateUserInput!, $password: String!) {
-        createUser(user: $user, password: $password) {
-            id
-            username
-            type
-        }
-    }
-`;
 
 type ChangeFn = (e: any, data: InputOnChangeData | DropdownProps) => void;
 
@@ -280,15 +265,5 @@ type FieldOptions = {
 
 type ErrorsState = { fields: string[]; messages: string[] };
 
-type Response = {
-    createUser: ResolvedUser;
-};
-
-type Variables = {
-    user: AnyObject;
-    password: string;
-};
-
-class CreateUserMutation extends Mutation<Response, Variables> {}
-
-export default CreateUserForm;
+UserForm.propTypes = ComponentPropTypes;
+export default UserForm;

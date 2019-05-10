@@ -6,5 +6,6 @@ import Page from './Page';
 export * from './DataTable';
 export * from './CoreContext';
 export * from './interfaces';
+export * from './utils';
 
 export { AuthUserQuery, ErrorInfo, Loading, Page };

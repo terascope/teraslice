@@ -1,5 +1,5 @@
-export function formatPath(basepath?: string, path?: string) {
-    return `${trimSlashes(basepath)}/${trimSlashes(path)}`;
+export function formatPath(...paths: (string | undefined)[]) {
+    return paths.map(trimSlashes).join('/');
 }
 
 export function trimSlashes(str?: string) {

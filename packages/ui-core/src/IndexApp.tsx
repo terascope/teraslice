@@ -1,7 +1,7 @@
 import React from 'react';
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from 'react-apollo';
-import { CoreContextProvider } from './components/core';
+import { CoreContextProvider, PluginConfig } from './components/core';
 import DataAccessPlugin from './components/data-access';
 import { Welcome } from './components/framework';
 import CoreRouter from './IndexRouter';
@@ -17,7 +17,7 @@ const IndexApp: React.FC = () => {
         credentials: 'include',
     });
 
-    const plugins = [
+    const plugins: PluginConfig[] = [
         {
             name: '',
             routes: [
@@ -25,6 +25,7 @@ const IndexApp: React.FC = () => {
                     name: 'Home',
                     path: '/',
                     icon: 'home',
+                    exact: true,
                     component: Welcome,
                 },
             ],

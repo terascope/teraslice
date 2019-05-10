@@ -3,12 +3,12 @@ import { Page } from '../../core';
 import Query from '../UserForm/Query';
 import Form from '../UserForm/Form';
 
-const CreateUser: React.FC = () => {
+const EditUser: React.FC = () => {
     return (
-        <Page title="Create Users">
+        <Page title="Edit Users">
             <Query component={Form} />
         </Page>
     );
 };
 
-export default CreateUser;
+export default EditUser;

@@ -1,6 +1,5 @@
 import React from 'react';
-import { useCoreContext } from '../core';
-import { formatPath } from '../../helpers';
+import { useCoreContext, formatPath } from '../core';
 import ProtectedRoute from './ProtectedRoute';
 
 const Routes: React.FC = () => {
@@ -14,7 +13,7 @@ const Routes: React.FC = () => {
                         key={`route-${pi}-${ri}`}
                         path={formatPath(plugin.basepath, route.path)}
                         component={route.component}
-                        exact
+                        exact={!!route.exact}
                     />
                 ))
             )}
