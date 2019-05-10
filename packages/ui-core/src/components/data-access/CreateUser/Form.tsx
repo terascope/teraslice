@@ -1,12 +1,12 @@
-import { AnyObject, get } from '@terascope/utils';
-import { DropdownProps, Form, Icon, InputOnChangeData, Message } from 'semantic-ui-react';
 import React, { FormEvent, useState } from 'react';
-import { ResolvedUser, useCoreContext } from '../../core';
-
-import { ComponentProps } from './Query';
-import { Mutation } from 'react-apollo';
-import { UserType } from '@terascope/data-access';
 import gql from 'graphql-tag';
+import { Mutation } from 'react-apollo';
+import { Link, Redirect } from 'react-router-dom';
+import { AnyObject, get, toInteger } from '@terascope/utils';
+import { UserType } from '@terascope/data-access';
+import { DropdownProps, Form, Icon, InputOnChangeData, Message } from 'semantic-ui-react';
+import { ResolvedUser, useCoreContext } from '../../core';
+import { ComponentProps } from './Query';
 
 const userTypes: UserType[] = ['USER', 'ADMIN', 'SUPERADMIN'];
 const userTypeOptions = userTypes.map(type => ({
@@ -48,20 +48,54 @@ const CreateUserForm: React.FC<ComponentProps> = ({ roles }) => {
         validate();
     };
 
-    const validate = (): boolean => {
-        const updated: ErrorsState = {
+    const validate = (isSubmit = false): boolean => {
+        const errs: ErrorsState = {
             fields: [],
             messages: [],
         };
 
         if (user.password && user.password !== user.repeat_password) {
-            updated.messages.push('Password must match');
-            updated.fields.push('password', 'repeat_password');
+            errs.messages.push('Password must match');
+            errs.fields.push('password', 'repeat_password');
         }
 
-        setErrors(updated);
+        const clientId = toInteger(user.client_id);
+        if (clientId === false) {
+            errs.messages.push('Client ID must be an valid number');
+            errs.fields.push('client_id');
+        } else {
+            user.client_id = clientId;
+        }
 
-        return !updated.messages.length || !updated.fields.length;
+        if (isSubmit) {
+            const required = [
+                'username',
+                'firstname',
+                'lastname',
+                'type',
+                'password',
+                'repeat_password',
+                'client_id',
+            ];
+
+            let missingRequired = false;
+
+            required.forEach(field => {
+                const d = user[field];
+                if (!d && !(d === '0' || d === 0)) {
+                    missingRequired = true;
+                    errs.fields.push(field);
+                }
+            });
+
+            if (missingRequired) {
+                errs.messages.push('Please complete missing fields');
+            }
+        }
+
+        setErrors(errs);
+
+        return !errs.messages.length || !errs.fields.length;
     };
 
     const getFieldProps = ({ name, label, placeholder }: FieldOptions): any => {
@@ -84,10 +118,11 @@ const CreateUserForm: React.FC<ComponentProps> = ({ roles }) => {
             {(createUser, { data, loading, error }: any) => {
                 const onSubmit = (e: FormEvent) => {
                     e.preventDefault();
-                    if (validate()) {
+                    if (validate(true)) {
                         const password = user.password as string;
                         delete user.password;
                         delete user.repeat_password;
+                        if (!user.role) delete user.role;
                         createUser({
                             variables: {
                                 user,
@@ -174,17 +209,23 @@ const CreateUserForm: React.FC<ComponentProps> = ({ roles }) => {
                                     })}
                                 />
                             </Form.Group>
-
-                            <Form.Group>
-                                <Form.Button
-                                    width={16}
-                                    type="submit"
-                                    floated="right"
-                                    disabled={data != null}
-                                >
-                                    Submit
-                                </Form.Button>
-                            </Form.Group>
+                            {!data && (
+                                <Form.Group>
+                                    <Form.Button basic floated="right" width={15}>
+                                        <Link to="/users">Cancel</Link>
+                                    </Form.Button>
+                                    <Form.Button
+                                        width={2}
+                                        type="submit"
+                                        floated="right"
+                                        loading={loading}
+                                        fluid
+                                        primary
+                                    >
+                                        Submit
+                                    </Form.Button>
+                                </Form.Group>
+                            )}
                         </Form>
                         {error && (
                             <Message error attached="bottom">
@@ -198,7 +239,9 @@ const CreateUserForm: React.FC<ComponentProps> = ({ roles }) => {
                                 <Message.Header>Validation Error</Message.Header>
                                 <Message.List>
                                     {errors.messages.map((msg, i) => (
-                                        <Message.Item key={`valid-err-${i}`}>{msg}</Message.Item>
+                                        <Message.Item key={`valid-err-${i}`}>
+                                            {msg}
+                                        </Message.Item>
                                     ))}
                                 </Message.List>
                             </Message>
@@ -207,6 +250,7 @@ const CreateUserForm: React.FC<ComponentProps> = ({ roles }) => {
                             <Message success attached="bottom">
                                 <Icon name="thumbs up outline" size="large" />
                                 <Message.Header>Success!</Message.Header>
+                                <Redirect to="/users/" />
                             </Message>
                         )}
                     </div>

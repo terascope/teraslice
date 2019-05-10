@@ -80,7 +80,6 @@ export const SidebarWrapper = styled.div`
 `;
 
 export const Main = styled.main`
-    height: 100%;
     flex: 1;
     margin: 2rem 0;
 `;
