@@ -9,11 +9,15 @@ const numberMapping = {
     double: 'Int',
     float: 'Int',
     half_float: 'Int',
+    int: 'Int',
+    Int: 'Int'
 };
 
 const textMapping = {
     text: 'String',
     keyword: 'String',
+    String: 'String',
+    string: 'String',
 };
 
 // TODO: need to deal with number dates
@@ -28,7 +32,8 @@ const geoMapping = {
 };
 
 const booleanMapping = {
-    boolean: 'Boolean'
+    boolean: 'Boolean',
+    Boolean: 'Boolean'
 };
 
 const ipMapping = {

@@ -7,20 +7,23 @@ import { Context } from '@terascope/job-components';
 import * as ts from '@terascope/utils';
 import allTypeMappings from './typeMappings';
 
-// TODO: is first-date endpoint name is invalid?
 // TODO: location => obj with lat lon
 // TODO: join and secondary query needs to be added together with join AND (q)
 // TODO: elasticsearch search error should not leak to much
-// TODO: history??
-// TODO: put types for typeconfig into ticket of PR
+// TODO: history capabilities??
 
 export default async function getSchemaByRole(aclManager: ACLManager, user: User, logger: ts.Logger, context: Context) {
     const query = `roles: ${user.role}`;
     const spaces = await aclManager.findSpaces({ query }, false);
     const fetchViews = spaces.map(space => aclManager.getViewForSpace({ space: space.id }, user));
     const list = await Promise.all(fetchViews);
-    const types = createTypings(list);
-    const myResolvers = createResolvers(list, logger, context);
+    const sanatizedList = list.map((view) => {
+        view.space_endpoint = sanitize(view.space_endpoint);
+        return view;
+    });
+
+    const types = createTypings(sanatizedList);
+    const myResolvers = createResolvers(sanatizedList, logger, context);
 
     const schema = makeExecutableSchema({
         typeDefs: types,
@@ -29,6 +32,11 @@ export default async function getSchemaByRole(aclManager: ACLManager, user: User
     });
 
     return schema;
+}
+
+function sanitize(name: string) {
+    // https://graphql.github.io/graphql-spec/June2018/#sec-Punctuators
+    return name.replace(/[\!$\?@\*:\s=\(\)\[\]\{\}\|]/g, '').replace(/-/g, '_').trim();
 }
 
 function createTypings(configs: DataAccessConfig[]) {
