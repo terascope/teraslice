@@ -2,7 +2,7 @@ import React from 'react';
 import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
-import { get } from '@terascope/utils';
+import { get, withoutNil, isString } from '@terascope/utils';
 import { User } from '@terascope/data-access';
 import { Segment } from 'semantic-ui-react';
 import { ErrorInfo, Loading, ResolvedUser, useCoreContext } from '../../core';
@@ -15,17 +15,25 @@ const UserQuery: React.FC<Props> = ({ component: Component, id }) => {
         <UserInfoQuery query={QUERY} variables={{ id }}>
             {({ loading, error, data }) => {
                 const roles: Role[] = get(data, 'roles', []);
-                const initUser: Partial<User> = get(data, 'user', {
-                    id,
-                    client_id: authUser.client_id || 0,
-                    firstname: '',
-                    lastname: '',
-                    username: '',
-                    password: '',
-                    email: '',
-                    role: get(authUser, 'role.id'),
-                    type: 'USER',
-                });
+                const initUser: Partial<ResolvedUser> = Object.assign(
+                    withoutNil({
+                        id,
+                        client_id: authUser.client_id || 0,
+                        firstname: '',
+                        lastname: '',
+                        username: '',
+                        // @ts-ignore
+                        password: '',
+                        email: '',
+                        role: authUser.role,
+                        type: 'USER',
+                    }),
+                    withoutNil(get(data, 'user', {}))
+                );
+                if (!isString(initUser.role)) {
+                    initUser.role = get(initUser, 'role.id');
+                }
+
                 if (loading) return <Loading />;
                 if (error) return <ErrorInfo error={error} />;
 
@@ -84,7 +92,7 @@ const ROLES_QUERY = gql`
 `;
 
 const USER_AND_ROLES_QUERY = gql`
-    query UserInfo($id: String!) {
+    query UserInfo($id: ID!) {
         roles(query: "*") {
             id
             name

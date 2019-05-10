@@ -1,23 +1,29 @@
 import React from 'react';
+import { Route, Switch } from 'react-router-dom';
 import { useCoreContext, formatPath } from '../core';
 import ProtectedRoute from './ProtectedRoute';
+import NoMatch from './NoMatch';
 
 const Routes: React.FC = () => {
     const { plugins } = useCoreContext();
 
     return (
-        <div>
+        <Switch>
             {plugins.map((plugin, pi) =>
-                plugin.routes.map((route, ri) => (
-                    <ProtectedRoute
-                        key={`route-${pi}-${ri}`}
-                        path={formatPath(plugin.basepath, route.path)}
-                        component={route.component}
-                        exact={!!route.exact}
-                    />
-                ))
+                plugin.routes.map((route, ri) => {
+                    const path = formatPath(plugin.basepath, route.path);
+                    return (
+                        <ProtectedRoute
+                            key={`route-${pi}-${ri}`}
+                            path={path}
+                            component={route.component}
+                            exact={!!route.exact}
+                        />
+                    );
+                })
             )}
-        </div>
+            <Route component={NoMatch} />
+        </Switch>
     );
 };
 

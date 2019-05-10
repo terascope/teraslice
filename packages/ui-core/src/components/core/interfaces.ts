@@ -9,7 +9,7 @@ export type PluginRoute = {
     icon: string;
     hidden?: boolean;
     exact?: boolean;
-    component: React.FunctionComponent;
+    component: React.FunctionComponent | React.ComponentClass;
 };
 
 export const PluginRoutesProp = PropTypes.arrayOf(

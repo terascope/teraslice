@@ -5,17 +5,18 @@ import ListUsers from './ListUsers';
 
 const config: PluginConfig = {
     name: 'Data Access',
+    basepath: '/users',
     routes: [
         {
             name: 'Users',
-            path: '/users/',
+            path: '/',
             icon: 'users',
             exact: true,
             component: ListUsers,
         },
         {
             name: 'Create User',
-            path: '/users/create',
+            path: '/create',
             icon: 'plus',
             exact: true,
             hidden: true,
@@ -23,9 +24,9 @@ const config: PluginConfig = {
         },
         {
             name: 'Edit User',
-            path: '/users/edit/:id',
+            path: '/edit/:id',
             icon: 'pencil alternate',
-            exact: false,
+            exact: true,
             hidden: true,
             component: EditUser,
         },

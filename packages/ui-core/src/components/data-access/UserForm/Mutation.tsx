@@ -58,7 +58,9 @@ const UserMutation: React.FC<MutationProps> = ({ id, children }) => {
                 );
 
                 const queryResult: any = result;
-                queryResult.data = { user };
+                if (user) {
+                    queryResult.data = { user };
+                }
 
                 return children((input: any) => {
                     return updateUser(input);

@@ -1,5 +1,8 @@
 export function formatPath(...paths: (string | undefined)[]) {
-    return paths.map(trimSlashes).join('/');
+    return `/${paths
+        .map(trimSlashes)
+        .filter(s => !!s)
+        .join('/')}`;
 }
 
 export function trimSlashes(str?: string) {

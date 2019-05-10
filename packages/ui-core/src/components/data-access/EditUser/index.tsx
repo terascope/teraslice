@@ -1,14 +1,12 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
 import { Page } from '../../core';
-import Query from '../UserForm/Query';
-import Form from '../UserForm/Form';
+import UserForm from '../UserForm';
 
-const EditUser: React.FC = () => {
+export default withRouter(({ match }) => {
     return (
         <Page title="Edit Users">
-            <Query component={Form} />
+            <UserForm id={match.params.id} />
         </Page>
     );
-};
-
-export default EditUser;
+});
