@@ -6,6 +6,7 @@ import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { DynamicApolloServer } from './dynamic-server';
 import typeDefs from './types';
 import { defaultResolvers as resolvers } from './resolvers';
+import * as utils from '../manager/utils';
 
 /**
  * A graphql api for managing spaces
@@ -30,6 +31,7 @@ export default class SpacesPlugin {
                 resolvers,
                 inheritResolversFromInterfaces: true,
             }),
+            formatError: utils.formatError,
             introspection: true,
         });
         // @ts-ignore
