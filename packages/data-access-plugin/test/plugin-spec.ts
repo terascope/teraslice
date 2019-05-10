@@ -847,7 +847,7 @@ describe('Data Access Plugin', () => {
         });
     });
 
-    fdescribe('Spaces api', () => {
+    describe('Spaces api', () => {
         const space1 = 'test_space1';
         const space2 = 'test_space2';
         const space3 = 'test_space3';
@@ -1660,6 +1660,43 @@ describe('Data Access Plugin', () => {
                             {
                                 bool: true,
                                 url: 'http://twitter.com'
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const queryResults = await fullRoleClient.request(query1);
+            expect(queryResults).toEqual(results);
+        });
+
+        it('can combine join and query properly', async() => {
+            const query1 = `
+                query {
+                    ${space1}(query: "bytes:>=1000"){
+                        bytes
+                        ${space2}(join:["bytes"], query: "bytes:>=1200 OR bool:false"){
+                            bool
+                        }
+                    }
+                }
+            `;
+
+            const results = {
+                [space1]: [
+                    {
+                        bytes: 1234,
+                        [space2]: [
+                            {
+                                bool: true
+                            }
+                        ]
+                    },
+                    {
+                        bytes: 1500,
+                        [space2]: [
+                            {
+                                bool: true
                             }
                         ]
                     }

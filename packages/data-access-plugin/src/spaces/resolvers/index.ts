@@ -33,7 +33,6 @@ function dedup(records: any[]): any[] {
     return _.values(dedup);
 }
 
-// TODO: if fields are not one-to-one mapping then we need to add a resolver for it
 function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: Context) {
     const results = {
         ...Misc,
@@ -55,7 +54,6 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
     viewList.forEach((view) => {
         const esClient = getESClient(context, get(view, 'search_config.connection', 'default'));
         const client = elasticsearchApi(esClient, logger);
-        // TODO: allow_implicit_queries for query access ??? would this work with search_config.require_query? by space?
         const { data_type: {  type_config }, view: { includes, excludes, constraint, prevent_prefix_wildcard } } = view;
         const accessData = {
             includes,
@@ -83,7 +81,7 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
                     const selector = target || orig; // In case there's no colon in field.
                     if (root && root[orig] !== null) {
                         if (q) {
-                            q = `${selector}:${root[orig]} AND ${q}`;
+                            q = `${selector}:${root[orig]} AND (${q})`;
                         }
                         q = `${selector}:${root[orig]}`;
                     }

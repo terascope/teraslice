@@ -8,8 +8,6 @@ import GeoType from './types/geoType';
 import { createResolvers } from './resolvers';
 import allTypeMappings from './typeMappings';
 
-// TODO: location => obj with lat lon
-// TODO: join and secondary query needs to be added together with join AND (q)
 // TODO: elasticsearch search error should not leak to much
 // TODO: history capabilities??
 
