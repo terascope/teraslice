@@ -54,7 +54,7 @@
         "yargs": "^13.2.2"
     },
     "devDependencies": {
-        "@types/lodash": "^4.14.124",
+        "@types/lodash": "^4.14.125",
         "@types/valid-url": "^1.0.2",
         "@types/validator": "^10.11.0",
         "@types/yargs": "^13.0.0"
