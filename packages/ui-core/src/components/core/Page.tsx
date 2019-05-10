@@ -17,7 +17,7 @@ const Page: React.FC<Props> = ({ title, actions = [], ...props }) => {
 
     return (
         <Container>
-            <Segment>
+            <Segment padded>
                 <Menu secondary>
                     <Menu.Header as={Title}>{title}</Menu.Header>
                     {actions.map((action, i) => {
@@ -29,7 +29,11 @@ const Page: React.FC<Props> = ({ title, actions = [], ...props }) => {
                             };
 
                         return (
-                            <Menu.Item onClick={onClick} key={`page-item-${i}`} position="right">
+                            <Menu.Item
+                                onClick={onClick}
+                                key={`page-item-${i}`}
+                                position="right"
+                            >
                                 <Button>
                                     {action.icon && <Icon name={action.icon as any} />}
                                     {action.label}

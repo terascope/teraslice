@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
 import { get } from '@terascope/utils';
 import { Segment } from 'semantic-ui-react';
-import { ErrorInfo, Loading, ResolvedUser, useCoreContext } from '../../core';
 import * as i from './interfaces';
+import { ErrorInfo, Loading, ResolvedUser, useCoreContext } from '../../core';
 
 const UserQuery: React.FC<Props> = ({ component: Component, id }) => {
     const QUERY = id ? USER_AND_ROLES_QUERY : ROLES_QUERY;

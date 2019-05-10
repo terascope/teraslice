@@ -1,6 +1,7 @@
 import React from 'react';
 import { Dropdown } from 'semantic-ui-react';
 import { useCoreContext } from '../../core';
+import MyAccountLink from './MyAccountLink';
 import LogoutLink from './LogoutLink';
 import * as s from './styled';
 
@@ -14,6 +15,7 @@ const Navbar: React.FC = () => {
             {authenticated && (
                 <Dropdown item icon={AccountIcon} className="right">
                     <Dropdown.Menu>
+                        <Dropdown.Item as={MyAccountLink} />
                         <Dropdown.Item as={LogoutLink} />
                     </Dropdown.Menu>
                 </Dropdown>

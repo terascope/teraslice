@@ -36,7 +36,7 @@ const searchFields = ['firstname', 'lastname', 'username', 'email'];
 const ListUsers: React.FC = () => {
     const [state, setState] = useState<QueryState>({
         query: '*',
-        size: 2,
+        size: 10,
     });
 
     const updateQueryState = (queryState: QueryState) => {
