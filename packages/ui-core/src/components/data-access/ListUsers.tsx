@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import gql from 'graphql-tag';
-import { Query } from 'react-apollo';
+import { Query, ApolloConsumer } from 'react-apollo';
 import { get } from '@terascope/utils';
 import {
     DataTable,
@@ -68,19 +68,36 @@ const ListUsers: React.FC = () => {
                 const total = (data && data.usersCount) || 0;
 
                 return (
-                    <Page title="Users" actions={actions}>
-                        <DataTable
-                            rowMapping={rowMapping}
-                            title="Users"
-                            baseEditPath="/users/edit"
-                            removeRecords={() => {}}
-                            loading={loading}
-                            records={records}
-                            total={total}
-                            queryState={state}
-                            updateQueryState={updateQueryState}
-                        />
-                    </Page>
+                    <ApolloConsumer>
+                        {(client) => (
+                            <Page title="Users" actions={actions}>
+                                <DataTable
+                                    rowMapping={rowMapping}
+                                    title="Users"
+                                    baseEditPath="/users/edit"
+                                    removeRecords={async (ids: string[]) => {
+                                        const promises = ids.map((id) => {
+                                            return client.mutate({
+                                                mutation: REMOVE_QUERY,
+                                                variables: {
+                                                    id,
+                                                },
+                                            });
+                                        });
+
+                                        await Promise.all(promises);
+
+                                        return `Successful deleted ${ids.length} records`;
+                                    }}
+                                    loading={loading}
+                                    records={records}
+                                    total={total}
+                                    queryState={state}
+                                    updateQueryState={updateQueryState}
+                                />
+                            </Page>
+                        )}
+                    </ApolloConsumer>
                 );
             }}
         </UsersQuery>
@@ -116,3 +133,9 @@ interface Response {
 }
 
 class UsersQuery extends Query<Response, QueryState> {}
+
+const REMOVE_QUERY = gql`
+    mutation RemoveUser($id: ID!) {
+        removeUser(id: $id)
+    }
+`;

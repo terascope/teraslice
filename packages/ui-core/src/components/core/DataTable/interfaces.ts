@@ -42,3 +42,10 @@ export const RowMappingProp = PropTypes.shape({
     getId: PropTypes.func.isRequired,
     columns: ColumnMappingProp.isRequired,
 });
+
+export type ActionState = {
+    loading?: boolean;
+    message?: string;
+    success?: boolean;
+    error?: boolean;
+};
