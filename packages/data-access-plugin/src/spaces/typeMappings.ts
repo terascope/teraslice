@@ -26,9 +26,9 @@ const dateMapping = {
 };
 
 const geoMapping = {
-    geo_point: 'String',
-    geo_shape: 'String',
-    geo: 'String'
+    geo_point: 'Geo',
+    geo_shape: 'Geo',
+    geo: 'Geo'
 };
 
 const booleanMapping = {

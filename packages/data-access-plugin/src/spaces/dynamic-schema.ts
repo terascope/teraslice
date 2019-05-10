@@ -1,10 +1,11 @@
 
-import Usertype from './types/user';
-import { createResolvers } from './resolvers';
 import { makeExecutableSchema } from 'apollo-server-express';
 import { ACLManager, User, DataAccessConfig } from '@terascope/data-access';
 import { Context } from '@terascope/job-components';
 import * as ts from '@terascope/utils';
+import Usertype from './types/user';
+import GeoType from './types/geoType';
+import { createResolvers } from './resolvers';
 import allTypeMappings from './typeMappings';
 
 // TODO: location => obj with lat lon
@@ -40,7 +41,7 @@ function sanitize(name: string) {
 }
 
 function createTypings(configs: DataAccessConfig[]) {
-    const results: string[] = ['scalar JSON', 'scalar DateTime', Usertype];
+    const results: string[] = ['scalar JSON', 'scalar DateTime', Usertype, GeoType];
     const queryEndpoints: string[] = configs.map(config => config.space_endpoint);
     // create individual types
     configs.forEach((config) => {

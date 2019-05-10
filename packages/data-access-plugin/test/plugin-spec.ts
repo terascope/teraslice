@@ -4,7 +4,6 @@ import express from 'express';
 import { Server } from 'http';
 import { GraphQLClient } from 'graphql-request';
 import { TestContext } from '@terascope/job-components';
-
 import { makeClient, cleanupIndexes, deleteIndices, populateIndex } from './helpers/elasticsearch';
 import { PluginConfig } from '../src/interfaces';
 import ManagerPlugin from '../src/manager';
@@ -848,7 +847,7 @@ describe('Data Access Plugin', () => {
         });
     });
 
-    describe('Spaces api', () => {
+    fdescribe('Spaces api', () => {
         const space1 = 'test_space1';
         const space2 = 'test_space2';
         const space3 = 'test_space3';
@@ -902,7 +901,10 @@ describe('Data Access Plugin', () => {
                 ip : '152.223.244.212',
                 ipv6 : 'ab88:805e:55db:0750:b143:61ce:e07a:7180',
                 url : 'http://hello.com',
-                location : '0.05102, -41.82129',
+                location : {
+                    lat: '0.05102',
+                    lon: '-41.82129',
+                },
                 id : '96669a45-3e2a-4dbe-a34e-3aeb97d1419b',
                 created : '2019-04-26T08:00:23.207-07:00',
                 bytes : 1234
@@ -911,7 +913,10 @@ describe('Data Access Plugin', () => {
                 ip : '152.113.244.212',
                 ipv6 : 'bb88:805e:55db:0750:b143:61ce:e07a:7180',
                 url : 'http://other.com',
-                location : '81.90873, -98.281',
+                location : {
+                    lat: '81.90873',
+                    lon: '-98.281',
+                },
                 id : '68aa96f8-372a-498d-94c4-5d05a407526e',
                 created : '2019-04-26T08:07:23.207-07:00',
                 bytes : 210
@@ -920,7 +925,10 @@ describe('Data Access Plugin', () => {
                 ip : '152.113.244.200',
                 ipv6 : 'cb88:805e:55db:0750:b143:61ce:e07a:7180',
                 url : 'http://last.com',
-                location : '61.90873, -118.281',
+                location : {
+                    lat: '61.90873',
+                    lon: '-118.281',
+                },
                 id : 'a0fa3951-8c12-4ccf-814f-134abaf561ae',
                 created : '2019-04-26T04:07:23.207-07:00',
                 bytes : 1500
@@ -931,7 +939,10 @@ describe('Data Access Plugin', () => {
             {
                 ip : '152.223.244.212',
                 url : 'http://google.com',
-                location : '0.05102, -41.82129',
+                location : {
+                    lat: '0.05102',
+                    lon: '-41.82129',
+                },
                 id : '96669a45-3e2a-4dbe-a34e-3aeb97d1419b',
                 created : '2019-04-26T08:00:23.207-07:00',
                 bytes : 1234,
@@ -940,7 +951,10 @@ describe('Data Access Plugin', () => {
             {
                 ip : '152.113.244.212',
                 url : 'http://amazon.com',
-                location : '81.90873, -98.281',
+                location : {
+                    lat: '81.90873',
+                    lon: '-98.281',
+                },
                 id : '68aa96f8-372a-498d-94c4-5d05a407526e',
                 created : '2019-04-26T08:07:23.207-07:00',
                 bytes : 210,
@@ -949,7 +963,10 @@ describe('Data Access Plugin', () => {
             {
                 ip : '152.113.244.200',
                 url : 'http://twitter.com',
-                location : '61.90873, -118.281',
+                location : {
+                    lat: '61.90873',
+                    lon: '-118.281',
+                },
                 id : 'a0fa3951-8c12-4ccf-814f-134abaf561ae',
                 created : '2019-04-26T04:07:23.207-07:00',
                 bytes : 1500,
@@ -959,19 +976,28 @@ describe('Data Access Plugin', () => {
 
         const space3Data: any[] = [
             {
-                location : '0.05102, -41.82129',
+                location : {
+                    lat: '0.05102',
+                    lon: '-41.82129',
+                },
                 bytes : 1234,
                 wasFound: true,
                 date: date1.toISOString(),
             },
             {
-                location : '81.90873, -98.281',
+                location : {
+                    lat: '81.90873',
+                    lon: '-98.281',
+                },
                 bytes : 210,
                 wasFound: false,
                 date: date2.toISOString(),
             },
             {
-                location : '61.90873, -118.281',
+                location : {
+                    lat: '61.90873',
+                    lon: '-118.281',
+                },
                 bytes : 1500,
                 wasFound: true,
                 date: date3.toISOString(),
@@ -1469,7 +1495,10 @@ describe('Data Access Plugin', () => {
                 query {
                     ${space2}(query: "location:(_geo_box_top_left_:\\"83.906320,-100.058902\\" _geo_box_bottom_right_:\\"80.813646,-97.758421\\")", size: 2){
                         bytes,
-                        location
+                        location {
+                            lat,
+                            lon
+                        }
                     }
                 }
             `;
@@ -1487,7 +1516,7 @@ describe('Data Access Plugin', () => {
                 .map((obj) => ({ bytes: obj.bytes, bool: obj.bool }));
 
             const finalResults3 = space2Data
-                .filter((data) => data.location === '81.90873, -98.281')
+                .filter((data) => data.location.lat === '81.90873')
                 .map((obj) => ({ bytes: obj.bytes, location: obj.location }));
 
             const [
@@ -1601,7 +1630,7 @@ describe('Data Access Plugin', () => {
             expect(queryResults).toEqual(results);
         });
 
-        fit('can do joins off of itself', async() => {
+        it('can do joins off of itself', async() => {
             const query1 = `
                 query {
                     ${space2}(query: "bytes:>=1000"){
