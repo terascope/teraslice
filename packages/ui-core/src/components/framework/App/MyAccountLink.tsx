@@ -8,7 +8,7 @@ const MyAccountLink: React.FC = () => {
 
     return (
         <Button basic as={BasicLink} to={`/users/edit/${authUser.id}`}>
-            <Icon name="user circle outline" />
+            <Icon name="user circle" />
             My Account
         </Button>
     );
