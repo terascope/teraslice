@@ -96,7 +96,7 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
 
     for (const key in endpoints) {
         // we create individual resolver
-        results[key] = _.omit(endpoints, key);
+        results[key] = endpoints;
     }
     // @ts-ignore TODO: fix typing
     results.Query = endpoints;

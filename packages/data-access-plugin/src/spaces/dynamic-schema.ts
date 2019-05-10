@@ -7,7 +7,13 @@ import { Context } from '@terascope/job-components';
 import * as ts from '@terascope/utils';
 import allTypeMappings from './typeMappings';
 
-// TODO: respect prevent_prefix_wildcard
+// TODO: is first-date endpoint name is invalid?
+// TODO: location => obj with lat lon
+// TODO: join and secondary query needs to be added together with join AND (q)
+// TODO: elasticsearch search error should not leak to much
+// TODO: history??
+// TODO: put types for typeconfig into ticket of PR
+
 export default async function getSchemaByRole(aclManager: ACLManager, user: User, logger: ts.Logger, context: Context) {
     const query = `roles: ${user.role}`;
     const spaces = await aclManager.findSpaces({ query }, false);
@@ -30,8 +36,7 @@ function createTypings(configs: DataAccessConfig[]) {
     const queryEndpoints: string[] = configs.map(config => config.space_endpoint);
     // create individual types
     configs.forEach((config) => {
-        const otherEndpoints = queryEndpoints.filter(endpoint => endpoint !== config.space_endpoint);
-        results.push(`type ${config.space_endpoint} { ${collectAllowedFields(config, otherEndpoints)} }`);
+        results.push(`type ${config.space_endpoint} { ${collectAllowedFields(config, queryEndpoints)} }`);
     });
     // create query type
     results.push(

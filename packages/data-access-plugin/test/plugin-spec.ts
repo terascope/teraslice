@@ -1601,6 +1601,46 @@ describe('Data Access Plugin', () => {
             expect(queryResults).toEqual(results);
         });
 
+        fit('can do joins off of itself', async() => {
+            const query1 = `
+                query {
+                    ${space2}(query: "bytes:>=1000"){
+                        bytes
+                        ${space2}(join:["bytes"]){
+                            bool,
+                            url
+                        }
+                    }
+                }
+            `;
+
+            const results = {
+                [space2]: [
+                    {
+                        bytes: 1234,
+                        [space2]: [
+                            {
+                                bool: true,
+                                url: 'http://google.com'
+                            }
+                        ]
+                    },
+                    {
+                        bytes: 1500,
+                        [space2]: [
+                            {
+                                bool: true,
+                                url: 'http://twitter.com'
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const queryResults = await fullRoleClient.request(query1);
+            expect(queryResults).toEqual(results);
+        });
+
         it('will error if secondary space does not have a join', async() => {
             const query = `
                 query {
