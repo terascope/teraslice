@@ -37,7 +37,7 @@ const SuccessMessage: React.FC<Props> = ({
     }
 
     return (
-        <Message icon success attached={attached} size="large">
+        <Message icon success attached={attached}>
             <Icon name="thumbs up outline" />
             <Message.Content>
                 <Message.Header>{title || 'Success!'}</Message.Header>

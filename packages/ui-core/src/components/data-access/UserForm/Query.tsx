@@ -82,6 +82,7 @@ const USER_AND_ROLES_QUERY = gql`
             lastname
             username
             email
+            api_token
             role {
                 id
                 name

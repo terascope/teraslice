@@ -13,6 +13,7 @@ export type UserInput = {
     repeat_password: string;
     type: UserType;
     role: string;
+    api_token: string;
 };
 
 export const userInputFields: (keyof UserInput)[] = [
@@ -26,6 +27,7 @@ export const userInputFields: (keyof UserInput)[] = [
     'type',
     'password',
     'repeat_password',
+    'api_token',
 ];
 
 export const userTypes: UserType[] = ['USER', 'ADMIN', 'SUPERADMIN'];
@@ -38,7 +40,7 @@ export const userTypeOptions = userTypes.map((type) => ({
 export type ChangeFn = (e: any, data: InputOnChangeData | DropdownProps) => void;
 
 export type FieldOptions = {
-    name: string;
+    name: keyof UserInput;
     label: string;
     placeholder?: string;
 };

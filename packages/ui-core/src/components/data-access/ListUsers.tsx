@@ -28,6 +28,7 @@ const ListUsers = tsWithRouter(({ history, location }) => {
         },
         parse(location.search)
     );
+
     if (state.size) state.size = toNumber(state.size);
     if (state.from) state.from = toNumber(state.from);
 
@@ -138,6 +139,7 @@ const FIND_USERS = gql`
             lastname
             username
             email
+            api_token
             role {
                 id
                 name

@@ -1,7 +1,7 @@
 import React, { FormEvent, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnyObject, get, toInteger } from '@terascope/utils';
-import { Form } from 'semantic-ui-react';
+import { Form, Button } from 'semantic-ui-react';
 import { useCoreContext, SuccessMessage, ErrorMessage } from '../../core';
 import UserMutation from './Mutation';
 import * as i from './interfaces';
@@ -11,6 +11,7 @@ const UserForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
     const update = Boolean(id);
 
     const [user, setUser] = useState<i.UserInput>(userInput);
+    const [showToken, setShowToken] = useState(false);
 
     const updateUser = (updates: AnyObject) => setUser(Object.assign(user, updates));
 
@@ -29,6 +30,14 @@ const UserForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
         updateUser({ [name]: value });
         validate();
     };
+
+    const required: (keyof i.UserInput)[] = [
+        'username',
+        'firstname',
+        'lastname',
+        'type',
+        'client_id',
+    ];
 
     const validate = (isSubmit = false): boolean => {
         const errs: i.ErrorsState = {
@@ -52,14 +61,6 @@ const UserForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
         }
 
         if (isSubmit) {
-            const required: (keyof i.UserInput)[] = [
-                'username',
-                'firstname',
-                'lastname',
-                'type',
-                'client_id',
-            ];
-
             if (!update) {
                 required.push('password', 'repeat_password');
             }
@@ -93,6 +94,7 @@ const UserForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
             value: get(user, name, ''),
             onChange,
             error: hasError,
+            required: required.includes(name),
             width: 4,
         };
     };
@@ -114,6 +116,7 @@ const UserForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
                         if (!update) {
                             delete userInput.id;
                         }
+                        delete userInput.api_token;
 
                         submit({
                             variables: {
@@ -163,6 +166,7 @@ const UserForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
                                         name: 'email',
                                         label: 'Email',
                                     })}
+                                    width={8}
                                 />
                             </Form.Group>
                             <Form.Group />
@@ -201,6 +205,26 @@ const UserForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
                                     })}
                                 />
                             </Form.Group>
+                            {update && (
+                                <Form.Group>
+                                    <Form.Input
+                                        type={showToken ? 'text' : 'password'}
+                                        label="API Token"
+                                        width={8}
+                                        value={user.api_token}
+                                    >
+                                        <input readOnly />
+                                        <Button
+                                            icon="eye"
+                                            basic
+                                            onClick={(e: any) => {
+                                                e.preventDefault();
+                                                setShowToken(!showToken);
+                                            }}
+                                        />
+                                    </Form.Input>
+                                </Form.Group>
+                            )}
                             {!data && (
                                 <Form.Group>
                                     <Form.Button

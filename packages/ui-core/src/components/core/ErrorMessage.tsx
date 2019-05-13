@@ -19,7 +19,7 @@ const ErrorMessage: React.FC<Props> = ({ error, attached, title }) => {
     }
 
     return (
-        <Message icon error attached={attached} size="large">
+        <Message icon error attached={attached}>
             <Icon name="times circle outline" />
             <Message.Content>
                 <Message.Header>{title || 'Error'}</Message.Header>
@@ -40,18 +40,8 @@ type Props = {
     attached?: 'bottom' | 'top';
 };
 
-const AnyErrorPropType = PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.object,
-    PropTypes.instanceOf(ApolloError),
-    PropTypes.instanceOf(TSError),
-    PropTypes.instanceOf(Error),
-    PropTypes.instanceOf(TSError),
-]);
-
 ErrorMessage.propTypes = {
-    error: PropTypes.oneOf([AnyErrorPropType, PropTypes.arrayOf(AnyErrorPropType)])
-        .isRequired,
+    error: PropTypes.any,
     title: PropTypes.string,
     attached: PropTypes.oneOf(['bottom', 'top']),
 };

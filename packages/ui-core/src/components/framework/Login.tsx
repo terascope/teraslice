@@ -96,6 +96,7 @@ const LOGIN = gql`
             username
             email
             type
+            api_token
             role {
                 id
                 name

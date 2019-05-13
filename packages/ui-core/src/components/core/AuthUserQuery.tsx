@@ -68,6 +68,7 @@ const AUTH_QUERY = gql`
             username
             email
             type
+            api_token
             role {
                 id
                 name
