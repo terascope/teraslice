@@ -4,40 +4,47 @@ import { Query, ApolloConsumer } from 'react-apollo';
 import { get } from '@terascope/utils';
 import {
     DataTable,
-    ErrorInfo,
+    ErrorPage,
     Page,
     RowMapping,
     QueryState,
     formatRegexQuery,
     PageAction,
     ResolvedUser,
+    useCoreContext,
 } from '../core';
-
-const rowMapping: RowMapping = {
-    getId(data) {
-        return data.id;
-    },
-    columns: {
-        username: { label: 'Username' },
-        firstname: { label: 'First Name' },
-        lastname: { label: 'Last Name' },
-        role: {
-            label: 'Role',
-            format(data) {
-                return get(data, 'role.name') || data.type;
-            },
-        },
-        created: { label: 'Created' },
-    },
-};
 
 const searchFields = ['firstname', 'lastname', 'username', 'email'];
 
 const ListUsers: React.FC = () => {
+    const authUser = useCoreContext().authUser!;
     const [state, setState] = useState<QueryState>({
         query: '*',
         size: 10,
     });
+
+    const rowMapping: RowMapping = {
+        getId(record) {
+            return record.id;
+        },
+        canRemove(record) {
+            if (record.type === 'SUPERADMIN') return false;
+            if (record.id === authUser.id) return false;
+            return true;
+        },
+        columns: {
+            username: { label: 'Username' },
+            firstname: { label: 'First Name' },
+            lastname: { label: 'Last Name' },
+            role: {
+                label: 'Role',
+                format(data) {
+                    return get(data, 'role.name') || data.type;
+                },
+            },
+            created: { label: 'Created' },
+        },
+    };
 
     const updateQueryState = (queryState: QueryState) => {
         setState({ ...state, ...queryState });
@@ -62,8 +69,8 @@ const ListUsers: React.FC = () => {
     return (
         <UsersQuery query={FIND_USERS} variables={variables}>
             {({ loading, error, data }) => {
-                if (error) return <ErrorInfo error={error} />;
-                if (!data && !loading) return <ErrorInfo error="Unexpected Error" />;
+                if (error) return <ErrorPage error={error} />;
+                if (!data && !loading) return <ErrorPage error="Unexpected Error" />;
                 const records = (data && data.users) || [];
                 const total = (data && data.usersCount) || 0;
 
@@ -75,7 +82,13 @@ const ListUsers: React.FC = () => {
                                     rowMapping={rowMapping}
                                     title="Users"
                                     baseEditPath="/users/edit"
-                                    removeRecords={async (ids: string[]) => {
+                                    removeRecords={async (ids) => {
+                                        if (ids === true) {
+                                            throw new Error(
+                                                'Removing all users in not supported yet'
+                                            );
+                                        }
+
                                         const promises = ids.map((id) => {
                                             return client.mutate({
                                                 mutation: REMOVE_QUERY,

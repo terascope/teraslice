@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import { Redirect } from 'react-router';
 import { parseErrorInfo } from '@terascope/utils';
-import { Loading, ErrorInfo, useCoreContext } from '../core';
+import { LoadingPage, ErrorPage, useCoreContext } from '../core';
 
 const Logout: React.FC = () => {
     const { authenticated, updateState } = useCoreContext();
@@ -12,7 +12,7 @@ const Logout: React.FC = () => {
     return (
         <LogoutQuery
             query={LOGOUT}
-            onCompleted={data => {
+            onCompleted={(data) => {
                 updateState({
                     authUser: undefined,
                     authenticated: !(data && data.logout),
@@ -21,13 +21,13 @@ const Logout: React.FC = () => {
             notifyOnNetworkStatusChange
         >
             {({ loading, error, data }) => {
-                if (loading) return <Loading />;
+                if (loading) return <LoadingPage />;
 
                 const errMsg = parseErrorInfo(error).message;
-                if (error && !errMsg.includes('400')) return <ErrorInfo error={error} />;
+                if (error && !errMsg.includes('400')) return <ErrorPage error={error} />;
 
                 if (!data || !data.logout) {
-                    return <ErrorInfo error="Unable to logout" />;
+                    return <ErrorPage error="Unable to logout" />;
                 }
 
                 return <Redirect to="/login" />;

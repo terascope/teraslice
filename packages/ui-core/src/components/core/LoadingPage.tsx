@@ -13,7 +13,7 @@ const StyledSegment = styled(Segment)`
     flex: 1;
 `;
 
-const Loading: React.FC = () => {
+const LoadingPage: React.FC = () => {
     return (
         <StyledContainer>
             <StyledSegment loading>
@@ -33,4 +33,4 @@ const Loading: React.FC = () => {
     );
 };
 
-export default Loading;
+export default LoadingPage;

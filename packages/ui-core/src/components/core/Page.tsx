@@ -33,6 +33,7 @@ const Page: React.FC<Props> = ({ title, actions = [], ...props }) => {
                                 onClick={onClick}
                                 key={`page-item-${i}`}
                                 position="right"
+                                className="noActiveBg"
                             >
                                 <Button>
                                     {action.icon && <Icon name={action.icon as any} />}

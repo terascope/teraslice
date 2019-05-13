@@ -3,7 +3,8 @@ import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import { Redirect } from 'react-router-dom';
 import { Form, Button } from 'semantic-ui-react';
-import { Loading, ErrorInfo, Page, useCoreContext } from '../core';
+import { LoadingPage, ErrorPage, Page, useCoreContext, ResolvedUser } from '../core';
+import { get } from '@terascope/utils';
 
 type State = {
     username?: string;
@@ -28,19 +29,23 @@ const Login: React.FC = (props: any) => {
 
     const { ready, username, password } = state;
     const variables: LoginVariables = { username, password };
-    const onChange = (e: any, { name, value }: any) => {
+    const onChange = (e: React.ChangeEvent, { name, value }: any) => {
         setState({ ...state, [name]: value, ready: false });
     };
-    const onSubmit = () => setState({ ...state, ready: true });
+    const onSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        setState({ ...state, ready: true });
+    };
 
     return (
         <LoginQuery
             query={LOGIN}
             variables={variables}
             skip={!ready}
-            onCompleted={data => {
-                const authenticated = !!(data && data.authenticate.id);
-                updateState({ authenticated });
+            onCompleted={(data) => {
+                const authenticated = Boolean(get(data, 'authenticate.id'));
+                const authUser = get(data, 'authenticate');
+                updateState({ authenticated, authUser });
                 setState({
                     ready: false,
                     redirectToReferrer: authenticated,
@@ -49,8 +54,8 @@ const Login: React.FC = (props: any) => {
             notifyOnNetworkStatusChange
         >
             {({ loading, error }) => {
-                if (loading) return <Loading />;
-                if (error) return <ErrorInfo error={error} />;
+                if (loading) return <LoadingPage />;
+                if (error) return <ErrorPage error={error} />;
 
                 return (
                     <Page title="Login">
@@ -86,6 +91,17 @@ const LOGIN = gql`
     query Login($username: String, $password: String) {
         authenticate(username: $username, password: $password) {
             id
+            firstname
+            lastname
+            username
+            email
+            type
+            role {
+                id
+                name
+            }
+            updated
+            created
         }
     }
 `;
@@ -96,9 +112,7 @@ interface LoginVariables {
 }
 
 interface LoginResponse {
-    authenticate: {
-        id: string;
-    };
+    authenticate: ResolvedUser;
 }
 
 class LoginQuery extends Query<LoginResponse, LoginVariables> {}

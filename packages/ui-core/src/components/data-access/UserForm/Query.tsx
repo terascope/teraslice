@@ -5,7 +5,7 @@ import { Query } from 'react-apollo';
 import { get } from '@terascope/utils';
 import { Segment } from 'semantic-ui-react';
 import * as i from './interfaces';
-import { ErrorInfo, Loading, ResolvedUser, useCoreContext } from '../../core';
+import { ErrorPage, LoadingPage, ResolvedUser, useCoreContext } from '../../core';
 
 const UserQuery: React.FC<Props> = ({ component: Component, id }) => {
     const QUERY = id ? USER_AND_ROLES_QUERY : ROLES_QUERY;
@@ -16,8 +16,8 @@ const UserQuery: React.FC<Props> = ({ component: Component, id }) => {
             {({ loading, error, data }) => {
                 const roles: i.Role[] = get(data, 'roles', []);
 
-                if (loading) return <Loading />;
-                if (error) return <ErrorInfo error={error} />;
+                if (loading) return <LoadingPage />;
+                if (error) return <ErrorPage error={error} />;
 
                 const userInput = getUserInput(authUser, get(data, 'user'));
 

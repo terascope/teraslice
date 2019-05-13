@@ -8,25 +8,25 @@ import { ApolloError } from 'apollo-boost';
 import { withRouter } from 'react-router-dom';
 import { ResolvedUser } from './interfaces';
 import { useCoreContext } from './CoreContext';
-import Loading from './Loading';
-import ErrorInfo from './ErrorInfo';
+import LoadingPage from './LoadingPage';
+import ErrorPage from './ErrorPage';
 
 const AuthUserQuery: React.FC<Props> = ({ children, history }) => {
     const { updateState, authUser, authenticated } = useCoreContext();
     const [otherError, setOtherError] = useState<any>(null);
-    if (otherError) return <ErrorInfo error={otherError} />;
+    if (otherError) return <ErrorPage error={otherError} />;
 
     return (
         <AuthQuery
             query={AUTH_QUERY}
             skip={authUser != null && authenticated}
-            onCompleted={data => {
+            onCompleted={(data) => {
                 updateState({
                     authUser: data.authenticate,
                     authenticated: true,
                 });
             }}
-            onError={error => {
+            onError={(error) => {
                 if (error && isAuthError(error)) {
                     history.replace('/logout');
                 } else {
@@ -36,7 +36,7 @@ const AuthUserQuery: React.FC<Props> = ({ children, history }) => {
             notifyOnNetworkStatusChange
         >
             {({ loading }) => {
-                if (loading) return <Loading />;
+                if (loading) return <LoadingPage />;
 
                 return children;
             }}
@@ -47,7 +47,7 @@ const AuthUserQuery: React.FC<Props> = ({ children, history }) => {
 function isAuthError(error: ApolloError) {
     const graphQLErrors = get(error, 'graphQLErrors');
     if (graphQLErrors && graphQLErrors.length) {
-        const authErr = graphQLErrors.find(err => {
+        const authErr = graphQLErrors.find((err) => {
             if (!err || !err.path) return false;
             if (!err.path.includes('authenticate')) return false;
             return true;

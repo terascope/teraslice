@@ -16,13 +16,15 @@ const SidebarMenuIcon: React.FC<any> = ({ icon, color, open }) => {
     return <s.SidebarClosedIcon {...props} />;
 };
 
-const SidebarToggleIcon: React.FC<{ open: boolean }> = ({ open }) => (
-    <SidebarMenuIcon
-        icon={`chevron ${!open ? 'right' : 'left'}`}
-        color="grey"
-        open={open}
-    />
-);
+const SidebarToggleIcon: React.FC<{ open: boolean }> = ({ open }) => {
+    return (
+        <SidebarMenuIcon
+            icon={`chevron ${!open ? 'right' : 'left'}`}
+            color="grey"
+            open={open}
+        />
+    );
+};
 
 const makePluginLinks = (plugins: PluginConfig[], history: History, open: boolean) => {
     const links: any[] = [];
@@ -54,15 +56,16 @@ const makePluginLinks = (plugins: PluginConfig[], history: History, open: boolea
 
 const Sidebar: React.FC<any> = ({ history }) => {
     const { authenticated, plugins } = useCoreContext();
-
     const [open, setState] = useState(false);
+
+    if (!authenticated) return <div />;
 
     return (
         <s.SidebarMenu open={open} vertical>
             <s.SidebarToggle onClick={() => setState(!open)}>
                 <SidebarToggleIcon open={open} />
             </s.SidebarToggle>
-            {authenticated && makePluginLinks(plugins, history, open)}
+            {makePluginLinks(plugins, history, open)}
         </s.SidebarMenu>
     );
 };

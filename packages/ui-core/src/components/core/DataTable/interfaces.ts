@@ -22,12 +22,13 @@ export type ParsedSort = { field: string; direction: SortDirection };
 export type ColumnMapping = {
     [field: string]: {
         label: string;
-        format?: (data: any) => any;
+        format?: (record: any) => any;
     };
 };
 
 export type RowMapping = {
-    getId: (data: any) => string;
+    getId: (record: any) => string;
+    canRemove?: (record: any) => boolean;
     columns: ColumnMapping;
 };
 
@@ -40,6 +41,7 @@ export const ColumnMappingProp = PropTypes.objectOf(
 
 export const RowMappingProp = PropTypes.shape({
     getId: PropTypes.func.isRequired,
+    canRemove: PropTypes.func,
     columns: ColumnMappingProp.isRequired,
 });
 
@@ -48,4 +50,9 @@ export type ActionState = {
     message?: string;
     success?: boolean;
     error?: boolean;
+};
+
+export type SelectState = {
+    selected: string[];
+    selectedAll: boolean;
 };

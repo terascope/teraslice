@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { times } from '@terascope/utils';
-import { Table, Segment, Message, Icon } from 'semantic-ui-react';
-import Header from './Header';
-import Toolbar from './Toolbar';
-import Body from './Body';
-import Footer from './Footer';
+import { Table, Segment } from 'semantic-ui-react';
+import SuccessMessage from '../SuccessMessage';
+import ErrorMessage from '../ErrorMessage';
+import { canSelectFn } from './utils';
 import * as i from './interfaces';
+import Toolbar from './Toolbar';
+import Header from './Header';
+import Footer from './Footer';
+import Body from './Body';
 
 const DataTable: React.FC<Props> = (props) => {
     const {
@@ -28,8 +30,14 @@ const DataTable: React.FC<Props> = (props) => {
         ...props.queryState,
     };
 
-    const [selected, setSelected] = useState<string[]>([]);
+    const [{ selected, selectedAll }, setSelected] = useState<i.SelectState>({
+        selected: [],
+        selectedAll: false,
+    });
+
     const [actionState, setActionState] = useState<i.ActionState>({});
+
+    const canSelectRecord = canSelectFn(rowMapping);
 
     const selectRecord = (id: string) => {
         const selectedIndex = selected.indexOf(id);
@@ -48,11 +56,10 @@ const DataTable: React.FC<Props> = (props) => {
             );
         }
 
-        setSelected(newSelected);
+        setSelected({ selected: newSelected, selectedAll: false });
     };
 
     const numCols = Object.keys(rowMapping.columns).length + 1;
-    const selectedAll = total === selected.length;
 
     return (
         <Segment loading={loading || actionState.loading}>
@@ -70,19 +77,25 @@ const DataTable: React.FC<Props> = (props) => {
                         try {
                             if (action === 'REMOVE') {
                                 const ids = selected.slice();
-                                const message = await removeRecords(ids);
+                                const message = await removeRecords(selectedAll || ids);
 
                                 setActionState({
                                     loading: false,
                                     success: true,
                                     message,
                                 });
-                                ids.map((id) => {
-                                    return records.findIndex((record) => {
+
+                                for (const id of ids) {
+                                    const recordsIndex = records.findIndex((record) => {
                                         return rowMapping.getId(record) === id;
                                     });
-                                }).forEach((i) => {
-                                    records.splice(i);
+                                    if (recordsIndex >= 0) {
+                                        records.splice(recordsIndex, 1);
+                                    }
+                                }
+                                setSelected({
+                                    selected: [],
+                                    selectedAll,
                                 });
                             }
                         } catch (err) {
@@ -98,13 +111,19 @@ const DataTable: React.FC<Props> = (props) => {
                     numSelected={selected.length}
                     sort={queryState.sort}
                     toggleSelectAll={() => {
-                        if (selectedAll) return setSelected([]);
+                        if (selectedAll) {
+                            return setSelected({
+                                selected: [],
+                                selectedAll: false,
+                            });
+                        }
 
-                        const fillCount = total - records.length;
-                        setSelected([
-                            ...records.map((record) => rowMapping.getId(record)),
-                            ...times(fillCount, () => '<any>'),
-                        ]);
+                        setSelected({
+                            selected: records
+                                .filter(canSelectRecord)
+                                .map(rowMapping.getId),
+                            selectedAll: true,
+                        });
                     }}
                     updateQueryState={updateQueryState}
                     selectedAll={selectedAll}
@@ -116,6 +135,7 @@ const DataTable: React.FC<Props> = (props) => {
                     baseEditPath={baseEditPath}
                     selectRecord={selectRecord}
                     selected={selected}
+                    selectedAll={selectedAll}
                     total={total}
                 />
                 <Footer
@@ -127,22 +147,10 @@ const DataTable: React.FC<Props> = (props) => {
                 />
             </Table>
             {actionState.success && (
-                <Message icon success attached="bottom" size="large">
-                    <Icon name="thumbs up outline" />
-                    <Message.Content>
-                        <Message.Header>Success!</Message.Header>
-                        {actionState.message}
-                    </Message.Content>
-                </Message>
+                <SuccessMessage attached="bottom">{actionState.message}</SuccessMessage>
             )}
             {actionState.error && (
-                <Message icon error attached="bottom" size="large">
-                    <Icon name="times circle outline" />
-                    <Message.Content>
-                        <Message.Header>Error</Message.Header>
-                        {actionState.message}
-                    </Message.Content>
-                </Message>
+                <ErrorMessage attached="bottom" error={actionState.message} />
             )}
         </Segment>
     );
@@ -152,7 +160,7 @@ type Props = {
     rowMapping: i.RowMapping;
     records: any[];
     updateQueryState: i.UpdateQueryState;
-    removeRecords: (ids: string[]) => Promise<string>;
+    removeRecords: (ids: string[] | true) => Promise<string>;
     baseEditPath: string;
     title: string;
     total: number;

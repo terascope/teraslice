@@ -1,8 +1,8 @@
 import React, { FormEvent, useState } from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { AnyObject, get, toInteger } from '@terascope/utils';
-import { Form, Icon, Message } from 'semantic-ui-react';
-import { useCoreContext } from '../../core';
+import { Form } from 'semantic-ui-react';
+import { useCoreContext, SuccessMessage, ErrorMessage } from '../../core';
 import UserMutation from './Mutation';
 import * as i from './interfaces';
 
@@ -203,7 +203,12 @@ const UserForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
                             </Form.Group>
                             {!data && (
                                 <Form.Group>
-                                    <Form.Button basic floated="right" width={15}>
+                                    <Form.Button
+                                        basic
+                                        floated="right"
+                                        width={15}
+                                        onClick={(e) => e.preventDefault()}
+                                    >
                                         <Link to="/users">Cancel</Link>
                                     </Form.Button>
                                     <Form.Button
@@ -227,39 +232,21 @@ const UserForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
                             )}
                         </Form>
                         {error && (
-                            <Message icon error attached="bottom" size="large">
-                                <Icon name="times circle outline" />
-                                <Message.Content>
-                                    <Message.Header>Request Error</Message.Header>
-                                    {JSON.stringify(error)}
-                                </Message.Content>
-                            </Message>
+                            <ErrorMessage
+                                title="Request Error"
+                                error={error}
+                                attached="bottom"
+                            />
                         )}
                         {hasErrors && (
-                            <Message icon error attached="bottom" size="large">
-                                <Icon name="times circle outline" />
-                                <Message.Content>
-                                    <Message.Header>Validation Error</Message.Header>
-                                    <Message.List>
-                                        {errors.messages.map((msg, i) => (
-                                            <Message.Item key={`valid-err-${i}`}>
-                                                {msg}
-                                            </Message.Item>
-                                        ))}
-                                    </Message.List>
-                                </Message.Content>
-                            </Message>
+                            <ErrorMessage error={errors.messages} attached="bottom" />
                         )}
-                        {data && (
-                            <Message icon success attached="bottom" size="large">
-                                <Icon name="thumbs up outline" loading={!update} />
-                                <Message.Content>
-                                    <Message.Header>Success!</Message.Header>
-                                    {!update && (
-                                        <Redirect to={`/users/edit/${data.user.id}`} />
-                                    )}
-                                </Message.Content>
-                            </Message>
+                        {data && update && <SuccessMessage attached="bottom" />}
+                        {data && !update && (
+                            <SuccessMessage
+                                attached="bottom"
+                                redirectTo={`/users/edit/${data.user.id}`}
+                            />
                         )}
                     </div>
                 );
