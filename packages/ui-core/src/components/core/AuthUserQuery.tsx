@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 import gql from 'graphql-tag';
-import { History } from 'history';
-import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
 import { get } from '@terascope/utils';
 import { ApolloError } from 'apollo-boost';
-import { withRouter } from 'react-router-dom';
-import { ResolvedUser } from './interfaces';
 import { useCoreContext } from './CoreContext';
+import { ResolvedUser } from './interfaces';
 import LoadingPage from './LoadingPage';
+import { tsWithRouter } from './utils';
 import ErrorPage from './ErrorPage';
 
-const AuthUserQuery: React.FC<Props> = ({ children, history }) => {
+const AuthUserQuery = tsWithRouter(({ children, history }) => {
     const { updateState, authUser, authenticated } = useCoreContext();
     const [otherError, setOtherError] = useState<any>(null);
     if (otherError) return <ErrorPage error={otherError} />;
@@ -42,7 +40,7 @@ const AuthUserQuery: React.FC<Props> = ({ children, history }) => {
             }}
         </AuthQuery>
     );
-};
+});
 
 function isAuthError(error: ApolloError) {
     const graphQLErrors = get(error, 'graphQLErrors');
@@ -58,15 +56,7 @@ function isAuthError(error: ApolloError) {
     }
 }
 
-type Props = {
-    history: History;
-};
-
-AuthUserQuery.propTypes = {
-    history: PropTypes.any.isRequired,
-};
-
-export default withRouter(AuthUserQuery);
+export default AuthUserQuery;
 
 // Query
 const AUTH_QUERY = gql`

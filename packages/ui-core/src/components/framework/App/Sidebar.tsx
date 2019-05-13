@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { History } from 'history';
 import { Menu } from 'semantic-ui-react';
-import { withRouter } from 'react-router-dom';
-import { useCoreContext, PluginConfig, formatPath } from '../../core';
+import { useCoreContext, PluginConfig, formatPath, tsWithRouter } from '../../core';
 import * as s from './styled';
 
-const SidebarMenuIcon: React.FC<any> = ({ icon, color, open }) => {
+const SidebarMenuIcon = tsWithRouter<any>(({ icon, color, open }) => {
     const props = {
         name: icon as any,
         color: color as any,
@@ -14,7 +13,7 @@ const SidebarMenuIcon: React.FC<any> = ({ icon, color, open }) => {
     if (open) return <s.SidebarOpenedIcon {...props} />;
 
     return <s.SidebarClosedIcon {...props} />;
-};
+});
 
 const SidebarToggleIcon: React.FC<{ open: boolean }> = ({ open }) => {
     return (
@@ -54,7 +53,7 @@ const makePluginLinks = (plugins: PluginConfig[], history: History, open: boolea
     return links;
 };
 
-const Sidebar: React.FC<any> = ({ history }) => {
+const Sidebar = tsWithRouter<any>(({ history }) => {
     const { authenticated, plugins } = useCoreContext();
     const [open, setState] = useState(false);
 
@@ -68,6 +67,6 @@ const Sidebar: React.FC<any> = ({ history }) => {
             {makePluginLinks(plugins, history, open)}
         </s.SidebarMenu>
     );
-};
+});
 
-export default withRouter(Sidebar);
+export default Sidebar;

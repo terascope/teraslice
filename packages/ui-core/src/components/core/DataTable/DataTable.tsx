@@ -102,7 +102,7 @@ const DataTable: React.FC<Props> = (props) => {
                             setActionState({
                                 loading: false,
                                 error: true,
-                                message: err.toString(),
+                                message: err,
                             });
                         }
                     }}

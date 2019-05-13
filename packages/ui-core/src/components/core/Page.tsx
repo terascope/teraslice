@@ -1,18 +1,18 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { History } from 'history';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { withRouter } from 'react-router-dom';
+import { get } from '@terascope/utils';
 import { Container, Segment, Button, Menu, Icon } from 'semantic-ui-react';
 import { PageAction, PageActionProp } from './interfaces';
-import { get } from '@terascope/utils';
+import { tsWithRouter } from './utils';
 
 const Title = styled.h2`
     padding-left: 1rem;
     padding-top: 0.5rem;
 `;
 
-const Page: React.FC<Props> = ({ title, actions = [], ...props }) => {
+const Page = tsWithRouter<Props>(({ title, actions = [], ...props }) => {
     const history: History = get(props, 'history');
 
     return (
@@ -47,7 +47,7 @@ const Page: React.FC<Props> = ({ title, actions = [], ...props }) => {
             </Segment>
         </Container>
     );
-};
+});
 
 type Props = {
     title: string;
@@ -59,5 +59,4 @@ Page.propTypes = {
     actions: PropTypes.arrayOf(PageActionProp.isRequired),
 };
 
-// @ts-ignore
-export default withRouter(Page);
+export default Page;

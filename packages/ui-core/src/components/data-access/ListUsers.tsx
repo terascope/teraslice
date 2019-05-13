@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import gql from 'graphql-tag';
 import { Query, ApolloConsumer } from 'react-apollo';
-import { get } from '@terascope/utils';
+import { stringify, parse } from 'query-string';
+import { get, toNumber } from '@terascope/utils';
 import {
     DataTable,
     ErrorPage,
@@ -12,16 +13,23 @@ import {
     PageAction,
     ResolvedUser,
     useCoreContext,
+    tsWithRouter,
 } from '../core';
 
 const searchFields = ['firstname', 'lastname', 'username', 'email'];
 
-const ListUsers: React.FC = () => {
+const ListUsers = tsWithRouter(({ history, location }) => {
     const authUser = useCoreContext().authUser!;
-    const [state, setState] = useState<QueryState>({
-        query: '*',
-        size: 10,
-    });
+
+    const state: QueryState = Object.assign(
+        {
+            query: '*',
+            size: 10,
+        },
+        parse(location.search)
+    );
+    if (state.size) state.size = toNumber(state.size);
+    if (state.from) state.from = toNumber(state.from);
 
     const rowMapping: RowMapping = {
         getId(record) {
@@ -46,8 +54,10 @@ const ListUsers: React.FC = () => {
         },
     };
 
-    const updateQueryState = (queryState: QueryState) => {
-        setState({ ...state, ...queryState });
+    const updateQueryState = (updates: QueryState) => {
+        history.push({
+            search: stringify({ ...state, ...updates }),
+        });
     };
 
     const actions: PageAction[] = [
@@ -115,7 +125,7 @@ const ListUsers: React.FC = () => {
             }}
         </UsersQuery>
     );
-};
+});
 
 export default ListUsers;
 
