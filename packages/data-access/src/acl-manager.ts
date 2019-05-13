@@ -169,7 +169,6 @@ export class ACLManager {
         const exists = await this._users.exists(args.id);
         if (!exists) return false;
 
-        await this._validateUserInput({ id: args.id }, authUser);
         await this._users.deleteById(args.id);
         return true;
     }

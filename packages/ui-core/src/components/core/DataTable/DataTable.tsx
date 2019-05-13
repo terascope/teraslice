@@ -76,8 +76,12 @@ const DataTable: React.FC<Props> = (props) => {
                         });
                         try {
                             if (action === 'REMOVE') {
-                                const ids = selected.slice();
-                                const message = await removeRecords(selectedAll || ids);
+                                const docs = selected.map((id) =>
+                                    records.find((record) => {
+                                        return rowMapping.getId(record) === id;
+                                    })
+                                );
+                                const message = await removeRecords(selectedAll || docs);
 
                                 setActionState({
                                     loading: false,
@@ -85,10 +89,8 @@ const DataTable: React.FC<Props> = (props) => {
                                     message,
                                 });
 
-                                for (const id of ids) {
-                                    const recordsIndex = records.findIndex((record) => {
-                                        return rowMapping.getId(record) === id;
-                                    });
+                                for (const doc of docs) {
+                                    const recordsIndex = records.indexOf(doc);
                                     if (recordsIndex >= 0) {
                                         records.splice(recordsIndex, 1);
                                     }
@@ -160,7 +162,7 @@ type Props = {
     rowMapping: i.RowMapping;
     records: any[];
     updateQueryState: i.UpdateQueryState;
-    removeRecords: (ids: string[] | true) => Promise<string>;
+    removeRecords: (ids: any[] | true) => Promise<string>;
     baseEditPath: string;
     title: string;
     total: number;

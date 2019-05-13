@@ -93,25 +93,27 @@ const ListUsers = tsWithRouter(({ history, location }) => {
                                     rowMapping={rowMapping}
                                     title="Users"
                                     baseEditPath="/users/edit"
-                                    removeRecords={async (ids) => {
-                                        if (ids === true) {
+                                    removeRecords={async (docs) => {
+                                        if (docs === true) {
                                             throw new Error(
                                                 'Removing all users in not supported yet'
                                             );
                                         }
 
-                                        const promises = ids.map((id) => {
+                                        const promises = docs.map((record) => {
                                             return client.mutate({
                                                 mutation: REMOVE_QUERY,
                                                 variables: {
-                                                    id,
+                                                    id: record.id,
                                                 },
                                             });
                                         });
 
                                         await Promise.all(promises);
 
-                                        return `Successful deleted ${ids.length} records`;
+                                        return `Successful deleted ${
+                                            docs.length
+                                        } records`;
                                     }}
                                     loading={loading}
                                     records={records}
