@@ -34,7 +34,7 @@ const ListUsers = tsWithRouter(({ history, location }) => {
 
     const rowMapping: RowMapping = {
         getId(record) {
-            return record.id;
+            return record.username;
         },
         canRemove(record) {
             if (record.type === 'SUPERADMIN') return false;

@@ -7,7 +7,7 @@ const MyAccountLink: React.FC = () => {
     const authUser = useCoreContext().authUser!;
 
     return (
-        <Button basic as={BasicLink} to={`/users/edit/${authUser.id}`}>
+        <Button basic as={BasicLink} to={`/users/edit/${authUser.username}`} fluid>
             <Icon name="user circle" />
             My Account
         </Button>
