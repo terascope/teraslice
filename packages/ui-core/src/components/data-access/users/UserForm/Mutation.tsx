@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { AnyObject, get } from '@terascope/utils';
 import { Mutation, MutationFn, MutationResult } from 'react-apollo';
-import { ResolvedUser } from '../../core';
+import { ResolvedUser } from '../../../core';
 
 const CREATE_USER = gql`
     mutation User($user: CreateUserInput!, $password: String!) {

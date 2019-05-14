@@ -5,7 +5,7 @@ import { Query } from 'react-apollo';
 import { get } from '@terascope/utils';
 import { Segment } from 'semantic-ui-react';
 import * as i from './interfaces';
-import { ErrorPage, LoadingPage, ResolvedUser, useCoreContext } from '../../core';
+import { ErrorPage, LoadingPage, ResolvedUser, useCoreContext } from '../../../core';
 
 const UserQuery: React.FC<Props> = ({ component: Component, id }) => {
     const QUERY = id ? USER_AND_ROLES_QUERY : ROLES_QUERY;

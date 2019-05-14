@@ -2,7 +2,7 @@ import React, { FormEvent, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnyObject, get, toInteger } from '@terascope/utils';
 import { Form, Button } from 'semantic-ui-react';
-import { useCoreContext, SuccessMessage, ErrorMessage } from '../../core';
+import { useCoreContext, SuccessMessage, ErrorMessage } from '../../../core';
 import UserMutation from './Mutation';
 import * as i from './interfaces';
 

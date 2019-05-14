@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page, tsWithRouter, useCoreContext } from '../../core';
-import UserForm from '../UserForm';
+import UserForm from './UserForm';
 
 export default tsWithRouter(() => {
     const authUser = useCoreContext().authUser!;

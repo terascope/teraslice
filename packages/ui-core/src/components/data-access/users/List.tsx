@@ -1,36 +1,19 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { Query, ApolloConsumer } from 'react-apollo';
-import { stringify, parse } from 'query-string';
-import { get, toNumber } from '@terascope/utils';
+import { ApolloConsumer } from 'react-apollo';
+import { get } from '@terascope/utils';
+import ListQuery from './ListQuery';
 import {
     DataTable,
-    ErrorPage,
     Page,
     RowMapping,
-    QueryState,
-    formatRegexQuery,
     PageAction,
-    ResolvedUser,
     useCoreContext,
-    tsWithRouter,
-} from '../core';
+    formatDate,
+} from '../../core';
 
-const searchFields = ['firstname', 'lastname', 'username', 'email'];
-
-const ListUsers = tsWithRouter(({ history, location }) => {
+const List: React.FC = () => {
     const authUser = useCoreContext().authUser!;
-
-    const state: QueryState = Object.assign(
-        {
-            query: '*',
-            size: 10,
-        },
-        parse(location.search)
-    );
-
-    if (state.size) state.size = toNumber(state.size);
-    if (state.from) state.from = toNumber(state.from);
 
     const rowMapping: RowMapping = {
         getId(record) {
@@ -47,18 +30,17 @@ const ListUsers = tsWithRouter(({ history, location }) => {
             lastname: { label: 'Last Name' },
             role: {
                 label: 'Role',
-                format(data) {
-                    return get(data, 'role.name') || data.type;
+                format(record) {
+                    return get(record, 'role.name') || record.type;
                 },
             },
-            created: { label: 'Created' },
+            created: {
+                label: 'Created',
+                format(record) {
+                    return formatDate(record.created);
+                },
+            },
         },
-    };
-
-    const updateQueryState = (updates: QueryState) => {
-        history.push({
-            search: stringify({ ...state, ...updates }),
-        });
     };
 
     const actions: PageAction[] = [
@@ -69,22 +51,9 @@ const ListUsers = tsWithRouter(({ history, location }) => {
         },
     ];
 
-    const variables =
-        state.query && state.query !== '*'
-            ? {
-                ...state,
-                query: formatRegexQuery(state.query || '', searchFields),
-            }
-            : state;
-
     return (
-        <UsersQuery query={FIND_USERS} variables={variables}>
-            {({ loading, error, data }) => {
-                if (error) return <ErrorPage error={error} />;
-                if (!data && !loading) return <ErrorPage error="Unexpected Error" />;
-                const records = (data && data.users) || [];
-                const total = (data && data.usersCount) || 0;
-
+        <ListQuery>
+            {({ updateQueryState, queryState, total, records, loading }) => {
                 return (
                     <ApolloConsumer>
                         {(client) => (
@@ -118,7 +87,7 @@ const ListUsers = tsWithRouter(({ history, location }) => {
                                     loading={loading}
                                     records={records}
                                     total={total}
-                                    queryState={state}
+                                    queryState={queryState}
                                     updateQueryState={updateQueryState}
                                 />
                             </Page>
@@ -126,40 +95,11 @@ const ListUsers = tsWithRouter(({ history, location }) => {
                     </ApolloConsumer>
                 );
             }}
-        </UsersQuery>
+        </ListQuery>
     );
-});
+};
 
-export default ListUsers;
-
-// Query
-const FIND_USERS = gql`
-    query Users($query: String, $from: Int, $size: Int, $sort: String) {
-        users(query: $query, from: $from, size: $size, sort: $sort) {
-            id
-            firstname
-            lastname
-            username
-            email
-            api_token
-            role {
-                id
-                name
-            }
-            type
-            updated
-            created
-        }
-        usersCount(query: $query)
-    }
-`;
-
-interface Response {
-    users: ResolvedUser[];
-    usersCount: number;
-}
-
-class UsersQuery extends Query<Response, QueryState> {}
+export default List;
 
 const REMOVE_QUERY = gql`
     mutation RemoveUser($id: ID!) {

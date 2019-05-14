@@ -1,4 +1,6 @@
 import React from 'react';
+import _parseDate from 'date-fns/parse';
+import _formatDate from 'date-fns/format';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
 
 export function formatPath(...paths: (string | undefined)[]) {
@@ -21,4 +23,9 @@ export type PropsWithRouter<P> = P & RouteComponentProps<any>;
 
 export function tsWithRouter<P>(fc: React.FC<PropsWithRouter<P>>): React.FC<P> {
     return (withRouter(fc as any) as unknown) as React.FC<P>;
+}
+
+export function formatDate(dateStr: any): string {
+    const date = _parseDate(dateStr);
+    return _formatDate(date, 'MMM D, YYYY HH:mm A');
 }

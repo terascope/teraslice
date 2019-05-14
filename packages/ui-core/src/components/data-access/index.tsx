@@ -1,8 +1,8 @@
 import { PluginConfig } from '../core';
-import CreateUser from './CreateUser';
-import EditUser from './EditUser';
-import MyAccount from './MyAccount';
-import ListUsers from './ListUsers';
+import CreateUser from './users/Create';
+import EditUser from './users/Edit';
+import MyAccount from './users/MyAccount';
+import ListUsers from './users/List';
 
 const config: PluginConfig = {
     name: 'Data Access',
