@@ -6,7 +6,7 @@ import { withRouter, RouteComponentProps } from 'react-router-dom';
 export function formatPath(...paths: (string | undefined)[]) {
     return `/${paths
         .map(trimSlashes)
-        .filter((s) => !!s)
+        .filter(s => !!s)
         .join('/')}`;
 }
 
@@ -27,5 +27,6 @@ export function tsWithRouter<P>(fc: React.FC<PropsWithRouter<P>>): React.FC<P> {
 
 export function formatDate(dateStr: any): string {
     const date = _parseDate(dateStr);
+    if (!date || !dateStr) return '--';
     return _formatDate(date, 'MMM D, YYYY HH:mm A');
 }

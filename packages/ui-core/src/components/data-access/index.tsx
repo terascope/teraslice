@@ -3,37 +3,44 @@ import CreateUser from './users/Create';
 import EditUser from './users/Edit';
 import MyAccount from './users/MyAccount';
 import ListUsers from './users/List';
+import ListRoles from './roles/List';
 
 const config: PluginConfig = {
     name: 'Data Access',
-    basepath: '/users',
+    basepath: '/',
     routes: [
         {
             name: 'Users',
-            path: '/',
+            path: '/users',
             icon: 'users',
             component: ListUsers,
         },
         {
             name: 'Create User',
-            path: '/create',
-            icon: 'plus',
+            path: '/users/create',
+            icon: 'add user',
             hidden: true,
             component: CreateUser,
         },
         {
             name: 'Edit User',
-            path: '/edit/:id',
+            path: '/users/edit/:id',
             icon: 'pencil alternate',
             hidden: true,
             component: EditUser,
         },
         {
             name: 'My Account',
-            path: '/account',
+            path: '/users/account',
             icon: 'pencil alternate',
             hidden: true,
             component: MyAccount,
+        },
+        {
+            name: 'Roles',
+            path: '/roles',
+            icon: 'key',
+            component: ListRoles,
         },
     ],
 };

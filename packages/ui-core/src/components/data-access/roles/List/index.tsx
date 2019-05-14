@@ -1,54 +1,41 @@
 import React from 'react';
 import gql from 'graphql-tag';
 import { ApolloConsumer } from 'react-apollo';
-import { get } from '@terascope/utils';
 import ListQuery from './Query';
 import {
     DataTable,
     Page,
     RowMapping,
     PageAction,
-    useCoreContext,
-    formatDate,
+    formatDate
 } from '../../../core';
 
 const List: React.FC = () => {
-    const authUser = useCoreContext().authUser!;
-
     const rowMapping: RowMapping = {
         getId(record) {
             return record.username;
         },
         canRemove(record) {
             if (record.type === 'SUPERADMIN') return false;
-            if (record.id === authUser.id) return false;
             return true;
         },
         columns: {
-            username: { label: 'Username' },
-            firstname: { label: 'First Name' },
-            lastname: { label: 'Last Name' },
-            role: {
-                label: 'Role',
-                format(record) {
-                    return get(record, 'role.name') || record.type;
-                },
-            },
+            name: { label: 'Role Name' },
             created: {
                 label: 'Created',
                 format(record) {
                     return formatDate(record.created);
-                },
-            },
-        },
+                }
+            }
+        }
     };
 
     const actions: PageAction[] = [
         {
-            label: 'Create user',
-            icon: 'add user',
-            to: '/users/create',
-        },
+            label: 'Create role',
+            icon: 'plus',
+            to: '/roles/create'
+        }
     ];
 
     return (
@@ -57,15 +44,15 @@ const List: React.FC = () => {
                 return (
                     <ApolloConsumer>
                         {client => (
-                            <Page title="Users" actions={actions}>
+                            <Page title="Roles" actions={actions}>
                                 <DataTable
                                     rowMapping={rowMapping}
-                                    title="Users"
-                                    baseEditPath="/users/edit"
+                                    title="Role"
+                                    baseEditPath="/roles/edit"
                                     removeRecords={async docs => {
                                         if (docs === true) {
                                             throw new Error(
-                                                'Removing all users in not supported yet'
+                                                'Removing all roles in not supported yet'
                                             );
                                         }
 
@@ -73,8 +60,8 @@ const List: React.FC = () => {
                                             return client.mutate({
                                                 mutation: REMOVE_QUERY,
                                                 variables: {
-                                                    id: record.id,
-                                                },
+                                                    id: record.id
+                                                }
                                             });
                                         });
 
@@ -102,7 +89,7 @@ const List: React.FC = () => {
 export default List;
 
 const REMOVE_QUERY = gql`
-    mutation RemoveUser($id: ID!) {
-        removeUser(id: $id)
+    mutation RemoveRole($id: ID!) {
+        removeRole(id: $id)
     }
 `;

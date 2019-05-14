@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page, tsWithRouter } from '../../core';
-import UserForm from './UserForm';
+import UserForm from './Form';
 
 export default tsWithRouter(({ match }) => {
     return (

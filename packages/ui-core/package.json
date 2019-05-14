@@ -67,5 +67,14 @@
             "last 1 firefox version",
             "last 1 safari version"
         ]
+    },
+    "prettier": {
+        "printWidth": 90,
+        "trailingComma": "es5",
+        "tslintIntegration": true,
+        "tabWidth": 4,
+        "stylelintIntegration": true,
+        "singleQuote": true,
+        "eslintIntegration": true
     }
 }

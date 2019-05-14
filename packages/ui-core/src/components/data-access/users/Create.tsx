@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page } from '../../core';
-import UserForm from './UserForm';
+import UserForm from './Form';
 
 const Create: React.FC = () => {
     return (

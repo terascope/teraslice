@@ -1,6 +1,6 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { Query } from 'react-apollo';
+import { Query as ApolloQuery } from 'react-apollo';
 import { stringify, parse } from 'query-string';
 import { toNumber } from '@terascope/utils';
 import {
@@ -10,7 +10,7 @@ import {
     ResolvedUser,
     tsWithRouter,
     UpdateQueryState,
-} from '../../core';
+} from '../../../core';
 
 const searchFields = ['firstname', 'lastname', 'username', 'email'];
 
@@ -41,10 +41,12 @@ const ListQuery = tsWithRouter<Props>(({ history, location, children: Component 
             : state;
 
     return (
-        <UsersQuery query={FIND_USERS} variables={variables}>
+        <Query query={QUERY} variables={variables}>
             {({ loading, error, data }) => {
                 if (error) return <ErrorPage error={error} />;
-                if (!data && !loading) return <ErrorPage error="Unexpected Error" />;
+                if (!data && !loading) {
+                    return <ErrorPage error="Unexpected Error" />;
+                }
                 const records = (data && data.users) || [];
                 const total = (data && data.usersCount) || 0;
 
@@ -58,7 +60,7 @@ const ListQuery = tsWithRouter<Props>(({ history, location, children: Component 
                     />
                 );
             }}
-        </UsersQuery>
+        </Query>
     );
 });
 
@@ -77,7 +79,7 @@ type Props = {
 export default ListQuery;
 
 // Query
-const FIND_USERS = gql`
+const QUERY = gql`
     query Users($query: String, $from: Int, $size: Int, $sort: String) {
         users(query: $query, from: $from, size: $size, sort: $sort) {
             id
@@ -103,4 +105,4 @@ interface Response {
     usersCount: number;
 }
 
-class UsersQuery extends Query<Response, QueryState> {}
+class Query extends ApolloQuery<Response, QueryState> {}
