@@ -1,3 +1,4 @@
+import './index.css';
 import DataTable from './DataTable';
 
 export * from './interfaces';

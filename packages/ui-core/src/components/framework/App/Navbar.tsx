@@ -1,12 +1,12 @@
 import React from 'react';
-import { Dropdown, Button, Icon } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
+import { Dropdown, Button, Icon, Menu } from 'semantic-ui-react';
 import { useCoreContext } from '../../core';
-import * as s from './styled';
 
 type LinkProps = { to: string; iconName: string };
 const DropdownLink: React.FC<LinkProps> = ({ to, iconName, children }) => {
     return (
-        <Button basic as={s.BasicLink} to={to} fluid>
+        <Button basic as={Link} to={to} fluid className="navBarLink">
             <Icon name={iconName as any} />
             {children}
         </Button>
@@ -15,11 +15,13 @@ const DropdownLink: React.FC<LinkProps> = ({ to, iconName, children }) => {
 
 const Navbar: React.FC = () => {
     const { authenticated } = useCoreContext();
-    const AccountIcon = <s.DropdownIcon name="user circle" />;
+    const AccountIcon = <Icon name="user circle" className="dropdownIcon" />;
 
     return (
-        <s.NavbarMenu>
-            <s.TitleMenuItem header>Teraserver</s.TitleMenuItem>
+        <Menu className="navbarMenu">
+            <Menu.Item header className="navbarTitle">
+                Teraserver
+            </Menu.Item>
             {authenticated && (
                 <Dropdown item icon={AccountIcon} className="right">
                     <Dropdown.Menu>
@@ -40,7 +42,7 @@ const Navbar: React.FC = () => {
                     </Dropdown.Menu>
                 </Dropdown>
             )}
-        </s.NavbarMenu>
+        </Menu>
     );
 };
 

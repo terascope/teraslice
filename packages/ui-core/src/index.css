@@ -20,7 +20,3 @@ code {
     display: block;
 	flex-direction: column;
 }
-
-.noActiveBg:active, .noActiveBg:hover {
-    background: none !important;
-}

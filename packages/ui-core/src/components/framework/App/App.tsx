@@ -2,20 +2,20 @@ import React from 'react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import Footer from './Footer';
-import * as s from './styled';
+import { Segment } from 'semantic-ui-react';
 
 const App: React.FC = ({ children }) => {
     return (
-        <s.AppRoot>
-            <s.SidebarWrapper>
+        <div className="appRoot">
+            <div className="sidebarWrapper">
                 <Sidebar />
-            </s.SidebarWrapper>
-            <s.AppContent secondary basic>
+            </div>
+            <Segment className="appContent" secondary basic>
                 <Navbar />
-                <s.Main>{children}</s.Main>
+                <main className="appMain">{children}</main>
                 <Footer />
-            </s.AppContent>
-        </s.AppRoot>
+            </Segment>
+        </div>
     );
 };
 

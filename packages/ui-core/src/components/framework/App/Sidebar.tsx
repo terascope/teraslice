@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { History } from 'history';
-import { Menu } from 'semantic-ui-react';
+import { Menu, Icon } from 'semantic-ui-react';
 import { useCoreContext, PluginConfig, formatPath, tsWithRouter } from '../../core';
-import * as s from './styled';
 
 const SidebarMenuIcon = tsWithRouter<any>(({ icon, color, open }) => {
     const props = {
@@ -10,9 +9,11 @@ const SidebarMenuIcon = tsWithRouter<any>(({ icon, color, open }) => {
         color: color as any,
     };
 
-    if (open) return <s.SidebarOpenedIcon {...props} />;
+    let className = 'sidebarIcon';
+    if (open) className += ' sidebarOpenIcon';
+    else className += ' sidebarClosedIcon';
 
-    return <s.SidebarClosedIcon {...props} />;
+    return <Icon className={className} {...props} />;
 });
 
 const SidebarToggleIcon: React.FC<{ open: boolean }> = ({ open }) => {
@@ -34,18 +35,19 @@ const makePluginLinks = (plugins: PluginConfig[], history: History, open: boolea
         plugin.routes.forEach((route, ri) => {
             if (route.hidden) return;
             links.push(
-                <s.SidebarMenuItem
+                <Menu.Item
                     key={`plugin-${pi}-route-${ri}`}
                     name={route.name}
                     icon={!open}
+                    className="sidebarMenuItem"
                     onClick={() => {
                         const path = formatPath(plugin.basepath, route.path);
                         history.push(path);
                     }}
                 >
                     <SidebarMenuIcon icon={route.icon} open={open} />
-                    {open && <s.SidebarItemName>{route.name}</s.SidebarItemName>}
-                </s.SidebarMenuItem>
+                    {open && <div className="sidebarItemName">{route.name}</div>}
+                </Menu.Item>
             );
         });
     });
@@ -59,13 +61,16 @@ const Sidebar = tsWithRouter<any>(({ history }) => {
 
     if (!authenticated) return <div />;
 
+    let className = 'sidebarMenu';
+    if (!open) className += ' sidebarMenuClosed';
+
     return (
-        <s.SidebarMenu open={open} vertical>
-            <s.SidebarToggle onClick={() => setState(!open)}>
+        <Menu className={className} open={open} vertical>
+            <Menu.Item className="sidebarToggle" onClick={() => setState(!open)}>
                 <SidebarToggleIcon open={open} />
-            </s.SidebarToggle>
+            </Menu.Item>
             {makePluginLinks(plugins, history, open)}
-        </s.SidebarMenu>
+        </Menu>
     );
 });
 

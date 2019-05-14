@@ -1,3 +1,4 @@
+import './index.css';
 import AuthUserQuery from './AuthUserQuery';
 import ErrorMessage from './ErrorMessage';
 import ErrorPage from './ErrorPage';

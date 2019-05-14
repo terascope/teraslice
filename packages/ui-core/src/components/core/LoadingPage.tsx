@@ -1,22 +1,10 @@
 import React from 'react';
-import styled from 'styled-components';
 import { Placeholder, Segment, Container } from 'semantic-ui-react';
-
-const StyledContainer = styled(Container)`
-    height: 100%;
-    min-height: 100%;
-    display: flex;
-    flex-direction: row;
-`;
-
-const StyledSegment = styled(Segment)`
-    flex: 1;
-`;
 
 const LoadingPage: React.FC = () => {
     return (
-        <StyledContainer>
-            <StyledSegment loading>
+        <Container className="simplePageContainer">
+            <Segment className="simplePageContent" padded="very">
                 <Placeholder fluid>
                     <Placeholder.Header>
                         <Placeholder.Line />
@@ -28,8 +16,8 @@ const LoadingPage: React.FC = () => {
                         <Placeholder.Line />
                     </Placeholder.Paragraph>
                 </Placeholder>
-            </StyledSegment>
-        </StyledContainer>
+            </Segment>
+        </Container>
     );
 };
 

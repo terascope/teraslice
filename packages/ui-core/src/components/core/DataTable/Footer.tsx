@@ -1,21 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import { Table, Pagination } from 'semantic-ui-react';
 import { UpdateQueryState } from './interfaces';
-
-const FooterCell = styled.div`
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: space-between;
-`;
-
-const FooterResultCount = styled.div`
-    text-align: center;
-    font-size: 1rem;
-    align-self: center;
-    padding-left: 1rem;
-`;
 
 const TableFooter: React.FC<{ numCols: number }> = ({ numCols, children }) => {
     return (
@@ -37,8 +23,8 @@ const Footer: React.FC<Props> = ({ total, size, from, numCols, updateQueryState 
 
     return (
         <TableFooter numCols={numCols}>
-            <FooterCell>
-                <FooterResultCount>Found {total} results</FooterResultCount>
+            <div className="dtFooterCell">
+                <div className="dtFooterResults">Found {total} results</div>
                 <Pagination
                     disabled={total < size}
                     boundaryRange={0}
@@ -57,7 +43,7 @@ const Footer: React.FC<Props> = ({ total, size, from, numCols, updateQueryState 
                     totalPages={totalPages}
                     size="small"
                 />
-            </FooterCell>
+            </div>
         </TableFooter>
     );
 };

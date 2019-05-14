@@ -1,10 +1,9 @@
 import React from 'react';
 import { Segment } from 'semantic-ui-react';
-import { FooterContent } from './styled';
 
 const Footer: React.FC = () => {
     return (
-        <Segment as={FooterContent} textAlign="center">
+        <Segment as="footer" textAlign="center" className="appFooter">
             Copyright &copy; 2019
         </Segment>
     );
