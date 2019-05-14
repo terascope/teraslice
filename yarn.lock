@@ -2316,10 +2316,10 @@
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.122.tgz#3e31394c38cf1e5949fb54c1192cbc406f152c6c"
   integrity sha512-9IdED8wU93ty8gP06ninox+42SBSJHp2IAamsSYMUY76mshRTeUsid/gtbl8ovnOwy8im41ib4cxTiIYMXGKew==
 
-"@types/lodash@^4.14.126":
-  version "4.14.126"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.126.tgz#47cff3ea014aa083194f8ca3ec351136c3786613"
-  integrity sha512-HxQ+wQnBtnL0LszZrVdMqWIlzZNyKuMLUb6swQ3mo6ysPqpAu7gfnapCQIi0B+Mrf0fNLZh8AWgJs2njejVasg==
+"@types/lodash@^4.14.128":
+  version "4.14.128"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.128.tgz#a2ba55d29cfe5bbae76256c95bd32d7dee3e0f3b"
+  integrity sha512-09tfcHEZ+UEMouF6wRE/h+rqKiujbEUk8ftZsA+eKeIISt8uotgoLEZpfb+f8Qxli572Q0CBIFMVHm4KQr15Hg==
 
 "@types/long@^4.0.0":
   version "4.0.0"
@@ -2336,10 +2336,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
   integrity sha512-tHq6qdbT9U1IRSGf14CL0pUlULksvY9OZ+5eEgl1N7t+OA3tGvNpxJCzuKQlsNgCVwbAs670L1vcVQi8j9HjnA==
 
-"@types/nanoid@^1.2.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@types/nanoid/-/nanoid-1.2.1.tgz#995bd0538ef04c4751d88d2fa15a97f0b85dd848"
-  integrity sha512-G3fQNcOYPHLXigI5nxpmSCCJIAEqgd+DP3p1IaxcdXJRJxdoeIZi/MGt58j/lI0AIsgajwG10Vs6J2xzkGZfEQ==
+"@types/nanoid@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@types/nanoid/-/nanoid-2.0.0.tgz#b59002c475e6dfcc26e67ba563ff61b512e5ebf8"
+  integrity sha512-NtwPHfAyU3IDXdKAB2OMPpAauHBg9gUjpOYr3FAzI84D70nWdS8k5mryteLvT/s1ACeAFAkGg132/XJVN4qx/w==
   dependencies:
     "@types/node" "*"
 
@@ -9810,6 +9810,18 @@ jest-watch-typeahead@0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/jest-watch-typeahead/-/jest-watch-typeahead-0.3.0.tgz#f56d9ee17ea71ecbf8253fed213df3185a1584c9"
   integrity sha512-+uOtlppt9ysST6k6ZTqsPI0WNz2HLa8bowiZylZoQCQaAVn7XsVmHhZREkz73FhKelrFrpne4hQQjdq42nFEmA==
+  dependencies:
+    ansi-escapes "^3.0.0"
+    chalk "^2.4.1"
+    jest-watcher "^24.3.0"
+    slash "^2.0.0"
+    string-length "^2.0.0"
+    strip-ansi "^5.0.0"
+
+jest-watch-typeahead@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/jest-watch-typeahead/-/jest-watch-typeahead-0.3.1.tgz#47701024b64b444aa325d801b4b3a6d61ed70701"
+  integrity sha512-cDIko96c4Yqg/7mfye1eEYZ6Pvugo9mnOOhGQod3Es7/KptNv1b+9gFVaotzdqNqTlwbkA80BnWHtzV4dc+trA==
   dependencies:
     ansi-escapes "^3.0.0"
     chalk "^2.4.1"

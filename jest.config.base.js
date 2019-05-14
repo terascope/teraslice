@@ -19,33 +19,22 @@ module.exports = (projectDir) => {
         verbose: true,
         testEnvironment: 'node',
         setupFilesAfterEnv: ['jest-extended'],
-        testMatch: [
-            `${projectRoot}/test/**/*-spec.{ts,js}`,
-            `${projectRoot}/test/*-spec.{ts,js}`
-        ],
+        testMatch: [`${projectRoot}/test/**/*-spec.{ts,js}`, `${projectRoot}/test/*-spec.{ts,js}`],
         testPathIgnorePatterns: [
             '<rootDir>/assets',
             `<rootDir>/${workspaceName}/*/node_modules`,
             `<rootDir>/${workspaceName}/*/dist`,
-            `<rootDir>/${workspaceName}/teraslice-cli/test/fixtures/`,
+            `<rootDir>/${workspaceName}/teraslice-cli/test/fixtures/`
         ],
         moduleNameMapper: lernaAliases({ mainFields: ['srcMain', 'main'] }),
-        moduleFileExtensions: [
-            'ts',
-            'js',
-            'json',
-            'node',
-            'pegjs'
-        ],
+        moduleFileExtensions: ['ts', 'js', 'json', 'node', 'pegjs'],
         collectCoverage: true,
-        coveragePathIgnorePatterns: [
-            '/node_modules/',
-            '/test/',
-        ],
+        coveragePathIgnorePatterns: ['/node_modules/', '/test/'],
         watchPathIgnorePatterns: [],
         coverageReporters: runInPackage ? ['html'] : ['lcov', 'text', 'html'],
         coverageDirectory: `${projectRoot}/coverage`,
-        preset: 'ts-jest'
+        preset: 'ts-jest',
+        watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname']
     };
 
     if (fs.pathExistsSync(path.join(projectDir, 'test/global.setup.js'))) {
@@ -69,7 +58,7 @@ module.exports = (projectDir) => {
             config.globals['ts-jest'] = {
                 tsConfig: './tsconfig.json',
                 diagnostics: true,
-                pretty: true,
+                pretty: true
             };
         } else {
             config.globals['ts-jest'] = {
@@ -85,9 +74,7 @@ module.exports = (projectDir) => {
         };
     }
 
-    config.roots = [
-        `${projectRoot}/test`
-    ];
+    config.roots = [`${projectRoot}/test`];
 
     if (fs.pathExistsSync(path.join(projectDir, 'lib'))) {
         config.roots.push(`${projectRoot}/lib`);
