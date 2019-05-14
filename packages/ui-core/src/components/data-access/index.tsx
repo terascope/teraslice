@@ -1,6 +1,7 @@
 import { PluginConfig } from '../core';
 import CreateUser from './CreateUser';
 import EditUser from './EditUser';
+import MyAccount from './MyAccount';
 import ListUsers from './ListUsers';
 
 const config: PluginConfig = {
@@ -11,14 +12,12 @@ const config: PluginConfig = {
             name: 'Users',
             path: '/',
             icon: 'users',
-            exact: true,
             component: ListUsers,
         },
         {
             name: 'Create User',
             path: '/create',
             icon: 'plus',
-            exact: true,
             hidden: true,
             component: CreateUser,
         },
@@ -26,9 +25,15 @@ const config: PluginConfig = {
             name: 'Edit User',
             path: '/edit/:id',
             icon: 'pencil alternate',
-            exact: true,
             hidden: true,
             component: EditUser,
+        },
+        {
+            name: 'My Account',
+            path: '/account',
+            icon: 'pencil alternate',
+            hidden: true,
+            component: MyAccount,
         },
     ],
 };

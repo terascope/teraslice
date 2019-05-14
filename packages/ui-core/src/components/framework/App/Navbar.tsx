@@ -1,9 +1,17 @@
 import React from 'react';
-import { Dropdown } from 'semantic-ui-react';
+import { Dropdown, Button, Icon } from 'semantic-ui-react';
 import { useCoreContext } from '../../core';
-import MyAccountLink from './MyAccountLink';
-import LogoutLink from './LogoutLink';
 import * as s from './styled';
+
+type LinkProps = { to: string; iconName: string };
+const DropdownLink: React.FC<LinkProps> = ({ to, iconName, children }) => {
+    return (
+        <Button basic as={s.BasicLink} to={to} fluid>
+            <Icon name={iconName as any} />
+            {children}
+        </Button>
+    );
+};
 
 const Navbar: React.FC = () => {
     const { authenticated } = useCoreContext();
@@ -15,8 +23,20 @@ const Navbar: React.FC = () => {
             {authenticated && (
                 <Dropdown item icon={AccountIcon} className="right">
                     <Dropdown.Menu>
-                        <Dropdown.Item as={MyAccountLink} />
-                        <Dropdown.Item as={LogoutLink} />
+                        <Dropdown.Item
+                            as={DropdownLink}
+                            to={'/users/account'}
+                            iconName="user circle"
+                        >
+                            My Account
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                            as={DropdownLink}
+                            to={'/logout'}
+                            iconName="sign out"
+                        >
+                            Logout
+                        </Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             )}

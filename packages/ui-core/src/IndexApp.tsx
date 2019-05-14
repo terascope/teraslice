@@ -25,7 +25,6 @@ const IndexApp: React.FC = () => {
                     name: 'Home',
                     path: '/',
                     icon: 'home',
-                    exact: true,
                     component: Welcome,
                 },
             ],

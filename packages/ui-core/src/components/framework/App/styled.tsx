@@ -23,7 +23,7 @@ export const SidebarToggle = styled(Menu.Item)`
 `;
 
 export const SidebarMenu = styled(Menu)`
-    ${props => (props.open ? '' : 'width: 4rem !important;')};
+    ${(props) => (props.open ? '' : 'width: 4rem !important;')};
     display: flex !important;
     flex-flow: column nowrap;
     justify-content: flex-start;
@@ -59,17 +59,11 @@ export const BasicLink = styled(Link)`
     box-shadow: none;
 `;
 
-export const FooterContent = styled.footer`
-    align-self: flex-end;
-    width: 100%;
-    flex: 1;
-`;
-
 export const AppRoot = styled.div`
     height: 100%;
     min-height: 100%;
     display: flex;
-    flex-direction: row;
+    flex: row nowrap;
 `;
 
 export const SidebarWrapper = styled.div`
@@ -79,11 +73,6 @@ export const SidebarWrapper = styled.div`
     z-index: 9999;
 `;
 
-export const Main = styled.main`
-    flex: 1;
-    margin: 2rem 0;
-`;
-
 export const AppContent = styled(Segment)`
     display: flex;
     flex-flow: column nowrap;
@@ -91,4 +80,15 @@ export const AppContent = styled(Segment)`
     z-index: 1;
     margin: -3px 0 0 -1px !important;
     padding: 0 !important;
+`;
+
+export const Main = styled.main`
+    flex: 10;
+    margin: 2rem 0;
+`;
+
+export const FooterContent = styled.footer`
+    align-self: flex-end;
+    width: 100%;
+    flex: 1;
 `;

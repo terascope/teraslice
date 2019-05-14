@@ -15,7 +15,7 @@ const Routes: React.FC = () => {
                             key={`route-${pi}-${ri}`}
                             path={path}
                             component={route.component}
-                            exact={!!route.exact}
+                            exact
                         />
                     );
                 })
