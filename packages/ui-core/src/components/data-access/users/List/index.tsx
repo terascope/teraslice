@@ -2,15 +2,8 @@ import React from 'react';
 import gql from 'graphql-tag';
 import { ApolloConsumer } from 'react-apollo';
 import { get } from '@terascope/utils';
-import ListQuery from './ListQuery';
-import {
-    DataTable,
-    Page,
-    RowMapping,
-    PageAction,
-    useCoreContext,
-    formatDate,
-} from '../../core';
+import ListQuery from './Query';
+import { DataTable, Page, RowMapping, PageAction, useCoreContext, formatDate } from '../../../core';
 
 const List: React.FC = () => {
     const authUser = useCoreContext().authUser!;
@@ -64,9 +57,7 @@ const List: React.FC = () => {
                                     baseEditPath="/users/edit"
                                     removeRecords={async (docs) => {
                                         if (docs === true) {
-                                            throw new Error(
-                                                'Removing all users in not supported yet'
-                                            );
+                                            throw new Error('Removing all users in not supported yet');
                                         }
 
                                         const promises = docs.map((record) => {
@@ -80,9 +71,7 @@ const List: React.FC = () => {
 
                                         await Promise.all(promises);
 
-                                        return `Successful deleted ${
-                                            docs.length
-                                        } records`;
+                                        return `Successful deleted ${docs.length} records`;
                                     }}
                                     loading={loading}
                                     records={records}
