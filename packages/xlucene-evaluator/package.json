@@ -44,8 +44,8 @@
         "is-cidr": "^3.0.0",
         "latlon-geohash": "^1.1.0",
         "lodash": "^4.17.11",
-        "pegjs-backtrace": "^0.1.2",
-        "rambda": "^2.5.0"
+        "pegjs-backtrace": "^0.2.0",
+        "rambda": "^2.6.0"
     },
     "devDependencies": {
         "elasticsearch": "^15.4.1",

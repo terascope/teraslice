@@ -51,10 +51,10 @@
         "valid-url": "^1.0.9",
         "validator": "^10.10.0",
         "xlucene-evaluator": "^0.8.0",
-        "yargs": "^13.2.2"
+        "yargs": "^13.2.4"
     },
     "devDependencies": {
-        "@types/lodash": "^4.14.125",
+        "@types/lodash": "^4.14.126",
         "@types/valid-url": "^1.0.2",
         "@types/validator": "^10.11.0",
         "@types/yargs": "^13.0.0"
