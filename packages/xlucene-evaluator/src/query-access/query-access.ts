@@ -27,7 +27,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             constraint,
             prevent_prefix_wildcard,
             allow_implicit_queries,
-            type_config = {}
+            type_config = {},
         } = config;
 
         this.logger = logger != null ? logger.child({ module: 'xlucene-query-access' }) : _logger;
@@ -48,14 +48,14 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      * Validate and restrict a xlucene query
      *
      * @returns a restricted xlucene query
-    */
+     */
     restrict(query: string): string {
         const parser = this._parser.make(query, this.logger);
 
         if (isEmptyAST(parser.ast)) {
             if (!this.constraint) {
                 throw new ts.TSError('Empty queries are restricted', {
-                    statusCode: 403
+                    statusCode: 403,
                 });
             }
             return this.constraint;
@@ -67,33 +67,36 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
                 if (this.allowImplicitQueries) return;
 
                 throw new ts.TSError('Implicit fields are restricted, please specify the field', {
-                    statusCode: 403
+                    statusCode: 403,
                 });
             }
 
             if (this._isFieldExcluded(node.field)) {
                 throw new ts.TSError(`Field ${node.field} in query is restricted`, {
-                    statusCode: 403
+                    statusCode: 403,
                 });
             }
 
             if (this._isFieldIncluded(node.field)) {
-                throw new ts.TSError(`Field ${node.field} in query is restricted`,  {
-                    statusCode: 403
+                throw new ts.TSError(`Field ${node.field} in query is restricted`, {
+                    statusCode: 403,
                 });
             }
 
             if (isWildcard(node)) {
                 if (this.preventPrefixWildcard && startsWithWildcard(node.value)) {
-                    throw new ts.TSError('Wildcard queries of the form \'fieldname:*value\' or \'fieldname:?value\' in query are restricted',  {
-                        statusCode: 403
-                    });
+                    throw new ts.TSError(
+                        "Wildcard queries of the form 'fieldname:*value' or 'fieldname:?value' in query are restricted",
+                        {
+                            statusCode: 403,
+                        }
+                    );
                 }
             }
         });
 
         if (this.constraint) {
-            return `${query} AND ${this.constraint}`;
+            return `(${this.constraint}) AND (${query})`;
         }
 
         return query;
@@ -103,7 +106,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      * Converts a restricted xlucene query to an elasticsearch search query
      *
      * @returns a restricted elasticsearch search query
-    */
+     */
     restrictSearchQuery(query: string, params: Partial<es.SearchParams> = {}): es.SearchParams {
         if (params._source) {
             throw new ts.TSError('Cannot include _source in params, use _sourceInclude or _sourceExclude');
@@ -114,15 +117,15 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         const translator = this._translator.make(parsed, this.typeConfig, this.logger);
         const translated = translator.toElasticsearchDSL();
 
-        const {
-            includes,
-            excludes
-        } = this.restrictSourceFields(params._sourceInclude as (keyof T)[], params._sourceExclude as (keyof T)[]);
+        const { includes, excludes } = this.restrictSourceFields(
+            params._sourceInclude as (keyof T)[],
+            params._sourceExclude as (keyof T)[]
+        );
 
         const searchParams = _.defaultsDeep({}, params, {
             body: translated,
             _sourceInclude: includes,
-            _sourceExclude: excludes
+            _sourceExclude: excludes,
         });
 
         if (searchParams.q) {
@@ -136,7 +139,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      * Restrict requested source to all or subset of the ones available
      *
      * **NOTE:** this will remove restricted fields and will not throw
-    */
+     */
     restrictSourceFields(includes?: (keyof T)[], excludes?: (keyof T)[]) {
         return {
             includes: this._getSourceFields(this.includes, includes),
@@ -144,7 +147,10 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         };
     }
 
-    private _getSourceFields(restricted?: (keyof T)[], override?: (keyof T)[]|boolean|(keyof T)): (keyof T)[]|undefined {
+    private _getSourceFields(
+        restricted?: (keyof T)[],
+        override?: (keyof T)[] | boolean | (keyof T)
+    ): (keyof T)[] | undefined {
         if (restricted && override) {
             const fields = ts.uniq(ts.parseList(override) as (keyof T)[]);
 
@@ -174,7 +180,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     }
 }
 
-function startsWithWildcard(input?: string|number) {
+function startsWithWildcard(input?: string | number) {
     if (!input) return false;
     if (!ts.isString(input)) return false;
 

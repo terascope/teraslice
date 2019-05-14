@@ -14,12 +14,7 @@ describe('QueryAccess', () => {
 
     describe('when constructed with exclusive fields', () => {
         const queryAccess = new QueryAccess({
-            excludes: [
-                'bar',
-                'moo',
-                'baa.maa',
-                'a.b',
-            ]
+            excludes: ['bar', 'moo', 'baa.maa', 'a.b'],
         });
 
         describe('when passed queries with foo in field', () => {
@@ -49,8 +44,7 @@ describe('QueryAccess', () => {
             it('should throw when input query is restricted with nested fields', () => {
                 const query = 'bar.hello:example';
 
-                expect(() => queryAccess.restrict(query))
-                    .toThrowError('Field bar.hello in query is restricted');
+                expect(() => queryAccess.restrict(query)).toThrowError('Field bar.hello in query is restricted');
             });
         });
 
@@ -58,8 +52,7 @@ describe('QueryAccess', () => {
             it('should throw when input query is restricted', () => {
                 const query = 'moo:example';
 
-                expect(() => queryAccess.restrict(query))
-                    .toThrowError('Field moo in query is restricted');
+                expect(() => queryAccess.restrict(query)).toThrowError('Field moo in query is restricted');
             });
         });
 
@@ -67,8 +60,7 @@ describe('QueryAccess', () => {
             it('should throw when input query is restricted', () => {
                 const query = 'baa.maa:example';
 
-                expect(() => queryAccess.restrict(query))
-                    .toThrowError('Field baa.maa in query is restricted');
+                expect(() => queryAccess.restrict(query)).toThrowError('Field baa.maa in query is restricted');
             });
         });
 
@@ -85,8 +77,7 @@ describe('QueryAccess', () => {
             it('should throw when input query is restricted', () => {
                 const query = 'a.b.c:example';
 
-                expect(() => queryAccess.restrict(query))
-                    .toThrowError('Field a.b.c in query is restricted');
+                expect(() => queryAccess.restrict(query)).toThrowError('Field a.b.c in query is restricted');
             });
         });
 
@@ -102,10 +93,7 @@ describe('QueryAccess', () => {
 
     describe('when constructed with include fields', () => {
         const queryAccess = new QueryAccess({
-            includes: [
-                'bar',
-                'star'
-            ]
+            includes: ['bar', 'star'],
         });
 
         it('should throw if field is not included', () => {
@@ -127,7 +115,9 @@ describe('QueryAccess', () => {
 
             const query = 'hello';
 
-            expect(() => queryAccess.restrict(query)).toThrowError('Implicit fields are restricted, please specify the field');
+            expect(() => queryAccess.restrict(query)).toThrowError(
+                'Implicit fields are restricted, please specify the field'
+            );
         });
 
         it('should throw when using *', () => {
@@ -135,7 +125,9 @@ describe('QueryAccess', () => {
 
             const query = '*';
 
-            expect(() => queryAccess.restrict(query)).toThrowError('Implicit fields are restricted, please specify the field');
+            expect(() => queryAccess.restrict(query)).toThrowError(
+                'Implicit fields are restricted, please specify the field'
+            );
         });
 
         it('should not throw if field implicit are allowed', () => {
@@ -144,7 +136,7 @@ describe('QueryAccess', () => {
             const query = '*';
 
             const result = new QueryAccess({
-                allow_implicit_queries: true
+                allow_implicit_queries: true,
             }).restrict(query);
 
             expect(result).toEqual(query);
@@ -159,8 +151,7 @@ describe('QueryAccess', () => {
         it('should throw if passed an empty query', () => {
             const query = '';
 
-            expect(() => queryAccess.restrict(query))
-                .toThrowWithMessage(TSError, 'Empty queries are restricted');
+            expect(() => queryAccess.restrict(query)).toThrowWithMessage(TSError, 'Empty queries are restricted');
         });
 
         it('should allow field listed if included', () => {
@@ -178,7 +169,7 @@ describe('QueryAccess', () => {
         describe('when given an empty query', () => {
             it('should be able to default to constraint query', () => {
                 const result = new QueryAccess({
-                    constraint: 'foo:bar'
+                    constraint: 'foo:bar',
                 }).restrict('');
                 expect(result).toEqual('foo:bar');
             });
@@ -190,7 +181,7 @@ describe('QueryAccess', () => {
                 const query: string = null;
 
                 const result = new QueryAccess({
-                    constraint: 'foo:bar'
+                    constraint: 'foo:bar',
                 }).restrict(query);
                 expect(result).toEqual('foo:bar');
             });
@@ -202,7 +193,7 @@ describe('QueryAccess', () => {
                 const query: string = undefined;
 
                 const result = new QueryAccess({
-                    constraint: 'foo:bar'
+                    constraint: 'foo:bar',
                 }).restrict(query);
                 expect(result).toEqual('foo:bar');
             });
@@ -217,8 +208,7 @@ describe('QueryAccess', () => {
 
         it('should append the constraint on the returned query', () => {
             const query = 'hello:world';
-            expect(queryAccess.restrict(query))
-                .toEqual(`${query} AND ${constraint}`);
+            expect(queryAccess.restrict(query)).toEqual(`(${constraint}) AND (${query})`);
         });
     });
 
@@ -226,16 +216,13 @@ describe('QueryAccess', () => {
         const constraint = 'hello:world';
         const queryAccess = new QueryAccess({
             constraint,
-            excludes: [
-                'hello'
-            ]
+            excludes: ['hello'],
         });
 
         it('should return the query', () => {
             const query = 'foo:bar';
 
-            expect(queryAccess.restrict(query))
-                .toEqual(`${query} AND ${constraint}`);
+            expect(queryAccess.restrict(query)).toEqual(`(${constraint}) AND (${query})`);
         });
     });
 
@@ -244,13 +231,12 @@ describe('QueryAccess', () => {
             prevent_prefix_wildcard: true,
         });
 
-        describe.each([
-            ['hello:*world'],
-            ['hello:?world'],
-        ])('when using a query of "%s"', (query) => {
+        describe.each([['hello:*world'], ['hello:?world']])('when using a query of "%s"', (query) => {
             it('should throw an error', () => {
-                expect(() => queryAccess.restrict(query))
-                    .toThrowWithMessage(TSError, 'Wildcard queries of the form \'fieldname:*value\' or \'fieldname:?value\' in query are restricted');
+                expect(() => queryAccess.restrict(query)).toThrowWithMessage(
+                    TSError,
+                    "Wildcard queries of the form 'fieldname:*value' or 'fieldname:?value' in query are restricted"
+                );
             });
         });
 
@@ -264,35 +250,21 @@ describe('QueryAccess', () => {
     describe('when converting to an elasticsearch search query', () => {
         const queryAccess = new QueryAccess({
             allow_implicit_queries: true,
-            excludes: [
-                'bar',
-                'baz'
-            ],
-            includes: [
-                'foo',
-                'moo'
-            ],
+            excludes: ['bar', 'baz'],
+            includes: ['foo', 'moo'],
         });
 
         it('should be able to return a restricted query', () => {
             const params: SearchParams = {
                 q: 'idk',
-                _sourceInclude: [
-                    'moo'
-                ],
-                _sourceExclude: [
-                    'baz'
-                ]
+                _sourceInclude: ['moo'],
+                _sourceExclude: ['baz'],
             };
 
             const result = queryAccess.restrictSearchQuery('foo:bar', params);
             expect(result).toMatchObject({
-                _sourceExclude: [
-                    'baz'
-                ],
-                _sourceInclude: [
-                    'moo'
-                ],
+                _sourceExclude: ['baz'],
+                _sourceInclude: ['moo'],
             });
 
             expect(params).toHaveProperty('q', 'idk');
@@ -307,34 +279,22 @@ describe('QueryAccess', () => {
                         constant_score: {
                             filter: {
                                 bool: {
-                                    filter: []
-                                }
-                            }
+                                    filter: [],
+                                },
+                            },
                         },
                     },
                 },
-                _sourceExclude: [
-                    'bar',
-                    'baz'
-                ],
-                _sourceInclude: [
-                    'foo',
-                    'moo'
-                ],
+                _sourceExclude: ['bar', 'baz'],
+                _sourceInclude: ['foo', 'moo'],
             });
         });
 
         it('should be able to return a restricted query without any params', () => {
             const result = queryAccess.restrictSearchQuery('foo:bar');
             expect(result).toMatchObject({
-                _sourceExclude: [
-                    'bar',
-                    'baz'
-                ],
-                _sourceInclude: [
-                    'foo',
-                    'moo'
-                ],
+                _sourceExclude: ['bar', 'baz'],
+                _sourceInclude: ['foo', 'moo'],
             });
 
             expect(result).not.toHaveProperty('q', 'idk');

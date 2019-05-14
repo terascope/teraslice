@@ -7,7 +7,7 @@ import * as i from './interfaces';
 
 /**
  * An abstract class for an elasticsearch resource, with a CRUD-like interface
-*/
+ */
 export default abstract class IndexModel<T extends i.IndexModelRecord> {
     readonly store: IndexStore<T>;
     readonly name: string;
@@ -37,23 +37,19 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
                     analyzer: {
                         lowercase_keyword_analyzer: {
                             tokenizer: 'keyword',
-                            filter: 'lowercase'
-                        }
-                    }
-                }
+                            filter: 'lowercase',
+                        },
+                    },
+                },
             },
             idField: 'id',
             ingestTimeField: 'created',
             eventTimeField: 'updated',
             logger: options.logger,
-            defaultSort: 'updated:desc'
+            defaultSort: 'updated:desc',
         };
 
-        const indexConfig = Object.assign(
-            baseConfig,
-            options.storeOptions,
-            modelConfig.storeOptions
-        );
+        const indexConfig = Object.assign(baseConfig, options.storeOptions, modelConfig.storeOptions);
 
         this.name = utils.toInstanceName(modelConfig.name);
         this.store = new IndexStore(client, indexConfig);
@@ -97,7 +93,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
 
     async deleteById(id: string): Promise<void> {
         await this.store.remove(id, {
-            refresh: true
+            refresh: true,
         });
     }
 
@@ -107,7 +103,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         await Promise.all(ids.map((id) => this.deleteById(id)));
     }
 
-    async exists(id: string[]|string): Promise<boolean> {
+    async exists(id: string[] | string): Promise<boolean> {
         const ids = ts.castArray(id);
         if (!ids.length) return true;
 
@@ -122,17 +118,21 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             .map(([field, val]) => {
                 if (val == null) {
                     throw new ts.TSError(`${this.name} missing value for field "${field}"`, {
-                        statusCode: 422
+                        statusCode: 422,
                     });
                 }
                 return `${field}: "${val}"`;
             })
             .join(` ${joinBy} `);
 
-        const results = await this._find(query, {
-            ...options,
-            size: 1
-        }, queryAccess);
+        const results = await this._find(
+            query,
+            {
+                ...options,
+                size: 1,
+            },
+            queryAccess
+        );
 
         const record = ts.getFirst(results);
         if (record == null) {
@@ -145,7 +145,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     }
 
     async findById(id: string, options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>): Promise<T> {
-        const fields: Partial<T> = { };
+        const fields: Partial<T> = {};
         fields[this._idField] = id as any;
         return this.findBy(fields, 'AND', options, queryAccess);
     }
@@ -160,22 +160,26 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return this.findBy(fields, 'OR', options, queryAccess);
     }
 
-    async findAll(input: string[]|string, options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>) {
+    async findAll(input: string[] | string, options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>) {
         const ids: string[] = ts.parseList(input);
         if (!ids || !ids.length) return [];
 
         const query = `${this._idField}: (${ids.join(' OR ')})`;
 
-        const result = await this._find(query, {
-            ...options,
-            size: ids.length
-        }, queryAccess);
+        const result = await this._find(
+            query,
+            {
+                ...options,
+                size: ids.length,
+            },
+            queryAccess
+        );
 
         if (result.length !== ids.length) {
             const foundIds = result.map((doc) => doc.id);
             const notFoundIds = ids.filter((id) => !foundIds.includes(id));
             throw new ts.TSError(`Unable to find documents ${notFoundIds.join(', ')}`, {
-                statusCode: 404
+                statusCode: 404,
             });
         }
         return result;
@@ -194,7 +198,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         const id: unknown = doc[this._idField];
         if (!id) {
             throw new ts.TSError(`${this.name} update requires ${this._idField}`, {
-                statusCode: 422
+                statusCode: 422,
             });
         }
 
@@ -209,7 +213,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
 
                 if (count > 0) {
                     throw new ts.TSError(`${this.name} update requires ${field} to be unique`, {
-                        statusCode: 409
+                        statusCode: 409,
                     });
                 }
             }
@@ -224,7 +228,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         await this.store.update(body, id);
     }
 
-    protected async _appendToArray(id: string, field: keyof T, values: string[]|string): Promise<void> {
+    protected async _appendToArray(id: string, field: keyof T, values: string[] | string): Promise<void> {
         if (!values || !values.length) return;
 
         await this._updateWith(id, {
@@ -239,12 +243,12 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
                 lang: 'painless',
                 params: {
                     values: ts.uniq(ts.castArray(values)),
-                }
-            }
+                },
+            },
         });
     }
 
-    protected async _removeFromArray(id: string, field: keyof T, values: string[]|string): Promise<void> {
+    protected async _removeFromArray(id: string, field: keyof T, values: string[] | string): Promise<void> {
         if (!values || !values.length) return;
 
         try {
@@ -261,8 +265,8 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
                     lang: 'painless',
                     params: {
                         values: ts.uniq(ts.castArray(values)),
-                    }
-                }
+                    },
+                },
             });
         } catch (err) {
             if (err && err.statusCode === 404) {
@@ -300,14 +304,14 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             if (field === this._idField) continue;
             if (record[field] == null) {
                 throw new ts.TSError(`${this.name} create requires field ${field}`, {
-                    statusCode: 422
+                    statusCode: 422,
                 });
             }
 
             const count = await this._countBy(field, record[field]);
             if (count > 0) {
                 throw new ts.TSError(`${this.name} create requires ${field} to be unique`, {
-                    statusCode: 409
+                    statusCode: 409,
                 });
             }
         }
