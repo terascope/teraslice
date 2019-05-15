@@ -1,11 +1,11 @@
 import React from 'react';
-import { Page, tsWithRouter } from '../../core';
+import { PluginPage, tsWithRouter } from '../../core';
 import Form from './Form';
 
 export default tsWithRouter(({ match }) => {
     return (
-        <Page title="Edit User">
+        <PluginPage>
             <Form id={match.params.id} />
-        </Page>
+        </PluginPage>
     );
 });

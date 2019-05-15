@@ -16,6 +16,7 @@ const config: PluginConfig = {
             path: '/users',
             icon: 'users',
             component: ListUsers,
+            actions: ['/users/create'],
         },
         {
             name: 'Create User',
@@ -43,11 +44,13 @@ const config: PluginConfig = {
             path: '/roles',
             icon: 'key',
             component: ListRoles,
+            actions: ['/roles/create'],
         },
         {
             name: 'Create Role',
             path: '/roles/create',
             icon: 'add',
+            hidden: true,
             component: CreateRole,
         },
         {

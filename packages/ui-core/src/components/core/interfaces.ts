@@ -2,12 +2,27 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Role, UserType } from '@terascope/data-access';
 
+export type PageAction = {
+    label: string;
+    icon?: string;
+    to?: string;
+    onClick?: () => void;
+};
+
+export const PageActionProp = PropTypes.shape({
+    label: PropTypes.string.isRequired,
+    icon: PropTypes.string,
+    onClick: PropTypes.func,
+    to: PropTypes.string,
+});
+
 export type PluginRoute = {
     name: string;
     path: string;
     icon: string;
     hidden?: boolean;
     component: React.FunctionComponent | React.ComponentClass;
+    actions?: string[];
 };
 
 export const PluginRoutesProp = PropTypes.arrayOf(
@@ -17,6 +32,7 @@ export const PluginRoutesProp = PropTypes.arrayOf(
         icon: PropTypes.string.isRequired,
         hidden: PropTypes.bool,
         component: PropTypes.func.isRequired,
+        actions: PropTypes.arrayOf(PropTypes.string.isRequired),
     }).isRequired
 );
 
@@ -33,20 +49,6 @@ export const PluginConfigProp = PropTypes.shape({
 });
 
 export const PluginsProp = PropTypes.arrayOf(PluginConfigProp.isRequired).isRequired;
-
-export type PageAction = {
-    label: string;
-    icon?: string;
-    to?: string;
-    onClick?: () => void;
-};
-
-export const PageActionProp = PropTypes.shape({
-    label: PropTypes.string.isRequired,
-    icon: PropTypes.string,
-    onClick: PropTypes.func,
-    to: PropTypes.string,
-});
 
 export type ResolvedUser = {
     id: string;

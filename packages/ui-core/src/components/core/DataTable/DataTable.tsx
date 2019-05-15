@@ -10,12 +10,11 @@ import Header from './Header';
 import Footer from './Footer';
 import Body from './Body';
 
-const DataTable: React.FC<Props> = (props) => {
+const DataTable: React.FC<Props> = props => {
     const {
         records,
         total,
         baseEditPath,
-        title,
         loading,
         updateQueryState,
         removeRecords,
@@ -65,19 +64,18 @@ const DataTable: React.FC<Props> = (props) => {
         <Segment loading={loading || actionState.loading}>
             <Table sortable celled compact definition>
                 <Toolbar
-                    title={title}
                     numSelected={selected.length}
                     query={queryState.query}
                     numCols={numCols}
                     updateQueryState={updateQueryState}
-                    onAction={async (action) => {
+                    onAction={async action => {
                         setActionState({
                             loading: true,
                         });
                         try {
                             if (action === 'REMOVE') {
-                                const docs = selected.map((id) =>
-                                    records.find((record) => {
+                                const docs = selected.map(id =>
+                                    records.find(record => {
                                         return rowMapping.getId(record) === id;
                                     })
                                 );
@@ -164,7 +162,6 @@ type Props = {
     updateQueryState: i.UpdateQueryState;
     removeRecords: (ids: any[] | true) => Promise<string>;
     baseEditPath: string;
-    title: string;
     total: number;
     loading?: boolean;
     queryState?: i.QueryState;
@@ -173,7 +170,6 @@ type Props = {
 DataTable.propTypes = {
     updateQueryState: PropTypes.func.isRequired,
     records: PropTypes.array.isRequired,
-    title: PropTypes.string.isRequired,
     baseEditPath: PropTypes.string.isRequired,
     total: PropTypes.number.isRequired,
     loading: PropTypes.bool,

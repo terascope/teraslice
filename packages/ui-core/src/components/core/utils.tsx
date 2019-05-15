@@ -1,7 +1,8 @@
 import React from 'react';
 import _parseDate from 'date-fns/parse';
 import _formatDate from 'date-fns/format';
-import { withRouter, RouteComponentProps } from 'react-router-dom';
+import { withRouter, RouteComponentProps, matchPath } from 'react-router-dom';
+import { PluginRoute, PluginConfig } from './interfaces';
 
 export function formatPath(...paths: (string | undefined)[]) {
     return `/${paths
@@ -29,4 +30,19 @@ export function formatDate(dateStr: any): string {
     const date = _parseDate(dateStr);
     if (!date || !dateStr) return '--';
     return _formatDate(date, 'MMM D, YYYY HH:mm A');
+}
+
+export function findPluginRoute(plugins: PluginConfig[], pathname: string) {
+    for (const plugin of plugins) {
+        const route = plugin.routes.find(({ path }) => {
+            return !!matchPath(pathname, {
+                path,
+                exact: true,
+            });
+        });
+
+        if (route) {
+            return route;
+        }
+    }
 }

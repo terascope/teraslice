@@ -5,7 +5,7 @@ import { get } from '@terascope/utils';
 import ListQuery from './Query';
 import {
     DataTable,
-    Page,
+    PluginPage,
     RowMapping,
     PageAction,
     useCoreContext,
@@ -43,24 +43,15 @@ const List: React.FC = () => {
         },
     };
 
-    const actions: PageAction[] = [
-        {
-            label: 'Create user',
-            icon: 'add user',
-            to: '/users/create',
-        },
-    ];
-
     return (
         <ListQuery>
             {({ updateQueryState, queryState, total, records, loading }) => {
                 return (
                     <ApolloConsumer>
                         {client => (
-                            <Page title="Users" actions={actions}>
+                            <PluginPage>
                                 <DataTable
                                     rowMapping={rowMapping}
-                                    title="Users"
                                     baseEditPath="/users/edit"
                                     removeRecords={async docs => {
                                         if (docs === true) {
@@ -90,7 +81,7 @@ const List: React.FC = () => {
                                     queryState={queryState}
                                     updateQueryState={updateQueryState}
                                 />
-                            </Page>
+                            </PluginPage>
                         )}
                     </ApolloConsumer>
                 );

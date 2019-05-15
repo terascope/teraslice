@@ -2,7 +2,7 @@ import React from 'react';
 import gql from 'graphql-tag';
 import { ApolloConsumer } from 'react-apollo';
 import ListQuery from './Query';
-import { DataTable, Page, RowMapping, PageAction, formatDate } from '../../../core';
+import { DataTable, RowMapping, formatDate, PluginPage } from '../../../core';
 
 const List: React.FC = () => {
     const rowMapping: RowMapping = {
@@ -25,24 +25,15 @@ const List: React.FC = () => {
         },
     };
 
-    const actions: PageAction[] = [
-        {
-            label: 'Create role',
-            icon: 'plus',
-            to: '/roles/create',
-        },
-    ];
-
     return (
         <ListQuery>
             {({ updateQueryState, queryState, total, records, loading }) => {
                 return (
                     <ApolloConsumer>
                         {client => (
-                            <Page title="Roles" actions={actions}>
+                            <PluginPage>
                                 <DataTable
                                     rowMapping={rowMapping}
-                                    title="Role"
                                     baseEditPath="/roles/edit"
                                     removeRecords={async docs => {
                                         if (docs === true) {
@@ -72,7 +63,7 @@ const List: React.FC = () => {
                                     queryState={queryState}
                                     updateQueryState={updateQueryState}
                                 />
-                            </Page>
+                            </PluginPage>
                         )}
                     </ApolloConsumer>
                 );

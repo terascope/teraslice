@@ -4,8 +4,8 @@ import { Menu, Input, Icon, Table, Button, Label } from 'semantic-ui-react';
 import ConfirmRemoval from './ConfirmRemoval';
 import { UpdateQueryState } from './interfaces';
 
-const Toolbar: React.FC<Props> = (props) => {
-    const { numCols, numSelected, title, updateQueryState, onAction } = props;
+const Toolbar: React.FC<Props> = props => {
+    const { numCols, numSelected, updateQueryState, onAction } = props;
     const [query, updateQuery] = useState(props.query || '');
 
     const submitQuery = (e: React.FormEvent) => {
@@ -49,7 +49,7 @@ const Toolbar: React.FC<Props> = (props) => {
                                     value={query === '*' ? '' : query}
                                     onChange={(e: any, { value }) => updateQuery(value)}
                                     onClick={submitQuery}
-                                    placeholder={`Search ${title}...`}
+                                    placeholder="Search ..."
                                 />
                             </form>
                         </Menu.Item>
@@ -61,7 +61,6 @@ const Toolbar: React.FC<Props> = (props) => {
 };
 
 type Props = {
-    title: string;
     numSelected: number;
     query?: string;
     numCols: number;
@@ -71,7 +70,6 @@ type Props = {
 
 Toolbar.propTypes = {
     numSelected: PropTypes.number.isRequired,
-    title: PropTypes.string.isRequired,
     query: PropTypes.string,
     numCols: PropTypes.number.isRequired,
     onAction: PropTypes.func.isRequired,

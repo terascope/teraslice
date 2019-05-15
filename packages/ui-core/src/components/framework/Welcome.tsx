@@ -1,11 +1,11 @@
 import React from 'react';
-import { Page } from '../core';
+import { PluginPage } from '../core';
 
 const Welcome: React.FC = () => {
     return (
-        <Page title="Welcome">
+        <PluginPage>
             <p>Please select from the menu on the left sidebar.</p>
-        </Page>
+        </PluginPage>
     );
 };
 
