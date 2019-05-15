@@ -2,7 +2,7 @@ import React from 'react';
 import _parseDate from 'date-fns/parse';
 import _formatDate from 'date-fns/format';
 import { withRouter, RouteComponentProps, matchPath } from 'react-router-dom';
-import { PluginRoute, PluginConfig } from './interfaces';
+import { PluginConfig } from './interfaces';
 
 export function formatPath(...paths: (string | undefined)[]) {
     return `/${paths

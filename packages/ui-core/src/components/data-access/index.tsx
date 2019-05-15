@@ -1,10 +1,8 @@
 import { PluginConfig } from '../core';
-import CreateUser from './users/Create';
-import EditUser from './users/Edit';
+import UserForm from './users/Form';
 import MyAccount from './users/MyAccount';
 import ListUsers from './users/List';
-import CreateRole from './roles/Create';
-import EditRole from './roles/Edit';
+import RoleForm from './roles/Form';
 import ListRoles from './roles/List';
 
 const config: PluginConfig = {
@@ -23,14 +21,14 @@ const config: PluginConfig = {
             path: '/users/create',
             icon: 'add',
             hidden: true,
-            component: CreateUser,
+            component: UserForm,
         },
         {
             name: 'Edit User',
             path: '/users/edit/:id',
             icon: 'pencil alternate',
             hidden: true,
-            component: EditUser,
+            component: UserForm,
         },
         {
             name: 'My Account',
@@ -51,14 +49,14 @@ const config: PluginConfig = {
             path: '/roles/create',
             icon: 'add',
             hidden: true,
-            component: CreateRole,
+            component: UserForm,
         },
         {
             name: 'Edit Role',
             path: '/roles/edit/:id',
             icon: 'pencil alternate',
             hidden: true,
-            component: EditRole,
+            component: RoleForm,
         },
     ],
 };

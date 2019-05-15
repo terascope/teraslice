@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCoreContext, formatPath } from '../core';
+import { useCoreContext, formatPath, PluginPage } from '../core';
 import ProtectedRoute from './ProtectedRoute';
 
 const Routes: React.FC = () => {
@@ -14,7 +14,7 @@ const Routes: React.FC = () => {
                         <ProtectedRoute
                             key={`route-${pi}-${ri}`}
                             path={path}
-                            component={route.component}
+                            component={PluginPage}
                             exact
                         />
                     );

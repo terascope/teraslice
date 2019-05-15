@@ -21,7 +21,7 @@ export type PluginRoute = {
     path: string;
     icon: string;
     hidden?: boolean;
-    component: React.FunctionComponent | React.ComponentClass;
+    component: React.FC<any> | React.ComponentClass<any>;
     actions?: string[];
 };
 

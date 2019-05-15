@@ -3,14 +3,7 @@ import gql from 'graphql-tag';
 import { ApolloConsumer } from 'react-apollo';
 import { get } from '@terascope/utils';
 import ListQuery from './Query';
-import {
-    DataTable,
-    PluginPage,
-    RowMapping,
-    PageAction,
-    useCoreContext,
-    formatDate,
-} from '../../../core';
+import { DataTable, RowMapping, useCoreContext, formatDate } from '../../../core';
 
 const List: React.FC = () => {
     const authUser = useCoreContext().authUser!;
@@ -49,39 +42,35 @@ const List: React.FC = () => {
                 return (
                     <ApolloConsumer>
                         {client => (
-                            <PluginPage>
-                                <DataTable
-                                    rowMapping={rowMapping}
-                                    baseEditPath="/users/edit"
-                                    removeRecords={async docs => {
-                                        if (docs === true) {
-                                            throw new Error(
-                                                'Removing all users in not supported yet'
-                                            );
-                                        }
+                            <DataTable
+                                rowMapping={rowMapping}
+                                baseEditPath="/users/edit"
+                                removeRecords={async docs => {
+                                    if (docs === true) {
+                                        throw new Error(
+                                            'Removing all users in not supported yet'
+                                        );
+                                    }
 
-                                        const promises = docs.map(record => {
-                                            return client.mutate({
-                                                mutation: REMOVE_QUERY,
-                                                variables: {
-                                                    id: record.id,
-                                                },
-                                            });
+                                    const promises = docs.map(record => {
+                                        return client.mutate({
+                                            mutation: REMOVE_QUERY,
+                                            variables: {
+                                                id: record.id,
+                                            },
                                         });
+                                    });
 
-                                        await Promise.all(promises);
+                                    await Promise.all(promises);
 
-                                        return `Successful deleted ${
-                                            docs.length
-                                        } records`;
-                                    }}
-                                    loading={loading}
-                                    records={records}
-                                    total={total}
-                                    queryState={queryState}
-                                    updateQueryState={updateQueryState}
-                                />
-                            </PluginPage>
+                                    return `Successful deleted ${docs.length} records`;
+                                }}
+                                loading={loading}
+                                records={records}
+                                total={total}
+                                queryState={queryState}
+                                updateQueryState={updateQueryState}
+                            />
                         )}
                     </ApolloConsumer>
                 );

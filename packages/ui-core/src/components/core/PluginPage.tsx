@@ -3,12 +3,13 @@ import { PageAction } from './interfaces';
 import { useCoreContext } from './CoreContext';
 import { tsWithRouter, findPluginRoute } from './utils';
 import Page from './Page';
+import ErrorPage from './ErrorPage';
 
-const PluginPage = tsWithRouter<Props>(({ children, location }) => {
+const PluginPage = tsWithRouter(({ location, match }) => {
     const { plugins } = useCoreContext();
     const route = findPluginRoute(plugins, location.pathname);
 
-    if (!route) return <Page title="...">{children}</Page>;
+    if (!route) return <ErrorPage error="Invalid Plugin" />;
 
     const actions: PageAction[] = [];
 
@@ -24,16 +25,13 @@ const PluginPage = tsWithRouter<Props>(({ children, location }) => {
             });
         }
     }
+    const PageComponent = route.component;
 
     return (
         <Page title={route.name} actions={actions}>
-            {children}
+            <PageComponent {...match} />
         </Page>
     );
 });
-
-type Props = {};
-
-PluginPage.propTypes = {};
 
 export default PluginPage;
