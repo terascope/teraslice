@@ -2,9 +2,9 @@ import PropTypes from 'prop-types';
 import { UserType } from '@terascope/data-access';
 import { InputOnChangeData, DropdownProps } from 'semantic-ui-react';
 
-export type UserInput = {
+export type Input = {
     id?: string;
-    client_id: number;
+    client_id: number | string;
     firstname: string;
     lastname: string;
     username: string;
@@ -16,7 +16,7 @@ export type UserInput = {
     api_token: string;
 };
 
-export const userInputFields: (keyof UserInput)[] = [
+export const inputFields: (keyof Input)[] = [
     'id',
     'client_id',
     'firstname',
@@ -31,7 +31,7 @@ export const userInputFields: (keyof UserInput)[] = [
 ];
 
 export const userTypes: UserType[] = ['USER', 'ADMIN', 'SUPERADMIN'];
-export const userTypeOptions = userTypes.map((type) => ({
+export const userTypeOptions = userTypes.map(type => ({
     key: type,
     text: type,
     value: type,
@@ -40,7 +40,7 @@ export const userTypeOptions = userTypes.map((type) => ({
 export type ChangeFn = (e: any, data: InputOnChangeData | DropdownProps) => void;
 
 export type FieldOptions = {
-    name: keyof UserInput;
+    name: keyof Input;
     label: string;
     placeholder?: string;
 };
@@ -54,7 +54,7 @@ export type Role = {
 
 export type ComponentProps = {
     roles: Role[];
-    userInput: UserInput;
+    input: Input;
     id?: string;
 };
 
@@ -66,5 +66,5 @@ export const ComponentPropTypes = {
         }).isRequired
     ).isRequired,
     id: PropTypes.string,
-    userInput: PropTypes.any.isRequired,
+    input: PropTypes.any.isRequired,
 };

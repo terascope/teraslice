@@ -29,7 +29,7 @@ const PluginPage = tsWithRouter(({ location, match }) => {
 
     return (
         <Page title={route.name} actions={actions}>
-            <PageComponent {...match} />
+            <PageComponent {...match.params} />
         </Page>
     );
 });

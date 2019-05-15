@@ -1,18 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Form from './Form';
+import ModelForm from './Form';
 import Query from './Query';
 
-const RoleForm: React.FC<Props> = ({ id }) => {
-    return <Query component={Form} id={id} />;
+const Form: React.FC<Props> = ({ id }) => {
+    return <Query component={ModelForm} id={id} />;
 };
 
 type Props = {
     id?: string;
 };
 
-RoleForm.propTypes = {
+Form.propTypes = {
     id: PropTypes.string,
 };
 
-export default RoleForm;
+export default Form;

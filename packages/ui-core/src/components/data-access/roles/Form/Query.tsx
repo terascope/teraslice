@@ -17,7 +17,7 @@ const FormQuery: React.FC<Props> = ({ component: Component, id }) => {
                 if (loading) return <LoadingPage />;
                 if (error) return <ErrorPage error={error} />;
 
-                const input = getInput(authUser, get(data, 'role'));
+                const input = getInput(authUser, data);
 
                 return (
                     <Segment basic>
@@ -29,13 +29,14 @@ const FormQuery: React.FC<Props> = ({ component: Component, id }) => {
     );
 };
 
-function getInput(authUser: ResolvedUser, result: any = {}): i.Input {
+function getInput(authUser: ResolvedUser, data: any): i.Input {
+    const role = get(data, 'role');
     const input = {} as i.Input;
     for (const field of i.inputFields) {
-        input[field] = get(result, field) || '';
+        input[field] = get(role, field) || '';
     }
-    if (!input.client_id) {
-        input.client_id = authUser.client_id || 0;
+    if (!input.client_id && authUser.client_id) {
+        input.client_id = authUser.client_id;
     }
     return input;
 }

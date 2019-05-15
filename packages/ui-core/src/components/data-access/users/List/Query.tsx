@@ -1,8 +1,9 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { Query as ApolloQuery } from 'react-apollo';
-import { stringify, parse } from 'query-string';
 import { toNumber } from '@terascope/utils';
+import { User } from '@terascope/data-access';
+import { stringify, parse } from 'query-string';
+import { Query as ApolloQuery } from 'react-apollo';
 import {
     ErrorPage,
     QueryState,
@@ -12,7 +13,7 @@ import {
     UpdateQueryState,
 } from '../../../core';
 
-const searchFields = ['firstname', 'lastname', 'username', 'email'];
+const searchFields: (keyof User)[] = ['firstname', 'lastname', 'username', 'email'];
 
 const ListQuery = tsWithRouter<Props>(({ history, location, children: Component }) => {
     const state: QueryState = Object.assign(

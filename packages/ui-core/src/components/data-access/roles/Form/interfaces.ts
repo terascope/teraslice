@@ -3,7 +3,7 @@ import { InputOnChangeData, DropdownProps } from 'semantic-ui-react';
 
 export type Input = {
     id?: string;
-    client_id: number;
+    client_id: number | string;
     name: string;
     description: string;
 };

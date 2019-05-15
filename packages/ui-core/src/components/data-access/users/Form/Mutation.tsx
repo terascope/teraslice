@@ -1,13 +1,12 @@
 import React from 'react';
 import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
-import { AnyObject, get } from '@terascope/utils';
+import { AnyObject } from '@terascope/utils';
 import { Mutation, MutationFn, MutationResult } from 'react-apollo';
-import { ResolvedUser } from '../../../core';
 
-const CREATE_USER = gql`
-    mutation User($user: CreateUserInput!, $password: String!) {
-        createUser(user: $user, password: $password) {
+const CREATE_QUERY = gql`
+    mutation User($input: CreateUserInput!, $password: String!) {
+        createUser(user: $input, password: $password) {
             id
             username
             type
@@ -15,9 +14,9 @@ const CREATE_USER = gql`
     }
 `;
 
-const UPDATE_USER = gql`
-    mutation User($user: UpdateUserInput!, $password: String) {
-        updateUser(user: $user, password: $password) {
+const UPDATE_QUERY = gql`
+    mutation User($input: UpdateUserInput!, $password: String) {
+        updateUser(user: $input, password: $password) {
             id
             username
             type
@@ -25,53 +24,55 @@ const UPDATE_USER = gql`
     }
 `;
 
-type RealResponse = {
-    updateUser?: ResolvedUser;
-    createUser?: ResolvedUser;
-};
+type RealResponse = AnyObject;
 
 type Response = {
-    user: ResolvedUser;
+    id: string;
 };
 
 type Vars = {
-    user: AnyObject;
+    input: AnyObject;
     password?: string;
 };
 
-class UserMutationQuery extends Mutation<RealResponse, Vars> {}
+class AnyMutationQuery extends Mutation<RealResponse, Vars> {}
 
 type Children = (
     submit: MutationFn<Response, Vars>,
     result: MutationResult<Response>
 ) => React.ReactNode;
 
-const UserMutation: React.FC<Props> = ({ update, children }) => {
+const MutationQuery: React.FC<Props> = ({ update, children }) => {
     return (
-        <UserMutationQuery mutation={update ? UPDATE_USER : CREATE_USER}>
+        <AnyMutationQuery mutation={update ? UPDATE_QUERY : CREATE_QUERY}>
             {(action, result) => {
-                const user = get(
-                    result,
-                    'data.createUser',
-                    get(result, 'data.updateUser')
-                );
+                let data: any;
+                if (result && result.data) {
+                    for (const [key, val] of Object.entries(result.data)) {
+                        if (key.startsWith('create') && val.id) {
+                            data = val;
+                        } else if (key.startsWith('update') && val.id) {
+                            data = val.id;
+                        }
+                    }
+                }
 
                 const queryResult: any = result;
-                if (user) {
-                    queryResult.data = { user };
+                if (data) {
+                    queryResult.data = data;
                 }
 
                 return children((input: any) => action(input), queryResult);
             }}
-        </UserMutationQuery>
+        </AnyMutationQuery>
     );
 };
 
 type Props = { update: boolean; children: Children };
 
-UserMutation.propTypes = {
+MutationQuery.propTypes = {
     update: PropTypes.bool.isRequired,
     children: PropTypes.func.isRequired,
 };
 
-export default UserMutation;
+export default MutationQuery;

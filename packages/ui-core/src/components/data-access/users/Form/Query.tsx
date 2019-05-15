@@ -7,44 +7,45 @@ import { Segment } from 'semantic-ui-react';
 import * as i from './interfaces';
 import { ErrorPage, LoadingPage, ResolvedUser, useCoreContext } from '../../../core';
 
-const UserQuery: React.FC<Props> = ({ component: Component, id }) => {
-    const QUERY = id ? USER_AND_ROLES_QUERY : ROLES_QUERY;
+const FormQuery: React.FC<Props> = ({ component: Component, id }) => {
+    const QUERY = id ? WITH_ID_QUERY : WITHOUT_ID_QUERY;
     const authUser = useCoreContext().authUser!;
 
     return (
-        <UserInfoQuery query={QUERY} variables={{ id }}>
+        <FetchQuery query={QUERY} variables={{ id }}>
             {({ loading, error, data }) => {
                 const roles: i.Role[] = get(data, 'roles', []);
 
                 if (loading) return <LoadingPage />;
                 if (error) return <ErrorPage error={error} />;
 
-                const userInput = getUserInput(authUser, get(data, 'user'));
+                const input = getInput(authUser, data);
 
                 return (
                     <Segment basic>
-                        <Component roles={roles} userInput={userInput} id={id} />
+                        <Component roles={roles} input={input} id={id} />
                     </Segment>
                 );
             }}
-        </UserInfoQuery>
+        </FetchQuery>
     );
 };
 
-function getUserInput(authUser: ResolvedUser, user: any = {}): i.UserInput {
-    const userInput = {} as i.UserInput;
-    for (const field of i.userInputFields) {
+function getInput(authUser: ResolvedUser, data: any): i.Input {
+    const user = get(data, 'user');
+    const input = {} as i.Input;
+    for (const field of i.inputFields) {
         if (field === 'role') {
-            userInput.role = get(user, 'role.id') || '';
+            input.role = get(user, 'role.id') || '';
         } else {
-            userInput[field] = get(user, field) || '';
+            input[field] = get(user, field) || '';
         }
     }
-    if (!userInput.client_id) {
-        userInput.client_id = authUser.client_id || 0;
+    if (!input.client_id && authUser.client_id) {
+        input.client_id = authUser.client_id;
     }
-    if (!userInput.type) userInput.type = 'USER';
-    return userInput;
+    if (!input.type) input.type = 'USER';
+    return input;
 }
 
 type Props = {
@@ -52,15 +53,15 @@ type Props = {
     component: React.FunctionComponent<i.ComponentProps>;
 };
 
-UserQuery.propTypes = {
+FormQuery.propTypes = {
     component: PropTypes.func.isRequired,
     id: PropTypes.string,
 };
 
-export default UserQuery;
+export default FormQuery;
 
 // Query
-const ROLES_QUERY = gql`
+const WITHOUT_ID_QUERY = gql`
     {
         roles(query: "*") {
             id
@@ -69,7 +70,7 @@ const ROLES_QUERY = gql`
     }
 `;
 
-const USER_AND_ROLES_QUERY = gql`
+const WITH_ID_QUERY = gql`
     query UserInfo($id: ID!) {
         roles(query: "*") {
             id
@@ -101,4 +102,4 @@ interface Variables {
     id?: string;
 }
 
-class UserInfoQuery extends Query<Response, Variables> {}
+class FetchQuery extends Query<Response, Variables> {}

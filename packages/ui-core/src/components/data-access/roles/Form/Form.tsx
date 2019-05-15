@@ -107,13 +107,14 @@ const ModelForm: React.FC<i.ComponentProps> = ({ id, input }) => {
                                         label: 'Role Name',
                                     })}
                                 />
-                                <Form.Input
-                                    {...getFieldProps({
-                                        name: 'client_id',
-                                        label: 'Client ID',
-                                    })}
-                                    disabled={authUser.type !== 'SUPERADMIN'}
-                                />
+                                {authUser.type === 'SUPERADMIN' && (
+                                    <Form.Input
+                                        {...getFieldProps({
+                                            name: 'client_id',
+                                            label: 'Client ID',
+                                        })}
+                                    />
+                                )}
                             </Form.Group>
                             <Form.Group>
                                 <Form.TextArea

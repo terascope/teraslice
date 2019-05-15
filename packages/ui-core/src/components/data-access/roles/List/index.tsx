@@ -7,7 +7,7 @@ import { DataTable, RowMapping, formatDate } from '../../../core';
 const List: React.FC = () => {
     const rowMapping: RowMapping = {
         getId(record) {
-            return record.username;
+            return record.id;
         },
         canRemove(record) {
             if (record.type === 'SUPERADMIN') return false;
@@ -15,7 +15,12 @@ const List: React.FC = () => {
         },
         columns: {
             name: { label: 'Role Name' },
-            description: { label: 'Description' },
+            description: {
+                label: 'Description',
+                format(record) {
+                    return record.description || '--';
+                },
+            },
             created: {
                 label: 'Created',
                 format(record) {

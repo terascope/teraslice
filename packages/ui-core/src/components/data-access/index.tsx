@@ -49,7 +49,7 @@ const config: PluginConfig = {
             path: '/roles/create',
             icon: 'add',
             hidden: true,
-            component: UserForm,
+            component: RoleForm,
         },
         {
             name: 'Edit Role',
