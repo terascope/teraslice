@@ -30,7 +30,7 @@
         "ajv": "^6.10.0",
         "nanoid": "^2.0.1",
         "rambda": "^2.6.0",
-        "xlucene-evaluator": "^0.8.0"
+        "xlucene-evaluator": "^0.8.1"
     },
     "devDependencies": {
         "elasticsearch": "^15.4.1"
