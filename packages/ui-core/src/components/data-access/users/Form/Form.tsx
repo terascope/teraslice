@@ -1,10 +1,11 @@
 import React, { FormEvent, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AnyObject, get, toInteger } from '@terascope/utils';
+import { toInteger } from '@terascope/utils';
 import { Form, Button } from 'semantic-ui-react';
 import { useCoreContext, SuccessMessage, ErrorMessage } from '../../../core';
 import Mutation from './Mutation';
 import * as i from './interfaces';
+import * as m from '../../ModelForm';
 
 const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
     const authUser = useCoreContext().authUser!;
@@ -14,9 +15,7 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
     const [model, setModel] = useState<i.Input>(input);
     const [showToken, setShowToken] = useState(false);
 
-    const updateModel = (updates: AnyObject) => setModel(Object.assign(model, updates));
-
-    const [errors, setErrors] = useState<i.ErrorsState>({
+    const [errors, setErrors] = useState<m.ErrorsState<i.Input>>({
         fields: [],
         messages: [],
     });
@@ -27,11 +26,6 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
         value: role.id,
     }));
 
-    const onChange: i.ChangeFn = (e, { name, value }) => {
-        updateModel({ [name]: value });
-        validate();
-    };
-
     const required: (keyof i.Input)[] = [
         'username',
         'firstname',
@@ -41,7 +35,7 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
     ];
 
     const validate = (isSubmit = false): boolean => {
-        const errs: i.ErrorsState = {
+        const errs: m.ErrorsState<i.Input> = {
             fields: [],
             messages: [],
         };
@@ -90,19 +84,13 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
         return !errs.messages.length || !errs.fields.length;
     };
 
-    const getFieldProps = ({ name, label, placeholder }: i.FieldOptions): any => {
-        const hasError = errors.fields.includes(name);
-        return {
-            name,
-            label,
-            placeholder: placeholder || label,
-            value: get(model, name, ''),
-            onChange,
-            error: hasError,
-            required: required.includes(name),
-            width: 4,
-        };
-    };
+    const getFieldProps = m.getFieldPropsFn({
+        model,
+        setModel,
+        validate,
+        required,
+        errors,
+    });
 
     const hasErrors = errors.messages.length > 0;
 

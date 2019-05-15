@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { UserType } from '@terascope/data-access';
-import { InputOnChangeData, DropdownProps } from 'semantic-ui-react';
+import * as m from '../../ModelForm';
 
 export type Input = {
     id?: string;
@@ -37,34 +37,21 @@ export const userTypeOptions = userTypes.map(type => ({
     value: type,
 }));
 
-export type ChangeFn = (e: any, data: InputOnChangeData | DropdownProps) => void;
-
-export type FieldOptions = {
-    name: keyof Input;
-    label: string;
-    placeholder?: string;
-};
-
-export type ErrorsState = { fields: string[]; messages: string[] };
-
 export type Role = {
     id: string;
     name: string;
 };
 
-export type ComponentProps = {
+export type ComponentProps = m.ComponentProps<Input> & {
     roles: Role[];
-    input: Input;
-    id?: string;
 };
 
 export const ComponentPropTypes = {
+    ...m.ComponentPropTypes,
     roles: PropTypes.arrayOf(
         PropTypes.shape({
             id: PropTypes.string.isRequired,
             name: PropTypes.string.isRequired,
         }).isRequired
     ).isRequired,
-    id: PropTypes.string,
-    input: PropTypes.any.isRequired,
 };

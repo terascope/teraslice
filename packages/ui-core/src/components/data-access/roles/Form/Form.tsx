@@ -1,34 +1,28 @@
 import React, { FormEvent, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AnyObject, get, toInteger } from '@terascope/utils';
+import { toInteger } from '@terascope/utils';
 import { Form } from 'semantic-ui-react';
 import { SuccessMessage, ErrorMessage, useCoreContext } from '../../../core';
 import RoleMutation from './Mutation';
 import * as i from './interfaces';
+import * as m from '../../ModelForm';
 
-const ModelForm: React.FC<i.ComponentProps> = ({ id, input }) => {
+const ModelForm: React.FC<m.ComponentProps<i.Input>> = ({ id, input }) => {
     const authUser = useCoreContext().authUser!;
     const update = Boolean(id);
     const create = !update;
 
     const [model, setModel] = useState<i.Input>(input);
 
-    const updateModel = (updates: AnyObject) => setModel(Object.assign(model, updates));
-
-    const [errors, setErrors] = useState<i.ErrorsState>({
+    const [errors, setErrors] = useState<m.ErrorsState<i.Input>>({
         fields: [],
         messages: [],
     });
 
-    const onChange: i.ChangeFn = (e, { name, value }) => {
-        updateModel({ [name]: value });
-        validate();
-    };
-
     const required: (keyof i.Input)[] = ['name', 'client_id'];
 
     const validate = (isSubmit = false): boolean => {
-        const errs: i.ErrorsState = {
+        const errs: m.ErrorsState<i.Input> = {
             fields: [],
             messages: [],
         };
@@ -62,19 +56,13 @@ const ModelForm: React.FC<i.ComponentProps> = ({ id, input }) => {
         return !errs.messages.length || !errs.fields.length;
     };
 
-    const getFieldProps = ({ name, label, placeholder }: i.FieldOptions): any => {
-        const hasError = errors.fields.includes(name);
-        return {
-            name,
-            label,
-            placeholder: placeholder || label,
-            value: get(model, name, ''),
-            onChange,
-            error: hasError,
-            required: required.includes(name),
-            width: 4,
-        };
-    };
+    const getFieldProps = m.getFieldPropsFn({
+        model,
+        setModel,
+        validate,
+        required,
+        errors,
+    });
 
     const hasErrors = errors.messages.length > 0;
 
@@ -179,5 +167,5 @@ const ModelForm: React.FC<i.ComponentProps> = ({ id, input }) => {
     );
 };
 
-ModelForm.propTypes = i.ComponentPropTypes;
+ModelForm.propTypes = m.ComponentPropTypes;
 export default ModelForm;

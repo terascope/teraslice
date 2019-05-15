@@ -6,6 +6,7 @@ import { get } from '@terascope/utils';
 import { Role } from '@terascope/data-access';
 import { Segment } from 'semantic-ui-react';
 import * as i from './interfaces';
+import * as m from '../../ModelForm';
 import { ErrorPage, LoadingPage, useCoreContext, ResolvedUser } from '../../../core';
 
 const FormQuery: React.FC<Props> = ({ component: Component, id }) => {
@@ -43,7 +44,7 @@ function getInput(authUser: ResolvedUser, data: any): i.Input {
 
 type Props = {
     id?: string;
-    component: React.FunctionComponent<i.ComponentProps>;
+    component: React.FunctionComponent<m.ComponentProps<i.Input>>;
 };
 
 FormQuery.propTypes = {
