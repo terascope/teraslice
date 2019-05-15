@@ -6,25 +6,24 @@ import { useCoreContext, SuccessMessage, ErrorMessage } from '../../../core';
 import UserMutation from './Mutation';
 import * as i from './interfaces';
 
-const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
+const UserForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
     const authUser = useCoreContext().authUser!;
     const update = Boolean(id);
 
     const [user, setUser] = useState<i.UserInput>(userInput);
     const [showToken, setShowToken] = useState(false);
 
-    const updateUser = (updates: AnyObject) =>
-        setUser(Object.assign(user, updates));
+    const updateUser = (updates: AnyObject) => setUser(Object.assign(user, updates));
 
     const [errors, setErrors] = useState<i.ErrorsState>({
         fields: [],
-        messages: []
+        messages: [],
     });
 
     const roleOptions = roles.map(role => ({
         key: role.id,
         text: role.name,
-        value: role.id
+        value: role.id,
     }));
 
     const onChange: i.ChangeFn = (e, { name, value }) => {
@@ -37,13 +36,13 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
         'firstname',
         'lastname',
         'type',
-        'client_id'
+        'client_id',
     ];
 
     const validate = (isSubmit = false): boolean => {
         const errs: i.ErrorsState = {
             fields: [],
-            messages: []
+            messages: [],
         };
 
         if (!update) {
@@ -86,11 +85,7 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
         return !errs.messages.length || !errs.fields.length;
     };
 
-    const getFieldProps = ({
-        name,
-        label,
-        placeholder
-    }: i.FieldOptions): any => {
+    const getFieldProps = ({ name, label, placeholder }: i.FieldOptions): any => {
         const hasError = errors.fields.includes(name);
         return {
             name,
@@ -100,7 +95,7 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
             onChange,
             error: hasError,
             required: required.includes(name),
-            width: 4
+            width: 4,
         };
     };
 
@@ -126,8 +121,8 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
                         submit({
                             variables: {
                                 user: { ...userInput },
-                                password
-                            }
+                                password,
+                            },
                         });
                     }
                 };
@@ -139,13 +134,13 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
                                 <Form.Input
                                     {...getFieldProps({
                                         name: 'username',
-                                        label: 'User Name'
+                                        label: 'User Name',
                                     })}
                                 />
                                 <Form.Input
                                     {...getFieldProps({
                                         name: 'client_id',
-                                        label: 'Client ID'
+                                        label: 'Client ID',
                                     })}
                                     disabled={authUser.type !== 'SUPERADMIN'}
                                 />
@@ -154,13 +149,13 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
                                 <Form.Input
                                     {...getFieldProps({
                                         name: 'firstname',
-                                        label: 'First Name'
+                                        label: 'First Name',
                                     })}
                                 />
                                 <Form.Input
                                     {...getFieldProps({
                                         name: 'lastname',
-                                        label: 'Last Name'
+                                        label: 'Last Name',
                                     })}
                                 />
                             </Form.Group>
@@ -169,7 +164,7 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
                                     type="email"
                                     {...getFieldProps({
                                         name: 'email',
-                                        label: 'Email'
+                                        label: 'Email',
                                     })}
                                     width={8}
                                 />
@@ -180,7 +175,7 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
                                     {...getFieldProps({
                                         name: 'role',
                                         label: 'Role',
-                                        placeholder: 'Select Role'
+                                        placeholder: 'Select Role',
                                     })}
                                     options={roleOptions}
                                 />
@@ -188,7 +183,7 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
                                     {...getFieldProps({
                                         name: 'type',
                                         label: 'Type',
-                                        placeholder: 'Select User Type'
+                                        placeholder: 'Select User Type',
                                     })}
                                     disabled={authUser.type === 'USER'}
                                     options={i.userTypeOptions}
@@ -199,14 +194,14 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
                                     type="password"
                                     {...getFieldProps({
                                         name: 'password',
-                                        label: 'Password'
+                                        label: 'Password',
                                     })}
                                 />
                                 <Form.Input
                                     type="password"
                                     {...getFieldProps({
                                         name: 'repeat_password',
-                                        label: 'Repeat Password'
+                                        label: 'Repeat Password',
                                     })}
                                 />
                             </Form.Group>
@@ -254,11 +249,7 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
                             )}
                             {data && update && (
                                 <Form.Group>
-                                    <Form.Button
-                                        basic
-                                        floated="right"
-                                        width={15}
-                                    >
+                                    <Form.Button basic floated="right" width={15}>
                                         <Link to="/users">Done</Link>
                                     </Form.Button>
                                 </Form.Group>
@@ -272,10 +263,7 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
                             />
                         )}
                         {hasErrors && (
-                            <ErrorMessage
-                                error={errors.messages}
-                                attached="bottom"
-                            />
+                            <ErrorMessage error={errors.messages} attached="bottom" />
                         )}
                         {data && update && <SuccessMessage attached="bottom" />}
                         {data && !update && (
@@ -291,5 +279,5 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, userInput }) => {
     );
 };
 
-ModelForm.propTypes = i.ComponentPropTypes;
-export default ModelForm;
+UserForm.propTypes = i.ComponentPropTypes;
+export default UserForm;

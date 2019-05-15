@@ -3,6 +3,8 @@ import CreateUser from './users/Create';
 import EditUser from './users/Edit';
 import MyAccount from './users/MyAccount';
 import ListUsers from './users/List';
+import CreateRole from './roles/Create';
+import EditRole from './roles/Edit';
 import ListRoles from './roles/List';
 
 const config: PluginConfig = {
@@ -18,7 +20,7 @@ const config: PluginConfig = {
         {
             name: 'Create User',
             path: '/users/create',
-            icon: 'add user',
+            icon: 'add',
             hidden: true,
             component: CreateUser,
         },
@@ -32,7 +34,7 @@ const config: PluginConfig = {
         {
             name: 'My Account',
             path: '/users/account',
-            icon: 'pencil alternate',
+            icon: 'user circle',
             hidden: true,
             component: MyAccount,
         },
@@ -41,6 +43,19 @@ const config: PluginConfig = {
             path: '/roles',
             icon: 'key',
             component: ListRoles,
+        },
+        {
+            name: 'Create Role',
+            path: '/roles/create',
+            icon: 'add',
+            component: CreateRole,
+        },
+        {
+            name: 'Edit Role',
+            path: '/roles/edit/:id',
+            icon: 'pencil alternate',
+            hidden: true,
+            component: EditRole,
         },
     ],
 };

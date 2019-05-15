@@ -2,13 +2,7 @@ import React from 'react';
 import gql from 'graphql-tag';
 import { ApolloConsumer } from 'react-apollo';
 import ListQuery from './Query';
-import {
-    DataTable,
-    Page,
-    RowMapping,
-    PageAction,
-    formatDate
-} from '../../../core';
+import { DataTable, Page, RowMapping, PageAction, formatDate } from '../../../core';
 
 const List: React.FC = () => {
     const rowMapping: RowMapping = {
@@ -21,21 +15,22 @@ const List: React.FC = () => {
         },
         columns: {
             name: { label: 'Role Name' },
+            description: { label: 'Description' },
             created: {
                 label: 'Created',
                 format(record) {
                     return formatDate(record.created);
-                }
-            }
-        }
+                },
+            },
+        },
     };
 
     const actions: PageAction[] = [
         {
             label: 'Create role',
             icon: 'plus',
-            to: '/roles/create'
-        }
+            to: '/roles/create',
+        },
     ];
 
     return (
@@ -60,8 +55,8 @@ const List: React.FC = () => {
                                             return client.mutate({
                                                 mutation: REMOVE_QUERY,
                                                 variables: {
-                                                    id: record.id
-                                                }
+                                                    id: record.id,
+                                                },
                                             });
                                         });
 

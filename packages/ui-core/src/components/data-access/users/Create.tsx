@@ -1,11 +1,11 @@
 import React from 'react';
 import { Page } from '../../core';
-import UserForm from './Form';
+import Form from './Form';
 
 const Create: React.FC = () => {
     return (
-        <Page title="Create Users">
-            <UserForm />
+        <Page title="Create User">
+            <Form />
         </Page>
     );
 };

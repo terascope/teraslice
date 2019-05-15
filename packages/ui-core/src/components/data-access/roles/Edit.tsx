@@ -4,7 +4,7 @@ import Form from './Form';
 
 export default tsWithRouter(({ match }) => {
     return (
-        <Page title="Edit User">
+        <Page title="Edit Role">
             <Form id={match.params.id} />
         </Page>
     );
