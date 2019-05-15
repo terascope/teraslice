@@ -60,11 +60,7 @@ export class ACLManager {
     /**
      * Authenticate user with an api_token or username and password
      */
-    async authenticate(args: {
-        username?: string;
-        password?: string;
-        token?: string;
-    }): Promise<models.User> {
+    async authenticate(args: { username?: string; password?: string; token?: string }): Promise<models.User> {
         if (args.username && args.password) {
             const user = await this._users.authenticate(args.username, args.password);
             return this._postProcessAuthenticatedUser(user);
@@ -84,7 +80,8 @@ export class ACLManager {
      * Find user by id
      */
     async findUser(args: i.FindOneArgs<models.User>, authUser: i.AuthUser) {
-        return this._users.findByAnyId(args.id, args, this._getUserQueryAccess(authUser));
+        const user = await this._users.findByAnyId(args.id, args, this._getUserQueryAccess(authUser));
+        return this._postProcessAuthenticatedUser(user);
     }
 
     /**
@@ -104,10 +101,7 @@ export class ACLManager {
     /**
      * Create a user
      */
-    async createUser(
-        args: { user: models.CreateUserInput; password: string },
-        authUser: i.AuthUser
-    ) {
+    async createUser(args: { user: models.CreateUserInput; password: string }, authUser: i.AuthUser) {
         await this._validateUserInput(args.user, authUser);
 
         const user = await this._users.createWithPassword(args.user, args.password);
@@ -136,10 +130,7 @@ export class ACLManager {
     /**
      * Update user's password
      */
-    async updatePassword(
-        args: { id: string; password: string },
-        authUser: i.AuthUser
-    ): Promise<boolean> {
+    async updatePassword(args: { id: string; password: string }, authUser: i.AuthUser): Promise<boolean> {
         await this._validateUserInput({ id: args.id }, authUser);
         await this._users.updatePassword(args.id, args.password);
         return true;
@@ -197,10 +188,7 @@ export class ACLManager {
     /**
      * Create a role
      */
-    async createRole(
-        args: { role: CreateRecordInput<models.Role> },
-        authUser: i.AuthUser
-    ) {
+    async createRole(args: { role: CreateRecordInput<models.Role> }, authUser: i.AuthUser) {
         await this._validateCanCreate('Role', authUser);
         await this._validateRoleInput(args.role, authUser);
 
@@ -210,10 +198,7 @@ export class ACLManager {
     /**
      * Update a role
      */
-    async updateRole(
-        args: { role: UpdateRecordInput<models.Role> },
-        authUser: i.AuthUser
-    ) {
+    async updateRole(args: { role: UpdateRecordInput<models.Role> }, authUser: i.AuthUser) {
         await this._validateCanUpdate('Role', authUser);
         await this._validateRoleInput(args.role, authUser);
 
@@ -243,22 +228,14 @@ export class ACLManager {
      * Find data type by id
      */
     async findDataType(args: i.FindOneArgs<models.DataType>, authUser: i.AuthUser) {
-        return this._dataTypes.findByAnyId(
-            args.id,
-            args,
-            this._getDataTypeQueryAccess(authUser)
-        );
+        return this._dataTypes.findByAnyId(args.id, args, this._getDataTypeQueryAccess(authUser));
     }
 
     /**
      * Find data types by a given query
      */
     async findDataTypes(args: i.FindArgs<models.DataType> = {}, authUser: i.AuthUser) {
-        return this._dataTypes.find(
-            args.query,
-            args,
-            this._getDataTypeQueryAccess(authUser)
-        );
+        return this._dataTypes.find(args.query, args, this._getDataTypeQueryAccess(authUser));
     }
 
     /**
@@ -271,10 +248,7 @@ export class ACLManager {
     /**
      * Create a data type
      */
-    async createDataType(
-        args: { dataType: CreateRecordInput<models.DataType> },
-        authUser: i.AuthUser
-    ) {
+    async createDataType(args: { dataType: CreateRecordInput<models.DataType> }, authUser: i.AuthUser) {
         await this._validateCanCreate('DataType', authUser);
         await this._validateDataTypeInput(args.dataType, authUser);
 
@@ -284,19 +258,12 @@ export class ACLManager {
     /**
      * Update a data type
      */
-    async updateDataType(
-        args: { dataType: UpdateRecordInput<models.DataType> },
-        authUser: i.AuthUser
-    ) {
+    async updateDataType(args: { dataType: UpdateRecordInput<models.DataType> }, authUser: i.AuthUser) {
         await this._validateCanUpdate('DataType', authUser);
         await this._validateDataTypeInput(args.dataType, authUser);
 
         await this._dataTypes.update(args.dataType);
-        return this._dataTypes.findById(
-            args.dataType.id,
-            {},
-            this._getDataTypeQueryAccess(authUser)
-        );
+        return this._dataTypes.findById(args.dataType.id, {}, this._getDataTypeQueryAccess(authUser));
     }
 
     /**
@@ -319,11 +286,7 @@ export class ACLManager {
      * Find space by id
      */
     async findSpace(args: i.FindOneArgs<models.Space>, authUser: i.AuthUser) {
-        return this._spaces.findByAnyId(
-            args.id,
-            args,
-            this._getSpaceQueryAccess(authUser)
-        );
+        return this._spaces.findByAnyId(args.id, args, this._getSpaceQueryAccess(authUser));
     }
 
     /**
@@ -346,10 +309,7 @@ export class ACLManager {
      * attached the space to those roles.
      *
      */
-    async createSpace(
-        args: { space: CreateRecordInput<models.Space> },
-        authUser: i.AuthUser
-    ) {
+    async createSpace(args: { space: CreateRecordInput<models.Space> }, authUser: i.AuthUser) {
         await this._validateCanCreate('Space', authUser);
         await this._validateSpaceInput(args.space, authUser);
 
@@ -366,10 +326,7 @@ export class ACLManager {
     /**
      * Update a space
      */
-    async updateSpace(
-        args: { space: UpdateRecordInput<models.Space> },
-        authUser: i.AuthUser
-    ) {
+    async updateSpace(args: { space: UpdateRecordInput<models.Space> }, authUser: i.AuthUser) {
         await this._validateCanUpdate('Space', authUser);
         await this._validateSpaceInput(args.space, authUser);
 
@@ -381,11 +338,7 @@ export class ACLManager {
         }
 
         await this._spaces.update(args.space);
-        return this._spaces.findById(
-            args.space.id,
-            {},
-            this._getSpaceQueryAccess(authUser)
-        );
+        return this._spaces.findById(args.space.id, {}, this._getSpaceQueryAccess(authUser));
     }
 
     /**
@@ -425,10 +378,7 @@ export class ACLManager {
     /**
      * Create a view, this will attach to the space and the role
      */
-    async createView(
-        args: { view: CreateRecordInput<models.View> },
-        authUser: i.AuthUser
-    ) {
+    async createView(args: { view: CreateRecordInput<models.View> }, authUser: i.AuthUser) {
         await this._validateCanCreate('View', authUser);
         await this._validateViewInput(args.view, authUser);
 
@@ -439,10 +389,7 @@ export class ACLManager {
     /**
      * Update a view, this will attach to the space and the role
      */
-    async updateView(
-        args: { view: UpdateRecordInput<models.View> },
-        authUser: i.AuthUser
-    ) {
+    async updateView(args: { view: UpdateRecordInput<models.View> }, authUser: i.AuthUser) {
         await this._validateCanUpdate('View', authUser);
 
         const { view } = args;
@@ -483,10 +430,7 @@ export class ACLManager {
     /**
      * Get the User's data access configuration for a "Space"
      */
-    async getViewForSpace(
-        args: { token?: string; space: string },
-        authUser: i.AuthUser
-    ): Promise<i.DataAccessConfig> {
+    async getViewForSpace(args: { token?: string; space: string }, authUser: i.AuthUser): Promise<i.DataAccessConfig> {
         // if the token is provided use the authenticated user
         const user = args.token || !authUser ? await this.authenticate(args) : authUser;
 
@@ -502,9 +446,7 @@ export class ACLManager {
 
         const hasAccess = space.roles.includes(user.role);
         if (!hasAccess) {
-            const msg = `User "${user.username}" does not have access to space "${
-                space.id
-            }"`;
+            const msg = `User "${user.username}" does not have access to space "${space.id}"`;
             throw new ts.TSError(msg, { statusCode: 403 });
         }
 
@@ -514,16 +456,9 @@ export class ACLManager {
         ]);
 
         if (user.type !== 'SUPERADMIN') {
-            const clientIds = [
-                role.client_id,
-                space.client_id,
-                dataType.client_id,
-                view.client_id,
-            ];
+            const clientIds = [role.client_id, space.client_id, dataType.client_id, view.client_id];
             if (!clientIds.every((id) => id === user.client_id)) {
-                const msg = `User "${
-                    user.username
-                }" does not have permission to access space "${space.id}"`;
+                const msg = `User "${user.username}" does not have permission to access space "${space.id}"`;
                 throw new ts.TSError(msg, { statusCode: 403 });
             }
         }
@@ -749,15 +684,11 @@ export class ACLManager {
         const searchConfig = config.search_config!;
 
         if (searchConfig.default_date_field) {
-            searchConfig.default_date_field = ts.trimAndToLower(
-                searchConfig.default_date_field
-            );
+            searchConfig.default_date_field = ts.trimAndToLower(searchConfig.default_date_field);
         }
 
         if (searchConfig.default_geo_field) {
-            searchConfig.default_geo_field = ts.trimAndToLower(
-                searchConfig.default_geo_field
-            );
+            searchConfig.default_geo_field = ts.trimAndToLower(searchConfig.default_geo_field);
         }
 
         const typeConfig: TypeConfig = config.data_type.type_config || {};
@@ -776,10 +707,7 @@ export class ACLManager {
         return config;
     }
 
-    private _validateAnyInput(
-        input: { id?: string; client_id?: number } | undefined,
-        authUser: i.AuthUser
-    ) {
+    private _validateAnyInput(input: { id?: string; client_id?: number } | undefined, authUser: i.AuthUser) {
         if (!input) {
             throw new ts.TSError('Invalid Input', {
                 statusCode: 422,
@@ -828,18 +756,12 @@ export class ACLManager {
 
         const authType = this._getUserType(authUser);
         const authClientId = this._getUserClientId(authUser);
-        const {
-            client_id: currentClientId,
-            type: currentType,
-        } = await this._getCurrentUserInfo(authUser, user);
+        const { client_id: currentClientId, type: currentType } = await this._getCurrentUserInfo(authUser, user);
 
         if (authType === 'ADMIN' && authClientId !== currentClientId) {
-            throw new ts.TSError(
-                "User doesn't have permission to write to users outside of the their client id",
-                {
-                    statusCode: 403,
-                }
-            );
+            throw new ts.TSError("User doesn't have permission to write to users outside of the their client id", {
+                statusCode: 403,
+            });
         }
 
         if (authUser && authType === 'USER' && authUser.id !== user.id) {
@@ -848,51 +770,28 @@ export class ACLManager {
             });
         }
 
-        if (
-            currentClientId != null &&
-            authType === 'ADMIN' &&
-            currentType === 'SUPERADMIN'
-        ) {
-            throw new ts.TSError(
-                "User doesn't have permission to write to users with SUPERADMIN access",
-                {
-                    statusCode: 403,
-                }
-            );
+        if (currentClientId != null && authType === 'ADMIN' && currentType === 'SUPERADMIN') {
+            throw new ts.TSError("User doesn't have permission to write to users with SUPERADMIN access", {
+                statusCode: 403,
+            });
         }
 
         if (user.type && user.type !== currentType) {
-            if (
-                authType === 'USER' ||
-                (authType === 'ADMIN' && user.type === 'SUPERADMIN')
-            ) {
-                throw new ts.TSError(
-                    `User doesn't have permission to elevate user to ${user.type}`,
-                    {
-                        statusCode: 403,
-                    }
-                );
+            if (authType === 'USER' || (authType === 'ADMIN' && user.type === 'SUPERADMIN')) {
+                throw new ts.TSError(`User doesn't have permission to elevate user to ${user.type}`, {
+                    statusCode: 403,
+                });
             }
         }
 
-        if (
-            authType !== 'SUPERADMIN' &&
-            user.client_id != null &&
-            user.client_id !== currentClientId
-        ) {
-            throw new ts.TSError(
-                "User doesn't have permission to change client on user",
-                {
-                    statusCode: 403,
-                }
-            );
+        if (authType !== 'SUPERADMIN' && user.client_id != null && user.client_id !== currentClientId) {
+            throw new ts.TSError("User doesn't have permission to change client on user", {
+                statusCode: 403,
+            });
         }
     }
 
-    private async _validateSpaceInput(
-        space: Partial<models.Space>,
-        authUser: i.AuthUser
-    ) {
+    private async _validateSpaceInput(space: Partial<models.Space>, authUser: i.AuthUser) {
         this._validateAnyInput(space, authUser);
 
         if (space.roles) {
@@ -928,11 +827,7 @@ export class ACLManager {
             }
 
             const dataTypes = views.map((view) => view.data_type);
-            if (
-                space.data_type &&
-                dataTypes.length &&
-                !dataTypes.includes(space.data_type)
-            ) {
+            if (space.data_type && dataTypes.length && !dataTypes.includes(space.data_type)) {
                 throw new ts.TSError('Views must have the same data type', {
                     statusCode: 422,
                 });
@@ -943,12 +838,9 @@ export class ACLManager {
                 roles.push(...ts.uniq(view.roles));
             });
             if (ts.uniq(roles).length !== roles.length) {
-                throw new ts.TSError(
-                    'Multiple views cannot contain the same role within a space',
-                    {
-                        statusCode: 422,
-                    }
-                );
+                throw new ts.TSError('Multiple views cannot contain the same role within a space', {
+                    statusCode: 422,
+                });
             }
         }
     }
@@ -957,10 +849,7 @@ export class ACLManager {
         this._validateAnyInput(role, authUser);
     }
 
-    private async _validateDataTypeInput(
-        dataType: Partial<models.DataType>,
-        authUser: i.AuthUser
-    ) {
+    private async _validateDataTypeInput(dataType: Partial<models.DataType>, authUser: i.AuthUser) {
         this._validateAnyInput(dataType, authUser);
     }
 
