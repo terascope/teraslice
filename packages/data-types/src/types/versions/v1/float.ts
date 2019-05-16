@@ -4,7 +4,7 @@ import { TypeConfig } from '../../../interfaces';
 
 export default class Float extends BaseType {
     constructor(field: string, config: TypeConfig) {
-        super(field, config)
+        super(field, config);
     }
 
     toESMapping() {
@@ -12,7 +12,7 @@ export default class Float extends BaseType {
     }
 
     toGraphQl() {
-        return `${this.field}: Float`;
+        return { type: `${this.field}: Float` };
     }
 
     toXlucene() {

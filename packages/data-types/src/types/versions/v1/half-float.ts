@@ -12,7 +12,7 @@ export default class HalfFloat extends BaseType {
     }
 
     toGraphQl() {
-        return `${this.field}: Float`;
+        return { type: `${this.field}: Float` };
     }
 
     toXlucene() {

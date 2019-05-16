@@ -12,7 +12,7 @@ export default class ScaledFloat extends BaseType {
     }
 
     toGraphQl() {
-        return `${this.field}: Float`;
+        return { type: `${this.field}: Float` };
     }
 
     toXlucene() {

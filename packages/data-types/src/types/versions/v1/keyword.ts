@@ -12,10 +12,10 @@ export default class Keyword extends BaseType {
     }
 
     toGraphQl() {
-        return `${this.field}: String`;
+        return { type: `${this.field}: String` };
     }
 
     toXlucene() {
-        return { [this.field]: 'string' };
+        return { [this.field]: 'keyword' };
     }
 }

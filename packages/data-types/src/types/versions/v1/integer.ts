@@ -12,7 +12,7 @@ export default class Integer extends BaseType {
     }
 
     toGraphQl() {
-        return `${this.field}: Int`;
+        return { type: `${this.field}: Int` };
     }
 
     toXlucene() {

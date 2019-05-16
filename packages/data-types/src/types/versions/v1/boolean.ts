@@ -12,7 +12,7 @@ export default class BooleanType extends BaseType {
     }
 
     toGraphQl() {
-        return `${this.field}: Boolean`;
+        return { type: `${this.field}: Boolean` };
     }
 
     toXlucene() {

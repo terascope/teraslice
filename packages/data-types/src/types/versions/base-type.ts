@@ -1,5 +1,5 @@
 
-import { TypeConfig } from '../../interfaces';
+import { TypeConfig, EsMapping, GraphQLType, XluceneMapping } from '../../interfaces';
 
 export default abstract class BaseType {
     protected field: string;
@@ -10,7 +10,7 @@ export default abstract class BaseType {
         this.config = config;
     }
 
-    abstract toESMapping(): any;
-    abstract toGraphQl(): any;
-    abstract toXlucene(): any;
+    abstract toESMapping(): EsMapping;
+    abstract toGraphQl(): GraphQLType;
+    abstract toXlucene(): XluceneMapping;
 }

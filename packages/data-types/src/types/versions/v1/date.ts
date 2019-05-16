@@ -11,7 +11,7 @@ export default class DateType extends BaseType {
     }
 
     toGraphQl() {
-        return `${this.field}: DateTime`;
+        return { type: `${this.field}: DateTime` };
     }
 
     toXlucene() {

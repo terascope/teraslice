@@ -12,7 +12,7 @@ export default class IpType extends BaseType {
     }
 
     toGraphQl() {
-        return `${this.field}: String`;
+        return { type: `${this.field}: String` };
     }
 
     toXlucene() {

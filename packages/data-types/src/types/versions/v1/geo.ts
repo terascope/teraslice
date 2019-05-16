@@ -11,13 +11,13 @@ export default class GeoType extends BaseType {
     }
     // TODO: need notion of injecting custom types, what about duplicates
     toGraphQl() {
-        /*
+        const customType = `
             type Geo {
                 lat: String!
                 lon: String!
             }
-        */
-        return `${this.field}: Geo`;
+        `;
+        return { type: `${this.field}: Geo`, custom_type: customType  };
     }
 
     toXlucene() {
