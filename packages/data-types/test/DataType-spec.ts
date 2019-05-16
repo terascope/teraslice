@@ -1,15 +1,15 @@
 
 import 'jest-extended';
-import { DataTypes, DataTypeConfig } from '../src';
+import { DataType, DataTypeConfig } from '../src';
 import { TSError } from '@terascope/utils';
 
-describe('DataTypes', () => {
+describe('DataType', () => {
 
     it('it will throw without versioning', () => {
         expect.hasAssertions();
         try {
             // @ts-ignore
-            new DataTypes({});
+            new DataType({});
         } catch (err) {
             expect(err).toBeInstanceOf(TSError);
             expect(err.message).toInclude('No version was specified in type_config');
@@ -22,7 +22,7 @@ describe('DataTypes', () => {
             fields: { hello: { type: 'keyword' } },
         };
 
-        expect(() => new DataTypes(typeConfig)).not.toThrow();
+        expect(() => new DataType(typeConfig)).not.toThrow();
     });
 
     it('it can return an xlucene ready typeconfig', () => {
@@ -45,7 +45,7 @@ describe('DataTypes', () => {
             someNum: 'long'
         };
 
-        const xluceneConfig = new DataTypes(typeConfig).toXlucene();
+        const xluceneConfig = new DataType(typeConfig).toXlucene();
         expect(xluceneConfig).toEqual(results);
     });
 
@@ -61,7 +61,7 @@ describe('DataTypes', () => {
             },
         };
 
-        const { results, baseType, customTypes } = new DataTypes(typeConfig, 'myType').toGraphQl();
+        const { results, baseType, customTypes } = new DataType(typeConfig, 'myType').toGraphQl();
 
         [
             'type myType {',
@@ -112,13 +112,10 @@ describe('DataTypes', () => {
             },
         };
 
-        const { results } = new DataTypes(typeConfig, 'myType').toGraphQl('otherType');
+        const { results } = new DataType(typeConfig, 'myType').toGraphQl('otherType');
 
-        [
-            'type otherType {',
-        ].forEach((str: string) => {
-            expect(results.match(str)).not.toBeNull();
-        });
+        expect(results.match('type otherType {')).not.toBeNull();
+        expect(results.match('type myType {')).toBeNull();
     });
 
     it('it throws when no name is provided with a toGraphQl call', () => {
@@ -134,7 +131,7 @@ describe('DataTypes', () => {
         };
 
         try {
-            new DataTypes(typeConfig).toGraphQl();
+            new DataType(typeConfig).toGraphQl();
         } catch (err) {
             expect(err).toBeInstanceOf(TSError);
             expect(err.message).toInclude('No name was specified to create the graphql type representing this data structure');

@@ -6,11 +6,10 @@ import * as ts from '@terascope/utils';
 // @ts-ignore
 import { TypesManager } from './types';
 
-export class DataTypes implements DataTypeManager {
+export class DataType implements DataTypeManager {
     private name!: string;
-    // @ts-ignore
-    private types: Type[];
-    // TODO: need name of data type?
+    private types: BaseType[];
+
     constructor({ version, fields:typesConfig }: DataTypeConfig, typeName?: string) {
         if (version == null) throw new ts.TSError('No version was specified in type_config');
         const typeManager = new TypesManager(version);
