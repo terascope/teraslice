@@ -8,6 +8,7 @@ import ListRoles from './roles/List';
 const config: PluginConfig = {
     name: 'Data Access',
     basepath: '/',
+    // userType: 'ADMIN',
     routes: [
         {
             name: 'Users',

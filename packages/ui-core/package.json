@@ -23,9 +23,6 @@
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
     },
-    "bin": {
-        "create-superadmin": "./bin/create-superadmin.js"
-    },
     "main": "index.js",
     "dependencies": {
         "@terascope/utils": "^0.10.1",
@@ -53,8 +50,7 @@
         "express": "^4.16.4",
         "history": "^4.9.0",
         "react-scripts": "3.0.1",
-        "semantic-ui-less": "^2.4.1",
-        "typescript": "3.4.5"
+        "semantic-ui-less": "^2.4.1"
     },
     "browserslist": {
         "production": [
@@ -67,14 +63,5 @@
             "last 1 firefox version",
             "last 1 safari version"
         ]
-    },
-    "prettier": {
-        "printWidth": 90,
-        "trailingComma": "es5",
-        "tslintIntegration": true,
-        "tabWidth": 4,
-        "stylelintIntegration": true,
-        "singleQuote": true,
-        "eslintIntegration": true
     }
 }
