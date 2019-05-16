@@ -2,11 +2,10 @@ import { Request } from 'express';
 import * as ts from '@terascope/utils';
 import * as apollo from 'apollo-server-express';
 import { User, ACLManager, ModelName, AnyModel } from '@terascope/data-access';
-import _ from 'lodash';
 
 export function forEachModel(fn: (model: ModelName) => void) {
     const models: ModelName[] = ['User', 'Role', 'DataType', 'Space', 'View'];
-    return models.forEach((model) => fn(model));
+    return models.forEach(model => fn(model));
 }
 
 export function formatError(err: any) {
@@ -51,7 +50,7 @@ export function logoutUser(req: Request): void {
     if (ts.isFunction(req.logout)) req.logout();
 }
 
-export function getLoggedInUser(req: Request): User|null {
+export function getLoggedInUser(req: Request): User | null {
     const user = ts.get(req, 'v2User', ts.get(req, 'session.v2User'));
     // the user must be the latest type
     if (user && user.type && user.id) {
@@ -66,25 +65,25 @@ interface Creds {
     password?: string;
 }
 
-function isSameUser(user: User|null, creds: Creds) {
-    if (user) {
-        // if creds then compare tokens
-        if (!_.isEmpty(creds)) {
-            if (creds.token && user.api_token === creds.token) return true;
-            return false;
-        }
-        // if just user return true
-        return true;
+function isSameUser(user: User, creds: Creds): boolean {
+    // if creds then compare tokens
+    if (!ts.isEmpty(creds)) {
+        if (creds.token && user.api_token === creds.token) return true;
+        return false;
     }
-    return false;
+    // if just user return true
+    return true;
 }
 
 export async function login(manager: ACLManager, req: Request, storeInSession = true): Promise<User> {
     const loggedInUser = getLoggedInUser(req);
     const creds = getCredentialsFromReq(req);
 
-    if (isSameUser(loggedInUser, creds)) {
-        return loggedInUser as User;
+    if (loggedInUser && isSameUser(loggedInUser, creds)) {
+        // fetch and update the user again
+        const user = await manager.findUser({ id: loggedInUser.id }, loggedInUser);
+        setLoggedInUser(req, user, storeInSession);
+        return user;
     }
 
     const user = await manager.authenticate(creds);
@@ -94,10 +93,10 @@ export async function login(manager: ACLManager, req: Request, storeInSession = 
 
 export function getCredentialsFromReq(req: Request): Creds {
     const queryToken: string = ts.get(req, 'query.token');
-    if (queryToken) return { token: queryToken } ;
+    if (queryToken) return { token: queryToken };
 
     const authToken: string = ts.get(req, 'headers.authorization');
-    if (!authToken) return { };
+    if (!authToken) return {};
 
     let [part1, part2] = authToken.split(' ');
     part1 = ts.trim(part1);
@@ -116,8 +115,8 @@ export function getCredentialsFromReq(req: Request): Creds {
     return {};
 }
 
-export async function findAll<T extends AnyModel>(ids: string[]|undefined, fn: (query: string) => Promise<T[]>): Promise<T[]> {
-    const _ids = ts.castArray(ids || []).filter((id) => !!id);
+export async function findAll<T extends AnyModel>(ids: string[] | undefined, fn: (query: string) => Promise<T[]>): Promise<T[]> {
+    const _ids = ts.castArray(ids || []).filter(id => !!id);
     if (!_ids.length) return [];
 
     const query = `id: (${_ids.join(' OR ')})`;
