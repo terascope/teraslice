@@ -8,7 +8,7 @@ export default class Long extends BaseType {
     }
 
     toESMapping() {
-        return { [this.field]: 'long' };
+        return { mapping: { [this.field]: 'long' } };
     }
 
     toGraphQl() {

@@ -7,7 +7,7 @@ export default class GeoType extends BaseType {
     }
 
     toESMapping() {
-        return { [this.field]: 'geo_point' };
+        return { mapping: { [this.field]: 'geo_point' } };
     }
     // TODO: need notion of injecting custom types, what about duplicates
     toGraphQl() {

@@ -8,7 +8,7 @@ export default class HalfFloat extends BaseType {
     }
 
     toESMapping() {
-        return { [this.field]: 'half_float' };
+        return { mapping: { [this.field]: 'half_float' } };
     }
 
     toGraphQl() {

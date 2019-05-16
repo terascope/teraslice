@@ -1,5 +1,5 @@
 
-import { DataTypeManager, DataTypeConfig } from './interfaces';
+import { DataTypeManager, DataTypeConfig, EsMapSettings } from './interfaces';
 import BaseType from './types/versions/base-type';
 import * as ts from '@terascope/utils';
 
@@ -25,8 +25,46 @@ export class DataType implements DataTypeManager {
         this.types = types;
     }
 
-    toESMapping() {
-        return {};
+    toESMapping(mappingType:string, settingsConfig?: EsMapSettings) {
+        if (mappingType == null) throw new ts.TSError('A type must be specified for this index');
+        const argAnalyzer = ts.get(settingsConfig || {}, ['analysis', 'analyzer'], {});
+        const analyzer = { ...argAnalyzer };
+        const properties = this.types.reduce((accum, type) => {
+            const { mapping, analyzer: typeAnalyzer = {} } = type.toESMapping();
+
+            // get mapping configuration
+            for (const key in mapping) {
+                accum[key] = mapping[key];
+            }
+
+            // get analyzer configuration
+            for (const key in typeAnalyzer) {
+                analyzer[key] = typeAnalyzer[key];
+            }
+
+            return accum;
+        }, {});
+
+        const analysis = {
+            analysis: {
+                analyzer
+            }
+        };
+
+        // TODO: what default settings and analyzers should go here?
+        const settings: EsMapSettings = {
+            ...settingsConfig,
+            ...analysis
+        };
+
+        return {
+            mappings: {
+                [mappingType]: {
+                    properties
+                }
+            },
+            settings
+        };
     }
 
     toGraphQl(typeName?: string) {

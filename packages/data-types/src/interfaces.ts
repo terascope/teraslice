@@ -6,9 +6,9 @@ export interface GraphQlResults {
 }
 
 export interface DataTypeManager {
-    toESMapping(): any;
-    toGraphQl(): GraphQlResults;
-    toXlucene(): any;
+    toESMapping(mappingType:string, settings?: any): any;
+    toGraphQl(typeName?: string): GraphQlResults;
+    toXlucene(): XluceneMapping;
 }
 
 export type String = 'keyword' | 'text';
@@ -47,7 +47,12 @@ export enum GraphqlType {
 }
 
 export interface EsMapping {
-    [key: string]: any;
+    mapping: {
+        [key: string]: any;
+    };
+    analyzer?: {
+        [key: string]: any;
+    };
 }
 
 export interface XluceneMapping {
@@ -57,4 +62,14 @@ export interface XluceneMapping {
 export interface GraphQLType {
     type: string;
     custom_type?: string;
+}
+
+export interface EsMapSettings {
+    'index.number_of_shards'?: number;
+    'index.number_of_replicas'?: number;
+    analysis?: {
+        analyzer: {
+            [key: string]: any;
+        }
+    };
 }

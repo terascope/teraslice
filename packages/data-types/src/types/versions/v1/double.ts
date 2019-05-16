@@ -8,7 +8,7 @@ export default class Double extends BaseType {
     }
 
     toESMapping() {
-        return { [this.field]: 'double' };
+        return { mapping: { [this.field]: 'double' } };
     }
 
     toGraphQl() {

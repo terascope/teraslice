@@ -8,7 +8,7 @@ export default class IpType extends BaseType {
     }
 
     toESMapping() {
-        return { [this.field]: 'ip' };
+        return { mapping: { [this.field]: 'ip' } };
     }
 
     toGraphQl() {

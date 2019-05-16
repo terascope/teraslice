@@ -8,7 +8,7 @@ export default class BooleanType extends BaseType {
     }
 
     toESMapping() {
-        return { [this.field]: 'boolean' };
+        return { mapping: { [this.field]: 'boolean' } };
     }
 
     toGraphQl() {

@@ -137,4 +137,115 @@ describe('DataType', () => {
             expect(err.message).toInclude('No name was specified to create the graphql type representing this data structure');
         }
     });
+
+    it('elasticsearch mapping requires providing a type name', () => {
+        const typeConfig: DataTypeConfig = {
+            version: 1,
+            fields: {
+                hello: { type: 'text' },
+                location: { type: 'geo' },
+                date: { type: 'date' },
+                ip: { type: 'ip' },
+                someNum: { type: 'long' }
+            },
+        };
+
+        try {
+            // @ts-ignore
+            new DataType(typeConfig).toESMapping();
+        } catch (err) {
+            expect(err).toBeInstanceOf(TSError);
+            expect(err.message).toInclude('A type must be specified for this index');
+        }
+    });
+
+    it('can create an elasticsearch mapping', () => {
+        const typeConfig: DataTypeConfig = {
+            version: 1,
+            fields: {
+                hello: { type: 'text' },
+                location: { type: 'geo' },
+                date: { type: 'date' },
+                ip: { type: 'ip' },
+                someNum: { type: 'long' }
+            },
+        };
+
+        const results = {
+            mappings: {
+                events: {
+                    properties: {
+                        hello: 'text',
+                        location: 'geo_point',
+                        date: 'date',
+                        ip: 'ip',
+                        someNum: 'long'
+                    }
+                }
+            },
+            settings: {
+                analysis: {
+                    analyzer: {}
+                }
+            }
+        };
+
+        const mapping = new DataType(typeConfig).toESMapping('events');
+        expect(mapping).toEqual(results);
+    });
+
+    it('can add additional settings to a elasticsearch mapping', () => {
+        const typeConfig: DataTypeConfig = {
+            version: 1,
+            fields: {
+                hello: { type: 'text' },
+                location: { type: 'geo' },
+                date: { type: 'date' },
+                ip: { type: 'ip' },
+                someNum: { type: 'long' }
+            },
+        };
+
+        const settings = {
+            'index.number_of_shards': 5,
+            'index.number_of_replicas': 1,
+            analysis: {
+                analyzer: {
+                    lowercase_keyword_analyzer: {
+                        tokenizer: 'keyword',
+                        filter: 'lowercase'
+                    }
+                }
+            }
+        };
+
+        const results = {
+            mappings: {
+                events: {
+                    properties: {
+                        hello: 'text',
+                        location: 'geo_point',
+                        date: 'date',
+                        ip: 'ip',
+                        someNum: 'long'
+                    }
+                }
+            },
+            settings: {
+                'index.number_of_shards': 5,
+                'index.number_of_replicas': 1,
+                analysis: {
+                    analyzer: {
+                        lowercase_keyword_analyzer: {
+                            tokenizer: 'keyword',
+                            filter: 'lowercase'
+                        }
+                    }
+                }
+            }
+        };
+
+        const mapping = new DataType(typeConfig).toESMapping('events', settings);
+        expect(mapping).toEqual(results);
+    });
 });

@@ -8,7 +8,7 @@ export default class Keyword extends BaseType {
     }
 
     toESMapping() {
-        return { [this.field]: 'keyword' };
+        return { mapping: { [this.field]: 'keyword' } };
     }
 
     toGraphQl() {

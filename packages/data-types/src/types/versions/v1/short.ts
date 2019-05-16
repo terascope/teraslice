@@ -8,7 +8,7 @@ export default class Short extends BaseType {
     }
 
     toESMapping() {
-        return { [this.field]: 'short' };
+        return { mapping: { [this.field]: 'short' } };
     }
 
     toGraphQl() {

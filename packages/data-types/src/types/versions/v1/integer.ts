@@ -8,7 +8,7 @@ export default class Integer extends BaseType {
     }
 
     toESMapping() {
-        return { [this.field]: 'integer' };
+        return { mapping: { [this.field]: 'integer' } };
     }
 
     toGraphQl() {

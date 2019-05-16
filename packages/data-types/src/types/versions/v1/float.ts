@@ -8,7 +8,7 @@ export default class Float extends BaseType {
     }
 
     toESMapping() {
-        return { [this.field]: 'float' };
+        return { mapping: { [this.field]: 'float' } };
     }
 
     toGraphQl() {

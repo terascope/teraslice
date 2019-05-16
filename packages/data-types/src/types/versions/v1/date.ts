@@ -7,7 +7,7 @@ export default class DateType extends BaseType {
     }
     // TODO: different date time settings?
     toESMapping() {
-        return { [this.field]: 'date' };
+        return { mapping: { [this.field]: 'date' } };
     }
 
     toGraphQl() {

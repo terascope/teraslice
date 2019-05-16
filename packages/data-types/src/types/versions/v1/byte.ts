@@ -8,7 +8,7 @@ export default class Byte extends BaseType {
     }
 
     toESMapping() {
-        return { [this.field]: 'byte' };
+        return { mapping: { [this.field]: 'byte' } };
     }
 
     toGraphQl() {

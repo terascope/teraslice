@@ -8,7 +8,7 @@ export default class StringType extends BaseType {
     }
 
     toESMapping() {
-        return { [this.field]: 'text' };
+        return { mapping: { [this.field]: 'text' } };
     }
 
     toGraphQl() {

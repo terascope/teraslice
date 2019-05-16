@@ -8,7 +8,7 @@ export default class ScaledFloat extends BaseType {
     }
 
     toESMapping() {
-        return { [this.field]: 'scaled_float' };
+        return { mapping: { [this.field]: 'scaled_float' } };
     }
 
     toGraphQl() {
