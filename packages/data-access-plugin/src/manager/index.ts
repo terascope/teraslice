@@ -2,10 +2,9 @@ import { Express } from 'express';
 import { Client } from 'elasticsearch';
 import * as apollo from 'apollo-server-express';
 import { Context } from '@terascope/job-components';
-import { Logger, toBoolean, get, isProd } from '@terascope/utils';
-import { ACLManager, User } from '@terascope/data-access';
+import { Logger, get, isProd } from '@terascope/utils';
+import { ACLManager } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
-import { makeSearchFn } from '../search/utils';
 import { makeErrorHandler, getESClient } from '../utils';
 import typeDefs from './types';
 import resolvers from './resolvers';
@@ -119,22 +118,21 @@ export default class ManagerPlugin {
 
     registerRoutes() {
         const managerUri = '/api/v2/data-access';
-
         const rootErrorHandler = makeErrorHandler('Failure to access /api/v2', this.logger);
 
         this.app.use('/api/v2', (req, res, next) => {
+            // @ts-ignore
+            req.aclManager = this.manager;
+
             if (req.originalUrl === managerUri) {
                 next();
                 return;
             }
 
-            // @ts-ignore
-            req.aclManager = this.manager;
-
             rootErrorHandler(req, res, async () => {
                 // login but don't presist session
                 await utils.login(this.manager, req, false);
-                next();
+                return next();
             });
         });
 
@@ -155,43 +153,6 @@ export default class ManagerPlugin {
             },
             app: this.app,
             path: managerUri,
-        });
-
-        // this must happen at the end
-        this.app.use('/api/v2/:endpoint', (req, res, next) => {
-            const manager: ACLManager = get(req, 'aclManager');
-            const user: User = utils.getLoggedInUser(req)!;
-
-            const { endpoint } = req.params;
-            const logger = this.context.apis.foundation.makeLogger({
-                module: `search_plugin:${endpoint}`,
-                user_id: get(user, 'id')
-            });
-
-            const spaceErrorHandler = makeErrorHandler('Error accessing search endpoint', logger, true);
-
-            spaceErrorHandler(req, res, async () => {
-                const accessConfig = await manager.getViewForSpace({
-                    space: endpoint
-                }, user);
-
-                req.query.pretty = toBoolean(req.query.pretty);
-
-                const connection = get(accessConfig, 'search_config.connection', 'default');
-                const client = getESClient(this.context, connection);
-
-                const search = makeSearchFn(client, accessConfig, logger);
-
-                // @ts-ignore
-                req.space = {
-                    searchErrorHandler: makeErrorHandler('Error during query execution', logger, true),
-                    accessConfig,
-                    search,
-                    logger,
-                };
-
-                next();
-            });
         });
     }
 }

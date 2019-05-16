@@ -2,6 +2,7 @@ import { Request } from 'express';
 import * as ts from '@terascope/utils';
 import * as apollo from 'apollo-server-express';
 import { User, ACLManager, ModelName, AnyModel } from '@terascope/data-access';
+import _ from 'lodash';
 
 export function forEachModel(fn: (model: ModelName) => void) {
     const models: ModelName[] = ['User', 'Role', 'DataType', 'Space', 'View'];
@@ -59,18 +60,39 @@ export function getLoggedInUser(req: Request): User|null {
     return null;
 }
 
+interface Creds {
+    token?: string;
+    username?: string;
+    password?: string;
+}
+
+function isSameUser(user: User|null, creds: Creds) {
+    if (user) {
+        // if creds then compare tokens
+        if (!_.isEmpty(creds)) {
+            if (creds.token && user.api_token === creds.token) return true;
+            return false;
+        }
+        // if just user return true
+        return true;
+    }
+    return false;
+}
+
 export async function login(manager: ACLManager, req: Request, storeInSession = true): Promise<User> {
     const loggedInUser = getLoggedInUser(req);
-    if (loggedInUser) return loggedInUser;
-
     const creds = getCredentialsFromReq(req);
+
+    if (isSameUser(loggedInUser, creds)) {
+        return loggedInUser as User;
+    }
 
     const user = await manager.authenticate(creds);
     setLoggedInUser(req, user, storeInSession);
     return user;
 }
 
-export function getCredentialsFromReq(req: Request): { token?: string, username?: string, password?: string } {
+export function getCredentialsFromReq(req: Request): Creds {
     const queryToken: string = ts.get(req, 'query.token');
     if (queryToken) return { token: queryToken } ;
 
