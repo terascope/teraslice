@@ -1,13 +1,10 @@
 
-import { Type } from '../../../interfaces';
+import BaseType from '../base-type';
+import { TypeConfig } from '../../../interfaces';
 
-export default class BooleanType implements Type {
-    public baseType: string;
-    public field: string;
-
-    constructor(field: string) {
-        this.baseType = 'boolean';
-        this.field = field;
+export default class BooleanType extends BaseType {
+    constructor(field: string, config:TypeConfig) {
+        super(field, config);
     }
 
     toESMapping() {

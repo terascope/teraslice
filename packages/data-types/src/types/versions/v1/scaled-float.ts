@@ -2,20 +2,20 @@
 import BaseType from '../base-type';
 import { TypeConfig } from '../../../interfaces';
 
-export default class IpType extends BaseType {
+export default class ScaledFloat extends BaseType {
     constructor(field: string, config: TypeConfig) {
         super(field, config);
     }
 
     toESMapping() {
-        return { [this.field]: 'ip' };
+        return { [this.field]: 'scaled_float' };
     }
 
     toGraphQl() {
-        return `${this.field}: String`;
+        return `${this.field}: Float`;
     }
 
     toXlucene() {
-        return { [this.field]: 'ip' };
+        return { [this.field]: 'scaled_float' };
     }
 }

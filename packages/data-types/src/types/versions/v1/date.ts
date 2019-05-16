@@ -1,12 +1,9 @@
-import { Type } from '../../../interfaces';
+import BaseType from '../base-type';
+import { TypeConfig } from '../../../interfaces';
 
-export default class DateType implements Type {
-    public baseType: string;
-    public field: string;
-
-    constructor(field: string) {
-        this.baseType = 'boolean';
-        this.field = field;
+export default class DateType extends BaseType {
+    constructor(field: string, config:TypeConfig) {
+        super(field, config);
     }
     // TODO: different date time settings?
     toESMapping() {

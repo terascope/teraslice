@@ -1,12 +1,9 @@
-import { Type } from '../../../interfaces';
+import BaseType from '../base-type';
+import { TypeConfig } from '../../../interfaces';
 
-export default class GeoType implements Type {
-    public baseType: string;
-    public field: string;
-
-    constructor(field: string) {
-        this.baseType = 'geo';
-        this.field = field;
+export default class GeoType extends BaseType {
+    constructor(field: string, config:TypeConfig) {
+        super(field, config);
     }
 
     toESMapping() {

@@ -1,9 +1,10 @@
 
 import 'jest-extended';
-import { DataTypes } from '../src';
+import { DataTypes, DataTypeConfig } from '../src';
 import { TSError } from '@terascope/utils';
 
 describe('DataTypes', () => {
+
     it('it will throw without versioning', () => {
         expect.hasAssertions();
         try {
@@ -15,12 +16,36 @@ describe('DataTypes', () => {
         }
     });
 
-    xit('it can instantiate correctly', () => {
-        const typeConfig = {
-            field: { type: 'string' },
-            $version: 1
+    it('it can instantiate correctly', () => {
+        const typeConfig: DataTypeConfig = {
+            version: 1,
+            fields: { hello: { type: 'keyword' } },
         };
-        const results = new DataTypes(typeConfig);
-        console.log('results', results)
+
+        expect(() => new DataTypes(typeConfig)).not.toThrow();
+    });
+
+    it('it can return an xlucene ready typeconfig', () => {
+        const typeConfig: DataTypeConfig = {
+            version: 1,
+            fields: {
+                hello: { type: 'text' },
+                location: { type: 'geo' },
+                date: { type: 'date' },
+                ip: { type: 'ip' },
+                someNum: { type: 'long' }
+            },
+        };
+
+        const results = {
+            hello: 'string',
+            location: 'geo',
+            date: 'date',
+            ip: 'ip',
+            someNum: 'long'
+        };
+
+        const xluceneConfig = new DataTypes(typeConfig).toXlucene();
+        expect(xluceneConfig).toEqual(results);
     });
 });

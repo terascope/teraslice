@@ -1,11 +1,7 @@
 
 import * as ts from '@terascope/utils';
 import mappings from './versions/mapping';
-
-interface TypeConfig {
-    type: 'string';
-    [key: string]: any;
-}
+import { TypeConfig } from '../interfaces';
 
 export class TypesManager {
     public version: string;
