@@ -20,6 +20,7 @@ const IndexApp: React.FC = () => {
     const plugins: PluginConfig[] = [
         {
             name: '',
+            access: 'USER',
             routes: [
                 {
                     name: 'Home',

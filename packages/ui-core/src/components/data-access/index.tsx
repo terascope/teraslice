@@ -8,7 +8,7 @@ import ListRoles from './roles/List';
 const config: PluginConfig = {
     name: 'Data Access',
     basepath: '/',
-    // userType: 'ADMIN',
+    access: 'ADMIN',
     routes: [
         {
             name: 'Users',
@@ -36,6 +36,7 @@ const config: PluginConfig = {
             path: '/users/account',
             icon: 'user circle',
             hidden: true,
+            access: 'USER',
             component: MyAccount,
         },
         {

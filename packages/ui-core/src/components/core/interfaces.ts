@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Role, UserType } from '@terascope/data-access';
 
+export const UserTypes: UserType[] = ['USER', 'ADMIN', 'SUPERADMIN'];
+
 export type PageAction = {
     label: string;
     icon?: string;
@@ -21,6 +23,7 @@ export type PluginRoute = {
     path: string;
     icon: string;
     hidden?: boolean;
+    access?: UserType;
     component: React.FC<any> | React.ComponentClass<any>;
     actions?: string[];
 };
@@ -32,6 +35,7 @@ export const PluginRoutesProp = PropTypes.arrayOf(
         icon: PropTypes.string.isRequired,
         hidden: PropTypes.bool,
         component: PropTypes.func.isRequired,
+        access: PropTypes.oneOf(UserTypes).isRequired,
         actions: PropTypes.arrayOf(PropTypes.string.isRequired),
     }).isRequired
 );
@@ -39,12 +43,14 @@ export const PluginRoutesProp = PropTypes.arrayOf(
 export type PluginConfig = {
     name: string;
     basepath?: string;
+    access?: UserType;
     routes: PluginRoute[];
 };
 
 export const PluginConfigProp = PropTypes.shape({
     name: PropTypes.string.isRequired,
     basepath: PropTypes.string,
+    access: PropTypes.oneOf(UserTypes).isRequired,
     routes: PluginRoutesProp.isRequired,
 });
 
@@ -73,7 +79,7 @@ export type CoreContextState = {
     updateState(updates: Partial<CoreContextState>): void;
 };
 
-export const UserPermissionMap: { [key in UserType]: UserType[] } = {
+export const UserPermissionMap: { readonly [key in UserType]: ReadonlyArray<UserType> } = {
     USER: ['USER'],
     ADMIN: ['USER', 'ADMIN'],
     SUPERADMIN: ['USER', 'ADMIN', 'SUPERADMIN'],

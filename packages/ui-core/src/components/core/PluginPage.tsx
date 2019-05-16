@@ -7,17 +7,19 @@ import ErrorPage from './ErrorPage';
 
 const PluginPage = tsWithRouter(({ location, match }) => {
     const { plugins } = useCoreContext();
-    const route = findPluginRoute(plugins, location.pathname);
+    const result = findPluginRoute(plugins, location.pathname);
 
-    if (!route) return <ErrorPage error="Invalid Plugin" />;
+    if (!result) return <ErrorPage error="Invalid Plugin" />;
 
+    const { route } = result;
     const actions: PageAction[] = [];
 
     if (route.actions) {
         for (const actionPath of route.actions) {
-            const _route = findPluginRoute(plugins, actionPath);
-            if (!_route) continue;
+            const _result = findPluginRoute(plugins, actionPath);
+            if (!_result) continue;
 
+            const _route = _result.route;
             actions.push({
                 label: _route.name,
                 to: _route.path,

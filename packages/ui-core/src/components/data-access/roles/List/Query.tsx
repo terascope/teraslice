@@ -28,7 +28,6 @@ const ListQuery = tsWithRouter<Props>(
         if (state.from) state.from = toNumber(state.from);
 
         const updateQueryState = (updates: QueryState) => {
-            console.log('HERE', updates);
             history.push({
                 search: stringify({ ...state, ...updates }),
             });

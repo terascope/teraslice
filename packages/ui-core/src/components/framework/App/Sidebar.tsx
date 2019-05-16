@@ -6,6 +6,9 @@ import {
     PluginConfig,
     formatPath,
     tsWithRouter,
+    ResolvedUser,
+    hasAccessToRoute,
+    hasAccessTo,
 } from '../../core';
 
 const SidebarMenuIcon = tsWithRouter<any>(({ icon, color, open }) => {
@@ -34,17 +37,20 @@ const SidebarToggleIcon: React.FC<{ open: boolean }> = ({ open }) => {
 const makePluginLinks = (
     plugins: PluginConfig[],
     history: History,
-    open: boolean
+    open: boolean,
+    authUser?: ResolvedUser
 ) => {
     const links: any[] = [];
     plugins.forEach((plugin, pi) => {
-        if (open && plugin.name) {
+        if (open && plugin.name && hasAccessTo(authUser, plugin.access)) {
             links.push(
                 <Menu.Item key={`plugin-${pi}`}>{plugin.name}</Menu.Item>
             );
         }
         plugin.routes.forEach((route, ri) => {
             if (route.hidden) return;
+            if (!hasAccessToRoute(authUser, { plugin, route })) return;
+
             links.push(
                 <Menu.Item
                     key={`plugin-${pi}-route-${ri}`}
@@ -69,7 +75,7 @@ const makePluginLinks = (
 };
 
 const Sidebar = tsWithRouter<any>(({ history }) => {
-    const { authenticated, plugins } = useCoreContext();
+    const { authenticated, plugins, authUser } = useCoreContext();
     const [open, setState] = useState(true);
 
     if (!authenticated) return <div />;
@@ -85,7 +91,7 @@ const Sidebar = tsWithRouter<any>(({ history }) => {
             >
                 <SidebarToggleIcon open={open} />
             </Menu.Item>
-            {makePluginLinks(plugins, history, open)}
+            {makePluginLinks(plugins, history, open, authUser)}
         </Menu>
     );
 });
