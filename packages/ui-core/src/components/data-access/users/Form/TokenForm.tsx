@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
+import { get } from '@terascope/utils';
 import { ApolloConsumer } from 'react-apollo';
 import { Form, Button } from 'semantic-ui-react';
-import { get } from '@terascope/utils';
 import { AUTH_QUERY } from '../../../core';
+import { WITHOUT_ID_QUERY } from './Query';
 
 const TokenForm: React.FC<Props> = ({ token: _token, id }) => {
     const [showToken, setShowToken] = useState(false);
@@ -38,7 +39,13 @@ const TokenForm: React.FC<Props> = ({ token: _token, id }) => {
                                     variables: {
                                         id,
                                     },
-                                    refetchQueries: [{ query: AUTH_QUERY }],
+                                    refetchQueries: [
+                                        { query: AUTH_QUERY },
+                                        {
+                                            query: WITHOUT_ID_QUERY,
+                                            variables: { id },
+                                        },
+                                    ],
                                 });
 
                                 const newToken = get(

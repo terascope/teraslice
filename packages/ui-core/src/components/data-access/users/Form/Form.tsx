@@ -108,7 +108,7 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
     const hasErrors = errors.messages.length > 0;
 
     return (
-        <Mutation update={update}>
+        <Mutation id={id}>
             {(submit, { data, loading, error }: any) => {
                 const onSubmit = (e: FormEvent) => {
                     e.preventDefault();
@@ -123,6 +123,9 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
                             delete finalInput.id;
                         }
                         delete finalInput.api_token;
+                        if (!finalInput.email) {
+                            delete finalInput.email;
+                        }
 
                         submit({
                             variables: {

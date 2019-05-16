@@ -66,7 +66,7 @@ FormQuery.propTypes = {
 export default FormQuery;
 
 // Query
-const WITHOUT_ID_QUERY = gql`
+export const WITHOUT_ID_QUERY = gql`
     {
         roles(query: "*") {
             id
@@ -75,7 +75,7 @@ const WITHOUT_ID_QUERY = gql`
     }
 `;
 
-const WITH_ID_QUERY = gql`
+export const WITH_ID_QUERY = gql`
     query UserInfo($id: ID!) {
         roles(query: "*") {
             id

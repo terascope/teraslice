@@ -6,60 +6,60 @@ const config: IndexModelConfig<User> = {
     mapping: {
         properties: {
             client_id: {
-                type: 'integer'
+                type: 'integer',
             },
             firstname: {
                 type: 'keyword',
                 fields: {
                     text: {
                         type: 'text',
-                        analyzer: 'lowercase_keyword_analyzer'
-                    }
-                }
+                        analyzer: 'lowercase_keyword_analyzer',
+                    },
+                },
             },
             lastname: {
                 type: 'keyword',
                 fields: {
                     text: {
                         type: 'text',
-                        analyzer: 'lowercase_keyword_analyzer'
-                    }
-                }
+                        analyzer: 'lowercase_keyword_analyzer',
+                    },
+                },
             },
             username: {
                 type: 'keyword',
                 fields: {
                     text: {
                         type: 'text',
-                        analyzer: 'lowercase_keyword_analyzer'
-                    }
-                }
+                        analyzer: 'lowercase_keyword_analyzer',
+                    },
+                },
             },
             email: {
                 type: 'keyword',
                 fields: {
                     text: {
                         type: 'text',
-                        analyzer: 'lowercase_keyword_analyzer'
-                    }
-                }
+                        analyzer: 'lowercase_keyword_analyzer',
+                    },
+                },
             },
             type: {
                 type: 'keyword',
             },
             api_token: {
-                type: 'keyword'
+                type: 'keyword',
             },
             hash: {
-                type: 'keyword'
+                type: 'keyword',
             },
             salt: {
-                type: 'keyword'
+                type: 'keyword',
             },
             role: {
-                type: 'keyword'
-            }
-        }
+                type: 'keyword',
+            },
+        },
     },
     schema: {
         properties: {
@@ -69,45 +69,36 @@ const config: IndexModelConfig<User> = {
                 minimum: 0,
             },
             username: {
-                type: 'string'
+                type: 'string',
             },
             firstname: {
-                type: 'string'
+                type: 'string',
             },
             lastname: {
-                type: 'string'
+                type: 'string',
             },
             email: {
-                format: 'email'
+                format: 'email',
             },
             role: {
-                type: 'string'
+                type: 'string',
             },
             type: {
                 type: 'string',
                 default: 'USER',
-                enum: [
-                    'USER',
-                    'ADMIN',
-                    'SUPERADMIN'
-                ]
+                enum: ['USER', 'ADMIN', 'SUPERADMIN'],
             },
             api_token: {
-                type: 'string'
+                type: 'string',
             },
             hash: {
-                type: 'string'
+                type: 'string',
             },
             salt: {
-                type: 'string'
-            }
+                type: 'string',
+            },
         },
-        required: [
-            'client_id',
-            'username',
-            'firstname',
-            'lastname',
-        ]
+        required: ['client_id', 'username', 'firstname', 'lastname'],
     },
     uniqueFields: ['username', 'api_token'],
     sanitizeFields: {
@@ -119,55 +110,55 @@ const config: IndexModelConfig<User> = {
 
 /**
  * The definition of a User model
-*/
+ */
 export interface User extends IndexModelRecord {
     /**
      * The mutli-tenant ID representing the client
-    */
+     */
     client_id?: number;
 
     /**
      * The User's username
-    */
+     */
     username: string;
 
     /**
      * First Name of the User
-    */
+     */
     firstname: string;
 
     /**
      * Last Name of the User
-    */
+     */
     lastname: string;
 
     /**
      * The User's email address
-    */
-    email: string;
+     */
+    email?: string;
 
     /**
      * The users attached role
-    */
+     */
     role?: string;
 
     /**
      * This used to provide compatibility with legacy roles
      *
      * **IMPORTANT** Avoid depending on this field since it is subject to change
-    */
+     */
     role_name?: string;
 
     /**
      * The user's type
      *
      * @default "User"
-    */
+     */
     type?: UserType;
 
     /**
      * The User's API Token
-    */
+     */
     api_token: string;
 
     /**
@@ -177,17 +168,17 @@ export interface User extends IndexModelRecord {
      * const rawHash = await crypto.pbkdf2Async(user.hash, user.salt, 25000, 512, 'sha1')
      * return Buffer.from(rawHash, 'binary').toString('hex');
      * ```
-    */
+     */
     hash: string;
 
     /**
      * A unique salt for the password
      *
      * `crypto.randomBytesAsync(32).toString('hex')`
-    */
+     */
     salt: string;
 }
 
-export type UserType = 'SUPERADMIN'|'ADMIN'|'USER';
+export type UserType = 'SUPERADMIN' | 'ADMIN' | 'USER';
 
 export default config;

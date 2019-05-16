@@ -7,13 +7,18 @@ import { Role } from '@terascope/data-access';
 import { Segment } from 'semantic-ui-react';
 import * as i from './interfaces';
 import * as m from '../../ModelForm';
-import { ErrorPage, LoadingPage, useCoreContext, ResolvedUser } from '../../../core';
+import {
+    ErrorPage,
+    LoadingPage,
+    useCoreContext,
+    ResolvedUser,
+} from '../../../core';
 
 const FormQuery: React.FC<Props> = ({ component: Component, id }) => {
     const authUser = useCoreContext().authUser!;
 
     return (
-        <FetchQuery query={QUERY} variables={{ id }} skip={!id}>
+        <FetchQuery query={WITH_ID_QUERY} variables={{ id }} skip={!id}>
             {({ loading, error, data }) => {
                 if (loading) return <LoadingPage />;
                 if (error) return <ErrorPage error={error} />;
@@ -54,7 +59,7 @@ FormQuery.propTypes = {
 
 export default FormQuery;
 
-const QUERY = gql`
+export const WITH_ID_QUERY = gql`
     query Role($id: ID!) {
         role(id: $id) {
             id

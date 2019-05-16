@@ -3,6 +3,9 @@ import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { AnyObject } from '@terascope/utils';
 import { Mutation, MutationFn, MutationResult } from 'react-apollo';
+import { LIST_QUERY } from '../List/Query';
+import { PureQueryOptions } from 'apollo-boost';
+import { WITH_ID_QUERY, WITHOUT_ID_QUERY } from './Query';
 
 const CREATE_QUERY = gql`
     mutation User($input: CreateUserInput!, $password: String!) {
@@ -42,9 +45,21 @@ type Children = (
     result: MutationResult<Response>
 ) => React.ReactNode;
 
-const MutationQuery: React.FC<Props> = ({ update, children }) => {
+const MutationQuery: React.FC<Props> = ({ id, children }) => {
+    const update = Boolean(id);
+    const refetchQueries: PureQueryOptions[] = [{ query: LIST_QUERY }];
+
+    if (id) {
+        refetchQueries.push({ query: WITH_ID_QUERY, variables: { id } });
+    } else {
+        refetchQueries.push({ query: WITHOUT_ID_QUERY, variables: { id } });
+    }
+
     return (
-        <AnyMutationQuery mutation={update ? UPDATE_QUERY : CREATE_QUERY}>
+        <AnyMutationQuery
+            mutation={update ? UPDATE_QUERY : CREATE_QUERY}
+            refetchQueries={LIST_QUERY}
+        >
             {(action, result) => {
                 let data: any;
                 if (result && result.data) {
@@ -68,10 +83,10 @@ const MutationQuery: React.FC<Props> = ({ update, children }) => {
     );
 };
 
-type Props = { update: boolean; children: Children };
+type Props = { id?: string; children: Children };
 
 MutationQuery.propTypes = {
-    update: PropTypes.bool.isRequired,
+    id: PropTypes.string,
     children: PropTypes.func.isRequired,
 };
 

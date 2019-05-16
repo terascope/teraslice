@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { toInteger } from '@terascope/utils';
 import { Form } from 'semantic-ui-react';
 import { SuccessMessage, ErrorMessage, useCoreContext } from '../../../core';
-import RoleMutation from './Mutation';
+import Mutation from './Mutation';
 import * as i from './interfaces';
 import * as m from '../../ModelForm';
 
@@ -67,7 +67,7 @@ const ModelForm: React.FC<m.ComponentProps<i.Input>> = ({ id, input }) => {
     const hasErrors = errors.messages.length > 0;
 
     return (
-        <RoleMutation update={update}>
+        <Mutation id={id}>
             {(submit, { data, loading, error }: any) => {
                 const onSubmit = (e: FormEvent) => {
                     e.preventDefault();
@@ -159,7 +159,7 @@ const ModelForm: React.FC<m.ComponentProps<i.Input>> = ({ id, input }) => {
                     </div>
                 );
             }}
-        </RoleMutation>
+        </Mutation>
     );
 };
 

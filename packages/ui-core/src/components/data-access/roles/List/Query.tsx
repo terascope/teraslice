@@ -42,7 +42,11 @@ const ListQuery = tsWithRouter<Props>(
                 : state;
 
         return (
-            <Query query={QUERY} variables={variables}>
+            <Query
+                query={LIST_QUERY}
+                variables={variables}
+                fetchPolicy="cache-and-network"
+            >
                 {({ loading, error, data }) => {
                     if (error) return <ErrorPage error={error} />;
                     if (!data && !loading) {
@@ -81,7 +85,7 @@ type Props = {
 export default ListQuery;
 
 // Query
-const QUERY = gql`
+export const LIST_QUERY = gql`
     query Roles($query: String, $from: Int, $size: Int, $sort: String) {
         roles(query: $query, from: $from, size: $size, sort: $sort) {
             id

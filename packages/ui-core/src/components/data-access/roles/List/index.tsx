@@ -1,7 +1,7 @@
 import React from 'react';
 import gql from 'graphql-tag';
 import { ApolloConsumer } from 'react-apollo';
-import ListQuery from './Query';
+import ListQuery, { LIST_QUERY } from './Query';
 import {
     DataTable,
     RowMapping,
@@ -59,6 +59,12 @@ const List: React.FC = () => {
                                             variables: {
                                                 id: record.id,
                                             },
+                                            refetchQueries: [
+                                                {
+                                                    query: LIST_QUERY,
+                                                    variables: queryState,
+                                                },
+                                            ],
                                         });
                                     });
 
