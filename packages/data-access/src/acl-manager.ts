@@ -424,7 +424,7 @@ export class ACLManager {
 
         const hasAccess = space.roles.includes(user.role);
         if (!hasAccess) {
-            const msg = `User "${user.username}" does not have access to space "${space.id}"`;
+            const msg = `User "${user.username}" does not have access to space "${space.endpoint}"`;
             throw new ts.TSError(msg, { statusCode: 403 });
         }
 
@@ -433,7 +433,7 @@ export class ACLManager {
         if (user.type !== 'SUPERADMIN') {
             const clientIds = [role.client_id, space.client_id, dataType.client_id, view.client_id];
             if (!clientIds.every(id => id === user.client_id)) {
-                const msg = `User "${user.username}" does not have permission to access space "${space.id}"`;
+                const msg = `User "${user.username}" does not have permission to access space "${space.endpoint}"`;
                 throw new ts.TSError(msg, { statusCode: 403 });
             }
         }
