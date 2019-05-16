@@ -35,26 +35,14 @@ export class ACLManager {
      * Initialize all index stores
      */
     async initialize() {
-        await Promise.all([
-            this._roles.initialize(),
-            this._spaces.initialize(),
-            this._users.initialize(),
-            this._views.initialize(),
-            this._dataTypes.initialize(),
-        ]);
+        await Promise.all([this._roles.initialize(), this._spaces.initialize(), this._users.initialize(), this._views.initialize(), this._dataTypes.initialize()]);
     }
 
     /**
      * Shutdown all index stores
      */
     async shutdown() {
-        await Promise.all([
-            this._roles.shutdown(),
-            this._spaces.shutdown(),
-            this._users.shutdown(),
-            this._views.shutdown(),
-            this._dataTypes.shutdown(),
-        ]);
+        await Promise.all([this._roles.shutdown(), this._spaces.shutdown(), this._users.shutdown(), this._views.shutdown(), this._dataTypes.shutdown()]);
     }
 
     /**
@@ -113,10 +101,7 @@ export class ACLManager {
      *
      * This cannot include private information
      */
-    async updateUser(
-        args: { user: models.UpdateUserInput; password?: string },
-        authUser: i.AuthUser
-    ): Promise<models.User> {
+    async updateUser(args: { user: models.UpdateUserInput; password?: string }, authUser: i.AuthUser): Promise<models.User> {
         await this._validateUserInput(args.user, authUser);
         await this._users.update(args.user);
         if (args.password) {
@@ -215,11 +200,7 @@ export class ACLManager {
         const exists = await this._roles.exists(args.id);
         if (!exists) return false;
 
-        await Promise.all([
-            this._views.removeRoleFromViews(args.id),
-            this._users.removeRoleFromUsers(args.id),
-            this._roles.deleteById(args.id),
-        ]);
+        await Promise.all([this._views.removeRoleFromViews(args.id), this._users.removeRoleFromUsers(args.id), this._roles.deleteById(args.id)]);
 
         return true;
     }
@@ -439,10 +420,7 @@ export class ACLManager {
             throw new ts.TSError(msg, { statusCode: 403 });
         }
 
-        const [role, space] = await Promise.all([
-            this._roles.findById(user.role),
-            this._spaces.findByAnyId(args.space),
-        ]);
+        const [role, space] = await Promise.all([this._roles.findById(user.role), this._spaces.findByAnyId(args.space)]);
 
         const hasAccess = space.roles.includes(user.role);
         if (!hasAccess) {
@@ -450,14 +428,11 @@ export class ACLManager {
             throw new ts.TSError(msg, { statusCode: 403 });
         }
 
-        const [view, dataType] = await Promise.all([
-            this._views.getViewOfSpace(space, role),
-            this._dataTypes.findById(space.data_type),
-        ]);
+        const [view, dataType] = await Promise.all([this._views.getViewOfSpace(space, role), this._dataTypes.findById(space.data_type)]);
 
         if (user.type !== 'SUPERADMIN') {
             const clientIds = [role.client_id, space.client_id, dataType.client_id, view.client_id];
-            if (!clientIds.every((id) => id === user.client_id)) {
+            if (!clientIds.every(id => id === user.client_id)) {
                 const msg = `User "${user.username}" does not have permission to access space "${space.id}"`;
                 throw new ts.TSError(msg, { statusCode: 403 });
             }
@@ -534,14 +509,12 @@ export class ACLManager {
         }
 
         if (type === 'USER') {
+            includes.push('id', 'name');
+            if (constraint) constraint += ' AND ';
             if (authUser && authUser.role) {
-                includes.push('id', 'name', 'description');
-                if (constraint) constraint += ' AND ';
                 constraint += `id: ${authUser.role}`;
             } else {
-                throw new ts.TSError('Role query forbidden', {
-                    statusCode: 403,
-                });
+                constraint += 'id: none';
             }
         }
 
@@ -656,10 +629,7 @@ export class ACLManager {
         return authUser.client_id;
     }
 
-    private async _getCurrentUserInfo(
-        authUser: i.AuthUser,
-        user: Partial<models.User>
-    ): Promise<{ client_id: number; type: models.UserType }> {
+    private async _getCurrentUserInfo(authUser: i.AuthUser, user: Partial<models.User>): Promise<{ client_id: number; type: models.UserType }> {
         let currentUser: i.AuthUser;
         if (!user.id) {
             currentUser = user as models.User;
@@ -826,7 +796,7 @@ export class ACLManager {
                 });
             }
 
-            const dataTypes = views.map((view) => view.data_type);
+            const dataTypes = views.map(view => view.data_type);
             if (space.data_type && dataTypes.length && !dataTypes.includes(space.data_type)) {
                 throw new ts.TSError('Views must have the same data type', {
                     statusCode: 422,
@@ -834,7 +804,7 @@ export class ACLManager {
             }
 
             const roles: string[] = [];
-            views.forEach((view) => {
+            views.forEach(view => {
                 roles.push(...ts.uniq(view.roles));
             });
             if (ts.uniq(roles).length !== roles.length) {

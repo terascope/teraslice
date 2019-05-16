@@ -2,6 +2,7 @@ import React, { FormEvent, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toInteger } from '@terascope/utils';
 import { Form, Button } from 'semantic-ui-react';
+import { UserType } from '@terascope/data-access';
 import { useCoreContext, SuccessMessage, ErrorMessage } from '../../../core';
 import Mutation from './Mutation';
 import * as i from './interfaces';
@@ -24,6 +25,23 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
         key: role.id,
         text: role.name,
         value: role.id,
+    }));
+
+    const userTypes: UserType[] = [];
+
+    switch (authUser.type) {
+        case 'USER':
+            userTypes.push('USER');
+        case 'ADMIN':
+            userTypes.push('ADMIN');
+        case 'SUPERADMIN':
+            userTypes.push('SUPERADMIN');
+    }
+
+    const userTypeOptions = userTypes.map(type => ({
+        key: type,
+        text: type,
+        value: type,
     }));
 
     const required: (keyof i.Input)[] = [
@@ -176,11 +194,11 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
                                 <Form.Select
                                     {...getFieldProps({
                                         name: 'type',
-                                        label: 'Type',
-                                        placeholder: 'Select User Type',
+                                        label: 'Account Type',
+                                        placeholder: 'Select Account Type',
                                     })}
                                     disabled={authUser.type === 'USER'}
-                                    options={i.userTypeOptions}
+                                    options={userTypeOptions}
                                 />
                             </Form.Group>
                             <Form.Group>
@@ -243,7 +261,11 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
                             )}
                             {data && update && (
                                 <Form.Group>
-                                    <Form.Button basic floated="right" width={15}>
+                                    <Form.Button
+                                        basic
+                                        floated="right"
+                                        width={15}
+                                    >
                                         <Link to="/users">Done</Link>
                                     </Form.Button>
                                 </Form.Group>
@@ -257,7 +279,10 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
                             />
                         )}
                         {hasErrors && (
-                            <ErrorMessage error={errors.messages} attached="bottom" />
+                            <ErrorMessage
+                                error={errors.messages}
+                                attached="bottom"
+                            />
                         )}
                         {data && update && <SuccessMessage attached="bottom" />}
                         {data && create && (

@@ -16,26 +16,7 @@ export type Input = {
     api_token: string;
 };
 
-export const inputFields: (keyof Input)[] = [
-    'id',
-    'client_id',
-    'firstname',
-    'lastname',
-    'username',
-    'email',
-    'role',
-    'type',
-    'password',
-    'repeat_password',
-    'api_token',
-];
-
-export const userTypes: UserType[] = ['USER', 'ADMIN', 'SUPERADMIN'];
-export const userTypeOptions = userTypes.map(type => ({
-    key: type,
-    text: type,
-    value: type,
-}));
+export const inputFields: (keyof Input)[] = ['id', 'client_id', 'firstname', 'lastname', 'username', 'email', 'role', 'type', 'password', 'repeat_password', 'api_token'];
 
 export type Role = {
     id: string;

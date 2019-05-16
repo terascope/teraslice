@@ -1,9 +1,13 @@
 import React from 'react';
 import gql from 'graphql-tag';
 import { ApolloConsumer } from 'react-apollo';
-import { get } from '@terascope/utils';
 import ListQuery from './Query';
-import { DataTable, RowMapping, useCoreContext, formatDate } from '../../../core';
+import {
+    DataTable,
+    RowMapping,
+    useCoreContext,
+    formatDate,
+} from '../../../core';
 
 const List: React.FC = () => {
     const authUser = useCoreContext().authUser!;
@@ -21,12 +25,7 @@ const List: React.FC = () => {
             username: { label: 'Username' },
             firstname: { label: 'First Name' },
             lastname: { label: 'Last Name' },
-            role: {
-                label: 'Role',
-                format(record) {
-                    return get(record, 'role.name') || record.type;
-                },
-            },
+            role: { label: 'Role' },
             created: {
                 label: 'Created',
                 format(record) {
@@ -63,7 +62,9 @@ const List: React.FC = () => {
 
                                     await Promise.all(promises);
 
-                                    return `Successful deleted ${docs.length} records`;
+                                    return `Successful deleted ${
+                                        docs.length
+                                    } records`;
                                 }}
                                 loading={loading}
                                 records={records}

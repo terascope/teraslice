@@ -5,7 +5,12 @@ import { Query } from 'react-apollo';
 import { get } from '@terascope/utils';
 import { Segment } from 'semantic-ui-react';
 import * as i from './interfaces';
-import { ErrorPage, LoadingPage, ResolvedUser, useCoreContext } from '../../../core';
+import {
+    ErrorPage,
+    LoadingPage,
+    ResolvedUser,
+    useCoreContext,
+} from '../../../core';
 
 const FormQuery: React.FC<Props> = ({ component: Component, id }) => {
     const QUERY = id ? WITH_ID_QUERY : WITHOUT_ID_QUERY;
@@ -78,7 +83,6 @@ const WITH_ID_QUERY = gql`
         }
         user(id: $id) {
             id
-            client_id
             firstname
             lastname
             username

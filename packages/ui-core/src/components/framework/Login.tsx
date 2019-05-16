@@ -3,7 +3,13 @@ import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import { Redirect } from 'react-router-dom';
 import { Form, Button } from 'semantic-ui-react';
-import { LoadingPage, ErrorPage, Page, useCoreContext, ResolvedUser } from '../core';
+import {
+    LoadingPage,
+    ErrorPage,
+    Page,
+    useCoreContext,
+    ResolvedUser,
+} from '../core';
 import { get } from '@terascope/utils';
 
 type State = {
@@ -42,7 +48,7 @@ const Login: React.FC = (props: any) => {
             query={LOGIN}
             variables={variables}
             skip={!ready}
-            onCompleted={(data) => {
+            onCompleted={data => {
                 const authenticated = Boolean(get(data, 'authenticate.id'));
                 const authUser = get(data, 'authenticate');
                 updateState({ authenticated, authUser });
@@ -91,6 +97,7 @@ const LOGIN = gql`
     query Login($username: String, $password: String) {
         authenticate(username: $username, password: $password) {
             id
+            client_id
             firstname
             lastname
             username

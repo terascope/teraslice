@@ -7,7 +7,7 @@ import { RowMappingProp, RowMapping } from './interfaces';
 import { formatPath } from '../utils';
 import { canSelectFn } from './utils';
 
-const Body: React.FC<Props> = (props) => {
+const Body: React.FC<Props> = props => {
     const {
         records,
         selected,
@@ -22,7 +22,7 @@ const Body: React.FC<Props> = (props) => {
 
     return (
         <Table.Body>
-            {records.map((record) => {
+            {records.map(record => {
                 const canSelect = canSelectRecord(record);
                 const id = rowMapping.getId(record);
                 const isSelected = canSelect
@@ -40,17 +40,24 @@ const Body: React.FC<Props> = (props) => {
                         selected={isSelected}
                     >
                         <Table.Cell collapsing width={1} textAlign="center">
-                            <Checkbox checked={isSelected} disabled={!canSelect} />
+                            <Checkbox
+                                checked={isSelected}
+                                disabled={!canSelect}
+                            />
                         </Table.Cell>
                         {columns.map(([key, col], i) => {
                             const value = col.format
                                 ? col.format(record)
-                                : get(record, key);
+                                : get(record, key) || '--';
 
                             const editPath = formatPath(baseEditPath, id);
                             return (
                                 <Table.Cell key={`record-${id}-${key}`}>
-                                    {i > 0 ? value : <Link to={editPath}>{value}</Link>}
+                                    {i > 0 ? (
+                                        value
+                                    ) : (
+                                        <Link to={editPath}>{value}</Link>
+                                    )}
                                 </Table.Cell>
                             );
                         })}
