@@ -1,7 +1,7 @@
 import React, { FormEvent, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toInteger } from '@terascope/utils';
-import { Form, Button } from 'semantic-ui-react';
+import { Form } from 'semantic-ui-react';
 import {
     useCoreContext,
     SuccessMessage,
@@ -11,6 +11,7 @@ import {
 import Mutation from './Mutation';
 import * as i from './interfaces';
 import * as m from '../../ModelForm';
+import TokenForm from './TokenForm';
 
 const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
     const authUser = useCoreContext().authUser!;
@@ -18,7 +19,6 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
     const create = !update;
 
     const [model, setModel] = useState<i.Input>(input);
-    const [showToken, setShowToken] = useState(false);
 
     const [errors, setErrors] = useState<m.ErrorsState<i.Input>>({
         fields: [],
@@ -213,24 +213,7 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
                                 />
                             </Form.Group>
                             {update && (
-                                <Form.Group>
-                                    <Form.Input
-                                        type={showToken ? 'text' : 'password'}
-                                        label="API Token"
-                                        width={8}
-                                        value={model.api_token}
-                                    >
-                                        <input readOnly />
-                                        <Button
-                                            icon="eye"
-                                            basic
-                                            onClick={(e: any) => {
-                                                e.preventDefault();
-                                                setShowToken(!showToken);
-                                            }}
-                                        />
-                                    </Form.Input>
-                                </Form.Group>
+                                <TokenForm token={model.api_token} id={id!} />
                             )}
                             <Form.Group>
                                 <Form.Button

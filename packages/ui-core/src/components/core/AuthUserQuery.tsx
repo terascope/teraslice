@@ -59,8 +59,8 @@ function isAuthError(error: ApolloError) {
 export default AuthUserQuery;
 
 // Query
-const AUTH_QUERY = gql`
-    {
+export const AUTH_QUERY = gql`
+    query AuthQuery {
         authenticate {
             id
             client_id

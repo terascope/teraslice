@@ -35,7 +35,7 @@ export const PluginRoutesProp = PropTypes.arrayOf(
         icon: PropTypes.string.isRequired,
         hidden: PropTypes.bool,
         component: PropTypes.func.isRequired,
-        access: PropTypes.oneOf(UserTypes).isRequired,
+        access: PropTypes.oneOf(UserTypes),
         actions: PropTypes.arrayOf(PropTypes.string.isRequired),
     }).isRequired
 );
@@ -50,7 +50,7 @@ export type PluginConfig = {
 export const PluginConfigProp = PropTypes.shape({
     name: PropTypes.string.isRequired,
     basepath: PropTypes.string,
-    access: PropTypes.oneOf(UserTypes).isRequired,
+    access: PropTypes.oneOf(UserTypes),
     routes: PluginRoutesProp.isRequired,
 });
 

@@ -1,5 +1,5 @@
 import './index.css';
-import AuthUserQuery from './AuthUserQuery';
+import AuthUserQuery, { AUTH_QUERY } from './AuthUserQuery';
 import ErrorMessage from './ErrorMessage';
 import ErrorPage from './ErrorPage';
 import LoadingPage from './LoadingPage';
@@ -14,6 +14,7 @@ export * from './interfaces';
 export * from './utils';
 
 export {
+    AUTH_QUERY,
     AuthUserQuery,
     ErrorMessage,
     ErrorPage,
