@@ -81,9 +81,7 @@ export async function login(manager: ACLManager, req: Request, storeInSession = 
 
     if (loggedInUser && isSameUser(loggedInUser, creds)) {
         // fetch and update the user again
-        const user = await manager.findUser({ id: loggedInUser.id }, loggedInUser);
-        setLoggedInUser(req, user, storeInSession);
-        return user;
+        return manager.findUser({ id: loggedInUser.id }, loggedInUser);
     }
 
     const user = await manager.authenticate(creds);

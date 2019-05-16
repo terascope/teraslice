@@ -1,24 +1,30 @@
 'use strict';
 
-const express = require('express');
 const { join } = require('path');
 const { existsSync } = require('fs');
 
 let app;
+let express;
 let logger;
 
 module.exports = {
     config(config) {
-        ({ logger, app } = config);
+        ({ logger, app, express } = config);
     },
 
     routes() {
         const uri = '/v2/ui';
         const staticPath = join(__dirname, 'build');
+        const indexHtml = join(staticPath, 'index.html');
 
-        if (existsSync(join(staticPath, 'index.html'))) {
+        if (existsSync(indexHtml)) {
             logger.info(`Registering UI at ${uri}`);
-            app.use(uri, express.static(staticPath));
+            const router = express.Router();
+            router.use(express.static(staticPath));
+            router.get('*', (req, res) => {
+                res.sendFile(indexHtml);
+            });
+            app.use(uri, router);
         } else {
             throw new Error(`Failure to add UI at ${uri}, please build ui-core first`);
         }
