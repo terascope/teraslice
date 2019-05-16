@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Redirect } from 'react-router';
 import { Message, Icon } from 'semantic-ui-react';
@@ -6,22 +6,21 @@ import { Message, Icon } from 'semantic-ui-react';
 const SuccessMessage: React.FC<Props> = ({
     attached,
     title,
-    message,
-    redirectDelay,
+    message = 'Success!',
     redirectTo,
 }) => {
-    const [redirectNow, setRedirect] = useState(false);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (redirectNow) return;
-            setRedirect(true);
-        }, redirectDelay);
-
-        return () => {
-            clearTimeout(timer);
-        };
-    }, [redirectDelay, redirectNow]);
+    if (redirectTo) {
+        return (
+            <Redirect
+                to={{
+                    pathname: redirectTo,
+                    state: {
+                        message: { title, success: true, message },
+                    },
+                }}
+            />
+        );
+    }
 
     let content: React.ReactNode | undefined;
     if (Array.isArray(message)) {
@@ -40,8 +39,8 @@ const SuccessMessage: React.FC<Props> = ({
         <Message icon success attached={attached}>
             <Icon name="thumbs up outline" />
             <Message.Content>
-                <Message.Header>{title || 'Success!'}</Message.Header>
-                {redirectNow && redirectTo ? <Redirect to={redirectTo} /> : content}
+                <Message.Header>{title}</Message.Header>
+                {content}
             </Message.Content>
         </Message>
     );
@@ -50,16 +49,14 @@ const SuccessMessage: React.FC<Props> = ({
 type Props = {
     title?: string;
     redirectTo?: string;
-    redirectDelay?: number;
     attached?: 'bottom' | 'top';
     loading?: boolean;
-    message?: React.ReactElement | string[];
+    message?: string | string[];
 };
 
 SuccessMessage.propTypes = {
     title: PropTypes.string,
     redirectTo: PropTypes.string,
-    redirectDelay: PropTypes.number,
     attached: PropTypes.oneOf(['bottom', 'top']),
     loading: PropTypes.any,
     message: PropTypes.any,

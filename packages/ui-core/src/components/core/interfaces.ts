@@ -72,3 +72,9 @@ export type CoreContextState = {
     plugins: PluginConfig[];
     updateState(updates: Partial<CoreContextState>): void;
 };
+
+export const UserPermissionMap: { [key in UserType]: UserType[] } = {
+    USER: ['USER'],
+    ADMIN: ['USER', 'ADMIN'],
+    SUPERADMIN: ['USER', 'ADMIN', 'SUPERADMIN'],
+};

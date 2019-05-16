@@ -113,35 +113,27 @@ const ModelForm: React.FC<m.ComponentProps<i.Input>> = ({ id, input }) => {
                                     width={8}
                                 />
                             </Form.Group>
-                            {!data && (
-                                <Form.Group>
-                                    <Form.Button
-                                        basic
-                                        floated="right"
-                                        width={15}
-                                        onClick={e => e.preventDefault()}
-                                    >
-                                        <Link to="/roles">Cancel</Link>
-                                    </Form.Button>
-                                    <Form.Button
-                                        width={2}
-                                        type="submit"
-                                        floated="right"
-                                        loading={loading}
-                                        fluid
-                                        primary
-                                    >
-                                        Submit
-                                    </Form.Button>
-                                </Form.Group>
-                            )}
-                            {data && update && (
-                                <Form.Group>
-                                    <Form.Button basic floated="right" width={15}>
-                                        <Link to="/roles">Done</Link>
-                                    </Form.Button>
-                                </Form.Group>
-                            )}
+                            <Form.Group>
+                                <Form.Button
+                                    basic
+                                    floated="right"
+                                    width={15}
+                                    onClick={e => e.preventDefault()}
+                                >
+                                    <Link to="/roles">Cancel</Link>
+                                </Form.Button>
+                                <Form.Button
+                                    width={2}
+                                    type="submit"
+                                    floated="right"
+                                    loading={loading}
+                                    fluid
+                                    disabled={hasErrors}
+                                    primary
+                                >
+                                    Submit
+                                </Form.Button>
+                            </Form.Group>
                         </Form>
                         {error && (
                             <ErrorMessage
@@ -151,13 +143,17 @@ const ModelForm: React.FC<m.ComponentProps<i.Input>> = ({ id, input }) => {
                             />
                         )}
                         {hasErrors && (
-                            <ErrorMessage error={errors.messages} attached="bottom" />
+                            <ErrorMessage
+                                error={errors.messages}
+                                attached="bottom"
+                            />
                         )}
                         {data && update && <SuccessMessage attached="bottom" />}
                         {data && create && (
                             <SuccessMessage
                                 attached="bottom"
-                                redirectTo={`/roles/edit/${data.id}`}
+                                redirectTo="/roles"
+                                message="Successfully created role"
                             />
                         )}
                     </div>

@@ -14,55 +14,58 @@ import {
 
 const searchFields: (keyof Role)[] = ['name'];
 
-const ListQuery = tsWithRouter<Props>(({ history, location, children: Component }) => {
-    const state: QueryState = Object.assign(
-        {
-            query: '*',
-            size: 10,
-        },
-        parse(location.search)
-    );
+const ListQuery = tsWithRouter<Props>(
+    ({ history, location, children: Component }) => {
+        const state: QueryState = Object.assign(
+            {
+                query: '*',
+                size: 10,
+            },
+            parse(location.search)
+        );
 
-    if (state.size) state.size = toNumber(state.size);
-    if (state.from) state.from = toNumber(state.from);
+        if (state.size) state.size = toNumber(state.size);
+        if (state.from) state.from = toNumber(state.from);
 
-    const updateQueryState = (updates: QueryState) => {
-        history.push({
-            search: stringify({ ...state, ...updates }),
-        });
-    };
+        const updateQueryState = (updates: QueryState) => {
+            console.log('HERE', updates);
+            history.push({
+                search: stringify({ ...state, ...updates }),
+            });
+        };
 
-    const variables =
-        state.query && state.query !== '*'
-            ? {
-                ...state,
-                query: formatRegexQuery(state.query || '', searchFields),
-            }
-            : state;
-
-    return (
-        <Query query={QUERY} variables={variables}>
-            {({ loading, error, data }) => {
-                if (error) return <ErrorPage error={error} />;
-                if (!data && !loading) {
-                    return <ErrorPage error="Unexpected Error" />;
+        const variables =
+            state.query && state.query !== '*'
+                ? {
+                    ...state,
+                    query: formatRegexQuery(state.query || '', searchFields),
                 }
-                const records = (data && data.roles) || [];
-                const total = (data && data.rolesCount) || 0;
+                : state;
 
-                return (
-                    <Component
-                        queryState={state}
-                        total={total}
-                        loading={loading}
-                        records={records}
-                        updateQueryState={updateQueryState}
-                    />
-                );
-            }}
-        </Query>
-    );
-});
+        return (
+            <Query query={QUERY} variables={variables}>
+                {({ loading, error, data }) => {
+                    if (error) return <ErrorPage error={error} />;
+                    if (!data && !loading) {
+                        return <ErrorPage error="Unexpected Error" />;
+                    }
+                    const records = (data && data.roles) || [];
+                    const total = (data && data.rolesCount) || 0;
+
+                    return (
+                        <Component
+                            queryState={state}
+                            total={total}
+                            loading={loading}
+                            records={records}
+                            updateQueryState={updateQueryState}
+                        />
+                    );
+                }}
+            </Query>
+        );
+    }
+);
 
 type ComponentProps = {
     queryState: QueryState;
@@ -84,6 +87,7 @@ const QUERY = gql`
         roles(query: $query, from: $from, size: $size, sort: $sort) {
             id
             name
+            description
             updated
             created
         }

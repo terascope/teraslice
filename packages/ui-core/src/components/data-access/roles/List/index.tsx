@@ -2,15 +2,22 @@ import React from 'react';
 import gql from 'graphql-tag';
 import { ApolloConsumer } from 'react-apollo';
 import ListQuery from './Query';
-import { DataTable, RowMapping, formatDate } from '../../../core';
+import {
+    DataTable,
+    RowMapping,
+    formatDate,
+    useCoreContext,
+} from '../../../core';
 
 const List: React.FC = () => {
+    const authUser = useCoreContext().authUser!;
+
     const rowMapping: RowMapping = {
         getId(record) {
             return record.id;
         },
-        canRemove(record) {
-            if (record.type === 'SUPERADMIN') return false;
+        canRemove() {
+            if (authUser.type === 'USER') return false;
             return true;
         },
         columns: {
@@ -57,7 +64,9 @@ const List: React.FC = () => {
 
                                     await Promise.all(promises);
 
-                                    return `Successful deleted ${docs.length} records`;
+                                    return `Successful deleted ${
+                                        docs.length
+                                    } records`;
                                 }}
                                 loading={loading}
                                 records={records}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, FormEvent } from 'react';
 import PropTypes from 'prop-types';
 import { Menu, Input, Icon, Table, Button, Label } from 'semantic-ui-react';
 import ConfirmRemoval from './ConfirmRemoval';
@@ -30,7 +30,9 @@ const Toolbar: React.FC<Props> = props => {
                                 >
                                     <Button
                                         icon
-                                        color={numSelected > 0 ? 'red' : undefined}
+                                        color={
+                                            numSelected > 0 ? 'red' : undefined
+                                        }
                                     >
                                         <Icon name="trash alternate" />
                                     </Button>
@@ -45,10 +47,17 @@ const Toolbar: React.FC<Props> = props => {
                         <Menu.Item position="right">
                             <form onSubmit={submitQuery}>
                                 <Input
-                                    icon="search"
+                                    action={
+                                        <Button
+                                            basic
+                                            icon="search"
+                                            onClick={submitQuery}
+                                        />
+                                    }
                                     value={query === '*' ? '' : query}
-                                    onChange={(e: any, { value }) => updateQuery(value)}
-                                    onClick={submitQuery}
+                                    onChange={(e: FormEvent, { value }) => {
+                                        updateQuery(value);
+                                    }}
                                     placeholder="Search ..."
                                 />
                             </form>

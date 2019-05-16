@@ -5,6 +5,7 @@ import ErrorPage from './ErrorPage';
 import LoadingPage from './LoadingPage';
 import Page from './Page';
 import PluginPage from './PluginPage';
+import StateMessage from './StateMessage';
 import SuccessMessage from './SuccessMessage';
 
 export * from './DataTable';
@@ -19,5 +20,6 @@ export {
     LoadingPage,
     Page,
     PluginPage,
+    StateMessage,
     SuccessMessage,
 };

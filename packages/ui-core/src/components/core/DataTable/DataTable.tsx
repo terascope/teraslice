@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Table, Segment } from 'semantic-ui-react';
 import SuccessMessage from '../SuccessMessage';
+import StateMessage from '../StateMessage';
 import ErrorMessage from '../ErrorMessage';
 import { canSelectFn } from './utils';
 import * as i from './interfaces';
@@ -61,7 +62,7 @@ const DataTable: React.FC<Props> = props => {
     const numCols = Object.keys(rowMapping.columns).length + 1;
 
     return (
-        <Segment loading={loading || actionState.loading}>
+        <Segment loading={loading || actionState.loading} basic>
             <Table sortable celled compact definition>
                 <Toolbar
                     numSelected={selected.length}
@@ -79,7 +80,9 @@ const DataTable: React.FC<Props> = props => {
                                         return rowMapping.getId(record) === id;
                                     })
                                 );
-                                const message = await removeRecords(selectedAll || docs);
+                                const message = await removeRecords(
+                                    selectedAll || docs
+                                );
 
                                 setActionState({
                                     loading: false,
@@ -147,11 +150,15 @@ const DataTable: React.FC<Props> = props => {
                 />
             </Table>
             {actionState.success && (
-                <SuccessMessage attached="bottom">{actionState.message}</SuccessMessage>
+                <SuccessMessage
+                    attached="bottom"
+                    message={actionState.message}
+                />
             )}
             {actionState.error && (
                 <ErrorMessage attached="bottom" error={actionState.message} />
             )}
+            <StateMessage attached="bottom" />
         </Segment>
     );
 };

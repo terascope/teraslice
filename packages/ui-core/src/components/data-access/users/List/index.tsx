@@ -25,7 +25,7 @@ const List: React.FC = () => {
             username: { label: 'Username' },
             firstname: { label: 'First Name' },
             lastname: { label: 'Last Name' },
-            role: { label: 'Role' },
+            'role.name': { label: 'Role' },
             created: {
                 label: 'Created',
                 format(record) {

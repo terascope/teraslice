@@ -2,8 +2,12 @@ import React, { FormEvent, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toInteger } from '@terascope/utils';
 import { Form, Button } from 'semantic-ui-react';
-import { UserType } from '@terascope/data-access';
-import { useCoreContext, SuccessMessage, ErrorMessage } from '../../../core';
+import {
+    useCoreContext,
+    SuccessMessage,
+    ErrorMessage,
+    UserPermissionMap,
+} from '../../../core';
 import Mutation from './Mutation';
 import * as i from './interfaces';
 import * as m from '../../ModelForm';
@@ -27,16 +31,7 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
         value: role.id,
     }));
 
-    const userTypes: UserType[] = [];
-
-    switch (authUser.type) {
-        case 'USER':
-            userTypes.push('USER');
-        case 'ADMIN':
-            userTypes.push('ADMIN');
-        case 'SUPERADMIN':
-            userTypes.push('SUPERADMIN');
-    }
+    const userTypes = UserPermissionMap[authUser.type];
 
     const userTypeOptions = userTypes.map(type => ({
         key: type,
@@ -237,39 +232,27 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
                                     </Form.Input>
                                 </Form.Group>
                             )}
-                            {!data && (
-                                <Form.Group>
-                                    <Form.Button
-                                        basic
-                                        floated="right"
-                                        width={15}
-                                        onClick={e => e.preventDefault()}
-                                    >
-                                        <Link to="/users">Cancel</Link>
-                                    </Form.Button>
-                                    <Form.Button
-                                        width={2}
-                                        type="submit"
-                                        floated="right"
-                                        loading={loading}
-                                        fluid
-                                        primary
-                                    >
-                                        Submit
-                                    </Form.Button>
-                                </Form.Group>
-                            )}
-                            {data && update && (
-                                <Form.Group>
-                                    <Form.Button
-                                        basic
-                                        floated="right"
-                                        width={15}
-                                    >
-                                        <Link to="/users">Done</Link>
-                                    </Form.Button>
-                                </Form.Group>
-                            )}
+                            <Form.Group>
+                                <Form.Button
+                                    basic
+                                    floated="right"
+                                    width={15}
+                                    onClick={e => e.preventDefault()}
+                                >
+                                    <Link to="/users">Cancel</Link>
+                                </Form.Button>
+                                <Form.Button
+                                    width={2}
+                                    type="submit"
+                                    floated="right"
+                                    loading={loading}
+                                    fluid
+                                    disabled={hasErrors}
+                                    primary
+                                >
+                                    Submit
+                                </Form.Button>
+                            </Form.Group>
                         </Form>
                         {error && (
                             <ErrorMessage
@@ -288,7 +271,8 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
                         {data && create && (
                             <SuccessMessage
                                 attached="bottom"
-                                redirectTo={`/users/edit/${data.id}`}
+                                redirectTo="/users"
+                                message="Successfully created user"
                             />
                         )}
                     </div>

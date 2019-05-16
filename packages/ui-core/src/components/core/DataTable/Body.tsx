@@ -48,7 +48,7 @@ const Body: React.FC<Props> = props => {
                         {columns.map(([key, col], i) => {
                             const value = col.format
                                 ? col.format(record)
-                                : get(record, key) || '--';
+                                : getValue(record, key);
 
                             const editPath = formatPath(baseEditPath, id);
                             return (
@@ -67,6 +67,10 @@ const Body: React.FC<Props> = props => {
         </Table.Body>
     );
 };
+
+function getValue(record: any, key: string) {
+    return get(record, key) || '--';
+}
 
 type Props = {
     rowMapping: RowMapping;
