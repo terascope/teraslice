@@ -1,69 +1,79 @@
 import React, { useState } from 'react';
 import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
-import { get } from '@terascope/utils';
-import { ApolloConsumer } from 'react-apollo';
+import { Mutation } from 'react-apollo';
 import { Form, Button } from 'semantic-ui-react';
-import { AUTH_QUERY } from '../../../core';
+import { AUTH_QUERY, ErrorMessage } from '../../../core';
 import { WITHOUT_ID_QUERY } from './Query';
+import { get } from '@terascope/utils';
 
-const TokenForm: React.FC<Props> = ({ token: _token, id }) => {
-    const [showToken, setShowToken] = useState(false);
-    const [token, setToken] = useState(_token);
+const TokenForm: React.FC<Props> = ({ token, id }) => {
+    const [_showToken, setShowToken] = useState(false);
+
+    const refetchQueries = [
+        { query: AUTH_QUERY },
+        {
+            query: WITHOUT_ID_QUERY,
+            variables: { id },
+        },
+    ];
 
     return (
-        <ApolloConsumer>
-            {client => {
+        <UpdateToken
+            mutation={UPDATE_TOKEN}
+            variables={{ id }}
+            refetchQueries={refetchQueries}
+        >
+            {(submit, { loading, data, error }) => {
+                const newToken = get(data, 'updateToken');
+                const tokenValue = newToken || token;
+                const showToken = _showToken || loading || newToken;
                 return (
-                    <Form.Input
-                        type={showToken ? 'text' : 'password'}
-                        label="API Token"
-                        width={8}
-                        value={token}
-                    >
-                        <input readOnly />
-                        <Button
-                            icon="eye"
-                            basic
-                            onClick={(e: any) => {
-                                e.preventDefault();
-                                setShowToken(!showToken);
-                            }}
-                        />
-                        <Button
-                            icon="redo"
-                            onClick={async (e: any) => {
-                                e.preventDefault();
-                                const result = await client.mutate({
-                                    mutation: UPDATE_TOKEN,
-                                    variables: {
-                                        id,
-                                    },
-                                    refetchQueries: [
-                                        { query: AUTH_QUERY },
-                                        {
-                                            query: WITHOUT_ID_QUERY,
-                                            variables: { id },
-                                        },
-                                    ],
-                                });
-
-                                const newToken = get(
-                                    result,
-                                    'data.updateToken'
-                                );
-
-                                if (newToken) {
-                                    setToken(newToken);
-                                }
-                            }}
-                        />
-                    </Form.Input>
+                    <Form.Group>
+                        <Form.Input
+                            type={showToken || loading ? 'text' : 'password'}
+                            label="API Token"
+                            width={8}
+                            loading={loading}
+                            value={tokenValue}
+                        >
+                            <input readOnly />
+                            <Button
+                                icon="eye"
+                                basic
+                                onClick={(e: any) => {
+                                    e.preventDefault();
+                                    setShowToken(!showToken);
+                                }}
+                            />
+                            <Button
+                                icon="redo"
+                                label="New Token"
+                                labelPosition="left"
+                                loading={loading}
+                                onClick={async (e: any) => {
+                                    e.preventDefault();
+                                    submit();
+                                }}
+                            />
+                        </Form.Input>
+                        {error && <ErrorMessage error={error} />}
+                    </Form.Group>
                 );
             }}
-        </ApolloConsumer>
+        </UpdateToken>
     );
 };
+
+type Response = {
+    updateToken: string;
+};
+
+type Vars = {
+    id: string;
+};
+
+class UpdateToken extends Mutation<Response, Vars> {}
 
 const UPDATE_TOKEN = gql`
     mutation UpdateToken($id: ID!) {
