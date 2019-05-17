@@ -17,3 +17,7 @@
 .simplePageContent {
     flex: 1;
 }
+
+.messageText {
+    padding: 1rem 0;
+}

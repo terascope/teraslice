@@ -40,11 +40,16 @@ const ErrorMessage: React.FC<Props> = ({
             </Message.List>
         );
     } else {
-        content = parseError(error);
+        content = <div className="messageText">{parseError(error)}</div>;
     }
 
     return (
-        <Message icon error attached={attached}>
+        <Message
+            icon
+            error
+            attached={attached}
+            size={attached ? 'small' : 'large'}
+        >
             <Icon name="times circle outline" />
             <Message.Content>
                 <Message.Header>{title}</Message.Header>

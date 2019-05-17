@@ -32,11 +32,16 @@ const SuccessMessage: React.FC<Props> = ({
             </Message.List>
         );
     } else {
-        content = message;
+        content = <div className="messageText">{message}</div>;
     }
 
     return (
-        <Message icon success attached={attached}>
+        <Message
+            icon
+            success
+            attached={attached}
+            size={attached ? 'small' : 'large'}
+        >
             <Icon name="thumbs up outline" />
             <Message.Content>
                 <Message.Header>{title}</Message.Header>

@@ -50,6 +50,9 @@ function getInput(authUser: ResolvedUser, data: any): i.Input {
         input.client_id = authUser.client_id;
     }
     if (!input.type) input.type = 'USER';
+    if (input.type === 'SUPERADMIN') {
+        input.client_id = 0;
+    }
     return input;
 }
 
@@ -83,6 +86,7 @@ export const WITH_ID_QUERY = gql`
         }
         user(id: $id) {
             id
+            client_id
             firstname
             lastname
             username

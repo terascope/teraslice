@@ -30,7 +30,7 @@ const PluginPage = tsWithRouter(({ location, match }) => {
     const PageComponent = route.component;
 
     return (
-        <Page title={route.name} actions={actions}>
+        <Page title={route.name} actions={actions} fullWidth>
             <PageComponent {...match.params} />
         </Page>
     );

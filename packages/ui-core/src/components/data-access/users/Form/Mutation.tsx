@@ -52,13 +52,13 @@ const MutationQuery: React.FC<Props> = ({ id, children }) => {
     if (id) {
         refetchQueries.push({ query: WITH_ID_QUERY, variables: { id } });
     } else {
-        refetchQueries.push({ query: WITHOUT_ID_QUERY, variables: { id } });
+        refetchQueries.push({ query: WITHOUT_ID_QUERY });
     }
 
     return (
         <AnyMutationQuery
             mutation={update ? UPDATE_QUERY : CREATE_QUERY}
-            refetchQueries={LIST_QUERY}
+            refetchQueries={refetchQueries}
         >
             {(action, result) => {
                 let data: any;

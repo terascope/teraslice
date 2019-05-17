@@ -19,7 +19,10 @@ const ModelForm: React.FC<m.ComponentProps<i.Input>> = ({ id, input }) => {
         messages: [],
     });
 
-    const required: (keyof i.Input)[] = ['name', 'client_id'];
+    const required: (keyof i.Input)[] = ['name'];
+    if (authUser.type === 'SUPERADMIN') {
+        required.push('client_id');
+    }
 
     const validate = (isSubmit = false): boolean => {
         const errs: m.ErrorsState<i.Input> = {
@@ -28,8 +31,10 @@ const ModelForm: React.FC<m.ComponentProps<i.Input>> = ({ id, input }) => {
         };
 
         const clientId = toInteger(model.client_id);
-        if (clientId === false) {
-            errs.messages.push('Client ID must be an valid number');
+        if (clientId === false || clientId < 1) {
+            errs.messages.push(
+                'Client ID must be an valid number greater than zero'
+            );
             errs.fields.push('client_id');
         } else {
             model.client_id = clientId;

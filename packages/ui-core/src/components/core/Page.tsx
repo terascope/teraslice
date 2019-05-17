@@ -5,9 +5,9 @@ import { PageAction, PageActionProp } from './interfaces';
 import { tsWithRouter } from './utils';
 
 const Page = tsWithRouter<Props>(
-    ({ title, actions = [], history, children }) => {
+    ({ title, actions = [], history, children, fullWidth }) => {
         return (
-            <Container fluid>
+            <Container fluid={fullWidth}>
                 <Segment padded>
                     <Menu secondary>
                         <Menu.Header as="h2" className="pageTitle">
@@ -47,11 +47,13 @@ const Page = tsWithRouter<Props>(
 
 type Props = {
     title: string;
+    fullWidth?: boolean;
     actions?: PageAction[];
 };
 
 Page.propTypes = {
     title: PropTypes.string.isRequired,
+    fullWidth: PropTypes.bool,
     actions: PropTypes.arrayOf(PageActionProp.isRequired),
 };
 

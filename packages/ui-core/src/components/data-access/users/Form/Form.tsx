@@ -44,8 +44,11 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
         'firstname',
         'lastname',
         'type',
-        'client_id',
     ];
+
+    if (create) {
+        required.push('client_id');
+    }
 
     const validate = (isSubmit = false): boolean => {
         const errs: m.ErrorsState<i.Input> = {
@@ -70,6 +73,10 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
                 errs.messages.push('Client ID must be greater than zero');
                 errs.fields.push('client_id');
             }
+        }
+
+        if (model.type === 'SUPERADMIN') {
+            model.client_id = 0;
         }
 
         if (isSubmit) {
@@ -148,6 +155,7 @@ const ModelForm: React.FC<i.ComponentProps> = ({ roles, id, input }) => {
                                 />
                                 {authUser.type === 'SUPERADMIN' && (
                                     <Form.Input
+                                        disabled={model.type === 'SUPERADMIN'}
                                         {...getFieldProps({
                                             name: 'client_id',
                                             label: 'Client ID',
