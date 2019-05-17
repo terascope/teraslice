@@ -33,9 +33,9 @@
     },
     "dependencies": {
         "@terascope/data-access": "^0.8.0",
+        "@terascope/elasticsearch-api": "^2.0.2",
         "@terascope/utils": "^0.10.1",
         "apollo-server-express": "^2.5.0",
-        "@terascope/elasticsearch-api": "^2.0.2",
         "elasticsearch-store": "^0.6.2",
         "graphql": "^14.3.0",
         "graphql-iso-date": "^3.6.1",
@@ -51,7 +51,7 @@
         "@types/graphql-iso-date": "^3.3.1",
         "@types/graphql-type-json": "^0.3.0",
         "elasticsearch": "^15.4.1",
-        "express": "^4.16.4",
+        "express": "^4.17.0",
         "got": "^9.6.0",
         "graphql-request": "^1.8.2"
     }
