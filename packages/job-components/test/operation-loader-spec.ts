@@ -4,8 +4,6 @@ import fse from 'fs-extra';
 import path from 'path';
 import { OperationLoader, LegacyProcessor, LegacyReader, newTestExecutionConfig, debugLogger, TestContext, WorkerContext } from '../src';
 
-jest.setTimeout(10000); // sometimes this takes a long time
-
 describe('OperationLoader', () => {
     const logger = debugLogger('operation-loader');
     const assetId = '1234';
@@ -16,7 +14,7 @@ describe('OperationLoader', () => {
     const context = new TestContext('teraslice-op-loader');
 
     beforeAll(async () => {
-        await fse.copy(processorPath, path.join(assetPath, 'example-filter-op'));
+        await fse.copySync(processorPath, path.join(assetPath, 'example-filter-op'));
     });
 
     it('should instantiate', () => {
