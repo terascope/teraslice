@@ -61,8 +61,9 @@ main() {
 
     projectDir="$(pwd)"
 
-    for package in "${projectDir}/packages/"*; do
-        cd "$package" || continue
+    for name in $(yarn --silent lerna list --toposort); do
+        local package="${name#\@terascope}"
+        cd "$projectDir/packages/$package" || continue
         publish "$dryRun"
     done
 
