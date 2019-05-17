@@ -1,15 +1,12 @@
 import * as es from 'elasticsearch';
 import * as store from 'elasticsearch-store';
 import { TSError, Omit } from '@terascope/utils';
-import usersConfig, {
-    User,
-    UserType
-} from './config/users';
+import usersConfig, { User, UserType } from './config/users';
 import * as utils from '../utils';
 
 /**
  * Manager for Users
-*/
+ */
 export class Users extends store.IndexModel<User> {
     static PrivateFields: string[] = ['api_token', 'salt', 'hash'];
     static IndexModelConfig = usersConfig;
@@ -48,7 +45,7 @@ export class Users extends store.IndexModel<User> {
 
     /**
      * Authenticate the user
-    */
+     */
     async authenticate(username: string, password: string): Promise<User> {
         let user: User;
 
@@ -57,7 +54,7 @@ export class Users extends store.IndexModel<User> {
         } catch (err) {
             if (err && err.statusCode === 404) {
                 throw new TSError('Unable to authenticate user', {
-                    statusCode: 403
+                    statusCode: 403,
                 });
             }
 
@@ -68,7 +65,7 @@ export class Users extends store.IndexModel<User> {
 
         if (user.hash !== hash) {
             throw new TSError('Unable to authenticate user with credentials', {
-                statusCode: 403
+                statusCode: 403,
             });
         }
 
@@ -77,14 +74,14 @@ export class Users extends store.IndexModel<User> {
 
     /**
      * Update the API Token for a user
-    */
+     */
     async updateToken(id: string): Promise<string> {
         const user = await super.findByAnyId(id);
         const apiToken = await utils.generateAPIToken(user.hash, user.username);
 
         await super.update({
             id: user.id,
-            api_token: apiToken
+            api_token: apiToken,
         });
 
         return apiToken;
@@ -96,7 +93,7 @@ export class Users extends store.IndexModel<User> {
     async authenticateWithToken(apiToken?: string): Promise<User> {
         if (!apiToken) {
             throw new TSError('Missing api_token for authentication', {
-                statusCode: 401
+                statusCode: 401,
             });
         }
 
@@ -105,7 +102,7 @@ export class Users extends store.IndexModel<User> {
         } catch (err) {
             if (err && err.statusCode === 404) {
                 throw new TSError('Unable to authenticate user with api token', {
-                    statusCode: 403
+                    statusCode: 403,
                 });
             }
 
@@ -117,7 +114,7 @@ export class Users extends store.IndexModel<User> {
         if (!user) return false;
 
         const fields = Object.keys(user);
-        return Users.PrivateFields.some((field) => {
+        return Users.PrivateFields.some(field => {
             return fields.includes(field);
         });
     }
@@ -128,7 +125,7 @@ export class Users extends store.IndexModel<User> {
             try {
                 await this.update({
                     id,
-                    role: ''
+                    role: '',
                 });
             } catch (err) {
                 if (err && err.statusCode === 404) {
@@ -141,6 +138,6 @@ export class Users extends store.IndexModel<User> {
     }
 }
 
-type CreateUserInput = Omit<store.CreateRecordInput<User>, 'api_token'|'hash'|'salt'>;
-type UpdateUserInput = Omit<store.UpdateRecordInput<User>, 'api_token'|'hash'|'salt'>;
+type CreateUserInput = Omit<store.CreateRecordInput<User>, 'api_token' | 'hash' | 'salt'>;
+type UpdateUserInput = Omit<store.UpdateRecordInput<User>, 'api_token' | 'hash' | 'salt'>;
 export { User, UserType, CreateUserInput, UpdateUserInput };

@@ -3,20 +3,25 @@ import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { Mutation } from 'react-apollo';
 import { Form, Button } from 'semantic-ui-react';
-import { AUTH_QUERY, ErrorMessage } from '../../../core';
-import { WITHOUT_ID_QUERY } from './Query';
+import { AUTH_QUERY, ErrorMessage, useCoreContext } from '../../../core';
+import { WITH_ID_QUERY } from './Query';
 import { get } from '@terascope/utils';
+import { PureQueryOptions } from 'apollo-boost';
 
 const TokenForm: React.FC<Props> = ({ token, id }) => {
+    const authUser = useCoreContext().authUser!;
     const [_showToken, setShowToken] = useState(false);
 
-    const refetchQueries = [
-        { query: AUTH_QUERY },
+    const refetchQueries: PureQueryOptions[] = [
         {
-            query: WITHOUT_ID_QUERY,
+            query: WITH_ID_QUERY,
             variables: { id },
         },
     ];
+
+    if ([authUser.username, authUser.id].includes(id)) {
+        refetchQueries.push({ query: AUTH_QUERY });
+    }
 
     return (
         <UpdateToken

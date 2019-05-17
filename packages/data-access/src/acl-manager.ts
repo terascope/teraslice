@@ -632,8 +632,8 @@ export class ACLManager {
         let currentUser: i.AuthUser;
         if (!user.id) {
             currentUser = user as models.User;
-        } else if (authUser && authUser.id !== user.id) {
-            currentUser = await this._users.findById(user.id);
+        } else if (!isAuthUser(authUser, user)) {
+            currentUser = await this._users.findByAnyId(user.id);
         } else {
             currentUser = authUser;
         }
@@ -733,7 +733,7 @@ export class ACLManager {
             });
         }
 
-        if (authUser && authType === 'USER' && authUser.id !== user.id) {
+        if (authUser && authType === 'USER' && !isAuthUser(authUser, user)) {
             throw new ts.TSError("User doesn't have permission to write to other users", {
                 statusCode: 403,
             });
@@ -891,4 +891,9 @@ export class ACLManager {
             });
         }
     }
+}
+
+function isAuthUser(authUser: i.AuthUser, user: Partial<models.User>): boolean {
+    if (!authUser || !user.id) return false;
+    return [authUser.id, authUser.username].includes(user.id);
 }

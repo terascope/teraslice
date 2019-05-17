@@ -213,9 +213,7 @@ describe('ACLManager Permissions', () => {
                 );
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude(
-                    "User doesn't have permission to write to users outside of the their client id"
-                );
+                expect(err.message).toInclude("User doesn't have permission to write to users outside of the their client id");
                 expect(err.statusCode).toEqual(403);
             }
         });
@@ -227,6 +225,15 @@ describe('ACLManager Permissions', () => {
                         id: otherUser.id,
                         firstname: 'Otherrr',
                     },
+                },
+                adminUser
+            );
+        });
+
+        it('should be allowed to update another users token by username', async () => {
+            await manager.updateToken(
+                {
+                    id: otherUser.username,
                 },
                 adminUser
             );
@@ -247,9 +254,7 @@ describe('ACLManager Permissions', () => {
                 );
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude(
-                    "User doesn't have permission to write to users outside of the their client id"
-                );
+                expect(err.message).toInclude("User doesn't have permission to write to users outside of the their client id");
                 expect(err.statusCode).toEqual(403);
             }
         });
