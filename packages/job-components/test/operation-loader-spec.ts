@@ -2,15 +2,9 @@ import 'jest-extended'; // require for type definitions
 import { createTempDirSync } from 'jest-fixtures';
 import fse from 'fs-extra';
 import path from 'path';
-import {
-    OperationLoader,
-    LegacyProcessor,
-    LegacyReader,
-    newTestExecutionConfig,
-    debugLogger,
-    TestContext,
-    WorkerContext,
-} from '../src';
+import { OperationLoader, LegacyProcessor, LegacyReader, newTestExecutionConfig, debugLogger, TestContext, WorkerContext } from '../src';
+
+jest.setTimeout(10000); // sometimes this takes a long time
 
 describe('OperationLoader', () => {
     const logger = debugLogger('operation-loader');
@@ -121,7 +115,7 @@ describe('OperationLoader', () => {
         expect(processor).toBeDefined();
         expect(processor).toBeFunction();
 
-        const someData =  [{ key: 'someData' }];
+        const someData = [{ key: 'someData' }];
         const processorResults = await processor(someData, logger, {});
         expect(processorResults).toEqual([]);
     });
@@ -129,11 +123,11 @@ describe('OperationLoader', () => {
     it('should load the new processor', () => {
         const exConfig = newTestExecutionConfig();
         const opConfig = {
-            _op: 'example-op'
+            _op: 'example-op',
         };
 
         exConfig.operations.push({
-            _op: 'example-reader'
+            _op: 'example-reader',
         });
         exConfig.operations.push(opConfig);
 
@@ -164,11 +158,11 @@ describe('OperationLoader', () => {
     it('should load a shimmed processor', () => {
         const exConfig = newTestExecutionConfig();
         const opConfig = {
-            _op: 'example-op'
+            _op: 'example-op',
         };
 
         exConfig.operations.push({
-            _op: 'example-reader'
+            _op: 'example-reader',
         });
         exConfig.operations.push(opConfig);
 
@@ -195,7 +189,7 @@ describe('OperationLoader', () => {
     it('should load the new reader', () => {
         const exConfig = newTestExecutionConfig();
         const opConfig = {
-            _op: 'example-reader'
+            _op: 'example-reader',
         };
 
         exConfig.operations.push(opConfig);
@@ -236,7 +230,7 @@ describe('OperationLoader', () => {
     it('should load a shimmed reader', () => {
         const exConfig = newTestExecutionConfig();
         const opConfig = {
-            _op: 'test-reader'
+            _op: 'test-reader',
         };
 
         exConfig.operations.push(opConfig);
@@ -274,9 +268,7 @@ describe('OperationLoader', () => {
             assetPath: path.join(__dirname),
         });
 
-        const op = opLoader.loadAPI('example-api', [
-            'fixtures'
-        ]);
+        const op = opLoader.loadAPI('example-api', ['fixtures']);
 
         expect(op.API).not.toBeNil();
         expect(() => {
@@ -293,9 +285,7 @@ describe('OperationLoader', () => {
             assetPath: path.join(__dirname),
         });
 
-        const op = opLoader.loadAPI('example-api:hello', [
-            'fixtures'
-        ]);
+        const op = opLoader.loadAPI('example-api:hello', ['fixtures']);
 
         expect(op.API).not.toBeNil();
         expect(() => {
@@ -311,9 +301,7 @@ describe('OperationLoader', () => {
             assetPath: path.join(__dirname),
         });
 
-        const op = opLoader.loadAPI('example-observer', [
-            'fixtures'
-        ]);
+        const op = opLoader.loadAPI('example-observer', ['fixtures']);
 
         expect(op.API).not.toBeNil();
         expect(() => {
@@ -329,9 +317,7 @@ describe('OperationLoader', () => {
         });
 
         expect(() => {
-            opLoader.loadAPI('empty-api', [
-                'fixtures'
-            ]);
+            opLoader.loadAPI('empty-api', ['fixtures']);
         }).toThrowError(/requires at least an api\.js or observer\.js/);
     });
 
@@ -342,9 +328,7 @@ describe('OperationLoader', () => {
         });
 
         expect(() => {
-            opLoader.loadAPI('invalid-api-observer', [
-                'fixtures'
-            ]);
+            opLoader.loadAPI('invalid-api-observer', ['fixtures']);
         }).toThrowError(/required only one api\.js or observer\.js/);
     });
 });
