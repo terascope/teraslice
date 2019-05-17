@@ -44,12 +44,7 @@ const ErrorMessage: React.FC<Props> = ({
     }
 
     return (
-        <Message
-            icon
-            error
-            attached={attached}
-            size={attached ? 'small' : 'large'}
-        >
+        <Message icon error attached={attached} size="large">
             <Icon name="times circle outline" />
             <Message.Content>
                 <Message.Header>{title}</Message.Header>
@@ -61,9 +56,15 @@ const ErrorMessage: React.FC<Props> = ({
 
 function parseError(error?: AnyErrorType | AnyErrorType[]) {
     if (Array.isArray(error)) {
-        return error.map(err => parseErrorInfo(err).message);
+        return error.map(getErrorMsg);
     }
-    return parseErrorInfo(error).message;
+    return getErrorMsg(error);
+}
+
+function getErrorMsg(error?: AnyErrorType) {
+    return parseErrorInfo(error)
+        .message.replace('GraphQL error:', '')
+        .trim();
 }
 
 type AnyErrorType = string | object | ApolloError | Error | TSError;

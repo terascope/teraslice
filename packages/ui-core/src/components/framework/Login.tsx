@@ -3,13 +3,7 @@ import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import { Redirect } from 'react-router-dom';
 import { Form, Button } from 'semantic-ui-react';
-import {
-    LoadingPage,
-    ErrorPage,
-    Page,
-    useCoreContext,
-    ResolvedUser,
-} from '../core';
+import { Page, useCoreContext, ResolvedUser, ErrorMessage } from '../core';
 import { get } from '@terascope/utils';
 
 type State = {
@@ -60,15 +54,13 @@ const Login: React.FC = (props: any) => {
             notifyOnNetworkStatusChange
         >
             {({ loading, error }) => {
-                if (loading) return <LoadingPage />;
-                if (error) return <ErrorPage error={error} />;
-
                 return (
                     <Page title="Login">
-                        <Form onSubmit={onSubmit}>
+                        <Form onSubmit={onSubmit} className="coreForm">
                             <Form.Input
                                 label="Username"
                                 name="username"
+                                required
                                 value={username}
                                 onChange={onChange}
                             />
@@ -76,13 +68,17 @@ const Login: React.FC = (props: any) => {
                                 label="Password"
                                 name="password"
                                 type="password"
+                                required
                                 value={password}
                                 onChange={onChange}
                             />
-                            <Button type="submit" primary>
+                            <Button type="submit" primary loading={loading}>
                                 Submit
                             </Button>
                         </Form>
+                        {error && (
+                            <ErrorMessage error={error} attached="bottom" />
+                        )}
                     </Page>
                 );
             }}
