@@ -10,7 +10,7 @@ import { PureQueryOptions } from 'apollo-boost';
 
 const TokenForm: React.FC<Props> = ({ token, id }) => {
     const authUser = useCoreContext().authUser!;
-    const [_showToken, setShowToken] = useState(false);
+    const [showToken, setShowToken] = useState(false);
 
     const refetchQueries: PureQueryOptions[] = [
         {
@@ -27,12 +27,12 @@ const TokenForm: React.FC<Props> = ({ token, id }) => {
         <UpdateToken
             mutation={UPDATE_TOKEN}
             variables={{ id }}
+            onCompleted={() => {
+                setShowToken(true);
+            }}
             refetchQueries={refetchQueries}
         >
             {(submit, { loading, data, error }) => {
-                const newToken = get(data, 'updateToken');
-                const tokenValue = newToken || token;
-                const showToken = _showToken || loading || newToken;
                 return (
                     <Form.Group>
                         <Form.Input
@@ -40,7 +40,7 @@ const TokenForm: React.FC<Props> = ({ token, id }) => {
                             label="API Token"
                             width={8}
                             loading={loading}
-                            value={tokenValue}
+                            value={get(data, 'updateToken', token)}
                         >
                             <input readOnly />
                             <Button
