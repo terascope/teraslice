@@ -1,11 +1,7 @@
 import 'jest-extended';
 
 import { pDelay, findPort } from './helpers';
-import {
-    formatURL,
-    newMsgId,
-    ExecutionController
-} from '../src';
+import { formatURL, newMsgId, ExecutionController } from '../src';
 
 describe('ExecutionController', () => {
     describe('->Client', () => {
@@ -23,7 +19,7 @@ describe('ExecutionController', () => {
                 expect(() => {
                     // @ts-ignore
                     new ExecutionController.Client({
-                        executionControllerUrl: 'example.com'
+                        executionControllerUrl: 'example.com',
                     });
                 }).toThrowError('ExecutionController.Client requires a valid workerId');
             });
@@ -40,7 +36,7 @@ describe('ExecutionController', () => {
                     connectTimeout: 1000,
                     socketOptions: {
                         reconnection: false,
-                    }
+                    },
                 });
             });
 
@@ -125,8 +121,10 @@ describe('ExecutionController', () => {
         });
 
         describe('when the client is ready', () => {
-            beforeAll((done) => {
-                server.onClientAvailable(() => { done(); });
+            beforeAll(done => {
+                server.onClientAvailable(() => {
+                    done();
+                });
                 client.sendAvailable();
             });
 
@@ -151,12 +149,12 @@ describe('ExecutionController', () => {
                                 slicer_id: 1,
                                 request: {},
                                 slice_id: 'success-slice-complete',
-                                _created: 'hello'
+                                _created: 'hello',
                             },
                             analytics: {
                                 time: [],
                                 memory: [],
-                                size: []
+                                size: [],
                             },
                         });
 
@@ -192,14 +190,14 @@ describe('ExecutionController', () => {
                                 slicer_id: 1,
                                 request: {},
                                 slice_id: 'failure-slice-complete',
-                                _created: 'hello'
+                                _created: 'hello',
                             },
                             analytics: {
                                 time: [],
                                 memory: [],
-                                size: []
+                                size: [],
                             },
-                            error: 'hello'
+                            error: 'hello',
                         });
 
                         await pDelay(100);
@@ -220,8 +218,10 @@ describe('ExecutionController', () => {
             });
 
             describe('when receiving finished', () => {
-                beforeAll((done) => {
-                    client.onExecutionFinished(() => { done(); });
+                beforeAll(done => {
+                    client.onExecutionFinished(() => {
+                        done();
+                    });
                     server.sendExecutionFinishedToAll('some-ex-id');
                 });
 
@@ -240,12 +240,12 @@ describe('ExecutionController', () => {
                             slicer_id: 1,
                             request: {},
                             slice_id: 'client-slice-complete',
-                            _created: 'hello'
+                            _created: 'hello',
                         };
 
                         const stopAt = Date.now() + 2000;
 
-                        const slice = client.waitForSlice(() => (Date.now() - stopAt) > 0);
+                        const slice = client.waitForSlice(() => Date.now() - stopAt > 0);
 
                         await pDelay(500);
 
@@ -270,8 +270,8 @@ describe('ExecutionController', () => {
                             analytics: {
                                 time: [],
                                 memory: [],
-                                size: []
-                            }
+                                size: [],
+                            },
                         });
 
                         await pDelay(100);
@@ -284,7 +284,7 @@ describe('ExecutionController', () => {
                             await client.sendAvailable();
 
                             const stopAt = Date.now() + 2000;
-                            const stopFn = () => (Date.now() - stopAt) > 0;
+                            const stopFn = () => Date.now() - stopAt > 0;
                             const slice = client.waitForSlice(stopFn, 500);
 
                             await pDelay(600);
@@ -300,15 +300,18 @@ describe('ExecutionController', () => {
                 describe('when the client is set as unavailable', () => {
                     beforeAll(async () => {
                         await client.sendUnavailable();
+                        await pDelay(100);
                     });
 
                     it('should reject with the correct error messages', () => {
+                        expect(client.available).toBeFalse();
+
                         const newSlice = {
                             slicer_order: 0,
                             slicer_id: 1,
                             request: {},
                             slice_id: 'client-slice-complete',
-                            _created: 'hello'
+                            _created: 'hello',
                         };
 
                         const id = server.dequeueWorker(newSlice);
