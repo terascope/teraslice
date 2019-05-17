@@ -1,7 +1,7 @@
 {
     "name": "@terascope/data-access-plugin",
     "description": "A teraserver plugin for managing data access and searching spaces",
-    "version": "0.6.0",
+    "version": "0.7.0",
     "publishConfig": {
         "access": "public"
     },
