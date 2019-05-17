@@ -1,6 +1,6 @@
 {
     "name": "xlucene-evaluator",
-    "version": "0.8.0",
+    "version": "0.8.1",
     "srcMain": "src/index.ts",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
@@ -44,8 +44,8 @@
         "is-cidr": "^3.0.0",
         "latlon-geohash": "^1.1.0",
         "lodash": "^4.17.11",
-        "pegjs-backtrace": "^0.1.2",
-        "rambda": "^2.5.0"
+        "pegjs-backtrace": "^0.2.0",
+        "rambda": "^2.8.0"
     },
     "devDependencies": {
         "elasticsearch": "^15.4.1",

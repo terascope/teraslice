@@ -1,10 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import 'semantic-ui-less/semantic.less';
 import './index.css';
 
 import IndexApp from './IndexApp';
-import * as serviceWorker from './serviceWorker';
+import * as serviceWorker from './service-worker';
 
 ReactDOM.render(<IndexApp />, document.getElementById('root'));
 

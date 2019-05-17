@@ -12,7 +12,7 @@ Usage:
     $cmdname
 
     Ensure the monorepo is in a clean state. This script does the following:
-    - Removes dist & coverage folders
+    - Removes dist & build & coverage folders
     - Will prompt to delete any packages that no longer exist
     - Will prompt to clean up running e2e test docker files
     - Will prompt to delete any autoloaded asset
@@ -86,6 +86,11 @@ cleanup_packages() {
         if [ -d "$package/coverage" ]; then
             echoerr "* removing $package/coverage"
             rm -rf "$package/coverage"
+        fi
+
+        if [ -d "$package/build" ]; then
+            echoerr "* removing $package/build"
+            rm -rf "$package/build"
         fi
     done
 

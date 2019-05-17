@@ -1,4 +1,3 @@
-
 import crypto from 'crypto';
 import { IResolvers, UserInputError } from 'apollo-server-express';
 import { GraphQLResolveInfo } from 'graphql';
@@ -10,17 +9,13 @@ import { QueryAccess } from 'xlucene-evaluator';
 import { getESClient } from '../../utils';
 import { SpacesContext } from '../interfaces';
 import Misc from './misc';
-import _ from 'lodash';
 
 const defaultResolvers = {
     ...Misc,
     Query: {},
 } as IResolvers<any, SpacesContext>;
 
-export {
-    defaultResolvers,
-    createResolvers
- };
+export { defaultResolvers, createResolvers };
 
 function dedup(records: any[]): any[] {
     const dedup = {};
@@ -30,7 +25,7 @@ function dedup(records: any[]): any[] {
         dedup[shasum.digest()] = record;
     });
 
-    return _.values(dedup);
+    return Object.values(dedup);
 }
 
 function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: Context) {
@@ -42,19 +37,31 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
 
     function getSelectionKeys(info: GraphQLResolveInfo) {
         // @ts-ignore
-        const { fieldNodes: [{ selectionSet: { selections } }] } = info;
+        const {
+            fieldNodes: [
+                {
+                    // @ts-ignore
+                    selectionSet: { selections },
+                },
+            ],
+        } = info;
         const results: string[] = [];
         selections.forEach((selector: any) => {
-            const { name: { value } } = selector;
+            const {
+                name: { value },
+            } = selector;
             if (endpoints[value] == null) results.push(value);
         });
         return results;
     }
 
-    viewList.forEach((view) => {
+    viewList.forEach(view => {
         const esClient = getESClient(context, get(view, 'search_config.connection', 'default'));
         const client = elasticsearchApi(esClient, logger);
-        const { data_type: {  type_config }, view: { includes, excludes, constraint, prevent_prefix_wildcard } } = view;
+        const {
+            data_type: { type_config },
+            view: { includes, excludes, constraint, prevent_prefix_wildcard },
+        } = view;
         const accessData = {
             includes,
             excludes,
@@ -76,7 +83,7 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
 
             if (join) {
                 if (!Array.isArray(join)) throw new UserInputError('Invalid join, must be an array of values');
-                join.forEach((field) => {
+                join.forEach(field => {
                     const [orig, target] = field.split(':') || [field, field];
                     const selector = target || orig; // In case there's no colon in field.
                     if (root && root[orig] !== null) {

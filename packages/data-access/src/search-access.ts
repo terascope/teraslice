@@ -1,6 +1,7 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import * as x from 'xlucene-evaluator';
+import { SpaceSearchConfig } from './models';
 import * as i from './interfaces';
 
 const _logger = ts.debugLogger('search-access');
@@ -8,7 +9,7 @@ const _logger = ts.debugLogger('search-access');
 /**
  * Using a DataAccess ACL, limit queries to
  * specific fields and records
-*/
+ */
 export class SearchAccess {
     config: i.DataAccessConfig;
     private _queryAccess: x.QueryAccess;
@@ -22,18 +23,21 @@ export class SearchAccess {
         this.config = config;
 
         this._logger = logger;
-        this._queryAccess = new x.QueryAccess({
-            excludes: this.config.view.excludes,
-            includes: this.config.view.includes,
-            constraint: this.config.view.constraint,
-            prevent_prefix_wildcard: this.config.view.prevent_prefix_wildcard,
-            type_config: this.config.data_type.type_config,
-        }, this._logger);
+        this._queryAccess = new x.QueryAccess(
+            {
+                excludes: this.config.view.excludes,
+                includes: this.config.view.includes,
+                constraint: this.config.view.constraint,
+                prevent_prefix_wildcard: this.config.view.prevent_prefix_wildcard,
+                type_config: this.config.data_type.type_config,
+            },
+            this._logger
+        );
     }
 
     /**
      * Converts a restricted xlucene query to an elasticsearch search query
-    */
+     */
     restrictSearchQuery(query: string = '*', params?: es.SearchParams): es.SearchParams {
         return this._queryAccess.restrictSearchQuery(query, params);
     }
@@ -50,8 +54,8 @@ export class SearchAccess {
                 context: {
                     config: this.config.search_config,
                     query,
-                    safe: true
-                }
+                    safe: true,
+                },
             });
         }
 
@@ -74,7 +78,7 @@ export class SearchAccess {
         const typeConfig = this.config.data_type.type_config || {};
 
         const params: es.SearchParams = {
-            body: {}
+            body: {},
         };
 
         const q: string = ts.get(query, 'q', '');
@@ -133,10 +137,7 @@ export class SearchAccess {
 
         const fields = ts.get(query, 'fields');
         if (fields) {
-            params._sourceInclude = ts.uniq(
-                ts.parseList(fields)
-                    .map((s) => s.toLowerCase())
-            );
+            params._sourceInclude = ts.uniq(ts.parseList(fields).map(s => s.toLowerCase()));
         }
 
         const geoField = config.default_geo_field;
@@ -156,15 +157,11 @@ export class SearchAccess {
             }
         }
 
-        /** @todo add timeseries/history index support */
-        // const history = ts.get(query, 'history');
-        // const historyStart = ts.get(query, 'history_start');
-
         params.q = q;
         params.size = size;
         params.from = ts.toInteger(start) || 0;
         params.sort = sort;
-        params.index = config.index;
+        params.index = this._getIndex(query, config);
         params.ignoreUnavailable = true;
         return ts.withoutNil(params);
     }
@@ -179,8 +176,8 @@ export class SearchAccess {
                 context: {
                     config,
                     query,
-                    safe: false
-                }
+                    safe: false,
+                },
             });
         }
 
@@ -191,8 +188,8 @@ export class SearchAccess {
                 context: {
                     config,
                     query,
-                    safe: true
-                }
+                    safe: true,
+                },
             });
         }
 
@@ -201,13 +198,13 @@ export class SearchAccess {
         let returning = total;
 
         if (config.preserve_index_name) {
-            results = response.hits.hits.map((data) => {
+            results = response.hits.hits.map(data => {
                 const doc = data._source;
                 doc._index = data._index;
                 return doc;
             });
         } else {
-            results = response.hits.hits.map((data) => data._source);
+            results = response.hits.hits.map(data => data._source);
         }
 
         let info = `${response.hits.total} results found.`;
@@ -224,8 +221,52 @@ export class SearchAccess {
             info,
             total,
             returning,
-            results
+            results,
         };
+    }
+
+    private _getIndex(query: i.InputQuery, config: SpaceSearchConfig): string {
+        if (!query.history) return config.index;
+
+        const prefix = config.history_prefix;
+        if (!config.enable_history || !prefix) {
+            throw new ts.TSError('History is not supported for query', {
+                statusCode: 422,
+                context: {
+                    safe: true,
+                },
+            });
+        }
+
+        let start = 0;
+        if (query.start) start = +query.start;
+
+        const days = +query.history;
+        if (Number.isNaN(days) || Number.isNaN(start)) {
+            throw new ts.TSError('History specification must be numeric.', {
+                context: {
+                    safe: true,
+                },
+            });
+        }
+
+        if (days < 0 || start < 0) {
+            throw new ts.TSError('History specification must be a positive number.', {
+                context: {
+                    safe: true,
+                },
+            });
+        }
+
+        if (days < 0 || start < 0) {
+            throw new ts.TSError('History is not available beyond 90 days.', {
+                context: {
+                    safe: true,
+                },
+            });
+        }
+
+        return generateHistoryIndexes(days, start, prefix);
     }
 }
 
@@ -238,8 +279,8 @@ function validationErr(param: keyof i.InputQuery, msg: string, query: i.InputQue
             context: {
                 safe: true,
                 query,
-            }
-        }
+            },
+        },
     ];
 }
 
@@ -252,4 +293,33 @@ function getGeoSort(field: string, point: string, order: i.SortOrder, unit: stri
     sort._geo_distance.order = order;
     sort._geo_distance.unit = unit;
     return sort;
+}
+
+/*
+ * Generates a list of indexes to search based off the API history parameters.
+ *
+ * Taken from https://github.com/terascope/teraserver/blob/c13f34b9097338051f45b0d9a2b078b406fce389/lib/search.js#L518-L539
+ */
+function generateHistoryIndexes(days: number, start: number, prefix: string) {
+    let result = '';
+    const _prefix = prefix.charAt(prefix.length - 1) === '-' ? prefix : `${prefix}-`;
+
+    for (let i = start; i < start + days; i += 1) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+
+        // example dateStr => logscope-2016.11.11*
+        const dateStr = date
+            .toISOString()
+            .slice(0, 10)
+            .replace(/-/gi, '.');
+
+        if (result) {
+            result += `,${_prefix}${dateStr}*`;
+        } else {
+            result = `${_prefix + dateStr}*`;
+        }
+    }
+
+    return result;
 }

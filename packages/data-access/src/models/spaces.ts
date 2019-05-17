@@ -1,28 +1,24 @@
 import * as es from 'elasticsearch';
 import { TSError } from '@terascope/utils';
 import { IndexModel, IndexModelOptions } from 'elasticsearch-store';
-import spacesConfig, {
-    Space,
-    SpaceSearchConfig,
-    SpaceStreamingConfig,
-} from './config/spaces';
+import spacesConfig, { Space, SpaceSearchConfig, SpaceStreamingConfig } from './config/spaces';
 
 /**
  * Manager for Spaces
-*/
+ */
 export class Spaces extends IndexModel<Space> {
     static IndexModelConfig = spacesConfig;
-    static ReservedEndpoints = ['data-access'];
+    static ReservedEndpoints = ['data-access', 'spaces'];
 
     constructor(client: es.Client, options: IndexModelOptions) {
         super(client, options, spacesConfig);
     }
 
     /** Associate views to space */
-    async addViewsToSpace(spaceId: string, views: string[]|string) {
+    async addViewsToSpace(spaceId: string, views: string[] | string) {
         if (!spaceId) {
             throw new TSError('Missing space to attaching views to', {
-                statusCode: 422
+                statusCode: 422,
             });
         }
 
@@ -30,10 +26,10 @@ export class Spaces extends IndexModel<Space> {
     }
 
     /** Disassociate views to space */
-    async removeViewsFromSpace(spaceId: string, views: string[]|string) {
+    async removeViewsFromSpace(spaceId: string, views: string[] | string) {
         if (!spaceId) {
             throw new TSError('Missing space to remove views from', {
-                statusCode: 422
+                statusCode: 422,
             });
         }
 

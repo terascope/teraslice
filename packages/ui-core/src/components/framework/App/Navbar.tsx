@@ -1,118 +1,49 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { Link } from 'react-router-dom';
-import Menu from '@material-ui/core/Menu';
-import AppBar from '@material-ui/core/AppBar';
-import Button from '@material-ui/core/Button';
-import MenuIcon from '@material-ui/icons/Menu';
-import Toolbar from '@material-ui/core/Toolbar';
-import MenuItem from '@material-ui/core/MenuItem';
-import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import { CoreProps, corePropTypes } from '../../../helpers';
-import { CoreContext } from '../../core';
+import { Dropdown, Button, Icon, Menu } from 'semantic-ui-react';
+import { useCoreContext } from '../../core';
 
-type Props = CoreProps & {
-    sideBarOpen?: boolean;
-    handleSidebarOpen: () => void;
+type LinkProps = { to: string; iconName: string };
+const DropdownLink: React.FC<LinkProps> = ({ to, iconName, children }) => {
+    return (
+        <Button basic as={Link} to={to} fluid className="navBarLink">
+            <Icon name={iconName as any} />
+            {children}
+        </Button>
+    );
 };
 
-type State = {
-    rightMenuOpen: boolean;
+const Navbar: React.FC = () => {
+    const { authenticated } = useCoreContext();
+    const AccountIcon = <Icon name="user circle" className="dropdownIcon" />;
+
+    return (
+        <Menu className="navbarMenu">
+            <Menu.Item header className="navbarTitle">
+                Teraserver
+            </Menu.Item>
+            {authenticated && (
+                <Dropdown item icon={AccountIcon} className="right">
+                    <Dropdown.Menu>
+                        <Dropdown.Item
+                            as={DropdownLink}
+                            to={'/users/account'}
+                            iconName="user circle"
+                        >
+                            My Account
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                            as={DropdownLink}
+                            to={'/logout'}
+                            iconName="sign out"
+                        >
+                            Logout
+                        </Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
+            )}
+        </Menu>
+    );
 };
-
-const LogoutLink: React.FC = ({ children }) => (
-    <Link to="/logout">{children}</Link>
-);
-
-class Navbar extends React.Component<Props, State> {
-    static propTypes = {
-        ...corePropTypes,
-        sideBarOpen: PropTypes.bool,
-        handleSidebarOpen: PropTypes.func.isRequired,
-    };
-
-    static contextType = CoreContext;
-
-    state: State = {
-        rightMenuOpen: false,
-    };
-
-    handleToggle = () => {
-        this.setState(state => ({
-            rightMenuOpen: !state.rightMenuOpen,
-        }));
-    }
-
-    handleClose = () => {
-        this.setState({ rightMenuOpen: false });
-    }
-
-    render() {
-        const {
-            classes,
-            sideBarOpen,
-            handleSidebarOpen
-        } = this.props;
-        const { rightMenuOpen } = this.state;
-        const { authenticated } = this.context;
-
-        return (
-            <AppBar
-                position="fixed"
-                className={classNames(classes.appBar, {
-                    [classes.appBarShift]: sideBarOpen,
-                })}
-            >
-                <Toolbar disableGutters={!sideBarOpen}>
-                    <IconButton
-                        color="inherit"
-                        aria-label="Open drawer"
-                        onClick={handleSidebarOpen}
-                        className={classNames(classes.menuButton, {
-                            [classes.hide]: sideBarOpen,
-                        })}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    <Typography variant="h6" color="inherit" noWrap>
-                        Teraserver
-                    </Typography>
-                    {authenticated && (
-                        <div className={classes.alignRight}>
-                            <IconButton
-                                aria-owns={rightMenuOpen ? 'menu-appbar' : undefined}
-                                aria-haspopup="true"
-                                onClick={this.handleToggle}
-                                color="inherit"
-                            >
-                                <AccountCircle />
-                            </IconButton>
-                            <Menu
-                                id="menu-appbar"
-                                anchorOrigin={{
-                                    vertical: 'top',
-                                    horizontal: 'right',
-                                }}
-                                transformOrigin={{
-                                    vertical: 'top',
-                                    horizontal: 'right',
-                                }}
-                                open={rightMenuOpen}
-                                onClose={this.handleClose}
-                            >
-                                <MenuItem>
-                                    <Button component={LogoutLink}>Logout</Button>
-                                </MenuItem>
-                            </Menu>
-                        </div>
-                    )}
-                </Toolbar>
-            </AppBar>
-        );
-    }
-}
 
 export default Navbar;

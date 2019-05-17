@@ -6,15 +6,15 @@ const config: IndexModelConfig<Space> = {
     mapping: {
         properties: {
             client_id: {
-                type: 'integer'
+                type: 'integer',
             },
             name: {
                 type: 'keyword',
                 fields: {
                     text: {
                         type: 'text',
-                        analyzer: 'lowercase_keyword_analyzer'
-                    }
+                        analyzer: 'lowercase_keyword_analyzer',
+                    },
                 },
             },
             endpoint: {
@@ -22,26 +22,26 @@ const config: IndexModelConfig<Space> = {
                 fields: {
                     text: {
                         type: 'text',
-                        analyzer: 'lowercase_keyword_analyzer'
-                    }
+                        analyzer: 'lowercase_keyword_analyzer',
+                    },
                 },
             },
             views: {
-                type: 'keyword'
+                type: 'keyword',
             },
             roles: {
-                type: 'keyword'
+                type: 'keyword',
             },
             data_type: {
-                type: 'keyword'
+                type: 'keyword',
             },
             search_config: {
-                type: 'object'
+                type: 'object',
             },
             streaming_config: {
-                type: 'object'
-            }
-        }
+                type: 'object',
+            },
+        },
     },
     schema: {
         properties: {
@@ -51,32 +51,32 @@ const config: IndexModelConfig<Space> = {
                 minimum: 0,
             },
             name: {
-                type: 'string'
+                type: 'string',
             },
             endpoint: {
-                type: 'string'
+                type: 'string',
             },
             description: {
-                type: 'string'
+                type: 'string',
             },
             data_type: {
-                type: 'string'
+                type: 'string',
             },
             views: {
                 type: 'array',
                 items: {
-                    type: 'string'
+                    type: 'string',
                 },
                 uniqueItems: true,
-                default: []
+                default: [],
             },
             roles: {
                 type: 'array',
                 items: {
-                    type: 'string'
+                    type: 'string',
                 },
                 uniqueItems: true,
-                default: []
+                default: [],
             },
             search_config: {
                 type: 'object',
@@ -88,11 +88,11 @@ const config: IndexModelConfig<Space> = {
                     },
                     connection: {
                         type: 'string',
-                        default: 'default'
+                        default: 'default',
                     },
                     max_query_size: {
                         type: 'number',
-                        default: 10000
+                        default: 10000,
                     },
                     sort_default: {
                         type: 'string',
@@ -106,7 +106,7 @@ const config: IndexModelConfig<Space> = {
                     },
                     preserve_index_name: {
                         type: 'boolean',
-                        default: false
+                        default: false,
                     },
                     require_query: {
                         type: 'boolean',
@@ -115,10 +115,14 @@ const config: IndexModelConfig<Space> = {
                     default_date_field: {
                         type: 'string',
                     },
+                    enable_history: {
+                        type: 'boolean',
+                        default: false,
+                    },
                     history_prefix: {
                         type: 'string',
-                    }
-                }
+                    },
+                },
             },
             streaming_config: {
                 type: 'object',
@@ -127,67 +131,67 @@ const config: IndexModelConfig<Space> = {
                 properties: {
                     connection: {
                         type: 'string',
-                        default: 'default'
+                        default: 'default',
                     },
-                }
-            }
+                },
+            },
         },
-        required: ['client_id', 'name', 'data_type']
+        required: ['client_id', 'name', 'data_type'],
     },
     uniqueFields: ['endpoint'],
     sanitizeFields: {
-        endpoint: 'toSafeString'
+        endpoint: 'toSafeString',
     },
     strictMode: false,
 };
 
 /**
  * The definition of a Space model
-*/
+ */
 export interface Space extends IndexModelRecord {
     /**
      * The mutli-tenant ID representing the client
-    */
+     */
     client_id: number;
 
     /**
      * Name of the Space
-    */
+     */
     name: string;
 
     /**
      * A URL friendly name for endpoint that is associated with the space, this must be unique
-    */
+     */
     endpoint: string;
 
     /**
      * Description of the Role
-    */
+     */
     description?: string;
 
     /**
      * The associated data type
-    */
+     */
     data_type: string;
 
     /**
      * A list of associated views
-    */
+     */
     views: string[];
 
     /**
      * A list of associated roles
-    */
+     */
     roles: string[];
 
     /**
      * Configuration for searching the space
-    */
+     */
     search_config?: SpaceSearchConfig;
 
     /**
      * Configuration for streaming the space
-    */
+     */
     streaming_config?: SpaceStreamingConfig;
 }
 
@@ -206,6 +210,7 @@ export interface SpaceSearchConfig {
     preserve_index_name?: boolean;
     require_query?: boolean;
     default_date_field?: string;
+    enable_history?: boolean;
     history_prefix?: string;
 }
 

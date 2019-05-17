@@ -4,7 +4,6 @@
 
     /**
     * Propagate the default field on a field group expression
-    * @todo use the types from the new xlucene-parse
     */
     function propagateDefaultField(node, field) {
        if (!node) return;
@@ -65,7 +64,7 @@ LogicalGroup
             type: 'logical-group',
             flow: [].concat(...conjunctions)
         };
-   }
+    }
 
 ParensGroup
     = ParensStart ws* group:LogicalGroup ws* ParensEnd {
@@ -166,6 +165,9 @@ NegationExpression
             node
         }
     }
+    / ParensStart ws* node:NegationExpression ws* ParensEnd {
+        return node;
+    }
 
 NegatedTermGroup
     = node:ParensGroup / node:TermExpression
@@ -221,6 +223,9 @@ TermExpression
             ...term,
             field: null,
         }
+    }
+    / ParensStart ws* term:TermExpression ws* ParensEnd {
+        return term;
     }
 
 FieldOrQuotedTermExpression
@@ -583,10 +588,10 @@ Zero
 Escape ""
     = '\\'
 
-OneToNine
+OneToNine "a character between 1-9"
     = [1-9]
 
-Digit
+Digit "a character between 0-9"
     = [0-9]
 
 NumReservedChar

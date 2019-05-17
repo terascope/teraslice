@@ -13,7 +13,7 @@ import { ManagerContext } from './interfaces';
 
 /**
  * A graphql api for managing data access
-*/
+ */
 export default class ManagerPlugin {
     readonly config: TeraserverConfig;
     readonly logger: Logger;
@@ -61,7 +61,7 @@ export default class ManagerPlugin {
                         const user = await utils.login(this.manager, req);
                         this.user = user;
                         this.authenticating = false;
-                    }
+                    },
                 };
 
                 let skipAuth = false;
@@ -84,7 +84,7 @@ export default class ManagerPlugin {
                         query: req.query,
                         body: req.body,
                         headers: req.headers,
-                        method: req.method
+                        method: req.method,
                     };
                     this.logger.error(err, obj, 'failure when authentication');
                     if (err.statusCode === 401) {
@@ -103,8 +103,8 @@ export default class ManagerPlugin {
             playground: {
                 settings: {
                     'request.credentials': 'include',
-                }
-            } as apollo.PlaygroundConfig
+                },
+            } as apollo.PlaygroundConfig,
         });
     }
 
@@ -124,7 +124,7 @@ export default class ManagerPlugin {
             // @ts-ignore
             req.aclManager = this.manager;
 
-            if (req.originalUrl === managerUri) {
+            if ([managerUri, '/api/v2/spaces'].includes(req.originalUrl)) {
                 next();
                 return;
             }
@@ -147,10 +147,12 @@ export default class ManagerPlugin {
 
         this.logger.info(`Registering data-access-plugin manager at ${managerUri}`);
         this.server.applyMiddleware({
-            cors: isProd ? false : {
-                origin: ['http://localhost:3000', 'http://localhost:8000'],
-                credentials: true
-            },
+            cors: isProd
+                ? false
+                : {
+                    origin: ['http://localhost:3000', 'http://localhost:8000'],
+                    credentials: true,
+                },
             app: this.app,
             path: managerUri,
         });

@@ -1,4 +1,66 @@
-import SidebarMenu from './SidebarMenu';
-import Routes from './Routes';
+import { PluginConfig } from '../core';
+import UserForm from './users/Form';
+import MyAccount from './users/MyAccount';
+import ListUsers from './users/List';
+import RoleForm from './roles/Form';
+import ListRoles from './roles/List';
 
-export { SidebarMenu, Routes };
+const config: PluginConfig = {
+    name: 'Data Access',
+    basepath: '/',
+    access: 'ADMIN',
+    routes: [
+        {
+            name: 'Users',
+            path: '/users',
+            icon: 'users',
+            component: ListUsers,
+            actions: ['/users/create'],
+        },
+        {
+            name: 'Create User',
+            path: '/users/create',
+            icon: 'add',
+            hidden: true,
+            component: UserForm,
+        },
+        {
+            name: 'Edit User',
+            path: '/users/edit/:id',
+            icon: 'pencil alternate',
+            hidden: true,
+            component: UserForm,
+        },
+        {
+            name: 'My Account',
+            path: '/users/account',
+            icon: 'user circle',
+            hidden: true,
+            access: 'USER',
+            component: MyAccount,
+        },
+        {
+            name: 'Roles',
+            path: '/roles',
+            icon: 'key',
+            component: ListRoles,
+            actions: ['/roles/create'],
+        },
+        {
+            name: 'Create Role',
+            path: '/roles/create',
+            icon: 'add',
+            hidden: true,
+            component: RoleForm,
+        },
+        {
+            name: 'Edit Role',
+            path: '/roles/edit/:id',
+            icon: 'pencil alternate',
+            hidden: true,
+            component: RoleForm,
+        },
+    ],
+};
+
+export default config;

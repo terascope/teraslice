@@ -1,0 +1,94 @@
+.sidebarIcon {
+    font-size: 1.6em !important;
+}
+
+.sidebarOpenedIcon {
+    padding-right: 2.1rem;
+}
+
+.sidebarClosedIcon {
+    padding-right: 0;
+}
+
+.sidebarToggle {
+    display: flex !important;
+    flex-direction: column;
+    align-items: flex-end;
+    min-height: 3.9rem !important;
+    justify-content: center;
+}
+
+.sidebarMenu {
+    display: flex !important;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+}
+
+.sidebarMenuClosed {
+    width: 4rem !important;
+}
+
+.sidebarItemName {
+    padding-top: 0.3rem;
+    font-weight: 600;
+}
+
+.sidebarMenuItem {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+}
+
+.navbarTitle {
+    display: flex;
+    flex: 1 !important;
+    font-size: 1.2rem;
+}
+
+.navbarMenu {
+    min-height: 4rem !important;
+}
+
+.dropdownIcon {
+    font-size: 1.6rem !important;
+    margin-right: 0 !important;
+}
+
+.navBarLink {
+    box-shadow: none;
+}
+
+.appRoot {
+    height: 100%;
+    min-height: 100%;
+    display: flex;
+    flex: row nowrap;
+}
+
+.sidebarWrapper {
+    display: flex;
+    flex-flow: row nowrap;
+    margin-top: -3px !important;
+    z-index: 9999;
+}
+
+.appContent {
+    display: flex;
+    flex-flow: column nowrap;
+    flex: 1;
+    z-index: 1;
+    margin: -3px 0 0 -1px !important;
+    padding: 0 !important;
+}
+
+.appMain {
+    flex: 10;
+    margin: 2rem 0;
+    padding: 0 3rem;
+}
+
+.appFooter {
+    align-self: flex-end;
+    width: 100%;
+    flex: 1;
+}

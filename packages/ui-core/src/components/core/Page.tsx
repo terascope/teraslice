@@ -1,46 +1,60 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
-import { withStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { CoreProps, corePropTypes } from '../../helpers';
+import { Container, Segment, Button, Menu, Icon } from 'semantic-ui-react';
+import { PageAction, PageActionProp } from './interfaces';
+import { tsWithRouter } from './utils';
 
-type Props = CoreProps & {
-    title: string;
-};
+const Page = tsWithRouter<Props>(
+    ({ title, actions = [], history, children, fullWidth }) => {
+        return (
+            <Container fluid={fullWidth}>
+                <Segment padded>
+                    <Menu secondary>
+                        <Menu.Header as="h2" className="pageTitle">
+                            {title}
+                        </Menu.Header>
+                        {actions.map((action, i) => {
+                            const onClick = action.onClick
+                                ? action.onClick
+                                : () => {
+                                    if (!action.to) return;
+                                    history.push(action.to);
+                                };
 
-const styles = (theme: Theme) => createStyles({
-    root: {
-        display: 'flex',
-        alignItems: 'space-around',
-        flexDirection: 'column',
-        padding: theme.spacing.unit,
-    },
-    paper: {
-        padding: theme.spacing.unit * 3,
+                            return (
+                                <Menu.Item
+                                    onClick={onClick}
+                                    key={`page-item-${i}`}
+                                    position="right"
+                                    className="noActiveBg"
+                                >
+                                    <Button>
+                                        {action.icon && (
+                                            <Icon name={action.icon as any} />
+                                        )}
+                                        {action.label}
+                                    </Button>
+                                </Menu.Item>
+                            );
+                        })}
+                    </Menu>
+                    {children}
+                </Segment>
+            </Container>
+        );
     }
-});
+);
 
-const Page: React.FC<Props> = ({ children, title, classes }) => {
-    return (
-        <div className={classes.root}>
-            <Paper className={classes.paper}>
-                <Typography
-                    variant="h5"
-                    component="h2"
-                    className={classes.item}
-                >
-                    {title}
-                </Typography>
-                {children}
-            </Paper>
-        </div>
-    );
+type Props = {
+    title: string;
+    fullWidth?: boolean;
+    actions?: PageAction[];
 };
 
 Page.propTypes = {
-    ...corePropTypes,
     title: PropTypes.string.isRequired,
+    fullWidth: PropTypes.bool,
+    actions: PropTypes.arrayOf(PageActionProp.isRequired),
 };
 
-export default withStyles(styles)(Page);
+export default Page;

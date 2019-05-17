@@ -1,0 +1,27 @@
+.pageTitle {
+    padding-left: 1rem;
+    padding-top: 0.5rem;
+}
+
+.noActiveBg:active, .noActiveBg:hover {
+    background: none !important;
+}
+
+.simplePageContainer {
+    height: 100%;
+    min-height: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.simplePageContent {
+    flex: 1;
+}
+
+.messageText {
+    padding: 1rem 0;
+}
+
+.coreForm {
+    padding-bottom: 1rem;
+}

@@ -10,7 +10,7 @@ import * as utils from '../manager/utils';
 
 /**
  * A graphql api for managing spaces
-*/
+ */
 
 export default class SpacesPlugin {
     readonly config: TeraserverConfig;
@@ -46,7 +46,7 @@ export default class SpacesPlugin {
 
     registerRoutes() {
         const managerUri = '/api/v2/spaces';
-        this.logger.info(`Registering data-access-plugin spacemanager at ${managerUri}`);
+        this.logger.info(`Registering data-access-plugin space manager at ${managerUri}`);
         this.server.applyMiddleware({
             app: this.app,
             path: managerUri,

@@ -6,7 +6,7 @@ import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 describe('Spaces', () => {
     const client = makeClient();
     const spaces = new Spaces(client, {
-        namespace: 'test'
+        namespace: 'test',
     });
 
     beforeAll(async () => {
@@ -31,7 +31,7 @@ describe('Spaces', () => {
                 search_config: {
                     index: 'hello',
                 },
-                streaming_config: {}
+                streaming_config: {},
             });
 
             expect(created).toHaveProperty('name');
@@ -44,11 +44,12 @@ describe('Spaces', () => {
                 max_query_size: 10000,
                 preserve_index_name: false,
                 require_query: false,
+                enable_history: false,
                 sort_dates_only: false,
             });
 
             expect(created).toHaveProperty('streaming_config', {
-                connection: 'default'
+                connection: 'default',
             });
 
             const fetched = await spaces.findById(created.id);
