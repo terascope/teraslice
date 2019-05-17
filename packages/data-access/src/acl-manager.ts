@@ -9,7 +9,6 @@ import * as i from './interfaces';
  * ACL Manager for Data Access Roles, essentially a
  * high level abstraction of Spaces, Users, Roles, and Views
  *
- * @todo a user should only be able to see things his role has access to
  * @todo ensure client ids match when associating records
  */
 export class ACLManager {

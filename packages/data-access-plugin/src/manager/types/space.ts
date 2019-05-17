@@ -60,8 +60,10 @@ export default `
         sort_enabled: Boolean
         default_geo_field: String
         preserve_index_name: Boolean
+        timeseries_indexes: [String!]
         require_query: Boolean
         default_date_field: String
+        enable_history: Boolean
         history_prefix: String
     }
     input SpaceStreamingConfigInput {

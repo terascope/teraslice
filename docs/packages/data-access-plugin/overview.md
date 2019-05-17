@@ -48,8 +48,10 @@ If `@terascope/data-access-plugin` installed globally, you can run just run `cre
 
 Since this project is designed to replace the teraserver teranaut plugin, and the search libray, there are few important breaking changes to be aware of.
 
--   The data access management api is under `GET /api/v2/data-access`
--   The search api is under `GET /api/v2/:endpoint`
+-   The data access management api is at `/api/v2/data-access`
+-   The space GraphQL API is at `/api/v2/spaces`
+-   The search api is under `/api/v2/:endpoint`
+-   The UI is at `/v2/ui`
 -   Pre/Post process function will need to be written to use express middleware, docs comming soon.
 -   The following configuration has been added to the space config:
     -   `index` under `search_config.index`

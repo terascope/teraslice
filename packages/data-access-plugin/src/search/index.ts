@@ -48,7 +48,6 @@ export default class SearchPlugin {
             const searchErrorHandler = makeErrorHandler('Error during query execution', logger, true);
 
             spaceErrorHandler(req, res, async () => {
-
                 const accessConfig = await manager.getViewForSpace({
                     space: endpoint
                 }, user);

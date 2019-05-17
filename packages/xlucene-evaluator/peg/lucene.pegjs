@@ -4,7 +4,6 @@
 
     /**
     * Propagate the default field on a field group expression
-    * @todo use the types from the new xlucene-parse
     */
     function propagateDefaultField(node, field) {
        if (!node) return;
