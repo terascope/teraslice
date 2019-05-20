@@ -1,5 +1,5 @@
 import { DataEntity } from '@terascope/utils';
-import { Context, ExecutionConfig, SlicerOperationLifeCycle, WorkerOperationLifeCycle, SliceAnalyticsData, OpAPI } from '../interfaces';
+import { Context, ExecutionConfig, SlicerOperationLifeCycle, WorkerOperationLifeCycle, SliceAnalyticsData, OpAPI, Slice } from '../interfaces';
 import { APICore } from '../operations';
 
 export interface ExecutionContextConfig {
@@ -32,3 +32,8 @@ export interface JobAPIInstance {
 export interface JobAPIInstances {
     [name: string]: JobAPIInstance;
 }
+
+export type LastSliceResult = {
+    slice: Slice;
+    analytics: SliceAnalyticsData;
+};

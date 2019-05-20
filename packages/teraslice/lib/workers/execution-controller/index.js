@@ -188,7 +188,7 @@ class ExecutionController {
                 const { slice_id: sliceId } = response.slice;
                 this.logger.info(`worker ${workerId} has completed its slice ${sliceId}`);
                 this.events.emit('slice:success', response);
-                this.pendingSlices -= 1;
+                this._removePendingSlice();
                 this._updateExecutionStats();
                 this.executionContext.onSliceComplete(response);
             });
@@ -208,7 +208,7 @@ class ExecutionController {
                     // when failing can be set back to running
                     this._startSliceFailureWatchDog();
                 }
-                this.pendingSlices -= 1;
+                this._removePendingSlice();
                 this._updateExecutionStats();
                 this.executionContext.onSliceComplete(response);
             });
@@ -481,8 +481,8 @@ class ExecutionController {
                 if (!workerId) {
                     reenqueue.push(slice);
                 } else {
-                    this.pendingDispatches += 1;
-                    this.pendingSlices += 1;
+                    this._addPendingDispatch();
+                    this._addPendingSlice();
                     dispatch.push({ slice, workerId });
                 }
             });
@@ -548,15 +548,15 @@ class ExecutionController {
                         `worker "${workerId}" is not available to process slice ${slice.slice_id}`
                     );
                     this.scheduler.enqueueSlice(slice, true);
-                    this.pendingSlices -= 1;
+                    this._removePendingSlice();
                 }
 
-                this.pendingDispatches -= 1;
+                this._removePendingDispatch();
             })
             .catch((err) => {
                 this.logger.error('error dispatching slice', err);
-                this.pendingDispatches -= 1;
-                this.pendingSlices -= 1;
+                this._removePendingDispatch();
+                this._removePendingSlice();
             });
     }
 
@@ -911,6 +911,42 @@ class ExecutionController {
 
             this._terminalError(err);
         }, this.workerDisconnectTimeout);
+    }
+
+    _removePendingSlice() {
+        this.pendingSlices--;
+
+        if (this.pendingSlices < 0) {
+            this.logger.warn('a slice was possibly finished more than once');
+            this.pendingSlices = 0;
+        }
+    }
+
+    _addPendingSlice() {
+        if (this.pendingSlices < 0) {
+            this.logger.warn('a slice was possibly finished more than once');
+            this.pendingSlices = 0;
+        }
+
+        this.pendingSlices++;
+    }
+
+    _removePendingDispatch() {
+        this.pendingDispatches--;
+
+        if (this.pendingDispatches < 0) {
+            this.logger.warn('a slice was possibly dispatched more than once');
+            this.pendingDispatches = 0;
+        }
+    }
+
+    _addPendingDispatch() {
+        if (this.pendingDispatches < 0) {
+            this.logger.warn('a slice was possibly dispatched more than once');
+            this.pendingDispatches = 0;
+        }
+
+        this.pendingDispatches++;
     }
 }
 

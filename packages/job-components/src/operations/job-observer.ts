@@ -73,6 +73,17 @@ export default class JobObserver extends Observer {
         this._initialized = null;
     }
 
+    getAnalytics() {
+        if (!this.analyticsData) return this.defaultAnalytics();
+
+        const { time, memory, size } = this.analyticsData;
+        return {
+            time: time.slice(),
+            memory: memory.slice(),
+            size: size.slice(),
+        };
+    }
+
     private defaultAnalytics(): SliceAnalyticsData {
         return {
             time: initVals(this._opLength),

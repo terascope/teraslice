@@ -2,7 +2,7 @@ import { waterfall, isString, isInteger, cloneDeep, isFunction, DataEntity, isPr
 import { FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
 import { OperationAPI, OperationAPIConstructor } from '../operations';
 import { WorkerOperationLifeCycle, Slice, OpAPI } from '../interfaces';
-import { ExecutionContextConfig, RunSliceResult, JobAPIInstances } from './interfaces';
+import { ExecutionContextConfig, RunSliceResult, JobAPIInstances, LastSliceResult } from './interfaces';
 import JobObserver from '../operations/job-observer';
 import BaseExecutionContext from './base';
 
@@ -16,10 +16,12 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
     readonly apis: JobAPIInstances = {};
 
     private readonly jobObserver: JobObserver;
+    private _last: LastSliceResult | undefined;
 
     private _sliceId: string | undefined;
     private readonly _fetcher: FetcherCore;
     private _queue: ((input: any) => Promise<DataEntity[]>)[];
+    private _flushing = false;
 
     constructor(config: ExecutionContextConfig) {
         super(config);
@@ -82,6 +84,11 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         this._queue = [
             async (input: any) => {
                 this.onOperationStart(undefined, 0);
+                if (this._flushing) {
+                    this.onOperationComplete(undefined, 0, 0);
+                    return [];
+                }
+
                 const results = await this.fetcher().handle(input);
                 this.onOperationComplete(undefined, 0, results.length);
                 return results;
@@ -169,14 +176,42 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
      */
     async runSlice(slice: Slice): Promise<RunSliceResult> {
         this._sliceId = slice.slice_id;
-        const sliceRequest = cloneDeep(slice.request);
+        this._setLast(slice);
 
-        const results = await waterfall(sliceRequest, this._queue, isProd);
+        const results = await waterfall(cloneDeep(slice.request), this._queue, isProd);
+
+        this._sliceId = undefined;
+        this._setLast(slice);
 
         return {
             results,
             analytics: this.jobObserver.analyticsData,
         };
+    }
+
+    async flush() {
+        this._flushing = true;
+        if (!this._last) return;
+
+        await this.beforeFlush();
+        const { slice } = this._last;
+        this._sliceId = slice.slice_id;
+
+        await waterfall(cloneDeep(slice.request), this._queue, isProd);
+
+        const analytics = this.jobObserver.getAnalytics();
+        const ops = this.config.operations.length;
+
+        for (const metric of Object.keys(analytics)) {
+            for (let i = 0; i < ops; i++) {
+                const current = this._last.analytics[i][metric];
+                const updated = analytics[i][metric];
+                this._last.analytics[i] = current + updated;
+            }
+        }
+
+        this._flushing = false;
+        return this._last;
     }
 
     async beforeFlush() {
@@ -230,6 +265,13 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
     /** Add an API to the executionContext api */
     protected addAPI(name: string, opAPI: OpAPI) {
         this.context.apis.executionContext.addAPI(name, opAPI);
+    }
+
+    private _setLast(slice: Slice) {
+        return {
+            slice,
+            analytics: this.jobObserver.getAnalytics(),
+        };
     }
 }
 
