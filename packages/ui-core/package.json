@@ -8,6 +8,7 @@
     "scripts": {
         "start": "env REACT_APP_DEV_MODE=true craco start",
         "build": "craco build",
+        "prepublishOnly": "yarn build",
         "test": "env CI=true FORCE_COLOR=1 REACT_APP_DEV_MODE=true craco test --colors",
         "test:watch": "env REACT_APP_DEV_MODE=true craco test",
         "eject": "craco eject"
