@@ -10,7 +10,7 @@ import {
     formatRegexQuery,
     tsWithRouter,
     UpdateQueryState,
-} from '../../../core';
+} from '@terascope/ui-components';
 
 const searchFields: (keyof Role)[] = ['name'];
 

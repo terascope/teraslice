@@ -12,7 +12,7 @@ import {
     LoadingPage,
     useCoreContext,
     ResolvedUser,
-} from '../../../core';
+} from '@terascope/ui-components';
 
 const FormQuery: React.FC<Props> = ({ component: Component, id }) => {
     const authUser = useCoreContext().authUser!;

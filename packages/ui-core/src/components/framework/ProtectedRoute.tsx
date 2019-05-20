@@ -1,6 +1,10 @@
 import React from 'react';
 import { Route, Redirect } from 'react-router-dom';
-import { useCoreContext, findPluginRoute, hasAccessToRoute } from '../core';
+import {
+    useCoreContext,
+    findPluginRoute,
+    hasAccessToRoute,
+} from '@terascope/ui-components';
 
 const ProtectedRoute: React.FC<any> = ({ component: Component, ...rest }) => {
     const { authenticated, plugins, authUser } = useCoreContext();

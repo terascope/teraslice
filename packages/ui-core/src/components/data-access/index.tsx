@@ -1,4 +1,4 @@
-import { PluginConfig } from '../core';
+import { PluginConfig } from '@terascope/ui-components';
 import UserForm from './users/Form';
 import MyAccount from './users/MyAccount';
 import ListUsers from './users/List';

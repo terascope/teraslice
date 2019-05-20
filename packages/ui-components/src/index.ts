@@ -1,4 +1,3 @@
-import './index.css';
 import AuthUserQuery, { AUTH_QUERY } from './AuthUserQuery';
 import ErrorMessage from './ErrorMessage';
 import ErrorPage from './ErrorPage';
@@ -13,14 +12,4 @@ export * from './CoreContext';
 export * from './interfaces';
 export * from './utils';
 
-export {
-    AUTH_QUERY,
-    AuthUserQuery,
-    ErrorMessage,
-    ErrorPage,
-    LoadingPage,
-    Page,
-    PluginPage,
-    StateMessage,
-    SuccessMessage,
-};
+export { AUTH_QUERY, AuthUserQuery, ErrorMessage, ErrorPage, LoadingPage, Page, PluginPage, StateMessage, SuccessMessage };

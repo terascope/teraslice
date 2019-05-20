@@ -7,7 +7,7 @@ import {
     RowMapping,
     useCoreContext,
     formatDate,
-} from '../../../core';
+} from '@terascope/ui-components';
 
 const List: React.FC = () => {
     const authUser = useCoreContext().authUser!;

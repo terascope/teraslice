@@ -9,7 +9,7 @@ import {
     ResolvedUser,
     hasAccessToRoute,
     hasAccessTo,
-} from '../../core';
+} from '@terascope/ui-components';
 
 const SidebarMenuIcon = tsWithRouter<any>(({ icon, color, open }) => {
     const props = {

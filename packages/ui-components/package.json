@@ -14,7 +14,7 @@
     },
     "files": [
         "dist/**/*",
-        "index.js"
+        "index.css"
     ],
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/ui-components#readme",
     "repository": "git@github.com:terascope/teraslice.git",
