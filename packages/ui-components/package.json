@@ -10,7 +10,8 @@
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
         "build": "tsc --build --pretty",
-        "build:watch": "yarn build --watch"
+        "build:watch": "yarn build --watch",
+        "test": "echo '* tests not supported yet'"
     },
     "files": [
         "dist/**/*",
