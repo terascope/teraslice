@@ -4,13 +4,10 @@ const _ = require('lodash');
 const Promise = require('bluebird');
 const { isFatalError } = require('@terascope/job-components');
 const { ExecutionController, formatURL } = require('@terascope/teraslice-messaging');
-const {
-    makeStateStore,
-    makeAnalyticsStore
-} = require('../../cluster/storage');
-const Slice = require('./slice');
+const { makeStateStore, makeAnalyticsStore } = require('../../cluster/storage');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
 const { generateWorkerId, makeLogger } = require('../helpers/terafoundation');
+const Slice = require('./slice');
 
 class Worker {
     constructor(context, executionContext) {
@@ -20,12 +17,15 @@ class Worker {
 
         const {
             slicer_port: slicerPort,
-            slicer_hostname: slicerHostname
+            slicer_hostname: slicerHostname,
         } = executionContext.config;
 
         const networkLatencyBuffer = _.get(context, 'sysconfig.teraslice.network_latency_buffer');
         const actionTimeout = _.get(context, 'sysconfig.teraslice.action_timeout');
-        const workerDisconnectTimeout = _.get(context, 'sysconfig.teraslice.worker_disconnect_timeout');
+        const workerDisconnectTimeout = _.get(
+            context,
+            'sysconfig.teraslice.worker_disconnect_timeout'
+        );
         const shutdownTimeout = _.get(context, 'sysconfig.teraslice.shutdown_timeout');
 
         this.client = new ExecutionController.Client({
@@ -161,7 +161,11 @@ class Worker {
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
         if (this.isShuttingDown) {
-            this.logger.debug(`worker shutdown was called but it was already shutting down ${block ? ', will block until done' : ''}`);
+            this.logger.debug(
+                `worker shutdown was called but it was already shutting down ${
+                    block ? ', will block until done' : ''
+                }`
+            );
             if (block) {
                 await waitForWorkerShutdown(this.context, 'worker:shutdown:complete');
             }
@@ -194,18 +198,21 @@ class Worker {
         await Promise.all([
             (async () => {
                 const stores = Object.values(this.stores);
-                await Promise.map(stores, store => store.shutdown(true)
-                    .catch(pushError));
+                await Promise.map(stores, store => store.shutdown(true).catch(pushError));
             })(),
             (async () => {
                 await this.slice.shutdown().catch(pushError);
             })(),
             (async () => {
                 await this.client.shutdown().catch(pushError);
-            })()
+            })(),
         ]);
 
-        this.logger.warn(`worker ${this.workerId} is shutdown for execution ${exId}, processed ${this.slicesProcessed} slices`);
+        this.logger.warn(
+            `worker ${this.workerId} is shutdown for execution ${exId}, processed ${
+                this.slicesProcessed
+            } slices`
+        );
         this.isShutdown = true;
 
         if (shutdownErrs.length) {
@@ -240,19 +247,26 @@ class Worker {
             interval = setInterval(() => {
                 const elapsed = (Date.now() - startTime) / 1000;
                 if (!this.isProcessing) {
-                    logger.trace(`is done with current slice, shutdown counter took ${elapsed} seconds`);
+                    logger.trace(
+                        `is done with current slice, shutdown counter took ${elapsed} seconds`
+                    );
                     done();
                     return;
                 }
 
                 /* istanbul ignore if */
                 if (elapsed % 60 === 0) {
-                    logger.info(`shutdown sequence initiated, but is still processing. Will force shutdown in ${elapsed} seconds`);
+                    logger.info(
+                        `shutdown sequence initiated, but is still processing. Will force shutdown in ${elapsed} seconds`
+                    );
                 }
             }, 100);
 
             timeout = setTimeout(() => {
-                const err = new Error(`Worker shutdown timeout after ${this.shutdownTimeout / 1000} seconds, forcing shutdown`);
+                const err = new Error(
+                    `Worker shutdown timeout after ${this.shutdownTimeout
+                        / 1000} seconds, forcing shutdown`
+                );
                 done(err);
             }, this.shutdownTimeout);
         });

@@ -1,11 +1,7 @@
 'use strict';
 
 const {
-    TSError,
-    parseError,
-    pRetry,
-    get,
-    toString
+    TSError, parseError, pRetry, get, toString
 } = require('@terascope/utils');
 const { makeLogger } = require('../helpers/terafoundation');
 const { logOpStats } = require('../helpers/op-analytics');
@@ -23,7 +19,9 @@ class Slice {
         this.stateStore = stores.stateStore;
         this.analyticsStore = stores.analyticsStore;
         this.slice = slice;
-        this.logger = makeLogger(this.context, this.executionContext, 'slice', { slice_id: sliceId });
+        this.logger = makeLogger(this.context, this.executionContext, 'slice', {
+            slice_id: sliceId,
+        });
 
         this.events.emit('slice:initialize', slice);
         await this.executionContext.onSliceInitialized(sliceId);
@@ -89,9 +87,11 @@ class Slice {
             this.events.emit('slice:failure', slice);
             await this.executionContext.onSliceFailed(slice.slice_id);
         } catch (err) {
-            this.logger.error(new TSError(err, {
-                reason: `Slice: ${slice.slice_id} failure on lifecycle event onSliceFailed`,
-            }));
+            this.logger.error(
+                new TSError(err, {
+                    reason: `Slice: ${slice.slice_id} failure on lifecycle event onSliceFailed`,
+                })
+            );
         }
     }
 
@@ -102,15 +102,13 @@ class Slice {
         logOpStats(this.logger, this.slice, this.analyticsData);
 
         try {
-            await this.analyticsStore.log(
-                this.executionContext,
-                this.slice,
-                this.analyticsData
-            );
+            await this.analyticsStore.log(this.executionContext, this.slice, this.analyticsData);
         } catch (_err) {
-            this.logger.error(new TSError(_err, {
-                reason: 'Failure to update analytics'
-            }));
+            this.logger.error(
+                new TSError(_err, {
+                    reason: 'Failure to update analytics',
+                })
+            );
         }
     }
 
@@ -124,11 +122,7 @@ class Slice {
     }
 
     async _markFailed(err) {
-        const {
-            stateStore,
-            slice,
-            logger
-        } = this;
+        const { stateStore, slice, logger } = this;
 
         const errMsg = err ? parseError(err, true) : new Error('Unknown error occurred');
 
@@ -146,7 +140,7 @@ class Slice {
     async _runOnce(shouldRetry) {
         if (this._isShutdown) {
             throw new TSError('Slice shutdown during slice execution', {
-                retryable: false
+                retryable: false,
             });
         }
 

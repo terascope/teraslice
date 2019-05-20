@@ -75,7 +75,10 @@ class Scheduler {
 
         await promise;
 
-        this.logger.debug(`execution ${this.exId} is finished scheduling, ${this.pendingSlices + this.pendingSlicerCount} remaining slices in the queue`);
+        this.logger.debug(
+            `execution ${this.exId} is finished scheduling, ${this.pendingSlices
+                + this.pendingSlicerCount} remaining slices in the queue`
+        );
 
         const waitForCreating = () => {
             const is = () => this._creating;
@@ -153,7 +156,7 @@ class Scheduler {
 
     canComplete() {
         const { lifecycle } = this.executionContext.config;
-        return this.ready && (lifecycle === 'once') && !this.recovering;
+        return this.ready && lifecycle === 'once' && !this.recovering;
     }
 
     isRecovering() {
@@ -223,11 +226,7 @@ class Scheduler {
     }
 
     _processSlicers() {
-        const {
-            events,
-            logger,
-            exId,
-        } = this;
+        const { events, logger, exId } = this;
 
         let _handling = false;
         let _finished = false;
@@ -249,7 +248,11 @@ class Scheduler {
 
         const drain = () => {
             if (this.pendingSlicerCount) {
-                logger.debug(`draining the remaining ${this.pendingSlicerCount} pending slices from the slicer`);
+                logger.debug(
+                    `draining the remaining ${
+                        this.pendingSlicerCount
+                    } pending slices from the slicer`
+                );
             }
             return this._drainPendingSlices(false);
         };
@@ -306,7 +309,9 @@ class Scheduler {
             _handling = true;
 
             makeSlices()
-                .then(() => { _handling = false; })
+                .then(() => {
+                    _handling = false;
+                })
                 .catch((err) => {
                     _handling = false;
                     this.logger.error('failure to run slicers', err);
@@ -316,8 +321,7 @@ class Scheduler {
         createInterval = setInterval(() => {
             if (!this.pendingSlicerCount) return;
 
-            this._drainPendingSlices()
-                .catch(err => this.logger.error('failure creating slices', err));
+            this._drainPendingSlices().catch(err => this.logger.error('failure creating slices', err));
         }, 5);
 
         this._processCleanup = cleanup;
@@ -352,8 +356,7 @@ class Scheduler {
         slice._created = new Date().toISOString();
 
         // this.stateStore is attached from the execution_controller
-        return this.stateStore.createState(this.exId, slice, 'start')
-            .then(() => slice);
+        return this.stateStore.createState(this.exId, slice, 'start').then(() => slice);
     }
 
     _createSlices(slices) {
@@ -369,11 +372,8 @@ class Scheduler {
     }
 
     async _recoverSlices() {
-        this.recover = this.recover || makeExecutionRecovery(
-            this.context,
-            this.stateStore,
-            this.executionContext
-        );
+        this.recover = this.recover
+            || makeExecutionRecovery(this.context, this.stateStore, this.executionContext);
 
         await this.recover.initialize();
 
