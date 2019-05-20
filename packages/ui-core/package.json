@@ -1,6 +1,6 @@
 {
     "name": "@terascope/ui-core",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "description": "A teraserver ui framework",
     "publishConfig": {
         "access": "public"
