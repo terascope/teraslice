@@ -1,0 +1,10 @@
+{
+    "extends": "../../tsconfig",
+    "compilerOptions": {
+        "outDir": "dist",
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "module": "esnext",
+        "jsx": "react"
+    },
+    "include": ["src"]
+}

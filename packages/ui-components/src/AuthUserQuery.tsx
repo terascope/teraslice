@@ -54,6 +54,7 @@ function isAuthError(error: ApolloError) {
         if (statusCode === 401) return true;
         return false;
     }
+    return undefined;
 }
 
 export default AuthUserQuery;

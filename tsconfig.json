@@ -21,15 +21,9 @@
         "declaration": true,
         "declarationMap": true,
         "sourceMap": true,
-        "typeRoots": [
-            "./types",
-            "./node_modules/@types"
-        ],
+        "typeRoots": ["./types", "./node_modules/@types"],
         "paths": {
-            "*": [
-                "*",
-                "./types/*"
-            ]
+            "*": ["*", "./types/*"]
         }
     },
     "include": [],
@@ -61,6 +55,9 @@
         },
         {
             "path": "packages/teraslice-test-harness"
+        },
+        {
+            "path": "packages/ui-components"
         }
     ]
 }
