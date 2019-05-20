@@ -34,3 +34,4 @@ packages/teraslice-test-harness
 packages/ts-transforms
 packages/xlucene-evaluator
 packages/ui-core
+packages/ui-components

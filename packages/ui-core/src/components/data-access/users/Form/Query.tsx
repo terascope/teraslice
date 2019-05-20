@@ -10,7 +10,7 @@ import {
     LoadingPage,
     ResolvedUser,
     useCoreContext,
-} from '../../../core';
+} from '@terascope/ui-components';
 
 const FormQuery: React.FC<Props> = ({ component: Component, id }) => {
     const QUERY = id ? WITH_ID_QUERY : WITHOUT_ID_QUERY;

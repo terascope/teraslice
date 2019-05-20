@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page } from '../core';
+import { Page } from '@terascope/ui-components';
 
 const Welcome: React.FC = () => {
     return (

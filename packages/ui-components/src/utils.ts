@@ -2,12 +2,7 @@ import React from 'react';
 import _parseDate from 'date-fns/parse';
 import _formatDate from 'date-fns/format';
 import { withRouter, RouteComponentProps, matchPath } from 'react-router-dom';
-import {
-    PluginConfig,
-    PluginRoute,
-    ResolvedUser,
-    UserPermissionMap,
-} from './interfaces';
+import { PluginConfig, PluginRoute, ResolvedUser, UserPermissionMap } from './interfaces';
 import { UserType } from '@terascope/data-access';
 
 export function formatPath(...paths: (string | undefined)[]) {
@@ -39,10 +34,7 @@ export function formatDate(dateStr: any): string {
 }
 
 type FindPluginRouteResult = { plugin: PluginConfig; route: PluginRoute };
-export function findPluginRoute(
-    plugins: PluginConfig[],
-    pathname: string
-): FindPluginRouteResult | undefined {
+export function findPluginRoute(plugins: PluginConfig[], pathname: string): FindPluginRouteResult | undefined {
     for (const plugin of plugins) {
         const route = plugin.routes.find(({ path }) => {
             return !!matchPath(pathname, {
@@ -55,12 +47,10 @@ export function findPluginRoute(
             return { route, plugin };
         }
     }
+    return undefined;
 }
 
-export function hasAccessToRoute(
-    authUser?: ResolvedUser,
-    result?: FindPluginRouteResult
-): boolean {
+export function hasAccessToRoute(authUser?: ResolvedUser, result?: FindPluginRouteResult): boolean {
     if (!result) return false;
     return hasAccessTo(authUser, result.route.access || result.plugin.access);
 }

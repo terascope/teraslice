@@ -6,7 +6,7 @@ import {
     ErrorMessage,
     useCoreContext,
     tsWithRouter,
-} from '../../../core';
+} from '@terascope/ui-components';
 import Mutation from './Mutation';
 import * as i from './interfaces';
 import * as m from '../../ModelForm';

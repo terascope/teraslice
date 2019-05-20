@@ -3,27 +3,27 @@
 const fs = require('fs');
 const path = require('path');
 
-const excluded = ['ui-core'];
+const excluded = ['ui-core', 'ui-components'];
 const packagesPath = path.join(__dirname, 'packages');
-const projects = fs.readdirSync(packagesPath).filter((pkgName) => {
-    const pkgDir = path.join(packagesPath, pkgName);
+const projects = fs
+    .readdirSync(packagesPath)
+    .filter((pkgName) => {
+        const pkgDir = path.join(packagesPath, pkgName);
 
-    if (!fs.statSync(pkgDir).isDirectory()) return false;
-    if (excluded.includes(pkgName)) return false;
-    return fs.existsSync(path.join(pkgDir, 'package.json'));
-}).map(pkgName => `<rootDir>/packages/${pkgName}`);
+        if (!fs.statSync(pkgDir).isDirectory()) return false;
+        if (excluded.includes(pkgName)) return false;
+        return fs.existsSync(path.join(pkgDir, 'package.json'));
+    })
+    .map(pkgName => `<rootDir>/packages/${pkgName}`);
 
 module.exports = {
     rootDir: '.',
     verbose: true,
     projects,
     globals: {
-        availableExtensions: ['.js', '.ts']
+        availableExtensions: ['.js', '.ts'],
     },
-    testMatch: [
-        '<rootDir>/packages/*/test/**/*-spec.{ts,js}',
-        '<rootDir>/packages/*/test/*-spec.{ts,js}'
-    ],
+    testMatch: ['<rootDir>/packages/*/test/**/*-spec.{ts,js}', '<rootDir>/packages/*/test/*-spec.{ts,js}'],
     testPathIgnorePatterns: [
         '/coverage/',
         '/docs/',
@@ -31,7 +31,7 @@ module.exports = {
         '/examples/',
         '<rootDir>/e2e/',
         '<rootDir>/packages/*/dist',
-        '<rootDir>/packages/teraslice-cli/test/fixtures/'
+        '<rootDir>/packages/teraslice-cli/test/fixtures/',
     ],
     collectCoverage: true,
     collectCoverageFrom: [
@@ -49,5 +49,5 @@ module.exports = {
     ],
     coverageReporters: ['lcov', 'text-summary', 'html'],
     coverageDirectory: '<rootDir>/coverage',
-    preset: 'ts-jest'
+    preset: 'ts-jest',
 };

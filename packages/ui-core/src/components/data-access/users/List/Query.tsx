@@ -11,7 +11,7 @@ import {
     ResolvedUser,
     tsWithRouter,
     UpdateQueryState,
-} from '../../../core';
+} from '@terascope/ui-components';
 
 const searchFields: (keyof User)[] = [
     'firstname',

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Dropdown, Button, Icon, Menu } from 'semantic-ui-react';
-import { useCoreContext } from '../../core';
+import { useCoreContext } from '@terascope/ui-components';
 
 type LinkProps = { to: string; iconName: string };
 const DropdownLink: React.FC<LinkProps> = ({ to, iconName, children }) => {

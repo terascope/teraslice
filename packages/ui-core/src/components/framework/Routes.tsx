@@ -1,5 +1,9 @@
 import React from 'react';
-import { useCoreContext, formatPath, PluginPage } from '../core';
+import {
+    useCoreContext,
+    formatPath,
+    PluginPage,
+} from '@terascope/ui-components';
 import ProtectedRoute from './ProtectedRoute';
 
 const Routes: React.FC = () => {

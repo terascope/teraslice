@@ -3,7 +3,11 @@ import gql from 'graphql-tag';
 import { Query, ApolloConsumer } from 'react-apollo';
 import { Redirect } from 'react-router';
 import { parseErrorInfo } from '@terascope/utils';
-import { LoadingPage, ErrorPage, useCoreContext } from '../core';
+import {
+    LoadingPage,
+    ErrorPage,
+    useCoreContext,
+} from '@terascope/ui-components';
 
 const Logout: React.FC = () => {
     const { authenticated, updateState } = useCoreContext();

@@ -5,7 +5,7 @@
     "publishConfig": {
         "access": "public"
     },
-    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/terascope-utils#readme",
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/utils#readme",
     "repository": "git@github.com:terascope/teraslice.git",
     "author": "Terascope, LLC <info@terascope.io>",
     "license": "MIT",

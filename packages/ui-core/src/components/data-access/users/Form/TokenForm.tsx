@@ -3,7 +3,11 @@ import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { Mutation } from 'react-apollo';
 import { Form, Button } from 'semantic-ui-react';
-import { AUTH_QUERY, ErrorMessage, useCoreContext } from '../../../core';
+import {
+    AUTH_QUERY,
+    ErrorMessage,
+    useCoreContext,
+} from '@terascope/ui-components';
 import { WITH_ID_QUERY } from './Query';
 import { get } from '@terascope/utils';
 import { PureQueryOptions } from 'apollo-boost';

@@ -3,7 +3,12 @@ import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import { Redirect } from 'react-router-dom';
 import { Form, Button } from 'semantic-ui-react';
-import { Page, useCoreContext, ResolvedUser, ErrorMessage } from '../core';
+import {
+    Page,
+    useCoreContext,
+    ResolvedUser,
+    ErrorMessage,
+} from '@terascope/ui-components';
 import { get } from '@terascope/utils';
 
 type State = {
