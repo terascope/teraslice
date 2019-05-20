@@ -7,7 +7,7 @@ import Observer from './observer';
  */
 export default class JobObserver extends Observer {
     collectAnalytics: boolean;
-    analyticsData: SliceAnalyticsData|undefined;
+    analyticsData: SliceAnalyticsData | undefined;
 
     // use to avoid undefinied variable issues
     protected _currentSliceId: string;
@@ -18,7 +18,7 @@ export default class JobObserver extends Observer {
     private _opLength: number;
 
     // in-flight analytics
-    private _initialized: OpAnalytics|null;
+    private _initialized: OpAnalytics | null;
 
     constructor(context: WorkerContext, apiConfig: APIConfig, executionConfig: ExecutionConfig) {
         super(context, apiConfig, executionConfig);
@@ -75,11 +75,19 @@ export default class JobObserver extends Observer {
 
     private defaultAnalytics(): SliceAnalyticsData {
         return {
-            time: times(this._opLength, () => -1),
-            memory: times(this._opLength, () => -1),
-            size: times(this._opLength, () => -1),
+            time: initVals(this._opLength),
+            memory: initVals(this._opLength),
+            size: initVals(this._opLength),
         };
     }
+}
+
+function initVals(int: number) {
+    return times(int, initVal);
+}
+
+function initVal() {
+    return -1;
 }
 
 function getMemoryUsage() {

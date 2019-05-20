@@ -1,11 +1,6 @@
 import { debugLogger } from './logger';
 import { isEmpty } from './utils';
-import {
-    isRetryableError,
-    TSError,
-    parseError,
-    isFatalError
-} from './errors';
+import { isRetryableError, TSError, parseError, isFatalError } from './errors';
 
 const logger = debugLogger('utils:promises');
 
@@ -15,28 +10,28 @@ export interface PRetryConfig {
      * This does not include the initial attempt
      *
      * @default 3
-    */
+     */
     retries: number;
 
     /**
      * The initial time to delay before retrying the function
      *
      * @default 500
-    */
+     */
     delay: number;
 
     /**
      * The maximum time to delay when retrying in milliseconds
      *
      * @default 60000
-    */
+     */
     maxDelay: number;
 
     /**
      * The backoff multiplier
      *
      * @default 2
-    */
+     */
     backoff: number;
 
     /**
@@ -51,7 +46,7 @@ export interface PRetryConfig {
 
     /**
      * Log function for logging any errors that occurred
-    */
+     */
     logError: (...args: any[]) => void;
 
     /**
@@ -59,24 +54,27 @@ export interface PRetryConfig {
      * If any of the items in the array match the error message,
      * it will be considered retryable
      */
-    matches?: (string|RegExp)[];
+    matches?: (string | RegExp)[];
 }
 
 /**
  * A promise retry fn.
-*/
+ */
 export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetryConfig>): Promise<T> {
-    const config = Object.assign({
-        retries: 3,
-        delay: 500,
-        maxDelay: 60000,
-        backoff: 2,
-        matches: [],
-        logError: logger.warn,
-        _currentDelay: 0,
-        // @ts-ignore
-        _context: undefined as PRetryContext,
-    }, options);
+    const config = Object.assign(
+        {
+            retries: 3,
+            delay: 500,
+            maxDelay: 60000,
+            backoff: 2,
+            matches: [],
+            logError: logger.warn,
+            _currentDelay: 0,
+            // @ts-ignore
+            _context: undefined as PRetryContext,
+        },
+        options
+    );
 
     if (!config._currentDelay) {
         config._currentDelay = config.delay;
@@ -96,7 +94,7 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetry
 
         if (!isEmpty(config.matches)) {
             const rawErr = parseError(_err);
-            matches = config.matches.some((match) => {
+            matches = config.matches.some(match => {
                 const reg = new RegExp(match);
                 return reg.test(rawErr);
             });
@@ -104,7 +102,7 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetry
 
         const context = {
             ...config._context,
-            duration: Date.now() - config._context.startTime
+            duration: Date.now() - config._context.startTime,
         };
 
         const err = new TSError(_err, {
@@ -125,16 +123,11 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetry
             await pDelay(config._currentDelay);
 
             config.retries--;
-            config._currentDelay = getBackoffDelay(
-                config._currentDelay,
-                config.backoff,
-                config.maxDelay,
-                config.delay
-            );
+            config._currentDelay = getBackoffDelay(config._currentDelay, config.backoff, config.maxDelay, config.delay);
 
             config.logError(err, 'retry error, retrying...', {
                 ...config,
-                _context: null
+                _context: null,
             });
             return pRetry(fn, config);
         }
@@ -150,7 +143,7 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetry
 
 /**
  * Get backoff delay that will safe to retry and is slightly staggered
-*/
+ */
 export function getBackoffDelay(current: number, factor: number = 2, max = 60000, min = 500): number {
     // jitter is a floating point number between -0.2 and 0.8
     const jitter = Math.random() * 0.8 + -0.2;
@@ -160,7 +153,7 @@ export function getBackoffDelay(current: number, factor: number = 2, max = 60000
     if (n < min) n = min;
 
     // multiple the current backoff value by input factor and jitter
-    n *= (factor + jitter);
+    n *= factor + jitter;
 
     // ensure the number does not exceed the max val
     if (n > max) n = max;
@@ -177,12 +170,16 @@ type PRetryContext = {
 
 /** promisified setTimeout */
 export const pDelay = (delay: number = 1) => {
-    return new Promise((resolve) => { setTimeout(resolve, delay); });
+    return new Promise(resolve => {
+        setTimeout(resolve, delay);
+    });
 };
 
 /** promisified setImmediate */
 export const pImmediate = () => {
-    return new Promise((resolve) => { setImmediate(resolve); });
+    return new Promise(resolve => {
+        setImmediate(resolve);
+    });
 };
 
 interface PromiseFn<T = any> {
@@ -190,8 +187,10 @@ interface PromiseFn<T = any> {
 }
 
 /** Async waterfall function */
-export function waterfall(input: any, fns: PromiseFn[]): Promise<any> {
+export function waterfall(input: any, fns: PromiseFn[], addBreak = false): Promise<any> {
+    let i = 0;
     return fns.reduce(async (last, fn) => {
+        if (i++ === 0 && addBreak) await pImmediate();
         return fn(await last);
     }, input);
 }

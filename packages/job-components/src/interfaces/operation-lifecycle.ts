@@ -69,8 +69,6 @@ export interface WorkerOperationLifeCycle extends OperationLifeCycle {
      * Called to notify the processors that the next slice being
      * passed through will be an empty slice used to flush
      * any additional in-memory state.
-     *
-     * **NOTE:** This won't be called on the "Fetcher"
      */
     beforeFlush?(): Promise<void>;
 }
