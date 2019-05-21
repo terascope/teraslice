@@ -1,7 +1,15 @@
 import 'jest-extended';
 import path from 'path';
 import { terasliceOpPath } from '../helpers';
-import { WorkerExecutionContext, TestContext, newTestExecutionConfig, DataEntity, FetcherCore, ProcessorCore, newTestSlice } from '../../src';
+import {
+    WorkerExecutionContext,
+    TestContext,
+    newTestExecutionConfig,
+    DataEntity,
+    FetcherCore,
+    ProcessorCore,
+    newTestSlice,
+} from '../../src';
 import ExampleBatch from '../fixtures/example-op/processor';
 
 describe('WorkerExecutionContext', () => {
@@ -44,15 +52,15 @@ describe('WorkerExecutionContext', () => {
         });
 
         beforeAll(async () => {
-            expect(executionContext).toHaveProperty('state', 'initializing');
+            expect(executionContext).toHaveProperty('status', 'initializing');
             await executionContext.initialize();
-            expect(executionContext).toHaveProperty('state', 'idle');
+            expect(executionContext).toHaveProperty('status', 'idle');
         });
 
         afterAll(async () => {
             events.removeAllListeners();
             await executionContext.shutdown();
-            expect(executionContext).toHaveProperty('state', 'shutdown');
+            expect(executionContext).toHaveProperty('status', 'shutdown');
         });
 
         it('should have correct properties', () => {
@@ -123,35 +131,27 @@ describe('WorkerExecutionContext', () => {
 
         it('should be to call the Worker LifeCycle events', async () => {
             await executionContext.initializeSlice(newTestSlice());
-            expect(executionContext.state).toEqual('running');
-            expect(executionContext).toHaveProperty('active.state', 'starting');
+            expect(executionContext.status).toEqual('running');
+            expect(executionContext).toHaveProperty('sliceState.status', 'starting');
             await executionContext.onSliceStarted();
-            expect(executionContext).toHaveProperty('active.state', 'started');
+            expect(executionContext).toHaveProperty('sliceState.status', 'started');
             await executionContext.onSliceFinalizing();
             await executionContext.onSliceFinished();
-            expect(executionContext.state).toEqual('idle');
+            expect(executionContext.status).toEqual('idle');
             await executionContext.onSliceFailed();
-            expect(executionContext).toHaveProperty('active.state', 'failed');
+            expect(executionContext).toHaveProperty('sliceState.status', 'failed');
             await executionContext.onSliceRetry();
-            executionContext.active = undefined;
+            executionContext.sliceState = undefined;
         });
 
         it('should be able run a "slice"', async () => {
-            const slice = {
-                slice_id: '1',
-                slicer_id: 1,
-                slicer_order: 1,
-                request: { hello: true },
-                _created: 'hi',
-            };
+            await executionContext.initializeSlice(newTestSlice());
+            expect(executionContext).toHaveProperty('sliceState.status', 'starting');
 
-            await executionContext.initializeSlice(slice);
-            expect(executionContext).toHaveProperty('active.state', 'starting');
-
-            const { results, analytics, state } = await executionContext.runSlice();
-            expect(state).toEqual('completed');
-            expect(executionContext).toHaveProperty('active.state', state);
-            expect(executionContext.state).toEqual('running');
+            const { results, analytics, status } = await executionContext.runSlice();
+            expect(status).toEqual('completed');
+            expect(executionContext).toHaveProperty('sliceState.status', status);
+            expect(executionContext.status).toEqual('running');
 
             expect(analytics).toBeUndefined();
 
@@ -168,12 +168,18 @@ describe('WorkerExecutionContext', () => {
             const op: ExampleBatch = executionContext.getOperation('example-op');
 
             expect(op._flushing).toBeFalse();
-            expect(executionContext).toHaveProperty('active.state', 'completed');
+            expect(executionContext).toHaveProperty('sliceState.status', 'completed');
 
-            const { results, analytics, state } = await executionContext.flush();
+            const result = await executionContext.flush();
+            if (!result) {
+                expect(result).not.toBeNil();
+                return;
+            }
 
-            expect(state).toEqual('flushed');
-            expect(executionContext.state).toEqual('flushing');
+            const { results, analytics, status } = result;
+
+            expect(status).toEqual('flushed');
+            expect(executionContext.status).toEqual('flushing');
 
             expect(op._flushing).toBeFalse();
 
@@ -184,6 +190,19 @@ describe('WorkerExecutionContext', () => {
             for (const item of results) {
                 expect(item).toHaveProperty('flush', true);
             }
+        });
+
+        it('should be able run a slice and flush at the same time', async () => {
+            await executionContext.initializeSlice(newTestSlice());
+
+            const running = executionContext.runSlice();
+            const flushing = executionContext.flush();
+            const [runResult, flushResult] = await Promise.all([running, flushing]);
+
+            expect(runResult).toHaveProperty('status', 'flushed');
+            expect(runResult).toHaveProperty('results');
+            expect(runResult).toHaveProperty('analytics');
+            expect(flushResult).toBeNil();
         });
     });
 

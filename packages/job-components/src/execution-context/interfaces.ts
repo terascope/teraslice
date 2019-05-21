@@ -1,5 +1,13 @@
 import { DataEntity } from '@terascope/utils';
-import { Context, ExecutionConfig, SlicerOperationLifeCycle, WorkerOperationLifeCycle, SliceAnalyticsData, OpAPI, Slice } from '../interfaces';
+import {
+    Context,
+    ExecutionConfig,
+    SlicerOperationLifeCycle,
+    WorkerOperationLifeCycle,
+    SliceAnalyticsData,
+    OpAPI,
+    Slice,
+} from '../interfaces';
 import { APICore } from '../operations';
 
 export interface ExecutionContextConfig {
@@ -28,17 +36,17 @@ export interface JobAPIInstances {
     [name: string]: JobAPIInstance;
 }
 
-export type WorkerState = 'initializing' | 'idle' | 'flushing' | 'running' | 'shutdown';
-export type SliceState = 'starting' | 'started' | 'completed' | 'failed' | 'flushed';
+export type WorkerStatus = 'initializing' | 'idle' | 'flushing' | 'running' | 'shutdown';
+export type SliceStatus = 'starting' | 'started' | 'completed' | 'failed' | 'flushed';
 
 export interface RunSliceResult {
-    state: SliceState;
+    status: SliceStatus;
     analytics?: SliceAnalyticsData;
     results: DataEntity[];
 }
 
-export type ActiveSlice = {
-    state: SliceState;
+export type WorkerSliceState = {
+    status: SliceStatus;
     slice: Slice;
     analytics?: SliceAnalyticsData;
 };

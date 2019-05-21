@@ -2,7 +2,7 @@ import * as ts from '@terascope/utils';
 import { FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
 import { OperationAPI, OperationAPIConstructor } from '../operations';
 import { WorkerOperationLifeCycle, Slice, OpAPI, sliceAnalyticsMetrics } from '../interfaces';
-import { ExecutionContextConfig, RunSliceResult, JobAPIInstances, ActiveSlice, WorkerState, SliceState } from './interfaces';
+import { ExecutionContextConfig, RunSliceResult, JobAPIInstances, WorkerSliceState, WorkerStatus, SliceStatus } from './interfaces';
 import JobObserver from '../operations/job-observer';
 import BaseExecutionContext from './base';
 
@@ -22,8 +22,8 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
     readonly logger: ts.Logger;
 
     /** the active (or last) run slice */
-    active: ActiveSlice | undefined;
-    state: WorkerState = 'initializing';
+    sliceState: WorkerSliceState | undefined;
+    status: WorkerStatus = 'initializing';
 
     private readonly _fetcher: FetcherCore;
     private _queue: ((input: any) => Promise<ts.DataEntity[]>)[];
@@ -91,7 +91,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         this._queue = [
             async (input: any) => {
                 this._onOperationStart(0);
-                if (this.state === 'flushing') {
+                if (this.status === 'flushing') {
                     this._onOperationComplete(0, 0);
                     return [];
                 }
@@ -142,12 +142,12 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
 
         await Promise.all(promises);
 
-        this.state = 'idle';
+        this.status = 'idle';
     }
 
     async shutdown() {
         await super.shutdown();
-        this.state = 'shutdown';
+        this.status = 'shutdown';
     }
 
     /**
@@ -185,12 +185,12 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
 
     async initializeSlice(slice: Slice) {
         const currentSliceId = this._sliceId;
-        if (this.state !== 'flushing') {
-            this.state = 'running';
+        if (this.status !== 'flushing') {
+            this.status = 'running';
         }
 
-        this.active = {
-            state: 'starting',
+        this.sliceState = {
+            status: 'starting',
             slice,
         };
 
@@ -208,7 +208,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
             await this.initializeSlice(slice);
         }
 
-        if (!this.active) {
+        if (!this.sliceState) {
             throw new Error('No slice specified to run');
         }
 
@@ -227,14 +227,14 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
     }
 
     async flush(): Promise<RunSliceResult | undefined> {
-        if (!this.active) return;
-        if (this.active.state === 'failed') return;
-        if (this.state === 'shutdown') return;
+        if (!this.sliceState) return;
+        if (this.sliceState.status === 'failed') return;
+        if (this.status === 'shutdown') return;
 
-        this.state = 'flushing';
+        this.status = 'flushing';
         await this.beforeFlush();
-        const skip: SliceState[] = ['started', 'starting'];
-        if (skip.includes(this.active.state)) return;
+        const skip: SliceStatus[] = ['started', 'starting'];
+        if (skip.includes(this.sliceState.status)) return;
 
         return this._runActiveSlice(false);
     }
@@ -263,7 +263,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
     }
 
     async onSliceFinished() {
-        this.state = 'idle';
+        this.status = 'idle';
         await this._runMethodAsync('onSliceFinished', this._sliceId);
     }
 
@@ -303,22 +303,22 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         this._runMethod('onOperationStart', this._sliceId, index);
     }
 
-    private _updateActive(state: SliceState) {
-        if (!this.active) throw new Error('No active slice to update');
-        this.active.state = state;
+    private _updateActive(status: SliceStatus) {
+        if (!this.sliceState) throw new Error('No active slice to update');
+        this.sliceState.status = status;
 
         const analytics = this.jobObserver.getAnalytics();
-        if (state !== 'flushed') {
-            this.active.analytics = analytics;
+        if (status !== 'flushed') {
+            this.sliceState.analytics = analytics;
             return;
         }
 
-        if (!this.active.analytics || !analytics) return;
+        if (!this.sliceState.analytics || !analytics) return;
 
         const ops = this.config.operations.length;
 
         for (const metric of sliceAnalyticsMetrics) {
-            const current = this.active.analytics[metric];
+            const current = this.sliceState.analytics[metric];
             const updated = analytics[metric];
             for (let i = 0; i < ops; i++) {
                 current[i] = mergeMetrics(current, updated, i);
@@ -327,17 +327,17 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
     }
 
     private async _runActiveSlice(shouldRetry: boolean): Promise<RunSliceResult> {
-        if (!this.active) throw new Error('No active slice to run');
-        if (this.state === 'shutdown') {
+        if (!this.sliceState) throw new Error('No active slice to run');
+        if (this.status === 'shutdown') {
             throw new ts.TSError('Slice shutdown during slice execution', {
                 retryable: false,
             });
         }
 
         try {
-            const request = ts.cloneDeep(this.active.slice.request);
+            const request = ts.cloneDeep(this.sliceState.slice.request);
             const results: ts.DataEntity[] = await ts.waterfall(request, this._queue, ts.isProd);
-            if (this.state === 'flushing') {
+            if (this.status === 'flushing') {
                 this._updateActive('flushed');
                 this.afterFlush();
             } else {
@@ -345,11 +345,11 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
             }
             return {
                 results,
-                state: this.active.state,
-                analytics: this.active.analytics,
+                status: this.sliceState.status,
+                analytics: this.sliceState.analytics,
             };
         } catch (err) {
-            this.logger.error(`An error has occurred: ${ts.toString(err)}, slice:`, this.active.slice);
+            this.logger.error(`An error has occurred: ${ts.toString(err)}, slice:`, this.sliceState.slice);
 
             if (shouldRetry) {
                 try {
@@ -368,11 +368,11 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
     }
 
     private get _sliceId(): string {
-        return this.active ? this.active.slice.slice_id : '';
+        return this.sliceState ? this.sliceState.slice.slice_id : '';
     }
 
     private get _slice() {
-        return this.active && this.active.slice;
+        return this.sliceState && this.sliceState.slice;
     }
 }
 
