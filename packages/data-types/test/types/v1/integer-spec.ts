@@ -1,9 +1,10 @@
 import Interger from '../../../src/types/versions/v1/integer';
 import { TSError } from '@terascope/utils';
+import { TypeConfig } from '../../../src/interfaces';
 
-describe('Double V1', () => {
+describe('Integer V1', () => {
     const field = 'someField';
-    const typeConfig = { type: 'integer' };
+    const typeConfig: TypeConfig = { type: 'Integer' };
 
     it('can requires a field and proper configs', () => {
         try {
@@ -43,4 +44,3 @@ describe('Double V1', () => {
         expect(xlucene).toEqual(results);
     });
 });
-

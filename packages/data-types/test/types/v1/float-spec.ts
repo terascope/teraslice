@@ -1,10 +1,11 @@
 
 import FloatType from '../../../src/types/versions/v1/float';
 import { TSError } from '@terascope/utils';
+import { TypeConfig } from '../../../src/interfaces';
 
 describe('Float V1', () => {
     const field = 'someField';
-    const typeConfig = { type: 'float' };
+    const typeConfig: TypeConfig = { type: 'Float' };
 
     it('can requires a field and proper configs', () => {
         try {
@@ -44,4 +45,3 @@ describe('Float V1', () => {
         expect(xlucene).toEqual(results);
     });
 });
-

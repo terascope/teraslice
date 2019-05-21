@@ -1,9 +1,10 @@
 import LongType from '../../../src/types/versions/v1/long';
 import { TSError } from '@terascope/utils';
+import { TypeConfig } from '../../../src/interfaces';
 
-describe('Double V1', () => {
+describe('Long V1', () => {
     const field = 'someField';
-    const typeConfig = { type: 'long' };
+    const typeConfig: TypeConfig = { type: 'Long' };
 
     it('can requires a field and proper configs', () => {
         try {

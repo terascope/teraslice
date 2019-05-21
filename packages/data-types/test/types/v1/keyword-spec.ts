@@ -1,9 +1,10 @@
 import Keyword from '../../../src/types/versions/v1/keyword';
 import { TSError } from '@terascope/utils';
+import { TypeConfig } from '../../../src/interfaces';
 
-describe('Double V1', () => {
+describe('Keyword V1', () => {
     const field = 'someField';
-    const typeConfig = { type: 'keyword' };
+    const typeConfig: TypeConfig = { type: 'Keyword' };
 
     it('can requires a field and proper configs', () => {
         try {

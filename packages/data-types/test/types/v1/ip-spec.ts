@@ -1,9 +1,10 @@
 import IpType from '../../../src/types/versions/v1/ip';
 import { TSError } from '@terascope/utils';
+import { TypeConfig } from '../../../src/interfaces';
 
-describe('Double V1', () => {
+describe('IP V1', () => {
     const field = 'someField';
-    const typeConfig = { type: 'ip' };
+    const typeConfig: TypeConfig = { type: 'IP' };
 
     it('can requires a field and proper configs', () => {
         try {
@@ -43,4 +44,3 @@ describe('Double V1', () => {
         expect(xlucene).toEqual(results);
     });
 });
-

@@ -6,21 +6,21 @@ describe('getGraphQlTypes', () => {
         const typeConfig1: DataTypeConfig = {
             version: 1,
             fields: {
-                hello: { type: 'text' },
-                location: { type: 'geo' },
-                date: { type: 'date' },
-                ip: { type: 'ip' },
-                someNum: { type: 'long' }
+                hello: { type: 'Text' },
+                location: { type: 'Geo' },
+                date: { type: 'Date' },
+                ip: { type: 'IP' },
+                someNum: { type: 'Long' }
             },
         };
 
         const typeConfig2: DataTypeConfig = {
             version: 1,
             fields: {
-                hello: { type: 'text' },
-                location: { type: 'geo' },
-                otherLocation: { type: 'geo' },
-                bool: { type: 'boolean' }
+                hello: { type: 'Text' },
+                location: { type: 'Geo' },
+                otherLocation: { type: 'Geo' },
+                bool: { type: 'Boolean' }
             },
         };
 

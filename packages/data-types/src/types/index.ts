@@ -1,6 +1,6 @@
 
 import * as ts from '@terascope/utils';
-import mappings from './versions/mapping';
+import { mapping } from './versions/mapping';
 import { TypeConfig } from '../interfaces';
 
 export class TypesManager {
@@ -8,12 +8,12 @@ export class TypesManager {
 
     constructor(version: number) {
         this.version = `v${version}`;
-        if (mappings[this.version] == null) throw new ts.TSError(`The type library does not have types for version ${version}`);
+        if (mapping[this.version] == null) throw new ts.TSError(`The type library does not have types for version ${version}`);
     }
 
     getType(field: string, { type, ...configs }: TypeConfig) {
-        const Type = ts.get(mappings, [this.version, type]);
-        if (Type == null) throw new ts.TSError(`Type ${type} was found in version ${this.version}`);
+        const Type = ts.get(mapping, [this.version, type]);
+        if (Type == null) throw new ts.TSError(`Type ${type} was not found in version ${this.version}`);
         return new Type(field, configs);
     }
 }

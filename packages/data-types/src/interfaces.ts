@@ -1,4 +1,6 @@
 
+import BaseType from './types/versions/base-type';
+
 export interface GraphQlResults {
     results: string;
     baseType: string;
@@ -19,9 +21,19 @@ export type Ip = 'ip';
 // TODO: review the use of this
 export type XluceneValues = String | Number | Boolean | Geo | Ip;
 
+export type AvailableTypes = 'Boolean'|'Date'|'Geo'|'IP'|'Byte'|'Double'|'Float'|'Integer'|'Keyword'|'Long'|'Short'|'Text';
+
 export type TypeConfig = {
-    type: string;
+    type: AvailableTypes;
 };
+
+type ActualType = {
+    [key in AvailableTypes]: { new (field:string, config: TypeConfig): BaseType }
+};
+
+export interface DataTypeMapping {
+    [key: string]: ActualType;
+}
 
 export type DataTypeConfig = {
     fields: {
@@ -37,8 +49,6 @@ export enum NumberESType {
     byte = 'byte',
     double = 'double',
     float = 'float',
-    half_float = 'half_float',
-    scaled_float = 'scaled_float',
 }
 
 export enum GraphqlType {

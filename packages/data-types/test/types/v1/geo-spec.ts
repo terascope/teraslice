@@ -1,9 +1,10 @@
 import GeoType from '../../../src/types/versions/v1/geo';
 import { TSError } from '@terascope/utils';
+import { TypeConfig } from '../../../src/interfaces';
 
 describe('Geo V1', () => {
     const field = 'someField';
-    const typeConfig = { type: 'geo' };
+    const typeConfig: TypeConfig = { type: 'Geo' };
 
     it('can requires a field and proper configs', () => {
         try {

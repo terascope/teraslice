@@ -1,10 +1,11 @@
 
 import Short from '../../../src/types/versions/v1/short';
 import { TSError } from '@terascope/utils';
+import { TypeConfig } from '../../../src/interfaces';
 
-describe('Date V1', () => {
+describe('Short V1', () => {
     const field = 'someField';
-    const typeConfig = { type: 'short' };
+    const typeConfig: TypeConfig = { type: 'Short' };
 
     it('can requires a field and proper configs', () => {
         try {

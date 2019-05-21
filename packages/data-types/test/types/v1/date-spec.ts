@@ -1,10 +1,11 @@
 
 import DateType from '../../../src/types/versions/v1/date';
 import { TSError } from '@terascope/utils';
+import { TypeConfig } from '../../../src/interfaces';
 
 describe('Date V1', () => {
     const field = 'someField';
-    const typeConfig = { type: 'date' };
+    const typeConfig: TypeConfig = { type: 'Date' };
 
     it('can requires a field and proper configs', () => {
         try {

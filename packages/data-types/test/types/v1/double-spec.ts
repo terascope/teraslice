@@ -1,10 +1,11 @@
 
 import DoubleType from '../../../src/types/versions/v1/double';
 import { TSError } from '@terascope/utils';
+import { TypeConfig } from '../../../src/interfaces';
 
 describe('Double V1', () => {
     const field = 'someField';
-    const typeConfig = { type: 'double' };
+    const typeConfig:TypeConfig = { type: 'Double' };
 
     it('can requires a field and proper configs', () => {
         try {

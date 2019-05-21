@@ -31,5 +31,7 @@
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
         "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
     },
-    "devDependencies": {}
+    "devDependencies": {
+        "@terascope/utils": "^0.10.1"
+    }
 }

@@ -19,7 +19,7 @@ describe('DataType', () => {
     it('it can instantiate correctly', () => {
         const typeConfig: DataTypeConfig = {
             version: 1,
-            fields: { hello: { type: 'keyword' } },
+            fields: { hello: { type: 'Keyword' } },
         };
 
         expect(() => new DataType(typeConfig)).not.toThrow();
@@ -29,11 +29,11 @@ describe('DataType', () => {
         const typeConfig: DataTypeConfig = {
             version: 1,
             fields: {
-                hello: { type: 'text' },
-                location: { type: 'geo' },
-                date: { type: 'date' },
-                ip: { type: 'ip' },
-                someNum: { type: 'long' }
+                hello: { type: 'Text' },
+                location: { type: 'Geo' },
+                date: { type: 'Date' },
+                ip: { type: 'IP' },
+                someNum: { type: 'Long' }
             },
         };
 
@@ -53,11 +53,11 @@ describe('DataType', () => {
         const typeConfig: DataTypeConfig = {
             version: 1,
             fields: {
-                hello: { type: 'text' },
-                location: { type: 'geo' },
-                date: { type: 'date' },
-                ip: { type: 'ip' },
-                someNum: { type: 'long' }
+                hello: { type: 'Text' },
+                location: { type: 'Geo' },
+                date: { type: 'Date' },
+                ip: { type: 'IP' },
+                someNum: { type: 'Long' }
             },
         };
 
@@ -104,11 +104,11 @@ describe('DataType', () => {
         const typeConfig: DataTypeConfig = {
             version: 1,
             fields: {
-                hello: { type: 'text' },
-                location: { type: 'geo' },
-                date: { type: 'date' },
-                ip: { type: 'ip' },
-                someNum: { type: 'long' }
+                hello: { type: 'Text' },
+                location: { type: 'Geo' },
+                date: { type: 'Date' },
+                ip: { type: 'IP' },
+                someNum: { type: 'Long' }
             },
         };
 
@@ -122,11 +122,11 @@ describe('DataType', () => {
         const typeConfig: DataTypeConfig = {
             version: 1,
             fields: {
-                hello: { type: 'text' },
-                location: { type: 'geo' },
-                date: { type: 'date' },
-                ip: { type: 'ip' },
-                someNum: { type: 'long' }
+                hello: { type: 'Text' },
+                location: { type: 'Geo' },
+                date: { type: 'Date' },
+                ip: { type: 'IP' },
+                someNum: { type: 'Long' }
             },
         };
 
@@ -142,11 +142,11 @@ describe('DataType', () => {
         const typeConfig: DataTypeConfig = {
             version: 1,
             fields: {
-                hello: { type: 'text' },
-                location: { type: 'geo' },
-                date: { type: 'date' },
-                ip: { type: 'ip' },
-                someNum: { type: 'long' }
+                hello: { type: 'Text' },
+                location: { type: 'Geo' },
+                date: { type: 'Date' },
+                ip: { type: 'IP' },
+                someNum: { type: 'Long' }
             },
         };
 
@@ -163,11 +163,11 @@ describe('DataType', () => {
         const typeConfig: DataTypeConfig = {
             version: 1,
             fields: {
-                hello: { type: 'text' },
-                location: { type: 'geo' },
-                date: { type: 'date' },
-                ip: { type: 'ip' },
-                someNum: { type: 'long' }
+                hello: { type: 'Text' },
+                location: { type: 'Geo' },
+                date: { type: 'Date' },
+                ip: { type: 'IP' },
+                someNum: { type: 'Long' }
             },
         };
 
@@ -198,11 +198,11 @@ describe('DataType', () => {
         const typeConfig: DataTypeConfig = {
             version: 1,
             fields: {
-                hello: { type: 'text' },
-                location: { type: 'geo' },
-                date: { type: 'date' },
-                ip: { type: 'ip' },
-                someNum: { type: 'long' }
+                hello: { type: 'Text' },
+                location: { type: 'Geo' },
+                date: { type: 'Date' },
+                ip: { type: 'IP' },
+                someNum: { type: 'Long' }
             },
         };
 
