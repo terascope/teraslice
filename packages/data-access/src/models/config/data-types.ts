@@ -1,5 +1,6 @@
-import { TypeConfig } from 'xlucene-evaluator';
+// import { TypeConfig } from 'xlucene-evaluator';
 import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
+import { DataTypeConfig } from '@terascope/data-types';
 
 const config: IndexModelConfig<DataType> = {
     version: 1,
@@ -70,7 +71,7 @@ export interface DataType extends IndexModelRecord {
     /**
      * Xlucene Type Config
     */
-    type_config?: TypeConfig;
+    type_config: DataTypeConfig;
 }
 
 export default config;

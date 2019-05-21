@@ -3,6 +3,7 @@ import * as ts from '@terascope/utils';
 import * as x from 'xlucene-evaluator';
 import { SpaceSearchConfig } from './models';
 import * as i from './interfaces';
+import * as t from '@terascope/data-types';
 
 const _logger = ts.debugLogger('search-access');
 
@@ -21,7 +22,8 @@ export class SearchAccess {
         }
 
         this.config = config;
-
+        const typeConfig = this.config.data_type.type_config || { fields: {}, version: 1 };
+        const types = new t.DataType(typeConfig);
         this._logger = logger;
         this._queryAccess = new x.QueryAccess(
             {
@@ -29,7 +31,7 @@ export class SearchAccess {
                 includes: this.config.view.includes,
                 constraint: this.config.view.constraint,
                 prevent_prefix_wildcard: this.config.view.prevent_prefix_wildcard,
-                type_config: this.config.data_type.type_config,
+                type_config: types.toXlucene(),
             },
             this._logger
         );
@@ -75,7 +77,7 @@ export class SearchAccess {
 
     getSearchParams(query: i.InputQuery): es.SearchParams {
         const config = this.config.search_config!;
-        const typeConfig = this.config.data_type.type_config || {};
+        const typeConfig = this.config.data_type.type_config || { fields: {}, version: 1 };
 
         const params: es.SearchParams = {
             body: {},
@@ -114,8 +116,8 @@ export class SearchAccess {
             direction = ts.trimAndToLower(direction);
 
             const dateFields: string[] = [];
-            for (const [key, val] of Object.entries(typeConfig)) {
-                if (val === 'date') {
+            for (const [key, config] of Object.entries(typeConfig.fields)) {
+                if (config.type === 'date') {
                     dateFields.push(key);
                 }
             }

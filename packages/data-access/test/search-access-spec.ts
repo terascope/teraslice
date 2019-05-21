@@ -1,8 +1,15 @@
 import 'jest-extended';
 import * as ts from '@terascope/utils';
-import { TypeConfig } from 'xlucene-evaluator';
 import { SearchParams, SearchResponse } from 'elasticsearch';
-import { SearchAccess, View, DataType, InputQuery, SpaceSearchConfig } from '../src';
+import { DataTypeConfig } from '@terascope/data-types';
+
+import {
+    SearchAccess,
+    View,
+    DataType,
+    InputQuery,
+    SpaceSearchConfig
+} from '../src';
 
 describe('SearchAccess', () => {
     it('should fail if given an invalid search config', () => {
@@ -216,7 +223,8 @@ describe('SearchAccess', () => {
                         index: 'woot',
                     },
                     {
-                        created: 'date',
+                        fields: { created: { type: 'date' } },
+                        version: 2
                     }
                 );
 
@@ -248,7 +256,8 @@ describe('SearchAccess', () => {
                         index: 'woot',
                     },
                     {
-                        created: 'date',
+                        fields: { created: { type: 'date' } },
+                        version: 2,
                     }
                 );
 
@@ -380,7 +389,8 @@ describe('SearchAccess', () => {
     });
 });
 
-function makeWith(searchConfig: Partial<SpaceSearchConfig> = {}, typeConfig: TypeConfig = {}) {
+function makeWith(searchConfig: Partial<SpaceSearchConfig> = {}, _typeConfig?: DataTypeConfig) {
+    const typeConfig =  _typeConfig || { fields: {}, version: 1 };
     const view: View = {
         client_id: 1,
         id: 'example-view',
