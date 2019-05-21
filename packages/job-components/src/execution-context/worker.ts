@@ -188,6 +188,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         if (this.state !== 'flushing') {
             this.state = 'running';
         }
+
         this.active = {
             state: 'starting',
             slice,
@@ -225,10 +226,18 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         }, retryOptions);
     }
 
-    async flush(slice?: Slice): Promise<RunSliceResult> {
+    async flush(): Promise<RunSliceResult | undefined> {
+        if (!this.active) return;
+        if (this.active.state === 'failed') return;
+        if (this.state === 'shutdown') return;
+
         await this.beforeFlush();
-        const results = await this.runSlice(slice);
+        const skip: SliceState[] = ['started', 'starting'];
+        if (skip.includes(this.active.state)) return;
+
+        const results = await this._runActiveSlice(false);
         await this.afterFlush();
+
         return results;
     }
 
