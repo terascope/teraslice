@@ -18,7 +18,7 @@ module.exports = function module(context) {
 
     let backend;
 
-    function log(job, sliceInfo, stats) {
+    function log(job, sliceInfo, stats, state = 'completed') {
         const indexData = timeseriesIndex(timeseriesFormat, _index);
         const esIndex = indexData.index;
         const { timestamp } = indexData;
@@ -33,6 +33,7 @@ module.exports = function module(context) {
                 slice_id: sliceInfo.slice_id,
                 slicer_id: sliceInfo.slicer_id,
                 op: op._op,
+                state,
                 order: index,
                 count: stats.size[index],
                 time: stats.time[index],

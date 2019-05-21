@@ -183,11 +183,15 @@ class Worker {
 
         this.logger.warn(`worker shutdown was called for execution ${exId}`);
 
-        try {
-            await this._waitForSliceToFinish();
-        } catch (err) {
-            shutdownErrs.push(err);
-        }
+        // attempt to flush the slice if told to shutdown
+        // by execution controller and wait for the slice to finish
+        await Promise.all([
+            async () => {
+                if (!this.shouldShutdown) return;
+                await this.slice.flush();
+            },
+            this._waitForSliceToFinish(),
+        ]).catch(pushError);
 
         this.events.emit('worker:shutdown');
         await this.executionContext.shutdown();
@@ -263,9 +267,9 @@ class Worker {
             }, 100);
 
             timeout = setTimeout(() => {
+                const seconds = this.shutdownTimeout / 1000;
                 const err = new Error(
-                    `Worker shutdown timeout after ${this.shutdownTimeout
-                        / 1000} seconds, forcing shutdown`
+                    `Worker shutdown timeout after ${seconds} seconds, forcing shutdown`
                 );
                 done(err);
             }, this.shutdownTimeout);

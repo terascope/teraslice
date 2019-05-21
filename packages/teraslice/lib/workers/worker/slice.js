@@ -45,11 +45,21 @@ class Slice {
             }
             throw err;
         } finally {
-            await this._logAnalytics(result && result.analytics);
+            await this._logAnalytics(result && result.analytics, 'completed');
             await this._onSliceFinalize(slice);
         }
 
         return result.results;
+    }
+
+    async flush() {
+        const result = await this.executionContext.flush();
+
+        if (result) {
+            await this._markCompleted();
+            await this._logAnalytics(result.analytics, 'flushed');
+            await this._onSliceFinalize(this.slice);
+        }
     }
 
     async shutdown() {
@@ -80,14 +90,19 @@ class Slice {
         }
     }
 
-    async _logAnalytics(analyticsData) {
+    async _logAnalytics(analyticsData, state) {
         if (analyticsData == null) return;
         this.analyticsData = analyticsData;
 
         logOpStats(this.logger, this.slice, this.analyticsData);
 
         try {
-            await this.analyticsStore.log(this.executionContext, this.slice, this.analyticsData);
+            await this.analyticsStore.log(
+                this.executionContext,
+                this.slice,
+                this.analyticsData,
+                state
+            );
         } catch (_err) {
             this.logger.error(
                 new TSError(_err, {
