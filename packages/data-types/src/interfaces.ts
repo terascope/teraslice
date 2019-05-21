@@ -8,7 +8,7 @@ export interface GraphQlResults {
 export interface DataTypeManager {
     toESMapping(mappingType:string, settings?: any): any;
     toGraphQl(typeName?: string): GraphQlResults;
-    toXlucene(): XluceneMapping;
+    toXlucene(typeName: string|null|undefined, typeInjection?:string): XluceneMapping;
 }
 
 export type String = 'keyword' | 'text';
