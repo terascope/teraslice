@@ -307,22 +307,27 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         if (!this.sliceState) throw new Error('No active slice to update');
         this.sliceState.status = status;
 
-        const analytics = this.jobObserver.getAnalytics();
-        if (status !== 'flushed') {
-            this.sliceState.analytics = analytics;
+        if (status === 'completed') {
+            this.sliceState.analytics = this.jobObserver.getAnalytics();
             return;
         }
 
-        if (!this.sliceState.analytics || !analytics) return;
+        if (status === 'flushed') {
+            const analytics = this.jobObserver.getAnalytics();
+            if (!this.sliceState.analytics || !analytics) return;
 
-        const ops = this.config.operations.length;
+            const ops = this.config.operations.length;
 
-        for (const metric of sliceAnalyticsMetrics) {
-            const current = this.sliceState.analytics[metric];
-            const updated = analytics[metric];
-            for (let i = 0; i < ops; i++) {
-                current[i] = mergeMetrics(current, updated, i);
+            for (const metric of sliceAnalyticsMetrics) {
+                for (let i = 0; i < ops; i++) {
+                    const previous = getMetric(this.sliceState.analytics[metric], i);
+                    const current = getMetric(analytics[metric], i);
+                    const updated = previous + current;
+                    analytics[metric][i] = updated;
+                }
             }
+
+            this.sliceState.analytics = analytics;
         }
     }
 
@@ -377,11 +382,9 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
 }
 
 function getMetric(input: number[], i: number): number {
-    return (input && input[i]) || 0;
-}
-
-function mergeMetrics(a: number[], b: number[], i: number): number {
-    return getMetric(a, i) + getMetric(b, i);
+    const val = input && input[i];
+    if (val > 0) return val;
+    return 0;
 }
 
 function isOperationAPI(api: any): api is OperationAPI {

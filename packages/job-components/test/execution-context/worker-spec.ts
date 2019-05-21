@@ -10,7 +10,6 @@ import {
     ProcessorCore,
     newTestSlice,
 } from '../../src';
-import ExampleBatch from '../fixtures/example-op/processor';
 
 describe('WorkerExecutionContext', () => {
     const assetIds = ['fixtures'];
@@ -23,26 +22,26 @@ describe('WorkerExecutionContext', () => {
     const events = context.apis.foundation.getSystemEvents();
 
     describe('when constructed', () => {
-        const executionConfig = newTestExecutionConfig();
-
-        executionConfig.apis = [
-            {
-                _name: 'example-observer',
-            },
-            {
-                _name: 'example-api',
-            },
-        ];
-
-        executionConfig.operations = [
-            {
-                _op: 'example-reader',
-            },
-            {
-                _op: 'example-op',
-                test_flush: true,
-            },
-        ];
+        const executionConfig = newTestExecutionConfig({
+            analytics: true,
+            apis: [
+                {
+                    _name: 'example-observer',
+                },
+                {
+                    _name: 'example-api',
+                },
+            ],
+            operations: [
+                {
+                    _op: 'example-reader',
+                },
+                {
+                    _op: 'example-op',
+                    test_flush: true,
+                },
+            ],
+        });
 
         const executionContext = new WorkerExecutionContext({
             context,
@@ -153,7 +152,7 @@ describe('WorkerExecutionContext', () => {
             expect(executionContext).toHaveProperty('sliceState.status', status);
             expect(executionContext.status).toEqual('running');
 
-            expect(analytics).toBeUndefined();
+            expect(analytics).toContainAllKeys(['time', 'memory', 'size']);
 
             expect(results.length).toBeGreaterThan(0);
 
@@ -165,10 +164,12 @@ describe('WorkerExecutionContext', () => {
         });
 
         it('should be able run a flush on the last slice', async () => {
-            const op: ExampleBatch = executionContext.getOperation('example-op');
+            const op: any = executionContext.getOperation('example-op');
 
             expect(op._flushing).toBeFalse();
             expect(executionContext).toHaveProperty('sliceState.status', 'completed');
+
+            const previousAnalytics = executionContext.sliceState!.analytics!;
 
             const result = await executionContext.flush();
             if (!result) {
@@ -183,7 +184,25 @@ describe('WorkerExecutionContext', () => {
 
             expect(op._flushing).toBeFalse();
 
-            expect(analytics).toBeUndefined();
+            expect(analytics).toContainAllKeys(['time', 'memory', 'size']);
+            expect(analytics).not.toEqual(previousAnalytics);
+            const ops = executionContext.config.operations.length;
+
+            for (const metric of ['size', 'time']) {
+                for (let i = 0; i < ops; i++) {
+                    const previous = previousAnalytics[metric][i];
+                    const current = analytics![metric][i];
+                    if (i === 0) {
+                        if (current !== previous) {
+                            fail(`Metric "${metric}" should not have changed for the fetcher. Expected ${current} === ${previous}`);
+                        }
+                    } else {
+                        if (current < previous) {
+                            fail(`Metric "${metric}" should be greater than the last run. Expected ${current} >= ${previous}.`);
+                        }
+                    }
+                }
+            }
 
             expect(results.length).toEqual(10);
 
