@@ -45,7 +45,7 @@ class Slice {
             }
             throw err;
         } finally {
-            await this._logAnalytics(result && result.analytics, 'completed');
+            await this._logAnalytics(result && result.analytics, result.status);
             await this._onSliceFinalize(slice);
         }
 
@@ -57,7 +57,7 @@ class Slice {
 
         if (result) {
             await this._markCompleted();
-            await this._logAnalytics(result.analytics, 'flushed');
+            await this._logAnalytics(result.analytics, result.status);
             await this._onSliceFinalize(this.slice);
         }
     }

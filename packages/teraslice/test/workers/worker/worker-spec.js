@@ -20,17 +20,14 @@ describe('Worker', () => {
             port: slicerPort,
             networkLatencyBuffer: 0,
             actionTimeout: 1000,
-            workerDisconnectTimeout: 3000
+            workerDisconnectTimeout: 3000,
         });
 
         testContext.attachCleanup(() => server.shutdown());
 
         await server.start();
 
-        const worker = new Worker(
-            testContext.context,
-            testContext.executionContext,
-        );
+        const worker = new Worker(testContext.context, testContext.executionContext);
 
         testContext.attachCleanup(() => worker.shutdown());
 
@@ -193,7 +190,6 @@ describe('Worker', () => {
         beforeEach(async () => {
             ({ worker, testContext, server } = await setupTest());
             await worker.initialize();
-
 
             server.onSliceSuccess((workerId, _msg) => {
                 sliceSuccess = _msg;
@@ -365,7 +361,7 @@ describe('Worker', () => {
     describe('when constructed without nothing', () => {
         it('should throw an error', () => {
             expect(() => {
-                new Worker() // eslint-disable-line
+                new Worker(); // eslint-disable-line
             }).toThrow();
         });
     });
@@ -419,10 +415,11 @@ describe('Worker', () => {
 
                     worker.stores = {};
                     worker.stores.someStore = {
-                        shutdown: () => Promise.reject(new Error('Store Error'))
+                        shutdown: () => Promise.reject(new Error('Store Error')),
                     };
 
                     worker.slice = {};
+                    worker.slice.flush = () => Promise.reject(new Error('Flush Error'));
                     worker.slice.shutdown = () => Promise.reject(new Error('Slice Error'));
 
                     worker.client = {};
@@ -438,6 +435,7 @@ describe('Worker', () => {
                         expect(errMsg).toStartWith('Error: Failed to shutdown correctly');
                         expect(errMsg).toInclude('Slice Finish Error');
                         expect(errMsg).toInclude('Store Error');
+                        expect(errMsg).toInclude('Flush Error');
                         expect(errMsg).toInclude('Slice Error');
                         expect(errMsg).toInclude('Messenger Error');
                     }

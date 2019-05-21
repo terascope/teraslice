@@ -204,7 +204,7 @@ describe('WorkerExecutionContext', () => {
                 }
             }
 
-            expect(results.length).toEqual(10);
+            expect(results.length).toEqual(30);
 
             for (const item of results) {
                 expect(item).toHaveProperty('flush', true);

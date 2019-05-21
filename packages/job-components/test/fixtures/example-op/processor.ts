@@ -17,7 +17,7 @@ export default class ExampleBatch extends BatchProcessor {
 
     async onBatch(input: DataEntity[]) {
         if (this.opConfig.test_flush && this._flushing) {
-            return times(10, () => DataEntity.make({ flush: true }));
+            return times(30, () => DataEntity.make({ flush: true }));
         }
 
         return input.map(data => {

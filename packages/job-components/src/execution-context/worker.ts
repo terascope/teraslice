@@ -221,22 +221,26 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
 
         let remaining = maxTries;
         return ts.pRetry(() => {
-            remaining -= 1;
-            return this._runActiveSlice(remaining > 0);
+            remaining--;
+            return this._runSliceOnce(remaining > 0);
         }, retryOptions);
     }
 
     async flush(): Promise<RunSliceResult | undefined> {
         if (!this.sliceState) return;
-        if (this.sliceState.status === 'failed') return;
+        const { status } = this.sliceState;
+        if (status === 'failed') return;
         if (this.status === 'shutdown') return;
 
         this.status = 'flushing';
         await this.beforeFlush();
-        const skip: SliceStatus[] = ['started', 'starting'];
-        if (skip.includes(this.sliceState.status)) return;
 
-        return this._runActiveSlice(false);
+        const skip: SliceStatus[] = ['started', 'starting'];
+        this.logger.info(`flushing slice: ${this._sliceId} (slice status: ${status})`);
+
+        if (skip.includes(status)) return;
+
+        return this._runSliceOnce(false);
     }
 
     async beforeFlush() {
@@ -253,7 +257,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
     }
 
     async onSliceStarted() {
-        this._updateActive('started');
+        this._updateSliceState('started');
         await this._runMethodAsync('onSliceStarted', this._sliceId);
     }
 
@@ -268,7 +272,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
     }
 
     async onSliceFailed() {
-        this._updateActive('failed');
+        this._updateSliceState('failed');
         this.events.emit('slice:failure', this._slice);
         await this._runMethodAsync('onSliceFailed', this._sliceId);
     }
@@ -303,7 +307,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         this._runMethod('onOperationStart', this._sliceId, index);
     }
 
-    private _updateActive(status: SliceStatus) {
+    private _updateSliceState(status: SliceStatus) {
         if (!this.sliceState) throw new Error('No active slice to update');
         this.sliceState.status = status;
 
@@ -322,6 +326,11 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
                 for (let i = 0; i < ops; i++) {
                     const previous = getMetric(this.sliceState.analytics[metric], i);
                     const current = getMetric(analytics[metric], i);
+                    if (metric === 'size' && current > previous) {
+                        const opName = this.config.operations[i]._op;
+                        const diff = current - previous;
+                        this.logger.info(`operation "${opName}" flushed an additional ${diff} records`);
+                    }
                     const updated = previous + current;
                     analytics[metric][i] = updated;
                 }
@@ -331,7 +340,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         }
     }
 
-    private async _runActiveSlice(shouldRetry: boolean): Promise<RunSliceResult> {
+    private async _runSliceOnce(shouldRetry: boolean): Promise<RunSliceResult> {
         if (!this.sliceState) throw new Error('No active slice to run');
         if (this.status === 'shutdown') {
             throw new ts.TSError('Slice shutdown during slice execution', {
@@ -343,10 +352,10 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
             const request = ts.cloneDeep(this.sliceState.slice.request);
             const results: ts.DataEntity[] = await ts.waterfall(request, this._queue, ts.isProd);
             if (this.status === 'flushing') {
-                this._updateActive('flushed');
+                this._updateSliceState('flushed');
                 this.afterFlush();
             } else {
-                this._updateActive('completed');
+                this._updateSliceState('completed');
             }
             return {
                 results,
@@ -367,7 +376,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
                 }
             }
 
-            this._updateActive('failed');
+            this._updateSliceState('failed');
             throw err;
         }
     }

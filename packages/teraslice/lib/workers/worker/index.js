@@ -78,6 +78,7 @@ class Worker {
 
         const _run = async () => {
             running = true;
+
             try {
                 await this.runOnce();
             } catch (err) {
@@ -113,6 +114,8 @@ class Worker {
     }
 
     async runOnce() {
+        if (this.isShuttingDown || this.forceShutdown || this.shouldShutdown) return;
+
         this.logger.trace('waiting for new slice from execution controller');
         const msg = await this.client.waitForSlice(() => this.isShuttingDown);
 
@@ -174,6 +177,7 @@ class Worker {
 
         const { exId } = this.executionContext;
 
+        this.client.available = false;
         this.isShuttingDown = true;
 
         const shutdownErrs = [];
@@ -183,15 +187,12 @@ class Worker {
 
         this.logger.warn(`worker shutdown was called for execution ${exId}`);
 
-        // attempt to flush the slice if told to shutdown
-        // by execution controller and wait for the slice to finish
+        // attempt to flush the slice
+        // and wait for the slice to finish
         await Promise.all([
-            async () => {
-                if (!this.shouldShutdown) return;
-                await this.slice.flush();
-            },
-            this._waitForSliceToFinish(),
-        ]).catch(pushError);
+            this.slice.flush().catch(pushError),
+            this._waitForSliceToFinish().catch(pushError),
+        ]);
 
         this.events.emit('worker:shutdown');
         await this.executionContext.shutdown();
