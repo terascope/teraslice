@@ -5,7 +5,7 @@ import { Context, SysConfig } from './context';
 
 export type crossValidationFn = (job: ValidatedJobConfig, sysconfig: SysConfig) => void;
 export type selfValidationFn = (config: OpConfig) => void;
-export type sliceQueueLengthFn = (executionContext: LegacyExecutionContext) => number|string;
+export type sliceQueueLengthFn = (executionContext: LegacyExecutionContext) => number | string;
 
 export interface LegacyOperation {
     crossValidation?: crossValidationFn;
@@ -16,31 +16,18 @@ export interface LegacyOperation {
 export interface LegacyReader extends LegacyOperation {
     slicerQueueLength?: sliceQueueLengthFn;
     schema(context?: Context): Schema<any>;
-    newReader(
-        context: Context,
-        opConfig: OpConfig,
-        exectutionConfig: ExecutionConfig,
-    ): Promise<ReaderFn<any>>;
-    newSlicer(
-        context: Context,
-        executionContext: LegacyExecutionContext,
-        recoveryData: object[],
-        logger: Logger,
-    ): Promise<SlicerFns>;
+    newReader(context: Context, opConfig: OpConfig, exectutionConfig: ExecutionConfig): Promise<ReaderFn<any>>;
+    newSlicer(context: Context, executionContext: LegacyExecutionContext, recoveryData: object[], logger: Logger): Promise<SlicerFns>;
 }
 
-export type ReaderFn<T> = (sliceRequest: SliceRequest, logger: Logger) => Promise<T>|T;
+export type ReaderFn<T> = (sliceRequest: SliceRequest, logger: Logger) => Promise<T> | T;
 
 export interface LegacyProcessor extends LegacyOperation {
     schema(context?: Context): Schema<any>;
-    newProcessor(
-        context: Context,
-        opConfig: OpConfig,
-        executionConfig: ExecutionConfig,
-    ): Promise<ProcessorFn<any>>;
+    newProcessor(context: Context, opConfig: OpConfig, executionConfig: ExecutionConfig): Promise<ProcessorFn<any>>;
 }
 
-export type ProcessorFn<T> = (data: T, logger: Logger, sliceRequest: SliceRequest) => Promise<T>|T;
+export type ProcessorFn<T> = (data: T, logger: Logger, sliceRequest: SliceRequest) => Promise<T> | T;
 
 export interface SliceRequest {
     request_worker?: string;
@@ -61,7 +48,9 @@ export interface SliceAnalyticsData {
     memory: number[];
 }
 
-export type SlicerResult = Slice|SliceRequest|SliceRequest[]|null;
+export const sliceAnalyticsMetrics: ReadonlyArray<keyof SliceAnalyticsData> = ['memory', 'size', 'time'];
+
+export type SlicerResult = Slice | SliceRequest | SliceRequest[] | null;
 
 export interface SliceResult {
     slice: Slice;
@@ -77,7 +66,7 @@ export type SlicerFns = SlicerFn[];
 
 export type OpAPIFn = Function;
 export type OpAPIInstance = {
-    [method: string]: Function|any;
+    [method: string]: Function | any;
 };
 export type OpAPI = OpAPIFn | OpAPIInstance;
 

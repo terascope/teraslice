@@ -1,10 +1,12 @@
-import { waterfall, isString, isInteger, cloneDeep, isFunction, DataEntity, isProd } from '@terascope/utils';
+import * as ts from '@terascope/utils';
 import { FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
 import { OperationAPI, OperationAPIConstructor } from '../operations';
-import { WorkerOperationLifeCycle, Slice, OpAPI } from '../interfaces';
-import { ExecutionContextConfig, RunSliceResult, JobAPIInstances, LastSliceResult } from './interfaces';
+import { WorkerOperationLifeCycle, Slice, OpAPI, sliceAnalyticsMetrics } from '../interfaces';
+import { ExecutionContextConfig, RunSliceResult, JobAPIInstances, ActiveSlice, WorkerState, SliceState } from './interfaces';
 import JobObserver from '../operations/job-observer';
 import BaseExecutionContext from './base';
+
+const _logger = ts.debugLogger('execution-context-worker');
 
 /**
  * WorkerExecutionContext is designed to add more
@@ -16,15 +18,19 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
     readonly apis: JobAPIInstances = {};
 
     private readonly jobObserver: JobObserver;
-    private _last: LastSliceResult | undefined;
 
-    private _sliceId: string | undefined;
+    readonly logger: ts.Logger;
+
+    /** the active (or last) run slice */
+    active: ActiveSlice | undefined;
+    state: WorkerState = 'initializing';
+
     private readonly _fetcher: FetcherCore;
-    private _queue: ((input: any) => Promise<DataEntity[]>)[];
-    private _flushing = false;
+    private _queue: ((input: any) => Promise<ts.DataEntity[]>)[];
 
-    constructor(config: ExecutionContextConfig) {
+    constructor(config: ExecutionContextConfig, logger: ts.Logger = _logger) {
         super(config);
+        this.logger = logger;
 
         this._methodRegistry.set('onSliceInitialized', new Set());
         this._methodRegistry.set('onSliceStarted', new Set());
@@ -35,12 +41,13 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         this._methodRegistry.set('onOperationStart', new Set());
         this._methodRegistry.set('onOperationComplete', new Set());
         this._methodRegistry.set('beforeFlush', new Set());
+        this._methodRegistry.set('afterFlush', new Set());
 
         const readerConfig = this.config.operations[0];
         const mod = this._loader.loadReader(readerConfig._op, this.assetIds);
         this.registerAPI(readerConfig._op, mod.API);
 
-        const op = new mod.Fetcher(this.context, cloneDeep(readerConfig), this.config);
+        const op = new mod.Fetcher(this.context, ts.cloneDeep(readerConfig), this.config);
         this._fetcher = op;
         this.addOperation(op);
 
@@ -51,7 +58,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
             const mod = this._loader.loadProcessor(name, this.assetIds);
             this.registerAPI(name, mod.API);
 
-            const op = new mod.Processor(this.context, cloneDeep(opConfig), this.config);
+            const op = new mod.Processor(this.context, ts.cloneDeep(opConfig), this.config);
 
             this.addOperation(op);
             this.processors.push(op);
@@ -72,7 +79,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
             const name = apiConfig._name;
             const mod = this._loader.loadAPI(name, this.assetIds);
 
-            const api = new mod.API(this.context, cloneDeep(apiConfig), this.config);
+            const api = new mod.API(this.context, ts.cloneDeep(apiConfig), this.config);
 
             this.apis[name] = {
                 instance: api,
@@ -83,14 +90,14 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
 
         this._queue = [
             async (input: any) => {
-                this.onOperationStart(undefined, 0);
-                if (this._flushing) {
-                    this.onOperationComplete(undefined, 0, 0);
+                this._onOperationStart(0);
+                if (this.state === 'flushing') {
+                    this._onOperationComplete(0, 0);
                     return [];
                 }
 
                 const results = await this.fetcher().handle(input);
-                this.onOperationComplete(undefined, 0, results.length);
+                this._onOperationComplete(0, results.length);
                 return results;
             },
             async (input: any) => {
@@ -104,9 +111,9 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
             const index = ++i;
 
             this._queue.push(async (input: any) => {
-                this.onOperationStart(undefined, index);
+                this._onOperationStart(index);
                 const results = await processor.handle(input);
-                this.onOperationComplete(undefined, index, results.length);
+                this._onOperationComplete(index, results.length);
                 return results;
             });
         }
@@ -134,6 +141,13 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         }
 
         await Promise.all(promises);
+
+        this.state = 'idle';
+    }
+
+    async shutdown() {
+        await super.shutdown();
+        this.state = 'shutdown';
     }
 
     /**
@@ -142,11 +156,11 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
      */
     getOperation<T extends OperationCore = OperationCore>(findBy: string | number): T {
         let index = -1;
-        if (isString(findBy)) {
+        if (ts.isString(findBy)) {
             index = this.config.operations.findIndex(op => {
                 return op._op === findBy;
             });
-        } else if (isInteger(findBy) && findBy >= 0) {
+        } else if (ts.isInteger(findBy) && findBy >= 0) {
             index = findBy;
         }
 
@@ -169,85 +183,93 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         return this._fetcher as T;
     }
 
+    async initializeSlice(slice: Slice) {
+        const currentSliceId = this._sliceId;
+        if (this.state !== 'flushing') {
+            this.state = 'running';
+        }
+        this.active = {
+            state: 'starting',
+            slice,
+        };
+
+        if (currentSliceId === slice.slice_id) return;
+        this.onSliceInitialized();
+    }
+
     /**
      * Run a slice against the fetcher and then processors.
      *
      * @todo this should handle slice retries.
      */
-    async runSlice(slice: Slice): Promise<RunSliceResult> {
-        this._sliceId = slice.slice_id;
-        this._setLast(slice);
-
-        const results = await waterfall(cloneDeep(slice.request), this._queue, isProd);
-
-        this._sliceId = undefined;
-        this._setLast(slice);
-
-        return {
-            results,
-            analytics: this.jobObserver.analyticsData,
-        };
-    }
-
-    async flush() {
-        this._flushing = true;
-        if (!this._last) return;
-
-        await this.beforeFlush();
-        const { slice } = this._last;
-        this._sliceId = slice.slice_id;
-
-        await waterfall(cloneDeep(slice.request), this._queue, isProd);
-
-        const analytics = this.jobObserver.getAnalytics();
-        const ops = this.config.operations.length;
-
-        for (const metric of Object.keys(analytics)) {
-            for (let i = 0; i < ops; i++) {
-                const current = this._last.analytics[i][metric];
-                const updated = analytics[i][metric];
-                this._last.analytics[i] = current + updated;
-            }
+    async runSlice(slice?: Slice): Promise<RunSliceResult> {
+        if (slice) {
+            await this.initializeSlice(slice);
         }
 
-        this._flushing = false;
-        return this._last;
+        if (!this.active) {
+            throw new Error('No slice specified to run');
+        }
+
+        const maxRetries = this.config.max_retries;
+        const maxTries = maxRetries > 0 ? maxRetries + 1 : 0;
+        const retryOptions = {
+            retries: maxTries,
+            delay: 100,
+        };
+
+        let remaining = maxTries;
+        return await ts.pRetry(() => {
+            remaining -= 1;
+            return this._runActiveSlice(remaining > 0);
+        }, retryOptions);
+    }
+
+    async flush(slice?: Slice): Promise<RunSliceResult> {
+        await this.beforeFlush();
+        const results = await this.runSlice(slice);
+        await this.afterFlush();
+        return results;
     }
 
     async beforeFlush() {
+        this.state = 'flushing';
         await this._runMethodAsync('beforeFlush');
     }
 
-    async onSliceInitialized(sliceId = this._sliceId) {
-        await this._runMethodAsync('onSliceInitialized', sliceId);
+    async afterFlush() {
+        await this._runMethodAsync('afterFlush');
     }
 
-    async onSliceStarted(sliceId = this._sliceId) {
-        await this._runMethodAsync('onSliceStarted', sliceId);
+    async onSliceInitialized() {
+        this.events.emit('slice:initialize', this._slice);
+        await this._runMethodAsync('onSliceInitialized', this._sliceId);
     }
 
-    async onSliceFinalizing(sliceId = this._sliceId) {
-        await this._runMethodAsync('onSliceFinalizing', sliceId);
+    async onSliceStarted() {
+        this._updateActive('started');
+        await this._runMethodAsync('onSliceStarted', this._sliceId);
     }
 
-    async onSliceFinished(sliceId = this._sliceId) {
-        await this._runMethodAsync('onSliceFinished', sliceId);
+    async onSliceFinalizing() {
+        this.events.emit('slice:finalize', this._slice);
+        await this._runMethodAsync('onSliceFinalizing', this._sliceId);
     }
 
-    async onSliceFailed(sliceId = this._sliceId) {
-        await this._runMethodAsync('onSliceFailed', sliceId);
+    async onSliceFinished() {
+        this.state = 'idle';
+        await this._runMethodAsync('onSliceFinished', this._sliceId);
     }
 
-    async onSliceRetry(sliceId = this._sliceId) {
-        await this._runMethodAsync('onSliceRetry', sliceId);
+    async onSliceFailed() {
+        this._updateActive('failed');
+        this.events.emit('slice:failure', this._slice);
+        await this._runMethodAsync('onSliceFailed', this._sliceId);
     }
 
-    onOperationComplete(sliceId = this._sliceId, index: number, processed: number) {
-        this._runMethod('onOperationComplete', sliceId, index, processed);
-    }
-
-    onOperationStart(sliceId = this._sliceId, index: number) {
-        this._runMethod('onOperationStart', sliceId, index);
+    async onSliceRetry() {
+        this.events.emit('slice:retry', this._slice);
+        await this._runMethodAsync('onSliceRetry', this._sliceId);
     }
 
     /** Add an API to the executionContext api registry */
@@ -267,14 +289,90 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         this.context.apis.executionContext.addAPI(name, opAPI);
     }
 
-    private _setLast(slice: Slice) {
-        return {
-            slice,
-            analytics: this.jobObserver.getAnalytics(),
-        };
+    private _onOperationComplete(index: number, processed: number) {
+        this._runMethod('onOperationComplete', this._sliceId, index, processed);
+    }
+
+    private _onOperationStart(index: number) {
+        this._runMethod('onOperationStart', this._sliceId, index);
+    }
+
+    private _updateActive(state: SliceState) {
+        if (!this.active) throw new Error('No active slice to update');
+        this.active.state = state;
+
+        const analytics = this.jobObserver.getAnalytics();
+        if (state !== 'flushed') {
+            this.active.analytics = analytics;
+            return;
+        }
+
+        if (!this.active.analytics || !analytics) return;
+
+        const ops = this.config.operations.length;
+
+        for (const metric of sliceAnalyticsMetrics) {
+            const current = this.active.analytics[metric];
+            const updated = analytics[metric];
+            for (let i = 0; i < ops; i++) {
+                current[i] = mergeMetrics(current, updated, i);
+            }
+        }
+    }
+
+    private async _runActiveSlice(shouldRetry: boolean): Promise<RunSliceResult> {
+        if (!this.active) throw new Error('No active slice to run');
+        if (this.state === 'shutdown') {
+            throw new ts.TSError('Slice shutdown during slice execution', {
+                retryable: false,
+            });
+        }
+
+        try {
+            const request = ts.cloneDeep(this.active.slice.request);
+            const results: ts.DataEntity[] = await ts.waterfall(request, this._queue, ts.isProd);
+            this._updateActive(this.state === 'flushing' ? 'flushed' : 'completed');
+            return {
+                results,
+                state: this.active.state,
+                analytics: this.active.analytics,
+            };
+        } catch (err) {
+            this.logger.error(`An error has occurred: ${ts.toString(err)}, slice:`, this.active.slice);
+
+            if (shouldRetry) {
+                try {
+                    await this.onSliceRetry();
+                } catch (retryErr) {
+                    throw new ts.TSError(err, {
+                        reason: `Slice failed to retry: ${ts.toString(retryErr)}`,
+                        retryable: false,
+                    });
+                }
+            }
+
+            this._updateActive('failed');
+            throw err;
+        }
+    }
+
+    private get _sliceId(): string {
+        return this.active ? this.active.slice.slice_id : '';
+    }
+
+    private get _slice() {
+        return this.active && this.active.slice;
     }
 }
 
+function getMetric(input: number[], i: number): number {
+    return (input && input[i]) || 0;
+}
+
+function mergeMetrics(a: number[], b: number[], i: number): number {
+    return getMetric(a, i) + getMetric(b, i);
+}
+
 function isOperationAPI(api: any): api is OperationAPI {
-    return api && isFunction(api.createAPI);
+    return api && ts.isFunction(api.createAPI);
 }

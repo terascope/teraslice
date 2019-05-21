@@ -74,7 +74,7 @@ export default class JobObserver extends Observer {
     }
 
     getAnalytics() {
-        if (!this.analyticsData) return this.defaultAnalytics();
+        if (!this.analyticsData) return;
 
         const { time, memory, size } = this.analyticsData;
         return {

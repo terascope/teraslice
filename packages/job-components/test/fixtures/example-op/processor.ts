@@ -1,8 +1,9 @@
-import { MapProcessor, DataEntity } from '../../../src';
+import { DataEntity, BatchProcessor, times } from '../../../src';
 
-export default class ExampleMap extends MapProcessor {
+export default class ExampleBatch extends BatchProcessor {
     _initialized = false;
     _shutdown = false;
+    _flushing = false;
 
     async initialize() {
         this._initialized = true;
@@ -14,8 +15,24 @@ export default class ExampleMap extends MapProcessor {
         return super.shutdown();
     }
 
-    map(data: DataEntity) {
-        data.touchedAt = new Date().toISOString();
-        return data;
+    async onBatch(input: DataEntity[]) {
+        if (this.opConfig.test_flush && this._flushing) {
+            return times(10, () => DataEntity.make({ flush: true }));
+        }
+
+        return input.map(data => {
+            return DataEntity.make({
+                ...data,
+                touchedAt: new Date().toISOString(),
+            });
+        });
+    }
+
+    beforeFlush() {
+        this._flushing = true;
+    }
+
+    afterFlush() {
+        this._flushing = false;
     }
 }

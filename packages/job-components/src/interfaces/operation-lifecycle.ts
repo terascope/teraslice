@@ -70,7 +70,13 @@ export interface WorkerOperationLifeCycle extends OperationLifeCycle {
      * passed through will be an empty slice used to flush
      * any additional in-memory state.
      */
-    beforeFlush?(): Promise<void>;
+    beforeFlush?(sliceId: string): Promise<void>;
+
+    /**
+     * Called to notify the processors that the slice is finished being flushed
+     * (shutdown will likely be called immediately afterwards)
+     */
+    afterFlush?(sliceId: string): Promise<void>;
 }
 
 export interface SlicerOperationLifeCycle extends OperationLifeCycle {

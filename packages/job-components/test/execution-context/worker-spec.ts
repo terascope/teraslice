@@ -1,14 +1,8 @@
 import 'jest-extended';
 import path from 'path';
 import { terasliceOpPath } from '../helpers';
-import {
-    WorkerExecutionContext,
-    TestContext,
-    newTestExecutionConfig,
-    DataEntity,
-    FetcherCore,
-    ProcessorCore
-} from '../../src';
+import { WorkerExecutionContext, TestContext, newTestExecutionConfig, DataEntity, FetcherCore, ProcessorCore, newTestSlice } from '../../src';
+import ExampleBatch from '../fixtures/example-op/processor';
 
 describe('WorkerExecutionContext', () => {
     const assetIds = ['fixtures'];
@@ -25,20 +19,21 @@ describe('WorkerExecutionContext', () => {
 
         executionConfig.apis = [
             {
-                _name: 'example-observer'
+                _name: 'example-observer',
             },
             {
-                _name: 'example-api'
-            }
+                _name: 'example-api',
+            },
         ];
 
         executionConfig.operations = [
             {
-                _op: 'example-reader'
+                _op: 'example-reader',
             },
             {
-                _op: 'example-op'
-            }
+                _op: 'example-op',
+                test_flush: true,
+            },
         ];
 
         const executionContext = new WorkerExecutionContext({
@@ -48,13 +43,16 @@ describe('WorkerExecutionContext', () => {
             terasliceOpPath,
         });
 
-        beforeAll(() => {
-            return executionContext.initialize();
+        beforeAll(async () => {
+            expect(executionContext).toHaveProperty('state', 'initializing');
+            await executionContext.initialize();
+            expect(executionContext).toHaveProperty('state', 'idle');
         });
 
-        afterAll(() => {
+        afterAll(async () => {
             events.removeAllListeners();
-            return executionContext.shutdown();
+            await executionContext.shutdown();
+            expect(executionContext).toHaveProperty('state', 'shutdown');
         });
 
         it('should have correct properties', () => {
@@ -75,7 +73,7 @@ describe('WorkerExecutionContext', () => {
             const input = DataEntity.makeArray([
                 {
                     hello: true,
-                }
+                },
             ]);
 
             for (const processor of executionContext.processors) {
@@ -86,10 +84,7 @@ describe('WorkerExecutionContext', () => {
         });
 
         it('should have the APIs', () => {
-            expect(Object.keys(executionContext.apis)).toEqual([
-                'example-observer',
-                'example-api',
-            ]);
+            expect(Object.keys(executionContext.apis)).toEqual(['example-observer', 'example-api']);
         });
 
         it('should be able to an operation instance by index', async () => {
@@ -114,9 +109,7 @@ describe('WorkerExecutionContext', () => {
 
         it('should have the registered apis', () => {
             const registry = Object.keys(context.apis.executionContext.registry);
-            expect(registry).toEqual([
-                'example-reader',
-            ]);
+            expect(registry).toEqual(['example-reader']);
         });
 
         it('should have the operations initialized', () => {
@@ -129,14 +122,18 @@ describe('WorkerExecutionContext', () => {
         });
 
         it('should be to call the Worker LifeCycle events', async () => {
-            await executionContext.onSliceInitialized('hello');
-            await executionContext.onSliceStarted('hello');
-            await executionContext.onSliceFinalizing('hello');
-            await executionContext.onSliceFinished('hello');
-            await executionContext.onSliceFailed('hello');
-            await executionContext.onSliceRetry('hello');
-            await executionContext.onOperationStart('hello', 1);
-            await executionContext.onOperationComplete('hello', 1, 1);
+            await executionContext.initializeSlice(newTestSlice());
+            expect(executionContext.state).toEqual('running');
+            expect(executionContext).toHaveProperty('active.state', 'starting');
+            await executionContext.onSliceStarted();
+            expect(executionContext).toHaveProperty('active.state', 'started');
+            await executionContext.onSliceFinalizing();
+            await executionContext.onSliceFinished();
+            expect(executionContext.state).toEqual('idle');
+            await executionContext.onSliceFailed();
+            expect(executionContext).toHaveProperty('active.state', 'failed');
+            await executionContext.onSliceRetry();
+            executionContext.active = undefined;
         });
 
         it('should be able run a "slice"', async () => {
@@ -145,10 +142,16 @@ describe('WorkerExecutionContext', () => {
                 slicer_id: 1,
                 slicer_order: 1,
                 request: { hello: true },
-                _created: 'hi'
+                _created: 'hi',
             };
 
-            const { results, analytics } = await executionContext.runSlice(slice);
+            await executionContext.initializeSlice(slice);
+            expect(executionContext).toHaveProperty('active.state', 'starting');
+
+            const { results, analytics, state } = await executionContext.runSlice();
+            expect(state).toEqual('completed');
+            expect(executionContext).toHaveProperty('active.state', state);
+            expect(executionContext.state).toEqual('running');
 
             expect(analytics).toBeUndefined();
 
@@ -160,17 +163,39 @@ describe('WorkerExecutionContext', () => {
                 expect(item).toHaveProperty('touchedAt');
             }
         });
+
+        it('should be able run a flush on the last slice', async () => {
+            const op: ExampleBatch = executionContext.getOperation('example-op');
+
+            expect(op._flushing).toBeFalse();
+            expect(executionContext).toHaveProperty('active.state', 'completed');
+
+            const { results, analytics, state } = await executionContext.flush();
+
+            expect(state).toEqual('flushed');
+            expect(executionContext.state).toEqual('flushing');
+
+            expect(op._flushing).toBeFalse();
+
+            expect(analytics).toBeUndefined();
+
+            expect(results.length).toEqual(10);
+
+            for (const item of results) {
+                expect(item).toHaveProperty('flush', true);
+            }
+        });
     });
 
     describe('when testing edge cases', () => {
         const executionConfig = newTestExecutionConfig();
         executionConfig.operations = [
             {
-                _op: 'failing-reader'
+                _op: 'failing-reader',
             },
             {
-                _op: 'noop'
-            }
+                _op: 'noop',
+            },
         ];
 
         const executionContext = new WorkerExecutionContext({
@@ -195,11 +220,10 @@ describe('WorkerExecutionContext', () => {
                 slicer_id: 1,
                 slicer_order: 1,
                 request: { hello: true },
-                _created: 'hi'
+                _created: 'hi',
             };
 
-            return expect(executionContext.runSlice(slice))
-                        .rejects.toThrowError(/Failure to parse buffer/);
+            return expect(executionContext.runSlice(slice)).rejects.toThrowError(/Failure to parse buffer/);
         });
     });
 });

@@ -1,24 +1,23 @@
-import { cloneDeep } from '@terascope/utils';
-import {
-    SlicerOperationLifeCycle,
-    ExecutionStats,
-    Slice,
-    SliceResult,
-} from '../interfaces';
+import { cloneDeep, debugLogger, Logger } from '@terascope/utils';
+import { SlicerOperationLifeCycle, ExecutionStats, Slice, SliceResult } from '../interfaces';
 import SlicerCore from '../operations/core/slicer-core';
 import { ExecutionContextConfig } from './interfaces';
 import BaseExecutionContext from './base';
+
+const _logger = debugLogger('execution-context-slicer');
 
 /**
  * SlicerExecutionContext is designed to add more
  * functionality to interface with the
  * Execution Configuration and any Operation.
-*/
-export class SlicerExecutionContext  extends BaseExecutionContext<SlicerOperationLifeCycle> implements SlicerOperationLifeCycle {
+ */
+export class SlicerExecutionContext extends BaseExecutionContext<SlicerOperationLifeCycle> implements SlicerOperationLifeCycle {
     private readonly _slicer: SlicerCore;
+    readonly logger: Logger;
 
-    constructor(config: ExecutionContextConfig) {
+    constructor(config: ExecutionContextConfig, logger: Logger = _logger) {
         super(config);
+        this.logger = logger;
 
         this._methodRegistry.set('onSliceComplete', new Set());
         this._methodRegistry.set('onSliceDispatch', new Set());
@@ -38,7 +37,7 @@ export class SlicerExecutionContext  extends BaseExecutionContext<SlicerOperatio
     /**
      * Called during execution initialization
      * @param recoveryData is the data to recover from
-    */
+     */
     async initialize(recoveryData?: object[]) {
         return super.initialize(recoveryData);
     }

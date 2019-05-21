@@ -1,14 +1,6 @@
 import '../../formats'; // require to add the schema formats
 import Core from './core';
-import {
-    ExecutionConfig,
-    WorkerOperationLifeCycle,
-    OpAPI,
-    OpConfig,
-    WorkerContext,
-    DeadLetterAction,
-    DeadLetterAPIFn,
-} from '../../interfaces';
+import { ExecutionConfig, WorkerOperationLifeCycle, OpAPI, OpConfig, WorkerContext, DeadLetterAction, DeadLetterAPIFn } from '../../interfaces';
 
 /**
  * A base class for supporting operations that run on a "Worker",
@@ -47,14 +39,14 @@ export default class OperationCore<T = OpConfig> extends Core<WorkerContext> imp
 
     /**
      * Create an API and add it to the operation lifecycle
-    */
+     */
     async createAPI(name: string, ...params: any[]): Promise<OpAPI> {
         return this.context.apis.executionContext.initAPI(name, ...params);
     }
 
     /**
      * Get a reference to an existing API
-    */
+     */
     getAPI(name: string): OpAPI {
         return this.context.apis.executionContext.getAPI(name);
     }
@@ -66,9 +58,9 @@ export default class OperationCore<T = OpConfig> extends Core<WorkerContext> imp
      *
      * @param fn a function to transform the data with
      * @returns a curried a function that will be called with the data and handle the dead letter action
-    */
-    tryRecord<I, R>(fn: (input: I) => R): (input: I) => R|null {
-        return (input) => {
+     */
+    tryRecord<I, R>(fn: (input: I) => R): (input: I) => R | null {
+        return input => {
             try {
                 return fn(input);
             } catch (err) {
@@ -91,8 +83,8 @@ export default class OperationCore<T = OpConfig> extends Core<WorkerContext> imp
      * @param data the data to transform
      * @param fn a function to transform the data with
      * @returns the transformed record
-    */
-    rejectRecord(input: any, err: Error): never|null {
+     */
+    rejectRecord(input: any, err: Error): never | null {
         if (!this.deadLetterAction) return null;
         if (this.deadLetterAction === 'none') return null;
 

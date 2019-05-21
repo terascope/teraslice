@@ -13,11 +13,6 @@ export interface SlicerOperations extends Set<SlicerOperationLifeCycle> {}
 
 export interface WorkerOperations extends Set<WorkerOperationLifeCycle> {}
 
-export interface RunSliceResult {
-    analytics?: SliceAnalyticsData;
-    results: DataEntity[];
-}
-
 /** event handlers that should be cleaned up */
 export interface EventHandlers {
     [eventName: string]: (...args: any[]) => void;
@@ -33,7 +28,17 @@ export interface JobAPIInstances {
     [name: string]: JobAPIInstance;
 }
 
-export type LastSliceResult = {
+export type WorkerState = 'initializing' | 'idle' | 'flushing' | 'running' | 'shutdown';
+export type SliceState = 'starting' | 'started' | 'completed' | 'failed' | 'flushed';
+
+export interface RunSliceResult {
+    state: SliceState;
+    analytics?: SliceAnalyticsData;
+    results: DataEntity[];
+}
+
+export type ActiveSlice = {
+    state: SliceState;
     slice: Slice;
-    analytics: SliceAnalyticsData;
+    analytics?: SliceAnalyticsData;
 };
