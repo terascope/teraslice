@@ -39,6 +39,9 @@
             "path": "packages/teraslice-messaging"
         },
         {
+            "path": "packages/data-types"
+        },
+        {
             "path": "packages/xlucene-evaluator"
         },
         {
