@@ -220,7 +220,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         };
 
         let remaining = maxTries;
-        return await ts.pRetry(() => {
+        return ts.pRetry(() => {
             remaining -= 1;
             return this._runActiveSlice(remaining > 0);
         }, retryOptions);
@@ -231,18 +231,15 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         if (this.active.state === 'failed') return;
         if (this.state === 'shutdown') return;
 
+        this.state = 'flushing';
         await this.beforeFlush();
         const skip: SliceState[] = ['started', 'starting'];
         if (skip.includes(this.active.state)) return;
 
-        const results = await this._runActiveSlice(false);
-        await this.afterFlush();
-
-        return results;
+        return this._runActiveSlice(false);
     }
 
     async beforeFlush() {
-        this.state = 'flushing';
         await this._runMethodAsync('beforeFlush');
     }
 
@@ -340,7 +337,12 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         try {
             const request = ts.cloneDeep(this.active.slice.request);
             const results: ts.DataEntity[] = await ts.waterfall(request, this._queue, ts.isProd);
-            this._updateActive(this.state === 'flushing' ? 'flushed' : 'completed');
+            if (this.state === 'flushing') {
+                this._updateActive('flushed');
+                this.afterFlush();
+            } else {
+                this._updateActive('completed');
+            }
             return {
                 results,
                 state: this.active.state,
