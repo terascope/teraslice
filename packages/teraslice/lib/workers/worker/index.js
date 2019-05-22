@@ -1,6 +1,5 @@
 'use strict';
 
-const Promise = require('bluebird');
 const { get } = require('@terascope/utils');
 const { isFatalError } = require('@terascope/job-components');
 const { ExecutionController, formatURL } = require('@terascope/teraslice-messaging');
@@ -162,10 +161,13 @@ class Worker {
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
         if (this.isShuttingDown) {
-            const blockMsg = block ? ', will block until done' : '';
-            this.logger.debug(
-                `worker shutdown was called but it was already shutting down ${blockMsg}`
-            );
+            const msgs = [
+                'worker',
+                `shutdown was called for ${this.exId}`,
+                'but it was already shutting down',
+                block ? ', will block until done' : '',
+            ];
+            this.logger.debug(msgs.join(' '));
 
             if (block) {
                 await waitForWorkerShutdown(this.context, 'worker:shutdown:complete');
@@ -201,7 +203,7 @@ class Worker {
         await Promise.all([
             (async () => {
                 const stores = Object.values(this.stores);
-                await Promise.map(stores, store => store.shutdown(true).catch(pushError));
+                await Promise.all(stores.map(store => store.shutdown(true).catch(pushError)));
             })(),
             (async () => {
                 await this.slice.shutdown().catch(pushError);

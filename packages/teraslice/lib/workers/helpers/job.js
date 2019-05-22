@@ -1,6 +1,5 @@
 'use strict';
 
-const Promise = require('bluebird');
 const { get } = require('@terascope/utils');
 const { JobValidator } = require('@terascope/job-components');
 const { terasliceOpPath } = require('../../config');
@@ -20,8 +19,8 @@ async function validateJob(context, jobSpec) {
 }
 
 async function initializeJob(context, config, stores = {}) {
-    const jobStore = stores.jobStore || await makeJobStore(context);
-    const exStore = stores.exStore || await makeExStore(context);
+    const jobStore = stores.jobStore || (await makeJobStore(context));
+    const exStore = stores.exStore || (await makeExStore(context));
 
     const validJob = await validateJob(context, config, { skipRegister: true });
     const jobSpec = await jobStore.create(config);
@@ -32,10 +31,7 @@ async function initializeJob(context, config, stores = {}) {
     await exStore.setStatus(ex.ex_id, 'pending');
 
     if (!Object.keys(stores).length) {
-        await Promise.all([
-            exStore.shutdown(true),
-            jobStore.shutdown(true),
-        ]);
+        await Promise.all([exStore.shutdown(true), jobStore.shutdown(true)]);
     }
 
     return {
