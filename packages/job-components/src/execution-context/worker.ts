@@ -40,8 +40,8 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         this._methodRegistry.set('onSliceRetry', new Set());
         this._methodRegistry.set('onOperationStart', new Set());
         this._methodRegistry.set('onOperationComplete', new Set());
-        this._methodRegistry.set('beforeFlush', new Set());
-        this._methodRegistry.set('afterFlush', new Set());
+        this._methodRegistry.set('onFlushStart', new Set());
+        this._methodRegistry.set('onFlushEnd', new Set());
 
         const readerConfig = this.config.operations[0];
         const mod = this._loader.loadReader(readerConfig._op, this.assetIds);
@@ -227,7 +227,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         if (this.status === 'shutdown') return;
 
         this.status = 'flushing';
-        await this.beforeFlush();
+        await this.onFlushStart();
 
         const { status } = this.sliceState;
 
@@ -239,12 +239,14 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         return this._runSliceOnce(false);
     }
 
-    async beforeFlush() {
-        await this._runMethodAsync('beforeFlush');
+    async onFlushStart() {
+        this.events.emit('slice:flush:start', this._slice);
+        await this._runMethodAsync('onFlushStart');
     }
 
-    async afterFlush() {
-        await this._runMethodAsync('afterFlush');
+    async onFlushEnd() {
+        this.events.emit('slice:flush:end', this._slice);
+        await this._runMethodAsync('onFlushEnd');
     }
 
     async onSliceInitialized() {
@@ -337,7 +339,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
 
             if (this.status === 'flushing') {
                 this._updateSliceState('flushed');
-                this.afterFlush();
+                this.onFlushEnd();
             } else {
                 this._updateSliceState('completed');
             }

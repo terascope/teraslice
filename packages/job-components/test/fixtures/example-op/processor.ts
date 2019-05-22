@@ -28,11 +28,11 @@ export default class ExampleBatch extends BatchProcessor {
         });
     }
 
-    beforeFlush() {
+    onFlushStart() {
         this._flushing = true;
     }
 
-    afterFlush() {
+    onFlushEnd() {
         this._flushing = false;
     }
 }
