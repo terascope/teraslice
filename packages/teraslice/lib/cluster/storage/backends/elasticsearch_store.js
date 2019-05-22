@@ -18,7 +18,7 @@ module.exports = function module(backendConfig) {
         bulkSize = 500,
         fullResponse = false,
         logRecord = true,
-        forceRefresh = true
+        forceRefresh = true,
     } = backendConfig;
 
     const logger = context.apis.foundation.makeLogger({
@@ -30,7 +30,7 @@ module.exports = function module(backendConfig) {
 
     const indexSettings = _.get(config, ['index_settings', storageName], {
         number_of_shards: 5,
-        number_of_replicas: 1
+        number_of_replicas: 1,
     });
 
     let elasticsearch;
@@ -47,7 +47,7 @@ module.exports = function module(backendConfig) {
         const query = {
             index: indexArg || indexName,
             type: recordType,
-            id: recordId
+            id: recordId,
         };
 
         if (fields) {
@@ -61,7 +61,7 @@ module.exports = function module(backendConfig) {
             index: indexArg,
             from,
             size,
-            sort
+            sort,
         };
 
         if (typeof query === 'string') {
@@ -87,7 +87,7 @@ module.exports = function module(backendConfig) {
             index: indexArg,
             type: recordType,
             body: record,
-            refresh: forceRefresh
+            refresh: forceRefresh,
         };
 
         return elasticsearch.index(query);
@@ -104,7 +104,7 @@ module.exports = function module(backendConfig) {
             type: recordType,
             id: recordId,
             body: record,
-            refresh: forceRefresh
+            refresh: forceRefresh,
         };
 
         return elasticsearch.indexWithId(query);
@@ -122,7 +122,7 @@ module.exports = function module(backendConfig) {
             type: recordType,
             id: record[idField],
             body: record,
-            refresh: forceRefresh
+            refresh: forceRefresh,
         };
 
         return elasticsearch.create(query);
@@ -132,7 +132,7 @@ module.exports = function module(backendConfig) {
         const esQuery = {
             index: indexArg,
             from,
-            sort
+            sort,
         };
 
         if (typeof query === 'string') {
@@ -152,10 +152,10 @@ module.exports = function module(backendConfig) {
             type: recordType,
             id: recordId,
             body: {
-                doc: updateSpec
+                doc: updateSpec,
             },
             refresh: forceRefresh,
-            retryOnConflict: 3
+            retryOnConflict: 3,
         };
 
         return elasticsearch.update(query);
@@ -167,22 +167,28 @@ module.exports = function module(backendConfig) {
             index: indexArg,
             type: recordType,
             id: recordId,
-            refresh: forceRefresh
+            refresh: forceRefresh,
         };
 
         return elasticsearch.remove(query);
     }
 
     function bulk(record, _type, indexArg = indexName) {
-        let type = _type;
-        if (!type) {
-            type = 'index';
+        if (isShutdown) {
+            throw new TSError('Unable to send bulk record after shutdown', {
+                context: {
+                    recordType,
+                    record,
+                },
+            });
         }
+
+        const type = _type || 'index';
 
         const indexRequest = {};
         indexRequest[type] = {
             _index: indexArg,
-            _type: recordType
+            _type: recordType,
         };
 
         bulkQueue.push(indexRequest);
@@ -203,7 +209,7 @@ module.exports = function module(backendConfig) {
         const startTime = Date.now();
         clearInterval(flushInterval);
         if (forceShutdown !== true) {
-            return _flush();
+            return _flush(true);
         }
 
         return new Promise((resolve, reject) => {
@@ -221,7 +227,7 @@ module.exports = function module(backendConfig) {
                 else resolve();
             }
 
-            _flush()
+            _flush(true)
                 .then(() => {
                     _destroy();
                 })
@@ -231,29 +237,30 @@ module.exports = function module(backendConfig) {
         });
     }
 
-    function _flush() {
-        if (bulkQueue.length > 0 && !savingBulk) {
-            savingBulk = true;
+    function _flush(shuttingDown = false) {
+        if (!bulkQueue.length) return Promise.resolve();
+        if (!shuttingDown && savingBulk) return Promise.resolve();
+        savingBulk = true;
 
-            const bulkRequest = bulkQueue;
-            bulkQueue = [];
+        const bulkRequest = bulkQueue.slice();
+        bulkQueue = [];
 
-            return elasticsearch.bulkSend(bulkRequest)
-                .then((results) => {
-                    logger.debug(`Flushed ${results.items.length} records to index ${indexName}`);
-                })
-                .catch((err) => {
-                    const error = new TSError(err, {
-                        reason: `Failure to flush "${recordType}"`
-                    });
-                    return Promise.reject(error);
-                })
-                .finally(() => {
-                    savingBulk = false;
+        return elasticsearch
+            .bulkSend(bulkRequest)
+            .then((results) => {
+                const records = results.items.length;
+                const extraMsg = shuttingDown ? ', on shutdown' : '';
+                logger.debug(`flushed ${records}${extraMsg} records to index ${indexName}`);
+            })
+            .catch((err) => {
+                const error = new TSError(err, {
+                    reason: `Failure to flush "${recordType}"`,
                 });
-        }
-
-        return Promise.resolve(true); // nothing to be done.
+                return Promise.reject(error);
+            })
+            .finally(() => {
+                savingBulk = false;
+            });
     }
 
     function getMapFile() {
@@ -272,11 +279,12 @@ module.exports = function module(backendConfig) {
             index: indexArg,
             q: '*',
             size: 0,
-            terminate_after: '1'
+            terminate_after: '1',
         };
 
-        return new Promise(((resolve) => {
-            elasticsearch.search(query)
+        return new Promise((resolve) => {
+            elasticsearch
+                .search(query)
                 .then((results) => {
                     logger.trace(`index ${indexName} is now available`);
                     resolve(results);
@@ -292,7 +300,8 @@ module.exports = function module(backendConfig) {
                         if (running) return;
                         running = true;
 
-                        elasticsearch.search(query)
+                        elasticsearch
+                            .search(query)
                             .then((results) => {
                                 running = false;
 
@@ -306,7 +315,7 @@ module.exports = function module(backendConfig) {
                             });
                     }, 200);
                 });
-        }));
+        });
     }
 
     function sendTemplate(mapping) {
@@ -329,36 +338,35 @@ module.exports = function module(backendConfig) {
 
     function _createIndex(indexArg = indexName) {
         const existQuery = { index: indexArg };
-        return elasticsearch.index_exists(existQuery)
-            .then((exists) => {
-                if (!exists) {
-                    const mapping = getMapFile();
+        return elasticsearch.index_exists(existQuery).then((exists) => {
+            if (!exists) {
+                const mapping = getMapFile();
 
-                    // Make sure the index exists before we do anything else.
-                    const createQuery = {
-                        index: indexArg,
-                        body: mapping
-                    };
+                // Make sure the index exists before we do anything else.
+                const createQuery = {
+                    index: indexArg,
+                    body: mapping,
+                };
 
-                    return sendTemplate(mapping)
-                        .then(() => elasticsearch.index_create(createQuery))
-                        .then(results => results)
-                        .catch((err) => {
-                            // It's not really an error if it's just that the index is already there
-                            if (parseError(err).match(/index_already_exists_exception/)) {
-                                return true;
-                            }
+                return sendTemplate(mapping)
+                    .then(() => elasticsearch.index_create(createQuery))
+                    .then(results => results)
+                    .catch((err) => {
+                        // It's not really an error if it's just that the index is already there
+                        if (parseError(err).match(/index_already_exists_exception/)) {
+                            return true;
+                        }
 
-                            const error = new TSError(err, {
-                                reason: `Could not create index: ${indexName}`
-                            });
-                            return Promise.reject(error);
+                        const error = new TSError(err, {
+                            reason: `Could not create index: ${indexName}`,
                         });
-                }
+                        return Promise.reject(error);
+                    });
+            }
 
-                // Index already exists. nothing to do.
-                return true;
-            });
+            // Index already exists. nothing to do.
+            return true;
+        });
     }
 
     function refresh(indexArg = indexName) {
@@ -376,7 +384,7 @@ module.exports = function module(backendConfig) {
             logger.error(err, 'background flush failure');
             return null;
         });
-    // stager the interval to avoid collisions
+        // stager the interval to avoid collisions
     }, _.random(9000, 11000));
 
     // javascript is having a fit if you use the shorthand get, so we renamed function to getRecord
@@ -392,7 +400,7 @@ module.exports = function module(backendConfig) {
         remove,
         shutdown,
         count,
-        putTemplate
+        putTemplate,
     };
 
     const isMultiIndex = indexName[indexName.length - 1] === '*';
@@ -405,7 +413,7 @@ module.exports = function module(backendConfig) {
         newIndex = timeseriesIndex(timeseriesFormat, indexName.slice(0, nameSize)).index;
     }
 
-    return new Promise(((resolve) => {
+    return new Promise((resolve) => {
         const clientName = JSON.stringify(config.state);
         client = getClient(context, config.state, 'elasticsearch');
 
@@ -424,7 +432,9 @@ module.exports = function module(backendConfig) {
             .then(() => isAvailable(newIndex))
             .then(() => resolve(api))
             .catch((err) => {
-                const error = new TSError(err, { reason: `Error initializing ${recordType} index: ${indexName}` });
+                const error = new TSError(err, {
+                    reason: `Error initializing ${recordType} index: ${indexName}`,
+                });
                 logger.error(error);
                 logger.info(`Attempting to connect to elasticsearch: ${clientName}`);
                 let running = false;
@@ -456,10 +466,9 @@ module.exports = function module(backendConfig) {
                             if (bool) {
                                 clearInterval(checking);
                                 logger.info('connection to elasticsearch has been established');
-                                return isAvailable(newIndex)
-                                    .then(() => {
-                                        resolve(api);
-                                    });
+                                return isAvailable(newIndex).then(() => {
+                                    resolve(api);
+                                });
                             }
                             return true;
                         })
@@ -470,9 +479,12 @@ module.exports = function module(backendConfig) {
                             running = false;
 
                             const checkingError = new TSError(checkingErr);
-                            logger.info(checkingError, `Attempting to connect to elasticsearch: ${clientName}`);
+                            logger.info(
+                                checkingError,
+                                `Attempting to connect to elasticsearch: ${clientName}`
+                            );
                         });
                 }, 3000);
             });
-    }));
+    });
 };

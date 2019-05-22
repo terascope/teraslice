@@ -318,20 +318,24 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
 
         if (status === 'flushed') {
             const analytics = this.jobObserver.getAnalytics();
-            if (!this.sliceState.analytics || !analytics) return;
+            if (!analytics) return;
 
             const ops = this.config.operations.length;
+            const hasPrevious = this.sliceState.analytics != null;
+            const previous = this.sliceState.analytics || this.jobObserver.defaultAnalytics();
 
             for (const metric of sliceAnalyticsMetrics) {
                 for (let i = 0; i < ops; i++) {
-                    const previous = getMetric(this.sliceState.analytics[metric], i);
-                    const current = getMetric(analytics[metric], i);
-                    if (metric === 'size' && current > previous) {
+                    const previousMetric = getMetric(previous[metric], i);
+                    const currentMetric = getMetric(analytics[metric], i);
+
+                    if (hasPrevious && metric === 'size' && currentMetric > previousMetric) {
                         const opName = this.config.operations[i]._op;
-                        const diff = current - previous;
+                        const diff = currentMetric - previousMetric;
                         this.logger.info(`operation "${opName}" flushed an additional ${diff} records`);
                     }
-                    const updated = previous + current;
+
+                    const updated = previousMetric + currentMetric;
                     analytics[metric][i] = updated;
                 }
             }
@@ -348,9 +352,14 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
             });
         }
 
+        if (this.status !== 'flushing') {
+            this.status = 'running';
+        }
+
         try {
             const request = ts.cloneDeep(this.sliceState.slice.request);
             const results: ts.DataEntity[] = await ts.waterfall(request, this._queue, ts.isProd);
+
             if (this.status === 'flushing') {
                 this._updateSliceState('flushed');
                 this.afterFlush();

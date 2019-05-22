@@ -84,7 +84,7 @@ export default class JobObserver extends Observer {
         };
     }
 
-    private defaultAnalytics(): SliceAnalyticsData {
+    defaultAnalytics(): SliceAnalyticsData {
         return {
             time: initVals(this._opLength),
             memory: initVals(this._opLength),
