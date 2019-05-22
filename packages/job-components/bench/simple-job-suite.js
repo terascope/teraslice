@@ -1,7 +1,6 @@
 'use strict';
 
 const path = require('path');
-const { waterfall, isProd } = require('@terascope/utils');
 const { Suite } = require('../../utils/bench/helpers');
 const { TestContext, newTestExecutionConfig, WorkerExecutionContext } = require('../dist/src');
 
@@ -56,77 +55,61 @@ const run = async () => {
         .add('methods without DataEntities', {
             defer: true,
             fn(deferred) {
-                waterfall(
-                    { addMetadata: true },
-                    [
-                        input => fetcher.fetch(input),
-                        result => result.map(data => map.map(data)),
-                        (result) => {
-                            result.forEach(data => each.forEach(data));
-                            return result;
-                        },
-                        result => result.filter(data => filter.filter(data)),
-                        (result) => {
-                            result.forEach(data => each.forEach(data));
-                            return result;
-                        },
-                    ],
-                    isProd
-                ).then(() => deferred.resolve());
+                fetcher
+                    .fetch({ addMetadata: true })
+                    .then(result => result.map(data => map.map(data)))
+                    .then((result) => {
+                        result.forEach(data => each.forEach(data));
+                        return result;
+                    })
+                    .then(result => result.filter(data => filter.filter(data)))
+                    .then((result) => {
+                        result.forEach(data => each.forEach(data));
+                        return result;
+                    })
+                    .then(() => deferred.resolve());
             },
         })
         .add('methods with DataEntities', {
             defer: true,
             fn(deferred) {
-                waterfall(
-                    { precreate: true },
-                    [
-                        input => fetcher.fetch(input),
-                        result => result.map(data => map.map(data)),
-                        (result) => {
-                            result.forEach(data => each.forEach(data));
-                            return result;
-                        },
-                        result => result.filter(data => filter.filter(data)),
-                        (result) => {
-                            result.forEach(data => each.forEach(data));
-                            return result;
-                        },
-                    ],
-                    isProd
-                ).then(() => deferred.resolve());
+                fetcher
+                    .fetch({ precreate: true })
+                    .then(result => result.map(data => map.map(data)))
+                    .then((result) => {
+                        result.forEach(data => each.forEach(data));
+                        return result;
+                    })
+                    .then(result => result.filter(data => filter.filter(data)))
+                    .then((result) => {
+                        result.forEach(data => each.forEach(data));
+                        return result;
+                    })
+                    .then(() => deferred.resolve());
             },
         })
         .add('handle with precreated DataEntities', {
             defer: true,
             fn(deferred) {
-                waterfall(
-                    { precreate: true },
-                    [
-                        input => fetcher.handle(input),
-                        result => map.handle(result),
-                        result => each.handle(result),
-                        result => filter.handle(result),
-                        result => each.handle(result),
-                    ],
-                    isProd
-                ).then(() => deferred.resolve());
+                fetcher
+                    .handle({ precreate: true })
+                    .then(result => map.handle(result))
+                    .then(result => each.handle(result))
+                    .then(result => filter.handle(result))
+                    .then(result => each.handle(result))
+                    .then(() => deferred.resolve());
             },
         })
         .add('handle with automatic DataEntities', {
             defer: true,
             fn(deferred) {
-                waterfall(
-                    {},
-                    [
-                        input => fetcher.handle(input),
-                        result => map.handle(result),
-                        result => each.handle(result),
-                        result => filter.handle(result),
-                        result => each.handle(result),
-                    ],
-                    isProd
-                ).then(() => deferred.resolve());
+                fetcher
+                    .handle()
+                    .then(result => map.handle(result))
+                    .then(result => each.handle(result))
+                    .then(result => filter.handle(result))
+                    .then(result => each.handle(result))
+                    .then(() => deferred.resolve());
             },
         })
         .add('runSlice with precreated DataEntities', {
