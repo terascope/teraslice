@@ -1,7 +1,7 @@
 'use strict';
 
-const _ = require('lodash');
 const Promise = require('bluebird');
+const { get } = require('@terascope/utils');
 const { isFatalError } = require('@terascope/job-components');
 const { ExecutionController, formatURL } = require('@terascope/teraslice-messaging');
 const { makeStateStore, makeAnalyticsStore } = require('../../cluster/storage');
@@ -20,13 +20,11 @@ class Worker {
             slicer_hostname: slicerHostname,
         } = executionContext.config;
 
-        const networkLatencyBuffer = _.get(context, 'sysconfig.teraslice.network_latency_buffer');
-        const actionTimeout = _.get(context, 'sysconfig.teraslice.action_timeout');
-        const workerDisconnectTimeout = _.get(
-            context,
-            'sysconfig.teraslice.worker_disconnect_timeout'
-        );
-        const shutdownTimeout = _.get(context, 'sysconfig.teraslice.shutdown_timeout');
+        const config = context.sysconfig.teraslice;
+        const networkLatencyBuffer = get(config, 'network_latency_buffer');
+        const actionTimeout = get(config, 'action_timeout');
+        const workerDisconnectTimeout = get(config, 'worker_disconnect_timeout');
+        const shutdownTimeout = get(config, 'shutdown_timeout');
 
         this.client = new ExecutionController.Client({
             executionControllerUrl: formatURL(slicerHostname, slicerPort),
@@ -164,11 +162,11 @@ class Worker {
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
         if (this.isShuttingDown) {
+            const blockMsg = block ? ', will block until done' : '';
             this.logger.debug(
-                `worker shutdown was called but it was already shutting down ${
-                    block ? ', will block until done' : ''
-                }`
+                `worker shutdown was called but it was already shutting down ${blockMsg}`
             );
+
             if (block) {
                 await waitForWorkerShutdown(this.context, 'worker:shutdown:complete');
             }
@@ -213,10 +211,9 @@ class Worker {
             })(),
         ]);
 
+        const n = this.slicesProcessed;
         this.logger.warn(
-            `worker ${this.workerId} is shutdown for execution ${exId}, processed ${
-                this.slicesProcessed
-            } slices`
+            `worker ${this.workerId} is shutdown for execution ${exId}, processed ${n} slices`
         );
         this.isShutdown = true;
 

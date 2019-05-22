@@ -1,30 +1,22 @@
 'use strict';
 
-const _ = require('lodash');
+const { get } = require('@terascope/utils');
+const { makeContextLogger } = require('@terascope/job-components');
 
 function generateWorkerId(context) {
     const { hostname } = context.sysconfig.teraslice;
-    const clusterId = _.get(context, 'cluster.worker.id');
+    const clusterId = get(context, 'cluster.worker.id');
     return `${hostname}__${clusterId}`;
 }
 
 function makeLogger(context, executionContext, moduleName, extra = {}) {
-    const {
-        exId,
-        jobId,
-    } = executionContext;
-    const {
-        assignment,
-        cluster,
-    } = context;
+    const { exId, jobId } = executionContext;
 
-    return context.apis.foundation.makeLogger(Object.assign({
-        ex_id: exId,
-        job_id: jobId,
-        module: moduleName,
-        worker_id: cluster.worker.id,
-        assignment,
-    }, extra));
+    return makeContextLogger(
+        context,
+        moduleName,
+        Object.assign({}, extra, { ex_id: exId, job_id: jobId })
+    );
 }
 
 module.exports = { generateWorkerId, makeLogger };

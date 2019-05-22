@@ -247,12 +247,9 @@ class Scheduler {
         };
 
         const drain = () => {
-            if (this.pendingSlicerCount) {
-                logger.debug(
-                    `draining the remaining ${
-                        this.pendingSlicerCount
-                    } pending slices from the slicer`
-                );
+            const n = this.pendingSlicerCount;
+            if (n) {
+                logger.debug(`draining the remaining ${n} pending slices from the slicer`);
             }
             return this._drainPendingSlices(false);
         };
