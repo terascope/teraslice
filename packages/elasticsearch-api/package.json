@@ -22,7 +22,7 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "dependencies": {
-        "@terascope/utils": "^0.10.1",
+        "@terascope/utils": "^0.10.2",
         "bluebird": "^3.5.4",
         "lodash": "^4.17.11"
     },
