@@ -27,13 +27,16 @@ function waitForWorkerShutdown(context, eventName) {
 
 /* istanbul ignore next */
 function shutdownHandler(context, shutdownFn) {
-    const assignment = context.assignment || process.env.NODE_TYPE || process.env.assignment || 'unknown-assignment';
+    const assignment = context.assignment
+        || process.env.NODE_TYPE
+        || process.env.assignment
+        || 'unknown-assignment';
 
     const isProcessRestart = process.env.process_restart;
     const restartOnFailure = assignment !== 'exectution_controller';
     const api = {
         exiting: false,
-        exit
+        exit,
     };
 
     const shutdownTimeout = _.get(context, 'sysconfig.teraslice.shutdown_timeout', 20 * 1000);
@@ -42,13 +45,15 @@ function shutdownHandler(context, shutdownFn) {
     const logger = context.apis.foundation.makeLogger({ module: `${assignment}:shutdown_handler` });
 
     if (assignment === 'execution_controller' && isProcessRestart) {
-        logger.fatal('Execution Controller runtime error led to a restart, terminating execution with failed status, please use the recover api to return slicer to a consistent state');
+        logger.fatal(
+            'Execution Controller runtime error led to a restart, terminating execution with failed status, please use the recover api to return slicer to a consistent state'
+        );
         process.exit(0);
     }
 
     function flushLogs() {
         return Promise.resolve()
-            .then(() => this.logger.flush())
+            .then(() => logger.flush())
             .then(() => Promise.delay(1000));
     }
 
@@ -69,21 +74,22 @@ function shutdownHandler(context, shutdownFn) {
         api.exiting = true;
         startTime = Date.now();
 
-        Promise.race([
-            shutdownFn(event, err),
-            Promise.delay(shutdownTimeout - 2000)
-        ]).then(() => {
-            logger.info(`${assignment} shutdown took ${Date.now() - startTime}ms`);
-        }).catch((error) => {
-            logger.error(`${assignment} while shutting down`, error);
-        }).then(() => {
-            const code = process.exitCode || 0;
-            logger.trace(`flushing log and exiting with code ${code}`);
-            return flushLogs()
-                .finally(() => {
+        Promise.race([shutdownFn(event, err), Promise.delay(shutdownTimeout - 2000)])
+            .then(() => {
+                logger.info(`${assignment} shutdown took ${Date.now() - startTime}ms`);
+            })
+            .catch((error) => {
+                logger.error(`${assignment} while shutting down`, error);
+            })
+            .then(() => flushLogs()
+                .then(() => {
+                    const code = process.exitCode || 0;
+                    logger.debug(`flushed logs successfully, will exit with code ${code}`);
                     process.exit();
-                });
-        });
+                })
+                .catch((flushErr) => {
+                    logger.error(flushErr, 'flush error on shutdown');
+                }));
     }
 
     process.on('SIGINT', () => {
@@ -121,7 +127,7 @@ function shutdownHandler(context, shutdownFn) {
     // See https://github.com/trentm/node-bunyan/issues/246
     function handleStdError(err) {
         if (err.code === 'EPIPE' || err.code === 'ERR_STREAM_DESTROYED') {
-        // ignore
+            // ignore
         } else {
             throw err;
         }
