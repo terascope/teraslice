@@ -683,13 +683,13 @@ export class ACLManager {
         const typeConfig: DataTypeConfig = config.data_type.type_config || { fields: {}, version: 1 };
 
         const dateField = searchConfig.default_date_field;
-        if (dateField && !typeConfig[dateField]) {
-            typeConfig[dateField] = 'date';
+        if (dateField && !typeConfig.fields[dateField]) {
+            typeConfig.fields[dateField] = { type: 'Date' };
         }
 
         const geoField = searchConfig.default_geo_field;
-        if (geoField && !typeConfig[geoField]) {
-            typeConfig[geoField] = 'geo';
+        if (geoField && !typeConfig.fields[geoField]) {
+            typeConfig.fields[geoField] = { type: 'Geo' };
         }
 
         config.data_type.type_config = typeConfig;
@@ -839,6 +839,7 @@ export class ACLManager {
     }
 
     private async _validateDataTypeInput(dataType: Partial<models.DataType>, authUser: i.AuthUser) {
+        // TODO: throw error herr
         this._validateAnyInput(dataType, authUser);
     }
 

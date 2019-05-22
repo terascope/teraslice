@@ -117,7 +117,7 @@ export class SearchAccess {
 
             const dateFields: string[] = [];
             for (const [key, config] of Object.entries(typeConfig.fields)) {
-                if (config.type === 'date') {
+                if (config.type === 'Date') {
                     dateFields.push(key);
                 }
             }

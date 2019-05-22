@@ -234,7 +234,7 @@ describe('ACLManager', () => {
                         name: 'ABC DataType',
                         type_config: {
                             fields: {
-                                hello: { type: 'String' }
+                                hello: { type: 'Keyword' }
                             },
                             version: 1
                         },
@@ -246,7 +246,7 @@ describe('ACLManager', () => {
                         name: 'BCD DataType',
                         type_config: {
                             fields: {
-                                ip: { type: 'Ip' }
+                                ip: { type: 'IP' }
                             },
                             version: 1
                         },
@@ -323,7 +323,7 @@ describe('ACLManager', () => {
                         name: 'Some DataType',
                         type_config: {
                             fields: {
-                                world: { type: 'String' }
+                                world: { type: 'Keyword' }
                             },
                             version: 1
                         },
@@ -493,7 +493,7 @@ describe('ACLManager', () => {
                     type_config: {
                         fields: {
                             created: { type: 'Date' },
-                            location: { type: 'geo' }
+                            location: { type: 'Geo' }
                         },
                         version: 1
                     },
@@ -609,10 +609,13 @@ describe('ACLManager', () => {
                     data_type: {
                         id: dataTypeId,
                         type_config: {
-                            created: 'date',
-                            updated: 'date',
-                            location: 'geo',
-                            other_location: 'geo',
+                            fields: {
+                                created: { type: 'Date' },
+                                updated: { type: 'Date' },
+                                location: { type: 'Geo' },
+                                other_location: { type: 'Geo' },
+                            },
+                            version: 1
                         }
                     },
                     view: {
@@ -683,9 +686,12 @@ describe('ACLManager', () => {
                     data_type: {
                         id: dataTypeId,
                         type_config: {
-                            created: 'date',
-                            location: 'geo'
-                        }
+                            fields: {
+                                created: { type: 'Date' },
+                                location: { type: 'Geo' },
+                            },
+                            version: 1
+                        },
                     },
                     view: {
                         name: `Default View for Role ${normalRole.id}`,

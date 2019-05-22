@@ -223,8 +223,8 @@ describe('SearchAccess', () => {
                         index: 'woot',
                     },
                     {
-                        fields: { created: { type: 'date' } },
-                        version: 2
+                        fields: { created: { type: 'Date' } },
+                        version: 1
                     }
                 );
 
@@ -256,8 +256,8 @@ describe('SearchAccess', () => {
                         index: 'woot',
                     },
                     {
-                        fields: { created: { type: 'date' } },
-                        version: 2,
+                        fields: { created: { type: 'Date' } },
+                        version: 1,
                     }
                 );
 
@@ -407,7 +407,7 @@ function makeWith(searchConfig: Partial<SpaceSearchConfig> = {}, _typeConfig?: D
         client_id: 1,
         id: 'example-data-type',
         name: 'ExampleType',
-        type_config: typeConfig,
+        type_config: typeConfig as DataTypeConfig,
         updated: new Date().toISOString(),
         created: new Date().toISOString(),
     };
