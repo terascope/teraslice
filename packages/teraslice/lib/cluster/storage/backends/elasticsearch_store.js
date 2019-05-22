@@ -433,7 +433,7 @@ module.exports = function module(backendConfig) {
             .then(() => resolve(api))
             .catch((err) => {
                 const error = new TSError(err, {
-                    reason: `Error initializing ${recordType} index: ${indexName}`,
+                    reason: `Failure initializing ${recordType} index: ${indexName}`,
                 });
                 logger.error(error);
                 logger.info(`Attempting to connect to elasticsearch: ${clientName}`);

@@ -28,8 +28,8 @@
     "dependencies": {
         "@terascope/utils": "^0.10.2",
         "ajv": "^6.10.0",
-        "nanoid": "^2.0.2",
-        "rambda": "^2.9.0",
+        "nanoid": "^2.0.3",
+        "rambda": "^2.10.0",
         "xlucene-evaluator": "^0.8.1"
     },
     "devDependencies": {
