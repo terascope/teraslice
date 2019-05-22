@@ -14,7 +14,7 @@ export default class Schema extends ConvictSchema<any, any> {
                 default: 'examples are quick and easy',
                 doc: 'A random example schema property',
                 format: 'String',
-            }
+            },
         };
     }
 }

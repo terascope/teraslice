@@ -2,19 +2,16 @@ import * as R from 'rambda';
 import { TypeConfig, FieldType } from 'xlucene-evaluator';
 import { TSError, isPlainObject, isEmpty } from '@terascope/utils';
 import * as i from '../interfaces';
-import {
-    getErrorType
-} from './errors';
-import {
-    getFirstKey,
-    getFirstValue,
-    buildNestPath
-} from './misc';
+import { getErrorType } from './errors';
+import { getFirstKey, getFirstValue, buildNestPath } from './misc';
 
 export function getTimeByField(field = ''): (input: any) => number {
     return R.ifElse(
         R.has(field),
-        R.pipe(R.path(field), (input: any) => new Date(input).getTime()),
+        R.pipe(
+            R.path(field as any),
+            (input: any) => new Date(input).getTime()
+        ),
         () => Date.now()
     );
 }
@@ -33,7 +30,7 @@ export function timeseriesIndex(index: string, timeSeriesFormat: i.TimeSeriesFor
     const formatter = {
         daily: 10,
         monthly: 7,
-        yearly: 4
+        yearly: 4,
     };
 
     const format = formatter[timeSeriesFormat];
@@ -51,10 +48,7 @@ export function filterBulkRetries<T>(records: T[], result: i.BulkResponse): T[] 
     const retry = [];
     const { items } = result;
 
-    const errorTypes = [
-        'document_already_exists_exception',
-        'document_missing_exception'
-    ];
+    const errorTypes = ['document_already_exists_exception', 'document_missing_exception'];
 
     for (let i = 0; i < items.length; i += 1) {
         // key could either be create or delete etc, just want the actual data at the value spot
@@ -82,8 +76,8 @@ export function filterBulkRetries<T>(records: T[], result: i.BulkResponse): T[] 
 }
 
 type BulkResponseItemResult = {
-    item: i.BulkResponseItem,
-    action: i.BulkAction
+    item: i.BulkResponseItem;
+    action: i.BulkAction;
 };
 
 /**
@@ -110,14 +104,14 @@ type BulkResponseItemResult = {
   }
  * ```
  */
-export function getBulkResponseItem(input: any = {}): BulkResponseItemResult  {
+export function getBulkResponseItem(input: any = {}): BulkResponseItemResult {
     return {
         item: getFirstValue(input),
         action: getFirstKey(input),
     };
 }
 
-export function getXLuceneTypesFromMapping(mapping: any): TypeConfig|undefined {
+export function getXLuceneTypesFromMapping(mapping: any): TypeConfig | undefined {
     if (!isPlainObject(mapping) || isEmpty(mapping)) return;
 
     const result: TypeConfig = {};
@@ -134,7 +128,7 @@ export function getXLuceneTypesFromMapping(mapping: any): TypeConfig|undefined {
 
 type TypeMappingPair = [string, FieldType];
 type MappingProperties = { [key: string]: MappingProperty };
-type MappingProperty = { type? : string, properties: MappingProperties };
+type MappingProperty = { type?: string; properties: MappingProperties };
 
 export function getTypesFromProperties(properties: MappingProperties, basePath = ''): TypeMappingPair[] {
     const result: TypeMappingPair[] = [];
@@ -155,7 +149,7 @@ export function getTypesFromProperties(properties: MappingProperties, basePath =
     return result;
 }
 
-export function getXluceneTypeFromESType(type?: string): FieldType|undefined {
+export function getXluceneTypeFromESType(type?: string): FieldType | undefined {
     if (!type) return;
 
     if (['geo_point', 'geo_shape'].includes(type)) return 'geo';

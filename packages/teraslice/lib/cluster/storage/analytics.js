@@ -18,14 +18,14 @@ module.exports = function module(context) {
 
     let backend;
 
-    function log(job, sliceInfo, stats) {
-        const results = [];
+    function log(job, sliceInfo, stats, state = 'completed') {
         const indexData = timeseriesIndex(timeseriesFormat, _index);
         const esIndex = indexData.index;
         const { timestamp } = indexData;
+
         // These records are uniquely identified by ex_id + slice_id
-        job.config.operations.forEach((op, index) => {
-            results.push(backend.bulk({
+        const results = job.config.operations.map((op, index) => backend.bulk(
+            {
                 '@timestamp': timestamp,
                 ex_id: job.config.ex_id,
                 job_id: job.config.job_id,
@@ -33,12 +33,15 @@ module.exports = function module(context) {
                 slice_id: sliceInfo.slice_id,
                 slicer_id: sliceInfo.slicer_id,
                 op: op._op,
+                state,
                 order: index,
                 count: stats.size[index],
                 time: stats.time[index],
-                memory: stats.memory[index]
-            }, null, esIndex));
-        });
+                memory: stats.memory[index],
+            },
+            null,
+            esIndex
+        ));
 
         return Promise.all(results);
     }
@@ -76,7 +79,7 @@ module.exports = function module(context) {
         update,
         remove,
         shutdown,
-        refresh
+        refresh,
     };
 
     const backendConfig = {
@@ -87,13 +90,12 @@ module.exports = function module(context) {
         fullResponse: false,
         logRecord: false,
         forceRefresh: false,
-        storageName: 'analytics'
+        storageName: 'analytics',
     };
 
-    return elasticsearchBackend(backendConfig)
-        .then((elasticsearch) => {
-            backend = elasticsearch;
-            logger.info('analytics storage initialized');
-            return api;
-        });
+    return elasticsearchBackend(backendConfig).then((elasticsearch) => {
+        backend = elasticsearch;
+        logger.info('analytics storage initialized');
+        return api;
+    });
 };

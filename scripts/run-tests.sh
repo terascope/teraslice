@@ -11,7 +11,6 @@ main() {
         echoerr "* running test for package $name"
         pushd "$PWD/packages/$package" > /dev/null;
             yarn test --silent \
-                --detectOpenHandles \
                 --forceExit \
                 --bail \
                 --coverageDirectory="$coverage_dir" || exit 1;

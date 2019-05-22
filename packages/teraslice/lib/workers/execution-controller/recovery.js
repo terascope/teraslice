@@ -16,7 +16,11 @@ function recovery(context, stateStore, executionContext) {
     let recoverComplete = true;
     let isShutdown = false;
 
-    const logger = context.apis.foundation.makeLogger({ module: 'execution_recovery', ex_id: exId, job_id: jobId });
+    const logger = context.apis.foundation.makeLogger({
+        module: 'execution_recovery',
+        ex_id: exId,
+        job_id: jobId,
+    });
 
     const retryState = {};
 
@@ -165,7 +169,7 @@ function recovery(context, stateStore, executionContext) {
             _recoveryBatchCompleted,
             _setId,
             _waitForRecoveryBatchCompletion,
-            _sliceComplete
+            _sliceComplete,
         };
     }
 

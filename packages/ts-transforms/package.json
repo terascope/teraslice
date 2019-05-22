@@ -36,12 +36,12 @@
         "prepublishOnly": "yarn build",
         "build": "tsc --build --pretty",
         "build:watch": "yarn build --watch",
-        "test": "jest",
+        "test": "jest --forceExit",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
         "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "@terascope/utils": "^0.10.1",
+        "@terascope/utils": "^0.10.2",
         "@types/graphlib": "^2.1.5",
         "@types/shortid": "^0.0.29",
         "awesome-phonenumber": "^2.10.0",

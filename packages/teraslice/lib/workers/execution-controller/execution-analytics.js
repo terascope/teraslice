@@ -29,7 +29,7 @@ class ExecutionAnalytics {
             slicers: 0,
             subslice_by_key: 0,
             started: '',
-            queuing_complete: ''
+            queuing_complete: '',
         };
 
         this.pushedAnalytics = {
@@ -39,7 +39,7 @@ class ExecutionAnalytics {
             job_duration: 0,
             workers_joined: 0,
             workers_disconnected: 0,
-            workers_reconnected: 0
+            workers_reconnected: 0,
         };
 
         this._registerHandlers();
@@ -58,7 +58,7 @@ class ExecutionAnalytics {
             name,
             ex_id: exId,
             job_id: jobId,
-            stats: this.getAnalytics()
+            stats: this.getAnalytics(),
         }));
 
         this.isRunning = true;

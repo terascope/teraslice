@@ -12,7 +12,7 @@
         "benchmark": "lerna run --concurrency=1 --no-prefix --stream benchmark",
         "docs:update": "./scripts/update-docs.sh",
         "bump": "./scripts/bump.js",
-        "test": "jest --silent --detectOpenHandles --forceExit",
+        "test": "jest --silent --forceExit",
         "test:debug": "jest --colors --coverage=false --detectOpenHandles --runInBand  --forceExit $JEST_ARGS",
         "test:watch": "jest --coverage=false --notify --onlyChanged --watch",
         "test:e2e": "yarn --cwd ./e2e test",

@@ -8,7 +8,7 @@ module.exports = function _sliceAnalytics(context, executionContext) {
     const logger = context.apis.foundation.makeLogger({
         module: 'slice_analytics',
         ex_id: exId,
-        job_id: jobId
+        job_id: jobId,
     });
 
     const events = context.apis.foundation.getSystemEvents();
@@ -19,7 +19,7 @@ module.exports = function _sliceAnalytics(context, executionContext) {
     const sliceAnalytics = {
         time: [],
         size: [],
-        memory: []
+        memory: [],
     };
 
     for (let i = 0; i < operations.length; i += 1) {
@@ -62,15 +62,12 @@ module.exports = function _sliceAnalytics(context, executionContext) {
             sliceAnalytics[stat][i].total += 1;
 
             const {
-                min,
-                max,
-                total,
-                sum
+                min, max, total, sum
             } = sliceAnalytics[stat][i];
 
             sliceAnalytics[stat][i].min = min !== 0 ? _.min([val, min]) : val;
             sliceAnalytics[stat][i].max = max !== 0 ? _.max([val, max]) : val;
-            sliceAnalytics[stat][i].average = _.round((sum / total), 2);
+            sliceAnalytics[stat][i].average = _.round(sum / total, 2);
         }
     }
 

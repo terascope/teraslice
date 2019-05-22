@@ -2,9 +2,8 @@
 
 const _ = require('lodash');
 const pWhilst = require('p-whilst');
-const Promise = require('bluebird');
 const Messaging = require('@terascope/teraslice-messaging');
-const { TSError } = require('@terascope/utils');
+const { TSError, get, pDelay } = require('@terascope/utils');
 
 const Scheduler = require('./scheduler');
 const ExecutionAnalytics = require('./execution-analytics');
@@ -17,19 +16,18 @@ const ExecutionControllerServer = Messaging.ExecutionController.Server;
 const ClusterMasterClient = Messaging.ClusterMaster.Client;
 const { formatURL } = Messaging;
 
-// const immediate = Promise.promisify(setImmediate);
-
 class ExecutionController {
     constructor(context, executionContext) {
         const workerId = generateWorkerId(context);
         const logger = makeLogger(context, executionContext, 'execution_controller');
         const events = context.apis.foundation.getSystemEvents();
         const slicerPort = executionContext.config.slicer_port;
-        const networkLatencyBuffer = _.get(context, 'sysconfig.teraslice.network_latency_buffer');
-        const actionTimeout = _.get(context, 'sysconfig.teraslice.action_timeout');
-        const workerDisconnectTimeout = _.get(context, 'sysconfig.teraslice.worker_disconnect_timeout');
-        const nodeDisconnectTimeout = _.get(context, 'sysconfig.teraslice.node_disconnect_timeout');
-        const shutdownTimeout = _.get(context, 'sysconfig.teraslice.shutdown_timeout');
+        const config = context.sysconfig.teraslice;
+        const networkLatencyBuffer = get(config, 'network_latency_buffer');
+        const actionTimeout = get(config, 'action_timeout');
+        const workerDisconnectTimeout = get(config, 'worker_disconnect_timeout');
+        const nodeDisconnectTimeout = get(config, 'node_disconnect_timeout');
+        const shutdownTimeout = get(config, 'shutdown_timeout');
 
         this.server = new ExecutionControllerServer({
             port: slicerPort,
@@ -38,8 +36,8 @@ class ExecutionController {
             workerDisconnectTimeout,
         });
 
-        const clusterMasterPort = _.get(context, 'sysconfig.teraslice.port');
-        const clusterMasterHostname = _.get(context, 'sysconfig.teraslice.master_hostname');
+        const clusterMasterPort = get(config, 'port');
+        const clusterMasterHostname = get(config, 'master_hostname');
 
         this.client = new ClusterMasterClient({
             clusterMasterUrl: formatURL(clusterMasterHostname, clusterMasterPort),
@@ -50,11 +48,7 @@ class ExecutionController {
             exId: executionContext.exId,
         });
 
-        this.executionAnalytics = new ExecutionAnalytics(
-            context,
-            executionContext,
-            this.client
-        );
+        this.executionAnalytics = new ExecutionAnalytics(context, executionContext, this.client);
 
         this.scheduler = new Scheduler(context, executionContext);
 
@@ -82,13 +76,17 @@ class ExecutionController {
         this.workersHaveConnected = false;
         this._handlers = {};
 
-        this._updateExecutionStats = _.debounce(() => {
-            this._updateExecutionStatsNow();
-        }, 100, {
-            leading: true,
-            trailing: true,
-            maxWait: 500,
-        });
+        this._updateExecutionStats = _.debounce(
+            () => {
+                this._updateExecutionStatsNow();
+            },
+            100,
+            {
+                leading: true,
+                trailing: true,
+                maxWait: 500,
+            }
+        );
 
         this._startSliceFailureWatchDog = this._initSliceFailureWatchDog();
     }
@@ -185,7 +183,7 @@ class ExecutionController {
                 const { slice_id: sliceId } = response.slice;
                 this.logger.info(`worker ${workerId} has completed its slice ${sliceId}`);
                 this.events.emit('slice:success', response);
-                this.pendingSlices -= 1;
+                this._removePendingSlice();
                 this._updateExecutionStats();
                 this.executionContext.onSliceComplete(response);
             });
@@ -205,7 +203,7 @@ class ExecutionController {
                     // when failing can be set back to running
                     this._startSliceFailureWatchDog();
                 }
-                this.pendingSlices -= 1;
+                this._removePendingSlice();
                 this._updateExecutionStats();
                 this.executionContext.onSliceComplete(response);
             });
@@ -230,7 +228,7 @@ class ExecutionController {
             this._terminalError(err);
         };
 
-        _.forEach(this._handlers, (handler, event) => {
+        Object.entries(this._handlers).forEach(([event, handler]) => {
             this.events.on(event, handler);
         });
 
@@ -263,10 +261,7 @@ class ExecutionController {
         await this._finishExecution();
 
         try {
-            await Promise.all([
-                this.client.sendExecutionFinished(),
-                this._waitForWorkersToExit(),
-            ]);
+            await Promise.all([this.client.sendExecutionFinished(), this._waitForWorkersToExit()]);
         } catch (err) {
             this.logger.error('Failure sending execution finished', err);
         }
@@ -282,7 +277,7 @@ class ExecutionController {
         this.isPaused = false;
         this.scheduler.start();
 
-        await Promise.delay(100);
+        await pDelay(100);
     }
 
     async pause() {
@@ -293,7 +288,7 @@ class ExecutionController {
         this.isPaused = true;
         this.scheduler.pause();
 
-        await Promise.delay(100);
+        await pDelay(100);
     }
 
     async setFailingStatus() {
@@ -340,7 +335,14 @@ class ExecutionController {
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
         if (this.isShuttingDown) {
-            this.logger.debug(`execution shutdown was called for ex ${this.exId} but it was already shutting down${block ? ', will block until done' : ''}`);
+            const msgs = [
+                'execution',
+                `shutdown was called for ${this.exId}`,
+                'but it was already shutting down',
+                block ? ', will block until done' : '',
+            ];
+            this.logger.debug(msgs.join(' '));
+
             if (block) {
                 await waitForWorkerShutdown(this.context, 'worker:shutdown:complete');
             }
@@ -361,7 +363,7 @@ class ExecutionController {
         await this.scheduler.stop();
 
         // remove any listeners
-        _.forEach(this._handlers, (handler, event) => {
+        Object.entries(this._handlers).forEach(([event, handler]) => {
             this.events.removeListener(event, handler);
             this._handlers[event] = null;
         });
@@ -379,30 +381,24 @@ class ExecutionController {
             (async () => {
                 if (!this.collectAnalytics) return;
 
-                await this.slicerAnalytics.shutdown()
-                    .catch(pushError);
+                await this.slicerAnalytics.shutdown().catch(pushError);
             })(),
             (async () => {
                 // the execution analytics must be shutdown
                 // before the message client
-                await this.executionAnalytics.shutdown()
-                    .catch(pushError);
+                await this.executionAnalytics.shutdown().catch(pushError);
 
-                await this.client.shutdown()
-                    .catch(pushError);
+                await this.client.shutdown().catch(pushError);
             })(),
             (async () => {
-                await this.scheduler.shutdown()
-                    .catch(pushError);
+                await this.scheduler.shutdown().catch(pushError);
             })(),
             (async () => {
-                await this.server.shutdown()
-                    .catch(pushError);
+                await this.server.shutdown().catch(pushError);
             })(),
             (async () => {
                 const stores = Object.values(this.stores);
-                await Promise.map(stores, store => store.shutdown(true)
-                    .catch(pushError));
+                await Promise.all(stores.map(store => store.shutdown(true).catch(pushError)));
             })(),
         ]);
 
@@ -413,7 +409,7 @@ class ExecutionController {
             const errMsg = shutdownErrs.map(e => e.stack).join(', and');
             const shutdownErr = new Error(`Failed to shutdown correctly: ${errMsg}`);
             this.events.emit(this.context, 'worker:shutdown:complete', shutdownErr);
-            await Promise.delay(0);
+            await pDelay(0);
             throw shutdownErr;
         }
 
@@ -427,7 +423,7 @@ class ExecutionController {
         this.isStarted = true;
 
         // wait for paused
-        await pWhilst(() => this.isPaused && !this.isShuttdown, () => Promise.delay(100));
+        await pWhilst(() => this.isPaused && !this.isShuttdown, () => pDelay(100));
 
         await Promise.all([
             this.stores.exStore.setStatus(this.exId, 'running'),
@@ -461,8 +457,7 @@ class ExecutionController {
         const isRunning = () => {
             if (this.isShuttingDown) return false;
             if (this.isExecutionDone) return false;
-            if (this.scheduler.isFinished
-                    && !this.pendingDispatches) return false;
+            if (this.scheduler.isFinished && !this.pendingDispatches) return false;
             return true;
         };
 
@@ -484,8 +479,8 @@ class ExecutionController {
                 if (!workerId) {
                     reenqueue.push(slice);
                 } else {
-                    this.pendingDispatches += 1;
-                    this.pendingSlices += 1;
+                    this._addPendingDispatch();
+                    this._addPendingSlice();
                     dispatch.push({ slice, workerId });
                 }
             });
@@ -493,15 +488,13 @@ class ExecutionController {
 
             if (dispatch.length > 0) {
                 process.nextTick(() => {
-                    const promises = dispatch
-                        .map((input) => {
-                            const { slice, workerId } = input;
-                            return this._dispatchSlice(slice, workerId);
-                        });
+                    const promises = dispatch.map((input) => {
+                        const { slice, workerId } = input;
+                        return this._dispatchSlice(slice, workerId);
+                    });
                     dispatch.length = 0;
 
-                    Promise.all(promises)
-                        .catch(err => this.logger.error('failure to dispatch slices', err));
+                    Promise.all(promises).catch(err => this.logger.error('failure to dispatch slices', err));
                 });
             }
 
@@ -515,7 +508,7 @@ class ExecutionController {
             }
         };
 
-        await Promise.delay(0);
+        await pDelay(0);
 
         await new Promise((resolve) => {
             this.logger.debug('dispatching slices...');
@@ -542,23 +535,26 @@ class ExecutionController {
     _dispatchSlice(slice, workerId) {
         this.logger.trace(`dispatching slice ${slice.slice_id} for worker ${workerId}`);
 
-        return this.server.dispatchSlice(slice, workerId)
+        return this.server
+            .dispatchSlice(slice, workerId)
             .then((dispatched) => {
                 if (dispatched) {
                     this.logger.debug(`dispatched slice ${slice.slice_id} to worker ${workerId}`);
                     this.executionContext.onSliceDispatch(slice);
                 } else {
-                    this.logger.warn(`worker "${workerId}" is not available to process slice ${slice.slice_id}`);
+                    this.logger.warn(
+                        `worker "${workerId}" is not available to process slice ${slice.slice_id}`
+                    );
                     this.scheduler.enqueueSlice(slice, true);
-                    this.pendingSlices -= 1;
+                    this._removePendingSlice();
                 }
 
-                this.pendingDispatches -= 1;
+                this._removePendingDispatch();
             })
             .catch((err) => {
                 this.logger.error('error dispatching slice', err);
-                this.pendingDispatches -= 1;
-                this.pendingSlices -= 1;
+                this._removePendingDispatch();
+                this._removePendingSlice();
             });
     }
 
@@ -576,7 +572,9 @@ class ExecutionController {
         } catch (err) {
             /* istanbul ignore next */
             const error = new TSError(err, {
-                reason: `execution ${this.exId} has run to completion but the process has failed while updating the execution status, slicer will soon exit`
+                reason: `execution ${
+                    this.exId
+                } has run to completion but the process has failed while updating the execution status, slicer will soon exit`,
             });
             this.logger.error(error);
         }
@@ -599,7 +597,7 @@ class ExecutionController {
             slices: {
                 processed: this.executionAnalytics.get('processed'),
                 failed: this.executionAnalytics.get('failed'),
-            }
+            },
         });
     }
 
@@ -623,7 +621,9 @@ class ExecutionController {
                 return;
             }
 
-            const errMsg = `execution ${this.exId} received shutdown before the slicer could complete, setting status to "terminated"`;
+            const errMsg = `execution ${
+                this.exId
+            } received shutdown before the slicer could complete, setting status to "terminated"`;
             const metaData = exStore.executionMetaData(executionStats, errMsg);
             logger.error(errMsg);
             await exStore.setStatus(this.exId, 'terminated', metaData);
@@ -632,7 +632,7 @@ class ExecutionController {
 
         const [errors, started] = await Promise.all([
             this._checkExecutionErrorState(),
-            this._checkExecutionStartedState()
+            this._checkExecutionStartedState(),
         ]);
 
         if (errors > 0 || started > 0) {
@@ -651,7 +651,7 @@ class ExecutionController {
     _logFinishedJob() {
         const endTime = Date.now();
         const elapsed = endTime - this.startTime;
-        const time = elapsed < 1000 ? 1 : Math.round((elapsed) / 1000);
+        const time = elapsed < 1000 ? 1 : Math.round(elapsed / 1000);
 
         this.executionAnalytics.set('job_duration', time);
 
@@ -665,7 +665,9 @@ class ExecutionController {
     _formartExecutionFailure({ started, errors }) {
         let errMsg = `execution: ${this.exId}`;
 
-        const startedMsg = started === 1 ? `${started} slice stuck in started` : `${started} slices stuck in started`;
+        const startedMsg = started === 1
+            ? `${started} slice stuck in started`
+            : `${started} slices stuck in started`;
         const errorsMsg = errors === 1 ? `${errors} slice failure` : `${errors} slice failures`;
 
         if (errors === 0 && started > 0) {
@@ -720,7 +722,7 @@ class ExecutionController {
 
             logWaitingForWorkers();
 
-            await Promise.delay(100);
+            await pDelay(100);
             await checkOnlineCount();
         };
 
@@ -740,13 +742,17 @@ class ExecutionController {
             }
 
             if (!this.server.onlineClientCount) {
-                this.logger.warn(`clients are all offline, but there are still ${this.pendingSlices} pending slices`);
+                this.logger.warn(
+                    `clients are all offline, but there are still ${
+                        this.pendingSlices
+                    } pending slices`
+                );
                 return;
             }
 
             logPendingSlices();
 
-            await Promise.delay(100);
+            await pDelay(100);
             await checkPendingSlices();
         };
 
@@ -771,12 +777,16 @@ class ExecutionController {
 
             const now = Date.now();
             if (now > shutdownAt) {
-                this.logger.error(`Shutdown timeout of ${timeout}ms waiting for execution ${this.exId} to finish...`);
+                this.logger.error(
+                    `Shutdown timeout of ${timeout}ms waiting for execution ${
+                        this.exId
+                    } to finish...`
+                );
                 return null;
             }
 
             logShuttingDown();
-            await Promise.delay(100);
+            await pDelay(100);
             return checkExecution();
         };
 
@@ -792,10 +802,15 @@ class ExecutionController {
         const runningStatuses = exStore.getRunningStatuses();
         const status = await exStore.getStatus(this.exId);
 
+        const invalidStateMsg = (state) => {
+            const prefix = `Execution ${this.exId} was starting in ${state} status`;
+            return `${prefix} sending execution:finished event to cluster master`;
+        };
+
         if (_.includes(terminalStatuses, status)) {
-            error = new Error(`Execution ${this.exId} was starting in terminal status, sending execution:finished event to cluster master`);
+            error = new Error(invalidStateMsg('terminal'));
         } else if (_.includes(runningStatuses, status)) {
-            error = new Error(`Execution ${this.exId} was starting in running status, sending execution:finished event to cluster master`);
+            error = new Error(invalidStateMsg('running'));
         } else {
             return true;
         }
@@ -836,7 +851,11 @@ class ExecutionController {
                     watchDogSet = false;
                     this.sliceFailureInterval = null;
 
-                    this.logger.info(`No slice errors have occurred within execution: ${this.exId} will be set back to 'running' state`);
+                    this.logger.info(
+                        `No slice errors have occurred within execution: ${
+                            this.exId
+                        } will be set back to 'running' state`
+                    );
                     this.stores.exStore.setStatus(this.exId, 'running');
                     return;
                 }
@@ -851,7 +870,9 @@ class ExecutionController {
         clearTimeout(this.workerConnectTimeoutId);
 
         const timeout = this.context.sysconfig.teraslice.slicer_timeout;
-        const err = new Error(`No workers have connected to slicer in the allotted time: ${timeout} ms`);
+        const err = new Error(
+            `No workers have connected to slicer in the allotted time: ${timeout} ms`
+        );
 
         this.workerConnectTimeoutId = setTimeout(() => {
             clearTimeout(this.workerConnectTimeoutId);
@@ -859,7 +880,11 @@ class ExecutionController {
             if (this.isShuttingDown) return;
             if (this.workersHaveConnected) return;
 
-            this.logger.warn(`A worker has not connected to a slicer for ex: ${this.exId}, shutting down execution`);
+            this.logger.warn(
+                `A worker has not connected to a slicer for ex: ${
+                    this.exId
+                }, shutting down execution`
+            );
 
             this._terminalError(err);
         }, timeout);
@@ -881,6 +906,42 @@ class ExecutionController {
 
             this._terminalError(err);
         }, this.workerDisconnectTimeout);
+    }
+
+    _removePendingSlice() {
+        this.pendingSlices--;
+
+        if (this.pendingSlices < 0) {
+            this.logger.warn('a slice was possibly finished more than once');
+            this.pendingSlices = 0;
+        }
+    }
+
+    _addPendingSlice() {
+        if (this.pendingSlices < 0) {
+            this.logger.warn('a slice was possibly finished more than once');
+            this.pendingSlices = 0;
+        }
+
+        this.pendingSlices++;
+    }
+
+    _removePendingDispatch() {
+        this.pendingDispatches--;
+
+        if (this.pendingDispatches < 0) {
+            this.logger.warn('a slice was possibly dispatched more than once');
+            this.pendingDispatches = 0;
+        }
+    }
+
+    _addPendingDispatch() {
+        if (this.pendingDispatches < 0) {
+            this.logger.warn('a slice was possibly dispatched more than once');
+            this.pendingDispatches = 0;
+        }
+
+        this.pendingDispatches++;
     }
 }
 

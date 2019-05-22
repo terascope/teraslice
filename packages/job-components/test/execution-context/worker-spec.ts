@@ -7,7 +7,9 @@ import {
     newTestExecutionConfig,
     DataEntity,
     FetcherCore,
-    ProcessorCore
+    ProcessorCore,
+    newTestSlice,
+    pDelay,
 } from '../../src';
 
 describe('WorkerExecutionContext', () => {
@@ -21,25 +23,30 @@ describe('WorkerExecutionContext', () => {
     const events = context.apis.foundation.getSystemEvents();
 
     describe('when constructed', () => {
-        const executionConfig = newTestExecutionConfig();
-
-        executionConfig.apis = [
-            {
-                _name: 'example-observer'
-            },
-            {
-                _name: 'example-api'
-            }
-        ];
-
-        executionConfig.operations = [
-            {
-                _op: 'example-reader'
-            },
-            {
-                _op: 'example-op'
-            }
-        ];
+        const executionConfig = newTestExecutionConfig({
+            analytics: true,
+            apis: [
+                {
+                    _name: 'example-observer',
+                },
+                {
+                    _name: 'example-api',
+                },
+            ],
+            operations: [
+                {
+                    _op: 'example-reader',
+                },
+                {
+                    _op: 'delay',
+                    ms: 1000,
+                },
+                {
+                    _op: 'example-op',
+                    test_flush: true,
+                },
+            ],
+        });
 
         const executionContext = new WorkerExecutionContext({
             context,
@@ -48,13 +55,16 @@ describe('WorkerExecutionContext', () => {
             terasliceOpPath,
         });
 
-        beforeAll(() => {
-            return executionContext.initialize();
+        beforeAll(async () => {
+            expect(executionContext).toHaveProperty('status', 'initializing');
+            await executionContext.initialize();
+            expect(executionContext).toHaveProperty('status', 'idle');
         });
 
-        afterAll(() => {
+        afterAll(async () => {
             events.removeAllListeners();
-            return executionContext.shutdown();
+            await executionContext.shutdown();
+            expect(executionContext).toHaveProperty('status', 'shutdown');
         });
 
         it('should have correct properties', () => {
@@ -71,14 +81,16 @@ describe('WorkerExecutionContext', () => {
 
         it('should have the Processors', async () => {
             expect(executionContext).toHaveProperty('processors');
-            expect(executionContext.processors.length).toEqual(1);
+            expect(executionContext.processors.length).toEqual(2);
+
             const input = DataEntity.makeArray([
                 {
                     hello: true,
-                }
+                },
             ]);
 
             for (const processor of executionContext.processors) {
+                if (processor.opConfig._op !== 'example-op') continue;
                 const result = await processor.handle(input);
                 expect(result).toBeArrayOfSize(1);
                 expect(result[0]).toHaveProperty('touchedAt');
@@ -86,71 +98,72 @@ describe('WorkerExecutionContext', () => {
         });
 
         it('should have the APIs', () => {
-            expect(Object.keys(executionContext.apis)).toEqual([
-                'example-observer',
-                'example-api',
-            ]);
+            expect(executionContext.apis).toContainKeys(['example-observer', 'example-api']);
         });
 
         it('should be able to an operation instance by index', async () => {
             const fetcher = executionContext.getOperation<FetcherCore>(0);
-            // @ts-ignore
             expect(fetcher.opConfig._op).toEqual('example-reader');
 
-            const processor = executionContext.getOperation<ProcessorCore>(1);
-            // @ts-ignore
+            const delay = executionContext.getOperation<ProcessorCore>(1);
+            expect(delay.opConfig._op).toEqual('delay');
+
+            const processor = executionContext.getOperation<ProcessorCore>(2);
             expect(processor.opConfig._op).toEqual('example-op');
         });
 
         it('should be able to an operation instance by name', async () => {
             const fetcher = executionContext.getOperation<FetcherCore>('example-reader');
-            // @ts-ignore
             expect(fetcher.opConfig._op).toEqual('example-reader');
 
+            const delay = executionContext.getOperation<ProcessorCore>('delay');
+            expect(delay.opConfig._op).toEqual('delay');
+
             const processor = executionContext.getOperation<ProcessorCore>('example-op');
-            // @ts-ignore
             expect(processor.opConfig._op).toEqual('example-op');
         });
 
         it('should have the registered apis', () => {
-            const registry = Object.keys(context.apis.executionContext.registry);
-            expect(registry).toEqual([
-                'example-reader',
-            ]);
+            expect(context.apis.executionContext.registry).toContainKeys(['example-reader']);
         });
 
         it('should have the operations initialized', () => {
             const ops = executionContext.getOperations();
+
             for (const op of ops) {
-                if (op.onOperationComplete == null) {
+                // @ts-ignore
+                const isDelay = op.opConfig && op.opConfig._op === 'delay';
+                if (op.onOperationComplete == null && !isDelay) {
                     expect(op).toHaveProperty('_initialized', true);
                 }
             }
         });
 
         it('should be to call the Worker LifeCycle events', async () => {
-            await executionContext.onSliceInitialized('hello');
-            await executionContext.onSliceStarted('hello');
-            await executionContext.onSliceFinalizing('hello');
-            await executionContext.onSliceFinished('hello');
-            await executionContext.onSliceFailed('hello');
-            await executionContext.onSliceRetry('hello');
-            await executionContext.onOperationStart('hello', 1);
-            await executionContext.onOperationComplete('hello', 1, 1);
+            await executionContext.initializeSlice(newTestSlice());
+            expect(executionContext.status).toEqual('running');
+            expect(executionContext).toHaveProperty('sliceState.status', 'starting');
+            await executionContext.onSliceStarted();
+            expect(executionContext).toHaveProperty('sliceState.status', 'started');
+            await executionContext.onSliceFinalizing();
+            await executionContext.onSliceFinished();
+            expect(executionContext.status).toEqual('idle');
+            await executionContext.onSliceFailed();
+            expect(executionContext).toHaveProperty('sliceState.status', 'failed');
+            await executionContext.onSliceRetry();
+            executionContext.sliceState = undefined;
         });
 
         it('should be able run a "slice"', async () => {
-            const slice = {
-                slice_id: '1',
-                slicer_id: 1,
-                slicer_order: 1,
-                request: { hello: true },
-                _created: 'hi'
-            };
+            await executionContext.initializeSlice(newTestSlice());
+            expect(executionContext).toHaveProperty('sliceState.status', 'starting');
 
-            const { results, analytics } = await executionContext.runSlice(slice);
+            const { results, analytics, status } = await executionContext.runSlice();
+            expect(status).toEqual('completed');
+            expect(executionContext).toHaveProperty('sliceState.status', status);
+            expect(executionContext.status).toEqual('running');
 
-            expect(analytics).toBeUndefined();
+            expect(analytics).toContainAllKeys(['time', 'memory', 'size']);
 
             expect(results.length).toBeGreaterThan(0);
 
@@ -160,17 +173,94 @@ describe('WorkerExecutionContext', () => {
                 expect(item).toHaveProperty('touchedAt');
             }
         });
+
+        it('should be able run a flush on the last slice', async () => {
+            const op: any = executionContext.getOperation('example-op');
+
+            expect(op._flushing).toBeFalse();
+            expect(executionContext).toHaveProperty('sliceState.status', 'completed');
+
+            const previousAnalytics = executionContext.sliceState!.analytics!;
+
+            const result = await executionContext.flush();
+            if (!result) {
+                expect(result).not.toBeNil();
+                return;
+            }
+
+            const { results, analytics, status } = result;
+
+            expect(status).toEqual('flushed');
+            expect(executionContext.status).toEqual('flushing');
+
+            expect(op._flushing).toBeFalse();
+
+            expect(analytics).toContainAllKeys(['time', 'memory', 'size']);
+            expect(analytics).not.toEqual(previousAnalytics);
+            const ops = executionContext.config.operations.length;
+
+            for (const metric of ['size', 'time']) {
+                for (let i = 0; i < ops; i++) {
+                    const previous = previousAnalytics[metric][i];
+                    const current = analytics![metric][i];
+                    if (i === 0) {
+                        if (current !== previous) {
+                            fail(`Metric "${metric}" should not have changed for the fetcher. Expected ${current} === ${previous}`);
+                        }
+                    } else {
+                        if (current < previous) {
+                            fail(`Metric "${metric}" should be greater than the last run. Expected ${current} >= ${previous}.`);
+                        }
+                    }
+                }
+            }
+
+            expect(results.length).toEqual(30);
+
+            for (const item of results) {
+                expect(item).toHaveProperty('flush', true);
+            }
+        });
+
+        it('should be able run a slice and flush at the same time', async () => {
+            await executionContext.initializeSlice(newTestSlice());
+
+            const running = executionContext.runSlice();
+            const flushing = executionContext.flush();
+            const [runResult, flushResult] = await Promise.all([running, flushing]);
+
+            expect(runResult).toHaveProperty('status', 'flushed');
+            expect(runResult).toHaveProperty('results');
+            expect(runResult).toHaveProperty('analytics');
+            expect(flushResult).toBeNil();
+        });
+
+        it('should be able flush a slice that is mid-way', async () => {
+            await executionContext.initializeSlice(newTestSlice());
+
+            const running = executionContext.runSlice();
+            await pDelay(500);
+
+            const flushing = executionContext.flush();
+            const [runResult, flushResult] = await Promise.all([running, flushing]);
+
+            expect(runResult).toHaveProperty('status', 'flushed');
+            expect(runResult).toHaveProperty('results');
+            expect(runResult).toHaveProperty('analytics');
+            expect(flushResult).not.toBeNil();
+            expect(flushResult).not.toEqual(runResult);
+        });
     });
 
     describe('when testing edge cases', () => {
         const executionConfig = newTestExecutionConfig();
         executionConfig.operations = [
             {
-                _op: 'failing-reader'
+                _op: 'failing-reader',
             },
             {
-                _op: 'noop'
-            }
+                _op: 'noop',
+            },
         ];
 
         const executionContext = new WorkerExecutionContext({
@@ -195,11 +285,10 @@ describe('WorkerExecutionContext', () => {
                 slicer_id: 1,
                 slicer_order: 1,
                 request: { hello: true },
-                _created: 'hi'
+                _created: 'hi',
             };
 
-            return expect(executionContext.runSlice(slice))
-                        .rejects.toThrowError(/Failure to parse buffer/);
+            return expect(executionContext.runSlice(slice)).rejects.toThrowError(/Failure to parse buffer/);
         });
     });
 });

@@ -29,10 +29,7 @@ export function validateIndexConfig(config: any): config is IndexConfig {
         errors.push('Invalid namespace, must be a non-empty string and cannot contain a "-"');
     }
 
-    const {
-        indexSchema = { version: 1 },
-        version = 1
-    } = config || {};
+    const { indexSchema = { version: 1 }, version = 1 } = config || {};
 
     if (!ts.isInteger(indexSchema.version)) {
         errors.push(`Index Version must a Integer, got "${ts.getTypeOf(indexSchema.version)}"`);
@@ -60,14 +57,9 @@ export function validateIndexConfig(config: any): config is IndexConfig {
 export function isValidClient(input: any): input is es.Client {
     if (input == null) return false;
 
-    const reqKeys = [
-        'indices',
-        'index',
-        'get',
-        'search',
-    ];
+    const reqKeys = ['indices', 'index', 'get', 'search'];
 
-    return reqKeys.every((key) => input[key] != null);
+    return reqKeys.every(key => input[key] != null);
 }
 
 type indexFn = (config?: IndexSchema) => boolean;
@@ -76,19 +68,13 @@ export const isSimpleIndex: indexFn = R.both(
     isNotNil,
     R.both(
         R.has('mapping'),
-        R.pipe(R.path('template'), R.isNil)
+        R.pipe(
+            R.path(['template']),
+            R.isNil
+        )
     )
 );
 
-export const isTemplatedIndex: indexFn = R.both(
-    isNotNil,
-    R.both(
-        R.has('mapping'),
-        R.propEq('template', true),
-    )
-);
+export const isTemplatedIndex: indexFn = R.both(isNotNil, R.both(R.has('mapping'), R.propEq('template', true)));
 
-export const isTimeSeriesIndex: indexFn = R.both(
-    isTemplatedIndex,
-    R.propEq('timeseries', true)
-);
+export const isTimeSeriesIndex: indexFn = R.both(isTemplatedIndex, R.propEq('timeseries', true));

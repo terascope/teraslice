@@ -12,10 +12,10 @@ import { SliceRequest, OpConfig } from '../../interfaces';
 
 export default abstract class ProcessorCore<T = OpConfig> extends OperationCore<T> {
     /**
-    * A generic method called by the Teraslice framework to a give a "Processor"
-    * the ability to handle the input and output of operation
-    * @param input an array of DataEntities
-    * @returns an array of DataEntities
-    */
+     * A generic method called by the Teraslice framework to a give a "Processor"
+     * the ability to handle the input and output of operation
+     * @param input an array of DataEntities
+     * @returns an array of DataEntities
+     */
     abstract async handle(input: DataEntity[], sliceRequest?: SliceRequest): Promise<DataEntity[]>;
 }

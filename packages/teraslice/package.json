@@ -8,7 +8,7 @@
         "start": "node service.js",
         "lint": "eslint *.js lib/**/*.js test/**/*.js",
         "lint:fix": "yarn lint --fix",
-        "test": "jest",
+        "test": "jest --forceExit",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
         "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*,-teraslice-messaging*}\" jest --colors --forceExit --detectOpenHandles --coverage=false --runInBand"
     },
@@ -36,10 +36,10 @@
     "dependencies": {
         "@terascope/elasticsearch-api": "^2.0.2",
         "@terascope/error-parser": "^1.0.2",
-        "@terascope/job-components": "^0.16.0",
+        "@terascope/job-components": "^0.17.0",
         "@terascope/queue": "^1.1.6",
         "@terascope/teraslice-messaging": "^0.3.2",
-        "@terascope/utils": "^0.10.1",
+        "@terascope/utils": "^0.10.2",
         "async-mutex": "^0.1.3",
         "barbe": "^3.0.15",
         "bluebird": "^3.5.4",
@@ -53,7 +53,7 @@
         "kubernetes-client": "^6.12.1",
         "lodash": "^4.17.11",
         "moment": "^2.24.0",
-        "nanoid": "^2.0.2",
+        "nanoid": "^2.0.3",
         "p-whilst": "^2.1.0",
         "porty": "^3.1.1",
         "request": "^2.88.0",
@@ -64,7 +64,7 @@
         "uuid": "^3.3.2"
     },
     "devDependencies": {
-        "@terascope/teraslice-op-test-harness": "^1.5.7",
+        "@terascope/teraslice-op-test-harness": "^1.6.0",
         "archiver": "^3.0.0",
         "bufferstreams": "^2.0.1",
         "chance": "^1.0.18",

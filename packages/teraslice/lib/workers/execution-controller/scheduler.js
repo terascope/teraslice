@@ -1,7 +1,8 @@
 'use strict';
 
-const _ = require('lodash');
-const Promise = require('bluebird');
+const {
+    noop, pDelay, get, toString
+} = require('@terascope/utils');
 const pWhilst = require('p-whilst');
 const Queue = require('@terascope/queue');
 const makeExecutionRecovery = require('./recovery');
@@ -15,7 +16,7 @@ class Scheduler {
         this.executionContext = executionContext;
         this.exId = executionContext.exId;
 
-        const jobCanRecover = _.get(executionContext.config, 'recovered_execution', false);
+        const jobCanRecover = get(executionContext.config, 'recovered_execution', false);
         const slicerCanRecover = executionContext.slicer().isRecoverable();
 
         this.recoverExecution = jobCanRecover && slicerCanRecover;
@@ -30,8 +31,8 @@ class Scheduler {
         this.queue = new Queue();
         this.startingPoints = [];
 
-        this._resolveRun = _.noop;
-        this._processCleanup = _.noop;
+        this._resolveRun = noop;
+        this._processCleanup = noop;
 
         this._processSlicers();
     }
@@ -58,7 +59,7 @@ class Scheduler {
                     this.slicersDone = true;
                 }
                 this._resolveRun();
-                this._resolveRun = _.noop;
+                this._resolveRun = noop;
             };
 
             this._resolveRun = () => {
@@ -75,11 +76,14 @@ class Scheduler {
 
         await promise;
 
-        this.logger.debug(`execution ${this.exId} is finished scheduling, ${this.pendingSlices + this.pendingSlicerCount} remaining slices in the queue`);
+        const n = this.pendingSlices + this.pendingSlicerCount;
+        this.logger.debug(
+            `execution ${this.exId} is finished scheduling, ${n} remaining slices in the queue`
+        );
 
         const waitForCreating = () => {
             const is = () => this._creating;
-            return pWhilst(is, () => Promise.delay(100));
+            return pWhilst(is, () => pDelay(100));
         };
 
         await waitForCreating();
@@ -99,9 +103,9 @@ class Scheduler {
         const drain = this._drainPendingSlices(false);
 
         this._processCleanup();
-        this._processCleanup = _.noop;
+        this._processCleanup = noop;
         this._resolveRun();
-        this._resolveRun = _.noop;
+        this._resolveRun = noop;
 
         await drain;
     }
@@ -153,7 +157,7 @@ class Scheduler {
 
     canComplete() {
         const { lifecycle } = this.executionContext.config;
-        return this.ready && (lifecycle === 'once') && !this.recovering;
+        return this.ready && lifecycle === 'once' && !this.recovering;
     }
 
     isRecovering() {
@@ -223,11 +227,7 @@ class Scheduler {
     }
 
     _processSlicers() {
-        const {
-            events,
-            logger,
-            exId,
-        } = this;
+        const { events, logger, exId } = this;
 
         let _handling = false;
         let _finished = false;
@@ -236,7 +236,7 @@ class Scheduler {
         let handleInterval;
 
         const resetCleanup = () => {
-            this._processCleanup = _.noop;
+            this._processCleanup = noop;
         };
 
         const cleanup = () => {
@@ -248,8 +248,9 @@ class Scheduler {
         };
 
         const drain = () => {
-            if (this.pendingSlicerCount) {
-                logger.debug(`draining the remaining ${this.pendingSlicerCount} pending slices from the slicer`);
+            const n = this.pendingSlicerCount;
+            if (n) {
+                logger.debug(`draining the remaining ${n} pending slices from the slicer`);
             }
             return this._drainPendingSlices(false);
         };
@@ -264,12 +265,12 @@ class Scheduler {
 
         const onSlicerFailure = async (err) => {
             cleanup();
-            logger.warn('slicer failed', _.toString(err));
+            logger.warn('slicer failed', toString(err));
 
             await drain();
-            // before removing listeners make sure we've received all of the events
-            await Promise.delay(100);
 
+            // before removing listeners make sure we've received all of the events
+            await pDelay(100);
             events.emit('slicers:finished', err);
         };
 
@@ -306,7 +307,9 @@ class Scheduler {
             _handling = true;
 
             makeSlices()
-                .then(() => { _handling = false; })
+                .then(() => {
+                    _handling = false;
+                })
                 .catch((err) => {
                     _handling = false;
                     this.logger.error('failure to run slicers', err);
@@ -316,8 +319,7 @@ class Scheduler {
         createInterval = setInterval(() => {
             if (!this.pendingSlicerCount) return;
 
-            this._drainPendingSlices()
-                .catch(err => this.logger.error('failure creating slices', err));
+            this._drainPendingSlices().catch(err => this.logger.error('failure creating slices', err));
         }, 5);
 
         this._processCleanup = cleanup;
@@ -352,8 +354,7 @@ class Scheduler {
         slice._created = new Date().toISOString();
 
         // this.stateStore is attached from the execution_controller
-        return this.stateStore.createState(this.exId, slice, 'start')
-            .then(() => slice);
+        return this.stateStore.createState(this.exId, slice, 'start').then(() => slice);
     }
 
     _createSlices(slices) {
@@ -369,11 +370,8 @@ class Scheduler {
     }
 
     async _recoverSlices() {
-        this.recover = this.recover || makeExecutionRecovery(
-            this.context,
-            this.stateStore,
-            this.executionContext
-        );
+        this.recover = this.recover
+            || makeExecutionRecovery(this.context, this.stateStore, this.executionContext);
 
         await this.recover.initialize();
 
@@ -407,9 +405,9 @@ class Scheduler {
             this.logger.warn('execution recovery has been marked as completed');
             this.slicersDone = true;
             this._processCleanup();
-            this._processCleanup = _.noop;
+            this._processCleanup = noop;
             this._resolveRun();
-            this._resolveRun = _.noop;
+            this._resolveRun = noop;
             return;
         }
 

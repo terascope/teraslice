@@ -31,6 +31,9 @@
                 "count": {
                     "type": "integer"
                 },
+                "state": {
+                    "type": "keyword"
+                },
                 "time": {
                     "type": "integer"
                 },

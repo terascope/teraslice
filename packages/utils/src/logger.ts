@@ -4,6 +4,7 @@ import { EventEmitter } from 'events';
 import { uniq } from './arrays';
 import { toString, isString, trimAndToLower } from './strings';
 import { isPlainObject } from './utils';
+import { isTest } from './misc';
 
 interface DebugParamObj {
     module: string;
@@ -45,7 +46,7 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
         parts.push(otherName);
     }
     parts = parts.map(toString).map(trimAndToLower);
-    parts = uniq(parts.filter((str) => !!str));
+    parts = uniq(parts.filter(str => !!str));
 
     const name = parts.join(':');
 
@@ -91,8 +92,8 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
 
         logger[level] = (...args: any[]) => {
             if (code < logger.level()) return false;
-            if (level === 'fatal') {
-                console.error(name, ...args);
+            if (level === 'fatal' && !isTest) {
+                console.error(`${name} ${fLevel}`, ...args);
                 return true;
             }
 
@@ -126,8 +127,8 @@ declare class Logger extends EventEmitter {
 
     /**
      * Terafoundation specific
-    */
-    streams: Stream|WritableStream|undefined[];
+     */
+    streams: Stream | WritableStream | undefined[];
 
     fields: any;
     src: boolean;
@@ -308,7 +309,7 @@ declare class Logger extends EventEmitter {
 
     /**
      * Terafoundation specific, flush the logs
-    */
+     */
     flush(): Promise<void>;
 }
 

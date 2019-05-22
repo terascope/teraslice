@@ -22,7 +22,7 @@ describe('IndexManager->indexSetup()', () => {
             version: 1,
             indexSettings: {
                 'index.number_of_shards': 1,
-                'index.number_of_replicas': 0
+                'index.number_of_replicas': 0,
             },
             logger,
         };
@@ -46,7 +46,7 @@ describe('IndexManager->indexSetup()', () => {
 
         it('should create the versioned index', async () => {
             const exists = await client.indices.exists({
-                index
+                index,
             });
 
             expect(exists).toBeTrue();
@@ -55,7 +55,7 @@ describe('IndexManager->indexSetup()', () => {
 
         it('should create the mapping', async () => {
             const mapping = await client.indices.getMapping({
-                index
+                index,
             });
 
             expect(mapping).toHaveProperty(index);
@@ -82,7 +82,7 @@ describe('IndexManager->indexSetup()', () => {
             version: 1,
             indexSettings: {
                 'index.number_of_shards': 1,
-                'index.number_of_replicas': 0
+                'index.number_of_replicas': 0,
             },
             logger,
         };
@@ -95,8 +95,7 @@ describe('IndexManager->indexSetup()', () => {
 
         async function cleanup() {
             await cleanupIndex(client, index);
-            await client.indices.deleteTemplate({ name: templateName })
-                    .catch(() => {});
+            await client.indices.deleteTemplate({ name: templateName }).catch(() => {});
         }
 
         beforeAll(async () => {
@@ -113,7 +112,7 @@ describe('IndexManager->indexSetup()', () => {
 
         it('should create the versioned index', async () => {
             const exists = await client.indices.exists({
-                index
+                index,
             });
 
             expect(exists).toBeTrue();
@@ -122,7 +121,7 @@ describe('IndexManager->indexSetup()', () => {
 
         it('should create the mapping', async () => {
             const mapping = await client.indices.getMapping({
-                index
+                index,
             });
 
             expect(mapping).toHaveProperty(index);
@@ -131,7 +130,7 @@ describe('IndexManager->indexSetup()', () => {
 
         it('should create the template', async () => {
             const template = await client.indices.getTemplate({
-                name: templateName
+                name: templateName,
             });
 
             expect(template).toHaveProperty(templateName);
@@ -156,7 +155,7 @@ describe('IndexManager->indexSetup()', () => {
             });
 
             const template = await client.indices.getTemplate({
-                name: templateName
+                name: templateName,
             });
 
             expect(template).toHaveProperty(templateName);
@@ -164,8 +163,8 @@ describe('IndexManager->indexSetup()', () => {
         });
 
         it('should be able to upsert a newer template safely', async () => {
-            const mapping = R.pathOr({}, 'indexSchema.mapping', config);
-            const version = R.pathOr(1, 'indexSchema.version', config);
+            const mapping = R.pathOr({}, ['indexSchema', 'mapping'], config);
+            const version = R.pathOr(1, ['indexSchema', 'version'], config);
 
             const mappings = {};
             mappings[config.name] = mapping;
@@ -179,7 +178,7 @@ describe('IndexManager->indexSetup()', () => {
             });
 
             const template = await client.indices.getTemplate({
-                name: templateName
+                name: templateName,
             });
 
             expect(template).toHaveProperty(templateName);
@@ -208,7 +207,7 @@ describe('IndexManager->indexSetup()', () => {
             version: 1,
             indexSettings: {
                 'index.number_of_shards': 1,
-                'index.number_of_replicas': 0
+                'index.number_of_replicas': 0,
             },
             logger,
         };
@@ -243,7 +242,7 @@ describe('IndexManager->indexSetup()', () => {
 
         it('should create the mapping', async () => {
             const mapping = await client.indices.getMapping({
-                index
+                index,
             });
 
             expect(mapping[currentIndexName].mappings).toHaveProperty(config.name);
@@ -251,7 +250,7 @@ describe('IndexManager->indexSetup()', () => {
 
         it('should create the template', async () => {
             const template = await client.indices.getTemplate({
-                name: templateName
+                name: templateName,
             });
 
             expect(template).toHaveProperty(templateName);

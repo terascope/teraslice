@@ -2,11 +2,7 @@
 
 const path = require('path');
 const { Suite } = require('../../utils/bench/helpers');
-const {
-    TestContext,
-    newTestExecutionConfig,
-    WorkerExecutionContext
-} = require('../dist/src');
+const { TestContext, newTestExecutionConfig, WorkerExecutionContext } = require('../dist/src');
 
 const SimpleFetcher = require('./fixtures/simple-reader/fetcher');
 const SimpleMap = require('./fixtures/simple-map/processor');
@@ -59,7 +55,8 @@ const run = async () => {
         .add('methods without DataEntities', {
             defer: true,
             fn(deferred) {
-                fetcher.fetch({ addMetadata: true })
+                fetcher
+                    .fetch({ addMetadata: true })
                     .then(result => result.map(data => map.map(data)))
                     .then((result) => {
                         result.forEach(data => each.forEach(data));
@@ -71,12 +68,13 @@ const run = async () => {
                         return result;
                     })
                     .then(() => deferred.resolve());
-            }
+            },
         })
         .add('methods with DataEntities', {
             defer: true,
             fn(deferred) {
-                fetcher.fetch({ precreate: true })
+                fetcher
+                    .fetch({ precreate: true })
                     .then(result => result.map(data => map.map(data)))
                     .then((result) => {
                         result.forEach(data => each.forEach(data));
@@ -88,29 +86,31 @@ const run = async () => {
                         return result;
                     })
                     .then(() => deferred.resolve());
-            }
+            },
         })
         .add('handle with precreated DataEntities', {
             defer: true,
             fn(deferred) {
-                fetcher.handle({ precreate: true })
+                fetcher
+                    .handle({ precreate: true })
                     .then(result => map.handle(result))
                     .then(result => each.handle(result))
                     .then(result => filter.handle(result))
                     .then(result => each.handle(result))
                     .then(() => deferred.resolve());
-            }
+            },
         })
         .add('handle with automatic DataEntities', {
             defer: true,
             fn(deferred) {
-                fetcher.handle()
+                fetcher
+                    .handle()
                     .then(result => map.handle(result))
                     .then(result => each.handle(result))
                     .then(result => filter.handle(result))
                     .then(result => each.handle(result))
                     .then(() => deferred.resolve());
-            }
+            },
         })
         .add('runSlice with precreated DataEntities', {
             defer: true,
@@ -120,10 +120,10 @@ const run = async () => {
                         slice_id: '123',
                         slicer_id: 1,
                         slicer_order: 2,
-                        request: { precreate: true }
+                        request: { precreate: true },
                     })
                     .then(() => deferred.resolve());
-            }
+            },
         })
         .add('runSlice with automatic DataEntities', {
             defer: true,
@@ -133,10 +133,10 @@ const run = async () => {
                         slice_id: '123',
                         slicer_id: 1,
                         slicer_order: 2,
-                        request: { }
+                        request: {},
                     })
                     .then(() => deferred.resolve());
-            }
+            },
         })
         .run({
             async: true,

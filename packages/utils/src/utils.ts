@@ -24,7 +24,7 @@ export function tryParseJSON(input: any) {
 }
 
 /** JSON encoded buffer into a json object */
-export function parseJSON<T = object>(buf: Buffer|string): T {
+export function parseJSON<T = object>(buf: Buffer | string): T {
     if (!Buffer.isBuffer(buf) && !isString(buf)) {
         throw new TypeError(`Failure to serialize non-buffer, got "${getTypeOf(buf)}"`);
     }
@@ -40,7 +40,7 @@ export function parseJSON<T = object>(buf: Buffer|string): T {
 /**
  * Determine the type of an input
  * @return a human friendly string that describes the input
-*/
+ */
 export function getTypeOf(val: any): string {
     if (val) {
         if (val.__isDataEntity) return 'DataEntity';
@@ -74,7 +74,7 @@ export function isFunction(input: any): input is Function {
  * If the input is an array it will return the first item
  * else if it will return the input
  */
-export function getFirst<T>(input: T|T[]): T {
+export function getFirst<T>(input: T | T[]): T {
     return Array.isArray(input) ? input[0] : input;
 }
 
@@ -109,7 +109,7 @@ export function toNumber(input: any): number {
 }
 
 /** Convert any input to a integer, return false if unable to convert input  */
-export function toInteger(input: any): number|false {
+export function toInteger(input: any): number | false {
     if (Number.isInteger(input)) return input;
     const val = Number.parseInt(input, 10);
     if (isNumber(val)) return val;
@@ -126,14 +126,14 @@ export function toBoolean(input: any): boolean {
 /**
  * Maps an array of strings and and trims the result, or
  * parses a comma separated list and trims the result
-*/
+ */
 export function parseList(input: any): string[] {
     let strings: string[] = [];
 
     if (isString(input)) {
         strings = input.split(',');
     } else if (Array.isArray(input)) {
-        strings = input.map((input) => {
+        strings = input.map(input => {
             if (!input) return '';
             return toString(input);
         });
@@ -141,16 +141,14 @@ export function parseList(input: any): string[] {
         return [];
     }
 
-    return strings
-        .map((s) => s.trim())
-        .filter((s) => !!s);
+    return strings.map(s => s.trim()).filter(s => !!s);
 }
 
 /**
  * Like parseList, except it returns numbers
-*/
+ */
 export function parseNumberList(input: any): number[] {
-    let items: (number|string)[] = [];
+    let items: (number | string)[] = [];
 
     if (isString(input)) {
         items = input.split(',');
@@ -164,7 +162,7 @@ export function parseNumberList(input: any): number[] {
 
     return items
         // filter out any empty string
-        .filter((item) => {
+        .filter(item => {
             if (item == null) return false;
             if (isString(item) && !item.trim().length) return false;
             return true;
@@ -172,3 +170,5 @@ export function parseNumberList(input: any): number[] {
         .map(toNumber)
         .filter(isNumber) as number[];
 }
+
+export function noop(...args: any[]): any {}

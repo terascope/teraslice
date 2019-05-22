@@ -1,10 +1,10 @@
 'use strict';
 
 const Promise = require('bluebird');
-const _ = require('lodash');
+const { get, pDelay, isError } = require('@terascope/utils');
 
 function waitForWorkerShutdown(context, eventName) {
-    const shutdownTimeout = _.get(context, 'sysconfig.teraslice.shutdown_timeout', 30000);
+    const shutdownTimeout = get(context, 'sysconfig.teraslice.shutdown_timeout', 30000);
     const events = context.apis.foundation.getSystemEvents();
 
     return new Promise((resolve, reject) => {
@@ -15,7 +15,7 @@ function waitForWorkerShutdown(context, eventName) {
 
         function handler(err) {
             clearTimeout(timeoutId);
-            if (_.isError(err)) {
+            if (isError(err)) {
                 reject(err);
             } else {
                 resolve();
@@ -27,29 +27,40 @@ function waitForWorkerShutdown(context, eventName) {
 
 /* istanbul ignore next */
 function shutdownHandler(context, shutdownFn) {
-    const assignment = context.assignment || process.env.NODE_TYPE || process.env.assignment || 'unknown-assignment';
+    const assignment = context.assignment
+        || process.env.NODE_TYPE
+        || process.env.assignment
+        || 'unknown-assignment';
 
     const isProcessRestart = process.env.process_restart;
     const restartOnFailure = assignment !== 'exectution_controller';
     const api = {
         exiting: false,
-        exit
+        exit,
     };
 
-    const shutdownTimeout = _.get(context, 'sysconfig.teraslice.shutdown_timeout', 20 * 1000);
+    const shutdownTimeout = get(context, 'sysconfig.teraslice.shutdown_timeout', 20 * 1000);
 
     const events = context.apis.foundation.getSystemEvents();
     const logger = context.apis.foundation.makeLogger({ module: `${assignment}:shutdown_handler` });
 
     if (assignment === 'execution_controller' && isProcessRestart) {
-        logger.fatal('Execution Controller runtime error led to a restart, terminating execution with failed status, please use the recover api to return slicer to a consistent state');
+        logger.fatal(
+            'Execution Controller runtime error led to a restart, terminating execution with failed status, please use the recover api to return slicer to a consistent state'
+        );
         process.exit(0);
     }
 
-    function flushLogs() {
-        return Promise.resolve()
-            .then(() => this.logger.flush())
-            .then(() => Promise.delay(1000));
+    async function flushLogs() {
+        try {
+            await logger.flush();
+            await pDelay(1000);
+
+            const code = process.exitCode || 0;
+            logger.debug(`flushed logs successfully, will exit with code ${code}`);
+        } catch (err) {
+            logger.error(err, 'flush error on shutdown');
+        }
     }
 
     let startTime;
@@ -63,27 +74,29 @@ function shutdownHandler(context, shutdownFn) {
         return `already shutting down, remaining ${shutdownTimeout - elapsed}ms`;
     }
 
-    function exit(event, err) {
+    function callShutdownFn(event, err) {
+        return Promise.resolve().then(() => shutdownFn(event, err));
+    }
+
+    function shutdownWithTimeout(event, err) {
+        return Promise.race([callShutdownFn(event, err), pDelay(shutdownTimeout - 2000)]);
+    }
+
+    async function exit(event, err) {
         if (api.exiting) return;
 
         api.exiting = true;
         startTime = Date.now();
 
-        Promise.race([
-            shutdownFn(event, err),
-            Promise.delay(shutdownTimeout - 2000)
-        ]).then(() => {
+        try {
+            await shutdownWithTimeout(event, err);
             logger.info(`${assignment} shutdown took ${Date.now() - startTime}ms`);
-        }).catch((error) => {
+        } catch (error) {
             logger.error(`${assignment} while shutting down`, error);
-        }).then(() => {
-            const code = process.exitCode || 0;
-            logger.trace(`flushing log and exiting with code ${code}`);
-            return flushLogs()
-                .finally(() => {
-                    process.exit();
-                });
-        });
+        } finally {
+            await flushLogs();
+            process.exit();
+        }
     }
 
     process.on('SIGINT', () => {
@@ -121,7 +134,7 @@ function shutdownHandler(context, shutdownFn) {
     // See https://github.com/trentm/node-bunyan/issues/246
     function handleStdError(err) {
         if (err.code === 'EPIPE' || err.code === 'ERR_STREAM_DESTROYED') {
-        // ignore
+            // ignore
         } else {
             throw err;
         }

@@ -19,7 +19,7 @@ import { JobHarnessOptions } from './interfaces';
  * This is useful for testing Fetcher and Processors together or individually.
  *
  * @todo Add support for attaching APIs and Observers
-*/
+ */
 export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionContext> {
     constructor(job: JobConfig, options: JobHarnessOptions) {
         super(job, options, 'worker');
@@ -37,13 +37,13 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
         return this.executionContext.apis;
     }
 
-    getOperation<T extends OperationCore = OperationCore>(findBy: string|number): T {
+    getOperation<T extends OperationCore = OperationCore>(findBy: string | number): T {
         return this.executionContext.getOperation<T>(findBy);
     }
 
     /**
      * Initialize the Operations on the ExecutionContext
-    */
+     */
     async initialize() {
         await super.initialize();
         await this.executionContext.initialize();
@@ -61,34 +61,32 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
      * with both the slice results and any analytics if specified on the Job.
      *
      * @returns an Array of DataEntities or a SliceResult
-    */
-    async runSlice(input: Slice|SliceRequest): Promise<DataEntity[]>;
-    async runSlice(input: Slice|SliceRequest, options: { fullResponse: false }): Promise<DataEntity[]>;
-    async runSlice(input: Slice|SliceRequest, options: { fullResponse: true }): Promise<RunSliceResult>;
-    async runSlice(input: Slice|SliceRequest, { fullResponse = false } = {}): Promise<DataEntity[]|RunSliceResult> {
-        const maxRetries = this.executionContext.config.max_retries;
-        const remainingTries = Number.isInteger(maxRetries) ? maxRetries + 1 : 0;
+     */
+    async runSlice(input: Slice | SliceRequest): Promise<DataEntity[]>;
+    async runSlice(input: Slice | SliceRequest, options: { fullResponse: false }): Promise<DataEntity[]>;
+    async runSlice(input: Slice | SliceRequest, options: { fullResponse: true }): Promise<RunSliceResult>;
+    async runSlice(input: Slice | SliceRequest, { fullResponse = false } = {}): Promise<DataEntity[] | RunSliceResult> {
         const slice: Slice = isSlice(input) ? input : newTestSlice(input);
 
-        this.events.emit('slice:initialize', slice);
-        await this.executionContext.onSliceInitialized(slice.slice_id);
+        await this.executionContext.initializeSlice(slice);
 
         let result: RunSliceResult;
 
         try {
-            result = await this._trySlice(slice, remainingTries);
+            result = await this.executionContext.runSlice();
+            this.events.emit('slice:success', slice);
         } finally {
-            this.events.emit('slice:finalize', slice);
-            await this.executionContext.onSliceFinalizing(slice.slice_id);
+            await this.executionContext.onSliceFinalizing();
         }
 
-        this.events.emit('slice:success', slice);
-        this.executionContext.onSliceFinished(slice.slice_id);
+        await this.executionContext.onSliceFinished();
 
         if (fullResponse) {
-            return result || {
-                results: [],
-            };
+            return (
+                result || {
+                    results: [],
+                }
+            );
         }
 
         return result.results || [];
@@ -96,30 +94,13 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
 
     /**
      * Shutdown the Operations on the ExecutionContext
-    */
+     */
     async shutdown() {
         await super.shutdown();
         await this.executionContext.shutdown();
     }
-
-    private async _trySlice(slice: Slice, remainingTries: number): Promise<RunSliceResult> {
-        try {
-            return await this.executionContext.runSlice(slice);
-        } catch (err) {
-            this.context.logger.error('Slice Failure', err, slice);
-            if (remainingTries > 0) {
-                this.events.emit('slice:retry', slice);
-                await this.executionContext.onSliceRetry(slice.slice_id);
-                return this._trySlice(slice, remainingTries - 1);
-            }
-
-            this.events.emit('slice:failure', slice);
-            await this.executionContext.onSliceFailed(slice.slice_id);
-            throw err;
-        }
-    }
 }
 
-function isSlice(input: Slice|SliceRequest): input is Slice {
+function isSlice(input: Slice | SliceRequest): input is Slice {
     return input.slice_id && input.slicer_id != null;
 }

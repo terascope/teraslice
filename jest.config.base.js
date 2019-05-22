@@ -24,8 +24,9 @@ module.exports = (projectDir) => {
             '<rootDir>/assets',
             `<rootDir>/${workspaceName}/*/node_modules`,
             `<rootDir>/${workspaceName}/*/dist`,
-            `<rootDir>/${workspaceName}/teraslice-cli/test/fixtures/`
+            `<rootDir>/${workspaceName}/teraslice-cli/test/fixtures/`,
         ],
+        transformIgnorePatterns: ['^.+\\.js$'],
         moduleNameMapper: lernaAliases({ mainFields: ['srcMain', 'main'] }),
         moduleFileExtensions: ['ts', 'js', 'json', 'node', 'pegjs'],
         collectCoverage: true,
@@ -34,7 +35,7 @@ module.exports = (projectDir) => {
         coverageReporters: runInPackage ? ['html'] : ['lcov', 'text', 'html'],
         coverageDirectory: `${projectRoot}/coverage`,
         preset: 'ts-jest',
-        watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname']
+        watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname'],
     };
 
     if (fs.pathExistsSync(path.join(projectDir, 'test/global.setup.js'))) {
@@ -50,7 +51,7 @@ module.exports = (projectDir) => {
     }
 
     config.globals = {
-        availableExtensions: ['.js', '.ts']
+        availableExtensions: ['.js', '.ts'],
     };
 
     if (isTypescript) {
@@ -58,19 +59,19 @@ module.exports = (projectDir) => {
             config.globals['ts-jest'] = {
                 tsConfig: './tsconfig.json',
                 diagnostics: true,
-                pretty: true
+                pretty: true,
             };
         } else {
             config.globals['ts-jest'] = {
                 tsConfig: `./${workspaceName}/${name}/tsconfig.json`,
                 diagnostics: true,
-                pretty: true
+                pretty: true,
             };
         }
     } else {
         config.globals['ts-jest'] = {
             diagnostics: true,
-            pretty: true
+            pretty: true,
         };
     }
 
