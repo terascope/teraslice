@@ -45,7 +45,7 @@ class Slice {
             }
             throw err;
         } finally {
-            await this._logAnalytics(result && result.analytics, result.status);
+            if (result) await this._logAnalytics(result.analytics, result.status);
             await this._onSliceFinalize(slice);
         }
 

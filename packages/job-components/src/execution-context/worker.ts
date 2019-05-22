@@ -1,7 +1,7 @@
 import * as ts from '@terascope/utils';
 import { FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
 import { OperationAPI, OperationAPIConstructor } from '../operations';
-import { WorkerOperationLifeCycle, Slice, OpAPI, sliceAnalyticsMetrics } from '../interfaces';
+import { WorkerOperationLifeCycle, Slice, OpAPI, sliceAnalyticsMetrics, SliceAnalyticsData } from '../interfaces';
 import { ExecutionContextConfig, RunSliceResult, JobAPIInstances, WorkerSliceState, WorkerStatus, SliceStatus } from './interfaces';
 import JobObserver from '../operations/job-observer';
 import BaseExecutionContext from './base';
@@ -204,13 +204,8 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
      * @todo this should handle slice retries.
      */
     async runSlice(slice?: Slice): Promise<RunSliceResult> {
-        if (slice) {
-            await this.initializeSlice(slice);
-        }
-
-        if (!this.sliceState) {
-            throw new Error('No slice specified to run');
-        }
+        if (slice) await this.initializeSlice(slice);
+        if (!this.sliceState) throw new Error('No slice specified to run');
 
         const maxRetries = this.config.max_retries;
         const maxTries = maxRetries > 0 ? maxRetries + 1 : 0;
@@ -228,16 +223,17 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
 
     async flush(): Promise<RunSliceResult | undefined> {
         if (!this.sliceState) return;
-        const { status } = this.sliceState;
-        if (status === 'failed') return;
+        if (this.sliceState.status === 'failed') return;
         if (this.status === 'shutdown') return;
 
         this.status = 'flushing';
         await this.beforeFlush();
 
-        const skip: SliceStatus[] = ['started', 'starting'];
-        this.logger.info(`flushing slice: ${this._sliceId} (slice status: ${status})`);
+        const { status } = this.sliceState;
 
+        this.logger.info(`flushing slice: ${this._sliceId}, currently "${status}"`);
+
+        const skip: SliceStatus[] = ['started', 'starting'];
         if (skip.includes(status)) return;
 
         return this._runSliceOnce(false);
@@ -309,6 +305,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
 
     private _updateSliceState(status: SliceStatus) {
         if (!this.sliceState) throw new Error('No active slice to update');
+
         this.sliceState.status = status;
 
         if (status === 'completed') {
@@ -317,30 +314,8 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         }
 
         if (status === 'flushed') {
-            const analytics = this.jobObserver.getAnalytics();
-            if (!analytics) return;
-
-            const ops = this.config.operations.length;
-            const hasPrevious = this.sliceState.analytics != null;
-            const previous = this.sliceState.analytics || this.jobObserver.defaultAnalytics();
-
-            for (const metric of sliceAnalyticsMetrics) {
-                for (let i = 0; i < ops; i++) {
-                    const previousMetric = getMetric(previous[metric], i);
-                    const currentMetric = getMetric(analytics[metric], i);
-
-                    if (hasPrevious && metric === 'size' && currentMetric > previousMetric) {
-                        const opName = this.config.operations[i]._op;
-                        const diff = currentMetric - previousMetric;
-                        this.logger.info(`operation "${opName}" flushed an additional ${diff} records`);
-                    }
-
-                    const updated = previousMetric + currentMetric;
-                    analytics[metric][i] = updated;
-                }
-            }
-
-            this.sliceState.analytics = analytics;
+            this.sliceState.analytics = this._mergeAnalytics();
+            return;
         }
     }
 
@@ -388,6 +363,34 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
             this._updateSliceState('failed');
             throw err;
         }
+    }
+
+    private _mergeAnalytics(): SliceAnalyticsData | undefined {
+        const analytics = this.jobObserver.getAnalytics();
+        if (!analytics) return;
+
+        const sliceState = this.sliceState!;
+        const ops = this.config.operations.length;
+        const hasPrevious = sliceState.analytics != null;
+        const previous = sliceState.analytics || this.jobObserver.defaultAnalytics();
+
+        for (const metric of sliceAnalyticsMetrics) {
+            for (let i = 0; i < ops; i++) {
+                const previousMetric = getMetric(previous[metric], i);
+                const currentMetric = getMetric(analytics[metric], i);
+
+                if (hasPrevious && metric === 'size' && currentMetric > previousMetric) {
+                    const opName = this.config.operations[i]._op;
+                    const diff = currentMetric - previousMetric;
+                    this.logger.info(`operation "${opName}" flushed an additional ${diff} records`);
+                }
+
+                const updated = previousMetric + currentMetric;
+                analytics[metric][i] = updated;
+            }
+        }
+
+        return analytics;
     }
 
     private get _sliceId(): string {
