@@ -191,6 +191,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
 
         this.sliceState = {
             status: 'starting',
+            position: -1,
             slice,
         };
 
@@ -226,20 +227,59 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         if (this.sliceState.status === 'failed') return;
         if (this.status === 'shutdown') return;
 
-        this.status = 'flushing';
         await this.onFlushStart();
 
-        const { status } = this.sliceState;
+        const { position } = this.sliceState;
 
-        this.logger.info(`flushing slice: ${this._sliceId}, currently "${status}"`);
+        if (position < 1) {
+            this.logger.info(`flushing the currently running slice ${this._sliceId}`);
+            return;
+        }
 
-        const skip: SliceStatus[] = ['started', 'starting'];
-        if (skip.includes(status)) return;
+        if (this.processingSlice) {
+            this.logger.info(`waiting until slice ${this._sliceId} is finished before flushing`, { position });
 
+            const workerShutdown = ts.get(this.context, 'sysconfig.teraslice.shutdown_timeout', 60000);
+            const timeoutMs = Math.round(workerShutdown * 0.8);
+
+            await new Promise(resolve => {
+                const startTime = Date.now();
+                const interval = setInterval(() => {
+                    if (!this.processingSlice) {
+                        clearTimeout(interval);
+                        return resolve();
+                    }
+
+                    const elapsed = Date.now() - startTime;
+                    if (elapsed >= timeoutMs) {
+                        this.logger.error(
+                            new ts.TSError('Timeout waiting for slice to finish before flushing', {
+                                context: {
+                                    start: new Date(startTime),
+                                    timeoutMs,
+                                    sliceState: this.sliceState,
+                                },
+                            })
+                        );
+
+                        clearTimeout(interval);
+                        return resolve();
+                    }
+                }, 10);
+            });
+        }
+
+        this.logger.info(`flushing slice ${this._sliceId}`);
         return this._runSliceOnce(false);
     }
 
+    get processingSlice(): boolean {
+        if (!this.sliceState) return false;
+        return ['started', 'starting'].includes(this.sliceState.status);
+    }
+
     async onFlushStart() {
+        this.status = 'flushing';
         this.events.emit('slice:flush:start', this._slice);
         await this._runMethodAsync('onFlushStart');
     }
@@ -302,6 +342,9 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
     }
 
     private _onOperationStart(index: number) {
+        if (this.sliceState) {
+            this.sliceState.position = index;
+        }
         this._runMethod('onOperationStart', this._sliceId, index);
     }
 

@@ -9,6 +9,7 @@ import {
     FetcherCore,
     ProcessorCore,
     newTestSlice,
+    pDelay,
 } from '../../src';
 
 describe('WorkerExecutionContext', () => {
@@ -35,6 +36,10 @@ describe('WorkerExecutionContext', () => {
             operations: [
                 {
                     _op: 'example-reader',
+                },
+                {
+                    _op: 'delay',
+                    ms: 1000,
                 },
                 {
                     _op: 'example-op',
@@ -76,7 +81,8 @@ describe('WorkerExecutionContext', () => {
 
         it('should have the Processors', async () => {
             expect(executionContext).toHaveProperty('processors');
-            expect(executionContext.processors.length).toEqual(1);
+            expect(executionContext.processors.length).toEqual(2);
+
             const input = DataEntity.makeArray([
                 {
                     hello: true,
@@ -84,6 +90,7 @@ describe('WorkerExecutionContext', () => {
             ]);
 
             for (const processor of executionContext.processors) {
+                if (processor.opConfig._op !== 'example-op') continue;
                 const result = await processor.handle(input);
                 expect(result).toBeArrayOfSize(1);
                 expect(result[0]).toHaveProperty('touchedAt');
@@ -91,38 +98,42 @@ describe('WorkerExecutionContext', () => {
         });
 
         it('should have the APIs', () => {
-            expect(Object.keys(executionContext.apis)).toEqual(['example-observer', 'example-api']);
+            expect(executionContext.apis).toContainKeys(['example-observer', 'example-api']);
         });
 
         it('should be able to an operation instance by index', async () => {
             const fetcher = executionContext.getOperation<FetcherCore>(0);
-            // @ts-ignore
             expect(fetcher.opConfig._op).toEqual('example-reader');
 
-            const processor = executionContext.getOperation<ProcessorCore>(1);
-            // @ts-ignore
+            const delay = executionContext.getOperation<ProcessorCore>(1);
+            expect(delay.opConfig._op).toEqual('delay');
+
+            const processor = executionContext.getOperation<ProcessorCore>(2);
             expect(processor.opConfig._op).toEqual('example-op');
         });
 
         it('should be able to an operation instance by name', async () => {
             const fetcher = executionContext.getOperation<FetcherCore>('example-reader');
-            // @ts-ignore
             expect(fetcher.opConfig._op).toEqual('example-reader');
 
+            const delay = executionContext.getOperation<ProcessorCore>('delay');
+            expect(delay.opConfig._op).toEqual('delay');
+
             const processor = executionContext.getOperation<ProcessorCore>('example-op');
-            // @ts-ignore
             expect(processor.opConfig._op).toEqual('example-op');
         });
 
         it('should have the registered apis', () => {
-            const registry = Object.keys(context.apis.executionContext.registry);
-            expect(registry).toEqual(['example-reader']);
+            expect(context.apis.executionContext.registry).toContainKeys(['example-reader']);
         });
 
         it('should have the operations initialized', () => {
             const ops = executionContext.getOperations();
+
             for (const op of ops) {
-                if (op.onOperationComplete == null) {
+                // @ts-ignore
+                const isDelay = op.opConfig && op.opConfig._op === 'delay';
+                if (op.onOperationComplete == null && !isDelay) {
                     expect(op).toHaveProperty('_initialized', true);
                 }
             }
@@ -222,6 +233,22 @@ describe('WorkerExecutionContext', () => {
             expect(runResult).toHaveProperty('results');
             expect(runResult).toHaveProperty('analytics');
             expect(flushResult).toBeNil();
+        });
+
+        it('should be able flush a slice that is mid-way', async () => {
+            await executionContext.initializeSlice(newTestSlice());
+
+            const running = executionContext.runSlice();
+            await pDelay(500);
+
+            const flushing = executionContext.flush();
+            const [runResult, flushResult] = await Promise.all([running, flushing]);
+
+            expect(runResult).toHaveProperty('status', 'flushed');
+            expect(runResult).toHaveProperty('results');
+            expect(runResult).toHaveProperty('analytics');
+            expect(flushResult).not.toBeNil();
+            expect(flushResult).not.toEqual(runResult);
         });
     });
 

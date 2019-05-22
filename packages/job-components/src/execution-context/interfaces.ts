@@ -2,11 +2,11 @@ import { DataEntity } from '@terascope/utils';
 import {
     Context,
     ExecutionConfig,
-    SlicerOperationLifeCycle,
-    WorkerOperationLifeCycle,
-    SliceAnalyticsData,
     OpAPI,
     Slice,
+    SliceAnalyticsData,
+    SlicerOperationLifeCycle,
+    WorkerOperationLifeCycle,
 } from '../interfaces';
 import { APICore } from '../operations';
 
@@ -47,6 +47,8 @@ export interface RunSliceResult {
 
 export type WorkerSliceState = {
     status: SliceStatus;
+    /** The current operation position */
+    position: number;
     slice: Slice;
     analytics?: SliceAnalyticsData;
 };
