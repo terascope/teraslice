@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { ResolvedUser } from '../interfaces';
 
 export type QueryState = {
     from?: number;
@@ -28,7 +29,7 @@ export type ColumnMapping = {
 
 export type RowMapping = {
     getId: (record: any) => string;
-    canRemove?: (record: any) => boolean;
+    canRemove?: (record: any, authUser?: ResolvedUser) => boolean;
     columns: ColumnMapping;
 };
 

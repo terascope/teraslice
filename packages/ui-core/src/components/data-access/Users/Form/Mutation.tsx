@@ -3,26 +3,24 @@ import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { AnyObject } from '@terascope/utils';
 import { Mutation, MutationFn, MutationResult } from 'react-apollo';
-import { LIST_QUERY } from '../List/Query';
 import { PureQueryOptions } from 'apollo-boost';
 import { WITH_ID_QUERY, WITHOUT_ID_QUERY } from './Query';
+import { getModelConfig } from '../../utils';
+import { ModelName } from '@terascope/data-access';
+import { ModelNameProp } from '../../interfaces';
 
 const CREATE_QUERY = gql`
     mutation User($input: CreateUserInput!, $password: String!) {
-        createUser(user: $input, password: $password) {
+        result: createUser(user: $input, password: $password) {
             id
-            username
-            type
         }
     }
 `;
 
 const UPDATE_QUERY = gql`
     mutation User($input: UpdateUserInput!, $password: String) {
-        updateUser(user: $input, password: $password) {
+        result: updateUser(user: $input, password: $password) {
             id
-            username
-            type
         }
     }
 `;
@@ -45,9 +43,10 @@ type Children = (
     result: MutationResult<Response>
 ) => React.ReactNode;
 
-const MutationQuery: React.FC<Props> = ({ id, children }) => {
+const MutationQuery: React.FC<Props> = ({ id, children, model }) => {
+    const { listQuery } = getModelConfig(model);
     const update = Boolean(id);
-    const refetchQueries: PureQueryOptions[] = [{ query: LIST_QUERY }];
+    const refetchQueries: PureQueryOptions[] = [{ query: listQuery }];
 
     if (id) {
         refetchQueries.push({ query: WITH_ID_QUERY, variables: { id } });
@@ -61,18 +60,9 @@ const MutationQuery: React.FC<Props> = ({ id, children }) => {
             refetchQueries={refetchQueries}
         >
             {(action, result) => {
-                let data: any;
-                if (result && result.data) {
-                    for (const [key, val] of Object.entries(result.data)) {
-                        if (key.startsWith('create') && val.id) {
-                            data = val;
-                        } else if (key.startsWith('update') && val.id) {
-                            data = val.id;
-                        }
-                    }
-                }
-
                 const queryResult: any = result;
+                const data = result && result.data && result.data.result;
+
                 if (data) {
                     queryResult.data = data;
                 }
@@ -83,10 +73,15 @@ const MutationQuery: React.FC<Props> = ({ id, children }) => {
     );
 };
 
-type Props = { id?: string; children: Children };
+type Props = {
+    id?: string;
+    model: ModelName;
+    children: Children;
+};
 
 MutationQuery.propTypes = {
     id: PropTypes.string,
+    model: ModelNameProp.isRequired,
     children: PropTypes.func.isRequired,
 };
 

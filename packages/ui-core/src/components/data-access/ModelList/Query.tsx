@@ -1,9 +1,8 @@
 import React from 'react';
-import gql from 'graphql-tag';
 import { toNumber } from '@terascope/utils';
-import { Role } from '@terascope/data-access';
 import { stringify, parse } from 'query-string';
 import { Query as ApolloQuery } from 'react-apollo';
+import { ModelName } from '@terascope/data-access';
 import {
     ErrorPage,
     QueryState,
@@ -11,11 +10,13 @@ import {
     tsWithRouter,
     UpdateQueryState,
 } from '@terascope/ui-components';
-
-const searchFields: (keyof Role)[] = ['name'];
+import { ModelNameProp } from '../interfaces';
+import { getModelConfig } from '../utils';
 
 const ListQuery = tsWithRouter<Props>(
-    ({ history, location, children: Component }) => {
+    ({ history, location, children: Component, model }) => {
+        const { searchFields, listQuery } = getModelConfig(model);
+
         const state: QueryState = Object.assign(
             {
                 query: '*',
@@ -43,7 +44,7 @@ const ListQuery = tsWithRouter<Props>(
 
         return (
             <Query
-                query={LIST_QUERY}
+                query={listQuery}
                 variables={variables}
                 fetchPolicy="cache-and-network"
             >
@@ -52,8 +53,9 @@ const ListQuery = tsWithRouter<Props>(
                     if (!data && !loading) {
                         return <ErrorPage error="Unexpected Error" />;
                     }
-                    const records = (data && data.roles) || [];
-                    const total = (data && data.rolesCount) || 0;
+
+                    const records = (data && data.records) || [];
+                    const total = (data && data.total) || 0;
 
                     return (
                         <Component
@@ -79,28 +81,19 @@ type ComponentProps = {
 };
 
 type Props = {
+    model: ModelName;
     children: React.FC<ComponentProps>;
+};
+
+ListQuery.propTypes = {
+    model: ModelNameProp.isRequired,
 };
 
 export default ListQuery;
 
-// Query
-export const LIST_QUERY = gql`
-    query Roles($query: String, $from: Int, $size: Int, $sort: String) {
-        roles(query: $query, from: $from, size: $size, sort: $sort) {
-            id
-            name
-            description
-            updated
-            created
-        }
-        rolesCount(query: $query)
-    }
-`;
-
 interface Response {
-    roles: Role[];
-    rolesCount: number;
+    records: any[];
+    total: number;
 }
 
 class Query extends ApolloQuery<Response, QueryState> {}

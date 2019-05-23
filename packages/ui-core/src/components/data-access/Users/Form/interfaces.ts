@@ -16,7 +16,19 @@ export type Input = {
     api_token: string;
 };
 
-export const inputFields: (keyof Input)[] = ['id', 'client_id', 'firstname', 'lastname', 'username', 'email', 'role', 'type', 'password', 'repeat_password', 'api_token'];
+export const inputFields: (keyof Input)[] = [
+    'id',
+    'client_id',
+    'firstname',
+    'lastname',
+    'username',
+    'email',
+    'role',
+    'type',
+    'password',
+    'repeat_password',
+    'api_token',
+];
 
 export type Role = {
     id: string;
