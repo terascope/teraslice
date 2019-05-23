@@ -409,7 +409,7 @@ describe('Spaces API', () => {
                 }
             }
         `;
-            console.log('dataTypeSpace3', dataTypeSpace3)
+
         interface CreateUser {
             createUser: {
                 id: string;
