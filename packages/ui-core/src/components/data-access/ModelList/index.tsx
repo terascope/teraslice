@@ -3,7 +3,7 @@ import { ApolloConsumer } from 'react-apollo';
 import { ModelName } from '@terascope/data-access';
 import ListQuery from './Query';
 import { DataTable } from '@terascope/ui-components';
-import { getModelConfig } from '../utils';
+import { getModelConfig } from '../config';
 import { ModelNameProp } from '../interfaces';
 
 const ModelList: React.FC<Props> = ({ model }) => {

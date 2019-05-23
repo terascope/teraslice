@@ -1,5 +1,5 @@
 import { parseList, isString, uniq } from '@terascope/utils';
-import { ParsedSort, SortDirection, RowMapping } from './interfaces';
+import { ParsedSort, SortDirection, RowMapping, ColumnMapping } from './interfaces';
 import { ResolvedUser } from '../interfaces';
 
 export function parseSortBy(sort: string, defaultSort = 'created:asc'): ParsedSort {
@@ -34,4 +34,10 @@ export function formatRegexQuery(query: string, searchFields: string[]) {
 
 export function canSelectFn(rowMapping: RowMapping, authUser?: ResolvedUser) {
     return (record: any): boolean => (rowMapping.canRemove ? rowMapping.canRemove(record, authUser) : true);
+}
+
+export function isSortable(col: ColumnMapping): boolean {
+    if (col.sortable == null) return true;
+    if (!col.sortable) return false;
+    return true;
 }

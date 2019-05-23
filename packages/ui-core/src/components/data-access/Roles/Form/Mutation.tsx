@@ -7,7 +7,7 @@ import { ModelName } from '@terascope/data-access';
 import { Mutation, MutationFn, MutationResult } from 'react-apollo';
 import { WITH_ID_QUERY } from './Query';
 import { ModelNameProp } from '../../interfaces';
-import { getModelConfig } from '../../utils';
+import { getModelConfig } from '../../config';
 
 const CREATE_QUERY = gql`
     mutation Role($input: CreateRoleInput!) {

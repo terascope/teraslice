@@ -1,11 +1,27 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Table, Checkbox } from 'semantic-ui-react';
-import { ColumnMapping, ColumnMappingProp, SortDirection, UpdateQueryState } from './interfaces';
-import { parseSortBy, getSortDirection, formatSortBy } from './utils';
+import {
+    ColumnMappings,
+    ColumnMappingsProp,
+    SortDirection,
+    UpdateQueryState,
+} from './interfaces';
+import {
+    parseSortBy,
+    getSortDirection,
+    formatSortBy,
+    isSortable,
+} from './utils';
 
 const Header: React.FC<Props> = props => {
-    const { toggleSelectAll, sort, selectedAll, columnMapping, updateQueryState } = props;
+    const {
+        toggleSelectAll,
+        sort,
+        selectedAll,
+        columnMapping,
+        updateQueryState,
+    } = props;
 
     const sortBy = parseSortBy(sort);
 
@@ -13,19 +29,34 @@ const Header: React.FC<Props> = props => {
         <Table.Header fullWidth>
             <Table.Row>
                 <Table.HeaderCell width={1} textAlign="center">
-                    <Checkbox checked={selectedAll} onChange={toggleSelectAll} />
+                    <Checkbox
+                        checked={selectedAll}
+                        onChange={toggleSelectAll}
+                    />
                 </Table.HeaderCell>
                 {Object.entries(columnMapping).map(([field, col]) => (
                     <Table.HeaderCell
                         key={field}
-                        sorted={getSortDirection(field, sortBy)}
-                        onClick={() => {
+                        sorted={
+                            isSortable(col)
+                                ? getSortDirection(field, sortBy)
+                                : undefined
+                        }
+                        onClick={(e: any) => {
+                            e.preventDefault();
+                            if (!isSortable(col)) return;
+
                             const current = parseSortBy(sort);
                             let direction: SortDirection = 'asc';
-                            if (current.field === field && current.direction === 'asc') {
+                            if (
+                                current.field === field &&
+                                current.direction === 'asc'
+                            ) {
                                 direction = 'desc';
                             }
-                            updateQueryState({ sort: formatSortBy({ field, direction }) });
+                            updateQueryState({
+                                sort: formatSortBy({ field, direction }),
+                            });
                         }}
                     >
                         {col.label}
@@ -42,7 +73,7 @@ type Props = {
     toggleSelectAll: () => void;
     sort: string;
     selectedAll: boolean;
-    columnMapping: ColumnMapping;
+    columnMapping: ColumnMappings;
 };
 
 Header.propTypes = {
@@ -51,7 +82,7 @@ Header.propTypes = {
     toggleSelectAll: PropTypes.func.isRequired,
     sort: PropTypes.string.isRequired,
     selectedAll: PropTypes.bool.isRequired,
-    columnMapping: ColumnMappingProp.isRequired,
+    columnMapping: ColumnMappingsProp.isRequired,
 };
 
 export default Header;
