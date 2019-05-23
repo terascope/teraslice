@@ -3,7 +3,7 @@ import { ModelName } from '@terascope/data-access';
 import { ModelConfigMapping } from './interfaces';
 import { formatDate } from '@terascope/ui-components';
 
-export const MODEL_CONFIG_MAPPING: ModelConfigMapping = {
+const MODEL_CONFIG: ModelConfigMapping = {
     User: {
         pathname: 'users',
         singularLabel: 'User',
@@ -22,7 +22,7 @@ export const MODEL_CONFIG_MAPPING: ModelConfigMapping = {
                 username: { label: 'Username' },
                 firstname: { label: 'First Name' },
                 lastname: { label: 'Last Name' },
-                'role.name': { label: 'Role' },
+                'role.name': { label: 'Role', sortable: false },
                 created: {
                     label: 'Created',
                     format(record) {
@@ -74,6 +74,7 @@ export const MODEL_CONFIG_MAPPING: ModelConfigMapping = {
                 name: { label: 'Role Name' },
                 description: {
                     label: 'Description',
+                    sortable: false,
                     format(record) {
                         return record.description || '--';
                     },
@@ -137,5 +138,5 @@ export const MODEL_CONFIG_MAPPING: ModelConfigMapping = {
 };
 
 export function getModelConfig(name: ModelName) {
-    return MODEL_CONFIG_MAPPING[name];
+    return MODEL_CONFIG[name];
 }

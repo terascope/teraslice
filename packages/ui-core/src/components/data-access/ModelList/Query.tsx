@@ -11,7 +11,7 @@ import {
     UpdateQueryState,
 } from '@terascope/ui-components';
 import { ModelNameProp } from '../interfaces';
-import { getModelConfig } from '../utils';
+import { getModelConfig } from '../config';
 
 const ListQuery = tsWithRouter<Props>(
     ({ history, location, children: Component, model }) => {

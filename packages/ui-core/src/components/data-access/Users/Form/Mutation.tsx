@@ -5,7 +5,7 @@ import { AnyObject } from '@terascope/utils';
 import { Mutation, MutationFn, MutationResult } from 'react-apollo';
 import { PureQueryOptions } from 'apollo-boost';
 import { WITH_ID_QUERY, WITHOUT_ID_QUERY } from './Query';
-import { getModelConfig } from '../../utils';
+import { getModelConfig } from '../../config';
 import { ModelName } from '@terascope/data-access';
 import { ModelNameProp } from '../../interfaces';
 
