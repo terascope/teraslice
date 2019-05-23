@@ -1,5 +1,5 @@
 import React, { FormEvent, useState } from 'react';
-import { toInteger } from '@terascope/utils';
+import { AnyObject } from '@terascope/utils';
 import { Form } from 'semantic-ui-react';
 import {
     SuccessMessage,
@@ -7,42 +7,48 @@ import {
     useCoreContext,
     tsWithRouter,
 } from '@terascope/ui-components';
-import * as i from './interfaces';
-import * as m from '../../ModelForm';
+import { getModelConfig } from '../config';
+import { getFieldPropsFn } from './utils';
+import { ErrorsState, ComponentProps, ComponentPropTypes } from './interfaces';
+import Mutation from './Mutation';
 
-const ModelForm = tsWithRouter<m.ComponentProps<i.Input>>(
-    ({ id, input, history }) => {
+const ModelForm = tsWithRouter<ComponentProps>(
+    ({
+        id,
+        input,
+        children,
+        history,
+        modelName,
+        validate: _validate,
+        beforeSubmit,
+        ...props
+    }) => {
+        const config = getModelConfig(modelName);
         const authUser = useCoreContext().authUser!;
         const update = Boolean(id);
         const create = !update;
 
-        const [model, setModel] = useState<i.Input>(input);
+        const [model, setModel] = useState<AnyObject>(input);
 
-        const [errors, setErrors] = useState<m.ErrorsState<i.Input>>({
+        const [errors, setErrors] = useState<ErrorsState>({
             fields: [],
             messages: [],
         });
 
-        const required: (keyof i.Input)[] = ['name'];
+        const required: string[] = [...config.requiredFields];
         if (authUser.type === 'SUPERADMIN') {
             required.push('client_id');
         }
 
         const validate = (isSubmit = false): boolean => {
-            const errs: m.ErrorsState<i.Input> = {
-                fields: [],
-                messages: [],
-            };
-
-            const clientId = toInteger(model.client_id);
-            if (clientId === false || clientId < 1) {
-                errs.messages.push(
-                    'Client ID must be an valid number greater than zero'
-                );
-                errs.fields.push('client_id');
-            } else {
-                model.client_id = clientId;
-            }
+            const errs = _validate(
+                {
+                    fields: [],
+                    messages: [],
+                },
+                model,
+                isSubmit
+            );
 
             if (isSubmit) {
                 let missingRequired = false;
@@ -65,7 +71,7 @@ const ModelForm = tsWithRouter<m.ComponentProps<i.Input>>(
             return !errs.messages.length || !errs.fields.length;
         };
 
-        const getFieldProps = m.getFieldPropsFn({
+        const getFieldProps = getFieldPropsFn({
             model,
             setModel,
             validate,
@@ -76,20 +82,13 @@ const ModelForm = tsWithRouter<m.ComponentProps<i.Input>>(
         const hasErrors = errors.messages.length > 0;
 
         return (
-            <m.Mutation id={id} model="Role">
+            <Mutation id={id} modelName={modelName}>
                 {(submit, { data, loading, error }: any) => {
                     const onSubmit = (e: FormEvent) => {
                         e.preventDefault();
                         if (validate(true)) {
-                            const finalInput = { ...model };
-                            if (create) {
-                                delete finalInput.id;
-                            }
-
                             submit({
-                                variables: {
-                                    input: finalInput,
-                                },
+                                variables: beforeSubmit(model, create),
                             });
                         }
                     };
@@ -97,31 +96,13 @@ const ModelForm = tsWithRouter<m.ComponentProps<i.Input>>(
                     return (
                         <div>
                             <Form loading={loading} onSubmit={onSubmit}>
-                                <Form.Group>
-                                    <Form.Input
-                                        {...getFieldProps({
-                                            name: 'name',
-                                            label: 'Role Name',
-                                        })}
-                                    />
-                                    {authUser.type === 'SUPERADMIN' && (
-                                        <Form.Input
-                                            {...getFieldProps({
-                                                name: 'client_id',
-                                                label: 'Client ID',
-                                            })}
-                                        />
-                                    )}
-                                </Form.Group>
-                                <Form.Group>
-                                    <Form.TextArea
-                                        {...getFieldProps({
-                                            name: 'description',
-                                            label: 'Description',
-                                        })}
-                                        width={8}
-                                    />
-                                </Form.Group>
+                                {children({
+                                    ...props,
+                                    model,
+                                    getFieldProps,
+                                    setModel,
+                                    update,
+                                })}
                                 <Form.Group>
                                     <Form.Button
                                         basic
@@ -166,17 +147,19 @@ const ModelForm = tsWithRouter<m.ComponentProps<i.Input>>(
                             {data && create && (
                                 <SuccessMessage
                                     attached="bottom"
-                                    redirectTo="/roles"
-                                    message="Successfully created role"
+                                    redirectTo={`/${config.pathname}`}
+                                    message={`Successfully created ${
+                                        config.singularLabel
+                                    }`}
                                 />
                             )}
                         </div>
                     );
                 }}
-            </m.Mutation>
+            </Mutation>
         );
     }
 );
 
-ModelForm.propTypes = m.ComponentPropTypes;
+ModelForm.propTypes = ComponentPropTypes;
 export default ModelForm;

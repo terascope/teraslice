@@ -14,8 +14,8 @@ import { ModelNameProp } from '../interfaces';
 import { getModelConfig } from '../config';
 
 const ListQuery = tsWithRouter<Props>(
-    ({ history, location, children: Component, model }) => {
-        const { searchFields, listQuery } = getModelConfig(model);
+    ({ history, location, children: Component, modelName }) => {
+        const { searchFields, listQuery } = getModelConfig(modelName);
 
         const state: QueryState = Object.assign(
             {
@@ -81,12 +81,12 @@ type ComponentProps = {
 };
 
 type Props = {
-    model: ModelName;
+    modelName: ModelName;
     children: React.FC<ComponentProps>;
 };
 
 ListQuery.propTypes = {
-    model: ModelNameProp.isRequired,
+    modelName: ModelNameProp.isRequired,
 };
 
 export default ListQuery;

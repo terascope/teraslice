@@ -12,6 +12,7 @@ const MODEL_CONFIG: ModelConfigMapping = {
         singularLabel: 'User',
         pluralLabel: 'Users',
         searchFields: ['firstname', 'lastname', 'username', 'email'],
+        requiredFields: ['username', 'firstname', 'lastname', 'type'],
         rowMapping: {
             getId(record) {
                 return record.username;
@@ -130,6 +131,7 @@ const MODEL_CONFIG: ModelConfigMapping = {
         singularLabel: 'Role',
         pluralLabel: 'Roles',
         searchFields: ['name'],
+        requiredFields: ['name'],
         handleFormProps(authUser, data) {
             const role = get(data, 'role');
             const input = {} as RoleInput;
@@ -213,6 +215,7 @@ const MODEL_CONFIG: ModelConfigMapping = {
         singularLabel: 'Data Type',
         pluralLabel: 'Data Types',
         searchFields: [],
+        requiredFields: [],
         // @ts-ignore FIXME
         rowMapping: {},
         removeMutation: '',
@@ -224,6 +227,7 @@ const MODEL_CONFIG: ModelConfigMapping = {
         singularLabel: 'View',
         pluralLabel: 'Views',
         searchFields: [],
+        requiredFields: [],
         // @ts-ignore FIXME
         rowMapping: {},
         removeMutation: '',
@@ -235,6 +239,7 @@ const MODEL_CONFIG: ModelConfigMapping = {
         singularLabel: 'Space',
         pluralLabel: 'Spaces',
         searchFields: [],
+        requiredFields: [],
         // @ts-ignore FIXME
         rowMapping: {},
         removeMutation: '',
@@ -243,6 +248,6 @@ const MODEL_CONFIG: ModelConfigMapping = {
     },
 };
 
-export function getModelConfig(model: ModelName) {
-    return MODEL_CONFIG[model];
+export function getModelConfig(modelName: ModelName) {
+    return MODEL_CONFIG[modelName];
 }

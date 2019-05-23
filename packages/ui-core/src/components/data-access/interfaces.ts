@@ -17,6 +17,7 @@ export type ModelConfig = {
     updateMutation: any;
     removeMutation: any;
     searchFields: string[];
+    requiredFields: string[];
     handleFormProps: (
         authUser: ResolvedUser,
         data: any
