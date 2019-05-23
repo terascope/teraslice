@@ -9,7 +9,8 @@ export type FieldOptions<T> = {
     placeholder?: string;
 };
 
-export type ComponentProps<T> = {
+export type ComponentProps<T = any> = {
+    [prop: string]: any;
     input: T;
     id?: string;
 };

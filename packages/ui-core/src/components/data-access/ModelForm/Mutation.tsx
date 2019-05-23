@@ -1,29 +1,11 @@
 import React from 'react';
-import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { AnyObject } from '@terascope/utils';
-import { PureQueryOptions } from 'apollo-boost';
-import { ModelName } from '@terascope/data-access';
 import { Mutation, MutationFn, MutationResult } from 'react-apollo';
-import { WITH_ID_QUERY } from './Query';
-import { ModelNameProp } from '../../interfaces';
-import { getModelConfig } from '../../config';
-
-const CREATE_QUERY = gql`
-    mutation Role($input: CreateRoleInput!) {
-        result: createRole(role: $input) {
-            id
-        }
-    }
-`;
-
-const UPDATE_QUERY = gql`
-    mutation Role($input: UpdateRoleInput!) {
-        result: updateRole(role: $input) {
-            id
-        }
-    }
-`;
+import { PureQueryOptions } from 'apollo-boost';
+import { getModelConfig } from '../config';
+import { ModelName } from '@terascope/data-access';
+import { ModelNameProp } from '../interfaces';
 
 type RealResponse = AnyObject;
 
@@ -32,6 +14,7 @@ type Response = {
 };
 
 type Vars = {
+    [extra: string]: any;
     input: AnyObject;
 };
 
@@ -43,17 +26,17 @@ type Children = (
 ) => React.ReactNode;
 
 const MutationQuery: React.FC<Props> = ({ id, children, model }) => {
-    const { listQuery } = getModelConfig(model);
+    const config = getModelConfig(model);
     const update = Boolean(id);
-    const refetchQueries: PureQueryOptions[] = [{ query: listQuery }];
+    const refetchQueries: PureQueryOptions[] = [{ query: config.listQuery }];
 
-    if (id) {
-        refetchQueries.push({ query: WITH_ID_QUERY, variables: { id } });
+    if (update) {
+        refetchQueries.push({ query: config.updateQuery, variables: { id } });
     }
 
     return (
         <AnyMutationQuery
-            mutation={update ? UPDATE_QUERY : CREATE_QUERY}
+            mutation={update ? config.updateMutation : config.createMutation}
             refetchQueries={refetchQueries}
         >
             {(action, result) => {
