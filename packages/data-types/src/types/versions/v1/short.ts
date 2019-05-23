@@ -1,6 +1,6 @@
 
 import BaseType from '../base-type';
-import { TypeConfig } from '../../../interfaces';
+import { TypeConfig, ElasticSearchTypes } from '../../../interfaces';
 
 export default class Short extends BaseType {
     constructor(field: string, config: TypeConfig) {
@@ -8,7 +8,7 @@ export default class Short extends BaseType {
     }
 
     toESMapping() {
-        return { mapping: { [this.field]: 'short' } };
+        return { mapping: { [this.field]: { type: 'short' as ElasticSearchTypes } } };
     }
 
     toGraphQl() {

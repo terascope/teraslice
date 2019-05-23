@@ -26,7 +26,7 @@ describe('Text V1', () => {
 
     it('can get proper ES Mappings', () => {
         const esMapping = new Text(field, typeConfig).toESMapping();
-        const results = { mapping: { [field]: 'text' } };
+        const results = { mapping: { [field]: { type: 'text' } } };
 
         expect(esMapping).toEqual(results);
     });

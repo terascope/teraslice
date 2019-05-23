@@ -1,5 +1,5 @@
 import BaseType from '../base-type';
-import { TypeConfig } from '../../../interfaces';
+import { TypeConfig, ElasticSearchTypes } from '../../../interfaces';
 
 export default class DateType extends BaseType {
     constructor(field: string, config:TypeConfig) {
@@ -7,7 +7,7 @@ export default class DateType extends BaseType {
     }
     // TODO: different date time settings?
     toESMapping() {
-        return { mapping: { [this.field]: 'date' } };
+        return { mapping: { [this.field]: { type: 'date' as ElasticSearchTypes } } };
     }
 
     toGraphQl() {

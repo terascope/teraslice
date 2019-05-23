@@ -25,7 +25,7 @@ describe('Integer V1', () => {
 
     it('can get proper ES Mappings', () => {
         const esMapping = new Interger(field, typeConfig).toESMapping();
-        const results = { mapping: { [field]: 'integer' } };
+        const results = { mapping: { [field]: { type: 'integer' } } };
 
         expect(esMapping).toEqual(results);
     });

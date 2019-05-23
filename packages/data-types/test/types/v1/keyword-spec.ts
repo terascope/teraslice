@@ -25,7 +25,7 @@ describe('Keyword V1', () => {
 
     it('can get proper ES Mappings', () => {
         const esMapping = new Keyword(field, typeConfig).toESMapping();
-        const results = { mapping: { [field]: 'keyword' } };
+        const results = { mapping: { [field]: { type: 'keyword' } } };
 
         expect(esMapping).toEqual(results);
     });

@@ -1,6 +1,6 @@
 
 import BaseType from '../base-type';
-import { TypeConfig } from '../../../interfaces';
+import { TypeConfig, ElasticSearchTypes } from '../../../interfaces';
 
 export default class Integer extends BaseType {
     constructor(field: string, config: TypeConfig) {
@@ -8,7 +8,7 @@ export default class Integer extends BaseType {
     }
 
     toESMapping() {
-        return { mapping: { [this.field]: 'integer' } };
+        return { mapping: { [this.field]: { type: 'integer' as ElasticSearchTypes } } };
     }
 
     toGraphQl() {

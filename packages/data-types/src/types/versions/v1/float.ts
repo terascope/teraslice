@@ -1,6 +1,6 @@
 
 import BaseType from '../base-type';
-import { TypeConfig } from '../../../interfaces';
+import { TypeConfig, ElasticSearchTypes } from '../../../interfaces';
 
 export default class Float extends BaseType {
     constructor(field: string, config: TypeConfig) {
@@ -8,7 +8,7 @@ export default class Float extends BaseType {
     }
 
     toESMapping() {
-        return { mapping: { [this.field]: 'float' } };
+        return { mapping: { [this.field]: { type: 'float' as ElasticSearchTypes } } };
     }
 
     toGraphQl() {

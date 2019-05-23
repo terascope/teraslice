@@ -69,43 +69,45 @@ describe('Spaces API', () => {
     const date2 = new Date(startingDate.getTime() + 2000000);
     const date3 = new Date(startingDate.getTime() + 3000000);
 
-    // TODO: this needa a better story
     function createTypes(obj: any) {
-        const xluceneSpecialTypes = { geo_point: 'geo' };
         const results = [];
         for (const key in obj) {
-            const value = obj[key].type;
-            const type = xluceneSpecialTypes[value] || value;
-            results.push(` ${key}: "${type}" `);
+            results.push(`${key}: { type: ${obj[key].type} },`);
         }
-        return results.join(',');
+
+        return `
+            fields: {
+                ${results.join('\n')}
+            },
+            version: 1
+        `;
     }
 
     const space1Properties = {
-        ip: { type: 'ip' },
-        ipv6: { type: 'ip' },
-        url: { type: 'keyword' },
-        location: { type: 'geo_point' },
-        id: { type: 'keyword' },
-        created: { type: 'date' },
-        bytes: { type: 'long' },
+        ip: { type: 'IP' },
+        ipv6: { type: 'IP' },
+        url: { type: 'Keyword' },
+        location: { type: 'Geo' },
+        id: { type: 'Keyword' },
+        created: { type: 'Date' },
+        bytes: { type: 'Long' },
     };
 
     const space2Properties = {
-        ip: { type: 'ip' },
-        url: { type: 'keyword' },
-        location: { type: 'geo_point' },
-        bytes: { type: 'long' },
-        created: { type: 'date' },
-        id: { type: 'keyword' },
-        bool: { type: 'boolean' },
+        ip: { type: 'IP' },
+        url: { type: 'Keyword' },
+        location: { type: 'Geo' },
+        bytes: { type: 'Long' },
+        created: { type: 'Date' },
+        id: { type: 'Keyword' },
+        bool: { type: 'Boolean' },
     };
 
     const space3Properties = {
-        location: { type: 'geo_point' },
-        bytes: { type: 'long' },
-        wasFound: { type: 'boolean' },
-        date: { type: 'date' },
+        location: { type: 'Geo' },
+        bytes: { type: 'Long' },
+        wasFound: { type: 'Boolean' },
+        date: { type: 'Date' },
     };
 
     const space1Data: any[] = [
@@ -368,7 +370,7 @@ describe('Spaces API', () => {
                 createDataType(
                     dataType:{
                         client_id: 1,
-                        name: "Data Type 1"
+                        name: "Data Type 1",
                         type_config: {
                             ${createTypes(space1Properties)}
                         }
@@ -383,7 +385,7 @@ describe('Spaces API', () => {
                 createDataType(
                     dataType:{
                         client_id: 1,
-                        name: "Data Type 2"
+                        name: "Data Type 2",
                         type_config: {
                             ${createTypes(space2Properties)}
                         }
@@ -398,7 +400,7 @@ describe('Spaces API', () => {
                 createDataType(
                     dataType:{
                         client_id: 1,
-                        name: "Data Type 3"
+                        name: "Data Type 3",
                         type_config: {
                             ${createTypes(space3Properties)}
                         }
@@ -407,7 +409,7 @@ describe('Spaces API', () => {
                 }
             }
         `;
-
+            console.log('dataTypeSpace3', dataTypeSpace3)
         interface CreateUser {
             createUser: {
                 id: string;

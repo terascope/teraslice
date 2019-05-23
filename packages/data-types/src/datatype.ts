@@ -1,5 +1,5 @@
 
-import { DataTypeManager, DataTypeConfig, EsMapSettings } from './interfaces';
+import { DataTypeManager, DataTypeConfig, EsMapSettings, MappingConfiguration } from './interfaces';
 import BaseType from './types/versions/base-type';
 import * as ts from '@terascope/utils';
 
@@ -25,8 +25,7 @@ export class DataType implements DataTypeManager {
         this.types = types;
     }
 
-    toESMapping(mappingType:string, settingsConfig?: EsMapSettings) {
-        if (mappingType == null) throw new ts.TSError('A type must be specified for this index');
+    toESMapping({ typeName, settings: settingsConfig, mappingMetaData }: MappingConfiguration) {
         const argAnalyzer = ts.get(settingsConfig || {}, ['analysis', 'analyzer'], {});
         const analyzer = { ...argAnalyzer };
         const properties = this.types.reduce((accum, type) => {
@@ -57,11 +56,19 @@ export class DataType implements DataTypeManager {
             ...analysis
         };
 
+        const mappingConfig = {
+            properties
+        };
+
+        if (mappingMetaData != null && ts.isPlainObject(mappingMetaData)) {
+            for (const key in mappingMetaData) {
+                mappingConfig[key] = mappingMetaData[key];
+            }
+        }
+
         return {
             mappings: {
-                [mappingType]: {
-                    properties
-                }
+                [typeName]: mappingConfig
             },
             settings
         };

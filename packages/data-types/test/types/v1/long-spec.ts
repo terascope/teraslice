@@ -25,7 +25,7 @@ describe('Long V1', () => {
 
     it('can get proper ES Mappings', () => {
         const esMapping = new LongType(field, typeConfig).toESMapping();
-        const results = { mapping: { [field]: 'long' } };
+        const results = { mapping: { [field]: { type: 'long' } } };
 
         expect(esMapping).toEqual(results);
     });

@@ -25,7 +25,7 @@ describe('Geo V1', () => {
 
     it('can get proper ES Mappings', () => {
         const esMapping = new GeoType(field, typeConfig).toESMapping();
-        const results = { mapping: { [field]: 'geo_point' } };
+        const results = { mapping: { [field]: { type: 'geo_point' } } };
 
         expect(esMapping).toEqual(results);
     });

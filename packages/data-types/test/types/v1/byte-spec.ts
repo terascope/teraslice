@@ -26,7 +26,7 @@ describe('Byte V1', () => {
 
     it('can get proper ES Mappings', () => {
         const esMapping = new ByteType(field, typeConfig).toESMapping();
-        const results = { mapping: { [field]: 'byte' } };
+        const results = { mapping: { [field]: { type: 'byte' } } };
 
         expect(esMapping).toEqual(results);
     });

@@ -26,7 +26,7 @@ describe('Date V1', () => {
 
     it('can get proper ES Mappings', () => {
         const esMapping = new DateType(field, typeConfig).toESMapping();
-        const results = { mapping: { [field]: 'date' } };
+        const results = { mapping: { [field]: { type: 'date' } } };
 
         expect(esMapping).toEqual(results);
     });

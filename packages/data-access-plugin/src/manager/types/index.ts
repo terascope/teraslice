@@ -9,7 +9,7 @@ import View from './view';
 export default [
     'scalar JSON',
     'scalar DateTime',
-    'scalar DataTypeConfig',
+    'scalar DataTypeFields',
     DataType,
     Role,
     Space,

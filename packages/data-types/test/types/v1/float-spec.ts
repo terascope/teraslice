@@ -26,7 +26,7 @@ describe('Float V1', () => {
 
     it('can get proper ES Mappings', () => {
         const esMapping = new FloatType(field, typeConfig).toESMapping();
-        const results = { mapping: { [field]: 'float' } };
+        const results = { mapping: { [field]: { type: 'float' } } };
 
         expect(esMapping).toEqual(results);
     });

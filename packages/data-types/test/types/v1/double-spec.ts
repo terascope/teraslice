@@ -26,7 +26,7 @@ describe('Double V1', () => {
 
     it('can get proper ES Mappings', () => {
         const esMapping = new DoubleType(field, typeConfig).toESMapping();
-        const results = { mapping: { [field]: 'double' } };
+        const results = { mapping: { [field]: { type: 'double' } } };
 
         expect(esMapping).toEqual(results);
     });

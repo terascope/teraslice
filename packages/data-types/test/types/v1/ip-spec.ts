@@ -25,7 +25,7 @@ describe('IP V1', () => {
 
     it('can get proper ES Mappings', () => {
         const esMapping = new IpType(field, typeConfig).toESMapping();
-        const results = { mapping: { [field]: 'ip' } };
+        const results = { mapping: { [field]: { type: 'ip' } } };
 
         expect(esMapping).toEqual(results);
     });

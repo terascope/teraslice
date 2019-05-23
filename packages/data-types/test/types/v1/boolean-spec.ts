@@ -26,7 +26,7 @@ describe('Boolean V1', () => {
 
     it('can get proper ES Mappings', () => {
         const esMapping = new BooleanType(field, typeConfig).toESMapping();
-        const results = { mapping: { [field]: 'boolean' } };
+        const results = { mapping: { [field]: { type: 'boolean' } } };
 
         expect(esMapping).toEqual(results);
     });

@@ -26,7 +26,7 @@ describe('Short V1', () => {
 
     it('can get proper ES Mappings', () => {
         const esMapping = new Short(field, typeConfig).toESMapping();
-        const results = { mapping: { [field]: 'short' } };
+        const results = { mapping: { [field]: { type: 'short' } } };
 
         expect(esMapping).toEqual(results);
     });

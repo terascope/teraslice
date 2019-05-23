@@ -1,5 +1,5 @@
 import BaseType from '../base-type';
-import { TypeConfig } from '../../../interfaces';
+import { TypeConfig, ElasticSearchTypes } from '../../../interfaces';
 
 export default class GeoType extends BaseType {
     constructor(field: string, config:TypeConfig) {
@@ -7,7 +7,7 @@ export default class GeoType extends BaseType {
     }
 
     toESMapping() {
-        return { mapping: { [this.field]: 'geo_point' } };
+        return { mapping: { [this.field]: { type: 'geo_point' as ElasticSearchTypes } } };
     }
     // TODO: need notion of injecting custom types, what about duplicates
     toGraphQl() {

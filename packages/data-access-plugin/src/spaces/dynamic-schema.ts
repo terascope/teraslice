@@ -4,7 +4,6 @@ import { Context } from '@terascope/job-components';
 import * as ts from '@terascope/utils';
 import { DataType, TypeConfigFields } from '@terascope/data-types';
 import Usertype from './types/user';
-import GeoType from './types/geoType';
 import { createResolvers } from './resolvers';
 
 // TODO: elasticsearch search error should not leak to much
@@ -45,11 +44,10 @@ function makeEndpoint(endpoint: string) {
 }
 
 function createTypings(configs: DataAccessConfig[]) {
-    const results: string[] = ['scalar JSON', 'scalar DateTime', Usertype, GeoType];
+    const results: string[] = ['scalar JSON', 'scalar DateTime', Usertype];
     const endpointList: string = configs.map((config) =>  makeEndpoint(config.space_endpoint)).join('\n    ');
     const filteredDataTypes = configs.map(filterDataTypes);
     const myTypes = getGraphQlTypes(filteredDataTypes, endpointList);
-
     // create query type
     results.push(
         myTypes,

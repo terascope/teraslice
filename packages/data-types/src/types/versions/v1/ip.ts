@@ -1,6 +1,6 @@
 
 import BaseType from '../base-type';
-import { TypeConfig } from '../../../interfaces';
+import { TypeConfig, ElasticSearchTypes } from '../../../interfaces';
 
 export default class IpType extends BaseType {
     constructor(field: string, config: TypeConfig) {
@@ -8,7 +8,7 @@ export default class IpType extends BaseType {
     }
 
     toESMapping() {
-        return { mapping: { [this.field]: 'ip' } };
+        return { mapping: { [this.field]: { type: 'ip' as ElasticSearchTypes } } };
     }
 
     toGraphQl() {

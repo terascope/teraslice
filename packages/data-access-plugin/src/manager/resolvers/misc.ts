@@ -5,5 +5,5 @@ import { GraphQLDataType } from '@terascope/data-types';
 export default {
     JSON: GraphQLJSON,
     DateTime: GraphQLDateTime,
-    DataTypeConfig: GraphQLDataType,
+    DataTypeFields: GraphQLDataType,
 };

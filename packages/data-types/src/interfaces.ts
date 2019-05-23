@@ -7,8 +7,18 @@ export interface GraphQlResults {
     customTypes: string[];
 }
 
+interface ObjectConfig {
+    [key: string]: any;
+}
+
+export interface MappingConfiguration {
+    typeName: string;
+    settings?: EsMapSettings;
+    mappingMetaData?: ObjectConfig;
+}
+
 export interface DataTypeManager {
-    toESMapping(mappingType:string, settings?: any): any;
+    toESMapping({}: MappingConfiguration): any;
     toGraphQl(typeName?: string): GraphQlResults;
     toXlucene(typeName: string|null|undefined, typeInjection?:string): XluceneMapping;
 }
@@ -20,6 +30,7 @@ export type Geo = 'geo';
 export type Ip = 'ip';
 // TODO: review the use of this
 export type XluceneValues = String | Number | Boolean | Geo | Ip;
+export type ElasticSearchTypes = 'long'|'integer'|'short'|'byte'|'double'|'float'|'keyword'|'text'|'boolean'|'ip'|'geo_point';
 
 export type AvailableTypes = 'Boolean'|'Date'|'Geo'|'IP'|'Byte'|'Double'|'Float'|'Integer'|'Keyword'|'Long'|'Short'|'Text';
 
@@ -35,10 +46,12 @@ export interface DataTypeMapping {
     [key: string]: ActualType;
 }
 
+export interface TypeConfigFields {
+    [key: string]: TypeConfig;
+}
+
 export type DataTypeConfig = {
-    fields: {
-        [key: string]: TypeConfig;
-    },
+    fields: TypeConfigFields,
     version: number;
 };
 
@@ -56,9 +69,13 @@ export enum GraphqlType {
     int = 'Int'
 }
 
+export interface EsTypeMapping {
+    type: ElasticSearchTypes;
+}
+
 export interface EsMapping {
     mapping: {
-        [key: string]: any;
+        [key: string]: EsTypeMapping;
     };
     analyzer?: {
         [key: string]: any;

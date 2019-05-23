@@ -118,6 +118,23 @@ describe('DataType', () => {
         expect(results.match('type myType {')).toBeNull();
     });
 
+    it('it can add default types for toGraphql', () => {
+        const typeConfig: DataTypeConfig = {
+            version: 1,
+            fields: {
+                hello: { type: 'Text' },
+                location: { type: 'Geo' },
+                date: { type: 'Date' },
+                ip: { type: 'IP' },
+                someNum: { type: 'Long' }
+            },
+        };
+        const typeInjection = 'world: String';
+        const { results } = new DataType(typeConfig, 'myType').toGraphQl(null, typeInjection);
+
+        expect(results.match(typeInjection)).not.toBeNull();
+    });
+
     it('it throws when no name is provided with a toGraphQl call', () => {
         const typeConfig: DataTypeConfig = {
             version: 1,
@@ -154,8 +171,7 @@ describe('DataType', () => {
             // @ts-ignore
             new DataType(typeConfig).toESMapping();
         } catch (err) {
-            expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('A type must be specified for this index');
+            expect(err.message).toInclude("Cannot destructure property `typeName` of 'undefined' or 'null'.");
         }
     });
 
@@ -175,11 +191,11 @@ describe('DataType', () => {
             mappings: {
                 events: {
                     properties: {
-                        hello: 'text',
-                        location: 'geo_point',
-                        date: 'date',
-                        ip: 'ip',
-                        someNum: 'long'
+                        hello: { type: 'text' },
+                        location: { type: 'geo_point' },
+                        date: { type: 'date' },
+                        ip: { type: 'ip' },
+                        someNum: { type: 'long' }
                     }
                 }
             },
@@ -190,7 +206,7 @@ describe('DataType', () => {
             }
         };
 
-        const mapping = new DataType(typeConfig).toESMapping('events');
+        const mapping = new DataType(typeConfig).toESMapping({ typeName: 'events' });
         expect(mapping).toEqual(results);
     });
 
@@ -223,11 +239,11 @@ describe('DataType', () => {
             mappings: {
                 events: {
                     properties: {
-                        hello: 'text',
-                        location: 'geo_point',
-                        date: 'date',
-                        ip: 'ip',
-                        someNum: 'long'
+                        hello: { type: 'text' },
+                        location: { type: 'geo_point' },
+                        date: { type: 'date' },
+                        ip: { type: 'ip' },
+                        someNum: { type: 'long' }
                     }
                 }
             },
@@ -245,7 +261,7 @@ describe('DataType', () => {
             }
         };
 
-        const mapping = new DataType(typeConfig).toESMapping('events', settings);
+        const mapping = new DataType(typeConfig).toESMapping({ typeName: 'events', settings });
         expect(mapping).toEqual(results);
     });
 });

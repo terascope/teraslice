@@ -3,6 +3,13 @@ import { GraphQLScalarType, ASTNode } from 'graphql';
 import { Kind } from 'graphql/language';
 import { DataType } from './datatype';
 import { TSError } from '@terascope/utils';
+import { mapping } from './types/versions/mapping';
+
+let allTypes = {};
+
+for (const version in mapping) {
+    allTypes = Object.assign(allTypes, mapping[version]);
+}
 
 export function getGraphQlTypes(types: DataType[], typeInjection?:string) {
     const customTypesList: string[] = [];
@@ -29,27 +36,21 @@ function parseValue(value: any) {
 }
 
 // TODO: variable support?
-
 function parseLiteral(ast: ASTNode) {
-    console.log('what is the ast', JSON.stringify(ast, null, 4));
     if (ast.kind !== Kind.OBJECT) throw new TSError('type config "field" key must be set to an object');
-    const data = ast.fields.reduce((accum, curr) => {
+    return ast.fields.reduce((accum, curr) => {
         const fieldName = curr.name.value;
         if (curr.value.kind !== Kind.OBJECT) throw new TSError(`field ${fieldName} must be set to an object`);
         if (curr.value.fields.length > 1) throw new TSError(`field ${fieldName} must be set to an object with only one key`);
         // @ts-ignore
         const [{ name: { value: keyName }, value: { value: keyValue } }] = curr.value.fields;
-        console.log('what are my stuff here', keyName, keyValue)
-        console.log('what are fields here', JSON.stringify(curr.value.fields,null, 4))
-
         if (keyName !== 'type') throw new TSError(`field ${fieldName} must be set to an object with only only key of type`);
-        if (!keyValue) throw new TSError(`field ${fieldName} must be set to an object with only only key of type`);
+        if (!keyValue) throw new TSError('type config must have proper types set, it was not configured correctly');
+        if (allTypes[keyValue] == null) throw new TSError(`Type: ${keyValue} is not a valid type`);
+
         accum[fieldName] = { [keyName]: keyValue };
         return accum;
     }, {});
-
-    console.log('what is the data', JSON.stringify(data, null, 4));
-    return data;
 }
 
 export const GraphQLDataType = new GraphQLScalarType({
