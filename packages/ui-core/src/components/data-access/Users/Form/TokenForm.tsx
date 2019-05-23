@@ -8,9 +8,9 @@ import {
     ErrorMessage,
     useCoreContext,
 } from '@terascope/ui-components';
-import { WITH_ID_QUERY } from './Query';
 import { get } from '@terascope/utils';
 import { PureQueryOptions } from 'apollo-boost';
+import { getModelConfig } from '../../config';
 
 const TokenForm: React.FC<Props> = ({ token, id }) => {
     const authUser = useCoreContext().authUser!;
@@ -18,7 +18,7 @@ const TokenForm: React.FC<Props> = ({ token, id }) => {
 
     const refetchQueries: PureQueryOptions[] = [
         {
-            query: WITH_ID_QUERY,
+            query: getModelConfig('User').updateQuery,
             variables: { id },
         },
     ];

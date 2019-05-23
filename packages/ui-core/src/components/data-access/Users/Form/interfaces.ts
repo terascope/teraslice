@@ -1,6 +1,4 @@
-import PropTypes from 'prop-types';
 import { UserType } from '@terascope/data-access';
-import * as m from '../../ModelForm';
 
 export type Input = {
     id?: string;
@@ -33,18 +31,4 @@ export const inputFields: (keyof Input)[] = [
 export type Role = {
     id: string;
     name: string;
-};
-
-export type ComponentProps = m.ComponentProps<Input> & {
-    roles: Role[];
-};
-
-export const ComponentPropTypes = {
-    ...m.ComponentPropTypes,
-    roles: PropTypes.arrayOf(
-        PropTypes.shape({
-            id: PropTypes.string.isRequired,
-            name: PropTypes.string.isRequired,
-        }).isRequired
-    ).isRequired,
 };

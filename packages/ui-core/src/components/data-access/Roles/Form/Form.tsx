@@ -7,7 +7,6 @@ import {
     useCoreContext,
     tsWithRouter,
 } from '@terascope/ui-components';
-import Mutation from './Mutation';
 import * as i from './interfaces';
 import * as m from '../../ModelForm';
 
@@ -77,7 +76,7 @@ const ModelForm = tsWithRouter<m.ComponentProps<i.Input>>(
         const hasErrors = errors.messages.length > 0;
 
         return (
-            <Mutation id={id} model="User">
+            <m.Mutation id={id} model="Role">
                 {(submit, { data, loading, error }: any) => {
                     const onSubmit = (e: FormEvent) => {
                         e.preventDefault();
@@ -174,7 +173,7 @@ const ModelForm = tsWithRouter<m.ComponentProps<i.Input>>(
                         </div>
                     );
                 }}
-            </Mutation>
+            </m.Mutation>
         );
     }
 );

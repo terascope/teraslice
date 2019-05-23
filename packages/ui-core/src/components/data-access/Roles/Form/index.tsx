@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ModelForm from './Form';
-import Query from './Query';
+import Query from '../../ModelForm/Query';
 
 const Form: React.FC<Props> = ({ id }) => {
-    return <Query component={ModelForm} id={id} />;
+    return <Query model="Role" component={ModelForm} id={id} />;
 };
 
 type Props = {

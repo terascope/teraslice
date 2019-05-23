@@ -8,12 +8,11 @@ import {
     UserPermissionMap,
     tsWithRouter,
 } from '@terascope/ui-components';
-import Mutation from './Mutation';
 import * as i from './interfaces';
 import * as m from '../../ModelForm';
 import TokenForm from './TokenForm';
 
-const ModelForm = tsWithRouter<i.ComponentProps>(
+const ModelForm = tsWithRouter<m.ComponentProps>(
     ({ roles, id, input, history }) => {
         const authUser = useCoreContext().authUser!;
         const update = Boolean(id);
@@ -26,7 +25,7 @@ const ModelForm = tsWithRouter<i.ComponentProps>(
             messages: [],
         });
 
-        const roleOptions = roles.map(role => ({
+        const roleOptions = roles.map((role: i.Role) => ({
             key: role.id,
             text: role.name,
             value: role.id,
@@ -119,7 +118,7 @@ const ModelForm = tsWithRouter<i.ComponentProps>(
         const hasErrors = errors.messages.length > 0;
 
         return (
-            <Mutation id={id} model="User">
+            <m.Mutation id={id} model="User">
                 {(submit, { data, loading, error }: any) => {
                     const onSubmit = (e: FormEvent) => {
                         e.preventDefault();
@@ -286,10 +285,10 @@ const ModelForm = tsWithRouter<i.ComponentProps>(
                         </div>
                     );
                 }}
-            </Mutation>
+            </m.Mutation>
         );
     }
 );
 
-ModelForm.propTypes = i.ComponentPropTypes;
+ModelForm.propTypes = m.ComponentPropTypes;
 export default ModelForm;
