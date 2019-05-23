@@ -10,9 +10,17 @@ import {
 } from '@terascope/ui-components';
 import { ModelName } from '@terascope/data-access';
 import { getModelConfig } from '../config';
+import { ModelNameProp } from '../interfaces';
+import ModelForm from './Form';
 
-const FormQuery: React.FC<Props> = ({ component: Component, id, model }) => {
-    const config = getModelConfig(model);
+const FormQuery: React.FC<Props> = ({
+    id,
+    children,
+    modelName,
+    validate,
+    beforeSubmit,
+}) => {
+    const config = getModelConfig(modelName);
     let query: any;
     let skip: boolean = false;
     let variables: Vars | undefined;
@@ -39,7 +47,15 @@ const FormQuery: React.FC<Props> = ({ component: Component, id, model }) => {
 
                 return (
                     <Segment basic>
-                        <Component {...props} id={id} />
+                        <ModelForm
+                            {...props}
+                            modelName={modelName}
+                            id={id}
+                            validate={validate}
+                            beforeSubmit={beforeSubmit}
+                        >
+                            {children}
+                        </ModelForm>
                     </Segment>
                 );
             }}
@@ -49,13 +65,17 @@ const FormQuery: React.FC<Props> = ({ component: Component, id, model }) => {
 
 type Props = {
     id?: string;
-    model: ModelName;
-    component: React.FunctionComponent<i.ComponentProps>;
+    modelName: ModelName;
+    validate: i.ValidateFn;
+    beforeSubmit: i.BeforeSubmitFn;
+    children: i.FormChild;
 };
 
 FormQuery.propTypes = {
-    component: PropTypes.func.isRequired,
     id: PropTypes.string,
+    modelName: ModelNameProp.isRequired,
+    validate: PropTypes.func.isRequired,
+    beforeSubmit: PropTypes.func.isRequired,
 };
 
 export default FormQuery;

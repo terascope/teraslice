@@ -6,11 +6,11 @@ import { DataTable } from '@terascope/ui-components';
 import { getModelConfig } from '../config';
 import { ModelNameProp } from '../interfaces';
 
-const ModelList: React.FC<Props> = ({ model }) => {
-    const config = getModelConfig(model);
+const ModelList: React.FC<Props> = ({ modelName }) => {
+    const config = getModelConfig(modelName);
 
     return (
-        <ListQuery model={model}>
+        <ListQuery modelName={modelName}>
             {({ updateQueryState, queryState, total, records, loading }) => {
                 return (
                     <ApolloConsumer>
@@ -63,11 +63,11 @@ const ModelList: React.FC<Props> = ({ model }) => {
 };
 
 type Props = {
-    model: ModelName;
+    modelName: ModelName;
 };
 
 ModelList.propTypes = {
-    model: ModelNameProp.isRequired,
+    modelName: ModelNameProp.isRequired,
 };
 
 export default ModelList;

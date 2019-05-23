@@ -6,6 +6,7 @@ import { PureQueryOptions } from 'apollo-boost';
 import { getModelConfig } from '../config';
 import { ModelName } from '@terascope/data-access';
 import { ModelNameProp } from '../interfaces';
+import { SubmitVars } from './interfaces';
 
 type RealResponse = AnyObject;
 
@@ -13,20 +14,15 @@ type Response = {
     id: string;
 };
 
-type Vars = {
-    [extra: string]: any;
-    input: AnyObject;
-};
-
-class AnyMutationQuery extends Mutation<RealResponse, Vars> {}
+class AnyMutationQuery extends Mutation<RealResponse, SubmitVars> {}
 
 type Children = (
-    submit: MutationFn<Response, Vars>,
+    submit: MutationFn<Response, SubmitVars>,
     result: MutationResult<Response>
 ) => React.ReactNode;
 
-const MutationQuery: React.FC<Props> = ({ id, children, model }) => {
-    const config = getModelConfig(model);
+const MutationQuery: React.FC<Props> = ({ id, children, modelName }) => {
+    const config = getModelConfig(modelName);
     const update = Boolean(id);
     const refetchQueries: PureQueryOptions[] = [{ query: config.listQuery }];
 
@@ -55,13 +51,13 @@ const MutationQuery: React.FC<Props> = ({ id, children, model }) => {
 
 type Props = {
     id?: string;
-    model: ModelName;
+    modelName: ModelName;
     children: Children;
 };
 
 MutationQuery.propTypes = {
     id: PropTypes.string,
-    model: ModelNameProp.isRequired,
+    modelName: ModelNameProp.isRequired,
     children: PropTypes.func.isRequired,
 };
 
