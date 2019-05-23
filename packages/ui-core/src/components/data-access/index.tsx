@@ -1,9 +1,9 @@
 import { PluginConfig } from '@terascope/ui-components';
-import UserForm from './users/Form';
-import MyAccount from './users/MyAccount';
-import ListUsers from './users/List';
-import RoleForm from './roles/Form';
-import ListRoles from './roles/List';
+import UserForm from './Users/Form';
+import MyAccount from './Users/MyAccount';
+import ListUsers from './Users/List';
+import RoleForm from './Roles/Form';
+import ListRoles from './Roles/List';
 
 const config: PluginConfig = {
     name: 'Data Access',

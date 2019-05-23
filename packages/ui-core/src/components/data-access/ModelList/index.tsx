@@ -1,67 +1,41 @@
 import React from 'react';
-import gql from 'graphql-tag';
 import { ApolloConsumer } from 'react-apollo';
-import ListQuery, { LIST_QUERY } from './Query';
-import {
-    DataTable,
-    RowMapping,
-    formatDate,
-    useCoreContext,
-} from '@terascope/ui-components';
+import { ModelName } from '@terascope/data-access';
+import ListQuery from './Query';
+import { DataTable } from '@terascope/ui-components';
+import { getModelConfig } from '../utils';
+import { ModelNameProp } from '../interfaces';
 
-const List: React.FC = () => {
-    const authUser = useCoreContext().authUser!;
-
-    const rowMapping: RowMapping = {
-        getId(record) {
-            return record.id;
-        },
-        canRemove() {
-            if (authUser.type === 'USER') return false;
-            return true;
-        },
-        columns: {
-            name: { label: 'Role Name' },
-            description: {
-                label: 'Description',
-                format(record) {
-                    return record.description || '--';
-                },
-            },
-            created: {
-                label: 'Created',
-                format(record) {
-                    return formatDate(record.created);
-                },
-            },
-        },
-    };
+const ModelList: React.FC<Props> = ({ model }) => {
+    const config = getModelConfig(model);
 
     return (
-        <ListQuery>
+        <ListQuery model={model}>
             {({ updateQueryState, queryState, total, records, loading }) => {
                 return (
                     <ApolloConsumer>
                         {client => (
                             <DataTable
-                                rowMapping={rowMapping}
-                                baseEditPath="/roles/edit"
+                                rowMapping={config.rowMapping}
+                                baseEditPath={`/${config.pathname}/edit`}
                                 removeRecords={async docs => {
                                     if (docs === true) {
                                         throw new Error(
-                                            'Removing all roles in not supported yet'
+                                            `Removing all ${
+                                                config.pluralLabel
+                                            } in not supported yet`
                                         );
                                     }
 
                                     const promises = docs.map(record => {
                                         return client.mutate({
-                                            mutation: REMOVE_QUERY,
+                                            mutation: config.removeMutation,
                                             variables: {
                                                 id: record.id,
                                             },
                                             refetchQueries: [
                                                 {
-                                                    query: LIST_QUERY,
+                                                    query: config.listQuery,
                                                     variables: queryState,
                                                 },
                                             ],
@@ -88,10 +62,12 @@ const List: React.FC = () => {
     );
 };
 
-export default List;
+type Props = {
+    model: ModelName;
+};
 
-const REMOVE_QUERY = gql`
-    mutation RemoveRole($id: ID!) {
-        removeRole(id: $id)
-    }
-`;
+ModelList.propTypes = {
+    model: ModelNameProp.isRequired,
+};
+
+export default ModelList;

@@ -11,7 +11,7 @@
         "semicolon": [true, "always"],
         "no-unused-variable": false,
         "import-name": false,
-        "max-line-length": [true, 200],
+        "max-line-length": [true, 140],
         "no-debugger": true,
         "trailing-comma": false,
         "comma-dangle": false,

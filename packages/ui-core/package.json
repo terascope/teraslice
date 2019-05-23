@@ -30,6 +30,7 @@
     "dependencies": {},
     "devDependencies": {
         "@craco/craco": "^5.2.1",
+        "@terascope/data-access": "^0.8.0",
         "@terascope/ui-components": "^0.1.0",
         "@terascope/utils": "^0.10.2",
         "@types/jest": "24.0.13",

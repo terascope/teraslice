@@ -2,17 +2,19 @@ import React, { FormEvent, useState } from 'react';
 import { toInteger } from '@terascope/utils';
 import { Form } from 'semantic-ui-react';
 import {
+    useCoreContext,
     SuccessMessage,
     ErrorMessage,
-    useCoreContext,
+    UserPermissionMap,
     tsWithRouter,
 } from '@terascope/ui-components';
 import Mutation from './Mutation';
 import * as i from './interfaces';
 import * as m from '../../ModelForm';
+import TokenForm from './TokenForm';
 
-const ModelForm = tsWithRouter<m.ComponentProps<i.Input>>(
-    ({ id, input, history }) => {
+const ModelForm = tsWithRouter<i.ComponentProps>(
+    ({ roles, id, input, history }) => {
         const authUser = useCoreContext().authUser!;
         const update = Boolean(id);
         const create = !update;
@@ -24,8 +26,28 @@ const ModelForm = tsWithRouter<m.ComponentProps<i.Input>>(
             messages: [],
         });
 
-        const required: (keyof i.Input)[] = ['name'];
-        if (authUser.type === 'SUPERADMIN') {
+        const roleOptions = roles.map(role => ({
+            key: role.id,
+            text: role.name,
+            value: role.id,
+        }));
+
+        const userTypes = UserPermissionMap[authUser.type];
+
+        const userTypeOptions = userTypes.map(type => ({
+            key: type,
+            text: type,
+            value: type,
+        }));
+
+        const required: (keyof i.Input)[] = [
+            'username',
+            'firstname',
+            'lastname',
+            'type',
+        ];
+
+        if (create) {
             required.push('client_id');
         }
 
@@ -35,17 +57,37 @@ const ModelForm = tsWithRouter<m.ComponentProps<i.Input>>(
                 messages: [],
             };
 
+            if (create) {
+                if (
+                    model.password &&
+                    model.password !== model.repeat_password
+                ) {
+                    errs.messages.push('Password must match');
+                    errs.fields.push('password', 'repeat_password');
+                }
+            }
+
             const clientId = toInteger(model.client_id);
-            if (clientId === false || clientId < 1) {
-                errs.messages.push(
-                    'Client ID must be an valid number greater than zero'
-                );
+            if (clientId === false) {
+                errs.messages.push('Client ID must be an valid number');
                 errs.fields.push('client_id');
             } else {
                 model.client_id = clientId;
+                if (model.type !== 'SUPERADMIN' && clientId < 1) {
+                    errs.messages.push('Client ID must be greater than zero');
+                    errs.fields.push('client_id');
+                }
+            }
+
+            if (model.type === 'SUPERADMIN') {
+                model.client_id = 0;
             }
 
             if (isSubmit) {
+                if (create) {
+                    required.push('password', 'repeat_password');
+                }
+
                 let missingRequired = false;
 
                 required.forEach(field => {
@@ -77,19 +119,29 @@ const ModelForm = tsWithRouter<m.ComponentProps<i.Input>>(
         const hasErrors = errors.messages.length > 0;
 
         return (
-            <Mutation id={id}>
+            <Mutation id={id} model="User">
                 {(submit, { data, loading, error }: any) => {
                     const onSubmit = (e: FormEvent) => {
                         e.preventDefault();
                         if (validate(true)) {
+                            const password = model.password as string;
+                            delete model.password;
+                            delete model.repeat_password;
+
                             const finalInput = { ...model };
+                            if (!finalInput.role) delete input.role;
                             if (create) {
                                 delete finalInput.id;
+                            }
+                            delete finalInput.api_token;
+                            if (!finalInput.email) {
+                                delete finalInput.email;
                             }
 
                             submit({
                                 variables: {
                                     input: finalInput,
+                                    password,
                                 },
                             });
                         }
@@ -101,12 +153,15 @@ const ModelForm = tsWithRouter<m.ComponentProps<i.Input>>(
                                 <Form.Group>
                                     <Form.Input
                                         {...getFieldProps({
-                                            name: 'name',
-                                            label: 'Role Name',
+                                            name: 'username',
+                                            label: 'User Name',
                                         })}
                                     />
                                     {authUser.type === 'SUPERADMIN' && (
                                         <Form.Input
+                                            disabled={
+                                                model.type === 'SUPERADMIN'
+                                            }
                                             {...getFieldProps({
                                                 name: 'client_id',
                                                 label: 'Client ID',
@@ -115,14 +170,71 @@ const ModelForm = tsWithRouter<m.ComponentProps<i.Input>>(
                                     )}
                                 </Form.Group>
                                 <Form.Group>
-                                    <Form.TextArea
+                                    <Form.Input
                                         {...getFieldProps({
-                                            name: 'description',
-                                            label: 'Description',
+                                            name: 'firstname',
+                                            label: 'First Name',
+                                        })}
+                                    />
+                                    <Form.Input
+                                        {...getFieldProps({
+                                            name: 'lastname',
+                                            label: 'Last Name',
+                                        })}
+                                    />
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.Input
+                                        type="email"
+                                        {...getFieldProps({
+                                            name: 'email',
+                                            label: 'Email',
                                         })}
                                         width={8}
                                     />
                                 </Form.Group>
+                                <Form.Group />
+                                <Form.Group>
+                                    <Form.Select
+                                        {...getFieldProps({
+                                            name: 'role',
+                                            label: 'Role',
+                                            placeholder: 'Select Role',
+                                        })}
+                                        options={roleOptions}
+                                    />
+                                    <Form.Select
+                                        {...getFieldProps({
+                                            name: 'type',
+                                            label: 'Account Type',
+                                            placeholder: 'Select Account Type',
+                                        })}
+                                        disabled={authUser.type === 'USER'}
+                                        options={userTypeOptions}
+                                    />
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.Input
+                                        type="password"
+                                        {...getFieldProps({
+                                            name: 'password',
+                                            label: 'Password',
+                                        })}
+                                    />
+                                    <Form.Input
+                                        type="password"
+                                        {...getFieldProps({
+                                            name: 'repeat_password',
+                                            label: 'Repeat Password',
+                                        })}
+                                    />
+                                </Form.Group>
+                                {update && (
+                                    <TokenForm
+                                        token={model.api_token}
+                                        id={id!}
+                                    />
+                                )}
                                 <Form.Group>
                                     <Form.Button
                                         basic
@@ -167,8 +279,8 @@ const ModelForm = tsWithRouter<m.ComponentProps<i.Input>>(
                             {data && create && (
                                 <SuccessMessage
                                     attached="bottom"
-                                    redirectTo="/roles"
-                                    message="Successfully created role"
+                                    redirectTo="/users"
+                                    message="Successfully created user"
                                 />
                             )}
                         </div>
@@ -179,5 +291,5 @@ const ModelForm = tsWithRouter<m.ComponentProps<i.Input>>(
     }
 );
 
-ModelForm.propTypes = m.ComponentPropTypes;
+ModelForm.propTypes = i.ComponentPropTypes;
 export default ModelForm;
