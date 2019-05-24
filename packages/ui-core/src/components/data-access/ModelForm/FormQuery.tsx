@@ -11,7 +11,7 @@ import {
 import { ModelName } from '@terascope/data-access';
 import { getModelConfig } from '../config';
 import { ModelNameProp } from '../interfaces';
-import ModelForm from './Form';
+import Form from './Form';
 
 const FormQuery: React.FC<Props> = ({
     id,
@@ -47,7 +47,7 @@ const FormQuery: React.FC<Props> = ({
 
                 return (
                     <Segment basic>
-                        <ModelForm
+                        <Form
                             {...props}
                             modelName={modelName}
                             id={id}
@@ -55,7 +55,7 @@ const FormQuery: React.FC<Props> = ({
                             beforeSubmit={beforeSubmit}
                         >
                             {children}
-                        </ModelForm>
+                        </Form>
                     </Segment>
                 );
             }}

@@ -1,8 +1,9 @@
 import Form from './Form';
-import Mutation from './Mutation';
-import Query from './Query';
+import Mutation from './FormMutation';
+import FormQuery from './FormQuery';
 
 export * from './interfaces';
-export * from './utils';
-export { Form, Mutation, Query };
-export default Query;
+export { Form, Mutation, FormQuery };
+
+const ModelForm = FormQuery;
+export default ModelForm;

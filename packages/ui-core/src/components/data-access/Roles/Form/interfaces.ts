@@ -6,9 +6,3 @@ export type Input = {
 };
 
 export const inputFields: (keyof Input)[] = ['id', 'client_id', 'description', 'name'];
-
-export type FieldOptions = {
-    name: keyof Input;
-    label: string;
-    placeholder?: string;
-};

@@ -1,6 +1,6 @@
 import React, { FormEvent, useState } from 'react';
 import { AnyObject } from '@terascope/utils';
-import { Form } from 'semantic-ui-react';
+import { Form as UIForm } from 'semantic-ui-react';
 import {
     SuccessMessage,
     ErrorMessage,
@@ -8,11 +8,11 @@ import {
     tsWithRouter,
 } from '@terascope/ui-components';
 import { getModelConfig } from '../config';
-import { getFieldPropsFn } from './utils';
 import { ErrorsState, ComponentProps, ComponentPropTypes } from './interfaces';
-import Mutation from './Mutation';
+import { wrapFormInput } from './FormInput';
+import Mutation from './FormMutation';
 
-const ModelForm = tsWithRouter<ComponentProps>(
+const Form = tsWithRouter<ComponentProps>(
     ({
         id,
         input,
@@ -71,7 +71,7 @@ const ModelForm = tsWithRouter<ComponentProps>(
             return !errs.messages.length || !errs.fields.length;
         };
 
-        const getFieldProps = getFieldPropsFn({
+        const FormInput = wrapFormInput({
             model,
             setModel,
             validate,
@@ -95,16 +95,16 @@ const ModelForm = tsWithRouter<ComponentProps>(
 
                     return (
                         <div>
-                            <Form loading={loading} onSubmit={onSubmit}>
+                            <UIForm loading={loading} onSubmit={onSubmit}>
                                 {children({
                                     ...props,
                                     model,
-                                    getFieldProps,
+                                    FormInput,
                                     setModel,
                                     update,
                                 })}
-                                <Form.Group>
-                                    <Form.Button
+                                <UIForm.Group>
+                                    <UIForm.Button
                                         basic
                                         floated="right"
                                         width={15}
@@ -114,8 +114,8 @@ const ModelForm = tsWithRouter<ComponentProps>(
                                         }}
                                     >
                                         Cancel
-                                    </Form.Button>
-                                    <Form.Button
+                                    </UIForm.Button>
+                                    <UIForm.Button
                                         width={2}
                                         type="submit"
                                         floated="right"
@@ -125,9 +125,9 @@ const ModelForm = tsWithRouter<ComponentProps>(
                                         primary
                                     >
                                         Submit
-                                    </Form.Button>
-                                </Form.Group>
-                            </Form>
+                                    </UIForm.Button>
+                                </UIForm.Group>
+                            </UIForm>
                             {error && (
                                 <ErrorMessage
                                     title="Request Error"
@@ -161,5 +161,5 @@ const ModelForm = tsWithRouter<ComponentProps>(
     }
 );
 
-ModelForm.propTypes = ComponentPropTypes;
-export default ModelForm;
+Form.propTypes = ComponentPropTypes;
+export default Form;
