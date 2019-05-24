@@ -61,7 +61,9 @@ describe('DataType', () => {
             },
         };
 
-        const { results, baseType, customTypes } = new DataType(typeConfig, 'myType').toGraphQl();
+        const dataType = new DataType(typeConfig, 'myType');
+        const { baseType, customTypes } = dataType.toGraphQLTypes();
+        const results = dataType.toGraphQl();
 
         [
             'type myType {',
@@ -112,7 +114,7 @@ describe('DataType', () => {
             },
         };
 
-        const { results } = new DataType(typeConfig, 'myType').toGraphQl('otherType');
+        const results = new DataType(typeConfig, 'myType').toGraphQl('otherType');
 
         expect(results.match('type otherType {')).not.toBeNull();
         expect(results.match('type myType {')).toBeNull();
@@ -130,7 +132,7 @@ describe('DataType', () => {
             },
         };
         const typeInjection = 'world: String';
-        const { results } = new DataType(typeConfig, 'myType').toGraphQl(null, typeInjection);
+        const results = new DataType(typeConfig, 'myType').toGraphQl(null, typeInjection);
 
         expect(results.match(typeInjection)).not.toBeNull();
     });

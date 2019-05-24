@@ -13,7 +13,7 @@ export class DataType implements DataTypeManager {
         const baseTypeList: string[] = [];
 
         types.forEach((type) => {
-            const { baseType, customTypes } = type.toGraphQl(null, typeInjection);
+            const { baseType, customTypes } = type.toGraphQLTypes(null, typeInjection);
             customTypesList.push(...customTypes);
             baseTypeList.push(baseType);
         });
@@ -89,6 +89,15 @@ export class DataType implements DataTypeManager {
     }
 
     toGraphQl(typeName?: string|null|undefined, typeInjection?:string) {
+        const { baseType, customTypes } = this.toGraphQLTypes(typeName, typeInjection);
+
+        return  `
+            ${baseType}
+            ${[...new Set(customTypes)].join('\n')}
+        `;
+    }
+
+    toGraphQLTypes(typeName?: string|null|undefined, typeInjection?:string) {
         const name = typeName || this._name;
         if (name == null) throw new ts.TSError('No name was specified to create the graphql type representing this data structure');
         const customTypes: string[] = [];

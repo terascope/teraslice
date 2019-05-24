@@ -19,7 +19,8 @@ export interface MappingConfiguration {
 
 export interface DataTypeManager {
     toESMapping({}: MappingConfiguration): any;
-    toGraphQl(typeName?: string): GraphQlResults;
+    toGraphQl(typeName?: string): string;
+    toGraphQLTypes(typeName?: string): GraphQlResults;
     toXlucene(typeName: string|null|undefined, typeInjection?:string): XluceneMapping;
 }
 
