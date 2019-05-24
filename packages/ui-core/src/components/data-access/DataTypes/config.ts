@@ -5,17 +5,21 @@ import { inputFields, Input } from './Form/interfaces';
 import { ModelConfig } from '../interfaces';
 
 const config: ModelConfig = {
-    name: 'Role',
-    pathname: 'roles',
-    singularLabel: 'Role',
-    pluralLabel: 'Roles',
+    name: 'DataType',
+    pathname: 'data-types',
+    singularLabel: 'Data Type',
+    pluralLabel: 'Data Types',
     searchFields: ['name'],
     requiredFields: ['name'],
     handleFormProps(authUser, data) {
-        const role = get(data, 'role');
+        const dataTypes = get(data, 'dataType');
         const input = {} as Input;
         for (const field of inputFields) {
-            input[field] = get(role, field) || '';
+            if (field === 'type_config') {
+                input[field] = get(dataTypes, field) || {};
+            } else {
+                input[field] = get(dataTypes, field) || '';
+            }
         }
         if (!input.client_id && authUser.client_id) {
             input.client_id = authUser.client_id;
@@ -31,7 +35,7 @@ const config: ModelConfig = {
             return true;
         },
         columns: {
-            name: { label: 'Role Name' },
+            name: { label: 'Data Type Name' },
             description: {
                 label: 'Description',
                 sortable: false,
@@ -48,44 +52,46 @@ const config: ModelConfig = {
         },
     },
     listQuery: gql`
-        query Roles($query: String, $from: Int, $size: Int, $sort: String) {
-            records: roles(query: $query, from: $from, size: $size, sort: $sort) {
+        query DataTypes($query: String, $from: Int, $size: Int, $sort: String) {
+            records: dataTypes(query: $query, from: $from, size: $size, sort: $sort) {
                 id
                 name
                 description
+                type_config
                 updated
                 created
             }
-            total: rolesCount(query: $query)
+            total: dataTypesCount(query: $query)
         }
     `,
     updateQuery: gql`
         query UpdateQuery($id: ID!) {
-            role(id: $id) {
+            dataType(id: $id) {
                 id
                 name
                 description
+                type_config
                 client_id
             }
         }
     `,
     createMutation: gql`
-        mutation CreateRole($input: CreateRoleInput!) {
-            result: createRole(role: $input) {
+        mutation CreateDataType($input: CreateDataTypeInput!) {
+            result: createDataType(dataType: $input) {
                 id
             }
         }
     `,
     updateMutation: gql`
-        mutation UpdateRole($input: UpdateRoleInput!) {
-            result: updateRole(role: $input) {
+        mutation UpdateDataType($input: UpdateDataTypeInput!) {
+            result: updateDataType(dataType: $input) {
                 id
             }
         }
     `,
     removeMutation: gql`
-        mutation RemoveRole($id: ID!) {
-            result: removeRole(id: $id)
+        mutation RemoveDataType($id: ID!) {
+            result: removeDataType(id: $id)
         }
     `,
 };

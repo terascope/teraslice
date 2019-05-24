@@ -8,6 +8,7 @@ import ModelForm, {
     BeforeSubmitFn,
     FormInput,
 } from '../../ModelForm';
+import TypeConfig from './TypeConfig';
 import config from '../config';
 
 const RolesForm: React.FC<Props> = ({ id }) => {
@@ -41,35 +42,48 @@ const RolesForm: React.FC<Props> = ({ id }) => {
             validate={validate}
             beforeSubmit={beforeSubmit}
         >
-            {({ defaultInputProps, model }) => {
+            {({ defaultInputProps, updateModel, model }) => {
                 return (
                     <React.Fragment>
                         <Form.Group>
                             <FormInput
                                 {...defaultInputProps}
+                                value={model.name}
                                 name="name"
                                 label={`${config.singularLabel} Name`}
-                                value={model.name}
                             />
                             {authUser.type === 'SUPERADMIN' && (
                                 <FormInput
                                     {...defaultInputProps}
+                                    value={model.client_id}
                                     name="client_id"
                                     label="Client ID"
-                                    value={model.client_id}
                                 />
                             )}
                         </Form.Group>
                         <Form.Group>
                             <FormInput
                                 {...defaultInputProps}
-                                value={model.description}
                                 as={Form.TextArea}
                                 name="description"
                                 label="Description"
+                                value={model.description}
                                 width={8}
                             />
                         </Form.Group>
+                        <TypeConfig
+                            updateTypeConfig={(field, value) => {
+                                updateModel({
+                                    type_config: {
+                                        ...model.type_config,
+                                        ...{
+                                            [field]: value,
+                                        },
+                                    },
+                                });
+                            }}
+                            typeConfig={model.type_config}
+                        />
                     </React.Fragment>
                 );
             }}

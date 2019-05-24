@@ -1,36 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ErrorsState, ErrorsStateProp, ChangeFn } from './interfaces';
+import { DefaultInputProps } from './interfaces';
 import { Form, FormComponent } from 'semantic-ui-react';
-import { AnyObject, get } from '@terascope/utils';
 
 const FormInput: React.FC<Props> = ({
-    type,
-    errors,
-    model,
-    children,
-    required,
     placeholder,
     label,
     name,
-    setModel,
-    validate,
+    value,
+    onChange,
+    hasError,
+    isRequired,
     as = Form.Input,
+    children,
     ...props
 }) => {
-    const hasError = errors.fields.includes(name);
     const Component = as;
-    const onChange: ChangeFn = (e, { name, value }) => {
-        setModel(
-            Object.assign(model, {
-                [name]: value,
-            })
-        );
-        validate();
-    };
 
-    if (model[name] == null) {
-        console.error(`Missing field ${name} on model`);
+    if (value == null) {
+        console.error(`Missing value for field ${name} on model`);
     }
 
     return (
@@ -39,10 +27,10 @@ const FormInput: React.FC<Props> = ({
                 name,
                 label,
                 placeholder: placeholder || label,
-                value: get(model, name, ''),
+                value: value != null ? value : '',
                 onChange,
-                error: hasError,
-                required: required.includes(name),
+                error: hasError(name),
+                required: isRequired(name),
                 width: 4,
             }}
             {...props}
@@ -52,34 +40,24 @@ const FormInput: React.FC<Props> = ({
     );
 };
 
-export function wrapFormInput(props: DefaultProps) {
-    return (customProps: Props) => {
-        return <FormInput {...props} {...customProps} />;
-    };
-}
-
 export type Props = {
     [prop: string]: any;
+    value: string;
     name: string;
     label: string;
     placeholder?: string;
-    as?: FormComponent;
-};
-
-type DefaultProps = {
-    model: AnyObject;
-    errors: ErrorsState;
-    required: string[];
-    setModel: (model: AnyObject) => void;
-    validate: () => boolean;
-};
+    as?: FormComponent | any;
+} & DefaultInputProps;
 
 FormInput.propTypes = {
-    model: PropTypes.object.isRequired,
-    errors: ErrorsStateProp.isRequired,
-    required: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
-    setModel: PropTypes.func.isRequired,
-    validate: PropTypes.func.isRequired,
+    name: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    placeholder: PropTypes.string,
+    value: PropTypes.string.isRequired,
+    hasError: PropTypes.func.isRequired,
+    isRequired: PropTypes.func.isRequired,
+    onChange: PropTypes.func.isRequired,
+    as: PropTypes.any,
 };
 
 export default FormInput;

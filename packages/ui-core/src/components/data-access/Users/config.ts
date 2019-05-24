@@ -105,14 +105,14 @@ const config: ModelConfig = {
         }
     `,
     createMutation: gql`
-        mutation User($input: CreateUserInput!, $password: String!) {
+        mutation CreateUser($input: CreateUserInput!, $password: String!) {
             result: createUser(user: $input, password: $password) {
                 id
             }
         }
     `,
     updateMutation: gql`
-        mutation User($input: UpdateUserInput!, $password: String) {
+        mutation UpdateUser($input: UpdateUserInput!, $password: String) {
             result: updateUser(user: $input, password: $password) {
                 id
             }

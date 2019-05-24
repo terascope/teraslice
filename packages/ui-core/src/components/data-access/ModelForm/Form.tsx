@@ -8,8 +8,12 @@ import {
     tsWithRouter,
 } from '@terascope/ui-components';
 import { getModelConfig } from '../config';
-import { ErrorsState, ComponentProps, ComponentPropTypes } from './interfaces';
-import { wrapFormInput } from './FormInput';
+import {
+    ErrorsState,
+    ComponentProps,
+    ComponentPropTypes,
+    DefaultInputProps,
+} from './interfaces';
 import Mutation from './FormMutation';
 
 const Form = tsWithRouter<ComponentProps>(
@@ -71,13 +75,24 @@ const Form = tsWithRouter<ComponentProps>(
             return !errs.messages.length || !errs.fields.length;
         };
 
-        const FormInput = wrapFormInput({
-            model,
-            setModel,
-            validate,
-            required,
-            errors,
-        });
+        const updateModel = (updates: AnyObject) => {
+            setModel({ ...model, ...updates });
+        };
+
+        const defaultInputProps: DefaultInputProps = {
+            hasError(field) {
+                return errors.fields.includes(field);
+            },
+            isRequired(field) {
+                return required.includes(field);
+            },
+            onChange(e, { name, value }) {
+                updateModel({
+                    [name]: value,
+                });
+                validate();
+            },
+        };
 
         const hasErrors = errors.messages.length > 0;
 
@@ -94,13 +109,13 @@ const Form = tsWithRouter<ComponentProps>(
                     };
 
                     return (
-                        <div>
+                        <React.Fragment>
                             <UIForm loading={loading} onSubmit={onSubmit}>
                                 {children({
                                     ...props,
                                     model,
-                                    FormInput,
-                                    setModel,
+                                    defaultInputProps,
+                                    updateModel,
                                     update,
                                 })}
                                 <UIForm.Group>
@@ -153,7 +168,7 @@ const Form = tsWithRouter<ComponentProps>(
                                     }`}
                                 />
                             )}
-                        </div>
+                        </React.Fragment>
                     );
                 }}
             </Mutation>

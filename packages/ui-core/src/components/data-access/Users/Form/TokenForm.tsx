@@ -60,7 +60,7 @@ const TokenForm: React.FC<Props> = ({ token, id }) => {
                                 label="New Token"
                                 labelPosition="left"
                                 loading={loading}
-                                onClick={async (e: any) => {
+                                onClick={(e: any) => {
                                     e.preventDefault();
                                     submit();
                                 }}
