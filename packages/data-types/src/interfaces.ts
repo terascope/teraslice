@@ -24,13 +24,6 @@ export interface DataTypeManager {
     toXlucene(typeName: string|null|undefined, typeInjection?:string): XluceneMapping;
 }
 
-export type String = 'keyword' | 'text';
-export type Number = 'long' | 'integer' | 'short' | 'byte' | 'double' | 'float' | 'half_float' | 'scaled_float';
-export type Boolean = 'boolean';
-export type Geo = 'geo';
-export type Ip = 'ip';
-// TODO: review the use of this
-export type XluceneValues = String | Number | Boolean | Geo | Ip;
 export type ElasticSearchTypes = 'long'|'integer'|'short'|'byte'|'double'|'float'|'keyword'|'text'|'boolean'|'ip'|'geo_point';
 
 export type AvailableTypes = 'Boolean'|'Date'|'Geo'|'IP'|'Byte'|'Double'|'Float'|'Integer'|'Keyword'|'Long'|'Short'|'Text';
@@ -55,20 +48,6 @@ export type DataTypeConfig = {
     fields: TypeConfigFields,
     version: number;
 };
-
-export enum NumberESType {
-    long = 'long',
-    integer = 'integer',
-    short = 'short',
-    byte = 'byte',
-    double = 'double',
-    float = 'float',
-}
-
-export enum GraphqlType {
-    float = 'Float',
-    int = 'Int'
-}
 
 export interface EsTypeMapping {
     type: ElasticSearchTypes;

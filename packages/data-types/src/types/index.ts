@@ -13,7 +13,7 @@ export class TypesManager {
 
     getType(field: string, { type, ...configs }: TypeConfig) {
         const Type = ts.get(mapping, [this.version, type]);
-        if (Type == null) throw new ts.TSError(`Type ${type} was not found in version ${this.version}`);
+        if (Type == null) throw new ts.TSError(`Type "${type}" was not found in version ${this.version}`);
         return new Type(field, configs);
     }
 }
