@@ -2,13 +2,27 @@
 import { DataTypeManager, DataTypeConfig, EsMapSettings, MappingConfiguration } from './interfaces';
 import BaseType from './types/versions/base-type';
 import * as ts from '@terascope/utils';
-
-// @ts-ignore
 import { TypesManager } from './types';
 
 export class DataType implements DataTypeManager {
-    private name!: string;
-    private types: BaseType[];
+    private _name!: string;
+    private _types: BaseType[];
+
+    static mergeGraphQLDataTypes(types: DataType[], typeInjection?:string) {
+        const customTypesList: string[] = [];
+        const baseTypeList: string[] = [];
+
+        types.forEach((type) => {
+            const { baseType, customTypes } = type.toGraphQl(null, typeInjection);
+            customTypesList.push(...customTypes);
+            baseTypeList.push(baseType);
+        });
+
+        return `
+            ${baseTypeList.join('\n')}
+            ${[...new Set(customTypesList)].join('\n')}
+        `;
+    }
 
     constructor({ version, fields:typesConfig }: DataTypeConfig, typeName?: string) {
         if (version == null) throw new ts.TSError('No version was specified in type_config');
@@ -21,14 +35,14 @@ export class DataType implements DataTypeManager {
                 types.push(typeManager.getType(key, typeConfig));
             }
         }
-        if (typeName != null) this.name = typeName;
-        this.types = types;
+        if (typeName != null) this._name = typeName;
+        this._types = types;
     }
 
     toESMapping({ typeName, settings: settingsConfig, mappingMetaData }: MappingConfiguration) {
         const argAnalyzer = ts.get(settingsConfig || {}, ['analysis', 'analyzer'], {});
         const analyzer = { ...argAnalyzer };
-        const properties = this.types.reduce((accum, type) => {
+        const properties = this._types.reduce((accum, type) => {
             const { mapping, analyzer: typeAnalyzer = {} } = type.toESMapping();
 
             // get mapping configuration
@@ -75,14 +89,14 @@ export class DataType implements DataTypeManager {
     }
 
     toGraphQl(typeName?: string|null|undefined, typeInjection?:string) {
-        const name = typeName || this.name;
+        const name = typeName || this._name;
         if (name == null) throw new ts.TSError('No name was specified to create the graphql type representing this data structure');
         const customTypes: string[] = [];
         const baseCollection: string[] = [];
 
         if (typeInjection) baseCollection.push(typeInjection);
 
-        this.types.forEach((typeClass) => {
+        this._types.forEach((typeClass) => {
             const { type, custom_type: customType } = typeClass.toGraphQl();
             baseCollection.push(type);
             if (customType != null) customTypes.push(customType);
@@ -107,7 +121,7 @@ export class DataType implements DataTypeManager {
     }
 
     toXlucene() {
-        return this.types.reduce((accum, type) => {
+        return this._types.reduce((accum, type) => {
             const xluceneType = type.toXlucene();
             for (const key in xluceneType) {
                 accum[key] = xluceneType[key];

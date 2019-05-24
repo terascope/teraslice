@@ -47,7 +47,7 @@ function createTypings(configs: DataAccessConfig[]) {
     const results: string[] = ['scalar JSON', 'scalar DateTime', Usertype];
     const endpointList: string = configs.map((config) =>  makeEndpoint(config.space_endpoint)).join('\n    ');
     const filteredDataTypes = configs.map(filterDataTypes);
-    const myTypes = getGraphQlTypes(filteredDataTypes, endpointList);
+    const myTypes = DataType.mergeGraphQLDataTypes(filteredDataTypes, endpointList);
     // create query type
     results.push(
         myTypes,

@@ -264,4 +264,57 @@ describe('DataType', () => {
         const mapping = new DataType(typeConfig).toESMapping({ typeName: 'events', settings });
         expect(mapping).toEqual(results);
     });
+
+    it('can build a single graphql type from multiple types', () => {
+        const typeConfig1: DataTypeConfig = {
+            version: 1,
+            fields: {
+                hello: { type: 'Text' },
+                location: { type: 'Geo' },
+                date: { type: 'Date' },
+                ip: { type: 'IP' },
+                someNum: { type: 'Long' }
+            },
+        };
+
+        const typeConfig2: DataTypeConfig = {
+            version: 1,
+            fields: {
+                hello: { type: 'Text' },
+                location: { type: 'Geo' },
+                otherLocation: { type: 'Geo' },
+                bool: { type: 'Boolean' }
+            },
+        };
+
+        const types = [
+            new DataType(typeConfig1, 'firstType'),
+            new DataType(typeConfig2, 'secondType'),
+        ];
+
+        const results = DataType.mergeGraphQLDataTypes(types);
+
+        const fields = [
+            'type firstType {',
+            'hello: String',
+            'location: Geo',
+            'date: DateTime',
+            'ip: String',
+            'someNum: Int',
+
+            'type secondType {',
+            'otherLocation: Geo',
+            'bool: Boolean',
+
+            'type Geo {',
+            'lat: String!',
+            'lon: String!'
+        ];
+
+        fields.forEach((str: string) => {
+            expect(results.match(str)).not.toBeNull();
+        });
+
+        expect(results.match(/type Geo \{/g)).toBeArrayOfSize(1);
+    });
 });

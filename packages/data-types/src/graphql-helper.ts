@@ -1,7 +1,6 @@
 
 import { GraphQLScalarType, ASTNode } from 'graphql';
 import { Kind } from 'graphql/language';
-import { DataType } from './datatype';
 import { TSError } from '@terascope/utils';
 import { mapping } from './types/versions/mapping';
 
@@ -9,22 +8,6 @@ let allTypes = {};
 
 for (const version in mapping) {
     allTypes = Object.assign(allTypes, mapping[version]);
-}
-
-export function getGraphQlTypes(types: DataType[], typeInjection?:string) {
-    const customTypesList: string[] = [];
-    const baseTypeList: string[] = [];
-
-    types.forEach((type) => {
-        const { baseType, customTypes } = type.toGraphQl(null, typeInjection);
-        customTypesList.push(...customTypes);
-        baseTypeList.push(baseType);
-    });
-
-    return `
-        ${baseTypeList.join('\n')}
-        ${[...new Set(customTypesList)].join('\n')}
-    `;
 }
 
 function serialize(value: any) {
