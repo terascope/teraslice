@@ -4,6 +4,7 @@ import { Form } from 'semantic-ui-react';
 import { toInteger } from '@terascope/utils';
 import { useCoreContext } from '@terascope/ui-components';
 import ModelForm, { ValidateFn, BeforeSubmitFn } from '../../ModelForm';
+import config from '../config';
 
 const RolesForm: React.FC<Props> = ({ id }) => {
     const authUser = useCoreContext().authUser!;
@@ -31,7 +32,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
 
     return (
         <ModelForm
-            modelName="Role"
+            modelName={config.name}
             id={id}
             validate={validate}
             beforeSubmit={beforeSubmit}
@@ -40,7 +41,10 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                 return (
                     <div>
                         <Form.Group>
-                            <FormInput name="name" label="Role Name" />
+                            <FormInput
+                                name="name"
+                                label={`${config.name} Name`}
+                            />
                             {authUser.type === 'SUPERADMIN' && (
                                 <FormInput name="client_id" label="Client ID" />
                             )}
