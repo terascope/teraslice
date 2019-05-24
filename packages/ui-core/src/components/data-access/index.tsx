@@ -4,6 +4,10 @@ import MyAccount from './Users/MyAccount';
 import ListUsers from './Users/List';
 import RoleForm from './Roles/Form';
 import ListRoles from './Roles/List';
+import { getModelConfig } from './config';
+
+const usersConfig = getModelConfig('User');
+const rolesConfig = getModelConfig('Role');
 
 const config: PluginConfig = {
     name: 'Data Access',
@@ -11,51 +15,51 @@ const config: PluginConfig = {
     access: 'ADMIN',
     routes: [
         {
-            name: 'Users',
-            path: '/users',
+            name: usersConfig.pluralLabel,
+            path: `/${usersConfig.pathname}`,
             icon: 'users',
             component: ListUsers,
-            actions: ['/users/create'],
+            actions: [`/${usersConfig.pathname}/create`],
         },
         {
-            name: 'Create User',
-            path: '/users/create',
+            name: `Create ${usersConfig.singularLabel}`,
+            path: `/${usersConfig.pathname}/create`,
             icon: 'add',
             hidden: true,
             component: UserForm,
         },
         {
-            name: 'Edit User',
-            path: '/users/edit/:id',
+            name: `Edit ${usersConfig.singularLabel}`,
+            path: `/${usersConfig.pathname}/edit/:id`,
             icon: 'pencil alternate',
             hidden: true,
             component: UserForm,
         },
         {
             name: 'My Account',
-            path: '/users/account',
+            path: `/${usersConfig.pathname}/account`,
             icon: 'user circle',
             hidden: true,
             access: 'USER',
             component: MyAccount,
         },
         {
-            name: 'Roles',
-            path: '/roles',
+            name: `${rolesConfig.pluralLabel}`,
+            path: `/${rolesConfig.pathname}`,
             icon: 'key',
             component: ListRoles,
-            actions: ['/roles/create'],
+            actions: [`/${rolesConfig.pathname}/create`],
         },
         {
-            name: 'Create Role',
-            path: '/roles/create',
+            name: `Create ${rolesConfig.singularLabel}`,
+            path: `/${rolesConfig.pathname}/create`,
             icon: 'add',
             hidden: true,
             component: RoleForm,
         },
         {
-            name: 'Edit Role',
-            path: '/roles/edit/:id',
+            name: `Edit ${rolesConfig.singularLabel}`,
+            path: `/${rolesConfig.pathname}/edit/:id`,
             icon: 'pencil alternate',
             hidden: true,
             component: RoleForm,
