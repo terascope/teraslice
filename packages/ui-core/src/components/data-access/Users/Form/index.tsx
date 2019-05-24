@@ -3,7 +3,11 @@ import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
 import { toInteger } from '@terascope/utils';
 import { useCoreContext, UserPermissionMap } from '@terascope/ui-components';
-import ModelForm, { ValidateFn, BeforeSubmitFn } from '../../ModelForm';
+import ModelForm, {
+    ValidateFn,
+    BeforeSubmitFn,
+    FormInput,
+} from '../../ModelForm';
 import TokenForm from './TokenForm';
 import { Role } from './interfaces';
 import config from '../config';
@@ -49,7 +53,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
             validate={validate}
             beforeSubmit={beforeSubmit}
         >
-            {({ FormInput, model, roles, update }) => {
+            {({ defaultInputProps, model, roles, update }) => {
                 const roleOptions = roles.map((role: Role) => ({
                     key: role.id,
                     text: role.name,
@@ -64,63 +68,90 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                 }));
 
                 return (
-                    <div>
+                    <React.Fragment>
                         <Form.Group>
-                            <FormInput name="username" label="User Name" />
+                            <FormInput
+                                {...defaultInputProps}
+                                name="username"
+                                label={`${config.singularLabel} Name`}
+                                value={model.username}
+                            />
                             {authUser.type === 'SUPERADMIN' && (
                                 <FormInput
+                                    {...defaultInputProps}
                                     disabled={model.type === 'SUPERADMIN'}
                                     name="client_id"
                                     label="Client ID"
+                                    value={model.client_id}
                                 />
                             )}
                         </Form.Group>
                         <Form.Group>
-                            <FormInput name="firstname" label="First Name" />
-                            <FormInput name="lastname" label="Last Name" />
+                            <FormInput
+                                {...defaultInputProps}
+                                name="firstname"
+                                label="First Name"
+                                value={model.firstname}
+                            />
+                            <FormInput
+                                {...defaultInputProps}
+                                name="lastname"
+                                label="Last Name"
+                                value={model.lastname}
+                            />
                         </Form.Group>
                         <Form.Group>
                             <FormInput
+                                {...defaultInputProps}
                                 type="email"
                                 name="email"
                                 label="Email"
+                                value={model.email}
                                 width={8}
                             />
                         </Form.Group>
                         <Form.Group />
                         <Form.Group>
                             <FormInput
+                                {...defaultInputProps}
                                 as={Form.Select}
                                 name="role"
                                 label="Role"
                                 placeholder="Select Role"
+                                value={model.role}
                                 options={roleOptions}
                             />
                             <FormInput
+                                {...defaultInputProps}
                                 as={Form.Select}
                                 name="type"
                                 label="Account Type"
                                 placeholder="Select Account Type"
                                 disabled={authUser.type === 'USER'}
+                                value={model.type}
                                 options={userTypeOptions}
                             />
                         </Form.Group>
                         <Form.Group>
                             <FormInput
+                                {...defaultInputProps}
                                 type="password"
                                 name="password"
                                 label="Password"
+                                value={model.password}
                             />
                             <FormInput
+                                {...defaultInputProps}
                                 type="password"
                                 name="repeat_password"
                                 label="Repeat Password"
+                                value={model.repeat_password}
                             />
                         </Form.Group>
                         {update && (
                             <TokenForm token={model.api_token} id={id!} />
                         )}
-                    </div>
+                    </React.Fragment>
                 );
             }}
         </ModelForm>
