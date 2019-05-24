@@ -48,7 +48,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
             validate={validate}
             beforeSubmit={beforeSubmit}
         >
-            {({ getFieldProps, model, roles, update }) => {
+            {({ FormInput, model, roles, update }) => {
                 const roleOptions = roles.map((role: Role) => ({
                     key: role.id,
                     text: role.name,
@@ -65,80 +65,55 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                 return (
                     <div>
                         <Form.Group>
-                            <Form.Input
-                                {...getFieldProps({
-                                    name: 'username',
-                                    label: 'User Name',
-                                })}
-                            />
+                            <FormInput name="username" label="User Name" />
                             {authUser.type === 'SUPERADMIN' && (
-                                <Form.Input
+                                <FormInput
                                     disabled={model.type === 'SUPERADMIN'}
-                                    {...getFieldProps({
-                                        name: 'client_id',
-                                        label: 'Client ID',
-                                    })}
+                                    name="client_id"
+                                    label="Client ID"
                                 />
                             )}
                         </Form.Group>
                         <Form.Group>
-                            <Form.Input
-                                {...getFieldProps({
-                                    name: 'firstname',
-                                    label: 'First Name',
-                                })}
-                            />
-                            <Form.Input
-                                {...getFieldProps({
-                                    name: 'lastname',
-                                    label: 'Last Name',
-                                })}
-                            />
+                            <FormInput name="firstname" label="First Name" />
+                            <FormInput name="lastname" label="Last Name" />
                         </Form.Group>
                         <Form.Group>
-                            <Form.Input
+                            <FormInput
                                 type="email"
-                                {...getFieldProps({
-                                    name: 'email',
-                                    label: 'Email',
-                                })}
+                                name="email"
+                                label="Email"
                                 width={8}
                             />
                         </Form.Group>
                         <Form.Group />
                         <Form.Group>
-                            <Form.Select
-                                {...getFieldProps({
-                                    name: 'role',
-                                    label: 'Role',
-                                    placeholder: 'Select Role',
-                                })}
+                            <FormInput
+                                as={Form.Select}
+                                name="role"
+                                label="Role"
+                                placeholder="Select Role"
                                 options={roleOptions}
                             />
-                            <Form.Select
-                                {...getFieldProps({
-                                    name: 'type',
-                                    label: 'Account Type',
-                                    placeholder: 'Select Account Type',
-                                })}
+                            <FormInput
+                                as={Form.Select}
+                                name="type"
+                                label="Account Type"
+                                placeholder="Select Account Type"
                                 disabled={authUser.type === 'USER'}
                                 options={userTypeOptions}
                             />
                         </Form.Group>
                         <Form.Group>
-                            <Form.Input
+                            <FormInput
                                 type="password"
-                                {...getFieldProps({
-                                    name: 'password',
-                                    label: 'Password',
-                                })}
+                                name="password"
+                                label="Password"
                             />
-                            <Form.Input
+                            <FormInput
                                 type="password"
-                                {...getFieldProps({
-                                    name: 'repeat_password',
-                                    label: 'Repeat Password',
-                                })}
+                                name="repeat_password"
+                                label="Repeat Password"
                             />
                         </Form.Group>
                         {update && (

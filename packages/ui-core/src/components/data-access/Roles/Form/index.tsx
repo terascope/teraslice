@@ -36,31 +36,20 @@ const RolesForm: React.FC<Props> = ({ id }) => {
             validate={validate}
             beforeSubmit={beforeSubmit}
         >
-            {({ getFieldProps }) => {
+            {({ FormInput }) => {
                 return (
                     <div>
                         <Form.Group>
-                            <Form.Input
-                                {...getFieldProps({
-                                    name: 'name',
-                                    label: 'Role Name',
-                                })}
-                            />
+                            <FormInput name="name" label="Role Name" />
                             {authUser.type === 'SUPERADMIN' && (
-                                <Form.Input
-                                    {...getFieldProps({
-                                        name: 'client_id',
-                                        label: 'Client ID',
-                                    })}
-                                />
+                                <FormInput name="client_id" label="Client ID" />
                             )}
                         </Form.Group>
                         <Form.Group>
-                            <Form.TextArea
-                                {...getFieldProps({
-                                    name: 'description',
-                                    label: 'Description',
-                                })}
+                            <FormInput
+                                as={Form.TextArea}
+                                name="description"
+                                label="Description"
                                 width={8}
                             />
                         </Form.Group>

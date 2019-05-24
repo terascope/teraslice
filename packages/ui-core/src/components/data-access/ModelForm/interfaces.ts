@@ -3,22 +3,19 @@ import { InputOnChangeData, DropdownProps } from 'semantic-ui-react';
 import { ModelName } from '@terascope/data-access';
 import { ModelNameProp } from '../interfaces';
 import { AnyObject } from '@terascope/utils';
+import FormInput from './FormInput';
 
 export type ErrorsState = { fields: string[]; messages: string[] };
-
-export type FieldOptions = {
-    name: string;
-    label: string;
-    placeholder?: string;
-};
-
-export type GetFieldsPropsFn = (options: FieldOptions) => any;
+export const ErrorsStateProp = PropTypes.shape({
+    fields: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
+    messages: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
+});
 
 export type FormChild = React.FC<{
     [prop: string]: any;
     model: AnyObject;
     setModel: (model: AnyObject) => void;
-    getFieldProps: GetFieldsPropsFn;
+    FormInput: FormInput;
     update: boolean;
 }>;
 
