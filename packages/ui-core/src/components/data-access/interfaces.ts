@@ -7,6 +7,7 @@ export const modelNames: ModelName[] = ['User', 'Role', 'DataType', 'View', 'Spa
 export const ModelNameProp = PropTypes.oneOf(modelNames);
 
 export type ModelConfig = {
+    name: ModelName;
     pathname: string;
     singularLabel: string;
     pluralLabel: string;

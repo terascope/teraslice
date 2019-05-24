@@ -6,6 +6,7 @@ import { useCoreContext, UserPermissionMap } from '@terascope/ui-components';
 import ModelForm, { ValidateFn, BeforeSubmitFn } from '../../ModelForm';
 import TokenForm from './TokenForm';
 import { Role } from './interfaces';
+import config from '../config';
 
 const RolesForm: React.FC<Props> = ({ id }) => {
     const authUser = useCoreContext().authUser!;
@@ -43,7 +44,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
 
     return (
         <ModelForm
-            modelName="User"
+            modelName={config.name}
             id={id}
             validate={validate}
             beforeSubmit={beforeSubmit}
