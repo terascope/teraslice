@@ -2,7 +2,6 @@ import React from 'react';
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from 'react-apollo';
 import { CoreContextProvider, PluginConfig } from '@terascope/ui-components';
-import DataAccessPlugin from './components/data-access';
 import { Welcome } from './components/framework';
 import CoreRouter from './IndexRouter';
 
@@ -17,6 +16,16 @@ const IndexApp: React.FC = () => {
         credentials: 'include',
     });
 
+    return (
+        <ApolloProvider client={client}>
+            <CoreContextProvider plugins={getRegisteredPlugins()}>
+                <CoreRouter />
+            </CoreContextProvider>
+        </ApolloProvider>
+    );
+};
+
+function getRegisteredPlugins(): PluginConfig[] {
     const plugins: PluginConfig[] = [
         {
             name: '',
@@ -30,16 +39,22 @@ const IndexApp: React.FC = () => {
                 },
             ],
         },
-        DataAccessPlugin,
     ];
 
-    return (
-        <ApolloProvider client={client}>
-            <CoreContextProvider plugins={plugins}>
-                <CoreRouter />
-            </CoreContextProvider>
-        </ApolloProvider>
-    );
-};
+    for (const key of Object.keys(window)) {
+        if (key.startsWith('UIPlugin')) {
+            // @ts-ignore
+            const plugin = window[key].default || window[key];
+            if (!plugin || !plugin.name) {
+                console.error(`Invalid registered plugin window.${key}`);
+            } else {
+                console.debug(`Registered plugin ${key} ${plugin.name}`);
+            }
+            plugins.push(plugin);
+        }
+    }
+
+    return plugins;
+}
 
 export default IndexApp;

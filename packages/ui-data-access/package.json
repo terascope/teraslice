@@ -1,0 +1,54 @@
+{
+    "name": "@terascope/ui-data-access",
+    "version": "0.1.0",
+    "description": "A teraserver ui plugin for data-access",
+    "publishConfig": {
+        "access": "public"
+    },
+    "scripts": {
+        "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
+        "lint:fix": "yarn lint --fix",
+        "prepublishOnly": "yarn build",
+        "build": "webpack --config webpack.config.js",
+        "build:watch": "yarn build --watch",
+        "test": "echo '* tests not supported yet'"
+    },
+    "files": [
+        "build/*"
+    ],
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/ui-data-access#readme",
+    "repository": "git@github.com:terascope/teraslice.git",
+    "author": "Terascope, LLC <info@terascope.io>",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
+    },
+    "main": "dist/src/index.js",
+    "dependencies": {},
+    "peerDependencies": {
+        "@terascope/ui-components": "^0.1.0",
+        "apollo-boost": "^0.3.1",
+        "apollo-client": "^2.5.1",
+        "react": "^16.8.6",
+        "react-apollo": "^2.5.5",
+        "react-dom": "^16.8.6",
+        "react-router-dom": "^5.0.0"
+    },
+    "devDependencies": {
+        "@types/jest": "24.0.13",
+        "@types/node": "12.0.2",
+        "@types/react": "16.8.18",
+        "@types/react-dom": "16.8.4",
+        "@types/react-router-dom": "^4.3.3",
+        "@terascope/utils": "^0.10.2",
+        "css-loader": "^2.1.1",
+        "date-fns": "^1.30.1",
+        "graphql": "^14.3.1",
+        "history": "^4.9.0",
+        "prop-types": "^15.7.2",
+        "semantic-ui-react": "^0.87.1",
+        "ts-loader": "^6.0.1",
+        "webpack": "^4.32.2",
+        "webpack-cli": "^3.3.2"
+    }
+}

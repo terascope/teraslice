@@ -27,7 +27,9 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "main": "index.js",
-    "dependencies": {},
+    "dependencies": {
+        "@terascope/ui-data-access": "^0.1.0"
+    },
     "devDependencies": {
         "@craco/craco": "^5.2.1",
         "@terascope/data-access": "^0.8.0",

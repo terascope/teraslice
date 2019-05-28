@@ -1,3 +1,4 @@
+require('./index.css');
 import { PluginConfig } from '@terascope/ui-components';
 import usersRoutes from './User/routes';
 import rolesRoutes from './Role/routes';
