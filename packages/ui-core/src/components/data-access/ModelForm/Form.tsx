@@ -72,7 +72,7 @@ const Form = tsWithRouter<ComponentProps>(
 
             setErrors(errs);
 
-            return !errs.messages.length || !errs.fields.length;
+            return !errs.messages.length && !errs.fields.length;
         };
 
         const updateModel = (updates: AnyObject) => {

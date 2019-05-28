@@ -1,15 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
-import { dataTypeOptions } from './interfaces';
+import { dataTypeOptions, availableDataTypes } from './interfaces';
 
-const FieldType: React.FC<Props> = ({ type, onChange, invalid }) => {
+const FieldType: React.FC<Props> = ({ type, onChange }) => {
+    const isInvalid = Boolean(type && !availableDataTypes.includes(type));
     return (
         <Form.Select
             label="Field Type"
             placeholder="Select Field Type"
             value={type}
-            error={invalid}
+            error={isInvalid}
             onChange={(e, { value }) => {
                 e.preventDefault();
                 onChange(value);
@@ -21,12 +22,10 @@ const FieldType: React.FC<Props> = ({ type, onChange, invalid }) => {
 
 type Props = {
     type: any;
-    invalid?: boolean;
     onChange: (type: any) => void;
 };
 
 FieldType.propTypes = {
-    invalid: PropTypes.bool,
     type: PropTypes.any.isRequired,
     onChange: PropTypes.any.isRequired,
 };

@@ -10,7 +10,20 @@ export type Input = {
 
 export const inputFields: (keyof Input)[] = ['id', 'client_id', 'description', 'name', 'type_config'];
 
-const availableDataTypes = ['Boolean', 'Date', 'Geo', 'IP', 'Byte', 'Double', 'Float', 'Integer', 'Keyword', 'Long', 'Short', 'Text'];
+export const availableDataTypes = [
+    'Boolean',
+    'Date',
+    'Geo',
+    'IP',
+    'Byte',
+    'Double',
+    'Float',
+    'Integer',
+    'Keyword',
+    'Long',
+    'Short',
+    'Text',
+];
 
 export const dataTypeOptions = availableDataTypes.map(t => ({
     key: t,

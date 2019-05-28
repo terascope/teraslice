@@ -7,12 +7,7 @@ import FieldType from './FieldType';
 const ExistingField: React.FC<Props> = ({ updateTypeConfig, field, type }) => {
     return (
         <Form.Group as={Segment} basic>
-            <FieldName
-                field={field}
-                onChange={updated => {
-                    updateTypeConfig(updated, type);
-                }}
-            />
+            <FieldName field={field} readonly onChange={() => {}} />
             <FieldType
                 type={type}
                 onChange={updated => {

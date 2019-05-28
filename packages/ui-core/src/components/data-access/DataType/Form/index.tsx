@@ -10,6 +10,7 @@ import ModelForm, {
 } from '../../ModelForm';
 import TypeConfig from './TypeConfig';
 import config from '../config';
+import { validateTypeConfig } from './utils';
 
 const RolesForm: React.FC<Props> = ({ id }) => {
     const authUser = useCoreContext().authUser!;
@@ -23,6 +24,9 @@ const RolesForm: React.FC<Props> = ({ id }) => {
             errs.fields.push('client_id');
         } else {
             model.client_id = clientId;
+        }
+        if (!validateTypeConfig(model.type_config)) {
+            errs.messages.push('Invalid Type Config');
         }
         return errs;
     };

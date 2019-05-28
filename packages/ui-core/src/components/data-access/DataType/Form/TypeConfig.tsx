@@ -4,16 +4,17 @@ import { Segment, Header } from 'semantic-ui-react';
 import { AnyObject } from '@terascope/utils';
 import AddField from './AddField';
 import ExistingField from './ExistingField';
+import { parseTypeConfig } from './utils';
 
 const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig = {} }) => {
-    const entries = getEntries(typeConfig);
+    const entries = parseTypeConfig(typeConfig);
     return (
         <Segment.Group className="daFieldValueGroup">
             <Header as="h5" block attached="top">
                 Type Configuration
             </Header>
             {entries.length ? (
-                entries.map(([field, type], i) => {
+                entries.map(({ field, type }, i) => {
                     const key = `data-type-config-${field}-${i}`;
                     return (
                         <ExistingField
@@ -29,18 +30,10 @@ const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig = {} }) => {
                     Add field and type configuration below
                 </Segment>
             )}
-            <Header as="h5" block attached="top" sub>
-                Add additional type definition for field
-            </Header>
             <AddField add={updateTypeConfig} />
         </Segment.Group>
     );
 };
-
-function getEntries(typeConfig: AnyObject): ([string, any])[] {
-    if (!typeConfig) return [];
-    return Object.entries(typeConfig).filter(([field, type]) => !!type);
-}
 
 type Props = {
     updateTypeConfig: (field: string, type: any) => void;

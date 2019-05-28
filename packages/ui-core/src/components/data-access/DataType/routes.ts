@@ -9,7 +9,7 @@ const routes: PluginRoute[] = [
         path: `/${config.pathname}`,
         icon: 'hdd',
         component: List,
-        access: 'SUPERADMIN',
+        access: 'ADMIN',
         actions: [`/${config.pathname}/create`],
     },
     {
@@ -25,7 +25,7 @@ const routes: PluginRoute[] = [
         path: `/${config.pathname}/edit/:id`,
         icon: 'pencil alternate',
         hidden: true,
-        access: 'SUPERADMIN',
+        access: 'ADMIN',
         component: Form,
     },
 ];

@@ -34,7 +34,7 @@ export function formatDate(dateStr: any): string {
 }
 
 type FindPluginRouteResult = { plugin: PluginConfig; route: PluginRoute };
-export function findPluginRoute(plugins: PluginConfig[], pathname: string): FindPluginRouteResult | undefined {
+export function findPluginRoute(plugins: PluginConfig[], pathname: string, authUser?: ResolvedUser): FindPluginRouteResult | undefined {
     for (const plugin of plugins) {
         const route = plugin.routes.find(({ path }) => {
             return !!matchPath(pathname, {
@@ -44,7 +44,11 @@ export function findPluginRoute(plugins: PluginConfig[], pathname: string): Find
         });
 
         if (route) {
-            return { route, plugin };
+            const result: FindPluginRouteResult = { route, plugin };
+            if (!authUser || (authUser && hasAccessToRoute(authUser, result))) {
+                return result;
+            }
+            return undefined;
         }
     }
     return undefined;
