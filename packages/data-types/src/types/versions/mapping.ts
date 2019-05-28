@@ -13,6 +13,12 @@ import KeywordV1 from './v1/keyword';
 import LongV1 from './v1/long';
 import ShortV1 from './v1/short';
 import TextV1 from './v1/text';
+import KeywordTokensV1 from './v1/keyword-tokens';
+import HostnameV1 from './v1/hostname';
+import KeywordCaseInsensitiveV1 from './v1/keyword-case-insensitive';
+import KeywordTokensCaseInsensitiveV1 from './v1/keyword-tokens-case-insensitive';
+import NgramTokensV1 from './v1/ngram-tokens';
+import BoundryV1 from './v1/boundary';
 
 export const mapping: DataTypeMapping = {
     v1: {
@@ -28,5 +34,11 @@ export const mapping: DataTypeMapping = {
         Long: LongV1,
         Short: ShortV1,
         Text: TextV1,
+        KeywordTokens: KeywordTokensV1,
+        Hostname: HostnameV1,
+        KeywordCaseInsensitive: KeywordCaseInsensitiveV1,
+        KeywordTokensCaseInsensitive: KeywordTokensCaseInsensitiveV1,
+        NgramTokens: NgramTokensV1,
+        Boundry: BoundryV1,
     }
 };

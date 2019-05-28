@@ -7,7 +7,7 @@ export default class Keyword extends BaseType {
         super(field, config);
     }
 
-    toESMapping() {
+    toESMapping(version?: number) {
         return { mapping: { [this.field]: { type: 'keyword' as ElasticSearchTypes } } };
     }
 

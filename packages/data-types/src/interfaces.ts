@@ -26,7 +26,8 @@ export interface DataTypeManager {
 
 export type ElasticSearchTypes = 'long'|'integer'|'short'|'byte'|'double'|'float'|'keyword'|'text'|'boolean'|'ip'|'geo_point';
 
-export type AvailableTypes = 'Boolean'|'Date'|'Geo'|'IP'|'Byte'|'Double'|'Float'|'Integer'|'Keyword'|'Long'|'Short'|'Text';
+export type AvailableTypes = 'Boolean'|'Date'|'Geo'|'IP'|'Byte'|'Double'|'Float'|'Integer'|'Keyword'|
+'Long'|'Short'|'Text'|'KeywordTokens'|'Hostname'|'KeywordCaseInsensitive'|'KeywordTokensCaseInsensitive'|'NgramTokens'|'Boundry';
 
 export type TypeConfig = {
     type: AvailableTypes;
@@ -49,8 +50,17 @@ export type DataTypeConfig = {
     version: number;
 };
 
-export interface EsTypeMapping {
+export type EsTypeMapping = PropertyEsTypeMapping | BasicEsTypeMapping ;
+
+interface BasicEsTypeMapping {
     type: ElasticSearchTypes;
+}
+
+interface PropertyEsTypeMapping {
+    type?: 'nested';
+    properties: {
+        [key: string]: BasicEsTypeMapping
+    };
 }
 
 export interface EsMapping {
@@ -58,6 +68,9 @@ export interface EsMapping {
         [key: string]: EsTypeMapping;
     };
     analyzer?: {
+        [key: string]: any;
+    };
+    tokenizer?: {
         [key: string]: any;
     };
 }

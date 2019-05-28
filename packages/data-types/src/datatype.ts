@@ -41,9 +41,13 @@ export class DataType implements DataTypeManager {
 
     toESMapping({ typeName, settings: settingsConfig, mappingMetaData }: MappingConfiguration) {
         const argAnalyzer = ts.get(settingsConfig || {}, ['analysis', 'analyzer'], {});
+        const argTokenizer = ts.get(settingsConfig || {}, ['analysis', 'tokenizer'], {});
+
         const analyzer = { ...argAnalyzer };
+        const tokenizer = { ...argTokenizer };
+
         const properties = this._types.reduce((accum, type) => {
-            const { mapping, analyzer: typeAnalyzer = {} } = type.toESMapping();
+            const { mapping, analyzer: typeAnalyzer = {}, tokenizer: typeTokenizer = {} } = type.toESMapping();
 
             // get mapping configuration
             for (const key in mapping) {
@@ -55,12 +59,18 @@ export class DataType implements DataTypeManager {
                 analyzer[key] = typeAnalyzer[key];
             }
 
+             // get tokenizer configuration
+            for (const key in typeTokenizer) {
+                tokenizer[key] = typeTokenizer[key];
+            }
+
             return accum;
         }, {});
 
         const analysis = {
             analysis: {
-                analyzer
+                analyzer,
+                tokenizer
             }
         };
 

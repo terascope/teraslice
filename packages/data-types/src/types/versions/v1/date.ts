@@ -5,8 +5,8 @@ export default class DateType extends BaseType {
     constructor(field: string, config:TypeConfig) {
         super(field, config);
     }
-    // TODO: different date time settings?
-    toESMapping() {
+
+    toESMapping(version?: number) {
         return { mapping: { [this.field]: { type: 'date' as ElasticSearchTypes } } };
     }
 

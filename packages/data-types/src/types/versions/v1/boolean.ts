@@ -7,7 +7,7 @@ export default class BooleanType extends BaseType {
         super(field, config);
     }
 
-    toESMapping() {
+    toESMapping(version?: number) {
         return { mapping: { [this.field]: { type: 'boolean' as ElasticSearchTypes } } };
     }
 

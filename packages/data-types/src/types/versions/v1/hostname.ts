@@ -1,0 +1,57 @@
+
+import BaseType from '../base-type';
+import { TypeConfig, ElasticSearchTypes } from '../../../interfaces';
+
+export default class Hostname extends BaseType {
+    constructor(field: string, config: TypeConfig) {
+        super(field, config);
+    }
+
+    toESMapping(version?: number) {
+        return {
+            mapping: {
+                [this.field]: {
+                    type: 'text' as ElasticSearchTypes,
+                    analyzer: 'lowercase_keyword_analyzer',
+                    fields: {
+                        tokens: {
+                            type: 'text' as ElasticSearchTypes,
+                            analyzer: 'standard'
+                        },
+                        right: {
+                            type: 'text' as ElasticSearchTypes,
+                            analyzer: 'domain_analyzer',
+                            search_analyzer: 'lowercase_keyword_analyzer'
+                        }
+                    }
+                }
+            },
+            analyzer: {
+                lowercase_keyword_analyzer: {
+                    tokenizer: 'keyword',
+                    filter: 'lowercase'
+                },
+                domain_analyzer: {
+                    filter : 'lowercase',
+                    type : 'custom',
+                    tokenizer : 'domain_tokens'
+                }
+            },
+            tokenizer : {
+                domain_tokens : {
+                    reverse : 'true',
+                    type : 'PathHierarchy',
+                    delimiter : '.'
+                }
+            }
+        };
+    }
+
+    toGraphQl() {
+        return { type: `${this.field}: String` };
+    }
+
+    toXlucene() {
+        return { [this.field]: 'keyword' };
+    }
+}

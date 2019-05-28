@@ -12,7 +12,7 @@ export default abstract class BaseType {
         this.config = config;
     }
 
-    abstract toESMapping(): EsMapping;
+    abstract toESMapping(version?: number): EsMapping;
     abstract toGraphQl(): GraphQLType;
     abstract toXlucene(): XluceneMapping;
 }

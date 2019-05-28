@@ -203,7 +203,8 @@ describe('DataType', () => {
             },
             settings: {
                 analysis: {
-                    analyzer: {}
+                    analyzer: {},
+                    tokenizer: {}
                 }
             }
         };
@@ -258,8 +259,9 @@ describe('DataType', () => {
                             tokenizer: 'keyword',
                             filter: 'lowercase'
                         }
-                    }
-                }
+                    },
+                    tokenizer: {}
+                },
             }
         };
 

@@ -7,7 +7,7 @@ export default class IpType extends BaseType {
         super(field, config);
     }
 
-    toESMapping() {
+    toESMapping(version?: number) {
         return { mapping: { [this.field]: { type: 'ip' as ElasticSearchTypes } } };
     }
 

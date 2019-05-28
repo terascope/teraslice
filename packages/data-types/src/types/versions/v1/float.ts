@@ -7,7 +7,7 @@ export default class Float extends BaseType {
         super(field, config);
     }
 
-    toESMapping() {
+    toESMapping(version?: number) {
         return { mapping: { [this.field]: { type: 'float' as ElasticSearchTypes } } };
     }
 

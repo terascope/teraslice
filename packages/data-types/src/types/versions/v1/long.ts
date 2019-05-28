@@ -7,7 +7,7 @@ export default class Long extends BaseType {
         super(field, config);
     }
 
-    toESMapping() {
+    toESMapping(version?: number) {
         return { mapping: { [this.field]: { type: 'long' as ElasticSearchTypes } } };
     }
 

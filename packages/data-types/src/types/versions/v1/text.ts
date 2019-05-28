@@ -7,7 +7,7 @@ export default class Text extends BaseType {
         super(field, config);
     }
 
-    toESMapping() {
+    toESMapping(version?: number) {
         return { mapping: { [this.field]: { type: 'text' as ElasticSearchTypes } } };
     }
 
