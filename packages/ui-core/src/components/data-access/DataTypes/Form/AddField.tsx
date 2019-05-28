@@ -32,7 +32,9 @@ const AddField: React.FC<Props> = ({ add }) => {
                 }}
             />
             <Form.Button
+                className="daAddFieldButton"
                 icon="add"
+                label="Add"
                 primary
                 onClick={(e: any) => {
                     e.preventDefault();

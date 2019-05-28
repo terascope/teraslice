@@ -7,7 +7,7 @@ const routes: PluginRoute[] = [
     {
         name: `${config.pluralLabel}`,
         path: `/${config.pathname}`,
-        icon: 'browser',
+        icon: 'hdd',
         component: List,
         access: 'SUPERADMIN',
         actions: [`/${config.pathname}/create`],
