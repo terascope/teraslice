@@ -1,7 +1,7 @@
 import { PluginConfig } from '@terascope/ui-components';
-import usersRoutes from './Users/routes';
-import rolesRoutes from './Roles/routes';
-import dataTypesRoutes from './DataTypes/routes';
+import usersRoutes from './User/routes';
+import rolesRoutes from './Role/routes';
+import dataTypesRoutes from './DataType/routes';
 
 const config: PluginConfig = {
     name: 'Data Access',

@@ -82,7 +82,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                                     disabled={model.type === 'SUPERADMIN'}
                                     name="client_id"
                                     label="Client ID"
-                                    value={model.client_id}
+                                    value={`${model.client_id}`}
                                 />
                             )}
                         </Form.Group>

@@ -1,6 +1,6 @@
 import React, { FormEvent, useState } from 'react';
 import { AnyObject } from '@terascope/utils';
-import { Form as UIForm } from 'semantic-ui-react';
+import { Form as UIForm, Grid } from 'semantic-ui-react';
 import {
     SuccessMessage,
     ErrorMessage,
@@ -110,38 +110,52 @@ const Form = tsWithRouter<ComponentProps>(
 
                     return (
                         <React.Fragment>
-                            <UIForm loading={loading} onSubmit={onSubmit}>
-                                {children({
-                                    ...props,
-                                    model,
-                                    defaultInputProps,
-                                    updateModel,
-                                    update,
-                                })}
-                                <UIForm.Group>
-                                    <UIForm.Button
-                                        basic
-                                        floated="right"
-                                        width={15}
-                                        onClick={e => {
-                                            e.preventDefault();
-                                            history.goBack();
-                                        }}
-                                    >
-                                        Cancel
-                                    </UIForm.Button>
-                                    <UIForm.Button
-                                        width={2}
-                                        type="submit"
-                                        floated="right"
-                                        loading={loading}
-                                        fluid
-                                        disabled={hasErrors}
-                                        primary
-                                    >
-                                        Submit
-                                    </UIForm.Button>
-                                </UIForm.Group>
+                            <UIForm
+                                loading={loading}
+                                onSubmit={onSubmit}
+                                widths="equal"
+                            >
+                                <Grid columns={2}>
+                                    <Grid.Row>
+                                        <Grid.Column width="10">
+                                            {children({
+                                                ...props,
+                                                model,
+                                                defaultInputProps,
+                                                updateModel,
+                                                update,
+                                            })}
+                                        </Grid.Column>
+                                    </Grid.Row>
+                                    <Grid.Row columns={1}>
+                                        <Grid.Column stretched>
+                                            <UIForm.Group>
+                                                <UIForm.Button
+                                                    basic
+                                                    floated="right"
+                                                    width={15}
+                                                    onClick={e => {
+                                                        e.preventDefault();
+                                                        history.goBack();
+                                                    }}
+                                                >
+                                                    Cancel
+                                                </UIForm.Button>
+                                                <UIForm.Button
+                                                    width={1}
+                                                    type="submit"
+                                                    floated="right"
+                                                    loading={loading}
+                                                    fluid
+                                                    disabled={hasErrors}
+                                                    primary
+                                                >
+                                                    Submit
+                                                </UIForm.Button>
+                                            </UIForm.Group>
+                                        </Grid.Column>
+                                    </Grid.Row>
+                                </Grid>
                             </UIForm>
                             {error && (
                                 <ErrorMessage

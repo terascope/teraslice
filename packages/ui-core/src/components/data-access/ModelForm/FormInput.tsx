@@ -31,7 +31,6 @@ const FormInput: React.FC<Props> = ({
                 onChange,
                 error: hasError(name),
                 required: isRequired(name),
-                width: 4,
             }}
             {...props}
         >

@@ -55,7 +55,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                             {authUser.type === 'SUPERADMIN' && (
                                 <FormInput
                                     {...defaultInputProps}
-                                    value={model.client_id}
+                                    value={`${model.client_id}`}
                                     name="client_id"
                                     label="Client ID"
                                 />
@@ -72,14 +72,13 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                             />
                         </Form.Group>
                         <TypeConfig
-                            updateTypeConfig={(field, value) => {
+                            updateTypeConfig={(field, type) => {
+                                const typeConfig = { ...model.type_config };
+                                Object.assign(typeConfig, {
+                                    [field]: type,
+                                });
                                 updateModel({
-                                    type_config: {
-                                        ...model.type_config,
-                                        ...{
-                                            [field]: value,
-                                        },
-                                    },
+                                    type_config: typeConfig,
                                 });
                             }}
                             typeConfig={model.type_config}

@@ -1,8 +1,8 @@
 import { ModelName } from '@terascope/data-access';
 import { ModelConfigMapping } from './interfaces';
-import usersConfig from './Users/config';
-import rolesConfig from './Roles/config';
-import dataTypesConfig from './DataTypes/config';
+import usersConfig from './User/config';
+import rolesConfig from './Role/config';
+import dataTypesConfig from './DataType/config';
 
 const MODEL_CONFIG: ModelConfigMapping = {
     User: usersConfig,
