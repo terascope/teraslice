@@ -18,6 +18,7 @@ const config: ModelConfig = {
         canRemove(record, authUser) {
             if (record.type === 'SUPERADMIN') return false;
             if (record.id === (authUser && authUser.id)) return false;
+            if (authUser && authUser.type !== 'USER') return false;
             return true;
         },
         columns: {

@@ -33,7 +33,11 @@ export function formatRegexQuery(query: string, searchFields: string[]) {
 }
 
 export function canSelectFn(rowMapping: RowMapping, authUser?: ResolvedUser) {
-    return (record: any): boolean => (rowMapping.canRemove ? rowMapping.canRemove(record, authUser) : true);
+    return (record: any): boolean => {
+        if (rowMapping.canRemove) return rowMapping.canRemove(record, authUser);
+        if (authUser) return authUser.type !== 'USER';
+        return true;
+    };
 }
 
 export function isSortable(col: ColumnMapping): boolean {

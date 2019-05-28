@@ -26,10 +26,6 @@ const config: ModelConfig = {
         getId(record) {
             return record.id;
         },
-        canRemove(record, authUser) {
-            if (authUser && authUser.type === 'USER') return false;
-            return true;
-        },
         columns: {
             name: { label: 'Role Name' },
             description: {
