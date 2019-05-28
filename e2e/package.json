@@ -29,13 +29,13 @@
     "devDependencies": {
         "@terascope/docker-compose-js": "^1.1.2",
         "@terascope/fetch-github-release": "^0.6.0",
-        "bluebird": "^3.5.4",
+        "bluebird": "^3.5.5",
         "bunyan": "^1.8.12",
         "elasticsearch": "^15.4.1",
         "jest": "^24.8.0",
         "jest-extended": "^0.11.1",
         "lodash": "^4.17.11",
-        "semver": "^6.0.0",
+        "semver": "^6.1.0",
         "signale": "^1.4.0",
         "teraslice-client-js": "^0.7.1",
         "uuid": "^3.3.2"

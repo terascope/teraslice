@@ -29,7 +29,7 @@
     "dependencies": {
         "@terascope/fetch-github-release": "^0.6.0",
         "archiver": "^3.0.0",
-        "bluebird": "^3.5.4",
+        "bluebird": "^3.5.5",
         "chalk": "^2.4.2",
         "cli-table3": "^0.5.1",
         "easy-table": "^1.1.1",
@@ -43,7 +43,7 @@
         "tty-table": "^2.7.0",
         "yargs": "^13.2.4",
         "yeoman-environment": "^2.3.4",
-        "yeoman-generator": "^4.0.0",
+        "yeoman-generator": "^4.0.1",
         "yo": "^2.0.6"
     },
     "devDependencies": {
