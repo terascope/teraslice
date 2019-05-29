@@ -5,7 +5,7 @@ import FieldName from './FieldName';
 import { validateFieldName } from './utils';
 
 const AddField: React.FC<Props> = ({ addField }) => {
-    const [field, setState] = useState('');
+    const [field, setField] = useState('');
 
     const invalid = Boolean(field && !validateFieldName(field));
 
@@ -18,7 +18,7 @@ const AddField: React.FC<Props> = ({ addField }) => {
                         field={field}
                         invalid={invalid}
                         onChange={updatedField => {
-                            setState(updatedField);
+                            setField(updatedField);
                         }}
                     />
                     <Form.Button
@@ -32,7 +32,7 @@ const AddField: React.FC<Props> = ({ addField }) => {
                             if (invalid) return;
 
                             addField(field);
-                            setState('');
+                            setField('');
                         }}
                     />
                 </Form.Group>

@@ -1,14 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
-import { toInteger } from '@terascope/utils';
+import { toInteger, concat } from '@terascope/utils';
 import { useCoreContext } from '@terascope/ui-components';
 import ModelForm, {
     ValidateFn,
     BeforeSubmitFn,
     FormInput,
 } from '../../ModelForm';
-// import Fields from './Fields';
+import Fields from './Fields';
 import config from '../config';
 import { validateFields } from './utils';
 
@@ -78,44 +78,48 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                                 width={8}
                             />
                         </Form.Group>
-                        {/* <Fields
+                        <Fields
+                            label="Includes"
+                            description="A whitelist of fields that can be views and searched"
                             removeField={field => {
                                 updateModel({
-                                    excludes: model.excludes.reject(
-                                        (f: string) => f === field
+                                    includes: model.includes.filter(
+                                        (f: string) => f !== field
                                     ),
                                 });
                             }}
                             addField={field => {
                                 updateModel({
-                                    excludes: uniq(
-                                        model.excludes.concat(
-                                            (f: string) => f === field
-                                        )
-                                    ),
-                                });
-                            }}
-                            fields={model.excludes}
-                        /> */}
-                        {/* <Fields
-                            removeField={field => {
-                                updateModel({
-                                    includes: model.includes.reject(
-                                        (f: string) => f === field
-                                    ),
-                                });
-                            }}
-                            addField={field => {
-                                updateModel({
-                                    includes: uniq(
-                                        model.includes.concat(
-                                            (f: string) => f === field
-                                        )
-                                    ),
+                                    includes: concat(model.includes, [field]),
                                 });
                             }}
                             fields={model.includes}
-                        /> */}
+                        />
+                        <Fields
+                            label="Excludes"
+                            description="A blacklist of fields that can be views and searched"
+                            removeField={field => {
+                                updateModel({
+                                    excludes: model.excludes.filter(
+                                        (f: string) => f !== field
+                                    ),
+                                });
+                            }}
+                            addField={field => {
+                                updateModel({
+                                    excludes: concat(model.excludes, [field]),
+                                });
+                            }}
+                            fields={model.excludes}
+                        />
+                        <Form.Group>
+                            <FormInput
+                                {...defaultInputProps}
+                                value={model.name}
+                                name="constraint"
+                                label={`${config.singularLabel} Constraint`}
+                            />
+                        </Form.Group>
                     </React.Fragment>
                 );
             }}

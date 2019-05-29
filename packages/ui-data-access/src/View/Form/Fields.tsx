@@ -1,43 +1,51 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Segment, Header } from 'semantic-ui-react';
+import { Segment, Header, Message, Icon } from 'semantic-ui-react';
 import AddField from './AddField';
 import ExistingField from './ExistingField';
 
-const Fields: React.FC<Props> = ({ fields = [], addField, removeField }) => {
+const Fields: React.FC<Props> = ({
+    fields,
+    addField,
+    removeField,
+    label,
+    description,
+}) => {
     return (
         <Segment.Group className="daFieldValueGroup">
             <Header as="h5" block attached="top">
-                Field Configuration
+                {label}
             </Header>
-            {fields.length ? (
-                fields.map((field, i) => {
-                    const key = `data-type-config-${field}-${i}`;
-                    return (
-                        <ExistingField
-                            key={key}
-                            removeField={removeField}
-                            field={field}
-                        />
-                    );
-                })
-            ) : (
-                <Segment textAlign="center" className="daFieldEmptyMessage">
-                    Add field below
-                </Segment>
-            )}
+            <Message attached="top">
+                <Icon name="info" />
+                {description}
+            </Message>
+            {fields.map((field, i) => {
+                const key = `dt-${label}-${field}-${i}`;
+                return (
+                    <ExistingField
+                        key={key}
+                        removeField={removeField}
+                        field={field}
+                    />
+                );
+            })}
             <AddField addField={addField} />
         </Segment.Group>
     );
 };
 
 type Props = {
+    label: string;
+    description: any;
+    fields: string[];
     addField: (field: string) => void;
     removeField: (field: string) => void;
-    fields: string[];
 };
 
 Fields.propTypes = {
+    label: PropTypes.string.isRequired,
+    description: PropTypes.any.isRequired,
     addField: PropTypes.func.isRequired,
     removeField: PropTypes.func.isRequired,
     fields: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
