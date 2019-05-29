@@ -20,45 +20,45 @@ const packages = fs.readdirSync(packagesPath).filter((pkgName) => {
 
 const desc = 'Update a package to specific version and its dependencies. This should be run in the root of the workspace.';
 
-const { argv } = yargs.usage('$0 [options] <package-name> <release>', desc, (_yargs) => {
-    _yargs
-        .example('$0', 'job-components major // 0.15.0 => 1.0.0')
-        .example('$0', 'teraslice-cli minor // 0.5.0 => 0.6.0')
-        .example('$0', 'teraslice patch // 0.20.0 => 0.20.1')
-        .example('$0', 'job-components premajor // 0.15.0 => 1.0.0-rc.0')
-        .example('$0', 'teraslice-cli preminor // 0.5.0 => 0.6.0-rc.0')
-        .example('$0', 'teraslice prepatch // 0.20.0 => 0.20.1-rc.0')
-        .example('$0', 'teraslice prerelease // 0.20.1-rc.0 => 0.20.1-rc.1')
-        .option('prelease-id', {
-            default: 'rc',
-            description: 'Specify the prerelease identifier, defaults to RC'
-        })
-        .option('deps', {
-            default: false,
-            type: 'boolean',
-            description: 'Bump all of the child dependencies to change, (if the child depedency is teraslice it will skip it)'
-        })
-        .positional('package-name', {
-            choices: packages,
-            description: 'The name of the package to bump'
-        })
-        .positional('release', {
-            description: 'Specify the release change for the version, see https://www.npmjs.com/package/semver',
-            choices: [
-                'major',
-                'minor',
-                'patch',
-                'prerelease',
-                'premajor',
-                'preminor',
-                'prepatch',
-            ]
-        })
-        .requiresArg([
-            'package-name',
-            'release'
-        ]);
-})
+const { argv } = yargs
+    .usage('$0 [options] <package-name> <release>', desc, (_yargs) => {
+        _yargs
+            .example('$0', 'job-components major // 0.15.0 => 1.0.0')
+            .example('$0', 'teraslice-cli minor // 0.5.0 => 0.6.0')
+            .example('$0', 'teraslice patch // 0.20.0 => 0.20.1')
+            .example('$0', 'job-components premajor // 0.15.0 => 1.0.0-rc.0')
+            .example('$0', 'teraslice-cli preminor // 0.5.0 => 0.6.0-rc.0')
+            .example('$0', 'teraslice prepatch // 0.20.0 => 0.20.1-rc.0')
+            .example('$0', 'teraslice prerelease // 0.20.1-rc.0 => 0.20.1-rc.1')
+            .option('prelease-id', {
+                default: 'rc',
+                description: 'Specify the prerelease identifier, defaults to RC',
+            })
+            .option('deps', {
+                default: false,
+                type: 'boolean',
+                description:
+                    'Bump all of the child dependencies to change, (if the child depedency is teraslice it will skip it)',
+            })
+            .positional('package-name', {
+                choices: packages,
+                description: 'The name of the package to bump',
+            })
+            .positional('release', {
+                description:
+                    'Specify the release change for the version, see https://www.npmjs.com/package/semver',
+                choices: [
+                    'major',
+                    'minor',
+                    'patch',
+                    'prerelease',
+                    'premajor',
+                    'preminor',
+                    'prepatch',
+                ],
+            })
+            .requiresArg(['package-name', 'release']);
+    })
     .scriptName('yarn bump')
     .version()
     .alias('v', 'version')
@@ -89,7 +89,6 @@ function bumpVersion(_version) {
 
 const newVersion = bumpVersion(pkgJSON.version);
 
-
 console.log(`* Updating ${realPkgName} to version ${pkgJSON.version} to ${newVersion}`);
 
 pkgJSON.version = newVersion;
@@ -111,23 +110,29 @@ function updatePkgVersion(fileName) {
             return;
         }
 
-        let isProdDev = false;
+        let isProdDep = false;
         if (otherPkgJSON.dependencies && otherPkgJSON.dependencies[realPkgName]) {
-            isProdDev = true;
+            isProdDep = true;
             otherPkgJSON.dependencies[realPkgName] = `^${newVersion}`;
         } else if (otherPkgJSON.devDependencies && otherPkgJSON.devDependencies[realPkgName]) {
             otherPkgJSON.devDependencies[realPkgName] = `^${newVersion}`;
+        } else if (otherPkgJSON.peerDependencies && otherPkgJSON.peerDependencies[realPkgName]) {
+            otherPkgJSON.peerDependencies[realPkgName] = `^${newVersion}`;
         } else {
             return;
         }
 
-        if (deps && isProdDev && fileName !== 'teraslice') {
+        if (deps && isProdDep && fileName !== 'teraslice') {
             const updatedVersion = bumpVersion(otherPkgJSON.version);
             console.log(`* Updating dependency ${otherPkgJSON.name} to version ${updatedVersion}`);
             otherPkgJSON.version = updatedVersion;
         }
 
-        console.log(`* Updating dependency ${otherPkgJSON.name}'s version of ${pkgJSON.name} to ^${newVersion}`);
+        console.log(
+            `* Updating dependency ${otherPkgJSON.name}'s version of ${
+                pkgJSON.name
+            } to ^${newVersion}`
+        );
         fse.writeJSONSync(otherPkgPath, otherPkgJSON, {
             spaces: 4,
         });
