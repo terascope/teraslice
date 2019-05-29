@@ -19,7 +19,7 @@ describe('Parser', () => {
         it('should throw an error', () => {
             // tslint:disable-next-line: max-line-length
             const errMsg = [
-                'Failure to parse xlucene query "(ba"',
+                'Failure to parse xlucene query "(ba",',
                 'caused by SyntaxError: Expected ")", field, term, or whitespace but end of input found.',
             ].join(' ');
 
