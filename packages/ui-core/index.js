@@ -1,8 +1,8 @@
 'use strict';
 
-const { join, resolve } = require('path');
+const { join, resolve, extname } = require('path');
 const {
-    existsSync, copyFile, mkdir, readFile, writeFile
+    existsSync, copyFile, mkdir, readFile, writeFile, readdirSync
 } = require('fs');
 const { promisify } = require('util');
 const { homepage: basePath } = require('./package.json');
@@ -19,7 +19,9 @@ let serverConfig;
 
 const buildPath = join(__dirname, 'build');
 const staticPath = join(buildPath, 'static');
+const assetManifest = join(buildPath, 'asset-manifest.json');
 const indexHtml = join(buildPath, 'index.html');
+const bkIndexHtml = join(buildPath, 'index.html.bk');
 const pluginsDir = join(staticPath, 'plugins');
 
 module.exports = {
@@ -40,22 +42,12 @@ module.exports = {
 
     async pre() {
         if (existsSync(staticPath)) {
-            let htmlContents = await pReadFile(indexHtml, 'utf8');
             if (!existsSync(pluginsDir)) {
                 await pMkdir(pluginsDir);
             }
-            for (const asset of getPluginAssets()) {
-                const pluginDir = join(pluginsDir, asset.name);
-                if (!existsSync(pluginDir)) {
-                    await pMkdir(pluginDir);
-                }
-                await pCopyFile(asset.copyFrom, asset.copyTo);
-                const scriptTag = `<script src="${asset.publicPath}"></script>`;
-                if (!htmlContents.includes(scriptTag)) {
-                    htmlContents = htmlContents.replace('</body>', `${scriptTag}</body>`);
-                }
-            }
-            await pWriteFile(indexHtml, htmlContents);
+            const assets = getPluginAssets();
+            await updateIndexHtml(assets);
+            await updateAssetManifest(assets);
         } else {
             throw new Error('UI Core must be built first');
         }
@@ -95,23 +87,85 @@ function getPluginAssets() {
 
     if (plugins && plugins.length > 0) {
         for (const name of plugins) {
-            const pluginPath = getPluginPath(name);
-            const pluginJs = join(pluginPath, 'build', 'plugin.js');
-            if (!existsSync(pluginJs)) {
-                throw new Error(`UI Plugin ${name} plugin bundle could not be found`);
+            const pluginPath = join(getPluginPath(name), 'build');
+            if (!existsSync(pluginPath)) {
+                throw new Error(`UI Plugin ${name} plugin build directory could not be found`);
             }
-            const publicPath = join(basePath, 'static', 'plugins', name, 'plugin.js');
-            const staticAssetPath = join(pluginsDir, name, 'plugin.js');
-            pluginAssets.push({
-                copyFrom: pluginJs,
-                copyTo: staticAssetPath,
-                name,
-                publicPath,
+            const assets = readdirSync(pluginPath).filter((fileName) => {
+                const ext = extname(fileName);
+                return ext === '.js';
             });
+
+            pluginAssets.push(
+                ...assets.map((fileName) => {
+                    const pluginAsset = join(pluginPath, fileName);
+
+                    const publicPath = join(basePath, 'static', 'plugins', name, fileName);
+                    const staticAssetPath = join(pluginsDir, name, fileName);
+                    return {
+                        copyFrom: pluginAsset,
+                        copyTo: staticAssetPath,
+                        name,
+                        fileName,
+                        publicPath,
+                    };
+                })
+            );
         }
     }
 
     return pluginAssets;
+}
+
+async function updateAssetManifest(assets) {
+    if (!existsSync(assetManifest)) return;
+    const contents = JSON.parse(await pReadFile(assetManifest));
+    const rootPath = 'static/plugins/';
+    const existing = Object.keys(contents.files);
+
+    for (const existingPath of existing) {
+        if (existingPath.startsWith(rootPath)) {
+            delete contents.files[existingPath];
+        }
+    }
+
+    for (const asset of assets) {
+        const assetPath = join(rootPath, asset.name, asset.fileName);
+        contents.files[assetPath] = asset.publicPath;
+    }
+
+    await pWriteFile(assetManifest, JSON.stringify(contents, null, 2));
+}
+
+async function updateIndexHtml(assets) {
+    const prependTag = '</body>';
+    let contents = await readIndexHtml();
+
+    for (const asset of assets) {
+        const pluginDir = join(pluginsDir, asset.name);
+        if (!existsSync(pluginDir)) {
+            await pMkdir(pluginDir);
+        }
+        await pCopyFile(asset.copyFrom, asset.copyTo);
+        const scriptTag = `<script src="${asset.publicPath}"></script>`;
+        if (!contents.includes(scriptTag)) {
+            contents = contents.replace(prependTag, `${scriptTag}${prependTag}`);
+        }
+    }
+
+    await pWriteFile(indexHtml, contents);
+}
+
+async function readIndexHtml() {
+    if (!existsSync(indexHtml)) {
+        throw new Error('UI Core is missing index.html');
+    }
+
+    if (!existsSync(bkIndexHtml)) {
+        await pCopyFile(indexHtml, bkIndexHtml);
+    }
+
+    return pReadFile(bkIndexHtml, 'utf8');
 }
 
 function getPluginPath(name) {
@@ -124,6 +178,10 @@ function getPluginPath(name) {
     try {
         return require.resolve(name);
     } catch (e) {
+        try {
+            return require.resolve(`@terascope/${name}`);
+            // eslint-disable-next-line no-empty
+        } catch (err) {}
         throw new Error(`UI Plugin ${name} could not be found, caused by ${e.toString()}`);
     }
 }

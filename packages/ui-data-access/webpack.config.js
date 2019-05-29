@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('path');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 const { name } = require('./package.json');
 
 const pluginName = name
@@ -33,7 +34,7 @@ module.exports = {
     output: {
         library: `UIPlugin_${pluginName}`,
         libraryTarget: 'window',
-        filename: 'plugin.js',
+        filename: 'plugin.[hash].js',
         auxiliaryComment: `UI Plugin for ${name}`,
         path: path.resolve(__dirname, 'build'),
     },
@@ -43,4 +44,9 @@ module.exports = {
         'react-dom': 'ReactDOM',
         'react-router-dom': 'ReactRouterDOM',
     },
+    plugins: [
+        new CleanWebpackPlugin({
+            verbose: true,
+        }),
+    ],
 };

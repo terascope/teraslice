@@ -19,7 +19,7 @@ Here is some example configuration
 
 ```yaml
 # terafoundation config.yaml ...
-data-access-plugin:
+data_access:
     # the index namespace
     namespace: 'test_teraserver'
     # the connection name
