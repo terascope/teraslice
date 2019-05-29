@@ -8,11 +8,11 @@ import ModelForm, {
     BeforeSubmitFn,
     FormInput,
 } from '../../ModelForm';
-import TypeConfig from './TypeConfig';
+// import Fields from './Fields';
 import config from '../config';
-import { validateTypeConfig } from './utils';
+import { validateFields } from './utils';
 
-const DataTypeForm: React.FC<Props> = ({ id }) => {
+const ViewForm: React.FC<Props> = ({ id }) => {
     const authUser = useCoreContext().authUser!;
 
     const validate: ValidateFn = (errs, model) => {
@@ -25,8 +25,11 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
         } else {
             model.client_id = clientId;
         }
-        if (!validateTypeConfig(model.type_config)) {
-            errs.messages.push('Invalid Type Config');
+        if (validateFields(model.excludes)) {
+            errs.messages.push('Invalid Excludes');
+        }
+        if (validateFields(model.includes)) {
+            errs.messages.push('Invalid Includes');
         }
         return errs;
     };
@@ -75,18 +78,44 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
                                 width={8}
                             />
                         </Form.Group>
-                        <TypeConfig
-                            updateTypeConfig={(field, type) => {
-                                const typeConfig = { ...model.type_config };
-                                Object.assign(typeConfig, {
-                                    [field]: type,
-                                });
+                        {/* <Fields
+                            removeField={field => {
                                 updateModel({
-                                    type_config: typeConfig,
+                                    excludes: model.excludes.reject(
+                                        (f: string) => f === field
+                                    ),
                                 });
                             }}
-                            typeConfig={model.type_config}
-                        />
+                            addField={field => {
+                                updateModel({
+                                    excludes: uniq(
+                                        model.excludes.concat(
+                                            (f: string) => f === field
+                                        )
+                                    ),
+                                });
+                            }}
+                            fields={model.excludes}
+                        /> */}
+                        {/* <Fields
+                            removeField={field => {
+                                updateModel({
+                                    includes: model.includes.reject(
+                                        (f: string) => f === field
+                                    ),
+                                });
+                            }}
+                            addField={field => {
+                                updateModel({
+                                    includes: uniq(
+                                        model.includes.concat(
+                                            (f: string) => f === field
+                                        )
+                                    ),
+                                });
+                            }}
+                            fields={model.includes}
+                        /> */}
                     </React.Fragment>
                 );
             }}
@@ -98,8 +127,8 @@ type Props = {
     id?: string;
 };
 
-DataTypeForm.propTypes = {
+ViewForm.propTypes = {
     id: PropTypes.string,
 };
 
-export default DataTypeForm;
+export default ViewForm;

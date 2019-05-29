@@ -1,20 +1,13 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { get } from '@terascope/utils';
 import { Form, Segment, Message, Icon } from 'semantic-ui-react';
 import FieldName from './FieldName';
-import FieldType from './FieldType';
 import { validateFieldName } from './utils';
 
-const AddField: React.FC<Props> = ({ add }) => {
-    const [{ field, value }, setState] = useState<State>({
-        field: '',
-        value: '',
-    });
-    const type = get(value, 'type', value);
+const AddField: React.FC<Props> = ({ addField }) => {
+    const [field, setState] = useState('');
 
-    const isFieldInvalid = Boolean(field && !validateFieldName(field));
-    const invalid = isFieldInvalid && !type;
+    const invalid = Boolean(field && !validateFieldName(field));
 
     return (
         <React.Fragment>
@@ -23,21 +16,9 @@ const AddField: React.FC<Props> = ({ add }) => {
                 <Form.Group>
                     <FieldName
                         field={field}
-                        invalid={isFieldInvalid}
+                        invalid={invalid}
                         onChange={updatedField => {
-                            setState({
-                                field: updatedField,
-                                value,
-                            });
-                        }}
-                    />
-                    <FieldType
-                        type={type}
-                        onChange={updatedValue => {
-                            setState({
-                                value: updatedValue,
-                                field,
-                            });
+                            setState(updatedField);
                         }}
                     />
                     <Form.Button
@@ -48,16 +29,10 @@ const AddField: React.FC<Props> = ({ add }) => {
                         disabled={invalid}
                         onClick={(e: any) => {
                             e.preventDefault();
-                            if (!value || !field) return;
+                            if (invalid) return;
 
-                            setState(state => {
-                                add(state.field, state.value);
-
-                                return {
-                                    field: '',
-                                    value: '',
-                                };
-                            });
+                            addField(field);
+                            setState('');
                         }}
                     />
                 </Form.Group>
@@ -66,7 +41,10 @@ const AddField: React.FC<Props> = ({ add }) => {
                 <Message attached="bottom" error className="daFormMessage">
                     <Icon name="times" />
                     Field name can only contain alpha-numeric characters,
-                    underscores and dashes.
+                    underscores and dashes. A field restriction on{' '}
+                    <pre className="daFormMessageCode">example</pre> will
+                    restrict{' '}
+                    <pre className="daFormMessageCode">example.field</pre>
                 </Message>
             ) : (
                 <Message attached="bottom" info>
@@ -79,17 +57,12 @@ const AddField: React.FC<Props> = ({ add }) => {
     );
 };
 
-type State = {
-    field: string;
-    value: any;
-};
-
 type Props = {
-    add: (field: string, value: any) => void;
+    addField: (field: string) => void;
 };
 
 AddField.propTypes = {
-    add: PropTypes.func.isRequired,
+    addField: PropTypes.func.isRequired,
 };
 
 export default AddField;

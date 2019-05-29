@@ -34,7 +34,7 @@ module.exports = {
     output: {
         library: `UIPlugin_${pluginName}`,
         libraryTarget: 'window',
-        filename: 'plugin.[hash].js',
+        filename: 'plugin.js',
         auxiliaryComment: `UI Plugin for ${name}`,
         path: path.resolve(__dirname, 'build'),
     },

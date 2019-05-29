@@ -9,7 +9,6 @@ const pCopyFile = promisify(fs.copyFile);
 const pMkdir = promisify(fs.mkdir);
 const pReadFile = promisify(fs.readFile);
 const pWriteFile = promisify(fs.writeFile);
-const pStat = promisify(fs.stat);
 
 let app;
 let express;
@@ -113,9 +112,7 @@ function waitForAssetChanges() {
                     return;
                 }
             } catch (err) {
-                logger.error('Error watching for UI changes', err);
-                clearInterval(interval);
-                done();
+                logger.trace('Error watching for UI changes', err);
             } finally {
                 running = false;
             }
@@ -141,6 +138,8 @@ async function checkFilesChanged() {
     for (const { fileName, name } of files) {
         const modified = await getLastTouched(fileName);
         const last = lastChanged.find(t => t.name === name);
+        if (!modified) continue;
+
         if (!last) {
             updates.push({ name, fileName, modified });
             continue;
@@ -162,9 +161,9 @@ async function checkFilesChanged() {
     return changed;
 }
 
-async function getLastTouched(fileName) {
+function getLastTouched(fileName) {
     try {
-        const stats = await pStat(fileName);
+        const stats = fs.statSync(fileName);
         return stats.mtimeMs;
     } catch (err) {
         return 0;
@@ -194,16 +193,26 @@ function getPluginAssets() {
 
             pluginAssets.push(
                 ...assets.map((fileName) => {
-                    const pluginAsset = path.join(pluginPath, fileName);
-
-                    const publicPath = path.join(basePath, 'static', 'plugins', name, fileName);
-                    const staticAssetPath = path.join(pluginsDir, name, fileName);
+                    const copyFrom = path.join(pluginPath, fileName);
+                    const ext = path.extname(fileName);
+                    const fileBase = path.basename(fileName, ext);
+                    const mtimeMs = getLastTouched(copyFrom);
+                    const targetFileName = `${fileBase}.${mtimeMs}${ext}`;
+                    const publicPath = path.join(
+                        basePath,
+                        'static',
+                        'plugins',
+                        name,
+                        targetFileName
+                    );
+                    const copyTo = path.join(pluginsDir, name, targetFileName);
                     return {
-                        copyFrom: pluginAsset,
-                        copyTo: staticAssetPath,
+                        copyFrom,
+                        copyTo,
                         name,
                         fileName,
                         publicPath,
+                        targetFileName,
                     };
                 })
             );
@@ -226,7 +235,7 @@ async function updateAssetManifest(assets) {
     }
 
     for (const asset of assets) {
-        const assetPath = path.join(rootPath, asset.name, asset.fileName);
+        const assetPath = path.join(rootPath, asset.name, asset.targetFileName);
         contents.files[assetPath] = asset.publicPath;
     }
 
