@@ -19,14 +19,7 @@ export class Client extends Core {
 
     constructor(opts: i.ClientOptions) {
         super(opts);
-        const {
-            hostUrl,
-            clientId,
-            clientType,
-            serverName,
-            socketOptions= {},
-            connectTimeout,
-        } = opts;
+        const { hostUrl, clientId, clientType, serverName, socketOptions = {}, connectTimeout } = opts;
 
         if (!isString(hostUrl)) {
             throw new Error('Messenger.Client requires a valid hostUrl');
@@ -53,7 +46,7 @@ export class Client extends Core {
             forceNew: true,
             perMessageDeflate: false,
             query: { clientId, clientType },
-            timeout: connectTimeout
+            timeout: connectTimeout,
         });
 
         // @ts-ignore
@@ -179,7 +172,11 @@ export class Client extends Core {
         });
     }
 
-    protected async send(eventName: string, payload: i.Payload = {}, options: i.SendOptions = { response: true }): Promise <i.Message | null> {
+    protected async send(
+        eventName: string,
+        payload: i.Payload = {},
+        options: i.SendOptions = { response: true }
+    ): Promise<i.Message | null> {
         if (this.serverShutdown || this.closed) return null;
 
         if (!this.ready && !options.volatile) {
@@ -219,11 +216,15 @@ export class Client extends Core {
     async shutdown() {
         if (this.isClientReady()) {
             try {
-                await this.send(`client:${i.ClientState.Shutdown}`, {}, {
-                    volatile: true,
-                    response: false,
-                    timeout: 100,
-                });
+                await this.send(
+                    `client:${i.ClientState.Shutdown}`,
+                    {},
+                    {
+                        volatile: true,
+                        response: false,
+                        timeout: 100,
+                    }
+                );
             } catch (err) {
                 logger.error(err, 'client send shutdown error');
             }
@@ -240,7 +241,7 @@ export class Client extends Core {
 
     // For testing purposes
     forceReconnect() {
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
             this.socket.io.once('reconnect', () => {
                 resolve();
             });

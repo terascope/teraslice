@@ -1,9 +1,7 @@
-
 import { UrlDecode } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
 
 describe('urldecode operator', () => {
-
     it('can instantiate', () => {
         const opConfig = { target_field: 'source', source_field: 'source', __id: 'someId', follow: 'otherId' };
         expect(() => new UrlDecode(opConfig)).not.toThrow();
@@ -38,8 +36,8 @@ describe('urldecode operator', () => {
 
     it('can urldecode decode fields', () => {
         const opConfig = { source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId' };
-        const test =  new UrlDecode(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
+        const test = new UrlDecode(opConfig);
+        const metaData = { selectors: { 'some:query': true } };
 
         const data1 = new DataEntity({ source: 123423 }, metaData);
         const data2 = new DataEntity({ source: null }, metaData);
@@ -52,7 +50,10 @@ describe('urldecode operator', () => {
         const data9 = new DataEntity({ source: '::' });
         const data10 = new DataEntity({ source: '193.0.0.23' }, metaData);
         const data11 = new DataEntity({ source: 'hello world' }, metaData);
-        const data12 = new DataEntity({ source: ['http:// google.com?q=HELLO%20AND%20GOODBYE', 'http:// other.com?q=Some%20AND%20Things'] }, metaData);
+        const data12 = new DataEntity(
+            { source: ['http:// google.com?q=HELLO%20AND%20GOODBYE', 'http:// other.com?q=Some%20AND%20Things'] },
+            metaData
+        );
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -87,8 +88,8 @@ describe('urldecode operator', () => {
 
     it('can urldecode decode nested fields', () => {
         const opConfig = { source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId' };
-        const test =  new UrlDecode(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
+        const test = new UrlDecode(opConfig);
+        const metaData = { selectors: { 'some:query': true } };
         const url = 'http:// localhost:9200/logstash-2018.7/_search?q=bytes:>500 AND ip:*&pretty&size=10000';
         const encodedUrl = 'http:// localhost:9200/logstash-2018.7/_search?q=bytes:%3E500%20AND%20ip:*&pretty&size=10000';
         const data = new DataEntity({ source: { field: encodedUrl } }, metaData);

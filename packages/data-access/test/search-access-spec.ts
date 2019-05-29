@@ -2,13 +2,7 @@ import 'jest-extended';
 import * as ts from '@terascope/utils';
 import { TypeConfig } from 'xlucene-evaluator';
 import { SearchParams, SearchResponse } from 'elasticsearch';
-import {
-    SearchAccess,
-    View,
-    DataType,
-    InputQuery,
-    SpaceSearchConfig
-} from '../src';
+import { SearchAccess, View, DataType, InputQuery, SpaceSearchConfig } from '../src';
 
 describe('SearchAccess', () => {
     it('should fail if given an invalid search config', () => {
@@ -31,22 +25,14 @@ describe('SearchAccess', () => {
         const searchAccess = makeWith();
         const params: SearchParams = {
             q: 'idk',
-            _sourceInclude: [
-                'moo'
-            ],
-            _sourceExclude: [
-                'baz'
-            ]
+            _sourceInclude: ['moo'],
+            _sourceExclude: ['baz'],
         };
 
         const result = searchAccess.restrictSearchQuery('foo:bar', params);
         expect(result).toMatchObject({
-            _sourceExclude: [
-                'baz'
-            ],
-            _sourceInclude: [
-                'moo'
-            ],
+            _sourceExclude: ['baz'],
+            _sourceInclude: ['moo'],
         });
 
         expect(params).toHaveProperty('q', 'idk');
@@ -58,14 +44,8 @@ describe('SearchAccess', () => {
 
         const result = searchAccess.restrictSearchQuery('foo:bar');
         expect(result).toMatchObject({
-            _sourceExclude: [
-                'bar',
-                'baz'
-            ],
-            _sourceInclude: [
-                'foo',
-                'moo'
-            ],
+            _sourceExclude: ['bar', 'baz'],
+            _sourceInclude: ['foo', 'moo'],
         });
 
         expect(result).not.toHaveProperty('q', 'idk');
@@ -78,7 +58,7 @@ describe('SearchAccess', () => {
 
                 const query: InputQuery = {
                     // @ts-ignore
-                    size: 'ugh' as number
+                    size: 'ugh' as number,
                 };
 
                 expect(() => {
@@ -88,7 +68,7 @@ describe('SearchAccess', () => {
 
             it('should throw an error if given size too large', () => {
                 const searchAccess = makeWith({
-                    max_query_size: 500
+                    max_query_size: 500,
                 });
                 const query: InputQuery = { size: 1000 };
 
@@ -101,7 +81,7 @@ describe('SearchAccess', () => {
                 const searchAccess = makeWith({});
                 const query: InputQuery = {
                     // @ts-ignore
-                    start: 'bah' as number
+                    start: 'bah' as number,
                 };
 
                 expect(() => {
@@ -111,11 +91,11 @@ describe('SearchAccess', () => {
 
             it('should throw an error if given an invalid query', () => {
                 const searchAccess = makeWith({
-                    require_query: true
+                    require_query: true,
                 });
                 const query: InputQuery = {
                     // @ts-ignore
-                    q: null as string
+                    q: null as string,
                 };
 
                 expect(() => {
@@ -125,26 +105,29 @@ describe('SearchAccess', () => {
 
             it('should throw an error if given an invalid sort', () => {
                 const searchAccess = makeWith({
-                    sort_enabled: true
+                    sort_enabled: true,
                 });
 
                 const query: InputQuery = {
-                    sort: 'example:ugh'
+                    sort: 'example:ugh',
                 };
 
                 expect(() => {
                     searchAccess.getSearchParams(query);
-                }).toThrowWithMessage(ts.TSError, 'Invalid sort parameter, must be field_name:asc or field_name:desc, was given: "example:ugh"');
+                }).toThrowWithMessage(
+                    ts.TSError,
+                    'Invalid sort parameter, must be field_name:asc or field_name:desc, was given: "example:ugh"'
+                );
             });
 
             it('should throw an error if given an object as sort', () => {
                 const searchAccess = makeWith({
-                    sort_enabled: true
+                    sort_enabled: true,
                 });
 
                 const query: InputQuery = {
                     // @ts-ignore
-                    sort: { example: true }
+                    sort: { example: true },
                 };
 
                 expect(() => {
@@ -154,41 +137,47 @@ describe('SearchAccess', () => {
 
             it('should throw an error if given an invalid geo_sort_unit param', () => {
                 const searchAccess = makeWith({
-                    default_geo_field: 'hello'
+                    default_geo_field: 'hello',
                 });
 
                 const query: InputQuery = {
                     geo_sort_point: '1,-1',
                     geo_sort_order: 'asc',
-                    geo_sort_unit: 'uhoh'
+                    geo_sort_unit: 'uhoh',
                 };
 
                 expect(() => {
                     searchAccess.getSearchParams(query);
-                }).toThrowWithMessage(ts.TSError, 'Invalid geo_sort_unit parameter, must be one of "mi", "yd", "ft", "km" or "m", was given: "uhoh"');
+                }).toThrowWithMessage(
+                    ts.TSError,
+                    'Invalid geo_sort_unit parameter, must be one of "mi", "yd", "ft", "km" or "m", was given: "uhoh"'
+                );
             });
 
             it('should throw an error if given an invalid sort on date', () => {
                 const searchAccess = makeWith({
                     sort_enabled: true,
                     default_date_field: 'somedate',
-                    sort_dates_only: true
+                    sort_dates_only: true,
                 });
 
                 const query: InputQuery = {
-                    sort: 'WrongDate:asc'
+                    sort: 'WrongDate:asc',
                 };
 
                 expect(() => {
                     searchAccess.getSearchParams(query);
-                }).toThrowWithMessage(ts.TSError, 'Invalid sort parameter, sorting is currently only available for date fields, was given: "WrongDate:asc"');
+                }).toThrowWithMessage(
+                    ts.TSError,
+                    'Invalid sort parameter, sorting is currently only available for date fields, was given: "WrongDate:asc"'
+                );
             });
 
             it('should be able to handle minimal query options', () => {
                 const searchAccess = makeWith({
                     sort_default: 'default:asc',
                     sort_enabled: true,
-                    index: 'woot'
+                    index: 'woot',
                 });
 
                 const query: InputQuery = {
@@ -206,7 +195,7 @@ describe('SearchAccess', () => {
                     q: 'hello',
                     sort: 'example:asc',
                     size: 100,
-                    from: 10
+                    from: 10,
                 });
             });
 
@@ -219,14 +208,17 @@ describe('SearchAccess', () => {
                     fields: 'one, tWo,Three ',
                 };
 
-                const searchAccess = makeWith({
-                    sort_enabled: true,
-                    sort_dates_only: true,
-                    max_query_size: 1000,
-                    index: 'woot'
-                }, {
-                    created: 'date'
-                });
+                const searchAccess = makeWith(
+                    {
+                        sort_enabled: true,
+                        sort_dates_only: true,
+                        max_query_size: 1000,
+                        index: 'woot',
+                    },
+                    {
+                        created: 'date',
+                    }
+                );
 
                 const params = searchAccess.getSearchParams(query);
 
@@ -247,15 +239,18 @@ describe('SearchAccess', () => {
                     q: 'example:hello',
                     geo_sort_point: '33.435518,-111.873616',
                     geo_sort_order: 'desc',
-                    geo_sort_unit: 'm'
+                    geo_sort_unit: 'm',
                 };
 
-                const searchAccess = makeWith({
-                    default_geo_field: 'example_location',
-                    index: 'woot',
-                }, {
-                    created: 'date'
-                });
+                const searchAccess = makeWith(
+                    {
+                        default_geo_field: 'example_location',
+                        index: 'woot',
+                    },
+                    {
+                        created: 'date',
+                    }
+                );
 
                 const params = searchAccess.getSearchParams(query);
 
@@ -265,18 +260,18 @@ describe('SearchAccess', () => {
                             _geo_distance: {
                                 example_location: {
                                     lon: -111.873616,
-                                    lat: 33.435518
+                                    lat: 33.435518,
                                 },
                                 order: 'desc',
-                                unit: 'm'
-                            }
-                        }
+                                unit: 'm',
+                            },
+                        },
                     },
                     ignoreUnavailable: true,
                     index: 'woot',
                     from: 0,
                     q: 'example:hello',
-                    size: 100
+                    size: 100,
                 });
             });
         });
@@ -302,30 +297,30 @@ describe('SearchAccess', () => {
                 const total = 5;
                 const input: unknown = {
                     _shards: {
-                        total: 2
+                        total: 2,
                     },
                     hits: {
-                        hits: ts.times(total, (n) => ({
+                        hits: ts.times(total, n => ({
                             _index: 'example',
                             _source: {
-                                example: n
-                            }
+                                example: n,
+                            },
                         })),
                         total,
-                    }
+                    },
                 };
 
                 const searchAccess = makeWith({
                     index: 'example',
-                    sort_enabled: true
+                    sort_enabled: true,
                 });
 
                 const query = {
-                    sort: 'example:asc'
+                    sort: 'example:asc',
                 };
 
                 const params: SearchParams = {
-                    size: 2
+                    size: 2,
                 };
 
                 const result = searchAccess.getSearchResponse(input as SearchResponse<any>, query, params);
@@ -333,9 +328,9 @@ describe('SearchAccess', () => {
                     total,
                     info: '5 results found. Returning 2.',
                     returning: 2,
-                    results: ts.times(total, (n) => ({
-                        example: n
-                    }))
+                    results: ts.times(total, n => ({
+                        example: n,
+                    })),
                 });
             });
 
@@ -343,31 +338,31 @@ describe('SearchAccess', () => {
                 const total = 5;
                 const input: unknown = {
                     _shards: {
-                        total: 1
+                        total: 1,
                     },
                     hits: {
-                        hits: ts.times(total, (n) => ({
+                        hits: ts.times(total, n => ({
                             _index: 'example',
                             _source: {
-                                example: n
-                            }
+                                example: n,
+                            },
                         })),
                         total,
-                    }
+                    },
                 };
 
                 const searchAccess = makeWith({
                     index: 'example',
                     preserve_index_name: true,
-                    sort_enabled: false
+                    sort_enabled: false,
                 });
 
                 const query = {
-                    sort: 'example:asc'
+                    sort: 'example:asc',
                 };
 
                 const params: SearchParams = {
-                    size: 2
+                    size: 2,
                 };
 
                 const result = searchAccess.getSearchResponse(input as SearchResponse<any>, query, params);
@@ -375,10 +370,10 @@ describe('SearchAccess', () => {
                     total,
                     info: '5 results found. Returning 2. No sorting available.',
                     returning: 2,
-                    results: ts.times(total, (n) => ({
+                    results: ts.times(total, n => ({
                         _index: 'example',
-                        example: n
-                    }))
+                        example: n,
+                    })),
                 });
             });
         });
@@ -391,17 +386,9 @@ function makeWith(searchConfig: Partial<SpaceSearchConfig> = {}, typeConfig: Typ
         id: 'example-view',
         name: 'Example View',
         data_type: 'example-data-type',
-        roles: [
-            'example-role'
-        ],
-        excludes: [
-            'bar',
-            'baz'
-        ],
-        includes: [
-            'foo',
-            'moo'
-        ],
+        roles: ['example-role'],
+        excludes: ['bar', 'baz'],
+        includes: ['foo', 'moo'],
         updated: new Date().toISOString(),
         created: new Date().toISOString(),
     };
@@ -419,11 +406,14 @@ function makeWith(searchConfig: Partial<SpaceSearchConfig> = {}, typeConfig: Typ
         view,
         data_type: dataType,
         space_endpoint: 'example-endpoint',
-        search_config: Object.assign({
-            index: 'example-index'
-        }, searchConfig),
+        search_config: Object.assign(
+            {
+                index: 'example-index',
+            },
+            searchConfig
+        ),
         space_id: 'example-space',
         user_id: 'example-user',
-        role_id: 'example-role'
+        role_id: 'example-role',
     });
 }

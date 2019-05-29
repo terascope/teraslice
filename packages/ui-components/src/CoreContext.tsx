@@ -6,7 +6,6 @@ export const CoreContext = createContext<i.CoreContextState>({
     updateState(updates) {},
 });
 
-
 const CoreContextProvider: React.FC<Props> = ({ children }) => {
     const [state, setState] = useState<i.CoreContextState>({
         authenticated: false,
@@ -17,7 +16,9 @@ const CoreContextProvider: React.FC<Props> = ({ children }) => {
         setState({ ...state, ...updates });
     }
 
-    return <CoreContext.Provider value={state}>{children}</CoreContext.Provider>;
+    return (
+        <CoreContext.Provider value={state}>{children}</CoreContext.Provider>
+    );
 };
 
 type Props = {};

@@ -1,4 +1,3 @@
-
 import _ from 'lodash';
 import { DataEntity } from '@terascope/utils';
 import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces';
@@ -17,8 +16,11 @@ export default class MakeArray extends TransformOpBase {
     protected validateConfig(config: PostProcessConfig) {
         const { target_field: tField } = config;
         const fields = config.fields || config.source_fields;
-        if (!tField || typeof tField !== 'string' || tField.length === 0)  {
-            throw new Error(`could not find target_field for ${this.constructor.name} validation or it is improperly formatted, config: ${JSON.stringify(config)}`);
+        if (!tField || typeof tField !== 'string' || tField.length === 0) {
+            const name = this.constructor.name;
+            throw new Error(
+                `could not find target_field for ${name} validation or it is improperly formatted, config: ${JSON.stringify(config)}`
+            );
         }
         if (!fields || !Array.isArray(fields) || fields.length === 0) {
             throw new Error(`array creation configuration is misconfigured, could not determine fields to join ${JSON.stringify(config)}`);
