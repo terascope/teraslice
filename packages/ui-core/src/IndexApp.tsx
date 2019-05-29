@@ -1,9 +1,7 @@
 import React from 'react';
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from 'react-apollo';
-import { CoreContextProvider, PluginConfig } from '@terascope/ui-components';
-import DataAccessPlugin from './components/data-access';
-import { Welcome } from './components/framework';
+import { CoreContextProvider } from '@terascope/ui-components';
 import CoreRouter from './IndexRouter';
 
 const { REACT_APP_DEV_MODE } = process.env;
@@ -17,25 +15,9 @@ const IndexApp: React.FC = () => {
         credentials: 'include',
     });
 
-    const plugins: PluginConfig[] = [
-        {
-            name: '',
-            access: 'USER',
-            routes: [
-                {
-                    name: 'Home',
-                    path: '/',
-                    icon: 'home',
-                    component: Welcome,
-                },
-            ],
-        },
-        DataAccessPlugin,
-    ];
-
     return (
         <ApolloProvider client={client}>
-            <CoreContextProvider plugins={plugins}>
+            <CoreContextProvider>
                 <CoreRouter />
             </CoreContextProvider>
         </ApolloProvider>

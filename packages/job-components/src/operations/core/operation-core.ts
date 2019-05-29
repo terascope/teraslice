@@ -1,6 +1,14 @@
 import '../../formats'; // require to add the schema formats
 import Core from './core';
-import { ExecutionConfig, WorkerOperationLifeCycle, OpAPI, OpConfig, WorkerContext, DeadLetterAction, DeadLetterAPIFn } from '../../interfaces';
+import {
+    ExecutionConfig,
+    WorkerOperationLifeCycle,
+    OpAPI,
+    OpConfig,
+    WorkerContext,
+    DeadLetterAction,
+    DeadLetterAPIFn,
+} from '../../interfaces';
 
 /**
  * A base class for supporting operations that run on a "Worker",

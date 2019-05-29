@@ -1,4 +1,3 @@
-
 import _ from 'lodash';
 import shortid from 'shortid';
 import { OperationConfigInput, OperationConfig } from '../interfaces';
@@ -16,10 +15,10 @@ export default class RulesParser {
 
     parse(): OperationConfig[] {
         const resultsArray: OperationConfig[] = [];
-        this.configList.forEach((config) => {
+        this.configList.forEach(config => {
             _.set(config, '__id', shortid.generate());
 
-             // if its not set and its not a post process then set the selecter to *
+            // if its not set and its not a post process then set the selecter to *
             if (needsDefaultSelector(config)) config.selector = '*';
 
             if (config.tag) {
@@ -28,12 +27,15 @@ export default class RulesParser {
             }
 
             if (isDeprecatedCompactConfig(config)) {
-                const errStr = `format error for config: ${JSON.stringify(config)}. Please separate post_process/validations out to their own configs and use tag/follow semantics`;
+                const errStr = [
+                    'format error for config: ',
+                    JSON.stringify(config),
+                    '. Please separate post_process/validations out to their own configs and use tag/follow semantics`',
+                ].join('');
                 throw new Error(errStr);
             } else {
                 resultsArray.push(config as OperationConfig);
             }
-
         });
         return resultsArray;
     }

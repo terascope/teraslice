@@ -650,7 +650,10 @@ describe('Spaces API', () => {
         `;
 
         // @ts-ignore
-        const [{ [space1]: results1 }, { [space2]: results2 }] = await Promise.all([fullRoleClient.request(query1), limitedRoleClient.request(query2)]);
+        const [{ [space1]: results1 }, { [space2]: results2 }] = await Promise.all([
+            fullRoleClient.request(query1),
+            limitedRoleClient.request(query2),
+        ]);
 
         expect(results1).toBeArrayOfSize(1);
         expect(results1[0].bytes).toBeDefined();
@@ -793,29 +796,34 @@ describe('Spaces API', () => {
                 }
             `;
 
+        const locationQuery = 'location:(_geo_box_top_left_:\\"83.906320,-100.058902\\" _geo_box_bottom_right_:\\"80.813646,-97.758421\\")';
         const query3 = `
-                query {
-                    ${space2}(query: "location:(_geo_box_top_left_:\\"83.906320,-100.058902\\" _geo_box_bottom_right_:\\"80.813646,-97.758421\\")", size: 2){
-                        bytes,
-                        location {
-                            lat,
-                            lon
-                        }
+            query {
+                ${space2}(query: "${locationQuery}", size: 2){
+                    bytes,
+                    location {
+                        lat,
+                        lon
                     }
                 }
-            `;
+            }
+        `;
 
         function getDateTime(date: string) {
             return new Date(date).getTime();
         }
 
-        const finalResults1 = space1Data.filter(data => data.ipv6 === 'ab88:805e:55db:0750:b143:61ce:e07a:7180').map(obj => ({ bytes: obj.bytes, url: obj.url }));
+        const finalResults1 = space1Data
+            .filter(data => data.ipv6 === 'ab88:805e:55db:0750:b143:61ce:e07a:7180')
+            .map(obj => ({ bytes: obj.bytes, url: obj.url }));
 
         const finalResults2 = space2Data
             .filter(data => getDateTime(data.created) >= getDateTime('2019-04-26T08:00:00.000-07:00'))
             .map(obj => ({ bytes: obj.bytes, bool: obj.bool }));
 
-        const finalResults3 = space2Data.filter(data => data.location.lat === '81.90873').map(obj => ({ bytes: obj.bytes, location: obj.location }));
+        const finalResults3 = space2Data
+            .filter(data => data.location.lat === '81.90873')
+            .map(obj => ({ bytes: obj.bytes, location: obj.location }));
 
         const [
             // @ts-ignore

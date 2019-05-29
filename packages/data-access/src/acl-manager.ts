@@ -34,14 +34,26 @@ export class ACLManager {
      * Initialize all index stores
      */
     async initialize() {
-        await Promise.all([this._roles.initialize(), this._spaces.initialize(), this._users.initialize(), this._views.initialize(), this._dataTypes.initialize()]);
+        await Promise.all([
+            this._roles.initialize(),
+            this._spaces.initialize(),
+            this._users.initialize(),
+            this._views.initialize(),
+            this._dataTypes.initialize(),
+        ]);
     }
 
     /**
      * Shutdown all index stores
      */
     async shutdown() {
-        await Promise.all([this._roles.shutdown(), this._spaces.shutdown(), this._users.shutdown(), this._views.shutdown(), this._dataTypes.shutdown()]);
+        await Promise.all([
+            this._roles.shutdown(),
+            this._spaces.shutdown(),
+            this._users.shutdown(),
+            this._views.shutdown(),
+            this._dataTypes.shutdown(),
+        ]);
     }
 
     /**
@@ -199,7 +211,11 @@ export class ACLManager {
         const exists = await this._roles.exists(args.id);
         if (!exists) return false;
 
-        await Promise.all([this._views.removeRoleFromViews(args.id), this._users.removeRoleFromUsers(args.id), this._roles.deleteById(args.id)]);
+        await Promise.all([
+            this._views.removeRoleFromViews(args.id),
+            this._users.removeRoleFromUsers(args.id),
+            this._roles.deleteById(args.id),
+        ]);
 
         return true;
     }
@@ -628,7 +644,10 @@ export class ACLManager {
         return authUser.client_id;
     }
 
-    private async _getCurrentUserInfo(authUser: i.AuthUser, user: Partial<models.User>): Promise<{ client_id: number; type: models.UserType }> {
+    private async _getCurrentUserInfo(
+        authUser: i.AuthUser,
+        user: Partial<models.User>
+    ): Promise<{ client_id: number; type: models.UserType }> {
         let currentUser: i.AuthUser;
         if (!user.id) {
             currentUser = user as models.User;

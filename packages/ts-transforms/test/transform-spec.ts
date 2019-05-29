@@ -7,14 +7,13 @@ import { WatcherConfig } from '../src';
 import Plugins from './fixtures/plugins';
 
 describe('can transform matches', () => {
-
     let opTest: TestHarness;
 
     beforeEach(() => {
         opTest = new TestHarness('transform');
     });
 
-    function getPath(fileName:string) {
+    function getPath(fileName: string) {
         return path.join(__dirname, `./fixtures/${fileName}`);
     }
 
@@ -26,7 +25,7 @@ describe('can transform matches', () => {
     it('it can transform matching data', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules1.txt')],
-            types: { _created: 'date' }
+            types: { _created: 'date' },
         };
 
         const data = DataEntity.makeArray([
@@ -34,14 +33,14 @@ describe('can transform matches', () => {
             { some: 'data', bytes: 200 },
             { some: 'other', bytes: 1200 },
             { other: 'xabcd', myfield: 'hello' },
-            { _created: '2018-12-16T15:16:09.076Z', myfield: 'hello' }
+            { _created: '2018-12-16T15:16:09.076Z', myfield: 'hello' },
         ]);
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results.length).toEqual(1);
-        _.each(results, (data) => {
+        _.each(results, data => {
             expect(DataEntity.isDataEntity(data)).toEqual(true);
             expect(_.get(data, 'topfield.value1')).toEqual('hello');
             expect(data.getMetadata('selectors')).toBeDefined();
@@ -51,17 +50,17 @@ describe('can transform matches', () => {
     it('can uses typeConifg', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules1.txt')],
-            types: { location: 'geo' }
+            types: { location: 'geo' },
         };
 
         const data = DataEntity.makeArray([
             { hostname: 'www.other.com', location: '33.435967,  -111.867710 ' }, //  true
             { hostname: 'www.other.com', location: '33.435967412341452595678,  -111.8677102345324523452345467456 ' }, //  true
-            { hostname: 'www.example.com', location: '22.435967,-150.867710' }  //  false
+            { hostname: 'www.example.com', location: '22.435967,-150.867710' }, //  false
         ]);
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results.length).toEqual(2);
         expect(results[0]).toEqual({ point: data[0].location });
@@ -70,17 +69,13 @@ describe('can transform matches', () => {
 
     it('it can transform matching data with no selector', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules3.txt')]
+            rules: [getPath('transformRules3.txt')],
         };
 
-        const data = DataEntity.makeArray([
-           { data: 'someData' },
-           { data: 'otherData' },
-           {}
-        ]);
+        const data = DataEntity.makeArray([{ data: 'someData' }, { data: 'otherData' }, {}]);
         const resultSet = data.map(obj => obj.data);
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results.length).toEqual(2);
         _.each(results, (data, index) => {
@@ -92,17 +87,17 @@ describe('can transform matches', () => {
 
     it('can work with regex transform queries', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules1.txt')]
+            rules: [getPath('transformRules1.txt')],
         };
 
         const data = DataEntity.makeArray([
             { some: 'data', someField: 'something' },
-            { some: 'data', someField: 'otherthing' },   //  should not return anyting
-            { some: 'data' },    //  should not return anyting
+            { some: 'data', someField: 'otherthing' }, //  should not return anyting
+            { some: 'data' }, //  should not return anyting
         ]);
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
         //  NOTE:   'regex': 'some.*?$' will give you the entire matched string => wholeRegexResponse
         //  NOTE:   'regex': 'some(.*?)$' will give you the captured part of the string => partRegexResponse
 
@@ -112,24 +107,20 @@ describe('can transform matches', () => {
 
     it('can extract using start/end', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules1.txt')]
+            rules: [getPath('transformRules1.txt')],
         };
 
-        const data1 = DataEntity.makeArray([
-            { some: 'data', bytes: 1200 , myfield: 'http:// google.com?field1=helloThere&other=things' },
-        ]);
+        const data1 = DataEntity.makeArray([{ some: 'data', bytes: 1200, myfield: 'http:// google.com?field1=helloThere&other=things' }]);
 
-        const data2 = DataEntity.makeArray([
-                { some: 'data', bytes: 1200 , myfield: 'http:// google.com?field1=helloThere' },
-        ]);
+        const data2 = DataEntity.makeArray([{ some: 'data', bytes: 1200, myfield: 'http:// google.com?field1=helloThere' }]);
 
         const test = await opTest.init(config);
-        const results1 =  await test.run(data1);
+        const results1 = await test.run(data1);
 
         expect(results1.length).toEqual(1);
         expect(results1[0]).toEqual({ topfield: { value1: 'helloThere' } });
 
-        const results2 =  await test.run(data2);
+        const results2 = await test.run(data2);
 
         expect(results2.length).toEqual(1);
         expect(results2[0]).toEqual({ topfield: { value1: 'helloThere' } });
@@ -137,20 +128,18 @@ describe('can transform matches', () => {
 
     it('can extract using start/end on fields that are arrays', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules10.txt')]
+            rules: [getPath('transformRules10.txt')],
         };
         const urls = [
             'http:// www.example.com/path?field1=blah',
             'http:// www.example.com/path?field2=moreblah',
-            'http:// www.example.com/path?field3=evenmoreblah'
+            'http:// www.example.com/path?field3=evenmoreblah',
         ];
 
-        const data = DataEntity.makeArray([
-            { domain: 'example.com', url: urls },
-        ]);
+        const data = DataEntity.makeArray([{ domain: 'example.com', url: urls }]);
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ field1: ['blah'], field2: ['moreblah'], field3: ['evenmoreblah'] });
@@ -159,17 +148,27 @@ describe('can transform matches', () => {
 
     it('can merge extacted results', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules1.txt')]
+            rules: [getPath('transformRules1.txt')],
         };
 
         const data = DataEntity.makeArray([
-            { hostname: 'www.example.com', pathLat: '/path/tiles/latitude/33.435967', pathLon: '/path/tiles/longitude/-111.867710' }, //  true
-            { hostname: 'www.other.com', location: '33.435967,  -111.867710 ' }, //  false
-            { hostname: 'www.example.com', location: '22.435967,-150.867710' }  //  false
+            {
+                hostname: 'www.example.com',
+                pathLat: '/path/tiles/latitude/33.435967',
+                pathLon: '/path/tiles/longitude/-111.867710',
+            }, //  true
+            {
+                hostname: 'www.other.com',
+                location: '33.435967,  -111.867710 ',
+            }, //  false
+            {
+                hostname: 'www.example.com',
+                location: '22.435967,-150.867710',
+            }, //  false
         ]);
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results).toBeArrayOfSize(2);
         expect(results[0]).toEqual({ location: { lat: '33.435967', lon: '-111.867710' } });
@@ -178,15 +177,13 @@ describe('can transform matches', () => {
 
     it('can use post process operations', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules2.txt')]
+            rules: [getPath('transformRules2.txt')],
         };
 
-        const data = DataEntity.makeArray([
-            { hello: 'world', first: 'John', last: 'Doe' }
-        ]);
+        const data = DataEntity.makeArray([{ hello: 'world', first: 'John', last: 'Doe' }]);
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ full_name: 'John Doe' });
@@ -194,50 +191,44 @@ describe('can transform matches', () => {
 
     it('false validations remove the fields', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules2.txt')]
+            rules: [getPath('transformRules2.txt')],
         };
 
-        const data = DataEntity.makeArray([
-            { geo: true, lat: '2233', other: 'data' },
-            { geo: true, lon: '2233' }
-        ]);
+        const data = DataEntity.makeArray([{ geo: true, lat: '2233', other: 'data' }, { geo: true, lon: '2233' }]);
 
-        const data2 = DataEntity.makeArray([
-            { geo: true, lat: '2233' },
-            { geo: true, lon: '2233' }
-        ]);
+        const data2 = DataEntity.makeArray([{ geo: true, lat: '2233' }, { geo: true, lon: '2233' }]);
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ other: 'data' });
 
-        const results2 =  await test.run(data2);
+        const results2 = await test.run(data2);
         expect(results2).toEqual([]);
     });
 
     it('refs can target the right field', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules4.txt')]
+            rules: [getPath('transformRules4.txt')],
         };
 
         const data = DataEntity.makeArray([
             { hello: 'world', lat: 23.423, lon: 93.33, first: 'John', last: 'Doe' }, //  all good
             { hello: 'world', lat: 123.423, lon: 93.33, first: 'John', last: 'Doe' }, //  bad geo
             { hello: 'world', lat: 123.423, lon: 93.33, first: 'John', last: 'Doe' }, //  bad geo
-            { hello: 'world', lat: 23.423, lon: 93.33, full_name: 3243423 } //  full_name is not string
+            { hello: 'world', lat: 23.423, lon: 93.33, full_name: 3243423 }, //  full_name is not string
         ]);
 
         const resultSet = [
             { location: { lat: 23.423, lon: 93.33 }, first_name: 'John', last_name: 'Doe', full_name: 'John Doe' },
             { first_name: 'John', last_name: 'Doe', full_name: 'John Doe' },
             { first_name: 'John', last_name: 'Doe', full_name: 'John Doe' },
-            { location: { lat: 23.423, lon: 93.33 } }
+            { location: { lat: 23.423, lon: 93.33 } },
         ];
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         _.each(results, (data, index) => {
             expect(DataEntity.isDataEntity(data)).toEqual(true);
@@ -246,20 +237,20 @@ describe('can transform matches', () => {
         });
     });
 
-    it('can chain selection => transform => selection', async() => {
+    it('can chain selection => transform => selection', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules5.txt')]
+            rules: [getPath('transformRules5.txt')],
         };
 
         const data = DataEntity.makeArray([
-            { hello: 'world',  first: 'John', last: 'Doe' },
-            { hello: 'world',  first: 'Jane', last: 'Austin' },
-            { hello: 'world',  first: 'Jane', last: 'Doe' },
-            { hello: 'world' }
+            { hello: 'world', first: 'John', last: 'Doe' },
+            { hello: 'world', first: 'Jane', last: 'Austin' },
+            { hello: 'world', first: 'Jane', last: 'Doe' },
+            { hello: 'world' },
         ]);
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ first_name: 'Jane', last_name: 'Doe', full_name: 'Jane Doe' });
@@ -268,36 +259,36 @@ describe('can transform matches', () => {
         expect(metaData.selectors).toEqual(['hello:world', 'full_name:"Jane Doe"']);
     });
 
-    it('can chain selection => transform => selection => transform', async() => {
+    it('can chain selection => transform => selection => transform', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules6.txt')]
+            rules: [getPath('transformRules6.txt')],
         };
 
         const data = DataEntity.makeArray([
-            { hello: 'world',  first: 'John', last: 'Doe' },
-            { hello: 'world',  first: 'Jane', last: 'Austin' },
-            { hello: 'world',  first: 'Jane', last: 'Doe' },
-            { hello: 'world' }
+            { hello: 'world', first: 'John', last: 'Doe' },
+            { hello: 'world', first: 'Jane', last: 'Austin' },
+            { hello: 'world', first: 'Jane', last: 'Doe' },
+            { hello: 'world' },
         ]);
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({
             first_name: 'Jane',
             full_name: 'Jane Doe',
             last_name: 'Doe',
-            transfered_name: 'Jane Doe'
+            transfered_name: 'Jane Doe',
         });
 
         const metaData = results[0].getMetadata();
         expect(metaData.selectors).toEqual(['hello:world', 'full_name:"Jane Doe"']);
     });
 
-    it('can chain selection => validation => post_process', async() => {
+    it('can chain selection => validation => post_process', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules26.txt')]
+            rules: [getPath('transformRules26.txt')],
         };
 
         const data = DataEntity.makeArray([
@@ -307,34 +298,34 @@ describe('can transform matches', () => {
         ]);
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results.length).toEqual(2);
         expect(results[0]).toEqual({ newField: 'some@gmail.com', final: ['gmail'] });
         expect(results[1]).toEqual({ newField: 'other@tera.io', final: ['tera'] });
     });
 
-    it('validations work with the different ways to configure them', async() => {
+    it('validations work with the different ways to configure them', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules7.txt')]
+            rules: [getPath('transformRules7.txt')],
         };
 
         const config2: WatcherConfig = {
-            rules: [getPath('transformRules8.txt')]
+            rules: [getPath('transformRules8.txt')],
         };
 
         const config3: WatcherConfig = {
-            rules: [getPath('transformRules9.txt')]
+            rules: [getPath('transformRules9.txt')],
         };
 
         const data = [
             { hello: 'world', txt: 'first' },
-            { hello: 'world',  txt: 'second' },
+            { hello: 'world', txt: 'second' },
             { hello: 'world', txt: 'third' },
-            { hello: 'world' }
+            { hello: 'world' },
         ];
 
-        const transformedData = data.map((doc) => {
+        const transformedData = data.map(doc => {
             if (doc.txt) {
                 const txt = Buffer.from(doc.txt).toString('hex');
                 return Object.assign({}, doc, { txt });
@@ -349,7 +340,7 @@ describe('can transform matches', () => {
         const data3 = DataEntity.makeArray(_.cloneDeep(transformedData));
 
         const test1 = await opTest.init(config);
-        const results1 =  await test1.run(data1);
+        const results1 = await test1.run(data1);
 
         expect(results1.length).toEqual(3);
         _.each(results1, (result, ind) => {
@@ -358,7 +349,7 @@ describe('can transform matches', () => {
         });
 
         const test2 = await opTest.init(config2);
-        const results2 =  await test2.run(data2);
+        const results2 = await test2.run(data2);
 
         expect(results2.length).toEqual(3);
         _.each(results2, (result, ind) => {
@@ -367,7 +358,7 @@ describe('can transform matches', () => {
         });
 
         const test3 = await opTest.init(config3);
-        const results3 =  await test3.run(data3);
+        const results3 = await test3.run(data3);
 
         expect(results3.length).toEqual(3);
         _.each(results3, (result, ind) => {
@@ -378,17 +369,17 @@ describe('can transform matches', () => {
 
     it('can target multiple transforms on the same field', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules10.txt')]
+            rules: [getPath('transformRules10.txt')],
         };
 
         const data = DataEntity.makeArray([
             { domain: 'example.com', url: 'http:// www.example.com/path?field1=blah&field2=moreblah&field3=evenmoreblah' },
             { domain: 'other.com', url: 'http:// www.example.com/path?field1=blah&field2=moreblah&field3=evenmoreblah' },
-            { domain: 'example.com', url: 'http:// www.example.com/path?field5=blah&field6=moreblah&field7=evenmoreblah' }
+            { domain: 'example.com', url: 'http:// www.example.com/path?field5=blah&field6=moreblah&field7=evenmoreblah' },
         ]);
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ field1: 'blah', field2: 'moreblah', field3: 'evenmoreblah' });
@@ -397,11 +388,11 @@ describe('can transform matches', () => {
 
     it('can run the two variations of the same config', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules11.txt')]
+            rules: [getPath('transformRules11.txt')],
         };
 
         const config2: WatcherConfig = {
-            rules: [getPath('transformRules12.txt')]
+            rules: [getPath('transformRules12.txt')],
         };
 
         const formatedWord = Buffer.from('evenmoreblah').toString('base64');
@@ -410,21 +401,21 @@ describe('can transform matches', () => {
         const data = [
             { domain: 'example.com', url },
             { domain: 'other.com', url },
-            { domain: 'example.com', url: 'http:// www.example.com/path?field5=blah&field6=moreblah&field7=evenmoreblah' }
+            { domain: 'example.com', url: 'http:// www.example.com/path?field5=blah&field6=moreblah&field7=evenmoreblah' },
         ];
 
         const data1 = DataEntity.makeArray(_.cloneDeep(data));
         const data2 = DataEntity.makeArray(_.cloneDeep(data));
 
         const test1 = await opTest.init(config);
-        const results1 =  await test1.run(data1);
+        const results1 = await test1.run(data1);
 
         expect(results1.length).toEqual(1);
         expect(results1[0]).toEqual({ field3: 'evenmoreblah' });
         expect(DataEntity.isDataEntity(results1[0])).toEqual(true);
 
         const test2 = await opTest.init(config2);
-        const results2 =  await test2.run(data2);
+        const results2 = await test2.run(data2);
 
         expect(results2.length).toEqual(1);
         expect(results2[0]).toEqual({ field3: 'evenmoreblah' });
@@ -433,18 +424,12 @@ describe('can transform matches', () => {
 
     it('do more basic extractions', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules13.txt')]
+            rules: [getPath('transformRules13.txt')],
         };
 
-        const data = DataEntity.makeArray([
-           { hello: 'world', data: 'someData' },
-           { hello: 'world', data: 'otherData' }
-        ]);
+        const data = DataEntity.makeArray([{ hello: 'world', data: 'someData' }, { hello: 'world', data: 'otherData' }]);
 
-        const resultSet =  [
-            { other: 'someData' },
-            { other: 'otherData' }
-        ];
+        const resultSet = [{ other: 'someData' }, { other: 'otherData' }];
 
         const test = await opTest.init(config);
         const results = await test.run(data);
@@ -458,105 +443,112 @@ describe('can transform matches', () => {
 
     it('it can transform data if previous transforms had occured', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules14.txt')]
+            rules: [getPath('transformRules14.txt')],
         };
 
         const date = new Date().toISOString();
         const key = '123456789';
 
         const data = DataEntity.makeArray([
-            { domain: 'example.com', url: 'http:// www.example.com/path?value=blah&value2=moreblah&value3=evenmoreblah' , date, key },
+            { domain: 'example.com', url: 'http:// www.example.com/path?value=blah&value2=moreblah&value3=evenmoreblah', date, key },
         ]);
 
         // should not expect anything back
-        const data2 = DataEntity.makeArray([
-            { domain: 'example.com', hello: 'world', data: 'otherData', date, key },
-            {}
-        ]);
+        const data2 = DataEntity.makeArray([{ domain: 'example.com', hello: 'world', data: 'otherData', date, key }, {}]);
 
         // should not expect anything back
         const data3 = DataEntity.makeArray([
             { domain: 'example.com', url: 'http:// www.example.com/path?value=blah&value2=moreblah&value3=evenmoreblah', date },
-            {}
+            {},
         ]);
 
         const test1 = await opTest.init(config);
-        const results1 =  await test1.run(data);
+        const results1 = await test1.run(data);
 
         expect(results1.length).toEqual(1);
         expect(results1[0]).toEqual({
             value: 'blah',
             value2: 'moreblah',
             key,
-            date
+            date,
         });
 
         const test2 = await opTest.init(config);
-        const results2 =  await test2.run(data2);
+        const results2 = await test2.run(data2);
 
         expect(results2.length).toEqual(0);
         expect(results2).toEqual([]);
 
         const test3 = await opTest.init(config);
-        const results3 =  await test3.run(data3);
+        const results3 = await test3.run(data3);
 
         expect(results3.length).toEqual(1);
         expect(results3[0]).toEqual({
             value: 'blah',
             value2: 'moreblah',
-            date
+            date,
         });
     });
 
     it('it can transform data if previous transforms had occured with other post_processing', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules15.txt')]
+            rules: [getPath('transformRules15.txt')],
         };
 
         const date = new Date().toISOString();
         const key = '123456789';
 
         const data = DataEntity.makeArray([
-            { host: 'fc2.com', field1: `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah` , date, key },
+            {
+                host: 'fc2.com',
+                field1: `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah`,
+                date,
+                key,
+            },
             { host: 'fc2.com', key, date },
             { host: 'fc2.com', field1: 'someRandomStr', key, date },
-            { host: 'fc2.com', field1: ['someRandomStr', `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah`], key, date }
+            {
+                host: 'fc2.com',
+                field1: [
+                    'someRandomStr',
+                    `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah`,
+                ],
+                key,
+                date,
+            },
         ]);
 
         // should not expect anything back
-        const data2 = DataEntity.makeArray([
-            { domain: 'example.com', hello: 'world', data: 'otherData', date, key },
-            {}
-        ]);
+        const data2 = DataEntity.makeArray([{ domain: 'example.com', hello: 'world', data: 'otherData', date, key }, {}]);
 
         // should not expect anything back
         const data3 = DataEntity.makeArray([
             { domain: 'example.com', url: 'http://www.example.com/path?value=blah&value2=moreblah&value3=evenmoreblah', date },
-            {}
+            {},
         ]);
 
         const test1 = await opTest.init(config);
-        const results1 =  await test1.run(data);
+        const results1 = await test1.run(data);
 
         expect(results1.length).toEqual(2);
         expect(results1[0]).toEqual({
             field1: key,
-            date
+            date,
         });
 
         expect(results1[1]).toEqual({
             field1: [key],
-            date
+            date,
         });
 
         const test2 = await opTest.init(config);
-        const results2 =  await test2.run(data2);
+        const results2 = await test2.run(data2);
 
         expect(results2.length).toEqual(0);
         expect(results2).toEqual([]);
 
         const test3 = await opTest.init(config);
-        const results3 =  await test3.run(data3);
+        const results3 = await test3.run(data3);
 
         expect(results3.length).toEqual(0);
         expect(results3).toEqual([]);
@@ -564,87 +556,106 @@ describe('can transform matches', () => {
 
     it('it works like the test before but with different config layout', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules16.txt')]
+            rules: [getPath('transformRules16.txt')],
         };
 
         const date = new Date().toISOString();
         const key = '123456789';
 
         const data = DataEntity.makeArray([
-            { host: 'fc2.com', field1: `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah`, date, key },
+            {
+                host: 'fc2.com',
+                field1: `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah`,
+                date,
+                key,
+            },
             { host: 'fc2.com', key, date },
             { host: 'fc2.com', field1: 'someRandomStr', key, date },
-            { host: 'fc2.com', field1: ['someRandomStr', `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah`], key, date },
-            { date, other: 'things' }
+            {
+                host: 'fc2.com',
+                field1: [
+                    'someRandomStr',
+                    `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah`,
+                ],
+                key,
+                date,
+            },
+            { date, other: 'things' },
         ]);
 
         // should not expect anything back
-        const data2 = DataEntity.makeArray([
-            { domain: 'example.com', hello: 'world', data: 'otherData', date, key },
-            {}
-        ]);
+        const data2 = DataEntity.makeArray([{ domain: 'example.com', hello: 'world', data: 'otherData', date, key }, {}]);
 
         // should not expect anything back
         const data3 = DataEntity.makeArray([
             { domain: 'example.com', url: 'http://www.example.com/path?value=blah&value2=moreblah&value3=evenmoreblah', date },
-            {}
+            {},
         ]);
 
         const test1 = await opTest.init(config);
-        const results1 =  await test1.run(data);
+        const results1 = await test1.run(data);
 
         expect(results1.length).toEqual(2);
         expect(results1[0]).toEqual({
             field1: key,
-            date
+            date,
         });
 
         expect(results1[1]).toEqual({
             field1: [key],
-            date
+            date,
         });
 
         const test2 = await opTest.init(config);
-        const results2 =  await test2.run(data2);
+        const results2 = await test2.run(data2);
 
         expect(results2.length).toEqual(0);
         expect(results2).toEqual([]);
 
         const test3 = await opTest.init(config);
-        const results3 =  await test3.run(data3);
+        const results3 = await test3.run(data3);
 
         expect(results3.length).toEqual(0);
         expect(results3).toEqual([]);
     });
 
-    it('chaining configurations sample 1', async() => {
+    it('chaining configurations sample 1', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules17.txt')]
+            rules: [getPath('transformRules17.txt')],
         };
         const key = '123456789';
 
         const data = DataEntity.makeArray([
-            { host: 'example.com', field1: `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah` },
+            {
+                host: 'example.com',
+                field1: `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah`,
+            },
             { host: 'example.com' },
             { host: 'example.com', field1: 'someRandomStr' },
-            { host: 'example.com', field1: ['someRandomStr', `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah`] }
+            {
+                host: 'example.com',
+                field1: [
+                    'someRandomStr',
+                    `http://www.example.com/path?field1=${encode(key, 'base64')}&value2=moreblah&value3=evenmoreblah`,
+                ],
+            },
         ]);
 
         const test1 = await opTest.init(config);
-        const results1 =  await test1.run(data);
+        const results1 = await test1.run(data);
 
         expect(results1.length).toEqual(2);
         expect(results1[0]).toEqual({
-            field1: key
+            field1: key,
         });
         expect(results1[1]).toEqual({
             field1: [key],
         });
     });
 
-    it('build an array with post_process array', async() => {
+    it('build an array with post_process array', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules19.txt')]
+            rules: [getPath('transformRules19.txt')],
         };
         const key = '123456789';
 
@@ -654,38 +665,41 @@ describe('can transform matches', () => {
         ]);
 
         const test1 = await opTest.init(config);
-        const results1 =  await test1.run(data);
+        const results1 = await test1.run(data);
 
         expect(results1.length).toEqual(1);
         expect(results1[0]).toEqual({
-            myfield: [key, 'moreblah']
+            myfield: [key, 'moreblah'],
         });
     });
 
-    it('build an array with post_process array with validations', async() => {
+    it('build an array with post_process array with validations', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules20.txt')]
+            rules: [getPath('transformRules20.txt')],
         };
         const key = '123456789';
 
         const data = DataEntity.makeArray([
             { selectfield: 'value' },
-            { selectfield: 'value', url: `http://www.example.com/path?field1=${key}&field2=moreblah&field3=evenmoreblah&field4=finalCountdown` },
+            {
+                selectfield: 'value',
+                url: `http://www.example.com/path?field1=${key}&field2=moreblah&field3=evenmoreblah&field4=finalCountdown`,
+            },
         ]);
 
         const test1 = await opTest.init(config);
-        const results1 =  await test1.run(data);
+        const results1 = await test1.run(data);
 
         expect(results1.length).toEqual(1);
         expect(results1[0]).toEqual({
             firstSet: [Number(key), 'moreblah'],
-            secondSet: ['evenmoreblah', 'finalCountdown']
+            secondSet: ['evenmoreblah', 'finalCountdown'],
         });
     });
 
-    it('can load plugins', async() => {
+    it('can load plugins', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules18.txt')]
+            rules: [getPath('transformRules18.txt')],
         };
         const key = '123456789';
 
@@ -693,16 +707,19 @@ describe('can transform matches', () => {
             { host: 'example.com', field1: `http://www.example.com/path?field1=${key}&value2=moreblah&value3=evenmoreblah` },
             { host: 'example.com' },
             { host: 'example.com', field1: 'someRandomStr' },
-            { host: 'example.com', field1: ['someRandomStr', `http://www.example.com/path?field1=${key}&value2=moreblah&value3=evenmoreblah`] },
-            { size: 2 }
+            {
+                host: 'example.com',
+                field1: ['someRandomStr', `http://www.example.com/path?field1=${key}&value2=moreblah&value3=evenmoreblah`],
+            },
+            { size: 2 },
         ]);
         // @ts-ignore
         const test1 = await opTest.init(config, [Plugins]);
-        const results1 =  await test1.run(data);
+        const results1 = await test1.run(data);
 
         expect(results1.length).toEqual(3);
         expect(results1[0]).toEqual({
-            field1: key
+            field1: key,
         });
         expect(results1[1]).toEqual({
             field1: [key],
@@ -713,46 +730,44 @@ describe('can transform matches', () => {
     });
 
     it('can extract json and omit intermediate fields', async () => {
-
         const config: WatcherConfig = {
-            rules: [getPath('transformRules21.txt')]
+            rules: [getPath('transformRules21.txt')],
         };
 
         const data = [
             new DataEntity({ some: 'value', field: JSON.stringify('something') }),
-            new DataEntity({ some: 'value', field: JSON.stringify({ field: 'value' }) })
+            new DataEntity({ some: 'value', field: JSON.stringify({ field: 'value' }) }),
         ];
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ myfield: 'value' });
     });
 
     it('can run and omit fields', async () => {
-
         const config: WatcherConfig = {
-            rules: [getPath('transformRules22.txt')]
+            rules: [getPath('transformRules22.txt')],
         };
 
         const data = [
             new DataEntity({ some: 'value', field: 'something' }),
             new DataEntity({ some: 'value', field: 'null' }),
-            new DataEntity({ some: 'value', field: 'otherthing' })
+            new DataEntity({ some: 'value', field: 'otherthing' }),
         ];
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results.length).toEqual(2);
         expect(results[0]).toEqual({ newField: 'something' });
         expect(results[1]).toEqual({ newField: 'otherthing' });
     });
 
-    it('other_match_required can have selectors to narrow their fields', async() => {
+    it('other_match_required can have selectors to narrow their fields', async () => {
         const config: WatcherConfig = {
-            rules: [getPath('transformRules24.txt')]
+            rules: [getPath('transformRules24.txt')],
         };
 
         const date = new Date().toISOString();
@@ -762,14 +777,14 @@ describe('can transform matches', () => {
             { some: 'value', input: 'stuff' },
             { some: 'value', date },
             { some: 'value', input: 'stuff', date },
-            { some: 'value', input: 'stuff', date, key }
+            { some: 'value', input: 'stuff', date, key },
         ]);
 
         const data2 = DataEntity.makeArray([
             { other: 'value', other_input: 'stuff' },
             { other: 'value', date },
             { other: 'value', other_input: 'stuff', date },
-            { other: 'value', other_input: 'stuff', date, key }
+            { other: 'value', other_input: 'stuff', date, key },
         ]);
 
         const data1Results = data1.reduce<object[]>((arr, obj) => {
@@ -794,7 +809,7 @@ describe('can transform matches', () => {
         }, []);
 
         const test = await opTest.init(config);
-        const results1 =  await test.run(data1);
+        const results1 = await test.run(data1);
 
         expect(results1.length).toEqual(3);
         results1.forEach((result, ind) => {
@@ -802,7 +817,7 @@ describe('can transform matches', () => {
         });
 
         const test2 = await opTest.init(config);
-        const results2 =  await test2.run(data2);
+        const results2 = await test2.run(data2);
 
         expect(results2.length).toEqual(3);
         results2.forEach((result, ind) => {
@@ -811,9 +826,8 @@ describe('can transform matches', () => {
     });
 
     it('can run a regression test1', async () => {
-
         const config: WatcherConfig = {
-            rules: [getPath('transformRules23.txt')]
+            rules: [getPath('transformRules23.txt')],
         };
 
         const data = [
@@ -822,34 +836,29 @@ describe('can transform matches', () => {
         ];
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ hashoutput: { some: 'data' } });
     });
 
     it('can run a array post_process operation', async () => {
-
         const config: WatcherConfig = {
-            rules: [getPath('transformRules28.txt')]
+            rules: [getPath('transformRules28.txt')],
         };
 
-        const data = [
-            new DataEntity({ hello: 'world', field1: 'hello', field2: 'world' }),
-            new DataEntity({ field: 'null' }),
-        ];
+        const data = [new DataEntity({ hello: 'world', field1: 'hello', field2: 'world' }), new DataEntity({ field: 'null' })];
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ results: ['hello', 'world'] });
     });
 
     it('can run a dedup post_process operation', async () => {
-
         const config: WatcherConfig = {
-            rules: [getPath('transformRules29.txt')]
+            rules: [getPath('transformRules29.txt')],
         };
 
         const data = [
@@ -858,35 +867,31 @@ describe('can transform matches', () => {
         ];
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ results: ['hello', 'world'] });
     });
 
     it('can run multivalue on two different post_process extractions', async () => {
-
         const config: WatcherConfig = {
-            rules: [getPath('transformRules25.txt')]
+            rules: [getPath('transformRules25.txt')],
         };
 
-        const data = [
-            new DataEntity({ some: 'value', other: 'some_data' }),
-        ];
+        const data = [new DataEntity({ some: 'value', other: 'some_data' })];
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results[0]).toEqual({
             field: 'some_data',
             first_copy: ['some_data'],
             second_copy: ['data'],
-            third_copy: ['some']
+            third_copy: ['some'],
         });
     });
 
     it('can catch all selector extractions', async () => {
-
         const config: WatcherConfig = {
             rules: [getPath('transformRules31.txt')],
         };
@@ -897,13 +902,13 @@ describe('can transform matches', () => {
         ];
 
         const test = await opTest.init(config, [Plugins]);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results[0]).toEqual({
             double: 2468,
             thing: 'value',
             data: 'data',
-            last: 1234
+            last: 1234,
         });
 
         expect(results[1]).toEqual({
@@ -914,17 +919,14 @@ describe('can transform matches', () => {
     });
 
     it('*-match-required, no-match-regular-selector and *-selector rule bug', async () => {
-
         const config: WatcherConfig = {
-            rules: [getPath('transformRules32.txt')]
+            rules: [getPath('transformRules32.txt')],
         };
 
-        const data = [
-            new DataEntity({ some: 'stuff', field: 'some_data', id: '12345' }),
-        ];
+        const data = [new DataEntity({ some: 'stuff', field: 'some_data', id: '12345' })];
 
         const test = await opTest.init(config, [Plugins]);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results[0]).toEqual({
             thing: 'stuff',
@@ -933,7 +935,6 @@ describe('can transform matches', () => {
     });
 
     it('can catch all selector extractions', async () => {
-
         const config: WatcherConfig = {
             rules: [getPath('sameSourceDifferentSelector.txt')],
         };
@@ -944,7 +945,7 @@ describe('can transform matches', () => {
         ];
 
         const test = await opTest.init(config, [Plugins]);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results[0]).toEqual({ email: ['email1@gmail.com'] });
         expect(results[1]).toEqual({ email: ['email2@gmail.com'] });

@@ -37,7 +37,7 @@
         "@terascope/utils": "^0.10.2",
         "apollo-server-express": "^2.5.0",
         "elasticsearch-store": "^0.6.2",
-        "graphql": "^14.3.0",
+        "graphql": "^14.3.1",
         "graphql-iso-date": "^3.6.1",
         "graphql-tag": "^2.10.1",
         "graphql-type-json": "^0.3.0",
@@ -51,7 +51,7 @@
         "@types/graphql-iso-date": "^3.3.1",
         "@types/graphql-type-json": "^0.3.0",
         "elasticsearch": "^15.4.1",
-        "express": "^4.17.0",
+        "express": "^4.17.1",
         "got": "^9.6.0",
         "graphql-request": "^1.8.2"
     }

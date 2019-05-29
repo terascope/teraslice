@@ -1,0 +1,21 @@
+.daFieldButton {
+    width: 10% !important;
+    min-width: 2rem !important;
+}
+
+.daFieldButton > label {
+    color: rgba(0, 0, 0, 0) !important;
+}
+
+.daFieldEmptyMessage {
+    padding-top: 2rem 0 !important;
+}
+
+.daFormMessage {
+    display: block !important;
+}
+
+.daFormMessageCode {
+    display: inline;
+    font-weight: bold;
+}

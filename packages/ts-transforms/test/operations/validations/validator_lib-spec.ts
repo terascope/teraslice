@@ -1,4 +1,3 @@
-
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
 import crypto from 'crypto';
@@ -65,7 +64,13 @@ describe('validator lib', () => {
     });
 
     it('can call the equals method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', value: 'world' , __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId',
+            source_field: 'field',
+            target_field: 'field',
+            value: 'world',
+            __id: 'someId',
+        };
         const test = getValidator(opConfig, 'equals');
 
         const results = data.map(obj => test.run(obj));
@@ -84,7 +89,13 @@ describe('validator lib', () => {
 
     it('can call the after method', () => {
         const newDate = new Date('December 17, 1995 03:24:00').toISOString();
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', value: newDate , __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId',
+            source_field: 'field',
+            target_field: 'field',
+            value: newDate,
+            __id: 'someId',
+        };
         const test = getValidator(opConfig, 'after');
 
         const results = data.map(obj => test.run(obj));
@@ -175,7 +186,13 @@ describe('validator lib', () => {
 
     it('can call the before method', () => {
         const newDate = new Date().toISOString();
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', value: newDate, __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId',
+            source_field: 'field',
+            target_field: 'field',
+            value: newDate,
+            __id: 'someId',
+        };
         const test = getValidator(opConfig, 'before');
 
         const results = data.map(obj => test.run(obj));
@@ -194,7 +211,14 @@ describe('validator lib', () => {
     });
 
     it('can call the bytelength method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', min: 2, max:6, __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId',
+            source_field: 'field',
+            target_field: 'field',
+            min: 2,
+            max: 6,
+            __id: 'someId',
+        };
         const test = getValidator(opConfig, 'bytelength');
 
         const results = data.map(obj => test.run(obj));
@@ -225,7 +249,14 @@ describe('validator lib', () => {
 
     it('can call the currency method', () => {
         // @ts-ignore
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', allow_space_after_symbol: true, __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId',
+            source_field: 'field',
+            target_field: 'field',
+            // @ts-ignore FIXME
+            allow_space_after_symbol: true,
+            __id: 'someId',
+        };
         const test = getValidator(opConfig, 'currency');
 
         const money1 = new DataEntity({ field: '$120.12' });
@@ -349,7 +380,13 @@ describe('validator lib', () => {
     });
 
     it('can call the hash method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', value: 'sha256', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId',
+            source_field: 'field',
+            target_field: 'field',
+            value: 'sha256',
+            __id: 'someId',
+        };
         const test = getValidator(opConfig, 'hash');
 
         const sha256Hash = crypto.createHash('sha256');
@@ -470,7 +507,13 @@ describe('validator lib', () => {
     });
 
     it('can call the in method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', value: ['hello world'], __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId',
+            source_field: 'field',
+            target_field: 'field',
+            value: ['hello world'],
+            __id: 'someId',
+        };
         const test = getValidator(opConfig, 'in');
 
         const results = data.map(obj => test.run(obj));
@@ -512,7 +555,14 @@ describe('validator lib', () => {
     });
 
     it('can call the length method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', min: 5, max: 6, __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId',
+            source_field: 'field',
+            target_field: 'field',
+            min: 5,
+            max: 6,
+            __id: 'someId',
+        };
         const test = getValidator(opConfig, 'length');
 
         const results = data.map(obj => test.run(obj));
@@ -533,7 +583,7 @@ describe('validator lib', () => {
         const str = 'hello hashing world';
         md5.update(str);
 
-        const obj = { field:  md5.digest('hex') };
+        const obj = { field: md5.digest('hex') };
         const data1 = new DataEntity(obj);
         const results1 = test.run(data1);
 
@@ -611,7 +661,13 @@ describe('validator lib', () => {
     });
 
     it('can call the matches method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', value: /world/, __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId',
+            source_field: 'field',
+            target_field: 'field',
+            value: /world/,
+            __id: 'someId',
+        };
         const test = getValidator(opConfig, 'matches');
 
         const results = data.map(obj => test.run(obj));
@@ -624,5 +680,4 @@ describe('validator lib', () => {
             }
         });
     });
-
 });

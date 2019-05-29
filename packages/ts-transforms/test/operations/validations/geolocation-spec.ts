@@ -1,9 +1,7 @@
-
 import { Geolocation } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
 
 describe('geolocation validation', () => {
-
     it('can instantiate', () => {
         const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId' };
         expect(() => new Geolocation(opConfig)).not.toThrow();
@@ -20,14 +18,14 @@ describe('geolocation validation', () => {
         expect(() => new Geolocation(badConfig2)).toThrow();
         // @ts-ignore
         expect(() => new Geolocation(badConfig3)).toThrow();
-         // @ts-ignore
+        // @ts-ignore
         expect(() => new Geolocation(badConfig4)).toThrow();
     });
 
     it('can validate geo fields', () => {
         const opConfig = { source_field: 'location', target_field: 'location', __id: 'someId', follow: 'otherId' };
-        const test =  new Geolocation(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
+        const test = new Geolocation(opConfig);
+        const metaData = { selectors: { 'some:query': true } };
 
         const data1 = new DataEntity({ location: '56.234,95.234' }, metaData);
         const data2 = new DataEntity({ location: ' 56.234,   95.234 ' });
@@ -37,9 +35,12 @@ describe('geolocation validation', () => {
         const data6 = new DataEntity({ location: { lat: 'thing' } });
         const data7 = new DataEntity({ location: { lat: '56.234', lon: '95.234' } });
         const data8 = new DataEntity({ location: { latitude: '56.234', longitude: '95.234' } }, metaData);
-        const data9 = new DataEntity({ location: { longitude: { other:'things' } } });
+        const data9 = new DataEntity({ location: { longitude: { other: 'things' } } });
         const data10 = new DataEntity({ location: '56.23424357895435,95.23423450985438972' }, metaData);
-        const data11 = new DataEntity({ location: ['56.23424357895435,95.23423450985438972', 12342, { other: 'things' }, 'hello,world'] }, metaData);
+        const data11 = new DataEntity(
+            { location: ['56.23424357895435,95.23423450985438972', 12342, { other: 'things' }, 'hello,world'] },
+            metaData
+        );
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -71,9 +72,9 @@ describe('geolocation validation', () => {
         expect(results11).toEqual({ location: ['56.23424357895435,95.23423450985438972'] });
     });
 
-    it('can validate nested fields', async() => {
+    it('can validate nested fields', async () => {
         const opConfig = { source_field: 'event.location', target_field: 'event.location', __id: 'someId', follow: 'otherId' };
-        const test =  new Geolocation(opConfig);
+        const test = new Geolocation(opConfig);
 
         const data1 = new DataEntity({ event: 'something' });
         const data2 = new DataEntity({ event: {} });

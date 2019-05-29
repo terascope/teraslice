@@ -6,6 +6,7 @@ import { Table, Checkbox } from 'semantic-ui-react';
 import { RowMappingProp, RowMapping } from './interfaces';
 import { formatPath } from '../utils';
 import { canSelectFn } from './utils';
+import { useCoreContext } from '../CoreContext';
 
 const Body: React.FC<Props> = props => {
     const {
@@ -17,8 +18,10 @@ const Body: React.FC<Props> = props => {
         selectRecord,
     } = props;
 
+    const { authUser } = useCoreContext();
+
     const columns = Object.entries(rowMapping.columns);
-    const canSelectRecord = canSelectFn(rowMapping);
+    const canSelectRecord = canSelectFn(rowMapping, authUser);
 
     return (
         <Table.Body>

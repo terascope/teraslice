@@ -10,27 +10,13 @@ import { Core } from './core';
 
 const logger = debugLogger('teraslice-messaging:server');
 
-const disconnectedStates = [
-    i.ClientState.Offline,
-    i.ClientState.Disconnected,
-    i.ClientState.Shutdown,
-];
+const disconnectedStates = [i.ClientState.Offline, i.ClientState.Disconnected, i.ClientState.Shutdown];
 
-const unavailableStates = [
-    i.ClientState.Unavailable,
-    ...disconnectedStates
-];
+const unavailableStates = [i.ClientState.Unavailable, ...disconnectedStates];
 
-const onlineStates = [
-    i.ClientState.Online,
-    i.ClientState.Available,
-    i.ClientState.Unavailable
-];
+const onlineStates = [i.ClientState.Online, i.ClientState.Available, i.ClientState.Unavailable];
 
-const connectedStates = [
-    i.ClientState.Disconnected,
-    ...onlineStates
-];
+const connectedStates = [i.ClientState.Disconnected, ...onlineStates];
 
 export class Server extends Core {
     isShuttingDown: boolean;
@@ -50,7 +36,7 @@ export class Server extends Core {
             serverName,
             serverTimeout,
             clientDisconnectTimeout,
-            requestListener = defaultRequestListener
+            requestListener = defaultRequestListener,
         } = opts;
         super(opts);
 
@@ -114,26 +100,29 @@ export class Server extends Core {
 
         this.server.on('connection', this._onConnection);
 
-        this.onClientReconnect((clientId) => {
+        this.onClientReconnect(clientId => {
             this.emit('ready', { scope: clientId, payload: {} });
         });
 
-        this.onClientOnline((clientId) => {
+        this.onClientOnline(clientId => {
             this.emit('ready', { scope: clientId, payload: {} });
         });
 
-        this._cleanupClients = setInterval(() => {
-            for (const { clientId, state, offlineAt } of Object.values(this._clients)) {
-                if (state === i.ClientState.Shutdown) {
-                    this.updateClientState(clientId, i.ClientState.Offline);
-                }
-                if (state === i.ClientState.Disconnected && offlineAt) {
-                    if (offlineAt > Date.now()) {
+        this._cleanupClients = setInterval(
+            () => {
+                for (const { clientId, state, offlineAt } of Object.values(this._clients)) {
+                    if (state === i.ClientState.Shutdown) {
                         this.updateClientState(clientId, i.ClientState.Offline);
                     }
+                    if (state === i.ClientState.Disconnected && offlineAt) {
+                        if (offlineAt > Date.now()) {
+                            this.updateClientState(clientId, i.ClientState.Offline);
+                        }
+                    }
                 }
-            }
-        }, isTest ? 100 : 5000);
+            },
+            isTest ? 100 : 5000
+        );
     }
 
     async shutdown() {
@@ -149,7 +138,7 @@ export class Server extends Core {
             return;
         }
 
-        await new Promise((resolve) => {
+        await new Promise(resolve => {
             this.server.volatile.emit('shutdown');
 
             this.server.close(() => {
@@ -157,7 +146,7 @@ export class Server extends Core {
             });
         });
 
-        await new Promise((resolve) => {
+        await new Promise(resolve => {
             this.httpServer.close(() => {
                 resolve();
             });
@@ -217,49 +206,49 @@ export class Server extends Core {
     }
 
     onClientOnline(fn: (clientId: string) => void) {
-        return this.on(`client:${i.ClientState.Online}`, (msg) => {
+        return this.on(`client:${i.ClientState.Online}`, msg => {
             fn(msg.scope);
         });
     }
 
     onClientAvailable(fn: (clientId: string) => void) {
-        return this.on(`client:${i.ClientState.Available}`, (msg) => {
+        return this.on(`client:${i.ClientState.Available}`, msg => {
             fn(msg.scope);
         });
     }
 
     onClientUnavailable(fn: (clientId: string) => void) {
-        return this.on(`client:${i.ClientState.Unavailable}`, (msg) => {
+        return this.on(`client:${i.ClientState.Unavailable}`, msg => {
             fn(msg.scope);
         });
     }
 
     onClientOffline(fn: (clientId: string) => void) {
-        return this.on(`client:${i.ClientState.Offline}`, (msg) => {
+        return this.on(`client:${i.ClientState.Offline}`, msg => {
             fn(msg.scope);
         });
     }
 
     onClientDisconnect(fn: (clientId: string) => void) {
-        return this.on(`client:${i.ClientState.Disconnected}`, (msg) => {
+        return this.on(`client:${i.ClientState.Disconnected}`, msg => {
             fn(msg.scope);
         });
     }
 
     onClientShutdown(fn: (clientId: string) => void) {
-        return this.on(`client:${i.ClientState.Shutdown}`, (msg) => {
+        return this.on(`client:${i.ClientState.Shutdown}`, msg => {
             fn(msg.scope);
         });
     }
 
     onClientReconnect(fn: (clientId: string) => void) {
-        return this.on('client:reconnect', (msg) => {
+        return this.on('client:reconnect', msg => {
             fn(msg.scope);
         });
     }
 
     onClientError(fn: (clientId: string) => void) {
-        return this.on('client:error', (msg) => {
+        return this.on('client:error', msg => {
             fn(msg.scope);
         });
     }
@@ -271,13 +260,18 @@ export class Server extends Core {
 
     protected sendToAll(eventName: string, payload?: i.Payload, options: i.SendOptions = { volatile: true, response: true }) {
         const clients = this.filterClientsByState(onlineStates);
-        const promises = Object.values(clients).map((client) => {
+        const promises = Object.values(clients).map(client => {
             return this.send(client.clientId, eventName, payload, options);
         });
         return Promise.all(promises);
     }
 
-    protected async send(clientId: string, eventName: string, payload: i.Payload = {}, options: i.SendOptions = { response: true }): Promise<i.Message|null> {
+    protected async send(
+        clientId: string,
+        eventName: string,
+        payload: i.Payload = {},
+        options: i.SendOptions = { response: true }
+    ): Promise<i.Message | null> {
         if (!this.isClientConnected(clientId)) {
             throw new Error(`No client found by that id "${clientId}"`);
         }
@@ -324,7 +318,7 @@ export class Server extends Core {
     }
 
     private filterClientsByState(states: i.ClientState[]): i.ConnectedClient[] {
-        return Object.values(this._clients).filter((client) => {
+        return Object.values(this._clients).filter(client => {
             return states.includes(client.state);
         });
     }
@@ -360,7 +354,7 @@ export class Server extends Core {
 
         const eventMsg = {
             scope: clientId,
-            payload: {}
+            payload: {},
         };
 
         if (state === i.ClientState.Disconnected) {
@@ -393,7 +387,7 @@ export class Server extends Core {
         return true;
     }
 
-    protected ensureClient(socket: SocketIO.Socket) : i.ConnectedClient {
+    protected ensureClient(socket: SocketIO.Socket): i.ConnectedClient {
         const { clientId } = this.getClientMetadataFromSocket(socket);
         const client = this._clients[clientId];
 
@@ -405,7 +399,7 @@ export class Server extends Core {
         const newClient: i.ConnectedClient = {
             clientId,
             state: i.ClientState.Online,
-            offlineAt: null
+            offlineAt: null,
         };
 
         this.emit(`client:${i.ClientState.Online}`, { scope: clientId, payload: {} });
@@ -418,15 +412,15 @@ export class Server extends Core {
         const client = this.ensureClient(socket);
         const { clientId } = client;
 
-        socket.on('error', (error: Error|string) => {
+        socket.on('error', (error: Error | string) => {
             this.emit('client:error', {
                 scope: clientId,
                 payload: {},
-                error
+                error,
             });
         });
 
-        socket.on('disconnect', (error?: Error|string) => {
+        socket.on('disconnect', (error?: Error | string) => {
             if (error) {
                 logger.error(`client ${clientId} disconnected with error`, error);
             } else {
@@ -464,7 +458,7 @@ export class Server extends Core {
 
         this.emit('connection', {
             scope: clientId,
-            payload: socket
+            payload: socket,
         });
     }
 }

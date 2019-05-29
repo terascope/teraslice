@@ -1,11 +1,9 @@
-
 import { Url as UrlOp } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
 
 describe('url validation', () => {
-
     it('can instantiate', () => {
-        const opConfig = {  source_field: 'someField',  target_field: 'someField', __id: 'someId', follow: 'otherId' };
+        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId' };
         expect(() => new UrlOp(opConfig)).not.toThrow();
     });
 
@@ -16,18 +14,18 @@ describe('url validation', () => {
         const badConfig4 = {};
         // @ts-ignore
         expect(() => new UrlOp(badConfig1)).toThrow();
-         // @ts-ignore
+        // @ts-ignore
         expect(() => new UrlOp(badConfig2)).toThrow();
-         // @ts-ignore
+        // @ts-ignore
         expect(() => new UrlOp(badConfig3)).toThrow();
-         // @ts-ignore
+        // @ts-ignore
         expect(() => new UrlOp(badConfig4)).toThrow();
     });
 
     it('can validate url fields', () => {
         const opConfig = { source_field: 'uri', target_field: 'uri', __id: 'someId', follow: 'otherId' };
-        const test =  new UrlOp(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
+        const test = new UrlOp(opConfig);
+        const metaData = { selectors: { 'some:query': true } };
 
         const data1 = new DataEntity({ uri: '56.234,95.234' }, metaData);
         const data2 = new DataEntity({ uri: 123423 }, metaData);
@@ -70,9 +68,16 @@ describe('url validation', () => {
         expect(results11).toEqual({ uri: ['http://google.com'] });
     });
 
-    it('can validate nested fields', async() => {
-        const opConfig = { refs: 'someId', source_field: 'event.href', target_field: 'event.href', length: 14, __id: 'someId', follow: 'otherId' };
-        const test =  new UrlOp(opConfig);
+    it('can validate nested fields', async () => {
+        const opConfig = {
+            refs: 'someId',
+            source_field: 'event.href',
+            target_field: 'event.href',
+            length: 14,
+            __id: 'someId',
+            follow: 'otherId',
+        };
+        const test = new UrlOp(opConfig);
 
         const data1 = new DataEntity({ event: 'something' });
         const data2 = new DataEntity({ event: {} });

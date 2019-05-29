@@ -1,9 +1,7 @@
-
 import { Email } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
 
 describe('email validation', () => {
-
     it('can instantiate', () => {
         const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId' };
         expect(() => new Email(opConfig)).not.toThrow();
@@ -16,18 +14,18 @@ describe('email validation', () => {
         const badConfig4 = {};
         // @ts-ignore
         expect(() => new Email(badConfig1)).toThrow();
-         // @ts-ignore
+        // @ts-ignore
         expect(() => new Email(badConfig2)).toThrow();
         // @ts-ignore
         expect(() => new Email(badConfig3)).toThrow();
-         // @ts-ignore
+        // @ts-ignore
         expect(() => new Email(badConfig4)).toThrow();
     });
 
     it('can validate email fields', () => {
         const opConfig = { source_field: 'uri', target_field: 'uri', __id: 'someId', follow: 'otherId' };
-        const test =  new Email(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
+        const test = new Email(opConfig);
+        const metaData = { selectors: { 'some:query': true } };
 
         const data1 = new DataEntity({ uri: '56.234,95.234' }, metaData);
         const data2 = new DataEntity({ uri: 123423 }, metaData);
@@ -40,7 +38,9 @@ describe('email validation', () => {
         const data9 = new DataEntity({ uri: 'ha3ke5@pawnage.com' }, metaData);
         const data10 = new DataEntity({ uri: 'asdfasdf' });
         const data11 = new DataEntity({ uri: 'SOMEWORDS@HELLO.COM' });
-        const data12 = new DataEntity({ uri: ['SOMEWORDS@HELLO.COM', 'http:// google.com', 12342, { other:'stuff' }, 'other@somewhere.com'] });
+        const data12 = new DataEntity({
+            uri: ['SOMEWORDS@HELLO.COM', 'http:// google.com', 12342, { other: 'stuff' }, 'other@somewhere.com'],
+        });
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -74,9 +74,9 @@ describe('email validation', () => {
         expect(results12).toEqual({ uri: ['SOMEWORDS@HELLO.COM', 'other@somewhere.com'] });
     });
 
-    it('can validate nested fields', async() => {
+    it('can validate nested fields', async () => {
         const opConfig = { source_field: 'person.email', target_field: 'person.email', __id: 'someId', follow: 'otherId' };
-        const test =  new Email(opConfig);
+        const test = new Email(opConfig);
 
         const data1 = new DataEntity({ email: 'ha3ke5@pawnage.com' });
         const data2 = new DataEntity({ person: {} });
