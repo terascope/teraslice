@@ -52,9 +52,6 @@ const config: ModelConfig = {
             records: views(query: $query, from: $from, size: $size, sort: $sort) {
                 id
                 name
-                includes
-                excludes
-                constraint
                 description
                 updated
                 created
