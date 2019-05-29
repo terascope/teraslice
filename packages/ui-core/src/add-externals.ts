@@ -1,8 +1,14 @@
 // @ts-ignore
-window.React = require('react');
+if (!window.React) window.React = require('react');
 // @ts-ignore
-window.ReactDOM = require('react-dom');
+if (!window.ReactDOM) window.ReactDOM = require('react-dom');
 // @ts-ignore
-window.ReactRouterDOM = require('react-router-dom');
+if (!window.ReactRouterDOM) window.ReactRouterDOM = require('react-router-dom');
 // @ts-ignore
-window.UIComponents = require('@terascope/ui-components');
+if (!window.UIComponents) window.UIComponents = require('@terascope/ui-components');
+// @ts-ignore
+if (!window.ApolloBoost) window.ApolloBoost = require('apollo-boost');
+// @ts-ignore
+if (!window.ApolloClient) window.ApolloClient = require('apollo-client');
+// @ts-ignore
+if (!window.ReactApollo) window.ReactApollo = require('react-apollo');

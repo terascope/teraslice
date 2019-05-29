@@ -54,8 +54,6 @@ export const PluginConfigProp = PropTypes.shape({
     routes: PluginRoutesProp.isRequired,
 });
 
-export const PluginsProp = PropTypes.arrayOf(PluginConfigProp.isRequired).isRequired;
-
 export type ResolvedUser = {
     id: string;
     client_id: number;
@@ -75,7 +73,6 @@ export type ResolvedUser = {
 export type CoreContextState = {
     authenticated: boolean;
     authUser?: Readonly<ResolvedUser>;
-    plugins: PluginConfig[];
     updateState(updates: Partial<CoreContextState>): void;
 };
 
@@ -84,3 +81,5 @@ export const UserPermissionMap: { readonly [key in UserType]: ReadonlyArray<User
     ADMIN: ['USER', 'ADMIN'],
     SUPERADMIN: ['USER', 'ADMIN', 'SUPERADMIN'],
 };
+
+export type RegisterPluginFn = () => PluginConfig;

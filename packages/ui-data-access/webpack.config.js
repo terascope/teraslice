@@ -43,6 +43,9 @@ module.exports = {
         react: 'React',
         'react-dom': 'ReactDOM',
         'react-router-dom': 'ReactRouterDOM',
+        'react-apollo': 'ReactApollo',
+        'apollo-boost': 'ApolloBoost',
+        'apollo-client': 'ApolloClient',
     },
     plugins: [
         new CleanWebpackPlugin({

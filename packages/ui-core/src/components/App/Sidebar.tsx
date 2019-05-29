@@ -3,7 +3,7 @@ import { History } from 'history';
 import { Menu, Icon } from 'semantic-ui-react';
 import {
     useCoreContext,
-    PluginConfig,
+    PluginService,
     formatPath,
     tsWithRouter,
     ResolvedUser,
@@ -35,13 +35,12 @@ const SidebarToggleIcon: React.FC<{ open: boolean }> = ({ open }) => {
 };
 
 const makePluginLinks = (
-    plugins: PluginConfig[],
     history: History,
     open: boolean,
     authUser?: ResolvedUser
 ) => {
     const links: any[] = [];
-    plugins.forEach((plugin, pi) => {
+    PluginService.plugins().forEach((plugin, pi) => {
         if (open && plugin.name && hasAccessTo(authUser, plugin.access)) {
             links.push(
                 <Menu.Item key={`plugin-${pi}`}>{plugin.name}</Menu.Item>
@@ -75,7 +74,7 @@ const makePluginLinks = (
 };
 
 const Sidebar = tsWithRouter<any>(({ history }) => {
-    const { authenticated, plugins, authUser } = useCoreContext();
+    const { authenticated, authUser } = useCoreContext();
     const [open, setState] = useState(true);
 
     if (!authenticated) return <div />;
@@ -91,7 +90,7 @@ const Sidebar = tsWithRouter<any>(({ history }) => {
             >
                 <SidebarToggleIcon open={open} />
             </Menu.Item>
-            {makePluginLinks(plugins, history, open, authUser)}
+            {makePluginLinks(history, open, authUser)}
         </Menu>
     );
 });

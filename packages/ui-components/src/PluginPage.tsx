@@ -2,12 +2,12 @@ import React from 'react';
 import { PageAction } from './interfaces';
 import { useCoreContext } from './CoreContext';
 import { tsWithRouter, findPluginRoute } from './utils';
-import Page from './Page';
 import ErrorPage from './ErrorPage';
+import Page from './Page';
 
 const PluginPage = tsWithRouter(({ location, match }) => {
-    const { plugins, authUser } = useCoreContext();
-    const result = findPluginRoute(plugins, location.pathname);
+    const { authUser } = useCoreContext();
+    const result = findPluginRoute(location.pathname);
 
     if (!result) return <ErrorPage error="Invalid Plugin" />;
 
@@ -16,7 +16,7 @@ const PluginPage = tsWithRouter(({ location, match }) => {
 
     if (route.actions) {
         for (const actionPath of route.actions) {
-            const _result = findPluginRoute(plugins, actionPath, authUser);
+            const _result = findPluginRoute(actionPath, authUser);
             if (!_result) continue;
 
             const _route = _result.route;

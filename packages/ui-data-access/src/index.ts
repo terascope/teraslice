@@ -1,17 +1,18 @@
 require('./index.css');
-import { PluginConfig } from '@terascope/ui-components';
+import { PluginConfig, PluginService } from '@terascope/ui-components';
+import userRoutes from './User/routes';
+import roleRoutes from './Role/routes';
+import dataTypeRoutes from './DataType/routes';
 
-export default () => {
-    const usersRoutes = require('./User/routes');
-    const rolesRoutes = require('./Role/routes');
-    const dataTypesRoutes = require('./DataType/routes');
-
-    const config: PluginConfig = {
+const registerFn = (): PluginConfig => {
+    return {
         name: 'Data Access',
         basepath: '/',
         access: 'ADMIN',
-        routes: [...usersRoutes, ...rolesRoutes, ...dataTypesRoutes],
+        routes: [...userRoutes, ...roleRoutes, ...dataTypeRoutes],
     };
-
-    return config;
 };
+
+PluginService.register('data-access', registerFn);
+
+export default registerFn;

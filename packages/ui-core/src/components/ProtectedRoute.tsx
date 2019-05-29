@@ -7,16 +7,13 @@ import {
 } from '@terascope/ui-components';
 
 const ProtectedRoute: React.FC<any> = ({ component: Component, ...rest }) => {
-    const { authenticated, plugins, authUser } = useCoreContext();
+    const { authenticated, authUser } = useCoreContext();
 
     return (
         <Route
             {...rest}
             render={props => {
-                const result = findPluginRoute(
-                    plugins,
-                    props.location.pathname
-                );
+                const result = findPluginRoute(props.location.pathname);
 
                 if (authenticated) {
                     if (hasAccessToRoute(authUser, result)) {

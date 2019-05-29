@@ -4,6 +4,7 @@ import _formatDate from 'date-fns/format';
 import { withRouter, RouteComponentProps, matchPath } from 'react-router-dom';
 import { PluginConfig, PluginRoute, ResolvedUser, UserPermissionMap } from './interfaces';
 import { UserType } from '@terascope/data-access';
+import PluginService from './PluginService';
 
 export function formatPath(...paths: (string | undefined)[]) {
     return `/${paths
@@ -34,7 +35,8 @@ export function formatDate(dateStr: any): string {
 }
 
 type FindPluginRouteResult = { plugin: PluginConfig; route: PluginRoute };
-export function findPluginRoute(plugins: PluginConfig[], pathname: string, authUser?: ResolvedUser): FindPluginRouteResult | undefined {
+export function findPluginRoute(pathname: string, authUser?: ResolvedUser): FindPluginRouteResult | undefined {
+    const plugins = PluginService.plugins();
     for (const plugin of plugins) {
         const route = plugin.routes.find(({ path }) => {
             return !!matchPath(pathname, {
