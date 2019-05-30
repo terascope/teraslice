@@ -15,6 +15,7 @@
         "no-debugger": true,
         "trailing-comma": false,
         "comma-dangle": false,
+        "no-shadowed-variable": true,
         "variable-name": [
             true,
             "ban-keywords",
