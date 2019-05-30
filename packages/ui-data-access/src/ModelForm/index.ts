@@ -6,5 +6,4 @@ import FormInput from './FormInput';
 export * from './interfaces';
 export { Form, Mutation, FormQuery, FormInput };
 
-const ModelForm = FormQuery;
-export default ModelForm;
+export default FormQuery;

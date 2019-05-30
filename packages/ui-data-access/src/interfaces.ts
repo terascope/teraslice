@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { ModelName } from '@terascope/data-access';
 import { RowMapping, ResolvedUser } from '@terascope/ui-components';
 import { Overwrite } from '@terascope/utils';
+import { AnyModel } from './ModelForm';
 
 export const modelNames: ModelName[] = ['User', 'Role', 'DataType', 'View', 'Space'];
 export const ModelNameProp = PropTypes.oneOf(modelNames);
@@ -14,7 +15,7 @@ export type FormResult<T> = {
     input: T;
 };
 
-export type ModelConfig<Input> = {
+export type ModelConfig<T extends AnyModel> = {
     name: ModelName;
     pathname: string;
     singularLabel: string;
@@ -25,8 +26,8 @@ export type ModelConfig<Input> = {
     createMutation: any;
     updateMutation: any;
     removeMutation: any;
-    searchFields: (keyof Input)[];
-    requiredFields: (keyof Input)[];
-    handleFormProps: (authUser: ResolvedUser, data: FormData<Input>) => FormResult<Input>;
-    rowMapping: RowMapping<Overwrite<Input, { id: string }>>;
+    searchFields: (keyof T)[];
+    requiredFields: (keyof T)[];
+    handleFormProps: (authUser: ResolvedUser, data: FormData<T>) => FormResult<T>;
+    rowMapping: RowMapping<Overwrite<T, { id: string }>>;
 };

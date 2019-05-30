@@ -1,4 +1,4 @@
-import { AnyObject } from '@terascope/utils';
+import { TypeConfig } from 'xlucene-evaluator';
 import { availableDataTypes } from '../interfaces';
 
 export function validateFieldName(field: any): boolean {
@@ -11,7 +11,7 @@ export function validateFieldType(type: any): boolean {
     return availableDataTypes.includes(type);
 }
 
-export function parseTypeConfig(typeConfig: AnyObject): ({ field: string; type: string })[] {
+export function parseTypeConfig(typeConfig?: TypeConfig): ({ field: string; type: string })[] {
     if (!typeConfig) return [];
 
     return Object.entries(typeConfig)
@@ -19,7 +19,7 @@ export function parseTypeConfig(typeConfig: AnyObject): ({ field: string; type: 
         .filter(({ type }) => !!type);
 }
 
-export function validateTypeConfig(typeConfig: AnyObject): boolean {
+export function validateTypeConfig(typeConfig?: TypeConfig): boolean {
     return parseTypeConfig(typeConfig).some(({ field, type }) => {
         // if valid return false
         if (validateFieldName(field)) return false;

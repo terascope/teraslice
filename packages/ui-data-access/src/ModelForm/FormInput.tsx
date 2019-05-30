@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import PropTypes from 'prop-types';
-import { DefaultInputProps } from './interfaces';
 import { Form, FormComponent } from 'semantic-ui-react';
+import { DefaultInputProps, AnyModel } from './interfaces';
 
-const FormInput: React.FC<Props> = ({
+function FormInput<T extends AnyModel>({
     placeholder,
     label,
     name,
@@ -14,7 +14,7 @@ const FormInput: React.FC<Props> = ({
     as = Form.Input,
     children,
     ...props
-}) => {
+}: Props<T>): ReactElement {
     const Component = as;
 
     if (value == null) {
@@ -37,16 +37,16 @@ const FormInput: React.FC<Props> = ({
             {children}
         </Component>
     );
-};
+}
 
-export type Props = {
+export type Props<T> = {
     [prop: string]: any;
-    value: string;
-    name: string;
+    value: any;
+    name: keyof T;
     label: string;
     placeholder?: string;
     as?: FormComponent | any;
-} & DefaultInputProps;
+} & DefaultInputProps<T>;
 
 FormInput.propTypes = {
     name: PropTypes.string.isRequired,

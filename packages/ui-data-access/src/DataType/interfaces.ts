@@ -1,7 +1,7 @@
-import { Override } from '@terascope/utils';
+import { Overwrite } from '@terascope/utils';
 import { DataType } from '@terascope/data-access';
 
-export type Input = Override<
+export type Input = Overwrite<
     DataType,
     {
         id?: string;

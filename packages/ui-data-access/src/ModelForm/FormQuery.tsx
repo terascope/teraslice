@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
 import { Segment } from 'semantic-ui-react';
@@ -13,13 +13,13 @@ import { getModelConfig } from '../config';
 import { ModelNameProp } from '../interfaces';
 import Form from './Form';
 
-const FormQuery: React.FC<Props> = ({
+function FormQuery<T extends i.AnyModel>({
     id,
     children,
     modelName,
     validate,
     beforeSubmit,
-}) => {
+}: Props<T>): ReactElement {
     const config = getModelConfig(modelName);
     let query: any;
     let skip: boolean = false;
@@ -38,7 +38,7 @@ const FormQuery: React.FC<Props> = ({
     const authUser = useCoreContext().authUser!;
 
     return (
-        <FetchQuery query={query} variables={variables} skip={skip}>
+        <Query<any, Vars> query={query} variables={variables} skip={skip}>
             {({ loading, error, data }) => {
                 if (loading) return <LoadingPage />;
                 if (error) return <ErrorPage error={error} />;
@@ -47,7 +47,7 @@ const FormQuery: React.FC<Props> = ({
 
                 return (
                     <Segment basic>
-                        <Form
+                        <Form<T>
                             {...props}
                             modelName={modelName}
                             id={id}
@@ -59,16 +59,16 @@ const FormQuery: React.FC<Props> = ({
                     </Segment>
                 );
             }}
-        </FetchQuery>
+        </Query>
     );
-};
+}
 
-type Props = {
+type Props<T> = {
     id?: string;
     modelName: ModelName;
-    validate: i.ValidateFn;
-    beforeSubmit: i.BeforeSubmitFn;
-    children: i.FormChild;
+    validate: i.ValidateFn<T>;
+    beforeSubmit: i.BeforeSubmitFn<T>;
+    children: i.FormChild<T>;
 };
 
 FormQuery.propTypes = {
@@ -83,5 +83,3 @@ export default FormQuery;
 interface Vars {
     id?: string;
 }
-
-class FetchQuery extends Query<any, Vars> {}

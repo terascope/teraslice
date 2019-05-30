@@ -1,32 +1,26 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
-import { toInteger } from '@terascope/utils';
 import { useCoreContext, UserPermissionMap } from '@terascope/ui-components';
 import ModelForm, {
     ValidateFn,
     BeforeSubmitFn,
     FormInput,
 } from '../../ModelForm';
+import { UserRole, Input } from '../interfaces';
 import TokenForm from './TokenForm';
-import { UserRole } from '../interfaces';
 import config from '../config';
 
 const RolesForm: React.FC<Props> = ({ id }) => {
     const authUser = useCoreContext().authUser!;
-    const validate: ValidateFn = (errs, model) => {
-        const clientId = toInteger(model.client_id);
-        if (clientId === false || clientId < 1) {
-            errs.messages.push(
-                'Client ID must be an valid number greater than zero'
-            );
-            errs.fields.push('client_id');
-        } else {
-            model.client_id = clientId;
+    const validate: ValidateFn<Input> = (errs, model) => {
+        if (model.password && model.password !== model.repeat_password) {
+            errs.messages.push('Password must match');
+            errs.fields.push('password', 'repeat_password');
         }
         return errs;
     };
-    const beforeSubmit: BeforeSubmitFn = (model, create) => {
+    const beforeSubmit: BeforeSubmitFn<Input> = (model, create) => {
         const password = model.password as string;
         delete model.password;
         delete model.repeat_password;
@@ -47,7 +41,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
     };
 
     return (
-        <ModelForm
+        <ModelForm<Input>
             modelName={config.name}
             id={id}
             validate={validate}
@@ -70,14 +64,14 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                 return (
                     <React.Fragment>
                         <Form.Group>
-                            <FormInput
+                            <FormInput<Input>
                                 {...defaultInputProps}
                                 name="username"
                                 label="Username"
                                 value={model.username}
                             />
                             {authUser.type === 'SUPERADMIN' && (
-                                <FormInput
+                                <FormInput<Input>
                                     {...defaultInputProps}
                                     disabled={model.type === 'SUPERADMIN'}
                                     name="client_id"
@@ -87,13 +81,13 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                             )}
                         </Form.Group>
                         <Form.Group>
-                            <FormInput
+                            <FormInput<Input>
                                 {...defaultInputProps}
                                 name="firstname"
                                 label="First Name"
                                 value={model.firstname}
                             />
-                            <FormInput
+                            <FormInput<Input>
                                 {...defaultInputProps}
                                 name="lastname"
                                 label="Last Name"
@@ -101,7 +95,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                             />
                         </Form.Group>
                         <Form.Group>
-                            <FormInput
+                            <FormInput<Input>
                                 {...defaultInputProps}
                                 type="email"
                                 name="email"
@@ -112,7 +106,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                         </Form.Group>
                         <Form.Group />
                         <Form.Group>
-                            <FormInput
+                            <FormInput<Input>
                                 {...defaultInputProps}
                                 as={Form.Select}
                                 name="role"
@@ -121,7 +115,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                                 value={model.role}
                                 options={roleOptions}
                             />
-                            <FormInput
+                            <FormInput<Input>
                                 {...defaultInputProps}
                                 as={Form.Select}
                                 name="type"
@@ -133,14 +127,14 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                             />
                         </Form.Group>
                         <Form.Group>
-                            <FormInput
+                            <FormInput<Input>
                                 {...defaultInputProps}
                                 type="password"
                                 name="password"
                                 label="Password"
                                 value={model.password}
                             />
-                            <FormInput
+                            <FormInput<Input>
                                 {...defaultInputProps}
                                 type="password"
                                 name="repeat_password"

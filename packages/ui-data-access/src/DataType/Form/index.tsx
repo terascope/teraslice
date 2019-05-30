@@ -1,63 +1,46 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
-import { toInteger } from '@terascope/utils';
 import { useCoreContext } from '@terascope/ui-components';
-import ModelForm, {
-    ValidateFn,
-    BeforeSubmitFn,
-    FormInput,
-} from '../../ModelForm';
+import ModelForm, { FormInput } from '../../ModelForm';
 import TypeConfig from './TypeConfig';
 import config from '../config';
 import { validateTypeConfig } from './utils';
+import { Input } from '../interfaces';
 
 const DataTypeForm: React.FC<Props> = ({ id }) => {
     const authUser = useCoreContext().authUser!;
 
-    const validate: ValidateFn = (errs, model) => {
-        const clientId = toInteger(model.client_id);
-        if (clientId === false || clientId < 1) {
-            errs.messages.push(
-                'Client ID must be an valid number greater than zero'
-            );
-            errs.fields.push('client_id');
-        } else {
-            model.client_id = clientId;
-        }
-        if (!validateTypeConfig(model.type_config)) {
-            errs.messages.push('Invalid Type Config');
-        }
-        return errs;
-    };
-
-    const beforeSubmit: BeforeSubmitFn = (model, create) => {
-        const input = { ...model };
-        if (create) {
-            delete input.id;
-        }
-        return { input };
-    };
-
     return (
-        <ModelForm
+        <ModelForm<Input>
             modelName={config.name}
             id={id}
-            validate={validate}
-            beforeSubmit={beforeSubmit}
+            validate={(errs, model) => {
+                if (!validateTypeConfig(model.type_config)) {
+                    errs.messages.push('Invalid Type Config');
+                }
+                return errs;
+            }}
+            beforeSubmit={(model, create) => {
+                const input = { ...model };
+                if (create) {
+                    delete input.id;
+                }
+                return { input };
+            }}
         >
             {({ defaultInputProps, updateModel, model }) => {
                 return (
                     <React.Fragment>
                         <Form.Group>
-                            <FormInput
+                            <FormInput<Input>
                                 {...defaultInputProps}
                                 value={model.name}
                                 name="name"
                                 label="Name"
                             />
                             {authUser.type === 'SUPERADMIN' && (
-                                <FormInput
+                                <FormInput<Input>
                                     {...defaultInputProps}
                                     value={`${model.client_id}`}
                                     name="client_id"
@@ -66,7 +49,7 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
                             )}
                         </Form.Group>
                         <Form.Group>
-                            <FormInput
+                            <FormInput<Input>
                                 {...defaultInputProps}
                                 as={Form.TextArea}
                                 name="description"
