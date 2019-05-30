@@ -9,6 +9,7 @@ const pCopyFile = promisify(fs.copyFile);
 const pMkdir = promisify(fs.mkdir);
 const pReadFile = promisify(fs.readFile);
 const pWriteFile = promisify(fs.writeFile);
+const pUnlink = promisify(fs.unlink);
 
 let app;
 let express;
@@ -21,6 +22,8 @@ const assetManifest = path.join(buildPath, 'asset-manifest.json');
 const indexHtml = path.join(buildPath, 'index.html');
 const bkIndexHtml = path.join(buildPath, 'index.html.bk');
 const pluginsDir = path.join(staticPath, 'plugins');
+const staticBasePath = 'static/plugins';
+const watchMode = ['1', 'true'].includes(`${process.env.WATCH_MODE}`.toLowerCase());
 
 module.exports = {
     config(config) {
@@ -81,7 +84,7 @@ async function updateAssets() {
     await updateIndexHtml(assets);
     await updateAssetManifest(assets);
 
-    if (process.env.NODE_ENV === 'production') return;
+    if (!watchMode) return;
 
     // run this in the background
     (async () => {
@@ -96,7 +99,7 @@ async function updateAssets() {
 
 let lastChanged = [];
 function waitForAssetChanges() {
-    if (!loggedWatch) logger.info('Watching for UI changes, set NODE_ENV === production to disable');
+    if (!loggedWatch) logger.info('Watching for UI changes');
     loggedWatch = true;
 
     return new Promise((done) => {
@@ -138,7 +141,9 @@ async function checkFilesChanged() {
     for (const { fileName, name } of files) {
         const modified = await getLastTouched(fileName);
         const last = lastChanged.find(t => t.name === name);
-        if (!modified) continue;
+        if (!modified) {
+            continue;
+        }
 
         if (!last) {
             updates.push({ name, fileName, modified });
@@ -164,7 +169,8 @@ async function checkFilesChanged() {
 function getLastTouched(fileName) {
     try {
         const stats = fs.statSync(fileName);
-        return stats.mtimeMs;
+        // get seconds
+        return Math.round(stats.mtime.getTime() / 1000);
     } catch (err) {
         return 0;
     }
@@ -194,18 +200,17 @@ function getPluginAssets() {
             pluginAssets.push(
                 ...assets.map((fileName) => {
                     const copyFrom = path.join(pluginPath, fileName);
+
                     const ext = path.extname(fileName);
                     const fileBase = path.basename(fileName, ext);
-                    const mtimeMs = getLastTouched(copyFrom);
-                    const targetFileName = `${fileBase}.${mtimeMs}${ext}`;
-                    const publicPath = path.join(
-                        basePath,
-                        'static',
-                        'plugins',
-                        name,
-                        targetFileName
-                    );
+                    const modified = getLastTouched(copyFrom);
+                    const targetFileName = `${fileBase}.${modified}${ext}`;
+
+                    const publicPath = path.join(basePath, staticBasePath, name, targetFileName);
+
                     const copyTo = path.join(pluginsDir, name, targetFileName);
+                    const assetPath = path.join(staticBasePath, name, targetFileName);
+
                     return {
                         copyFrom,
                         copyTo,
@@ -213,6 +218,7 @@ function getPluginAssets() {
                         fileName,
                         publicPath,
                         targetFileName,
+                        assetPath,
                     };
                 })
             );
@@ -225,18 +231,21 @@ function getPluginAssets() {
 async function updateAssetManifest(assets) {
     if (!fs.existsSync(assetManifest)) return;
     const contents = JSON.parse(await pReadFile(assetManifest));
-    const rootPath = 'static/plugins/';
-    const existing = Object.keys(contents.files);
 
-    for (const existingPath of existing) {
-        if (existingPath.startsWith(rootPath)) {
-            delete contents.files[existingPath];
+    for (const assetPath of Object.keys(contents.files)) {
+        if (assetPath.startsWith(staticBasePath)) {
+            const filePath = path.join(buildPath, assetPath);
+            const found = assets.find(asset => asset.assetPath === assetPath);
+            if (!found && fs.existsSync(filePath)) {
+                logger.debug('Watch mode removing unlinked file', filePath);
+                await pUnlink(filePath);
+            }
+            delete contents.files[assetPath];
         }
     }
 
     for (const asset of assets) {
-        const assetPath = path.join(rootPath, asset.name, asset.targetFileName);
-        contents.files[assetPath] = asset.publicPath;
+        contents.files[asset.assetPath] = asset.publicPath;
     }
 
     await pWriteFile(assetManifest, JSON.stringify(contents, null, 2));
