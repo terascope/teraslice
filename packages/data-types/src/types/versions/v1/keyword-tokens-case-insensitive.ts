@@ -1,11 +1,8 @@
 
 import BaseType from '../base-type';
-import { TypeConfig, ElasticSearchTypes } from '../../../interfaces';
+import { ElasticSearchTypes } from '../../../interfaces';
 
 export default class KeywordTokensCaseInsensitive extends BaseType {
-    constructor(field: string, config: TypeConfig) {
-        super(field, config);
-    }
 
     toESMapping(version?: number) {
         return {

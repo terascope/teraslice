@@ -1,10 +1,7 @@
 import BaseType from '../base-type';
-import { TypeConfig, ElasticSearchTypes } from '../../../interfaces';
+import { ElasticSearchTypes } from '../../../interfaces';
 
 export default class GeoType extends BaseType {
-    constructor(field: string, config:TypeConfig) {
-        super(field, config);
-    }
 
     toESMapping() {
         return { mapping: { [this.field]: { type: 'geo_point' as ElasticSearchTypes } } };
