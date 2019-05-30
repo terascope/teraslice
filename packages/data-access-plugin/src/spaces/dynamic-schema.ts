@@ -60,6 +60,17 @@ function createTypings(configs: DataAccessConfig[]) {
     return results;
 }
 
+function hasKey(values: string[], field:string) {
+    const results = values.filter((value) => {
+        return (value === field || ts.startsWith(value, field));
+    });
+
+    if (results.length > 0) return results;
+    return false;
+}
+
+type CB = (key: string) => void;
+
 function iterateList(srcList:string[], comparaterList:string[], cb: CB) {
     srcList.forEach((key) => {
         const keyList = hasKey(comparaterList, key);
@@ -68,8 +79,6 @@ function iterateList(srcList:string[], comparaterList:string[], cb: CB) {
         }
     });
 }
-
-type CB = (key: string) => void;
 
 function restrict(fields: TypeConfigFields, includes: string[], exludes: string[]): TypeConfigFields {
     let results: TypeConfigFields;

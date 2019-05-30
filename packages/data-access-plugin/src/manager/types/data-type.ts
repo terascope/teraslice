@@ -7,8 +7,8 @@ export default `
     }
 
     input DataTypeConfigInput {
-        fields: DataTypeFields
-        version: Int
+        fields: DataTypeFields!
+        version: Int!
     }
 
     type DataType {

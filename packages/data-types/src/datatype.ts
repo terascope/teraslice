@@ -1,5 +1,5 @@
 
-import { DataTypeManager, DataTypeConfig, EsMapSettings, MappingConfiguration } from './interfaces';
+import { DataTypeManager, DataTypeConfig, ESMapSettings, MappingConfiguration } from './interfaces';
 import BaseType from './types/versions/base-type';
 import * as ts from '@terascope/utils';
 import { TypesManager } from './types';
@@ -28,13 +28,12 @@ export class DataType implements DataTypeManager {
         if (version == null) throw new ts.TSError('No version was specified in type_config');
         const typeManager = new TypesManager(version);
         const types:BaseType[] = [];
+
         for (const key in typesConfig) {
-            // ignore metadata settings
-            if (key.charAt(0) !== '$') {
-                const typeConfig = typesConfig[key];
-                types.push(typeManager.getType(key, typeConfig));
-            }
+            const typeConfig = typesConfig[key];
+            types.push(typeManager.getType(key, typeConfig));
         }
+
         if (typeName != null) this._name = typeName;
         this._types = types;
     }
@@ -75,7 +74,7 @@ export class DataType implements DataTypeManager {
         };
 
         // TODO: what default settings and analyzers should go here?
-        const settings: EsMapSettings = {
+        const settings: ESMapSettings = {
             ...settingsConfig,
             ...analysis
         };
@@ -98,7 +97,7 @@ export class DataType implements DataTypeManager {
         };
     }
 
-    toGraphQl(typeName?: string|null|undefined, typeInjection?:string) {
+    toGraphQL(typeName?: string|null|undefined, typeInjection?:string) {
         const { baseType, customTypes } = this.toGraphQLTypes(typeName, typeInjection);
 
         return  `
@@ -109,14 +108,14 @@ export class DataType implements DataTypeManager {
 
     toGraphQLTypes(typeName?: string|null|undefined, typeInjection?:string) {
         const name = typeName || this._name;
-        if (name == null) throw new ts.TSError('No name was specified to create the graphql type representing this data structure');
+        if (!name) throw new ts.TSError('No name was specified to create the graphql type representing this data structure');
         const customTypes: string[] = [];
         const baseCollection: string[] = [];
 
         if (typeInjection) baseCollection.push(typeInjection);
 
         this._types.forEach((typeClass) => {
-            const { type, custom_type: customType } = typeClass.toGraphQl();
+            const { type, custom_type: customType } = typeClass.toGraphQL();
             baseCollection.push(type);
             if (customType != null) customTypes.push(customType);
         });

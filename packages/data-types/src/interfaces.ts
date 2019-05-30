@@ -13,13 +13,13 @@ interface ObjectConfig {
 
 export interface MappingConfiguration {
     typeName: string;
-    settings?: EsMapSettings;
+    settings?: ESMapSettings;
     mappingMetaData?: ObjectConfig;
 }
 
 export interface DataTypeManager {
     toESMapping({}: MappingConfiguration): any;
-    toGraphQl(typeName?: string): string;
+    toGraphQL(typeName?: string): string;
     toGraphQLTypes(typeName?: string): GraphQlResults;
     toXlucene(typeName: string|null|undefined, typeInjection?:string): XluceneMapping;
 }
@@ -50,22 +50,22 @@ export type DataTypeConfig = {
     version: number;
 };
 
-export type EsTypeMapping = PropertyEsTypeMapping | BasicEsTypeMapping ;
+export type ESTypeMapping = PropertyESTypeMapping | BasicESTypeMapping ;
 
-interface BasicEsTypeMapping {
+interface BasicESTypeMapping {
     type: ElasticSearchTypes;
 }
 
-interface PropertyEsTypeMapping {
+interface PropertyESTypeMapping {
     type?: 'nested';
     properties: {
-        [key: string]: BasicEsTypeMapping
+        [key: string]: BasicESTypeMapping
     };
 }
 
 export interface EsMapping {
     mapping: {
-        [key: string]: EsTypeMapping;
+        [key: string]: ESTypeMapping;
     };
     analyzer?: {
         [key: string]: any;
@@ -84,7 +84,7 @@ export interface GraphQLType {
     custom_type?: string;
 }
 
-export interface EsMapSettings {
+export interface ESMapSettings {
     'index.number_of_shards'?: number;
     'index.number_of_replicas'?: number;
     analysis?: {
