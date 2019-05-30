@@ -279,19 +279,35 @@ async function readIndexHtml() {
 }
 
 function getPluginPath(name) {
+    let resolvedPath;
+
     const configPath = path.resolve(serverConfig.teraserver.plugins.path);
 
-    if (fs.existsSync(path.join(configPath, name))) {
-        return path.join(configPath, name);
+    if (!resolvedPath && fs.existsSync(path.join(configPath, name))) {
+        resolvedPath = path.join(configPath, name);
     }
 
-    try {
-        return require.resolve(name);
-    } catch (e) {
+    if (!resolvedPath) {
         try {
-            return require.resolve(`@terascope/${name}`);
+            resolvedPath = require.resolve(name);
+            // eslint-disable-next-line no-empty
+        } catch (e) {}
+    }
+
+    if (!resolvedPath) {
+        try {
+            resolvedPath = require.resolve(`@terascope/${name}`);
             // eslint-disable-next-line no-empty
         } catch (err) {}
-        throw new Error(`UI Plugin ${name} could not be found, caused by ${e.toString()}`);
     }
+
+    if (resolvedPath) {
+        resolvedPath = resolvedPath.replace(/\/build\/.*.js$/, '');
+    }
+
+    if (!resolvedPath) {
+        throw new Error(`UI Plugin ${name} could not be found`);
+    }
+
+    return resolvedPath;
 }
