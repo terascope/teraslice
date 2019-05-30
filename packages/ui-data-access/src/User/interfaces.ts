@@ -1,4 +1,4 @@
-import { User } from '@terascope/data-access';
+import { User, Role } from '@terascope/data-access';
 import { Overwrite } from '@terascope/utils';
 
 export type Input = Overwrite<
@@ -25,7 +25,4 @@ export const inputFields: (keyof Input)[] = [
     'api_token',
 ];
 
-export type UserRole = {
-    id: string;
-    name: string;
-};
+export type UserRole = Pick<Role, 'id' | 'name'>;

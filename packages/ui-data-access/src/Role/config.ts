@@ -4,6 +4,17 @@ import { formatDate } from '@terascope/ui-components';
 import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
 
+const fieldsFragment = gql`
+    fragment RoleFields on Role {
+        id
+        client_id
+        name
+        description
+        created
+        updated
+    }
+`;
+
 const config: ModelConfig<Input> = {
     name: 'Role',
     pathname: 'roles',
@@ -11,8 +22,7 @@ const config: ModelConfig<Input> = {
     pluralLabel: 'Roles',
     searchFields: ['name'],
     requiredFields: ['name'],
-    handleFormProps(authUser, data) {
-        const result = get(data, 'result');
+    handleFormProps(authUser, { result, ...extra }) {
         const input = {} as Input;
         for (const field of inputFields) {
             input[field] = get(result, field) || '';
@@ -20,14 +30,14 @@ const config: ModelConfig<Input> = {
         if (!input.client_id && authUser.client_id) {
             input.client_id = authUser.client_id;
         }
-        return { input };
+        return { input, ...extra };
     },
     rowMapping: {
         getId(record) {
-            return record.id;
+            return record.id!;
         },
         columns: {
-            name: { label: 'Role Name' },
+            name: { label: 'Name' },
             description: {
                 label: 'Description',
                 sortable: false,
@@ -46,24 +56,19 @@ const config: ModelConfig<Input> = {
     listQuery: gql`
         query Roles($query: String, $from: Int, $size: Int, $sort: String) {
             records: roles(query: $query, from: $from, size: $size, sort: $sort) {
-                id
-                name
-                description
-                updated
-                created
+                ...RoleFields
             }
             total: rolesCount(query: $query)
         }
+        ${fieldsFragment}
     `,
     updateQuery: gql`
         query UpdateQuery($id: ID!) {
             result: role(id: $id) {
-                id
-                name
-                description
-                client_id
+                ...RoleFields
             }
         }
+        ${fieldsFragment}
     `,
     createMutation: gql`
         mutation CreateRole($input: CreateRoleInput!) {

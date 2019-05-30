@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { get } from '@terascope/utils';
 import { formatDate } from '@terascope/ui-components';
-import { inputFields, Input, UserRole } from './interfaces';
+import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
 
 const fieldsFragment = gql`
@@ -43,8 +43,13 @@ const config: ModelConfig<Input> = {
             username: { label: 'Username' },
             firstname: { label: 'First Name' },
             lastname: { label: 'Last Name' },
-            // @ts-ignore
-            'role.name': { label: 'Role', sortable: false },
+            role: {
+                label: 'Role',
+                sortable: false,
+                format(record) {
+                    return get(record, 'role.name');
+                },
+            },
             created: {
                 label: 'Created',
                 format(record) {
@@ -53,8 +58,7 @@ const config: ModelConfig<Input> = {
             },
         },
     },
-    handleFormProps(authUser, data) {
-        const result = get(data, 'result');
+    handleFormProps(authUser, { result, ...extra }) {
         const input = {} as Input;
         for (const field of inputFields) {
             if (field === 'role') {
@@ -71,8 +75,7 @@ const config: ModelConfig<Input> = {
             input.client_id = 0;
         }
 
-        const roles: UserRole[] = get(data, 'roles', []);
-        return { input, roles };
+        return { input, ...extra };
     },
     listQuery: gql`
         query Users($query: String, $from: Int, $size: Int, $sort: String) {

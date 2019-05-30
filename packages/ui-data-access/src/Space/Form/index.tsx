@@ -8,7 +8,6 @@ import ModelForm, {
     BeforeSubmitFn,
     FormInput,
 } from '../../ModelForm';
-import Fields from './Fields';
 import config from '../config';
 import { validateFields } from './utils';
 
@@ -49,7 +48,7 @@ const ViewForm: React.FC<Props> = ({ id }) => {
             validate={validate}
             beforeSubmit={beforeSubmit}
         >
-            {({ defaultInputProps, updateModel, model }) => {
+            {({ defaultInputProps, model }) => {
                 return (
                     <React.Fragment>
                         <Form.Group>
@@ -57,7 +56,7 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                                 {...defaultInputProps}
                                 value={model.name}
                                 name="name"
-                                label={`${config.singularLabel} Name`}
+                                label="Name"
                             />
                             {authUser.type === 'SUPERADMIN' && (
                                 <FormInput
@@ -78,27 +77,11 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                                 width={8}
                             />
                         </Form.Group>
-                        <Fields
-                            label="Restricted Fields (inclusive)"
-                            description="A whitelist of fields that can be views and searched"
-                            update={includes => {
-                                updateModel({ includes });
-                            }}
-                            fields={model.includes}
-                        />
-                        <Fields
-                            label="Restricted Fields (exclusive)"
-                            description="A blacklist of fields that can be views and searched"
-                            update={excludes => {
-                                updateModel({ excludes });
-                            }}
-                            fields={model.excludes}
-                        />
                         <Form.Group>
                             <FormInput
                                 {...defaultInputProps}
-                                value={model.name}
-                                name="constraint"
+                                value={model.endpoint}
+                                name="endpoint"
                                 label={`${config.singularLabel} Constraint`}
                             />
                         </Form.Group>

@@ -5,6 +5,14 @@ import { Overwrite } from '@terascope/utils';
 
 export const modelNames: ModelName[] = ['User', 'Role', 'DataType', 'View', 'Space'];
 export const ModelNameProp = PropTypes.oneOf(modelNames);
+export type FormData<T> = {
+    [extra: string]: any;
+    result: T;
+};
+export type FormResult<T> = {
+    [extra: string]: any;
+    input: T;
+};
 
 export type ModelConfig<Input> = {
     name: ModelName;
@@ -19,12 +27,6 @@ export type ModelConfig<Input> = {
     removeMutation: any;
     searchFields: (keyof Input)[];
     requiredFields: (keyof Input)[];
-    handleFormProps: (
-        authUser: ResolvedUser,
-        data: Input
-    ) => {
-        [extra: string]: any;
-        input: Input;
-    };
+    handleFormProps: (authUser: ResolvedUser, data: FormData<Input>) => FormResult<Input>;
     rowMapping: RowMapping<Overwrite<Input, { id: string }>>;
 };

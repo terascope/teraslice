@@ -4,6 +4,18 @@ import { formatDate } from '@terascope/ui-components';
 import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
 
+const fieldsFragment = gql`
+    fragment DataTypeFields on DataType {
+        id
+        client_id
+        name
+        description
+        type_config
+        created
+        updated
+    }
+`;
+
 const config: ModelConfig<Input> = {
     name: 'DataType',
     pathname: 'data-types',
@@ -11,8 +23,7 @@ const config: ModelConfig<Input> = {
     pluralLabel: 'Data Types',
     searchFields: ['name'],
     requiredFields: ['name'],
-    handleFormProps(authUser, data) {
-        const result = get(data, 'result');
+    handleFormProps(authUser, { result, ...extra }) {
         const input = {} as Input;
         for (const field of inputFields) {
             if (field === 'type_config') {
@@ -24,14 +35,14 @@ const config: ModelConfig<Input> = {
         if (!input.client_id && authUser.client_id) {
             input.client_id = authUser.client_id;
         }
-        return { input };
+        return { input, ...extra };
     },
     rowMapping: {
         getId(record) {
             return record.id;
         },
         columns: {
-            name: { label: 'Data Type Name' },
+            name: { label: 'Name' },
             description: {
                 label: 'Description',
                 sortable: false,
@@ -50,26 +61,19 @@ const config: ModelConfig<Input> = {
     listQuery: gql`
         query DataTypes($query: String, $from: Int, $size: Int, $sort: String) {
             records: dataTypes(query: $query, from: $from, size: $size, sort: $sort) {
-                id
-                name
-                description
-                type_config
-                updated
-                created
+                ...DataTypeFields
             }
             total: dataTypesCount(query: $query)
         }
+        ${fieldsFragment}
     `,
     updateQuery: gql`
         query UpdateQuery($id: ID!) {
             result: dataType(id: $id) {
-                id
-                name
-                description
-                type_config
-                client_id
+                ...DataTypeFields
             }
         }
+        ${fieldsFragment}
     `,
     createMutation: gql`
         mutation CreateDataType($input: CreateDataTypeInput!) {

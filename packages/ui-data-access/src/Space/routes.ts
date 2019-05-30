@@ -7,7 +7,7 @@ const routes: PluginRoute[] = [
     {
         name: `${config.pluralLabel}`,
         path: `/${config.pathname}`,
-        icon: 'space shuttle',
+        icon: 'block layout',
         component: List,
         actions: [`/${config.pathname}/create`],
     },

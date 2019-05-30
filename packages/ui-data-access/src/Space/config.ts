@@ -10,6 +10,7 @@ const fieldsFragment = gql`
         id
         name
         description
+        endpoint
         views {
             id
             name
@@ -42,33 +43,33 @@ const config: ModelConfig<Input> = {
     pathname: 'spaces',
     singularLabel: 'Space',
     pluralLabel: 'Spaces',
-    searchFields: ['name'],
-    requiredFields: ['name'],
-    handleFormProps(authUser, data) {
-        const result = get(data, 'result');
+    searchFields: ['name', 'endpoint'],
+    requiredFields: ['name', 'endpoint'],
+    handleFormProps(authUser, { result, ...extra }) {
         const input = {} as Input;
         for (const field of inputFields) {
             if (field === 'search_config') {
-                input[field] = get(result, field) || {};
-            } else if (['roles', 'views'].includes(field)) {
-                const arr = get(result, field) || [];
-                type ArrVal = { id: string } | string;
-                input[field] = arr.map((o: ArrVal) => get(o, 'id', o)).filter((s: string) => !!s);
+                input.search_config = get(result, 'search_config', { index: '' });
+            } else if (field === 'roles') {
+                input.roles = (get(result, 'roles') || []).map((o: any) => o.id);
+            } else if (field === 'views') {
+                input.views = (get(result, 'views') || []).map((o: any) => o.id);
             } else {
-                input[field] = get(result, field) || '';
+                input[field] = get(result, field, '');
             }
         }
         if (!input.client_id && authUser.client_id) {
             input.client_id = authUser.client_id;
         }
-        return { input };
+        return { input, ...extra };
     },
     rowMapping: {
         getId(record) {
-            return record.id;
+            return record.id!;
         },
         columns: {
-            name: { label: 'Space Name' },
+            name: { label: 'Name' },
+            endpoint: { label: 'Endpoint' },
             description: {
                 label: 'Description',
                 sortable: false,
@@ -95,6 +96,18 @@ const config: ModelConfig<Input> = {
     `,
     updateQuery: gql`
         query UpdateQuery($id: ID!) {
+            roles(query: "*") {
+                id
+                name
+            }
+            dataTypes(query: "*") {
+                id
+                name
+            }
+            views(query: "*") {
+                id
+                name
+            }
             result: space(id: $id) {
                 ...SpaceFields
             }
@@ -102,12 +115,20 @@ const config: ModelConfig<Input> = {
         ${fieldsFragment}
     `,
     createQuery: gql`
-        query CreateQuery($id: ID!) {
-            result: space(id: $id) {
-                ...SpaceFields
+        {
+            roles(query: "*") {
+                id
+                name
+            }
+            dataTypes(query: "*") {
+                id
+                name
+            }
+            views(query: "*") {
+                id
+                name
             }
         }
-        ${fieldsFragment}
     `,
     createMutation: gql`
         mutation CreateSpace($input: CreateSpaceInput!) {

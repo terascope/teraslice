@@ -54,7 +54,7 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
                                 {...defaultInputProps}
                                 value={model.name}
                                 name="name"
-                                label={`${config.singularLabel} Name`}
+                                label="Name"
                             />
                             {authUser.type === 'SUPERADMIN' && (
                                 <FormInput

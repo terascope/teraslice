@@ -57,7 +57,7 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                                 {...defaultInputProps}
                                 value={model.name}
                                 name="name"
-                                label={`${config.singularLabel} Name`}
+                                label="Name"
                             />
                             {authUser.type === 'SUPERADMIN' && (
                                 <FormInput
@@ -78,6 +78,14 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                                 width={8}
                             />
                         </Form.Group>
+                        <Form.Group>
+                            <FormInput
+                                {...defaultInputProps}
+                                value={model.constraint}
+                                name="constraint"
+                                label="Search Query Constraint"
+                            />
+                        </Form.Group>
                         <Fields
                             label="Restricted Fields (inclusive)"
                             description="A whitelist of fields that can be views and searched"
@@ -94,14 +102,6 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                             }}
                             fields={model.excludes}
                         />
-                        <Form.Group>
-                            <FormInput
-                                {...defaultInputProps}
-                                value={model.name}
-                                name="constraint"
-                                label={`${config.singularLabel} Constraint`}
-                            />
-                        </Form.Group>
                     </React.Fragment>
                 );
             }}

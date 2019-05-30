@@ -43,7 +43,7 @@ const FormQuery: React.FC<Props> = ({
                 if (loading) return <LoadingPage />;
                 if (error) return <ErrorPage error={error} />;
 
-                const props = config.handleFormProps(authUser, data);
+                const props = config.handleFormProps(authUser, data || {});
 
                 return (
                     <Segment basic>

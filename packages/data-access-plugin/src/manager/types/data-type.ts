@@ -6,7 +6,7 @@ export default `
         name: String
         description: String
         type_config: JSON
-        # virutal references
+        # virtual references
         spaces: [Space]
         views: [View]
     }

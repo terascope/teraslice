@@ -73,7 +73,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                             <FormInput
                                 {...defaultInputProps}
                                 name="username"
-                                label={`${config.singularLabel} Name`}
+                                label="Username"
                                 value={model.username}
                             />
                             {authUser.type === 'SUPERADMIN' && (
