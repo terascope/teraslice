@@ -15,6 +15,10 @@
     display: block !important;
 }
 
+.daFormGroupDescription {
+    margin-top: 0 !important;
+}
+
 .daFormMessageCode {
     display: inline;
     font-weight: bold;

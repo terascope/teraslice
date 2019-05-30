@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
-import { toInteger, concat } from '@terascope/utils';
+import { toInteger } from '@terascope/utils';
 import { useCoreContext } from '@terascope/ui-components';
 import ModelForm, {
     ValidateFn,
@@ -79,36 +79,18 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                             />
                         </Form.Group>
                         <Fields
-                            label="Includes"
+                            label="Restricted Fields (inclusive)"
                             description="A whitelist of fields that can be views and searched"
-                            removeField={field => {
-                                updateModel({
-                                    includes: model.includes.filter(
-                                        (f: string) => f !== field
-                                    ),
-                                });
-                            }}
-                            addField={field => {
-                                updateModel({
-                                    includes: concat(model.includes, [field]),
-                                });
+                            update={includes => {
+                                updateModel({ includes });
                             }}
                             fields={model.includes}
                         />
                         <Fields
-                            label="Excludes"
+                            label="Restricted Fields (exclusive)"
                             description="A blacklist of fields that can be views and searched"
-                            removeField={field => {
-                                updateModel({
-                                    excludes: model.excludes.filter(
-                                        (f: string) => f !== field
-                                    ),
-                                });
-                            }}
-                            addField={field => {
-                                updateModel({
-                                    excludes: concat(model.excludes, [field]),
-                                });
+                            update={excludes => {
+                                updateModel({ excludes });
                             }}
                             fields={model.excludes}
                         />

@@ -9,7 +9,7 @@ import { parseTypeConfig } from './utils';
 const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig = {} }) => {
     const entries = parseTypeConfig(typeConfig);
     return (
-        <Segment.Group className="daFieldValueGroup">
+        <Segment.Group className="daFormGroup">
             <Header as="h5" block attached="top">
                 Type Configuration
             </Header>

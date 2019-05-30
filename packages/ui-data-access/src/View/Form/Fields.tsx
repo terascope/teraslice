@@ -3,20 +3,15 @@ import PropTypes from 'prop-types';
 import { Segment, Header, Message, Icon } from 'semantic-ui-react';
 import AddField from './AddField';
 import ExistingField from './ExistingField';
+import { concat } from '@terascope/utils';
 
-const Fields: React.FC<Props> = ({
-    fields,
-    addField,
-    removeField,
-    label,
-    description,
-}) => {
+const Fields: React.FC<Props> = ({ fields, update, label, description }) => {
     return (
-        <Segment.Group className="daFieldValueGroup">
+        <Segment.Group className="daFormGroup">
             <Header as="h5" block attached="top">
                 {label}
             </Header>
-            <Message attached="top">
+            <Message attached="top" className="daFormGroupDescription">
                 <Icon name="info" />
                 {description}
             </Message>
@@ -25,12 +20,18 @@ const Fields: React.FC<Props> = ({
                 return (
                     <ExistingField
                         key={key}
-                        removeField={removeField}
+                        removeField={removed => {
+                            update(fields.filter((f: string) => f !== removed));
+                        }}
                         field={field}
                     />
                 );
             })}
-            <AddField addField={addField} />
+            <AddField
+                addField={added => {
+                    update(concat(fields, [added]));
+                }}
+            />
         </Segment.Group>
     );
 };
@@ -39,15 +40,13 @@ type Props = {
     label: string;
     description: any;
     fields: string[];
-    addField: (field: string) => void;
-    removeField: (field: string) => void;
+    update: (fields: string[]) => void;
 };
 
 Fields.propTypes = {
     label: PropTypes.string.isRequired,
     description: PropTypes.any.isRequired,
-    addField: PropTypes.func.isRequired,
-    removeField: PropTypes.func.isRequired,
+    update: PropTypes.func.isRequired,
     fields: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
 };
 
