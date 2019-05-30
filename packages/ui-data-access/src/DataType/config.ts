@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
 import { get } from '@terascope/utils';
 import { formatDate } from '@terascope/ui-components';
-import { inputFields, Input } from './Form/interfaces';
+import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
 
-const config: ModelConfig = {
+const config: ModelConfig<Input> = {
     name: 'DataType',
     pathname: 'data-types',
     singularLabel: 'Data Type',
@@ -12,13 +12,13 @@ const config: ModelConfig = {
     searchFields: ['name'],
     requiredFields: ['name'],
     handleFormProps(authUser, data) {
-        const dataTypes = get(data, 'dataType');
+        const result = get(data, 'result');
         const input = {} as Input;
         for (const field of inputFields) {
             if (field === 'type_config') {
-                input[field] = get(dataTypes, field) || {};
+                input[field] = get(result, field) || {};
             } else {
-                input[field] = get(dataTypes, field) || '';
+                input[field] = get(result, field) || '';
             }
         }
         if (!input.client_id && authUser.client_id) {
@@ -62,7 +62,7 @@ const config: ModelConfig = {
     `,
     updateQuery: gql`
         query UpdateQuery($id: ID!) {
-            dataType(id: $id) {
+            result: dataType(id: $id) {
                 id
                 name
                 description

@@ -1,10 +1,28 @@
 import gql from 'graphql-tag';
 import { get } from '@terascope/utils';
 import { formatDate } from '@terascope/ui-components';
-import { inputFields, Input, Role } from './Form/interfaces';
+import { inputFields, Input, UserRole } from './interfaces';
 import { ModelConfig } from '../interfaces';
 
-const config: ModelConfig = {
+const fieldsFragment = gql`
+    fragment UserFields on User {
+        id
+        client_id
+        firstname
+        lastname
+        username
+        email
+        role {
+            id
+            name
+        }
+        type
+        updated
+        created
+    }
+`;
+
+const config: ModelConfig<Input> = {
     name: 'User',
     pathname: 'users',
     singularLabel: 'User',
@@ -25,6 +43,7 @@ const config: ModelConfig = {
             username: { label: 'Username' },
             firstname: { label: 'First Name' },
             lastname: { label: 'Last Name' },
+            // @ts-ignore
             'role.name': { label: 'Role', sortable: false },
             created: {
                 label: 'Created',
@@ -35,13 +54,13 @@ const config: ModelConfig = {
         },
     },
     handleFormProps(authUser, data) {
-        const user = get(data, 'user');
+        const result = get(data, 'result');
         const input = {} as Input;
         for (const field of inputFields) {
             if (field === 'role') {
-                input.role = get(user, 'role.id') || '';
+                input.role = get(result, 'role.id') || '';
             } else {
-                input[field] = get(user, field) || '';
+                input[field] = get(result, field) || '';
             }
         }
         if (!input.client_id && authUser.client_id) {
@@ -52,28 +71,17 @@ const config: ModelConfig = {
             input.client_id = 0;
         }
 
-        const roles: Role[] = get(data, 'roles', []);
+        const roles: UserRole[] = get(data, 'roles', []);
         return { input, roles };
     },
     listQuery: gql`
         query Users($query: String, $from: Int, $size: Int, $sort: String) {
             records: users(query: $query, from: $from, size: $size, sort: $sort) {
-                id
-                client_id
-                firstname
-                lastname
-                username
-                email
-                role {
-                    id
-                    name
-                }
-                type
-                updated
-                created
+                ...UserFields
             }
             total: usersCount(query: $query)
         }
+        ${fieldsFragment}
     `,
     updateQuery: gql`
         query UpdateQuery($id: ID!) {
@@ -81,21 +89,11 @@ const config: ModelConfig = {
                 id
                 name
             }
-            user(id: $id) {
-                id
-                client_id
-                firstname
-                lastname
-                username
-                email
-                api_token
-                role {
-                    id
-                    name
-                }
-                type
+            result: user(id: $id) {
+                ...UserFields
             }
         }
+        ${fieldsFragment}
     `,
     createQuery: gql`
         {

@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { AnyObject } from '@terascope/utils';
 import { ResolvedUser } from '../interfaces';
 
 export type QueryState = {
@@ -20,23 +21,21 @@ export const QueryStateProp = PropTypes.shape({
 export type SortDirection = 'asc' | 'desc';
 export type ParsedSort = { field: string; direction: SortDirection };
 
-export type ColumnMapping = {
+export type ColumnMapping<T = AnyObject> = {
     /** the field label */
     label: string;
     /** return a formatted value or react node*/
-    format?: (record: any) => any;
+    format?: (record: T) => any;
     /** @default true */
     sortable?: boolean;
 };
 
-export type ColumnMappings = {
-    [field: string]: ColumnMapping;
-};
+export type ColumnMappings<T = AnyObject> = { [field in keyof Partial<T>]: ColumnMapping<T> };
 
-export type RowMapping = {
-    getId: (record: any) => string;
-    canRemove?: (record: any, authUser?: ResolvedUser) => boolean;
-    columns: ColumnMappings;
+export type RowMapping<T = AnyObject> = {
+    getId: (record: T) => string;
+    canRemove?: (record: T, authUser?: ResolvedUser) => boolean;
+    columns: ColumnMappings<T>;
 };
 
 export const ColumnMappingProp = PropTypes.shape({

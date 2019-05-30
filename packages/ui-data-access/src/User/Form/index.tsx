@@ -9,7 +9,7 @@ import ModelForm, {
     FormInput,
 } from '../../ModelForm';
 import TokenForm from './TokenForm';
-import { Role } from './interfaces';
+import { UserRole } from '../interfaces';
 import config from '../config';
 
 const RolesForm: React.FC<Props> = ({ id }) => {
@@ -54,7 +54,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
             beforeSubmit={beforeSubmit}
         >
             {({ defaultInputProps, model, roles, update }) => {
-                const roleOptions = roles.map((role: Role) => ({
+                const roleOptions = roles.map((role: UserRole) => ({
                     key: role.id,
                     text: role.name,
                     value: role.id,

@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types';
 import { ModelName } from '@terascope/data-access';
 import { RowMapping, ResolvedUser } from '@terascope/ui-components';
-import { AnyObject } from '@terascope/utils';
+import { Overwrite } from '@terascope/utils';
 
 export const modelNames: ModelName[] = ['User', 'Role', 'DataType', 'View', 'Space'];
 export const ModelNameProp = PropTypes.oneOf(modelNames);
 
-export type ModelConfig = {
+export type ModelConfig<Input> = {
     name: ModelName;
     pathname: string;
     singularLabel: string;
@@ -17,16 +17,14 @@ export type ModelConfig = {
     createMutation: any;
     updateMutation: any;
     removeMutation: any;
-    searchFields: string[];
-    requiredFields: string[];
+    searchFields: (keyof Input)[];
+    requiredFields: (keyof Input)[];
     handleFormProps: (
         authUser: ResolvedUser,
-        data: any
+        data: Input
     ) => {
         [extra: string]: any;
-        input: AnyObject;
+        input: Input;
     };
-    rowMapping: RowMapping;
+    rowMapping: RowMapping<Overwrite<Input, { id: string }>>;
 };
-
-export type ModelConfigMapping = { readonly [name in ModelName]: ModelConfig };

@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
 import { get } from '@terascope/utils';
 import { formatDate } from '@terascope/ui-components';
-import { inputFields, Input } from './Form/interfaces';
+import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
 
-const config: ModelConfig = {
+const config: ModelConfig<Input> = {
     name: 'Role',
     pathname: 'roles',
     singularLabel: 'Role',
@@ -12,10 +12,10 @@ const config: ModelConfig = {
     searchFields: ['name'],
     requiredFields: ['name'],
     handleFormProps(authUser, data) {
-        const role = get(data, 'role');
+        const result = get(data, 'result');
         const input = {} as Input;
         for (const field of inputFields) {
-            input[field] = get(role, field) || '';
+            input[field] = get(result, field) || '';
         }
         if (!input.client_id && authUser.client_id) {
             input.client_id = authUser.client_id;
@@ -57,7 +57,7 @@ const config: ModelConfig = {
     `,
     updateQuery: gql`
         query UpdateQuery($id: ID!) {
-            role(id: $id) {
+            result: role(id: $id) {
                 id
                 name
                 description

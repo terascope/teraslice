@@ -46,6 +46,7 @@ export default `
         preserve_index_name: Boolean
         require_query: Boolean
         default_date_field: String
+        enable_history: Boolean
         history_prefix: String
     }
     type SpaceStreamingConfig {

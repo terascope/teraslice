@@ -1,12 +1,13 @@
-export type Input = {
-    id?: string;
-    client_id: number | string;
-    name: string;
-    description: string;
-    type_config: {
-        [field: string]: string;
-    };
-};
+import { Overwrite } from '@terascope/utils';
+import { DataType } from '@terascope/data-access';
+
+export type Input = Overwrite<
+    DataType,
+    {
+        id?: string;
+        client_id: number | string;
+    }
+>;
 
 export const inputFields: (keyof Input)[] = ['id', 'client_id', 'description', 'name', 'type_config'];
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
-import { dataTypeOptions, availableDataTypes } from './interfaces';
+import { dataTypeOptions, availableDataTypes } from '../interfaces';
 
 const FieldType: React.FC<Props> = ({ type, onChange }) => {
     const isInvalid = Boolean(type && !availableDataTypes.includes(type));

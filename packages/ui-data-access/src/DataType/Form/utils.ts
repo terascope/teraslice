@@ -1,5 +1,5 @@
 import { AnyObject } from '@terascope/utils';
-import { availableDataTypes } from './interfaces';
+import { availableDataTypes } from '../interfaces';
 
 export function validateFieldName(field: any): boolean {
     if (!field) return false;

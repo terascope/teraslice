@@ -2,7 +2,7 @@ import React from 'react';
 import { ApolloConsumer } from 'react-apollo';
 import { ModelName } from '@terascope/data-access';
 import ListQuery from './Query';
-import { DataTable } from '@terascope/ui-components';
+import { DataTable, RowMapping } from '@terascope/ui-components';
 import { getModelConfig } from '../config';
 import { ModelNameProp } from '../interfaces';
 
@@ -16,7 +16,7 @@ const ModelList: React.FC<Props> = ({ modelName }) => {
                     <ApolloConsumer>
                         {client => (
                             <DataTable
-                                rowMapping={config.rowMapping}
+                                rowMapping={config.rowMapping as RowMapping}
                                 baseEditPath={`/${config.pathname}/edit`}
                                 removeRecords={async docs => {
                                     if (docs === true) {

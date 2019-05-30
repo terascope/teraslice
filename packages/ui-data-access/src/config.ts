@@ -1,28 +1,16 @@
 import { ModelName } from '@terascope/data-access';
-import { ModelConfigMapping } from './interfaces';
-import userConfig from './User/config';
-import roleConfig from './Role/config';
-import dataTypeConfig from './DataType/config';
-import viewConfig from './View/config';
+import User from './User/config';
+import Role from './Role/config';
+import DataType from './DataType/config';
+import View from './View/config';
+import Space from './Space/config';
 
-const MODEL_CONFIG: ModelConfigMapping = {
-    User: userConfig,
-    Role: roleConfig,
-    DataType: dataTypeConfig,
-    View: viewConfig,
-    Space: {
-        name: 'Space',
-        pathname: 'spaces',
-        singularLabel: 'Space',
-        pluralLabel: 'Spaces',
-        searchFields: [],
-        requiredFields: [],
-        // @ts-ignore FIXME
-        rowMapping: {},
-        removeMutation: '',
-        updateQuery: '',
-        listQuery: '',
-    },
+const MODEL_CONFIG = {
+    User,
+    Role,
+    DataType,
+    Space,
+    View,
 };
 
 export function getModelConfig(modelName: ModelName) {
