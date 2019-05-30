@@ -62,7 +62,10 @@ const config: ModelConfig<Input> = {
         const input = {} as Input;
         for (const field of inputFields) {
             if (field === 'role') {
-                input.role = get(result, 'role.id') || '';
+                input.role = get(result, 'role', {
+                    id: '',
+                    name: '',
+                });
             } else {
                 input[field] = get(result, field) || '';
             }

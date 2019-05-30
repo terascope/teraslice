@@ -19,6 +19,14 @@ const fieldsFragment = gql`
             id
             name
         }
+        data_type {
+            id
+            name
+            views {
+                id
+                name
+            }
+        }
         search_config {
             index
             connection
@@ -45,7 +53,7 @@ const config: ModelConfig<Input> = {
     pluralLabel: 'Spaces',
     searchFields: ['name', 'endpoint'],
     requiredFields: ['name', 'endpoint'],
-    handleFormProps(authUser, { result, ...extra }) {
+    handleFormProps(authUser, { result, views, ...extra }) {
         const input = {} as Input;
         for (const field of inputFields) {
             if (field === 'search_config') {
@@ -54,6 +62,12 @@ const config: ModelConfig<Input> = {
                 input.roles = (get(result, 'roles') || []).map((o: any) => o.id);
             } else if (field === 'views') {
                 input.views = (get(result, 'views') || []).map((o: any) => o.id);
+            } else if (field === 'data_type') {
+                input.data_type = get(result, 'data_type', {
+                    id: '',
+                    name: '',
+                    views,
+                });
             } else {
                 input[field] = get(result, field, '');
             }
@@ -61,6 +75,7 @@ const config: ModelConfig<Input> = {
         if (!input.client_id && authUser.client_id) {
             input.client_id = authUser.client_id;
         }
+
         return { input, ...extra };
     },
     rowMapping: {
@@ -97,14 +112,6 @@ const config: ModelConfig<Input> = {
     updateQuery: gql`
         query UpdateQuery($id: ID!) {
             roles(query: "*") {
-                id
-                name
-            }
-            dataTypes(query: "*") {
-                id
-                name
-            }
-            views(query: "*") {
                 id
                 name
             }

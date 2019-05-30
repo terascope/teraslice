@@ -6,8 +6,9 @@ import ModelForm, {
     ValidateFn,
     BeforeSubmitFn,
     FormInput,
+    FormSelect,
 } from '../../ModelForm';
-import { UserRole, Input } from '../interfaces';
+import { Input } from '../interfaces';
 import TokenForm from './TokenForm';
 import config from '../config';
 
@@ -26,7 +27,12 @@ const RolesForm: React.FC<Props> = ({ id }) => {
         delete model.repeat_password;
 
         const input = { ...model };
-        if (!input.role) delete model.role;
+        if (!input.role || !input.role.id) {
+            delete model.role;
+        } else {
+            // @ts-ignore
+            input.role = model.role.id;
+        }
         if (create) {
             delete input.id;
         }
@@ -48,12 +54,6 @@ const RolesForm: React.FC<Props> = ({ id }) => {
             beforeSubmit={beforeSubmit}
         >
             {({ defaultInputProps, model, roles, update }) => {
-                const roleOptions = roles.map((role: UserRole) => ({
-                    key: role.id,
-                    text: role.name,
-                    value: role.id,
-                }));
-
                 const userTypes = UserPermissionMap[authUser.type];
                 const userTypeOptions = userTypes.map(type => ({
                     key: type,
@@ -106,14 +106,14 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                         </Form.Group>
                         <Form.Group />
                         <Form.Group>
-                            <FormInput<Input>
+                            <FormSelect<Input>
                                 {...defaultInputProps}
                                 as={Form.Select}
                                 name="role"
                                 label="Role"
                                 placeholder="Select Role"
                                 value={model.role}
-                                options={roleOptions}
+                                options={roles}
                             />
                             <FormInput<Input>
                                 {...defaultInputProps}

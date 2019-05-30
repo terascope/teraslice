@@ -1,6 +1,13 @@
 import { Space, Role, DataType, View } from '@terascope/data-access';
 import { Overwrite } from '@terascope/utils';
 
+type SpaceDataType = Overwrite<
+    Pick<DataType, 'id' | 'name'>,
+    {
+        views: Pick<View, 'id' | 'name'>[];
+    }
+>;
+
 export type Input = Overwrite<
     Space,
     {
@@ -8,7 +15,7 @@ export type Input = Overwrite<
         client_id: number | string;
         views: Pick<View, 'id' | 'name'>[];
         roles: Pick<Role, 'id' | 'name'>[];
-        data_type: Pick<DataType, 'id' | 'name'>[];
+        data_type: SpaceDataType;
     }
 >;
 
@@ -23,18 +30,3 @@ export const inputFields: (keyof Input)[] = [
     'views',
     'data_type',
 ];
-
-export type SpaceRole = {
-    id: string;
-    name: string;
-};
-
-export type SpaceView = {
-    id: string;
-    name: string;
-};
-
-export type SpaceDataType = {
-    id: string;
-    name: string;
-};

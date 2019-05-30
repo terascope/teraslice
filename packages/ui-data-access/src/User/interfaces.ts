@@ -8,6 +8,7 @@ export type Input = Overwrite<
         client_id: number | string;
         password: string;
         repeat_password: string;
+        role: Pick<Role, 'id' | 'name'>;
     }
 >;
 
@@ -24,5 +25,3 @@ export const inputFields: (keyof Input)[] = [
     'repeat_password',
     'api_token',
 ];
-
-export type UserRole = Pick<Role, 'id' | 'name'>;
