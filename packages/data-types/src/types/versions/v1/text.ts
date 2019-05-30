@@ -8,7 +8,7 @@ export default class Text extends BaseType {
         return { mapping: { [this.field]: { type: 'text' as ElasticSearchTypes } } };
     }
 
-    toGraphQl() {
+    toGraphQL() {
         return { type: `${this.field}: String` };
     }
 

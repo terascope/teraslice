@@ -8,7 +8,7 @@ export default class Long extends BaseType {
         return { mapping: { [this.field]: { type: 'long' as ElasticSearchTypes } } };
     }
 
-    toGraphQl() {
+    toGraphQL() {
         return { type: `${this.field}: Int` };
     }
 

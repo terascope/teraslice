@@ -44,7 +44,7 @@ export default class Hostname extends BaseType {
         };
     }
 
-    toGraphQl() {
+    toGraphQL() {
         return { type: `${this.field}: String` };
     }
 

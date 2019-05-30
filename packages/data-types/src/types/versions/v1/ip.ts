@@ -8,7 +8,7 @@ export default class IpType extends BaseType {
         return { mapping: { [this.field]: { type: 'ip' as ElasticSearchTypes } } };
     }
 
-    toGraphQl() {
+    toGraphQL() {
         return { type: `${this.field}: String` };
     }
 

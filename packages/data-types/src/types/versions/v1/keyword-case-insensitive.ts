@@ -22,7 +22,7 @@ export default class KeywordCaseInsensitive extends BaseType {
         };
     }
 
-    toGraphQl() {
+    toGraphQL() {
         return { type: `${this.field}: String` };
     }
 

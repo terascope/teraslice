@@ -17,7 +17,7 @@ export default class Boundary extends BaseType {
         };
     }
 
-    toGraphQl() {
+    toGraphQL() {
         const customType = `
         type GeoNumb {
             lat: Int!

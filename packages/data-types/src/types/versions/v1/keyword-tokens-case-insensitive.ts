@@ -28,7 +28,7 @@ export default class KeywordTokensCaseInsensitive extends BaseType {
         };
     }
 
-    toGraphQl() {
+    toGraphQL() {
         return { type: `${this.field}: String` };
     }
 

@@ -8,7 +8,7 @@ export default class Keyword extends BaseType {
         return { mapping: { [this.field]: { type: 'keyword' as ElasticSearchTypes } } };
     }
 
-    toGraphQl() {
+    toGraphQL() {
         return { type: `${this.field}: String` };
     }
 

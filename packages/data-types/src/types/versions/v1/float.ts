@@ -8,7 +8,7 @@ export default class Float extends BaseType {
         return { mapping: { [this.field]: { type: 'float' as ElasticSearchTypes } } };
     }
 
-    toGraphQl() {
+    toGraphQL() {
         return { type: `${this.field}: Float` };
     }
 

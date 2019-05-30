@@ -21,7 +21,7 @@ export default class KeywordTokens extends BaseType {
         };
     }
 
-    toGraphQl() {
+    toGraphQL() {
         return { type: `${this.field}: String` };
     }
 

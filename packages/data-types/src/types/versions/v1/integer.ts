@@ -8,7 +8,7 @@ export default class Integer extends BaseType {
         return { mapping: { [this.field]: { type: 'integer' as ElasticSearchTypes } } };
     }
 
-    toGraphQl() {
+    toGraphQL() {
         return { type: `${this.field}: Int` };
     }
 
