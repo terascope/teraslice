@@ -1,15 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
-import { useCoreContext } from '@terascope/ui-components';
-import ModelForm, { FormInput, FormSelect } from '../../ModelForm';
+import ModelForm, { FormInput, FormSelect, ClientID } from '../../ModelForm';
 import config from '../config';
 import { Input } from '../interfaces';
 import { mapForeignRef } from '../../ModelForm/utils';
 
 const SpaceForm: React.FC<Props> = ({ id }) => {
-    const authUser = useCoreContext().authUser!;
-
     return (
         <ModelForm<Input>
             modelName={config.name}
@@ -32,14 +29,10 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
                                 name="name"
                                 label="Name"
                             />
-                            {authUser.type === 'SUPERADMIN' && (
-                                <FormInput<Input>
-                                    {...defaultInputProps}
-                                    value={`${model.client_id}`}
-                                    name="client_id"
-                                    label="Client ID"
-                                />
-                            )}
+                            <ClientID<Input>
+                                {...defaultInputProps}
+                                client_id={model.client_id}
+                            />
                         </Form.Group>
                         <Form.Group>
                             <FormInput<Input>

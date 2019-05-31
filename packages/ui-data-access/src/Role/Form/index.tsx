@@ -1,14 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
-import { useCoreContext } from '@terascope/ui-components';
-import ModelForm, { FormInput } from '../../ModelForm';
+import ModelForm, { FormInput, ClientID } from '../../ModelForm';
 import config from '../config';
 import { Input } from '../interfaces';
 
 const RolesForm: React.FC<Props> = ({ id }) => {
-    const authUser = useCoreContext().authUser!;
-
     return (
         <ModelForm<Input>
             modelName={config.name}
@@ -25,14 +22,10 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                                 label="Name"
                                 value={model.name}
                             />
-                            {authUser.type === 'SUPERADMIN' && (
-                                <FormInput<Input>
-                                    {...defaultInputProps}
-                                    name="client_id"
-                                    label="Client ID"
-                                    value={`${model.client_id}`}
-                                />
-                            )}
+                            <ClientID<Input>
+                                {...defaultInputProps}
+                                client_id={model.client_id}
+                            />
                         </Form.Group>
                         <Form.Group>
                             <FormInput<Input>

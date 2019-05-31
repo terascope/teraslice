@@ -1,8 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
-import { useCoreContext } from '@terascope/ui-components';
-import ModelForm, { ValidateFn, FormInput, FormSelect } from '../../ModelForm';
+import ModelForm, {
+    ValidateFn,
+    FormInput,
+    FormSelect,
+    ClientID,
+} from '../../ModelForm';
 import Fields from './Fields';
 import config from '../config';
 import { Input } from '../interfaces';
@@ -10,8 +14,6 @@ import { validateFields } from './utils';
 import { mapForeignRef } from '../../ModelForm/utils';
 
 const ViewForm: React.FC<Props> = ({ id }) => {
-    const authUser = useCoreContext().authUser!;
-
     const validate: ValidateFn<Input> = (errs, model) => {
         if (validateFields(model.excludes)) {
             errs.messages.push('Invalid Excludes');
@@ -47,14 +49,10 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                                 name="name"
                                 label="Name"
                             />
-                            {authUser.type === 'SUPERADMIN' && (
-                                <FormInput<Input>
-                                    {...defaultInputProps}
-                                    value={`${model.client_id}`}
-                                    name="client_id"
-                                    label="Client ID"
-                                />
-                            )}
+                            <ClientID<Input>
+                                {...defaultInputProps}
+                                client_id={model.client_id}
+                            />
                         </Form.Group>
                         <Form.Group>
                             <FormInput<Input>

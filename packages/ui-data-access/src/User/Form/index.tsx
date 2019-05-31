@@ -7,6 +7,7 @@ import ModelForm, {
     BeforeSubmitFn,
     FormInput,
     FormSelect,
+    ClientID,
 } from '../../ModelForm';
 import { Input } from '../interfaces';
 import TokenForm from './TokenForm';
@@ -65,15 +66,11 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                                 label="Username"
                                 value={model.username}
                             />
-                            {authUser.type === 'SUPERADMIN' && (
-                                <FormInput<Input>
-                                    {...defaultInputProps}
-                                    disabled={model.type === 'SUPERADMIN'}
-                                    name="client_id"
-                                    label="Client ID"
-                                    value={`${model.client_id}`}
-                                />
-                            )}
+                            <ClientID<Input>
+                                {...defaultInputProps}
+                                client_id={model.client_id}
+                                disabled={model.type === 'SUPERADMIN'}
+                            />
                         </Form.Group>
                         <Form.Group>
                             <FormInput<Input>
@@ -106,6 +103,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                                 as={Form.Select}
                                 name="role"
                                 label="Role"
+                                disabled={model.type === 'SUPERADMIN'}
                                 placeholder="Select Role"
                                 value={model.role}
                                 options={roles}

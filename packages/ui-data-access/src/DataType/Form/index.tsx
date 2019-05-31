@@ -1,16 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
-import { useCoreContext } from '@terascope/ui-components';
-import ModelForm, { FormInput } from '../../ModelForm';
+import ModelForm, { FormInput, ClientID } from '../../ModelForm';
 import TypeConfig from './TypeConfig';
 import config from '../config';
 import { validateTypeConfig } from './utils';
 import { Input } from '../interfaces';
 
 const DataTypeForm: React.FC<Props> = ({ id }) => {
-    const authUser = useCoreContext().authUser!;
-
     return (
         <ModelForm<Input>
             modelName={config.name}
@@ -32,14 +29,10 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
                                 name="name"
                                 label="Name"
                             />
-                            {authUser.type === 'SUPERADMIN' && (
-                                <FormInput<Input>
-                                    {...defaultInputProps}
-                                    value={`${model.client_id}`}
-                                    name="client_id"
-                                    label="Client ID"
-                                />
-                            )}
+                            <ClientID<Input>
+                                {...defaultInputProps}
+                                client_id={model.client_id}
+                            />
                         </Form.Group>
                         <Form.Group>
                             <FormInput<Input>

@@ -17,6 +17,7 @@ const fieldsFragment = gql`
             id
             name
         }
+        api_token
         type
         updated
         created
