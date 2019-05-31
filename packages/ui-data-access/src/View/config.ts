@@ -3,6 +3,7 @@ import { get } from '@terascope/utils';
 import { formatDate } from '@terascope/ui-components';
 import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
+import { copyField } from '../ModelForm/utils';
 
 const fieldsFragment = gql`
     fragment ViewFields on View {
@@ -46,28 +47,27 @@ const config: ModelConfig<Input> = {
     handleFormProps(authUser, { result, roles, dataTypes: _dataTypes, ...extra }) {
         const input = {} as Input;
         for (const field of inputFields) {
-            if (field === 'includes') {
-                input.includes = get(result, 'includes', []);
-            } else if (field === 'excludes') {
-                input.excludes = get(result, 'excludes', []);
+            if (['includes', 'excludes'].includes(field)) {
+                copyField(input, result, field, []);
             } else if (field === 'data_type') {
-                input.data_type = get(result, 'data_type', {
+                copyField(input, result, field, {
                     id: '',
                     name: '',
                     type_config: {},
                 });
             } else if (field === 'roles') {
-                input.roles = get(result, 'roles', []);
+                const defaultRoles = authUser.role ? [authUser.role] : [];
+                copyField(input, result, field, defaultRoles);
             } else if (field === 'space') {
-                input.space = get(result, 'space', {
+                copyField(input, result, 'space', {
                     id: '',
                     name: '',
                     roles: roles || [],
                 });
             } else if (field === 'prevent_prefix_wildcard') {
-                input.prevent_prefix_wildcard = get(result, 'prevent_prefix_wildcard') || false;
+                copyField(input, result, field, false);
             } else {
-                input[field] = get(result, field, '') as any;
+                copyField(input, result, field, '');
             }
         }
         if (!input.client_id && authUser.client_id) {

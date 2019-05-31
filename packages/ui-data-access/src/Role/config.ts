@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
-import { get } from '@terascope/utils';
 import { formatDate } from '@terascope/ui-components';
 import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
+import { copyField } from '../ModelForm/utils';
 
 const fieldsFragment = gql`
     fragment RoleFields on Role {
@@ -25,7 +25,7 @@ const config: ModelConfig<Input> = {
     handleFormProps(authUser, { result, ...extra }) {
         const input = {} as Input;
         for (const field of inputFields) {
-            input[field] = get(result, field, '') as any;
+            copyField(input, result, field, '');
         }
         if (!input.client_id && authUser.client_id) {
             input.client_id = authUser.client_id;

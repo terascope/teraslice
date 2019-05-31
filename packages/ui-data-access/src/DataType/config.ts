@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
-import { get } from '@terascope/utils';
 import { formatDate } from '@terascope/ui-components';
 import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
+import { copyField } from '../ModelForm/utils';
 
 const fieldsFragment = gql`
     fragment DataTypeFields on DataType {
@@ -27,9 +27,9 @@ const config: ModelConfig<Input> = {
         const input = {} as Input;
         for (const field of inputFields) {
             if (field === 'type_config') {
-                input[field] = get(result, field, {});
+                copyField(input, result, field, {});
             } else {
-                input[field] = get(result, field, '') as any;
+                copyField(input, result, field, '');
             }
         }
         if (!input.client_id && authUser.client_id) {

@@ -64,7 +64,7 @@ export type ResolvedUser = {
     password: string;
     repeat_password: string;
     type: UserType;
-    role: Partial<Role>;
+    role: Pick<Role, 'id' | 'name'>;
     api_token: string;
     created?: string;
     updated?: string;

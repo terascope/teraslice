@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { InputOnChangeData, DropdownProps } from 'semantic-ui-react';
 import { ModelName } from '@terascope/data-access';
 import { ModelNameProp } from '../interfaces';
+import { Overwrite } from '@terascope/utils';
 
 export type ErrorsState<T> = { fields: (keyof T)[]; messages: string[] };
 export const ErrorsStateProp = PropTypes.shape({
@@ -53,7 +54,25 @@ export type ChangeFn = (e: any, data: InputOnChangeData | DropdownProps) => void
 
 export type AnyModel = {
     id?: string;
-    client_id: string | number;
+    client_id: number;
     created: string;
     updated: string;
 };
+
+export type OverwriteModel<T> = Overwrite<
+    T,
+    {
+        id?: string;
+        client_id: number;
+    }
+> &
+    AnyModel;
+
+export type OverwriteModelWith<T, P> = Overwrite<
+    T,
+    {
+        id?: string;
+        client_id: number;
+    } & P
+> &
+    AnyModel;

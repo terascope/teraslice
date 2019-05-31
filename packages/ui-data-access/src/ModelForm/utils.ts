@@ -1,4 +1,4 @@
-import { toInteger, get, isString, cloneDeep, isPlainObject } from '@terascope/utils';
+import { toInteger, get, isString, cloneDeep, isPlainObject, getField } from '@terascope/utils';
 import { ErrorsState, AnyModel } from './interfaces';
 
 export function validateClientId<T extends { client_id: string | number }>(errs: ErrorsState<T>, model: T): ErrorsState<T> {
@@ -45,4 +45,8 @@ function removeUnwantedProps<T extends any>(obj: T): T {
         obj[key] = removeUnwantedProps(obj[key]);
     }
     return obj;
+}
+
+export function copyField<T extends any, P extends keyof T, V extends T[P]>(to: T, from: T, field: P, defaultVal: V) {
+    to[field] = getField(from, field, defaultVal);
 }

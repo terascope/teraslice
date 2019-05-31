@@ -1,12 +1,6 @@
-import { Overwrite } from '@terascope/utils';
 import { Role } from '@terascope/data-access';
+import { OverwriteModel } from '../ModelForm';
 
-export type Input = Overwrite<
-    Role,
-    {
-        id?: string;
-        client_id: number | string;
-    }
->;
+export type Input = OverwriteModel<Role>;
 
 export const inputFields: (keyof Input)[] = ['id', 'client_id', 'description', 'name'];

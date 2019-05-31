@@ -1,5 +1,6 @@
 import { Overwrite } from '@terascope/utils';
 import { View, DataType, Role, Space } from '@terascope/data-access';
+import { OverwriteModelWith } from '../ModelForm';
 
 type ViewSpace = Overwrite<
     Pick<Space, 'id' | 'name' | 'roles'>,
@@ -8,11 +9,9 @@ type ViewSpace = Overwrite<
     }
 >;
 
-export type Input = Overwrite<
+export type Input = OverwriteModelWith<
     View,
     {
-        id?: string;
-        client_id: number | string;
         space: ViewSpace;
         data_type?: Pick<DataType, 'id' | 'name' | 'type_config'>;
         roles: (Pick<Role, 'id' | 'name'>)[];

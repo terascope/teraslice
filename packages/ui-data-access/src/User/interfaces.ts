@@ -1,11 +1,9 @@
 import { User, Role } from '@terascope/data-access';
-import { Overwrite } from '@terascope/utils';
+import { OverwriteModelWith } from '../ModelForm';
 
-export type Input = Overwrite<
+export type Input = OverwriteModelWith<
     User,
     {
-        id?: string;
-        client_id: number | string;
         password: string;
         repeat_password: string;
         role: Pick<Role, 'id' | 'name'>;

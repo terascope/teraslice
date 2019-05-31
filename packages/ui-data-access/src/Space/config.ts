@@ -3,6 +3,7 @@ import { get } from '@terascope/utils';
 import { formatDate } from '@terascope/ui-components';
 import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
+import { copyField } from '../ModelForm/utils';
 
 const fieldsFragment = gql`
     fragment SpaceFields on Space {
@@ -58,18 +59,16 @@ const config: ModelConfig<Input> = {
         for (const field of inputFields) {
             if (field === 'search_config') {
                 input.search_config = get(result, 'search_config', { index: '' });
-            } else if (field === 'roles') {
-                input.roles = (get(result, 'roles') || []).map((o: any) => o.id);
-            } else if (field === 'views') {
-                input.views = (get(result, 'views') || []).map((o: any) => o.id);
+            } else if (['views', 'roles'].includes(field)) {
+                copyField(input, result, field, []);
             } else if (field === 'data_type') {
-                input.data_type = get(result, 'data_type', {
+                copyField(input, result, field, {
                     id: '',
                     name: '',
                     views,
                 });
             } else {
-                input[field] = get(result, field, '') as any;
+                copyField(input, result, field, '');
             }
         }
         if (!input.client_id && authUser.client_id) {
