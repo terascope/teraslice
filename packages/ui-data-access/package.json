@@ -29,11 +29,11 @@
         "@terascope/ui-components": "^0.2.0",
         "@terascope/utils": "^0.10.2",
         "@types/jest": "24.0.13",
-        "@types/node": "12.0.3",
+        "@types/node": "12.0.4",
         "@types/react": "16.8.19",
         "@types/react-dom": "16.8.4",
         "@types/react-router-dom": "^4.3.3",
-        "apollo-boost": "^0.3.1",
+        "apollo-boost": "^0.4.0",
         "apollo-client": "^2.5.1",
         "css-loader": "^2.1.1",
         "date-fns": "^1.30.1",
@@ -46,9 +46,9 @@
         "react-router-dom": "^5.0.0",
         "semantic-ui-react": "^0.87.1",
         "style-loader": "^0.23.1",
-        "ts-loader": "^6.0.1",
-        "xlucene-evaluator": "^0.8.1",
+        "ts-loader": "^6.0.2",
         "webpack": "^4.32.2",
-        "webpack-cli": "^3.3.2"
+        "webpack-cli": "^3.3.2",
+        "xlucene-evaluator": "^0.8.1"
     }
 }

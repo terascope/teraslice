@@ -27,9 +27,9 @@ const config: ModelConfig<Input> = {
         const input = {} as Input;
         for (const field of inputFields) {
             if (field === 'type_config') {
-                input[field] = get(result, field) || {};
+                input[field] = get(result, field, {});
             } else {
-                input[field] = get(result, field) || '';
+                input[field] = get(result, field, '') as any;
             }
         }
         if (!input.client_id && authUser.client_id) {

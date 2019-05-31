@@ -69,7 +69,7 @@ const config: ModelConfig<Input> = {
                     views,
                 });
             } else {
-                input[field] = get(result, field, '');
+                input[field] = get(result, field, '') as any;
             }
         }
         if (!input.client_id && authUser.client_id) {

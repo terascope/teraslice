@@ -67,7 +67,7 @@ const config: ModelConfig<Input> = {
             } else if (field === 'prevent_prefix_wildcard') {
                 input.prevent_prefix_wildcard = get(result, 'prevent_prefix_wildcard') || false;
             } else {
-                input[field] = get(result, field) || '';
+                input[field] = get(result, field, '') as any;
             }
         }
         if (!input.client_id && authUser.client_id) {

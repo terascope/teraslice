@@ -66,8 +66,10 @@ const config: ModelConfig<Input> = {
                     id: '',
                     name: '',
                 });
+            } else if (field === 'type') {
+                input.type = result.type || 'USER';
             } else {
-                input[field] = get(result, field) || '';
+                input[field] = get(result, field, '') as any;
             }
         }
         if (!input.client_id && authUser.client_id) {
