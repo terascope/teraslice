@@ -21,13 +21,6 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
                 }
                 return errs;
             }}
-            beforeSubmit={(model, create) => {
-                const input = { ...model };
-                if (create) {
-                    delete input.id;
-                }
-                return { input };
-            }}
         >
             {({ defaultInputProps, updateModel, model }) => {
                 return (

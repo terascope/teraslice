@@ -43,7 +43,7 @@ const config: ModelConfig<Input> = {
     pluralLabel: 'Views',
     searchFields: ['name'],
     requiredFields: ['name'],
-    handleFormProps(authUser, { result, ...extra }) {
+    handleFormProps(authUser, { result, roles, dataTypes: _dataTypes, ...extra }) {
         const input = {} as Input;
         for (const field of inputFields) {
             if (field === 'includes') {
@@ -62,8 +62,10 @@ const config: ModelConfig<Input> = {
                 input.space = get(result, 'space', {
                     id: '',
                     name: '',
-                    roles: [],
+                    roles: roles || [],
                 });
+            } else if (field === 'prevent_prefix_wildcard') {
+                input.prevent_prefix_wildcard = get(result, 'prevent_prefix_wildcard') || false;
             } else {
                 input[field] = get(result, field) || '';
             }
@@ -71,7 +73,8 @@ const config: ModelConfig<Input> = {
         if (!input.client_id && authUser.client_id) {
             input.client_id = authUser.client_id;
         }
-        return { input, ...extra };
+        const dataTypes = get(result, 'data_type') ? [get(result, 'data_type')] : _dataTypes;
+        return { input, dataTypes, ...extra };
     },
     rowMapping: {
         getId(record) {
@@ -117,6 +120,19 @@ const config: ModelConfig<Input> = {
             }
         }
         ${fieldsFragment}
+    `,
+    createQuery: gql`
+        {
+            roles(query: "*") {
+                id
+                name
+            }
+            dataTypes(query: "*") {
+                id
+                name
+                type_config
+            }
+        }
     `,
     createMutation: gql`
         mutation CreateView($input: CreateViewInput!) {

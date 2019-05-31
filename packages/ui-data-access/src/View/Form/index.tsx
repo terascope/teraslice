@@ -2,15 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
 import { useCoreContext } from '@terascope/ui-components';
-import ModelForm, {
-    ValidateFn,
-    BeforeSubmitFn,
-    FormInput,
-} from '../../ModelForm';
+import ModelForm, { ValidateFn, FormInput, FormSelect } from '../../ModelForm';
 import Fields from './Fields';
 import config from '../config';
 import { Input } from '../interfaces';
 import { validateFields } from './utils';
+import { mapForeignRef } from '../../ModelForm/utils';
 
 const ViewForm: React.FC<Props> = ({ id }) => {
     const authUser = useCoreContext().authUser!;
@@ -25,22 +22,22 @@ const ViewForm: React.FC<Props> = ({ id }) => {
         return errs;
     };
 
-    const beforeSubmit: BeforeSubmitFn<Input> = (model, create) => {
-        const input = { ...model };
-        if (create) {
-            delete input.id;
-        }
-        return { input };
-    };
-
     return (
         <ModelForm<Input>
             modelName={config.name}
             id={id}
             validate={validate}
-            beforeSubmit={beforeSubmit}
+            beforeSubmit={input => {
+                input.roles = mapForeignRef(input.roles);
+                input.data_type = mapForeignRef(input.data_type);
+                input.prevent_prefix_wildcard = Boolean(
+                    input.prevent_prefix_wildcard
+                );
+                delete input.space;
+                return { input };
+            }}
         >
-            {({ defaultInputProps, updateModel, model }) => {
+            {({ defaultInputProps, updateModel, model, dataTypes }) => {
                 return (
                     <React.Fragment>
                         <Form.Group>
@@ -70,6 +67,33 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                             />
                         </Form.Group>
                         <Form.Group>
+                            <FormSelect<Input>
+                                {...defaultInputProps}
+                                name="roles"
+                                label="Roles"
+                                placeholder="Select Roles"
+                                multiple
+                                value={model.roles}
+                                options={model.space.roles}
+                            />
+                            <FormSelect<Input>
+                                {...defaultInputProps}
+                                name="data_type"
+                                label="Data Type"
+                                disabled={Boolean(id)}
+                                placeholder="Select Data Type"
+                                value={model.data_type}
+                                options={dataTypes}
+                            />
+                        </Form.Group>
+                        <Form.Group>
+                            <FormInput<Input>
+                                {...defaultInputProps}
+                                as={Form.Checkbox}
+                                value={model.prevent_prefix_wildcard}
+                                name="prevent_prefix_wildcard"
+                                label="Prevent Prefix Wildcard"
+                            />
                             <FormInput<Input>
                                 {...defaultInputProps}
                                 value={model.constraint}

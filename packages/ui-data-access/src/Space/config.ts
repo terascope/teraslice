@@ -115,6 +115,10 @@ const config: ModelConfig<Input> = {
                 id
                 name
             }
+            dataTypes(query: "*") {
+                id
+                name
+            }
             result: space(id: $id) {
                 ...SpaceFields
             }

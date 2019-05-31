@@ -67,7 +67,7 @@ type Props<T> = {
     id?: string;
     modelName: ModelName;
     validate: i.ValidateFn<T>;
-    beforeSubmit: i.BeforeSubmitFn<T>;
+    beforeSubmit?: i.BeforeSubmitFn<T>;
     children: i.FormChild<T>;
 };
 
@@ -75,7 +75,7 @@ FormQuery.propTypes = {
     id: PropTypes.string,
     modelName: ModelNameProp.isRequired,
     validate: PropTypes.func.isRequired,
-    beforeSubmit: PropTypes.func.isRequired,
+    beforeSubmit: PropTypes.func,
 };
 
 export default FormQuery;

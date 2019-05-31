@@ -11,6 +11,7 @@ import ModelForm, {
 import { Input } from '../interfaces';
 import TokenForm from './TokenForm';
 import config from '../config';
+import { mapForeignRef } from '../../ModelForm/utils';
 
 const RolesForm: React.FC<Props> = ({ id }) => {
     const authUser = useCoreContext().authUser!;
@@ -21,18 +22,12 @@ const RolesForm: React.FC<Props> = ({ id }) => {
         }
         return errs;
     };
-    const beforeSubmit: BeforeSubmitFn<Input> = (model, create) => {
-        const password = model.password as string;
-        delete model.password;
-        delete model.repeat_password;
+    const beforeSubmit: BeforeSubmitFn<Input> = (input, create) => {
+        const password = input.password;
+        delete input.password;
+        delete input.repeat_password;
 
-        const input = { ...model };
-        if (!input.role || !input.role.id) {
-            delete model.role;
-        } else {
-            // @ts-ignore
-            input.role = model.role.id;
-        }
+        input.role = mapForeignRef(input.role);
         if (create) {
             delete input.id;
         }

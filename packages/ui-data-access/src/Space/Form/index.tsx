@@ -5,6 +5,7 @@ import { useCoreContext } from '@terascope/ui-components';
 import ModelForm, { FormInput, FormSelect } from '../../ModelForm';
 import config from '../config';
 import { Input } from '../interfaces';
+import { mapForeignRef } from '../../ModelForm/utils';
 
 const SpaceForm: React.FC<Props> = ({ id }) => {
     const authUser = useCoreContext().authUser!;
@@ -14,11 +15,10 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
             modelName={config.name}
             id={id}
             validate={errs => errs}
-            beforeSubmit={(model, create) => {
-                const input = { ...model };
-                if (create) {
-                    delete input.id;
-                }
+            beforeSubmit={input => {
+                input.roles = mapForeignRef(input.roles);
+                input.data_type = mapForeignRef(input.data_type);
+                input.views = mapForeignRef(input.views);
                 return { input };
             }}
         >
@@ -65,6 +65,7 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
                                 name="roles"
                                 label="Roles"
                                 placeholder="Select Roles"
+                                multiple
                                 value={model.roles}
                                 options={roles}
                             />
@@ -73,6 +74,7 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
                                 name="views"
                                 label="Views"
                                 placeholder="Select Views"
+                                multiple
                                 value={model.views}
                                 options={model.data_type.views}
                             />

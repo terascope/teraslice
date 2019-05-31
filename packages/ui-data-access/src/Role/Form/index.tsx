@@ -14,13 +14,6 @@ const RolesForm: React.FC<Props> = ({ id }) => {
             modelName={config.name}
             id={id}
             validate={errs => errs}
-            beforeSubmit={(model, create) => {
-                const input = { ...model };
-                if (create) {
-                    delete input.id;
-                }
-                return { input };
-            }}
         >
             {({ defaultInputProps, model }) => {
                 return (

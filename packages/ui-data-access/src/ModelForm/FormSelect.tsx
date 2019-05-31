@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
 import { DefaultInputProps, AnyModel } from './interfaces';
-import { castArray } from '@terascope/utils';
+import { castArray, getFirst } from '@terascope/utils';
 
 function FormSelect<T extends AnyModel>({
     placeholder,
@@ -14,22 +14,31 @@ function FormSelect<T extends AnyModel>({
     hasError,
     isRequired,
     children,
+    multiple = false,
     ...props
 }: Props<T>): ReactElement {
     const options = getSelectOptions(_options);
-    const value = getSelectValue(_value);
     return (
         <Form.Select
             {...{
                 name,
                 label,
                 placeholder: placeholder || label,
-                value,
-                multiple: Array.isArray(value),
+                value: getSelectValue(_value, multiple),
+                search: true,
+                multiple,
+                selection: multiple,
                 onChange: (e, arg) => {
-                    const selected = options.find(
-                        opt => opt.id === arg.value
-                    ) as any;
+                    const result = options.filter(opt => {
+                        return castArray(arg.value as
+                            | string[]
+                            | string).includes(opt.id);
+                    });
+
+                    const selected: any = multiple
+                        ? castArray(result)
+                        : getFirst(result);
+
                     onChange(e, { name, value: selected });
                 },
                 options: options.map(opt => ({
@@ -48,10 +57,15 @@ function FormSelect<T extends AnyModel>({
 }
 
 function getSelectValue(
-    value?: Value | Value[]
+    value?: Value | Value[],
+    multiple?: boolean
 ): string | string[] | undefined {
     if (!value) return undefined;
-    if (Array.isArray(value)) return value.map(val => val && val.id);
+    if (multiple || Array.isArray(value)) {
+        return castArray(value)
+            .map(val => val && val.id)
+            .filter(val => !!val);
+    }
     return value.id;
 }
 
@@ -64,9 +78,10 @@ type Value = { id: string; name: string };
 export type Props<T> = {
     [prop: string]: any;
     options: Value[];
-    value: Value | Value[];
+    value?: Value | Value[];
     name: keyof T;
     label: string;
+    multiple?: boolean;
     placeholder?: string;
 } & DefaultInputProps<T>;
 
@@ -82,6 +97,7 @@ FormSelect.propTypes = {
     label: PropTypes.string.isRequired,
     placeholder: PropTypes.string,
     value: PropTypes.oneOf([ValueProps, ValueProp]),
+    multiple: PropTypes.bool,
     options: ValueProps,
     hasError: PropTypes.func.isRequired,
     isRequired: PropTypes.func.isRequired,

@@ -1,5 +1,5 @@
 import React, { FormEvent, useState, ReactElement } from 'react';
-import { AnyObject, get } from '@terascope/utils';
+import { AnyObject, get, isFunction } from '@terascope/utils';
 import { Form as UIForm, Grid } from 'semantic-ui-react';
 import {
     SuccessMessage,
@@ -17,11 +17,11 @@ import {
     AnyModel,
 } from './interfaces';
 import Mutation from './FormMutation';
-import { validateClientId } from './utils';
+import { validateClientId, prepareForMutation } from './utils';
 
 function Form<T extends AnyModel>({
     id,
-    input,
+    input: _model,
     children,
     history,
     modelName,
@@ -34,7 +34,7 @@ function Form<T extends AnyModel>({
     const update = Boolean(id);
     const create = !update;
 
-    const [model, setModel] = useState<T>(input);
+    const [model, setModel] = useState<T>(_model);
 
     const [errors, setErrors] = useState<ErrorsState<T>>({
         fields: [],
@@ -102,8 +102,15 @@ function Form<T extends AnyModel>({
                 const onSubmit = (e: FormEvent) => {
                     e.preventDefault();
                     if (validate(true)) {
+                        const input = prepareForMutation(model);
+                        if (create) {
+                            delete input.id;
+                        }
+                        const variables = isFunction(beforeSubmit)
+                            ? beforeSubmit(input, create)
+                            : { input };
                         submit({
-                            variables: beforeSubmit(model, create),
+                            variables,
                         });
                     }
                 };
@@ -142,7 +149,7 @@ function Form<T extends AnyModel>({
                                                 Cancel
                                             </UIForm.Button>
                                             <UIForm.Button
-                                                width={1}
+                                                width={2}
                                                 type="submit"
                                                 floated="right"
                                                 loading={loading}
