@@ -124,6 +124,8 @@ function Form<T extends AnyModel>({
                         <UIForm
                             loading={loading}
                             onSubmit={onSubmit}
+                            error={hasErrors}
+                            success={!hasErrors}
                             widths="equal"
                         >
                             <Grid columns={2}>
@@ -143,8 +145,9 @@ function Form<T extends AnyModel>({
                                         <UIForm.Group>
                                             <UIForm.Button
                                                 basic
-                                                floated="right"
                                                 width={15}
+                                                type="button"
+                                                floated="right"
                                                 onClick={e => {
                                                     e.preventDefault();
                                                     history.goBack();
@@ -153,11 +156,11 @@ function Form<T extends AnyModel>({
                                                 Cancel
                                             </UIForm.Button>
                                             <UIForm.Button
+                                                fluid
                                                 width={2}
                                                 type="submit"
                                                 floated="right"
                                                 loading={loading}
-                                                fluid
                                                 disabled={hasErrors}
                                                 primary
                                             >

@@ -5,13 +5,19 @@ import ModelForm, { FormInput, FormSelect, ClientID } from '../../ModelForm';
 import config from '../config';
 import { Input } from '../interfaces';
 import { mapForeignRef } from '../../ModelForm/utils';
+import { toSafeString } from '@terascope/utils';
 
 const SpaceForm: React.FC<Props> = ({ id }) => {
     return (
         <ModelForm<Input>
             modelName={config.name}
             id={id}
-            validate={errs => errs}
+            validate={(errs, model) => {
+                if (model.endpoint) {
+                    model.endpoint = toSafeString(model.endpoint);
+                }
+                return errs;
+            }}
             beforeSubmit={input => {
                 input.roles = mapForeignRef(input.roles);
                 input.data_type = mapForeignRef(input.data_type);
