@@ -14,6 +14,8 @@ class PluginService {
 
     private _registry: { [id: string]: RegisterPluginFn } = {};
     private _plugins: { [id: string]: PluginConfig } = {};
+    private _loaded = false;
+    private _reloadTimer: any;
 
     register(id: string, fn: RegisterPluginFn) {
         if (!id || !isString(id)) {
@@ -29,6 +31,16 @@ class PluginService {
         this._registry[id] = fn;
         // tslint:disable-next-line: no-console
         console.info(`Registered plugin "${id}"`);
+
+        if (this._loaded) {
+            // tslint:disable-next-line: no-console
+            console.info('Plugin registed after already refreshing, reloading in 1 second...');
+
+            clearTimeout(this._reloadTimer);
+            this._reloadTimer = setTimeout(() => {
+                location.reload();
+            }, 1000);
+        }
     }
 
     plugins(): PluginConfig[] {
@@ -43,7 +55,11 @@ class PluginService {
             }
         }
 
-        return Object.values(this._plugins);
+        const plugins = Object.values(this._plugins);
+        if (plugins.length) {
+            this._loaded = true;
+        }
+        return plugins;
     }
 }
 

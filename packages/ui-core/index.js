@@ -98,6 +98,7 @@ async function updateAssets() {
 }
 
 let lastChanged = [];
+const removeOnChange = [];
 function waitForAssetChanges() {
     if (!loggedWatch) logger.info('Watching for UI changes');
     loggedWatch = true;
@@ -160,6 +161,12 @@ async function checkFilesChanged() {
 
     if (changed) {
         lastChanged = [];
+        for (const file of removeOnChange) {
+            if (fs.existsSync(file)) {
+                logger.debug(`UI Plugin is removing file ${file}`);
+                await pUnlink(file);
+            }
+        }
     } else {
         lastChanged = updates;
     }
@@ -237,8 +244,9 @@ async function updateAssetManifest(assets) {
             const filePath = path.join(buildPath, assetPath);
             const found = assets.find(asset => asset.assetPath === assetPath);
             if (!found && fs.existsSync(filePath)) {
-                logger.debug('Watch mode removing unlinked file', filePath);
-                await pUnlink(filePath);
+                if (!removeOnChange.includes(filePath)) {
+                    removeOnChange.push(filePath);
+                }
             }
             delete contents.files[assetPath];
         }
