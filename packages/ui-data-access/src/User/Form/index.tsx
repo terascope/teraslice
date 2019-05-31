@@ -8,11 +8,11 @@ import ModelForm, {
     FormInput,
     FormSelect,
     ClientID,
+    mapForeignRef,
 } from '../../ModelForm';
 import { Input } from '../interfaces';
 import TokenForm from './TokenForm';
 import config from '../config';
-import { mapForeignRef } from '../../ModelForm/utils';
 
 const RolesForm: React.FC<Props> = ({ id }) => {
     const authUser = useCoreContext().authUser!;

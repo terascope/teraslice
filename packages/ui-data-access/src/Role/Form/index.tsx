@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
-import ModelForm, { FormInput, ClientID } from '../../ModelForm';
+import ModelForm, { FormInput, ClientID, Description } from '../../ModelForm';
 import config from '../config';
 import { Input } from '../interfaces';
 
@@ -23,16 +23,10 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                                 client_id={model.client_id}
                             />
                         </Form.Group>
-                        <Form.Group>
-                            <FormInput<Input>
-                                {...defaultInputProps}
-                                value={model.description}
-                                as={Form.TextArea}
-                                name="description"
-                                label="Description"
-                                width={8}
-                            />
-                        </Form.Group>
+                        <Description<Input>
+                            {...defaultInputProps}
+                            description={model.description}
+                        />
                     </React.Fragment>
                 );
             }}

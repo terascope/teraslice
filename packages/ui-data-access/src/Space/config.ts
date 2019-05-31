@@ -1,5 +1,4 @@
 import gql from 'graphql-tag';
-import { get } from '@terascope/utils';
 import { formatDate } from '@terascope/ui-components';
 import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
@@ -58,7 +57,15 @@ const config: ModelConfig<Input> = {
         const input = {} as Input;
         for (const field of inputFields) {
             if (field === 'search_config') {
-                input.search_config = get(result, 'search_config', { index: '' });
+                copyField(input, result, field, {
+                    index: '',
+                    connection: 'default',
+                    max_query_size: 10000,
+                    sort_dates_only: false,
+                    preserve_index_name: false,
+                    require_query: false,
+                    enable_history: false,
+                });
             } else if (['views', 'roles'].includes(field)) {
                 copyField(input, result, field, []);
             } else if (field === 'data_type') {

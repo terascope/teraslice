@@ -23,3 +23,10 @@
     display: inline;
     font-weight: bold;
 }
+
+.daFormCheckbox {
+    display: flex;
+    align-items: center;
+    padding-left: 1.5rem !important;
+    padding-top: 1.5rem !important;
+}

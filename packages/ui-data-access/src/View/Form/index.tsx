@@ -6,12 +6,14 @@ import ModelForm, {
     FormInput,
     FormSelect,
     ClientID,
+    mapForeignRef,
+    Description,
+    FormCheckbox,
 } from '../../ModelForm';
 import Fields from './Fields';
 import config from '../config';
 import { Input } from '../interfaces';
 import { validateFields } from './utils';
-import { mapForeignRef } from '../../ModelForm/utils';
 
 const ViewForm: React.FC<Props> = ({ id }) => {
     const validate: ValidateFn<Input> = (errs, model) => {
@@ -54,16 +56,10 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                                 client_id={model.client_id}
                             />
                         </Form.Group>
-                        <Form.Group>
-                            <FormInput<Input>
-                                {...defaultInputProps}
-                                as={Form.TextArea}
-                                name="description"
-                                label="Description"
-                                value={model.description}
-                                width={8}
-                            />
-                        </Form.Group>
+                        <Description<Input>
+                            {...defaultInputProps}
+                            description={model.description}
+                        />
                         <Form.Group>
                             <FormSelect<Input>
                                 {...defaultInputProps}
@@ -85,9 +81,8 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                             />
                         </Form.Group>
                         <Form.Group>
-                            <FormInput<Input>
+                            <FormCheckbox<Input>
                                 {...defaultInputProps}
-                                as={Form.Checkbox}
                                 value={model.prevent_prefix_wildcard}
                                 name="prevent_prefix_wildcard"
                                 label="Prevent Prefix Wildcard"

@@ -13,7 +13,7 @@ import { getModelConfig } from '../config';
 import { ModelNameProp } from '../interfaces';
 import Form from './Form';
 
-function FormQuery<T extends i.AnyModel>({
+function ModelForm<T extends i.AnyModel>({
     id,
     children,
     modelName,
@@ -71,14 +71,14 @@ type Props<T> = {
     children: i.FormChild<T>;
 };
 
-FormQuery.propTypes = {
+ModelForm.propTypes = {
     id: PropTypes.string,
     modelName: ModelNameProp.isRequired,
     validate: PropTypes.func,
     beforeSubmit: PropTypes.func,
 };
 
-export default FormQuery;
+export default ModelForm;
 
 interface Vars {
     id?: string;

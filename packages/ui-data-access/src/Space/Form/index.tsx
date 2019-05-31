@@ -1,11 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { toSafeString } from '@terascope/utils';
 import { Form } from 'semantic-ui-react';
-import ModelForm, { FormInput, FormSelect, ClientID } from '../../ModelForm';
+import ModelForm, {
+    FormInput,
+    FormSelect,
+    ClientID,
+    Description,
+} from '../../ModelForm';
 import config from '../config';
 import { Input } from '../interfaces';
 import { mapForeignRef } from '../../ModelForm/utils';
-import { toSafeString } from '@terascope/utils';
+import SearchConfig from './SearchConfig';
 
 const SpaceForm: React.FC<Props> = ({ id }) => {
     return (
@@ -25,7 +31,7 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
                 return { input };
             }}
         >
-            {({ defaultInputProps, model, roles, dataTypes }) => {
+            {({ defaultInputProps, model, roles, dataTypes, updateModel }) => {
                 return (
                     <React.Fragment>
                         <Form.Group>
@@ -48,16 +54,10 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
                                 label="API Endpoint"
                             />
                         </Form.Group>
-                        <Form.Group>
-                            <FormInput<Input>
-                                {...defaultInputProps}
-                                as={Form.TextArea}
-                                name="description"
-                                label="Description"
-                                value={model.description}
-                                width={8}
-                            />
-                        </Form.Group>
+                        <Description<Input>
+                            {...defaultInputProps}
+                            description={model.description}
+                        />
                         <Form.Group>
                             <FormSelect<Input>
                                 {...defaultInputProps}
@@ -88,6 +88,12 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
                                 options={dataTypes}
                             />
                         </Form.Group>
+                        <SearchConfig
+                            config={model.search_config}
+                            updateConfig={searchConfig => {
+                                updateModel({ search_config: searchConfig });
+                            }}
+                        />
                     </React.Fragment>
                 );
             }}

@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
-import ModelForm, { FormInput, ClientID } from '../../ModelForm';
-import TypeConfig from './TypeConfig';
-import config from '../config';
+import ModelForm, { FormInput, ClientID, Description } from '../../ModelForm';
 import { validateTypeConfig } from './utils';
 import { Input } from '../interfaces';
+import TypeConfig from './TypeConfig';
+import config from '../config';
 
 const DataTypeForm: React.FC<Props> = ({ id }) => {
     return (
@@ -34,16 +34,10 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
                                 client_id={model.client_id}
                             />
                         </Form.Group>
-                        <Form.Group>
-                            <FormInput<Input>
-                                {...defaultInputProps}
-                                as={Form.TextArea}
-                                name="description"
-                                label="Description"
-                                value={model.description}
-                                width={8}
-                            />
-                        </Form.Group>
+                        <Description<Input>
+                            {...defaultInputProps}
+                            description={model.description}
+                        />
                         <TypeConfig
                             updateTypeConfig={(field, type) => {
                                 const typeConfig = { ...model.type_config };
