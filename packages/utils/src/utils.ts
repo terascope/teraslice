@@ -133,9 +133,9 @@ export function parseList(input: any): string[] {
     if (isString(input)) {
         strings = input.split(',');
     } else if (Array.isArray(input)) {
-        strings = input.map(input => {
-            if (!input) return '';
-            return toString(input);
+        strings = input.map(val => {
+            if (!val) return '';
+            return toString(val);
         });
     } else {
         return [];

@@ -8,14 +8,7 @@ export class Client extends core.Client {
     public workerId: string;
 
     constructor(opts: i.ClientOptions) {
-        const {
-            executionControllerUrl,
-            socketOptions,
-            workerId,
-            networkLatencyBuffer,
-            actionTimeout,
-            connectTimeout,
-        } = opts;
+        const { executionControllerUrl, socketOptions, workerId, networkLatencyBuffer, actionTimeout, connectTimeout } = opts;
 
         if (!isString(executionControllerUrl)) {
             throw new Error('ExecutionController.Client requires a valid executionControllerUrl');
@@ -33,7 +26,7 @@ export class Client extends core.Client {
             hostUrl: executionControllerUrl,
             clientId: workerId,
             clientType: 'worker',
-            serverName: 'ExecutionController'
+            serverName: 'ExecutionController',
         });
 
         this.workerId = workerId;
@@ -56,7 +49,7 @@ export class Client extends core.Client {
             if (willProcess) {
                 this.available = false;
                 this.emit('execution:slice:new', {
-                    payload: msg.payload
+                    payload: msg.payload,
                 });
             }
 
@@ -67,7 +60,7 @@ export class Client extends core.Client {
 
         this.handleResponse(this.socket, 'execution:finished', (msg: core.Message) => {
             this.emit('execution:finished', {
-                payload: msg.payload
+                payload: msg.payload,
             });
         });
     }
@@ -83,7 +76,7 @@ export class Client extends core.Client {
         });
     }
 
-    async waitForSlice(fn: i.WaitUntilFn = () => false, timeoutMs = 2 * ONE_MIN): Promise<i.Slice|undefined> {
+    async waitForSlice(fn: i.WaitUntilFn = () => false, timeoutMs = 2 * ONE_MIN): Promise<i.Slice | undefined> {
         this.sendAvailable();
 
         const startTime = Date.now();
@@ -97,7 +90,7 @@ export class Client extends core.Client {
             return true;
         };
 
-        const slice = await new Promise((resolve) => {
+        const slice = await new Promise(resolve => {
             this.once('execution:slice:new', onMessage);
 
             const intervalId = setInterval(() => {
@@ -111,9 +104,9 @@ export class Client extends core.Client {
                 finish(msg.payload as i.Slice);
             }
 
-            function finish(slice?: i.Slice) {
+            function finish(finishedSlice?: i.Slice) {
                 clearInterval(intervalId);
-                resolve(slice);
+                resolve(finishedSlice);
             }
         });
 

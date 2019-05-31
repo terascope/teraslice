@@ -7,7 +7,7 @@ import { Role } from './roles';
 
 /**
  * Manager for Views
-*/
+ */
 export class Views extends IndexModel<View> {
     static IndexModelConfig = viewsConfig;
 
@@ -17,7 +17,7 @@ export class Views extends IndexModel<View> {
 
     async getViewOfSpace(space: Space, role: Role): Promise<View> {
         const views = await this.findAll(space.views);
-        const view = views.find((view) => view.roles.includes(role.id));
+        const view = views.find(v => v.roles.includes(role.id));
         if (view) return view;
 
         // if the view doesn't exist create a non-restrictive default view

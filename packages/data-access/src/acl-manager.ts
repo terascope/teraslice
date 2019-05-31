@@ -873,9 +873,9 @@ export class ACLManager {
      */
     private async _validateCanCreate(model: i.ModelName, authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
-        const models: i.ModelName[] = ['Space', 'DataType'];
+        const restricted: i.ModelName[] = ['Space', 'DataType'];
 
-        if (type === 'USER' || (type === 'ADMIN' && models.includes(model))) {
+        if (type === 'USER' || (type === 'ADMIN' && restricted.includes(model))) {
             throw new ts.TSError(`User doesn't have permission to create ${model}`, {
                 statusCode: 403,
             });
@@ -903,8 +903,8 @@ export class ACLManager {
      */
     private async _validateCanRemove(model: i.ModelName, authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
-        const models: i.ModelName[] = ['Space', 'DataType'];
-        if (type === 'USER' || (type === 'ADMIN' && models.includes(model))) {
+        const restricted: i.ModelName[] = ['Space', 'DataType'];
+        if (type === 'USER' || (type === 'ADMIN' && restricted.includes(model))) {
             throw new ts.TSError(`User doesn't have permission to remove ${model}`, {
                 statusCode: 403,
             });

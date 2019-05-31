@@ -1,4 +1,3 @@
-
 import path from 'path';
 import { debugLogger, DataEntity } from '@terascope/utils';
 import { PhaseManager } from '../../src';
@@ -42,7 +41,7 @@ describe('phase manager', () => {
         expect(manager.sequence[0].selectionPhase.length).toEqual(1);
     });
 
-    it('can load all phases for transform rules', async() => {
+    it('can load all phases for transform rules', async () => {
         const opConfig = { type: 'transform', rules: [transformRules16Path] };
         const manager = new PhaseManager(opConfig, logger);
 
@@ -64,24 +63,24 @@ describe('phase manager', () => {
         expect(manager.sequence[3].constructor.name).toEqual('OutputPhase');
         // @ts-ignore
         expect(manager.sequence[3].hasRequirements).toEqual(true);
-         // @ts-ignore
+        // @ts-ignore
         expect(manager.sequence[3].hasRestrictedOutput).toEqual(false);
     });
 
-    it('can run an array of data', async() => {
+    it('can run an array of data', async () => {
         const opConfig = { type: 'transform', rules: [transformRules16Path] };
         const manager = new PhaseManager(opConfig, logger);
         const str = 'hello';
         const date = new Date().toISOString();
 
-        function encode(str: string) {
-            return Buffer.from(str).toString('base64');
+        function encode(s: string) {
+            return Buffer.from(s).toString('base64');
         }
 
         const data = DataEntity.makeArray([
             { host: 'fc2.com', field1: `field1=${encode(str)}`, date },
             { something: 'else' },
-            { host: 'fc2.com', field1: `${encode(str)}`, date }
+            { host: 'fc2.com', field1: `${encode(str)}`, date },
         ]);
 
         await manager.init();

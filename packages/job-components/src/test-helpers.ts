@@ -1,15 +1,7 @@
-
 import path from 'path';
 import { EventEmitter } from 'events';
 import * as i from './interfaces';
-import {
-    random,
-    isString,
-    getTypeOf,
-    isFunction,
-    debugLogger,
-    Logger
-} from '@terascope/utils';
+import { random, isString, getTypeOf, isFunction, debugLogger, Logger } from '@terascope/utils';
 
 function newId(prefix: string): string {
     return `${prefix}-${random(10000, 99999)}`;
@@ -26,19 +18,22 @@ export function newTestSlice(request: i.SliceRequest = {}): i.Slice {
 }
 
 export function newTestJobConfig(defaults: Partial<i.JobConfig> = {}) {
-    return Object.assign({
-        name: 'test-job',
-        apis: [],
-        operations: [],
-        analytics: false,
-        assets: [],
-        lifecycle: 'once',
-        max_retries: 0,
-        probation_window: 30000,
-        recycle_worker: 0,
-        slicers: 1,
-        workers: 1,
-    }, defaults) as i.ValidatedJobConfig;
+    return Object.assign(
+        {
+            name: 'test-job',
+            apis: [],
+            operations: [],
+            analytics: false,
+            assets: [],
+            lifecycle: 'once',
+            max_retries: 0,
+            probation_window: 30000,
+            recycle_worker: 0,
+            slicers: 1,
+            workers: 1,
+        },
+        defaults
+    ) as i.ValidatedJobConfig;
 }
 
 export function newTestExecutionConfig(jobConfig: Partial<i.JobConfig> = {}): i.ExecutionConfig {
@@ -53,7 +48,7 @@ export function newTestExecutionConfig(jobConfig: Partial<i.JobConfig> = {}): i.
 /**
  * Create a new Execution Context
  * @deprecated use the new WorkerExecutionContext and SlicerExecutionContext
-*/
+ */
 export function newTestExecutionContext(type: i.Assignment, config: i.ExecutionConfig): i.LegacyExecutionContext {
     if (type === 'execution_controller') {
         return {
@@ -141,7 +136,7 @@ export class TestContext implements i.Context {
     logger: Logger;
     sysconfig: i.SysConfig;
     cluster: i.ContextClusterConfig;
-    apis: TestContextAPIs|i.WorkerContextAPIs|i.ContextAPIs;
+    apis: TestContextAPIs | i.WorkerContextAPIs | i.ContextAPIs;
     foundation: i.LegacyFoundationApis;
     name: string;
     assignment: i.Assignment = 'worker';
@@ -160,16 +155,16 @@ export class TestContext implements i.Context {
 
         this.cluster = {
             worker: {
-                id: newId('id')
-            }
+                id: newId('id'),
+            },
         };
 
         const sysconfig: i.SysConfig = {
             terafoundation: {
                 connectors: {
                     elasticsearch: {
-                        default: {}
-                    }
+                        default: {},
+                    },
                 },
             },
             teraslice: {
@@ -194,12 +189,12 @@ export class TestContext implements i.Context {
                 slicer_port_range: '55679:56678',
                 slicer_timeout: 10000,
                 state: {
-                    connection: 'default'
+                    connection: 'default',
                 },
                 worker_disconnect_timeout: 3000,
                 workers: 1,
             },
-            _nodeName: `${newId(testName)}__${this.cluster.worker.id}`
+            _nodeName: `${newId(testName)}__${this.cluster.worker.id}`,
         };
 
         this.sysconfig = sysconfig;
@@ -214,11 +209,11 @@ export class TestContext implements i.Context {
                 makeLogger(...params: any[]): Logger {
                     return logger.child(params[0]);
                 },
-                getConnection(options: i.ConnectionConfig): { client: any } {
-                    const { cached } = options;
+                getConnection(opts: i.ConnectionConfig): { client: any } {
+                    const { cached } = opts;
 
                     const cachedClients = _cachedClients.get(ctx) || {};
-                    const key = getKey(options);
+                    const key = getKey(opts);
                     if (cached && cachedClients[key] != null) {
                         return cachedClients[key];
                     }
@@ -232,9 +227,9 @@ export class TestContext implements i.Context {
                         throw new Error(`Registered Client for connection "${key}" is not a function, got ${actual}`);
                     }
 
-                    const config = setConnectorConfig(sysconfig, options, {}, false);
+                    const config = setConnectorConfig(sysconfig, opts, {}, false);
 
-                    const client = create(config, logger, options);
+                    const client = create(config, logger, opts);
 
                     cachedClients[key] = client;
                     _cachedClients.set(ctx, cachedClients);
@@ -249,7 +244,7 @@ export class TestContext implements i.Context {
                 this[namespace] = apis;
             },
             setTestClients(clients: TestClientConfig[] = []) {
-                clients.forEach((clientConfig) => {
+                clients.forEach(clientConfig => {
                     const { create, config = {} } = clientConfig;
 
                     const clientFns = _createClientFns.get(ctx) || {};
@@ -276,17 +271,16 @@ export class TestContext implements i.Context {
                 const cachedClients = _cachedClients.get(ctx) || {};
                 const clients = {};
 
-                Object.keys(cachedClients)
-                    .forEach((key) => {
-                        const [type, endpoint] = key.split(':') as [string, string];
-                        if (clients[type] == null) {
-                            clients[type] = {};
-                        }
-                        clients[type][endpoint] = cachedClients[key];
-                    });
+                Object.keys(cachedClients).forEach(key => {
+                    const [type, endpoint] = key.split(':') as [string, string];
+                    if (clients[type] == null) {
+                        clients[type] = {};
+                    }
+                    clients[type][endpoint] = cachedClients[key];
+                });
 
                 return clients;
-            }
+            },
         } as TestContextAPIs;
 
         this.foundation = {

@@ -55,13 +55,13 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
 
         for (const opConfig of this.config.operations.slice(1)) {
             const name = opConfig._op;
-            const mod = this._loader.loadProcessor(name, this.assetIds);
-            this.registerAPI(name, mod.API);
+            const pMod = this._loader.loadProcessor(name, this.assetIds);
+            this.registerAPI(name, pMod.API);
 
-            const op = new mod.Processor(this.context, ts.cloneDeep(opConfig), this.config);
+            const pOp = new pMod.Processor(this.context, ts.cloneDeep(opConfig), this.config);
 
-            this.addOperation(op);
-            this.processors.push(op);
+            this.addOperation(pOp);
+            this.processors.push(pOp);
         }
 
         const jobObserver = new JobObserver(
@@ -77,13 +77,13 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
 
         for (const apiConfig of this.config.apis || []) {
             const name = apiConfig._name;
-            const mod = this._loader.loadAPI(name, this.assetIds);
+            const apiMod = this._loader.loadAPI(name, this.assetIds);
 
-            const api = new mod.API(this.context, ts.cloneDeep(apiConfig), this.config);
+            const api = new apiMod.API(this.context, ts.cloneDeep(apiConfig), this.config);
 
             this.apis[name] = {
                 instance: api,
-                type: mod.type,
+                type: apiMod.type,
             };
             this.addOperation(api);
         }

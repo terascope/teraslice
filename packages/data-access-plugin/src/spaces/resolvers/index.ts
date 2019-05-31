@@ -17,15 +17,15 @@ const defaultResolvers = {
 
 export { defaultResolvers, createResolvers };
 
-function dedup(records: any[]): any[] {
-    const dedup = {};
-    records.forEach((record: any) => {
+function dedup<T>(records: T[]): T[] {
+    const deduped: { [hash: string]: T } = {};
+    records.forEach(record => {
         const shasum = crypto.createHash('md5').update(JSON.stringify(record));
-        // @ts-ignore
-        dedup[shasum.digest()] = record;
+        const hash = shasum.digest().toString('utf8');
+        deduped[hash] = record;
     });
 
-    return Object.values(dedup);
+    return Object.values(deduped);
 }
 
 function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: Context) {
@@ -45,14 +45,15 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
                 },
             ],
         } = info;
-        const results: string[] = [];
+
+        const filteredResults: string[] = [];
         selections.forEach((selector: any) => {
             const {
                 name: { value },
             } = selector;
-            if (endpoints[value] == null) results.push(value);
+            if (endpoints[value] == null) filteredResults.push(value);
         });
-        return results;
+        return filteredResults;
     }
 
     viewList.forEach(view => {

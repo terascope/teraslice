@@ -304,9 +304,9 @@ function generateHistoryIndexes(days: number, start: number, prefix: string) {
     let result = '';
     const _prefix = prefix.charAt(prefix.length - 1) === '-' ? prefix : `${prefix}-`;
 
-    for (let i = start; i < start + days; i += 1) {
+    for (let index = start; index < start + days; index += 1) {
         const date = new Date();
-        date.setDate(date.getDate() - i);
+        date.setDate(date.getDate() - index);
 
         // example dateStr => logscope-2016.11.11*
         const dateStr = date

@@ -1,19 +1,12 @@
 import 'jest-extended'; // require for type definitions
-import {
-    processorShim,
-    DataEntity,
-    TestContext,
-    newTestExecutionConfig,
-    WorkerContext,
-    ValidatedJobConfig
-} from '../../../src';
+import { processorShim, DataEntity, TestContext, newTestExecutionConfig, WorkerContext, ValidatedJobConfig } from '../../../src';
 
 describe('Processor Shim', () => {
     const context = new TestContext('teraslice-operations');
     const exConfig = newTestExecutionConfig();
 
     const opConfig = {
-        _op: 'hello'
+        _op: 'hello',
     };
     exConfig.operations.push(opConfig);
 
@@ -22,9 +15,9 @@ describe('Processor Shim', () => {
     }
 
     const mod = processorShim<ExampleOpConfig>({
-        async newProcessor(context, opConfig, executionConfig) {
-            context.logger.debug(opConfig, executionConfig);
-            return async (input) => {
+        async newProcessor(_context, _opConfig, executionConfig) {
+            _context.logger.debug(_opConfig, executionConfig);
+            return async input => {
                 return input.map((d: DataEntity) => {
                     d.say = 'hello';
                     return d;
@@ -40,18 +33,16 @@ describe('Processor Shim', () => {
                 throw new Error('No teraslice name');
             }
         },
-        selfValidation() {
-
-        },
+        selfValidation() {},
         schema() {
             return {
                 example: {
                     default: 'examples are quick and easy',
                     doc: 'A random example schema property',
                     format: 'String',
-                }
+                },
             };
-        }
+        },
     });
 
     it('should have the required constructors', async () => {
@@ -67,7 +58,7 @@ describe('Processor Shim', () => {
                 default: 'examples are quick and easy',
                 doc: 'A random example schema property',
                 format: 'String',
-            }
+            },
         });
 
         const result = schema.validate({ _op: 'hi', example: 'hello' });
@@ -93,7 +84,7 @@ describe('Processor Shim', () => {
         const result = await processor.handle(input);
 
         expect(result[0]).toEqual({
-            say: 'hello'
+            say: 'hello',
         });
     });
 });
