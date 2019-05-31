@@ -2,28 +2,29 @@ import React, { ReactElement } from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
 import { DefaultInputProps, AnyModel } from './interfaces';
+import { castArray } from '@terascope/utils';
 
 function FormSelect<T extends AnyModel>({
     placeholder,
     label,
     name,
-    options,
-    value,
+    options: _options,
+    value: _value,
     onChange,
     hasError,
     isRequired,
     children,
     ...props
 }: Props<T>): ReactElement {
+    const options = getSelectOptions(_options);
+    const value = getSelectValue(_value);
     return (
         <Form.Select
             {...{
                 name,
                 label,
                 placeholder: placeholder || label,
-                value: Array.isArray(value)
-                    ? value.map(val => val.id)
-                    : value.id,
+                value,
                 multiple: Array.isArray(value),
                 onChange: (e, arg) => {
                     const selected = options.find(
@@ -44,6 +45,19 @@ function FormSelect<T extends AnyModel>({
             {children}
         </Form.Select>
     );
+}
+
+function getSelectValue(
+    value?: Value | Value[]
+): string | string[] | undefined {
+    if (!value) return undefined;
+    if (Array.isArray(value)) return value.map(val => val && val.id);
+    return value.id;
+}
+
+function getSelectOptions(options?: Value[]): Value[] {
+    if (!options) return [];
+    return castArray(options).filter(opt => !!opt);
 }
 
 type Value = { id: string; name: string };
