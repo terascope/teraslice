@@ -7,11 +7,7 @@ import { Input } from '../interfaces';
 
 const RolesForm: React.FC<Props> = ({ id }) => {
     return (
-        <ModelForm<Input>
-            modelName={config.name}
-            id={id}
-            validate={errs => errs}
-        >
+        <ModelForm<Input> modelName={config.name} id={id}>
             {({ defaultInputProps, model }) => {
                 return (
                     <React.Fragment>

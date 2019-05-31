@@ -66,7 +66,7 @@ function FormQuery<T extends i.AnyModel>({
 type Props<T> = {
     id?: string;
     modelName: ModelName;
-    validate: i.ValidateFn<T>;
+    validate?: i.ValidateFn<T>;
     beforeSubmit?: i.BeforeSubmitFn<T>;
     children: i.FormChild<T>;
 };
@@ -74,7 +74,7 @@ type Props<T> = {
 FormQuery.propTypes = {
     id: PropTypes.string,
     modelName: ModelNameProp.isRequired,
-    validate: PropTypes.func.isRequired,
+    validate: PropTypes.func,
     beforeSubmit: PropTypes.func,
 };
 

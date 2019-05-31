@@ -51,8 +51,12 @@ function Form<T extends AnyModel>({
             fields: [],
             messages: [],
         };
+
         errs = validateClientId(errs, model);
-        errs = _validate(errs, model, isSubmit);
+
+        if (isFunction(_validate)) {
+            errs = _validate(errs, model, isSubmit);
+        }
 
         if (isSubmit) {
             let missingRequired = false;

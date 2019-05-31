@@ -26,7 +26,7 @@ export type ComponentProps<T> = {
     input: T;
     id?: string;
     modelName: ModelName;
-    validate: ValidateFn<T>;
+    validate?: ValidateFn<T>;
     beforeSubmit?: BeforeSubmitFn<T>;
     children: FormChild<T>;
 };
@@ -41,7 +41,7 @@ export const ComponentPropTypes = {
     id: PropTypes.string,
     input: PropTypes.any.isRequired,
     modelName: ModelNameProp.isRequired,
-    validate: PropTypes.func.isRequired,
+    validate: PropTypes.func,
     beforeSubmit: PropTypes.func,
 };
 
