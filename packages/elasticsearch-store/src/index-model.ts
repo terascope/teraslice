@@ -88,7 +88,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         await this.store.indexWithId(doc, id);
 
         // @ts-ignore
-        return ts.DataEntity.make(doc);
+        return ts.DataEntity.make(this._postProcess(doc));
     }
 
     async deleteById(id: string): Promise<void> {
@@ -100,7 +100,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     async deleteAll(ids: string[]): Promise<void> {
         if (!ids || !ids.length) return;
 
-        await Promise.all(ids.map((id) => this.deleteById(id)));
+        await Promise.all(ids.map(id => this.deleteById(id)));
     }
 
     async exists(id: string[] | string): Promise<boolean> {
@@ -176,8 +176,8 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         );
 
         if (result.length !== ids.length) {
-            const foundIds = result.map((doc) => doc.id);
-            const notFoundIds = ids.filter((id) => !foundIds.includes(id));
+            const foundIds = result.map(doc => doc.id);
+            const notFoundIds = ids.filter(id => !foundIds.includes(id));
             throw new ts.TSError(`Unable to find documents ${notFoundIds.join(', ')}`, {
                 statusCode: 404,
             });
@@ -296,7 +296,8 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             return this.store._search(query);
         }
 
-        return this.store.search(q, params);
+        const records = await this.store.search(q, params);
+        return records.map(record => this._postProcess(record));
     }
 
     protected async _ensureUnique(record: T) {
@@ -340,6 +341,14 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             }
         }
 
+        return this._preProcess(record);
+    }
+
+    protected _postProcess(record: T): T {
+        return record;
+    }
+
+    protected _preProcess(record: T): T {
         return record;
     }
 }
