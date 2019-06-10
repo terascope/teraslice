@@ -6,18 +6,18 @@ const config: IndexModelConfig<Role> = {
     mapping: {
         properties: {
             client_id: {
-                type: 'integer'
+                type: 'integer',
             },
             name: {
                 type: 'keyword',
                 fields: {
                     text: {
                         type: 'text',
-                        analyzer: 'lowercase_keyword_analyzer'
-                    }
+                        analyzer: 'lowercase_keyword_analyzer',
+                    },
                 },
-            }
-        }
+            },
+        },
     },
     schema: {
         properties: {
@@ -27,13 +27,13 @@ const config: IndexModelConfig<Role> = {
                 minimum: 0,
             },
             name: {
-                type: 'string'
+                type: 'string',
             },
             description: {
-                type: 'string'
-            }
+                type: 'string',
+            },
         },
-        required: ['client_id', 'name']
+        required: ['client_id', 'name'],
     },
     strictMode: false,
 };
@@ -41,17 +41,17 @@ const config: IndexModelConfig<Role> = {
 export interface Role extends IndexModelRecord {
     /**
      * The mutli-tenant ID representing the client
-    */
-    client_id?: number;
+     */
+    client_id: number;
 
     /**
      * Name of the Role
-    */
+     */
     name: string;
 
     /**
      * Description of the Role
-    */
+     */
     description?: string;
 }
 
