@@ -4,7 +4,7 @@ import { Form, Segment, Message, Icon } from 'semantic-ui-react';
 import FieldName from './FieldName';
 import { validateFieldName } from './utils';
 
-const AddField: React.FC<Props> = ({ addField }) => {
+const AddField: React.FC<Props> = ({ addField, available }) => {
     const [field, setField] = useState('');
 
     const invalid = Boolean(field && !validateFieldName(field));
@@ -17,6 +17,7 @@ const AddField: React.FC<Props> = ({ addField }) => {
                     <FieldName
                         field={field}
                         invalid={invalid}
+                        available={available}
                         onChange={updatedField => {
                             setField(updatedField);
                         }}
@@ -59,10 +60,12 @@ const AddField: React.FC<Props> = ({ addField }) => {
 
 type Props = {
     addField: (field: string) => void;
+    available: string[];
 };
 
 AddField.propTypes = {
     addField: PropTypes.func.isRequired,
+    available: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
 };
 
 export default AddField;

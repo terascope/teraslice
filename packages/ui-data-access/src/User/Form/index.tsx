@@ -28,6 +28,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
         delete input.repeat_password;
 
         input.role = mapForeignRef(input.role);
+        input.type = mapForeignRef(input.type);
         if (create) {
             delete input.id;
         }
@@ -51,10 +52,13 @@ const RolesForm: React.FC<Props> = ({ id }) => {
             {({ defaultInputProps, model, roles, update }) => {
                 const userTypes = UserPermissionMap[authUser.type];
                 const userTypeOptions = userTypes.map(type => ({
-                    key: type,
-                    text: type,
-                    value: type,
+                    id: type,
+                    name: type,
                 }));
+                const selectedUserType = {
+                    id: model.type as string,
+                    name: model.type as string,
+                };
 
                 return (
                     <React.Fragment>
@@ -106,13 +110,14 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                                 value={model.role}
                                 options={roles}
                             />
-                            <FormInput<Input>
+                            <FormSelect<Input>
                                 {...defaultInputProps}
                                 name="type"
+                                sorted={false}
                                 label="Account Type"
                                 placeholder="Select Account Type"
                                 disabled={authUser.type === 'USER'}
-                                value={model.type}
+                                value={selectedUserType}
                                 options={userTypeOptions}
                             />
                         </Form.Group>

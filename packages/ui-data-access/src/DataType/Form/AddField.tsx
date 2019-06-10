@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { get } from '@terascope/utils';
+import { get, trim } from '@terascope/utils';
 import { Form, Segment, Message, Icon } from 'semantic-ui-react';
 import FieldName from './FieldName';
 import FieldType from './FieldType';
@@ -26,7 +26,7 @@ const AddField: React.FC<Props> = ({ add }) => {
                         invalid={isFieldInvalid}
                         onChange={updatedField => {
                             setState({
-                                field: updatedField,
+                                field: trim(updatedField),
                                 value,
                             });
                         }}

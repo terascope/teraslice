@@ -3,10 +3,15 @@ import PropTypes from 'prop-types';
 import { Form, Segment } from 'semantic-ui-react';
 import FieldName from './FieldName';
 
-const ExistingField: React.FC<Props> = ({ removeField, field }) => {
+const ExistingField: React.FC<Props> = ({ removeField, field, available }) => {
     return (
         <Form.Group as={Segment} basic>
-            <FieldName field={field} readonly onChange={() => {}} />
+            <FieldName
+                available={available}
+                field={field}
+                readonly
+                onChange={() => {}}
+            />
             <Form.Button
                 className="daFieldButton"
                 icon="trash alternate outline"
@@ -23,11 +28,13 @@ const ExistingField: React.FC<Props> = ({ removeField, field }) => {
 
 type Props = {
     removeField: (field: string) => void;
+    available: string[];
     field: string;
 };
 
 ExistingField.propTypes = {
     removeField: PropTypes.func.isRequired,
+    available: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
     field: PropTypes.string.isRequired,
 };
 

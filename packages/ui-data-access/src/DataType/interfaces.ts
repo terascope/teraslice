@@ -18,9 +18,10 @@ export const availableDataTypes = [
     'Long',
     'Short',
     'Text',
+    'Object',
 ];
 
-export const dataTypeOptions = availableDataTypes.map(t => ({
+export const dataTypeOptions = availableDataTypes.sort().map(t => ({
     key: t,
     text: t,
     value: t,

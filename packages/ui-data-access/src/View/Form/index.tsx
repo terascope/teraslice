@@ -96,6 +96,7 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                         <Fields
                             label="Restricted Fields (inclusive)"
                             description="A whitelist of fields that can be views and searched"
+                            available={getAvailableFields(model)}
                             update={includes => {
                                 updateModel({ includes });
                             }}
@@ -104,6 +105,7 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                         <Fields
                             label="Restricted Fields (exclusive)"
                             description="A blacklist of fields that can be views and searched"
+                            available={getAvailableFields(model)}
                             update={excludes => {
                                 updateModel({ excludes });
                             }}
@@ -115,6 +117,11 @@ const ViewForm: React.FC<Props> = ({ id }) => {
         </ModelForm>
     );
 };
+
+function getAvailableFields(model: Input): string[] {
+    if (!model.data_type || !model.data_type.type_config) return [];
+    return Object.keys(model.data_type.type_config);
+}
 
 type Props = {
     id?: string;
