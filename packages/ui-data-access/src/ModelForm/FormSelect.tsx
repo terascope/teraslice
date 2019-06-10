@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
 import PropTypes from 'prop-types';
-import { Form } from 'semantic-ui-react';
+import { Form, FormSelectProps } from 'semantic-ui-react';
 import { DefaultInputProps, AnyModel } from './interfaces';
-import { castArray, getFirst } from '@terascope/utils';
+import { castArray, getFirst, Overwrite } from '@terascope/utils';
 
 function FormSelect<T extends AnyModel>({
     placeholder,
@@ -75,15 +75,18 @@ function getSelectOptions(options?: Value[]): Value[] {
 }
 
 type Value = { id: string; name: string };
-export type Props<T> = {
-    [prop: string]: any;
-    options: Value[];
-    value?: Value | Value[];
-    name: keyof T;
-    label: string;
-    multiple?: boolean;
-    placeholder?: string;
-} & DefaultInputProps<T>;
+export type Props<T> = Overwrite<
+    FormSelectProps,
+    {
+        options: Value[];
+        value?: Value | Value[];
+        name: keyof T;
+        label: string;
+        multiple?: boolean;
+        placeholder?: string;
+    }
+> &
+    DefaultInputProps<T>;
 
 const ValueProp = PropTypes.shape({
     id: PropTypes.string.isRequired,

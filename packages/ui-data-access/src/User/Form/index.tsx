@@ -99,7 +99,6 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                         <Form.Group>
                             <FormSelect<Input>
                                 {...defaultInputProps}
-                                as={Form.Select}
                                 name="role"
                                 label="Role"
                                 disabled={model.type === 'SUPERADMIN'}
@@ -109,7 +108,6 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                             />
                             <FormInput<Input>
                                 {...defaultInputProps}
-                                as={Form.Select}
                                 name="type"
                                 label="Account Type"
                                 placeholder="Select Account Type"
