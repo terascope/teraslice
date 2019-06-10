@@ -28,6 +28,7 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
                             errs.messages.push('Empty fields not allowed');
                         }
                     }
+
                     if (!validateFieldType(type)) {
                         let msg = `Invalid field type "${type}"`;
                         if (field) msg += ` for field "${field}"`;

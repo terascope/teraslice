@@ -17,6 +17,7 @@ const fieldsFragment = gql`
         prevent_prefix_wildcard
         data_type {
             id
+            client_id
             name
             type_config
         }
@@ -52,6 +53,7 @@ const config: ModelConfig<Input> = {
             } else if (field === 'data_type') {
                 copyField(input, result, field, {
                     id: '',
+                    client_id: 0,
                     name: '',
                     type_config: {},
                 });
@@ -70,10 +72,11 @@ const config: ModelConfig<Input> = {
                 copyField(input, result, field, '');
             }
         }
-        if (!input.client_id && authUser.client_id) {
-            input.client_id = authUser.client_id;
-        }
+
         const dataTypes = get(result, 'data_type') ? [get(result, 'data_type')] : _dataTypes;
+        if (!input.client_id) {
+            input.client_id = input.data_type.client_id || authUser.client_id;
+        }
         return { input, dataTypes, ...extra };
     },
     rowMapping: {
@@ -129,6 +132,7 @@ const config: ModelConfig<Input> = {
             }
             dataTypes(query: "*") {
                 id
+                client_id
                 name
                 type_config
             }

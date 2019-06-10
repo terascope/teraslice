@@ -10,25 +10,23 @@ import ModelForm, {
 } from '../../ModelForm';
 import config from '../config';
 import { Input } from '../interfaces';
-import { mapForeignRef } from '../../ModelForm/utils';
 import SearchConfig from './SearchConfig';
 
 const SpaceForm: React.FC<Props> = ({ id }) => {
+    const afterChange = (model: Input) => {
+        if (model.endpoint) {
+            model.endpoint = toSafeString(model.endpoint);
+        }
+        if (model.data_type && model.data_type.client_id) {
+            model.client_id = model.data_type.client_id;
+        }
+    };
+
     return (
         <ModelForm<Input>
-            modelName={config.name}
             id={id}
-            validate={(errs, model) => {
-                if (model.endpoint) {
-                    model.endpoint = toSafeString(model.endpoint);
-                }
-            }}
-            beforeSubmit={input => {
-                input.roles = mapForeignRef(input.roles);
-                input.data_type = mapForeignRef(input.data_type);
-                input.views = mapForeignRef(input.views);
-                return { input };
-            }}
+            modelName={config.name}
+            afterChange={afterChange}
         >
             {({ defaultInputProps, model, roles, dataTypes, updateModel }) => {
                 return (
@@ -43,6 +41,7 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
                             <ClientID<Input>
                                 {...defaultInputProps}
                                 client_id={model.client_id}
+                                inherited={Boolean(model.data_type.client_id)}
                             />
                         </Form.Group>
                         <Form.Group>

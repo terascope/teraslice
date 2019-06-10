@@ -3,6 +3,7 @@ import { formatDate } from '@terascope/ui-components';
 import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
 import { copyField } from '../ModelForm/utils';
+import { get } from '@terascope/utils';
 
 const fieldsFragment = gql`
     fragment SpaceFields on Space {
@@ -21,6 +22,7 @@ const fieldsFragment = gql`
         }
         data_type {
             id
+            client_id
             name
             views {
                 id
@@ -53,7 +55,7 @@ const config: ModelConfig<Input> = {
     pluralLabel: 'Spaces',
     searchFields: ['name', 'endpoint'],
     requiredFields: ['name', 'endpoint'],
-    handleFormProps(authUser, { result, views, ...extra }) {
+    handleFormProps(authUser, { result, views, dataTypes: _dataTypes, ...extra }) {
         const input = {} as Input;
         for (const field of inputFields) {
             if (field === 'search_config') {
@@ -71,6 +73,7 @@ const config: ModelConfig<Input> = {
             } else if (field === 'data_type') {
                 copyField(input, result, field, {
                     id: '',
+                    client_id: 0,
                     name: '',
                     views,
                 });
@@ -78,11 +81,16 @@ const config: ModelConfig<Input> = {
                 copyField(input, result, field, '');
             }
         }
-        if (!input.client_id && authUser.client_id) {
-            input.client_id = authUser.client_id;
+
+        if (!input.client_id) {
+            input.client_id = input.data_type.client_id || authUser.client_id;
         }
 
-        return { input, ...extra };
+        const dataTypes = get(result, 'data_type') ? [get(result, 'data_type')] : _dataTypes;
+        if (!input.client_id) {
+            input.client_id = input.data_type.client_id;
+        }
+        return { input, dataTypes, ...extra };
     },
     rowMapping: {
         getId(record) {
@@ -123,6 +131,7 @@ const config: ModelConfig<Input> = {
             }
             dataTypes(query: "*") {
                 id
+                client_id
                 name
             }
             result: space(id: $id) {
@@ -139,6 +148,7 @@ const config: ModelConfig<Input> = {
             }
             dataTypes(query: "*") {
                 id
+                client_id
                 name
             }
             views(query: "*") {

@@ -1,5 +1,5 @@
 import React, { FormEvent, useState, ReactElement } from 'react';
-import { AnyObject, get, isFunction, uniq } from '@terascope/utils';
+import { AnyObject, get, isFunction, uniq, toInteger } from '@terascope/utils';
 import { Form as UIForm, Grid } from 'semantic-ui-react';
 import {
     SuccessMessage,
@@ -27,6 +27,7 @@ function Form<T extends AnyModel>({
     modelName,
     validate: _validate,
     beforeSubmit,
+    afterChange,
     ...props
 }: PropsWithRouter<ComponentProps<T>>): ReactElement {
     const config = getModelConfig(modelName);
@@ -46,17 +47,17 @@ function Form<T extends AnyModel>({
         required.push('client_id');
     }
 
-    const validate = (isSubmit = false): boolean => {
+    const validate = (latestModel: T, isSubmit = false): boolean => {
         const errs: ErrorsState<T> = {
             fields: [],
             messages: [],
         };
 
-        validateName(errs, model);
-        validateClientId(errs, model);
+        validateName(errs, latestModel);
+        validateClientId(errs, latestModel);
 
         if (isFunction(_validate)) {
-            _validate(errs, model, isSubmit);
+            _validate(errs, latestModel, isSubmit);
         }
 
         if (isSubmit) {
@@ -87,6 +88,16 @@ function Form<T extends AnyModel>({
         setModel({ ...model, ...updates });
     };
 
+    const fixClientId = (latestModel: T) => {
+        const modelType = get(latestModel, 'type.id', get(latestModel, 'type'));
+        if (modelType === 'SUPERADMIN') {
+            latestModel.client_id = 0;
+        } else if (typeof latestModel.client_id === 'string') {
+            const int = toInteger(latestModel.client_id);
+            if (int !== false) latestModel.client_id = int;
+        }
+    };
+
     const defaultInputProps: DefaultInputProps<T> = {
         hasError(field) {
             return errors.fields.includes(field);
@@ -95,9 +106,13 @@ function Form<T extends AnyModel>({
             return required.includes(field as any);
         },
         onChange(e, { name, value }) {
-            Object.assign(model, { [name]: value });
-            setModel({ ...model });
-            validate();
+            setModel(latestModel => {
+                Object.assign(latestModel, { [name]: value });
+                fixClientId(latestModel);
+                isFunction(afterChange) && afterChange(latestModel);
+                validate(latestModel);
+                return { ...latestModel };
+            });
         },
     };
 
@@ -108,7 +123,7 @@ function Form<T extends AnyModel>({
             {(submit, { data, loading, error }: any) => {
                 const onSubmit = (e: FormEvent) => {
                     e.preventDefault();
-                    if (validate(true)) {
+                    if (validate(model, true)) {
                         const input = prepareForMutation(model);
                         if (create) {
                             delete input.id;

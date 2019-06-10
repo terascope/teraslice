@@ -3,7 +3,7 @@ import { Overwrite } from '@terascope/utils';
 import { OverwriteModelWith } from '../ModelForm';
 
 type SpaceDataType = Overwrite<
-    Pick<DataType, 'id' | 'name'>,
+    Pick<DataType, 'id' | 'client_id' | 'name'>,
     {
         views: Pick<View, 'id' | 'name'>[];
     }

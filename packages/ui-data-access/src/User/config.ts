@@ -15,6 +15,7 @@ const fieldsFragment = gql`
         email
         role {
             id
+            client_id
             name
         }
         api_token
@@ -66,6 +67,7 @@ const config: ModelConfig<Input> = {
             if (field === 'role') {
                 copyField(input, result, field, {
                     id: '',
+                    client_id: 0,
                     name: '',
                 });
             } else if (field === 'type') {
@@ -74,9 +76,11 @@ const config: ModelConfig<Input> = {
                 copyField(input, result, field, '');
             }
         }
-        if (!input.client_id && authUser.client_id) {
-            input.client_id = authUser.client_id;
+
+        if (!input.client_id) {
+            input.client_id = input.role.client_id || authUser.client_id;
         }
+
         if (input.type === 'SUPERADMIN') {
             input.client_id = 0;
         }

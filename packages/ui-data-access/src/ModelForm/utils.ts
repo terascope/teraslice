@@ -1,15 +1,18 @@
-import { toInteger, get, isString, cloneDeep, isPlainObject, getField } from '@terascope/utils';
+import { toInteger, isString, cloneDeep, isPlainObject, getField, get } from '@terascope/utils';
 import { ErrorsState, AnyModel } from './interfaces';
 
 export function validateClientId<T extends { client_id: string | number }>(errs: ErrorsState<T>, model: T): void {
     const clientId = toInteger(model.client_id);
-    if (get(model, 'type') === 'SUPERADMIN') {
-        model.client_id = 0;
+    const modelType = get(model, 'type.id', get(model, 'type'));
+
+    if (modelType === 'SUPERADMIN') {
+        if (clientId !== 0) {
+            errs.messages.push('Client ID must be zero for SUPERADMIN');
+            errs.fields.push('client_id');
+        }
     } else if (clientId === false || clientId < 1) {
         errs.messages.push('Client ID must be an valid number greater than zero');
         errs.fields.push('client_id');
-    } else {
-        model.client_id = clientId;
     }
 }
 
@@ -47,17 +50,28 @@ export function mapForeignRef(input: any): any {
 
 export function prepareForMutation<T extends AnyModel>(model: T): T {
     const input = cloneDeep(model);
-    return removeUnwantedProps(input);
+    return _prepareForMutation(input);
 }
 
 const unwanted: ReadonlyArray<string> = ['__typename'];
-function removeUnwantedProps<T extends any>(obj: T): T {
+function _prepareForMutation<T extends any>(obj: T, isNested = false): T {
+    if (Array.isArray(obj)) {
+        return obj.map((o: any) => _prepareForMutation(o, true));
+    }
     if (!isPlainObject(obj)) return obj;
-    for (const key of Object.keys(obj)) {
+
+    const keys = Object.keys(obj);
+
+    // resolve any foriegn references
+    if (isNested && keys.includes('id') && keys.includes('name')) {
+        return mapForeignRef(obj);
+    }
+
+    for (const key of keys) {
         if (unwanted.includes(key)) {
             delete obj[key];
         }
-        obj[key] = removeUnwantedProps(obj[key]);
+        obj[key] = _prepareForMutation(obj[key], true);
     }
     return obj;
 }

@@ -6,7 +6,6 @@ import ModelForm, {
     FormInput,
     FormSelect,
     ClientID,
-    mapForeignRef,
     Description,
     FormCheckbox,
     validateFieldName,
@@ -16,6 +15,11 @@ import config from '../config';
 import { Input } from '../interfaces';
 
 const ViewForm: React.FC<Props> = ({ id }) => {
+    const afterChange = (model: Input) => {
+        if (model.data_type && model.data_type.client_id) {
+            model.client_id = model.data_type.client_id;
+        }
+    };
     const validate: ValidateFn<Input> = (errs, model) => {
         if (model.excludes) {
             model.excludes.forEach(field => {
@@ -42,9 +46,8 @@ const ViewForm: React.FC<Props> = ({ id }) => {
             modelName={config.name}
             id={id}
             validate={validate}
+            afterChange={afterChange}
             beforeSubmit={input => {
-                input.roles = mapForeignRef(input.roles);
-                input.data_type = mapForeignRef(input.data_type);
                 input.prevent_prefix_wildcard = Boolean(
                     input.prevent_prefix_wildcard
                 );
@@ -65,6 +68,7 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                             <ClientID<Input>
                                 {...defaultInputProps}
                                 client_id={model.client_id}
+                                inherited={Boolean(model.data_type.client_id)}
                             />
                         </Form.Group>
                         <Description<Input>

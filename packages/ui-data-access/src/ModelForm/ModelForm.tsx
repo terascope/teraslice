@@ -18,6 +18,7 @@ function ModelForm<T extends i.AnyModel>({
     children,
     modelName,
     validate,
+    afterChange,
     beforeSubmit,
 }: Props<T>): ReactElement {
     const config = getModelConfig(modelName);
@@ -52,6 +53,7 @@ function ModelForm<T extends i.AnyModel>({
                             modelName={modelName}
                             id={id}
                             validate={validate}
+                            afterChange={afterChange}
                             beforeSubmit={beforeSubmit}
                         >
                             {children}
@@ -68,6 +70,7 @@ type Props<T> = {
     modelName: ModelName;
     validate?: i.ValidateFn<T>;
     beforeSubmit?: i.BeforeSubmitFn<T>;
+    afterChange?: (model: T) => void;
     children: i.FormChild<T>;
 };
 
@@ -75,6 +78,7 @@ ModelForm.propTypes = {
     id: PropTypes.string,
     modelName: ModelNameProp.isRequired,
     validate: PropTypes.func,
+    afterChange: PropTypes.func,
     beforeSubmit: PropTypes.func,
 };
 

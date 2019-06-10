@@ -6,7 +6,7 @@ export type Input = OverwriteModelWith<
     {
         password: string;
         repeat_password: string;
-        role: Pick<Role, 'id' | 'name'>;
+        role: Pick<Role, 'id' | 'client_id' | 'name'>;
     }
 >;
 

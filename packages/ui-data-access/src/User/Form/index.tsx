@@ -8,31 +8,38 @@ import ModelForm, {
     FormInput,
     FormSelect,
     ClientID,
-    mapForeignRef,
 } from '../../ModelForm';
 import { Input } from '../interfaces';
 import TokenForm from './TokenForm';
 import config from '../config';
+import { get } from '@terascope/utils';
+import { UserType } from '@terascope/data-access';
 
 const RolesForm: React.FC<Props> = ({ id }) => {
     const authUser = useCoreContext().authUser!;
+    const afterChange = (model: Input) => {
+        if (model.role && model.role.client_id) {
+            model.client_id = model.role.client_id;
+        }
+    };
+
     const validate: ValidateFn<Input> = (errs, model) => {
         if (model.password && model.password !== model.repeat_password) {
             errs.messages.push('Password must match');
             errs.fields.push('password', 'repeat_password');
         }
     };
+
     const beforeSubmit: BeforeSubmitFn<Input> = (input, create) => {
         const password = input.password;
         delete input.password;
         delete input.repeat_password;
 
-        input.role = mapForeignRef(input.role);
-        input.type = mapForeignRef(input.type);
         if (create) {
             delete input.id;
         }
         delete input.api_token;
+        // it will throw an error if email is ''
         if (!input.email) {
             delete input.email;
         }
@@ -47,17 +54,20 @@ const RolesForm: React.FC<Props> = ({ id }) => {
             modelName={config.name}
             id={id}
             validate={validate}
+            afterChange={afterChange}
             beforeSubmit={beforeSubmit}
         >
             {({ defaultInputProps, model, roles, update }) => {
+                const modelType: UserType =
+                    get(model, 'type.id', model.type) || 'USER';
                 const userTypes = UserPermissionMap[authUser.type];
                 const userTypeOptions = userTypes.map(type => ({
                     id: type,
                     name: type,
                 }));
                 const selectedUserType = {
-                    id: model.type as string,
-                    name: model.type as string,
+                    id: modelType as string,
+                    name: modelType as string,
                 };
 
                 return (
@@ -72,7 +82,8 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                             <ClientID<Input>
                                 {...defaultInputProps}
                                 client_id={model.client_id}
-                                disabled={model.type === 'SUPERADMIN'}
+                                disabled={modelType === 'SUPERADMIN'}
+                                inherited={Boolean(model.role.client_id)}
                             />
                         </Form.Group>
                         <Form.Group>
@@ -105,7 +116,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                                 {...defaultInputProps}
                                 name="role"
                                 label="Role"
-                                disabled={model.type === 'SUPERADMIN'}
+                                disabled={modelType === 'SUPERADMIN'}
                                 placeholder="Select Role"
                                 value={model.role}
                                 options={roles}
