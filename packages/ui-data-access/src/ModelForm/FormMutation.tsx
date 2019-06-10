@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Mutation, MutationFn, MutationResult } from 'react-apollo';
 import { PureQueryOptions } from 'apollo-boost';
-import { getModelConfig } from '../config';
+import { Mutation, MutationFn, MutationResult } from 'react-apollo';
 import { ModelName } from '@terascope/data-access';
+import { getModelConfig } from '../config';
 import { ModelNameProp } from '../interfaces';
 import { SubmitVars } from './interfaces';
 

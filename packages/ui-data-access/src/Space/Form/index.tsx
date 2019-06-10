@@ -22,7 +22,6 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
                 if (model.endpoint) {
                     model.endpoint = toSafeString(model.endpoint);
                 }
-                return errs;
             }}
             beforeSubmit={input => {
                 input.roles = mapForeignRef(input.roles);

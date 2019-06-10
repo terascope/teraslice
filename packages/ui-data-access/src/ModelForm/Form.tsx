@@ -1,5 +1,5 @@
 import React, { FormEvent, useState, ReactElement } from 'react';
-import { AnyObject, get, isFunction } from '@terascope/utils';
+import { AnyObject, get, isFunction, uniq } from '@terascope/utils';
 import { Form as UIForm, Grid } from 'semantic-ui-react';
 import {
     SuccessMessage,
@@ -17,7 +17,7 @@ import {
     AnyModel,
 } from './interfaces';
 import Mutation from './FormMutation';
-import { validateClientId, prepareForMutation } from './utils';
+import { validateClientId, prepareForMutation, validateName } from './utils';
 
 function Form<T extends AnyModel>({
     id,
@@ -47,25 +47,27 @@ function Form<T extends AnyModel>({
     }
 
     const validate = (isSubmit = false): boolean => {
-        let errs: ErrorsState<T> = {
+        const errs: ErrorsState<T> = {
             fields: [],
             messages: [],
         };
 
-        errs = validateClientId(errs, model);
+        validateName(errs, model);
+        validateClientId(errs, model);
 
         if (isFunction(_validate)) {
-            errs = _validate(errs, model, isSubmit);
+            _validate(errs, model, isSubmit);
         }
 
         if (isSubmit) {
             let missingRequired = false;
 
-            required.forEach(field => {
-                const d = get(model, field);
-                if (!d && !(d === '0' || d === 0)) {
+            required.forEach(_field => {
+                const field = _field as keyof T;
+                const val = get(model, field);
+                if (!val && !['0', 0].includes(val as any)) {
                     missingRequired = true;
-                    errs.fields.push(field as keyof T);
+                    errs.fields.push(field);
                 }
             });
 
@@ -74,6 +76,8 @@ function Form<T extends AnyModel>({
             }
         }
 
+        errs.fields = uniq(errs.fields);
+        errs.messages = uniq(errs.messages);
         setErrors(errs);
 
         return !errs.messages.length && !errs.fields.length;

@@ -23,7 +23,6 @@ const ViewForm: React.FC<Props> = ({ id }) => {
         if (validateFields(model.includes)) {
             errs.messages.push('Invalid Includes');
         }
-        return errs;
     };
 
     return (

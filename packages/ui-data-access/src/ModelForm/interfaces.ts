@@ -17,7 +17,7 @@ export type FormChild<T> = React.FC<{
     update: boolean;
 }>;
 
-export type ValidateFn<T> = (errs: ErrorsState<T>, model: T, isSubmit: boolean) => ErrorsState<T>;
+export type ValidateFn<T> = (errs: ErrorsState<T>, model: T, isSubmit: boolean) => void;
 export type BeforeSubmitFn<T> = (model: T, create: boolean) => SubmitVars<T>;
 
 export type ComponentProps<T> = {

@@ -21,7 +21,6 @@ const RolesForm: React.FC<Props> = ({ id }) => {
             errs.messages.push('Password must match');
             errs.fields.push('password', 'repeat_password');
         }
-        return errs;
     };
     const beforeSubmit: BeforeSubmitFn<Input> = (input, create) => {
         const password = input.password;

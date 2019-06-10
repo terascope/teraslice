@@ -1,7 +1,7 @@
 import { toInteger, get, isString, cloneDeep, isPlainObject, getField } from '@terascope/utils';
 import { ErrorsState, AnyModel } from './interfaces';
 
-export function validateClientId<T extends { client_id: string | number }>(errs: ErrorsState<T>, model: T): ErrorsState<T> {
+export function validateClientId<T extends { client_id: string | number }>(errs: ErrorsState<T>, model: T): void {
     const clientId = toInteger(model.client_id);
     if (get(model, 'type') === 'SUPERADMIN') {
         model.client_id = 0;
@@ -11,7 +11,22 @@ export function validateClientId<T extends { client_id: string | number }>(errs:
     } else {
         model.client_id = clientId;
     }
-    return errs;
+}
+
+export function validateName(errs: ErrorsState<any>, model: any): void {
+    const name = getField(model, 'name');
+    if (name == null) return;
+
+    if (!name || !isString(name)) {
+        errs.fields.push('name');
+        errs.messages.push('Name must not be empty');
+        return;
+    }
+
+    if (!/^[\w\d-_.\s]+$/.test(name)) {
+        errs.fields.push('name');
+        errs.messages.push('Name can only include alpha-numeric characters, -, _, ., and whitespace.');
+    }
 }
 
 export function mapForeignRef(input: any): any {
