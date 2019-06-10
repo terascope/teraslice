@@ -19,6 +19,7 @@ const ExistingField: React.FC<Props> = ({ updateTypeConfig, field, type }) => {
                 icon="trash alternate outline"
                 label="Delete"
                 color="red"
+                basic
                 onClick={(e: any) => {
                     e.preventDefault();
                     updateTypeConfig(field, false);

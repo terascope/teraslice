@@ -291,12 +291,14 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             _sourceInclude: options.includes as string[],
         };
 
+        let records: T[];
         if (queryAccess) {
             const query = queryAccess.restrictSearchQuery(q, params);
-            return this.store._search(query);
+            records = await this.store._search(query);
+        } else {
+            records = await this.store.search(q, params);
         }
 
-        const records = await this.store.search(q, params);
         return records.map(record => this._postProcess(record));
     }
 

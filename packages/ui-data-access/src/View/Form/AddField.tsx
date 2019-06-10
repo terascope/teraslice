@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Form, Segment, Message, Icon } from 'semantic-ui-react';
+import { validateFieldName } from '../../ModelForm';
 import FieldName from './FieldName';
-import { validateFieldName } from './utils';
 
 const AddField: React.FC<Props> = ({ addField, available }) => {
     const [field, setField] = useState('');

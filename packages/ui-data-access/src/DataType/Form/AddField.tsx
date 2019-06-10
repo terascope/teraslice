@@ -4,7 +4,7 @@ import { get, trim } from '@terascope/utils';
 import { Form, Segment, Message, Icon } from 'semantic-ui-react';
 import FieldName from './FieldName';
 import FieldType from './FieldType';
-import { validateFieldName } from './utils';
+import { validateFieldName } from '../../ModelForm';
 
 const AddField: React.FC<Props> = ({ add }) => {
     const [{ field, value }, setState] = useState<State>({

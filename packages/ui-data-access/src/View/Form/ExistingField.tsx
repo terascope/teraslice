@@ -17,6 +17,7 @@ const ExistingField: React.FC<Props> = ({ removeField, field, available }) => {
                 icon="trash alternate outline"
                 label="Delete"
                 color="red"
+                basic
                 onClick={(e: any) => {
                     e.preventDefault();
                     removeField(field);

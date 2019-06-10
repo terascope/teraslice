@@ -2,9 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { trim } from '@terascope/utils';
 import { Form } from 'semantic-ui-react';
-import ModelForm, { FormInput, ClientID, Description } from '../../ModelForm';
+import ModelForm, {
+    FormInput,
+    ClientID,
+    Description,
+    validateFieldName,
+} from '../../ModelForm';
 import { parseTypeConfig, validateFieldType } from './utils';
-import { validateFieldName } from '../../View/Form/utils';
 import { Input } from '../interfaces';
 import TypeConfig from './TypeConfig';
 import config from '../config';

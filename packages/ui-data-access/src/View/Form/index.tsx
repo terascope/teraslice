@@ -9,19 +9,31 @@ import ModelForm, {
     mapForeignRef,
     Description,
     FormCheckbox,
+    validateFieldName,
 } from '../../ModelForm';
 import Fields from './Fields';
 import config from '../config';
 import { Input } from '../interfaces';
-import { validateFields } from './utils';
 
 const ViewForm: React.FC<Props> = ({ id }) => {
     const validate: ValidateFn<Input> = (errs, model) => {
-        if (validateFields(model.excludes)) {
-            errs.messages.push('Invalid Excludes');
+        if (model.excludes) {
+            model.excludes.forEach(field => {
+                if (!validateFieldName(field)) {
+                    errs.messages.push(
+                        `Invalid field "${field}" to be excluded`
+                    );
+                }
+            });
         }
-        if (validateFields(model.includes)) {
-            errs.messages.push('Invalid Includes');
+        if (model.includes) {
+            model.includes.forEach(field => {
+                if (!validateFieldName(field)) {
+                    errs.messages.push(
+                        `Invalid field "${field}" to be included`
+                    );
+                }
+            });
         }
     };
 

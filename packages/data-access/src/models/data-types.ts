@@ -29,6 +29,7 @@ export class DataTypes extends IndexModel<DataType> {
 
         const updated: TypeConfig = {};
         for (const [field, value] of Object.entries(typeConfig)) {
+            if (!value) continue;
             const unescaped = unescapeString(field);
             updated[unescaped] = value;
         }

@@ -65,3 +65,8 @@ function removeUnwantedProps<T extends any>(obj: T): T {
 export function copyField<T extends any, P extends keyof T, V extends T[P]>(to: T, from: T, field: P, defaultVal: V) {
     to[field] = getField(from, field, defaultVal);
 }
+
+export function validateFieldName(field: any): boolean {
+    if (!field) return false;
+    return /^[^.][a-zA-Z0-9-_.]+[^.]$/.test(field);
+}

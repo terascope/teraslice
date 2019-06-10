@@ -1,7 +1,6 @@
 import 'jest-extended';
 import { DataTypes } from '../../src/models/data-types';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
-import { TypeConfig } from 'xlucene-evaluator';
 
 describe('DataTypes', () => {
     const client = makeClient();
@@ -20,21 +19,41 @@ describe('DataTypes', () => {
     });
 
     describe('when testing data type creation', () => {
-        it('should be able to create a data type', async () => {
-            const typeConfig: TypeConfig = {};
-            typeConfig['foo'] = 'geo';
-            // we need to make sure we can set a dot notated field
-            typeConfig['foo.bar'] = 'ip';
-
+        it('should be able to create/update and find a data type', async () => {
             const created = await dataTypes.create({
                 client_id: 1,
                 name: 'hello',
-                type_config: typeConfig,
+                type_config: {
+                    location: 'geo',
+                    some_date: 'date',
+                    'foo.bar': 'ip',
+                },
+            });
+
+            await dataTypes.update({
+                id: created.id,
+                type_config: {
+                    // make sure a dot notated field can be set
+                    'foo.bar': 'ip',
+                    // make sure a field can be removed
+                    some_date: false as any,
+                },
             });
 
             const fetched = await dataTypes.findById(created.id);
 
-            expect(created).toEqual(fetched);
+            // ignore the updated timestamp and type config
+            const { updated: __, type_config: ___, ..._created } = created;
+            const { updated: ____, type_config: _____, ..._fetched } = fetched;
+            expect(_created).toEqual(_fetched);
+
+            // ensure the type config was created/updated corectly
+            expect(created.type_config).toHaveProperty('location', 'geo');
+            expect(fetched.type_config).toHaveProperty('location', 'geo');
+            expect(created.type_config).toHaveProperty('some_date', 'date');
+            expect(fetched.type_config).not.toHaveProperty('some_date', 'date');
+            expect(created.type_config).toContainEntry(['foo.bar', 'ip']);
+            expect(fetched.type_config).toContainEntry(['foo.bar', 'ip']);
         });
     });
 });

@@ -49,6 +49,7 @@ function getFieldOptions(available: string[] = []) {
             parts.push(part);
 
             const path = parts.join('.');
+            if (options.some(({ key }) => key === path)) continue;
             options.push({
                 key: path,
                 text: path,
