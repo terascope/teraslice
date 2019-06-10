@@ -91,9 +91,8 @@ function Form<T extends AnyModel>({
             return required.includes(field as any);
         },
         onChange(e, { name, value }) {
-            updateModel({
-                [name]: value,
-            });
+            Object.assign(model, { [name]: value });
+            setModel({ ...model });
             validate();
         },
     };

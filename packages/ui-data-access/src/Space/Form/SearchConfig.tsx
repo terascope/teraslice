@@ -4,21 +4,6 @@ import { SpaceSearchConfig } from '@terascope/data-access';
 import { Form, Segment, Header } from 'semantic-ui-react';
 import FormCheckbox from '../../ModelForm/FormCheckbox';
 
-/**
-    index
-    connection
-    max_query_size
-    require_query
-    sort_enabled
-    sort_default
-    sort_dates_only
-    default_date_field
-    preserve_index_name
-    default_geo_field
-    enable_history
-    history_prefix
- */
-
 type ConfigKey = keyof SpaceSearchConfig;
 
 const SearchConfig: React.FC<Props> = ({ config, updateConfig }) => {
