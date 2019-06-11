@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { ActionSegment } from '@terascope/ui-components';
 import FieldName from './FieldName';
 import FieldType from './FieldType';
+import { Form } from 'semantic-ui-react';
 
 const ExistingField: React.FC<Props> = ({ updateTypeConfig, field, type }) => {
     return (
@@ -18,13 +19,15 @@ const ExistingField: React.FC<Props> = ({ updateTypeConfig, field, type }) => {
                 },
             ]}
         >
-            <FieldName field={field} readonly onChange={() => {}} />
-            <FieldType
-                type={type}
-                onChange={updated => {
-                    updateTypeConfig(field, updated);
-                }}
-            />
+            <Form.Group>
+                <FieldName field={field} readonly onChange={() => {}} />
+                <FieldType
+                    type={type}
+                    onChange={updated => {
+                        updateTypeConfig(field, updated);
+                    }}
+                />
+            </Form.Group>
         </ActionSegment>
     );
 };

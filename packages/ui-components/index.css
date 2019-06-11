@@ -61,7 +61,7 @@
     padding: 1rem 0 1rem 1rem !important;
 }
 
-.actionSegment > div:first-child {
+.actionSegment > :not(.borderlessButton) {
     flex: 1;
     margin-top: 0.1rem !important;
 }

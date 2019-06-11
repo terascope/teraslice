@@ -4,6 +4,7 @@ import { ActionSegment } from '@terascope/ui-components';
 import { get, trim } from '@terascope/utils';
 import FieldName from './FieldName';
 import FieldType from './FieldType';
+import { Form } from 'semantic-ui-react';
 
 const AddField: React.FC<Props> = ({ add }) => {
     const [{ field, value }, setState] = useState<State>({
@@ -33,24 +34,26 @@ const AddField: React.FC<Props> = ({ add }) => {
                 },
             ]}
         >
-            <FieldName
-                field={field}
-                onChange={updatedField => {
-                    setState({
-                        field: trim(updatedField),
-                        value,
-                    });
-                }}
-            />
-            <FieldType
-                type={type}
-                onChange={updatedValue => {
-                    setState({
-                        value: updatedValue,
-                        field,
-                    });
-                }}
-            />
+            <Form.Group>
+                <FieldName
+                    field={field}
+                    onChange={updatedField => {
+                        setState({
+                            field: trim(updatedField),
+                            value,
+                        });
+                    }}
+                />
+                <FieldType
+                    type={type}
+                    onChange={updatedValue => {
+                        setState({
+                            value: updatedValue,
+                            field,
+                        });
+                    }}
+                />
+            </Form.Group>
         </ActionSegment>
     );
 };
