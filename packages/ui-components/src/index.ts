@@ -1,5 +1,6 @@
 import ActionSegment from './ActionSegment';
 import AuthUserQuery, { AUTH_QUERY } from './AuthUserQuery';
+import Code from './Code';
 import ErrorMessage from './ErrorMessage';
 import ErrorPage from './ErrorPage';
 import LoadingPage from './LoadingPage';
@@ -20,6 +21,7 @@ export {
     ActionSegment,
     AUTH_QUERY,
     AuthUserQuery,
+    Code,
     ErrorMessage,
     ErrorPage,
     LoadingPage,

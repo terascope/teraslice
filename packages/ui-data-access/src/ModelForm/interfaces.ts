@@ -78,4 +78,4 @@ export type OverwriteModelWith<T, P> = Overwrite<
 > &
     AnyModel;
 
-export type SelectOption = { id: string; name: string };
+export type SelectOption = { id: string; name: string } | string;

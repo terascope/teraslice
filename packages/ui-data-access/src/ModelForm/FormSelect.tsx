@@ -2,19 +2,15 @@ import React, { ReactElement } from 'react';
 import PropTypes from 'prop-types';
 import { Form, FormSelectProps } from 'semantic-ui-react';
 import { DefaultInputProps, AnyModel, SelectOption } from './interfaces';
-import {
-    castArray,
-    getFirst,
-    Overwrite,
-} from '@terascope/utils';
-import { getSelectOptions, getSelectValue, mapFormOptions } from './utils';
+import { castArray, getFirst, Overwrite } from '@terascope/utils';
+import { getSelectValue, mapFormOptions, getSelectId } from './utils';
 
 function FormSelect<T extends AnyModel>({
     placeholder,
     label,
     name,
-    options: _options,
-    value: _value,
+    options,
+    value,
     onChange,
     hasError,
     isRequired,
@@ -23,21 +19,20 @@ function FormSelect<T extends AnyModel>({
     sorted,
     ...props
 }: Props<T>): ReactElement {
-    const options = getSelectOptions(_options);
     return (
         <Form.Select
             name={name}
             label={label}
             placeholder={placeholder || label}
-            value={getSelectValue(_value, multiple)}
+            value={getSelectValue(value, multiple)}
             search={true}
             multiple={multiple}
             selection={multiple}
             onChange={(e, arg) => {
                 const result = options.filter(opt => {
-                    return castArray(arg.value as string[] | string).includes(
-                        opt.id
-                    );
+                    const id = getSelectId(opt);
+                    const val = arg.value as string[] | string;
+                    return castArray(val).includes(id);
                 });
 
                 const selected: any = multiple
@@ -70,10 +65,13 @@ export type Props<T> = Overwrite<
 > &
     DefaultInputProps<T>;
 
-const ValueProp = PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-}).isRequired;
+const ValueProp = PropTypes.oneOf([
+    PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+    }).isRequired,
+    PropTypes.string.isRequired,
+]).isRequired;
 
 const ValueProps = PropTypes.arrayOf(ValueProp).isRequired;
 

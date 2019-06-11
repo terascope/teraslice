@@ -61,7 +61,7 @@ const Login: React.FC = (props: any) => {
             {({ loading, error }) => {
                 return (
                     <Page title="Login">
-                        <Form onSubmit={onSubmit} className="coreForm">
+                        <Form onSubmit={onSubmit} className="loginForm">
                             <Form.Input
                                 label="Username"
                                 name="username"

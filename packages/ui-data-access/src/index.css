@@ -1,26 +1,5 @@
-.daFieldButton {
-    width: 3.7rem !important;
-}
-
-.daFieldButton > label {
-    color: rgba(0, 0, 0, 0) !important;
-}
-
 .daFieldEmptyMessage {
     padding-top: 2rem 0 !important;
-}
-
-.daFormMessage {
-    display: block !important;
-}
-
-.daFormGroupDescription {
-    margin-top: 0 !important;
-}
-
-.daFormMessageCode {
-    display: inline;
-    font-weight: bold;
 }
 
 .daFormCheckbox {
@@ -47,21 +26,6 @@
 
 .daActionSegment .button {
     padding-top: 0.6rem;
-}
-
-.daBorderlessButton {
-    box-shadow: none !important;
-    background: transparent none !important;
-    font-weight: normal !important;
-    text-transform: uppercase !important;
-}
-
-.daBorderlessButton.red {
-    color: #DB2828 !important;
-}
-
-.daBorderlessButton.blue {
-    color: #2185D0 !important;
 }
 
 .daActionLabel {

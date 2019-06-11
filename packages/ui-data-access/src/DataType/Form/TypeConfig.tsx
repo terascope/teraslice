@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Segment } from 'semantic-ui-react';
+import { Section, Code } from '@terascope/ui-components';
 import AddField from './AddField';
 import ExistingField from './ExistingField';
 import { parseTypeConfig } from '../../utils';
@@ -8,7 +9,15 @@ import { parseTypeConfig } from '../../utils';
 const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig = {} }) => {
     const entries = parseTypeConfig(typeConfig);
     return (
-        <React.Fragment>
+        <Section
+            title="Type Configuration"
+            info={
+                <span>
+                    Use dot notation to specify nested properties, e.g. &nbsp;
+                    <Code inline>example.field</Code>
+                </span>
+            }
+        >
             {entries.length ? (
                 entries.map(({ field, type }, i) => {
                     const key = `data-type-config-${field}-${i}`;
@@ -27,7 +36,7 @@ const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig = {} }) => {
                 </Segment>
             )}
             <AddField add={updateTypeConfig} />
-        </React.Fragment>
+        </Section>
     );
 };
 

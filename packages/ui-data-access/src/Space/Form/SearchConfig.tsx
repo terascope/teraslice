@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SpaceSearchConfig } from '@terascope/data-access';
-import { Form, Segment, Header } from 'semantic-ui-react';
+import { Form, Segment } from 'semantic-ui-react';
 import FormCheckbox from '../../ModelForm/FormCheckbox';
+import { Section } from '@terascope/ui-components';
 
 type ConfigKey = keyof SpaceSearchConfig;
 
@@ -15,10 +16,7 @@ const SearchConfig: React.FC<Props> = ({ config, updateConfig }) => {
     };
 
     return (
-        <Segment.Group className="daFormGroup">
-            <Header as="h5" block attached="top">
-                Search Configuration
-            </Header>
+        <Section title="Search Configuration">
             <Form.Group as={Segment} basic>
                 <Form.Input
                     name="index"
@@ -107,7 +105,7 @@ const SearchConfig: React.FC<Props> = ({ config, updateConfig }) => {
                     onChange={onChange}
                 />
             </Form.Group>
-        </Segment.Group>
+        </Section>
     );
 };
 

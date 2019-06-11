@@ -1,12 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Form, Segment } from 'semantic-ui-react';
+import { ActionSegment } from '@terascope/ui-components';
 import FieldName from './FieldName';
 import FieldType from './FieldType';
 
 const ExistingField: React.FC<Props> = ({ updateTypeConfig, field, type }) => {
     return (
-        <Form.Group as={Segment} basic>
+        <ActionSegment
+            actions={[
+                {
+                    name: 'Remove',
+                    icon: 'trash alternate outline',
+                    color: 'red',
+                    onClick() {
+                        updateTypeConfig(field, false);
+                    },
+                },
+            ]}
+        >
             <FieldName field={field} readonly onChange={() => {}} />
             <FieldType
                 type={type}
@@ -14,18 +25,7 @@ const ExistingField: React.FC<Props> = ({ updateTypeConfig, field, type }) => {
                     updateTypeConfig(field, updated);
                 }}
             />
-            <Form.Button
-                className="daFieldButton"
-                icon="trash alternate outline"
-                label="Delete"
-                color="red"
-                basic
-                onClick={(e: any) => {
-                    e.preventDefault();
-                    updateTypeConfig(field, false);
-                }}
-            />
-        </Form.Group>
+        </ActionSegment>
     );
 };
 

@@ -88,14 +88,18 @@ function _prepareForMutation<T extends any>(obj: T, isNested = false): T {
 }
 
 export function getSelectValue(value?: SelectOption | SelectOption[], multiple?: boolean): string | string[] | undefined {
-    if (!value) return undefined;
     if (multiple || Array.isArray(value)) {
-        return ts
-            .castArray(value)
-            .map(val => val && val.id)
-            .filter(val => !!val);
+        const arr = (value || []) as SelectOption[];
+        return arr.map(getSelectId).filter(val => !!val);
     }
-    return value.id;
+    return getSelectId(value);
+}
+
+export function getSelectId(val?: SelectOption): string {
+    if (ts.isString(val)) return val;
+    const id = val && val.id;
+    if (id) return id;
+    return '';
 }
 
 export function getSelectOptions(options?: SelectOption[]): SelectOption[] {
@@ -103,12 +107,16 @@ export function getSelectOptions(options?: SelectOption[]): SelectOption[] {
     return ts.castArray(options).filter(opt => !!opt);
 }
 
-export function mapFormOptions(options: SelectOption[], sorted?: boolean) {
-    const mapped = options.map(opt => ({
-        key: opt.id,
-        text: opt.name || opt.id,
-        value: opt.id,
-    }));
+export function mapFormOptions(options?: SelectOption[], sorted?: boolean) {
+    const mapped = getSelectOptions(options).map(opt => {
+        if (ts.isString(opt)) return { key: opt, text: opt, value: opt };
+
+        return {
+            key: opt.id,
+            text: opt.name || opt.id,
+            value: opt.id,
+        };
+    });
     if (sorted === false) return mapped;
     return mapped.sort((a, b) => {
         const aText = ts.trimAndToLower(a.text);

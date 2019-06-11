@@ -59,14 +59,6 @@ const RolesForm: React.FC<Props> = ({ id }) => {
             {({ defaultInputProps, model, roles, update }) => {
                 const modelType = getModelType(model);
                 const userTypes = UserPermissionMap[authUser.type];
-                const userTypeOptions = userTypes.map(type => ({
-                    id: type,
-                    name: type,
-                }));
-                const selectedUserType = {
-                    id: modelType as string,
-                    name: modelType as string,
-                };
 
                 return (
                     <React.Fragment>
@@ -126,8 +118,8 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                                 label="Account Type"
                                 placeholder="Select Account Type"
                                 disabled={authUser.type === 'USER'}
-                                value={selectedUserType}
-                                options={userTypeOptions}
+                                value={modelType}
+                                options={userTypes as string[]}
                             />
                         </Form.Group>
                         <Form.Group>

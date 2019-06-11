@@ -22,7 +22,7 @@
     padding: 1rem 0;
 }
 
-.coreForm {
+.loginForm {
     padding-bottom: 1rem;
 }
 
@@ -39,8 +39,20 @@
     padding-left: 1rem;
 }
 
+.sectionMessage {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sectionMessage > .content {
+    flex: 1;
+    margin-left: 1rem;
+}
+
 .sectionDescription {
     margin-top: -0.1rem !important;
+    margin-bottom: -0.1em !important;
 }
 
 .actionSegment {
@@ -69,10 +81,14 @@
     color: #DB2828 !important;
 }
 
-.daBorderlessButton.blue {
+.borderlessButton.blue {
     color: #2185D0 !important;
 }
 
-.coreSection {
-    margin-bottom: 2rem;
+.code {
+    font-weight: bold;
+}
+
+.code.inline {
+    display: inline;
 }

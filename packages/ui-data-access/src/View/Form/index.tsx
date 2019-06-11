@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Form } from 'semantic-ui-react';
+import { Form, Segment } from 'semantic-ui-react';
 import { validateFieldName } from '../../utils';
 import { Input } from '../interfaces';
 import config from '../config';
-import Fields from './Fields';
 import ModelForm, {
     ValidateFn,
     FormInput,
@@ -14,6 +13,7 @@ import ModelForm, {
     FormCheckbox,
 } from '../../ModelForm';
 import { Section } from '@terascope/ui-components';
+import RestrictedInfo from './RestrictedInfo';
 
 const ViewForm: React.FC<Props> = ({ id }) => {
     const afterChange = (model: Input) => {
@@ -22,6 +22,7 @@ const ViewForm: React.FC<Props> = ({ id }) => {
         }
     };
     const validate: ValidateFn<Input> = (errs, model) => {
+        console.table(model);
         if (model.excludes) {
             model.excludes.forEach(field => {
                 if (!validateFieldName(field)) {
@@ -56,7 +57,7 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                 return { input };
             }}
         >
-            {({ defaultInputProps, updateModel, model, dataTypes }) => {
+            {({ defaultInputProps, model, dataTypes }) => {
                 return (
                     <React.Fragment>
                         <Form.Group>
@@ -97,42 +98,50 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                             />
                         </Form.Group>
                         <Form.Group>
-                            <FormCheckbox<Input>
-                                {...defaultInputProps}
-                                value={model.prevent_prefix_wildcard}
-                                name="prevent_prefix_wildcard"
-                                label="Prevent Prefix Wildcard"
-                            />
                             <FormInput<Input>
                                 {...defaultInputProps}
                                 value={model.constraint}
                                 name="constraint"
                                 label="Search Query Constraint"
                             />
+                            <FormCheckbox<Input>
+                                {...defaultInputProps}
+                                value={model.prevent_prefix_wildcard}
+                                name="prevent_prefix_wildcard"
+                                label="Prevent Prefix Wildcard"
+                            />
                         </Form.Group>
                         <Section
                             title="Restricted Fields (inclusive)"
                             description="A whitelist of fields that can be views and searched"
+                            info={<RestrictedInfo />}
                         >
-                            <Fields
-                                available={getAvailableFields(model)}
-                                update={includes => {
-                                    updateModel({ includes });
-                                }}
-                                fields={model.includes}
-                            />
+                            <Form.Group as={Segment} basic>
+                                <FormSelect<Input>
+                                    {...defaultInputProps}
+                                    label="Select Fields"
+                                    multiple
+                                    options={getFieldOptions(model)}
+                                    name="includes"
+                                    value={model.includes}
+                                />
+                            </Form.Group>
                         </Section>
                         <Section
                             title="Restricted Fields (exclusive)"
                             description="A blacklist of fields that can be views and searched"
+                            info={<RestrictedInfo />}
                         >
-                            <Fields
-                                available={getAvailableFields(model)}
-                                update={excludes => {
-                                    updateModel({ excludes });
-                                }}
-                                fields={model.excludes}
-                            />
+                            <Form.Group as={Segment} basic>
+                                <FormSelect<Input>
+                                    {...defaultInputProps}
+                                    label="Select Fields"
+                                    multiple
+                                    options={getFieldOptions(model)}
+                                    name="excludes"
+                                    value={model.excludes}
+                                />
+                            </Form.Group>
                         </Section>
                     </React.Fragment>
                 );
@@ -141,7 +150,7 @@ const ViewForm: React.FC<Props> = ({ id }) => {
     );
 };
 
-function getAvailableFields(model: Input): string[] {
+function getFieldOptions(model: Input): string[] {
     if (!model.data_type || !model.data_type.type_config) return [];
     return Object.keys(model.data_type.type_config);
 }
