@@ -221,12 +221,13 @@ describe('Data Access Management', () => {
                 mutation {
                     createSpace(space: {
                         client_id: 1,
+                        type: search,
                         name: "Greetings Space",
                         endpoint: "greetings",
                         data_type: "${dataTypeId}",
                         roles: ["${roleId}"],
                         views: ["${viewId}"],
-                        search_config: {
+                        config: {
                             index: "hello-space",
                             connection: "other",
                             require_query: true,
@@ -236,12 +237,7 @@ describe('Data Access Management', () => {
                         id,
                         name,
                         endpoint,
-                        search_config {
-                            index,
-                            connection,
-                            require_query,
-                            sort_enabled
-                        }
+                        config
                     }
                 }
             `;
@@ -254,7 +250,7 @@ describe('Data Access Management', () => {
             expect(createSpace).toMatchObject({
                 name: 'Greetings Space',
                 endpoint: 'greetings',
-                search_config: {
+                config: {
                     require_query: true,
                     sort_enabled: true,
                     index: 'hello-space',
@@ -759,7 +755,8 @@ describe('Data Access Management', () => {
                     mutation {
                         updateSpace(space: {
                             id: "${spaceId}",
-                            search_config: {
+                            type: search,
+                            config: {
                                 index: "hello-space",
                                 connection: "default",
                                 require_query: true,
@@ -768,17 +765,15 @@ describe('Data Access Management', () => {
                             }
                         }) {
                             id,
-                            search_config {
-                               preserve_index_name
-                            }
+                            config
                         }
                     }
                 `;
 
-                expect(await reqClient.request(query)).toEqual({
+                expect(await reqClient.request(query)).toMatchObject({
                     updateSpace: {
                         id: spaceId,
-                        search_config: {
+                        config: {
                             preserve_index_name: true,
                         },
                     },

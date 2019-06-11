@@ -2,9 +2,9 @@ import { Logger } from '@terascope/utils';
 import { IndexConfig, FindOptions, FindOneOptions } from 'elasticsearch-store';
 import * as models from './models';
 
-export type ModelName = 'User'|'Role'|'DataType'|'Space'|'View';
-export type AuthUser = models.User|false;
-export type AnyModel = models.User|models.Role|models.DataType|models.Space|models.View;
+export type ModelName = 'User' | 'Role' | 'DataType' | 'Space' | 'View';
+export type AuthUser = models.User | false;
+export type AnyModel = models.User | models.Role | models.DataType | models.Space | models.View;
 
 export type FindArgs<T> = { query?: string } & FindOptions<T>;
 export type FindOneArgs<T> = { id: string } & FindOneOptions<T>;
@@ -15,14 +15,14 @@ export interface ManagerConfig {
     logger?: Logger;
 }
 
-export type SortOrder = 'asc'|'desc';
+export type SortOrder = 'asc' | 'desc';
 
 export interface InputQuery {
-    size?: number|string;
+    size?: number | string;
     sort?: string;
     q?: string;
-    start?: number|string;
-    fields?: string|string[];
+    start?: number | string;
+    fields?: string | string[];
     history?: boolean;
     history_start?: string;
     geo_sort_point?: string;
@@ -56,45 +56,45 @@ export interface FinalResponse {
  *
  * This will be passed in in to non-admin data-access tools,
  * like FilterAccess and SearchAccess
-*/
+ */
 export interface DataAccessConfig {
     /**
      * The id of the user authenticated
-    */
+     */
     user_id: string;
 
     /**
      * The id of the Role used
-    */
+     */
     role_id: string;
 
     /**
      * The id of the space
-    */
+     */
     space_id: string;
 
     /**
+     * The space configuration type
+     */
+    type: models.SpaceConfigType;
+
+    /**
      * The endpoint of the space
-    */
+     */
     space_endpoint: string;
 
     /**
-     * The space's search configuration
-    */
-    search_config?: models.SpaceSearchConfig;
-
-    /**
-     * The space's streaming configuration
-    */
-    streaming_config?: models.SpaceStreamingConfig;
+     * The space's configuration
+     */
+    config?: models.SpaceSearchConfig | models.SpaceStreamingConfig;
 
     /**
      * The data type associated with the view
-    */
+     */
     data_type: models.DataType;
 
     /**
      * The authenticated user's view of the space
-    */
+     */
     view: models.View;
 }

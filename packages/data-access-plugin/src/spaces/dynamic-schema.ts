@@ -11,7 +11,7 @@ import allTypeMappings from './typeMappings';
 // TODO: history capabilities??
 
 export default async function getSchemaByRole(aclManager: ACLManager, user: User, logger: ts.Logger, context: Context) {
-    const query = `roles: ${user.role}`;
+    const query = `roles: ${user.role} AND type:search`;
     const spaces = await aclManager.findSpaces({ query }, false);
     const fetchViews = spaces.map(space => aclManager.getViewForSpace({ space: space.id }, user));
     const list = await Promise.all(fetchViews);

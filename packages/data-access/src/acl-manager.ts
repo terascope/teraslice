@@ -457,9 +457,9 @@ export class ACLManager {
             user_id: user.id,
             role_id: role.id,
             space_id: space.id,
+            type: space.type,
             space_endpoint: space.endpoint,
-            search_config: space.search_config,
-            streaming_config: space.streaming_config,
+            config: space.config,
             data_type: dataType,
             view,
         });
@@ -669,7 +669,8 @@ export class ACLManager {
     }
 
     private _parseDataAccessConfig(config: i.DataAccessConfig): i.DataAccessConfig {
-        const searchConfig = config.search_config!;
+        if (config.type !== 'search') return config;
+        const searchConfig = config.config as models.SpaceSearchConfig;
 
         if (searchConfig.default_date_field) {
             searchConfig.default_date_field = ts.trimAndToLower(searchConfig.default_date_field);

@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { IResolvers, UserInputError } from 'apollo-server-express';
 import { GraphQLResolveInfo } from 'graphql';
-import { DataAccessConfig } from '@terascope/data-access';
+import { DataAccessConfig, SpaceSearchConfig } from '@terascope/data-access';
 import elasticsearchApi from '@terascope/elasticsearch-api';
 import { Logger, get } from '@terascope/utils';
 import { Context } from '@terascope/job-components';
@@ -57,7 +57,7 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
     }
 
     viewList.forEach(view => {
-        const esClient = getESClient(context, get(view, 'search_config.connection', 'default'));
+        const esClient = getESClient(context, get(view, 'config.connection', 'default'));
         const client = elasticsearchApi(esClient, logger);
         const {
             data_type: { type_config },
@@ -74,9 +74,10 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
         const queryAccess = new QueryAccess(accessData, logger);
 
         endpoints[view.space_endpoint] = async function resolverFn(root: any, args: any, ctx: any, info: GraphQLResolveInfo) {
+            const spaceConfig = view.config as SpaceSearchConfig;
             const _sourceInclude = getSelectionKeys(info);
             const { size, sort, from, join } = args;
-            const queryParams = { index: view.search_config!.index, from, sort, size, _sourceInclude };
+            const queryParams = { index: spaceConfig.index, from, sort, size, _sourceInclude };
             let { query: q } = args;
 
             if (root == null && q == null) throw new UserInputError('Invalid request, expected query to nested');

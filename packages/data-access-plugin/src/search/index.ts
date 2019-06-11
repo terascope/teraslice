@@ -54,7 +54,7 @@ export default class SearchPlugin {
 
                 req.query.pretty = toBoolean(req.query.pretty);
 
-                const connection = get(accessConfig, 'search_config.connection', 'default');
+                const connection = get(accessConfig, 'config.connection', 'default');
                 const client = getESClient(this.context, connection);
 
                 const search = makeSearchFn(client, accessConfig, logger);

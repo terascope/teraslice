@@ -10,6 +10,7 @@ const fieldsFragment = gql`
         client_id
         id
         name
+        type
         description
         endpoint
         views {
@@ -29,20 +30,7 @@ const fieldsFragment = gql`
                 name
             }
         }
-        search_config {
-            index
-            connection
-            max_query_size
-            sort_default
-            sort_dates_only
-            sort_enabled
-            default_geo_field
-            preserve_index_name
-            require_query
-            default_date_field
-            enable_history
-            history_prefix
-        }
+        config
         updated
         created
     }
@@ -53,12 +41,12 @@ const config: ModelConfig<Input> = {
     pathname: 'spaces',
     singularLabel: 'Space',
     pluralLabel: 'Spaces',
-    searchFields: ['name', 'endpoint'],
-    requiredFields: ['name', 'endpoint'],
+    searchFields: ['name', 'type', 'endpoint'],
+    requiredFields: ['name', 'type', 'endpoint'],
     handleFormProps(authUser, { result, views, dataTypes: _dataTypes, ...extra }) {
         const input = {} as Input;
         for (const field of inputFields) {
-            if (field === 'search_config') {
+            if (field === 'config') {
                 copyField(input, result, field, {
                     index: '',
                     connection: 'default',
@@ -77,6 +65,8 @@ const config: ModelConfig<Input> = {
                     name: '',
                     views,
                 });
+            } else if (field === 'type') {
+                copyField(input, result, field, 'search');
             } else {
                 copyField(input, result, field, '');
             }
@@ -99,6 +89,7 @@ const config: ModelConfig<Input> = {
         columns: {
             name: { label: 'Name' },
             endpoint: { label: 'Endpoint' },
+            type: { label: 'Configuration Type' },
             description: {
                 label: 'Description',
                 sortable: false,

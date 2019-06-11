@@ -2,15 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { toSafeString } from '@terascope/utils';
 import { Form } from 'semantic-ui-react';
+import { Input, spaceConfigTypes } from '../interfaces';
+import SearchConfig from './SearchConfig';
+import config from '../config';
 import ModelForm, {
     FormInput,
     FormSelect,
     ClientID,
     Description,
 } from '../../ModelForm';
-import config from '../config';
-import { Input } from '../interfaces';
-import SearchConfig from './SearchConfig';
 
 const SpaceForm: React.FC<Props> = ({ id }) => {
     const afterChange = (model: Input) => {
@@ -51,6 +51,15 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
                                 name="endpoint"
                                 label="API Endpoint"
                             />
+                            <FormSelect<Input>
+                                {...defaultInputProps}
+                                name="type"
+                                sorted={false}
+                                label="Configuration Type"
+                                placeholder="Select Configuration Type"
+                                value={model.type}
+                                options={spaceConfigTypes as string[]}
+                            />
                         </Form.Group>
                         <Description<Input>
                             {...defaultInputProps}
@@ -87,9 +96,9 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
                             />
                         </Form.Group>
                         <SearchConfig
-                            config={model.search_config}
+                            config={model.config}
                             updateConfig={searchConfig => {
-                                updateModel({ search_config: searchConfig });
+                                updateModel({ config: searchConfig });
                             }}
                         />
                     </React.Fragment>

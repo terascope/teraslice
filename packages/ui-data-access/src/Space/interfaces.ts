@@ -1,4 +1,4 @@
-import { Space, Role, DataType, View, SpaceSearchConfig } from '@terascope/data-access';
+import { Space, Role, DataType, View, SpaceSearchConfig, SpaceConfigType } from '@terascope/data-access';
 import { Overwrite } from '@terascope/utils';
 import { OverwriteModelWith } from '../ModelForm';
 
@@ -15,18 +15,21 @@ export type Input = OverwriteModelWith<
         views: Pick<View, 'id' | 'name'>[];
         roles: Pick<Role, 'id' | 'name'>[];
         data_type: SpaceDataType;
-        search_config: SpaceSearchConfig;
+        config: SpaceSearchConfig;
     }
 >;
 
 export const inputFields: (keyof Input)[] = [
     'id',
     'client_id',
+    'type',
     'name',
     'description',
-    'search_config',
+    'config',
     'endpoint',
     'roles',
     'views',
     'data_type',
 ];
+
+export const spaceConfigTypes: SpaceConfigType[] = ['search'];

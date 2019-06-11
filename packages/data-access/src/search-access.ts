@@ -12,15 +12,16 @@ const _logger = ts.debugLogger('search-access');
  */
 export class SearchAccess {
     config: i.DataAccessConfig;
+    spaceConfig: SpaceSearchConfig;
     private _queryAccess: x.QueryAccess;
     private _logger: ts.Logger;
 
     constructor(config: i.DataAccessConfig, logger: ts.Logger = _logger) {
-        if (!config.search_config || ts.isEmpty(config.search_config) || !config.search_config.index) {
+        this.config = config;
+        this.spaceConfig = config.config as SpaceSearchConfig;
+        if (ts.isEmpty(this.spaceConfig) || !this.spaceConfig.index) {
             throw new ts.TSError('Search is not configured correctly for search');
         }
-
-        this.config = config;
 
         this._logger = logger;
         this._queryAccess = new x.QueryAccess(
@@ -52,7 +53,7 @@ export class SearchAccess {
             throw new ts.TSError(err, {
                 reason: 'Query restricted',
                 context: {
-                    config: this.config.search_config,
+                    config: this.spaceConfig,
                     query,
                     safe: true,
                 },
@@ -74,7 +75,7 @@ export class SearchAccess {
     }
 
     getSearchParams(query: i.InputQuery): es.SearchParams {
-        const config = this.config.search_config!;
+        const config = this.spaceConfig;
         const typeConfig = this.config.data_type.type_config || {};
 
         const params: es.SearchParams = {
@@ -167,7 +168,7 @@ export class SearchAccess {
     }
 
     getSearchResponse(response: es.SearchResponse<any>, query: i.InputQuery, params: es.SearchParams) {
-        const config = this.config.search_config!;
+        const config = this.spaceConfig;
 
         // I don't think this property actually exists
         const error = ts.get(response, 'error');

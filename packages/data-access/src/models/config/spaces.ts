@@ -17,6 +17,9 @@ const config: IndexModelConfig<Space> = {
                     },
                 },
             },
+            type: {
+                type: 'keyword',
+            },
             endpoint: {
                 type: 'keyword',
                 fields: {
@@ -35,10 +38,7 @@ const config: IndexModelConfig<Space> = {
             data_type: {
                 type: 'keyword',
             },
-            search_config: {
-                type: 'object',
-            },
-            streaming_config: {
+            config: {
                 type: 'object',
             },
         },
@@ -52,6 +52,11 @@ const config: IndexModelConfig<Space> = {
             },
             name: {
                 type: 'string',
+            },
+            type: {
+                type: 'string',
+                default: 'search',
+                enum: ['search', 'streaming'],
             },
             endpoint: {
                 type: 'string',
@@ -78,65 +83,85 @@ const config: IndexModelConfig<Space> = {
                 uniqueItems: true,
                 default: [],
             },
-            search_config: {
-                type: 'object',
-                additionalProperties: true,
-                default: {},
-                properties: {
-                    index: {
-                        type: 'string',
-                    },
-                    connection: {
-                        type: 'string',
-                        default: 'default',
-                    },
-                    max_query_size: {
-                        type: 'number',
-                        default: 10000,
-                    },
-                    sort_default: {
-                        type: 'string',
-                    },
-                    sort_dates_only: {
-                        type: 'boolean',
-                        default: false,
-                    },
-                    default_geo_field: {
-                        type: 'string',
-                    },
-                    preserve_index_name: {
-                        type: 'boolean',
-                        default: false,
-                    },
-                    require_query: {
-                        type: 'boolean',
-                        default: false,
-                    },
-                    default_date_field: {
-                        type: 'string',
-                    },
-                    enable_history: {
-                        type: 'boolean',
-                        default: false,
-                    },
-                    history_prefix: {
-                        type: 'string',
-                    },
-                },
-            },
-            streaming_config: {
-                type: 'object',
-                additionalProperties: true,
-                default: {},
-                properties: {
-                    connection: {
-                        type: 'string',
-                        default: 'default',
-                    },
-                },
-            },
         },
-        required: ['client_id', 'name', 'data_type'],
+        allOf: [
+            {
+                if: {
+                    properties: { type: { const: 'search' } },
+                },
+                then: {
+                    properties: {
+                        config: {
+                            type: 'object',
+                            additionalProperties: true,
+                            default: {},
+                            properties: {
+                                index: {
+                                    type: 'string',
+                                },
+                                connection: {
+                                    type: 'string',
+                                    default: 'default',
+                                },
+                                max_query_size: {
+                                    type: 'number',
+                                    default: 10000,
+                                },
+                                sort_default: {
+                                    type: 'string',
+                                },
+                                sort_dates_only: {
+                                    type: 'boolean',
+                                    default: false,
+                                },
+                                default_geo_field: {
+                                    type: 'string',
+                                },
+                                preserve_index_name: {
+                                    type: 'boolean',
+                                    default: false,
+                                },
+                                require_query: {
+                                    type: 'boolean',
+                                    default: false,
+                                },
+                                default_date_field: {
+                                    type: 'string',
+                                },
+                                enable_history: {
+                                    type: 'boolean',
+                                    default: false,
+                                },
+                                history_prefix: {
+                                    type: 'string',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            {
+                if: {
+                    properties: { type: { const: 'search' } },
+                },
+                then: {
+                    properties: {
+                        config: {
+                            type: 'object',
+                            additionalProperties: true,
+                            default: {},
+                            properties: {
+                                connection: {
+                                    type: 'string',
+                                    default: 'default',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        ],
+        required: ['client_id', 'name', 'type', 'data_type'],
     },
     uniqueFields: ['endpoint'],
     sanitizeFields: {
@@ -144,6 +169,8 @@ const config: IndexModelConfig<Space> = {
     },
     strictMode: false,
 };
+
+export type SpaceConfigType = 'search' | 'streaming';
 
 /**
  * The definition of a Space model
@@ -158,6 +185,11 @@ export interface Space extends IndexModelRecord {
      * Name of the Space
      */
     name: string;
+
+    /**
+     * The space configuration type
+     */
+    type: SpaceConfigType;
 
     /**
      * A URL friendly name for endpoint that is associated with the space, this must be unique
@@ -185,14 +217,9 @@ export interface Space extends IndexModelRecord {
     roles: string[];
 
     /**
-     * Configuration for searching the space
+     * Configuration for the space
      */
-    search_config?: SpaceSearchConfig;
-
-    /**
-     * Configuration for streaming the space
-     */
-    streaming_config?: SpaceStreamingConfig;
+    config?: SpaceSearchConfig | SpaceStreamingConfig;
 }
 
 export interface SpaceStreamingConfig {

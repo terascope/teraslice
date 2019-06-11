@@ -7,9 +7,10 @@ import { SearchAccess, View, DataType, InputQuery, SpaceSearchConfig } from '../
 describe('SearchAccess', () => {
     it('should fail if given an invalid search config', () => {
         expect(() => {
+            // @ts-ignore
             new SearchAccess({
                 // @ts-ignore
-                search_config: {},
+                config: {},
             });
         }).toThrowWithMessage(ts.TSError, 'Search is not configured correctly for search');
     });
@@ -404,9 +405,10 @@ function makeWith(searchConfig: Partial<SpaceSearchConfig> = {}, typeConfig: Typ
 
     return new SearchAccess({
         view,
+        type: 'search',
         data_type: dataType,
         space_endpoint: 'example-endpoint',
-        search_config: Object.assign(
+        config: Object.assign(
             {
                 index: 'example-index',
             },
