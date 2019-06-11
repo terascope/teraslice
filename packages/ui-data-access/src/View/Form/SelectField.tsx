@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Form } from 'semantic-ui-react';
-import { getFieldOptions } from './utils';
+import { Select } from 'semantic-ui-react';
+import FieldParts from './FieldParts';
 
 const SelectField: React.FC<Props> = ({
     field = '',
@@ -10,7 +10,7 @@ const SelectField: React.FC<Props> = ({
     available,
 }) => {
     return (
-        <Form.Select
+        <Select
             placeholder="Choose a field"
             error={invalid}
             options={getFieldOptions(available)}
@@ -21,6 +21,38 @@ const SelectField: React.FC<Props> = ({
         />
     );
 };
+
+type DropdownOption = {
+    key: string;
+    text: string;
+    content: any;
+    value: string;
+    disabled?: boolean;
+};
+
+function getFieldOptions(available: string[] = []) {
+    const options: DropdownOption[] = [];
+    for (const field of available) {
+        if (!field) continue;
+
+        const parts: string[] = [];
+        for (const _part of field.trim().split('.')) {
+            const part = _part.trim();
+            if (!part) continue;
+            parts.push(part);
+
+            const path = parts.join('.');
+            if (options.some(({ key }) => key === path)) continue;
+            options.push({
+                key: path,
+                text: path,
+                content: <FieldParts field={path} />,
+                value: path,
+            });
+        }
+    }
+    return options;
+}
 
 type Props = {
     field: string;

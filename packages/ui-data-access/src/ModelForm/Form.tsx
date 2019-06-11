@@ -1,10 +1,6 @@
 import React, { FormEvent, useState, ReactElement } from 'react';
 import { AnyObject, get, isFunction, uniq } from '@terascope/utils';
-import {
-    RecordForm,
-    useCoreContext,
-    tsWithRouter,
-} from '@terascope/ui-components';
+import { RecordForm, useCoreContext } from '@terascope/ui-components';
 import { getModelConfig } from '../config';
 import {
     ErrorsState,
@@ -152,4 +148,4 @@ function Form<T extends AnyModel>({
 }
 
 Form.propTypes = ComponentPropTypes;
-export default tsWithRouter(Form) as ReturnType<Form>;
+export default Form as ReturnType<Form>;

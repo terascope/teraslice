@@ -1,17 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Segment, Icon } from 'semantic-ui-react';
+import FieldParts from './FieldParts';
 
 const ExistingField: React.FC<Props> = ({ removeField, field }) => {
     return (
         <Segment className="daActionSegment">
-            <div>
-                {field.split('.').map((str, i) => (
-                    <span key={`${str}-${i}`} style={getPartStyle(i)}>
-                        {i > 0 ? `.${str}` : str}
-                    </span>
-                ))}
-            </div>
+            <FieldParts className="daActionLabel" field={field} />
             <Button
                 className="daBorderlessButton"
                 color="red"
@@ -26,13 +21,6 @@ const ExistingField: React.FC<Props> = ({ removeField, field }) => {
         </Segment>
     );
 };
-
-function getPartStyle(i: number): React.CSSProperties {
-    if (i === 0) return { fontWeight: 600 };
-    if (i === 1) return { fontWeight: 700 };
-    if (i === 2) return { fontWeight: 800 };
-    return { fontWeight: 900 };
-}
 
 type Props = {
     removeField: (field: string) => void;

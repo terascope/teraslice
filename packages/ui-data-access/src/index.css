@@ -42,6 +42,11 @@
 
 .daActionSegment > div:first-child {
     flex: 1;
+    margin-top: 0.1rem !important;
+}
+
+.daActionSegment .button {
+    padding-top: 0.6rem;
 }
 
 .daBorderlessButton {
@@ -57,4 +62,8 @@
 
 .daBorderlessButton.blue {
     color: #2185D0 !important;
+}
+
+.daActionLabel {
+    padding: 0.4rem;
 }
