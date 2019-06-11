@@ -1,24 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Segment, Icon } from 'semantic-ui-react';
+import { ActionSegment } from '@terascope/ui-components';
 import FieldParts from './FieldParts';
 
 const ExistingField: React.FC<Props> = ({ removeField, field }) => {
     return (
-        <Segment className="daActionSegment">
+        <ActionSegment
+            onAction={() => {
+                removeField(field);
+            }}
+            actions={[
+                {
+                    name: 'Remove',
+                    icon: 'trash alternate outline',
+                    color: 'red',
+                },
+            ]}
+        >
             <FieldParts className="daActionLabel" field={field} />
-            <Button
-                className="daBorderlessButton"
-                color="red"
-                onClick={(e: any) => {
-                    e.preventDefault();
-                    removeField(field);
-                }}
-            >
-                <Icon name="trash alternate outline" />
-                Remove
-            </Button>
-        </Segment>
+        </ActionSegment>
     );
 };
 

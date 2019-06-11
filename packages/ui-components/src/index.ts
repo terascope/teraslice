@@ -1,3 +1,4 @@
+import ActionSegment from './ActionSegment';
 import AuthUserQuery, { AUTH_QUERY } from './AuthUserQuery';
 import ErrorMessage from './ErrorMessage';
 import ErrorPage from './ErrorPage';
@@ -6,6 +7,7 @@ import Page from './Page';
 import PluginPage from './PluginPage';
 import PluginService from './PluginService';
 import RecordForm from './RecordForm';
+import Section from './Section';
 import StateMessage from './StateMessage';
 import SuccessMessage from './SuccessMessage';
 
@@ -15,6 +17,7 @@ export * from './interfaces';
 export * from './utils';
 
 export {
+    ActionSegment,
     AUTH_QUERY,
     AuthUserQuery,
     ErrorMessage,
@@ -24,6 +27,7 @@ export {
     PluginPage,
     PluginService,
     RecordForm,
+    Section,
     StateMessage,
     SuccessMessage,
 };

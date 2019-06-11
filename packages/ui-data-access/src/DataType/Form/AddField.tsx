@@ -18,7 +18,6 @@ const AddField: React.FC<Props> = ({ add }) => {
 
     return (
         <React.Fragment>
-            <Message attached header="" />
             <Segment className="daAddFieldGroup" basic attached>
                 <Form.Group>
                     <FieldName

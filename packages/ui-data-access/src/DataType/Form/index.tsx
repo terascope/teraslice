@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { trim } from '@terascope/utils';
 import { Form } from 'semantic-ui-react';
+import { Section } from '@terascope/ui-components';
 import ModelForm, { FormInput, ClientID, Description } from '../../ModelForm';
 import { validateFieldName, parseTypeConfig } from '../../utils';
 import { Input, availableDataTypes } from '../interfaces';
@@ -63,18 +64,20 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
                             {...defaultInputProps}
                             description={model.description}
                         />
-                        <TypeConfig
-                            updateTypeConfig={(field, type) => {
-                                const typeConfig = { ...model.type_config };
-                                Object.assign(typeConfig, {
-                                    [field]: type,
-                                });
-                                updateModel({
-                                    type_config: typeConfig,
-                                });
-                            }}
-                            typeConfig={model.type_config}
-                        />
+                        <Section title="Type Configuration">
+                            <TypeConfig
+                                updateTypeConfig={(field, type) => {
+                                    const typeConfig = { ...model.type_config };
+                                    Object.assign(typeConfig, {
+                                        [field]: type,
+                                    });
+                                    updateModel({
+                                        type_config: typeConfig,
+                                    });
+                                }}
+                                typeConfig={model.type_config}
+                            />
+                        </Section>
                     </React.Fragment>
                 );
             }}

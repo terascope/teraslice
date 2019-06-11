@@ -13,6 +13,7 @@ import ModelForm, {
     Description,
     FormCheckbox,
 } from '../../ModelForm';
+import { Section } from '@terascope/ui-components';
 
 const ViewForm: React.FC<Props> = ({ id }) => {
     const afterChange = (model: Input) => {
@@ -109,24 +110,30 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                                 label="Search Query Constraint"
                             />
                         </Form.Group>
-                        <Fields
-                            label="Restricted Fields (inclusive)"
+                        <Section
+                            title="Restricted Fields (inclusive)"
                             description="A whitelist of fields that can be views and searched"
-                            available={getAvailableFields(model)}
-                            update={includes => {
-                                updateModel({ includes });
-                            }}
-                            fields={model.includes!}
-                        />
-                        <Fields
-                            label="Restricted Fields (exclusive)"
+                        >
+                            <Fields
+                                available={getAvailableFields(model)}
+                                update={includes => {
+                                    updateModel({ includes });
+                                }}
+                                fields={model.includes}
+                            />
+                        </Section>
+                        <Section
+                            title="Restricted Fields (exclusive)"
                             description="A blacklist of fields that can be views and searched"
-                            available={getAvailableFields(model)}
-                            update={excludes => {
-                                updateModel({ excludes });
-                            }}
-                            fields={model.excludes!}
-                        />
+                        >
+                            <Fields
+                                available={getAvailableFields(model)}
+                                update={excludes => {
+                                    updateModel({ excludes });
+                                }}
+                                fields={model.excludes}
+                            />
+                        </Section>
                     </React.Fragment>
                 );
             }}

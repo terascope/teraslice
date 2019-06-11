@@ -14,10 +14,11 @@ const FieldParts: React.FC<Props> = ({ field, className }) => {
 };
 
 function getPartStyle(i: number): React.CSSProperties {
-    if (i === 0) return { fontWeight: 600 };
-    if (i === 1) return { fontWeight: 700 };
-    if (i === 2) return { fontWeight: 800 };
-    return { fontWeight: 900 };
+    const color = '#676767';
+    if (i === 0) return { color, fontWeight: 600 };
+    if (i === 1) return { color, fontWeight: 700 };
+    if (i === 2) return { color, fontWeight: 800 };
+    return { color, fontWeight: 900 };
 }
 
 type Props = {

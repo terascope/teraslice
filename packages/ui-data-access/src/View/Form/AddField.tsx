@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Segment, Message, Icon, Button } from 'semantic-ui-react';
+import { Message, Icon } from 'semantic-ui-react';
+import { ActionSegment } from '@terascope/ui-components';
 import { validateFieldName } from '../../utils';
 import SelectField from './SelectField';
 
@@ -11,7 +12,21 @@ const AddField: React.FC<Props> = ({ addField, available }) => {
 
     return (
         <React.Fragment>
-            <Segment className="daActionSegment">
+            <ActionSegment
+                onAction={() => {
+                    if (invalid) return;
+
+                    addField(field);
+                    setField('');
+                }}
+                actions={[
+                    {
+                        name: 'Add Field',
+                        icon: 'add',
+                        color: 'blue',
+                    },
+                ]}
+            >
                 <SelectField
                     field={field}
                     invalid={invalid}
@@ -20,21 +35,7 @@ const AddField: React.FC<Props> = ({ addField, available }) => {
                         setField(updatedField);
                     }}
                 />
-                <Button
-                    className="daBorderlessButton"
-                    color="blue"
-                    onClick={(e: any) => {
-                        e.preventDefault();
-                        if (invalid) return;
-
-                        addField(field);
-                        setField('');
-                    }}
-                >
-                    <Icon name="add" />
-                    Add Field
-                </Button>
-            </Segment>
+            </ActionSegment>
             {invalid ? (
                 <Message attached="bottom" error className="daFormMessage">
                     <Icon name="times" />

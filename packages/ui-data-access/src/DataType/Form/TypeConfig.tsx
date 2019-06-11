@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Segment, Header } from 'semantic-ui-react';
+import { Segment } from 'semantic-ui-react';
 import AddField from './AddField';
 import ExistingField from './ExistingField';
 import { parseTypeConfig } from '../../utils';
@@ -8,10 +8,7 @@ import { parseTypeConfig } from '../../utils';
 const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig = {} }) => {
     const entries = parseTypeConfig(typeConfig);
     return (
-        <Segment.Group className="daFormGroup">
-            <Header as="h5" block attached="top">
-                Type Configuration
-            </Header>
+        <React.Fragment>
             {entries.length ? (
                 entries.map(({ field, type }, i) => {
                     const key = `data-type-config-${field}-${i}`;
@@ -30,7 +27,7 @@ const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig = {} }) => {
                 </Segment>
             )}
             <AddField add={updateTypeConfig} />
-        </Segment.Group>
+        </React.Fragment>
     );
 };
 
