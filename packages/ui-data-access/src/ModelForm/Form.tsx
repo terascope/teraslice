@@ -1,11 +1,8 @@
 import React, { FormEvent, useState, ReactElement } from 'react';
 import { AnyObject, get, isFunction, uniq } from '@terascope/utils';
-import { Form as UIForm, Grid } from 'semantic-ui-react';
 import {
-    SuccessMessage,
-    ErrorMessage,
+    RecordForm,
     useCoreContext,
-    PropsWithRouter,
     tsWithRouter,
 } from '@terascope/ui-components';
 import { getModelConfig } from '../config';
@@ -28,13 +25,12 @@ function Form<T extends AnyModel>({
     id,
     input: _model,
     children,
-    history,
     modelName,
     validate: _validate,
     beforeSubmit,
     afterChange,
     ...props
-}: PropsWithRouter<ComponentProps<T>>): ReactElement {
+}: ComponentProps<T>): ReactElement {
     const config = getModelConfig(modelName);
     const authUser = useCoreContext().authUser!;
     const update = Boolean(id);
@@ -111,8 +107,6 @@ function Form<T extends AnyModel>({
         },
     };
 
-    const hasErrors = errors.messages.length > 0;
-
     return (
         <Mutation id={id} modelName={modelName}>
             {(submit, { data, loading, error }: any) => {
@@ -133,81 +127,24 @@ function Form<T extends AnyModel>({
                 };
 
                 return (
-                    <React.Fragment>
-                        <UIForm
-                            loading={loading}
-                            onSubmit={onSubmit}
-                            error={hasErrors}
-                            success={!hasErrors}
-                            widths="equal"
-                        >
-                            <Grid columns={2}>
-                                <Grid.Row>
-                                    <Grid.Column width="10">
-                                        {children({
-                                            ...props,
-                                            model,
-                                            defaultInputProps,
-                                            updateModel,
-                                            update,
-                                        })}
-                                    </Grid.Column>
-                                </Grid.Row>
-                                <Grid.Row columns={1}>
-                                    <Grid.Column stretched>
-                                        <UIForm.Group>
-                                            <UIForm.Button
-                                                basic
-                                                width={15}
-                                                type="button"
-                                                floated="right"
-                                                onClick={e => {
-                                                    e.preventDefault();
-                                                    history.goBack();
-                                                }}
-                                            >
-                                                Cancel
-                                            </UIForm.Button>
-                                            <UIForm.Button
-                                                fluid
-                                                width={2}
-                                                type="submit"
-                                                floated="right"
-                                                loading={loading}
-                                                disabled={hasErrors}
-                                                primary
-                                            >
-                                                Submit
-                                            </UIForm.Button>
-                                        </UIForm.Group>
-                                    </Grid.Column>
-                                </Grid.Row>
-                            </Grid>
-                        </UIForm>
-                        {error && (
-                            <ErrorMessage
-                                title="Request Error"
-                                error={error}
-                                attached="bottom"
-                            />
-                        )}
-                        {hasErrors && (
-                            <ErrorMessage
-                                error={errors.messages}
-                                attached="bottom"
-                            />
-                        )}
-                        {data && update && <SuccessMessage attached="bottom" />}
-                        {data && create && (
-                            <SuccessMessage
-                                attached="bottom"
-                                redirectTo={`/${config.pathname}`}
-                                message={`Successfully created ${
-                                    config.singularLabel
-                                }`}
-                            />
-                        )}
-                    </React.Fragment>
+                    <RecordForm
+                        onSubmit={onSubmit}
+                        loading={loading}
+                        requestError={error}
+                        validationErrors={errors.messages}
+                        recordType={config.singularLabel}
+                        created={data && create}
+                        updated={data && update}
+                        createRedirectPath={`/${config.pathname}`}
+                    >
+                        {children({
+                            ...props,
+                            model,
+                            defaultInputProps,
+                            updateModel,
+                            update,
+                        })}
+                    </RecordForm>
                 );
             }}
         </Mutation>

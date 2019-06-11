@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Form, Segment, Message, Icon } from 'semantic-ui-react';
+import { Segment, Message, Icon, Button } from 'semantic-ui-react';
 import { validateFieldName } from '../../utils';
-import FieldName from './FieldName';
+import SelectField from './SelectField';
 
 const AddField: React.FC<Props> = ({ addField, available }) => {
     const [field, setField] = useState('');
@@ -11,32 +11,29 @@ const AddField: React.FC<Props> = ({ addField, available }) => {
 
     return (
         <React.Fragment>
-            <Message attached header="" />
-            <Segment className="daAddFieldGroup" basic attached>
-                <Form.Group>
-                    <FieldName
-                        field={field}
-                        invalid={invalid}
-                        available={available}
-                        onChange={updatedField => {
-                            setField(updatedField);
-                        }}
-                    />
-                    <Form.Button
-                        className="daFieldButton"
-                        icon="add"
-                        label="Add"
-                        primary
-                        disabled={invalid}
-                        onClick={(e: any) => {
-                            e.preventDefault();
-                            if (invalid) return;
+            <Segment className="daActionSegment">
+                <SelectField
+                    field={field}
+                    invalid={invalid}
+                    available={available}
+                    onChange={updatedField => {
+                        setField(updatedField);
+                    }}
+                />
+                <Button
+                    className="daBorderlessButton"
+                    color="blue"
+                    onClick={(e: any) => {
+                        e.preventDefault();
+                        if (invalid) return;
 
-                            addField(field);
-                            setField('');
-                        }}
-                    />
-                </Form.Group>
+                        addField(field);
+                        setField('');
+                    }}
+                >
+                    <Icon name="add" />
+                    Add Field
+                </Button>
             </Segment>
             {invalid ? (
                 <Message attached="bottom" error className="daFormMessage">

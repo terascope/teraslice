@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Segment, Header, Message, Icon } from 'semantic-ui-react';
-import AddField from './AddField';
-import ExistingField from './ExistingField';
 import { concat } from '@terascope/utils';
+import { Segment, Header, Message, Icon } from 'semantic-ui-react';
+import ExistingField from './ExistingField';
+import AddField from './AddField';
 
 const Fields: React.FC<Props> = ({
     fields,
@@ -21,32 +21,31 @@ const Fields: React.FC<Props> = ({
                 <Icon name="info" />
                 {description}
             </Message>
-            {getFields(fields).map((field, i) => {
-                const key = `dt-${label}-${field}-${i}`;
-                return (
-                    <ExistingField
-                        key={key}
-                        available={available}
-                        removeField={removed => {
-                            update(fields.filter((f: string) => f !== removed));
-                        }}
-                        field={field}
-                    />
-                );
-            })}
-            <AddField
-                addField={added => {
-                    update(concat(fields, [added]));
-                }}
-                available={available}
-            />
+            <Segment.Group>
+                {fields.sort().map((field, i) => {
+                    const key = `dt-${label}-${field}-${i}`;
+                    return (
+                        <ExistingField
+                            key={key}
+                            removeField={removed => {
+                                update(
+                                    fields.filter((f: string) => f !== removed)
+                                );
+                            }}
+                            field={field}
+                        />
+                    );
+                })}
+                <AddField
+                    addField={added => {
+                        update(concat(fields, [added]));
+                    }}
+                    available={available}
+                />
+            </Segment.Group>
         </Segment.Group>
     );
 };
-
-function getFields(fields: string[] = []) {
-    return fields.sort();
-}
 
 type Props = {
     label: string;

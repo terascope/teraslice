@@ -1,39 +1,39 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
+import { getFieldOptions } from './utils';
 
-const FieldName: React.FC<Props> = ({
+const SelectField: React.FC<Props> = ({
     field = '',
     onChange,
     invalid,
-    readonly,
+    available,
 }) => {
     return (
-        <Form.Input
-            label="Field"
-            value={field}
+        <Form.Select
+            placeholder="Choose a field"
             error={invalid}
+            options={getFieldOptions(available)}
+            value={field}
             onChange={(e, { value }) => {
-                onChange(value);
+                onChange(value as string);
             }}
-        >
-            <input readOnly={readonly} />
-        </Form.Input>
+        />
     );
 };
 
 type Props = {
     field: string;
+    available: string[];
     invalid?: boolean;
-    readonly?: boolean;
     onChange: (field: string) => void;
 };
 
-FieldName.propTypes = {
+SelectField.propTypes = {
     field: PropTypes.string.isRequired,
-    readonly: PropTypes.bool,
+    available: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
     invalid: PropTypes.bool,
     onChange: PropTypes.func.isRequired,
 };
 
-export default FieldName;
+export default SelectField;

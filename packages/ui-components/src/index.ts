@@ -5,6 +5,7 @@ import LoadingPage from './LoadingPage';
 import Page from './Page';
 import PluginPage from './PluginPage';
 import PluginService from './PluginService';
+import RecordForm from './RecordForm';
 import StateMessage from './StateMessage';
 import SuccessMessage from './SuccessMessage';
 
@@ -13,4 +14,16 @@ export * from './CoreContext';
 export * from './interfaces';
 export * from './utils';
 
-export { AUTH_QUERY, AuthUserQuery, ErrorMessage, ErrorPage, LoadingPage, Page, PluginPage, PluginService, StateMessage, SuccessMessage };
+export {
+    AUTH_QUERY,
+    AuthUserQuery,
+    ErrorMessage,
+    ErrorPage,
+    LoadingPage,
+    Page,
+    PluginPage,
+    PluginService,
+    RecordForm,
+    StateMessage,
+    SuccessMessage,
+};

@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { toInteger } from '@terascope/utils';
 import { useCoreContext } from '@terascope/ui-components';
 import { AnyModel, DefaultInputProps } from './interfaces';
 import { FormInputProps } from 'semantic-ui-react';
 import FormInput from './FormInput';
-import { toInteger } from '@terascope/utils';
 
 function ClientID<T extends AnyModel>({
     id,
