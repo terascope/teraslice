@@ -40,7 +40,7 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
                             />
                             <ClientID<Input>
                                 {...defaultInputProps}
-                                client_id={model.client_id}
+                                id={model.client_id}
                                 inherited={Boolean(model.data_type.client_id)}
                             />
                         </Form.Group>

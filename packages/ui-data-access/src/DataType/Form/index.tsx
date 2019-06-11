@@ -2,14 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { trim } from '@terascope/utils';
 import { Form } from 'semantic-ui-react';
-import ModelForm, {
-    FormInput,
-    ClientID,
-    Description,
-    validateFieldName,
-} from '../../ModelForm';
-import { parseTypeConfig, validateFieldType } from './utils';
-import { Input } from '../interfaces';
+import ModelForm, { FormInput, ClientID, Description } from '../../ModelForm';
+import { validateFieldName, parseTypeConfig } from '../../utils';
+import { Input, availableDataTypes } from '../interfaces';
 import TypeConfig from './TypeConfig';
 import config from '../config';
 
@@ -29,7 +24,7 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
                         }
                     }
 
-                    if (!validateFieldType(type)) {
+                    if (type && !availableDataTypes.includes(type)) {
                         let msg = `Invalid field type "${type}"`;
                         if (field) msg += ` for field "${field}"`;
                         errs.messages.push(msg);
@@ -61,7 +56,7 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
                             />
                             <ClientID<Input>
                                 {...defaultInputProps}
-                                client_id={model.client_id}
+                                id={model.client_id}
                             />
                         </Form.Group>
                         <Description<Input>

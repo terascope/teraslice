@@ -1,6 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
+import { validateFieldName } from '../../utils';
+import { Input } from '../interfaces';
+import config from '../config';
+import Fields from './Fields';
 import ModelForm, {
     ValidateFn,
     FormInput,
@@ -8,11 +12,7 @@ import ModelForm, {
     ClientID,
     Description,
     FormCheckbox,
-    validateFieldName,
 } from '../../ModelForm';
-import Fields from './Fields';
-import config from '../config';
-import { Input } from '../interfaces';
 
 const ViewForm: React.FC<Props> = ({ id }) => {
     const afterChange = (model: Input) => {
@@ -67,7 +67,7 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                             />
                             <ClientID<Input>
                                 {...defaultInputProps}
-                                client_id={model.client_id}
+                                id={model.client_id}
                                 inherited={Boolean(model.data_type.client_id)}
                             />
                         </Form.Group>

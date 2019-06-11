@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { formatDate } from '@terascope/ui-components';
 import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
-import { copyField } from '../ModelForm/utils';
+import { copyField } from '../utils';
 
 const fieldsFragment = gql`
     fragment DataTypeFields on DataType {

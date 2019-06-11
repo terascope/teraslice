@@ -1,9 +1,9 @@
 import gql from 'graphql-tag';
+import { get } from '@terascope/utils';
 import { formatDate } from '@terascope/ui-components';
 import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
-import { copyField } from '../ModelForm/utils';
-import { get } from '@terascope/utils';
+import { copyField } from '../utils';
 
 const fieldsFragment = gql`
     fragment SpaceFields on Space {

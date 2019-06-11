@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
 import { useCoreContext, UserPermissionMap } from '@terascope/ui-components';
+import { getModelType } from '../../utils';
 import ModelForm, {
     ValidateFn,
     BeforeSubmitFn,
@@ -12,8 +13,6 @@ import ModelForm, {
 import { Input } from '../interfaces';
 import TokenForm from './TokenForm';
 import config from '../config';
-import { get } from '@terascope/utils';
-import { UserType } from '@terascope/data-access';
 
 const RolesForm: React.FC<Props> = ({ id }) => {
     const authUser = useCoreContext().authUser!;
@@ -58,8 +57,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
             beforeSubmit={beforeSubmit}
         >
             {({ defaultInputProps, model, roles, update }) => {
-                const modelType: UserType =
-                    get(model, 'type.id', model.type) || 'USER';
+                const modelType = getModelType(model);
                 const userTypes = UserPermissionMap[authUser.type];
                 const userTypeOptions = userTypes.map(type => ({
                     id: type,
@@ -81,7 +79,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                             />
                             <ClientID<Input>
                                 {...defaultInputProps}
-                                client_id={model.client_id}
+                                id={model.client_id}
                                 disabled={modelType === 'SUPERADMIN'}
                                 inherited={Boolean(model.role.client_id)}
                             />

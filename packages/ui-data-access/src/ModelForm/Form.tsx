@@ -1,5 +1,5 @@
 import React, { FormEvent, useState, ReactElement } from 'react';
-import { AnyObject, get, isFunction, uniq, toInteger } from '@terascope/utils';
+import { AnyObject, get, isFunction, uniq } from '@terascope/utils';
 import { Form as UIForm, Grid } from 'semantic-ui-react';
 import {
     SuccessMessage,
@@ -17,7 +17,12 @@ import {
     AnyModel,
 } from './interfaces';
 import Mutation from './FormMutation';
-import { validateClientId, prepareForMutation, validateName } from './utils';
+import {
+    validateClientId,
+    prepareForMutation,
+    validateName,
+    fixClientId,
+} from './utils';
 
 function Form<T extends AnyModel>({
     id,
@@ -86,16 +91,6 @@ function Form<T extends AnyModel>({
 
     const updateModel = (updates: AnyObject) => {
         setModel({ ...model, ...updates });
-    };
-
-    const fixClientId = (latestModel: T) => {
-        const modelType = get(latestModel, 'type.id', get(latestModel, 'type'));
-        if (modelType === 'SUPERADMIN') {
-            latestModel.client_id = 0;
-        } else if (typeof latestModel.client_id === 'string') {
-            const int = toInteger(latestModel.client_id);
-            if (int !== false) latestModel.client_id = int;
-        }
     };
 
     const defaultInputProps: DefaultInputProps<T> = {

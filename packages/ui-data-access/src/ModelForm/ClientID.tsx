@@ -7,7 +7,7 @@ import FormInput from './FormInput';
 import { toInteger } from '@terascope/utils';
 
 function ClientID<T extends AnyModel>({
-    client_id,
+    id,
     inherited,
     disabled: overrideDisabled,
     ...props
@@ -15,7 +15,7 @@ function ClientID<T extends AnyModel>({
     const authUser = useCoreContext().authUser!;
     let disabled = false;
 
-    const clientId = toInteger(client_id) || 0;
+    const clientId = toInteger(id) || 0;
     if (overrideDisabled) {
         disabled = overrideDisabled;
     } else if (inherited && clientId) {
@@ -28,7 +28,7 @@ function ClientID<T extends AnyModel>({
                 <FormInput<T>
                     {...props}
                     disabled={disabled}
-                    value={client_id != null ? `${clientId}` : ''}
+                    value={id != null ? `${id}` : ''}
                     name="client_id"
                     label="Client ID"
                 />
@@ -38,12 +38,12 @@ function ClientID<T extends AnyModel>({
 }
 
 type Props = {
-    client_id: number;
+    id: number;
     inherited?: boolean;
 } & FormInputProps;
 
 ClientID.propTypes = {
-    client_id: PropTypes.number.isRequired,
+    id: PropTypes.number.isRequired,
     inherited: PropTypes.bool,
 };
 

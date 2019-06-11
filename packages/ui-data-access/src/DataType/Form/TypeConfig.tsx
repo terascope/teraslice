@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Segment, Header } from 'semantic-ui-react';
 import AddField from './AddField';
 import ExistingField from './ExistingField';
-import { parseTypeConfig } from './utils';
+import { parseTypeConfig } from '../../utils';
 
 const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig = {} }) => {
     const entries = parseTypeConfig(typeConfig);

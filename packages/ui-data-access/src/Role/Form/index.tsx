@@ -22,7 +22,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                             />
                             <ClientID<Input>
                                 {...defaultInputProps}
-                                client_id={model.client_id}
+                                id={model.client_id}
                                 inherited={authUser.type !== 'SUPERADMIN'}
                             />
                         </Form.Group>
