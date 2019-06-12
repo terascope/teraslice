@@ -62,7 +62,7 @@ function createTypings(configs: DataAccessConfig[]) {
 
 function hasKey(values: string[], field:string) {
     const results = values.filter((value) => {
-        return (value === field || value.match(new RegExp(`${field}\\.`)));
+        return (value === field || value.match(new RegExp(`^${field}\\.`)));
     });
 
     if (results.length > 0) return results;

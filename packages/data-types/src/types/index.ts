@@ -8,7 +8,7 @@ export class TypesManager {
 
     constructor(version: number) {
         this.version = `v${version}`;
-        if (mapping[this.version] == null) throw new ts.TSError(`The type library does not have types for version ${version}`);
+        if (mapping[this.version] == null) throw new ts.TSError(`Unknown DataType version ${version}`);
     }
 
     getType(field: string, { type, ...configs }: TypeConfig) {

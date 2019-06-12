@@ -13,7 +13,8 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "dependencies": {
-        "@terascope/utils": "^0.10.1"
+        "@terascope/utils": "^0.10.1",
+        "graphql": "^14.3.1"
     },
     "files": [
         "dist/src/**/*"
