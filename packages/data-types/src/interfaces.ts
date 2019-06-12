@@ -24,10 +24,10 @@ export interface DataTypeManager {
     toXlucene(typeName: string|null|undefined, typeInjection?:string): XluceneMapping;
 }
 
-export type ElasticSearchTypes = 'long'|'integer'|'short'|'byte'|'double'|'float'|'keyword'|'text'|'boolean'|'ip'|'geo_point';
+export type ElasticSearchTypes = 'long'|'integer'|'short'|'byte'|'double'|'float'|'keyword'|'text'|'boolean'|'ip'|'geo_point'|'object';
 
 export type AvailableTypes = 'Boolean'|'Date'|'Geo'|'IP'|'Byte'|'Double'|'Float'|'Integer'|'Keyword'|
-'Long'|'Short'|'Text'|'KeywordTokens'|'Hostname'|'KeywordCaseInsensitive'|'KeywordTokensCaseInsensitive'|'NgramTokens'|'Boundry';
+'Long'|'Short'|'Text'|'KeywordTokens'|'Hostname'|'KeywordCaseInsensitive'|'KeywordTokensCaseInsensitive'|'NgramTokens'|'Boundry'|'Object';
 
 export type TypeConfig = {
     type: AvailableTypes;

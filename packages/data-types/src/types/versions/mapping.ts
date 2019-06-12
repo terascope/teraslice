@@ -13,6 +13,7 @@ import KeywordV1 from './v1/keyword';
 import LongV1 from './v1/long';
 import ShortV1 from './v1/short';
 import TextV1 from './v1/text';
+import ObjectV1 from './v1/object';
 import KeywordTokensV1 from './v1/keyword-tokens';
 import HostnameV1 from './v1/hostname';
 import KeywordCaseInsensitiveV1 from './v1/keyword-case-insensitive';
@@ -40,5 +41,6 @@ export const mapping: DataTypeMapping = {
         KeywordTokensCaseInsensitive: KeywordTokensCaseInsensitiveV1,
         NgramTokens: NgramTokensV1,
         Boundry: BoundryV1,
+        Object: ObjectV1,
     }
 };
