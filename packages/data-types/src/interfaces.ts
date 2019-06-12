@@ -11,6 +11,11 @@ interface ObjectConfig {
     [key: string]: any;
 }
 
+export interface GraphQLArgs {
+    typeName?: string;
+    typeInjection?:string;
+}
+
 export interface MappingConfiguration {
     typeName: string;
     settings?: ESMapSettings;
@@ -18,10 +23,10 @@ export interface MappingConfiguration {
 }
 
 export interface DataTypeManager {
-    toESMapping({}: MappingConfiguration): any;
-    toGraphQL(typeName?: string): string;
-    toGraphQLTypes(typeName?: string): GraphQlResults;
-    toXlucene(typeName: string|null|undefined, typeInjection?:string): XluceneMapping;
+    toESMapping(args: MappingConfiguration): any;
+    toGraphQL(args?:GraphQLArgs): string;
+    toGraphQLTypes(args?: GraphQLArgs): GraphQlResults;
+    toXlucene(): XluceneMapping;
 }
 
 export type ElasticSearchTypes = 'long'|'integer'|'short'|'byte'|'double'|'float'|'keyword'|'text'|'boolean'|'ip'|'geo_point'|'object';
@@ -63,7 +68,7 @@ interface PropertyESTypeMapping {
     };
 }
 
-export interface EsMapping {
+export interface ESMapping {
     mapping: {
         [key: string]: ESTypeMapping;
     };

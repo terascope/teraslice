@@ -114,7 +114,7 @@ describe('DataType', () => {
             },
         };
 
-        const results = new DataType(typeConfig, 'myType').toGraphQL('otherType');
+        const results = new DataType(typeConfig, 'myType').toGraphQL({ typeName: 'otherType' });
 
         expect(results.match('type otherType {')).not.toBeNull();
         expect(results.match('type myType {')).toBeNull();
@@ -132,7 +132,7 @@ describe('DataType', () => {
             },
         };
         const typeInjection = 'world: String';
-        const results = new DataType(typeConfig, 'myType').toGraphQL(null, typeInjection);
+        const results = new DataType(typeConfig, 'myType').toGraphQL({ typeInjection });
 
         expect(results.match(typeInjection)).not.toBeNull();
     });
@@ -153,7 +153,7 @@ describe('DataType', () => {
             new DataType(typeConfig).toGraphQL();
         } catch (err) {
             expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('No name was specified to create the graphql type representing this data structure');
+            expect(err.message).toInclude('No typeName was specified to create the graphql type representing this data structure');
         }
     });
 

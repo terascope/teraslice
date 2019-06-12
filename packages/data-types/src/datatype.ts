@@ -1,5 +1,5 @@
 
-import { DataTypeManager, DataTypeConfig, ESMapSettings, MappingConfiguration } from './interfaces';
+import { DataTypeManager, DataTypeConfig, ESMapSettings, MappingConfiguration, GraphQLArgs } from './interfaces';
 import BaseType from './types/versions/base-type';
 import * as ts from '@terascope/utils';
 import { TypesManager } from './types';
@@ -13,7 +13,7 @@ export class DataType implements DataTypeManager {
         const baseTypeList: string[] = [];
 
         types.forEach((type) => {
-            const { baseType, customTypes } = type.toGraphQLTypes(null, typeInjection);
+            const { baseType, customTypes } = type.toGraphQLTypes({ typeInjection });
             customTypesList.push(...customTypes);
             baseTypeList.push(baseType);
         });
@@ -97,18 +97,18 @@ export class DataType implements DataTypeManager {
         };
     }
 
-    toGraphQL(typeName?: string|null|undefined, typeInjection?:string) {
-        const { baseType, customTypes } = this.toGraphQLTypes(typeName, typeInjection);
+    toGraphQL(args?: GraphQLArgs) {
+        const { baseType, customTypes } = this.toGraphQLTypes(args);
 
         return  `
             ${baseType}
             ${[...new Set(customTypes)].join('\n')}
         `;
     }
-
-    toGraphQLTypes(typeName?: string|null|undefined, typeInjection?:string) {
-        const name = typeName || this._name;
-        if (!name) throw new ts.TSError('No name was specified to create the graphql type representing this data structure');
+// typeName = this._name, typeInjection?:string
+    toGraphQLTypes(args = {} as GraphQLArgs) {
+        const  { typeName = this._name, typeInjection } = args;
+        if (!typeName) throw new ts.TSError('No typeName was specified to create the graphql type representing this data structure');
         const customTypes: string[] = [];
         const baseCollection: string[] = [];
 
@@ -121,7 +121,7 @@ export class DataType implements DataTypeManager {
         });
 
         const baseType = `
-            type ${name} {
+            type ${typeName} {
                 ${baseCollection.join('\n')}
             }
         `;
