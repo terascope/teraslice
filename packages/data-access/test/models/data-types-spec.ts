@@ -33,10 +33,9 @@ describe('DataTypes', () => {
             await dataTypes.update({
                 id: created.id,
                 type_config: {
+                    location: 'geo',
                     // make sure a dot notated field can be set
                     'foo.bar': 'ip',
-                    // make sure a field can be removed
-                    some_date: false as any,
                 },
             });
 

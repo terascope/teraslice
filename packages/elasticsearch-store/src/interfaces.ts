@@ -4,50 +4,50 @@ import { Logger, Omit } from '@terascope/utils';
 export interface IndexConfig<T = any> {
     /**
      * This is the data type and base name of the index
-    */
+     */
     name: string;
 
     /**
      * The namespace that will be prefixed to the name value when generating
      * the index name or anything else that needs to be namespaced.
-    */
+     */
     namespace?: string;
 
     /**
      * Data Version, this allows multiple versions of an index to exist with the same Schema
-    */
+     */
     version?: number;
 
     /**
      * Elasticsearch Index Settings
-    */
+     */
     indexSettings?: IndexSettings;
 
     /**
      * Schema Specification for the Data and ES
-    */
+     */
     indexSchema?: IndexSchema;
 
     /**
      * The data schema format
-    */
+     */
     dataSchema?: DataSchema;
 
-     /**
+    /**
      * The maximum amount of time to wait for before send the bulk request
-    */
+     */
     bulkMaxWait?: number;
 
     /**
      * The number of records to accumulate before sending the bulk request
-    */
+     */
     bulkMaxSize?: number;
 
     /**
      * Logger to use for debugging and certian internal errors
      *
      * @defaults to a debug logger
-    */
+     */
     logger?: Logger;
 
     /**
@@ -57,17 +57,17 @@ export interface IndexConfig<T = any> {
 
     /**
      * ID field
-    */
+     */
     idField?: keyof T;
 
     /**
      * Ingest Time field on the source record
-    */
+     */
     ingestTimeField?: keyof T;
 
     /**
      * Event Time field from the source record
-    */
+     */
     eventTimeField?: keyof T;
 }
 
@@ -75,7 +75,7 @@ export interface IndexConfig<T = any> {
 export interface IndexSchema {
     /**
      * The ElasticSearch index mapping
-    */
+     */
     mapping: any;
 
     /**
@@ -98,19 +98,19 @@ export interface IndexSchema {
      * This is only valid if timeseries is set to true
      *
      * @default monthly
-    */
+     */
     rollover_frequency?: TimeSeriesFormat;
 
-   /**
+    /**
      * If enabled and the index does not match the version and mapping.
      * Additionally this will prevent any mapping changes to automatically happen.
      *
      * @default false
-    */
+     */
     strict?: boolean;
 }
 
-export type TimeSeriesFormat = 'daily'|'monthly'|'yearly';
+export type TimeSeriesFormat = 'daily' | 'monthly' | 'yearly';
 
 export interface IndexSettings {
     'index.number_of_shards': number;
@@ -122,7 +122,7 @@ export interface IndexSettings {
 export interface DataSchema {
     /**
      * The Data Schema in JSON Schema format
-    */
+     */
     schema: any;
 
     /**
@@ -130,13 +130,13 @@ export interface DataSchema {
      * an error will thrown
      *
      * @default false
-    */
+     */
     strict?: boolean;
 
     /**
      * When logging invalid record, optionally set the log level
      */
-    log_level?: Logger.LogLevel|'none';
+    log_level?: Logger.LogLevel | 'none';
 
     /**
      * If enabled this will allow the use of some of
@@ -149,13 +149,13 @@ export interface DataSchema {
      * - "uri-reference"
      * - "hostname"
      * - "email"
-    */
+     */
     allFormatters?: boolean;
 }
 
 export type AsyncFn<T> = () => Promise<T>;
 
-export type BulkAction = 'index'|'create'|'delete'|'update';
+export type BulkAction = 'index' | 'create' | 'delete' | 'update';
 
 export interface BulkResponseItem {
     error?: {
@@ -165,13 +165,11 @@ export interface BulkResponseItem {
     status?: number;
     /**
      * This only exists in 6.x
-    */
+     */
     _seq_no?: number;
 }
 
-export type BulkResponseItems = {
-    [key in BulkAction]?: BulkResponseItem;
-};
+export type BulkResponseItems = { [key in BulkAction]?: BulkResponseItem };
 
 export interface BulkResponse {
     errors: boolean;
@@ -179,13 +177,13 @@ export interface BulkResponse {
     items: BulkResponseItems[];
 }
 
-export type Shard = { primary: boolean, stage: string };
+export type Shard = { primary: boolean; stage: string };
 
 export interface IndexModelRecord {
     /**
      * ID of the view - nanoid 12 digit
-    */
-    readonly id: string;
+     */
+    id: string;
 
     /** Updated date */
     updated: string;
@@ -194,8 +192,8 @@ export interface IndexModelRecord {
     created: string;
 }
 
-export type CreateRecordInput<T extends IndexModelRecord> = Omit<T, (keyof IndexModelRecord)>;
-export type UpdateRecordInput<T extends IndexModelRecord> = Partial<Omit<T, (keyof IndexModelRecord)>> & {
+export type CreateRecordInput<T extends IndexModelRecord> = Omit<T, keyof IndexModelRecord>;
+export type UpdateRecordInput<T extends IndexModelRecord> = Partial<Omit<T, keyof IndexModelRecord>> & {
     id: string;
 };
 
@@ -226,7 +224,7 @@ export interface IndexModelConfig<T extends IndexModelRecord> {
 }
 
 export type SanitizeFields = {
-    [field: string]: 'trimAndToLower'|'trim'|'toSafeString';
+    [field: string]: 'trimAndToLower' | 'trim' | 'toSafeString';
 };
 
 export interface IndexModelOptions {
@@ -236,14 +234,14 @@ export interface IndexModelOptions {
 }
 
 export type FindOptions<T> = {
-    includes?: (keyof T)[],
-    excludes?: (keyof T)[],
+    includes?: (keyof T)[];
+    excludes?: (keyof T)[];
     from?: number;
     sort?: string;
     size?: number;
 };
 
 export type FindOneOptions<T> = {
-    includes?: (keyof T)[],
-    excludes?: (keyof T)[],
+    includes?: (keyof T)[];
+    excludes?: (keyof T)[];
 };

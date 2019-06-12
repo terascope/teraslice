@@ -14,6 +14,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     readonly config: i.IndexConfig;
     readonly indexQuery: string;
     readonly manager: IndexManager;
+    refreshByDefault = true;
 
     validateRecord: ValidateFn<I | T>;
     private _interval: any;
@@ -164,7 +165,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
      *
      * @returns a boolean to indicate whether the document was created
      */
-    async createWithId(doc: I, id: string, params?: PartialParam<es.CreateDocumentParams, 'id' | 'body'>) {
+    async createWithId(doc: T | I, id: string, params?: PartialParam<es.CreateDocumentParams, 'id' | 'body'>) {
         return this.create(doc, Object.assign({}, params, { id }));
     }
 
@@ -173,10 +174,10 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
      *
      * @returns a boolean to indicate whether the document was created
      */
-    async create(doc: I, params?: PartialParam<es.CreateDocumentParams, 'body'>): Promise<T> {
+    async create(doc: T | I, params?: PartialParam<es.CreateDocumentParams, 'body'>): Promise<T> {
         this.validateRecord(doc, true);
 
-        const defaults = { refresh: true };
+        const defaults = { refresh: this.refreshByDefault };
         const p = this.getDefaultParams(defaults, params, { body: doc });
 
         return ts.pRetry(async () => {
@@ -234,10 +235,10 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     /**
      * Index a document
      */
-    async index(doc: I, params?: PartialParam<es.IndexDocumentParams<T>, 'body'>): Promise<T> {
+    async index(doc: T | I, params?: PartialParam<es.IndexDocumentParams<T>, 'body'>): Promise<T> {
         this.validateRecord(doc, true);
 
-        const defaults = { refresh: true };
+        const defaults = { refresh: this.refreshByDefault };
         const p = this.getDefaultParams(defaults, params, {
             body: doc,
         });
@@ -252,7 +253,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     /**
      * A convenience method for indexing a document with an ID
      */
-    async indexWithId(doc: I, id: string, params?: PartialParam<es.IndexDocumentParams<T>, 'index' | 'type' | 'id'>) {
+    async indexWithId(doc: T | I, id: string, params?: PartialParam<es.IndexDocumentParams<T>, 'index' | 'type' | 'id'>) {
         return this.index(doc, Object.assign({}, params, { id }));
     }
 
@@ -287,9 +288,15 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
      * Deletes a document for a given id
      */
     async remove(id: string, params?: PartialParam<es.DeleteDocumentParams>) {
-        const p = this.getDefaultParams(params, {
-            id,
-        });
+        const p = this.getDefaultParams(
+            {
+                refresh: this.refreshByDefault,
+            },
+            params,
+            {
+                id,
+            }
+        );
 
         await ts.pRetry(() => {
             return this.client.delete(p);
@@ -347,10 +354,9 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
                     reason: 'Not all shards returned successful, shard errors: ',
                 });
             } else {
-                const error = new ts.TSError('Retryable Search Failure', {
+                throw new ts.TSError('Retryable Search Failure', {
                     retryable: true,
                 });
-                throw error;
             }
         }
 
@@ -362,7 +368,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     update(body: { doc: Partial<T> }, id: string, params?: PartialParam<es.UpdateDocumentParams, 'body' | 'id'>): Promise<void>;
     async update(body: any, id: string, params?: PartialParam<es.UpdateDocumentParams, 'body' | 'id'>): Promise<void> {
         const defaults = {
-            refresh: true,
+            refresh: this.refreshByDefault,
             retryOnConflict: 3,
         };
 
@@ -376,6 +382,24 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         }, utils.getRetryConfig());
     }
 
+    /** Safely apply updates to a document by applying the latest changes */
+    async updatePartial(id: string, applyChanges: ApplyPartialUpdates<T>, retriesOnConlfict: number = 3): Promise<void> {
+        return this._updatePartial(id, applyChanges, retriesOnConlfict);
+    }
+
+    private async _updatePartial(id: string, applyChanges: ApplyPartialUpdates<T>, retries: number = 3): Promise<void> {
+        try {
+            const existing = await this.get(id);
+            await this.indexWithId(await applyChanges(existing), id);
+        } catch (error) {
+            // if there is a version conflict
+            if (error.statusCode === 409 && error.message.includes('version conflict')) {
+                return this._updatePartial(id, applyChanges, retries - 1);
+            }
+            throw error;
+        }
+    }
+
     getDefaultParams(...params: any[]) {
         return Object.assign(
             {
@@ -387,7 +411,12 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     private async _bulk(records: BulkRequest<I>[], body: any) {
-        const result: i.BulkResponse = await this.client.bulk({ body });
+        const result: i.BulkResponse = await ts.pRetry(
+            () => {
+                return this.client.bulk({ body });
+            },
+            { ...utils.getRetryConfig(), retries: 0 }
+        );
 
         const retry = utils.filterBulkRetries(records, result);
 
@@ -462,4 +491,5 @@ type SearchParams<T> = ts.Overwrite<
     }
 >;
 
+type ApplyPartialUpdates<T> = (existing: T) => Promise<T> | T;
 type ValidateFn<T> = (input: T, strictMode?: boolean) => void;

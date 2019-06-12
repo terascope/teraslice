@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { Client } from 'elasticsearch';
-import { times, TSError } from '@terascope/utils';
+import { times, TSError, AnyObject } from '@terascope/utils';
 import { IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions } from '../src';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
 import { QueryAccess } from 'xlucene-evaluator';
@@ -8,6 +8,7 @@ import { QueryAccess } from 'xlucene-evaluator';
 describe('IndexModel', () => {
     interface ExampleRecord extends IndexModelRecord {
         name: string;
+        config: AnyObject;
     }
 
     const client = makeClient();
@@ -24,12 +25,20 @@ describe('IndexModel', () => {
                         },
                     },
                 },
+                config: {
+                    type: 'object',
+                },
             },
         },
         schema: {
             properties: {
                 name: {
                     type: 'string',
+                },
+                config: {
+                    type: 'object',
+                    additionalProperties: true,
+                    default: {},
                 },
             },
         },
@@ -71,6 +80,13 @@ describe('IndexModel', () => {
         beforeAll(async () => {
             created = await indexModel.create({
                 name: 'Billy',
+                config: {
+                    foo: 1,
+                    bar: 1,
+                    baz: {
+                        a: 1,
+                    },
+                },
             });
 
             fetched = await indexModel.findById(created.id);
@@ -122,6 +138,7 @@ describe('IndexModel', () => {
             const name = 'fooooobarrr';
             await indexModel.create({
                 name,
+                config: {},
             });
 
             try {
@@ -184,6 +201,17 @@ describe('IndexModel', () => {
             expect(new Date(result.updated)).toBeAfter(new Date(fetched.updated));
         });
 
+        it('should be able to correctly handle a partial update', async () => {
+            const updateInput = { id: fetched.id, config: { foo: 1 } };
+
+            await indexModel.update(updateInput);
+
+            const result = await indexModel.findById(fetched.id);
+            expect(result).toHaveProperty('config', {
+                foo: 1,
+            });
+        });
+
         it('should be able to delete the record', async () => {
             await indexModel.deleteById(fetched.id);
 
@@ -208,6 +236,7 @@ describe('IndexModel', () => {
                 times(5, n => {
                     return indexModel.create({
                         name: `Joe ${n}`,
+                        config: {},
                     });
                 })
             );
@@ -216,6 +245,7 @@ describe('IndexModel', () => {
                 times(5, n => {
                     return indexModel.create({
                         name: `Bob ${n}`,
+                        config: {},
                     });
                 })
             );

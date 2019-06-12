@@ -13,7 +13,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     readonly name: string;
     private _uniqueFields: (keyof T)[];
     private _sanitizeFields: i.SanitizeFields;
-    private _idField: keyof T;
+    private _idField: 'id';
 
     constructor(client: es.Client, options: i.IndexModelOptions, modelConfig: i.IndexModelConfig<T>) {
         const baseConfig: i.IndexConfig<T> = {
@@ -54,7 +54,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         this.name = utils.toInstanceName(modelConfig.name);
         this.store = new IndexStore(client, indexConfig);
 
-        this._idField = indexConfig.idField!;
+        this._idField = (indexConfig.idField || 'id') as 'id';
         this._uniqueFields = ts.concat(this._idField, modelConfig.uniqueFields);
         this._sanitizeFields = modelConfig.sanitizeFields || {};
     }
@@ -80,7 +80,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         } as T;
 
         const id = await utils.makeId();
-        docInput[this._idField] = id as any;
+        docInput[this._idField] = id;
 
         const doc = this._sanitizeRecord(docInput as T);
 
@@ -92,9 +92,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     }
 
     async deleteById(id: string): Promise<void> {
-        await this.store.remove(id, {
-            refresh: true,
-        });
+        await this.store.remove(id);
     }
 
     async deleteAll(ids: string[]): Promise<void> {
@@ -146,7 +144,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
 
     async findById(id: string, options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>): Promise<T> {
         const fields: Partial<T> = {};
-        fields[this._idField] = id as any;
+        fields[this._idField] = id;
         return this.findBy(fields, 'AND', options, queryAccess);
     }
 
@@ -176,7 +174,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         );
 
         if (result.length !== ids.length) {
-            const foundIds = result.map(doc => doc.id);
+            const foundIds = result.map(doc => doc[this._idField]);
             const notFoundIds = ids.filter(id => !foundIds.includes(id));
             throw new ts.TSError(`Unable to find documents ${notFoundIds.join(', ')}`, {
                 statusCode: 404,
@@ -190,37 +188,36 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     }
 
     async update(record: i.UpdateRecordInput<T>) {
-        const doc: T = this._sanitizeRecord({
-            ...record,
-            updated: ts.makeISODate(),
-        } as T);
-
-        const id: unknown = doc[this._idField];
-        if (!id) {
+        const id: unknown = record[this._idField];
+        if (!id || !ts.isString(id)) {
             throw new ts.TSError(`${this.name} update requires ${this._idField}`, {
                 statusCode: 422,
             });
         }
 
-        const existing = await this.store.get(id as string);
+        return this.store.updatePartial(id, async existing => {
+            const uniqueFields = this._uniqueFields as (keyof i.UpdateRecordInput<T>)[];
+            for (const field of uniqueFields) {
+                if (field === this._idField) continue;
+                if (record[field] == null) continue;
 
-        for (const field of this._uniqueFields) {
-            if (field === 'id') continue;
-            if (doc[field] == null) continue;
+                if (existing[field] !== record[field]) {
+                    const count = await this._countBy(field, record[field]);
 
-            if (existing[field] !== doc[field]) {
-                const count = await this._countBy(field, doc[field]);
-
-                if (count > 0) {
-                    throw new ts.TSError(`${this.name} update requires ${field} to be unique`, {
-                        statusCode: 409,
-                    });
+                    if (count > 0) {
+                        throw new ts.TSError(`${this.name} update requires ${field} to be unique`, {
+                            statusCode: 409,
+                        });
+                    }
                 }
             }
-        }
 
-        await this.store.update({ doc }, doc.id, {
-            refresh: true,
+            const doc: T = this._sanitizeRecord({
+                ...existing,
+                ...record,
+                updated: ts.makeISODate(),
+            } as T);
+            return doc;
         });
     }
 
