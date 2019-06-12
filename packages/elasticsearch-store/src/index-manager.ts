@@ -14,7 +14,7 @@ export default class IndexManager {
     constructor(client: es.Client) {
         if (!utils.isValidClient(client)) {
             throw new ts.TSError('IndexManager requires elasticsearch client', {
-                fatalError: true
+                fatalError: true,
             });
         }
 
@@ -35,12 +35,7 @@ export default class IndexManager {
         const dataVersion = utils.getDataVersionStr(config);
         const schemaVersion = utils.getSchemaVersionStr(config);
 
-        const indexName = utils.formatIndexName([
-            namespace,
-            name,
-            dataVersion,
-            schemaVersion,
-        ]);
+        const indexName = utils.formatIndexName([namespace, name, dataVersion, schemaVersion]);
 
         if (utils.isTimeSeriesIndex(config.indexSchema) && !useWildcard) {
             const timeSeriesFormat = utils.getRolloverFrequency(config);
@@ -59,11 +54,7 @@ export default class IndexManager {
 
         const { name, namespace } = config;
 
-        return utils.formatIndexName([
-            namespace,
-            name,
-            utils.getDataVersionStr(config)
-        ]);
+        return utils.formatIndexName([namespace, name, utils.getDataVersionStr(config)]);
     }
 
     /**
@@ -72,7 +63,7 @@ export default class IndexManager {
      * @todo this should handle better index change detection
      *
      * @returns a boolean that indicates whether the index was created or not
-    */
+     */
     async indexSetup(config: IndexConfig): Promise<boolean> {
         utils.validateIndexConfig(config);
 
@@ -81,17 +72,17 @@ export default class IndexManager {
 
         const settings = Object.assign({}, config.indexSettings);
 
-        const body: any = {
-            settings,
-            mappings: {}
-        };
-
         if (!ts.isTest) {
             // stagger the index creation in start up when in non test mode
-            await ts.pDelay(ts.random(0, 1000));
+            await ts.pDelay(ts.random(0, 5000));
         }
 
-        body.mappings[config.name] = utils.getIndexMapping(config);
+        const body: any = {
+            settings,
+            mappings: {
+                [config.name]: utils.getIndexMapping(config),
+            },
+        };
 
         if (utils.isTemplatedIndex(config.indexSchema)) {
             const templateName = this.formatTemplateName(config);
@@ -105,7 +96,8 @@ export default class IndexManager {
         }
 
         if (await this.exists(indexName)) {
-            logger.debug(`Index "${indexName}" already exists`);
+            logger.trace(`Index "${indexName}" already exists`);
+            await this.updateMapping(indexName, config.name, body, logger);
             return false;
         }
 
@@ -145,14 +137,65 @@ export default class IndexManager {
      *
      * **IMPORTANT** This is a potentionally dangerous operation
      * and should only when the cluster is properly shutdown.
-    */
+     */
     async migrateIndex(config: MigrateIndexConfig): Promise<void> {
         return;
     }
 
     /**
+     * Safely update a mapping
+     *
+     * **WARNING:** This only updates the mapping if it exists
+     */
+    async updateMapping(index: string, type: string, mapping: any, logger: ts.Logger) {
+        const result = await this.client.indices.getMapping({ index });
+
+        const existing = ts.get(result, [index, 'mappings', type, 'properties'], {});
+        const current = ts.get(mapping, ['mappings', type, 'properties'], {});
+
+        let breakingChange = false;
+        let safeChange = false;
+
+        for (const field of Object.keys(current)) {
+            if (existing[field] == null) {
+                logger.warn(`Missing field "${field}" on index ${index} (${type})`);
+                safeChange = true;
+                continue;
+            }
+            const cType = ts.get(current, [field, 'type']);
+            const eType = ts.get(existing, [field, 'type']);
+            if (cType === 'object' && ts.get(existing, [field, 'properties'])) {
+                continue;
+            }
+
+            if (eType !== cType) {
+                logger.warn(`Field "${field}" changed on index ${index} (${type}) from type "${eType}" to "${cType}"`);
+                breakingChange = true;
+            }
+        }
+
+        if (breakingChange) {
+            // FIXME should we crash
+            logger.error(`Index ${index} (${type}) has breaking change in the index, evaulate the differences and migrate if needed`);
+            return;
+        }
+
+        if (safeChange) {
+            logger.info(`Detected a new field for ${index} (${type})`);
+
+            await this.client.indices.putMapping({
+                index,
+                type,
+                body: {
+                    properties: current,
+                },
+            });
+        }
+    }
+
+    /**
      * Safely create or update a template
-    */
+     */
     async upsertTemplate(template: any) {
         const { template: name, version } = template;
         try {
@@ -179,7 +222,7 @@ export default class IndexManager {
             index,
             q: '*',
             size: 0,
-            terminate_after: '1'
+            terminate_after: '1',
         };
 
         await ts.pRetry(() => this.client.search(query), utils.getRetryConfig());
