@@ -1,11 +1,11 @@
 
 import ByteType from '../../../src/types/versions/v1/byte';
 import { TSError } from '@terascope/utils';
-import { TypeConfig } from '../../../src/interfaces';
+import { Type } from '../../../src/interfaces';
 
 describe('Byte V1', () => {
     const field = 'someField';
-    const typeConfig: TypeConfig = { type: 'Byte' };
+    const typeConfig: Type = { type: 'Byte' };
 
     it('can requires a field and proper configs', () => {
         try {
@@ -40,7 +40,7 @@ describe('Byte V1', () => {
 
     it('can get proper xlucene properties', () => {
         const xlucene = new ByteType(field, typeConfig).toXlucene();
-        const results = { [field]: 'byte' };
+        const results = { [field]: 'number' };
 
         expect(xlucene).toEqual(results);
     });

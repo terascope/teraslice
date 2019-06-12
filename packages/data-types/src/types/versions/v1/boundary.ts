@@ -1,4 +1,4 @@
-
+import { FieldType } from 'xlucene-evaluator';
 import BaseType from '../base-type';
 import { ElasticSearchTypes } from '../../../interfaces';
 
@@ -28,6 +28,6 @@ export default class Boundary extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: 'geo' };
+        return { [this.field]: 'geo' as FieldType };
     }
 }

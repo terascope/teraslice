@@ -1,10 +1,10 @@
 import Keyword from '../../../src/types/versions/v1/keyword';
 import { TSError } from '@terascope/utils';
-import { TypeConfig } from '../../../src/interfaces';
+import { Type } from '../../../src/interfaces';
 
 describe('Keyword V1', () => {
     const field = 'someField';
-    const typeConfig: TypeConfig = { type: 'Keyword' };
+    const typeConfig: Type = { type: 'Keyword' };
 
     it('can requires a field and proper configs', () => {
         try {
@@ -39,7 +39,7 @@ describe('Keyword V1', () => {
 
     it('can get proper xlucene properties', () => {
         const xlucene = new Keyword(field, typeConfig).toXlucene();
-        const results = { [field]: 'keyword' };
+        const results = { [field]: 'string' };
 
         expect(xlucene).toEqual(results);
     });

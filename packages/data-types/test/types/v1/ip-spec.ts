@@ -1,10 +1,10 @@
 import IpType from '../../../src/types/versions/v1/ip';
 import { TSError } from '@terascope/utils';
-import { TypeConfig } from '../../../src/interfaces';
+import { Type } from '../../../src/interfaces';
 
 describe('IP V1', () => {
     const field = 'someField';
-    const typeConfig: TypeConfig = { type: 'IP' };
+    const typeConfig: Type = { type: 'IP' };
 
     it('can requires a field and proper configs', () => {
         try {

@@ -24,14 +24,14 @@ export class DataType implements DataTypeManager {
         `;
     }
 
-    constructor({ version, fields:typesConfig }: DataTypeConfig, typeName?: string) {
+    constructor({ version, fields:typesConfiguration }: DataTypeConfig, typeName?: string) {
         if (version == null) throw new ts.TSError('No version was specified in type_config');
         const typeManager = new TypesManager(version);
         const types:BaseType[] = [];
 
-        for (const key in typesConfig) {
-            const typeConfig = typesConfig[key];
-            types.push(typeManager.getType(key, typeConfig));
+        for (const key in typesConfiguration) {
+            const typeDef = typesConfiguration[key];
+            types.push(typeManager.getType(key, typeDef));
         }
 
         if (typeName != null) this._name = typeName;

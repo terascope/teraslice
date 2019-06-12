@@ -1,4 +1,4 @@
-
+import { FieldType } from 'xlucene-evaluator';
 import BaseType from '../base-type';
 import { ElasticSearchTypes } from '../../../interfaces';
 
@@ -13,6 +13,6 @@ export default class Text extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: 'text' };
+        return { [this.field]: 'string' as FieldType  };
     }
 }

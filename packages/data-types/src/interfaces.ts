@@ -1,5 +1,6 @@
 
 import BaseType from './types/versions/base-type';
+import { TypeConfig } from 'xlucene-evaluator';
 
 export interface GraphQlResults {
     results: string;
@@ -26,7 +27,7 @@ export interface DataTypeManager {
     toESMapping(args: MappingConfiguration): any;
     toGraphQL(args?:GraphQLArgs): string;
     toGraphQLTypes(args?: GraphQLArgs): GraphQlResults;
-    toXlucene(): XluceneMapping;
+    toXlucene(): TypeConfig;
 }
 
 export type ElasticSearchTypes = 'long'|'integer'|'short'|'byte'|'double'|'float'|'keyword'|'text'|'boolean'|'ip'|'geo_point'|'object';
@@ -34,7 +35,7 @@ export type ElasticSearchTypes = 'long'|'integer'|'short'|'byte'|'double'|'float
 export type AvailableTypes = 'Boolean'|'Date'|'Geo'|'IP'|'Byte'|'Double'|'Float'|'Integer'|'Keyword'|
 'Long'|'Short'|'Text'|'KeywordTokens'|'Hostname'|'KeywordCaseInsensitive'|'KeywordTokensCaseInsensitive'|'NgramTokens'|'Boundry'|'Object';
 
-export type TypeConfig = {
+export type Type = {
     type: AvailableTypes;
 };
 
@@ -47,7 +48,7 @@ export interface DataTypeMapping {
 }
 
 export interface TypeConfigFields {
-    [key: string]: TypeConfig;
+    [key: string]: Type;
 }
 
 export type DataTypeConfig = {
@@ -78,10 +79,6 @@ export interface ESMapping {
     tokenizer?: {
         [key: string]: any;
     };
-}
-
-export interface XluceneMapping {
-    [key: string]: string;
 }
 
 export interface GraphQLType {

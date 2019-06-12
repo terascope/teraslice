@@ -1,6 +1,6 @@
 import { Units } from '@turf/helpers';
 
-export type FieldType = 'geo'|'date'|'ip';
+export type FieldType = 'geo'|'date'|'ip'|'string'|'number'|'float'|'boolean'|'object';
 export interface TypeConfig {
     [field: string]: FieldType;
 }

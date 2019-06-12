@@ -1,4 +1,4 @@
-
+import { FieldType } from 'xlucene-evaluator';
 import BaseType from '../base-type';
 import { ElasticSearchTypes } from '../../../interfaces';
 
@@ -13,6 +13,6 @@ export default class Double extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: 'double' };
+        return { [this.field]: 'number' as FieldType };
     }
 }

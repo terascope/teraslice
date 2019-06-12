@@ -1,3 +1,4 @@
+import { FieldType } from 'xlucene-evaluator';
 import BaseType from '../base-type';
 import { ElasticSearchTypes } from '../../../interfaces';
 
@@ -12,6 +13,6 @@ export default class DateType extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: 'date' };
+        return { [this.field]: 'date' as FieldType };
     }
 }

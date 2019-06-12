@@ -1,11 +1,11 @@
 
 import DoubleType from '../../../src/types/versions/v1/double';
 import { TSError } from '@terascope/utils';
-import { TypeConfig } from '../../../src/interfaces';
+import { Type } from '../../../src/interfaces';
 
 describe('Double V1', () => {
     const field = 'someField';
-    const typeConfig:TypeConfig = { type: 'Double' };
+    const typeConfig:Type = { type: 'Double' };
 
     it('can requires a field and proper configs', () => {
         try {
@@ -40,7 +40,7 @@ describe('Double V1', () => {
 
     it('can get proper xlucene properties', () => {
         const xlucene = new DoubleType(field, typeConfig).toXlucene();
-        const results = { [field]: 'double' };
+        const results = { [field]: 'number' };
 
         expect(xlucene).toEqual(results);
     });

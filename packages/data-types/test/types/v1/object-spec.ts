@@ -1,11 +1,11 @@
 
 import ObejctType from '../../../src/types/versions/v1/object';
-import { TypeConfig } from '../../../src/interfaces';
+import { Type } from '../../../src/interfaces';
 import { TSError } from '@terascope/utils';
 
 describe('Object V1', () => {
     const field = 'someField';
-    const typeConfig: TypeConfig = { type: 'Object' };
+    const typeConfig: Type = { type: 'Object' };
 
     it('can requires a field and proper configs', () => {
         try {

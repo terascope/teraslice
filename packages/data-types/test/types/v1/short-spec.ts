@@ -1,11 +1,11 @@
 
 import Short from '../../../src/types/versions/v1/short';
 import { TSError } from '@terascope/utils';
-import { TypeConfig } from '../../../src/interfaces';
+import { Type } from '../../../src/interfaces';
 
 describe('Short V1', () => {
     const field = 'someField';
-    const typeConfig: TypeConfig = { type: 'Short' };
+    const typeConfig: Type = { type: 'Short' };
 
     it('can requires a field and proper configs', () => {
         try {
@@ -40,7 +40,7 @@ describe('Short V1', () => {
 
     it('can get proper xlucene properties', () => {
         const xlucene = new Short(field, typeConfig).toXlucene();
-        const results = { [field]: 'short' };
+        const results = { [field]: 'number' };
 
         expect(xlucene).toEqual(results);
     });

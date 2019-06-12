@@ -38,11 +38,11 @@ describe('DataType', () => {
         };
 
         const results = {
-            hello: 'text',
+            hello: 'string',
             location: 'geo',
             date: 'date',
             ip: 'ip',
-            someNum: 'long'
+            someNum: 'number'
         };
 
         const xluceneConfig = new DataType(typeConfig).toXlucene();

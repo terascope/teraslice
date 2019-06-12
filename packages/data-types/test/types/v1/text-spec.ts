@@ -1,11 +1,11 @@
 
 import Text from '../../../src/types/versions/v1/text';
 import { TSError } from '@terascope/utils';
-import { TypeConfig } from '../../../src/interfaces';
+import { Type } from '../../../src/interfaces';
 
 describe('Text V1', () => {
     const field = 'someField';
-    const typeConfig: TypeConfig = { type: 'Text' };
+    const typeConfig: Type = { type: 'Text' };
 
     it('can requires a field and proper configs', () => {
         try {
@@ -40,7 +40,7 @@ describe('Text V1', () => {
 
     it('can get proper xlucene properties', () => {
         const xlucene = new Text(field, typeConfig).toXlucene();
-        const results = { [field]: 'text' };
+        const results = { [field]: 'string' };
 
         expect(xlucene).toEqual(results);
     });

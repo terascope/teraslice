@@ -1,10 +1,10 @@
 import KeywordTokensCaseInsensitive from '../../../src/types/versions/v1/keyword-tokens-case-insensitive';
 import { TSError } from '@terascope/utils';
-import { TypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
+import { Type, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('KeywordTokensCaseInsensitive V1', () => {
     const field = 'someField';
-    const typeConfig: TypeConfig = { type: 'KeywordTokensCaseInsensitive' };
+    const typeConfig: Type = { type: 'KeywordTokensCaseInsensitive' };
 
     it('can requires a field and proper configs', () => {
         try {
@@ -59,7 +59,7 @@ describe('KeywordTokensCaseInsensitive V1', () => {
 
     it('can get proper xlucene properties', () => {
         const xlucene = new KeywordTokensCaseInsensitive(field, typeConfig).toXlucene();
-        const results = { [field]: 'text' };
+        const results = { [field]: 'string' };
 
         expect(xlucene).toEqual(results);
     });

@@ -1,10 +1,10 @@
 import Boundry from '../../../src/types/versions/v1/boundary';
 import { TSError } from '@terascope/utils';
-import { TypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
+import { Type, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('Boundary V1', () => {
     const field = 'someField';
-    const typeConfig: TypeConfig = { type: 'Boundry' };
+    const typeConfig: Type = { type: 'Boundry' };
 
     it('can requires a field and proper configs', () => {
         try {

@@ -1,10 +1,10 @@
 import Interger from '../../../src/types/versions/v1/integer';
 import { TSError } from '@terascope/utils';
-import { TypeConfig } from '../../../src/interfaces';
+import { Type } from '../../../src/interfaces';
 
 describe('Integer V1', () => {
     const field = 'someField';
-    const typeConfig: TypeConfig = { type: 'Integer' };
+    const typeConfig: Type = { type: 'Integer' };
 
     it('can requires a field and proper configs', () => {
         try {
@@ -39,7 +39,7 @@ describe('Integer V1', () => {
 
     it('can get proper xlucene properties', () => {
         const xlucene = new Interger(field, typeConfig).toXlucene();
-        const results = { [field]: 'integer' };
+        const results = { [field]: 'number' };
 
         expect(xlucene).toEqual(results);
     });
