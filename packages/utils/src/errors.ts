@@ -6,46 +6,40 @@ import * as utils from './utils';
 /**
  * A custom Error class with additional properties,
  * like statusCode and fatalError
-*/
+ */
 export class TSError extends Error {
     /**
      * An descriptive error code that specifies the error type, this follows more
      * node convention
-    */
+     */
     code: string;
 
     /**
      * A HTTP status code for easy use
-    */
+     */
     statusCode: number;
 
     /**
      * Used to indicate the an error is fatal
-    */
+     */
     fatalError: boolean;
 
     /**
      * Used sometimes to indicate whether an error is retryable
      *
      * If this is not set then it is better not to assume either way
-    */
+     */
     retryable?: boolean;
 
     /**
      * Additional context metadata
-    */
+     */
     context: TSErrorContext;
 
-    constructor (input: any, config: TSErrorConfig = {}) {
+    constructor(input: any, config: TSErrorConfig = {}) {
         const { fatalError = false } = config;
 
-        const {
-            message,
-            statusCode,
-            context,
-            stack,
-            code,
-        } = parseErrorInfo(input, config);
+        const { message, statusCode, context, stack, code } = parseErrorInfo(input, config);
 
         super(message);
 
@@ -64,7 +58,7 @@ export class TSError extends Error {
         }
 
         Object.defineProperty(this, 'name', {
-            value: this.constructor.name
+            value: this.constructor.name,
         });
 
         Error.captureStackTrace(this, this.constructor);
@@ -83,32 +77,32 @@ export interface TSErrorConfig {
     /**
      * An descriptive error code that specifies the error type, this follows more
      * node convention
-    */
+     */
     code?: string;
 
     /**
      * A HTTP status code for easy use
-    */
+     */
     statusCode?: number;
 
     /**
      * Used to indicate the an error is fatal
-    */
+     */
     fatalError?: boolean;
 
     /**
      * Used sometimes to indicate whether an error is retryable
-    */
+     */
     retryable?: boolean;
 
     /**
      * Prefix the error message with a reason
-    */
+     */
     reason?: string;
 
     /**
      * Attach any context metadata to the error
-    */
+     */
     context?: AnyObject;
 
     defaultStatusCode?: number;
@@ -121,16 +115,16 @@ export interface TSErrorContext extends AnyObject {
     _cause: any;
     /**
      * Used to indicate the error message is safe to log and send to the user
-    */
+     */
     safe?: boolean;
 }
 
 type ErrorInfo = {
-    message: string,
-    stack?: string,
-    context: TSErrorContext,
-    statusCode: number,
-    code: string,
+    message: string;
+    stack?: string;
+    context: TSErrorContext;
+    statusCode: number;
+    code: string;
 };
 
 const DEFAULT_STATUS_CODE = 500;
@@ -145,9 +139,10 @@ export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInf
     if (isElasticsearchError(input)) {
         const esErrorInfo = _parseESErrorInfo(input);
         if (esErrorInfo) {
+            const updatedContext = Object.assign({}, esErrorInfo.context, config.context);
             return {
                 message: prefixErrorMsg(esErrorInfo.message, config.reason, defaultErrorMsg),
-                context: createErrorContext(input, config),
+                context: createErrorContext(input, { ...config, context: updatedContext }),
                 statusCode,
                 code: esErrorInfo.code,
             };
@@ -156,7 +151,7 @@ export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInf
 
     const context = createErrorContext(input, config);
 
-    let stack: string|undefined;
+    let stack: string | undefined;
     const message = prefixErrorMsg(input, config.reason, defaultErrorMsg);
 
     if (input && input.stack) {
@@ -183,11 +178,7 @@ export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInf
 }
 
 function createErrorContext(input: any, config: TSErrorConfig = {}) {
-    const context = Object.assign(
-        {},
-        (input && input.context),
-        (config && config.context)
-    );
+    const context = Object.assign({}, input && input.context, config && config.context);
 
     Object.defineProperties(context, {
         _createdAt: {
@@ -197,7 +188,7 @@ function createErrorContext(input: any, config: TSErrorConfig = {}) {
         _cause: {
             value: input,
             enumerable: false,
-        }
+        },
     });
 
     // don't propogate safe
@@ -219,34 +210,35 @@ function _cleanErrorMsg(input: string): string {
     return s.truncate(input.trim(), 3000);
 }
 
-function _parseESErrorInfo(input: ElasticsearchError): { message: string, context: object, code: string }|null {
+function _parseESErrorInfo(input: ElasticsearchError): { message: string; context: object; code: string } | null {
     const bodyError = input && input.body && input.body.error;
     const name = (input && input.name) || 'ElasticSearchError';
 
-    const rootCause = bodyError
-        && bodyError.root_cause
-        && utils.getFirst(bodyError.root_cause);
+    const rootCause = bodyError && bodyError.root_cause && utils.getFirst(bodyError.root_cause);
 
-    let type: string|undefined;
-    let reason: string|undefined;
-    let index: string|undefined;
+    let type: string | undefined;
+    let reason: string | undefined;
+    let index: string | undefined;
 
-    [input, bodyError, rootCause]
-        .forEach((obj) => {
-            if (obj == null) return;
-            if (!utils.isPlainObject(obj)) return;
-            if (obj.type) type = obj.type;
-            if (obj.reason) reason = obj.reason;
-            if (obj.index) index = obj.index;
-        });
+    [input, bodyError, rootCause].forEach(obj => {
+        if (obj == null) return;
+        if (!utils.isPlainObject(obj)) return;
+        if (obj.type) type = obj.type;
+        if (obj.reason) reason = obj.reason;
+        if (obj.index) index = obj.index;
+    });
 
     const metadata = input.toJSON();
     if (metadata.response) {
         const response = utils.tryParseJSON(metadata.response);
         metadata.response = response;
-        if (!index && response && response._index) {
-            index = response._index;
-        }
+    } else if (input.body) {
+        metadata.response = input.body as any;
+    }
+
+    if (!index && metadata.response) {
+        // @ts-ignore
+        index = metadata.response.index || metadata.response._index;
     }
 
     const message = `Elasticsearch Error: ${_normalizeESError(metadata.msg)}`;
@@ -261,11 +253,11 @@ function _parseESErrorInfo(input: ElasticsearchError): { message: string, contex
             reason,
             index,
         },
-        code
+        code,
     };
 }
 
-export function toStatusErrorCode(input: string|undefined): string {
+export function toStatusErrorCode(input: string | undefined): string {
     if (!s.isString(input)) return 'UNKNOWN_ERROR';
     return input
         .trim()
@@ -276,15 +268,21 @@ export function toStatusErrorCode(input: string|undefined): string {
 function _normalizeESError(message?: string) {
     if (!message) return '';
 
-    if (message.includes('document missing')) {
+    const msg = message.toLowerCase();
+
+    if (msg.includes('document missing')) {
         return 'Not Found';
     }
 
-    if (message.includes('document already exists')) {
+    if (msg.includes('document already exists')) {
         return 'Document Already Exists (version conflict)';
     }
 
-    if (message.indexOf('unknown error') === 0) {
+    if (msg.includes('version conflict')) {
+        return 'Document Out-of-Date (version conflict)';
+    }
+
+    if (msg.indexOf('unknown error') === 0) {
         return 'Unknown Elasticsearch Error, Cluster may be Unavailable';
     }
 
@@ -331,15 +329,17 @@ export function isElasticsearchError(err: any): err is ElasticsearchError {
 export interface ElasticsearchError extends Error {
     body?: {
         error?: {
-            type?: string,
-            reason?: string,
-            index?: string
-            root_cause?: [{
-                type?: string,
-                reason?: string,
-                index?: string
-            }]
-        }
+            type?: string;
+            reason?: string;
+            index?: string;
+            root_cause?: [
+                {
+                    type?: string;
+                    reason?: string;
+                    index?: string;
+                }
+            ];
+        };
     };
 
     status?: number;
@@ -354,7 +354,7 @@ export interface ElasticsearchError extends Error {
     };
 }
 
-function coerceStatusCode(input: any): number|null {
+function coerceStatusCode(input: any): number | null {
     return STATUS_CODES[input] != null ? input : null;
 }
 
