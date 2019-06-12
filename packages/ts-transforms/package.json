@@ -41,7 +41,7 @@
         "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "@terascope/utils": "^0.10.2",
+        "@terascope/utils": "^0.11.0",
         "@types/graphlib": "^2.1.5",
         "@types/shortid": "^0.0.29",
         "awesome-phonenumber": "^2.11.0",

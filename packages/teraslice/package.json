@@ -36,10 +36,10 @@
     "dependencies": {
         "@terascope/elasticsearch-api": "^2.0.2",
         "@terascope/error-parser": "^1.0.2",
-        "@terascope/job-components": "^0.17.0",
+        "@terascope/job-components": "^0.18.0",
         "@terascope/queue": "^1.1.6",
         "@terascope/teraslice-messaging": "^0.3.2",
-        "@terascope/utils": "^0.10.2",
+        "@terascope/utils": "^0.11.0",
         "async-mutex": "^0.1.3",
         "barbe": "^3.0.15",
         "bluebird": "^3.5.5",
