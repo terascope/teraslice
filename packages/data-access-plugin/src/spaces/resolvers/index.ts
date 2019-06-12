@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { IResolvers, UserInputError } from 'apollo-server-express';
 import { GraphQLResolveInfo } from 'graphql';
 import { DataAccessConfig, SpaceSearchConfig } from '@terascope/data-access';
+import { DataType } from '@terascope/data-types';
 import elasticsearchApi from '@terascope/elasticsearch-api';
 import { Logger, get } from '@terascope/utils';
 import { Context } from '@terascope/job-components';
@@ -63,14 +64,17 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
             data_type: { type_config },
             view: { includes, excludes, constraint, prevent_prefix_wildcard },
         } = view;
+
+        const dateType = new DataType(type_config);
         const accessData = {
             includes,
             excludes,
             constraint,
             prevent_prefix_wildcard,
             allow_implicit_queries: true,
-            type_config,
+            type_config: dateType.toXlucene(),
         };
+
         const queryAccess = new QueryAccess(accessData, logger);
 
         endpoints[view.space_endpoint] = async function resolverFn(root: any, args: any, ctx: any, info: GraphQLResolveInfo) {

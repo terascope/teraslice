@@ -157,13 +157,19 @@ describe('Data Access Management', () => {
                         client_id: 1,
                         name: "Greeter",
                         type_config: {
-                            created: "date",
-                            updated: "date"
+                            fields: {
+                                created: { type: "Date" },
+                                updated: { type: "Date" }
+                            },
+                            version: 1
                         }
                     }) {
                         id,
                         name,
-                        type_config
+                        type_config {
+                            fields,
+                            version
+                        }
                     }
                 }
             `;
@@ -176,8 +182,11 @@ describe('Data Access Management', () => {
             expect(createDataType).toMatchObject({
                 name: 'Greeter',
                 type_config: {
-                    created: 'date',
-                    updated: 'date',
+                    fields: {
+                        created: { type: 'Date' },
+                        updated: { type: 'Date' },
+                    },
+                    version: 1
                 },
             });
         });

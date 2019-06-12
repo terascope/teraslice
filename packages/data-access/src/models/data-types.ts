@@ -1,8 +1,8 @@
 import * as es from 'elasticsearch';
-import { TypeConfig } from 'xlucene-evaluator';
 import { escapeString, unescapeString } from '@terascope/utils';
 import { IndexModel, IndexModelOptions } from 'elasticsearch-store';
 import dataTypesConfig, { DataType } from './config/data-types';
+import { DataTypeConfig } from '@terascope/data-types';
 
 /**
  * Manager for DataTypes
@@ -14,25 +14,45 @@ export class DataTypes extends IndexModel<DataType> {
         super(client, options, dataTypesConfig);
     }
 
-    private _escapeFields(typeConfig?: TypeConfig): TypeConfig {
-        if (!typeConfig) return {};
-
-        const updated: TypeConfig = {};
-        for (const [field, value] of Object.entries(typeConfig)) {
-            updated[escapeString(field, ['.'])] = value;
+    private _escapeFields(typeConfig?: DataTypeConfig): DataTypeConfig {
+        if (!typeConfig) {
+            return {
+                version: 1,
+                fields: {},
+            };
         }
+
+        const updated: DataTypeConfig = {
+            version: typeConfig.version || 1,
+            fields: {},
+        };
+
+        for (const [field, value] of Object.entries(typeConfig.fields)) {
+            updated.fields[escapeString(field, ['.'])] = value;
+        }
+
         return updated;
     }
 
-    private _unescapeFields(typeConfig?: TypeConfig): TypeConfig {
-        if (!typeConfig) return {};
+    private _unescapeFields(typeConfig?: DataTypeConfig): DataTypeConfig {
+        if (!typeConfig) {
+            return {
+                version: 1,
+                fields: {},
+            };
+        }
 
-        const updated: TypeConfig = {};
-        for (const [field, value] of Object.entries(typeConfig)) {
+        const updated: DataTypeConfig = {
+            version: typeConfig.version || 1,
+            fields: {},
+        };
+
+        for (const [field, value] of Object.entries(typeConfig.fields)) {
             if (!value) continue;
             const unescaped = unescapeString(field);
-            updated[unescaped] = value;
+            updated.fields[unescaped] = value;
         }
+
         return updated;
     }
 
