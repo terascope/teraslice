@@ -3,6 +3,7 @@ import { get } from '@terascope/utils';
 import { formatDate } from '@terascope/ui-components';
 import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
+import { formatStrong } from '../ModelList/Strong';
 import { copyField } from '../utils';
 
 const fieldsFragment = gql`
@@ -88,8 +89,13 @@ const config: ModelConfig<Input> = {
         },
         columns: {
             name: { label: 'Name' },
-            endpoint: { label: 'Endpoint' },
-            type: { label: 'Configuration Type' },
+            endpoint: { label: 'API Endpoint' },
+            type: {
+                label: 'Configuration Type',
+                format(record) {
+                    return formatStrong(record.type);
+                },
+            },
             description: {
                 label: 'Description',
                 sortable: false,

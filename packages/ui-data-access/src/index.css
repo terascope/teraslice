@@ -31,3 +31,9 @@
 .daActionLabel {
     padding: 0.4rem;
 }
+
+.daStrongItem {
+    text-transform: uppercase;
+    font-weight: 500;
+    color: rgb(100, 100, 100);
+}

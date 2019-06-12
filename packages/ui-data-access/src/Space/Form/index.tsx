@@ -90,6 +90,7 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
                                 {...defaultInputProps}
                                 name="data_type"
                                 label="Data Type"
+                                disabled={Boolean(id)}
                                 placeholder="Select Data Type"
                                 value={model.data_type}
                                 options={dataTypes}

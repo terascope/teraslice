@@ -3,7 +3,8 @@ import { get } from '@terascope/utils';
 import { formatDate } from '@terascope/ui-components';
 import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
-import { copyField } from '../utils';
+import { copyField, getModelType } from '../utils';
+import { formatStrong } from '../ModelList/Strong';
 
 const fieldsFragment = gql`
     fragment UserFields on User {
@@ -51,6 +52,13 @@ const config: ModelConfig<Input> = {
                 sortable: false,
                 format(record) {
                     return get(record, 'role.name');
+                },
+            },
+            type: {
+                label: 'Type',
+                sortable: false,
+                format(record) {
+                    return formatStrong(getModelType(record));
                 },
             },
             created: {
