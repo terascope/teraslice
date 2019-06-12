@@ -63,7 +63,7 @@ describe('DataType', () => {
 
         const dataType = new DataType(typeConfig, 'myType');
         const { baseType, customTypes } = dataType.toGraphQLTypes();
-        const results = dataType.toGraphQl();
+        const results = dataType.toGraphQL();
 
         [
             'type myType {',
@@ -102,7 +102,7 @@ describe('DataType', () => {
         });
     });
 
-    it('it can add type name at toGraphQl call', () => {
+    it('it can add type name at toGraphQL call', () => {
         const typeConfig: DataTypeConfig = {
             version: 1,
             fields: {
@@ -114,13 +114,13 @@ describe('DataType', () => {
             },
         };
 
-        const results = new DataType(typeConfig, 'myType').toGraphQl('otherType');
+        const results = new DataType(typeConfig, 'myType').toGraphQL('otherType');
 
         expect(results.match('type otherType {')).not.toBeNull();
         expect(results.match('type myType {')).toBeNull();
     });
 
-    it('it can add default types for toGraphql', () => {
+    it('it can add default types for toGraphQL', () => {
         const typeConfig: DataTypeConfig = {
             version: 1,
             fields: {
@@ -132,12 +132,12 @@ describe('DataType', () => {
             },
         };
         const typeInjection = 'world: String';
-        const results = new DataType(typeConfig, 'myType').toGraphQl(null, typeInjection);
+        const results = new DataType(typeConfig, 'myType').toGraphQL(null, typeInjection);
 
         expect(results.match(typeInjection)).not.toBeNull();
     });
 
-    it('it throws when no name is provided with a toGraphQl call', () => {
+    it('it throws when no name is provided with a toGraphQL call', () => {
         const typeConfig: DataTypeConfig = {
             version: 1,
             fields: {
@@ -150,7 +150,7 @@ describe('DataType', () => {
         };
 
         try {
-            new DataType(typeConfig).toGraphQl();
+            new DataType(typeConfig).toGraphQL();
         } catch (err) {
             expect(err).toBeInstanceOf(TSError);
             expect(err.message).toInclude('No name was specified to create the graphql type representing this data structure');

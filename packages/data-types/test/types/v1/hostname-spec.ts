@@ -19,7 +19,7 @@ describe('Hostname V1', () => {
         const type = new Hostname(field, typeConfig);
         expect(type).toBeDefined();
         expect(type.toESMapping).toBeDefined();
-        expect(type.toGraphQl).toBeDefined();
+        expect(type.toGraphQL).toBeDefined();
         expect(type.toXlucene).toBeDefined();
     });
 
@@ -67,7 +67,7 @@ describe('Hostname V1', () => {
     });
 
     it('can get proper graphQl types', () => {
-        const graphQlTypes = new Hostname(field, typeConfig).toGraphQl();
+        const graphQlTypes = new Hostname(field, typeConfig).toGraphQL();
         const results = { type: `${field}: String` };
 
         expect(graphQlTypes).toEqual(results);

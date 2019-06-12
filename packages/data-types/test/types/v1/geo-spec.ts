@@ -19,7 +19,7 @@ describe('Geo V1', () => {
         const type = new GeoType(field, typeConfig);
         expect(type).toBeDefined();
         expect(type.toESMapping).toBeDefined();
-        expect(type.toGraphQl).toBeDefined();
+        expect(type.toGraphQL).toBeDefined();
         expect(type.toXlucene).toBeDefined();
     });
 
@@ -31,7 +31,7 @@ describe('Geo V1', () => {
     });
 
     it('can get proper graphQl types', () => {
-        const { type: graphQlTypes, custom_type: customType } = new GeoType(field, typeConfig).toGraphQl();
+        const { type: graphQlTypes, custom_type: customType } = new GeoType(field, typeConfig).toGraphQL();
         const results = `${field}: Geo`;
 
         expect(graphQlTypes).toEqual(results);

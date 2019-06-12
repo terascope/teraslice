@@ -20,7 +20,7 @@ describe('Date V1', () => {
         const type = new DateType(field, typeConfig);
         expect(type).toBeDefined();
         expect(type.toESMapping).toBeDefined();
-        expect(type.toGraphQl).toBeDefined();
+        expect(type.toGraphQL).toBeDefined();
         expect(type.toXlucene).toBeDefined();
     });
 
@@ -32,7 +32,7 @@ describe('Date V1', () => {
     });
 
     it('can get proper graphQl types', () => {
-        const graphQlTypes = new DateType(field, typeConfig).toGraphQl();
+        const graphQlTypes = new DateType(field, typeConfig).toGraphQL();
         const results = { type: `${field}: DateTime` };
 
         expect(graphQlTypes).toEqual(results);

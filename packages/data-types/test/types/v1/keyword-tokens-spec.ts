@@ -19,7 +19,7 @@ describe('KeywordTokens V1', () => {
         const type = new KeywordTokens(field, typeConfig);
         expect(type).toBeDefined();
         expect(type.toESMapping).toBeDefined();
-        expect(type.toGraphQl).toBeDefined();
+        expect(type.toGraphQL).toBeDefined();
         expect(type.toXlucene).toBeDefined();
     });
 
@@ -44,7 +44,7 @@ describe('KeywordTokens V1', () => {
     });
 
     it('can get proper graphQl types', () => {
-        const graphQlTypes = new KeywordTokens(field, typeConfig).toGraphQl();
+        const graphQlTypes = new KeywordTokens(field, typeConfig).toGraphQL();
         const results = { type: `${field}: String` };
 
         expect(graphQlTypes).toEqual(results);

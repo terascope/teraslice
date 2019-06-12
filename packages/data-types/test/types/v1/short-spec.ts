@@ -20,7 +20,7 @@ describe('Short V1', () => {
         const type = new Short(field, typeConfig);
         expect(type).toBeDefined();
         expect(type.toESMapping).toBeDefined();
-        expect(type.toGraphQl).toBeDefined();
+        expect(type.toGraphQL).toBeDefined();
         expect(type.toXlucene).toBeDefined();
     });
 
@@ -32,7 +32,7 @@ describe('Short V1', () => {
     });
 
     it('can get proper graphQl types', () => {
-        const graphQlTypes = new Short(field, typeConfig).toGraphQl();
+        const graphQlTypes = new Short(field, typeConfig).toGraphQL();
         const results = { type: `${field}: Int` };
 
         expect(graphQlTypes).toEqual(results);

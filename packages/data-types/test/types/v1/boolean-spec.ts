@@ -20,7 +20,7 @@ describe('Boolean V1', () => {
         const type = new BooleanType(field, typeConfig);
         expect(type).toBeDefined();
         expect(type.toESMapping).toBeDefined();
-        expect(type.toGraphQl).toBeDefined();
+        expect(type.toGraphQL).toBeDefined();
         expect(type.toXlucene).toBeDefined();
     });
 
@@ -32,7 +32,7 @@ describe('Boolean V1', () => {
     });
 
     it('can get proper graphQl types', () => {
-        const graphQlTypes = new BooleanType(field, typeConfig).toGraphQl();
+        const graphQlTypes = new BooleanType(field, typeConfig).toGraphQL();
         const results = { type: `${field}: Boolean` };
 
         expect(graphQlTypes).toEqual(results);

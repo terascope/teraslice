@@ -19,7 +19,7 @@ describe('KeywordTokensCaseInsensitive V1', () => {
         const type = new KeywordTokensCaseInsensitive(field, typeConfig);
         expect(type).toBeDefined();
         expect(type.toESMapping).toBeDefined();
-        expect(type.toGraphQl).toBeDefined();
+        expect(type.toGraphQL).toBeDefined();
         expect(type.toXlucene).toBeDefined();
     });
 
@@ -51,7 +51,7 @@ describe('KeywordTokensCaseInsensitive V1', () => {
     });
 
     it('can get proper graphQl types', () => {
-        const graphQlTypes = new KeywordTokensCaseInsensitive(field, typeConfig).toGraphQl();
+        const graphQlTypes = new KeywordTokensCaseInsensitive(field, typeConfig).toGraphQL();
         const results = { type: `${field}: String` };
 
         expect(graphQlTypes).toEqual(results);
