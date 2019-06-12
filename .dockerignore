@@ -25,6 +25,7 @@ packages/*/autoload
 packages/chunked-file-reader
 packages/data-access
 packages/data-access-plugin
+packages/data-types
 packages/docker-compose-js
 packages/elasticsearch-store
 packages/generator-teraslice
@@ -34,5 +35,3 @@ packages/teraslice-test-harness
 packages/ts-transforms
 packages/xlucene-evaluator
 packages/ui-*
-packages/data-types
-packages/data-access-plugin
