@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { trim } from '@terascope/utils';
+import { trim, toInteger } from '@terascope/utils';
 import { Form } from 'semantic-ui-react';
 import ModelForm, { FormInput, ClientID, Description } from '../../ModelForm';
 import { validateFieldName, parseTypeConfig } from '../../utils';
@@ -14,6 +14,10 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
             modelName={config.name}
             id={id}
             validate={(errs, model) => {
+                const typeVersion = toInteger(model.type_config.version);
+                if (!typeVersion) {
+                    errs.messages.push('Invalid Type Config version');
+                }
                 const types = parseTypeConfig(model.type_config);
                 for (const { field, type } of types) {
                     if (!validateFieldName(field)) {
@@ -64,13 +68,12 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
                             description={model.description}
                         />
                         <TypeConfig
-                            updateTypeConfig={(field, type) => {
-                                const typeConfig = { ...model.type_config };
-                                Object.assign(typeConfig, {
-                                    [field]: type,
-                                });
+                            updateTypeConfig={typeConfig => {
                                 updateModel({
-                                    type_config: typeConfig,
+                                    type_config: {
+                                        ...model.type_config,
+                                        ...typeConfig,
+                                    },
                                 });
                             }}
                             typeConfig={model.type_config}

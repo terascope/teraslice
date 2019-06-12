@@ -6,7 +6,7 @@ import FieldName from './FieldName';
 import FieldType from './FieldType';
 import { Form } from 'semantic-ui-react';
 
-const AddField: React.FC<Props> = ({ add }) => {
+const AddField: React.FC<Props> = ({ addField }) => {
     const [{ field, value }, setState] = useState<State>({
         field: '',
         value: '',
@@ -23,7 +23,7 @@ const AddField: React.FC<Props> = ({ add }) => {
                         if (!value || !field) return;
 
                         setState(state => {
-                            add(state.field, state.value);
+                            addField(state.field, state.value);
 
                             return {
                                 field: '',
@@ -64,11 +64,11 @@ type State = {
 };
 
 type Props = {
-    add: (field: string, value: any) => void;
+    addField: (field: string, value: any) => void;
 };
 
 AddField.propTypes = {
-    add: PropTypes.func.isRequired,
+    addField: PropTypes.func.isRequired,
 };
 
 export default AddField;

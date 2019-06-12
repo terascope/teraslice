@@ -15,9 +15,9 @@ export function getModelType(model: AnyObject): UserType {
 }
 
 export function parseTypeConfig(typeConfig?: AnyObject): ({ field: string; type: string })[] {
-    if (!typeConfig) return [];
+    if (!typeConfig || !typeConfig.fields) return [];
 
-    return Object.entries(typeConfig)
+    return Object.entries(typeConfig.fields as AnyObject)
         .map(([field, type]) => ({ field, type }))
         .filter(({ type }) => !!type)
         .sort((a, b) => {

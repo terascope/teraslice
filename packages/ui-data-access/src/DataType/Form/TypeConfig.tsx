@@ -1,13 +1,28 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Segment } from 'semantic-ui-react';
+import { Segment, Form } from 'semantic-ui-react';
 import { Section, Code } from '@terascope/ui-components';
-import AddField from './AddField';
-import ExistingField from './ExistingField';
+import { AnyObject, toNumber } from '@terascope/utils';
 import { parseTypeConfig } from '../../utils';
+import { FormSelect } from '../../ModelForm';
+import ExistingField from './ExistingField';
+import AddField from './AddField';
+import { dataTypeVersions } from '../interfaces';
 
 const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig = {} }) => {
     const entries = parseTypeConfig(typeConfig);
+    const updateField = (field: string, type: string | false) => {
+        const fields = { ...typeConfig.fields };
+        if (type === false) {
+            delete fields[field];
+        } else {
+            fields[field] = type;
+        }
+
+        updateTypeConfig({
+            fields,
+        });
+    };
     return (
         <Section
             title="Type Configuration"
@@ -18,13 +33,30 @@ const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig = {} }) => {
                 </span>
             }
         >
+            <Form.Group as={Segment} basic>
+                <FormSelect<any>
+                    onChange={(e, { value }) => {
+                        e.preventDefault();
+                        updateTypeConfig({
+                            version: toNumber(value),
+                        });
+                    }}
+                    hasError={() => false}
+                    isRequired={() => true}
+                    name="version"
+                    label="Type Configuration Version"
+                    placeholder="Select Type Configuration Version"
+                    value={`${typeConfig.version}`}
+                    options={dataTypeVersions}
+                />
+            </Form.Group>
             {entries.length ? (
                 entries.map(({ field, type }, i) => {
                     const key = `data-type-config-${field}-${i}`;
                     return (
                         <ExistingField
                             key={key}
-                            updateTypeConfig={updateTypeConfig}
+                            updateField={updateField}
                             field={field}
                             type={type}
                         />
@@ -35,14 +67,14 @@ const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig = {} }) => {
                     Add field and type configuration below
                 </Segment>
             )}
-            <AddField add={updateTypeConfig} />
+            <AddField addField={updateField} />
         </Section>
     );
 };
 
 type Props = {
-    updateTypeConfig: (field: string, type: any) => void;
-    typeConfig: TypeConfig;
+    updateTypeConfig: (typeConfig: AnyObject) => void;
+    typeConfig: AnyObject;
 };
 
 TypeConfig.propTypes = {

@@ -27,7 +27,16 @@ const config: ModelConfig<Input> = {
         const input = {} as Input;
         for (const field of inputFields) {
             if (field === 'type_config') {
-                copyField(input, result, field, {});
+                copyField(input, result, field, {
+                    version: 1,
+                    fields: {},
+                });
+                if (!input.type_config.fields || !input.type_config.version) {
+                    input.type_config = {
+                        version: 1,
+                        fields: input.type_config,
+                    };
+                }
             } else {
                 copyField(input, result, field, '');
             }

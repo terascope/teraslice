@@ -5,7 +5,7 @@ import FieldName from './FieldName';
 import FieldType from './FieldType';
 import { Form } from 'semantic-ui-react';
 
-const ExistingField: React.FC<Props> = ({ updateTypeConfig, field, type }) => {
+const ExistingField: React.FC<Props> = ({ updateField, field, type }) => {
     return (
         <ActionSegment
             actions={[
@@ -14,7 +14,7 @@ const ExistingField: React.FC<Props> = ({ updateTypeConfig, field, type }) => {
                     icon: 'trash alternate outline',
                     color: 'red',
                     onClick() {
-                        updateTypeConfig(field, false);
+                        updateField(field, false);
                     },
                 },
             ]}
@@ -24,7 +24,7 @@ const ExistingField: React.FC<Props> = ({ updateTypeConfig, field, type }) => {
                 <FieldType
                     type={type}
                     onChange={updated => {
-                        updateTypeConfig(field, updated);
+                        updateField(field, updated);
                     }}
                 />
             </Form.Group>
@@ -33,13 +33,13 @@ const ExistingField: React.FC<Props> = ({ updateTypeConfig, field, type }) => {
 };
 
 type Props = {
-    updateTypeConfig: (field: string, type: any) => void;
+    updateField: (field: string, type: any) => void;
     field: string;
     type: string;
 };
 
 ExistingField.propTypes = {
-    updateTypeConfig: PropTypes.func.isRequired,
+    updateField: PropTypes.func.isRequired,
     field: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
 };
