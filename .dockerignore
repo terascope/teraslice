@@ -34,3 +34,5 @@ packages/teraslice-test-harness
 packages/ts-transforms
 packages/xlucene-evaluator
 packages/ui-*
+packages/data-types
+packages/data-access-plugin
