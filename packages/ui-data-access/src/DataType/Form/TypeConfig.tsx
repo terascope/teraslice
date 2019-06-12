@@ -1,13 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Segment, Form } from 'semantic-ui-react';
+import { Segment } from 'semantic-ui-react';
+import { AnyObject } from '@terascope/utils';
 import { Section, Code } from '@terascope/ui-components';
-import { AnyObject, toNumber } from '@terascope/utils';
 import { parseTypeConfig } from '../../utils';
-import { FormSelect } from '../../ModelForm';
 import ExistingField from './ExistingField';
 import AddField from './AddField';
-import { dataTypeVersions } from '../interfaces';
 
 const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig = {} }) => {
     const entries = parseTypeConfig(typeConfig);
@@ -26,6 +24,12 @@ const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig = {} }) => {
     return (
         <Section
             title="Type Configuration"
+            description={
+                <div style={{ textAlign: 'right' }}>
+                    Data Types Version:&nbsp;
+                    <strong>{typeConfig.version}</strong>
+                </div>
+            }
             info={
                 <span>
                     Use dot notation to specify nested properties, e.g. &nbsp;
@@ -33,7 +37,7 @@ const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig = {} }) => {
                 </span>
             }
         >
-            <Form.Group as={Segment} basic>
+            {/* <Form.Group as={Segment} basic className="daTypeConfigVersion">
                 <FormSelect<any>
                     onChange={(e, { value }) => {
                         e.preventDefault();
@@ -41,15 +45,17 @@ const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig = {} }) => {
                             version: toNumber(value),
                         });
                     }}
+                    width={6}
+                    compact
                     hasError={() => false}
                     isRequired={() => true}
                     name="version"
-                    label="Type Configuration Version"
+                    label="Type Version"
                     placeholder="Select Type Configuration Version"
                     value={`${typeConfig.version}`}
                     options={dataTypeVersions}
                 />
-            </Form.Group>
+            </Form.Group> */}
             {entries.length ? (
                 entries.map(({ field, type }, i) => {
                     const key = `data-type-config-${field}-${i}`;

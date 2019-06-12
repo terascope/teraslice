@@ -37,3 +37,15 @@
     font-weight: 500;
     color: rgb(100, 100, 100);
 }
+
+.daTypeConfigVersion {
+    flex-direction: column !important;
+}
+
+.daTypeConfigVersion > .field {
+    align-self: flex-end;
+}
+
+.daTypeConfigVersion label {
+    text-align: right;
+}

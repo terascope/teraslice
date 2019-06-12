@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ActionSegment } from '@terascope/ui-components';
-import FieldName from './FieldName';
-import FieldType from './FieldType';
 import { Form } from 'semantic-ui-react';
+import { ActionSegment } from '@terascope/ui-components';
+import { dataTypeOptions } from '../interfaces';
 
 const ExistingField: React.FC<Props> = ({ updateField, field, type }) => {
     return (
@@ -19,13 +18,18 @@ const ExistingField: React.FC<Props> = ({ updateField, field, type }) => {
                 },
             ]}
         >
-            <Form.Group>
-                <FieldName field={field} readonly onChange={() => {}} />
-                <FieldType
-                    type={type}
-                    onChange={updated => {
-                        updateField(field, updated);
+            <Form.Group style={{ paddingTop: '0.8rem' }}>
+                <Form.Input value={field}>
+                    <input readOnly />
+                </Form.Input>
+                <Form.Select
+                    placeholder="Select Field Type"
+                    value={type}
+                    onChange={(e, { value }) => {
+                        e.preventDefault();
+                        updateField(field, value);
                     }}
+                    options={dataTypeOptions}
                 />
             </Form.Group>
         </ActionSegment>

@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { ActionSegment } from '@terascope/ui-components';
-import { get, trim } from '@terascope/utils';
-import FieldName from './FieldName';
-import FieldType from './FieldType';
 import { Form } from 'semantic-ui-react';
+import { get, trim } from '@terascope/utils';
+import { ActionSegment } from '@terascope/ui-components';
+import { dataTypeOptions } from '../interfaces';
 
 const AddField: React.FC<Props> = ({ addField }) => {
     const [{ field, value }, setState] = useState<State>({
@@ -34,24 +33,29 @@ const AddField: React.FC<Props> = ({ addField }) => {
                 },
             ]}
         >
-            <Form.Group>
-                <FieldName
-                    field={field}
-                    onChange={updatedField => {
+            <Form.Group style={{ paddingTop: '0.8rem' }}>
+                <Form.Input
+                    placeholder="Field Name"
+                    value={field}
+                    onChange={(e, { value: updatedField }) => {
+                        e.preventDefault();
                         setState({
                             field: trim(updatedField),
                             value,
                         });
                     }}
                 />
-                <FieldType
-                    type={type}
-                    onChange={updatedValue => {
+                <Form.Select
+                    placeholder="Select Field Type"
+                    value={type}
+                    onChange={(e, { value: updatedValue }) => {
+                        e.preventDefault();
                         setState({
                             value: updatedValue,
                             field,
                         });
                     }}
+                    options={dataTypeOptions}
                 />
             </Form.Group>
         </ActionSegment>
