@@ -42,6 +42,9 @@
             "path": "packages/xlucene-evaluator"
         },
         {
+            "path": "packages/data-types"
+        },
+        {
             "path": "packages/ts-transforms"
         },
         {

@@ -231,13 +231,25 @@ describe('ACLManager', () => {
                 manager.createDataType({
                     dataType: {
                         client_id: 1,
-                        name: 'ABC DataType'
+                        name: 'ABC DataType',
+                        type_config: {
+                            fields: {
+                                hello: { type: 'Keyword' }
+                            },
+                            version: 1
+                        },
                     }
                 }, superAdminUser),
                 manager.createDataType({
                     dataType: {
                         client_id: 1,
-                        name: 'BCD DataType'
+                        name: 'BCD DataType',
+                        type_config: {
+                            fields: {
+                                ip: { type: 'IP' }
+                            },
+                            version: 1
+                        },
                     }
                 }, superAdminUser),
             ]);
@@ -308,7 +320,13 @@ describe('ACLManager', () => {
                 manager.createDataType({
                     dataType: {
                         client_id: 1,
-                        name: 'Some DataType'
+                        name: 'Some DataType',
+                        type_config: {
+                            fields: {
+                                world: { type: 'Keyword' }
+                            },
+                            version: 1
+                        },
                     }
                 }, superAdminUser)
             ]);
@@ -372,13 +390,25 @@ describe('ACLManager', () => {
                     await manager.createDataType({
                         dataType: {
                             client_id: 1,
-                            name: 'DataType One'
+                            name: 'DataType One',
+                            type_config: {
+                                fields: {
+                                    one: { type: 'Integer' }
+                                },
+                                version: 1
+                            },
                         }
                     }, superAdminUser),
                     await manager.createDataType({
                         dataType: {
                             client_id: 1,
-                            name: 'DataType Two'
+                            name: 'DataType Two',
+                            type_config: {
+                                fields: {
+                                    two: { type: 'Integer' }
+                                },
+                                version: 1
+                            },
                         }
                     }, superAdminUser)
                 ]);
@@ -461,8 +491,11 @@ describe('ACLManager', () => {
                     client_id: 1,
                     name: 'MyExampleType',
                     type_config: {
-                        created: 'date',
-                        location: 'geo'
+                        fields: {
+                            created: { type: 'Date' },
+                            location: { type: 'Geo' }
+                        },
+                        version: 1
                     },
                 },
             }, superAdminUser);
@@ -576,10 +609,13 @@ describe('ACLManager', () => {
                     data_type: {
                         id: dataTypeId,
                         type_config: {
-                            created: 'date',
-                            updated: 'date',
-                            location: 'geo',
-                            other_location: 'geo',
+                            fields: {
+                                created: { type: 'Date' },
+                                updated: { type: 'Date' },
+                                location: { type: 'Geo' },
+                                other_location: { type: 'Geo' },
+                            },
+                            version: 1
                         }
                     },
                     view: {
@@ -650,9 +686,12 @@ describe('ACLManager', () => {
                     data_type: {
                         id: dataTypeId,
                         type_config: {
-                            created: 'date',
-                            location: 'geo'
-                        }
+                            fields: {
+                                created: { type: 'Date' },
+                                location: { type: 'Geo' },
+                            },
+                            version: 1
+                        },
                     },
                     view: {
                         name: `Default View for Role ${normalRole.id}`,

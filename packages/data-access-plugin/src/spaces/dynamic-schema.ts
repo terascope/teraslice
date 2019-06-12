@@ -2,10 +2,9 @@ import { makeExecutableSchema } from 'apollo-server-express';
 import { ACLManager, User, DataAccessConfig } from '@terascope/data-access';
 import { Context } from '@terascope/job-components';
 import * as ts from '@terascope/utils';
+import { DataType, TypeConfigFields } from '@terascope/data-types';
 import Usertype from './types/user';
-import GeoType from './types/geoType';
 import { createResolvers } from './resolvers';
-import allTypeMappings from './typeMappings';
 
 // TODO: elasticsearch search error should not leak to much
 // TODO: history capabilities??
@@ -40,19 +39,20 @@ function sanitize(name: string) {
         .trim();
 }
 
+function makeEndpoint(endpoint: string) {
+    return `${endpoint}(join: [String], query: String, size: Int, from: Int, sort: String): [${endpoint}!]!`;
+}
+
 function createTypings(configs: DataAccessConfig[]) {
-    const results: string[] = ['scalar JSON', 'scalar DateTime', Usertype, GeoType];
-    const queryEndpoints: string[] = configs.map(config => config.space_endpoint);
-    // create individual types
-    configs.forEach(config => {
-        results.push(`type ${config.space_endpoint} { ${collectAllowedFields(config, queryEndpoints)} }`);
-    });
+    const results: string[] = ['scalar JSON', 'scalar DateTime', Usertype];
+    const endpointList: string = configs.map((config) =>  makeEndpoint(config.space_endpoint)).join('\n    ');
+    const filteredDataTypes = configs.map(filterDataTypes);
+    const myTypes = DataType.mergeGraphQLDataTypes(filteredDataTypes, endpointList);
     // create query type
     results.push(
+        myTypes,
         ` type Query {
-                ${queryEndpoints
-                    .map(endpoint => `${endpoint}(join: [String], query: String, size: Int, from: Int, sort: String): [${endpoint}!]!`)
-                    .join('\n    ')}
+                ${endpointList}
             }
         `
     );
@@ -60,40 +60,48 @@ function createTypings(configs: DataAccessConfig[]) {
     return results;
 }
 
-function pick(obj: object = {}, keys: string[]) {
-    const results = {};
-    keys.forEach(key => {
-        if (obj[key] !== null) results[key] = obj[key];
+function hasKey(values: string[], field:string) {
+    const results = values.filter((value) => {
+        return (value === field || value.match(new RegExp(`^${field}\\.`)));
     });
-    return results;
+
+    if (results.length > 0) return results;
+    return false;
 }
 
-function collectAllowedFields(config: DataAccessConfig, endpointList: string[]) {
-    const {
-        view: { excludes = [], includes = [] },
-        data_type: { type_config: types, id },
-    } = config;
-    const results: string[] = [];
-    let typeObj = types;
-    if (includes.length > 0) {
-        typeObj = pick(types, includes);
-    }
+type CB = (key: string) => void;
 
-    for (const key in typeObj) {
-        if (!excludes.includes(key)) {
-            results.push(` ${key}: ${getMappingValue(typeObj[key], id)} `);
+function iterateList(srcList:string[], comparaterList:string[], cb: CB) {
+    srcList.forEach((key) => {
+        const keyList = hasKey(comparaterList, key);
+        if (keyList) {
+            keyList.forEach(cb);
         }
-    }
-
-    endpointList.forEach(endpoint =>
-        results.push(` ${endpoint}(join: [String], query: String, size: Int, from: Int, sort: String): [${endpoint}] `)
-    );
-
-    return results.join(' ');
+    });
 }
 
-function getMappingValue(type: string, id: string) {
-    const results = allTypeMappings[type];
-    if (results == null) throw new ts.TSError(`Invalid mapping type "${type}" for data type "${name}"`);
+function restrict(fields: TypeConfigFields, includes: string[], exludes: string[]): TypeConfigFields {
+    let results: TypeConfigFields;
+    const fieldsList = Object.keys(fields);
+
+    if (includes.length === 0) {
+        results = fields;
+    } else {
+        results = {};
+        const cb: CB = includedField => results[includedField] = fields[includedField];
+        iterateList(includes, fieldsList, cb);
+    }
+
+    if (exludes.length > 0) {
+        const cb: CB = restrictedField => delete results[restrictedField];
+        iterateList(exludes, fieldsList, cb);
+    }
+
     return results;
+}
+
+function filterDataTypes(config: DataAccessConfig) {
+    const { space_endpoint: name, view: { excludes = [], includes = [] }, data_type: { type_config: { version, fields } } } = config;
+    const typeObj = restrict(fields, includes, excludes);
+    return new DataType({ version, fields: typeObj }, name);
 }
