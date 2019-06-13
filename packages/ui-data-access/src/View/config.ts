@@ -79,7 +79,7 @@ const config: ModelConfig<Input> = {
             }
         }
 
-        const dataTypes = get(result, 'data_type') ? [get(result, 'data_type')] : _dataTypes;
+        const dataTypes = get(result, 'data_type') ? [result.data_type] : _dataTypes;
         if (!input.client_id) {
             input.client_id = input.data_type.client_id || authUser.client_id;
         }

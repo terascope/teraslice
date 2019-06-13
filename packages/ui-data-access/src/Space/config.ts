@@ -75,14 +75,12 @@ const config: ModelConfig<Input> = {
             }
         }
 
+        const dataTypes = get(result, 'data_type') ? [result.data_type] : _dataTypes;
+
         if (!input.client_id) {
             input.client_id = input.data_type.client_id || authUser.client_id;
         }
 
-        const dataTypes = get(result, 'data_type') ? [get(result, 'data_type')] : _dataTypes;
-        if (!input.client_id) {
-            input.client_id = input.data_type.client_id;
-        }
         return { input, dataTypes, ...extra };
     },
     rowMapping: {
@@ -149,6 +147,10 @@ const config: ModelConfig<Input> = {
                 id
                 client_id
                 name
+                views {
+                    id
+                    name
+                }
             }
             views(query: "*") {
                 id
