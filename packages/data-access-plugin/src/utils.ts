@@ -17,15 +17,8 @@ export function makeErrorHandler(reason: string, logger: ts.Logger): ErrorHandle
                 query: req.query,
             });
 
-            let errorMsg: string;
-            if (ts.isProd && statusCode >= 500) {
-                errorMsg = 'Access Denied';
-            } else {
-                errorMsg = ts.stripErrorMessage(error, reason, true);
-            }
-
             const resp: any = {
-                error: errorMsg,
+                error: ts.stripErrorMessage(error, reason, true),
             };
 
             const user = ts.get(req, 'v2User', { type: 'USER' });
