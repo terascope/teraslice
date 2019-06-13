@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Form, Segment } from 'semantic-ui-react';
-import { validateFieldName } from '../../utils';
+import { validateFieldName, parseTypeConfig } from '../../utils';
 import { Input } from '../interfaces';
 import config from '../config';
 import ModelForm, {
@@ -58,6 +58,9 @@ const ViewForm: React.FC<Props> = ({ id }) => {
             }}
         >
             {({ defaultInputProps, model, dataTypes }) => {
+                const availableFields = parseTypeConfig(
+                    model.data_type.config
+                ).map(({ field }) => field);
                 return (
                     <React.Fragment>
                         <Form.Group>
@@ -121,7 +124,7 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                                     {...defaultInputProps}
                                     label="Select Fields"
                                     multiple
-                                    options={getFieldOptions(model)}
+                                    options={availableFields}
                                     name="includes"
                                     value={model.includes}
                                 />
@@ -137,7 +140,7 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                                     {...defaultInputProps}
                                     label="Select Fields"
                                     multiple
-                                    options={getFieldOptions(model)}
+                                    options={availableFields}
                                     name="excludes"
                                     value={model.excludes}
                                 />
@@ -149,11 +152,6 @@ const ViewForm: React.FC<Props> = ({ id }) => {
         </ModelForm>
     );
 };
-
-function getFieldOptions(model: Input): string[] {
-    if (!model.data_type || !model.data_type.type_config) return [];
-    return Object.keys(model.data_type.type_config);
-}
 
 type Props = {
     id?: string;

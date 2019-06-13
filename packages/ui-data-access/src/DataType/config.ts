@@ -10,7 +10,10 @@ const fieldsFragment = gql`
         client_id
         name
         description
-        type_config
+        config {
+            version
+            fields
+        }
         created
         updated
     }
@@ -26,17 +29,11 @@ const config: ModelConfig<Input> = {
     handleFormProps(authUser, { result, ...extra }) {
         const input = {} as Input;
         for (const field of inputFields) {
-            if (field === 'type_config') {
+            if (field === 'config') {
                 copyField(input, result, field, {
                     version: 1,
                     fields: {},
                 });
-                if (!input.type_config.fields || !input.type_config.version) {
-                    input.type_config = {
-                        version: 1,
-                        fields: input.type_config,
-                    };
-                }
             } else {
                 copyField(input, result, field, '');
             }

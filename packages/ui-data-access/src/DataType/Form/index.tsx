@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { trim, toInteger } from '@terascope/utils';
 import { Form } from 'semantic-ui-react';
+import { trim, toInteger } from '@terascope/utils';
+import { AvailableTypes } from '@terascope/data-types';
 import ModelForm, { FormInput, ClientID, Description } from '../../ModelForm';
 import { validateFieldName, parseTypeConfig } from '../../utils';
-import { Input, availableDataTypes } from '../interfaces';
+import { Input } from '../interfaces';
 import TypeConfig from './TypeConfig';
 import config from '../config';
 
@@ -14,11 +15,12 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
             modelName={config.name}
             id={id}
             validate={(errs, model) => {
-                const typeVersion = toInteger(model.type_config.version);
+                const typeVersion = toInteger(model.config.version);
                 if (!typeVersion) {
                     errs.messages.push('Invalid Type Config version');
                 }
-                const types = parseTypeConfig(model.type_config);
+
+                const types = parseTypeConfig(model.config);
                 for (const { field, type } of types) {
                     if (!validateFieldName(field)) {
                         if (field) {
@@ -28,7 +30,7 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
                         }
                     }
 
-                    if (type && !availableDataTypes.includes(type)) {
+                    if (type && !AvailableTypes.includes(type)) {
                         let msg = `Invalid field type "${type}"`;
                         if (field) msg += ` for field "${field}"`;
                         errs.messages.push(msg);
@@ -70,13 +72,10 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
                         <TypeConfig
                             updateTypeConfig={typeConfig => {
                                 updateModel({
-                                    type_config: {
-                                        ...model.type_config,
-                                        ...typeConfig,
-                                    },
+                                    config: { ...typeConfig },
                                 });
                             }}
-                            typeConfig={model.type_config}
+                            typeConfig={model.config}
                         />
                     </React.Fragment>
                 );

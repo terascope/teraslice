@@ -1,4 +1,5 @@
 import { UserType } from '@terascope/data-access';
+import { DataTypeConfig, AvailableType } from '@terascope/data-types';
 import { getField, AnyObject, get, trimAndToLower } from '@terascope/utils';
 
 export function copyField<T extends any, P extends keyof T, V extends T[P]>(to: T, from: T, field: P, defaultVal: V) {
@@ -14,12 +15,12 @@ export function getModelType(model: AnyObject): UserType {
     return get(model, 'type.id', get(model, 'type')) || 'USER';
 }
 
-export function parseTypeConfig(typeConfig?: AnyObject): ({ field: string; type: string })[] {
+export function parseTypeConfig(typeConfig?: DataTypeConfig): ({ field: string; type: AvailableType })[] {
     if (!typeConfig || !typeConfig.fields) return [];
 
-    return Object.entries(typeConfig.fields as AnyObject)
-        .map(([field, type]) => ({ field, type }))
-        .filter(({ type }) => !!type)
+    return Object.entries(typeConfig.fields)
+        .map(([field, val]) => ({ field, type: val.type }))
+        .filter(({ type, field }) => !!type && field !== '__typename')
         .sort((a, b) => {
             const aText = trimAndToLower(a.field);
             const bText = trimAndToLower(b.field);

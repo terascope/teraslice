@@ -2,24 +2,26 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
 import { get, trim } from '@terascope/utils';
+import { AvailableType } from '@terascope/data-types';
 import { ActionSegment } from '@terascope/ui-components';
 import { dataTypeOptions } from '../interfaces';
 
-const AddField: React.FC<Props> = ({ addField }) => {
+const AddField: React.FC<Props> = ({ addField, fields }) => {
     const [{ field, value }, setState] = useState<State>({
         field: '',
         value: '',
     });
-    const type = get(value, 'type', value);
+    const type: AvailableType = get(value, 'type', value);
 
     return (
         <ActionSegment
             actions={[
                 {
-                    name: 'Add Field',
+                    name: 'Add',
                     icon: 'add',
                     onClick: () => {
                         if (!value || !field) return;
+                        if (fields.includes(field)) return;
 
                         setState(state => {
                             addField(state.field, state.value);
@@ -37,6 +39,7 @@ const AddField: React.FC<Props> = ({ addField }) => {
                 <Form.Input
                     placeholder="Field Name"
                     value={field}
+                    error={fields.includes(field)}
                     onChange={(e, { value: updatedField }) => {
                         e.preventDefault();
                         setState({
@@ -69,10 +72,12 @@ type State = {
 
 type Props = {
     addField: (field: string, value: any) => void;
+    fields: string[];
 };
 
 AddField.propTypes = {
     addField: PropTypes.func.isRequired,
+    fields: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
 };
 
 export default AddField;

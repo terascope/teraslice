@@ -19,7 +19,10 @@ const fieldsFragment = gql`
             id
             client_id
             name
-            type_config
+            config {
+                version
+                fields
+            }
         }
         roles {
             id
@@ -55,7 +58,10 @@ const config: ModelConfig<Input> = {
                     id: '',
                     client_id: 0,
                     name: '',
-                    type_config: {},
+                    config: {
+                        version: 1,
+                        fields: {},
+                    },
                 });
             } else if (field === 'roles') {
                 const defaultRoles = authUser.role ? [authUser.role] : [];
@@ -134,7 +140,7 @@ const config: ModelConfig<Input> = {
                 id
                 client_id
                 name
-                type_config
+                config
             }
         }
     `,

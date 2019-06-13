@@ -10,7 +10,7 @@ const ExistingField: React.FC<Props> = ({ updateField, field, type }) => {
             actions={[
                 {
                     name: 'Remove',
-                    icon: 'trash alternate outline',
+                    icon: 'times',
                     color: 'red',
                     onClick() {
                         updateField(field, false);

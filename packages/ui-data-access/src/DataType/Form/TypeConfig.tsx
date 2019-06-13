@@ -1,26 +1,33 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Segment } from 'semantic-ui-react';
-import { AnyObject } from '@terascope/utils';
 import { Section, Code } from '@terascope/ui-components';
+import {
+    DataTypeConfig,
+    AvailableTypes,
+    AvailableType,
+    AvailableVersions,
+} from '@terascope/data-types';
 import { parseTypeConfig } from '../../utils';
 import ExistingField from './ExistingField';
 import AddField from './AddField';
 
-const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig = {} }) => {
+const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig }) => {
     const entries = parseTypeConfig(typeConfig);
-    const updateField = (field: string, type: string | false) => {
+    const updateField = (field: string, type: AvailableType | false) => {
         const fields = { ...typeConfig.fields };
         if (type === false) {
             delete fields[field];
         } else {
-            fields[field] = type;
+            fields[field] = { type };
         }
 
         updateTypeConfig({
+            version: typeConfig.version,
             fields,
         });
     };
+
     return (
         <Section
             title="Type Configuration"
@@ -37,25 +44,6 @@ const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig = {} }) => {
                 </span>
             }
         >
-            {/* <Form.Group as={Segment} basic className="daTypeConfigVersion">
-                <FormSelect<any>
-                    onChange={(e, { value }) => {
-                        e.preventDefault();
-                        updateTypeConfig({
-                            version: toNumber(value),
-                        });
-                    }}
-                    width={6}
-                    compact
-                    hasError={() => false}
-                    isRequired={() => true}
-                    name="version"
-                    label="Type Version"
-                    placeholder="Select Type Configuration Version"
-                    value={`${typeConfig.version}`}
-                    options={dataTypeVersions}
-                />
-            </Form.Group> */}
             {entries.length ? (
                 entries.map(({ field, type }, i) => {
                     const key = `data-type-config-${field}-${i}`;
@@ -73,19 +61,29 @@ const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig = {} }) => {
                     Add field and type configuration below
                 </Segment>
             )}
-            <AddField addField={updateField} />
+            <AddField
+                addField={updateField}
+                fields={Object.keys(typeConfig.fields)}
+            />
         </Section>
     );
 };
 
 type Props = {
-    updateTypeConfig: (typeConfig: AnyObject) => void;
-    typeConfig: AnyObject;
+    updateTypeConfig: (typeConfig: DataTypeConfig) => void;
+    typeConfig: DataTypeConfig;
 };
 
 TypeConfig.propTypes = {
     updateTypeConfig: PropTypes.func.isRequired,
-    typeConfig: PropTypes.object.isRequired,
+    typeConfig: PropTypes.shape({
+        version: PropTypes.oneOf(AvailableVersions).isRequired,
+        fields: PropTypes.objectOf(
+            PropTypes.shape({
+                type: PropTypes.oneOf(AvailableTypes).isRequired,
+            }).isRequired
+        ).isRequired,
+    }).isRequired,
 };
 
 export default TypeConfig;

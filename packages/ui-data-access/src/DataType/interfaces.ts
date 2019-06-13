@@ -1,36 +1,13 @@
 import { DataType } from '@terascope/data-access';
-import { AnyObject } from '@terascope/utils';
-import { OverwriteModelWith } from '../ModelForm';
+import { AvailableTypes } from '@terascope/data-types';
+import { OverwriteModel } from '../ModelForm';
 
-export type Input = OverwriteModelWith<
-    DataType,
-    {
-        type_config: AnyObject;
-    }
->;
+export type Input = OverwriteModel<DataType>;
 
-export const inputFields: (keyof Input)[] = ['id', 'client_id', 'description', 'name', 'type_config'];
+export const inputFields: (keyof Input)[] = ['id', 'client_id', 'description', 'name', 'config'];
 
-export const availableDataTypes = [
-    'Boolean',
-    'Date',
-    'Geo',
-    'IP',
-    'Byte',
-    'Double',
-    'Float',
-    'Integer',
-    'Keyword',
-    'Long',
-    'Short',
-    'Text',
-    'Object',
-];
-
-export const dataTypeOptions = availableDataTypes.sort().map(t => ({
+export const dataTypeOptions = AvailableTypes.sort().map(t => ({
     key: t,
     text: t,
     value: t,
 }));
-
-export const dataTypeVersions = ['1'];
