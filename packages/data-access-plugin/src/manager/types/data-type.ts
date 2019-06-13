@@ -15,7 +15,7 @@ export default `
         ${baseModel}
         name: String
         description: String
-        type_config: DataTypeConfig
+        config: DataTypeConfig
         # virutal references
         spaces: [Space]
         views: [View]
@@ -25,7 +25,7 @@ export default `
         client_id: Int!
         name: String!
         description: String
-        type_config: DataTypeConfigInput
+        config: DataTypeConfigInput
     }
 
     input UpdateDataTypeInput {
@@ -33,6 +33,6 @@ export default `
         id: ID!
         name: String
         description: String
-        type_config: DataTypeConfigInput
+        config: DataTypeConfigInput
     }
 `;

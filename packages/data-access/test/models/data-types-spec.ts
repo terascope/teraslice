@@ -23,7 +23,7 @@ describe('DataTypes', () => {
             const created = await dataTypes.create({
                 client_id: 1,
                 name: 'hello',
-                type_config: {
+                config: {
                     version: 1,
                     fields: {
                         location: { type: 'Geo' },
@@ -35,7 +35,7 @@ describe('DataTypes', () => {
 
             await dataTypes.update({
                 id: created.id,
-                type_config: {
+                config: {
                     version: 1,
                     fields: {
                         location: { type: 'Geo' },
@@ -48,17 +48,17 @@ describe('DataTypes', () => {
             const fetched = await dataTypes.findById(created.id);
 
             // ignore the updated timestamp and type config
-            const { updated: __, type_config: ___, ..._created } = created;
-            const { updated: ____, type_config: _____, ..._fetched } = fetched;
+            const { updated: __, config: ___, ..._created } = created;
+            const { updated: ____, config: _____, ..._fetched } = fetched;
             expect(_created).toEqual(_fetched);
 
             // ensure the type config was created/updated corectly
-            expect(created.type_config.fields).toHaveProperty('location', { type: 'Geo' });
-            expect(fetched.type_config.fields).toHaveProperty('location', { type: 'Geo' });
-            expect(created.type_config.fields).toHaveProperty('some_date', { type: 'Date' });
-            expect(fetched.type_config.fields).not.toHaveProperty('some_date', { type: 'Date' });
-            expect(created.type_config.fields).toContainEntry(['foo.bar', { type: 'IP' }]);
-            expect(fetched.type_config.fields).toContainEntry(['foo.bar', { type: 'IP' }]);
+            expect(created.config.fields).toHaveProperty('location', { type: 'Geo' });
+            expect(fetched.config.fields).toHaveProperty('location', { type: 'Geo' });
+            expect(created.config.fields).toHaveProperty('some_date', { type: 'Date' });
+            expect(fetched.config.fields).not.toHaveProperty('some_date', { type: 'Date' });
+            expect(created.config.fields).toContainEntry(['foo.bar', { type: 'IP' }]);
+            expect(fetched.config.fields).toContainEntry(['foo.bar', { type: 'IP' }]);
         });
     });
 });

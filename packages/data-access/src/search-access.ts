@@ -24,7 +24,7 @@ export class SearchAccess {
             throw new ts.TSError('Search is not configured correctly for search');
         }
 
-        const typeConfig = this.config.data_type.type_config || { fields: {}, version: 1 };
+        const typeConfig = this.config.data_type.config || { fields: {}, version: 1 };
         const types = new t.DataType(typeConfig);
         this._logger = logger;
         this._queryAccess = new x.QueryAccess(
@@ -78,7 +78,7 @@ export class SearchAccess {
     }
 
     getSearchParams(query: i.InputQuery): es.SearchParams {
-        const typeConfig = this.config.data_type.type_config || {
+        const typeConfig = this.config.data_type.config || {
             version: 1,
             fields: {},
         };

@@ -268,7 +268,7 @@ describe('ACLManager', () => {
                         dataType: {
                             client_id: 1,
                             name: 'ABC DataType',
-                            type_config: {
+                            config: {
                                 fields: {
                                     hello: { type: 'Keyword' },
                                 },
@@ -283,7 +283,7 @@ describe('ACLManager', () => {
                         dataType: {
                             client_id: 1,
                             name: 'BCD DataType',
-                            type_config: {
+                            config: {
                                 fields: {
                                     ip: { type: 'IP' },
                                 },
@@ -379,7 +379,7 @@ describe('ACLManager', () => {
                         dataType: {
                             client_id: 1,
                             name: 'Some DataType',
-                            type_config: {
+                            config: {
                                 fields: {
                                     world: { type: 'Keyword' },
                                 },
@@ -462,7 +462,7 @@ describe('ACLManager', () => {
                             dataType: {
                                 client_id: 1,
                                 name: 'DataType One',
-                                type_config: {
+                                config: {
                                     fields: {
                                         one: { type: 'Integer' },
                                     },
@@ -477,7 +477,7 @@ describe('ACLManager', () => {
                             dataType: {
                                 client_id: 1,
                                 name: 'DataType Two',
-                                type_config: {
+                                config: {
                                     fields: {
                                         two: { type: 'Integer' },
                                     },
@@ -579,7 +579,7 @@ describe('ACLManager', () => {
                     dataType: {
                         client_id: 1,
                         name: 'MyExampleType',
-                        type_config: {
+                        config: {
                             fields: {
                                 created: { type: 'Date' },
                                 location: { type: 'Geo' },
@@ -720,7 +720,7 @@ describe('ACLManager', () => {
                     role_id: normalRole.id,
                     data_type: {
                         id: dataTypeId,
-                        type_config: {
+                        config: {
                             fields: {
                                 created: { type: 'Date' },
                                 updated: { type: 'Date' },
@@ -809,7 +809,7 @@ describe('ACLManager', () => {
                     role_id: normalRole.id,
                     data_type: {
                         id: dataTypeId,
-                        type_config: {
+                        config: {
                             fields: {
                                 created: { type: 'Date' },
                                 location: { type: 'Geo' },

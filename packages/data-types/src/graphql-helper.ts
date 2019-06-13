@@ -1,4 +1,3 @@
-
 import { GraphQLScalarType, ASTNode } from 'graphql';
 import { Kind } from 'graphql/language';
 import { TSError } from '@terascope/utils';
@@ -25,8 +24,13 @@ function parseLiteral(ast: ASTNode) {
         const fieldName = curr.name.value;
         if (curr.value.kind !== Kind.OBJECT) throw new TSError(`field ${fieldName} must be set to an object`);
         if (curr.value.fields.length > 1) throw new TSError(`field ${fieldName} must be set to an object with only one key`);
-        // @ts-ignore
-        const [{ name: { value: keyName }, value: { value: keyValue } }] = curr.value.fields;
+        const [
+            {
+                name: { value: keyName },
+                // @ts-ignore
+                value: { value: keyValue },
+            },
+        ] = curr.value.fields;
         if (keyName !== 'type') throw new TSError(`field ${fieldName} must be set to an object with only only key of type`);
         if (!keyValue) throw new TSError('type config must have proper types set, it was not configured correctly');
         if (allTypes[keyValue] == null) throw new TSError(`Type: ${keyValue} is not a valid type`);

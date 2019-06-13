@@ -1,10 +1,8 @@
-
 import 'jest-extended';
 import { DataType, DataTypeConfig } from '../src';
 import { TSError } from '@terascope/utils';
 
 describe('DataType', () => {
-
     it('it will throw without versioning', () => {
         expect.hasAssertions();
         try {
@@ -12,7 +10,7 @@ describe('DataType', () => {
             new DataType({});
         } catch (err) {
             expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('No version was specified in type_config');
+            expect(err.message).toInclude('No version was specified in type config');
         }
     });
 
@@ -33,7 +31,7 @@ describe('DataType', () => {
                 location: { type: 'Geo' },
                 date: { type: 'Date' },
                 ip: { type: 'IP' },
-                someNum: { type: 'Long' }
+                someNum: { type: 'Long' },
             },
         };
 
@@ -42,7 +40,7 @@ describe('DataType', () => {
             location: 'geo',
             date: 'date',
             ip: 'ip',
-            someNum: 'number'
+            someNum: 'number',
         };
 
         const xluceneConfig = new DataType(typeConfig).toXlucene();
@@ -57,7 +55,7 @@ describe('DataType', () => {
                 location: { type: 'Geo' },
                 date: { type: 'Date' },
                 ip: { type: 'IP' },
-                someNum: { type: 'Long' }
+                someNum: { type: 'Long' },
             },
         };
 
@@ -74,30 +72,19 @@ describe('DataType', () => {
             'someNum: Int',
             'type Geo {',
             'lat: String!',
-            'lon: String!'
+            'lon: String!',
         ].forEach((str: string) => {
             expect(results.match(str)).not.toBeNull();
         });
 
-        [
-            'type myType {',
-            'hello: String',
-            'location: Geo',
-            'date: DateTime',
-            'ip: String',
-            'someNum: Int',
-        ].forEach((str: string) => {
+        ['type myType {', 'hello: String', 'location: Geo', 'date: DateTime', 'ip: String', 'someNum: Int'].forEach((str: string) => {
             expect(baseType.match(str)).not.toBeNull();
         });
 
         expect(customTypes).toBeArrayOfSize(1);
         const customType = customTypes[0];
 
-        [
-            'type Geo {',
-            'lat: String!',
-            'lon: String!'
-        ].forEach((str: string) => {
+        ['type Geo {', 'lat: String!', 'lon: String!'].forEach((str: string) => {
             expect(customType.match(str)).not.toBeNull();
         });
     });
@@ -110,7 +97,7 @@ describe('DataType', () => {
                 location: { type: 'Geo' },
                 date: { type: 'Date' },
                 ip: { type: 'IP' },
-                someNum: { type: 'Long' }
+                someNum: { type: 'Long' },
             },
         };
 
@@ -128,7 +115,7 @@ describe('DataType', () => {
                 location: { type: 'Geo' },
                 date: { type: 'Date' },
                 ip: { type: 'IP' },
-                someNum: { type: 'Long' }
+                someNum: { type: 'Long' },
             },
         };
         const typeInjection = 'world: String';
@@ -145,7 +132,7 @@ describe('DataType', () => {
                 location: { type: 'Geo' },
                 date: { type: 'Date' },
                 ip: { type: 'IP' },
-                someNum: { type: 'Long' }
+                someNum: { type: 'Long' },
             },
         };
 
@@ -165,7 +152,7 @@ describe('DataType', () => {
                 location: { type: 'Geo' },
                 date: { type: 'Date' },
                 ip: { type: 'IP' },
-                someNum: { type: 'Long' }
+                someNum: { type: 'Long' },
             },
         };
 
@@ -185,7 +172,7 @@ describe('DataType', () => {
                 location: { type: 'Geo' },
                 date: { type: 'Date' },
                 ip: { type: 'IP' },
-                someNum: { type: 'Long' }
+                someNum: { type: 'Long' },
             },
         };
 
@@ -197,16 +184,16 @@ describe('DataType', () => {
                         location: { type: 'geo_point' },
                         date: { type: 'date' },
                         ip: { type: 'ip' },
-                        someNum: { type: 'long' }
-                    }
-                }
+                        someNum: { type: 'long' },
+                    },
+                },
             },
             settings: {
                 analysis: {
                     analyzer: {},
-                    tokenizer: {}
-                }
-            }
+                    tokenizer: {},
+                },
+            },
         };
 
         const mapping = new DataType(typeConfig).toESMapping({ typeName: 'events' });
@@ -221,7 +208,7 @@ describe('DataType', () => {
                 location: { type: 'Geo' },
                 date: { type: 'Date' },
                 ip: { type: 'IP' },
-                someNum: { type: 'Long' }
+                someNum: { type: 'Long' },
             },
         };
 
@@ -232,10 +219,10 @@ describe('DataType', () => {
                 analyzer: {
                     lowercase_keyword_analyzer: {
                         tokenizer: 'keyword',
-                        filter: 'lowercase'
-                    }
-                }
-            }
+                        filter: 'lowercase',
+                    },
+                },
+            },
         };
 
         const results = {
@@ -246,9 +233,9 @@ describe('DataType', () => {
                         location: { type: 'geo_point' },
                         date: { type: 'date' },
                         ip: { type: 'ip' },
-                        someNum: { type: 'long' }
-                    }
-                }
+                        someNum: { type: 'long' },
+                    },
+                },
             },
             settings: {
                 'index.number_of_shards': 5,
@@ -257,12 +244,12 @@ describe('DataType', () => {
                     analyzer: {
                         lowercase_keyword_analyzer: {
                             tokenizer: 'keyword',
-                            filter: 'lowercase'
-                        }
+                            filter: 'lowercase',
+                        },
                     },
-                    tokenizer: {}
+                    tokenizer: {},
                 },
-            }
+            },
         };
 
         const mapping = new DataType(typeConfig).toESMapping({ typeName: 'events', settings });
@@ -277,7 +264,7 @@ describe('DataType', () => {
                 location: { type: 'Geo' },
                 date: { type: 'Date' },
                 ip: { type: 'IP' },
-                someNum: { type: 'Long' }
+                someNum: { type: 'Long' },
             },
         };
 
@@ -287,14 +274,11 @@ describe('DataType', () => {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
                 otherLocation: { type: 'Geo' },
-                bool: { type: 'Boolean' }
+                bool: { type: 'Boolean' },
             },
         };
 
-        const types = [
-            new DataType(typeConfig1, 'firstType'),
-            new DataType(typeConfig2, 'secondType'),
-        ];
+        const types = [new DataType(typeConfig1, 'firstType'), new DataType(typeConfig2, 'secondType')];
 
         const results = DataType.mergeGraphQLDataTypes(types);
 
@@ -312,7 +296,7 @@ describe('DataType', () => {
 
             'type Geo {',
             'lat: String!',
-            'lon: String!'
+            'lon: String!',
         ];
 
         fields.forEach((str: string) => {

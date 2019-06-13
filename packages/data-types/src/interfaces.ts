@@ -86,6 +86,9 @@ export const AvailableTypes: AvailableType[] = [
     'Object',
 ];
 
+export type AvailableVersion = 1;
+export const AvailableVersions: AvailableVersion[] = [1];
+
 export type Type = {
     type: AvailableType;
 };
@@ -94,17 +97,17 @@ type ActualType = {
     [key in AvailableType]: { new (field: string, config: TypeConfig): BaseType };
 };
 
-export interface DataTypeMapping {
-    [key: string]: ActualType;
-}
+export type DataTypeMapping = {
+    [key in AvailableVersion]: ActualType;
+};
 
-export interface TypeConfigFields {
+export type TypeConfigFields = {
     [key: string]: Type;
-}
+};
 
 export type DataTypeConfig = {
     fields: TypeConfigFields;
-    version: number;
+    version: AvailableVersion;
 };
 
 export type ESTypeMapping = PropertyESTypeMapping | BasicESTypeMapping;

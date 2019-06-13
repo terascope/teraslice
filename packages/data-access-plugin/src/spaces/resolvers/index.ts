@@ -61,11 +61,11 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
         const esClient = getESClient(context, get(view, 'config.connection', 'default'));
         const client = elasticsearchApi(esClient, logger);
         const {
-            data_type: { type_config },
+            data_type: { config },
             view: { includes, excludes, constraint, prevent_prefix_wildcard },
         } = view;
 
-        const dateType = new DataType(type_config);
+        const dateType = new DataType(config);
         const accessData = {
             includes,
             excludes,

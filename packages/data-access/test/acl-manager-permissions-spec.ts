@@ -127,7 +127,7 @@ describe('ACLManager Permissions', () => {
                 dataType: {
                     client_id: 1,
                     name: 'SomeTestDataType',
-                    type_config: {
+                    config: {
                         fields: {
                             hello: { type: 'Keyword' },
                         },
@@ -158,7 +158,7 @@ describe('ACLManager Permissions', () => {
                     dataType: {
                         client_id: 1,
                         name: 'SomeRandomExampleDataType',
-                        type_config: {
+                        config: {
                             fields: {
                                 hello: { type: 'Keyword' },
                             },
@@ -755,7 +755,7 @@ describe('ACLManager Permissions', () => {
                         dataType: {
                             client_id: 1,
                             name: 'SomeExampleDataType',
-                            type_config: {
+                            config: {
                                 fields: {
                                     hello: { type: 'Keyword' },
                                 },

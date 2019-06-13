@@ -681,7 +681,7 @@ export class ACLManager {
             searchConfig.default_geo_field = ts.trimAndToLower(searchConfig.default_geo_field);
         }
 
-        const typeConfig: DataTypeConfig = config.data_type.type_config || { fields: {}, version: 1 };
+        const typeConfig: DataTypeConfig = config.data_type.config || { fields: {}, version: 1 };
 
         const dateField = searchConfig.default_date_field;
         if (dateField && !typeConfig.fields[dateField]) {
@@ -693,7 +693,7 @@ export class ACLManager {
             typeConfig.fields[geoField] = { type: 'Geo' };
         }
 
-        config.data_type.type_config = typeConfig;
+        config.data_type.config = typeConfig;
         return config;
     }
 

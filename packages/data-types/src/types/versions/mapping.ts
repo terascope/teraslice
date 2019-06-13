@@ -1,4 +1,3 @@
-
 import { DataTypeMapping } from '../../interfaces';
 
 import BooleanV1 from './v1/boolean';
@@ -22,7 +21,7 @@ import NgramTokensV1 from './v1/ngram-tokens';
 import BoundryV1 from './v1/boundary';
 
 export const mapping: DataTypeMapping = {
-    v1: {
+    1: {
         Boolean: BooleanV1,
         Date: DateV1,
         Geo: GeoV1,
@@ -42,5 +41,5 @@ export const mapping: DataTypeMapping = {
         NgramTokens: NgramTokensV1,
         Boundry: BoundryV1,
         Object: ObjectV1,
-    }
+    },
 };

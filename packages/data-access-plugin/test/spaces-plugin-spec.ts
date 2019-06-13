@@ -371,7 +371,7 @@ describe('Spaces API', () => {
                     dataType:{
                         client_id: 1,
                         name: "Data Type 1",
-                        type_config: {
+                        config: {
                             ${createTypes(space1Properties)}
                         }
                 }){
@@ -386,7 +386,7 @@ describe('Spaces API', () => {
                     dataType:{
                         client_id: 1,
                         name: "Data Type 2",
-                        type_config: {
+                        config: {
                             ${createTypes(space2Properties)}
                         }
                 }){
@@ -401,7 +401,7 @@ describe('Spaces API', () => {
                     dataType:{
                         client_id: 1,
                         name: "Data Type 3",
-                        type_config: {
+                        config: {
                             ${createTypes(space3Properties)}
                         }
                 }){

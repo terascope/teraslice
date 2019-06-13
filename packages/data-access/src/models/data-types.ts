@@ -57,12 +57,12 @@ export class DataTypes extends IndexModel<DataType> {
     }
 
     protected _preProcess(record: DataType): DataType {
-        record.type_config = this._escapeFields(record.type_config);
+        record.config = this._escapeFields(record.config);
         return record;
     }
 
     protected _postProcess(record: DataType): DataType {
-        record.type_config = this._unescapeFields(record.type_config);
+        record.config = this._unescapeFields(record.config);
         return record;
     }
 }

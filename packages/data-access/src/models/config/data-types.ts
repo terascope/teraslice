@@ -8,21 +8,28 @@ const config: IndexModelConfig<DataType> = {
     mapping: {
         properties: {
             client_id: {
-                type: 'integer'
+                type: 'integer',
             },
             name: {
                 type: 'keyword',
                 fields: {
                     text: {
                         type: 'text',
-                        analyzer: 'lowercase_keyword_analyzer'
-                    }
+                        analyzer: 'lowercase_keyword_analyzer',
+                    },
                 },
             },
-            type_config: {
-                type: 'object'
-            }
-        }
+            config: {
+                properties: {
+                    version: {
+                        type: 'integer',
+                    },
+                    fields: {
+                        type: 'object',
+                    },
+                },
+            },
+        },
     },
     schema: {
         properties: {
@@ -32,18 +39,21 @@ const config: IndexModelConfig<DataType> = {
                 minimum: 0,
             },
             name: {
-                type: 'string'
+                type: 'string',
             },
             description: {
-                type: 'string'
+                type: 'string',
             },
-            type_config: {
+            config: {
                 type: 'object',
                 additionalProperties: true,
-                default: {},
-            }
+                default: {
+                    version: 1,
+                    fields: {},
+                },
+            },
         },
-        required: ['client_id', 'name', 'type_config']
+        required: ['client_id', 'name', 'config'],
     },
     uniqueFields: ['name'],
     strictMode: false,
@@ -51,27 +61,27 @@ const config: IndexModelConfig<DataType> = {
 
 /**
  * The definition a DataType model
-*/
+ */
 export interface DataType extends IndexModelRecord {
     /**
      * The mutli-tenant ID representing the client
-    */
+     */
     client_id: number;
 
     /**
      * Name of the DataType
-    */
+     */
     name: string;
 
     /**
      * Description of the DataType
-    */
+     */
     description?: string;
 
     /**
-     * Xlucene Type Config
-    */
-    type_config: DataTypeConfig;
+     * Data Type Config
+     */
+    config: DataTypeConfig;
 }
 
 export default config;
