@@ -10,15 +10,18 @@ export function makeErrorHandler(reason: string, logger: ts.Logger): ErrorHandle
         try {
             await fn();
         } catch (error) {
-            const statusCode = ts.getErrorStatusCode(error);
+            const { statusCode, context } = ts.parseErrorInfo(error);
 
-            logger.error(error, reason, {
+            const realError = context.realError || error;
+            logger.error(realError, reason, {
                 path: req.originalUrl,
                 query: req.query,
             });
 
+            const forbidden = [401, 403].includes(statusCode);
+
             const resp: any = {
-                error: ts.stripErrorMessage(error, reason, true),
+                error: forbidden ? 'Access Denied' : ts.stripErrorMessage(error, reason, true),
             };
 
             const user = ts.get(req, 'v2User', { type: 'USER' });
@@ -27,12 +30,12 @@ export function makeErrorHandler(reason: string, logger: ts.Logger): ErrorHandle
                     timestamp: ts.makeISODate(),
                 };
 
-                if (ts.isString(error)) {
-                    resp.debug.message = error;
+                if (ts.isString(realError)) {
+                    resp.debug.message = realError;
                 } else {
-                    resp.debug.message = error.message;
-                    resp.debug.stack = error.stack;
-                    resp.debug.statusCode = statusCode;
+                    resp.debug.message = realError.message;
+                    resp.debug.stack = realError.stack;
+                    resp.debug.statusCode = ts.getErrorStatusCode(realError);
                 }
             }
 

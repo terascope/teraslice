@@ -1,7 +1,7 @@
 import { Express } from 'express';
 import { Client } from 'elasticsearch';
 import { Context } from '@terascope/job-components';
-import { Logger, toBoolean, get } from '@terascope/utils';
+import { Logger, toBoolean, get, TSError } from '@terascope/utils';
 import { DataAccessConfig, User, ACLManager } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { SearchFn } from './interfaces';
@@ -48,12 +48,23 @@ export default class SearchPlugin {
             const searchErrorHandler = makeErrorHandler('Error during query execution', logger);
 
             spaceErrorHandler(req, res, async () => {
-                const accessConfig = await manager.getViewForSpace(
-                    {
-                        space: endpoint,
-                    },
-                    user
-                );
+                let accessConfig: DataAccessConfig;
+                try {
+                    accessConfig = await manager.getViewForSpace(
+                        {
+                            space: endpoint,
+                        },
+                        user
+                    );
+                } catch (error) {
+                    throw new TSError('Access Denied', {
+                        statusCode: error.statusCode === 401 ? 401 : 403,
+                        context: {
+                            realError: error,
+                            safe: true,
+                        },
+                    });
+                }
 
                 req.query.pretty = toBoolean(req.query.pretty);
 

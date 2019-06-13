@@ -76,17 +76,27 @@ function isSameUser(user: User, creds: Creds): boolean {
 }
 
 export async function login(manager: ACLManager, req: Request, storeInSession = true): Promise<User> {
-    const loggedInUser = getLoggedInUser(req);
-    const creds = getCredentialsFromReq(req);
+    try {
+        const loggedInUser = getLoggedInUser(req);
+        const creds = getCredentialsFromReq(req);
 
-    if (loggedInUser && isSameUser(loggedInUser, creds)) {
-        // fetch and update the user again
-        return manager.findUser({ id: loggedInUser.id }, loggedInUser);
+        if (loggedInUser && isSameUser(loggedInUser, creds)) {
+            // fetch and update the user again
+            return manager.findUser({ id: loggedInUser.id }, loggedInUser);
+        }
+
+        const user = await manager.authenticate(creds);
+        setLoggedInUser(req, user, storeInSession);
+        return user;
+    } catch (error) {
+        throw new ts.TSError('Access Denied', {
+            statusCode: error.statusCode === 401 ? 401 : 403,
+            context: {
+                realError: error,
+                safe: true,
+            },
+        });
     }
-
-    const user = await manager.authenticate(creds);
-    setLoggedInUser(req, user, storeInSession);
-    return user;
 }
 
 export function getCredentialsFromReq(req: Request): Creds {
