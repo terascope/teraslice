@@ -46,9 +46,16 @@ const config: IndexModelConfig<DataType> = {
             config: {
                 type: 'object',
                 additionalProperties: true,
-                default: {
-                    version: 1,
-                    fields: {},
+                properties: {
+                    version: {
+                        type: 'number',
+                        default: 1,
+                    },
+                    fields: {
+                        type: 'object',
+                        additionalProperties: true,
+                        default: {},
+                    },
                 },
             },
         },

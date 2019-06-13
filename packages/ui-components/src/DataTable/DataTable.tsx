@@ -70,6 +70,8 @@ const DataTable: React.FC<Props> = props => {
                     numCols={numCols}
                     updateQueryState={updateQueryState}
                     onAction={async action => {
+                        if (actionState.loading) return;
+
                         setActionState({
                             loading: true,
                         });

@@ -15,7 +15,7 @@ export default async function getSchemaByRole(aclManager: ACLManager, user: User
     const fetchViews = spaces.map(space => aclManager.getViewForSpace({ space: space.id }, user));
     const list = await Promise.all(fetchViews);
     const sanatizedList = list.map(view => {
-        view.space_endpoint = sanitize(view.space_endpoint);
+        view.space_endpoint = sanitize(view.space_endpoint!);
         return view;
     });
 
@@ -45,7 +45,7 @@ function makeEndpoint(endpoint: string) {
 
 function createTypings(configs: DataAccessConfig[]) {
     const results: string[] = ['scalar JSON', 'scalar DateTime', Usertype];
-    const endpointList: string = configs.map(config => makeEndpoint(config.space_endpoint)).join('\n    ');
+    const endpointList: string = configs.map(config => makeEndpoint(config.space_endpoint!)).join('\n    ');
     const filteredDataTypes = configs.map(filterDataTypes);
     const myTypes = DataType.mergeGraphQLDataTypes(filteredDataTypes, endpointList);
     // create query type

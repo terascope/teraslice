@@ -61,7 +61,7 @@ export type AvailableType =
     | 'KeywordCaseInsensitive'
     | 'KeywordTokensCaseInsensitive'
     | 'NgramTokens'
-    | 'Boundry'
+    | 'Boundary'
     | 'Object';
 
 export const AvailableTypes: AvailableType[] = [
@@ -82,7 +82,7 @@ export const AvailableTypes: AvailableType[] = [
     'KeywordCaseInsensitive',
     'KeywordTokensCaseInsensitive',
     'NgramTokens',
-    'Boundry',
+    'Boundary',
     'Object',
 ];
 

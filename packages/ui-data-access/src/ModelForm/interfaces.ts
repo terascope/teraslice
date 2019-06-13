@@ -21,15 +21,16 @@ export type ValidateFn<T> = (errs: ErrorsState<T>, model: T, isSubmit: boolean) 
 export type BeforeSubmitFn<T> = (model: T, create: boolean) => SubmitVars<T>;
 
 export type ComponentProps<T> = {
-    [extra: string]: any;
-    input: T;
     id?: string;
     modelName: ModelName;
     validate?: ValidateFn<T>;
     afterChange?: (model: T) => void;
     beforeSubmit?: BeforeSubmitFn<T>;
+    canDelete?: (model: T) => boolean;
     children: FormChild<T>;
 };
+
+export type ComponentInputProps<T> = ComponentProps<T> & { [extra: string]: any; input: T };
 
 export type DefaultInputProps<T> = {
     hasError: (field: keyof T) => boolean;
@@ -44,6 +45,7 @@ export const ComponentPropTypes = {
     validate: PropTypes.func,
     afterChange: PropTypes.func,
     beforeSubmit: PropTypes.func,
+    canDelete: PropTypes.bool,
 };
 
 export type SubmitVars<T> = {

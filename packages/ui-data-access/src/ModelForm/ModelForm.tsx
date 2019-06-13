@@ -2,24 +2,21 @@ import React, { ReactElement } from 'react';
 import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
 import { Segment } from 'semantic-ui-react';
-import * as i from './interfaces';
 import {
     ErrorPage,
     LoadingPage,
     useCoreContext,
 } from '@terascope/ui-components';
-import { ModelName } from '@terascope/data-access';
 import { getModelConfig } from '../config';
 import { ModelNameProp } from '../interfaces';
+import * as i from './interfaces';
 import Form from './Form';
 
 function ModelForm<T extends i.AnyModel>({
     id,
     children,
     modelName,
-    validate,
-    afterChange,
-    beforeSubmit,
+    ...passThroughProps
 }: Props<T>): ReactElement {
     const config = getModelConfig(modelName);
     let query: any;
@@ -49,12 +46,10 @@ function ModelForm<T extends i.AnyModel>({
                 return (
                     <Segment basic>
                         <Form<T>
+                            {...passThroughProps}
                             {...props}
                             modelName={modelName}
                             id={id}
-                            validate={validate}
-                            afterChange={afterChange}
-                            beforeSubmit={beforeSubmit}
                         >
                             {children}
                         </Form>
@@ -65,21 +60,13 @@ function ModelForm<T extends i.AnyModel>({
     );
 }
 
-type Props<T> = {
-    id?: string;
-    modelName: ModelName;
-    validate?: i.ValidateFn<T>;
-    beforeSubmit?: i.BeforeSubmitFn<T>;
-    afterChange?: (model: T) => void;
+type Props<T> = i.ComponentProps<T> & {
     children: i.FormChild<T>;
 };
 
 ModelForm.propTypes = {
     id: PropTypes.string,
     modelName: ModelNameProp.isRequired,
-    validate: PropTypes.func,
-    afterChange: PropTypes.func,
-    beforeSubmit: PropTypes.func,
 };
 
 export default ModelForm;

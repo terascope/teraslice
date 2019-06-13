@@ -18,7 +18,7 @@ import HostnameV1 from './v1/hostname';
 import KeywordCaseInsensitiveV1 from './v1/keyword-case-insensitive';
 import KeywordTokensCaseInsensitiveV1 from './v1/keyword-tokens-case-insensitive';
 import NgramTokensV1 from './v1/ngram-tokens';
-import BoundryV1 from './v1/boundary';
+import BoundaryV1 from './v1/boundary';
 
 export const mapping: DataTypeMapping = {
     1: {
@@ -39,7 +39,7 @@ export const mapping: DataTypeMapping = {
         KeywordCaseInsensitive: KeywordCaseInsensitiveV1,
         KeywordTokensCaseInsensitive: KeywordTokensCaseInsensitiveV1,
         NgramTokens: NgramTokensV1,
-        Boundry: BoundryV1,
+        Boundary: BoundaryV1,
         Object: ObjectV1,
     },
 };

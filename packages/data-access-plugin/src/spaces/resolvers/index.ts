@@ -77,7 +77,7 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
 
         const queryAccess = new QueryAccess(accessData, logger);
 
-        endpoints[view.space_endpoint] = async function resolverFn(root: any, args: any, ctx: any, info: GraphQLResolveInfo) {
+        endpoints[view.space_endpoint!] = async function resolverFn(root: any, args: any, ctx: any, info: GraphQLResolveInfo) {
             const spaceConfig = view.config as SpaceSearchConfig;
             const _sourceInclude = getSelectionKeys(info);
             const { size, sort, from, join } = args;

@@ -53,6 +53,10 @@ const RolesForm: React.FC<Props> = ({ id }) => {
             modelName={config.name}
             id={id}
             validate={validate}
+            canDelete={model =>
+                ['ADMIN', 'SUPERADMIN'].includes(authUser.type) &&
+                authUser.id !== model.id
+            }
             afterChange={afterChange}
             beforeSubmit={beforeSubmit}
         >

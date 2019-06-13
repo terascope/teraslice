@@ -30,6 +30,15 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
             id={id}
             modelName={config.name}
             afterChange={afterChange}
+            validate={(errs, model) => {
+                if (model.type === 'SEARCH') {
+                    if (!model.config.index) {
+                        errs.messages.push(
+                            'Search Configuration is missing index'
+                        );
+                    }
+                }
+            }}
         >
             {({ defaultInputProps, model, roles, dataTypes, updateModel }) => {
                 return (
