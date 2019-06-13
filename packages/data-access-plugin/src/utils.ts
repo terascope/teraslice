@@ -20,8 +20,6 @@ export function makeErrorHandler(reason: string, logger: ts.Logger): ErrorHandle
             let errorMsg: string;
             if (ts.isProd && statusCode >= 500) {
                 errorMsg = 'Access Denied';
-            } else if (ts.isTest) {
-                errorMsg = ts.stripErrorMessage(error, reason, false);
             } else {
                 errorMsg = ts.stripErrorMessage(error, reason, true);
             }
