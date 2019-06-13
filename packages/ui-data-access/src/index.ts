@@ -11,6 +11,6 @@ PluginService.register('data-access', () => {
         name: 'Data Access',
         basepath: '/',
         access: 'ADMIN',
-        routes: [...dataTypeRoutes, ...roleRoutes, ...spaceRoutes, ...userRoutes, ...viewRoutes],
+        routes: [...userRoutes, ...roleRoutes, ...spaceRoutes, ...viewRoutes, ...dataTypeRoutes],
     };
 });
