@@ -29,7 +29,14 @@ const RecordForm: React.FC<Props> = ({
             >
                 <Grid columns={2}>
                     <Grid.Row>
-                        <Grid.Column width="10">{children}</Grid.Column>
+                        <Grid.Column
+                            mobile={16}
+                            tablet={16}
+                            computer={14}
+                            widescreen={10}
+                        >
+                            {children}
+                        </Grid.Column>
                     </Grid.Row>
                     <Grid.Row columns={1}>
                         <Grid.Column stretched>

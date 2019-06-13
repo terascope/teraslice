@@ -22,6 +22,7 @@ module.exports = {
         ],
     },
     resolve: {
+        mainFields: ['browser', 'main', 'module'],
         extensions: ['.tsx', '.ts', '.js'],
     },
     output: {

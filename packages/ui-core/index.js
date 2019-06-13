@@ -2,6 +2,7 @@
 
 const path = require('path');
 const fs = require('fs');
+const pkgUp = require('pkg-up');
 const { promisify } = require('util');
 const { homepage: basePath } = require('./package.json');
 
@@ -125,9 +126,7 @@ function waitForAssetChanges() {
 }
 
 async function checkFilesChanged() {
-    const files = getPluginAssets()
-        .map(({ copyFrom, name }) => ({ fileName: copyFrom, name }))
-        .concat({ name: 'ui-core', fileName: indexHtml });
+    const files = getPluginAssets().map(({ copyFrom, name }) => ({ fileName: copyFrom, name }));
 
     lastChanged.forEach((last) => {
         const found = files.find(({ name }) => last.name === name);
@@ -310,7 +309,11 @@ function getPluginPath(name) {
     }
 
     if (resolvedPath) {
-        resolvedPath = resolvedPath.replace(/\/build\/.*.js$/, '');
+        resolvedPath = path.dirname(
+            pkgUp.sync({
+                cwd: resolvedPath,
+            })
+        );
     }
 
     if (!resolvedPath) {
