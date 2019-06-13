@@ -16,3 +16,5 @@ export class TypesManager {
         return new Type(field, configs);
     }
 }
+
+export const LATEST_VERSION: AvailableVersion = 1;

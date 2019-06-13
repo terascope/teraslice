@@ -1,5 +1,5 @@
 import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
-import { DataTypeConfig } from '@terascope/data-types';
+import { DataTypeConfig, LATEST_VERSION } from '@terascope/data-types';
 
 const config: IndexModelConfig<DataType> = {
     version: 1,
@@ -49,7 +49,7 @@ const config: IndexModelConfig<DataType> = {
                 properties: {
                     version: {
                         type: 'number',
-                        default: 1,
+                        default: LATEST_VERSION,
                     },
                     fields: {
                         type: 'object',

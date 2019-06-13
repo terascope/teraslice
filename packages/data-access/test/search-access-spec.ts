@@ -1,7 +1,7 @@
 import 'jest-extended';
 import * as ts from '@terascope/utils';
 import { SearchParams, SearchResponse } from 'elasticsearch';
-import { DataTypeConfig } from '@terascope/data-types';
+import { DataTypeConfig, LATEST_VERSION } from '@terascope/data-types';
 
 import { SearchAccess, View, DataType, InputQuery, SpaceSearchConfig } from '../src';
 
@@ -219,7 +219,7 @@ describe('SearchAccess', () => {
                     },
                     {
                         fields: { created: { type: 'Date' } },
-                        version: 1,
+                        version: LATEST_VERSION,
                     }
                 );
 
@@ -252,7 +252,7 @@ describe('SearchAccess', () => {
                     },
                     {
                         fields: { created: { type: 'Date' } },
-                        version: 1,
+                        version: LATEST_VERSION,
                     }
                 );
 
@@ -385,7 +385,7 @@ describe('SearchAccess', () => {
 });
 
 function makeWith(searchConfig: Partial<SpaceSearchConfig> = {}, _typeConfig?: DataTypeConfig) {
-    const typeConfig = _typeConfig || { fields: {}, version: 1 };
+    const typeConfig = _typeConfig || { fields: {}, version: LATEST_VERSION };
     const view: View = {
         client_id: 1,
         id: 'example-view',

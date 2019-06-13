@@ -2,7 +2,7 @@ import * as es from 'elasticsearch';
 import { escapeString, unescapeString } from '@terascope/utils';
 import { IndexModel, IndexModelOptions } from 'elasticsearch-store';
 import dataTypesConfig, { DataType } from './config/data-types';
-import { DataTypeConfig } from '@terascope/data-types';
+import { DataTypeConfig, LATEST_VERSION } from '@terascope/data-types';
 
 /**
  * Manager for DataTypes
@@ -17,7 +17,7 @@ export class DataTypes extends IndexModel<DataType> {
     private _escapeFields(typeConfig?: DataTypeConfig): DataTypeConfig {
         if (!typeConfig) {
             return {
-                version: 1,
+                version: LATEST_VERSION,
                 fields: {},
             };
         }
@@ -37,7 +37,7 @@ export class DataTypes extends IndexModel<DataType> {
     private _unescapeFields(typeConfig?: DataTypeConfig): DataTypeConfig {
         if (!typeConfig) {
             return {
-                version: 1,
+                version: LATEST_VERSION,
                 fields: {},
             };
         }

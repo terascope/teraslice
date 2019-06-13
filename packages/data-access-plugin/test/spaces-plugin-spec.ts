@@ -9,6 +9,7 @@ import { PluginConfig } from '../src/interfaces';
 import ManagerPlugin from '../src/manager';
 import SearchPlugin from '../src/search';
 import SpacesPlugin from '../src/spaces';
+import { LATEST_VERSION } from '@terascope/data-types';
 
 describe('Spaces API', () => {
     const client = makeClient();
@@ -79,7 +80,7 @@ describe('Spaces API', () => {
             fields: {
                 ${results.join('\n')}
             },
-            version: 1
+            version: ${LATEST_VERSION}
         `;
     }
 

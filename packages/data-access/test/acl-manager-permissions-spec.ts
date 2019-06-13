@@ -2,6 +2,7 @@ import 'jest-extended';
 import { TSError } from '@terascope/utils';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
 import { ACLManager, User, DataType } from '../src';
+import { LATEST_VERSION } from '@terascope/data-types';
 
 describe('ACLManager Permissions', () => {
     const client = makeClient();
@@ -131,7 +132,7 @@ describe('ACLManager Permissions', () => {
                         fields: {
                             hello: { type: 'Keyword' },
                         },
-                        version: 1,
+                        version: LATEST_VERSION,
                     },
                 },
             },
@@ -162,7 +163,7 @@ describe('ACLManager Permissions', () => {
                             fields: {
                                 hello: { type: 'Keyword' },
                             },
-                            version: 1,
+                            version: LATEST_VERSION,
                         },
                     },
                 },
@@ -759,7 +760,7 @@ describe('ACLManager Permissions', () => {
                                 fields: {
                                     hello: { type: 'Keyword' },
                                 },
-                                version: 1,
+                                version: LATEST_VERSION,
                             },
                         },
                     },

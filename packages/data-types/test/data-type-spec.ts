@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { DataType, DataTypeConfig } from '../src';
+import { DataType, DataTypeConfig, LATEST_VERSION } from '../src';
 import { TSError } from '@terascope/utils';
 
 describe('DataType', () => {
@@ -16,7 +16,7 @@ describe('DataType', () => {
 
     it('it can instantiate correctly', () => {
         const typeConfig: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: { hello: { type: 'Keyword' } },
         };
 
@@ -25,7 +25,7 @@ describe('DataType', () => {
 
     it('it can return an xlucene ready typeconfig', () => {
         const typeConfig: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
@@ -49,7 +49,7 @@ describe('DataType', () => {
 
     it('it can return graphql results', () => {
         const typeConfig: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
@@ -91,7 +91,7 @@ describe('DataType', () => {
 
     it('it can add type name at toGraphQL call', () => {
         const typeConfig: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
@@ -109,7 +109,7 @@ describe('DataType', () => {
 
     it('it can add default types for toGraphQL', () => {
         const typeConfig: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
@@ -126,7 +126,7 @@ describe('DataType', () => {
 
     it('it throws when no name is provided with a toGraphQL call', () => {
         const typeConfig: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
@@ -146,7 +146,7 @@ describe('DataType', () => {
 
     it('elasticsearch mapping requires providing a type name', () => {
         const typeConfig: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
@@ -166,7 +166,7 @@ describe('DataType', () => {
 
     it('can create an elasticsearch mapping', () => {
         const typeConfig: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
@@ -202,7 +202,7 @@ describe('DataType', () => {
 
     it('can add additional settings to a elasticsearch mapping', () => {
         const typeConfig: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
@@ -258,7 +258,7 @@ describe('DataType', () => {
 
     it('can build a single graphql type from multiple types', () => {
         const typeConfig1: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
@@ -269,7 +269,7 @@ describe('DataType', () => {
         };
 
         const typeConfig2: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },

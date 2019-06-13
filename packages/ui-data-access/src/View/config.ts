@@ -4,6 +4,7 @@ import { formatDate } from '@terascope/ui-components';
 import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
 import { copyField } from '../utils';
+import { LATEST_VERSION } from '@terascope/data-types';
 
 const fieldsFragment = gql`
     fragment ViewFields on View {
@@ -59,7 +60,7 @@ const config: ModelConfig<Input> = {
                     client_id: 0,
                     name: '',
                     config: {
-                        version: 1,
+                        version: LATEST_VERSION,
                         fields: {},
                     },
                 });

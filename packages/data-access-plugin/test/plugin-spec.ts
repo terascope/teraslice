@@ -8,6 +8,7 @@ import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
 import { PluginConfig } from '../src/interfaces';
 import ManagerPlugin from '../src/manager';
 import SearchPlugin from '../src/search';
+import { LATEST_VERSION } from '@terascope/data-types';
 
 describe('Data Access Management', () => {
     const client = makeClient();
@@ -161,7 +162,7 @@ describe('Data Access Management', () => {
                                 created: { type: "Date" },
                                 updated: { type: "Date" }
                             },
-                            version: 1
+                            version: ${LATEST_VERSION}
                         }
                     }) {
                         id,
@@ -186,7 +187,7 @@ describe('Data Access Management', () => {
                         created: { type: 'Date' },
                         updated: { type: 'Date' },
                     },
-                    version: 1,
+                    version: LATEST_VERSION,
                 },
             });
         });

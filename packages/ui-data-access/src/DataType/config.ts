@@ -3,6 +3,7 @@ import { formatDate } from '@terascope/ui-components';
 import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
 import { copyField } from '../utils';
+import { LATEST_VERSION } from '@terascope/data-types';
 
 const fieldsFragment = gql`
     fragment DataTypeFields on DataType {
@@ -31,7 +32,7 @@ const config: ModelConfig<Input> = {
         for (const field of inputFields) {
             if (field === 'config') {
                 copyField(input, result, field, {
-                    version: 1,
+                    version: LATEST_VERSION,
                     fields: {},
                 });
             } else {

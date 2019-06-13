@@ -4,6 +4,7 @@ import * as x from 'xlucene-evaluator';
 import { SpaceSearchConfig } from './models';
 import * as i from './interfaces';
 import * as t from '@terascope/data-types';
+import { LATEST_VERSION } from '@terascope/data-types';
 
 const _logger = ts.debugLogger('search-access');
 
@@ -24,7 +25,7 @@ export class SearchAccess {
             throw new ts.TSError('Search is not configured correctly for search');
         }
 
-        const typeConfig = this.config.data_type.config || { fields: {}, version: 1 };
+        const typeConfig = this.config.data_type.config || { fields: {}, version: t.LATEST_VERSION };
         const types = new t.DataType(typeConfig);
         this._logger = logger;
         this._queryAccess = new x.QueryAccess(
@@ -79,7 +80,7 @@ export class SearchAccess {
 
     getSearchParams(query: i.InputQuery): es.SearchParams {
         const typeConfig = this.config.data_type.config || {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {},
         };
         const params: es.SearchParams = {

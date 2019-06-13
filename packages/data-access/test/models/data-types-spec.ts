@@ -1,6 +1,7 @@
 import 'jest-extended';
 import { DataTypes } from '../../src/models/data-types';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
+import { LATEST_VERSION } from '@terascope/data-types';
 
 describe('DataTypes', () => {
     const client = makeClient();
@@ -24,7 +25,7 @@ describe('DataTypes', () => {
                 client_id: 1,
                 name: 'hello',
                 config: {
-                    version: 1,
+                    version: LATEST_VERSION,
                     fields: {
                         location: { type: 'Geo' },
                         some_date: { type: 'Date' },
@@ -36,7 +37,7 @@ describe('DataTypes', () => {
             await dataTypes.update({
                 id: created.id,
                 config: {
-                    version: 1,
+                    version: LATEST_VERSION,
                     fields: {
                         location: { type: 'Geo' },
                         // make sure a dot notated field can be set

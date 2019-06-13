@@ -2,6 +2,7 @@ import 'jest-extended';
 import { TSError } from '@terascope/utils';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
 import { ACLManager, User, Role } from '../src';
+import { LATEST_VERSION } from '@terascope/data-types';
 
 describe('ACLManager', () => {
     const client = makeClient();
@@ -272,7 +273,7 @@ describe('ACLManager', () => {
                                 fields: {
                                     hello: { type: 'Keyword' },
                                 },
-                                version: 1,
+                                version: LATEST_VERSION,
                             },
                         },
                     },
@@ -287,7 +288,7 @@ describe('ACLManager', () => {
                                 fields: {
                                     ip: { type: 'IP' },
                                 },
-                                version: 1,
+                                version: LATEST_VERSION,
                             },
                         },
                     },
@@ -383,7 +384,7 @@ describe('ACLManager', () => {
                                 fields: {
                                     world: { type: 'Keyword' },
                                 },
-                                version: 1,
+                                version: LATEST_VERSION,
                             },
                         },
                     },
@@ -466,7 +467,7 @@ describe('ACLManager', () => {
                                     fields: {
                                         one: { type: 'Integer' },
                                     },
-                                    version: 1,
+                                    version: LATEST_VERSION,
                                 },
                             },
                         },
@@ -481,7 +482,7 @@ describe('ACLManager', () => {
                                     fields: {
                                         two: { type: 'Integer' },
                                     },
-                                    version: 1,
+                                    version: LATEST_VERSION,
                                 },
                             },
                         },
@@ -584,7 +585,7 @@ describe('ACLManager', () => {
                                 created: { type: 'Date' },
                                 location: { type: 'Geo' },
                             },
-                            version: 1,
+                            version: LATEST_VERSION,
                         },
                     },
                 },
@@ -727,7 +728,7 @@ describe('ACLManager', () => {
                                 location: { type: 'Geo' },
                                 other_location: { type: 'Geo' },
                             },
-                            version: 1,
+                            version: LATEST_VERSION,
                         },
                     },
                     view: {
@@ -814,7 +815,7 @@ describe('ACLManager', () => {
                                 created: { type: 'Date' },
                                 location: { type: 'Geo' },
                             },
-                            version: 1,
+                            version: LATEST_VERSION,
                         },
                     },
                     view: {

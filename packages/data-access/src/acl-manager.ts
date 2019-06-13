@@ -1,6 +1,6 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { DataTypeConfig } from '@terascope/data-types';
+import { DataTypeConfig, LATEST_VERSION } from '@terascope/data-types';
 import { CreateRecordInput, UpdateRecordInput } from 'elasticsearch-store';
 import { CachedQueryAccess } from 'xlucene-evaluator';
 import * as models from './models';
@@ -681,7 +681,7 @@ export class ACLManager {
             searchConfig.default_geo_field = ts.trimAndToLower(searchConfig.default_geo_field);
         }
 
-        const typeConfig: DataTypeConfig = config.data_type.config || { fields: {}, version: 1 };
+        const typeConfig: DataTypeConfig = config.data_type.config || { fields: {}, version: LATEST_VERSION };
 
         const dateField = searchConfig.default_date_field;
         if (dateField && !typeConfig.fields[dateField]) {
