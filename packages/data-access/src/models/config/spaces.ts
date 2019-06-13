@@ -194,7 +194,7 @@ export interface Space extends IndexModelRecord {
     /**
      * A URL friendly name for endpoint that is associated with the space, this must be unique
      */
-    endpoint: string;
+    endpoint?: string;
 
     /**
      * Description of the Role

@@ -1,4 +1,3 @@
-// import { TypeConfig } from 'xlucene-evaluator';
 import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
 import { DataTypeConfig } from '@terascope/data-types';
 

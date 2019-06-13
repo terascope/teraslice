@@ -9,7 +9,7 @@ export default `
         ${baseModel}
         name: String!
         type: SpaceConfigType!
-        endpoint: String!
+        endpoint: String
         description: String
         data_type: DataType!
         views: [View]!
@@ -20,7 +20,7 @@ export default `
         client_id: Int!
         name: String!
         type: SpaceConfigType!
-        endpoint: String!
+        endpoint: String
         description: String
         data_type: ID
         views: [ID!]

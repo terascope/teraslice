@@ -81,7 +81,7 @@ export interface DataAccessConfig {
     /**
      * The endpoint of the space
      */
-    space_endpoint: string;
+    space_endpoint?: string;
 
     /**
      * The space's configuration

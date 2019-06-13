@@ -35,7 +35,7 @@ describe('Spaces', () => {
             });
 
             expect(created).toHaveProperty('name', 'hello');
-            expect(created).toHaveProperty('type', 'search');
+            expect(created).toHaveProperty('type', 'SEARCH');
             expect(created).toHaveProperty('endpoint', 'howdy-123');
             expect(created).toHaveProperty('views', ['hello']);
             expect(created).toHaveProperty('roles', ['howdy']);
