@@ -140,7 +140,10 @@ const config: ModelConfig<Input> = {
                 id
                 client_id
                 name
-                config
+                config {
+                    version
+                    fields
+                }
             }
         }
     `,
