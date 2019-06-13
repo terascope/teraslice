@@ -53,12 +53,12 @@ describe('DataTypes', () => {
             expect(_created).toEqual(_fetched);
 
             // ensure the type config was created/updated corectly
-            expect(created.type_config.fields).toHaveProperty('location', 'geo');
-            expect(fetched.type_config.fields).toHaveProperty('location', 'geo');
-            expect(created.type_config.fields).toHaveProperty('some_date', 'date');
-            expect(fetched.type_config.fields).not.toHaveProperty('some_date', 'date');
-            expect(created.type_config.fields).toContainEntry(['foo.bar', 'ip']);
-            expect(fetched.type_config.fields).toContainEntry(['foo.bar', 'ip']);
+            expect(created.type_config.fields).toHaveProperty('location', { type: 'Geo' });
+            expect(fetched.type_config.fields).toHaveProperty('location', { type: 'Geo' });
+            expect(created.type_config.fields).toHaveProperty('some_date', { type: 'Date' });
+            expect(fetched.type_config.fields).not.toHaveProperty('some_date', { type: 'Date' });
+            expect(created.type_config.fields).toContainEntry(['foo.bar', { type: 'IP' }]);
+            expect(fetched.type_config.fields).toContainEntry(['foo.bar', { type: 'IP' }]);
         });
     });
 });

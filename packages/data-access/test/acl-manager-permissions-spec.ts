@@ -2,7 +2,6 @@ import 'jest-extended';
 import { TSError } from '@terascope/utils';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
 import { ACLManager, User, DataType } from '../src';
-import { AvailableTypes } from '@terascope/data-types';
 
 describe('ACLManager Permissions', () => {
     const client = makeClient();
@@ -123,19 +122,21 @@ describe('ACLManager Permissions', () => {
 
         [superAdminUser, adminUser, otherAdminUser, normalUser, otherUser, foreignUser, foreignAdminUser] = users;
 
-        dataType = await manager.createDataType({
-            dataType: {
-                client_id: 1,
-                name: 'SomeTestDataType',
-                type_config: {
-                    fields: {
-                        hello: { type: 'Keyword' },
+        dataType = await manager.createDataType(
+            {
+                dataType: {
+                    client_id: 1,
+                    name: 'SomeTestDataType',
+                    type_config: {
+                        fields: {
+                            hello: { type: 'Keyword' },
+                        },
+                        version: 1,
                     },
-                    version: 1
-                }
-            }
-        }, superAdminUser);
-
+                },
+            },
+            superAdminUser
+        );
     });
 
     afterAll(async () => {
@@ -159,15 +160,14 @@ describe('ACLManager Permissions', () => {
                         name: 'SomeRandomExampleDataType',
                         type_config: {
                             fields: {
-                                hello: { type: 'Keyword' as AvailableTypes },
+                                hello: { type: 'Keyword' },
                             },
-                            version: 1
-                        }
+                            version: 1,
+                        },
                     },
                 },
                 superAdminUser
             );
-
         });
 
         it('should be able to create space', async () => {
@@ -759,13 +759,12 @@ describe('ACLManager Permissions', () => {
                                 fields: {
                                     hello: { type: 'Keyword' },
                                 },
-                                version: 1
-                            }
+                                version: 1,
+                            },
                         },
                     },
                     normalUser
                 );
-
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.message).toInclude("User doesn't have permission to create DataType");
