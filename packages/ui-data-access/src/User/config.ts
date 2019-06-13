@@ -37,12 +37,6 @@ const config: ModelConfig<Input> = {
         getId(record) {
             return record.username;
         },
-        canRemove(record, authUser) {
-            if (record.type === 'SUPERADMIN') return false;
-            if (record.id === (authUser && authUser.id)) return false;
-            if (authUser && authUser.type !== 'USER') return false;
-            return true;
-        },
         columns: {
             username: { label: 'Username' },
             firstname: { label: 'First Name' },

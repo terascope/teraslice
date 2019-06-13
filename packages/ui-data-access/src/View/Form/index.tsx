@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { concat } from '@terascope/utils';
 import { Form, Segment } from 'semantic-ui-react';
+import { Section } from '@terascope/ui-components';
 import { validateFieldName, parseTypeConfig } from '../../utils';
 import { Input } from '../interfaces';
 import config from '../config';
@@ -12,7 +14,6 @@ import ModelForm, {
     Description,
     FormCheckbox,
 } from '../../ModelForm';
-import { Section } from '@terascope/ui-components';
 import RestrictedInfo from './RestrictedInfo';
 
 const ViewForm: React.FC<Props> = ({ id }) => {
@@ -124,7 +125,10 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                                     {...defaultInputProps}
                                     label="Select Fields"
                                     multiple
-                                    options={availableFields}
+                                    options={concat(
+                                        availableFields,
+                                        model.includes
+                                    )}
                                     name="includes"
                                     value={model.includes}
                                 />
@@ -140,7 +144,10 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                                     {...defaultInputProps}
                                     label="Select Fields"
                                     multiple
-                                    options={availableFields}
+                                    options={concat(
+                                        availableFields,
+                                        model.excludes
+                                    )}
                                     name="excludes"
                                     value={model.excludes}
                                 />

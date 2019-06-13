@@ -2,8 +2,8 @@ import { baseModel } from './misc';
 
 export default `
     enum SpaceConfigType {
-        search
-        streaming
+        SEARCH
+        STREAMING
     }
     type Space {
         ${baseModel}

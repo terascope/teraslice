@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
-import { get } from '@terascope/utils';
 import { formatDate } from '@terascope/ui-components';
+import { get, trimAndToUpper } from '@terascope/utils';
+import { SpaceConfigType } from '@terascope/data-access';
 import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
 import { formatStrong } from '../ModelList/Strong';
@@ -51,7 +52,7 @@ const config: ModelConfig<Input> = {
                 copyField(input, result, field, {
                     index: '',
                     connection: 'default',
-                    max_query_size: 10000,
+                    max_query_size: 100000,
                     sort_dates_only: false,
                     preserve_index_name: false,
                     require_query: false,
@@ -67,7 +68,8 @@ const config: ModelConfig<Input> = {
                     views,
                 });
             } else if (field === 'type') {
-                copyField(input, result, field, 'search');
+                copyField(input, result, field, 'SEARCH');
+                input.type = trimAndToUpper(input.type) as SpaceConfigType;
             } else {
                 copyField(input, result, field, '');
             }

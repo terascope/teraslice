@@ -552,7 +552,7 @@ describe('Spaces API', () => {
                 createSpace(
                     space: {
                         client_id: 1,
-                        type: search,
+                        type: SEARCH,
                         name: "Test Space 1",
                         endpoint: "${space1}",
                         data_type: "${dataType1}",
@@ -574,7 +574,7 @@ describe('Spaces API', () => {
                 createSpace(
                     space: {
                         client_id: 1,
-                        type: search,
+                        type: SEARCH,
                         name: "Test Space 2",
                         endpoint: "${space2}",
                         data_type: "${dataType2}",
@@ -596,7 +596,7 @@ describe('Spaces API', () => {
                 createSpace(
                     space: {
                         client_id: 1,
-                        type: search,
+                        type: SEARCH,
                         name: "Test Space 3",
                         endpoint: "${space3}",
                         data_type: "${dataType3}",

@@ -1,7 +1,7 @@
 import React, { useState, FormEvent } from 'react';
 import PropTypes from 'prop-types';
 import { Menu, Input, Icon, Table, Button, Label } from 'semantic-ui-react';
-import ConfirmRemoval from './ConfirmRemoval';
+import ConfirmExport from './ConfirmExport';
 import { UpdateQueryState } from './interfaces';
 
 const Toolbar: React.FC<Props> = props => {
@@ -19,9 +19,9 @@ const Toolbar: React.FC<Props> = props => {
                 <Table.HeaderCell colSpan={numCols} style={{ padding: 0 }}>
                     <Menu secondary size="small">
                         <Menu.Item icon disabled={!numSelected}>
-                            <ConfirmRemoval
+                            <ConfirmExport
                                 numSelected={numSelected}
-                                onConfirm={() => onAction('REMOVE')}
+                                onConfirm={() => onAction('EXPORT')}
                             >
                                 <Button
                                     as="div"
@@ -31,18 +31,18 @@ const Toolbar: React.FC<Props> = props => {
                                     <Button
                                         icon
                                         color={
-                                            numSelected > 0 ? 'red' : undefined
+                                            numSelected > 0 ? 'blue' : undefined
                                         }
                                     >
-                                        <Icon name="trash alternate" />
+                                        <Icon name="download" />
                                     </Button>
                                     {numSelected > 0 && (
                                         <Label basic pointing="left">
-                                            {`Delete (${numSelected} selected)`}
+                                            {`Export (${numSelected} selected)`}
                                         </Label>
                                     )}
                                 </Button>
-                            </ConfirmRemoval>
+                            </ConfirmExport>
                         </Menu.Item>
                         <Menu.Item position="right">
                             <form onSubmit={submitQuery}>
@@ -74,7 +74,7 @@ type Props = {
     query?: string;
     numCols: number;
     updateQueryState: UpdateQueryState;
-    onAction: (action: 'REMOVE') => void;
+    onAction: (action: 'EXPORT') => void;
 };
 
 Toolbar.propTypes = {

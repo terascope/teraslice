@@ -17,6 +17,21 @@ import {
     fixClientId,
 } from './utils';
 
+/*
+return client.mutate({
+    mutation: config.removeMutation,
+    variables: {
+        id: record.id,
+    },
+    refetchQueries: [
+        {
+            query: config.listQuery,
+            variables: queryState,
+        },
+    ],
+});
+*/
+
 function Form<T extends AnyModel>({
     id,
     input: _model,

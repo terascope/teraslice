@@ -216,7 +216,7 @@ mutation {
 ```js
 mutation {
   createSpace(space: {
-    type: stream,
+    type: SEARCH,
     client_id: 1,
     name: "My Example Space",
     endpoint: "example-space",

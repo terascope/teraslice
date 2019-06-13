@@ -670,7 +670,7 @@ export class ACLManager {
     }
 
     private _parseDataAccessConfig(config: i.DataAccessConfig): i.DataAccessConfig {
-        if (config.type !== 'search') return config;
+        if (config.type.toUpperCase() !== 'SEARCH') return config;
         const searchConfig = config.config as models.SpaceSearchConfig;
 
         if (searchConfig.default_date_field) {

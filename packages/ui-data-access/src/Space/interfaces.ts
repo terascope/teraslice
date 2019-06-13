@@ -32,4 +32,4 @@ export const inputFields: (keyof Input)[] = [
     'data_type',
 ];
 
-export const spaceConfigTypes: SpaceConfigType[] = ['search'];
+export const spaceConfigTypes: SpaceConfigType[] = ['SEARCH'];

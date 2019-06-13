@@ -43,6 +43,16 @@ export class Spaces extends IndexModel<Space> {
         });
         await Promise.all(promises);
     }
+
+    protected _preProcess(record: Space): Space {
+        if (record.type) record.type = record.type.toUpperCase() as SpaceConfigType;
+        return record;
+    }
+
+    protected _postProcess(record: Space): Space {
+        if (record.type) record.type = record.type.toUpperCase() as SpaceConfigType;
+        return record;
+    }
 }
 
 export { Space, SpaceSearchConfig, SpaceStreamingConfig, SpaceConfigType };

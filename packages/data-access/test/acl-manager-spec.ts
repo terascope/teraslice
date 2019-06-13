@@ -207,7 +207,7 @@ describe('ACLManager', () => {
                 await manager.createSpace(
                     {
                         space: {
-                            type: 'search',
+                            type: 'SEARCH',
                             client_id: 1,
                             name: 'uh-oh',
                             endpoint: 'uh-oh',
@@ -237,7 +237,7 @@ describe('ACLManager', () => {
                 await manager.createSpace(
                     {
                         space: {
-                            type: 'search',
+                            type: 'SEARCH',
                             client_id: 1,
                             name: 'uh-oh',
                             endpoint: 'data-access',
@@ -318,7 +318,7 @@ describe('ACLManager', () => {
                 await manager.createSpace(
                     {
                         space: {
-                            type: 'search',
+                            type: 'SEARCH',
                             client_id: 1,
                             name: 'uh-oh',
                             endpoint: 'uh-oh',
@@ -430,7 +430,7 @@ describe('ACLManager', () => {
                 await manager.createSpace(
                     {
                         space: {
-                            type: 'search',
+                            type: 'SEARCH',
                             client_id: 1,
                             name: 'uh-oh',
                             endpoint: 'uh-oh',
@@ -661,7 +661,7 @@ describe('ACLManager', () => {
                 const space = await manager.createSpace(
                     {
                         space: {
-                            type: 'search',
+                            type: 'SEARCH',
                             client_id: 1,
                             name: 'Example Space',
                             data_type: dataTypeId,
@@ -772,7 +772,7 @@ describe('ACLManager', () => {
                 const space = await manager.createSpace(
                     {
                         space: {
-                            type: 'search',
+                            type: 'SEARCH',
                             client_id: 1,
                             name: 'Another Space',
                             data_type: dataTypeId,

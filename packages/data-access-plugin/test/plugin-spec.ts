@@ -230,7 +230,7 @@ describe('Data Access Management', () => {
                 mutation {
                     createSpace(space: {
                         client_id: 1,
-                        type: search,
+                        type: SEARCH,
                         name: "Greetings Space",
                         endpoint: "greetings",
                         data_type: "${dataTypeId}",
@@ -764,7 +764,7 @@ describe('Data Access Management', () => {
                     mutation {
                         updateSpace(space: {
                             id: "${spaceId}",
-                            type: search,
+                            type: SEARCH,
                             config: {
                                 index: "hello-space",
                                 connection: "default",

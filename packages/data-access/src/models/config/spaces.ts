@@ -55,8 +55,8 @@ const config: IndexModelConfig<Space> = {
             },
             type: {
                 type: 'string',
-                default: 'search',
-                enum: ['search', 'streaming'],
+                default: 'SEARCH',
+                enum: ['SEARCH', 'STREAMING'],
             },
             endpoint: {
                 type: 'string',
@@ -105,7 +105,7 @@ const config: IndexModelConfig<Space> = {
                                 },
                                 max_query_size: {
                                     type: 'number',
-                                    default: 10000,
+                                    default: 100000,
                                 },
                                 sort_default: {
                                     type: 'string',
@@ -170,7 +170,7 @@ const config: IndexModelConfig<Space> = {
     strictMode: false,
 };
 
-export type SpaceConfigType = 'search' | 'streaming';
+export type SpaceConfigType = 'SEARCH' | 'STREAMING';
 
 /**
  * The definition of a Space model

@@ -174,7 +174,7 @@ describe('ACLManager Permissions', () => {
             await manager.createSpace(
                 {
                     space: {
-                        type: 'search',
+                        type: 'SEARCH',
                         client_id: 1,
                         name: 'SomeRandomExampleSpace',
                         endpoint: 'some-random-example-space',
@@ -425,7 +425,7 @@ describe('ACLManager Permissions', () => {
                 await manager.createSpace(
                     {
                         space: {
-                            type: 'search',
+                            type: 'SEARCH',
                             client_id: 1,
                             name: 'SomeExampleSpace',
                             endpoint: 'some-example-space',
@@ -815,7 +815,7 @@ describe('ACLManager Permissions', () => {
                 await manager.createSpace(
                     {
                         space: {
-                            type: 'search',
+                            type: 'SEARCH',
                             client_id: 1,
                             name: 'SomeExampleSpace',
                             endpoint: 'some-example-space',
@@ -857,7 +857,7 @@ describe('ACLManager Permissions', () => {
                 await manager.updateSpace(
                     {
                         space: {
-                            type: 'search',
+                            type: 'SEARCH',
                             id: 'random-id',
                         },
                     },

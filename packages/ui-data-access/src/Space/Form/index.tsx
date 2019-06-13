@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { toSafeString } from '@terascope/utils';
 import { Form } from 'semantic-ui-react';
+import { toSafeString } from '@terascope/utils';
+import { useCoreContext } from '@terascope/ui-components';
 import { Input, spaceConfigTypes } from '../interfaces';
 import SearchConfig from './SearchConfig';
 import config from '../config';
@@ -13,6 +14,8 @@ import ModelForm, {
 } from '../../ModelForm';
 
 const SpaceForm: React.FC<Props> = ({ id }) => {
+    const authUser = useCoreContext().authUser!;
+
     const afterChange = (model: Input) => {
         if (model.endpoint) {
             model.endpoint = toSafeString(model.endpoint);
@@ -96,12 +99,14 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
                                 options={dataTypes}
                             />
                         </Form.Group>
-                        <SearchConfig
-                            config={model.config}
-                            updateConfig={searchConfig => {
-                                updateModel({ config: searchConfig });
-                            }}
-                        />
+                        {authUser.type === 'SUPERADMIN' && (
+                            <SearchConfig
+                                config={model.config}
+                                updateConfig={searchConfig => {
+                                    updateModel({ config: searchConfig });
+                                }}
+                            />
+                        )}
                     </React.Fragment>
                 );
             }}

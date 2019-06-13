@@ -23,7 +23,7 @@ describe('Spaces', () => {
         it('should be able to create a space', async () => {
             const created = await spaces.create({
                 client_id: 1,
-                type: 'search',
+                type: 'SEARCH',
                 name: 'hello',
                 endpoint: '-HOWDY# 123',
                 views: ['hello'],
@@ -42,7 +42,7 @@ describe('Spaces', () => {
             expect(created).toHaveProperty('config', {
                 index: 'hello',
                 connection: 'default',
-                max_query_size: 10000,
+                max_query_size: 100000,
                 preserve_index_name: false,
                 require_query: false,
                 enable_history: false,

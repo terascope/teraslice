@@ -34,7 +34,7 @@ export type ColumnMappings<T = AnyObject> = { [field in keyof Partial<T>]: Colum
 
 export type RowMapping<T = AnyObject> = {
     getId: (record: T) => string;
-    canRemove?: (record: T, authUser?: ResolvedUser) => boolean;
+    canExport?: (record: T, authUser?: ResolvedUser) => boolean;
     columns: ColumnMappings<T>;
 };
 
@@ -48,7 +48,7 @@ export const ColumnMappingsProp = PropTypes.objectOf(ColumnMappingProp.isRequire
 
 export const RowMappingProp = PropTypes.shape({
     getId: PropTypes.func.isRequired,
-    canRemove: PropTypes.func,
+    canExport: PropTypes.func,
     columns: ColumnMappingsProp.isRequired,
 });
 
