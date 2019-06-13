@@ -1,4 +1,3 @@
-
 import Text from '../../../src/types/versions/v1/text';
 import { TSError } from '@terascope/utils';
 import { Type } from '../../../src/interfaces';
@@ -9,7 +8,7 @@ describe('Text V1', () => {
 
     it('can requires a field and proper configs', () => {
         try {
-           // @ts-ignore
+            // @ts-ignore
             new Text();
             throw new Error('it should have errored with no configs');
         } catch (err) {
@@ -34,6 +33,13 @@ describe('Text V1', () => {
     it('can get proper graphQl types', () => {
         const graphQlTypes = new Text(field, typeConfig).toGraphQL();
         const results = { type: `${field}: String` };
+
+        expect(graphQlTypes).toEqual(results);
+    });
+
+    it('can get proper graphQl types when given an array', () => {
+        const graphQlTypes = new Text(field, { ...typeConfig, array: true }).toGraphQL();
+        const results = { type: `${field}: [String]` };
 
         expect(graphQlTypes).toEqual(results);
     });

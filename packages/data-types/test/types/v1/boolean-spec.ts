@@ -1,4 +1,3 @@
-
 import BooleanType from '../../../src/types/versions/v1/boolean';
 import { Type } from '../../../src/interfaces';
 import { TSError } from '@terascope/utils';
@@ -9,7 +8,7 @@ describe('Boolean V1', () => {
 
     it('can requires a field and proper configs', () => {
         try {
-           // @ts-ignore
+            // @ts-ignore
             new BooleanType();
             throw new Error('it should have errored with no configs');
         } catch (err) {
@@ -34,6 +33,13 @@ describe('Boolean V1', () => {
     it('can get proper graphQl types', () => {
         const graphQlTypes = new BooleanType(field, typeConfig).toGraphQL();
         const results = { type: `${field}: Boolean` };
+
+        expect(graphQlTypes).toEqual(results);
+    });
+
+    it('can get proper graphQl types when given an array', () => {
+        const graphQlTypes = new BooleanType(field, { ...typeConfig, array: true }).toGraphQL();
+        const results = { type: `${field}: [Boolean]` };
 
         expect(graphQlTypes).toEqual(results);
     });

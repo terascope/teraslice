@@ -87,7 +87,7 @@ const config: IndexModelConfig<Space> = {
         allOf: [
             {
                 if: {
-                    properties: { type: { const: 'search' } },
+                    properties: { type: { const: 'SEARCH' } },
                 },
                 then: {
                     properties: {

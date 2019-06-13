@@ -18,6 +18,9 @@ const config: IndexModelConfig<DataType> = {
                     },
                 },
             },
+            inherit_from: {
+                type: 'keyword',
+            },
             config: {
                 properties: {
                     version: {
@@ -42,6 +45,14 @@ const config: IndexModelConfig<DataType> = {
             },
             description: {
                 type: 'string',
+            },
+            inherit_from: {
+                type: 'array',
+                items: {
+                    type: 'string',
+                },
+                uniqueItems: true,
+                default: [],
             },
             config: {
                 type: 'object',
@@ -83,6 +94,13 @@ export interface DataType extends IndexModelRecord {
      * Description of the DataType
      */
     description?: string;
+
+    /**
+     * DataType to inherit from
+     *
+     * @todo make this work and avoid circlular dependencies
+     */
+    inherit_from?: string[];
 
     /**
      * Data Type Config

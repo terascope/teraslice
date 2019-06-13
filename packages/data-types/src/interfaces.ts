@@ -91,10 +91,11 @@ export const AvailableVersions: AvailableVersion[] = [1];
 
 export type Type = {
     type: AvailableType;
+    array?: boolean;
 };
 
 type ActualType = {
-    [key in AvailableType]: { new (field: string, config: TypeConfig): BaseType };
+    [key in AvailableType]: { new (field: string, config: Type): BaseType };
 };
 
 export type DataTypeMapping = {

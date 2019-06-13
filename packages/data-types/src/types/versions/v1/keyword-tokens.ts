@@ -3,7 +3,6 @@ import BaseType from '../base-type';
 import { ElasticSearchTypes } from '../../../interfaces';
 
 export default class KeywordTokens extends BaseType {
-
     toESMapping(version?: number) {
         return {
             mapping: {
@@ -13,16 +12,16 @@ export default class KeywordTokens extends BaseType {
                         tokens: {
                             type: 'text',
                             index: 'true',
-                            analyzer: 'simple'
-                        }
-                    }
-                }
-            }
+                            analyzer: 'simple',
+                        },
+                    },
+                },
+            },
         };
     }
 
     toGraphQL() {
-        return { type: `${this.field}: String` };
+        return { type: this._formatGql('String') };
     }
 
     toXlucene() {

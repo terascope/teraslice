@@ -41,12 +41,12 @@ describe('Boundary V1', () => {
 
     it('can get proper graphQl types', () => {
         const { type: graphQlTypes, custom_type: customType } = new Boundary(field, typeConfig).toGraphQL();
-        const results = `${field}: Geo`;
+        const results = `${field}: GeoBoundaryType`;
 
         expect(graphQlTypes).toEqual(results);
-        expect(customType.match('type GeoNumb {')).not.toBeNull();
-        expect(customType.match('lat: Int!')).not.toBeNull();
-        expect(customType.match('lon: Int!')).not.toBeNull();
+        expect(customType).toInclude('type GeoBoundaryType {');
+        expect(customType).toInclude('lat: Int!');
+        expect(customType).toInclude('lon: Int!');
     });
 
     it('can get proper xlucene properties', () => {

@@ -66,26 +66,28 @@ describe('DataType', () => {
         [
             'type myType {',
             'hello: String',
-            'location: Geo',
+            'location: GeoPointType',
             'date: DateTime',
             'ip: String',
             'someNum: Int',
-            'type Geo {',
+            'type GeoPointType {',
             'lat: String!',
             'lon: String!',
         ].forEach((str: string) => {
-            expect(results.match(str)).not.toBeNull();
+            expect(results).toInclude(str);
         });
 
-        ['type myType {', 'hello: String', 'location: Geo', 'date: DateTime', 'ip: String', 'someNum: Int'].forEach((str: string) => {
-            expect(baseType.match(str)).not.toBeNull();
-        });
+        ['type myType {', 'hello: String', 'location: GeoPointType', 'date: DateTime', 'ip: String', 'someNum: Int'].forEach(
+            (str: string) => {
+                expect(baseType).toInclude(str);
+            }
+        );
 
         expect(customTypes).toBeArrayOfSize(1);
         const customType = customTypes[0];
 
-        ['type Geo {', 'lat: String!', 'lon: String!'].forEach((str: string) => {
-            expect(customType.match(str)).not.toBeNull();
+        ['type GeoPointType {', 'lat: String!', 'lon: String!'].forEach((str: string) => {
+            expect(customType).toInclude(str);
         });
     });
 
@@ -103,8 +105,8 @@ describe('DataType', () => {
 
         const results = new DataType(typeConfig, 'myType').toGraphQL({ typeName: 'otherType' });
 
-        expect(results.match('type otherType {')).not.toBeNull();
-        expect(results.match('type myType {')).toBeNull();
+        expect(results).toInclude('type otherType {');
+        expect(results).not.toInclude('type myType {');
     });
 
     it('it can add default types for toGraphQL', () => {
@@ -121,7 +123,7 @@ describe('DataType', () => {
         const typeInjection = 'world: String';
         const results = new DataType(typeConfig, 'myType').toGraphQL({ typeInjection });
 
-        expect(results.match(typeInjection)).not.toBeNull();
+        expect(results).toInclude(typeInjection);
     });
 
     it('it throws when no name is provided with a toGraphQL call', () => {
@@ -285,24 +287,24 @@ describe('DataType', () => {
         const fields = [
             'type firstType {',
             'hello: String',
-            'location: Geo',
+            'location: GeoPointType',
             'date: DateTime',
             'ip: String',
             'someNum: Int',
 
             'type secondType {',
-            'otherLocation: Geo',
+            'otherLocation: GeoPointType',
             'bool: Boolean',
 
-            'type Geo {',
+            'type GeoPointType {',
             'lat: String!',
             'lon: String!',
         ];
 
         fields.forEach((str: string) => {
-            expect(results.match(str)).not.toBeNull();
+            expect(results).toInclude(str);
         });
 
-        expect(results.match(/type Geo \{/g)).toBeArrayOfSize(1);
+        expect(results).toIncludeRepeated('type GeoPointType {', 1);
     });
 });

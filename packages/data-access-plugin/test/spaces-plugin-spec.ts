@@ -96,7 +96,7 @@ describe('Spaces API', () => {
 
     const space2Properties = {
         ip: { type: 'IP' },
-        url: { type: 'Keyword' },
+        url: { type: 'Keyword', array: true },
         location: { type: 'Geo' },
         bytes: { type: 'Long' },
         created: { type: 'Date' },

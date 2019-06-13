@@ -81,6 +81,7 @@ TypeConfig.propTypes = {
         fields: PropTypes.objectOf(
             PropTypes.shape({
                 type: PropTypes.oneOf(AvailableTypes).isRequired,
+                array: PropTypes.bool,
             }).isRequired
         ).isRequired,
     }).isRequired,

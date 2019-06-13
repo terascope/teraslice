@@ -8,7 +8,7 @@ describe('Geo V1', () => {
 
     it('can requires a field and proper configs', () => {
         try {
-           // @ts-ignore
+            // @ts-ignore
             new GeoType();
             throw new Error('it should have errored with no configs');
         } catch (err) {
@@ -32,12 +32,12 @@ describe('Geo V1', () => {
 
     it('can get proper graphQl types', () => {
         const { type: graphQlTypes, custom_type: customType } = new GeoType(field, typeConfig).toGraphQL();
-        const results = `${field}: Geo`;
+        const results = `${field}: GeoPointType`;
 
         expect(graphQlTypes).toEqual(results);
-        expect(customType.match('type Geo {')).not.toBeNull();
-        expect(customType.match('lat: String!')).not.toBeNull();
-        expect(customType.match('lon: String!')).not.toBeNull();
+        expect(customType).toInclude('type GeoPointType {');
+        expect(customType).toInclude('lat: String!');
+        expect(customType).toInclude('lon: String!');
     });
 
     it('can get proper xlucene properties', () => {
