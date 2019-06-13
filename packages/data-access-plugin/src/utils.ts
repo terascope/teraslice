@@ -3,9 +3,9 @@ import { Request, Response } from 'express';
 import { Context } from '@terascope/job-components';
 import * as ts from '@terascope/utils';
 
-export type ErrorHandlerFn = (req: Request, res: Response, fn: (...args: any[]) => Promise<any>|any) => Promise<void>;
+export type ErrorHandlerFn = (req: Request, res: Response, fn: (...args: any[]) => Promise<any> | any) => Promise<void>;
 
-export function makeErrorHandler(reason: string, logger: ts.Logger, requireSafe = false): ErrorHandlerFn {
+export function makeErrorHandler(reason: string, logger: ts.Logger): ErrorHandlerFn {
     return async (req, res, fn) => {
         try {
             await fn();
@@ -14,17 +14,26 @@ export function makeErrorHandler(reason: string, logger: ts.Logger, requireSafe 
 
             logger.error(error, reason, {
                 path: req.originalUrl,
-                query: req.query
+                query: req.query,
             });
 
+            let errorMsg: string;
+            if (ts.isProd && statusCode >= 500) {
+                errorMsg = 'Access Denied';
+            } else if (ts.isTest) {
+                errorMsg = ts.stripErrorMessage(error, reason, false);
+            } else {
+                errorMsg = ts.stripErrorMessage(error, reason, true);
+            }
+
             const resp: any = {
-                error: ts.stripErrorMessage(error, reason, requireSafe)
+                error: errorMsg,
             };
 
             const user = ts.get(req, 'v2User', { type: 'USER' });
             if (user.type === 'SUPERADMIN') {
                 resp.debug = {
-                    timestamp: ts.makeISODate()
+                    timestamp: ts.makeISODate(),
                 };
 
                 if (ts.isString(error)) {
@@ -45,6 +54,6 @@ export function getESClient(context: Context, connection: string): Client {
     return context.foundation.getConnection({
         type: 'elasticsearch',
         endpoint: connection,
-        cached: true
+        cached: true,
     }).client;
 }

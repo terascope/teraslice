@@ -41,16 +41,19 @@ export default class SearchPlugin {
             const { endpoint } = req.params;
             const logger = this.context.apis.foundation.makeLogger({
                 module: `search_plugin:${endpoint}`,
-                user_id: get(user, 'id')
+                user_id: get(user, 'id'),
             });
 
-            const spaceErrorHandler = makeErrorHandler('Error accessing search endpoint', logger, true);
-            const searchErrorHandler = makeErrorHandler('Error during query execution', logger, true);
+            const spaceErrorHandler = makeErrorHandler('Error accessing search endpoint', logger);
+            const searchErrorHandler = makeErrorHandler('Error during query execution', logger);
 
             spaceErrorHandler(req, res, async () => {
-                const accessConfig = await manager.getViewForSpace({
-                    space: endpoint
-                }, user);
+                const accessConfig = await manager.getViewForSpace(
+                    {
+                        space: endpoint,
+                    },
+                    user
+                );
 
                 req.query.pretty = toBoolean(req.query.pretty);
 
@@ -62,9 +65,7 @@ export default class SearchPlugin {
                 searchErrorHandler(req, res, async () => {
                     const result = await search(req.query);
 
-                    res
-                        .status(200)
-                        .set('Content-type', 'application/json; charset=utf-8');
+                    res.status(200).set('Content-type', 'application/json; charset=utf-8');
 
                     if (req.query.pretty) {
                         res.send(JSON.stringify(result, null, 2));
