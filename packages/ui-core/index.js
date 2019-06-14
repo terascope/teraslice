@@ -6,6 +6,7 @@ const pkgUp = require('pkg-up');
 const { promisify } = require('util');
 const { homepage: basePath } = require('./package.json');
 
+const pDelay = promisify(setTimeout);
 const pCopyFile = promisify(fs.copyFile);
 const pMkdir = promisify(fs.mkdir);
 const pReadFile = promisify(fs.readFile);
@@ -100,6 +101,8 @@ async function updateAssets() {
 
 let lastChanged = [];
 const removeOnChange = [];
+let building = false;
+
 function waitForAssetChanges() {
     if (!loggedWatch) logger.info('Watching for UI changes');
     loggedWatch = true;
@@ -112,6 +115,12 @@ function waitForAssetChanges() {
             running = true;
             try {
                 if (await checkFilesChanged()) {
+                    for (const file of removeOnChange) {
+                        if (fs.existsSync(file)) {
+                            logger.debug(`UI Plugin is removing file ${file}`);
+                            await pUnlink(file);
+                        }
+                    }
                     clearInterval(interval);
                     done();
                     return;
@@ -126,6 +135,21 @@ function waitForAssetChanges() {
 }
 
 async function checkFilesChanged() {
+    const built = fs.existsSync(indexHtml) && fs.existsSync(staticPath);
+    if (built && building) {
+        building = false;
+        await pDelay(1000);
+        logger.info('UI Core has changed');
+        return true;
+    }
+
+    if (!built) {
+        logger.info('UI Core is building...');
+        building = true;
+        await pDelay(3000);
+        return false;
+    }
+
     const files = getPluginAssets().map(({ copyFrom, name }) => ({ fileName: copyFrom, name }));
 
     lastChanged.forEach((last) => {
@@ -160,12 +184,6 @@ async function checkFilesChanged() {
 
     if (changed) {
         lastChanged = [];
-        for (const file of removeOnChange) {
-            if (fs.existsSync(file)) {
-                logger.debug(`UI Plugin is removing file ${file}`);
-                await pUnlink(file);
-            }
-        }
     } else {
         lastChanged = updates;
     }
@@ -187,6 +205,14 @@ function getPluginAssets() {
     plugins.push('ui-data-access');
 
     const pluginAssets = [];
+
+    if (fs.existsSync(staticPath)) {
+        if (!fs.existsSync(pluginsDir)) {
+            fs.mkdirSync(pluginsDir);
+        }
+    } else {
+        return pluginAssets;
+    }
 
     if (plugins && plugins.length > 0) {
         for (const name of plugins) {
