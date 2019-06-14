@@ -50,9 +50,9 @@ export function filterBulkRetries<T>(records: T[], result: i.BulkResponse): T[] 
 
     const errorTypes = ['document_already_exists_exception', 'document_missing_exception'];
 
-    for (let i = 0; i < items.length; i += 1) {
+    for (let index = 0; index < items.length; index += 1) {
         // key could either be create or delete etc, just want the actual data at the value spot
-        const { item } = getBulkResponseItem(items[i]);
+        const { item } = getBulkResponseItem(items[index]);
 
         // On a create request if a document exists it's not an error.
         // are there cases where this is incorrect?
@@ -61,8 +61,8 @@ export function filterBulkRetries<T>(records: T[], result: i.BulkResponse): T[] 
 
             if (type === 'es_rejected_execution_exception') {
                 // retry this record
-                if (records[i] != null) {
-                    retry.push(records[i]);
+                if (records[index] != null) {
+                    retry.push(records[index]);
                 }
             } else if (errorTypes.includes(type)) {
                 const error = new TSError(`${type}--${item.error.reason}`);

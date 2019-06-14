@@ -1,27 +1,26 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { AnyObject } from '@terascope/utils';
-import { Mutation, MutationFn, MutationResult } from 'react-apollo';
 import { PureQueryOptions } from 'apollo-boost';
-import { getModelConfig } from '../config';
+import { Mutation, MutationFn, MutationResult } from 'react-apollo';
 import { ModelName } from '@terascope/data-access';
+import { getModelConfig } from '../config';
 import { ModelNameProp } from '../interfaces';
 import { SubmitVars } from './interfaces';
-
-type RealResponse = AnyObject;
 
 type Response = {
     id: string;
 };
 
-class AnyMutationQuery extends Mutation<RealResponse, SubmitVars> {}
-
-type Children = (
-    submit: MutationFn<Response, SubmitVars>,
+type Children<T> = (
+    submit: MutationFn<Response, SubmitVars<T>>,
     result: MutationResult<Response>
 ) => React.ReactNode;
 
-const MutationQuery: React.FC<Props> = ({ id, children, modelName }) => {
+function MutationQuery<T>({
+    id,
+    children,
+    modelName,
+}: Props<T>): React.ReactElement | null {
     const config = getModelConfig(modelName);
     const update = Boolean(id);
     const refetchQueries: PureQueryOptions[] = [{ query: config.listQuery }];
@@ -31,7 +30,7 @@ const MutationQuery: React.FC<Props> = ({ id, children, modelName }) => {
     }
 
     return (
-        <AnyMutationQuery
+        <Mutation<{ result: Response }, SubmitVars<T>>
             mutation={update ? config.updateMutation : config.createMutation}
             refetchQueries={refetchQueries}
         >
@@ -45,14 +44,14 @@ const MutationQuery: React.FC<Props> = ({ id, children, modelName }) => {
 
                 return children((input: any) => action(input), queryResult);
             }}
-        </AnyMutationQuery>
+        </Mutation>
     );
-};
+}
 
-type Props = {
+type Props<T> = {
     id?: string;
     modelName: ModelName;
-    children: Children;
+    children: Children<T>;
 };
 
 MutationQuery.propTypes = {

@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { Client } from 'elasticsearch';
-import { times, TSError } from '@terascope/utils';
+import { times, TSError, AnyObject } from '@terascope/utils';
 import { IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions } from '../src';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
 import { QueryAccess } from 'xlucene-evaluator';
@@ -8,6 +8,7 @@ import { QueryAccess } from 'xlucene-evaluator';
 describe('IndexModel', () => {
     interface ExampleRecord extends IndexModelRecord {
         name: string;
+        config: AnyObject;
     }
 
     const client = makeClient();
@@ -20,18 +21,26 @@ describe('IndexModel', () => {
                     fields: {
                         text: {
                             type: 'text',
-                            analyzer: 'lowercase_keyword_analyzer'
-                        }
-                    }
+                            analyzer: 'lowercase_keyword_analyzer',
+                        },
+                    },
                 },
-            }
+                config: {
+                    type: 'object',
+                },
+            },
         },
         schema: {
             properties: {
                 name: {
-                    type: 'string'
-                }
-            }
+                    type: 'string',
+                },
+                config: {
+                    type: 'object',
+                    additionalProperties: true,
+                    default: {},
+                },
+            },
         },
         storeOptions: {
             defaultSort: 'name:asc',
@@ -41,8 +50,8 @@ describe('IndexModel', () => {
     };
 
     class ExampleIndexModel extends IndexModel<ExampleRecord> {
-        constructor(client: Client, options: IndexModelOptions) {
-            super(client, options, exampleConfig);
+        constructor(_client: Client, options: IndexModelOptions) {
+            super(_client, options, exampleConfig);
         }
     }
 
@@ -51,7 +60,7 @@ describe('IndexModel', () => {
         storeOptions: {
             bulkMaxSize: 50,
             bulkMaxWait: 300,
-        }
+        },
     });
 
     beforeAll(async () => {
@@ -70,7 +79,14 @@ describe('IndexModel', () => {
 
         beforeAll(async () => {
             created = await indexModel.create({
-                name: 'Billy'
+                name: 'Billy',
+                config: {
+                    foo: 1,
+                    bar: 1,
+                    baz: {
+                        a: 1,
+                    },
+                },
             });
 
             fetched = await indexModel.findById(created.id);
@@ -82,7 +98,7 @@ describe('IndexModel', () => {
 
         it('should be able to find the record with restrictions', async () => {
             const queryAccess = new QueryAccess({
-                excludes: ['updated']
+                excludes: ['updated'],
             });
             const result = await indexModel.findById(fetched.id, queryAccess);
 
@@ -121,13 +137,14 @@ describe('IndexModel', () => {
 
             const name = 'fooooobarrr';
             await indexModel.create({
-                name
+                name,
+                config: {},
             });
 
             try {
                 await indexModel.update({
                     ...created,
-                    name
+                    name,
                 });
             } catch (err) {
                 expect(err.message).toEqual('IndexModel update requires name to be unique');
@@ -184,11 +201,21 @@ describe('IndexModel', () => {
             expect(new Date(result.updated)).toBeAfter(new Date(fetched.updated));
         });
 
+        it('should be able to correctly handle a partial update', async () => {
+            const updateInput = { id: fetched.id, config: { foo: 1 } };
+
+            await indexModel.update(updateInput);
+
+            const result = await indexModel.findById(fetched.id);
+            expect(result).toHaveProperty('config', {
+                foo: 1,
+            });
+        });
+
         it('should be able to delete the record', async () => {
             await indexModel.deleteById(fetched.id);
 
-            return expect(indexModel.findById(fetched.id))
-                .rejects.toThrowError(/Unable to find IndexModel/);
+            return expect(indexModel.findById(fetched.id)).rejects.toThrowError(/Unable to find IndexModel/);
         });
     });
 
@@ -205,17 +232,23 @@ describe('IndexModel', () => {
 
     describe('when creating mulitple records', () => {
         beforeAll(async () => {
-            await Promise.all(times(5, (n) => {
-                return indexModel.create({
-                    name: `Joe ${n}`
-                });
-            }));
+            await Promise.all(
+                times(5, n => {
+                    return indexModel.create({
+                        name: `Joe ${n}`,
+                        config: {},
+                    });
+                })
+            );
 
-            await Promise.all(times(5, (n) => {
-                return indexModel.create({
-                    name: `Bob ${n}`
-                });
-            }));
+            await Promise.all(
+                times(5, n => {
+                    return indexModel.create({
+                        name: `Bob ${n}`,
+                        config: {},
+                    });
+                })
+            );
         });
 
         it('should be able to count all of the Bobs', async () => {
@@ -225,7 +258,7 @@ describe('IndexModel', () => {
 
         it('should be able to count with restrictions', async () => {
             const queryAccess = new QueryAccess({
-                includes: ['name']
+                includes: ['name'],
             });
 
             const count = await indexModel.count('name:Bob*', queryAccess);
@@ -234,7 +267,7 @@ describe('IndexModel', () => {
 
         it('should be able to find all of the Bobs', async () => {
             const result = await indexModel.find('name:Bob*', {
-                size: 6
+                size: 6,
             });
 
             expect(result).toBeArrayOfSize(5);
@@ -248,15 +281,15 @@ describe('IndexModel', () => {
 
         it('should be able to find all by ids with restrictions', async () => {
             const queryAccess = new QueryAccess({
-                includes: ['id', 'name']
+                includes: ['id', 'name'],
             });
 
             const findResult = await indexModel.find('name:Bob*', {
                 size: 3,
-                includes: ['id']
+                includes: ['id'],
             });
 
-            const ids = findResult.map((doc) => doc.id);
+            const ids = findResult.map(doc => doc.id);
 
             const result = await indexModel.findAll(ids, queryAccess);
 
@@ -271,7 +304,7 @@ describe('IndexModel', () => {
         it('should be able to find all of the Bobs', async () => {
             const queryAccess = new QueryAccess({
                 constraint: 'name:Bob*',
-                excludes: ['created']
+                excludes: ['created'],
             });
 
             const result = await indexModel.find('name:Bob*', { size: 6 }, queryAccess);
@@ -312,7 +345,7 @@ describe('IndexModel', () => {
             const result = await indexModel.find('name:(Bob* OR Joe*)', {
                 size: 11,
                 sort: 'name:desc',
-                includes: ['name', 'updated']
+                includes: ['name', 'updated'],
             });
 
             expect(result).toBeArrayOfSize(10);
@@ -329,7 +362,7 @@ describe('IndexModel', () => {
         it('should be able to limit the fields returned', async () => {
             const result = await indexModel.find('name:Joe*', {
                 size: 1,
-                includes: ['name']
+                includes: ['name'],
             });
 
             expect(result).toBeArrayOfSize(1);
@@ -344,7 +377,7 @@ describe('IndexModel', () => {
 
         it('should be able to find no Ninjas', async () => {
             const result = await indexModel.find('name:"Ninja"', {
-                size: 2
+                size: 2,
             });
 
             expect(result).toBeArrayOfSize(0);

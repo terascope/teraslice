@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { Modal, Button, Header, Icon } from 'semantic-ui-react';
 
-const ConfirmRemoval: React.FC<Props> = ({ children, numSelected, onConfirm }) => {
+const ConfirmExport: React.FC<Props> = ({
+    children,
+    numSelected,
+    onConfirm,
+}) => {
     const [open, setOpen] = useState(false);
 
     return (
@@ -12,22 +16,22 @@ const ConfirmRemoval: React.FC<Props> = ({ children, numSelected, onConfirm }) =
             open={open}
             size="tiny"
         >
-            <Header icon="trash alternate" content="Remove records" />
+            <Header icon="download" content="Export records" />
             <Modal.Content>
-                <p>Are you sure you want to remove {numSelected} records</p>
+                <p>Are you sure you want to export {numSelected} records</p>
             </Modal.Content>
             <Modal.Actions>
                 <Button basic onClick={() => setOpen(false)}>
                     Cancel
                 </Button>
                 <Button
-                    color="red"
+                    color="blue"
                     onClick={() => {
                         setOpen(false);
                         onConfirm();
                     }}
                 >
-                    <Icon name="remove" /> Yes
+                    <Icon name="check" /> Yes
                 </Button>
             </Modal.Actions>
         </Modal>
@@ -39,4 +43,4 @@ type Props = {
     onConfirm: () => void;
 };
 
-export default ConfirmRemoval;
+export default ConfirmExport;

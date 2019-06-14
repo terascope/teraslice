@@ -1,4 +1,3 @@
-
 import _ from 'lodash';
 import graphlib from 'graphlib';
 import { Logger } from '@terascope/utils';
@@ -13,21 +12,24 @@ import {
     OperationConfigInput,
     SelectorConfig,
     ExtractionConfig,
-    PostProcessConfig
+    PostProcessConfig,
 } from '../interfaces';
 
-const  { Graph, alg: { topsort, findCycles } } = graphlib;
+const {
+    Graph,
+    alg: { topsort, findCycles },
+} = graphlib;
 
 export function parseConfig(configList: OperationConfig[], opsManager: OperationsManager, logger: Logger) {
     const graph = new Graph();
     const tagMapping: StateDict = {};
     const graphEdges: StateDict = {};
 
-    configList.forEach((config) => {
+    configList.forEach(config => {
         const configId = config.__id;
 
         if (config.tags) {
-            config.tags.forEach((tag) => {
+            config.tags.forEach(tag => {
                 if (!tagMapping[tag]) {
                     tagMapping[tag] = [];
                 }
@@ -61,7 +63,7 @@ export function parseConfig(configList: OperationConfig[], opsManager: Operation
 
     // config may be out of order so we build edges after the fact on post processors
     _.forOwn(graphEdges, (ids, key) => {
-        ids.forEach((id) => {
+        ids.forEach(id => {
             const matchingTags: string[] = tagMapping[key];
             if (matchingTags == null) {
                 throw new Error(`rule attempts to follow a tag that doesn't exist: ${JSON.stringify(graph.node(id))}`);
@@ -74,7 +76,7 @@ export function parseConfig(configList: OperationConfig[], opsManager: Operation
     if (cycles.length > 0) {
         const errMsg = 'A cyclic tag => follow sequence has been found, cycles: ';
         const errList: string[] = [];
-        cycles.forEach((cycleList) => {
+        cycles.forEach(cycleList => {
             const list = cycleList.map(id => graph.node(id));
             errList.push(JSON.stringify(list, null, 4));
         });
@@ -100,8 +102,7 @@ function normalizeConfig(configList: OperationConfig[], opsManager: OperationsMa
             // This works becuase topsort orders them
             const fieldsConfigs = findConfigs(config, list, tagMapping);
             if (isOneToOne(opsManager, config)) {
-                const results = createMatchingConfig(fieldsConfigs, config, tagMapping);
-                list.push(...results);
+                list.push(...createMatchingConfig(fieldsConfigs, config, tagMapping));
             } else {
                 config.__pipeline = fieldsConfigs.map(obj => obj.pipeline)[0];
                 config.source_fields = fieldsConfigs.map(obj => obj.source);
@@ -124,7 +125,7 @@ interface FieldSourceConfigs {
     pipeline: string;
 }
 
-function findConfigs(config:OperationConfig, configList: OperationConfig[], tagMapping: StateDict) {
+function findConfigs(config: OperationConfig, configList: OperationConfig[], tagMapping: StateDict) {
     const identifier = config.follow || config.__id;
     const nodeIds: string[] = tagMapping[identifier];
     const mapping = {};
@@ -148,7 +149,7 @@ function findConfigs(config:OperationConfig, configList: OperationConfig[], tagM
 function createMatchingConfig(fieldsConfigs: FieldSourceConfigs[], config: OperationConfig, tagMapping: StateDict): OperationConfig[] {
     // we clone the original to preserve the __id in reference to tag mappings and the like
     const original = _.cloneDeep(config);
-    return fieldsConfigs.map((obj:FieldSourceConfigs, index:number) => {
+    return fieldsConfigs.map((obj: FieldSourceConfigs, index: number) => {
         let resultsObj: Partial<OperationConfig> = {};
         const pipelineConfig = { __pipeline: obj.pipeline };
 
@@ -157,7 +158,7 @@ function createMatchingConfig(fieldsConfigs: FieldSourceConfigs[], config: Opera
         } else {
             resultsObj = Object.assign({}, config, { __id: shortid.generate() }, pipelineConfig);
             if (resultsObj.tags) {
-                resultsObj.tags.forEach((tag) => {
+                resultsObj.tags.forEach(tag => {
                     if (!tagMapping[tag]) {
                         tagMapping[tag] = [];
                     }
@@ -186,10 +187,12 @@ function validateOtherMatchRequired(configDict: ExtractionProcessingDict, logger
     _.forOwn(configDict, (opsList, selector) => {
         const hasMatchRequired = opsList.find(op => !!op.other_match_required) != null;
         if (hasMatchRequired && opsList.length === 1) {
-            logger.warn(`
+            logger.warn(
+                `
             There is only a single extraction for selector ${selector} and it has other_match_required set to true.
             This will return empty results unless the data matches another selector that has reqular extractions
-            `.trim());
+            `.trim()
+            );
         }
     });
 }
@@ -213,7 +216,7 @@ function checkForTarget(config: OperationConfig) {
     }
 }
 
-type Config = OperationConfig|OperationConfigInput;
+type Config = OperationConfig | OperationConfigInput;
 
 export function isPrimaryConfig(config: Config) {
     return hasSelector(config) && !isPostProcessType(config, 'selector');
@@ -223,15 +226,15 @@ export function needsDefaultSelector(config: Config) {
     return !hasSelector(config) && !hasFollow(config);
 }
 
-function isPrimarySelector(config:Config) {
+function isPrimarySelector(config: Config) {
     return hasSelector(config) && !hasPostProcess(config);
 }
 
-function isOnlySelector(config:Config) {
+function isOnlySelector(config: Config) {
     return hasSelector(config) && !hasExtractions(config) && !hasPostProcess(config);
 }
 
-function isPostProcessType(config:Config, type: string) {
+function isPostProcessType(config: Config, type: string) {
     return config.post_process === type;
 }
 
@@ -244,15 +247,15 @@ function hasFollow(config: Config) {
 }
 
 function hasPostProcess(config: Config): boolean {
-    return (_.has(config, 'post_process') || _.has(config, 'validation'));
+    return _.has(config, 'post_process') || _.has(config, 'validation');
 }
 
 export function isDeprecatedCompactConfig(config: Config): boolean {
-    return (!hasFollow(config) && hasPostProcess(config) && hasSelector(config));
+    return !hasFollow(config) && hasPostProcess(config) && hasSelector(config);
 }
 
 export function isSimplePostProcessConfig(config: Config) {
-    return (!_.has(config, 'follow') && hasPostProcess(config));
+    return !_.has(config, 'follow') && hasPostProcess(config);
 }
 
 export function hasExtractions(config: Config) {
@@ -279,14 +282,13 @@ function createResults(list: OperationConfig[]): ValidationResults {
         output: {
             restrictOutput: {},
             matchRequirements: {},
-        }
+        },
     };
     const output = results.output;
-    let currentSelector: undefined|string;
+    let currentSelector: undefined | string;
     const duplicateListing = {};
 
-    list.forEach((config) => {
-
+    list.forEach(config => {
         if (duplicateListing[config.__id]) {
             return;
         }

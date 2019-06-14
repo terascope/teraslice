@@ -1,18 +1,6 @@
 import 'jest-extended';
-import {
-    times,
-    pDelay,
-    DataEntity,
-    Omit,
-    TSError,
-    debugLogger
-} from '@terascope/utils';
-import {
-    SimpleRecord,
-    SimpleRecordInput,
-    mapping,
-    schema
-} from './helpers/simple-index';
+import { times, pDelay, DataEntity, Omit, TSError, debugLogger } from '@terascope/utils';
+import { SimpleRecord, SimpleRecordInput, mapping, schema } from './helpers/simple-index';
 import { IndexStore, IndexConfig } from '../src';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
 import { Translator } from 'xlucene-evaluator';
@@ -50,7 +38,7 @@ describe('IndexStore', () => {
         version: 1,
         indexSettings: {
             'index.number_of_shards': 1,
-            'index.number_of_replicas': 0
+            'index.number_of_replicas': 0,
         },
         logger,
         bulkMaxSize: 50,
@@ -61,9 +49,9 @@ describe('IndexStore', () => {
     };
 
     describe('when constructed without a data schema', () => {
-        const client = makeClient();
+        const _client = makeClient();
 
-        const indexStore = new IndexStore<SimpleRecord, SimpleRecordInput>(client, config);
+        const indexStore = new IndexStore<SimpleRecord, SimpleRecordInput>(_client, config);
 
         beforeAll(async () => {
             await cleanupIndexStore(indexStore);
@@ -80,7 +68,7 @@ describe('IndexStore', () => {
         });
 
         it('should create the versioned index', async () => {
-            const exists = await client.indices.exists({ index });
+            const exists = await _client.indices.exists({ index });
 
             expect(exists).toBeTrue();
         });
@@ -149,21 +137,22 @@ describe('IndexStore', () => {
             });
 
             it('should be able to get the count', () => {
-                return expect(indexStore.count(`test_id: ${record.test_id}`))
-                    .resolves.toBe(1);
+                return expect(indexStore.count(`test_id: ${record.test_id}`)).resolves.toBe(1);
             });
 
             it('should get zero when the using the wrong id', () => {
-                return expect(indexStore.count('test_id: wrong-id'))
-                    .resolves.toBe(0);
+                return expect(indexStore.count('test_id: wrong-id')).resolves.toBe(0);
             });
 
             it('should be able to update the record', async () => {
-                await indexStore.update({
-                    doc: {
-                        test_number: 4231
-                    }
-                }, record.test_id);
+                await indexStore.update(
+                    {
+                        doc: {
+                            test_number: 4231,
+                        },
+                    },
+                    record.test_id
+                );
 
                 const updated = await indexStore.get(record.test_id);
                 expect(updated).toHaveProperty('test_number', 4231);
@@ -175,11 +164,14 @@ describe('IndexStore', () => {
                 expect.hasAssertions();
 
                 try {
-                    await indexStore.update({
-                        doc: {
-                            test_number: 1,
-                        }
-                    }, 'wrong-id');
+                    await indexStore.update(
+                        {
+                            doc: {
+                                test_number: 1,
+                            },
+                        },
+                        'wrong-id'
+                    );
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
                     expect(err.message).toInclude('Not Found');
@@ -189,7 +181,7 @@ describe('IndexStore', () => {
 
             it('should be able to get the record by id', async () => {
                 // @ts-ignore
-                const r = await indexStore.get(record.test_id) as DataEntity<T>;
+                const r = (await indexStore.get(record.test_id)) as DataEntity<T>;
 
                 expect(DataEntity.isDataEntity(r)).toBeTrue();
                 expect(r).toEqual(record);
@@ -198,7 +190,7 @@ describe('IndexStore', () => {
                 expect(metadata).toMatchObject({
                     _index: index,
                     _key: record.test_id,
-                    _type: 'test__store'
+                    _type: 'test__store',
                 });
 
                 expect(metadata._processTime).toBeNumber();
@@ -274,22 +266,24 @@ describe('IndexStore', () => {
                     test_boolean: true,
                     _created: new Date().toISOString(),
                     _updated: new Date().toISOString(),
-                }
+                },
             ];
 
             beforeAll(async () => {
-                await Promise.all(records.map((record) => {
-                    return indexStore.createWithId(record, record.test_id, {
-                        refresh: false
-                    });
-                }));
+                await Promise.all(
+                    records.map(record => {
+                        return indexStore.createWithId(record, record.test_id, {
+                            refresh: false,
+                        });
+                    })
+                );
 
                 await indexStore.refresh();
             });
 
             it('should be able to mget all of the records', async () => {
-                const docs = records.map((r) => ({
-                    _id: r.test_id
+                const docs = records.map(r => ({
+                    _id: r.test_id,
                 }));
 
                 const result = await indexStore.mget({ docs });
@@ -300,7 +294,7 @@ describe('IndexStore', () => {
 
             it('should be able to search the records', async () => {
                 const result = await indexStore.search(`test_keyword: ${keyword}`, {
-                    sort: 'test_id'
+                    sort: 'test_id',
                 });
 
                 expect(DataEntity.isDataEntityArray(result)).toBeTrue();
@@ -311,7 +305,7 @@ describe('IndexStore', () => {
         describe('when bulk sending records', () => {
             const keyword = 'bulk-record';
 
-            const records: SimpleRecordInput[] = times(100, (n) => ({
+            const records: SimpleRecordInput[] = times(100, n => ({
                 test_id: `bulk-${n + 1}`,
                 test_keyword: keyword,
                 test_object: { bulk: true },
@@ -337,11 +331,15 @@ describe('IndexStore', () => {
 
             afterAll(async () => {
                 for (const record of records.slice(0, 10)) {
-                    await indexStore.bulk('update', {
-                        test_object: {
-                            updateAfterShutdown: true,
+                    await indexStore.bulk(
+                        'update',
+                        {
+                            test_object: {
+                                updateAfterShutdown: true,
+                            },
                         },
-                    }, record.test_id);
+                        record.test_id
+                    );
                 }
             });
 
@@ -351,7 +349,7 @@ describe('IndexStore', () => {
                     q,
                     _sourceInclude: ['test_id', 'test_boolean'],
                     sort: 'test_number:asc',
-                    size: 200
+                    size: 200,
                 });
                 const xluceneResult = await indexStore.search(q, {
                     size: 200,
@@ -369,39 +367,39 @@ describe('IndexStore', () => {
                                         filter: [
                                             {
                                                 exists: {
-                                                    field: 'test_number'
-                                                }
+                                                    field: 'test_number',
+                                                },
                                             },
                                         ],
                                         must_not: [
                                             {
                                                 term: {
-                                                    test_keyword: 'other-keyword'
-                                                }
-                                            }
+                                                    test_keyword: 'other-keyword',
+                                                },
+                                            },
                                         ],
                                         should: [
                                             {
                                                 range: {
                                                     test_number: {
-                                                        gte: 10
-                                                    }
-                                                }
+                                                        gte: 10,
+                                                    },
+                                                },
                                             },
                                             {
                                                 term: {
-                                                    test_boolean: false
-                                                }
+                                                    test_boolean: false,
+                                                },
                                             },
-                                        ]
-                                    }
-                                }
-                            }
-                        }
+                                        ],
+                                    },
+                                },
+                            },
+                        },
                     },
                     _sourceInclude: ['test_id', 'test_boolean'],
                     sort: 'test_number:asc',
-                    size: 200
+                    size: 200,
                 });
 
                 // @ts-ignore
@@ -430,7 +428,7 @@ describe('IndexStore', () => {
             it('should be able to search the records', async () => {
                 const result = await indexStore.search(`test_keyword: ${keyword}`, {
                     sort: 'test_number',
-                    size: records.length + 1
+                    size: records.length + 1,
                 });
 
                 expect(result).toBeArrayOfSize(records.length);
@@ -440,7 +438,7 @@ describe('IndexStore', () => {
             it('should be able use exists and range xlucene syntax', async () => {
                 const result = await indexStore.search('_exists_:test_number AND test_number: <100', {
                     sort: 'test_number',
-                    size: 5
+                    size: 5,
                 });
 
                 expect(result).toBeArrayOfSize(5);
@@ -459,11 +457,15 @@ describe('IndexStore', () => {
 
             it('should be able to bulk update the records', async () => {
                 for (const record of records) {
-                    await indexStore.bulk('index', Object.assign(record, {
-                        test_object: {
-                            updated: true
-                        }
-                    }), record.test_id);
+                    await indexStore.bulk(
+                        'index',
+                        Object.assign(record, {
+                            test_object: {
+                                updated: true,
+                            },
+                        }),
+                        record.test_id
+                    );
                 }
 
                 await indexStore.flush(true);
@@ -471,11 +473,11 @@ describe('IndexStore', () => {
 
                 const result = await indexStore.search(`test_keyword: ${keyword}`, {
                     sort: 'test_id',
-                    size: records.length + 1
+                    size: records.length + 1,
                 });
 
                 expect(result[0]).toHaveProperty('test_object', {
-                    updated: true
+                    updated: true,
                 });
             });
 
@@ -490,7 +492,7 @@ describe('IndexStore', () => {
 
                 const result = await indexStore.search(`test_keyword: ${keyword}`, {
                     sort: 'test_id',
-                    size: records.length + 1
+                    size: records.length + 1,
                 });
 
                 expect(result).toBeArrayOfSize(0);
@@ -499,17 +501,17 @@ describe('IndexStore', () => {
     });
 
     describe('when constructed with data schema', () => {
-        const client = makeClient();
+        const _client = makeClient();
 
         const configWithDataSchema = Object.assign(config, {
             dataSchema: {
                 schema,
                 allFormatters: true,
                 strict: true,
-            }
+            },
         });
 
-        const indexStore = new IndexStore<SimpleRecord, SimpleRecordInput>(client, configWithDataSchema);
+        const indexStore = new IndexStore<SimpleRecord, SimpleRecordInput>(_client, configWithDataSchema);
 
         beforeAll(async () => {
             await cleanupIndexStore(indexStore);
@@ -530,7 +532,7 @@ describe('IndexStore', () => {
                 test_id: 'invalid-record-id',
                 test_boolean: Buffer.from('wrong'),
                 test_number: '123',
-                _created: 'wrong-date'
+                _created: 'wrong-date',
             };
 
             try {
@@ -543,13 +545,10 @@ describe('IndexStore', () => {
             }
         });
 
-        type InputType = 'input'|'output';
-        const cases: [InputType][] = [
-            ['input'],
-            ['output'],
-        ];
+        type InputType = 'input' | 'output';
+        const cases: [InputType][] = [['input'], ['output']];
 
-        describe.each(cases)('when relying on data schema to transform the %s', (inputType) => {
+        describe.each(cases)('when relying on data schema to transform the %s', inputType => {
             const keyword = `data-schema-${inputType}-record`;
             const input: SimpleRecordInput[] = [
                 {
@@ -558,14 +557,14 @@ describe('IndexStore', () => {
                     test_object: {
                         example: 'obj',
                     },
-                    _created: new Date().toISOString()
+                    _created: new Date().toISOString(),
                 },
                 {
                     test_id: `data-schema-${inputType}-2`,
                     test_keyword: keyword,
                     test_object: {},
                     test_number: 3333,
-                    _updated: new Date().toISOString()
+                    _updated: new Date().toISOString(),
                 },
                 {
                     test_id: `data-schema-${inputType}-3`,
@@ -575,46 +574,51 @@ describe('IndexStore', () => {
                     },
                     test_boolean: false,
                     _created: new Date().toISOString(),
-                    _updated: new Date().toISOString()
-                }
+                    _updated: new Date().toISOString(),
+                },
             ];
 
-            type ExpectedRecord = Omit<SimpleRecord, '_created'|'_updated'>;
-            const expected: ExpectedRecord[] = input.map((record) => {
-                return Object.assign({
-                    test_boolean: true,
-                    test_number: 676767,
-                }, record);
+            type ExpectedRecord = Omit<SimpleRecord, '_created' | '_updated'>;
+            const expected: ExpectedRecord[] = input.map(record => {
+                return Object.assign(
+                    {
+                        test_boolean: true,
+                        test_number: 676767,
+                    },
+                    record
+                );
             });
 
             beforeAll(async () => {
-                await Promise.all(input.map((record, i) => {
-                    if (inputType === 'input') {
-                        if (i === 0) {
-                            return indexStore.createWithId(record, record.test_id);
+                await Promise.all(
+                    input.map((record, i) => {
+                        if (inputType === 'input') {
+                            if (i === 0) {
+                                return indexStore.createWithId(record, record.test_id);
+                            }
+                            return indexStore.indexWithId(record, record.test_id, {
+                                refresh: false,
+                            });
                         }
-                        return indexStore.indexWithId(record, record.test_id, {
-                            refresh: false
-                        });
-                    }
-                    if (inputType === 'output') {
-                        return client.index({
-                            index,
-                            type: 'test__store',
-                            id: record.test_id,
-                            body: record,
-                            refresh: false,
-                        });
-                    }
-                    throw new Error('Invalid Input Type');
-                }));
+                        if (inputType === 'output') {
+                            return _client.index({
+                                index,
+                                type: 'test__store',
+                                id: record.test_id,
+                                body: record,
+                                refresh: false,
+                            });
+                        }
+                        throw new Error('Invalid Input Type');
+                    })
+                );
 
                 await indexStore.refresh();
             });
 
             it('should have created all of the records', async () => {
                 const result = await indexStore.search(`test_keyword: ${keyword}`, {
-                    sort: 'test_id'
+                    sort: 'test_id',
                 });
 
                 expect(DataEntity.isDataEntityArray(result)).toBeTrue();
@@ -626,9 +630,9 @@ describe('IndexStore', () => {
                 expect(record).toEqual(expected[0]);
 
                 const records = await indexStore.mget({
-                    docs: expected.map((r) => ({
-                        _id: r.test_id
-                    }))
+                    docs: expected.map(r => ({
+                        _id: r.test_id,
+                    })),
                 });
 
                 expect(DataEntity.isDataEntityArray(records)).toBeTrue();
@@ -636,17 +640,20 @@ describe('IndexStore', () => {
             });
 
             it('should be able to update a record with a proper field', async () => {
-                const result = await indexStore.update({
-                    doc: {
-                        test_number: 77777
-                    }
-                }, expected[2].test_id);
+                const result = await indexStore.update(
+                    {
+                        doc: {
+                            test_number: 77777,
+                        },
+                    },
+                    expected[2].test_id
+                );
 
                 expect(result).toBeNil();
 
                 const record = await indexStore.get(expected[2].test_id);
                 expect(record).toMatchObject({
-                    test_number: 77777
+                    test_number: 77777,
                 });
             });
         });

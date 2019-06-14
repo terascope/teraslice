@@ -3,7 +3,6 @@ import BaseType from '../base-type';
 import { ElasticSearchTypes } from '../../../interfaces';
 
 export default class Hostname extends BaseType {
-
     toESMapping(version?: number) {
         return {
             mapping: {
@@ -13,39 +12,39 @@ export default class Hostname extends BaseType {
                     fields: {
                         tokens: {
                             type: 'text' as ElasticSearchTypes,
-                            analyzer: 'standard'
+                            analyzer: 'standard',
                         },
                         right: {
                             type: 'text' as ElasticSearchTypes,
                             analyzer: 'domain_analyzer',
-                            search_analyzer: 'lowercase_keyword_analyzer'
-                        }
-                    }
-                }
+                            search_analyzer: 'lowercase_keyword_analyzer',
+                        },
+                    },
+                },
             },
             analyzer: {
                 lowercase_keyword_analyzer: {
                     tokenizer: 'keyword',
-                    filter: 'lowercase'
+                    filter: 'lowercase',
                 },
                 domain_analyzer: {
-                    filter : 'lowercase',
-                    type : 'custom',
-                    tokenizer : 'domain_tokens'
-                }
+                    filter: 'lowercase',
+                    type: 'custom',
+                    tokenizer: 'domain_tokens',
+                },
             },
-            tokenizer : {
-                domain_tokens : {
-                    reverse : 'true',
-                    type : 'PathHierarchy',
-                    delimiter : '.'
-                }
-            }
+            tokenizer: {
+                domain_tokens: {
+                    reverse: 'true',
+                    type: 'PathHierarchy',
+                    delimiter: '.',
+                },
+            },
         };
     }
 
     toGraphQL() {
-        return { type: `${this.field}: String` };
+        return { type: this._formatGql('String') };
     }
 
     toXlucene() {

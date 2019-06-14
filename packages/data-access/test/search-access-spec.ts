@@ -1,22 +1,17 @@
 import 'jest-extended';
 import * as ts from '@terascope/utils';
 import { SearchParams, SearchResponse } from 'elasticsearch';
-import { DataTypeConfig } from '@terascope/data-types';
+import { DataTypeConfig, LATEST_VERSION } from '@terascope/data-types';
 
-import {
-    SearchAccess,
-    View,
-    DataType,
-    InputQuery,
-    SpaceSearchConfig
-} from '../src';
+import { SearchAccess, View, DataType, InputQuery, SpaceSearchConfig } from '../src';
 
 describe('SearchAccess', () => {
     it('should fail if given an invalid search config', () => {
         expect(() => {
+            // @ts-ignore
             new SearchAccess({
                 // @ts-ignore
-                search_config: {},
+                config: {},
             });
         }).toThrowWithMessage(ts.TSError, 'Search is not configured correctly for search');
     });
@@ -224,7 +219,7 @@ describe('SearchAccess', () => {
                     },
                     {
                         fields: { created: { type: 'Date' } },
-                        version: 1
+                        version: LATEST_VERSION,
                     }
                 );
 
@@ -257,7 +252,7 @@ describe('SearchAccess', () => {
                     },
                     {
                         fields: { created: { type: 'Date' } },
-                        version: 1,
+                        version: LATEST_VERSION,
                     }
                 );
 
@@ -390,7 +385,7 @@ describe('SearchAccess', () => {
 });
 
 function makeWith(searchConfig: Partial<SpaceSearchConfig> = {}, _typeConfig?: DataTypeConfig) {
-    const typeConfig =  _typeConfig || { fields: {}, version: 1 };
+    const typeConfig = _typeConfig || { fields: {}, version: LATEST_VERSION };
     const view: View = {
         client_id: 1,
         id: 'example-view',
@@ -407,16 +402,17 @@ function makeWith(searchConfig: Partial<SpaceSearchConfig> = {}, _typeConfig?: D
         client_id: 1,
         id: 'example-data-type',
         name: 'ExampleType',
-        type_config: typeConfig as DataTypeConfig,
+        config: typeConfig,
         updated: new Date().toISOString(),
         created: new Date().toISOString(),
     };
 
     return new SearchAccess({
         view,
+        type: 'SEARCH',
         data_type: dataType,
         space_endpoint: 'example-endpoint',
-        search_config: Object.assign(
+        config: Object.assign(
             {
                 index: 'example-index',
             },

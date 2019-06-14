@@ -1,6 +1,6 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { DataTypeConfig } from '@terascope/data-types';
+import { DataTypeConfig, LATEST_VERSION } from '@terascope/data-types';
 import { CreateRecordInput, UpdateRecordInput } from 'elasticsearch-store';
 import { CachedQueryAccess } from 'xlucene-evaluator';
 import * as models from './models';
@@ -431,6 +431,10 @@ export class ACLManager {
         // if the token is provided use the authenticated user
         const user = args.token || !authUser ? await this.authenticate(args) : authUser;
 
+        if (user.type === 'SUPERADMIN') {
+            throw new ts.TSError('A SUPERADMIN is not allowed to query spaces', { statusCode: 403 });
+        }
+
         if (!user.role) {
             const msg = `User "${user.username}" is not assigned to a role`;
             throw new ts.TSError(msg, { statusCode: 403 });
@@ -446,21 +450,19 @@ export class ACLManager {
 
         const [view, dataType] = await Promise.all([this._views.getViewOfSpace(space, role), this._dataTypes.findById(space.data_type)]);
 
-        if (user.type !== 'SUPERADMIN') {
-            const clientIds = [role.client_id, space.client_id, dataType.client_id, view.client_id];
-            if (!clientIds.every(id => id === user.client_id)) {
-                const msg = `User "${user.username}" does not have permission to access space "${space.endpoint}"`;
-                throw new ts.TSError(msg, { statusCode: 403 });
-            }
+        const clientIds = [role.client_id, space.client_id, dataType.client_id, view.client_id];
+        if (!clientIds.every(id => id === user.client_id)) {
+            const msg = `User "${user.username}" does not have permission to access space "${space.endpoint}"`;
+            throw new ts.TSError(msg, { statusCode: 403 });
         }
 
         return this._parseDataAccessConfig({
             user_id: user.id,
             role_id: role.id,
             space_id: space.id,
+            type: space.type,
             space_endpoint: space.endpoint,
-            search_config: space.search_config,
-            streaming_config: space.streaming_config,
+            config: space.config,
             data_type: dataType,
             view,
         });
@@ -670,7 +672,8 @@ export class ACLManager {
     }
 
     private _parseDataAccessConfig(config: i.DataAccessConfig): i.DataAccessConfig {
-        const searchConfig = config.search_config!;
+        if (config.type.toUpperCase() !== 'SEARCH') return config;
+        const searchConfig = config.config as models.SpaceSearchConfig;
 
         if (searchConfig.default_date_field) {
             searchConfig.default_date_field = ts.trimAndToLower(searchConfig.default_date_field);
@@ -680,7 +683,7 @@ export class ACLManager {
             searchConfig.default_geo_field = ts.trimAndToLower(searchConfig.default_geo_field);
         }
 
-        const typeConfig: DataTypeConfig = config.data_type.type_config || { fields: {}, version: 1 };
+        const typeConfig: DataTypeConfig = config.data_type.config || { fields: {}, version: LATEST_VERSION };
 
         const dateField = searchConfig.default_date_field;
         if (dateField && !typeConfig.fields[dateField]) {
@@ -692,7 +695,7 @@ export class ACLManager {
             typeConfig.fields[geoField] = { type: 'Geo' };
         }
 
-        config.data_type.type_config = typeConfig;
+        config.data_type.config = typeConfig;
         return config;
     }
 
@@ -875,9 +878,9 @@ export class ACLManager {
      */
     private async _validateCanCreate(model: i.ModelName, authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
-        const models: i.ModelName[] = ['Space', 'DataType'];
+        const restricted: i.ModelName[] = ['Space', 'DataType'];
 
-        if (type === 'USER' || (type === 'ADMIN' && models.includes(model))) {
+        if (type === 'USER' || (type === 'ADMIN' && restricted.includes(model))) {
             throw new ts.TSError(`User doesn't have permission to create ${model}`, {
                 statusCode: 403,
             });
@@ -905,8 +908,8 @@ export class ACLManager {
      */
     private async _validateCanRemove(model: i.ModelName, authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
-        const models: i.ModelName[] = ['Space', 'DataType'];
-        if (type === 'USER' || (type === 'ADMIN' && models.includes(model))) {
+        const restricted: i.ModelName[] = ['Space', 'DataType'];
+        if (type === 'USER' || (type === 'ADMIN' && restricted.includes(model))) {
             throw new ts.TSError(`User doesn't have permission to remove ${model}`, {
                 statusCode: 403,
             });

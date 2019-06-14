@@ -1,10 +1,8 @@
-
 import 'jest-extended';
-import { DataType, DataTypeConfig } from '../src';
+import { DataType, DataTypeConfig, LATEST_VERSION } from '../src';
 import { TSError } from '@terascope/utils';
 
 describe('DataType', () => {
-
     it('it will throw without versioning', () => {
         expect.hasAssertions();
         try {
@@ -12,13 +10,13 @@ describe('DataType', () => {
             new DataType({});
         } catch (err) {
             expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('No version was specified in type_config');
+            expect(err.message).toInclude('No version was specified in type config');
         }
     });
 
     it('it can instantiate correctly', () => {
         const typeConfig: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: { hello: { type: 'Keyword' } },
         };
 
@@ -27,13 +25,13 @@ describe('DataType', () => {
 
     it('it can return an xlucene ready typeconfig', () => {
         const typeConfig: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
                 date: { type: 'Date' },
                 ip: { type: 'IP' },
-                someNum: { type: 'Long' }
+                someNum: { type: 'Long' },
             },
         };
 
@@ -42,7 +40,7 @@ describe('DataType', () => {
             location: 'geo',
             date: 'date',
             ip: 'ip',
-            someNum: 'number'
+            someNum: 'number',
         };
 
         const xluceneConfig = new DataType(typeConfig).toXlucene();
@@ -51,13 +49,13 @@ describe('DataType', () => {
 
     it('it can return graphql results', () => {
         const typeConfig: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
                 date: { type: 'Date' },
                 ip: { type: 'IP' },
-                someNum: { type: 'Long' }
+                someNum: { type: 'Long' },
             },
         };
 
@@ -68,84 +66,75 @@ describe('DataType', () => {
         [
             'type myType {',
             'hello: String',
-            'location: Geo',
+            'location: GeoPointType',
             'date: DateTime',
             'ip: String',
             'someNum: Int',
-            'type Geo {',
+            'type GeoPointType {',
             'lat: String!',
-            'lon: String!'
+            'lon: String!',
         ].forEach((str: string) => {
-            expect(results.match(str)).not.toBeNull();
+            expect(results).toInclude(str);
         });
 
-        [
-            'type myType {',
-            'hello: String',
-            'location: Geo',
-            'date: DateTime',
-            'ip: String',
-            'someNum: Int',
-        ].forEach((str: string) => {
-            expect(baseType.match(str)).not.toBeNull();
-        });
+        ['type myType {', 'hello: String', 'location: GeoPointType', 'date: DateTime', 'ip: String', 'someNum: Int'].forEach(
+            (str: string) => {
+                expect(baseType).toInclude(str);
+            }
+        );
 
         expect(customTypes).toBeArrayOfSize(1);
         const customType = customTypes[0];
 
-        [
-            'type Geo {',
-            'lat: String!',
-            'lon: String!'
-        ].forEach((str: string) => {
-            expect(customType.match(str)).not.toBeNull();
+        ['type GeoPointType {', 'lat: String!', 'lon: String!'].forEach((str: string) => {
+            expect(customType).toInclude(str);
         });
     });
 
     it('it can add type name at toGraphQL call', () => {
         const typeConfig: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
                 date: { type: 'Date' },
                 ip: { type: 'IP' },
-                someNum: { type: 'Long' }
+                someNum: { type: 'Long' },
             },
         };
 
         const results = new DataType(typeConfig, 'myType').toGraphQL({ typeName: 'otherType' });
 
-        expect(results.match('type otherType {')).not.toBeNull();
-        expect(results.match('type myType {')).toBeNull();
+        expect(results).toInclude('type otherType {');
+        expect(results).not.toInclude('type myType {');
     });
 
     it('it can add default types for toGraphQL', () => {
         const typeConfig: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
                 date: { type: 'Date' },
                 ip: { type: 'IP' },
-                someNum: { type: 'Long' }
+                someNum: { type: 'Long' },
             },
         };
         const typeInjection = 'world: String';
         const results = new DataType(typeConfig, 'myType').toGraphQL({ typeInjection });
 
-        expect(results.match(typeInjection)).not.toBeNull();
+        expect(results).toInclude(typeInjection);
     });
 
     it('it throws when no name is provided with a toGraphQL call', () => {
         const typeConfig: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
                 date: { type: 'Date' },
                 ip: { type: 'IP' },
-                someNum: { type: 'Long' }
+                someNum: { type: 'Long' },
             },
         };
 
@@ -159,13 +148,13 @@ describe('DataType', () => {
 
     it('elasticsearch mapping requires providing a type name', () => {
         const typeConfig: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
                 date: { type: 'Date' },
                 ip: { type: 'IP' },
-                someNum: { type: 'Long' }
+                someNum: { type: 'Long' },
             },
         };
 
@@ -179,13 +168,13 @@ describe('DataType', () => {
 
     it('can create an elasticsearch mapping', () => {
         const typeConfig: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
                 date: { type: 'Date' },
                 ip: { type: 'IP' },
-                someNum: { type: 'Long' }
+                someNum: { type: 'Long' },
             },
         };
 
@@ -197,16 +186,16 @@ describe('DataType', () => {
                         location: { type: 'geo_point' },
                         date: { type: 'date' },
                         ip: { type: 'ip' },
-                        someNum: { type: 'long' }
-                    }
-                }
+                        someNum: { type: 'long' },
+                    },
+                },
             },
             settings: {
                 analysis: {
                     analyzer: {},
-                    tokenizer: {}
-                }
-            }
+                    tokenizer: {},
+                },
+            },
         };
 
         const mapping = new DataType(typeConfig).toESMapping({ typeName: 'events' });
@@ -215,13 +204,13 @@ describe('DataType', () => {
 
     it('can add additional settings to a elasticsearch mapping', () => {
         const typeConfig: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
                 date: { type: 'Date' },
                 ip: { type: 'IP' },
-                someNum: { type: 'Long' }
+                someNum: { type: 'Long' },
             },
         };
 
@@ -232,10 +221,10 @@ describe('DataType', () => {
                 analyzer: {
                     lowercase_keyword_analyzer: {
                         tokenizer: 'keyword',
-                        filter: 'lowercase'
-                    }
-                }
-            }
+                        filter: 'lowercase',
+                    },
+                },
+            },
         };
 
         const results = {
@@ -246,9 +235,9 @@ describe('DataType', () => {
                         location: { type: 'geo_point' },
                         date: { type: 'date' },
                         ip: { type: 'ip' },
-                        someNum: { type: 'long' }
-                    }
-                }
+                        someNum: { type: 'long' },
+                    },
+                },
             },
             settings: {
                 'index.number_of_shards': 5,
@@ -257,12 +246,12 @@ describe('DataType', () => {
                     analyzer: {
                         lowercase_keyword_analyzer: {
                             tokenizer: 'keyword',
-                            filter: 'lowercase'
-                        }
+                            filter: 'lowercase',
+                        },
                     },
-                    tokenizer: {}
+                    tokenizer: {},
                 },
-            }
+            },
         };
 
         const mapping = new DataType(typeConfig).toESMapping({ typeName: 'events', settings });
@@ -271,54 +260,51 @@ describe('DataType', () => {
 
     it('can build a single graphql type from multiple types', () => {
         const typeConfig1: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
                 date: { type: 'Date' },
                 ip: { type: 'IP' },
-                someNum: { type: 'Long' }
+                someNum: { type: 'Long' },
             },
         };
 
         const typeConfig2: DataTypeConfig = {
-            version: 1,
+            version: LATEST_VERSION,
             fields: {
                 hello: { type: 'Text' },
                 location: { type: 'Geo' },
                 otherLocation: { type: 'Geo' },
-                bool: { type: 'Boolean' }
+                bool: { type: 'Boolean' },
             },
         };
 
-        const types = [
-            new DataType(typeConfig1, 'firstType'),
-            new DataType(typeConfig2, 'secondType'),
-        ];
+        const types = [new DataType(typeConfig1, 'firstType'), new DataType(typeConfig2, 'secondType')];
 
         const results = DataType.mergeGraphQLDataTypes(types);
 
         const fields = [
             'type firstType {',
             'hello: String',
-            'location: Geo',
+            'location: GeoPointType',
             'date: DateTime',
             'ip: String',
             'someNum: Int',
 
             'type secondType {',
-            'otherLocation: Geo',
+            'otherLocation: GeoPointType',
             'bool: Boolean',
 
-            'type Geo {',
+            'type GeoPointType {',
             'lat: String!',
-            'lon: String!'
+            'lon: String!',
         ];
 
         fields.forEach((str: string) => {
-            expect(results.match(str)).not.toBeNull();
+            expect(results).toInclude(str);
         });
 
-        expect(results.match(/type Geo \{/g)).toBeArrayOfSize(1);
+        expect(results).toIncludeRepeated('type GeoPointType {', 1);
     });
 });

@@ -15,6 +15,7 @@
         "no-debugger": true,
         "trailing-comma": false,
         "comma-dangle": false,
+        "no-shadowed-variable": true,
         "variable-name": [
             true,
             "ban-keywords",
@@ -25,7 +26,7 @@
         "function-name": [
             true,
             {
-                "function-regex": "^[_]?[a-z][\\w\\d]+$",
+                "function-regex": "^[_]?[a-zA-Z][\\w\\d]+$",
                 "method-regex": "^[a-z][\\w\\d]+$",
                 "private-method-regex": "^[_]?[a-z][\\w\\d]+$",
                 "protected-method-regex": "^[_]?[a-z][\\w\\d]+$",

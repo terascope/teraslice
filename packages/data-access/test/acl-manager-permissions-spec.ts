@@ -2,7 +2,7 @@ import 'jest-extended';
 import { TSError } from '@terascope/utils';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
 import { ACLManager, User, DataType } from '../src';
-import { AvailableTypes } from '@terascope/data-types';
+import { LATEST_VERSION } from '@terascope/data-types';
 
 describe('ACLManager Permissions', () => {
     const client = makeClient();
@@ -123,19 +123,21 @@ describe('ACLManager Permissions', () => {
 
         [superAdminUser, adminUser, otherAdminUser, normalUser, otherUser, foreignUser, foreignAdminUser] = users;
 
-        dataType = await manager.createDataType({
-            dataType: {
-                client_id: 1,
-                name: 'SomeTestDataType',
-                type_config: {
-                    fields: {
-                        hello: { type: 'Keyword' },
+        dataType = await manager.createDataType(
+            {
+                dataType: {
+                    client_id: 1,
+                    name: 'SomeTestDataType',
+                    config: {
+                        fields: {
+                            hello: { type: 'Keyword' },
+                        },
+                        version: LATEST_VERSION,
                     },
-                    version: 1
-                }
-            }
-        }, superAdminUser);
-
+                },
+            },
+            superAdminUser
+        );
     });
 
     afterAll(async () => {
@@ -157,23 +159,23 @@ describe('ACLManager Permissions', () => {
                     dataType: {
                         client_id: 1,
                         name: 'SomeRandomExampleDataType',
-                        type_config: {
+                        config: {
                             fields: {
-                                hello: { type: 'Keyword' as AvailableTypes },
+                                hello: { type: 'Keyword' },
                             },
-                            version: 1
-                        }
+                            version: LATEST_VERSION,
+                        },
                     },
                 },
                 superAdminUser
             );
-
         });
 
         it('should be able to create space', async () => {
             await manager.createSpace(
                 {
                     space: {
+                        type: 'SEARCH',
                         client_id: 1,
                         name: 'SomeRandomExampleSpace',
                         endpoint: 'some-random-example-space',
@@ -424,6 +426,7 @@ describe('ACLManager Permissions', () => {
                 await manager.createSpace(
                     {
                         space: {
+                            type: 'SEARCH',
                             client_id: 1,
                             name: 'SomeExampleSpace',
                             endpoint: 'some-example-space',
@@ -753,17 +756,16 @@ describe('ACLManager Permissions', () => {
                         dataType: {
                             client_id: 1,
                             name: 'SomeExampleDataType',
-                            type_config: {
+                            config: {
                                 fields: {
                                     hello: { type: 'Keyword' },
                                 },
-                                version: 1
-                            }
+                                version: LATEST_VERSION,
+                            },
                         },
                     },
                     normalUser
                 );
-
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.message).toInclude("User doesn't have permission to create DataType");
@@ -814,6 +816,7 @@ describe('ACLManager Permissions', () => {
                 await manager.createSpace(
                     {
                         space: {
+                            type: 'SEARCH',
                             client_id: 1,
                             name: 'SomeExampleSpace',
                             endpoint: 'some-example-space',
@@ -855,6 +858,7 @@ describe('ACLManager Permissions', () => {
                 await manager.updateSpace(
                     {
                         space: {
+                            type: 'SEARCH',
                             id: 'random-id',
                         },
                     },

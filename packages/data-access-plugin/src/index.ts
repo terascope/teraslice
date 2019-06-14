@@ -19,7 +19,7 @@ const adapter: TeraserverPluginAdapter = {
                     if (typeof val !== 'string') {
                         throw new Error('connection parameter must be of type String as the value');
                     }
-                }
+                },
             },
             namespace: {
                 doc: 'Elasticsearch index namespace for the data-access models',
@@ -40,14 +40,8 @@ const adapter: TeraserverPluginAdapter = {
             throw new Error('Plugin has not been configured');
         }
 
-        return Promise.all([
-            this._manager.initialize(),
-            this._search.initialize(),
-            this._spaces.initialize(),
-        ])
-            .then(() => {
-                this._initialized = true;
-            });
+        await Promise.all([this._manager.initialize(), this._search.initialize(), this._spaces.initialize()]);
+        this._initialized = true;
     },
 
     post() {
@@ -62,11 +56,8 @@ const adapter: TeraserverPluginAdapter = {
         this._search.registerRoutes();
     },
 
-    routes() {
-        if (this._manager == null
-            || this._search == null
-            || this._spaces == null
-            || this._config == null) {
+    routes(deferred) {
+        if (this._manager == null || this._search == null || this._spaces == null || this._config == null) {
             throw new Error('Plugin has not been configured');
         }
 
@@ -77,6 +68,7 @@ const adapter: TeraserverPluginAdapter = {
         // ORDER MATTERS
         this._manager.registerRoutes();
         this._spaces.registerRoutes();
+        this._search.registerMiddleware();
     },
 };
 
@@ -93,5 +85,5 @@ interface TeraserverPluginAdapter {
     config(config: PluginConfig): void;
     post(): void;
     init(): Promise<void>;
-    routes(): void;
+    routes(deferred: (() => void)[]): void;
 }

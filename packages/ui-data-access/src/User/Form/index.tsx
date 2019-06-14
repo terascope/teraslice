@@ -1,42 +1,44 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
-import { toInteger } from '@terascope/utils';
 import { useCoreContext, UserPermissionMap } from '@terascope/ui-components';
+import { getModelType } from '../../utils';
 import ModelForm, {
     ValidateFn,
     BeforeSubmitFn,
     FormInput,
+    FormSelect,
+    ClientID,
 } from '../../ModelForm';
+import { Input } from '../interfaces';
 import TokenForm from './TokenForm';
-import { Role } from './interfaces';
 import config from '../config';
 
 const RolesForm: React.FC<Props> = ({ id }) => {
     const authUser = useCoreContext().authUser!;
-    const validate: ValidateFn = (errs, model) => {
-        const clientId = toInteger(model.client_id);
-        if (clientId === false || clientId < 1) {
-            errs.messages.push(
-                'Client ID must be an valid number greater than zero'
-            );
-            errs.fields.push('client_id');
-        } else {
-            model.client_id = clientId;
+    const afterChange = (model: Input) => {
+        if (model.role && model.role.client_id) {
+            model.client_id = model.role.client_id;
         }
-        return errs;
     };
-    const beforeSubmit: BeforeSubmitFn = (model, create) => {
-        const password = model.password as string;
-        delete model.password;
-        delete model.repeat_password;
 
-        const input = { ...model };
-        if (!input.role) delete model.role;
+    const validate: ValidateFn<Input> = (errs, model) => {
+        if (model.password && model.password !== model.repeat_password) {
+            errs.messages.push('Password must match');
+            errs.fields.push('password', 'repeat_password');
+        }
+    };
+
+    const beforeSubmit: BeforeSubmitFn<Input> = (input, create) => {
+        const password = input.password;
+        delete input.password;
+        delete input.repeat_password;
+
         if (create) {
             delete input.id;
         }
         delete input.api_token;
+        // it will throw an error if email is ''
         if (!input.email) {
             delete input.email;
         }
@@ -47,53 +49,45 @@ const RolesForm: React.FC<Props> = ({ id }) => {
     };
 
     return (
-        <ModelForm
+        <ModelForm<Input>
             modelName={config.name}
             id={id}
             validate={validate}
+            canDelete={model =>
+                ['ADMIN', 'SUPERADMIN'].includes(authUser.type) &&
+                authUser.id !== model.id
+            }
+            afterChange={afterChange}
             beforeSubmit={beforeSubmit}
         >
             {({ defaultInputProps, model, roles, update }) => {
-                const roleOptions = roles.map((role: Role) => ({
-                    key: role.id,
-                    text: role.name,
-                    value: role.id,
-                }));
-
+                const modelType = getModelType(model);
                 const userTypes = UserPermissionMap[authUser.type];
-                const userTypeOptions = userTypes.map(type => ({
-                    key: type,
-                    text: type,
-                    value: type,
-                }));
 
                 return (
                     <React.Fragment>
                         <Form.Group>
-                            <FormInput
+                            <FormInput<Input>
                                 {...defaultInputProps}
                                 name="username"
-                                label={`${config.singularLabel} Name`}
+                                label="Username"
                                 value={model.username}
                             />
-                            {authUser.type === 'SUPERADMIN' && (
-                                <FormInput
-                                    {...defaultInputProps}
-                                    disabled={model.type === 'SUPERADMIN'}
-                                    name="client_id"
-                                    label="Client ID"
-                                    value={`${model.client_id}`}
-                                />
-                            )}
+                            <ClientID<Input>
+                                {...defaultInputProps}
+                                id={model.client_id}
+                                disabled={modelType === 'SUPERADMIN'}
+                                inherited={Boolean(model.role.client_id)}
+                            />
                         </Form.Group>
                         <Form.Group>
-                            <FormInput
+                            <FormInput<Input>
                                 {...defaultInputProps}
                                 name="firstname"
                                 label="First Name"
                                 value={model.firstname}
                             />
-                            <FormInput
+                            <FormInput<Input>
                                 {...defaultInputProps}
                                 name="lastname"
                                 label="Last Name"
@@ -101,7 +95,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                             />
                         </Form.Group>
                         <Form.Group>
-                            <FormInput
+                            <FormInput<Input>
                                 {...defaultInputProps}
                                 type="email"
                                 name="email"
@@ -112,35 +106,35 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                         </Form.Group>
                         <Form.Group />
                         <Form.Group>
-                            <FormInput
+                            <FormSelect<Input>
                                 {...defaultInputProps}
-                                as={Form.Select}
                                 name="role"
                                 label="Role"
+                                disabled={modelType === 'SUPERADMIN'}
                                 placeholder="Select Role"
                                 value={model.role}
-                                options={roleOptions}
+                                options={roles}
                             />
-                            <FormInput
+                            <FormSelect<Input>
                                 {...defaultInputProps}
-                                as={Form.Select}
                                 name="type"
+                                sorted={false}
                                 label="Account Type"
                                 placeholder="Select Account Type"
                                 disabled={authUser.type === 'USER'}
-                                value={model.type}
-                                options={userTypeOptions}
+                                value={modelType}
+                                options={userTypes as string[]}
                             />
                         </Form.Group>
                         <Form.Group>
-                            <FormInput
+                            <FormInput<Input>
                                 {...defaultInputProps}
                                 type="password"
                                 name="password"
                                 label="Password"
                                 value={model.password}
                             />
-                            <FormInput
+                            <FormInput<Input>
                                 {...defaultInputProps}
                                 type="password"
                                 name="repeat_password"

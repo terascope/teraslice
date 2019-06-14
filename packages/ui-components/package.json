@@ -1,6 +1,6 @@
 {
     "name": "@terascope/ui-components",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "A teraserver ui components library",
     "publishConfig": {
         "access": "public"
@@ -9,7 +9,7 @@
         "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
-        "build": "tsc --build --pretty",
+        "build": "rm -rf ./dist; tsc --build --pretty",
         "build:watch": "yarn build --watch",
         "test": "echo '* tests not supported yet'"
     },
@@ -26,25 +26,26 @@
     },
     "main": "dist/src/index.js",
     "dependencies": {
-        "@terascope/utils": "^0.10.2",
-        "apollo-boost": "^0.3.1",
-        "apollo-client": "^2.5.1",
+        "@terascope/data-access": "^0.9.0",
+        "@terascope/utils": "^0.11.0",
+        "apollo-boost": "^0.4.2",
+        "apollo-client": "^2.6.2",
         "date-fns": "^1.30.1",
         "graphql": "^14.3.1",
         "prop-types": "^15.7.2",
-        "query-string": "^6.5.0",
+        "query-string": "^6.7.0",
         "react": "^16.8.6",
         "react-apollo": "^2.5.5",
         "react-dom": "^16.8.6",
-        "react-router-dom": "^5.0.0",
-        "semantic-ui-react": "^0.87.1"
+        "react-router-dom": "^5.0.1",
+        "semantic-ui-react": "^0.87.2"
     },
     "devDependencies": {
-        "@types/jest": "24.0.13",
-        "@types/node": "12.0.3",
-        "@types/react": "16.8.19",
+        "@types/jest": "24.0.14",
+        "@types/node": "12.0.8",
+        "@types/react": "16.8.20",
         "@types/react-dom": "16.8.4",
-        "@types/react-router-dom": "^4.3.3",
+        "@types/react-router-dom": "^4.3.4",
         "history": "^4.9.0"
     }
 }

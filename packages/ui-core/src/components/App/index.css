@@ -59,10 +59,9 @@
 }
 
 .appRoot {
-    height: 100%;
     min-height: 100%;
     display: flex;
-    flex: row nowrap;
+    flex-flow: row nowrap;
 }
 
 .sidebarWrapper {

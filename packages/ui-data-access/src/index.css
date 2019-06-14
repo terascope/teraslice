@@ -1,21 +1,51 @@
-.daFieldButton {
-    width: 10% !important;
-    min-width: 2rem !important;
-}
-
-.daFieldButton > label {
-    color: rgba(0, 0, 0, 0) !important;
-}
-
 .daFieldEmptyMessage {
     padding-top: 2rem 0 !important;
 }
 
-.daFormMessage {
-    display: block !important;
+.daFormCheckbox {
+    display: flex;
+    align-items: center;
+    padding-left: 1.5rem !important;
+    padding-top: 1.5rem !important;
 }
 
-.daFormMessageCode {
-    display: inline;
-    font-weight: bold;
+.daFormCheckbox label {
+    font-weight: bold !important;
+}
+
+.daActionSegment {
+    justify-content: space-between;
+    display: flex;
+    padding: 1rem 0 1rem 1rem !important;
+}
+
+.daActionSegment > div:first-child {
+    flex: 1;
+    margin-top: 0.1rem !important;
+}
+
+.daActionSegment .button {
+    padding-top: 0.6rem;
+}
+
+.daActionLabel {
+    padding: 0.4rem;
+}
+
+.daStrongItem {
+    text-transform: uppercase;
+    font-weight: 500;
+    color: rgb(100, 100, 100);
+}
+
+.daTypeConfigVersion {
+    flex-direction: column !important;
+}
+
+.daTypeConfigVersion > .field {
+    align-self: flex-end;
+}
+
+.daTypeConfigVersion label {
+    text-align: right;
 }

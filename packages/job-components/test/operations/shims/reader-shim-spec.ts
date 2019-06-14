@@ -6,7 +6,7 @@ describe('Reader Shim', () => {
     const exConfig = newTestExecutionConfig();
 
     const opConfig = {
-        _op: 'hello'
+        _op: 'hello',
     };
     exConfig.slicers = 2;
     exConfig.operations.push(opConfig);
@@ -19,29 +19,22 @@ describe('Reader Shim', () => {
         slicerQueueLength() {
             return 'QUEUE_MINIMUM_SIZE';
         },
-        async newSlicer(context, executionContext, recoveryData, logger) {
-            logger.debug(opConfig, executionContext, recoveryData, context.sysconfig.teraslice.assets_directory);
+        async newSlicer(_context, executionContext, recoveryData, logger) {
+            logger.debug(opConfig, executionContext, recoveryData, _context.sysconfig.teraslice.assets_directory);
             const results = [{ say: 'hi' }, { say: 'hello' }];
-            return [
-                async () => results.shift() || null,
-                async () => results.shift() || null,
-            ];
+            return [async () => results.shift() || null, async () => results.shift() || null];
         },
-        async newReader(context, opConfig, executionConfig) {
-            context.logger.debug(opConfig, executionConfig);
+        async newReader(_context, _opConfig, executionConfig) {
+            _context.logger.debug(_opConfig, executionConfig);
 
             return async ({ dataType = 'json' } = {}) => {
                 const data = { say: 'howdy' };
                 if (dataType === 'buffer') {
-                    return [
-                        Buffer.from(JSON.stringify(data)),
-                    ];
+                    return [Buffer.from(JSON.stringify(data))];
                 }
 
                 if (dataType === 'string') {
-                    return [
-                        JSON.stringify(data)
-                    ];
+                    return [JSON.stringify(data)];
                 }
 
                 return [data];
@@ -55,16 +48,14 @@ describe('Reader Shim', () => {
                 throw new Error('No teraslice name');
             }
         },
-        selfValidation() {
-
-        },
+        selfValidation() {},
         schema() {
             return {
                 example: {
                     default: 'examples are quick and easy',
                     doc: 'A random example schema property',
                     format: 'String',
-                }
+                },
             };
         },
     });
@@ -83,7 +74,7 @@ describe('Reader Shim', () => {
                 default: 'examples are quick and easy',
                 doc: 'A random example schema property',
                 format: 'String',
-            }
+            },
         });
 
         const result = schema.validate({ _op: 'hi', example: 'hello' });
@@ -110,14 +101,14 @@ describe('Reader Shim', () => {
 
         expect(slicer.getSlice()).toMatchObject({
             request: {
-                say: 'hi'
-            }
+                say: 'hi',
+            },
         });
 
         expect(slicer.getSlice()).toMatchObject({
             request: {
-                say: 'hello'
-            }
+                say: 'hello',
+            },
         });
 
         expect(slicer.getSlice()).toBeNull();
@@ -133,7 +124,7 @@ describe('Reader Shim', () => {
         const [result] = await fetcher.handle();
 
         expect(result).toEqual({
-            say: 'howdy'
+            say: 'howdy',
         });
     });
 

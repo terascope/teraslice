@@ -13,6 +13,8 @@ export default `
         data_type: DataType
         roles: [Role]
         ${commonViewModel}
+        # virtual references
+        space: Space
     }
     input CreateViewInput {
         client_id: Int

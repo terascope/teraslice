@@ -129,13 +129,13 @@ describe('IndexManager->indexSetup()', () => {
         });
 
         it('should create the template', async () => {
-            const template = await client.indices.getTemplate({
+            const temp = await client.indices.getTemplate({
                 name: templateName,
             });
 
-            expect(template).toHaveProperty(templateName);
-            expect(template[templateName].mappings).toHaveProperty(config.name);
-            expect(template[templateName]).toHaveProperty('version', 1);
+            expect(temp).toHaveProperty(templateName);
+            expect(temp[templateName].mappings).toHaveProperty(config.name);
+            expect(temp[templateName]).toHaveProperty('version', 1);
         });
 
         it('should be able upsert the same template safely', async () => {
@@ -154,12 +154,12 @@ describe('IndexManager->indexSetup()', () => {
                 version,
             });
 
-            const template = await client.indices.getTemplate({
+            const temp = await client.indices.getTemplate({
                 name: templateName,
             });
 
-            expect(template).toHaveProperty(templateName);
-            expect(template[templateName]).toHaveProperty('version', version);
+            expect(temp).toHaveProperty(templateName);
+            expect(temp[templateName]).toHaveProperty('version', version);
         });
 
         it('should be able to upsert a newer template safely', async () => {
@@ -177,12 +177,12 @@ describe('IndexManager->indexSetup()', () => {
                 version: newVersion,
             });
 
-            const template = await client.indices.getTemplate({
+            const temp = await client.indices.getTemplate({
                 name: templateName,
             });
 
-            expect(template).toHaveProperty(templateName);
-            expect(template[templateName]).toHaveProperty('version', newVersion);
+            expect(temp).toHaveProperty(templateName);
+            expect(temp[templateName]).toHaveProperty('version', newVersion);
         });
 
         it('should be able to call create again', async () => {
@@ -249,13 +249,13 @@ describe('IndexManager->indexSetup()', () => {
         });
 
         it('should create the template', async () => {
-            const template = await client.indices.getTemplate({
+            const temp = await client.indices.getTemplate({
                 name: templateName,
             });
 
-            expect(template).toHaveProperty(templateName);
-            expect(template[templateName].mappings).toHaveProperty(config.name);
-            expect(template[templateName]).toHaveProperty('version', 1);
+            expect(temp).toHaveProperty(templateName);
+            expect(temp[templateName].mappings).toHaveProperty(config.name);
+            expect(temp[templateName]).toHaveProperty('version', 1);
         });
 
         it('should be able to call create again', async () => {

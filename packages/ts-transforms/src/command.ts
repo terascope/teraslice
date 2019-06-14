@@ -1,4 +1,3 @@
-
 import yargs from 'yargs';
 import path from 'path';
 import fs from 'fs';
@@ -31,8 +30,7 @@ const command = yargs
     .describe('T', 'specify type configs from file')
     .describe('p', 'output the time it took to run the data')
     .demandOption(['r'])
-    .version(version)
-    .argv;
+    .version(version).argv;
 
 const filePath = command.rules as string;
 const dataPath = command.data;
@@ -65,9 +63,9 @@ if (!filePath) {
     process.exit(1);
 }
 
-async function dataFileLoader(dataPath: string): Promise<string> {
+async function dataFileLoader(dataFilePath: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        fs.readFile(path.resolve(dataPath), { encoding: 'utf8' }, (err, data) => {
+        fs.readFile(path.resolve(dataFilePath), { encoding: 'utf8' }, (err, data) => {
             if (err) return reject(err);
             resolve(data);
         });
@@ -136,12 +134,12 @@ function parseData(data: string): object[] | null {
     return results;
 }
 
-function handleParsedData(data: object[]|object): DataEntity<object>[] {
+function handleParsedData(data: object[] | object): DataEntity<object>[] {
     if (Array.isArray(data)) return DataEntity.makeArray(data);
     // input from elasticsearch
     const elasticSearchResults = _.get(data, 'hits.hits', null);
     if (elasticSearchResults) {
-        return elasticSearchResults.map((doc:ESData) => DataEntity.make(doc._source));
+        return elasticSearchResults.map((doc: ESData) => DataEntity.make(doc._source));
     }
     // input from teraserver
     const teraserverResults = _.get(data, 'results', null);
@@ -152,8 +150,8 @@ function handleParsedData(data: object[]|object): DataEntity<object>[] {
     throw new Error('could not get parse data');
 }
 
-async function getData(dataPath?: string) {
-    const rawData = dataPath ? await dataFileLoader(dataPath) : await getPipedData();
+async function getData(dataFilePath?: string) {
+    const rawData = dataFilePath ? await dataFileLoader(dataFilePath) : await getPipedData();
     const parsedData = parseData(rawData);
 
     if (!parsedData) {
@@ -168,18 +166,16 @@ async function initCommand() {
         const opConfig: PhaseConfig = {
             rules: parseList(filePath).map(pathing => path.resolve(pathing)),
             types: typesConfig,
-            type
+            type,
         };
         let plugins = [];
         if (command.p) {
             try {
                 const pluginList = parseList(command.p as string);
-                plugins = pluginList.map((pluginPath) => {
-                    const module = require(path.resolve(pluginPath));
-                    const results = module.default || module;
-                    return results;
+                plugins = pluginList.map(pluginPath => {
+                    const mod = require(path.resolve(pluginPath));
+                    return mod.default || mod;
                 });
-
             } catch (err) {
                 // @ts-ignore
                 console.error('could not load plugins');

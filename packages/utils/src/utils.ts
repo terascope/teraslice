@@ -133,9 +133,9 @@ export function parseList(input: any): string[] {
     if (isString(input)) {
         strings = input.split(',');
     } else if (Array.isArray(input)) {
-        strings = input.map(input => {
-            if (!input) return '';
-            return toString(input);
+        strings = input.map(val => {
+            if (!val) return '';
+            return toString(val);
         });
     } else {
         return [];
@@ -172,3 +172,18 @@ export function parseNumberList(input: any): number[] {
 }
 
 export function noop(...args: any[]): any {}
+
+/**
+ * A typesafe get function (will always return the correct type)
+ *
+ * **IMPORTANT** This does not behave like lodash.get,
+ * it does not deal with dot notation (nested fields)
+ * and it will use the default when dealing with OR statements
+ */
+export function getField<T extends any, P extends keyof T, V extends T[P] | any>(
+    input: T,
+    field: P,
+    defaultVal?: V
+): V extends T[P] ? T[P] : V {
+    return (input && input[field]) || defaultVal;
+}

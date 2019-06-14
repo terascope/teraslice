@@ -15,13 +15,13 @@ export class DynamicApolloServer extends apollo.ApolloServer {
     applyMiddleware({ app, path = '/graphql' }: apollo.ServerRegistration) {
         /* Adds project specific middleware inside, just to keep in one place */
         // @ts-ignore
-        const loginErrorHanlder = makeErrorHandler('Failure to login user', this.logger);
+        const loginErrorHandler = makeErrorHandler('Failure to login user', this.logger);
         // @ts-ignore
-        const schemaErrorHanlder = makeErrorHandler('Failure to create schema', this.logger);
+        const schemaErrorHandler = makeErrorHandler('Failure to create schema', this.logger);
 
         app.use(path, json(), async (req, res, next) => {
             // @ts-ignore
-            loginErrorHanlder(req, res, async () => {
+            loginErrorHandler(req, res, async () => {
                 const user = (await utils.login(get(req, 'aclManager'), req)) as User;
                 if (user.role == null) {
                     throw new TSError(`User ${user.username} missing role `, {
@@ -57,7 +57,7 @@ export class DynamicApolloServer extends apollo.ApolloServer {
                 // tslint:disable-next-line
                 const { schema, ...serverObj } = this;
 
-                schemaErrorHanlder(req, res, async () => {
+                schemaErrorHandler(req, res, async () => {
                     // TODO: check if user is false
                     // @ts-ignore
                     const roleSchema = await getSchemaByRole(req.aclManager, user, this.logger, this.pluginContext);

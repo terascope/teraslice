@@ -9,6 +9,7 @@ import { PluginConfig } from '../src/interfaces';
 import ManagerPlugin from '../src/manager';
 import SearchPlugin from '../src/search';
 import SpacesPlugin from '../src/spaces';
+import { LATEST_VERSION } from '@terascope/data-types';
 
 describe('Spaces API', () => {
     const client = makeClient();
@@ -79,7 +80,7 @@ describe('Spaces API', () => {
             fields: {
                 ${results.join('\n')}
             },
-            version: 1
+            version: ${LATEST_VERSION}
         `;
     }
 
@@ -95,7 +96,7 @@ describe('Spaces API', () => {
 
     const space2Properties = {
         ip: { type: 'IP' },
-        url: { type: 'Keyword' },
+        url: { type: 'Keyword', array: true },
         location: { type: 'Geo' },
         bytes: { type: 'Long' },
         created: { type: 'Date' },
@@ -371,7 +372,7 @@ describe('Spaces API', () => {
                     dataType:{
                         client_id: 1,
                         name: "Data Type 1",
-                        type_config: {
+                        config: {
                             ${createTypes(space1Properties)}
                         }
                 }){
@@ -386,7 +387,7 @@ describe('Spaces API', () => {
                     dataType:{
                         client_id: 1,
                         name: "Data Type 2",
-                        type_config: {
+                        config: {
                             ${createTypes(space2Properties)}
                         }
                 }){
@@ -401,7 +402,7 @@ describe('Spaces API', () => {
                     dataType:{
                         client_id: 1,
                         name: "Data Type 3",
-                        type_config: {
+                        config: {
                             ${createTypes(space3Properties)}
                         }
                 }){
@@ -552,12 +553,13 @@ describe('Spaces API', () => {
                 createSpace(
                     space: {
                         client_id: 1,
+                        type: SEARCH,
                         name: "Test Space 1",
                         endpoint: "${space1}",
                         data_type: "${dataType1}",
                         roles: ["${highRoleId}", "${lowRoleId}"],
                         views: ["${view1ID}"],
-                        search_config: {
+                        config: {
                             index:"${space1}",
                             require_query: true
                         },
@@ -573,12 +575,13 @@ describe('Spaces API', () => {
                 createSpace(
                     space: {
                         client_id: 1,
+                        type: SEARCH,
                         name: "Test Space 2",
                         endpoint: "${space2}",
                         data_type: "${dataType2}",
                         roles: ["${highRoleId}", "${lowRoleId}"],
                         views: ["${view2ID}", "${view2BID}"],
-                        search_config: {
+                        config: {
                             index:"${space2}",
                             require_query: true
                         },
@@ -594,12 +597,13 @@ describe('Spaces API', () => {
                 createSpace(
                     space: {
                         client_id: 1,
+                        type: SEARCH,
                         name: "Test Space 3",
                         endpoint: "${space3}",
                         data_type: "${dataType3}",
                         roles: ["${highRoleId}"],
                         views: ["${view3ID}"],
-                        search_config: {
+                        config: {
                             index:"${space3}",
                             require_query: true
                         },

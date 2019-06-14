@@ -21,14 +21,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     private readonly _translator: CachedTranslator = new CachedTranslator();
 
     constructor(config: QueryAccessConfig<T> = {}, logger?: ts.Logger) {
-        const {
-            excludes = [],
-            includes = [],
-            constraint,
-            prevent_prefix_wildcard,
-            allow_implicit_queries,
-            type_config = {},
-        } = config;
+        const { excludes = [], includes = [], constraint, prevent_prefix_wildcard, allow_implicit_queries, type_config = {} } = config;
 
         this.logger = logger != null ? logger.child({ module: 'xlucene-query-access' }) : _logger;
         this.excludes = excludes;
@@ -85,12 +78,9 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
             if (isWildcard(node)) {
                 if (this.preventPrefixWildcard && startsWithWildcard(node.value)) {
-                    throw new ts.TSError(
-                        "Wildcard queries of the form 'fieldname:*value' or 'fieldname:?value' in query are restricted",
-                        {
-                            statusCode: 403,
-                        }
-                    );
+                    throw new ts.TSError("Wildcard queries of the form 'fieldname:*value' or 'fieldname:?value' in query are restricted", {
+                        statusCode: 403,
+                    });
                 }
             }
         });
@@ -147,10 +137,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         };
     }
 
-    private _getSourceFields(
-        restricted?: (keyof T)[],
-        override?: (keyof T)[] | boolean | (keyof T)
-    ): (keyof T)[] | undefined {
+    private _getSourceFields(restricted?: (keyof T)[], override?: (keyof T)[] | boolean | (keyof T)): (keyof T)[] | undefined {
         if (restricted && override) {
             const fields = ts.uniq(ts.parseList(override) as (keyof T)[]);
 
@@ -171,12 +158,12 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
     private _isFieldExcluded(field: string): boolean {
         if (!this.excludes.length) return false;
-        return this.excludes.some((str) => ts.startsWith(field, str as string));
+        return this.excludes.some(str => ts.startsWith(field, str as string));
     }
 
     private _isFieldIncluded(field: string): boolean {
         if (!this.includes.length) return false;
-        return !this.includes.some((str) => ts.startsWith(field, str as string));
+        return !this.includes.some(str => ts.startsWith(field, str as string));
     }
 }
 

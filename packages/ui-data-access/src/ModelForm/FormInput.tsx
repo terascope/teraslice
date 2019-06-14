@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import PropTypes from 'prop-types';
-import { DefaultInputProps } from './interfaces';
-import { Form, FormComponent } from 'semantic-ui-react';
+import { Form, FormInputProps } from 'semantic-ui-react';
+import { Overwrite } from '@terascope/utils';
+import { DefaultInputProps, AnyModel } from './interfaces';
 
-const FormInput: React.FC<Props> = ({
+function FormInput<T extends AnyModel>({
     placeholder,
     label,
     name,
@@ -11,42 +12,38 @@ const FormInput: React.FC<Props> = ({
     onChange,
     hasError,
     isRequired,
-    as = Form.Input,
     children,
     ...props
-}) => {
-    const Component = as;
-
+}: Props<T>): ReactElement {
     if (value == null) {
         console.error(`Missing value for field ${name} on model`);
     }
 
     return (
-        <Component
-            {...{
-                name,
-                label,
-                placeholder: placeholder || label,
-                value: value != null ? value : '',
-                onChange,
-                error: hasError(name),
-                required: isRequired(name),
-            }}
+        <Form.Input
+            name={name}
+            label={label}
+            placeholder={placeholder || label}
+            value={value != null ? value : ''}
+            onChange={onChange}
+            error={hasError(name)}
+            required={isRequired(name)}
             {...props}
         >
             {children}
-        </Component>
+        </Form.Input>
     );
-};
+}
 
-export type Props = {
-    [prop: string]: any;
-    value: string;
-    name: string;
-    label: string;
-    placeholder?: string;
-    as?: FormComponent | any;
-} & DefaultInputProps;
+export type Props<T> = Overwrite<
+    FormInputProps,
+    {
+        name: keyof T;
+        label: string;
+        placeholder?: string;
+    }
+> &
+    DefaultInputProps<T>;
 
 FormInput.propTypes = {
     name: PropTypes.string.isRequired,

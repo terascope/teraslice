@@ -3,7 +3,6 @@ import BaseType from '../base-type';
 import { ElasticSearchTypes } from '../../../interfaces';
 
 export default class KeywordTokensCaseInsensitive extends BaseType {
-
     toESMapping(version?: number) {
         return {
             mapping: {
@@ -14,22 +13,22 @@ export default class KeywordTokensCaseInsensitive extends BaseType {
                     fields: {
                         tokens: {
                             type: 'text' as ElasticSearchTypes,
-                            analyzer: 'simple'
-                        }
-                    }
-                }
+                            analyzer: 'simple',
+                        },
+                    },
+                },
             },
             analyzer: {
                 lowercase_keyword_analyzer: {
                     tokenizer: 'keyword',
-                    filter: 'lowercase'
+                    filter: 'lowercase',
                 },
-            }
+            },
         };
     }
 
     toGraphQL() {
-        return { type: `${this.field}: String` };
+        return { type: this._formatGql('String') };
     }
 
     toXlucene() {

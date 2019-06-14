@@ -1,37 +1,55 @@
 import gql from 'graphql-tag';
-import { get } from '@terascope/utils';
 import { formatDate } from '@terascope/ui-components';
-import { inputFields, Input } from './Form/interfaces';
+import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
+import { copyField } from '../utils';
+import { LATEST_VERSION } from '@terascope/data-types';
 
-const config: ModelConfig = {
+const fieldsFragment = gql`
+    fragment DataTypeFields on DataType {
+        id
+        client_id
+        name
+        description
+        config {
+            version
+            fields
+        }
+        created
+        updated
+    }
+`;
+
+const config: ModelConfig<Input> = {
     name: 'DataType',
     pathname: 'data-types',
     singularLabel: 'Data Type',
     pluralLabel: 'Data Types',
     searchFields: ['name'],
     requiredFields: ['name'],
-    handleFormProps(authUser, data) {
-        const dataTypes = get(data, 'dataType');
+    handleFormProps(authUser, { result, ...extra }) {
         const input = {} as Input;
         for (const field of inputFields) {
-            if (field === 'type_config') {
-                input[field] = get(dataTypes, field) || {};
+            if (field === 'config') {
+                copyField(input, result, field, {
+                    version: LATEST_VERSION,
+                    fields: {},
+                });
             } else {
-                input[field] = get(dataTypes, field) || '';
+                copyField(input, result, field, '');
             }
         }
         if (!input.client_id && authUser.client_id) {
             input.client_id = authUser.client_id;
         }
-        return { input };
+        return { input, ...extra };
     },
     rowMapping: {
         getId(record) {
             return record.id;
         },
         columns: {
-            name: { label: 'Data Type Name' },
+            name: { label: 'Name' },
             description: {
                 label: 'Description',
                 sortable: false,
@@ -50,26 +68,19 @@ const config: ModelConfig = {
     listQuery: gql`
         query DataTypes($query: String, $from: Int, $size: Int, $sort: String) {
             records: dataTypes(query: $query, from: $from, size: $size, sort: $sort) {
-                id
-                name
-                description
-                type_config
-                updated
-                created
+                ...DataTypeFields
             }
             total: dataTypesCount(query: $query)
         }
+        ${fieldsFragment}
     `,
     updateQuery: gql`
         query UpdateQuery($id: ID!) {
-            dataType(id: $id) {
-                id
-                name
-                description
-                type_config
-                client_id
+            result: dataType(id: $id) {
+                ...DataTypeFields
             }
         }
+        ${fieldsFragment}
     `,
     createMutation: gql`
         mutation CreateDataType($input: CreateDataTypeInput!) {

@@ -41,21 +41,21 @@
         "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
-        "@terascope/utils": "^0.10.2",
+        "@terascope/utils": "^0.11.0",
         "@types/graphlib": "^2.1.5",
         "@types/shortid": "^0.0.29",
-        "awesome-phonenumber": "^2.10.0",
+        "awesome-phonenumber": "^2.11.0",
         "graphlib": "^2.1.7",
         "lodash": "^4.17.11",
         "shortid": "^2.2.14",
         "valid-url": "^1.0.9",
-        "validator": "^10.10.0",
+        "validator": "^11.0.0",
         "xlucene-evaluator": "^0.9.0",
         "yargs": "^13.2.4"
     },
     "devDependencies": {
         "@types/valid-url": "^1.0.2",
-        "@types/validator": "^10.11.0",
+        "@types/validator": "^10.11.1",
         "@types/yargs": "^13.0.0"
     },
     "engines": {

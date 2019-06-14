@@ -22,7 +22,7 @@
     padding: 1rem 0;
 }
 
-.coreForm {
+.loginForm {
     padding-bottom: 1rem;
 }
 
@@ -37,4 +37,115 @@
     font-size: 1rem;
     align-self: center;
     padding-left: 1rem;
+}
+
+.dtFooterOptions {
+    display: flex;
+    justify-content: space-between;
+}
+
+.dtFooterPerPage {
+    margin-right: 1rem;
+    margin-top: 0.1rem;
+    margin-left: -1px;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-color: rgba(34, 36, 38, 0.20) !important;
+}
+
+.dtFooterPerPageLabel {
+    margin-top: 0.1rem !important;
+    margin-right: 0 !important;
+    font-weight: 400 !important;
+    display: flex !important;
+    align-items: center;
+    padding: 0 1rem  !important;
+    font-size: 0.9rem !important;
+    background: rgba(0, 0, 0, 0.03) !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.sectionMessage {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sectionMessage > .content {
+    flex: 1;
+    margin-left: 1rem;
+}
+
+.sectionDescription {
+    margin-top: -0.1rem !important;
+    margin-bottom: -0.1em !important;
+}
+
+.actionSegment {
+    justify-content: space-between;
+    display: flex;
+    padding: 1rem 0 1rem 1rem !important;
+}
+
+.actionSegment > :not(.borderlessButton) {
+    flex: 1;
+    margin-top: 0.1rem !important;
+}
+
+.actionSegment .button {
+    padding-top: 0.6rem;
+}
+
+.borderlessButton {
+    box-shadow: none !important;
+    background: transparent none !important;
+    font-weight: normal !important;
+    text-transform: uppercase !important;
+}
+
+.borderlessButton.red {
+    color: #DB2828 !important;
+}
+
+.borderlessButton.blue {
+    color: #2185D0 !important;
+}
+
+.code {
+    font-weight: bold;
+}
+
+.code.inline {
+    display: inline;
+}
+
+.recordFormButtonRow {
+    display: flex;
+    flex-direction: column;
+    align-self: flex-end;
+}
+
+.recordFormTopButtons {
+    margin-top: -4.5rem;
+}
+
+.recordFormButtons {
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: row;
+}
+
+.recordFormButtons > div {
+    margin-right: 0.5rem !important;
+}
+
+.recordFormButtons .submit > .button, .recordFormButtons .delete > .button {
+    padding-left: 2.5rem !important;
+    padding-right: 2.5rem !important;
+}
+
+.recordFormButtons .delete {
+    display: flex;
+    flex: 1;
 }

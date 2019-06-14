@@ -40,10 +40,10 @@ describe('can transform matches', () => {
         const results = await test.run(data);
 
         expect(results.length).toEqual(1);
-        _.each(results, data => {
-            expect(DataEntity.isDataEntity(data)).toEqual(true);
-            expect(_.get(data, 'topfield.value1')).toEqual('hello');
-            expect(data.getMetadata('selectors')).toBeDefined();
+        _.each(results, d => {
+            expect(DataEntity.isDataEntity(d)).toEqual(true);
+            expect(_.get(d, 'topfield.value1')).toEqual('hello');
+            expect(d.getMetadata('selectors')).toBeDefined();
         });
     });
 
@@ -78,10 +78,10 @@ describe('can transform matches', () => {
         const results = await test.run(data);
 
         expect(results.length).toEqual(2);
-        _.each(results, (data, index) => {
-            expect(DataEntity.isDataEntity(data)).toEqual(true);
-            expect(data.other).toEqual(resultSet[index]);
-            expect(data.getMetadata('selectors').includes('*')).toBeTrue();
+        _.each(results, (d, index) => {
+            expect(DataEntity.isDataEntity(d)).toEqual(true);
+            expect(d.other).toEqual(resultSet[index]);
+            expect(d.getMetadata('selectors').includes('*')).toBeTrue();
         });
     });
 
@@ -230,10 +230,10 @@ describe('can transform matches', () => {
         const test = await opTest.init(config);
         const results = await test.run(data);
 
-        _.each(results, (data, index) => {
-            expect(DataEntity.isDataEntity(data)).toEqual(true);
-            expect(data).toEqual(resultSet[index]);
-            expect(data.getMetadata('selectors')).toBeDefined();
+        _.each(results, (d, index) => {
+            expect(DataEntity.isDataEntity(d)).toEqual(true);
+            expect(d).toEqual(resultSet[index]);
+            expect(d.getMetadata('selectors')).toBeDefined();
         });
     });
 
@@ -435,9 +435,9 @@ describe('can transform matches', () => {
         const results = await test.run(data);
 
         expect(results.length).toEqual(2);
-        _.each(results, (data, index) => {
-            expect(DataEntity.isDataEntity(data)).toEqual(true);
-            expect(data).toEqual(resultSet[index]);
+        _.each(results, (d, index) => {
+            expect(DataEntity.isDataEntity(d)).toEqual(true);
+            expect(d).toEqual(resultSet[index]);
         });
     });
 

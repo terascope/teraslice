@@ -1,13 +1,6 @@
 'use strict';
 
 const path = require('path');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
-const { name } = require('./package.json');
-
-const pluginName = name
-    .replace('@terascope/ui-', '')
-    .replace('-', '_')
-    .trim();
 
 module.exports = {
     entry: './src/index.ts',
@@ -29,13 +22,11 @@ module.exports = {
         ],
     },
     resolve: {
+        mainFields: ['browser', 'main', 'module'],
         extensions: ['.tsx', '.ts', '.js'],
     },
     output: {
-        library: `UIPlugin_${pluginName}`,
-        libraryTarget: 'window',
-        filename: 'plugin.[hash].js',
-        auxiliaryComment: `UI Plugin for ${name}`,
+        filename: 'plugin.js',
         path: path.resolve(__dirname, 'build'),
     },
     externals: {
@@ -47,9 +38,5 @@ module.exports = {
         'apollo-boost': 'ApolloBoost',
         'apollo-client': 'ApolloClient',
     },
-    plugins: [
-        new CleanWebpackPlugin({
-            verbose: true,
-        }),
-    ],
+    plugins: [],
 };

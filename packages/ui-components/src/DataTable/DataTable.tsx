@@ -18,7 +18,7 @@ const DataTable: React.FC<Props> = props => {
         baseEditPath,
         loading,
         updateQueryState,
-        removeRecords,
+        exportRecords,
         rowMapping,
     } = props;
 
@@ -70,17 +70,20 @@ const DataTable: React.FC<Props> = props => {
                     numCols={numCols}
                     updateQueryState={updateQueryState}
                     onAction={async action => {
+                        if (actionState.loading) return;
+
                         setActionState({
                             loading: true,
                         });
                         try {
-                            if (action === 'REMOVE') {
+                            if (action === 'EXPORT') {
                                 const docs = selected.map(id =>
                                     records.find(record => {
                                         return rowMapping.getId(record) === id;
                                     })
                                 );
-                                const message = await removeRecords(
+
+                                const message = await exportRecords(
                                     selectedAll || docs
                                 );
 
@@ -90,12 +93,6 @@ const DataTable: React.FC<Props> = props => {
                                     message,
                                 });
 
-                                for (const doc of docs) {
-                                    const recordsIndex = records.indexOf(doc);
-                                    if (recordsIndex >= 0) {
-                                        records.splice(recordsIndex, 1);
-                                    }
-                                }
                                 setSelected({
                                     selected: [],
                                     selectedAll,
@@ -167,7 +164,7 @@ type Props = {
     rowMapping: i.RowMapping;
     records: any[];
     updateQueryState: i.UpdateQueryState;
-    removeRecords: (ids: any[] | true) => Promise<string>;
+    exportRecords: (ids: any[] | true) => Promise<string>;
     baseEditPath: string;
     total: number;
     loading?: boolean;
@@ -180,7 +177,7 @@ DataTable.propTypes = {
     baseEditPath: PropTypes.string.isRequired,
     total: PropTypes.number.isRequired,
     loading: PropTypes.bool,
-    removeRecords: PropTypes.func.isRequired,
+    exportRecords: PropTypes.func.isRequired,
     rowMapping: i.RowMappingProp.isRequired,
     queryState: i.QueryStateProp,
 };

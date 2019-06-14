@@ -13,9 +13,52 @@ export function toString(val: any): string {
 
     return JSON.stringify(val);
 }
+
 /** safely trim and to lower a input, useful for string comparison */
 export function trimAndToLower(input?: string): string {
     return trim(input).toLowerCase();
+}
+
+/** safely trim and to lower a input, useful for string comparison */
+export function trimAndToUpper(input?: string): string {
+    return trim(input).toUpperCase();
+}
+
+/** Escape characters in string and avoid double escaping */
+export function escapeString(str: string = '', chars: string[]): string {
+    const len = str.length;
+    let escaped = '';
+
+    for (let i = 0; i < len; i++) {
+        const char = str.charAt(i);
+        const prev = i > 0 ? str.charAt(i - 1) : '';
+        if (chars.includes(char) && prev !== '\\') {
+            escaped += `\\${char}`;
+        } else {
+            escaped += char;
+        }
+    }
+
+    return escaped;
+}
+
+/** Unescape characters in string and avoid double escaping */
+export function unescapeString(str: string = ''): string {
+    const len = str.length;
+    let unescaped = '';
+
+    for (let i = 0; i < len; i++) {
+        const char = str.charAt(i);
+        const next = i < len ? str.charAt(i + 1) : '';
+        if (char === '\\' && next) {
+            unescaped += next;
+            i++;
+        } else {
+            unescaped += char;
+        }
+    }
+
+    return unescaped;
 }
 
 /** safely trim an input */
@@ -30,7 +73,7 @@ export function startsWith(str: string, val: string) {
 }
 
 export function truncate(str: string, len: number): string {
-    const sliceLen = (len - 4) > 0 ? len - 4 : len;
+    const sliceLen = len - 4 > 0 ? len - 4 : len;
     return str.length >= len ? `${str.slice(0, sliceLen)} ...` : str;
 }
 
@@ -40,7 +83,7 @@ export function truncate(str: string, len: number): string {
  * removes any invalid characters,
  * and replaces whitespace with _ (if it exists in the string) or -
  * Warning this may reduce the str length
-*/
+ */
 export function toSafeString(input: string): string {
     let s = trimAndToLower(input);
     const startReg = /^[_\-\+]+/;
@@ -50,7 +93,7 @@ export function toSafeString(input: string): string {
 
     const whitespaceChar = s.includes('_') ? '_' : '-';
     s = s.replace(/\s/g, whitespaceChar);
-    const reg = new RegExp('[\.\+#*?"<>|/\\\\]', 'g');
+    const reg = new RegExp('[.+#*?"<>|/\\\\]', 'g');
     s = s.replace(reg, '');
     return s;
 }

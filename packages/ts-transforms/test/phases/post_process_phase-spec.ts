@@ -45,8 +45,8 @@ describe('post_process phase', () => {
         const configList = await getConfigList('transformRules17.txt');
         const postProcessPhase = new PostProcessPhase(transformOpconfig, configList, opManager);
 
-        function encode(str: string) {
-            return Buffer.from(str).toString('base64');
+        function encode(s: string) {
+            return Buffer.from(s).toString('base64');
         }
         const str = 'hello';
         const data = [

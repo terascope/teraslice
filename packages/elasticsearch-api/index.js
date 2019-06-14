@@ -10,8 +10,17 @@ const DOCUMENT_EXISTS = 409;
 // All functions in this module return promises that must be resolved to get the final result.
 module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     const config = _opConfig || {};
+    if (!client) {
+        throw new Error('Elasticsearch API requires client');
+    }
+    if (!logger) {
+        throw new Error('Elasticsearch API requires logger');
+    }
 
-    const warning = _warn(logger, 'The elasticsearch cluster queues are overloaded, resubmitting failed queries from bulk');
+    const warning = _warn(
+        logger,
+        'The elasticsearch cluster queues are overloaded, resubmitting failed queries from bulk'
+    );
 
     const retryStart = _.get(client, '__testing.start', 5000);
     const retryLimit = _.get(client, '__testing.limit', 10000);
@@ -20,22 +29,20 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
     function count(query) {
         query.size = 0;
-        return _searchES(query)
-            .then(data => data.hits.total);
+        return _searchES(query).then(data => data.hits.total);
     }
 
     function search(query) {
-        return _searchES(query)
-            .then((data) => {
-                if (config.full_response) {
-                    return data;
-                }
-                return _.map(data.hits.hits, doc => doc._source);
-            });
+        return _searchES(query).then((data) => {
+            if (config.full_response) {
+                return data;
+            }
+            return _.map(data.hits.hits, doc => doc._source);
+        });
     }
 
     function _makeRequest(clientBase, endpoint, query, fnNamePrefix) {
-        return new Promise(((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             const fnName = `${fnNamePrefix || ''}->${endpoint}()`;
             const errHandler = _errorHandler(_runRequest, query, reject, fnName);
 
@@ -46,7 +53,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             }
 
             _runRequest();
-        }));
+        });
     }
 
     function _clientRequest(endpoint, query) {
@@ -62,8 +69,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function get(query) {
-        return _clientRequest('get', query)
-            .then(result => result._source);
+        return _clientRequest('get', query).then(result => result._source);
     }
 
     function indexFn(query) {
@@ -71,23 +77,19 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function indexWithId(query) {
-        return _clientRequest('index', query)
-            .then(() => query.body);
+        return _clientRequest('index', query).then(() => query.body);
     }
 
     function create(query) {
-        return _clientRequest('create', query)
-            .then(() => query.body);
+        return _clientRequest('create', query).then(() => query.body);
     }
 
     function update(query) {
-        return _clientRequest('update', query)
-            .then(() => query.body.doc);
+        return _clientRequest('update', query).then(() => query.body.doc);
     }
 
     function remove(query) {
-        return _clientRequest('delete', query)
-            .then(result => result.found);
+        return _clientRequest('delete', query).then(result => result.found);
     }
 
     function indexExists(query) {
@@ -135,7 +137,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                     if (value.settings.index.max_result_window) {
                         results.push({
                             name: key,
-                            windowSize: value.settings.index.max_result_window
+                            windowSize: value.settings.index.max_result_window,
                         });
                     } else {
                         results.push({ name: key, windowSize: 10000 });
@@ -157,37 +159,42 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         // A regular regex query will not error, it will just return
         // no results which is not always an error
         if (isWildCardRegexSearch !== null) {
-            logger.warn(`Running a regex or cross cluster search for ${config.index}, there is no reliable way to verify index and max_result_window`);
+            logger.warn(
+                `Running a regex or cross cluster search for ${config.index}, there is no reliable way to verify index and max_result_window`
+            );
             return Promise.resolve(true);
         }
-        return client.cluster.stats({})
-            .then((data) => {
-                if (!_checkVersion(data.nodes.versions[0])) {
-                    return Promise.resolve();
-                }
-                return client.indices.getSettings({})
-                    .then((results) => {
-                        const resultIndex = _verifyIndex(results, config.index);
-                        if (resultIndex.found) {
-                            resultIndex.indexWindowSize.forEach((ind) => {
-                                logger.warn(`max_result_window for index: ${ind.name} is set at ${ind.windowSize} . On very large indices it is possible that a slice can not be divided to stay below this limit. If that occurs an error will be thrown by Elasticsearch and the slice can not be processed. Increasing max_result_window in the Elasticsearch index settings will resolve the problem.`);
-                            });
-                        } else {
-                            const error = new TSError('index specified in reader does not exist', {
-                                statusCode: 404,
-                            });
-                            return Promise.reject(error);
-                        }
+        return client.cluster.stats({}).then((data) => {
+            if (!_checkVersion(data.nodes.versions[0])) {
+                return Promise.resolve();
+            }
+            return client.indices
+                .getSettings({})
+                .then((results) => {
+                    const resultIndex = _verifyIndex(results, config.index);
+                    if (resultIndex.found) {
+                        resultIndex.indexWindowSize.forEach((ind) => {
+                            logger.warn(
+                                `max_result_window for index: ${ind.name} is set at ${ind.windowSize} . On very large indices it is possible that a slice can not be divided to stay below this limit. If that occurs an error will be thrown by Elasticsearch and the slice can not be processed. Increasing max_result_window in the Elasticsearch index settings will resolve the problem.`
+                            );
+                        });
+                    } else {
+                        const error = new TSError('index specified in reader does not exist', {
+                            statusCode: 404,
+                        });
+                        return Promise.reject(error);
+                    }
 
-                        return Promise.resolve();
-                    }).catch(err => Promise.reject(new TSError(err)));
-            });
+                    return Promise.resolve();
+                })
+                .catch(err => Promise.reject(new TSError(err)));
+        });
     }
 
-
     function putTemplate(template, name) {
-        return _clientIndicesRequest('putTemplate', { body: template, name })
-            .then(results => results);
+        return _clientIndicesRequest('putTemplate', { body: template, name }).then(
+            results => results
+        );
     }
 
     function _filterResponse(data, results) {
@@ -209,9 +216,12 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                     if (i === 0) {
                         retry.push(data[0], data[1]);
                     } else {
-                        retry.push(data[(i * 2)], data[(i * 2) + 1]);
+                        retry.push(data[i * 2], data[i * 2 + 1]);
                     }
-                } else if (item.error.type !== 'document_already_exists_exception' && item.error.type !== 'document_missing_exception') {
+                } else if (
+                    item.error.type !== 'document_already_exists_exception'
+                    && item.error.type !== 'document_missing_exception'
+                ) {
                     nonRetriableError = true;
                     reason = `${item.error.type}--${item.error.reason}`;
                     break;
@@ -227,7 +237,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function bulkSend(data) {
-        return new Promise(((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             const retry = _retryFn(_sendData, data);
 
             function _sendData(formattedData) {
@@ -254,7 +264,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                             reason: 'bulk sender error',
                             context: {
                                 connection,
-                            }
+                            },
                         });
 
                         return Promise.reject(error);
@@ -262,7 +272,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             }
 
             _sendData(data);
-        }));
+        });
     }
 
     function _warn(warnLogger, msg) {
@@ -278,7 +288,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             geo_distance: geoDistance,
             geo_sort_point: geoSortPoint,
             geo_sort_order: geoSortOrder,
-            geo_sort_unit: geoSortUnit
+            geo_sort_unit: geoSortUnit,
         } = opConfig;
 
         function isBoundingBoxQuery() {
@@ -294,23 +304,33 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         }
 
         if ((geoPoint && !geoDistance) || (!geoPoint && geoDistance)) {
-            throw new Error('Both geo_point and geo_distance must be provided for a geo_point query.');
+            throw new Error(
+                'Both geo_point and geo_distance must be provided for a geo_point query.'
+            );
         }
 
         if ((geoBoxTopLeft && !geoBoxBottomRight) || (!geoBoxTopLeft && geoBoxBottomRight)) {
-            throw new Error('Both geo_box_top_left and geo_box_bottom_right must be provided for a geo bounding box query.');
+            throw new Error(
+                'Both geo_box_top_left and geo_box_bottom_right must be provided for a geo bounding box query.'
+            );
         }
 
         if (geoBoxTopLeft && (geoSortOrder || geoSortUnit) && !geoSortPoint) {
-            throw new Error('bounding box search requires geo_sort_point to be set if any other geo_sort_* parameter is provided');
+            throw new Error(
+                'bounding box search requires geo_sort_point to be set if any other geo_sort_* parameter is provided'
+            );
         }
 
         if ((geoBoxTopLeft || geoPoint || geoDistance || geoSortPoint) && !geoField) {
-            throw new Error('geo box search requires geo_field to be set if any other geo query parameters are provided');
+            throw new Error(
+                'geo box search requires geo_field to be set if any other geo query parameters are provided'
+            );
         }
 
         if (geoField && !(isBoundingBoxQuery() || isGeoDistanceQuery())) {
-            throw new Error('if geo_field is specified then the appropriate geo_box or geo_distance query parameters need to be provided as well');
+            throw new Error(
+                'if geo_field is specified then the appropriate geo_box or geo_distance query parameters need to be provided as well'
+            );
         }
     }
 
@@ -329,14 +349,14 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             geo_distance: geoDistance,
             geo_sort_point: geoSortPoint,
             geo_sort_order: geoSortOrder = 'asc',
-            geo_sort_unit: geoSortUnit = 'm'
+            geo_sort_unit: geoSortUnit = 'm',
         } = opConfig;
 
         function createGeoSortQuery(location) {
             const sortedSearch = { _geo_distance: {} };
             sortedSearch._geo_distance[opConfig.geo_field] = {
                 lat: location[0],
-                lon: location[1]
+                lon: location[1],
             };
             sortedSearch._geo_distance.order = geoSortOrder;
             sortedSearch._geo_distance.unit = geoSortUnit;
@@ -355,18 +375,18 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             const bottomRight = createGeoPoint(geoBoxBottomRight);
 
             const searchQuery = {
-                geo_bounding_box: {}
+                geo_bounding_box: {},
             };
 
             searchQuery.geo_bounding_box[opConfig.geo_field] = {
                 top_left: {
                     lat: topLeft[0],
-                    lon: topLeft[1]
+                    lon: topLeft[1],
                 },
                 bottom_right: {
                     lat: bottomRight[0],
-                    lon: bottomRight[1]
-                }
+                    lon: bottomRight[1],
+                },
             };
 
             queryResults.query = searchQuery;
@@ -382,13 +402,13 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             const location = createGeoPoint(geoPoint);
             const searchQuery = {
                 geo_distance: {
-                    distance: geoDistance
-                }
+                    distance: geoDistance,
+                },
             };
 
             searchQuery.geo_distance[opConfig.geo_field] = {
                 lat: location[0],
-                lon: location[1]
+                lon: location[1],
             };
 
             queryResults.query = searchQuery;
@@ -408,9 +428,9 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         const body = {
             query: {
                 bool: {
-                    must: []
-                }
-            }
+                    must: [],
+                },
+            },
         };
         // is a range type query
         if (msg.start && msg.end) {
@@ -418,7 +438,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             const { date_field_name: dateFieldName } = opConfig;
             dateObj[dateFieldName] = {
                 gte: msg.start,
-                lt: msg.end
+                lt: msg.end,
             };
 
             body.query.bool.must.push({ range: dateObj });
@@ -433,8 +453,8 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         if (opConfig.query) {
             body.query.bool.must.push({
                 query_string: {
-                    query: opConfig.query
-                }
+                    query: opConfig.query,
+                },
             });
         }
 
@@ -451,7 +471,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         const query = {
             index: opConfig.index,
             size: msg.count,
-            body: _buildRangeQuery(opConfig, msg)
+            body: _buildRangeQuery(opConfig, msg),
         };
 
         if (opConfig.fields) {
@@ -467,7 +487,8 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             const retry = _retryFn(_performSearch, query);
 
             function _performSearch(queryParam) {
-                client.search(queryParam)
+                client
+                    .search(queryParam)
                     .then((data) => {
                         const { failures, failed } = data._shards;
                         if (!failed) {
@@ -477,13 +498,16 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
                         const reasons = _.uniq(_.flatMap(failures, shard => shard.reason.type));
 
-                        if (reasons.length > 1 || reasons[0] !== 'es_rejected_execution_exception') {
+                        if (
+                            reasons.length > 1
+                            || reasons[0] !== 'es_rejected_execution_exception'
+                        ) {
                             const errorReason = reasons.join(' | ');
                             const error = new TSError(errorReason, {
                                 reason: 'Not all shards returned successful',
                                 context: {
-                                    connection
-                                }
+                                    connection,
+                                },
                             });
                             reject(error);
                         } else {
@@ -517,7 +541,6 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         };
     }
 
-
     function _errorHandler(fn, data, reject, fnName = '->unknown()') {
         const retry = _retryFn(fn, data);
         return function _errorHandlerFn(err) {
@@ -528,13 +551,15 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                 // this iteration we will not handle with no living connections issue
                 retry();
             } else {
-                reject(new TSError(err, {
-                    reason: `invoking elasticsearch-api client${fnName}`,
-                    context: {
-                        fnName,
-                        connection,
-                    }
-                }));
+                reject(
+                    new TSError(err, {
+                        reason: `invoking elasticsearch-api client${fnName}`,
+                        context: {
+                            fnName,
+                            connection,
+                        },
+                    })
+                );
             }
         };
     }
@@ -547,7 +572,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     function _isAvailable(index) {
         const query = { index, q: '*' };
 
-        return new Promise(((resolve) => {
+        return new Promise((resolve) => {
             search(query)
                 .then((results) => {
                     logger.trace(`index ${index} is now available`);
@@ -565,7 +590,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                             });
                     }, 200);
                 });
-        }));
+        });
     }
 
     function _migrate(index, migrantIndexName, mapping, recordType, clusterName) {
@@ -575,29 +600,31 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             refresh: true,
             body: {
                 source: {
-                    index
+                    index,
                 },
                 dest: {
-                    index: migrantIndexName
-                }
-            }
+                    index: migrantIndexName,
+                },
+            },
         };
         let docCount;
 
         return Promise.all([
             count({ index }),
-            _createIndex(migrantIndexName, null, mapping, recordType, clusterName)
+            _createIndex(migrantIndexName, null, mapping, recordType, clusterName),
         ])
             .spread((_count) => {
                 docCount = _count;
                 return _clientRequest('reindex', reindexQuery);
             })
-            .catch(err => Promise.reject(new TSError(err, {
-                reason: `could not reindex for query ${JSON.stringify(reindexQuery)}`,
-                context: {
-                    connection
-                }
-            })))
+            .catch(err => Promise.reject(
+                new TSError(err, {
+                    reason: `could not reindex for query ${JSON.stringify(reindexQuery)}`,
+                    context: {
+                        connection,
+                    },
+                })
+            ))
             .then(() => count({ index: migrantIndexName }))
             .then((_count) => {
                 if (docCount !== _count) {
@@ -607,55 +634,55 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                 return true;
             })
             .then(() => _clientIndicesRequest('delete', { index }))
-            .then(() => _clientIndicesRequest('putAlias', { index: migrantIndexName, name: index })
-                .catch((err) => {
+            .then(() => _clientIndicesRequest('putAlias', { index: migrantIndexName, name: index }).catch(
+                (err) => {
                     const error = new TSError(err, {
-                        reason: `could not put alias for index: ${migrantIndexName}, name: ${index}`
+                        reason: `could not put alias for index: ${migrantIndexName}, name: ${index}`,
                     });
                     return Promise.reject(error);
-                }));
+                }
+            ));
     }
 
     function _createIndex(index, migrantIndexName, mapping, recordType, clusterName) {
         const existQuery = { index };
 
-        return indexExists(existQuery)
-            .then((exists) => {
-                if (!exists) {
-                    // Make sure the index exists before we do anything else.
-                    const createQuery = {
-                        index,
-                        body: mapping
-                    };
-
-                    return _sendTemplate(mapping, recordType, clusterName)
-                        .then(() => indexCreate(createQuery))
-                        .then(results => results)
-                        .catch((err) => {
-                            // It's not really an error if it's just that the index is already there
-                            if (err.match(/index_already_exists_exception/) === null) {
-                                const error = new TSError(err, {
-                                    reason: `Could not create index: ${index}`
-                                });
-                                return Promise.reject(error);
-                            }
-                            return true;
-                        });
-                }
-                return _checkAndUpdateMapping(
-                    clusterName,
+        return indexExists(existQuery).then((exists) => {
+            if (!exists) {
+                // Make sure the index exists before we do anything else.
+                const createQuery = {
                     index,
-                    migrantIndexName,
-                    mapping,
-                    recordType
-                ).catch((err) => {
-                    const error = new TSError(err, {
-                        reason: `error while migrating index: ${existQuery.index}`,
-                        fatalError: true,
+                    body: mapping,
+                };
+
+                return _sendTemplate(mapping, recordType, clusterName)
+                    .then(() => indexCreate(createQuery))
+                    .then(results => results)
+                    .catch((err) => {
+                        // It's not really an error if it's just that the index is already there
+                        if (err.match(/index_already_exists_exception/) === null) {
+                            const error = new TSError(err, {
+                                reason: `Could not create index: ${index}`,
+                            });
+                            return Promise.reject(error);
+                        }
+                        return true;
                     });
-                    return Promise.reject(error);
+            }
+            return _checkAndUpdateMapping(
+                clusterName,
+                index,
+                migrantIndexName,
+                mapping,
+                recordType
+            ).catch((err) => {
+                const error = new TSError(err, {
+                    reason: `error while migrating index: ${existQuery.index}`,
+                    fatalError: true,
                 });
+                return Promise.reject(error);
             });
+        });
     }
 
     function _verifyMapping(query, configMapping, recordType) {
@@ -663,7 +690,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             .then(mapping => _areSameMappings(configMapping, mapping, recordType))
             .catch((err) => {
                 const error = new TSError(err, {
-                    reason: `could not get mapping for query ${JSON.stringify(query)}`
+                    reason: `could not get mapping for query ${JSON.stringify(query)}`,
                 });
                 return Promise.reject(error);
             });
@@ -683,21 +710,22 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
     function _checkAndUpdateMapping(clusterName, index, migrantIndexName, mapping, recordType) {
         if (index === migrantIndexName || migrantIndexName === null) {
-            const error = new TSError(`index and migrant index names are the same: ${index}, please update the appropriate package.json version`);
+            const error = new TSError(
+                `index and migrant index names are the same: ${index}, please update the appropriate package.json version`
+            );
             return Promise.reject(error);
         }
 
         const query = { index };
-        return _verifyMapping(query, mapping, recordType)
-            .then((results) => {
-                if (results.areEqual) return true;
-                // For state and analytics, we will not _migrate, but will post template so that
-                // the next index will have them
-                if (recordType === 'state' || recordType === 'analytics') {
-                    return _sendTemplate(mapping, recordType, clusterName);
-                }
-                return _migrate(index, migrantIndexName, mapping, recordType, clusterName);
-            });
+        return _verifyMapping(query, mapping, recordType).then((results) => {
+            if (results.areEqual) return true;
+            // For state and analytics, we will not _migrate, but will post template so that
+            // the next index will have them
+            if (recordType === 'state' || recordType === 'analytics') {
+                return _sendTemplate(mapping, recordType, clusterName);
+            }
+            return _migrate(index, migrantIndexName, mapping, recordType, clusterName);
+        });
     }
 
     function _sendTemplate(mapping, recordType, clusterName) {
@@ -714,7 +742,16 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         return Promise.resolve(true);
     }
 
-    function indexSetup(clusterName, newIndex, migrantIndexName, mapping, recordType, clientName, _time) { // eslint-disable-line
+    function indexSetup(
+        clusterName,
+        newIndex,
+        migrantIndexName,
+        mapping,
+        recordType,
+        clientName,
+        _time
+    ) {
+        // eslint-disable-line
         const giveupAfter = Date.now() + (_time || 3000);
         return new Promise((resolve, reject) => {
             const attemptToCreateIndex = () => {
@@ -729,8 +766,8 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                                 newIndex,
                                 migrantIndexName,
                                 clusterName,
-                                connection
-                            }
+                                connection,
+                            },
                         });
                         logger.error(error);
 
@@ -741,34 +778,42 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                             mapping,
                             recordType,
                             clusterName
-                        ).then(() => {
-                            const query = { index: newIndex };
-                            return indexRecovery(query);
-                        }).then((results) => {
-                            let bool = false;
-                            if (Object.keys(results).length !== 0) {
-                                const isPrimary = _.filter(
-                                    results[newIndex].shards,
-                                    shard => shard.primary === true
+                        )
+                            .then(() => {
+                                const query = { index: newIndex };
+                                return indexRecovery(query);
+                            })
+                            .then((results) => {
+                                let bool = false;
+                                if (Object.keys(results).length !== 0) {
+                                    const isPrimary = _.filter(
+                                        results[newIndex].shards,
+                                        shard => shard.primary === true
+                                    );
+                                    bool = _.every(isPrimary, shard => shard.stage === 'DONE');
+                                }
+                                if (bool) {
+                                    logger.info('connection to elasticsearch has been established');
+                                    return _isAvailable(newIndex);
+                                }
+                                return Promise.resolve();
+                            })
+                            .catch((_checkingError) => {
+                                if (Date.now() > giveupAfter) {
+                                    const timeoutError = new TSError(
+                                        `Unable to create index ${newIndex}`
+                                    );
+                                    return Promise.reject(timeoutError);
+                                }
+
+                                const checkingError = new TSError(_checkingError);
+                                logger.info(
+                                    checkingError,
+                                    `Attempting to connect to elasticsearch: ${clientName}`
                                 );
-                                bool = _.every(isPrimary, shard => shard.stage === 'DONE');
-                            }
-                            if (bool) {
-                                logger.info('connection to elasticsearch has been established');
-                                return _isAvailable(newIndex);
-                            }
-                            return Promise.resolve();
-                        }).catch((_checkingError) => {
-                            if (Date.now() > giveupAfter) {
-                                const timeoutError = new TSError(`Unable to create index ${newIndex}`);
-                                return Promise.reject(timeoutError);
-                            }
 
-                            const checkingError = new TSError(_checkingError);
-                            logger.info(checkingError, `Attempting to connect to elasticsearch: ${clientName}`);
-
-                            return Promise.resolve();
-                        })
+                                return Promise.resolve();
+                            })
                             .then(() => attemptToCreateIndex());
                     })
                     .then(() => resolve(true))
@@ -806,6 +851,6 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         index_exists: indexExists,
         index_create: indexCreate,
         index_refresh: indexRefresh,
-        index_recovery: indexRecovery
+        index_recovery: indexRecovery,
     };
 };

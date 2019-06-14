@@ -1,4 +1,3 @@
-
 import BaseType from './types/versions/base-type';
 import { TypeConfig } from 'xlucene-evaluator';
 
@@ -14,7 +13,7 @@ interface ObjectConfig {
 
 export interface GraphQLArgs {
     typeName?: string;
-    typeInjection?:string;
+    typeInjection?: string;
 }
 
 export interface MappingConfiguration {
@@ -25,38 +24,94 @@ export interface MappingConfiguration {
 
 export interface DataTypeManager {
     toESMapping(args: MappingConfiguration): any;
-    toGraphQL(args?:GraphQLArgs): string;
+    toGraphQL(args?: GraphQLArgs): string;
     toGraphQLTypes(args?: GraphQLArgs): GraphQlResults;
     toXlucene(): TypeConfig;
 }
 
-export type ElasticSearchTypes = 'long'|'integer'|'short'|'byte'|'double'|'float'|'keyword'|'text'|'boolean'|'ip'|'geo_point'|'object';
+export type ElasticSearchTypes =
+    | 'long'
+    | 'integer'
+    | 'short'
+    | 'byte'
+    | 'double'
+    | 'float'
+    | 'keyword'
+    | 'text'
+    | 'boolean'
+    | 'ip'
+    | 'geo_point'
+    | 'object';
 
-export type AvailableTypes = 'Boolean'|'Date'|'Geo'|'IP'|'Byte'|'Double'|'Float'|'Integer'|'Keyword'|
-'Long'|'Short'|'Text'|'KeywordTokens'|'Hostname'|'KeywordCaseInsensitive'|'KeywordTokensCaseInsensitive'|'NgramTokens'|'Boundry'|'Object';
+export type AvailableType =
+    | 'Boolean'
+    | 'Date'
+    | 'Geo'
+    | 'IP'
+    | 'Byte'
+    | 'Double'
+    | 'Float'
+    | 'Integer'
+    | 'Keyword'
+    | 'Long'
+    | 'Short'
+    | 'Text'
+    | 'KeywordTokens'
+    | 'Hostname'
+    | 'KeywordCaseInsensitive'
+    | 'KeywordTokensCaseInsensitive'
+    | 'NgramTokens'
+    | 'Boundary'
+    | 'Object';
+
+export const AvailableTypes: AvailableType[] = [
+    'Boolean',
+    'Date',
+    'Geo',
+    'IP',
+    'Byte',
+    'Double',
+    'Float',
+    'Integer',
+    'Keyword',
+    'Long',
+    'Short',
+    'Text',
+    'KeywordTokens',
+    'Hostname',
+    'KeywordCaseInsensitive',
+    'KeywordTokensCaseInsensitive',
+    'NgramTokens',
+    'Boundary',
+    'Object',
+];
+
+export type AvailableVersion = 1;
+export const AvailableVersions: AvailableVersion[] = [1];
 
 export type Type = {
-    type: AvailableTypes;
+    type: AvailableType;
+    array?: boolean;
 };
 
 type ActualType = {
-    [key in AvailableTypes]: { new (field:string, config: TypeConfig): BaseType }
+    [key in AvailableType]: { new (field: string, config: Type): BaseType };
 };
 
-export interface DataTypeMapping {
-    [key: string]: ActualType;
-}
+export type DataTypeMapping = {
+    [key in AvailableVersion]: ActualType;
+};
 
-export interface TypeConfigFields {
+export type TypeConfigFields = {
     [key: string]: Type;
-}
+};
 
 export type DataTypeConfig = {
-    fields: TypeConfigFields,
-    version: number;
+    fields: TypeConfigFields;
+    version: AvailableVersion;
 };
 
-export type ESTypeMapping = PropertyESTypeMapping | BasicESTypeMapping ;
+export type ESTypeMapping = PropertyESTypeMapping | BasicESTypeMapping;
 
 interface BasicESTypeMapping {
     type: ElasticSearchTypes;
@@ -65,7 +120,7 @@ interface BasicESTypeMapping {
 interface PropertyESTypeMapping {
     type?: 'nested';
     properties: {
-        [key: string]: BasicESTypeMapping
+        [key: string]: BasicESTypeMapping;
     };
 }
 
@@ -92,6 +147,6 @@ export interface ESMapSettings {
     analysis?: {
         analyzer: {
             [key: string]: any;
-        }
+        };
     };
 }

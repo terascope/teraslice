@@ -1,4 +1,3 @@
-
 import Short from '../../../src/types/versions/v1/short';
 import { TSError } from '@terascope/utils';
 import { Type } from '../../../src/interfaces';
@@ -9,7 +8,7 @@ describe('Short V1', () => {
 
     it('can requires a field and proper configs', () => {
         try {
-           // @ts-ignore
+            // @ts-ignore
             new Short();
             throw new Error('it should have errored with no configs');
         } catch (err) {
@@ -34,6 +33,13 @@ describe('Short V1', () => {
     it('can get proper graphQl types', () => {
         const graphQlTypes = new Short(field, typeConfig).toGraphQL();
         const results = { type: `${field}: Int` };
+
+        expect(graphQlTypes).toEqual(results);
+    });
+
+    it('can get proper graphQl types when given an array', () => {
+        const graphQlTypes = new Short(field, { ...typeConfig, array: true }).toGraphQL();
+        const results = { type: `${field}: [Int]` };
 
         expect(graphQlTypes).toEqual(results);
     });

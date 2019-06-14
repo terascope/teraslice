@@ -54,18 +54,16 @@ Since this project is designed to replace the teraserver teranaut plugin, and th
 -   The UI is at `/v2/ui`
 -   Pre/Post process function will need to be written to use express middleware, docs comming soon.
 -   The following configuration has been added to the space config:
-    -   `index` under `search_config.index`
-    -   `connection` has been added under `search_config.connection`
-    -   `date_field` under `search_config.default_date_field`
-    -   `geo_field` under `search_config.default_geo_field`
-    -   `max_query_size`: under `search_config.max_query_size`;
-    -   `sort_default`: under `search_config.sort_default`;
-    -   `sort_enabled`: under `search_config.sort_enabled`;
-    -   `preserve_index_name`: under `search_config.preserve_index_name`;
-    -   `history_prefix`: under `search_config.history_prefix`;
-    -   `require_query`: under `search_config.require_query`;
--   The following configuration has been moved to the data type config:
-    -   `TypeConfig` for `xlucene-evaluator` under `type_config`
+    -   `index` under `config.index`
+    -   `connection` has been added under `config.connection`
+    -   `date_field` under `config.default_date_field`
+    -   `geo_field` under `config.default_geo_field`
+    -   `max_query_size`: under `config.max_query_size`;
+    -   `sort_default`: under `config.sort_default`;
+    -   `sort_enabled`: under `config.sort_enabled`;
+    -   `preserve_index_name`: under `config.preserve_index_name`;
+    -   `history_prefix`: under `config.history_prefix`;
+    -   `require_query`: under `config.require_query`;
 -   The following configuration has been moved to the view:
     -   `allowed_fields` under `includes`
     -   `type`, `date_start`, `date_end`, `geo_box_top_left`, `geo_box_bottom_right`, `geo_point`, `geo_distance` should be added to `constraint`.
@@ -130,7 +128,7 @@ query {
     name,
     views,
     data_type,
-    search_config {
+    config {
       index
     }
   }
@@ -185,7 +183,7 @@ mutation {
   createDataType(dataType:{
     client_id: 1,
     name: "Example Data Type"
-    type_config: {
+    config: {
         created: "date",
         location: "geo"
     }
@@ -218,13 +216,14 @@ mutation {
 ```js
 mutation {
   createSpace(space: {
+    type: SEARCH,
     client_id: 1,
     name: "My Example Space",
     endpoint: "example-space",
     data_type: "<DATA_TYPE_ID>",
     roles: ["<ROLE_ID>"],
     views: ["<VIEW_ID>"],
-    search_config: {
+    config: {
       index:"example-space",
       require_query: true
     },

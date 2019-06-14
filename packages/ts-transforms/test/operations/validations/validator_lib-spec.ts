@@ -535,7 +535,7 @@ describe('validator lib', () => {
         const data1 = new DataEntity(obj);
         const results1 = test.run(data1);
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map(d => test.run(d));
         results.forEach(result => expect(result).toEqual({}));
         expect(results1).toEqual(obj);
     });
@@ -587,7 +587,7 @@ describe('validator lib', () => {
         const data1 = new DataEntity(obj);
         const results1 = test.run(data1);
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map(o => test.run(o));
         results.forEach(result => expect(result).toEqual({}));
         expect(results1).toEqual(obj);
     });
@@ -600,7 +600,7 @@ describe('validator lib', () => {
         const data1 = new DataEntity(obj);
         const results1 = test.run(data1);
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map(o => test.run(o));
         results.forEach(result => expect(result).toEqual({}));
         expect(results1).toEqual(obj);
     });
@@ -633,7 +633,7 @@ describe('validator lib', () => {
         const results1 = test.run(data1);
         const results2 = test.run(data2);
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map(o => test.run(o));
         results.forEach(result => expect(result).toEqual({}));
 
         expect(results1).toEqual(obj);
@@ -653,7 +653,7 @@ describe('validator lib', () => {
         const results1 = test.run(data1);
         const results2 = test.run(data2);
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map(o => test.run(o));
         results.forEach(result => expect(result).toEqual({}));
 
         expect(results1).toEqual(obj);

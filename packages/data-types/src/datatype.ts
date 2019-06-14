@@ -1,18 +1,17 @@
-
+import * as ts from '@terascope/utils';
 import { DataTypeManager, DataTypeConfig, ESMapSettings, MappingConfiguration, GraphQLArgs } from './interfaces';
 import BaseType from './types/versions/base-type';
-import * as ts from '@terascope/utils';
 import { TypesManager } from './types';
 
 export class DataType implements DataTypeManager {
     private _name!: string;
     private _types: BaseType[];
 
-    static mergeGraphQLDataTypes(types: DataType[], typeInjection?:string) {
+    static mergeGraphQLDataTypes(types: DataType[], typeInjection?: string) {
         const customTypesList: string[] = [];
         const baseTypeList: string[] = [];
 
-        types.forEach((type) => {
+        types.forEach(type => {
             const { baseType, customTypes } = type.toGraphQLTypes({ typeInjection });
             customTypesList.push(...customTypes);
             baseTypeList.push(baseType);
@@ -24,10 +23,10 @@ export class DataType implements DataTypeManager {
         `;
     }
 
-    constructor({ version, fields:typesConfiguration }: DataTypeConfig, typeName?: string) {
-        if (version == null) throw new ts.TSError('No version was specified in type_config');
+    constructor({ version, fields: typesConfiguration }: DataTypeConfig, typeName?: string) {
+        if (version == null) throw new ts.TSError('No version was specified in type config');
         const typeManager = new TypesManager(version);
-        const types:BaseType[] = [];
+        const types: BaseType[] = [];
 
         for (const key in typesConfiguration) {
             const typeDef = typesConfiguration[key];
@@ -58,7 +57,7 @@ export class DataType implements DataTypeManager {
                 analyzer[key] = typeAnalyzer[key];
             }
 
-             // get tokenizer configuration
+            // get tokenizer configuration
             for (const key in typeTokenizer) {
                 tokenizer[key] = typeTokenizer[key];
             }
@@ -69,18 +68,18 @@ export class DataType implements DataTypeManager {
         const analysis = {
             analysis: {
                 analyzer,
-                tokenizer
-            }
+                tokenizer,
+            },
         };
 
         // TODO: what default settings and analyzers should go here?
         const settings: ESMapSettings = {
             ...settingsConfig,
-            ...analysis
+            ...analysis,
         };
 
         const mappingConfig = {
-            properties
+            properties,
         };
 
         if (mappingMetaData != null && ts.isPlainObject(mappingMetaData)) {
@@ -91,30 +90,30 @@ export class DataType implements DataTypeManager {
 
         return {
             mappings: {
-                [typeName]: mappingConfig
+                [typeName]: mappingConfig,
             },
-            settings
+            settings,
         };
     }
 
     toGraphQL(args?: GraphQLArgs) {
         const { baseType, customTypes } = this.toGraphQLTypes(args);
 
-        return  `
+        return `
             ${baseType}
             ${[...new Set(customTypes)].join('\n')}
         `;
     }
-// typeName = this._name, typeInjection?:string
+    // typeName = this._name, typeInjection?:string
     toGraphQLTypes(args = {} as GraphQLArgs) {
-        const  { typeName = this._name, typeInjection } = args;
+        const { typeName = this._name, typeInjection } = args;
         if (!typeName) throw new ts.TSError('No typeName was specified to create the graphql type representing this data structure');
         const customTypes: string[] = [];
         const baseCollection: string[] = [];
 
         if (typeInjection) baseCollection.push(typeInjection);
 
-        this._types.forEach((typeClass) => {
+        this._types.forEach(typeClass => {
             const { type, custom_type: customType } = typeClass.toGraphQL();
             baseCollection.push(type);
             if (customType != null) customTypes.push(customType);
@@ -131,7 +130,7 @@ export class DataType implements DataTypeManager {
             ${[...new Set(customTypes)].join('\n')}
         `;
 
-        return  {
+        return {
             results,
             baseType,
             customTypes,

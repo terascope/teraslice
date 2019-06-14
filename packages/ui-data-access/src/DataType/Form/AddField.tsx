@@ -1,82 +1,67 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { get } from '@terascope/utils';
-import { Form, Segment, Message, Icon } from 'semantic-ui-react';
-import FieldName from './FieldName';
-import FieldType from './FieldType';
-import { validateFieldName } from './utils';
+import { Form } from 'semantic-ui-react';
+import { get, trim } from '@terascope/utils';
+import { AvailableType } from '@terascope/data-types';
+import { ActionSegment } from '@terascope/ui-components';
+import { dataTypeOptions } from '../interfaces';
 
-const AddField: React.FC<Props> = ({ add }) => {
+const AddField: React.FC<Props> = ({ addField, fields }) => {
     const [{ field, value }, setState] = useState<State>({
         field: '',
         value: '',
     });
-    const type = get(value, 'type', value);
-
-    const isFieldInvalid = Boolean(field && !validateFieldName(field));
-    const invalid = isFieldInvalid && !type;
+    const type: AvailableType = get(value, 'type', value);
 
     return (
-        <React.Fragment>
-            <Message attached header="" />
-            <Segment className="daAddFieldGroup" basic attached>
-                <Form.Group>
-                    <FieldName
-                        field={field}
-                        invalid={isFieldInvalid}
-                        onChange={updatedField => {
-                            setState({
-                                field: updatedField,
-                                value,
-                            });
-                        }}
-                    />
-                    <FieldType
-                        type={type}
-                        onChange={updatedValue => {
-                            setState({
-                                value: updatedValue,
-                                field,
-                            });
-                        }}
-                    />
-                    <Form.Button
-                        className="daFieldButton"
-                        icon="add"
-                        label="Add"
-                        primary
-                        disabled={invalid}
-                        onClick={(e: any) => {
-                            e.preventDefault();
-                            if (!value || !field) return;
+        <ActionSegment
+            actions={[
+                {
+                    name: 'Add',
+                    icon: 'add',
+                    onClick: () => {
+                        if (!value || !field) return;
+                        if (fields.includes(field)) return;
 
-                            setState(state => {
-                                add(state.field, state.value);
+                        setState(state => {
+                            addField(state.field, state.value);
 
-                                return {
-                                    field: '',
-                                    value: '',
-                                    touched: false,
-                                };
-                            });
-                        }}
-                    />
-                </Form.Group>
-            </Segment>
-            {invalid ? (
-                <Message attached="bottom" error className="daFormMessage">
-                    <Icon name="times" />
-                    Field name can only contain alpha-numeric characters,
-                    underscores and dashes.
-                </Message>
-            ) : (
-                <Message attached="bottom" info>
-                    <Icon name="info" />
-                    Use dot notation to specify nested properties, e.g. &nbsp;
-                    <pre className="daFormMessageCode">example.field</pre>
-                </Message>
-            )}
-        </React.Fragment>
+                            return {
+                                field: '',
+                                value: '',
+                            };
+                        });
+                    },
+                },
+            ]}
+        >
+            <Form.Group style={{ paddingTop: '0.8rem' }}>
+                <Form.Input
+                    placeholder="Field Name"
+                    value={field}
+                    error={fields.includes(field)}
+                    onChange={(e, { value: updatedField }) => {
+                        e.preventDefault();
+                        setState({
+                            field: trim(updatedField),
+                            value,
+                        });
+                    }}
+                />
+                <Form.Select
+                    placeholder="Select Field Type"
+                    value={type}
+                    onChange={(e, { value: updatedValue }) => {
+                        e.preventDefault();
+                        setState({
+                            value: updatedValue,
+                            field,
+                        });
+                    }}
+                    options={dataTypeOptions}
+                />
+            </Form.Group>
+        </ActionSegment>
     );
 };
 
@@ -86,11 +71,13 @@ type State = {
 };
 
 type Props = {
-    add: (field: string, value: any) => void;
+    addField: (field: string, value: any) => void;
+    fields: string[];
 };
 
 AddField.propTypes = {
-    add: PropTypes.func.isRequired,
+    addField: PropTypes.func.isRequired,
+    fields: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
 };
 
 export default AddField;

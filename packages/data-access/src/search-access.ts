@@ -13,16 +13,18 @@ const _logger = ts.debugLogger('search-access');
  */
 export class SearchAccess {
     config: i.DataAccessConfig;
+    spaceConfig: SpaceSearchConfig;
     private _queryAccess: x.QueryAccess;
     private _logger: ts.Logger;
 
     constructor(config: i.DataAccessConfig, logger: ts.Logger = _logger) {
-        if (!config.search_config || ts.isEmpty(config.search_config) || !config.search_config.index) {
+        this.config = config;
+        this.spaceConfig = config.config as SpaceSearchConfig;
+        if (ts.isEmpty(this.spaceConfig) || !this.spaceConfig.index) {
             throw new ts.TSError('Search is not configured correctly for search');
         }
 
-        this.config = config;
-        const typeConfig = this.config.data_type.type_config || { fields: {}, version: 1 };
+        const typeConfig = this.config.data_type.config || { fields: {}, version: t.LATEST_VERSION };
         const types = new t.DataType(typeConfig);
         this._logger = logger;
         this._queryAccess = new x.QueryAccess(
@@ -54,7 +56,7 @@ export class SearchAccess {
             throw new ts.TSError(err, {
                 reason: 'Query restricted',
                 context: {
-                    config: this.config.search_config,
+                    config: this.spaceConfig,
                     query,
                     safe: true,
                 },
@@ -76,15 +78,16 @@ export class SearchAccess {
     }
 
     getSearchParams(query: i.InputQuery): es.SearchParams {
-        const config = this.config.search_config!;
-        const typeConfig = this.config.data_type.type_config || { fields: {}, version: 1 };
-
+        const typeConfig = this.config.data_type.config || {
+            version: t.LATEST_VERSION,
+            fields: {},
+        };
         const params: es.SearchParams = {
             body: {},
         };
 
         const q: string = ts.get(query, 'q', '');
-        if (!q && config.require_query) {
+        if (!q && this.spaceConfig.require_query) {
             throw new ts.TSError(...validationErr('q', 'must not be empty', query));
         }
 
@@ -93,7 +96,7 @@ export class SearchAccess {
             throw new ts.TSError(...validationErr('size', 'must be a valid number', query));
         }
 
-        const maxQuerySize: number = ts.toInteger(config.max_query_size) || 10000;
+        const maxQuerySize: number = ts.toInteger(this.spaceConfig.max_query_size) || 100000;
         if (size > maxQuerySize) {
             throw new ts.TSError(...validationErr('size', `must be less than ${maxQuerySize}`, query));
         }
@@ -106,7 +109,7 @@ export class SearchAccess {
         }
 
         let sort = ts.get(query, 'sort');
-        if (sort && config.sort_enabled) {
+        if (sort && this.spaceConfig.sort_enabled) {
             if (!ts.isString(sort)) {
                 throw new ts.TSError(...validationErr('sort', 'must be a valid string', query));
             }
@@ -122,7 +125,7 @@ export class SearchAccess {
                 }
             }
 
-            if (config.sort_dates_only && !dateFields.includes(field)) {
+            if (this.spaceConfig.sort_dates_only && !dateFields.includes(field)) {
                 throw new ts.TSError(...validationErr('sort', 'sorting is currently only available for date fields', query));
             }
 
@@ -133,8 +136,8 @@ export class SearchAccess {
             sort = [field, direction].join(':');
         }
 
-        if (!sort && config.sort_default) {
-            sort = config.sort_default;
+        if (!sort && this.spaceConfig.sort_default) {
+            sort = this.spaceConfig.sort_default;
         }
 
         const fields = ts.get(query, 'fields');
@@ -142,7 +145,7 @@ export class SearchAccess {
             params._sourceInclude = ts.uniq(ts.parseList(fields).map(s => s.toLowerCase()));
         }
 
-        const geoField = config.default_geo_field;
+        const geoField = this.spaceConfig.default_geo_field;
 
         if (geoField) {
             const geoSortPoint = ts.get(query, 'geo_sort_point');
@@ -163,20 +166,18 @@ export class SearchAccess {
         params.size = size;
         params.from = ts.toInteger(start) || 0;
         params.sort = sort;
-        params.index = this._getIndex(query, config);
+        params.index = this._getIndex(query, this.spaceConfig);
         params.ignoreUnavailable = true;
         return ts.withoutNil(params);
     }
 
     getSearchResponse(response: es.SearchResponse<any>, query: i.InputQuery, params: es.SearchParams) {
-        const config = this.config.search_config!;
-
         // I don't think this property actually exists
         const error = ts.get(response, 'error');
         if (error) {
             throw new ts.TSError(error, {
                 context: {
-                    config,
+                    config: this.spaceConfig,
                     query,
                     safe: false,
                 },
@@ -188,7 +189,7 @@ export class SearchAccess {
             throw new ts.TSError('No results returned from query', {
                 statusCode: 502,
                 context: {
-                    config,
+                    config: this.spaceConfig,
                     query,
                     safe: true,
                 },
@@ -199,7 +200,7 @@ export class SearchAccess {
         const total = response.hits.total;
         let returning = total;
 
-        if (config.preserve_index_name) {
+        if (this.spaceConfig.preserve_index_name) {
             results = response.hits.hits.map(data => {
                 const doc = data._source;
                 doc._index = data._index;
@@ -215,7 +216,7 @@ export class SearchAccess {
             info += ` Returning ${returning}.`;
         }
 
-        if (ts.get(query, 'sort') && !config.sort_enabled) {
+        if (ts.get(query, 'sort') && !this.spaceConfig.sort_enabled) {
             info += ' No sorting available.';
         }
 
@@ -306,9 +307,9 @@ function generateHistoryIndexes(days: number, start: number, prefix: string) {
     let result = '';
     const _prefix = prefix.charAt(prefix.length - 1) === '-' ? prefix : `${prefix}-`;
 
-    for (let i = start; i < start + days; i += 1) {
+    for (let index = start; index < start + days; index += 1) {
         const date = new Date();
-        date.setDate(date.getDate() - i);
+        date.setDate(date.getDate() - index);
 
         // example dateStr => logscope-2016.11.11*
         const dateStr = date

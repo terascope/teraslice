@@ -1,92 +1,55 @@
 import 'jest-extended';
-import {
-    TSError,
-    ElasticsearchError,
-    isFatalError,
-    isRetryableError,
-    parseError,
-    times,
-    isTSError,
-    stripErrorMessage,
-} from '../src';
+import { TSError, ElasticsearchError, isFatalError, isRetryableError, parseError, times, isTSError, stripErrorMessage } from '../src';
 
 describe('Error Utils', () => {
     describe('TSError', () => {
         const testCases = [
-            [
-                'hello',
-                undefined,
-                { message: 'hello', statusCode: 500, fatalError: false }
-            ],
-            [
-                'hello',
-                {},
-                { message: 'hello', statusCode: 500, fatalError: false, code: 'INTERNAL_SERVER_ERROR' }
-            ],
-            [
-                'hello',
-                { statusCode: 411 },
-                { statusCode: 411, fatalError: false, code: 'LENGTH_REQUIRED' }
-            ],
-            [
-                'hello',
-                { fatalError: true, statusCode: 502, retryable: true },
-                { fatalError: true, statusCode: 502, retryable: undefined }
-            ],
-            [
-                'hello',
-                { fatalError: false, statusCode: 504, retryable: true },
-                { fatalError: false, statusCode: 504, retryable: true }
-            ],
-            [
-                'hello',
-                { reason: 'Failure' },
-                { message: 'Failure, caused by hello' }
-            ],
-            [
-                new Error('Uh oh'),
-                { reason: 'Failure' },
-                { message: 'Failure, caused by Error: Uh oh' }
-            ],
+            ['hello', undefined, { message: 'hello', statusCode: 500, fatalError: false }],
+            ['hello', {}, { message: 'hello', statusCode: 500, fatalError: false, code: 'INTERNAL_SERVER_ERROR' }],
+            ['hello', { statusCode: 411 }, { statusCode: 411, fatalError: false, code: 'LENGTH_REQUIRED' }],
+            ['hello', { fatalError: true, statusCode: 502, retryable: true }, { fatalError: true, statusCode: 502, retryable: undefined }],
+            ['hello', { fatalError: false, statusCode: 504, retryable: true }, { fatalError: false, statusCode: 504, retryable: true }],
+            ['hello', { reason: 'Failure' }, { message: 'Failure, caused by hello' }],
+            [new Error('Uh oh'), { reason: 'Failure' }, { message: 'Failure, caused by Error: Uh oh' }],
             [
                 new Error('Oops'),
                 { reason: 'Bad news' },
                 {
                     message: 'Bad news, caused by Error: Oops',
-                    stack: 'TSError: Bad news, caused by Error: Oops'
+                    stack: 'TSError: Bad news, caused by Error: Oops',
                 },
             ],
             [
                 new TSError('Fatal Error', {
                     fatalError: true,
-                    code: 'EXAMPLE'
+                    code: 'EXAMPLE',
                 }),
-                { },
+                {},
                 {
                     code: 'EXAMPLE',
                     fatalError: true,
-                    message: 'Fatal Error'
+                    message: 'Fatal Error',
                 },
             ],
             [
                 new TSError('Bad Input', {
-                    statusCode: 422
+                    statusCode: 422,
                 }),
                 { reason: 'Failure' },
                 {
                     message: 'Failure, caused by TSError: Bad Input',
-                    statusCode: 422
-                }
+                    statusCode: 422,
+                },
             ],
             [
                 new TSError('User Input Error', {
-                    statusCode: 400
+                    statusCode: 400,
                 }),
                 { statusCode: 424 },
                 {
                     message: 'User Input Error',
-                    statusCode: 424
-                }
+                    statusCode: 424,
+                },
             ],
             [
                 new TSError('Locked', {
@@ -97,7 +60,7 @@ describe('Error Utils', () => {
                     message: 'Locked',
                     statusCode: 423,
                     retryable: true,
-                }
+                },
             ],
             [
                 new TSError('Rate Limit', {
@@ -108,10 +71,10 @@ describe('Error Utils', () => {
                     message: 'Rate Limit',
                     statusCode: 429,
                     retryable: false,
-                }
+                },
             ],
             [
-                new TSError('I\'m a teapot', {
+                new TSError("I'm a teapot", {
                     context: {
                         iamteapot: true,
                     },
@@ -119,117 +82,134 @@ describe('Error Utils', () => {
                 }),
                 { reason: 'IDK' },
                 {
-                    message: 'IDK, caused by TSError: I\'m a teapot',
+                    message: "IDK, caused by TSError: I'm a teapot",
                     statusCode: 418,
                     context: {
                         iamteapot: true,
-                    }
-                }
+                    },
+                },
             ],
+            [null, { reason: 'Failure' }, { message: 'Failure, caused by Unknown Error' }],
             [
-                null,
-                { reason: 'Failure' },
-                { message: 'Failure, caused by Unknown Error' }
-            ],
-            [
-                newESError({
-                    body: {
-                        error: {
-                            type: 'some_es_type',
-                            reason: 'some_es_reason',
-                            index: 'some_index'
-                        }
+                newESError(
+                    {
+                        body: {
+                            error: {
+                                type: 'some_es_type',
+                                reason: 'some_es_reason',
+                                index: 'some_index',
+                            },
+                        },
+                    },
+                    {
+                        msg: 'Some ES Error',
+                        status: 502,
                     }
-                }, {
-                    msg: 'Some ES Error',
-                    status: 502,
-                }),
-                { },
+                ),
+                {},
                 {
                     message: 'Elasticsearch Error: Some ES Error',
-                    statusCode: 502
+                    statusCode: 502,
                 },
             ],
             [
-                newESError({
-                    body: {
-                        error: {
-                            root_cause: [
-                                {
-                                    type: 'another_es_type',
-                                    reason: 'another_es_reason',
-                                    index: 'another_index'
-                                }
-                            ]
-                        }
+                newESError(
+                    {
+                        body: {
+                            error: {
+                                root_cause: [
+                                    {
+                                        type: 'another_es_type',
+                                        reason: 'another_es_reason',
+                                        index: 'another_index',
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                    {
+                        msg: 'Another ES Error',
                     }
-                }, {
-                    msg: 'Another ES Error',
-                }),
-                { },
+                ),
+                {},
                 {
                     message: 'Elasticsearch Error: Another ES Error',
-                }
+                },
             ],
             [
-                newESError({
-                    body: {
-                        error: {
-                            root_cause: null
-                        }
+                newESError(
+                    {
+                        body: {
+                            error: {
+                                root_cause: null,
+                            },
+                        },
+                    },
+                    {
+                        msg: 'Invalid ES Error',
                     }
-                }, {
-                    msg: 'Invalid ES Error',
-                }),
+                ),
                 { reason: 'Failure' },
                 {
                     message: 'Failure, caused by Elasticsearch Error: Invalid ES Error',
-                }
+                },
             ],
             [
-                newESError({}, {
-                    response: JSON.stringify({
-                        _index: 'hello'
-                    }),
-                    msg: 'Response ES Error',
-                }),
+                newESError(
+                    {},
+                    {
+                        response: JSON.stringify({
+                            _index: 'hello',
+                        }),
+                        msg: 'Response ES Error',
+                    }
+                ),
                 { reason: 'Failure' },
                 {
                     message: 'Failure, caused by Elasticsearch Error: Response ES Error',
-                }
+                },
             ],
             [
-                newESError({}, {
-                    msg: 'document missing',
-                    status: 404,
-                }),
-                { },
+                newESError(
+                    {},
+                    {
+                        msg: 'document missing',
+                        status: 404,
+                    }
+                ),
+                {},
                 {
                     message: 'Elasticsearch Error: Not Found',
-                    statusCode: 404
-                }
+                    statusCode: 404,
+                },
             ],
             [
-                newESError({}, {
-                    msg: 'document already exists',
-                    status: 409,
-                }),
-                { },
+                newESError(
+                    {},
+                    {
+                        msg: 'document already exists',
+                        status: 409,
+                    }
+                ),
+                {},
                 {
                     message: 'Elasticsearch Error: Document Already Exists (version conflict)',
-                    statusCode: 409
-                }
+                    statusCode: 409,
+                },
             ],
             [
-                newESError({}, {
-                    msg: 'unknown error',
-                }),
+                newESError(
+                    {},
+                    {
+                        msg: 'unknown error',
+                    }
+                ),
                 { statusCode: 502 },
                 {
                     message: 'Elasticsearch Error: Unknown Elasticsearch Error, Cluster may be Unavailable',
-                    statusCode: 502
-                }
-            ]
+                    statusCode: 502,
+                },
+            ],
         ];
 
         // @ts-ignore
@@ -243,7 +223,7 @@ describe('Error Utils', () => {
                     });
                 } else if (key === 'context') {
                     it(`should have "${key}" match ${JSON.stringify(val)}`, () => {
-                        expect(tsError[key]).toMatchObject(val);
+                        expect(tsError[key]).toMatchObject(val as {});
                     });
                 } else {
                     it(`should have "${key}" set to ${JSON.stringify(val)}`, () => {
@@ -282,7 +262,6 @@ describe('Error Utils', () => {
                     expect(isRetryableError(tsError)).toBeFalse();
                 });
             }
-
         });
     });
 
@@ -290,7 +269,7 @@ describe('Error Utils', () => {
         it('should be able to work with a chained error', () => {
             const err = new TSError('Uh oh');
             const error = new TSError(err, {
-                reason: 'Failure'
+                reason: 'Failure',
             });
             expect(stripErrorMessage(error, 'Bad news')).toEqual('Bad news: Failure');
         });
@@ -298,7 +277,7 @@ describe('Error Utils', () => {
         describe('when requireSafe=true', () => {
             it('should be able to work', () => {
                 const error = new TSError('darn', {
-                    reason: 'Failure'
+                    reason: 'Failure',
                 });
                 expect(stripErrorMessage(error, 'Bad news', true)).toEqual('Bad news');
             });
@@ -306,21 +285,21 @@ describe('Error Utils', () => {
             it('should be able to work with a chained error', () => {
                 const err = new TSError('Uh oh');
                 const error = new TSError(err, {
-                    reason: 'Failure'
+                    reason: 'Failure',
                 });
                 expect(stripErrorMessage(error, 'Bad news', true)).toEqual('Bad news');
             });
 
             it('should work with a forbidden error', () => {
                 const error = new TSError('Some Forbidden Message', {
-                    statusCode: 403
+                    statusCode: 403,
                 });
                 expect(stripErrorMessage(error, 'Bad news', true)).toEqual('Access Denied');
             });
 
             it('should work with a 404 error', () => {
                 const error = new TSError('Some Forbidden Message', {
-                    statusCode: 404
+                    statusCode: 404,
                 });
                 expect(stripErrorMessage(error, 'Bad news', true)).toEqual('Not Found');
             });
@@ -328,8 +307,8 @@ describe('Error Utils', () => {
             it('should be able to work with context.safe', () => {
                 const error = new TSError('Uh oh', {
                     context: {
-                        safe: true
-                    }
+                        safe: true,
+                    },
                 });
                 expect(stripErrorMessage(error, 'Bad news', true)).toEqual('Uh oh');
             });
@@ -337,8 +316,8 @@ describe('Error Utils', () => {
             it('should NOT keep the context.safe from a chained error', () => {
                 const err = new TSError('Uh oh', {
                     context: {
-                        safe: true
-                    }
+                        safe: true,
+                    },
                 });
                 const error = new TSError(err);
                 expect(stripErrorMessage(error, 'Bad news', true)).toEqual('Bad news');

@@ -1,12 +1,21 @@
 import PropTypes from 'prop-types';
 import { ModelName } from '@terascope/data-access';
 import { RowMapping, ResolvedUser } from '@terascope/ui-components';
-import { AnyObject } from '@terascope/utils';
+import { Overwrite } from '@terascope/utils';
+import { AnyModel } from './ModelForm';
 
 export const modelNames: ModelName[] = ['User', 'Role', 'DataType', 'View', 'Space'];
 export const ModelNameProp = PropTypes.oneOf(modelNames);
+export type FormData<T> = {
+    [extra: string]: any;
+    result: T;
+};
+export type FormResult<T> = {
+    [extra: string]: any;
+    input: T;
+};
 
-export type ModelConfig = {
+export type ModelConfig<T extends AnyModel> = {
     name: ModelName;
     pathname: string;
     singularLabel: string;
@@ -17,16 +26,8 @@ export type ModelConfig = {
     createMutation: any;
     updateMutation: any;
     removeMutation: any;
-    searchFields: string[];
-    requiredFields: string[];
-    handleFormProps: (
-        authUser: ResolvedUser,
-        data: any
-    ) => {
-        [extra: string]: any;
-        input: AnyObject;
-    };
-    rowMapping: RowMapping;
+    searchFields: (keyof T)[];
+    requiredFields: (keyof T)[];
+    handleFormProps: (authUser: ResolvedUser, data: FormData<T>) => FormResult<T>;
+    rowMapping: RowMapping<Overwrite<T, { id: string }>>;
 };
-
-export type ModelConfigMapping = { readonly [name in ModelName]: ModelConfig };

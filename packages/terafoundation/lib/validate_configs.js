@@ -29,7 +29,13 @@ function validateConfig(cluster, _schema, configFile) {
         config.load(configFile);
 
         if (cluster.isMaster) {
-            config.validate({ allowed: true });
+            config.validate({
+                // IMPORTANT: changing this will break things
+                // FIXME
+                // false is deprecated and will be removed in ^5.0.0
+                // must be warn or strict
+                allowed: true,
+            });
         }
 
         return config.getProperties();
@@ -41,7 +47,8 @@ function validateConfig(cluster, _schema, configFile) {
 function extractSchema(fn, configFile) {
     if (fn && typeof fn === 'function') {
         return fn(configFile);
-    } if (fn && typeof fn === 'object') {
+    }
+    if (fn && typeof fn === 'object') {
         return fn;
     }
 

@@ -1,10 +1,32 @@
 import gql from 'graphql-tag';
 import { get } from '@terascope/utils';
 import { formatDate } from '@terascope/ui-components';
-import { inputFields, Input, Role } from './Form/interfaces';
+import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
+import { copyField, getModelType } from '../utils';
+import { formatStrong } from '../ModelList/Strong';
 
-const config: ModelConfig = {
+const fieldsFragment = gql`
+    fragment UserFields on User {
+        id
+        client_id
+        firstname
+        lastname
+        username
+        email
+        role {
+            id
+            client_id
+            name
+        }
+        api_token
+        type
+        updated
+        created
+    }
+`;
+
+const config: ModelConfig<Input> = {
     name: 'User',
     pathname: 'users',
     singularLabel: 'User',
@@ -15,17 +37,24 @@ const config: ModelConfig = {
         getId(record) {
             return record.username;
         },
-        canRemove(record, authUser) {
-            if (record.type === 'SUPERADMIN') return false;
-            if (record.id === (authUser && authUser.id)) return false;
-            if (authUser && authUser.type !== 'USER') return false;
-            return true;
-        },
         columns: {
             username: { label: 'Username' },
             firstname: { label: 'First Name' },
             lastname: { label: 'Last Name' },
-            'role.name': { label: 'Role', sortable: false },
+            role: {
+                label: 'Role',
+                sortable: false,
+                format(record) {
+                    return get(record, 'role.name');
+                },
+            },
+            type: {
+                label: 'Type',
+                sortable: false,
+                format(record) {
+                    return formatStrong(getModelType(record));
+                },
+            },
             created: {
                 label: 'Created',
                 format(record) {
@@ -34,72 +63,56 @@ const config: ModelConfig = {
             },
         },
     },
-    handleFormProps(authUser, data) {
-        const user = get(data, 'user');
+    handleFormProps(authUser, { result, ...extra }) {
         const input = {} as Input;
         for (const field of inputFields) {
             if (field === 'role') {
-                input.role = get(user, 'role.id') || '';
+                copyField(input, result, field, {
+                    id: '',
+                    client_id: 0,
+                    name: '',
+                });
+            } else if (field === 'type') {
+                copyField(input, result, field, 'USER');
             } else {
-                input[field] = get(user, field) || '';
+                copyField(input, result, field, '');
             }
         }
-        if (!input.client_id && authUser.client_id) {
-            input.client_id = authUser.client_id;
+
+        if (!input.client_id) {
+            input.client_id = input.role.client_id || authUser.client_id;
         }
-        if (!input.type) input.type = 'USER';
+
         if (input.type === 'SUPERADMIN') {
             input.client_id = 0;
         }
 
-        const roles: Role[] = get(data, 'roles', []);
-        return { input, roles };
+        return { input, ...extra };
     },
     listQuery: gql`
         query Users($query: String, $from: Int, $size: Int, $sort: String) {
             records: users(query: $query, from: $from, size: $size, sort: $sort) {
-                id
-                client_id
-                firstname
-                lastname
-                username
-                email
-                role {
-                    id
-                    name
-                }
-                type
-                updated
-                created
+                ...UserFields
             }
             total: usersCount(query: $query)
         }
+        ${fieldsFragment}
     `,
     updateQuery: gql`
         query UpdateQuery($id: ID!) {
-            roles(query: "*") {
+            roles(query: "*", size: 10000) {
                 id
                 name
             }
-            user(id: $id) {
-                id
-                client_id
-                firstname
-                lastname
-                username
-                email
-                api_token
-                role {
-                    id
-                    name
-                }
-                type
+            result: user(id: $id) {
+                ...UserFields
             }
         }
+        ${fieldsFragment}
     `,
     createQuery: gql`
         {
-            roles(query: "*") {
+            roles(query: "*", size: 10000) {
                 id
                 name
             }

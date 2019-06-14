@@ -1,6 +1,8 @@
-export const isProd = process.env.NODE_ENV === 'production';
-export const isTest = process.env.NODE_ENV === 'test';
-export const isDev = process.env.NODE_ENV === 'development';
+const { NODE_ENV = 'production' } = process.env;
+
+export const isProd = NODE_ENV === 'production';
+export const isTest = NODE_ENV === 'test';
+export const isDev = NODE_ENV === 'development';
 
 /** A decorator for locking down a method */
 export function locked() {

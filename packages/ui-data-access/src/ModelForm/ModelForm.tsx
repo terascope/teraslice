@@ -1,25 +1,23 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import PropTypes from 'prop-types';
 import { Query } from 'react-apollo';
 import { Segment } from 'semantic-ui-react';
-import * as i from './interfaces';
 import {
     ErrorPage,
     LoadingPage,
     useCoreContext,
 } from '@terascope/ui-components';
-import { ModelName } from '@terascope/data-access';
 import { getModelConfig } from '../config';
 import { ModelNameProp } from '../interfaces';
+import * as i from './interfaces';
 import Form from './Form';
 
-const FormQuery: React.FC<Props> = ({
+function ModelForm<T extends i.AnyModel>({
     id,
     children,
     modelName,
-    validate,
-    beforeSubmit,
-}) => {
+    ...passThroughProps
+}: Props<T>): ReactElement {
     const config = getModelConfig(modelName);
     let query: any;
     let skip: boolean = false;
@@ -38,50 +36,41 @@ const FormQuery: React.FC<Props> = ({
     const authUser = useCoreContext().authUser!;
 
     return (
-        <FetchQuery query={query} variables={variables} skip={skip}>
+        <Query<any, Vars> query={query} variables={variables} skip={skip}>
             {({ loading, error, data }) => {
                 if (loading) return <LoadingPage />;
                 if (error) return <ErrorPage error={error} />;
 
-                const props = config.handleFormProps(authUser, data);
+                const props = config.handleFormProps(authUser, data || {});
 
                 return (
                     <Segment basic>
-                        <Form
+                        <Form<T>
+                            {...passThroughProps}
                             {...props}
                             modelName={modelName}
                             id={id}
-                            validate={validate}
-                            beforeSubmit={beforeSubmit}
                         >
                             {children}
                         </Form>
                     </Segment>
                 );
             }}
-        </FetchQuery>
+        </Query>
     );
+}
+
+type Props<T> = i.ComponentProps<T> & {
+    children: i.FormChild<T>;
 };
 
-type Props = {
-    id?: string;
-    modelName: ModelName;
-    validate: i.ValidateFn;
-    beforeSubmit: i.BeforeSubmitFn;
-    children: i.FormChild;
-};
-
-FormQuery.propTypes = {
+ModelForm.propTypes = {
     id: PropTypes.string,
     modelName: ModelNameProp.isRequired,
-    validate: PropTypes.func.isRequired,
-    beforeSubmit: PropTypes.func.isRequired,
 };
 
-export default FormQuery;
+export default ModelForm;
 
 interface Vars {
     id?: string;
 }
-
-class FetchQuery extends Query<any, Vars> {}

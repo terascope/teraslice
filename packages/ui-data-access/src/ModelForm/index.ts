@@ -1,10 +1,11 @@
-import Form from './Form';
-import Mutation from './FormMutation';
-import FormQuery from './FormQuery';
+import ClientID from './ClientID';
+import Description from './Description';
+import FormCheckbox from './FormCheckbox';
+import ModelForm from './ModelForm';
 import FormInput from './FormInput';
+import FormSelect from './FormSelect';
 
 export * from './interfaces';
-export { Form, Mutation, FormQuery, FormInput };
+export { ClientID, Description, FormCheckbox, FormInput, FormSelect };
 
-const ModelForm = FormQuery;
 export default ModelForm;

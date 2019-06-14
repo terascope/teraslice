@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { IResolvers, UserInputError } from 'apollo-server-express';
 import { GraphQLResolveInfo } from 'graphql';
-import { DataAccessConfig } from '@terascope/data-access';
+import { DataAccessConfig, SpaceSearchConfig } from '@terascope/data-access';
 import { DataType } from '@terascope/data-types';
 import elasticsearchApi from '@terascope/elasticsearch-api';
 import { Logger, get } from '@terascope/utils';
@@ -18,15 +18,15 @@ const defaultResolvers = {
 
 export { defaultResolvers, createResolvers };
 
-function dedup(records: any[]): any[] {
-    const dedup = {};
-    records.forEach((record: any) => {
+function dedup<T>(records: T[]): T[] {
+    const deduped: { [hash: string]: T } = {};
+    records.forEach(record => {
         const shasum = crypto.createHash('md5').update(JSON.stringify(record));
-        // @ts-ignore
-        dedup[shasum.digest()] = record;
+        const hash = shasum.digest().toString('utf8');
+        deduped[hash] = record;
     });
 
-    return Object.values(dedup);
+    return Object.values(deduped);
 }
 
 function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: Context) {
@@ -46,25 +46,26 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
                 },
             ],
         } = info;
-        const results: string[] = [];
+
+        const filteredResults: string[] = [];
         selections.forEach((selector: any) => {
             const {
                 name: { value },
             } = selector;
-            if (endpoints[value] == null) results.push(value);
+            if (endpoints[value] == null) filteredResults.push(value);
         });
-        return results;
+        return filteredResults;
     }
 
     viewList.forEach(view => {
-        const esClient = getESClient(context, get(view, 'search_config.connection', 'default'));
+        const esClient = getESClient(context, get(view, 'config.connection', 'default'));
         const client = elasticsearchApi(esClient, logger);
         const {
-            data_type: { type_config },
+            data_type: { config },
             view: { includes, excludes, constraint, prevent_prefix_wildcard },
         } = view;
 
-        const dateType = new DataType(type_config);
+        const dateType = new DataType(config);
         const accessData = {
             includes,
             excludes,
@@ -76,10 +77,11 @@ function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: 
 
         const queryAccess = new QueryAccess(accessData, logger);
 
-        endpoints[view.space_endpoint] = async function resolverFn(root: any, args: any, ctx: any, info: GraphQLResolveInfo) {
+        endpoints[view.space_endpoint!] = async function resolverFn(root: any, args: any, ctx: any, info: GraphQLResolveInfo) {
+            const spaceConfig = view.config as SpaceSearchConfig;
             const _sourceInclude = getSelectionKeys(info);
             const { size, sort, from, join } = args;
-            const queryParams = { index: view.search_config!.index, from, sort, size, _sourceInclude };
+            const queryParams = { index: spaceConfig.index, from, sort, size, _sourceInclude };
             let { query: q } = args;
 
             if (root == null && q == null) throw new UserInputError('Invalid request, expected query to nested');

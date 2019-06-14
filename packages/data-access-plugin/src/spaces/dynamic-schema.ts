@@ -10,12 +10,12 @@ import { createResolvers } from './resolvers';
 // TODO: history capabilities??
 
 export default async function getSchemaByRole(aclManager: ACLManager, user: User, logger: ts.Logger, context: Context) {
-    const query = `roles: ${user.role}`;
+    const query = `roles: ${user.role} AND type:SEARCH AND _exists_:endpoint`;
     const spaces = await aclManager.findSpaces({ query }, false);
     const fetchViews = spaces.map(space => aclManager.getViewForSpace({ space: space.id }, user));
     const list = await Promise.all(fetchViews);
     const sanatizedList = list.map(view => {
-        view.space_endpoint = sanitize(view.space_endpoint);
+        view.space_endpoint = sanitize(view.space_endpoint!);
         return view;
     });
 
@@ -45,7 +45,7 @@ function makeEndpoint(endpoint: string) {
 
 function createTypings(configs: DataAccessConfig[]) {
     const results: string[] = ['scalar JSON', 'scalar DateTime', Usertype];
-    const endpointList: string = configs.map((config) =>  makeEndpoint(config.space_endpoint)).join('\n    ');
+    const endpointList: string = configs.map(config => makeEndpoint(config.space_endpoint!)).join('\n    ');
     const filteredDataTypes = configs.map(filterDataTypes);
     const myTypes = DataType.mergeGraphQLDataTypes(filteredDataTypes, endpointList);
     // create query type
@@ -60,9 +60,9 @@ function createTypings(configs: DataAccessConfig[]) {
     return results;
 }
 
-function hasKey(values: string[], field:string) {
-    const results = values.filter((value) => {
-        return (value === field || value.match(new RegExp(`^${field}\\.`)));
+function hasKey(values: string[], field: string) {
+    const results = values.filter(value => {
+        return value === field || value.match(new RegExp(`^${field}\\.`));
     });
 
     if (results.length > 0) return results;
@@ -71,8 +71,8 @@ function hasKey(values: string[], field:string) {
 
 type CB = (key: string) => void;
 
-function iterateList(srcList:string[], comparaterList:string[], cb: CB) {
-    srcList.forEach((key) => {
+function iterateList(srcList: string[], comparaterList: string[], cb: CB) {
+    srcList.forEach(key => {
         const keyList = hasKey(comparaterList, key);
         if (keyList) {
             keyList.forEach(cb);
@@ -88,7 +88,7 @@ function restrict(fields: TypeConfigFields, includes: string[], exludes: string[
         results = fields;
     } else {
         results = {};
-        const cb: CB = includedField => results[includedField] = fields[includedField];
+        const cb: CB = includedField => (results[includedField] = fields[includedField]);
         iterateList(includes, fieldsList, cb);
     }
 
@@ -101,7 +101,13 @@ function restrict(fields: TypeConfigFields, includes: string[], exludes: string[
 }
 
 function filterDataTypes(config: DataAccessConfig) {
-    const { space_endpoint: name, view: { excludes = [], includes = [] }, data_type: { type_config: { version, fields } } } = config;
+    const {
+        space_endpoint: name,
+        view: { excludes = [], includes = [] },
+        data_type: {
+            config: { version, fields },
+        },
+    } = config;
     const typeObj = restrict(fields, includes, excludes);
     return new DataType({ version, fields: typeObj }, name);
 }
