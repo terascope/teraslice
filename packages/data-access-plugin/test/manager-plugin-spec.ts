@@ -281,7 +281,7 @@ describe('Data Access Management', () => {
                         lastname: "hello",
                         email: "hi@example.com",
                         role: "${roleId}",
-                        type: SUPERADMIN
+                        type: ADMIN
                     }, password: "greeting") {
                         id,
                         username,
@@ -302,7 +302,7 @@ describe('Data Access Management', () => {
             expect(createUser).toMatchObject({
                 username: 'hello',
                 email: 'hi@example.com',
-                type: 'SUPERADMIN',
+                type: 'ADMIN',
             });
         });
 
@@ -747,11 +747,7 @@ describe('Data Access Management', () => {
 
             expect(result).toMatchObject({
                 body: {
-                    error: 'Invalid q parameter, must not be empty, was given: ""',
-                    debug: {
-                        message: 'Invalid q parameter, must not be empty, was given: ""',
-                        statusCode: 422,
-                    },
+                    error: 'Invalid q parameter, must not be empty, was given: ""'
                 },
                 statusCode: 422,
             });
