@@ -5,6 +5,8 @@ import SuccessMessage from '../SuccessMessage';
 import ConfirmDelete from './ConfirmDelete';
 import ErrorMessage from '../ErrorMessage';
 import CancelButton from './CancelButton';
+import SubmitButton from './SubmitButton';
+import ButtonRow from './ButtonRow';
 
 const RecordForm: React.FC<Props> = ({
     requestError,
@@ -22,6 +24,34 @@ const RecordForm: React.FC<Props> = ({
     const hasErrors = validationErrors.length > 0;
     const [actionState, setActionState] = useState<ActionState>({});
 
+    const DeleteButton = deletable && deleteRecord && (
+        <ConfirmDelete
+            recordType={recordType}
+            onConfirm={async () => {
+                if (actionState.loading) return;
+
+                setActionState({
+                    loading: true,
+                });
+
+                try {
+                    await deleteRecord();
+
+                    setActionState({
+                        loading: false,
+                        success: true,
+                    });
+                } catch (err) {
+                    setActionState({
+                        loading: false,
+                        error: true,
+                        message: err,
+                    });
+                }
+            }}
+        />
+    );
+
     return (
         <React.Fragment>
             <Form
@@ -32,6 +62,16 @@ const RecordForm: React.FC<Props> = ({
                 widths="equal"
             >
                 <Grid columns={2}>
+                    <Grid.Row columns={1} className="recordFormTopButtons">
+                        <ButtonRow>
+                            <CancelButton />
+                            {DeleteButton}
+                            <SubmitButton
+                                loading={loading}
+                                hasErrors={hasErrors}
+                            />
+                        </ButtonRow>
+                    </Grid.Row>
                     <Grid.Row>
                         <Grid.Column
                             mobile={16}
@@ -43,49 +83,14 @@ const RecordForm: React.FC<Props> = ({
                         </Grid.Column>
                     </Grid.Row>
                     <Grid.Row columns={1}>
-                        <Grid.Column stretched>
-                            <Form.Group>
-                                <CancelButton />
-                                {deletable && deleteRecord && (
-                                    <ConfirmDelete
-                                        recordType={recordType}
-                                        onConfirm={async () => {
-                                            if (actionState.loading) return;
-
-                                            setActionState({
-                                                loading: true,
-                                            });
-
-                                            try {
-                                                await deleteRecord();
-
-                                                setActionState({
-                                                    loading: false,
-                                                    success: true,
-                                                });
-                                            } catch (err) {
-                                                setActionState({
-                                                    loading: false,
-                                                    error: true,
-                                                    message: err,
-                                                });
-                                            }
-                                        }}
-                                    />
-                                )}
-                                <Form.Button
-                                    fluid
-                                    width={2}
-                                    type="submit"
-                                    floated="right"
-                                    loading={loading}
-                                    disabled={hasErrors}
-                                    primary
-                                >
-                                    Submit
-                                </Form.Button>
-                            </Form.Group>
-                        </Grid.Column>
+                        <ButtonRow>
+                            <CancelButton />
+                            {DeleteButton}
+                            <SubmitButton
+                                loading={loading}
+                                hasErrors={hasErrors}
+                            />
+                        </ButtonRow>
                     </Grid.Row>
                 </Grid>
             </Form>

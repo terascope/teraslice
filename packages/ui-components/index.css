@@ -92,3 +92,27 @@
 .code.inline {
     display: inline;
 }
+
+.recordFormButtonRow {
+    display: flex;
+    flex-direction: column;
+    align-self: flex-end;
+}
+
+.recordFormTopButtons {
+    margin-top: -4.5rem;
+}
+
+.recordFormButtons {
+    display: flex;
+    float: right;
+}
+
+.recordFormButtons > div {
+    margin-right: 0.5rem !important;
+}
+
+.recordFormButtons .primary {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+}

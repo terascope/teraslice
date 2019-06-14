@@ -9,7 +9,7 @@
         "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
-        "build": "tsc --build --pretty",
+        "build": "rm -rf ./dist; tsc --build --pretty",
         "build:watch": "yarn build --watch",
         "test": "echo '* tests not supported yet'"
     },

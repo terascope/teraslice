@@ -10,9 +10,7 @@ const ConfirmDelete: React.FC<Props> = ({ recordType, onConfirm }) => {
                 <Form.Button
                     basic
                     color="red"
-                    width={1}
                     type="button"
-                    floated="right"
                     onClick={e => {
                         e.preventDefault();
                         setOpen(true);
