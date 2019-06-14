@@ -18,10 +18,8 @@ export function makeErrorHandler(reason: string, logger: ts.Logger): ErrorHandle
                 query: req.query,
             });
 
-            const forbidden = [401, 403].includes(statusCode);
-
             const resp: any = {
-                error: forbidden ? 'Access Denied' : ts.stripErrorMessage(error, reason, true),
+                error: ts.stripErrorMessage(error, reason, true),
             };
 
             const user = ts.get(req, 'v2User', { type: 'USER' });

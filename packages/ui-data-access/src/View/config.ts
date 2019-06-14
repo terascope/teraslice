@@ -133,11 +133,11 @@ const config: ModelConfig<Input> = {
     `,
     createQuery: gql`
         {
-            roles(query: "*") {
+            roles(query: "*", size: 10000) {
                 id
                 name
             }
-            dataTypes(query: "*") {
+            dataTypes(query: "*", size: 10000) {
                 id
                 client_id
                 name

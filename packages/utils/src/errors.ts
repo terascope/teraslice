@@ -39,7 +39,7 @@ export class TSError extends Error {
     constructor(input: any, config: TSErrorConfig = {}) {
         const { fatalError = false } = config;
 
-        const { message, statusCode, context, stack, code } = parseErrorInfo(input, config);
+        const { message, statusCode, context, code } = parseErrorInfo(input, config);
 
         super(message);
 
@@ -62,10 +62,6 @@ export class TSError extends Error {
         });
 
         Error.captureStackTrace(this, this.constructor);
-
-        if (stack) {
-            this.stack += `\n\tcaused by, ${stack}`;
-        }
     }
 
     cause(): any {

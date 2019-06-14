@@ -6,7 +6,7 @@ import { getFirst } from '@terascope/utils';
 export default {
     View: {
         roles(view: View, args: any, ctx: ManagerContext) {
-            return findAll(view.roles, query => ctx.manager.findRoles({ query }, ctx.user));
+            return findAll(view.roles, query => ctx.manager.findRoles({ query, size: 10000 }, ctx.user));
         },
         data_type(view: View, args: any, ctx: ManagerContext) {
             if (!view.data_type) return null;
@@ -14,7 +14,7 @@ export default {
         },
         async space(view: View, args: any, ctx: ManagerContext) {
             const query = `views: ${view.id}`;
-            const spaces = await ctx.manager.findSpaces({ query }, ctx.user);
+            const spaces = await ctx.manager.findSpaces({ query, size: 10000 }, ctx.user);
             return getFirst(spaces);
         },
     },
