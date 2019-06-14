@@ -41,7 +41,7 @@ describe('TeraserverAdapterPlugin', () => {
 
     it('should not be able to call routes if not configured', () => {
         expect(() => {
-            index.routes();
+            index.routes([]);
         }).toThrowError('Plugin has not been configured');
     });
 
@@ -98,7 +98,7 @@ describe('TeraserverAdapterPlugin', () => {
 
     it('should not be able to call routes if not initialized', () => {
         expect(() => {
-            index.routes();
+            index.routes([]);
         }).toThrowError('Plugin has not been initialized');
     });
 
@@ -115,7 +115,7 @@ describe('TeraserverAdapterPlugin', () => {
 
     it('should be able to call routes', () => {
         expect(() => {
-            index.routes();
+            index.routes([]);
         }).not.toThrow();
     });
 

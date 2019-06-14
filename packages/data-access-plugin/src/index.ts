@@ -53,11 +53,10 @@ const adapter: TeraserverPluginAdapter = {
             throw new Error('Plugin has not been initialized');
         }
 
-        this._search.registerMiddleware();
         this._search.registerRoutes();
     },
 
-    routes() {
+    routes(deferred) {
         if (this._manager == null || this._search == null || this._spaces == null || this._config == null) {
             throw new Error('Plugin has not been configured');
         }
@@ -69,6 +68,7 @@ const adapter: TeraserverPluginAdapter = {
         // ORDER MATTERS
         this._manager.registerRoutes();
         this._spaces.registerRoutes();
+        this._search.registerMiddleware();
     },
 };
 
@@ -85,5 +85,5 @@ interface TeraserverPluginAdapter {
     config(config: PluginConfig): void;
     post(): void;
     init(): Promise<void>;
-    routes(): void;
+    routes(deferred: (() => void)[]): void;
 }
