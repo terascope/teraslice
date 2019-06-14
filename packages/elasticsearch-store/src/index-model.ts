@@ -226,7 +226,8 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     }
 
     protected async _appendToArray(id: string, field: keyof T, values: string[] | string): Promise<void> {
-        if (!values || !values.length) return;
+        const valueArray = values && ts.uniq(ts.castArray(values)).filter(v => !!v);
+        if (!valueArray || !valueArray.length) return;
 
         await this._updateWith(id, {
             script: {
@@ -239,14 +240,15 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
                 `,
                 lang: 'painless',
                 params: {
-                    values: ts.uniq(ts.castArray(values)),
+                    values: valueArray,
                 },
             },
         });
     }
 
     protected async _removeFromArray(id: string, field: keyof T, values: string[] | string): Promise<void> {
-        if (!values || !values.length) return;
+        const valueArray = values && ts.uniq(ts.castArray(values)).filter(v => !!v);
+        if (!valueArray || !valueArray.length) return;
 
         try {
             await this._updateWith(id, {
@@ -261,7 +263,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
                     `,
                     lang: 'painless',
                     params: {
-                        values: ts.uniq(ts.castArray(values)),
+                        values: valueArray,
                     },
                 },
             });

@@ -431,6 +431,10 @@ export class ACLManager {
         // if the token is provided use the authenticated user
         const user = args.token || !authUser ? await this.authenticate(args) : authUser;
 
+        if (user.type === 'SUPERADMIN') {
+            throw new ts.TSError('A SUPERADMIN is not allowed to query spaces', { statusCode: 403 });
+        }
+
         if (!user.role) {
             const msg = `User "${user.username}" is not assigned to a role`;
             throw new ts.TSError(msg, { statusCode: 403 });
@@ -446,12 +450,10 @@ export class ACLManager {
 
         const [view, dataType] = await Promise.all([this._views.getViewOfSpace(space, role), this._dataTypes.findById(space.data_type)]);
 
-        if (user.type !== 'SUPERADMIN') {
-            const clientIds = [role.client_id, space.client_id, dataType.client_id, view.client_id];
-            if (!clientIds.every(id => id === user.client_id)) {
-                const msg = `User "${user.username}" does not have permission to access space "${space.endpoint}"`;
-                throw new ts.TSError(msg, { statusCode: 403 });
-            }
+        const clientIds = [role.client_id, space.client_id, dataType.client_id, view.client_id];
+        if (!clientIds.every(id => id === user.client_id)) {
+            const msg = `User "${user.username}" does not have permission to access space "${space.endpoint}"`;
+            throw new ts.TSError(msg, { statusCode: 403 });
         }
 
         return this._parseDataAccessConfig({
