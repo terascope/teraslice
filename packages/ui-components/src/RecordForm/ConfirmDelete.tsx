@@ -9,6 +9,7 @@ const ConfirmDelete: React.FC<Props> = ({ recordType, onConfirm }) => {
             trigger={
                 <Form.Button
                     basic
+                    className="delete"
                     color="red"
                     type="button"
                     onClick={e => {

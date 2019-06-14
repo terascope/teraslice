@@ -80,6 +80,17 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
                         <Form.Group>
                             <FormSelect<Input>
                                 {...defaultInputProps}
+                                name="data_type"
+                                label="Data Type"
+                                disabled={Boolean(id)}
+                                placeholder="Select Data Type"
+                                value={model.data_type}
+                                options={dataTypes}
+                            />
+                        </Form.Group>
+                        <Form.Group>
+                            <FormSelect<Input>
+                                {...defaultInputProps}
                                 name="roles"
                                 label="Roles"
                                 placeholder="Select Roles"
@@ -95,17 +106,6 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
                                 multiple
                                 value={model.views}
                                 options={model.data_type.views}
-                            />
-                        </Form.Group>
-                        <Form.Group>
-                            <FormSelect<Input>
-                                {...defaultInputProps}
-                                name="data_type"
-                                label="Data Type"
-                                disabled={Boolean(id)}
-                                placeholder="Select Data Type"
-                                value={model.data_type}
-                                options={dataTypes}
                             />
                         </Form.Group>
                         {authUser.type === 'SUPERADMIN' && (

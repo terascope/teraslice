@@ -134,6 +134,7 @@ function Form<T extends AnyModel>({
                                     requestError={error}
                                     validationErrors={errors.messages}
                                     recordType={config.singularLabel}
+                                    isCreate={create}
                                     created={data && create}
                                     updated={data && update}
                                     redirectPath={`/${config.pathname}`}

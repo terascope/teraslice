@@ -34,7 +34,7 @@ function validateConfig(cluster, _schema, configFile) {
                 // FIXME
                 // false is deprecated and will be removed in ^5.0.0
                 // must be warn or strict
-                allowed: false,
+                allowed: true,
             });
         }
 

@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
-const { TSError, isFatalError, isEmpty } = require('@terascope/utils');
+const { TSError, isFatalError } = require('@terascope/utils');
 
 const DOCUMENT_EXISTS = 409;
 
@@ -10,11 +10,10 @@ const DOCUMENT_EXISTS = 409;
 // All functions in this module return promises that must be resolved to get the final result.
 module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     const config = _opConfig || {};
-    if (isEmpty(client)) {
+    if (!client) {
         throw new Error('Elasticsearch API requires client');
     }
-
-    if (isEmpty(logger)) {
+    if (!logger) {
         throw new Error('Elasticsearch API requires logger');
     }
 

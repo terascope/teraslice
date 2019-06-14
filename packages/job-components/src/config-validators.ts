@@ -5,7 +5,7 @@ import { opSchema, apiSchema } from './job-schemas';
 const validateOptions: convict.ValidateOptions = {
     // IMPORTANT: changing this will break things
     // @ts-ignore because this is deprecated and will be removed in ^5.0.0
-    allowed: false,
+    allowed: true,
 };
 
 /**

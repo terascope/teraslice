@@ -15,6 +15,7 @@ const RecordForm: React.FC<Props> = ({
     recordType,
     children,
     onSubmit,
+    isCreate,
     updated,
     created,
     redirectPath,
@@ -65,8 +66,8 @@ const RecordForm: React.FC<Props> = ({
                     <Grid.Row columns={1} className="recordFormTopButtons">
                         <ButtonRow>
                             <CancelButton />
-                            {DeleteButton}
                             <SubmitButton
+                                isCreate={isCreate}
                                 loading={loading}
                                 hasErrors={hasErrors}
                             />
@@ -84,9 +85,10 @@ const RecordForm: React.FC<Props> = ({
                     </Grid.Row>
                     <Grid.Row columns={1}>
                         <ButtonRow>
-                            <CancelButton />
                             {DeleteButton}
+                            <CancelButton />
                             <SubmitButton
+                                isCreate={isCreate}
                                 loading={loading}
                                 hasErrors={hasErrors}
                             />
@@ -130,6 +132,7 @@ type Props = {
     recordType: string;
     redirectPath: string;
     onSubmit: (event: React.FormEvent, data: FormProps) => void;
+    isCreate: boolean;
     deletable?: boolean;
     deleteRecord?: () => Promise<void> | void;
     requestError?: any;
@@ -143,6 +146,7 @@ RecordForm.propTypes = {
     recordType: PropTypes.string.isRequired,
     onSubmit: PropTypes.func.isRequired,
     redirectPath: PropTypes.string.isRequired,
+    isCreate: PropTypes.bool.isRequired,
     validationErrors: PropTypes.arrayOf(PropTypes.string.isRequired),
     deletable: PropTypes.bool,
     deleteRecord: PropTypes.func,

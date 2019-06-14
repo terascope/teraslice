@@ -26,8 +26,8 @@
     "main": "build/plugin.js",
     "dependencies": {},
     "devDependencies": {
-        "@terascope/data-types": "^0.2.0",
         "@terascope/data-access": "^0.9.0",
+        "@terascope/data-types": "^0.2.0",
         "@terascope/ui-components": "^0.3.0",
         "@terascope/utils": "^0.11.0",
         "@types/jest": "24.0.14",
@@ -46,7 +46,7 @@
         "react-apollo": "^2.5.5",
         "react-dom": "^16.8.6",
         "react-router-dom": "^5.0.1",
-        "semantic-ui-react": "^0.87.1",
+        "semantic-ui-react": "^0.87.2",
         "style-loader": "^0.23.1",
         "ts-loader": "^6.0.2",
         "webpack": "^4.34.0",

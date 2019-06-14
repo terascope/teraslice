@@ -27,11 +27,13 @@ const Footer: React.FC<Props> = ({
     const totalPages = Math.ceil(total / size);
     const currentPage = Math.floor(from / size) + 1;
 
-    const rowsPerPageOptions = uniqIntArray([1, 5, 10, 25, size]).map(num => ({
-        key: num,
-        text: num,
-        value: num,
-    }));
+    const rowsPerPageOptions = uniqIntArray([10, 25, 50, 100, 500, size]).map(
+        num => ({
+            key: num,
+            text: num,
+            value: num,
+        })
+    );
 
     return (
         <TableFooter numCols={numCols}>

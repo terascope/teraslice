@@ -132,14 +132,20 @@
 
 .recordFormButtons {
     display: flex;
-    float: right;
+    justify-content: flex-end;
+    flex-direction: row;
 }
 
 .recordFormButtons > div {
     margin-right: 0.5rem !important;
 }
 
-.recordFormButtons .primary {
-    padding-left: 2rem !important;
-    padding-right: 2rem !important;
+.recordFormButtons .primary > .button, .recordFormButtons .delete > .button {
+    padding-left: 2.5rem !important;
+    padding-right: 2.5rem !important;
+}
+
+.recordFormButtons .delete > .button {
+    display: flex;
+    flex: 1;
 }
