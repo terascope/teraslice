@@ -3,10 +3,11 @@
     "private": true,
     "scripts": {
         "start": "node service.js",
-        "setup": "lerna bootstrap --force-local && yarn build",
+        "setup": "yarn build:cleanup && lerna bootstrap --force-local && yarn build",
         "cleanup": "./scripts/cleanup.sh",
         "build": "lerna run build:prepare && tsc --build --pretty",
-        "build:all": "env FORCE_COLOR=1 lerna run build",
+        "build:cleanup": "./scripts/build-cleanup.sh",
+        "build:all": "yarn build:cleanup && env FORCE_COLOR=1 lerna run build",
         "build:pkg": "./scripts/build-pkg.sh",
         "build:watch": "yarn run build --watch",
         "benchmark": "lerna run --concurrency=1 --no-prefix --stream benchmark",
@@ -51,7 +52,7 @@
         "ts-jest": "^24.0.2",
         "tslint": "^5.17.0",
         "tslint-config-airbnb": "^5.11.1",
-        "typescript": "^3.5.1"
+        "typescript": "^3.5.2"
     },
     "workspaces": [
         "packages/*",

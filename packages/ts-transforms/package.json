@@ -49,7 +49,7 @@
         "lodash": "^4.17.11",
         "shortid": "^2.2.14",
         "valid-url": "^1.0.9",
-        "validator": "^10.10.0",
+        "validator": "^11.0.0",
         "xlucene-evaluator": "^0.9.0",
         "yargs": "^13.2.4"
     },
