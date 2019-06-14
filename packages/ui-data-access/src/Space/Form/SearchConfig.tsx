@@ -21,6 +21,7 @@ const SearchConfig: React.FC<Props> = ({ config, updateConfig }) => {
                 <Form.Input
                     name="index"
                     required
+                    error={!config.index}
                     label="Search Config Index"
                     value={config.index || ''}
                     onChange={onChange}

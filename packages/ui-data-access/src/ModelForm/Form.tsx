@@ -84,7 +84,13 @@ function Form<T extends AnyModel>({
     };
 
     const updateModel = (updates: AnyObject) => {
-        setModel({ ...model, ...updates });
+        setModel(latestModel => {
+            Object.assign(latestModel, updates);
+            fixClientId(latestModel);
+            isFunction(afterChange) && afterChange(latestModel);
+            validate(latestModel);
+            return { ...latestModel };
+        });
     };
 
     const defaultInputProps: DefaultInputProps<T> = {

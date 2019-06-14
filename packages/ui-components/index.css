@@ -140,12 +140,12 @@
     margin-right: 0.5rem !important;
 }
 
-.recordFormButtons .primary > .button, .recordFormButtons .delete > .button {
+.recordFormButtons .submit > .button, .recordFormButtons .delete > .button {
     padding-left: 2.5rem !important;
     padding-right: 2.5rem !important;
 }
 
-.recordFormButtons .delete > .button {
+.recordFormButtons .delete {
     display: flex;
     flex: 1;
 }

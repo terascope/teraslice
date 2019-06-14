@@ -116,8 +116,11 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                             />
                         </Form.Group>
                         <Section
-                            title="Restricted Fields (inclusive)"
-                            description="A whitelist of fields that can be views and searched"
+                            title="Allowed Fields"
+                            description={[
+                                'Fields that should be allowed in searches and returned results.',
+                                'If any fields are listed here then all other fields will be excluded automatically.',
+                            ].join(' ')}
                             info={<RestrictedInfo />}
                         >
                             <Form.Group as={Segment} basic>
@@ -135,8 +138,11 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                             </Form.Group>
                         </Section>
                         <Section
-                            title="Restricted Fields (exclusive)"
-                            description="A blacklist of fields that can be views and searched"
+                            title="Excluded Fields"
+                            description={[
+                                'Fields that should be excluded from searches and returned results.',
+                                'If fields are listed here then all other fields will be allowed automatically.',
+                            ].join(' ')}
                             info={<RestrictedInfo />}
                         >
                             <Form.Group as={Segment} basic>
