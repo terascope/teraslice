@@ -1,18 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import { parseJSON } from '@terascope/utils';
-import {
-    ConnectionConfig,
-    Context,
-    ValidatedJobConfig,
-    ExecutionConfig,
-    OpConfig,
-    GetClientConfig,
-} from './interfaces';
+import { ConnectionConfig, Context, ValidatedJobConfig, ExecutionConfig, OpConfig, GetClientConfig } from './interfaces';
 import { ExecutionContextAPI } from './execution-context';
 
 /** Get the first opConfig from an operation name */
-export function getOpConfig(job: ValidatedJobConfig, name: string): OpConfig|undefined {
+export function getOpConfig(job: ValidatedJobConfig, name: string): OpConfig | undefined {
     return job.operations.find((op: OpConfig) => op._op === name);
 }
 
@@ -33,7 +26,7 @@ export async function getAssetPath(assetDir: string, assets: string[], name: str
         if (fs.existsSync(assetDir)) return assetPath;
     }
 
-    const [assetName] = name.split(':').map((s) => s.trim());
+    const [assetName] = name.split(':').map(s => s.trim());
 
     for (const id of assetIds) {
         const rawAssetJSON = fs.readFileSync(path.join(assetDir, id, 'asset.json'));
@@ -52,11 +45,11 @@ interface AssetJSON {
 }
 
 /*
-* This will request a connection based on the 'connection' attribute of
-* an opConfig. Intended as a context API endpoint.
-* If there is an error getting the connection, it will not throw an error
-* it will log it and emit `client:initialization:error`
-*/
+ * This will request a connection based on the 'connection' attribute of
+ * an opConfig. Intended as a context API endpoint.
+ * If there is an error getting the connection, it will not throw an error
+ * it will log it and emit `client:initialization:error`
+ */
 export function getClient(context: Context, config: GetClientConfig, type: string): any {
     const clientConfig: ConnectionConfig = {
         type,
@@ -83,7 +76,7 @@ export function getClient(context: Context, config: GetClientConfig, type: strin
     }
 }
 
-export function registerApis(context: Context, job: ValidatedJobConfig|ExecutionConfig, assetIds?: string[]): void {
+export function registerApis(context: Context, job: ValidatedJobConfig | ExecutionConfig, assetIds?: string[]): void {
     if (context.apis.executionContext == null) {
         context.apis.registerAPI('executionContext', new ExecutionContextAPI(context, job as ExecutionConfig));
     }
@@ -97,7 +90,7 @@ export function registerApis(context: Context, job: ValidatedJobConfig|Execution
 
     delete context.apis.job_runner;
     context.apis.registerAPI('job_runner', {
-        getOpConfig(name: string): OpConfig|undefined {
+        getOpConfig(name: string): OpConfig | undefined {
             return getOpConfig(job, name);
         },
     });

@@ -2,8 +2,11 @@ import convict from 'convict';
 import { ValidatedJobConfig, OpConfig, APIConfig } from './interfaces';
 import { opSchema, apiSchema } from './job-schemas';
 
-// @ts-ignore
-const validateOptions: convict.ValidateOptions = { allowed: true };
+const validateOptions: convict.ValidateOptions = {
+    // IMPORTANT: changing this will break things
+    // @ts-ignore because this is deprecated and will be removed in ^5.0.0
+    allowed: false,
+};
 
 /**
  * Merges the provided inputSchema with commonSchema and then validates the

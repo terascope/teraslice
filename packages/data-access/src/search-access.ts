@@ -4,7 +4,6 @@ import * as x from 'xlucene-evaluator';
 import { SpaceSearchConfig } from './models';
 import * as i from './interfaces';
 import * as t from '@terascope/data-types';
-import { LATEST_VERSION } from '@terascope/data-types';
 
 const _logger = ts.debugLogger('search-access');
 
@@ -80,7 +79,7 @@ export class SearchAccess {
 
     getSearchParams(query: i.InputQuery): es.SearchParams {
         const typeConfig = this.config.data_type.config || {
-            version: LATEST_VERSION,
+            version: t.LATEST_VERSION,
             fields: {},
         };
         const params: es.SearchParams = {
