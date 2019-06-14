@@ -39,6 +39,33 @@
     padding-left: 1rem;
 }
 
+.dtFooterOptions {
+    display: flex;
+    justify-content: space-between;
+}
+
+.dtFooterPerPage {
+    margin-right: 1rem;
+    margin-top: 0.1rem;
+    margin-left: -1px;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-color: rgba(34, 36, 38, 0.20) !important;
+}
+
+.dtFooterPerPageLabel {
+    margin-top: 0.1rem !important;
+    margin-right: 0 !important;
+    font-weight: 400 !important;
+    display: flex !important;
+    align-items: center;
+    padding: 0 1rem  !important;
+    font-size: 0.9rem !important;
+    background: rgba(0, 0, 0, 0.03) !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
 .sectionMessage {
     display: flex !important;
     justify-content: space-between;
