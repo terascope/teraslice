@@ -37,7 +37,7 @@ export class DataType implements DataTypeManager {
         this._types = types;
     }
 
-    toESMapping({ typeName, settings: settingsConfig, mappingMetaData }: MappingConfiguration) {
+    toESMapping({ typeName = this._name, settings: settingsConfig, mappingMetaData }: MappingConfiguration) {
         const argAnalyzer = ts.get(settingsConfig || {}, ['analysis', 'analyzer'], {});
         const argTokenizer = ts.get(settingsConfig || {}, ['analysis', 'tokenizer'], {});
 
@@ -89,10 +89,10 @@ export class DataType implements DataTypeManager {
         }
 
         return {
+            settings,
             mappings: {
                 [typeName]: mappingConfig,
             },
-            settings,
         };
     }
 
