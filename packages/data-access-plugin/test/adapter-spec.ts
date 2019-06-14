@@ -16,9 +16,9 @@ describe('TeraserverAdapterPlugin', () => {
                 create: () => {
                     return { client };
                 },
-                endpoint: 'default'
-            }
-        ]
+                endpoint: 'default',
+            },
+        ],
     });
 
     it('should export a valid plugin adapter', () => {
@@ -62,7 +62,7 @@ describe('TeraserverAdapterPlugin', () => {
                     plugins: [],
                 },
                 terafoundation: {},
-            }
+            },
         };
 
         expect(index._initialized).toBeFalse();
@@ -92,6 +92,7 @@ describe('TeraserverAdapterPlugin', () => {
             async initialize() {},
             async shutdown() {},
             registerRoutes() {},
+            registerMiddleware() {},
         };
     });
 

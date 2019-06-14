@@ -12,6 +12,8 @@ import * as managerUtils from '../manager/utils';
 /**
  * @todo add support for the search counter
  */
+const searchUrl = '/api/v2/:endpoint';
+
 export default class SearchPlugin {
     readonly config: TeraserverConfig;
     readonly logger: Logger;
@@ -31,10 +33,34 @@ export default class SearchPlugin {
     async shutdown() {}
 
     registerRoutes() {
-        const searchUrl = '/api/v2/:endpoint';
-        this.logger.info(`Registering data-access-plugin search endpoint at ${searchUrl}`);
-
+        this.logger.info(`Registering data-access-plugin search endpoint at GET ${searchUrl}`);
         this.app.get(searchUrl, (req, res) => {
+            // @ts-ignore
+            const space: SpaceSearch = req.space;
+            if (!space) {
+                this.logger.error('Space middleware not setup properly');
+                res.sendStatus(500);
+                return;
+            }
+
+            space.searchErrorHandler(req, res, async () => {
+                const result = await space.search(req.query);
+
+                res.status(200).set('Content-type', 'application/json; charset=utf-8');
+
+                if (req.query.pretty) {
+                    res.send(JSON.stringify(result, null, 2));
+                } else {
+                    res.json(result);
+                }
+            });
+        });
+    }
+
+    registerMiddleware() {
+        this.logger.info(`Registering data-access-plugin search middleware at ${searchUrl}`);
+
+        this.app.use(searchUrl, (req, res, next) => {
             const manager: ACLManager = get(req, 'aclManager');
             const user: User = managerUtils.getLoggedInUser(req)!;
 
@@ -73,17 +99,17 @@ export default class SearchPlugin {
 
                 const search = makeSearchFn(client, accessConfig, logger);
 
-                searchErrorHandler(req, res, async () => {
-                    const result = await search(req.query);
+                const space: SpaceSearch = {
+                    searchErrorHandler,
+                    accessConfig,
+                    search,
+                    logger,
+                };
 
-                    res.status(200).set('Content-type', 'application/json; charset=utf-8');
+                // @ts-ignore
+                req.space = space;
 
-                    if (req.query.pretty) {
-                        res.send(JSON.stringify(result, null, 2));
-                    } else {
-                        res.json(result);
-                    }
-                });
+                next();
             });
         });
     }

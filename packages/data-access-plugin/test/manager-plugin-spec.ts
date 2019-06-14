@@ -109,6 +109,7 @@ describe('Data Access Management', () => {
 
         // ORDER MATTERS
         manager.registerRoutes();
+        search.registerMiddleware();
         search.registerRoutes();
     });
 
@@ -747,7 +748,7 @@ describe('Data Access Management', () => {
 
             expect(result).toMatchObject({
                 body: {
-                    error: 'Invalid q parameter, must not be empty, was given: ""'
+                    error: 'Invalid q parameter, must not be empty, was given: ""',
                 },
                 statusCode: 422,
             });
