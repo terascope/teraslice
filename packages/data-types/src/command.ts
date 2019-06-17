@@ -68,7 +68,9 @@ function wrapper(cb: CB) {
 
 function parseSettings(settings: string) {
     const results = {};
+    if (settings == null) return results;
     const data = Array.isArray(settings) ? settings : [settings];
+
     data.forEach((str) => {
         const setting = str.split(':');
         if (settings.length !== 2) throw new Error(`setting "${str}" is not fomatted correctly, please follow "key:value" format`);
