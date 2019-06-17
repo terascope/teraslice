@@ -14,6 +14,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     readonly constraint?: string;
     readonly preventPrefixWildcard: boolean;
     readonly allowImplicitQueries: boolean;
+    readonly allowEmpty: boolean;
     readonly typeConfig: TypeConfig;
     logger: ts.Logger;
 
@@ -21,14 +22,23 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     private readonly _translator: CachedTranslator = new CachedTranslator();
 
     constructor(config: QueryAccessConfig<T> = {}, logger?: ts.Logger) {
-        const { excludes = [], includes = [], constraint, prevent_prefix_wildcard, allow_implicit_queries, type_config = {} } = config;
+        const {
+            excludes = [],
+            includes = [],
+            constraint,
+            prevent_prefix_wildcard = false,
+            allow_implicit_queries = false,
+            type_config = {},
+            allow_empty_queries = true,
+        } = config;
 
         this.logger = logger != null ? logger.child({ module: 'xlucene-query-access' }) : _logger;
         this.excludes = excludes;
         this.includes = includes;
         this.constraint = constraint;
-        this.preventPrefixWildcard = !!prevent_prefix_wildcard;
-        this.allowImplicitQueries = !!allow_implicit_queries;
+        this.allowEmpty = Boolean(allow_empty_queries);
+        this.preventPrefixWildcard = Boolean(prevent_prefix_wildcard);
+        this.allowImplicitQueries = Boolean(allow_implicit_queries);
         this.typeConfig = type_config;
     }
 
@@ -46,12 +56,12 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         const parser = this._parser.make(query, this.logger);
 
         if (isEmptyAST(parser.ast)) {
-            if (!this.constraint) {
+            if (!this.allowEmpty) {
                 throw new ts.TSError('Empty queries are restricted', {
                     statusCode: 403,
                 });
             }
-            return this.constraint;
+            return this.constraint || '';
         }
 
         parser.forTermTypes((node: TermLikeAST) => {

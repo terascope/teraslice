@@ -16,41 +16,53 @@ describe('SearchAccess', () => {
         }).toThrowWithMessage(ts.TSError, 'Search is not configured correctly for search');
     });
 
-    it('should be able to restrict the query for bar', () => {
-        const searchAccess = makeWith();
-        expect(() => {
-            searchAccess.restrictSearchQuery('bar:foo');
-        }).toThrowWithMessage(ts.TSError, 'Field bar in query is restricted');
-    });
-
-    it('should be able to return a restricted query', () => {
-        const searchAccess = makeWith();
-        const params: SearchParams = {
-            q: 'idk',
-            _sourceInclude: ['moo'],
-            _sourceExclude: ['baz'],
-        };
-
-        const result = searchAccess.restrictSearchQuery('foo:bar', params);
-        expect(result).toMatchObject({
-            _sourceExclude: ['baz'],
-            _sourceInclude: ['moo'],
+    describe('when restricting queries', () => {
+        it('should be able to restrict the query for bar', () => {
+            const searchAccess = makeWith();
+            expect(() => {
+                searchAccess.restrictSearchQuery('bar:foo');
+            }).toThrowWithMessage(ts.TSError, 'Field bar in query is restricted');
         });
 
-        expect(params).toHaveProperty('q', 'idk');
-        expect(result).not.toHaveProperty('q', 'idk');
-    });
+        it('should be able to return a restricted query', () => {
+            const searchAccess = makeWith();
+            const params: SearchParams = {
+                q: 'idk',
+                _sourceInclude: ['moo'],
+                _sourceExclude: ['baz'],
+            };
 
-    it('should be able to return a restricted query without any params', () => {
-        const searchAccess = makeWith();
+            const result = searchAccess.restrictSearchQuery('foo:bar', params);
+            expect(result).toMatchObject({
+                _sourceExclude: ['baz'],
+                _sourceInclude: ['moo'],
+            });
 
-        const result = searchAccess.restrictSearchQuery('foo:bar');
-        expect(result).toMatchObject({
-            _sourceExclude: ['bar', 'baz'],
-            _sourceInclude: ['foo', 'moo'],
+            expect(params).toHaveProperty('q', 'idk');
+            expect(result).not.toHaveProperty('q', 'idk');
         });
 
-        expect(result).not.toHaveProperty('q', 'idk');
+        it('should be able to return a restricted query without any params', () => {
+            const searchAccess = makeWith();
+
+            const result = searchAccess.restrictSearchQuery('foo:bar');
+            expect(result).toMatchObject({
+                _sourceExclude: ['bar', 'baz'],
+                _sourceInclude: ['foo', 'moo'],
+            });
+
+            expect(result).not.toHaveProperty('q', 'idk');
+        });
+
+        it('should be able all an empty query', () => {
+            const searchAccess = makeWith({
+                require_query: false,
+            });
+
+            expect(() => {
+                searchAccess.restrictSearchQuery();
+            }).not.toThrow();
+        });
     });
 
     describe('when performing a search', () => {

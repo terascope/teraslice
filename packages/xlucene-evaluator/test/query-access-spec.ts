@@ -115,9 +115,7 @@ describe('QueryAccess', () => {
 
             const query = 'hello';
 
-            expect(() => queryAccess.restrict(query)).toThrowError(
-                'Implicit fields are restricted, please specify the field'
-            );
+            expect(() => queryAccess.restrict(query)).toThrowError('Implicit fields are restricted, please specify the field');
         });
 
         it('should throw when using *', () => {
@@ -125,9 +123,7 @@ describe('QueryAccess', () => {
 
             const query = '*';
 
-            expect(() => queryAccess.restrict(query)).toThrowError(
-                'Implicit fields are restricted, please specify the field'
-            );
+            expect(() => queryAccess.restrict(query)).toThrowError('Implicit fields are restricted, please specify the field');
         });
 
         it('should not throw if field implicit are allowed', () => {
@@ -149,9 +145,28 @@ describe('QueryAccess', () => {
         });
 
         it('should throw if passed an empty query', () => {
-            const query = '';
+            expect(() =>
+                new QueryAccess({
+                    allow_empty_queries: false,
+                }).restrict('')
+            ).toThrowWithMessage(TSError, 'Empty queries are restricted');
+        });
 
-            expect(() => queryAccess.restrict(query)).toThrowWithMessage(TSError, 'Empty queries are restricted');
+        it('should return an empty query when allowed', () => {
+            expect(
+                new QueryAccess({
+                    allow_empty_queries: true,
+                }).restrict('')
+            ).toEqual('');
+        });
+
+        it('should return constraint if given an empty query', () => {
+            expect(
+                new QueryAccess({
+                    allow_empty_queries: true,
+                    constraint: 'foo:bar',
+                }).restrict('')
+            ).toEqual('foo:bar');
         });
 
         it('should allow field listed if included', () => {
@@ -231,7 +246,7 @@ describe('QueryAccess', () => {
             prevent_prefix_wildcard: true,
         });
 
-        describe.each([['hello:*world'], ['hello:?world']])('when using a query of "%s"', (query) => {
+        describe.each([['hello:*world'], ['hello:?world']])('when using a query of "%s"', query => {
             it('should throw an error', () => {
                 expect(() => queryAccess.restrict(query)).toThrowWithMessage(
                     TSError,
