@@ -33,6 +33,7 @@ export class SearchAccess {
                 includes: this.config.view.includes,
                 constraint: this.config.view.constraint,
                 prevent_prefix_wildcard: this.config.view.prevent_prefix_wildcard,
+                allow_empty_queries: true,
                 type_config: types.toXlucene(),
             },
             this._logger
@@ -42,10 +43,13 @@ export class SearchAccess {
     /**
      * Converts a restricted xlucene query to an elasticsearch search query
      */
-    restrictSearchQuery(query: string = '*', params?: es.SearchParams): es.SearchParams {
-        return this._queryAccess.restrictSearchQuery(query, params);
+    restrictSearchQuery(query?: string, params?: es.SearchParams): es.SearchParams {
+        return this._queryAccess.restrictSearchQuery(query || '', params);
     }
 
+    /**
+     * Safely search a space given an elasticsearch client and a valid query
+     */
     async performSearch(client: es.Client, query: i.InputQuery) {
         const params = this.getSearchParams(query);
 
@@ -77,6 +81,11 @@ export class SearchAccess {
         return this.getSearchResponse(response, query, params);
     }
 
+    /**
+     * Validate and get elasticsearch search request parameters
+     *
+     * @private
+     */
     getSearchParams(query: i.InputQuery): es.SearchParams {
         const typeConfig = this.config.data_type.config || {
             version: t.LATEST_VERSION,
@@ -171,6 +180,9 @@ export class SearchAccess {
         return ts.withoutNil(params);
     }
 
+    /**
+     * Format the results or error from the performSearch
+     */
     getSearchResponse(response: es.SearchResponse<any>, query: i.InputQuery, params: es.SearchParams) {
         // I don't think this property actually exists
         const error = ts.get(response, 'error');

@@ -34,6 +34,8 @@ export default class SearchPlugin {
 
     registerRoutes() {
         this.logger.info(`Registering data-access-plugin search endpoint at GET ${searchUrl}`);
+
+        // The default GET route which uses the space middleware.
         this.app.get(searchUrl, (req, res) => {
             // @ts-ignore
             const space: SpaceSearch = req.space;
@@ -60,6 +62,8 @@ export default class SearchPlugin {
     registerMiddleware() {
         this.logger.info(`Registering data-access-plugin search middleware at ${searchUrl}`);
 
+        // This needs to be a middleware so it can expose an API for other
+        // plugins, changing how this works can break things
         this.app.use(searchUrl, (req, res, next) => {
             const manager: ACLManager = get(req, 'aclManager');
             const user: User = managerUtils.getLoggedInUser(req)!;
@@ -106,6 +110,8 @@ export default class SearchPlugin {
                     logger,
                 };
 
+                // IMPORTANT: This is used external plugins,
+                // avoid making breaking changes.
                 // @ts-ignore
                 req.space = space;
 
