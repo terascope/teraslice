@@ -5,7 +5,7 @@ import { debugLogger, get } from '@terascope/utils';
 import { DataType, DataTypeConfig } from './index';
 
 // @ts-ignore
-const logger = debugLogger('ts-transform-cli');
+const logger = debugLogger('data-type-cli');
 // change pathing due to /dist/src issues
 const packagePath = path.join(__dirname, '../../package.json');
 const { version } = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
