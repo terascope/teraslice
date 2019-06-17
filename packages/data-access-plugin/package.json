@@ -51,7 +51,7 @@
         "@types/got": "^9.4.4",
         "@types/graphql-iso-date": "^3.3.1",
         "@types/graphql-type-json": "^0.3.0",
-        "elasticsearch": "^15.4.1",
+        "elasticsearch": "^16.1.1",
         "express": "^4.17.1",
         "got": "^9.6.0",
         "graphql-request": "^1.8.2"

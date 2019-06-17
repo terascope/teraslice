@@ -33,7 +33,7 @@
         "xlucene-evaluator": "^0.9.0"
     },
     "devDependencies": {
-        "elasticsearch": "^15.4.1"
+        "elasticsearch": "^16.1.1"
     },
     "publishConfig": {
         "access": "public"

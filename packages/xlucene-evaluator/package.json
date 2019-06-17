@@ -48,7 +48,7 @@
         "rambda": "^2.11.1"
     },
     "devDependencies": {
-        "elasticsearch": "^15.4.1",
+        "elasticsearch": "^16.1.1",
         "pegjs": "^0.10.0"
     },
     "engines": {

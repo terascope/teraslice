@@ -68,7 +68,7 @@
         "archiver": "^3.0.0",
         "bufferstreams": "^2.0.1",
         "chance": "^1.0.18",
-        "elasticsearch": "^15.4.1",
+        "elasticsearch": "^16.1.1",
         "got": "^9.6.0",
         "jest-fixtures": "^0.6.0",
         "nock": "^10.0.6"
