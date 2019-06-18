@@ -76,9 +76,9 @@ teraslice-cli assets deploy localhost terascope/elasticsearch-assets
 
 There are also asset bundles available for:
 
- * [Kafka](https://terascope.github.io/kafka-assets)
- * [Files](https://terascope.github.io/file-assets)
- * [HDFS](https://terascope.github.io/hdfs-assets)
+ * [Kafka](https://github.com/terascope/kafka-assets)
+ * [Files](https://github.com/terascope/file-assets)
+ * [HDFS](https://github.com/terascope/hdfs-assets)
 
 If you want to get a simple cluster going use, the example docker-compose file:
 
