@@ -34,7 +34,7 @@ function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger:
     const endpoints = {};
     // we create the master resolver list
     for (const key in Misc) {
-        if (typeDefs.includes(key)) results[key] = Misc[key]
+        if (typeDefs.includes(key)) results[key] = Misc[key];
     }
 
     function getSelectionKeys(info: GraphQLResolveInfo) {
