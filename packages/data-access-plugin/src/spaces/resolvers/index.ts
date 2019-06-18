@@ -29,12 +29,13 @@ function dedup<T>(records: T[]): T[] {
     return Object.values(deduped);
 }
 
-function createResolvers(viewList: DataAccessConfig[], logger: Logger, context: Context) {
-    const results = {
-        ...Misc,
-    } as IResolvers<any, SpacesContext>;
+function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger: Logger, context: Context) {
+    const results = {} as IResolvers<any, SpacesContext>;
     const endpoints = {};
     // we create the master resolver list
+    for (const key in Misc) {
+        if (typeDefs.includes(key)) results[key] = Misc[key]
+    }
 
     function getSelectionKeys(info: GraphQLResolveInfo) {
         // @ts-ignore
