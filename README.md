@@ -40,11 +40,45 @@ npm install --global teraslice-cli
 
 ### Running ###
 
-Starting a single-node teraslice instance is simple, you can use the teraslice instance:
+Create a configuration file called `config.yaml`:
+
+```yaml
+terafoundation:
+    connectors:
+        elasticsearch:
+            default:
+                host:
+                    - localhost:9200
+
+teraslice:
+    workers: 8
+    master: true
+    master_hostname: 127.0.0.1
+    name: teraslice
+    hostname: 127.0.0.1
+```
+
+Starting a single-node teraslice instance:
+
+NOTE: Elasticsearch must be running first.
 
 ```sh
-teraslice
+teraslice -c config.yaml
 ```
+
+Deploy needed assets:
+
+For many use cases elasticsearch is a good start.
+
+```sh
+teraslice-cli assets deploy localhost terascope/elasticsearch-assets
+```
+
+There are also asset bundles available for:
+
+ * [Kafka](https://terascope.github.io/kafka-assets)
+ * [Files](https://terascope.github.io/file-assets)
+ * [HDFS](https://terascope.github.io/hdfs-assets)
 
 If you want to get a simple cluster going use, the example docker-compose file:
 
