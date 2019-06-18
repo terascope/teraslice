@@ -1,4 +1,6 @@
+
 import * as ts from '@terascope/utils';
+import { formatSchema } from './graphql-helper';
 import { DataTypeManager, DataTypeConfig, ESMapSettings, MappingConfiguration, GraphQLArgs } from './interfaces';
 import BaseType from './types/versions/base-type';
 import { TypesManager } from './types';
@@ -13,14 +15,16 @@ export class DataType implements DataTypeManager {
 
         types.forEach(type => {
             const { baseType, customTypes } = type.toGraphQLTypes({ typeInjection });
-            customTypesList.push(...customTypes);
-            baseTypeList.push(baseType);
+            customTypesList.push(...customTypes.map((str) => str.trim()));
+            baseTypeList.push(baseType.trim());
         });
 
-        return `
+        const strSchema = `
             ${baseTypeList.join('\n')}
             ${[...new Set(customTypesList)].join('\n')}
         `;
+
+        return formatSchema(strSchema);
     }
 
     constructor({ version, fields: typesConfiguration }: DataTypeConfig, typeName?: string) {
@@ -99,10 +103,10 @@ export class DataType implements DataTypeManager {
     toGraphQL(args?: GraphQLArgs) {
         const { baseType, customTypes } = this.toGraphQLTypes(args);
 
-        return `
+        return formatSchema(`
             ${baseType}
             ${[...new Set(customTypes)].join('\n')}
-        `;
+        `);
     }
     // typeName = this._name, typeInjection?:string
     toGraphQLTypes(args = {} as GraphQLArgs) {

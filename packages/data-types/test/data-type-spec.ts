@@ -1,5 +1,6 @@
+
 import 'jest-extended';
-import { DataType, DataTypeConfig, LATEST_VERSION } from '../src';
+import { DataType, DataTypeConfig, LATEST_VERSION, formatSchema } from '../src';
 import { TSError } from '@terascope/utils';
 
 describe('DataType', () => {
@@ -60,35 +61,26 @@ describe('DataType', () => {
         };
 
         const dataType = new DataType(typeConfig, 'myType');
-        const { baseType, customTypes } = dataType.toGraphQLTypes();
         const results = dataType.toGraphQL();
 
-        [
-            'type myType {',
-            'hello: String',
-            'location: GeoPointType',
-            'date: DateTime',
-            'ip: String',
-            'someNum: Int',
-            'type GeoPointType {',
-            'lat: String!',
-            'lon: String!',
-        ].forEach((str: string) => {
-            expect(results).toInclude(str);
-        });
+        const schema = formatSchema(`
+            scalar DateTime
 
-        ['type myType {', 'hello: String', 'location: GeoPointType', 'date: DateTime', 'ip: String', 'someNum: Int'].forEach(
-            (str: string) => {
-                expect(baseType).toInclude(str);
+            type GeoPointType {
+                lat: String!
+                lon: String!
             }
-        );
 
-        expect(customTypes).toBeArrayOfSize(1);
-        const customType = customTypes[0];
+            type myType {
+                hello: String
+                location: GeoPointType
+                date: DateTime
+                ip: String
+                someNum: Int
+            }
+        `);
 
-        ['type GeoPointType {', 'lat: String!', 'lon: String!'].forEach((str: string) => {
-            expect(customType).toInclude(str);
-        });
+        expect(results).toEqual(schema);
     });
 
     it('it can add type name at toGraphQL call', () => {
@@ -104,9 +96,24 @@ describe('DataType', () => {
         };
 
         const results = new DataType(typeConfig, 'myType').toGraphQL({ typeName: 'otherType' });
+        const schema = formatSchema(`
+            scalar DateTime
 
-        expect(results).toInclude('type otherType {');
-        expect(results).not.toInclude('type myType {');
+            type GeoPointType {
+                lat: String!
+                lon: String!
+            }
+
+            type otherType {
+                hello: String
+                location: GeoPointType
+                date: DateTime
+                ip: String
+                someNum: Int
+            }
+        `);
+
+        expect(results).toEqual(schema);
     });
 
     it('it can add default types for toGraphQL', () => {
@@ -122,8 +129,25 @@ describe('DataType', () => {
         };
         const typeInjection = 'world: String';
         const results = new DataType(typeConfig, 'myType').toGraphQL({ typeInjection });
+        const schema = formatSchema(`
+            scalar DateTime
 
-        expect(results).toInclude(typeInjection);
+            type GeoPointType {
+                lat: String!
+                lon: String!
+            }
+
+            type myType {
+                world: String
+                hello: String
+                location: GeoPointType
+                date: DateTime
+                ip: String
+                someNum: Int
+            }
+        `);
+
+        expect(results).toEqual(schema);
     });
 
     it('it throws when no name is provided with a toGraphQL call', () => {
@@ -258,7 +282,7 @@ describe('DataType', () => {
         expect(mapping).toEqual(results);
     });
 
-    it('can build a single graphql type from multiple types', () => {
+    it('can build a single graphql schema from multiple types', () => {
         const typeConfig1: DataTypeConfig = {
             version: LATEST_VERSION,
             fields: {
@@ -283,28 +307,89 @@ describe('DataType', () => {
         const types = [new DataType(typeConfig1, 'firstType'), new DataType(typeConfig2, 'secondType')];
 
         const results = DataType.mergeGraphQLDataTypes(types);
+        const schema = formatSchema(`
+            scalar DateTime
 
-        const fields = [
-            'type firstType {',
-            'hello: String',
-            'location: GeoPointType',
-            'date: DateTime',
-            'ip: String',
-            'someNum: Int',
+            type firstType {
+                hello: String
+                location: GeoPointType
+                date: DateTime
+                ip: String
+                someNum: Int
+            }
 
-            'type secondType {',
-            'otherLocation: GeoPointType',
-            'bool: Boolean',
+            type GeoPointType {
+                lat: String!
+                lon: String!
+            }
 
-            'type GeoPointType {',
-            'lat: String!',
-            'lon: String!',
-        ];
+            type secondType {
+                hello: String
+                location: GeoPointType
+                otherLocation: GeoPointType
+                bool: Boolean
+            }
+        `);
 
-        fields.forEach((str: string) => {
-            expect(results).toInclude(str);
-        });
+        expect(results).toEqual(schema);
+    });
 
-        expect(results).toIncludeRepeated('type GeoPointType {', 1);
+    it('can inject additional field values when merging multipe types', () => {
+        const typeConfig1: DataTypeConfig = {
+            version: LATEST_VERSION,
+            fields: {
+                hello: { type: 'Text' },
+                location: { type: 'Geo' },
+                date: { type: 'Date' },
+                ip: { type: 'IP' },
+                someNum: { type: 'Long' },
+            },
+        };
+
+        const typeConfig2: DataTypeConfig = {
+            version: LATEST_VERSION,
+            fields: {
+                hello: { type: 'Text' },
+                location: { type: 'Geo' },
+                otherLocation: { type: 'Geo' },
+                bool: { type: 'Boolean' },
+            },
+        };
+        const typeInjection = `
+                injectedField: String
+                anotherInjectedField: Boolean
+        `;
+        const types = [new DataType(typeConfig1, 'firstType'), new DataType(typeConfig2, 'secondType')];
+
+        const results = DataType.mergeGraphQLDataTypes(types, typeInjection);
+        const schema = formatSchema(`
+            scalar DateTime
+
+            type firstType {
+                injectedField: String
+                anotherInjectedField: Boolean
+                hello: String
+                location: GeoPointType
+                date: DateTime
+                ip: String
+                someNum: Int
+            }
+
+            type GeoPointType {
+                lat: String!
+                lon: String!
+            }
+
+            type secondType {
+                injectedField: String
+                anotherInjectedField: Boolean
+                hello: String
+                location: GeoPointType
+                otherLocation: GeoPointType
+                bool: Boolean
+            }
+        `);
+
+        expect(results).toEqual(schema);
     });
 });

@@ -8,7 +8,7 @@ export default class ObjectType extends BaseType {
     }
 
     toGraphQL() {
-        return { type: this._formatGql('JSON') };
+        return { type: this._formatGql('JSON'), custom_type: 'scalar JSON' };
     }
 
     toXlucene() {

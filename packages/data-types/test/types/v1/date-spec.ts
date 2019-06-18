@@ -33,7 +33,7 @@ describe('Date V1', () => {
 
     it('can get proper graphQl types', () => {
         const graphQlTypes = new DateType(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: DateTime` };
+        const results = { type: `${field}: DateTime`,  custom_type: 'scalar DateTime' };
 
         expect(graphQlTypes).toEqual(results);
     });

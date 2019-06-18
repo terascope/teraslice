@@ -1,4 +1,4 @@
-import { GraphQLScalarType, ASTNode } from 'graphql';
+import { GraphQLScalarType, ASTNode, buildSchema, printSchema } from 'graphql';
 import { Kind } from 'graphql/language';
 import { TSError } from '@terascope/utils';
 import { mapping } from './types/versions/mapping';
@@ -55,3 +55,8 @@ export const GraphQLDataType = new GraphQLScalarType({
     parseValue,
     parseLiteral,
 });
+
+export function formatSchema(schemaStr: string) {
+    const schema = buildSchema(schemaStr);
+    return printSchema(schema);
+}
