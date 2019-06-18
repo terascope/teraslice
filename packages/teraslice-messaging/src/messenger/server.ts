@@ -8,7 +8,7 @@ import { newMsgId } from '../utils';
 import * as i from './interfaces';
 import { Core } from './core';
 
-const logger = debugLogger('teraslice-messaging:server');
+const _logger = debugLogger('teraslice-messaging:server');
 
 const disconnectedStates = [i.ClientState.Offline, i.ClientState.Disconnected, i.ClientState.Shutdown];
 
@@ -37,8 +37,18 @@ export class Server extends Core {
             serverTimeout,
             clientDisconnectTimeout,
             requestListener = defaultRequestListener,
+            logger = _logger,
+            ...coreOpts
         } = opts;
-        super(opts);
+
+        super({
+            logger: logger
+                ? logger.child({
+                    module: 'messaging:server',
+                })
+                : _logger,
+            ...coreOpts,
+        });
 
         if (!isNumber(port)) {
             throw new Error('Messenger.Server requires a valid port');
@@ -335,18 +345,18 @@ export class Server extends Core {
 
     protected updateClientState(clientId: string, state: i.ClientState): boolean {
         if (this._clients[clientId] == null) {
-            logger.warn(`${clientId} does not exist and cannot be updated`);
+            this.logger.debug(`${clientId} does not exist and cannot be updated`);
             return false;
         }
 
         const currentState = this._clients[clientId].state;
         if (currentState === state) {
-            logger.warn(`${clientId} state of ${currentState} is the same, skipping update`);
+            this.logger.debug(`${clientId} state of ${currentState} is the same, skipping update`);
             return false;
         }
 
         if (currentState === i.ClientState.Shutdown && state !== i.ClientState.Offline) {
-            logger.debug(`${clientId} state of ${currentState} can only be updated to offline`);
+            this.logger.debug(`${clientId} state of ${currentState} can only be updated to offline`);
             return false;
         }
 
@@ -359,21 +369,21 @@ export class Server extends Core {
 
         if (state === i.ClientState.Disconnected) {
             if (currentState === i.ClientState.Available) {
-                logger.debug(`${clientId} is unavailable because it was marked as disconnected`);
+                this.logger.debug(`${clientId} is unavailable because it was marked as disconnected`);
                 this.emit(`client:${i.ClientState.Unavailable}`, eventMsg);
             }
 
             this._clients[clientId].offlineAt = Date.now() + this.clientDisconnectTimeout;
 
-            logger.trace(`${clientId} is disconnected will be considered offline in ${this.clientDisconnectTimeout}`);
+            this.logger.trace(`${clientId} is disconnected will be considered offline in ${this.clientDisconnectTimeout}`);
         } else if (state === i.ClientState.Offline) {
             if (!disconnectedStates.includes(currentState)) {
                 if (currentState === i.ClientState.Available) {
-                    logger.trace(`${clientId} is unavailable because it was marked as offline`);
+                    this.logger.trace(`${clientId} is unavailable because it was marked as offline`);
                     this.emit(`client:${i.ClientState.Unavailable}`, eventMsg);
                 }
 
-                logger.trace(`${clientId} is disconnected because it was marked as offline`);
+                this.logger.trace(`${clientId} is disconnected because it was marked as offline`);
                 this.emit(`client:${i.ClientState.Disconnected}`, eventMsg);
             }
         }
@@ -422,9 +432,9 @@ export class Server extends Core {
 
         socket.on('disconnect', (error?: Error | string) => {
             if (error) {
-                logger.error(`client ${clientId} disconnected with error`, error);
+                this.logger.info(`client ${clientId} disconnected`, { error });
             } else {
-                logger.trace(`client ${clientId} disconnected`);
+                this.logger.trace(`client ${clientId} disconnected`);
             }
 
             socket.removeAllListeners();

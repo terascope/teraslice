@@ -31,6 +31,7 @@ class Worker {
             networkLatencyBuffer,
             connectTimeout: workerDisconnectTimeout,
             actionTimeout,
+            logger,
         });
 
         this.slice = new Slice(context, executionContext);

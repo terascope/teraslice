@@ -6,14 +6,7 @@ export class Client extends core.Client {
     public readonly exId: string;
 
     constructor(opts: i.ClientOptions) {
-        const {
-            clusterMasterUrl,
-            socketOptions,
-            networkLatencyBuffer,
-            actionTimeout,
-            exId,
-            connectTimeout
-        } = opts;
+        const { clusterMasterUrl, socketOptions, networkLatencyBuffer, actionTimeout, exId, connectTimeout, logger } = opts;
 
         if (!clusterMasterUrl || !isString(clusterMasterUrl)) {
             throw new Error('ClusterMaster.Client requires a valid clusterMasterUrl');
@@ -32,6 +25,7 @@ export class Client extends core.Client {
             clientType: 'execution-controller',
             clientId: exId,
             serverName: 'ClusterMaster',
+            logger,
         });
 
         this.exId = exId;
@@ -46,22 +40,30 @@ export class Client extends core.Client {
     }
 
     sendClusterAnalytics(stats: i.ClusterExecutionAnalytics, timeout?: number) {
-        return this.send('cluster:analytics', {
-            stats,
-            kind: 'controllers'
-        }, {
-            volatile: true,
-            response: true,
-            timeout
-        });
+        return this.send(
+            'cluster:analytics',
+            {
+                stats,
+                kind: 'controllers',
+            },
+            {
+                volatile: true,
+                response: true,
+                timeout,
+            }
+        );
     }
 
     sendExecutionFinished(error?: string) {
         if (!this.isClientReady()) return;
 
-        return this.send('execution:finished', { error }, {
-            volatile: true,
-        });
+        return this.send(
+            'execution:finished',
+            { error },
+            {
+                volatile: true,
+            }
+        );
     }
 
     onExecutionAnalytics(fn: core.MessageHandler) {

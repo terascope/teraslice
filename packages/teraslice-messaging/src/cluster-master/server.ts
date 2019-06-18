@@ -15,6 +15,7 @@ export class Server extends core.Server {
             serverTimeout,
             pingInterval,
             pingTimeout,
+            logger,
         } = opts;
 
         if (!isNumber(nodeDisconnectTimeout)) {
@@ -31,6 +32,7 @@ export class Server extends core.Server {
             requestListener,
             serverTimeout,
             serverName: 'ClusterMaster',
+            logger,
         });
 
         this.clusterAnalytics = {
@@ -41,14 +43,13 @@ export class Server extends core.Server {
                 job_duration: 0,
                 workers_joined: 0,
                 workers_disconnected: 0,
-                workers_reconnected: 0
-            }
+                workers_reconnected: 0,
+            },
         };
-
     }
 
     async start() {
-        this.on('connection', (msg) => {
+        this.on('connection', msg => {
             this.onConnection(msg.scope, msg.payload as SocketIO.Socket);
         });
 
@@ -72,7 +73,7 @@ export class Server extends core.Server {
     }
 
     onExecutionFinished(fn: (clientId: string, error?: core.ResponseError) => {}) {
-        this.on('execution:finished', (msg) => {
+        this.on('execution:finished', msg => {
             fn(msg.scope, msg.error);
         });
     }
@@ -82,7 +83,7 @@ export class Server extends core.Server {
             this.emit('execution:finished', {
                 scope: exId,
                 payload: {},
-                error: msg.payload.error
+                error: msg.payload.error,
             });
         });
 
@@ -103,11 +104,11 @@ export class Server extends core.Server {
                 payload: {
                     diff: data.stats,
                     current: this.clusterAnalytics[data.kind],
-                }
+                },
             });
 
             return {
-                recorded: true
+                recorded: true,
             };
         });
     }

@@ -1,4 +1,5 @@
 import { Message, RequestListener } from '../messenger/interfaces';
+import { Logger } from '@terascope/utils';
 
 export interface ClientOptions {
     exId: string;
@@ -7,6 +8,7 @@ export interface ClientOptions {
     networkLatencyBuffer?: number;
     actionTimeout: number;
     connectTimeout: number;
+    logger?: Logger;
 }
 
 export interface ServerOptions {
@@ -18,6 +20,7 @@ export interface ServerOptions {
     requestListener?: RequestListener;
     pingTimeout?: number;
     pingInterval?: number;
+    logger?: Logger;
 }
 
 export interface ClusterExecutionAnalytics {
@@ -57,7 +60,7 @@ export interface ExecutionAnalyticsMessage extends Message {
 }
 
 export interface OnExecutionAnalyticsFn {
-    (): Promise<ExecutionAnalytics>|ExecutionAnalytics;
+    (): Promise<ExecutionAnalytics> | ExecutionAnalytics;
 }
 
 export interface OnStateChangeFn {

@@ -1,9 +1,11 @@
 import 'socket.io-client';
 import http from 'http';
+import { Logger } from '@terascope/utils';
 
 export interface CoreOptions {
     networkLatencyBuffer?: number;
     actionTimeout: number;
+    logger?: Logger;
 }
 
 export interface ClientOptions extends CoreOptions {
@@ -38,7 +40,7 @@ export interface ErrorObj {
     stack?: string;
 }
 
-export type ResponseError = ErrorObj|string;
+export type ResponseError = ErrorObj | string;
 
 export interface Message {
     id: string;
@@ -61,12 +63,12 @@ export interface SendOptions {
 export interface ConnectedClient {
     readonly clientId: string;
     state: ClientState;
-    offlineAt: number|null;
+    offlineAt: number | null;
 }
 
 export interface UpdateClientState {
     state: ClientState;
-    error?: Error|string;
+    error?: Error | string;
     payload?: Payload;
 }
 
@@ -76,7 +78,7 @@ export enum ClientState {
     Disconnected = 'disconnected',
     Available = 'available',
     Unavailable = 'unavailable',
-    Shutdown = 'shutdown'
+    Shutdown = 'shutdown',
 }
 
 export interface ClientSocketMetadata {
@@ -93,23 +95,23 @@ export interface ClientSendFn {
 }
 
 export interface ClientSendFns {
-    [clientId: string]: ClientSendFn|null;
+    [clientId: string]: ClientSendFn | null;
 }
 
 export interface MessageHandler {
-    (msg: Message): Promise<Payload|void>|Payload|void;
+    (msg: Message): Promise<Payload | void> | Payload | void;
 }
 
 export interface EventMessage {
     scope: string;
     payload: any;
-    error?: Error|ResponseError;
+    error?: Error | ResponseError;
 }
 
 export interface ClientEventMessage {
     scope?: string;
     payload: any;
-    error?: Error|ResponseError;
+    error?: Error | ResponseError;
 }
 
 export interface EventListener {
