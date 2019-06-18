@@ -20,7 +20,7 @@ export default async function getSchemaByRole(aclManager: ACLManager, user: User
     });
 
     const types = createTypings(sanatizedList);
-    const myResolvers = createResolvers(sanatizedList, logger, context);
+    const myResolvers = createResolvers(sanatizedList, types[0], logger, context);
 
     const schema = makeExecutableSchema({
         typeDefs: types,
@@ -44,10 +44,11 @@ function makeEndpoint(endpoint: string) {
 }
 
 function createTypings(configs: DataAccessConfig[]) {
-    const results: string[] = ['scalar JSON', 'scalar DateTime', Usertype];
+    const results: string[] = [Usertype];
     const endpointList: string = configs.map(config => makeEndpoint(config.space_endpoint!)).join('\n    ');
     const filteredDataTypes = configs.map(filterDataTypes);
     const myTypes = DataType.mergeGraphQLDataTypes(filteredDataTypes, endpointList);
+
     // create query type
     results.push(
         myTypes,

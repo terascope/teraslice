@@ -32,14 +32,14 @@ describe('Object V1', () => {
 
     it('can get proper graphQl types', () => {
         const graphQlTypes = new ObejctType(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: JSON` };
+        const results = { type: `${field}: JSON`, custom_type: 'scalar JSON' };
 
         expect(graphQlTypes).toEqual(results);
     });
 
     it('can get proper graphQl types when given an array', () => {
         const graphQlTypes = new ObejctType(field, { ...typeConfig, array: true }).toGraphQL();
-        const results = { type: `${field}: [JSON]` };
+        const results = { type: `${field}: [JSON]`, custom_type: 'scalar JSON' };
 
         expect(graphQlTypes).toEqual(results);
     });

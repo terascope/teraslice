@@ -17,7 +17,7 @@ export interface GraphQLArgs {
 }
 
 export interface MappingConfiguration {
-    typeName: string;
+    typeName?: string;
     settings?: ESMapSettings;
     mappingMetaData?: ObjectConfig;
 }
