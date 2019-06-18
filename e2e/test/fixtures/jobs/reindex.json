@@ -7,9 +7,9 @@
     "operations": [
         {
             "_op": "elasticsearch_reader",
-            "index": "example-logs-10",
+            "index": "example-logs-100",
             "type": "change",
-            "size": 10,
+            "size": 100,
             "date_field_name": "created",
             "preserve_id": true
         },

@@ -41,7 +41,7 @@ function forValue(func, value, iterations = 100) {
                 actual: result,
                 expected: value,
                 iterations,
-                counter
+                counter,
             });
 
             throw new Error(`forValue didn't find target value after ${iterations} iterations.`);
@@ -75,9 +75,13 @@ function forWorkers(workerCount = misc.DEFAULT_WORKERS) {
     return forLength(_forWorkers, workerCount + 1);
 }
 
-function scaleWorkersAndWait(workersToAdd = 0) {
+async function scaleWorkersAndWait(workersToAdd = 0) {
     const workerCount = misc.DEFAULT_WORKERS + workersToAdd;
-    return misc.scaleWorkers(workersToAdd)
+    const state = await misc.teraslice().cluster.state();
+    if (Object.keys(state) === workerCount) return state;
+
+    return misc
+        .scaleWorkers(workersToAdd)
         .then(() => forWorkers(workerCount))
         .then(() => misc.teraslice().cluster.state());
 }
@@ -152,10 +156,7 @@ async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
             const exStatus = await job.get(`/jobs/${jobId}/ex`);
             if (_.isEmpty(exStatus)) return null;
 
-            const reasons = _.pick(exStatus, [
-                '_failureReason',
-                '_hasErrors'
-            ]);
+            const reasons = _.pick(exStatus, ['_failureReason', '_hasErrors']);
 
             const slicerStats = _.pick(exStatus._slicer_stats, [
                 'queued',
@@ -194,10 +195,7 @@ async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
     } catch (err) {
         err.message = `Job: ${jobId}: ${err.message}`;
 
-        await Promise.all([
-            logExErrors(err.lastStatus),
-            logExStatus(),
-        ]);
+        await Promise.all([logExErrors(err.lastStatus), logExStatus()]);
 
         throw err;
     }
@@ -234,5 +232,5 @@ module.exports = {
     forWorkersJoined,
     waitForJobStatus,
     waitForIndexCount,
-    waitForClusterState
+    waitForClusterState,
 };

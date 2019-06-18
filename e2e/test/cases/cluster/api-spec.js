@@ -54,7 +54,7 @@ describe('cluster api', () => {
     it('will not send lifecycle changes to executions that are not active', async () => {
         const jobSpec = misc.newJob('reindex');
         jobSpec.name = 'basic reindex for lifecycle';
-        jobSpec.operations[1].index = 'test-reindex-10-lifecycle';
+        jobSpec.operations[1].index = 'test-reindex-100-lifecycle';
 
         async function didError(p) {
             try {
@@ -80,14 +80,7 @@ describe('cluster api', () => {
             didError(teraslice.cluster.post(`/ex/${exId}/_pause`)),
         ]);
 
-        expect(result).toEqual([
-            true,
-            true,
-            true,
-            true,
-            true,
-            true,
-        ]);
+        expect(result).toEqual([true, true, true, true, true, true]);
     });
 
     it('api end point /assets should return an array of json objects of asset metadata', async () => {
