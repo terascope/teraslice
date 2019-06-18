@@ -45,6 +45,7 @@ yargs
     .help('h')
     .alias('h', 'help')
     .version(version)
+    .wrap(yargs.terminalWidth())
     .argv;
 
 interface ESData {
