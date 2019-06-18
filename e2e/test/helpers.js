@@ -13,6 +13,9 @@ async function resetState() {
     const state = await cluster.state();
 
     await Promise.all([
+        async () => {
+            await misc.cleanupIndex('test*');
+        },
         (async () => {
             const cleanupJobs = [];
             _.forEach(state, (node) => {
@@ -40,7 +43,7 @@ async function resetState() {
                 await misc.scaleWorkers();
                 await wait.forWorkers();
             }
-        })()
+        })(),
     ]);
 
     const elapsed = Date.now() - startTime;
@@ -73,7 +76,7 @@ async function runEsJob(jobSpec, index) {
 
 /**
  * Test pause
-*/
+ */
 async function testJobLifeCycle(jobSpec, delay = 3000) {
     const job = await submitAndStart(jobSpec, delay);
 
@@ -96,7 +99,9 @@ async function testJobLifeCycle(jobSpec, delay = 3000) {
         const alreadyCompletedErr = 'Job cannot reach the target status, "stopped", because it is in the terminal state, "completed"';
         const errStr = _.toString(err);
         if (errStr.includes(alreadyCompletedErr)) {
-            signale.warn(`${errStr} - however since this can be race condition, we don't want to fail the test`);
+            signale.warn(
+                `${errStr} - however since this can be race condition, we don't want to fail the test`
+            );
             return job;
         }
 

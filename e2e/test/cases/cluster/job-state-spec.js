@@ -10,31 +10,24 @@ describe('job state', () => {
 
     const teraslice = misc.teraslice();
 
-    it('should cycle through after state changes with other jobs running', (done) => {
+    it('should cycle through after state changes with other jobs running', async () => {
         const jobSpec1 = misc.newJob('generator');
         const jobSpec2 = misc.newJob('generator');
-        let job1Id;
-        let job2Id;
         jobSpec2.operations[1].name = 'second_generator';
 
-        Promise.all([teraslice.jobs.submit(jobSpec1), teraslice.jobs.submit(jobSpec2)])
-            .spread((job1, job2) => {
-                job1Id = job1.id();
-                job2Id = job2.id();
-                expect(job1Id).toBeDefined();
-                expect(job2Id).toBeDefined();
+        const [job1, job2] = await Promise.all([
+            teraslice.jobs.submit(jobSpec1),
+            teraslice.jobs.submit(jobSpec2),
+        ]);
 
-                return waitForJobStatus(job1, 'running')
-                    .then(() => job1.pause())
-                    .then(() => waitForJobStatus(job1, 'paused'))
-                    .then(() => job1.resume())
-                    .then(() => waitForJobStatus(job1, 'running'))
-                    .then(() => job1.stop())
-                    .then(() => waitForJobStatus(job1, 'stopped'))
-                    .then(() => job2.stop())
-                    .then(() => waitForJobStatus(job2, 'stopped'));
-            })
-            .catch(fail)
-            .finally(() => { done(); });
+        await waitForJobStatus(job1, 'running');
+        await job1.pause();
+        await waitForJobStatus(job1, 'paused');
+        await job1.resume();
+        await waitForJobStatus(job1, 'running');
+        await job1.stop();
+        await waitForJobStatus(job1, 'stopped');
+        await job2.stop();
+        await waitForJobStatus(job2, 'stopped');
     });
 });

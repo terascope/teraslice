@@ -18,7 +18,7 @@
         {
             "_op": "elasticsearch_index_selector",
             "type": "events",
-            "index": "kafka-logs-1000",
+            "index": "test-kafka-logs-1000",
             "preserve_id": true
         },
         {

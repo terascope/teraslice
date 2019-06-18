@@ -3,14 +3,22 @@ services:
     teraslice-master:
         build:
             context: ..
-        scale: 1
-        cpus: 0.5
-        mem_limit: 512m
-        mem_reservation: 128m
-        shm_size: 128m
-        stop_grace_period: 30s
+        container_name: teraslice-master
+        command: [
+            "./scripts/wait-for-it.sh",
+            "elasticsearch:49200",
+            "--timeout=45",
+            "--",
+            "node",
+            "service.js"
+        ]
         ports:
             - '45678:45678'
+        scale: 1
+        restart: 'on-failure'
+        cpus: 0.3
+        mem_limit: 256m
+        stop_grace_period: 30s
         environment:
             - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.yaml
             - NODE_OPTIONS=--max-old-space-size=128
@@ -23,11 +31,18 @@ services:
     teraslice-worker:
         build:
             context: ..
+        command: [
+            "./scripts/wait-for-it.sh",
+            "elasticsearch:49200",
+            "--timeout=60",
+            "--",
+            "node",
+            "service.js"
+        ]
         scale: 2
-        cpus: 0.5
-        mem_limit: 512m
-        mem_reservation: 128m
-        shm_size: 128m
+        restart: 'on-failure'
+        cpus: 0.3
+        mem_limit: 256m
         stop_grace_period: 30s
         environment:
             - TERAFOUNDATION_CONFIG=/app/config/teraslice-worker.yaml
@@ -39,7 +54,8 @@ services:
             - ./autoload:/app/autoload:delegated
             - ./config:/app/config:delegated
     elasticsearch:
-        image: blacktop/elasticsearch:6
+        image: docker.elastic.co/elasticsearch/elasticsearch:6.8.0
+        container_name: elasticsearch
         ports:
             - '49200:49200'
             - '49300:49300'
@@ -49,6 +65,10 @@ services:
             - 'http.port=49200'
             - 'transport.tcp.port=49300'
             - 'discovery.type=single-node'
+            - 'xpack.security.enabled=false'
+            - 'xpack.ml.enabled=false'
+            - 'xpack.watcher.enabled=false'
+            - 'bootstrap.memory_lock=true'
         volumes:
             - elasticsearch-data:/usr/share/elasticsearch/data
         networks:
@@ -59,20 +79,18 @@ services:
             memlock:
                 soft: -1
                 hard: -1
-            nofile:
-                soft: 65536
-                hard: 65536
     kafka:
         image: terascope/kafka-zookeeper:v1.1.1
+        container_name: kafka
         ports:
             - '42181:42181'
             - '49092:49092'
-        cpus: 0.5
-        mem_limit: 512m
-        mem_reservation: 256m
+        mem_limit: 256m
+        mem_reservation: 128m
         networks:
             - cluster
         environment:
+            - 'KAFKA_HEAP_OPTS=-Xms256m -Xmx256m'
             - 'ADVERTISED_HOST=kafka'
             - 'ADVERTISED_PORT=49092'
             - 'ZOOKEEPER_PORT=42181'
