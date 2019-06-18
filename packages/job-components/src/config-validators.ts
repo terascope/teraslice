@@ -20,7 +20,7 @@ export function validateOpConfig<T>(inputSchema: convict.Schema<any>, inputConfi
         config.load(inputConfig);
         config.validate(validateOptions);
     } catch (err) {
-        throw new Error(`Validation failed for opConfig: ${inputConfig._op} - ${err.message}`);
+        throw new Error(`Validation failed for operation config: ${inputConfig._op} - ${err.message}`);
     }
 
     return config.getProperties();
@@ -38,7 +38,7 @@ export function validateAPIConfig<T>(inputSchema: convict.Schema<any>, inputConf
         config.load(inputConfig);
         config.validate(validateOptions);
     } catch (err) {
-        throw new Error(`Validation failed for apiConfig: ${inputConfig._name} - ${err.message}`);
+        throw new Error(`Validation failed for api config: ${inputConfig._name} - ${err.message}`);
     }
 
     return config.getProperties();
@@ -55,7 +55,7 @@ export function validateJobConfig<T>(inputSchema: convict.Schema<any>, inputConf
         config.load(inputConfig);
         config.validate(validateOptions);
     } catch (err) {
-        throw new Error(`Validation failed for jobConfig: ${inputConfig.name} - ${err.stack}`);
+        throw new Error(`Validation failed for job config: ${inputConfig.name} - ${err.message}`);
     }
 
     return config.getProperties();

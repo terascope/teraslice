@@ -414,7 +414,10 @@ module.exports = function module(backendConfig) {
     }
 
     return new Promise((resolve) => {
-        const clientName = JSON.stringify(config.state);
+        const clientName = JSON.stringify({
+            connection: config.state.connection,
+            index: indexName,
+        });
         client = getClient(context, config.state, 'elasticsearch');
 
         let { connection } = config.state;
@@ -478,11 +481,10 @@ module.exports = function module(backendConfig) {
                         .catch((checkingErr) => {
                             running = false;
 
-                            const checkingError = new TSError(checkingErr);
-                            logger.info(
-                                checkingError,
-                                `Attempting to connect to elasticsearch: ${clientName}`
-                            );
+                            const checkingError = new TSError(checkingErr, {
+                                reason: `Attempting to connect to elasticsearch: ${clientName}`,
+                            });
+                            logger.info(checkingError.message);
                         });
                 }, 3000);
             });

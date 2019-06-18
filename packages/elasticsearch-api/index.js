@@ -553,7 +553,6 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             } else {
                 reject(
                     new TSError(err, {
-                        reason: `invoking elasticsearch-api client${fnName}`,
                         context: {
                             fnName,
                             connection,
