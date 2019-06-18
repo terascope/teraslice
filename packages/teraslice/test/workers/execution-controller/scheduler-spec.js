@@ -38,18 +38,15 @@ describe('Scheduler', () => {
             assignment: 'execution_controller',
             slicers,
             newOps: true,
-            countPerSlicer
+            countPerSlicer,
         });
 
         await testContext.initialize();
 
-        scheduler = new Scheduler(
-            testContext.context,
-            testContext.executionContext
-        );
+        scheduler = new Scheduler(testContext.context, testContext.executionContext);
 
         scheduler.stateStore = {
-            createState: () => Promise.delay()
+            createState: () => Promise.delay(),
         };
 
         testContext.attachCleanup(() => scheduler.shutdown());
@@ -73,14 +70,17 @@ describe('Scheduler', () => {
             },
             {
                 slice_id: 2,
-            }
+            },
         ]);
 
         scheduler.enqueueSlice({ slice_id: 1 });
 
-        scheduler.enqueueSlice({
-            slice_id: 3
-        }, true);
+        scheduler.enqueueSlice(
+            {
+                slice_id: 3,
+            },
+            true
+        );
 
         const slices = scheduler.getSlices(100);
         expect(slices).toEqual([
@@ -92,7 +92,7 @@ describe('Scheduler', () => {
             },
             {
                 slice_id: 2,
-            }
+            },
         ]);
     });
 
@@ -101,7 +101,9 @@ describe('Scheduler', () => {
 
         await Promise.all([
             scheduler.run(),
-            getSlices().then((_slices) => { slices = _slices; }),
+            getSlices().then((_slices) => {
+                slices = _slices;
+            }),
         ]);
 
         expect(scheduler.paused).toBeFalse();
@@ -123,7 +125,9 @@ describe('Scheduler', () => {
 
         await Promise.all([
             scheduler.run(),
-            getSlices().then((_slices) => { slices = _slices; }),
+            getSlices().then((_slices) => {
+                slices = _slices;
+            }),
         ]);
 
         expect(slices).toBeArrayOfSize(expectedCount);
@@ -138,12 +142,14 @@ describe('Scheduler', () => {
 
         await Promise.all([
             scheduler.run(),
-            getSlices().then((_slices) => { slices = _slices; }),
+            getSlices().then((_slices) => {
+                slices = _slices;
+            }),
         ]);
 
         // be more flexible
-        const min = expectedCount - (slicers * 5);
-        const max = expectedCount + (slicers * 5);
+        const min = expectedCount - slicers * 6;
+        const max = expectedCount + slicers * 6;
         expect(slices.length).toBeWithin(min, max);
 
         expect(scheduler.isFinished).toBeTrue();
@@ -159,7 +165,7 @@ describe('Scheduler', () => {
             request: {
                 id: _.uniqueId('recover-'),
             },
-            _created: new Date().toISOString()
+            _created: new Date().toISOString(),
         }));
 
         const emitDone = _.once(() => {
@@ -202,14 +208,16 @@ describe('Scheduler', () => {
             },
             exitAfterComplete() {
                 return false;
-            }
+            },
         };
 
         expectedCount += recoveryRecords.length;
 
         await Promise.all([
             scheduler.run(),
-            getSlices().then((_slices) => { slices = _slices; }),
+            getSlices().then((_slices) => {
+                slices = _slices;
+            }),
         ]);
 
         expect(slices).toBeArrayOfSize(expectedCount);
@@ -228,7 +236,7 @@ describe('Scheduler', () => {
             request: {
                 id: _.uniqueId('recover-'),
             },
-            _created: new Date().toISOString()
+            _created: new Date().toISOString(),
         }));
 
         let slices = [];
@@ -270,14 +278,16 @@ describe('Scheduler', () => {
             },
             exitAfterComplete() {
                 return true;
-            }
+            },
         };
 
         expectedCount = recoveryRecords.length;
 
         await Promise.all([
             scheduler.run(),
-            getSlices().then((_slices) => { slices = _slices; }),
+            getSlices().then((_slices) => {
+                slices = _slices;
+            }),
         ]);
 
         expect(slices).toBeArrayOfSize(expectedCount);
