@@ -39,9 +39,9 @@ yargs
         {},
         wrapper(getXluceneValues)
     )
-    .example('yarn data-types es-mapping --name=event -s index.number_of_shards:20 -s index.number_of_replicas:1', '')
-    .example('\nyarn data-types gql --name=event', '')
-    .example('\nyarn data-types xlucene', '')
+    .example('$0 es-mapping --name=event -s index.number_of_shards:20 -s index.number_of_replicas:1', '')
+    .example('$0 gql --name=event', '')
+    .example('$0 xlucene', '')
     .help('h')
     .alias('h', 'help')
     .version(version)
@@ -58,7 +58,8 @@ function wrapper(cb: CB) {
         try {
             const data = await getData();
             const results = cb(data, argv);
-            process.stdout.write(`${JSON.stringify(results, null, 4)} \n`);
+            const output = typeof results === 'string' ? results : `${JSON.stringify(results, null, 4)} \n`;
+            process.stdout.write(output);
         } catch (err) {
             console.error(err);
             process.exit(1);
