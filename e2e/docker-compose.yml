@@ -1,107 +1,100 @@
 version: '2.4'
 services:
-  teraslice-master:
-    build:
-      context: ..
-    command: [
-      "./scripts/wait-for-it.sh",
-      "elasticsearch:49200",
-      "--timeout=60",
-      "--strict",
-      "--",
-      "node",
-      "--max-old-space-size=512",
-      "service.js"
-    ]
-    scale: 1
-    stop_grace_period: 30s
-    ports:
-      - "45678:45678"
-    environment:
-      - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.yaml
-    networks:
-      - cluster
-    volumes:
-      - teraslice-assets:/app/assets
-      - ./autoload:/app/autoload:delegated
-      - ./config:/app/config:delegated
-  teraslice-worker:
-    build:
-      context: ..
-    command: [
-      "./scripts/wait-for-it.sh",
-      "teraslice-master:45678",
-      "--timeout=60",
-      "--strict",
-      "--",
-      "node",
-      "--max-old-space-size=512",
-      "service.js"
-    ]
-    scale: 2
-    stop_grace_period: 30s
-    environment:
-      - TERAFOUNDATION_CONFIG=/app/config/teraslice-worker.yaml
-    networks:
-      - cluster
-    volumes:
-      - teraslice-assets:/app/assets
-      - ./autoload:/app/autoload:delegated
-      - ./config:/app/config:delegated
-  elasticsearch:
-    image: blacktop/elasticsearch:6
-    ports:
-      - "49200:49200"
-      - "49300:49300"
-    environment:
-      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
-      - "network.host=0.0.0.0"
-      - "http.port=49200"
-      - "transport.tcp.port=49300"
-      - "discovery.type=single-node"
-    volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
-    networks:
-      - cluster
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
-    cap_add:
-      - IPC_LOCK
-  kafka:
-    image: terascope/kafka-zookeeper:v1.1.1
-    ports:
-      - "42181:42181"
-      - "49092:49092"
-    networks:
-      - cluster
-    environment:
-      - "ADVERTISED_HOST=kafka"
-      - "ADVERTISED_PORT=49092"
-      - "ZOOKEEPER_PORT=42181"
-    volumes:
-        - kafka-data:/kafka
-        - zookeeper-data:/zookeeper
+    teraslice-master:
+        build:
+            context: ..
+        scale: 1
+        cpus: 0.5
+        mem_limit: 512m
+        mem_reservation: 128m
+        shm_size: 128m
+        stop_grace_period: 30s
+        ports:
+            - '45678:45678'
+        environment:
+            - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.yaml
+            - NODE_OPTIONS=--max-old-space-size=128
+        networks:
+            - cluster
+        volumes:
+            - teraslice-assets:/app/assets
+            - ./autoload:/app/autoload:delegated
+            - ./config:/app/config:delegated
+    teraslice-worker:
+        build:
+            context: ..
+        scale: 2
+        cpus: 0.5
+        mem_limit: 512m
+        mem_reservation: 128m
+        shm_size: 128m
+        stop_grace_period: 30s
+        environment:
+            - TERAFOUNDATION_CONFIG=/app/config/teraslice-worker.yaml
+            - NODE_OPTIONS=--max-old-space-size=128
+        networks:
+            - cluster
+        volumes:
+            - teraslice-assets:/app/assets
+            - ./autoload:/app/autoload:delegated
+            - ./config:/app/config:delegated
+    elasticsearch:
+        image: blacktop/elasticsearch:6
+        ports:
+            - '49200:49200'
+            - '49300:49300'
+        environment:
+            - 'ES_JAVA_OPTS=-Xms256m -Xmx256m'
+            - 'network.host=0.0.0.0'
+            - 'http.port=49200'
+            - 'transport.tcp.port=49300'
+            - 'discovery.type=single-node'
+        volumes:
+            - elasticsearch-data:/usr/share/elasticsearch/data
+        networks:
+            - cluster
+        mem_limit: 512m
+        mem_reservation: 256m
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+            nofile:
+                soft: 65536
+                hard: 65536
+    kafka:
+        image: terascope/kafka-zookeeper:v1.1.1
+        ports:
+            - '42181:42181'
+            - '49092:49092'
+        cpus: 0.5
+        mem_limit: 512m
+        mem_reservation: 256m
+        networks:
+            - cluster
+        environment:
+            - 'ADVERTISED_HOST=kafka'
+            - 'ADVERTISED_PORT=49092'
+            - 'ZOOKEEPER_PORT=42181'
+        volumes:
+            - kafka-data:/kafka
+            - zookeeper-data:/zookeeper
 volumes:
-  teraslice-assets:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
-  elasticsearch-data:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
-  kafka-data:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
-  zookeeper-data:
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
+    teraslice-assets:
+        driver_opts:
+            type: tmpfs
+            device: tmpfs
+    elasticsearch-data:
+        driver_opts:
+            type: tmpfs
+            device: tmpfs
+    kafka-data:
+        driver_opts:
+            type: tmpfs
+            device: tmpfs
+    zookeeper-data:
+        driver_opts:
+            type: tmpfs
+            device: tmpfs
 networks:
-  cluster:
+    cluster:
