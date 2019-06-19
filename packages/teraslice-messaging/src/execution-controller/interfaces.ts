@@ -1,3 +1,5 @@
+import { Logger } from '@terascope/utils';
+
 export interface ClientOptions {
     executionControllerUrl: string;
     workerId: string;
@@ -5,6 +7,7 @@ export interface ClientOptions {
     networkLatencyBuffer?: number;
     actionTimeout: number;
     connectTimeout: number;
+    logger?: Logger;
 }
 
 export interface ServerOptions {
@@ -14,6 +17,7 @@ export interface ServerOptions {
     actionTimeout: number;
     pingInterval?: number;
     pingTimeout?: number;
+    logger?: Logger;
 }
 
 export interface Worker {

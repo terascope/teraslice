@@ -1,5 +1,6 @@
 'use strict';
 
+const Promise = require('bluebird');
 const uuidv4 = require('uuid/v4');
 const signale = require('signale');
 const misc = require('../../misc');
@@ -9,7 +10,16 @@ const { resetState } = require('../../helpers');
 const { waitForJobStatus, waitForIndexCount } = wait;
 
 describe('kafka', () => {
-    beforeAll(() => resetState());
+    beforeAll(async () => {
+        await resetState();
+        await misc.scaleService('kafka', 1);
+        // give kafka time to come up
+        await Promise.delay(5000);
+    });
+
+    afterAll(async () => {
+        await misc.scaleService('kafka', 0);
+    });
 
     const teraslice = misc.teraslice();
 

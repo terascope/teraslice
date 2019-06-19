@@ -77,15 +77,7 @@ describe('cluster state', () => {
     });
 
     it('should update after adding and removing a worker node', async () => {
-        // Add a second worker node
         verifyClusterState(await scaleWorkersAndWait(1), 1);
-        verifyClusterState(await scaleWorkersAndWait(0));
-    });
-
-    it('should update after adding and removing 3 worker nodes', async () => {
-        // Add additional worker nodes. There's one already and we want 13 more.
-        verifyClusterState(await scaleWorkersAndWait(3), 3);
-
         verifyClusterState(await scaleWorkersAndWait());
     });
 

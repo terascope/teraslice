@@ -22,30 +22,25 @@ module.exports = function module(context) {
 
     function submitJob(jobSpec, shouldRun) {
         if (jobSpec.job_id) {
-            const error = new Error('Job cannot include a job_id');
-            error.code = 422;
-            return Promise.reject(error);
+            return Promise.reject(
+                new TSError('Job cannot include a job_id on submit', {
+                    statusCode: 422,
+                })
+            );
         }
 
         return _ensureAssets(jobSpec)
             .then(parsedAssetJob => _validateJob(parsedAssetJob))
-            .then(validJob => jobStore.create(jobSpec)
-                .then((job) => {
-                    if (!shouldRun) {
-                        return { job_id: job.job_id };
-                    }
+            .then(validJob => jobStore.create(jobSpec).then((job) => {
+                if (!shouldRun) {
+                    return { job_id: job.job_id };
+                }
 
-                    const exConfig = Object.assign({}, jobSpec, validJob, {
-                        job_id: job.job_id,
-                    });
-                    return executionService.createExecutionContext(exConfig);
-                }))
-            .catch((err) => {
-                const error = new TSError(err, {
-                    reason: 'Failure to submit job'
+                const exConfig = Object.assign({}, jobSpec, validJob, {
+                    job_id: job.job_id,
                 });
-                return Promise.reject(error);
-            });
+                return executionService.createExecutionContext(exConfig);
+            }));
     }
 
     function updateJob(jobId, updatedJob) {
@@ -55,43 +50,34 @@ module.exports = function module(context) {
             .then((originalJob) => {
                 updatedJob._created = originalJob._created;
                 return jobStore.update(jobId, updatedJob);
-            })
-            .catch((err) => {
-                const error = new TSError(err, {
-                    reason: 'Failure to update job'
-                });
-                return Promise.reject(error);
             });
     }
 
     function startJob(jobId) {
-        return _getActiveExecution(jobId, true)
-            .then((execution) => {
-                // searching for an active execution, if there is then we reject
-                if (execution != null) {
-                    const error = new Error(`job_id: ${jobId} is currently running, cannot have the same job concurrently running`);
-                    error.code = 409;
-                    return Promise.reject(error);
-                }
-
-                return getJob(jobId)
-                    .then((jobConfig) => {
-                        if (!jobConfig) {
-                            const error = new Error(`no job for job_id: ${jobId} could be found`);
-                            error.code = 404;
-                            return Promise.reject(error);
-                        }
-                        return _ensureAssets(jobConfig);
-                    })
-                    .then(parsedAssetJob => _validateJob(parsedAssetJob))
-                    .then(validJob => executionService.createExecutionContext(validJob));
-            })
-            .catch((err) => {
-                const error = new TSError(err, {
-                    reason: 'Failure to start job'
-                });
+        return _getActiveExecution(jobId, true).then((execution) => {
+            // searching for an active execution, if there is then we reject
+            if (execution != null) {
+                const error = new TSError(
+                    `Job ${jobId} is currently running, cannot have the same job concurrently running`
+                );
+                error.code = 409;
                 return Promise.reject(error);
-            });
+            }
+
+            return getJob(jobId)
+                .then((jobConfig) => {
+                    if (!jobConfig) {
+                        return Promise.reject(
+                            new TSError(`Job ${jobId} not found`, {
+                                statusCode: 404,
+                            })
+                        );
+                    }
+                    return _ensureAssets(jobConfig);
+                })
+                .then(parsedAssetJob => _validateJob(parsedAssetJob))
+                .then(validJob => executionService.createExecutionContext(validJob));
+        });
     }
 
     function recoverJob(jobId, cleanup) {
@@ -100,29 +86,15 @@ module.exports = function module(context) {
             .then(jobSpec => _ensureAssets(jobSpec))
             .then(assetIdJob => _validateJob(assetIdJob))
             .then(() => getLatestExecutionId(jobId))
-            .then(exId => executionService.recoverExecution(exId, cleanup))
-            .catch((err) => {
-                const error = new TSError(err, { reason: 'Failure to recover job' });
-                return Promise.reject(error);
-            });
+            .then(exId => executionService.recoverExecution(exId, cleanup));
     }
 
     function pauseJob(jobId) {
-        return getLatestExecutionId(jobId)
-            .then(exId => executionService.pauseExecution(exId))
-            .catch((err) => {
-                const error = new TSError(err, { reason: 'Failure to pause job' });
-                return Promise.reject(error);
-            });
+        return getLatestExecutionId(jobId).then(exId => executionService.pauseExecution(exId));
     }
 
     function resumeJob(jobId) {
-        return getLatestExecutionId(jobId)
-            .then(exId => executionService.resumeExecution(exId))
-            .catch((err) => {
-                const error = new Error(err, { reason: 'Failure to resume job' });
-                return Promise.reject(error);
-            });
+        return getLatestExecutionId(jobId).then(exId => executionService.resumeExecution(exId));
     }
 
     function getJob(jobId) {
@@ -137,10 +109,11 @@ module.exports = function module(context) {
         const allowZeroResults = allowZero || false;
         let query = `job_id: ${jobId}`;
         if (_query) query = _query;
-        return executionService.searchExecutionContexts(query, null, 1, '_created:desc')
+        return executionService
+            .searchExecutionContexts(query, null, 1, '_created:desc')
             .then((ex) => {
                 if (!allowZeroResults && ex.length === 0) {
-                    const error = new Error(`no execution context was found for job_id: ${jobId}`);
+                    const error = new Error(`No execution was found for job ${jobId}`);
                     error.code = 404;
                     return Promise.reject(error);
                 }
@@ -149,57 +122,47 @@ module.exports = function module(context) {
     }
 
     function _getActiveExecution(jobId, allowZeroResults) {
-        const str = executionService.terminalStatusList().map(state => ` _status:${state} `).join('OR');
+        const str = executionService
+            .terminalStatusList()
+            .map(state => ` _status:${state} `)
+            .join('OR');
         const query = `job_id: ${jobId} AND _context:ex NOT (${str.trim()})`;
         return getLatestExecution(jobId, query, allowZeroResults);
     }
 
     function _getActiveExecutionId(jobId) {
-        return _getActiveExecution(jobId)
-            .then(ex => ex.ex_id);
+        return _getActiveExecution(jobId).then(ex => ex.ex_id);
     }
 
     function getLatestExecutionId(jobId) {
-        return getLatestExecution(jobId)
-            .then(ex => ex.ex_id);
+        return getLatestExecution(jobId).then(ex => ex.ex_id);
     }
 
-    function _validateJob(jobSpec) {
-        return new Promise(((resolve, reject) => {
-            // This will throw errors if the job does not pass validation.
-            let validJob;
-            try {
-                validJob = jobValidator.validateConfig(jobSpec);
-            } catch (err) {
-                reject(new Error(`Failure validating job: ${_.toString(err)}`));
-            }
-
-            resolve(validJob);
-        }));
+    async function _validateJob(jobSpec) {
+        return jobValidator.validateConfig(jobSpec);
     }
 
     function shutdown() {
-        return jobStore.shutdown()
-            .catch((err) => {
-                logger.error(err, 'Error while shutting down job stores');
-                // no matter what we need to shutdown
-                return true;
-            });
+        return jobStore.shutdown().catch((err) => {
+            logger.error(err, 'Error while shutting down job stores');
+            // no matter what we need to shutdown
+            return true;
+        });
     }
 
-    function addWorkers(jobId, workerCount) {
-        return _getActiveExecutionId(jobId)
-            .then(exId => executionService.addWorkers(exId, workerCount));
+    async function addWorkers(jobId, workerCount) {
+        const exId = await _getActiveExecutionId(jobId);
+        return executionService.addWorkers(exId, workerCount);
     }
 
-    function removeWorkers(jobId, workerCount) {
-        return _getActiveExecutionId(jobId)
-            .then(exId => executionService.removeWorkers(exId, workerCount));
+    async function removeWorkers(jobId, workerCount) {
+        const exId = await _getActiveExecutionId(jobId);
+        return executionService.removeWorkers(exId, workerCount);
     }
 
-    function setWorkers(jobId, workerCount) {
-        return _getActiveExecutionId(jobId)
-            .then(exId => executionService.setWorkers(exId, workerCount));
+    async function setWorkers(jobId, workerCount) {
+        const exId = await _getActiveExecutionId(jobId);
+        return executionService.setWorkers(exId, workerCount);
     }
 
     function _ensureAssets(jobConfig) {
@@ -248,7 +211,7 @@ module.exports = function module(context) {
         setWorkers,
         getLatestExecutionId,
         getLatestExecution,
-        shutdown
+        shutdown,
     };
 
     function _initialize() {
@@ -256,9 +219,8 @@ module.exports = function module(context) {
         return Promise.resolve(api);
     }
 
-    return makeJobStore(context)
-        .then((job) => {
-            jobStore = job;
-            return _initialize(); // Load the initial pendingJobs state.
-        });
+    return makeJobStore(context).then((job) => {
+        jobStore = job;
+        return _initialize(); // Load the initial pendingJobs state.
+    });
 };

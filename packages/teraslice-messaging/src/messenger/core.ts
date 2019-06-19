@@ -1,19 +1,21 @@
-import { toString, isInteger, debugLogger } from '@terascope/utils';
+import { toString, isInteger, debugLogger, Logger } from '@terascope/utils';
 import { EventEmitter } from 'events';
 import pEvent from 'p-event';
 import * as i from './interfaces';
 
-const logger = debugLogger('teraslice-messaging:core');
+const _logger = debugLogger('teraslice-messaging:core');
 
 export class Core extends EventEmitter {
     public closed: boolean = false;
 
     protected networkLatencyBuffer: number;
     protected actionTimeout: number;
+    protected logger: Logger;
 
     constructor(opts: i.CoreOptions) {
         super();
 
+        this.logger = opts.logger || _logger;
         this.networkLatencyBuffer = opts.networkLatencyBuffer || 0;
         this.actionTimeout = opts.actionTimeout;
 
@@ -31,9 +33,9 @@ export class Core extends EventEmitter {
         this.removeAllListeners();
     }
 
-    protected async handleSendResponse(sent: i.Message): Promise<i.Message|null> {
+    protected async handleSendResponse(sent: i.Message): Promise<i.Message | null> {
         if (!sent.response) return null;
-        logger.trace('waiting for response from message', sent);
+        this.logger.trace('waiting for response from message', sent);
 
         const remaining = sent.respondBy - Date.now();
         const response = await this.onceWithTimeout(sent.id, remaining);
@@ -54,7 +56,7 @@ export class Core extends EventEmitter {
     }
 
     protected handleResponse(socket: i.SocketEmitter, eventName: string, fn: i.MessageHandler) {
-        logger.trace(`registering response handler for ${eventName}`);
+        this.logger.trace(`registering response handler for ${eventName}`);
 
         socket.on(eventName, async (msg: i.Message) => {
             const message: i.Message = Object.assign({}, msg, {
@@ -87,7 +89,7 @@ export class Core extends EventEmitter {
     }
 
     isClientReady(clientId?: string): boolean {
-        logger.error('isClientReady should be implemented on the server and client class', clientId);
+        this.logger.error('isClientReady should be implemented on the server and client class', clientId);
         throw new Error('isClientReady should be implemented on the server and client class');
     }
 
@@ -96,7 +98,7 @@ export class Core extends EventEmitter {
             return true;
         }
 
-        logger.trace(`waiting for ${clientId} to be ready`);
+        this.logger.trace(`waiting for ${clientId} to be ready`);
         await this.onceWithTimeout(`ready:${clientId}`, timeout);
         const isReady = this.isClientReady(clientId);
         if (!isReady) {
@@ -125,10 +127,10 @@ export class Core extends EventEmitter {
     async onceWithTimeout(eventName: string, timeout?: number): Promise<any> {
         const timeoutMs: number = this.getTimeout(timeout);
         try {
-            const { payload } = await pEvent(this, eventName, {
+            const { payload } = (await pEvent(this, eventName, {
                 rejectionEvents: [],
-                timeout: timeoutMs
-            }) as i.EventMessage;
+                timeout: timeoutMs,
+            })) as i.EventMessage;
             return payload;
         } catch (err) {
             return undefined;

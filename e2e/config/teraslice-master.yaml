@@ -8,14 +8,14 @@ terafoundation:
         elasticsearch:
             default:
                 host:
-                    - "elasticsearch:49200"
+                    - 'elasticsearch:49200'
         # ***********************
         # Kafka Configuration
         # ***********************
         kafka:
             default:
                 brokers:
-                    - "kafka:49092"
+                    - 'kafka:49092'
 
 teraslice:
     worker_disconnect_timeout: 120000
@@ -25,11 +25,11 @@ teraslice:
     action_timeout: 30000
     assets_directory: '/app/assets'
     autoload_directory: '/app/autoload'
-    workers: 12
+    workers: 8
     master: true
-    master_hostname: "127.0.0.1"
+    master_hostname: '127.0.0.1'
     port: 45678
-    name: "teracluster"
+    name: 'teracluster'
     index_settings:
         analytics:
             number_of_shards: 1

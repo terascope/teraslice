@@ -36,20 +36,24 @@ module.exports = function _clusterMaster(context) {
         },
         networkLatencyBuffer: clusterConfig.network_latency_buffer,
         actionTimeout: clusterConfig.action_timeout,
+        logger,
     });
 
     context.services = {};
 
     function isAssetServiceUp() {
         return new Promise((resolve) => {
-            request.get({
-                baseUrl: assetsUrl,
-                uri: '/status',
-                json: true,
-                timeout: 900
-            }, (err, response) => {
-                resolve(_.get(response, 'body.available', false));
-            });
+            request.get(
+                {
+                    baseUrl: assetsUrl,
+                    uri: '/status',
+                    json: true,
+                    timeout: 900,
+                },
+                (err, response) => {
+                    resolve(_.get(response, 'body.available', false));
+                }
+            );
         });
     }
 
@@ -59,8 +63,7 @@ module.exports = function _clusterMaster(context) {
         }
         return isAssetServiceUp().then((isUp) => {
             if (isUp) return Promise.resolve();
-            return Promise.delay(1000)
-                .then(() => waitForAssetsService(timeoutAt));
+            return Promise.delay(1000).then(() => waitForAssetsService(timeoutAt));
         });
     }
 
@@ -124,6 +127,6 @@ module.exports = function _clusterMaster(context) {
                     return Promise.map(services, service => service.shutdown());
                 })
                 .then(() => clusterMasterServer.shutdown());
-        }
+        },
     };
 };

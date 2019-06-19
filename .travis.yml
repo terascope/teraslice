@@ -64,6 +64,8 @@ jobs:
         - . ./scripts/travis-install-es.sh
     before_script:
         - cd e2e
+        - docker-compose pull elasticsearch kafka
+        - docker-compose build
     script: yarn test:ci
 
   # if not a tagged build and is on master

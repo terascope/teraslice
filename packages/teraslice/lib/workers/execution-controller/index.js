@@ -34,6 +34,7 @@ class ExecutionController {
             networkLatencyBuffer,
             actionTimeout,
             workerDisconnectTimeout,
+            logger,
         });
 
         const clusterMasterPort = get(config, 'port');
@@ -46,6 +47,7 @@ class ExecutionController {
             actionTimeout,
             connectTimeout: nodeDisconnectTimeout,
             exId: executionContext.exId,
+            logger,
         });
 
         this.executionAnalytics = new ExecutionAnalytics(context, executionContext, this.client);
@@ -572,9 +574,7 @@ class ExecutionController {
         } catch (err) {
             /* istanbul ignore next */
             const error = new TSError(err, {
-                reason: `execution ${
-                    this.exId
-                } has run to completion but the process has failed while updating the execution status, slicer will soon exit`,
+                reason: `execution ${this.exId} has run to completion but the process has failed while updating the execution status, slicer will soon exit`,
             });
             this.logger.error(error);
         }
@@ -621,9 +621,7 @@ class ExecutionController {
                 return;
             }
 
-            const errMsg = `execution ${
-                this.exId
-            } received shutdown before the slicer could complete, setting status to "terminated"`;
+            const errMsg = `execution ${this.exId} received shutdown before the slicer could complete, setting status to "terminated"`;
             const metaData = exStore.executionMetaData(executionStats, errMsg);
             logger.error(errMsg);
             await exStore.setStatus(this.exId, 'terminated', metaData);
@@ -743,9 +741,7 @@ class ExecutionController {
 
             if (!this.server.onlineClientCount) {
                 this.logger.warn(
-                    `clients are all offline, but there are still ${
-                        this.pendingSlices
-                    } pending slices`
+                    `clients are all offline, but there are still ${this.pendingSlices} pending slices`
                 );
                 return;
             }
@@ -778,9 +774,7 @@ class ExecutionController {
             const now = Date.now();
             if (now > shutdownAt) {
                 this.logger.error(
-                    `Shutdown timeout of ${timeout}ms waiting for execution ${
-                        this.exId
-                    } to finish...`
+                    `Shutdown timeout of ${timeout}ms waiting for execution ${this.exId} to finish...`
                 );
                 return null;
             }
@@ -852,9 +846,7 @@ class ExecutionController {
                     this.sliceFailureInterval = null;
 
                     this.logger.info(
-                        `No slice errors have occurred within execution: ${
-                            this.exId
-                        } will be set back to 'running' state`
+                        `No slice errors have occurred within execution: ${this.exId} will be set back to 'running' state`
                     );
                     this.stores.exStore.setStatus(this.exId, 'running');
                     return;
@@ -881,9 +873,7 @@ class ExecutionController {
             if (this.workersHaveConnected) return;
 
             this.logger.warn(
-                `A worker has not connected to a slicer for ex: ${
-                    this.exId
-                }, shutting down execution`
+                `A worker has not connected to a slicer for ex: ${this.exId}, shutting down execution`
             );
 
             this._terminalError(err);

@@ -4,7 +4,7 @@ import * as i from './interfaces';
 import { Core } from './core';
 import { newMsgId } from '../utils';
 
-const logger = debugLogger('teraslice-messaging:client');
+const _logger = debugLogger('teraslice-messaging:client');
 
 export class Client extends Core {
     readonly socket: SocketIOClient.Socket;
@@ -18,8 +18,16 @@ export class Client extends Core {
     protected serverShutdown: boolean;
 
     constructor(opts: i.ClientOptions) {
-        super(opts);
-        const { hostUrl, clientId, clientType, serverName, socketOptions = {}, connectTimeout } = opts;
+        const { hostUrl, clientId, clientType, serverName, socketOptions = {}, connectTimeout, logger, ...coreOpts } = opts;
+
+        super({
+            logger: logger
+                ? logger.child({
+                    module: 'messaging:client',
+                })
+                : _logger,
+            ...coreOpts,
+        });
 
         if (!isString(hostUrl)) {
             throw new Error('Messenger.Client requires a valid hostUrl');
@@ -103,12 +111,12 @@ export class Client extends Core {
         });
 
         this.socket.on('reconnecting', () => {
-            logger.trace(`client ${this.clientId} is reconnecting`);
+            this.logger.trace(`client ${this.clientId} is reconnecting`);
             this.ready = false;
         });
 
         this.socket.on('reconnect', () => {
-            logger.trace(`client ${this.clientId} reconnected`);
+            this.logger.trace(`client ${this.clientId} reconnected`);
             this.ready = true;
             this.emit('ready');
 
@@ -118,18 +126,18 @@ export class Client extends Core {
                 try {
                     await this.sendAvailable();
                 } catch (err) {
-                    logger.warn('update availablilty on reconnect error', err);
+                    this.logger.warn('update availablilty on reconnect error', err);
                 }
             });
         });
 
         this.socket.on('disconnect', () => {
-            logger.debug(`client ${this.clientId} disconnected`);
+            this.logger.debug(`client ${this.clientId} disconnected`);
             this.ready = false;
         });
 
         this.socket.on('shutdown', () => {
-            logger.info(`server ${this.serverName} shutdown`);
+            this.logger.debug(`server ${this.serverName} shutdown`);
             this.ready = false;
             this.serverShutdown = true;
             this.emit('server:shutdown');
@@ -143,7 +151,7 @@ export class Client extends Core {
         });
 
         this.socket.on('connect', () => {
-            logger.debug(`client ${this.clientId} connected`);
+            this.logger.trace(`client ${this.clientId} connected`);
             this.ready = true;
             this.emit('ready');
         });
@@ -151,7 +159,7 @@ export class Client extends Core {
         this.ready = true;
         this.emit('ready');
 
-        logger.info(`client ${this.clientId} connect`);
+        this.logger.debug(`client ${this.clientId} connect`);
     }
 
     async sendAvailable(payload?: i.Payload) {
@@ -181,7 +189,7 @@ export class Client extends Core {
 
         if (!this.ready && !options.volatile) {
             const connected = this.socket.connected ? 'connected' : 'not-connected';
-            logger.debug(`server is not ready and ${connected}, waiting for the ready event`);
+            this.logger.debug(`server is not ready and ${connected}, waiting for the ready event`);
             await this.onceWithTimeout(`ready:${this.serverName}`);
         }
 
@@ -226,7 +234,7 @@ export class Client extends Core {
                     }
                 );
             } catch (err) {
-                logger.error(err, 'client send shutdown error');
+                this.logger.error(err, 'client send shutdown error');
             }
         }
 

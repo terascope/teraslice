@@ -6,7 +6,7 @@ const Promise = require('bluebird');
 
 module.exports = function compose(composeFile) {
     function run(command, options = {}, services, param1) {
-        return new Promise(((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             let stdout = '';
             let stderr = '';
 
@@ -68,13 +68,13 @@ module.exports = function compose(composeFile) {
                     resolve(stdout);
                 }
             });
-        }));
+        });
     }
 
     return {
-        up: (options = {}) => {
+        up: (options = {}, services) => {
             options.d = '';
-            return run('up', options);
+            return run('up', options, services);
         },
         build: options => run('build', options),
         down: options => run('down', options),

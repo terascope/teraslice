@@ -8,7 +8,7 @@ export class Client extends core.Client {
     public workerId: string;
 
     constructor(opts: i.ClientOptions) {
-        const { executionControllerUrl, socketOptions, workerId, networkLatencyBuffer, actionTimeout, connectTimeout } = opts;
+        const { executionControllerUrl, socketOptions, workerId, networkLatencyBuffer, actionTimeout, connectTimeout, logger } = opts;
 
         if (!isString(executionControllerUrl)) {
             throw new Error('ExecutionController.Client requires a valid executionControllerUrl');
@@ -27,6 +27,7 @@ export class Client extends core.Client {
             clientId: workerId,
             clientType: 'worker',
             serverName: 'ExecutionController',
+            logger,
         });
 
         this.workerId = workerId;
