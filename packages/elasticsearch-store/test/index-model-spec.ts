@@ -1,9 +1,9 @@
 import 'jest-extended';
 import { Client } from 'elasticsearch';
+import { QueryAccess } from 'xlucene-evaluator';
 import { times, TSError, AnyObject } from '@terascope/utils';
 import { IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions } from '../src';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
-import { QueryAccess } from 'xlucene-evaluator';
 
 describe('IndexModel', () => {
     interface ExampleRecord extends IndexModelRecord {
@@ -111,7 +111,16 @@ describe('IndexModel', () => {
             expect.hasAssertions();
 
             try {
-                await indexModel.create(created);
+                await indexModel.create({
+                    name: 'Billy',
+                    config: {
+                        foo: 2,
+                        bar: 2,
+                        baz: {
+                            a: 2,
+                        },
+                    },
+                });
             } catch (err) {
                 expect(err.message).toEqual('IndexModel create requires name to be unique');
                 expect(err).toBeInstanceOf(TSError);

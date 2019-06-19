@@ -1,6 +1,7 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
-import { Spaces } from '../../src/models/spaces';
+import { CreateRecordInput } from 'elasticsearch-store';
+import { Spaces, Space } from '../../src/models/spaces';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 
 describe('Spaces', () => {
@@ -52,6 +53,33 @@ describe('Spaces', () => {
             const fetched = await spaces.findById(created.id);
 
             expect(created).toEqual(fetched);
+        });
+
+        it('should not allow duplicate spaces', async () => {
+            const space: CreateRecordInput<Space> = {
+                client_id: 1,
+                type: 'SEARCH',
+                name: 'test-space-1',
+                endpoint: 'test-space-1',
+                views: [],
+                roles: [],
+                data_type: 'test-space-duplicate-data-type',
+                config: {
+                    index: 'hello',
+                },
+            };
+
+            await expect(spaces.create(space)).resolves.toMatchObject({
+                name: 'test-space-1',
+                endpoint: 'test-space-1',
+            });
+
+            await expect(
+                spaces.create({
+                    name: 'test-space-2',
+                    ...space,
+                })
+            ).rejects.toThrow('requires endpoint to be unique');
         });
     });
 
