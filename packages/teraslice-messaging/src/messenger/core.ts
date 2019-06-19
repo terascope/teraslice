@@ -26,6 +26,10 @@ export class Core extends EventEmitter {
         if (!isInteger(this.networkLatencyBuffer)) {
             throw new Error('Messenger requires a valid networkLatencyBuffer');
         }
+
+        this.on('error', (err: any) => {
+            this.logger.error(err, 'unhandled teraslice-messenger error');
+        });
     }
 
     close() {

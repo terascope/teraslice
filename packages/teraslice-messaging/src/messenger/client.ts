@@ -61,6 +61,9 @@ export class Client extends Core {
 
         // @ts-ignore
         this.socket = new SocketIOClient(hostUrl, options);
+        this.socket.on('error', (err: any) => {
+            this.logger.error(err, 'unhandled socket.io-client error');
+        });
 
         this.hostUrl = hostUrl;
         this.connectTimeout = connectTimeout;
