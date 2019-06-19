@@ -12,7 +12,7 @@ export class Translator {
     readonly typeConfig?: TypeConfig;
     private readonly _parser: Parser;
 
-    constructor(input: string|Parser, typeConfig?: TypeConfig, logger?: Logger) {
+    constructor(input: string | Parser, typeConfig?: TypeConfig, logger?: Logger) {
         this.logger = logger != null ? logger.child({ module: 'xlucene-translator' }) : _logger;
 
         if (isString(input)) {
@@ -29,10 +29,10 @@ export class Translator {
         if (isEmptyAST(this._parser.ast)) {
             return {
                 query: {
-                    query_string: {
-                        query: ''
-                    }
-                }
+                    bool: {
+                        filter: [],
+                    },
+                },
             };
         }
 

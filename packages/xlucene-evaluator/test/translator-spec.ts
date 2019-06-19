@@ -39,12 +39,19 @@ describe('Translator', () => {
                     const result = translator.toElasticsearchDSL();
 
                     const actual = get(result, property);
-                    logger.trace('test result', JSON.stringify({
-                        query,
-                        expected,
-                        property,
-                        actual,
-                    }, null, 4));
+                    logger.trace(
+                        'test result',
+                        JSON.stringify(
+                            {
+                                query,
+                                expected,
+                                property,
+                                actual,
+                            },
+                            null,
+                            4
+                        )
+                    );
 
                     if (!actual) {
                         expect(result).toHaveProperty(property);
@@ -62,10 +69,10 @@ describe('Translator', () => {
             const result = translator.toElasticsearchDSL();
             expect(result).toEqual({
                 query: {
-                    query_string: {
-                        query: ''
-                    }
-                }
+                    bool: {
+                        filter: [],
+                    },
+                },
             });
         });
     });

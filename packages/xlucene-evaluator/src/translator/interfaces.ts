@@ -2,15 +2,15 @@ import * as parser from '../parser';
 
 export type BoolQuery = {
     bool: {
-        filter?: AnyQuery[],
-        must_not?: AnyQuery[],
-        should?: AnyQuery[],
-    }
+        filter?: AnyQuery[];
+        must_not?: AnyQuery[];
+        should?: AnyQuery[];
+    };
 };
 
-export type BoolQueryTypes = 'filter'|'should'|'must_not';
+export type BoolQueryTypes = 'filter' | 'should' | 'must_not';
 
-export type AnyQuery = BoolQuery|GeoQuery|TermQuery|WildcardQuery|ExistsQuery|RegExprQuery|RangeQuery|MultiMatchQuery;
+export type AnyQuery = BoolQuery | GeoQuery | TermQuery | WildcardQuery | ExistsQuery | RegExprQuery | RangeQuery | MultiMatchQuery;
 
 export interface ExistsQuery {
     exists: {
@@ -21,13 +21,13 @@ export interface ExistsQuery {
 export interface GeoQuery {
     geo_bounding_box?: {
         [field: string]: {
-            top_left: parser.GeoPoint|string;
-            bottom_right: parser.GeoPoint|string;
-        }
+            top_left: parser.GeoPoint | string;
+            bottom_right: parser.GeoPoint | string;
+        };
     };
     geo_distance?: {
         distance: string;
-        [field: string]: parser.GeoPoint|string;
+        [field: string]: parser.GeoPoint | string;
     };
 }
 
@@ -39,7 +39,7 @@ export interface RegExprQuery {
 
 export interface TermQuery {
     term: {
-        [field: string]: string|number|boolean;
+        [field: string]: string | number | boolean;
     };
 }
 
@@ -51,32 +51,30 @@ export interface WildcardQuery {
 
 export interface RangeQuery {
     range: {
-        [field: string]: RangeExpression
+        [field: string]: RangeExpression;
     };
 }
 
 export interface MultiMatchQuery {
     multi_match: {
-        query: string,
-        fields?: string[],
+        query: string;
+        fields?: string[];
     };
 }
 
 export interface RangeExpression {
-    gte?: string|number;
-    lte?: string|number;
-    gt?: string|number;
-    lt?: string|number;
+    gte?: string | number;
+    lte?: string | number;
+    gt?: string | number;
+    lt?: string | number;
 }
 
-export interface ElasticsearchDSLResult {
-    query: {
-        constant_score: {
-            filter: AnyQuery|AnyQuery[]
-        }
-    } | {
-        query_string: {
-            query: ''
-        }
+export type ConstantScoreQuery = {
+    constant_score: {
+        filter: AnyQuery | AnyQuery[];
     };
-}
+};
+
+export type ElasticsearchDSLResult = {
+    query: ConstantScoreQuery | BoolQuery;
+};
