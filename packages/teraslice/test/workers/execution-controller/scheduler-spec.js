@@ -148,8 +148,8 @@ describe('Scheduler', () => {
         ]);
 
         // be more flexible
-        const min = expectedCount - slicers * 6;
-        const max = expectedCount + slicers * 6;
+        const min = expectedCount - slicers * 8;
+        const max = expectedCount + slicers * 8;
         expect(slices.length).toBeWithin(min, max);
 
         expect(scheduler.isFinished).toBeTrue();
