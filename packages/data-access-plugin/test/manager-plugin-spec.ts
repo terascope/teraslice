@@ -315,29 +315,29 @@ describe('Data Access Management', () => {
 
             const query = `
                 query {
-                    roles(query: "*") {
+                    roles {
                         client_id,
                         id,
                         name
                     }
-                    users(query: "*") {
+                    users {
                         client_id,
                         id,
                         username,
                         firstname,
                         lastname
                     }
-                    spaces(query: "*") {
+                    spaces {
                         client_id,
                         id,
                         name
                     }
-                    dataTypes(query: "*") {
+                    dataTypes {
                         client_id,
                         id,
                         name
                     }
-                    views(query: "*") {
+                    views {
                         client_id,
                         id,
                         name,

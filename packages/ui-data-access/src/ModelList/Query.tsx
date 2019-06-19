@@ -19,7 +19,7 @@ const ListQuery = tsWithRouter<Props>(
 
         const state: QueryState = Object.assign(
             {
-                query: '*',
+                query: '',
                 size: 10,
             },
             parse(location.search)
@@ -34,13 +34,10 @@ const ListQuery = tsWithRouter<Props>(
             });
         };
 
-        const variables =
-            state.query && state.query !== '*'
-                ? {
-                    ...state,
-                    query: formatRegexQuery(state.query || '', searchFields),
-                }
-                : state;
+        const variables = {
+            ...state,
+            query: formatRegexQuery(state.query || '', searchFields),
+        };
 
         return (
             <Query
