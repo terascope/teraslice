@@ -76,8 +76,7 @@ export class SearchAccess {
             response.error = err;
         }
 
-        // FIXME this shouldn't be logged
-        this._logger.trace(response, 'got response...');
+        if (ts.isTest) this._logger.trace(response, 'got response...');
 
         return this.getSearchResponse(response, query, params);
     }

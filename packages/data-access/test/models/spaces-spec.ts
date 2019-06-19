@@ -69,15 +69,25 @@ describe('Spaces', () => {
                 },
             };
 
-            await expect(spaces.create(space)).resolves.toMatchObject({
-                name: 'test-space-1',
-                endpoint: 'test-space-1',
-            });
+            const space1 = await spaces.create(space);
 
             await expect(
                 spaces.create({
-                    name: 'test-space-2',
                     ...space,
+                    name: 'test-space-2',
+                })
+            ).rejects.toThrow('requires endpoint to be unique');
+
+            const created = await spaces.create({
+                ...space,
+                name: 'test-space-3',
+                endpoint: 'test-space-3',
+            });
+
+            await expect(
+                spaces.update({
+                    ...created,
+                    endpoint: space1.endpoint,
                 })
             ).rejects.toThrow('requires endpoint to be unique');
         });
