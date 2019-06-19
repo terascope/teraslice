@@ -65,7 +65,7 @@ jobs:
     before_script:
         - cd e2e
         - docker-compose pull
-        - docker-compose build --pull
+        - docker-compose build
     script: yarn test:ci
 
   # if not a tagged build and is on master

@@ -15,7 +15,6 @@ services:
             - '45678:45678'
         scale: 1
         restart: 'on-failure'
-        mem_reservation: 256m
         stop_grace_period: 30s
         environment:
             - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.yaml
@@ -32,7 +31,7 @@ services:
         command: [
             "./scripts/wait-for-it.sh",
             "elasticsearch:49200",
-            "--timeout=60",
+            "--timeout=75",
             "--",
             "node",
             "service.js"
@@ -68,12 +67,13 @@ services:
             - elasticsearch-data:/usr/share/elasticsearch/data
         networks:
             - cluster
-        mem_limit: 512m
-        mem_reservation: 256m
         ulimits:
             memlock:
                 soft: -1
                 hard: -1
+            nofile:
+                soft: 65536
+                hard: 65536
         cap_add:
             - IPC_LOCK
     kafka:
@@ -82,8 +82,6 @@ services:
         ports:
             - '42181:42181'
             - '49092:49092'
-        mem_limit: 256m
-        mem_reservation: 128m
         networks:
             - cluster
         environment:

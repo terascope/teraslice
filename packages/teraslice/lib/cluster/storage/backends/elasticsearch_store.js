@@ -3,7 +3,9 @@
 const fs = require('fs');
 const _ = require('lodash');
 const path = require('path');
-const { TSError, parseError } = require('@terascope/utils');
+const {
+    TSError, parseError, isTest, pDelay
+} = require('@terascope/utils');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
 const { timeseriesIndex } = require('../../../utils/date_utils');
@@ -348,7 +350,9 @@ module.exports = function module(backendConfig) {
                     body: mapping,
                 };
 
-                return sendTemplate(mapping)
+                // add a random delay to stagger requests
+                return pDelay(isTest ? 0 : _.random(0, 5000))
+                    .then(() => sendTemplate(mapping))
                     .then(() => elasticsearch.index_create(createQuery))
                     .then(results => results)
                     .catch((err) => {
@@ -479,12 +483,14 @@ module.exports = function module(backendConfig) {
                             running = false;
                         })
                         .catch((checkingErr) => {
-                            running = false;
-
-                            const checkingError = new TSError(checkingErr, {
-                                reason: `Attempting to connect to elasticsearch: ${clientName}`,
+                            // add a random delay to stagger requests
+                            pDelay(isTest ? 0 : _.random(0, 1000)).then(() => {
+                                running = false;
+                                const checkingError = new TSError(checkingErr, {
+                                    reason: `Attempting to connect to elasticsearch: ${clientName}`,
+                                });
+                                logger.info(checkingError.message);
                             });
-                            logger.info(checkingError.message);
                         });
                 }, 3000);
             });
