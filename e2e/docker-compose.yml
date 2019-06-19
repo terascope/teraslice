@@ -1,6 +1,7 @@
 version: '2.4'
 services:
     teraslice-master:
+        image: teraslice:e2e
         build:
             context: ..
         command: [
@@ -26,6 +27,7 @@ services:
             - ./autoload:/app/autoload:delegated
             - ./config:/app/config:delegated
     teraslice-worker:
+        image: teraslice:e2e
         build:
             context: ..
         command: [
