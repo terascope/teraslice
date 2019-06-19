@@ -51,11 +51,11 @@ export class SearchAccess {
      * Safely search a space given an elasticsearch client and a valid query
      */
     async performSearch(client: es.Client, query: i.InputQuery) {
-        const params = this.getSearchParams(query);
+        const { q, ...params } = this.getSearchParams(query);
 
         let esQuery: es.SearchParams;
         try {
-            esQuery = this.restrictSearchQuery(params.q, params);
+            esQuery = this.restrictSearchQuery(q, params);
         } catch (err) {
             throw new ts.TSError(err, {
                 reason: 'Query restricted',
