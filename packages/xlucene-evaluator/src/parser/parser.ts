@@ -1,4 +1,4 @@
-import { debugLogger, Logger, TSError } from '@terascope/utils';
+import { debugLogger, Logger, TSError, trim } from '@terascope/utils';
 import engine, { Tracer } from './engine';
 import * as i from './interfaces';
 import * as utils from './utils';
@@ -12,7 +12,7 @@ export class Parser {
 
     constructor(query: string, logger?: Logger) {
         this.logger = logger != null ? logger.child({ module: 'xlucene-parser' }) : _logger;
-        this.query = query || '';
+        this.query = trim(query || '');
 
         const tracer = new Tracer(this.query, {
             showTrace: false,
