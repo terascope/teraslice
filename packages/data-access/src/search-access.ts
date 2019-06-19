@@ -67,7 +67,7 @@ export class SearchAccess {
             });
         }
 
-        if (ts.isTest) this._logger.debug(esQuery, 'searching...');
+        this._logger.trace(esQuery, 'searching....');
 
         let response: any = {};
         try {
@@ -76,7 +76,8 @@ export class SearchAccess {
             response.error = err;
         }
 
-        if (ts.isTest) this._logger.trace(response, 'got response...');
+        // FIXME this shouldn't be logged
+        this._logger.trace(response, 'got response...');
 
         return this.getSearchResponse(response, query, params);
     }
