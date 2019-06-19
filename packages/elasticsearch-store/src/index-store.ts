@@ -84,8 +84,10 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
                 if (strictMode) {
                     utils.throwValidationError(validate.errors);
-                } else if (log_level !== 'none') {
-                    this._logger[log_level]('Invalid record', input, validate.errors);
+                } else if (log_level === 'warn' || log_level === 'error') {
+                    this._logger[log_level]('Invalid record', input, utils.getErrorMessages(validate.errors || []));
+                } else if (log_level === 'debug' || log_level === 'trace') {
+                    this._logger[log_level]('Record validation warnings', input, utils.getErrorMessages(validate.errors || []));
                 }
             };
         } else {
@@ -466,7 +468,7 @@ type BulkRequestMetadata = {
         _index: string;
         _type: string;
         _id?: string;
-    }
+    };
 };
 
 interface RecordResponse<T> {

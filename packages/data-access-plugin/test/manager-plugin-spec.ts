@@ -204,7 +204,6 @@ describe('Data Access Management', () => {
                         name: "greetings-admin",
                         data_type: "${dataTypeId}",
                         excludes: ["created", "updated"],
-                        constraint: "group:a",
                         roles: ["${roleId}"]
                     }) {
                         id,
@@ -241,7 +240,7 @@ describe('Data Access Management', () => {
                         config: {
                             index: "hello-space",
                             connection: "other",
-                            require_query: true,
+                            require_query: false,
                             sort_enabled: true
                         }
                     }) {
@@ -262,7 +261,7 @@ describe('Data Access Management', () => {
                 name: 'Greetings Space',
                 endpoint: 'greetings',
                 config: {
-                    require_query: true,
+                    require_query: false,
                     sort_enabled: true,
                     index: 'hello-space',
                     connection: 'other',
@@ -730,7 +729,7 @@ describe('Data Access Management', () => {
             });
         });
 
-        it('should be able handle a search error', async () => {
+        it('should be able to search a space with an empty string', async () => {
             expect(spaceId).toBeTruthy();
             expect(apiToken).toBeTruthy();
 
@@ -748,7 +747,33 @@ describe('Data Access Management', () => {
 
             expect(result).toMatchObject({
                 body: {
-                    error: 'Invalid q parameter, must not be empty, was given: ""',
+                    total: 4,
+                    returning: 4,
+                },
+                statusCode: 200,
+            });
+        });
+
+        it('should be able handle a search error', async () => {
+            expect(spaceId).toBeTruthy();
+            expect(apiToken).toBeTruthy();
+
+            const uri = formatBaseUri(spaceId);
+            const result = await got(uri, {
+                query: {
+                    token: apiToken,
+                    q: '',
+                    size: 'a',
+                    sort: '_id:asc',
+                    pretty: false,
+                },
+                json: true,
+                throwHttpErrors: false,
+            });
+
+            expect(result).toMatchObject({
+                body: {
+                    error: 'Invalid size parameter, must be a valid number, was given: "a"',
                 },
                 statusCode: 422,
             });
@@ -766,7 +791,7 @@ describe('Data Access Management', () => {
                             config: {
                                 index: "hello-space",
                                 connection: "default",
-                                require_query: true,
+                                require_query: false,
                                 sort_enabled: true
                                 preserve_index_name: true
                             }
