@@ -40,7 +40,7 @@ export class Translator {
             };
         }
 
-        this.logger.trace(`translated ${this.query} query to`, JSON.stringify(query, null, 4));
+        this.logger.trace(`translated ${this.query ? this.query : "''"} query to`, JSON.stringify(query, null, 4));
 
         return { query };
     }
