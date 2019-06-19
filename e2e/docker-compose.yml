@@ -3,11 +3,10 @@ services:
     teraslice-master:
         build:
             context: ..
-        container_name: teraslice-master
         command: [
             "./scripts/wait-for-it.sh",
             "elasticsearch:49200",
-            "--timeout=45",
+            "--timeout=60",
             "--",
             "node",
             "service.js"
@@ -16,8 +15,7 @@ services:
             - '45678:45678'
         scale: 1
         restart: 'on-failure'
-        cpus: 0.3
-        mem_limit: 256m
+        mem_reservation: 256m
         stop_grace_period: 30s
         environment:
             - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.yaml
@@ -41,8 +39,6 @@ services:
         ]
         scale: 2
         restart: 'on-failure'
-        cpus: 0.3
-        mem_limit: 256m
         stop_grace_period: 30s
         environment:
             - TERAFOUNDATION_CONFIG=/app/config/teraslice-worker.yaml
@@ -55,7 +51,6 @@ services:
             - ./config:/app/config:delegated
     elasticsearch:
         image: docker.elastic.co/elasticsearch/elasticsearch:6.8.0
-        container_name: elasticsearch
         ports:
             - '49200:49200'
             - '49300:49300'
@@ -79,9 +74,11 @@ services:
             memlock:
                 soft: -1
                 hard: -1
+        cap_add:
+            - IPC_LOCK
     kafka:
         image: terascope/kafka-zookeeper:v1.1.1
-        container_name: kafka
+        scale: 0
         ports:
             - '42181:42181'
             - '49092:49092'

@@ -22,9 +22,11 @@ module.exports = function module(context) {
 
     function submitJob(jobSpec, shouldRun) {
         if (jobSpec.job_id) {
-            const error = new Error('Job cannot include a job_id');
-            error.code = 422;
-            return Promise.reject(error);
+            return Promise.reject(
+                new TSError('Job cannot include a job_id on submit', {
+                    statusCode: 422,
+                })
+            );
         }
 
         return _ensureAssets(jobSpec)
@@ -38,13 +40,7 @@ module.exports = function module(context) {
                     job_id: job.job_id,
                 });
                 return executionService.createExecutionContext(exConfig);
-            }))
-            .catch((err) => {
-                const error = new TSError(err, {
-                    reason: 'Failure to submit job',
-                });
-                return Promise.reject(error);
-            });
+            }));
     }
 
     function updateJob(jobId, updatedJob) {
@@ -54,45 +50,34 @@ module.exports = function module(context) {
             .then((originalJob) => {
                 updatedJob._created = originalJob._created;
                 return jobStore.update(jobId, updatedJob);
-            })
-            .catch((err) => {
-                const error = new TSError(err, {
-                    reason: 'Failure to update job',
-                });
-                return Promise.reject(error);
             });
     }
 
     function startJob(jobId) {
-        return _getActiveExecution(jobId, true)
-            .then((execution) => {
-                // searching for an active execution, if there is then we reject
-                if (execution != null) {
-                    const error = new Error(
-                        `job_id: ${jobId} is currently running, cannot have the same job concurrently running`
-                    );
-                    error.code = 409;
-                    return Promise.reject(error);
-                }
-
-                return getJob(jobId)
-                    .then((jobConfig) => {
-                        if (!jobConfig) {
-                            const error = new Error(`no job for job_id: ${jobId} could be found`);
-                            error.code = 404;
-                            return Promise.reject(error);
-                        }
-                        return _ensureAssets(jobConfig);
-                    })
-                    .then(parsedAssetJob => _validateJob(parsedAssetJob))
-                    .then(validJob => executionService.createExecutionContext(validJob));
-            })
-            .catch((err) => {
-                const error = new TSError(err, {
-                    reason: 'Failure to start job',
-                });
+        return _getActiveExecution(jobId, true).then((execution) => {
+            // searching for an active execution, if there is then we reject
+            if (execution != null) {
+                const error = new TSError(
+                    `Job ${jobId} is currently running, cannot have the same job concurrently running`
+                );
+                error.code = 409;
                 return Promise.reject(error);
-            });
+            }
+
+            return getJob(jobId)
+                .then((jobConfig) => {
+                    if (!jobConfig) {
+                        return Promise.reject(
+                            new TSError(`Job ${jobId} not found`, {
+                                statusCode: 404,
+                            })
+                        );
+                    }
+                    return _ensureAssets(jobConfig);
+                })
+                .then(parsedAssetJob => _validateJob(parsedAssetJob))
+                .then(validJob => executionService.createExecutionContext(validJob));
+        });
     }
 
     function recoverJob(jobId, cleanup) {
@@ -101,29 +86,15 @@ module.exports = function module(context) {
             .then(jobSpec => _ensureAssets(jobSpec))
             .then(assetIdJob => _validateJob(assetIdJob))
             .then(() => getLatestExecutionId(jobId))
-            .then(exId => executionService.recoverExecution(exId, cleanup))
-            .catch((err) => {
-                const error = new TSError(err, { reason: 'Failure to recover job' });
-                return Promise.reject(error);
-            });
+            .then(exId => executionService.recoverExecution(exId, cleanup));
     }
 
     function pauseJob(jobId) {
-        return getLatestExecutionId(jobId)
-            .then(exId => executionService.pauseExecution(exId))
-            .catch((err) => {
-                const error = new TSError(err, { reason: 'Failure to pause job' });
-                return Promise.reject(error);
-            });
+        return getLatestExecutionId(jobId).then(exId => executionService.pauseExecution(exId));
     }
 
     function resumeJob(jobId) {
-        return getLatestExecutionId(jobId)
-            .then(exId => executionService.resumeExecution(exId))
-            .catch((err) => {
-                const error = new Error(err, { reason: 'Failure to resume job' });
-                return Promise.reject(error);
-            });
+        return getLatestExecutionId(jobId).then(exId => executionService.resumeExecution(exId));
     }
 
     function getJob(jobId) {
@@ -142,7 +113,7 @@ module.exports = function module(context) {
             .searchExecutionContexts(query, null, 1, '_created:desc')
             .then((ex) => {
                 if (!allowZeroResults && ex.length === 0) {
-                    const error = new Error(`no execution context was found for job_id: ${jobId}`);
+                    const error = new Error(`No execution was found for job ${jobId}`);
                     error.code = 404;
                     return Promise.reject(error);
                 }

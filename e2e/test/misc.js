@@ -10,7 +10,7 @@ const DEFAULT_WORKERS = 2;
 // The teraslice-master + the number of teraslice-worker instances (see the docker-compose.yml)
 const DEFAULT_NODES = DEFAULT_WORKERS + 1;
 // The number of workers per number (see the process-master.yaml and process-worker.yaml)
-const WORKERS_PER_NODE = 10;
+const WORKERS_PER_NODE = 8;
 
 const DOCKER_IP = process.env.ip ? process.env.ip : 'localhost';
 const compose = require('@terascope/docker-compose-js')('docker-compose.yml');
@@ -78,8 +78,12 @@ function cleanupIndex(indexName) {
 // Adds teraslice-workers to the environment
 function scaleWorkers(workerToAdd = 0) {
     const count = DEFAULT_WORKERS + workerToAdd;
+    return scaleService('teraslice-worker', count);
+}
+
+function scaleService(service, count) {
     return compose.up({
-        scale: `teraslice-worker=${count}`,
+        scale: `${service}=${count}`,
         'no-recreate': '',
         'no-deps': '',
         'no-build': '',
@@ -95,6 +99,7 @@ module.exports = {
     compose,
     injectDelay,
     scaleWorkers,
+    scaleService,
     DEFAULT_NODES,
     DEFAULT_WORKERS,
     WORKERS_PER_NODE,

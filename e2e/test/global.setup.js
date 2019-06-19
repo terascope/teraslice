@@ -35,9 +35,12 @@ function dockerUp() {
     signale.pending('Bringing Docker environment up...');
 
     return misc.compose
-        .up({
-            'force-recreate': '',
-        })
+        .up(
+            {
+                'force-recreate': '',
+            },
+            ['elasticsearch', 'teraslice-master', 'teraslice-worker']
+        )
         .then(() => {
             signale.success('Docker environment is good to go', getElapsed(startTime));
         });
