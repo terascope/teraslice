@@ -69,7 +69,7 @@ describe('Translator', () => {
             const result = translator.toElasticsearchDSL();
             expect(result).toEqual({
                 query: {
-                    must_all: {},
+                    match_all: {},
                 },
             });
         });
