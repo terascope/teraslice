@@ -23,14 +23,14 @@ const clusterMasterMessages = {
         'cluster:analytics': 'cluster:analytics',
         'execution:error:terminal': 'execution:error:terminal',
         'assets:preloaded': 'assets:preloaded',
-        'assets:service:available': 'assets:service:available',
-    },
+        'assets:service:available': 'assets:service:available'
+    }
 };
 
 const nodeMasterMessages = {
     ipc: {
         'cluster:error:terminal': 'cluster:error:terminal',
-        'child:exit': 'exit',
+        'child:exit': 'exit'
     },
     intraProcess: {
         'network:connect': 'connect',
@@ -44,7 +44,7 @@ const nodeMasterMessages = {
         'cluster:node:state': 'cluster:node:state',
         'cluster:execution:stop': 'cluster:execution:stop',
         'cluster:node:get_port': 'cluster:node:get_port',
-    },
+    }
 };
 
 const assetServiceMessages = {
@@ -52,7 +52,7 @@ const assetServiceMessages = {
         'process:SIGTERM': 'SIGTERM',
         'process:SIGINT': 'SIGINT',
     },
-    network: {},
+    network: {}
 };
 
 // messaging destination relative towards each process type
@@ -65,8 +65,8 @@ const routing = {
         cluster_master: 'network',
     },
     assets_service: {
-        cluster_master: 'ipc',
-    },
+        cluster_master: 'ipc'
+    }
 };
 
 module.exports = function messaging(context, logger) {
@@ -86,7 +86,7 @@ module.exports = function messaging(context, logger) {
     let childHookFn = null;
     let io;
 
-    logger.trace(`messaging service configuration for assignment ${config.assignment}`);
+    logger.debug(`messaging service configuration for assignment ${config.assignment}`);
 
     // set a default listener the is used for forwarding/completing responses
     functionMapping['messaging:response'] = _handleResponse;
@@ -104,7 +104,7 @@ module.exports = function messaging(context, logger) {
     }
 
     function respond(incoming, outgoing) {
-        const outgoingResponse = outgoing && typeof outgoing === 'object' ? outgoing : {};
+        const outgoingResponse = (outgoing && typeof outgoing === 'object') ? outgoing : {};
         if (incoming.__msgId) {
             outgoingResponse.__msgId = incoming.__msgId;
         }
@@ -151,9 +151,7 @@ module.exports = function messaging(context, logger) {
 
         const selfHasEvent = _.some(selfMessages, type => type[eventName] != null);
         if (!selfHasEvent) {
-            throw new Error(
-                `"${self}" cannot register for event, "${eventName}", in messaging module`
-            );
+            throw new Error(`"${self}" cannot register for event, "${eventName}", in messaging module`);
         }
 
         if (selfMessages.ipc[eventName]) {
@@ -218,17 +216,11 @@ module.exports = function messaging(context, logger) {
         // cluster_master has two types of connections to node_master, if it does not have a
         // address then its talking to its own node_master through ipc
         // TODO: reference self message, remove cluster_master specific code
-        if (
-            self === 'cluster_master'
-            && !messageSent.address
-            && clusterMasterMessages.ipc[messageSent.message]
-        ) {
+        if (self === 'cluster_master' && !messageSent.address && clusterMasterMessages.ipc[messageSent.message]) {
             destinationType = 'ipc';
         }
         if (destinationType === undefined) {
-            throw new Error(
-                `could not determine how to pass on message to: ${JSON.stringify(messageSent)}`
-            );
+            throw new Error(`could not determine how to pass on message to: ${JSON.stringify(messageSent)}`);
         }
         return destinationType;
     }
@@ -239,7 +231,9 @@ module.exports = function messaging(context, logger) {
 
         // middleware
         io.use((socket, next) => {
-            const { node_id: nodeId } = socket.handshake.query;
+            const {
+                node_id: nodeId,
+            } = socket.handshake.query;
 
             if (nodeId) {
                 logger.info(`node ${nodeId} joining room on connect`);
@@ -343,11 +337,7 @@ module.exports = function messaging(context, logger) {
             events.once(msgID, (nodeMasterData) => {
                 clearTimeout(timer);
                 if (nodeMasterData.error) {
-                    reject(
-                        new Error(
-                            `${nodeMasterData.error} occurred on node: ${nodeMasterData.__source}`
-                        )
-                    );
+                    reject(new Error(`${nodeMasterData.error} occurred on node: ${nodeMasterData.__source}`));
                 } else {
                     resolve(nodeMasterData);
                 }
@@ -357,13 +347,7 @@ module.exports = function messaging(context, logger) {
             timer = setTimeout(() => {
                 // remove listener to prevent memory leaks
                 events.removeAllListeners(msgID);
-                reject(
-                    new Error(
-                        `timeout error while communicating with ${messageSent.to}, msg: ${
-                            messageSent.message
-                        }, data: ${JSON.stringify(messageSent)}`
-                    )
-                );
+                reject(new Error(`timeout error while communicating with ${messageSent.to}, msg: ${messageSent.message}, data: ${JSON.stringify(messageSent)}`));
             }, messageTimeout);
         });
     }
@@ -376,7 +360,7 @@ module.exports = function messaging(context, logger) {
             cluster_master: { networkClient: false, ipcClient: true },
             execution_controller: { networkClient: false, ipcClient: true },
             worker: { networkClient: true, ipcClient: true },
-            assets_service: { networkClient: true, ipcClient: true },
+            assets_service: { networkClient: true, ipcClient: true }
         };
 
         const env = context.__testingModule ? context.__testingModule.env : process.env;
@@ -480,9 +464,7 @@ module.exports = function messaging(context, logger) {
             if (realMsg) {
                 fn(realMsg, ipcMessage);
             } else {
-                logger.error(
-                    `process: ${self} has received a message: ${msg}, which is not registered in the messaging module`
-                );
+                logger.error(`process: ${self} has received a message: ${msg}, which is not registered in the messaging module`);
             }
         };
     }
@@ -502,6 +484,7 @@ module.exports = function messaging(context, logger) {
         const emitFn = (realMsg, ipcMessage) => processContext.emit(realMsg, ipcMessage);
         return emitIpcMessage(emitFn);
     }
+
 
     // all child processes need to set up a process listener on the 'message' event
     if (config.clients.ipcClient) {
@@ -548,7 +531,7 @@ module.exports = function messaging(context, logger) {
             _getMessages,
             _handleResponse,
             _getRegistry: () => functionMapping,
-            routing,
+            routing
         };
     }
 
@@ -571,6 +554,6 @@ module.exports = function messaging(context, logger) {
         broadcast,
         registerChildOnlineHook,
         shutdown,
-        __test_context: testContext,
+        __test_context: testContext
     };
 };

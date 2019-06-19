@@ -175,22 +175,12 @@ module.exports = function module(context) {
                 spawnAssetsLoader(jobAssets)
                     .then((assetIds) => {
                         if (assetIds.length === 0) {
-                            reject(
-                                new Error(
-                                    `no asset id's were found for assets: ${JSON.stringify(
-                                        jobAssets
-                                    )}`
-                                )
-                            );
+                            reject(new Error(`no asset id's were found for assets: ${JSON.stringify(jobAssets)}`));
                             return;
                         }
 
                         if (jobAssets.length !== assetIds.length) {
-                            reject(
-                                new Error(
-                                    `job specified ${jobAssets.length} assets: ${jobAssets.assets} but only ${assetIds.length} where found, assets: ${assetIds}`
-                                )
-                            );
+                            reject(new Error(`job specified ${jobAssets.length} assets: ${jobAssets.assets} but only ${assetIds.length} where found, assets: ${assetIds}`));
                             return;
                         }
 
