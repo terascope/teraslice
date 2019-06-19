@@ -52,10 +52,6 @@ verify_can_push() {
     local name="$1"
     local tag="$2"
 
-    if [ "$tag" == "dev" ]; then
-        return 0
-    fi
-
     local exists
     exists="$(image_exists "$name" "$tag")"
 
@@ -74,11 +70,56 @@ build_and_push() {
     local slug="$name:$tag"
 
     echoerr "* building $slug ..."
-    docker build --pull -t "$slug" .
+    docker build --pull --tag "$slug" .
 
     prompt "do you want to push $slug?" &&
         echoerr "* pushing $slug ..." &&
         docker push "$slug"
+}
+
+release_dev() {
+    local name="$1"
+
+    echoerr "* building $name:dev-base..." &&
+        docker build \
+            --pull \
+            --tag "$name:dev-base" \
+            --cache-from "node:10.16.0-alpine" \
+            --cache-from "$name:dev-base" \
+            --target base . &&
+        echoerr "* building $name:dev-connectors..." &&
+        docker build \
+            --pull \
+            --tag "$name:dev-connectors" \
+            --cache-from "node:10.16.0-alpine" \
+            --cache-from "$name:dev-base" \
+            --cache-from "$name:dev-connectors" \
+            --target connectors . &&
+        echoerr "* building $name:dev-deps..." &&
+        docker build \
+            --pull \
+            --tag "$name:dev-deps" \
+            --cache-from "node:10.16.0-alpine" \
+            --cache-from "$name:dev-base" \
+            --cache-from "$name:dev-deps" \
+            --target deps . &&
+        echoerr "* building $name:dev..." &&
+        docker build \
+            --pull \
+            --tag "$name:dev" \
+            --cache-from "node:10.16.0-alpine" \
+            --cache-from "$name:dev-base" \
+            --cache-from "$name:dev-connectors" \
+            --cache-from "$name:dev-deps" \
+            --cache-from "$name:dev" . &&
+        echoerr "* pushing $name:dev-base..." &&
+        docker push "$name:dev-base" &&
+        echoerr "* pushing $name:dev-connectors..." &&
+        docker push "$name:dev-connectors" &&
+        echoerr "* pushing $name:dev-deps..." &&
+        docker push "$name:dev-deps" &&
+        echoerr "* pushing $name:dev..." &&
+        docker push "$name:dev"
 }
 
 main() {
@@ -100,7 +141,7 @@ main() {
             tag="v$(jq -r '.version' ./packages/teraslice/package.json)"
         fi
     elif [ "$arg" == "dev" ]; then
-        tag="dev"
+        release_dev "$name" && exit 0
     else
         usage
     fi

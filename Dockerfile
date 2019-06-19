@@ -45,8 +45,8 @@ RUN npm init --yes > /dev/null \
     && rm -rf node_modules/node-rdkafka/docs \
     node_modules/node-rdkafka/deps/librdkafka
 
-# the dev image should contain all of dev code
-FROM base as dev
+# the deps image should contain all of dev code
+FROM base as deps
 
 COPY package.json yarn.lock lerna.json /app/source/
 COPY packages /app/source/packages
@@ -77,7 +77,7 @@ COPY types /app/source/types
 RUN yarn lerna link --force-local && yarn lerna run build
 
 # the prod image should small
-FROM base as prod
+FROM base
 
 # Install bunyan
 RUN yarn global add \
@@ -99,9 +99,9 @@ COPY service.js package.json lerna.json yarn.lock /app/source/
 COPY scripts /app/source/scripts
 
 # copy the compiled packages
-COPY --from=dev /app/source/packages /app/source/packages
+COPY --from=deps /app/source/packages /app/source/packages
 # copy the production node_modules
-COPY --from=dev /app/node_modules /app/source/node_modules
+COPY --from=deps /app/node_modules /app/source/node_modules
 
 # verify teraslice is installed right
 RUN node -e "require('teraslice')"
