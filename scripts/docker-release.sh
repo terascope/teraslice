@@ -9,7 +9,7 @@ echoerr() { if [[ $QUIET -ne 1 ]]; then echo "$@" 1>&2; fi; }
 usage() {
     cat <<USAGE >&2
 Usage:
-    $cmdname <[tag|daily]>
+    $cmdname <[tag|daily|dev]>
 
     Build and push a teraslice docker image
 USAGE
@@ -51,6 +51,10 @@ image_exists() {
 verify_can_push() {
     local name="$1"
     local tag="$2"
+
+    if [ "$tag" == "dev" ]; then
+        return 0
+    fi
 
     local exists
     exists="$(image_exists "$name" "$tag")"
@@ -95,6 +99,8 @@ main() {
         else
             tag="v$(jq -r '.version' ./packages/teraslice/package.json)"
         fi
+    elif [ "$arg" == "dev" ]; then
+        tag="dev"
     else
         usage
     fi

@@ -4,6 +4,9 @@ services:
         image: teraslice:e2e
         build:
             context: ..
+            cache_from:
+                - node:10.16.0-alpine
+                - terascope/teraslice:dev
         command: [
             "./scripts/wait-for-it.sh",
             "elasticsearch:49200",
@@ -30,6 +33,9 @@ services:
         image: teraslice:e2e
         build:
             context: ..
+            cache_from:
+                - node:10.16.0-alpine
+                - terascope/teraslice:dev
         command: [
             "./scripts/wait-for-it.sh",
             "elasticsearch:49200",
