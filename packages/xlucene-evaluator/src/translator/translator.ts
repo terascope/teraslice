@@ -26,25 +26,21 @@ export class Translator {
     }
 
     toElasticsearchDSL(): i.ElasticsearchDSLResult {
+        let query: i.MatchAllQuery | i.ConstantScoreQuery;
         if (isEmptyAST(this._parser.ast)) {
-            return {
-                query: {
-                    bool: {
-                        filter: [],
-                    },
+            query = {
+                match_all: {},
+            };
+        } else {
+            const anyQuery = utils.buildAnyQuery(this._parser.ast, this._parser);
+            query = {
+                constant_score: {
+                    filter: utils.compactFinalQuery(anyQuery),
                 },
             };
         }
 
-        const anyQuery = utils.buildAnyQuery(this._parser.ast, this._parser);
-
-        const query = {
-            constant_score: {
-                filter: utils.compactFinalQuery(anyQuery),
-            },
-        };
-
-        this.logger.trace(`translated ${this.query} query to`, JSON.stringify(query, null, 2));
+        this.logger.trace(`translated ${this.query} query to`, JSON.stringify(query, null, 4));
 
         return { query };
     }

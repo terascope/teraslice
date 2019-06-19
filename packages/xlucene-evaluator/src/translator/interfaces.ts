@@ -75,6 +75,10 @@ export type ConstantScoreQuery = {
     };
 };
 
+export type MatchAllQuery = {
+    match_all: {};
+};
+
 export type ElasticsearchDSLResult = {
-    query: ConstantScoreQuery | BoolQuery;
+    query: ConstantScoreQuery | MatchAllQuery;
 };

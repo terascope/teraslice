@@ -21,17 +21,17 @@ export class Parser {
             this.ast = engine.parse(this.query, {
                 tracer,
             });
-            this.logger.trace(`parsed ${this.query} to `, this.ast);
+            this.logger.trace(`parsed ${this.query ? "''" : this.query} to `, this.ast);
         } catch (err) {
             if (err && err.message.includes('Expected ,')) {
                 err.message = err.message.replace('Expected ,', 'Expected');
             }
 
             throw new TSError(err, {
-                reason: `Failure to parse xlucene query "${this.query}"`
+                reason: `Failure to parse xlucene query "${this.query}"`,
             });
         } finally {
-            if (process.env.DEBUG_LUCENE === '1')  {
+            if (process.env.DEBUG_LUCENE === '1') {
                 // tslint:disable-next-line no-console
                 console.error(tracer.getBacktraceString());
             }
