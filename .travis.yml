@@ -57,11 +57,9 @@ jobs:
           - docker-ce
     services:
         - docker
-        - elasticsearch
     before_install:
         - . ./scripts/travis-install-docker-compose.sh
         - . ./scripts/travis-install-yarn.sh
-        - . ./scripts/travis-install-es.sh
     before_script:
         - cd e2e
         - docker-compose pull elasticsearch kafka
