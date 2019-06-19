@@ -55,6 +55,8 @@ export class Client extends Core {
             perMessageDeflate: false,
             query: { clientId, clientType },
             timeout: connectTimeout,
+            rememberUpgrade: true,
+            transports: ['websocket', 'polling'],
         });
 
         // @ts-ignore
@@ -93,15 +95,32 @@ export class Client extends Core {
                     clearTimeout(connectTimeout);
                     connectTimeout = undefined;
                 }
-                this.socket.removeListener('connect', connect);
+                this.socket.removeListener('connect_error', onConnectErr);
+                this.socket.removeListener('connect_timeout', onConnectTimeout);
+                this.socket.removeListener('connect', onConnect);
             };
 
-            const connect = () => {
+            const onConnect = () => {
                 cleanup();
                 resolve();
             };
 
-            this.socket.once('connect', connect);
+            const onConnectErr = (err: any) => {
+                this.logger.warn(err, `Error when connecting to ${this.hostUrl}`);
+                if (!this.socket.connected) {
+                    this.socket.connect();
+                }
+            };
+            const onConnectTimeout = (err: any) => {
+                this.logger.warn(err, `Timeout when connecting to ${this.hostUrl}`);
+                if (!this.socket.connected) {
+                    this.socket.connect();
+                }
+            };
+
+            this.socket.once('connect_error', onConnectErr);
+            this.socket.once('connect_timeout', onConnectTimeout);
+            this.socket.once('connect', onConnect);
             this.socket.connect();
 
             connectTimeout = setTimeout(() => {
