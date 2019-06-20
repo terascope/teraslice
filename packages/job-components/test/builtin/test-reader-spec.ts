@@ -61,37 +61,48 @@ describe('Test Reader', () => {
 
     describe('when using the Fetcher', () => {
         const context = new TestContext('test-reader');
-        const opConfig = { _op: 'test-reader' };
+        const opConfig = { _op: 'test-reader', passthrough_slice: false };
+        const opConfig2 = { _op: 'test-reader', passthrough_slice: true };
         const exConfig = newTestExecutionConfig();
         exConfig.lifecycle = 'once';
 
-        const fetcher = new Fetcher(
-            context as WorkerContext,
-            opConfig,
-            exConfig
-        );
+        let basicFetcher: Fetcher;
+        let passthroughFetcher: Fetcher;
 
-        beforeAll(() => fetcher.initialize());
-        afterAll(() => fetcher.shutdown());
+        beforeAll(() => {
+            basicFetcher = new Fetcher(
+                context as WorkerContext,
+                opConfig,
+                exConfig
+            );
+
+            passthroughFetcher = new Fetcher(
+                context as WorkerContext,
+                opConfig2,
+                exConfig
+            );
+
+            return Promise.all([basicFetcher.initialize(), passthroughFetcher.initialize()]);
+        });
+
+        afterAll(() => {
+            return Promise.all([basicFetcher.shutdown(), passthroughFetcher.shutdown()]);
+        });
 
         it('should return the example data', async () => {
-            const results1 = await fetcher.handle();
+            const results1 = await basicFetcher.handle();
             expect(results1).toEqual(fetcherData);
 
-            const results2 = await fetcher.handle();
+            const results2 = await basicFetcher.handle();
             expect(results2).toEqual(fetcherData);
             expect(results2).not.toBe(results1);
         });
 
         it('should return a slice if given one', async () => {
-            const data1 = { test: 'data' };
-            const data2 = [{ test: 'data' }, { other: 'data' }];
+            const data = [{ test: 'data' }, { other: 'data' }];
+            const results = await passthroughFetcher.handle(data);
 
-            const results1 = await fetcher.handle(data1);
-            expect(results1).toEqual([data1]);
-
-            const results2 = await fetcher.handle(data2);
-            expect(results2).toEqual(data2);
+            expect(results).toEqual(data);
         });
     });
 });

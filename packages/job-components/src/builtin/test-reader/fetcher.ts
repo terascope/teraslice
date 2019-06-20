@@ -15,8 +15,13 @@ export default class TestFetcher extends Fetcher<TestReaderConfig> {
         super.initialize();
     }
 
-    async fetch(slice?: SliceRequest) {
-        if (slice != null) return slice;
+    async fetch(slice?: SliceRequest[]) {
+        if (this.opConfig.passthrough_slice) {
+            if (!Array.isArray(slice)) {
+                throw new Error('Test, when passthrough_slice is set to true it expects an array');
+            }
+            return slice;
+        }
 
         const filePath = this.opConfig.fetcher_data_file_path;
         if (!filePath) {

@@ -33,6 +33,7 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
             operations: [
                 {
                     _op: 'test-reader',
+                    passthrough_slice: true
                 },
                 opConfig
             ],
