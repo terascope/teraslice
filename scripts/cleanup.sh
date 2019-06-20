@@ -102,7 +102,7 @@ cleanup_e2e_tests() {
     ps_result="$(docker-compose --project-directory "./e2e" -f "./e2e/docker-compose.yml" ps -q 2>/dev/null)"
     if [ -n "$ps_result" ]; then
         echoerr "* removing running e2e test docker containers" &&
-            yarn run test:e2e:clean
+            yarn run --cwd="./e2e" test:clean
     fi
 
     for asset in e2e/autoload/*; do
@@ -128,6 +128,7 @@ cleanup_top_level() {
 post_cleanup() {
     prompt "Do you want to verify/rebuild the node_modules?" &&
         echoerr "* running yarn --force --check-files --update-checksums" &&
+        rm -rf '.yarn-cache' &&
         yarn --force --check-files --update-checksums
 
     prompt "Do you want to rebuild the packages?" &&

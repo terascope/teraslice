@@ -894,10 +894,10 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@craco/craco@^5.2.1":
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/@craco/craco/-/craco-5.2.1.tgz#d0a8dd7f1eb1c55a7430a5f12534a4ccfbeb8cd0"
-  integrity sha512-NJfGDeDbDd7yzHvnnf1pTpHg661RtQsC4J5g1qs0lswV+DnVcwG4vrQFdnKm/DkWNzk7lJuG0AdadM2IKMtx+A==
+"@craco/craco@^5.2.3":
+  version "5.2.3"
+  resolved "https://registry.yarnpkg.com/@craco/craco/-/craco-5.2.3.tgz#5d7d0ffb34953bb30b1265c14fef66b377efaf02"
+  integrity sha512-fV4BGsARe6W723rDsmrQfezZVT52wI+GJGmK7Ec8DhqzWgMVaULVwqdDm8CIdhKBUzltEs/YcZmig6jh8lvdLQ==
   dependencies:
     cross-spawn "^6.0.5"
     lodash.mergewith "^4.6.1"
@@ -2626,10 +2626,10 @@
     "@types/prop-types" "*"
     csstype "^2.2.0"
 
-"@types/react@16.8.20":
-  version "16.8.20"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.8.20.tgz#4f633ecbd0a4d56d0ccc50fff6f9321bbcd7d583"
-  integrity sha512-ZLmI+ubSJpfUIlQuULDDrdyuFQORBuGOvNnMue8HeA0GVrAJbWtZQhcBvnBPNRBI/GrfSfrKPFhthzC2SLEtLQ==
+"@types/react@16.8.21":
+  version "16.8.21"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.8.21.tgz#aefb32519a4111964993be5b2bd3f172f81c34ff"
+  integrity sha512-+jAtgtJ3htE+VEP/bMzBBOANGkaTbMOGYWVrmhCVtp2WE//lNG6Irw9kBEaLR7lQGjjkt/BlSSHPgArFNOKhkg==
   dependencies:
     "@types/prop-types" "*"
     csstype "^2.2.0"
@@ -3148,14 +3148,14 @@ anymatch@^2.0.0:
     micromatch "^3.1.4"
     normalize-path "^2.1.1"
 
-apollo-boost@^0.4.2:
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/apollo-boost/-/apollo-boost-0.4.2.tgz#7259ce6fe0f2b21e1936cf6ee64c2b43699818f9"
-  integrity sha512-3ZQIhcQcNjGXQ+gS8WhwSCrfpg1gJar8PMYe7RozOsyBu1SfXJ1dSAVAXdogTXLpgu0d6M/f3dHFlf2QeSU34A==
+apollo-boost@^0.4.3:
+  version "0.4.3"
+  resolved "https://registry.yarnpkg.com/apollo-boost/-/apollo-boost-0.4.3.tgz#107bd1dd0d349d8e363174ded69612a4aa823c8a"
+  integrity sha512-XE7hx4aXRnyZ4OGM8I7DjYq9SYLYWrVBoYpEFsv0GBtfIl6tipyks2Yo2/TEWKw7mhGmi1eFB2F3pbhIZbzKuQ==
   dependencies:
     apollo-cache "^1.3.2"
     apollo-cache-inmemory "^1.6.2"
-    apollo-client "^2.6.2"
+    apollo-client "^2.6.3"
     apollo-link "^1.0.6"
     apollo-link-error "^1.0.3"
     apollo-link-http "^1.3.1"
@@ -3190,10 +3190,10 @@ apollo-cache@1.3.2, apollo-cache@^1.3.2:
     apollo-utilities "^1.3.2"
     tslib "^1.9.3"
 
-apollo-client@^2.6.2:
-  version "2.6.2"
-  resolved "https://registry.yarnpkg.com/apollo-client/-/apollo-client-2.6.2.tgz#03b6af651e09b6e413e486ddc87464c85bd6e514"
-  integrity sha512-oks1MaT5x7gHcPeC8vPC1UzzsKaEIC0tye+jg72eMDt5OKc7BobStTeS/o2Ib3e0ii40nKxGBnMdl/Xa/p56Yg==
+apollo-client@^2.6.3:
+  version "2.6.3"
+  resolved "https://registry.yarnpkg.com/apollo-client/-/apollo-client-2.6.3.tgz#9bb2d42fb59f1572e51417f341c5f743798d22db"
+  integrity sha512-DS8pmF5CGiiJ658dG+mDn8pmCMMQIljKJSTeMNHnFuDLV0uAPZoeaAwVFiAmB408Ujqt92oIZ/8yJJAwSIhd4A==
   dependencies:
     "@types/zen-observable" "^0.8.0"
     apollo-cache "1.3.2"
@@ -3714,10 +3714,10 @@ autoprefixer@^9.4.9:
     postcss "^7.0.14"
     postcss-value-parser "^3.3.1"
 
-awesome-phonenumber@^2.11.0:
-  version "2.11.0"
-  resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-2.11.0.tgz#edb877e9013946b5eabe6d92ad102140baf84ae4"
-  integrity sha512-+VeIuZgboZ6BtU7AHdoUgwOPNFRhiJ7GHvaZ3tggsBGpmfXSXAItgcjgj+OeEM66JlLSMDlXhCkjP0mHuUyImA==
+awesome-phonenumber@^2.12.0:
+  version "2.12.0"
+  resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-2.12.0.tgz#97a6e530d9d85bb78d31530cbc7abc1fd93b6d60"
+  integrity sha512-c8fqrVibUxvvl5dC2XDR4C0fgVQr5C4uGD/C2RutGipqiaBFfC0pVwjNhIfmRhfP1hJVQoM31Y7snJ3QUB1wfw==
 
 aws-sign2@~0.7.0:
   version "0.7.0"

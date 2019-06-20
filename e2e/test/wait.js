@@ -27,8 +27,8 @@ function forLength(func, value, iterations) {
 function forValue(func, value, iterations = 100) {
     let counter = 0;
 
-    // to keep compatibility since I change delay to 100 from 500
-    const _iterations = 100 * 2;
+    const multiplier = 2;
+    const _iterations = iterations * multiplier;
 
     async function _forValue() {
         counter++;
@@ -41,13 +41,13 @@ function forValue(func, value, iterations = 100) {
                 actual: result,
                 expected: value,
                 iterations,
-                counter,
+                counter: Math.round(counter / multiplier)
             });
 
             throw new Error(`forValue didn't find target value after ${iterations} iterations.`);
         }
 
-        await Promise.delay(250);
+        await Promise.delay(250 * multiplier);
         return _forValue();
     }
 
@@ -118,7 +118,7 @@ function waitForClusterState(timeoutMs = 120000) {
         try {
             const result = await cluster.get('/cluster/state', {
                 timeout: 500,
-                json: true,
+                json: true
             });
             nodes = _.size(_.keys(result));
         } catch (err) {
@@ -162,7 +162,7 @@ async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
                 'queued',
                 'failed',
                 'processed',
-                'job_duration',
+                'job_duration'
             ]);
 
             signale.warn(`Job Status Failure:
@@ -232,5 +232,5 @@ module.exports = {
     forWorkersJoined,
     waitForJobStatus,
     waitForIndexCount,
-    waitForClusterState,
+    waitForClusterState
 };
