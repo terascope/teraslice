@@ -49,7 +49,7 @@ RUN npm init --yes > /dev/null \
 # the deps image should contain all of dev code
 FROM base AS deps
 
-COPY package.json yarn.lock lerna.json /app/source/
+COPY package.json yarn.lock lerna.json .yarnrc /app/source/
 COPY packages /app/source/packages
 
 # Build just the production node_modules and copy them over
@@ -96,7 +96,7 @@ COPY --from=connectors /app/connectors/node_modules /app/node_modules
 # verify node-rdkafka is installed right
 RUN node -e "require('node-rdkafka')"
 
-COPY service.js package.json lerna.json yarn.lock /app/source/
+COPY service.js package.json lerna.json yarn.lock .yarnrc /app/source/
 COPY scripts /app/source/scripts
 
 # copy the compiled packages

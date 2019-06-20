@@ -27,6 +27,7 @@ services:
             - cluster
         volumes:
             - teraslice-assets:/app/assets
+            - ../.yarn-cache:/app/source/.yarn-cache
             - ./autoload:/app/autoload:delegated
             - ./config:/app/config:delegated
     teraslice-worker:
@@ -54,6 +55,7 @@ services:
             - cluster
         volumes:
             - teraslice-assets:/app/assets
+            - ../.yarn-cache:/app/source/.yarn-cache
             - ./autoload:/app/autoload:delegated
             - ./config:/app/config:delegated
     elasticsearch:
