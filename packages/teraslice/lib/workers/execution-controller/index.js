@@ -34,7 +34,7 @@ class ExecutionController {
             networkLatencyBuffer,
             actionTimeout,
             workerDisconnectTimeout,
-            logger,
+            logger
         });
 
         const clusterMasterPort = get(config, 'port');
@@ -47,7 +47,7 @@ class ExecutionController {
             actionTimeout,
             connectTimeout: nodeDisconnectTimeout,
             exId: executionContext.exId,
-            logger,
+            logger
         });
 
         this.executionAnalytics = new ExecutionAnalytics(context, executionContext, this.client);
@@ -86,7 +86,7 @@ class ExecutionController {
             {
                 leading: true,
                 trailing: true,
-                maxWait: 500,
+                maxWait: 500
             }
         );
 
@@ -316,7 +316,7 @@ class ExecutionController {
         this.slicerFailed = true;
 
         const error = new TSError(err, {
-            reason: `slicer for ex ${this.exId} had an error, shutting down execution`,
+            reason: `slicer for ex ${this.exId} had an error, shutting down execution`
         });
         this.logger.error(error);
 
@@ -341,7 +341,7 @@ class ExecutionController {
                 'execution',
                 `shutdown was called for ${this.exId}`,
                 'but it was already shutting down',
-                block ? ', will block until done' : '',
+                block ? ', will block until done' : ''
             ];
             this.logger.debug(msgs.join(' '));
 
@@ -401,7 +401,7 @@ class ExecutionController {
             (async () => {
                 const stores = Object.values(this.stores);
                 await Promise.all(stores.map(store => store.shutdown(true).catch(pushError)));
-            })(),
+            })()
         ]);
 
         this.logger.warn(`execution controller ${this.exId} is shutdown`);
@@ -431,7 +431,7 @@ class ExecutionController {
             this.stores.exStore.setStatus(this.exId, 'running'),
             this.client.sendAvailable(),
             this._runDispatch(),
-            this.scheduler.run(),
+            this.scheduler.run()
         ]);
 
         const schedulerSuccessful = this.scheduler.isFinished && this.scheduler.slicersDone;
@@ -574,7 +574,7 @@ class ExecutionController {
         } catch (err) {
             /* istanbul ignore next */
             const error = new TSError(err, {
-                reason: `execution ${this.exId} has run to completion but the process has failed while updating the execution status, slicer will soon exit`,
+                reason: `execution ${this.exId} has run to completion but the process has failed while updating the execution status, slicer will soon exit`
             });
             this.logger.error(error);
         }
@@ -592,12 +592,12 @@ class ExecutionController {
         this.executionContext.onExecutionStats({
             workers: {
                 connected: this.server.onlineClientCount,
-                available: this.server.availableClientCount,
+                available: this.server.availableClientCount
             },
             slices: {
                 processed: this.executionAnalytics.get('processed'),
-                failed: this.executionAnalytics.get('failed'),
-            },
+                failed: this.executionAnalytics.get('failed')
+            }
         });
     }
 
@@ -630,7 +630,7 @@ class ExecutionController {
 
         const [errors, started] = await Promise.all([
             this._checkExecutionErrorState(),
-            this._checkExecutionStartedState(),
+            this._checkExecutionStartedState()
         ]);
 
         if (errors > 0 || started > 0) {

@@ -32,11 +32,7 @@ export class Client extends core.Client {
     }
 
     async start() {
-        try {
-            await this.connect();
-        } catch (err) {
-            throw new Error(`Unable to connect to cluster master, caused by error: ${err.message}`);
-        }
+        await this.connect();
     }
 
     sendClusterAnalytics(stats: i.ClusterExecutionAnalytics, timeout?: number) {

@@ -80,46 +80,27 @@ build_and_push() {
 release_dev() {
     local name="$1"
 
-    echoerr "* building $name:dev-base..." &&
+    echoerr "* pull dev layers..." &&
+        docker pull node:10.16.0-alpine &&
+        docker pull "$name:dev-base" &&
+        docker pull "$name:dev-connectors" &&
+        echoerr "* building $name:dev-base..." &&
         docker build \
-            --pull \
             --tag "$name:dev-base" \
-            --cache-from "node:10.16.0-alpine" \
+            --cache-from node:10.16.0-alpine \
             --cache-from "$name:dev-base" \
             --target base . &&
         echoerr "* building $name:dev-connectors..." &&
         docker build \
-            --pull \
             --tag "$name:dev-connectors" \
-            --cache-from "node:10.16.0-alpine" \
+            --cache-from node:10.16.0-alpine \
             --cache-from "$name:dev-base" \
             --cache-from "$name:dev-connectors" \
             --target connectors . &&
-        echoerr "* building $name:dev-deps..." &&
-        docker build \
-            --pull \
-            --tag "$name:dev-deps" \
-            --cache-from "node:10.16.0-alpine" \
-            --cache-from "$name:dev-base" \
-            --cache-from "$name:dev-deps" \
-            --target deps . &&
-        echoerr "* building $name:dev..." &&
-        docker build \
-            --pull \
-            --tag "$name:dev" \
-            --cache-from "node:10.16.0-alpine" \
-            --cache-from "$name:dev-base" \
-            --cache-from "$name:dev-connectors" \
-            --cache-from "$name:dev-deps" \
-            --cache-from "$name:dev" . &&
         echoerr "* pushing $name:dev-base..." &&
         docker push "$name:dev-base" &&
         echoerr "* pushing $name:dev-connectors..." &&
-        docker push "$name:dev-connectors" &&
-        echoerr "* pushing $name:dev-deps..." &&
-        docker push "$name:dev-deps" &&
-        echoerr "* pushing $name:dev..." &&
-        docker push "$name:dev"
+        docker push "$name:dev-connectors"
 }
 
 main() {

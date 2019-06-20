@@ -10,7 +10,7 @@ const DEFAULT_WORKERS = 2;
 // The teraslice-master + the number of teraslice-worker instances (see the docker-compose.yml)
 const DEFAULT_NODES = DEFAULT_WORKERS + 1;
 // The number of workers per number (see the process-master.yaml and process-worker.yaml)
-const WORKERS_PER_NODE = 8;
+const WORKERS_PER_NODE = 12;
 
 const DOCKER_IP = process.env.ip ? process.env.ip : 'localhost';
 const compose = require('@terascope/docker-compose-js')('docker-compose.yml');

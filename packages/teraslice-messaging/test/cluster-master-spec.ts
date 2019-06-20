@@ -1,11 +1,7 @@
 import 'jest-extended';
 
 import findPort from './helpers/find-port';
-import {
-    formatURL,
-    newMsgId,
-    ClusterMaster
-} from '../src';
+import { formatURL, newMsgId, ClusterMaster } from '../src';
 
 describe('ClusterMaster', () => {
     describe('->Client', () => {
@@ -40,12 +36,12 @@ describe('ClusterMaster', () => {
                     connectTimeout: 1000,
                     socketOptions: {
                         reconnection: false,
-                    }
+                    },
                 });
             });
 
             it('start should throw an error', () => {
-                const errMsg = /^Unable to connect to cluster master/;
+                const errMsg = /^Unable to connect to ClusterMaster at/;
                 return expect(client.start()).rejects.toThrowError(errMsg);
             });
         });
@@ -78,7 +74,7 @@ describe('ClusterMaster', () => {
                 port: slicerPort,
                 networkLatencyBuffer: 0,
                 actionTimeout: 1000,
-                nodeDisconnectTimeout: 3000
+                nodeDisconnectTimeout: 3000,
             });
 
             await server.start();
@@ -96,7 +92,6 @@ describe('ClusterMaster', () => {
 
             await client.start();
             await client.sendAvailable();
-
         });
 
         afterAll(async () => {
@@ -128,7 +123,7 @@ describe('ClusterMaster', () => {
                 processed: 1,
                 slicers: 1,
                 subslice_by_key: 1,
-                started: 'hellothere'
+                started: 'hellothere',
             };
 
             client.onExecutionAnalytics(() => analytics);

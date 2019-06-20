@@ -65,8 +65,6 @@ jobs:
         - docker pull node:10.16.0-alpine
         - docker pull terascope/teraslice:dev-base
         - docker pull terascope/teraslice:dev-connectors
-        - docker pull terascope/teraslice:dev-deps
-        - docker pull terascope/teraslice:dev
         - docker-compose up --no-start --build
     script: yarn test:ci
 

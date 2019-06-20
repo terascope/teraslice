@@ -1,4 +1,4 @@
-import { isString, isInteger, debugLogger } from '@terascope/utils';
+import { isString, isInteger, debugLogger, toString } from '@terascope/utils';
 import SocketIOClient from 'socket.io-client';
 import * as i from './interfaces';
 import { Core } from './core';
@@ -55,8 +55,6 @@ export class Client extends Core {
             perMessageDeflate: false,
             query: { clientId, clientType },
             timeout: connectTimeout,
-            rememberUpgrade: true,
-            transports: ['websocket', 'polling'],
         });
 
         // @ts-ignore
@@ -98,8 +96,8 @@ export class Client extends Core {
                     clearTimeout(connectTimeout);
                     connectTimeout = undefined;
                 }
-                this.socket.removeListener('connect_error', onConnectErr);
-                this.socket.removeListener('connect_timeout', onConnectTimeout);
+                this.socket.removeListener('connect_error', onError);
+                this.socket.removeListener('connect_timeout', onError);
                 this.socket.removeListener('connect', onConnect);
             };
 
@@ -108,28 +106,22 @@ export class Client extends Core {
                 resolve();
             };
 
-            const onConnectErr = (err: any) => {
-                this.logger.warn(err, `Error when connecting to ${this.hostUrl}`);
-                if (!this.socket.connected) {
-                    this.socket.connect();
-                }
-            };
-            const onConnectTimeout = (err: any) => {
-                this.logger.warn(err, `Timeout when connecting to ${this.hostUrl}`);
-                if (!this.socket.connected) {
-                    this.socket.connect();
-                }
+            const onError = (err: any) => {
+                // it still connecting so this is probably okay
+                this.logger.debug(`${toString(err)} when connecting to ${this.serverName} at ${this.hostUrl}`);
             };
 
-            this.socket.once('connect_error', onConnectErr);
-            this.socket.once('connect_timeout', onConnectTimeout);
+            this.socket.once('connect_error', onError);
+            this.socket.once('connect_timeout', onError);
             this.socket.once('connect', onConnect);
             this.socket.connect();
 
             connectTimeout = setTimeout(() => {
                 cleanup();
-                reject(new Error(`Unable to connect to ${this.hostUrl}`));
+                reject(new Error(`Unable to connect to ${this.serverName} at ${this.hostUrl} after ${this.connectTimeout}ms`));
             }, this.connectTimeout);
+
+            this.logger.debug(`attempting to ${this.serverName} at ${this.hostUrl}, timeout after ${this.connectTimeout}ms`);
         });
 
         this.socket.on('reconnecting', () => {

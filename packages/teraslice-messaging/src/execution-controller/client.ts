@@ -35,11 +35,7 @@ export class Client extends core.Client {
     }
 
     async start() {
-        try {
-            await this.connect();
-        } catch (err) {
-            throw new Error(`Unable to connect to execution controller, caused by error: ${err.message}`);
-        }
+        await this.connect();
 
         this.handleResponse(this.socket, 'execution:slice:new', (msg: core.Message) => {
             if (this.listenerCount('execution:slice:new') === 0) {
