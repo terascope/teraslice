@@ -82,5 +82,16 @@ describe('Test Reader', () => {
             expect(results2).toEqual(fetcherData);
             expect(results2).not.toBe(results1);
         });
+
+        it('should return a slice if given one', async () => {
+            const data1 = { test: 'data' };
+            const data2 = [{ test: 'data' }, { other: 'data' }];
+
+            const results1 = await fetcher.handle(data1);
+            expect(results1).toEqual([data1]);
+
+            const results2 = await fetcher.handle(data2);
+            expect(results2).toEqual(data2);
+        });
     });
 });

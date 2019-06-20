@@ -3,6 +3,7 @@ import path from 'path';
 import { parseJSON } from '@terascope/utils';
 import { TestReaderConfig } from './interfaces';
 import { Fetcher } from '../../operations';
+import { SliceRequest } from '../../interfaces';
 import { dataClone } from './utils';
 import defaultData from './data/fetcher-data';
 
@@ -14,7 +15,9 @@ export default class TestFetcher extends Fetcher<TestReaderConfig> {
         super.initialize();
     }
 
-    async fetch() {
+    async fetch(slice?: SliceRequest) {
+        if (slice != null) return slice;
+
         const filePath = this.opConfig.fetcher_data_file_path;
         if (!filePath) {
             return dataClone(defaultData);
