@@ -28,9 +28,7 @@ post_cleanup() {
 
 prepare() {
     if [ "$CI" == "true" ]; then
-        echoerr "* pulling elasticsearch and kafka images..." &&
-            docker-compose pull elasticsearch kafka &&
-            echoerr "* pulling image layers for cache..." &&
+        echoerr "* pulling image layers for cache..." &&
             docker pull node:10.16.0-alpine &&
             docker pull terascope/teraslice:dev-base &&
             docker pull terascope/teraslice:dev-connectors &&
@@ -41,11 +39,13 @@ prepare() {
                  --cache-from terascope/teraslice:dev-connectors \
                  -t e2e_teraslice ..
     else
-        echoerr "* pulling elasticsearch and kafka images..." &&
-            docker-compose pull elasticsearch kafka &&
-            echoerr "* building docker image" &&
+        echoerr "* building docker image" &&
             docker build -t e2e_teraslice ..
     fi
+}
+
+build() {
+    docker-compose up --no-start --build
 }
 
 run_test() {
@@ -58,7 +58,7 @@ run_test() {
 }
 
 main() {
-    cleanup && prepare && run_test
+    cleanup && prepare && build && run_test
 }
 
 main "$@"
