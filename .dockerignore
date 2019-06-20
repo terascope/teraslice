@@ -14,12 +14,14 @@
 **/dist
 **/build
 **/.cache
+.yarn-cache
 .cache
 .vscode
 assets
 autoload
 packages/*/assets
 packages/*/autoload
+packages/*/bench
 
 # exclude packages that are not needed inside the docker image
 packages/chunked-file-reader

@@ -11,6 +11,8 @@ import * as i from './interfaces';
 export default abstract class IndexModel<T extends i.IndexModelRecord> {
     readonly store: IndexStore<T>;
     readonly name: string;
+    readonly logger: ts.Logger;
+
     private _uniqueFields: (keyof T)[];
     private _sanitizeFields: i.SanitizeFields;
     private _idField: 'id';
@@ -54,6 +56,9 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         this.name = utils.toInstanceName(modelConfig.name);
         this.store = new IndexStore(client, indexConfig);
 
+        const debugLoggerName = `elasticsearch-store:index-model:${this.name}`;
+        this.logger = options.logger || ts.debugLogger(debugLoggerName);
+
         this._idField = (indexConfig.idField || 'id') as 'id';
         this._uniqueFields = ts.concat(this._idField, modelConfig.uniqueFields);
         this._sanitizeFields = modelConfig.sanitizeFields || {};
@@ -67,7 +72,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return this.store.shutdown();
     }
 
-    async count(q: string = '*', queryAccess?: QueryAccess<T>): Promise<number> {
+    async count(q: string = '', queryAccess?: QueryAccess<T>): Promise<number> {
         if (queryAccess) return this.store.count(queryAccess.restrict(q));
         return this.store.count(q);
     }
@@ -183,7 +188,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return result;
     }
 
-    async find(q: string = '*', options: i.FindOptions<T> = {}, queryAccess?: QueryAccess<T>): Promise<T[]> {
+    async find(q: string = '', options: i.FindOptions<T> = {}, queryAccess?: QueryAccess<T>): Promise<T[]> {
         return this._find(q, options, queryAccess);
     }
 
@@ -281,7 +286,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return this.store.count(`${field}:"${val}"`);
     }
 
-    protected async _find(q: string = '*', options: i.FindOptions<T> = {}, queryAccess?: QueryAccess<T>) {
+    protected async _find(q: string = '', options: i.FindOptions<T> = {}, queryAccess?: QueryAccess<T>) {
         const params: Partial<es.SearchParams> = {
             size: options.size,
             sort: options.sort,

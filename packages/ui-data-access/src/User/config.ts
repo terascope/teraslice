@@ -100,7 +100,7 @@ const config: ModelConfig<Input> = {
     `,
     updateQuery: gql`
         query UpdateQuery($id: ID!) {
-            roles(query: "*", size: 10000) {
+            roles(size: 10000) {
                 id
                 name
             }
@@ -112,7 +112,7 @@ const config: ModelConfig<Input> = {
     `,
     createQuery: gql`
         {
-            roles(query: "*", size: 10000) {
+            roles(size: 10000) {
                 id
                 name
             }

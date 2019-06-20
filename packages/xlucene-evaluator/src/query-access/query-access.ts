@@ -128,7 +128,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             _sourceExclude: excludes,
         });
 
-        if (searchParams.q) {
+        if (searchParams != null) {
             delete searchParams.q;
         }
 

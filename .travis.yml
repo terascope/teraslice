@@ -57,15 +57,15 @@ jobs:
           - docker-ce
     services:
         - docker
-        - elasticsearch
     before_install:
         - . ./scripts/travis-install-docker-compose.sh
         - . ./scripts/travis-install-yarn.sh
-        - . ./scripts/travis-install-es.sh
     before_script:
         - cd e2e
-        - docker-compose pull elasticsearch kafka
-        - docker-compose build
+        - docker pull node:10.16.0-alpine
+        - docker pull terascope/teraslice:dev-base
+        - docker pull terascope/teraslice:dev-connectors
+        - docker-compose up --no-start --build
     script: yarn test:ci
 
   # if not a tagged build and is on master
@@ -85,6 +85,26 @@ jobs:
       - provider: script
         skip_cleanup: true
         script: ./scripts/publish-documentation.sh
+
+  # Experimental docker release
+  - stage: Experimental
+    name: Update Experimental Docker Image
+    if: branch = master AND type NOT IN (pull_request, cron)
+    addons:
+      apt:
+        packages:
+          - jq
+          - docker-ce
+    services:
+        - docker
+    before_script: . ./scripts/travis-setup-credentials.sh
+    script: true
+    deploy:
+      - provider: script
+        script: ./scripts/docker-release.sh dev
+        on:
+            all_branches: true
+            tags: true
 
   # Create tagged releases
   - stage: Release

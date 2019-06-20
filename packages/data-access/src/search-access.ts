@@ -51,11 +51,11 @@ export class SearchAccess {
      * Safely search a space given an elasticsearch client and a valid query
      */
     async performSearch(client: es.Client, query: i.InputQuery) {
-        const params = this.getSearchParams(query);
+        const { q, ...params } = this.getSearchParams(query);
 
         let esQuery: es.SearchParams;
         try {
-            esQuery = this.restrictSearchQuery(params.q, params);
+            esQuery = this.restrictSearchQuery(q, params);
         } catch (err) {
             throw new ts.TSError(err, {
                 reason: 'Query restricted',
@@ -67,7 +67,7 @@ export class SearchAccess {
             });
         }
 
-        if (ts.isTest) this._logger.debug(esQuery, 'searching...');
+        this._logger.trace(esQuery, 'searching....');
 
         let response: any = {};
         try {
@@ -175,7 +175,7 @@ export class SearchAccess {
         params.size = size;
         params.from = ts.toInteger(start) || 0;
         params.sort = sort;
-        params.index = this._getIndex(query, this.spaceConfig);
+        params.index = this._getIndex(query);
         params.ignoreUnavailable = true;
         return ts.withoutNil(params);
     }
@@ -240,11 +240,11 @@ export class SearchAccess {
         };
     }
 
-    private _getIndex(query: i.InputQuery, config: SpaceSearchConfig): string {
-        if (!query.history) return config.index;
+    private _getIndex(query: i.InputQuery): string {
+        if (!query.history) return this.spaceConfig.index;
 
-        const prefix = config.history_prefix;
-        if (!config.enable_history || !prefix) {
+        const prefix = this.spaceConfig.history_prefix;
+        if (!this.spaceConfig.enable_history || !prefix) {
             throw new ts.TSError('History is not supported for query', {
                 statusCode: 422,
                 context: {

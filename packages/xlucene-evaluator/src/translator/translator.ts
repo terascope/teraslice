@@ -12,7 +12,7 @@ export class Translator {
     readonly typeConfig?: TypeConfig;
     private readonly _parser: Parser;
 
-    constructor(input: string|Parser, typeConfig?: TypeConfig, logger?: Logger) {
+    constructor(input: string | Parser, typeConfig?: TypeConfig, logger?: Logger) {
         this.logger = logger != null ? logger.child({ module: 'xlucene-translator' }) : _logger;
 
         if (isString(input)) {
@@ -26,25 +26,21 @@ export class Translator {
     }
 
     toElasticsearchDSL(): i.ElasticsearchDSLResult {
+        let query: i.MatchAllQuery | i.ConstantScoreQuery;
         if (isEmptyAST(this._parser.ast)) {
-            return {
-                query: {
-                    query_string: {
-                        query: ''
-                    }
-                }
+            query = {
+                match_all: {},
+            };
+        } else {
+            const anyQuery = utils.buildAnyQuery(this._parser.ast, this._parser);
+            query = {
+                constant_score: {
+                    filter: utils.compactFinalQuery(anyQuery),
+                },
             };
         }
 
-        const anyQuery = utils.buildAnyQuery(this._parser.ast, this._parser);
-
-        const query = {
-            constant_score: {
-                filter: utils.compactFinalQuery(anyQuery),
-            },
-        };
-
-        this.logger.trace(`translated ${this.query} query to`, JSON.stringify(query, null, 2));
+        this.logger.trace(`translated ${this.query ? this.query : "''"} query to`, JSON.stringify(query, null, 4));
 
         return { query };
     }

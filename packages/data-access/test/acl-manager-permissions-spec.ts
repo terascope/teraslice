@@ -147,7 +147,7 @@ describe('ACLManager Permissions', () => {
 
     describe('when acting as a SUPERADMIN', () => {
         it('should be able to find users from another client', async () => {
-            const result = await manager.findUsers({ query: '*' }, superAdminUser);
+            const result = await manager.findUsers({ query: '' }, superAdminUser);
             expect(result).toBeArray();
             expect(result.length).toBeGreaterThan(0);
             expect(result[0]).toHaveProperty('api_token');
@@ -197,7 +197,7 @@ describe('ACLManager Permissions', () => {
         });
 
         it('should be able to find users with tokens of the same client', async () => {
-            const result = await manager.findUsers({ query: '*' }, adminUser);
+            const result = await manager.findUsers({ query: '' }, adminUser);
             expect(result).toBeArray();
             expect(result.length).toBeGreaterThan(0);
             expect(result[0]).toHaveProperty('api_token');

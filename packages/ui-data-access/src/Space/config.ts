@@ -122,11 +122,11 @@ const config: ModelConfig<Input> = {
     `,
     updateQuery: gql`
         query UpdateQuery($id: ID!) {
-            roles(query: "*", size: 10000) {
+            roles(size: 10000) {
                 id
                 name
             }
-            dataTypes(query: "*", size: 10000) {
+            dataTypes(size: 10000) {
                 id
                 client_id
                 name
@@ -139,11 +139,11 @@ const config: ModelConfig<Input> = {
     `,
     createQuery: gql`
         {
-            roles(query: "*", size: 10000) {
+            roles(size: 10000) {
                 id
                 name
             }
-            dataTypes(query: "*", size: 10000) {
+            dataTypes(size: 10000) {
                 id
                 client_id
                 name
@@ -152,7 +152,7 @@ const config: ModelConfig<Input> = {
                     name
                 }
             }
-            views(query: "*", size: 10000) {
+            views(size: 10000) {
                 id
                 name
             }

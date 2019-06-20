@@ -114,16 +114,16 @@ When using the default SUPERADMIN user, you can use the following authentication
 
 ```js
 query {
-  users(query:"*") {
+  users {
     id,
     username,
     role,
   }
-  roles(query:"*") {
+  roles {
     id,
     name
   }
-  spaces(query:"*") {
+  spaces {
     id,
     name,
     views,
@@ -132,7 +132,7 @@ query {
       index
     }
   }
-  views(query:"*") {
+  views {
     id,
     name,
     data_type,

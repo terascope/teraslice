@@ -25,7 +25,7 @@ teraslice:
     action_timeout: 30000
     assets_directory: '/app/assets'
     autoload_directory: '/app/autoload'
-    workers: 8
+    workers: 12
     master: true
     master_hostname: '127.0.0.1'
     port: 45678

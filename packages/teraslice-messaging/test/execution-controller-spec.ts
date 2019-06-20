@@ -41,7 +41,7 @@ describe('ExecutionController', () => {
             });
 
             it('start should throw an error', () => {
-                const errMsg = /^Unable to connect to execution controller/;
+                const errMsg = /^Unable to connect to ExecutionController/;
                 return expect(client.start()).rejects.toThrowError(errMsg);
             });
         });

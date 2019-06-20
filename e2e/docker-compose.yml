@@ -1,9 +1,12 @@
 version: '2.4'
 services:
     teraslice-master:
-        image: teraslice:e2e
         build:
             context: ..
+            cache_from:
+                - node:10.16.0-alpine
+                - terascope/teraslice:dev-base
+                - terascope/teraslice:dev-connectors
         command: [
             "./scripts/wait-for-it.sh",
             "elasticsearch:49200",
@@ -19,17 +22,21 @@ services:
         stop_grace_period: 30s
         environment:
             - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.yaml
-            - NODE_OPTIONS=--max-old-space-size=128
+            - NODE_OPTIONS=--max-old-space-size=256
         networks:
             - cluster
         volumes:
             - teraslice-assets:/app/assets
+            - ../.yarn-cache:/app/source/.yarn-cache:delegated
             - ./autoload:/app/autoload:delegated
             - ./config:/app/config:delegated
     teraslice-worker:
-        image: teraslice:e2e
         build:
             context: ..
+            cache_from:
+                - node:10.16.0-alpine
+                - terascope/teraslice:dev-base
+                - terascope/teraslice:dev-connectors
         command: [
             "./scripts/wait-for-it.sh",
             "elasticsearch:49200",
@@ -43,15 +50,16 @@ services:
         stop_grace_period: 30s
         environment:
             - TERAFOUNDATION_CONFIG=/app/config/teraslice-worker.yaml
-            - NODE_OPTIONS=--max-old-space-size=128
+            - NODE_OPTIONS=--max-old-space-size=256
         networks:
             - cluster
         volumes:
             - teraslice-assets:/app/assets
+            - ../.yarn-cache:/app/source/.yarn-cache:delegated
             - ./autoload:/app/autoload:delegated
             - ./config:/app/config:delegated
     elasticsearch:
-        image: docker.elastic.co/elasticsearch/elasticsearch:6.8.0
+        image: blacktop/elasticsearch:6.7.2
         ports:
             - '49200:49200'
             - '49300:49300'
@@ -59,12 +67,7 @@ services:
             - 'ES_JAVA_OPTS=-Xms256m -Xmx256m'
             - 'network.host=0.0.0.0'
             - 'http.port=49200'
-            - 'transport.tcp.port=49300'
             - 'discovery.type=single-node'
-            - 'xpack.security.enabled=false'
-            - 'xpack.ml.enabled=false'
-            - 'xpack.watcher.enabled=false'
-            - 'bootstrap.memory_lock=true'
         volumes:
             - elasticsearch-data:/usr/share/elasticsearch/data
         networks:

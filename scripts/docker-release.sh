@@ -9,7 +9,7 @@ echoerr() { if [[ $QUIET -ne 1 ]]; then echo "$@" 1>&2; fi; }
 usage() {
     cat <<USAGE >&2
 Usage:
-    $cmdname <[tag|daily]>
+    $cmdname <[tag|daily|dev]>
 
     Build and push a teraslice docker image
 USAGE
@@ -70,11 +70,37 @@ build_and_push() {
     local slug="$name:$tag"
 
     echoerr "* building $slug ..."
-    docker build --pull -t "$slug" .
+    docker build --pull --tag "$slug" .
 
     prompt "do you want to push $slug?" &&
         echoerr "* pushing $slug ..." &&
         docker push "$slug"
+}
+
+release_dev() {
+    local name="$1"
+
+    echoerr "* pull dev layers..." &&
+        docker pull node:10.16.0-alpine &&
+        docker pull "$name:dev-base" &&
+        docker pull "$name:dev-connectors" &&
+        echoerr "* building $name:dev-base..." &&
+        docker build \
+            --tag "$name:dev-base" \
+            --cache-from node:10.16.0-alpine \
+            --cache-from "$name:dev-base" \
+            --target base . &&
+        echoerr "* building $name:dev-connectors..." &&
+        docker build \
+            --tag "$name:dev-connectors" \
+            --cache-from node:10.16.0-alpine \
+            --cache-from "$name:dev-base" \
+            --cache-from "$name:dev-connectors" \
+            --target connectors . &&
+        echoerr "* pushing $name:dev-base..." &&
+        docker push "$name:dev-base" &&
+        echoerr "* pushing $name:dev-connectors..." &&
+        docker push "$name:dev-connectors"
 }
 
 main() {
@@ -95,6 +121,8 @@ main() {
         else
             tag="v$(jq -r '.version' ./packages/teraslice/package.json)"
         fi
+    elif [ "$arg" == "dev" ]; then
+        release_dev "$name" && exit 0
     else
         usage
     fi

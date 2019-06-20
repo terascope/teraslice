@@ -74,6 +74,10 @@ export class Server extends Core {
             serveClient: false,
         });
 
+        this.server.on('error', (err: any) => {
+            this.logger.error(err, 'unhandled socket.io error');
+        });
+
         this.httpServer = http.createServer(requestListener);
 
         if (serverTimeout) {
