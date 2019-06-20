@@ -116,81 +116,175 @@ describe('Example Asset', () => {
     });
 
     describe('using the WorkerTestHarness', () => {
-        const job = newTestJobConfig();
-        job.analytics = true;
-        job.operations = [
-            {
-                _op: 'simple-reader'
-            },
-            {
-                _op: 'transformer',
-                action: 'set',
-                key: 'foo',
-                setValue: 'bar',
-            }
-        ];
+        describe('can use static helper testFetcher shorthand method', () => {
+            const options = { assetDir: path.join(__dirname, 'fixtures') };
+            let harness;
 
-        let harness;
+            beforeAll(async() => {
+                harness = WorkerTestHarness.testFetcher({ _op: 'test-reader', passthrough_slice: true }, options);
+                await harness.initialize();
+            });
 
-        beforeEach(async () => {
-            simpleClient.fetchRecord.mockImplementation((id) => {
-                return {
-                    id,
-                    data: {
+            afterAll(async() => {
+                await harness.shutdown();
+            });
+
+            it('can call testFetcher for easy instantiation', async() => {
+                const data = [{ some: 'data' }];
+                const results = await harness.runSlice(data);
+
+                expect(results).toEqual(data);
+            });
+        });
+
+        describe('can call lifecyle events', () => {
+            describe('shorthand flush with no analytics', () => {
+                const options = { assetDir: path.join(__dirname, 'fixtures') };
+                let harness;
+
+                beforeAll(async() => {
+                    harness = WorkerTestHarness.testProcessor({ _op: 'simple-flush' }, options);
+                    await harness.initialize();
+                });
+
+                afterAll(async() => {
+                    await harness.shutdown();
+                });
+
+                it('can call flush', async() => {
+                    const data = [{ some: 'data' }, { other: 'data' }];
+
+                    const emptyResults = await harness.runSlice(data);
+                    expect(emptyResults).toEqual([]);
+
+                    const flushedResults = await harness.flush();
+                    expect(flushedResults).toEqual(data);
+                });
+            });
+
+        describe('flush with analytics returned', () => {
+            const options = { assetDir: path.join(__dirname, 'fixtures') };
+            let harness;
+
+            beforeAll(async() => {
+                const job = newTestJobConfig({
+                    max_retries: 0,
+                    analytics: true,
+                    operations: [
+                        {
+                            _op: 'test-reader',
+                            passthrough_slice: true
+                        },
+                        { _op: 'simple-flush' }
+                    ],
+                });
+
+                harness = new WorkerTestHarness(job, options);
+
+                await harness.initialize();
+            });
+
+            afterAll(async() => {
+                await harness.shutdown();
+            });
+
+            it('can get full flush response', async() => {
+                const data = [{ some: 'data' }, { other: 'data' }];
+
+                const emptyResults = await harness.runSlice(data);
+                expect(emptyResults).toEqual([]);
+
+                const flushedResults = await harness.flush({ fullResponse: true }) as RunSliceResult;
+
+                expect(flushedResults).toBeDefined();
+                expect(flushedResults.results).toEqual(data);
+                expect(flushedResults.status).toEqual('flushed');
+                expect(flushedResults.analytics).toBeDefined();
+                expect(flushedResults.analytics!.time).toBeDefined();
+                expect(flushedResults.analytics!.memory).toBeDefined();
+                expect(flushedResults.analytics!.size).toBeDefined();
+            });
+        });
+
+        describe('using the long form', () => {
+            const job = newTestJobConfig({
+                analytics: true,
+                operations: [
+                    {
+                        _op: 'simple-reader'
+                    },
+                    {
+                        _op: 'transformer',
+                        action: 'set',
+                        key: 'foo',
+                        setValue: 'bar',
+                    }
+                ]
+            });
+
+            let harness;
+
+            beforeEach(async () => {
+                simpleClient.fetchRecord.mockImplementation((id) => {
+                    return {
+                        id,
+                        data: {
+                            a: 'b',
+                            c: 'd',
+                            e: 'f',
+                        }
+                    };
+                });
+
+                harness = new WorkerTestHarness(job, {
+                    clients: [clientConfig],
+                    assetDir,
+                });
+
+                await harness.initialize();
+            });
+
+            afterEach(async () => {
+                await harness.shutdown();
+            });
+
+            it('should call create client', () => {
+                expect(clientConfig.create).toHaveBeenCalledTimes(1);
+            });
+
+            it('should return a list of records', async () => {
+                const testSlice = newTestSlice();
+                testSlice.request = { count: 10 };
+                const results = await harness.runSlice(testSlice);
+
+                expect(Array.isArray(results)).toBe(true);
+                expect(results.length).toBe(10);
+
+                for (const result of results) {
+                    expect(DataEntity.isDataEntity(result)).toBe(true);
+                    expect(result).toHaveProperty('foo', 'bar');
+                    expect(result.data).toEqual({
                         a: 'b',
                         c: 'd',
                         e: 'f',
-                    }
-                };
+                    });
+                }
             });
-
-            harness = new WorkerTestHarness(job, {
-                clients: [clientConfig],
-                assetDir,
-            });
-
-            await harness.initialize();
-        });
-
-        afterEach(async () => {
-            await harness.shutdown();
-        });
-
-        it('should call create client', () => {
-            expect(clientConfig.create).toHaveBeenCalledTimes(1);
-        });
-
-        it('should return a list of records', async () => {
-            const testSlice = newTestSlice();
-            testSlice.request = { count: 10 };
-            const results = await harness.runSlice(testSlice);
-
-            expect(Array.isArray(results)).toBe(true);
-            expect(results.length).toBe(10);
-
-            for (const result of results) {
-                expect(DataEntity.isDataEntity(result)).toBe(true);
-                expect(result).toHaveProperty('foo', 'bar');
-                expect(result.data).toEqual({
-                    a: 'b',
-                    c: 'd',
-                    e: 'f',
-                });
-            }
         });
     });
 
     describe('using the SlicerTestHarness', () => {
-        const job = newTestJobConfig();
-        job.analytics = true;
-        job.operations = [
-            {
-                _op: 'simple-reader'
-            },
-            {
-                _op: 'noop'
-            }
-        ];
+        const job = newTestJobConfig({
+            analytics: true,
+            operations: [
+                {
+                    _op: 'simple-reader'
+                },
+                {
+                    _op: 'noop'
+                }
+            ]
+        });
 
         let harness: SlicerTestHarness;
 
@@ -229,25 +323,26 @@ describe('Example Asset', () => {
     });
 
     describe('using the JobTestHarness', () => {
-        const job = newTestJobConfig();
-        job.analytics = true;
-        job.operations = [
-            {
-                _op: 'simple-reader'
-            },
-            {
-                _op: 'transformer',
-                action: 'inc',
-                key: 'scale',
-                incBy: 5,
-            },
-            {
-                _op: 'transformer',
-                action: 'inc',
-                key: 'scale',
-                incBy: 1,
-            }
-        ];
+        const job = newTestJobConfig({
+            analytics: true,
+            operations: 
+                {
+                    _op: 'simple-reader'
+                },
+                {
+                    _op: 'transformer',
+                    action: 'inc',
+                    key: 'scale',
+                    incBy: 5,
+                },
+                {
+                    _op: 'transformer',
+                    action: 'inc',
+                    key: 'scale',
+                    incBy: 1,
+                }
+            ]
+        });
 
         let harness;
 

@@ -7,6 +7,7 @@ import {
     Fetcher,
     BatchProcessor,
     NoopProcessor,
+    RunSliceResult
 } from '@terascope/job-components';
 import { WorkerTestHarness } from '../src';
 
@@ -99,6 +100,118 @@ describe('WorkerTestHarness', () => {
 
         it('should be able to call shutdown', () => {
             return expect(workerHarness.shutdown()).resolves.toBeNil();
+        });
+    });
+
+    describe('can use static helper testProcessor shorthand method', () => {
+        const options = { assetDir: path.join(__dirname, 'fixtures') };
+        let harness:WorkerTestHarness;
+
+        beforeAll(async() => {
+            harness = WorkerTestHarness.testProcessor({ _op: 'noop' }, options);
+            await harness.initialize();
+        });
+
+        afterAll(async() => {
+            await harness.shutdown();
+        });
+
+        it('can call testProcessor for easy instantiation', async() => {
+            const data = [{ some: 'data' }];
+            const results = await harness.runSlice(data);
+
+            expect(results).toEqual(data);
+        });
+    });
+
+    describe('can use static helper testFetcher shorthand method', () => {
+        const options = { assetDir: path.join(__dirname, 'fixtures') };
+        let harness:WorkerTestHarness;
+
+        beforeAll(async() => {
+            harness = WorkerTestHarness.testFetcher({ _op: 'test-reader', passthrough_slice: true }, options);
+            await harness.initialize();
+        });
+
+        afterAll(async() => {
+            await harness.shutdown();
+        });
+
+        it('can call testFetcher for easy instantiation', async() => {
+            const data = [{ some: 'data' }];
+            const results = await harness.runSlice(data);
+
+            expect(results).toEqual(data);
+        });
+    });
+
+    describe('can call lifecyle events', () => {
+        describe('shorthand flush with no analytics', () => {
+            const options = { assetDir: path.join(__dirname, 'fixtures') };
+            let harness:WorkerTestHarness;
+
+            beforeAll(async() => {
+                harness = WorkerTestHarness.testProcessor({ _op: 'simple-flush' }, options);
+                await harness.initialize();
+            });
+
+            afterAll(async() => {
+                await harness.shutdown();
+            });
+
+            it('can call flush', async() => {
+                const data = [{ some: 'data' }, { other: 'data' }];
+
+                const emptyResults = await harness.runSlice(data);
+                expect(emptyResults).toEqual([]);
+
+                const flushedResults = await harness.flush();
+                expect(flushedResults).toEqual(data);
+            });
+        });
+
+        describe('flush with analytics returned', () => {
+            const options = { assetDir: path.join(__dirname, 'fixtures') };
+            let harness: WorkerTestHarness;
+
+            beforeAll(async() => {
+                const job = newTestJobConfig({
+                    max_retries: 0,
+                    analytics: true,
+                    operations: [
+                        {
+                            _op: 'test-reader',
+                            passthrough_slice: true
+                        },
+                        { _op: 'simple-flush' }
+                    ],
+                });
+
+                harness = new WorkerTestHarness(job, options);
+
+                await harness.initialize();
+            });
+
+            afterAll(async() => {
+                await harness.shutdown();
+            });
+
+            it('can get full flush response', async() => {
+                const data = [{ some: 'data' }, { other: 'data' }];
+
+                const emptyResults = await harness.runSlice(data);
+                expect(emptyResults).toEqual([]);
+
+                const flushedResults = await harness.flush({ fullResponse: true }) as RunSliceResult;
+
+                expect(flushedResults).toBeDefined();
+                expect(flushedResults.results).toEqual(data);
+                expect(flushedResults.status).toEqual('flushed');
+                expect(flushedResults.analytics).toBeDefined();
+                expect(flushedResults.analytics!.time).toBeDefined();
+                expect(flushedResults.analytics!.memory).toBeDefined();
+                expect(flushedResults.analytics!.size).toBeDefined();
+            });
         });
     });
 });
