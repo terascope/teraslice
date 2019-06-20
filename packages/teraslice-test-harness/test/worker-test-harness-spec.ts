@@ -185,6 +185,5 @@ describe('WorkerTestHarness', () => {
             expect(flushedData.analytics!.memory).toBeDefined();
             expect(flushedData.analytics!.size).toBeDefined();
         });
-
     });
 });
