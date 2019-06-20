@@ -60,49 +60,66 @@ describe('Test Reader', () => {
     });
 
     describe('when using the Fetcher', () => {
-        const context = new TestContext('test-reader');
-        const opConfig = { _op: 'test-reader', passthrough_slice: false };
-        const opConfig2 = { _op: 'test-reader', passthrough_slice: true };
-        const exConfig = newTestExecutionConfig();
-        exConfig.lifecycle = 'once';
+        describe('Fetcher reads from file', () => {
+            const context = new TestContext('test-reader');
+            const opConfig = { _op: 'test-reader', passthrough_slice: false };
+            const exConfig = newTestExecutionConfig();
+            exConfig.lifecycle = 'once';
 
-        let basicFetcher: Fetcher;
-        let passthroughFetcher: Fetcher;
+            let fetcher: Fetcher;
 
-        beforeAll(() => {
-            basicFetcher = new Fetcher(
-                context as WorkerContext,
-                opConfig,
-                exConfig
-            );
+            beforeAll(async () => {
+                fetcher = new Fetcher(
+                    context as WorkerContext,
+                    opConfig,
+                    exConfig
+                );
 
-            passthroughFetcher = new Fetcher(
-                context as WorkerContext,
-                opConfig2,
-                exConfig
-            );
+                await fetcher.initialize();
+            });
 
-            return Promise.all([basicFetcher.initialize(), passthroughFetcher.initialize()]);
+            afterAll(async() => {
+                await fetcher.shutdown();
+            });
+
+            it('should return the example data', async () => {
+                const results1 = await fetcher.handle();
+                expect(results1).toEqual(fetcherData);
+
+                const results2 = await fetcher.handle();
+                expect(results2).toEqual(fetcherData);
+                expect(results2).not.toBe(results1);
+            });
         });
 
-        afterAll(() => {
-            return Promise.all([basicFetcher.shutdown(), passthroughFetcher.shutdown()]);
-        });
+        describe('Fetcher passes through data its given', () => {
+            const context = new TestContext('test-reader');
+            const opConfig = { _op: 'test-reader', passthrough_slice: true };
+            const exConfig = newTestExecutionConfig();
+            exConfig.lifecycle = 'once';
 
-        it('should return the example data', async () => {
-            const results1 = await basicFetcher.handle();
-            expect(results1).toEqual(fetcherData);
+            let fetcher: Fetcher;
 
-            const results2 = await basicFetcher.handle();
-            expect(results2).toEqual(fetcherData);
-            expect(results2).not.toBe(results1);
-        });
+            beforeAll(async () => {
+                fetcher = new Fetcher(
+                    context as WorkerContext,
+                    opConfig,
+                    exConfig
+                );
 
-        it('should return a slice if given one', async () => {
-            const data = [{ test: 'data' }, { other: 'data' }];
-            const results = await passthroughFetcher.handle(data);
+                await fetcher.initialize();
+            });
 
-            expect(results).toEqual(data);
+            afterAll(async() => {
+                await fetcher.shutdown();
+            });
+
+            it('should return a slice if given one', async () => {
+                const data = [{ test: 'data' }, { other: 'data' }];
+                const results = await fetcher.handle(data);
+
+                expect(results).toEqual(data);
+            });
         });
     });
 });
