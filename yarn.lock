@@ -3715,9 +3715,9 @@ autoprefixer@^9.4.9:
     postcss-value-parser "^3.3.1"
 
 awesome-phonenumber@^2.11.0:
-  version "2.11.0"
-  resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-2.11.0.tgz#edb877e9013946b5eabe6d92ad102140baf84ae4"
-  integrity sha512-+VeIuZgboZ6BtU7AHdoUgwOPNFRhiJ7GHvaZ3tggsBGpmfXSXAItgcjgj+OeEM66JlLSMDlXhCkjP0mHuUyImA==
+  version "2.12.0"
+  resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-2.12.0.tgz#97a6e530d9d85bb78d31530cbc7abc1fd93b6d60"
+  integrity sha512-c8fqrVibUxvvl5dC2XDR4C0fgVQr5C4uGD/C2RutGipqiaBFfC0pVwjNhIfmRhfP1hJVQoM31Y7snJ3QUB1wfw==
 
 aws-sign2@~0.7.0:
   version "0.7.0"
