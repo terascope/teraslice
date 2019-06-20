@@ -17,7 +17,8 @@
             "property": "userAgent"
         },
         {
-            "_op": "noop"
+            "_op": "delay",
+            "ms": 100
         }
     ]
 }

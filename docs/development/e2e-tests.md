@@ -29,8 +29,7 @@ When in dev mode, the teraslice project root will be built in a docker container
 
 ## CI Tests
 
-When in CI, the teraslice tests will run until a failure happens then bail, output the logs, and cleanup the docker stack. To run in CI tests, use `yarn test:ci` from inside the e2e directory or `yarn test:e2e:ci` from inside the
-project root. Running the CI tests will also force downloading assets.
+When in CI, the teraslice tests will run until a failure happens then bail, output the logs, and cleanup the docker stack. To run in CI tests, use `yarn test:ci` from inside the e2e directory from inside the project root. Running the CI tests will also force downloading assets.
 
 ## Assets
 
@@ -49,8 +48,6 @@ prettify the teraslice logs:
 yarn logs
 # if you want to follow the logs use:
 yarn logs-follow
-# from the parent directory
-yarn test:e2e:logs
 ```
 
 ## Notes

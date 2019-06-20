@@ -49,6 +49,7 @@ RUN npm init --yes > /dev/null \
 # the deps image should contain all of dev code
 FROM base AS deps
 
+COPY .yarn-cache .yarn-cache
 COPY package.json yarn.lock lerna.json .yarnrc /app/source/
 COPY packages /app/source/packages
 
@@ -57,6 +58,7 @@ RUN yarn \
     --prod=true \
     --frozen-lockfile \
     --no-progress \
+    --prefer-offline \
     --no-emoji \
     && cp -Rp node_modules /app/node_modules
 
@@ -67,6 +69,7 @@ RUN yarn \
     --prod=false \
     --frozen-lockfile \
     --no-progress \
+    --prefer-offline \
     --ignore-optional \
     --no-emoji
 

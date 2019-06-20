@@ -4,10 +4,10 @@
     "version": "0.1.0",
     "description": "Teraslice integration test suite",
     "scripts": {
-        "test": "echo '[WARN] Make sure to remember to run yarn clean or yarn test:e2e:clean to remove the docker containers'; jest --runInBand",
-        "test:ci": "env CI_MODE=true jest --runInBand || (sleep 1; yarn logs:ci; sleep 1; yarn clean; exit 1) && (sleep 1; yarn clean; exit 0)",
-        "logs": "docker-compose logs --no-color teraslice-worker teraslice-master | awk -F' [|] ' '{print $2}' | bunyan -o short",
-        "logs:ci": "docker-compose logs --tail=1000 --no-color teraslice-worker teraslice-master | awk -F' [|] ' '{print $2}' | bunyan -o short -l WARN",
+        "test": "./scripts/run-test.sh",
+        "test:ci": "env CI=true ./scripts/run-test.sh",
+        "logs": "./scripts/logs.sh",
+        "logs:ci": "env CI=true ./scripts/logs.sh",
         "logs-follow": "docker-compose logs --follow --no-color teraslice-worker teraslice-master | awk -F' [|] ' '{print $2}' | bunyan -o short",
         "clean": "docker-compose down --volumes --remove-orphans --timeout=5"
     },

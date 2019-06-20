@@ -21,46 +21,14 @@ function getElapsed(time) {
     return `took ${_.round(elapsed / 1000, 2)}s`;
 }
 
-function dockerBuild() {
-    const startTime = Date.now();
-    signale.pending('Building Docker environment...');
-
-    return misc.compose.build().then(() => {
-        signale.success('Docker environment is built', getElapsed(startTime));
-    });
-}
-
 function dockerUp() {
     const startTime = Date.now();
     signale.pending('Bringing Docker environment up...');
 
     return misc.compose
-        .up(
-            {
-                'force-recreate': '',
-            },
-            ['elasticsearch', 'teraslice-master', 'teraslice-worker']
-        )
+        .up({}, ['elasticsearch', 'teraslice-master', 'teraslice-worker'])
         .then(() => {
             signale.success('Docker environment is good to go', getElapsed(startTime));
-        });
-}
-
-// ensure docker-compose stack is down before starting it
-function dockerDown() {
-    const startTime = Date.now();
-    signale.pending('Ensuring docker environment is in a clean slate...');
-
-    return misc.compose
-        .down({
-            'remove-orphans': '',
-            volumes: '',
-        })
-        .then(() => {
-            signale.success('Docker environment is clean', getElapsed(startTime));
-        })
-        .catch(() => {
-            signale.success('Docker environment should be clean', getElapsed(startTime));
         });
 }
 
@@ -114,7 +82,7 @@ function generateTestData() {
                     slicer_id: 0,
                     request: 100,
                     state: 'error',
-                    ex_id: textExId,
+                    ex_id: textExId
                 };
 
                 const notCompleted = {
@@ -125,7 +93,7 @@ function generateTestData() {
                     slicer_id: 0,
                     request: 100,
                     state: 'start',
-                    ex_id: textExId,
+                    ex_id: textExId
                 };
 
                 return Promise.all([
@@ -133,20 +101,20 @@ function generateTestData() {
                         index,
                         type: 'state',
                         id: errored.slice_id,
-                        body: errored,
+                        body: errored
                     }),
                     client.index({
                         index,
                         type: 'state',
                         id: notCompleted.slice_id,
-                        body: notCompleted,
+                        body: notCompleted
                     }),
                     client.index({
                         index: 'teracluster__ex',
                         type: 'ex',
                         id: exConfig.ex_id,
-                        body: exConfig,
-                    }),
+                        body: exConfig
+                    })
                 ]);
             })
             .then(() => {
@@ -184,18 +152,18 @@ function generateTestData() {
             operations: [
                 {
                     _op: 'elasticsearch_data_generator',
-                    size: count,
+                    size: count
                 },
                 {
                     _op: 'elasticsearch_index_selector',
                     index: indexName,
-                    type: 'events',
+                    type: 'events'
                 },
                 {
                     _op: 'elasticsearch_bulk',
-                    size: 1000,
-                },
-            ],
+                    size: 1000
+                }
+            ]
         };
 
         return Promise.resolve()
@@ -224,14 +192,14 @@ function generateTestData() {
     return (
         Promise.all([
             generate(100),
-            generate(1000),
+            generate(1000)
             // no need for id slicing in elasticsearch 6.x, see id-reader-spec.js
             // generate(1000, ['d', '3'])
         ])
             // we need fully active jobs so we can get proper meta data for recovery state tests
             .then(() => Promise.all([
                 populateStateForRecoveryTests('testex-errors', 'test-recovery-100'),
-                populateStateForRecoveryTests('testex-all', 'test-recovery-200'),
+                populateStateForRecoveryTests('testex-all', 'test-recovery-200')
             ]))
             .then(() => {
                 signale.success('Data generation is done', getElapsed(startTime));
@@ -248,13 +216,7 @@ module.exports = async () => {
 
     signale.time('global setup');
 
-    const dockerInit = async () => {
-        await dockerDown();
-        await dockerBuild();
-        await dockerUp();
-    };
-
-    await Promise.all([downloadAssets(), dockerInit()]);
+    await Promise.all([downloadAssets(), dockerUp()]);
 
     await waitForTeraslice();
 
