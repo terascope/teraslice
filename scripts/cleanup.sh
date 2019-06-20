@@ -128,6 +128,7 @@ cleanup_top_level() {
 post_cleanup() {
     prompt "Do you want to verify/rebuild the node_modules?" &&
         echoerr "* running yarn --force --check-files --update-checksums" &&
+        rm -rf '.yarn-cache' &&
         yarn --force --check-files --update-checksums
 
     prompt "Do you want to rebuild the packages?" &&

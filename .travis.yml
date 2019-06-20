@@ -42,7 +42,7 @@ jobs:
   # benchmarks and linting, only on pull-requests
   - script:
     name: Benchmarks and Linting
-    if: branch = master AND type = pull_request
+    if: branch = master AND head_branch !~ /^dependabot/ AND type = pull_request
     script:
         - yarn lint
         - yarn benchmark
@@ -87,7 +87,7 @@ jobs:
         script: ./scripts/publish-documentation.sh
 
   # Experimental docker release
-  - stage: Experimental
+  - script: Experimental
     name: Update Experimental Docker Image
     if: branch = master AND type NOT IN (pull_request, cron)
     addons:
