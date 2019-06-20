@@ -8,6 +8,8 @@ import {
     newTestSlice,
     FetcherCore,
     OperationCore,
+    OpConfig,
+    newTestJobConfig,
 } from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness';
 import { JobHarnessOptions } from './interfaces';
@@ -21,8 +23,34 @@ import { JobHarnessOptions } from './interfaces';
  * @todo Add support for attaching APIs and Observers
  */
 export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionContext> {
-    constructor(job: JobConfig, options: JobHarnessOptions) {
+    constructor(job: JobConfig, options: JobHarnessOptions = {}) {
         super(job, options, 'worker');
+    }
+
+    static testProcessor(opConfig: OpConfig, options?: JobHarnessOptions) {
+        const job = newTestJobConfig({
+            max_retries: 0,
+            operations: [
+                {
+                    _op: 'test-reader',
+                },
+                opConfig
+            ],
+        });
+        return new WorkerTestHarness(job, options);
+    }
+
+    static testFetcher(opConfig: OpConfig, options?: JobHarnessOptions) {
+        const job = newTestJobConfig({
+            max_retries: 0,
+            operations: [
+                opConfig,
+                {
+                    _op: 'noop',
+                }
+            ],
+        });
+        return new WorkerTestHarness(job, options);
     }
 
     fetcher<T extends FetcherCore = FetcherCore>(): T {
@@ -95,6 +123,17 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
     /**
      * Shutdown the Operations on the ExecutionContext
      */
+
+    async flush({ fullResponse = false } = {}) {
+        const response = await this.executionContext.flush();
+        if (response != null) {
+            if (fullResponse) return response;
+            return response.results;
+        }
+        // its undefined here
+        return response;
+    }
+
     async shutdown() {
         await super.shutdown();
         await this.executionContext.shutdown();
