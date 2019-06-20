@@ -17,9 +17,6 @@
         "test:debug": "jest --colors --coverage=false --detectOpenHandles --runInBand  --forceExit $JEST_ARGS",
         "test:watch": "jest --coverage=false --notify --onlyChanged --watch",
         "test:e2e": "yarn --cwd ./e2e test",
-        "test:e2e:ci": "yarn --cwd ./e2e test:ci",
-        "test:e2e:clean": "yarn --cwd ./e2e clean",
-        "test:e2e:logs": "yarn --cwd ./e2e logs",
         "lint": "env FORCE_COLOR=1 lerna run lint --no-bail",
         "lint:fix": "env FORCE_COLOR=1 lerna run lint:fix --no-bail"
     },

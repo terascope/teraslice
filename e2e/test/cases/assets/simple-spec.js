@@ -55,7 +55,6 @@ describe('assets', () => {
         expect(assetId).toEqual(response._id);
     });
 
-
     // Test a bad asset
     // curl -XPOST -H "Content-Type: application/octet-stream"
     //   localhost:45678/assets --data-binary test/fixtures/assets/example_assets_1.zip
@@ -71,7 +70,6 @@ describe('assets', () => {
             expect(err.code).toEqual(422);
         }
     });
-
 
     // Type 1 Asset - asset.json at top level of zipfile
     // example_assets/

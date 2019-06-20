@@ -62,10 +62,6 @@ jobs:
         - . ./scripts/travis-install-yarn.sh
     before_script:
         - cd e2e
-        - docker pull node:10.16.0-alpine
-        - docker pull terascope/teraslice:dev-base
-        - docker pull terascope/teraslice:dev-connectors
-        - docker-compose up --no-start --build
     script: yarn test:ci
 
   # if not a tagged build and is on master

@@ -1,12 +1,7 @@
 version: '2.4'
 services:
     teraslice-master:
-        build:
-            context: ..
-            cache_from:
-                - node:10.16.0-alpine
-                - terascope/teraslice:dev-base
-                - terascope/teraslice:dev-connectors
+        image: e2e_teraslice
         command: [
             "./scripts/wait-for-it.sh",
             "elasticsearch:49200",
@@ -30,12 +25,7 @@ services:
             - ./autoload:/app/autoload:delegated
             - ./config:/app/config:delegated
     teraslice-worker:
-        build:
-            context: ..
-            cache_from:
-                - node:10.16.0-alpine
-                - terascope/teraslice:dev-base
-                - terascope/teraslice:dev-connectors
+        image: e2e_teraslice
         command: [
             "./scripts/wait-for-it.sh",
             "elasticsearch:49200",
