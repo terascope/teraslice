@@ -20,7 +20,7 @@ cleanup() {
 
 post_cleanup() {
     if [ "$CI" == "true" ]; then
-        (sleep 1; logs; sleep 1; cleanup) || return 0;
+        (sleep 1; cleanup) || return 0;
     else
         echoerr '[WARN] Make sure to remember to run yarn clean to remove the docker containers';
     fi
@@ -28,24 +28,29 @@ post_cleanup() {
 
 prepare() {
     if [ "$CI" == "true" ]; then
-        echoerr "* building docker image using CI cache"
-        docker pull node:10.16.0-alpine &&
+        echoerr "* pulling elasticsearch and kafka images..." &&
+            docker-compose pull elasticsearch kafka &&
+            echoerr "* pulling image layers for cache..." &&
+            docker pull node:10.16.0-alpine &&
             docker pull terascope/teraslice:dev-base &&
             docker pull terascope/teraslice:dev-connectors &&
+            echoerr "* building docker image from cache"
             docker build \
                  --cache-from node:10.16.0-alpine \
                  --cache-from terascope/teraslice:dev-base \
                  --cache-from terascope/teraslice:dev-connectors \
                  -t e2e_teraslice ..
     else
-        echoerr "* building docker image"
-        docker build -t e2e_teraslice ..
+        echoerr "* pulling elasticsearch and kafka images..." &&
+            docker-compose pull elasticsearch kafka &&
+            echoerr "* building docker image" &&
+            docker build -t e2e_teraslice ..
     fi
 }
 
 run_test() {
     if [ "$CI" == "true" ]; then
-        jest --runInBand || (post_cleanup; exit 1) && (post_cleanup; exit 0);
+        jest --runInBand || (sleep 1; logs; post_cleanup; exit 1) && (post_cleanup; exit 0);
     else
 
         jest --runInBand --bail && post_cleanup;
