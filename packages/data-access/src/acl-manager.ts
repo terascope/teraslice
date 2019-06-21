@@ -491,14 +491,14 @@ export class ACLManager {
         excludes.push('hash', 'salt');
 
         if (clientId > 0) {
-            constraint += `client_id:${clientId}`;
+            constraint += `client_id:"${clientId}"`;
         }
 
         if (type === 'USER') {
             if (authUser && authUser.id) {
                 excludes.push('client_id');
                 if (constraint) constraint += ' AND ';
-                constraint += `id: ${authUser.id}`;
+                constraint += `id:"${authUser.id}"`;
             } else {
                 throw new ts.TSError('User query forbidden', {
                     statusCode: 403,
@@ -510,6 +510,7 @@ export class ACLManager {
             {
                 constraint,
                 excludes,
+                prevent_prefix_wildcard: true,
                 allow_implicit_queries: true,
             },
             this.logger
@@ -523,16 +524,16 @@ export class ACLManager {
 
         let constraint = '';
         if (clientId > 0) {
-            constraint += `client_id:${clientId}`;
+            constraint += `client_id:"${clientId}"`;
         }
 
         if (type === 'USER') {
             includes.push('id', 'name');
             if (constraint) constraint += ' AND ';
             if (authUser && authUser.role) {
-                constraint += `id: ${authUser.role}`;
+                constraint += `id: "${authUser.role}"`;
             } else {
-                constraint += 'id: none';
+                constraint += 'id: "none"';
             }
         }
 
@@ -552,7 +553,7 @@ export class ACLManager {
         const includes: (keyof models.DataType)[] = [];
         let constraint = '';
         if (clientId > 0) {
-            constraint += `client_id:${clientId}`;
+            constraint += `client_id:"${clientId}"`;
         }
 
         if (type === 'USER') {
@@ -582,7 +583,7 @@ export class ACLManager {
 
         let constraint = '';
         if (clientId > 0) {
-            constraint += `client_id:${clientId}`;
+            constraint += `client_id:"${clientId}"`;
         }
 
         if (type === 'USER') {
@@ -590,7 +591,7 @@ export class ACLManager {
                 includes.push('id', 'name');
 
                 if (constraint) constraint += ' AND ';
-                constraint += `roles: ${authUser.role}`;
+                constraint += `roles: "${authUser.role}"`;
             } else {
                 throw new ts.TSError('View query forbidden', {
                     statusCode: 403,
@@ -615,7 +616,7 @@ export class ACLManager {
 
         let constraint = '';
         if (clientId > 0) {
-            constraint += `client_id:${clientId}`;
+            constraint += `client_id: "${clientId}"`;
         }
 
         if (type === 'USER') {
@@ -623,7 +624,7 @@ export class ACLManager {
                 includes.push('id', 'name', 'endpoint');
 
                 if (constraint) constraint += ' AND ';
-                constraint += `roles: ${authUser.role}`;
+                constraint += `roles: "${authUser.role}"`;
             } else {
                 throw new ts.TSError('Space query forbidden', {
                     statusCode: 403,
