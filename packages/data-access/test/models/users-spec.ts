@@ -7,7 +7,7 @@ import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
 describe('Users', () => {
     const client = makeClient();
     const users = new Users(client, {
-        namespace: 'test'
+        namespace: 'test',
     });
 
     beforeAll(async () => {
@@ -27,14 +27,17 @@ describe('Users', () => {
         let created: User;
 
         beforeAll(async () => {
-            created = await users.createWithPassword({
-                username,
-                firstname: 'Billy',
-                lastname: 'Joe',
-                email: 'billy.joe@example.com',
-                client_id: 123,
-                role: 'example-role-id'
-            }, password);
+            created = await users.createWithPassword(
+                {
+                    username,
+                    firstname: 'Billy',
+                    lastname: 'Joe',
+                    email: 'billy.joe@example.com',
+                    client_id: 123,
+                    role: 'example-role-id',
+                },
+                password
+            );
         });
 
         it('should return private field when creating user', () => {
@@ -44,9 +47,14 @@ describe('Users', () => {
             expect(created).toHaveProperty('type', 'USER');
         });
 
+        it('should create a properly formatted token', () => {
+            expect(created.api_token).toHaveLength(40);
+            expect(created.api_token).toMatch(/^[a-fA-F0-9_]*$/);
+        });
+
         it('should be able fetch the user by id', async () => {
             const queryAccess = new QueryAccess({
-                excludes: ['api_token', 'hash', 'salt']
+                excludes: ['api_token', 'hash', 'salt'],
             });
 
             const fetched = await users.findById(created.id, queryAccess);
@@ -59,7 +67,7 @@ describe('Users', () => {
 
         it('should be able fetch the user by any id', async () => {
             const queryAccess = new QueryAccess({
-                excludes: ['hash', 'salt']
+                excludes: ['hash', 'salt'],
             });
             const fetched = await users.findByAnyId(created.username, queryAccess);
 
@@ -71,7 +79,7 @@ describe('Users', () => {
 
         it('should be able find all by ids', async () => {
             const queryAccess = new QueryAccess({
-                excludes: ['api_token', 'hash', 'salt']
+                excludes: ['api_token', 'hash', 'salt'],
             });
             const result = await users.findAll([created.id], queryAccess);
 
@@ -148,7 +156,42 @@ describe('Users', () => {
             it('should NOT be able to authenticate the user', async () => {
                 expect.hasAssertions();
                 try {
-                    await users.authenticateWithToken('wrong-api-token');
+                    await users.authenticateWithToken('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+                } catch (err) {
+                    expect(err.message).toEqual('Unable to authenticate user with api token');
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toBe(403);
+                }
+            });
+        });
+
+        describe('when authenticating an invalid token', () => {
+            it('should NOT be authenticate with wildcard query', async () => {
+                expect.hasAssertions();
+                try {
+                    await users.authenticateWithToken('?aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa*');
+                } catch (err) {
+                    expect(err.message).toEqual('Unable to authenticate user with api token');
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toBe(403);
+                }
+            });
+
+            it('should NOT be authenticate with a invalid length query', async () => {
+                expect.hasAssertions();
+                try {
+                    await users.authenticateWithToken('wrong');
+                } catch (err) {
+                    expect(err.message).toEqual('Unable to authenticate user with api token');
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toBe(403);
+                }
+            });
+
+            it('should NOT be authenticate using query injection', async () => {
+                expect.hasAssertions();
+                try {
+                    await users.authenticateWithToken('aaaaaaaaaaaaaaaa" OR token:* OR token:"a');
                 } catch (err) {
                     expect(err.message).toEqual('Unable to authenticate user with api token');
                     expect(err).toBeInstanceOf(TSError);
@@ -164,17 +207,20 @@ describe('Users', () => {
                 expect.hasAssertions();
 
                 try {
-                    await users.createWithPassword({
-                        username: 'coolbeans-1',
-                        firstname: 'Cool',
-                        lastname: 'Beans',
-                        email: 'cool.beans',
-                        client_id: 123,
-                        role: 'example-role-id',
-                    }, 'supersecret');
+                    await users.createWithPassword(
+                        {
+                            username: 'coolbeans-1',
+                            firstname: 'Cool',
+                            lastname: 'Beans',
+                            email: 'cool.beans',
+                            client_id: 123,
+                            role: 'example-role-id',
+                        },
+                        'supersecret'
+                    );
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
-                    expect(err.message).toEqual('.email should match format \"email\"');
+                    expect(err.message).toEqual('.email should match format "email"');
                     expect(err.statusCode).toEqual(422);
                 }
             });
@@ -182,14 +228,17 @@ describe('Users', () => {
 
         describe('when adding a messy email address', () => {
             it('should trim and to lower the email address', async () => {
-                const result = await users.createWithPassword({
-                    username: 'coolbeans-2',
-                    firstname: 'Cool',
-                    lastname: 'Beans',
-                    email: ' cool.BEANS@example.com ',
-                    client_id: 123,
-                    role: 'example-role-id',
-                }, 'supersecret');
+                const result = await users.createWithPassword(
+                    {
+                        username: 'coolbeans-2',
+                        firstname: 'Cool',
+                        lastname: 'Beans',
+                        email: ' cool.BEANS@example.com ',
+                        client_id: 123,
+                        role: 'example-role-id',
+                    },
+                    'supersecret'
+                );
 
                 expect(result.email).toEqual('cool.beans@example.com');
             });

@@ -77,6 +77,10 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return this.store.count(q);
     }
 
+    async countBy(fields: AnyInput<T>, joinBy?: JoinBy, arrayJoinBy?: JoinBy): Promise<number> {
+        return this.store.count(this._createJoinQuery(fields, joinBy, arrayJoinBy));
+    }
+
     async create(record: i.CreateRecordInput<T>): Promise<T> {
         const docInput = {
             ...record,
@@ -87,10 +91,10 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         const id = await utils.makeId();
         docInput[this._idField] = id;
 
-        const doc = this._sanitizeRecord(docInput as T);
+        const doc = this._sanitizeRecord(docInput);
 
         await this._ensureUnique(doc);
-        await this.store.indexWithId(doc, id);
+        await this.store.createWithId(doc, id);
 
         // @ts-ignore
         return ts.DataEntity.make(this._postProcess(doc));
@@ -103,30 +107,22 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     async deleteAll(ids: string[]): Promise<void> {
         if (!ids || !ids.length) return;
 
-        await Promise.all(ids.map(id => this.deleteById(id)));
+        await Promise.all(ts.uniq(ids).map(id => this.deleteById(id)));
     }
 
     async exists(id: string[] | string): Promise<boolean> {
         const ids = ts.castArray(id);
         if (!ids.length) return true;
 
-        const idQuery = ids.join(' OR ');
-        const count = await this.store.count(`${this._idField}: (${idQuery})`);
+        const count = await this.countBy({
+            [this._idField]: ids,
+        } as AnyInput<T>);
 
         return count === ids.length;
     }
 
-    async findBy(fields: Partial<T>, joinBy = 'AND', options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>) {
-        const query = Object.entries(fields)
-            .map(([field, val]) => {
-                if (val == null) {
-                    throw new ts.TSError(`${this.name} missing value for field "${field}"`, {
-                        statusCode: 422,
-                    });
-                }
-                return `${field}: "${val}"`;
-            })
-            .join(` ${joinBy} `);
+    async findBy(fields: AnyInput<T>, joinBy?: JoinBy, options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>) {
+        const query = this._createJoinQuery(fields, joinBy);
 
         const results = await this._find(
             query,
@@ -167,7 +163,9 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         const ids: string[] = ts.parseList(input);
         if (!ids || !ids.length) return [];
 
-        const query = `${this._idField}: (${ids.join(' OR ')})`;
+        const query = this._createJoinQuery({
+            [this._idField]: ids,
+        } as AnyInput<T>);
 
         const result = await this._find(
             query,
@@ -207,7 +205,9 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
                 if (record[field] == null) continue;
 
                 if (existing[field] !== record[field]) {
-                    const count = await this._countBy(field, record[field]);
+                    const count = await this.countBy({
+                        [field]: record[field],
+                    } as any);
 
                     if (count > 0) {
                         throw new ts.TSError(`${this.name} update requires ${field} to be unique`, {
@@ -280,12 +280,6 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         }
     }
 
-    /** this is only used for counting uniq fields */
-    protected async _countBy(field: keyof T, val: any): Promise<number> {
-        if (!val) return 0;
-        return this.store.count(`${field}:"${val}"`);
-    }
-
     protected async _find(q: string = '', options: i.FindOptions<T> = {}, queryAccess?: QueryAccess<T>) {
         const params: Partial<es.SearchParams> = {
             size: options.size,
@@ -306,7 +300,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return records.map(record => this._postProcess(record));
     }
 
-    protected async _ensureUnique(record: T) {
+    protected async _ensureUnique(record: AnyInput<T>) {
         for (const field of this._uniqueFields) {
             if (field === this._idField) continue;
             if (record[field] == null) {
@@ -315,7 +309,9 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
                 });
             }
 
-            const count = await this._countBy(field, record[field]);
+            const count = await this.countBy({
+                [field]: record[field],
+            } as AnyInput<T>);
             if (count > 0) {
                 throw new ts.TSError(`${this.name} create requires ${field} to be unique`, {
                     statusCode: 409,
@@ -357,4 +353,41 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     protected _preProcess(record: T): T {
         return record;
     }
+
+    protected _createJoinQuery(fields: AnyInput<T>, joinBy: JoinBy = 'AND', arrayJoinBy: JoinBy = 'OR'): string {
+        return Object.entries(fields)
+            .map(([field, val]) => {
+                if (val == null) {
+                    throw new ts.TSError(`${this.name} missing value for field "${field}"`, {
+                        statusCode: 422,
+                    });
+                }
+                let value: string;
+                if (Array.isArray(val)) {
+                    if (val.length > 1) {
+                        value = `(${ts
+                            .uniq(val)
+                            .map(escapeValue)
+                            .join(` ${arrayJoinBy} `)})`;
+                    } else {
+                        value = escapeValue(val);
+                    }
+                } else {
+                    value = escapeValue(val);
+                }
+                return `${field}: ${value}`;
+            })
+            .join(` ${joinBy} `);
+    }
+}
+
+type AnyInput<T> = {
+    [P in keyof T]?: T[P] | any;
+};
+
+type JoinBy = 'AND' | 'OR';
+
+const escapeChars: string[] = ['"', '(', ')'];
+function escapeValue(val: any) {
+    return `"${ts.escapeString(`${val}`, escapeChars)}"`;
 }
