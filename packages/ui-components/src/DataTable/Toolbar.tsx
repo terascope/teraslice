@@ -10,7 +10,7 @@ const Toolbar: React.FC<Props> = props => {
 
     const submitQuery = (e: React.FormEvent) => {
         e.preventDefault();
-        updateQueryState({ query: query || '*' });
+        updateQueryState({ query: query || '', from: 0 });
     };
 
     return (
@@ -54,7 +54,7 @@ const Toolbar: React.FC<Props> = props => {
                                             onClick={submitQuery}
                                         />
                                     }
-                                    value={query === '*' ? '' : query}
+                                    value={query || ''}
                                     onChange={(e: FormEvent, { value }) => {
                                         updateQuery(value);
                                     }}
