@@ -15,6 +15,18 @@ export default [
         },
     ],
     [
+        'location:(_geo_point_:"33.435518,-111.873616" _geo_distance_:"5000m")',
+        'a quoted geo point',
+        {
+            type: ASTType.GeoDistance,
+            field: 'location',
+            lat: 33.435518,
+            lon: -111.873616,
+            distance: 5000,
+            unit: 'meters',
+        },
+    ],
+    [
         'location:(_geo_distance_:5000m _geo_point_:"33.435518,-111.873616")',
         'a geo distance query with distance second',
         {
