@@ -97,6 +97,12 @@ export class Users extends store.IndexModel<User> {
             });
         }
 
+        if (!(apiToken.match(/^[a-fA-F0-9_]*$/) && apiToken.length === 40)) {
+            throw new TSError('Unable to authenticate user with api token', {
+                statusCode: 403,
+            });
+        }
+
         try {
             return await super.findBy({ api_token: apiToken });
         } catch (err) {
