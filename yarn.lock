@@ -10442,7 +10442,7 @@ js-yaml@^3.12.0, js-yaml@^3.9.0:
     argparse "^1.0.7"
     esprima "^4.0.0"
 
-js-yaml@^3.13.0, js-yaml@^3.13.x:
+js-yaml@^3.13.0:
   version "3.13.0"
   resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.13.0.tgz#38ee7178ac0eea2c97ff6d96fff4b18c7d8cf98e"
   integrity sha512-pZZoSxcCYco+DIKBTimr67J6Hy+EYGZDY/HCWC+iAEA9h1ByhMXAIVUXMcMFpOCxQ/xjXmPI2MkDL5HRm5eFrQ==
@@ -10627,10 +10627,10 @@ jsx-ast-utils@^2.0.1:
   dependencies:
     array-includes "^3.0.3"
 
-junk@3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/junk/-/junk-3.0.0.tgz#f0454fb7ef9bcf67e2c32214dde22c08cadfc629"
-  integrity sha512-8oLnegfzPD/7V2oLI+kacn941P7IEYKDdjbwBJQWqWFdoZduX+YOJIrZEEYehd9aSk00J2m+l3fppxAmAc4sXQ==
+junk@3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/junk/-/junk-3.1.0.tgz#31499098d902b7e98c5d9b9c80f43457a88abfa1"
+  integrity sha512-pBxcB3LFc8QVgdggvZWyeys+hnrNWg4OcZIU/1X59k5jQdLBlCsYGRQaz234SqoRLTCgMH00fY0xRJH+F9METQ==
 
 just-extend@^4.0.2:
   version "4.0.2"
@@ -12056,14 +12056,13 @@ node-webhdfs@^1.0.2:
     lodash "^4.17.10"
     request "^2.87.0"
 
-node-yaml@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/node-yaml/-/node-yaml-3.2.0.tgz#0bc04713d4a9342e8fb92caf7b5fa8d305037852"
-  integrity sha512-5c7TNdFOLOaY/TN0fBDrfJg+N6Z1+Ch7O/QuN2wostfo9Q4qbpOTAjk1WZ3bxgSfRPrJF4rgWdL26N2Svdljhw==
+node-yaml@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/node-yaml/-/node-yaml-4.0.0.tgz#510653c0471fcd83067eac63cb03593ed966b38d"
+  integrity sha512-F7PwidzUFOdfg18xXoAwQo00Wez5zCPmZ7AsnAQ85RvAwkmrOVcr5KywAc7EKIvQWvvfHPj8tEIoHxuQOAFOBA==
   dependencies:
     co "4.6.0"
-    js-yaml "^3.13.x"
-    junk "3.0.0"
+    junk "3.1.0"
     promise-fs "2.1.0"
 
 noop6@^1.0.1:
