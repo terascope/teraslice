@@ -25,7 +25,7 @@ const DataTable: React.FC<Props> = props => {
     const queryState = {
         from: 0,
         size: 25,
-        query: '*',
+        query: '',
         sort: 'created:asc',
         ...props.queryState,
     };

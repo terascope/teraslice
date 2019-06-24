@@ -447,9 +447,12 @@ GeoPoint
     }
 
 GeoDistance
-    = GeoDistanceKeyword ws* FieldSeparator ws* term:RestrictedStringType {
+    = GeoDistanceKeyword ws* FieldSeparator ws* term:GeoDistanceType {
         return x.parseGeoDistance(term.value);
     }
+
+GeoDistanceType
+    = RestrictedStringType / QuotedStringType
 
 GeoTopLeft
     = GeoTopLeftKeyword ws* FieldSeparator ws* term:QuotedStringType {
