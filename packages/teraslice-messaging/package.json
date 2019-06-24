@@ -41,7 +41,7 @@
         "nanoid": "^2.0.3",
         "p-event": "^4.1.0",
         "porty": "^3.1.1",
-        "socket.io": "^1.7.4",
+        "socket.io": "^2.2.0",
         "socket.io-client": "^1.7.4"
     },
     "devDependencies": {},
