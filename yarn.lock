@@ -10411,23 +10411,7 @@ js-tokens@^3.0.2:
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-3.0.2.tgz#9866df395102130e38f7f996bceb65443209c25b"
   integrity sha1-mGbfOVECEw449/mWvOtlRDIJwls=
 
-js-yaml@^3.12.0, js-yaml@^3.9.0:
-  version "3.12.2"
-  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.12.2.tgz#ef1d067c5a9d9cb65bd72f285b5d8105c77f14fc"
-  integrity sha512-QHn/Lh/7HhZ/Twc7vJYQTkjuCa0kaCcDcjK5Zlk2rvnUpy7DxMJ23+Jc2dcyvltwQVg1nygAVlB2oRDFHoRS5Q==
-  dependencies:
-    argparse "^1.0.7"
-    esprima "^4.0.0"
-
-js-yaml@^3.13.0:
-  version "3.13.0"
-  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.13.0.tgz#38ee7178ac0eea2c97ff6d96fff4b18c7d8cf98e"
-  integrity sha512-pZZoSxcCYco+DIKBTimr67J6Hy+EYGZDY/HCWC+iAEA9h1ByhMXAIVUXMcMFpOCxQ/xjXmPI2MkDL5HRm5eFrQ==
-  dependencies:
-    argparse "^1.0.7"
-    esprima "^4.0.0"
-
-js-yaml@^3.13.1:
+js-yaml@^3.12.0, js-yaml@^3.13.0, js-yaml@^3.13.1, js-yaml@^3.9.0:
   version "3.13.1"
   resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.13.1.tgz#aff151b30bfdfa8e49e05da22e7415e9dfa37847"
   integrity sha512-YfbcO7jXDdyj0DGxYVSlSeQNHbD7XPWvrVWeVUujrQEoZzWJIRrCPoyk6kL6IAjAG2IolMK4T0hNUe0HOUs5Jw==
@@ -10679,17 +10663,17 @@ kleur@^3.0.2:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
   integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
 
-kubernetes-client@^6.12.1:
-  version "6.12.1"
-  resolved "https://registry.yarnpkg.com/kubernetes-client/-/kubernetes-client-6.12.1.tgz#236c4ed5c0417035a4b5c71bbe81549b3bef7cf2"
-  integrity sha512-NA5e2zaL+BWJsboPDL/+Uv8AF60inOQjKvzHwRhQWJHlg2deaxguyMU3MKi9NEptltkv23Pm0871wuRcDMYrzA==
+kubernetes-client@^7.0.1:
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/kubernetes-client/-/kubernetes-client-7.0.1.tgz#8bc983db1a0cc6951699085f3bcc21590ae2ec80"
+  integrity sha512-bEuurJ+FIZnBQdM+krjqx3tXBzGaLYWm2mgWytp5n/U6B9rCM6Cek6vTpxnQ4gQefaocFxcGeR81DvsyB4z1UA==
   dependencies:
     deepmerge "^3.2.0"
     js-yaml "^3.13.0"
     openid-client "^2.4.4"
     qs "^6.7.0"
     request "^2.88.0"
-    swagger-fluent "^3.1.2"
+    swagger-fluent "^3.1.3"
     url-join "^4.0.0"
     ws "^6.2.1"
 
@@ -14083,15 +14067,10 @@ qs@6.5.2, qs@~6.5.2:
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
   integrity sha512-N5ZAX4/LxJmF+7wN74pUD6qAh9/wnvdQcjq9TZjevvXzSUo7bfmw91saqMjzGS2xq91/odN2dW/WOl7qQHNDGA==
 
-qs@6.7.0, qs@^6.7.0:
+qs@6.7.0, qs@^6.5.1, qs@^6.7.0:
   version "6.7.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.7.0.tgz#41dc1a015e3d581f1621776be31afb2876a9b1bc"
   integrity sha512-VCdBRNFTX1fyE7Nb6FYoURo/SPe62QCaAyzJvUjwRaIsc+NePBEniHlvxFmmX56+HZphIGtV0XeCirBtpDrTyQ==
-
-qs@^6.5.1:
-  version "6.6.0"
-  resolved "https://registry.yarnpkg.com/qs/-/qs-6.6.0.tgz#a99c0f69a8d26bf7ef012f871cdabb0aee4424c2"
-  integrity sha512-KIJqT9jQJDQx5h5uAVPimw6yVg2SekOKu959OCtktD3FjzbpvaPr8i4zzg07DOMz+igA4W/aNM7OV8H37pFYfA==
 
 query-string@^5.0.1:
   version "5.1.1"
@@ -16150,10 +16129,10 @@ svgo@^1.0.0, svgo@^1.2.1:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-swagger-fluent@^3.1.2:
-  version "3.1.2"
-  resolved "https://registry.yarnpkg.com/swagger-fluent/-/swagger-fluent-3.1.2.tgz#4089805b7db3750760182f32860a8c75b9272bdf"
-  integrity sha512-aTcbHTosk3FofPw3Vaosl9N8gNNdtjGpoGspKjAwRmmb4ocIqOfTKgPV4g04Fy4XLGiiW8S432vBaPazQxad7g==
+swagger-fluent@^3.1.3:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/swagger-fluent/-/swagger-fluent-3.2.1.tgz#755d4617cd74f4c30c25013c725269bdcbb0c599"
+  integrity sha512-Ol4wwbc9kKNdOGPS3aoKLEkCFPiEioA9gMUeeRzlugHHu0HYVvftLpK9v4X8ZUm8l2n2yGiLUBp+gKqhQzHspw==
   dependencies:
     merge-deep "^3.0.2"
     request "^2.88.0"
@@ -17784,14 +17763,7 @@ ws@^5.2.0:
   dependencies:
     async-limiter "~1.0.0"
 
-ws@^6.0.0:
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-6.2.0.tgz#13806d9913b2a5f3cbb9ba47b563c002cbc7c526"
-  integrity sha512-deZYUNlt2O4buFCa3t5bKLf8A7FPP/TVjwOeVNpw818Ma5nk4MLXls2eoEGS39o8119QIYxTrTDoPQ5B/gTD6w==
-  dependencies:
-    async-limiter "~1.0.0"
-
-ws@^6.1.2, ws@^6.2.1:
+ws@^6.0.0, ws@^6.1.2, ws@^6.2.1:
   version "6.2.1"
   resolved "https://registry.yarnpkg.com/ws/-/ws-6.2.1.tgz#442fdf0a47ed64f59b6a5d8ff130f4748ed524fb"
   integrity sha512-GIyAXC2cB7LjvpgMt9EKS2ldqr0MTrORaleiOno6TweZ6r3TKtoFQWay/2PceJ3RuBasOHzXNn5Lrw1X0bEjqA==
