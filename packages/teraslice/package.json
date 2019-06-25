@@ -1,6 +1,6 @@
 {
     "name": "teraslice",
-    "version": "0.52.0",
+    "version": "0.53.0",
     "description": "Distributed computing platform for processing JSON data",
     "bin": "service.js",
     "main": "index.js",
