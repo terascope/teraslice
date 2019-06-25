@@ -17,9 +17,9 @@ export default `
         description: String
         inherit_from: [ID!]
         config: DataTypeConfig
-        type_config: DataTypeConfig
 
         # virutal references
+        resolved_config: DataTypeConfig
         spaces: [Space]
         views: [View]
     }

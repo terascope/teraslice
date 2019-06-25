@@ -22,7 +22,7 @@ export class DataTypes extends IndexModel<DataType> {
     async resolveDataType(id: string, options?: FindOneOptions<DataType>, queryAccess?: QueryAccess<DataType>): Promise<DataType> {
         const dataType = await this.findByAnyId(id, options, queryAccess);
         if (dataType.inherit_from && dataType.inherit_from.length) {
-            dataType.resolved_config = await this.resolveTypeConfig(dataType, options, queryAccess);
+            dataType.config = await this.resolveTypeConfig(dataType, options, queryAccess);
         }
         return dataType;
     }
@@ -77,7 +77,7 @@ export class DataTypes extends IndexModel<DataType> {
                 });
             }
 
-            const moreDataTypes = await this._resolveDataTypes(dataType, resolved);
+            const moreDataTypes = await this._resolveDataTypes(dataType, resolved, options, queryAccess);
             resolved = resolved.concat(moreDataTypes);
         }
 
@@ -135,13 +135,11 @@ export class DataTypes extends IndexModel<DataType> {
 
     protected _preProcess(record: DataType): DataType {
         record.config = this._escapeFields(record.config);
-        if (record.resolved_config) delete record.resolved_config;
         return record;
     }
 
     protected _postProcess(record: DataType): DataType {
         record.config = this._unescapeFields(record.config);
-        if (record.resolved_config) delete record.resolved_config;
         return record;
     }
 }

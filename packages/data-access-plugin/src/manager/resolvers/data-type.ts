@@ -11,5 +11,8 @@ export default {
             const query = `data_type: ${dataType.id}`;
             return ctx.manager.findViews({ query, size: 10000 }, ctx.user);
         },
+        resolved_config(dataType: DataType, args: any, ctx: ManagerContext) {
+            return ctx.manager.resolveDataTypeConfig({ dataType }, ctx.user);
+        },
     },
 };

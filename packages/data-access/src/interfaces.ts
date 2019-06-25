@@ -98,3 +98,5 @@ export interface DataAccessConfig {
      */
     view: models.View;
 }
+
+export type ResolveDataTypeArgs = FindOneOptions<models.DataType> & { dataType: models.DataType };

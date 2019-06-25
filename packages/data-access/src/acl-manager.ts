@@ -225,7 +225,14 @@ export class ACLManager {
      * Find data type by id
      */
     async findDataType(args: i.FindOneArgs<models.DataType>, authUser: i.AuthUser) {
-        return this._dataTypes.resolveDataType(args.id, args, this._getDataTypeQueryAccess(authUser));
+        return this._dataTypes.findByAnyId(args.id, args, this._getDataTypeQueryAccess(authUser));
+    }
+
+    /**
+     * Get the resolved type config for DataType
+     */
+    async resolveDataTypeConfig(args: i.ResolveDataTypeArgs, authUser: i.AuthUser) {
+        return this._dataTypes.resolveTypeConfig(args.dataType, args, this._getDataTypeQueryAccess(authUser));
     }
 
     /**
@@ -688,7 +695,7 @@ export class ACLManager {
         }
 
         const defaultTypeConfig = { fields: {}, version: LATEST_VERSION };
-        const typeConfig: DataTypeConfig = config.data_type.resolved_config || config.data_type.config || defaultTypeConfig;
+        const typeConfig: DataTypeConfig = config.data_type.config || defaultTypeConfig;
 
         const dateField = searchConfig.default_date_field;
         if (dateField && !typeConfig.fields[dateField]) {

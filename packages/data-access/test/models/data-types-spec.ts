@@ -69,7 +69,7 @@ describe('DataTypes', () => {
     describe('when inheriting from another data type', () => {
         let inheritFrom: DataType;
         let inherited: DataType;
-        let fetched: DataType;
+        let resolved: DataType;
 
         beforeAll(async () => {
             inheritFrom = await dataTypes.create({
@@ -95,23 +95,14 @@ describe('DataTypes', () => {
                 },
             });
 
-            fetched = await dataTypes.resolveDataType(inherited.id);
+            resolved = await dataTypes.resolveDataType(inherited.id);
         });
 
         it('should be able to get the resolved type config', () => {
-            expect(fetched.resolved_config).toEqual({
+            expect(resolved.config).toEqual({
                 version: LATEST_VERSION,
                 fields: {
                     foo: { type: 'Keyword' },
-                    bar: { type: 'Float' },
-                },
-            });
-        });
-
-        it('should be keep a reference to original config', () => {
-            expect(fetched.config).toEqual({
-                version: LATEST_VERSION,
-                fields: {
                     bar: { type: 'Float' },
                 },
             });
@@ -123,7 +114,7 @@ describe('DataTypes', () => {
         let inheritFromB: DataType;
         let inheritFromA: DataType;
         let inherited: DataType;
-        let fetched: DataType;
+        let resolved: DataType;
 
         beforeAll(async () => {
             inheritFromC = await dataTypes.create({
@@ -179,11 +170,11 @@ describe('DataTypes', () => {
                 },
             });
 
-            fetched = await dataTypes.resolveDataType(inherited.id);
+            resolved = await dataTypes.resolveDataType(inherited.id);
         });
 
         it('should be able to get the resolved type config', () => {
-            expect(fetched.resolved_config).toEqual({
+            expect(resolved.config).toEqual({
                 version: LATEST_VERSION,
                 fields: {
                     common: { type: 'NgramTokens' },
@@ -191,16 +182,6 @@ describe('DataTypes', () => {
                     a: { type: 'Boolean' },
                     c_common: { type: 'Byte' },
                     c: { type: 'Keyword' },
-                    top_level: { type: 'Short' },
-                },
-            });
-        });
-
-        it('should be keep a reference to original config', () => {
-            expect(fetched.config).toEqual({
-                version: LATEST_VERSION,
-                fields: {
-                    common: { type: 'NgramTokens' },
                     top_level: { type: 'Short' },
                 },
             });
