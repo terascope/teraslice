@@ -114,10 +114,15 @@ jobs:
     services:
         - docker
     before_script: . ./scripts/travis-setup-credentials.sh
-    script: true
+    script: yarn docs:update
     deploy:
       - provider: script
         script: ./scripts/docker-release.sh tag
+        on:
+            all_branches: true
+            tags: true
+      - provider: script
+        script: ./scripts/publish-packages.sh
         on:
             all_branches: true
             tags: true

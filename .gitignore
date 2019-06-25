@@ -30,7 +30,8 @@ builds/*
 
 # cache directory
 .cache
-.yarn-cache
+.yarn-cache/*
+!.yarn-cache/.gitkeep
 
 # Dependency directory
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git

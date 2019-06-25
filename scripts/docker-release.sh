@@ -9,7 +9,7 @@ echoerr() { if [[ $QUIET -ne 1 ]]; then echo "$@" 1>&2; fi; }
 usage() {
     cat <<USAGE >&2
 Usage:
-    $cmdname <[tag|daily|dev]>
+    $cmdname <[tag|daily|dev|latest]>
 
     Build and push a teraslice docker image
 USAGE
@@ -122,7 +122,9 @@ main() {
             tag="v$(jq -r '.version' ./packages/teraslice/package.json)"
         fi
     elif [ "$arg" == "dev" ]; then
-        release_dev "$name" && exit 0
+        release_dev "$name" && build_and_push "$name" "latest" && exit 0
+    elif [ "$arg" == "latest" ]; then
+        build_and_push "$name" "latest" && exit 0
     else
         usage
     fi

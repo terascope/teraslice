@@ -24,11 +24,15 @@ publish() {
     currentVersion="$(npm info --json 2>/dev/null | jq -r '.version // "0.0.0"')"
 
     if [ "$currentVersion" != "$targetVersion" ]; then
-        if [ "$name" == "teraslice" ]; then
-            if [ -n "$TRAVIS_TAG" ]; then
-                echo "* Publishing Teraslice on release $TRAVIS_TAG"
-            else
-                echo "* Skipping teraslice until release v$targetVersion is created"
+        if [ -n "$TRAVIS_TAG" ]; then
+            if [ "$name" != "teraslice" ]; then
+                echo "* Skipping $name on release"
+                return
+            fi
+            echo "* Publishing $name on release $TRAVIS_TAG"
+        else
+            if [ "$name" == "teraslice" ]; then
+                echo "* Skipping $name until release v$targetVersion is created"
                 return
             fi
         fi
