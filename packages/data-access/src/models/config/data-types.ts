@@ -97,8 +97,6 @@ export interface DataType extends IndexModelRecord {
 
     /**
      * DataType to inherit from
-     *
-     * @todo make this work and avoid circlular dependencies
      */
     inherit_from?: string[];
 
@@ -106,6 +104,14 @@ export interface DataType extends IndexModelRecord {
      * Data Type Config
      */
     config: DataTypeConfig;
+
+    /**
+     * Resolved Data Type Config (see `inherit_from`)
+     *
+     * **IMPORTANT** This field will not get stored in the index
+     * and it will only exist when data types are inherited from
+     */
+    resolved_config?: DataTypeConfig;
 }
 
 export default config;

@@ -1,8 +1,9 @@
 import * as es from 'elasticsearch';
-import { escapeString, unescapeString } from '@terascope/utils';
-import { IndexModel, IndexModelOptions } from 'elasticsearch-store';
+import { escapeString, unescapeString, TSError } from '@terascope/utils';
+import { IndexModel, IndexModelOptions, FindOneOptions } from 'elasticsearch-store';
 import { DataTypeConfig, LATEST_VERSION, TypeConfigFields } from '@terascope/data-types';
 import dataTypesConfig, { DataType } from './config/data-types';
+import { QueryAccess } from 'xlucene-evaluator';
 
 /**
  * Manager for DataTypes
@@ -18,13 +19,21 @@ export class DataTypes extends IndexModel<DataType> {
      * Get the type configuration for a data type
      * including any merged fields
      */
-    async getTypeConfig(id: string): Promise<DataTypeConfig> {
-        const dataType = await this.findByAnyId(id);
-        const dataTypes = await this._resolveDataTypes(dataType, []);
-        const fields = this._mergeTypeConfigFields(dataTypes);
-        if (dataType.inherit_from) {
-            this.logger.trace('resolved data types', dataTypes);
+    async resolveDataType(id: string, options?: FindOneOptions<DataType>, queryAccess?: QueryAccess<DataType>): Promise<DataType> {
+        const dataType = await this.findByAnyId(id, options, queryAccess);
+        if (dataType.inherit_from && dataType.inherit_from.length) {
+            dataType.resolved_config = await this.resolveTypeConfig(dataType, options, queryAccess);
         }
+        return dataType;
+    }
+
+    async resolveTypeConfig(
+        dataType: DataType,
+        options?: FindOneOptions<DataType>,
+        queryAccess?: QueryAccess<DataType>
+    ): Promise<DataTypeConfig> {
+        const dataTypes = await this._resolveDataTypes(dataType, [], options, queryAccess);
+        const fields = this._mergeTypeConfigFields(dataTypes);
 
         return {
             version: dataType.config.version,
@@ -32,7 +41,13 @@ export class DataTypes extends IndexModel<DataType> {
         };
     }
 
-    private async _resolveDataTypes(initialDataType: DataType, _resolved: ReadonlyArray<DataType>): Promise<ReadonlyArray<DataType>> {
+    private async _resolveDataTypes(
+        initialDataType: DataType,
+        _resolved: ReadonlyArray<DataType>,
+        options?: FindOneOptions<DataType>,
+        queryAccess?: QueryAccess<DataType>
+    ): Promise<ReadonlyArray<DataType>> {
+        const version = initialDataType.config.version;
         let resolved: ReadonlyArray<DataType> = [initialDataType];
 
         const inheritFrom = initialDataType.inherit_from;
@@ -41,12 +56,28 @@ export class DataTypes extends IndexModel<DataType> {
         for (const id of inheritFrom) {
             const existing = _resolved.find(dt => dt.id === id);
             if (existing) {
-                // TODO this should blow up but we need a test first
+                throw new TSError('Circular reference to Data Type', {
+                    statusCode: 422,
+                    context: {
+                        initialDataType,
+                        resolved,
+                    },
+                });
             }
 
-            const dataType = await this.findById(id);
+            const dataType = await this.findById(id, options, queryAccess);
+            if (dataType.config.version && dataType.config.version !== version) {
+                throw new TSError('Data Type config version mistmatch', {
+                    statusCode: 422,
+                    context: {
+                        initialDataType,
+                        dataType,
+                        resolved,
+                    },
+                });
+            }
+
             const moreDataTypes = await this._resolveDataTypes(dataType, resolved);
-            // TODO verify the that versions match
             resolved = resolved.concat(moreDataTypes);
         }
 
@@ -55,7 +86,9 @@ export class DataTypes extends IndexModel<DataType> {
 
     private _mergeTypeConfigFields(dataTypes: ReadonlyArray<DataType>): TypeConfigFields {
         const allFields = dataTypes.map(({ config }) => config.fields).reverse();
-        return Object.assign({}, ...allFields);
+        const fields = Object.assign({}, ...allFields);
+        this.logger.trace('resolved data types', dataTypes, '\n -> to', fields);
+        return fields;
     }
 
     private _escapeFields(typeConfig?: DataTypeConfig): DataTypeConfig {
@@ -102,11 +135,13 @@ export class DataTypes extends IndexModel<DataType> {
 
     protected _preProcess(record: DataType): DataType {
         record.config = this._escapeFields(record.config);
+        if (record.resolved_config) delete record.resolved_config;
         return record;
     }
 
     protected _postProcess(record: DataType): DataType {
         record.config = this._unescapeFields(record.config);
+        if (record.resolved_config) delete record.resolved_config;
         return record;
     }
 }

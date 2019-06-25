@@ -49,7 +49,7 @@ describe('DataTypes', () => {
                 },
             });
 
-            const fetched = await dataTypes.findById(created.id);
+            const fetched = await dataTypes.resolveDataType(created.id);
 
             // ignore the updated timestamp and type config
             const { updated: __, config: ___, ..._created } = created;
@@ -69,6 +69,7 @@ describe('DataTypes', () => {
     describe('when inheriting from another data type', () => {
         let inheritFrom: DataType;
         let inherited: DataType;
+        let fetched: DataType;
 
         beforeAll(async () => {
             inheritFrom = await dataTypes.create({
@@ -93,13 +94,26 @@ describe('DataTypes', () => {
                     },
                 },
             });
+
+            fetched = await dataTypes.resolveDataType(inherited.id);
         });
 
-        it('should be get the merged type config', async () => {
-            const config = await dataTypes.getTypeConfig(inherited.id);
-            expect(config.fields).toEqual({
-                foo: { type: 'Keyword' },
-                bar: { type: 'Float' },
+        it('should be able to get the resolved type config', () => {
+            expect(fetched.resolved_config).toEqual({
+                version: LATEST_VERSION,
+                fields: {
+                    foo: { type: 'Keyword' },
+                    bar: { type: 'Float' },
+                },
+            });
+        });
+
+        it('should be keep a reference to original config', () => {
+            expect(fetched.config).toEqual({
+                version: LATEST_VERSION,
+                fields: {
+                    bar: { type: 'Float' },
+                },
             });
         });
     });
@@ -109,6 +123,7 @@ describe('DataTypes', () => {
         let inheritFromB: DataType;
         let inheritFromA: DataType;
         let inherited: DataType;
+        let fetched: DataType;
 
         beforeAll(async () => {
             inheritFromC = await dataTypes.create({
@@ -163,18 +178,87 @@ describe('DataTypes', () => {
                     },
                 },
             });
+
+            fetched = await dataTypes.resolveDataType(inherited.id);
         });
 
-        it('should be get the merged type config', async () => {
-            const config = await dataTypes.getTypeConfig(inherited.id);
-            expect(config.fields).toEqual({
-                common: { type: 'NgramTokens' },
-                a_common: { type: 'Hostname' },
-                a: { type: 'Boolean' },
-                c_common: { type: 'Byte' },
-                c: { type: 'Keyword' },
-                top_level: { type: 'Short' },
+        it('should be able to get the resolved type config', () => {
+            expect(fetched.resolved_config).toEqual({
+                version: LATEST_VERSION,
+                fields: {
+                    common: { type: 'NgramTokens' },
+                    a_common: { type: 'Hostname' },
+                    a: { type: 'Boolean' },
+                    c_common: { type: 'Byte' },
+                    c: { type: 'Keyword' },
+                    top_level: { type: 'Short' },
+                },
             });
+        });
+
+        it('should be keep a reference to original config', () => {
+            expect(fetched.config).toEqual({
+                version: LATEST_VERSION,
+                fields: {
+                    common: { type: 'NgramTokens' },
+                    top_level: { type: 'Short' },
+                },
+            });
+        });
+    });
+
+    describe('when creating a circular reference', () => {
+        let circularA: DataType;
+        let circularB: DataType;
+
+        beforeAll(async () => {
+            circularA = await dataTypes.create({
+                client_id: 1,
+                name: 'circular-a',
+                config: {
+                    version: LATEST_VERSION,
+                    fields: {},
+                },
+            });
+
+            circularB = await dataTypes.create({
+                client_id: 1,
+                name: 'circular-b',
+                inherit_from: [circularA.id],
+                config: {
+                    version: LATEST_VERSION,
+                    fields: {},
+                },
+            });
+
+            await dataTypes.update({
+                ...circularA,
+                inherit_from: [circularB.id],
+            });
+        });
+
+        it('should throw an error when resolving the record A', async () => {
+            expect.hasAssertions();
+
+            try {
+                const result = await dataTypes.resolveDataType(circularA.id);
+                expect(result).toThrowError();
+            } catch (err) {
+                expect(err.message).toEqual('Circular reference to Data Type');
+                expect(err.statusCode).toEqual(422);
+            }
+        });
+
+        it('should throw an error when resolving record B', async () => {
+            expect.hasAssertions();
+
+            try {
+                const result = await dataTypes.resolveDataType(circularB.id);
+                expect(result).toThrowError();
+            } catch (err) {
+                expect(err.message).toEqual('Circular reference to Data Type');
+                expect(err.statusCode).toEqual(422);
+            }
         });
     });
 });

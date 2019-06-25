@@ -225,7 +225,7 @@ export class ACLManager {
      * Find data type by id
      */
     async findDataType(args: i.FindOneArgs<models.DataType>, authUser: i.AuthUser) {
-        return this._dataTypes.findByAnyId(args.id, args, this._getDataTypeQueryAccess(authUser));
+        return this._dataTypes.resolveDataType(args.id, args, this._getDataTypeQueryAccess(authUser));
     }
 
     /**
@@ -448,7 +448,10 @@ export class ACLManager {
             throw new ts.TSError(msg, { statusCode: 403 });
         }
 
-        const [view, dataType] = await Promise.all([this._views.getViewOfSpace(space, role), this._dataTypes.findById(space.data_type)]);
+        const [view, dataType] = await Promise.all([
+            this._views.getViewOfSpace(space, role),
+            this._dataTypes.resolveDataType(space.data_type),
+        ]);
 
         const clientIds = [role.client_id, space.client_id, dataType.client_id, view.client_id];
         if (!clientIds.every(id => id === user.client_id)) {
@@ -684,7 +687,8 @@ export class ACLManager {
             searchConfig.default_geo_field = ts.trimAndToLower(searchConfig.default_geo_field);
         }
 
-        const typeConfig: DataTypeConfig = config.data_type.config || { fields: {}, version: LATEST_VERSION };
+        const defaultTypeConfig = { fields: {}, version: LATEST_VERSION };
+        const typeConfig: DataTypeConfig = config.data_type.resolved_config || config.data_type.config || defaultTypeConfig;
 
         const dateField = searchConfig.default_date_field;
         if (dateField && !typeConfig.fields[dateField]) {
@@ -843,8 +847,10 @@ export class ACLManager {
     }
 
     private async _validateDataTypeInput(dataType: Partial<models.DataType>, authUser: i.AuthUser) {
-        // TODO: throw error herr
         this._validateAnyInput(dataType, authUser);
+        if (dataType.inherit_from && dataType.inherit_from) {
+            await this._dataTypes.resolveTypeConfig(dataType as models.DataType);
+        }
     }
 
     private async _validateViewInput(view: Partial<models.View>, authUser: i.AuthUser) {
