@@ -6,7 +6,7 @@ import { Space, Role } from '../../src';
 describe('Views', () => {
     const client = makeClient();
     const views = new Views(client, {
-        namespace: 'test'
+        namespace: 'test',
     });
 
     beforeAll(async () => {
