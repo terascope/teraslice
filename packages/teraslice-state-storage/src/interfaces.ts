@@ -1,7 +1,7 @@
 
-import { APIConfig, DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/job-components';
 
-export interface ESStateStorageConfig extends APIConfig, CacheConfig {
+export interface ESStateStorageConfig extends CacheConfig {
     index: string;
     type: string;
     concurrency: number;
@@ -37,6 +37,19 @@ export interface CacheConfig {
     max_age: number;
 }
 
-export interface MGetRespose {
+export interface MGetCacheResponse {
     [key: string]: DataEntity;
+}
+
+export interface MGetResponse {
+    docs: MGetDoc[];
+}
+
+export interface MGetDoc {
+    _index: string;
+    _type: string;
+    _version: number;
+    _id: string;
+    found: boolean;
+    _source?: any;
 }

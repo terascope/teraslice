@@ -1,11 +1,11 @@
 
-import { DataEntity, Logger } from '@terascope/job-components';
+import { DataEntity, Logger, TSError } from '@terascope/job-components';
 import esApi, { Client } from '@terascope/elasticsearch-api';
 import { Promise as bPromise } from 'bluebird';
-import { ESStateStorageConfig, ESBulkQuery, ESQUery } from '../interfaces';
+import { ESStateStorageConfig, ESBulkQuery, ESQUery, MGetResponse } from '../interfaces';
 import CachedStateStorage from '../cached-state-storage';
 
-export default class ESCacheStateStorage {
+export default class ESCachedStateStorage {
     private index: string;
     private type: string;
     private IDField: string;
@@ -30,15 +30,22 @@ export default class ESCacheStateStorage {
         this.es = esApi(client, logger);
     }
 
+    private getIdentifier(doc: DataEntity) {
+        const id =  doc.getMetadata(this.IDField);
+        if (id == null) throw new TSError(`There is no field "${this.IDField}" set in the metadata for doc: ${JSON.stringify(doc)}`);
+        return id;
+    }
+
     private _esBulkUpdatePrep(dataArray: DataEntity[]) {
         const bulkRequest: ESBulkQuery[] = [];
 
         dataArray.forEach((item) => {
+            const id = item.getMetadata(this.persistField);
             bulkRequest.push({
                 index: {
                     _index: this.index,
                     _type: this.type,
-                    _id: item[this.persistField]
+                    _id: id
                 }
             });
             bulkRequest.push(item);
@@ -55,17 +62,19 @@ export default class ESCacheStateStorage {
             );
     }
 
-    private _esGet(doc: DataEntity) {
+    private async _esGet(doc: DataEntity) {
+        const id = this.getIdentifier(doc);
         const request = {
             index: this.index,
             type: this.type,
-            id: doc[this.IDField]
+            id
         };
 
-        return this.es.get(request);
+        const results = await this.es.get(request);
+        return DataEntity.make(results, { [this.IDField]: id });
     }
 
-    private _esMget(query: string[]) {
+    private async _esMget(query: string[]) {
         const request: ESQUery = {
             index: this.index,
             type: this.type,
@@ -74,14 +83,19 @@ export default class ESCacheStateStorage {
             }
         };
         if (this.sourceFields.length > 0) request._source = this.sourceFields;
-        return this.es.mget(request);
+        const response: MGetResponse = await this.es.mget(request);
+
+        return response.docs
+            .filter(doc => doc.found === true)
+            .map(doc => DataEntity.make(doc._source, { [this.IDField]: doc._id }));
+
     }
 
     private _dedupeDocs(docArray: DataEntity[], idField = this.IDField) {
         // returns uniq docs from an array of docs
         const uniqKeys = {};
         return docArray.filter((doc) => {
-            const id = doc[idField];
+            const id = doc.getMetadata(idField);
             const uniq = has(uniqKeys, id) ? false : uniqKeys[id] = true;
             return uniq;
         });
@@ -89,7 +103,7 @@ export default class ESCacheStateStorage {
 
     async get(doc: DataEntity) {
         let cached = this.cache.get(doc);
-        if (!cached && doc[this.IDField]) {
+        if (!cached) {
             cached = await this._esGet(doc);
         }
         return cached;
@@ -104,7 +118,7 @@ export default class ESCacheStateStorage {
 
         // need to add valid docs to return object and find non-cached docs
         uniqDocs.forEach((doc) => {
-            const key = doc[this.IDField];
+            const key = this.getIdentifier(doc);
             const cachedDoc = this.cache.get(doc);
 
             if (cachedDoc) {
@@ -122,19 +136,12 @@ export default class ESCacheStateStorage {
             chunked => this._esMget(chunked), { concurrency: this.concurrency });
 
         // update cache based on mget results
-        mgetResults.forEach((result) => {
-            // FIXME: should not be any
-            result.docs.forEach((doc: any) => {
-                if (doc.found) {
-                    // need to set id field in doc
-                    doc._source[this.IDField] = doc._id;
-
-                    // update cache
-                    this.set(doc._source);
-
-                    // updated savedDocs object
-                    savedDocs[doc._id] = doc._source;
-                }
+        mgetResults.forEach((results) => {
+            results.forEach((doc: DataEntity) => {
+                // update cache
+                this.set(doc);
+                // updated savedDocs object
+                savedDocs[this.getIdentifier(doc)] = doc;
             });
         });
         // return state
@@ -146,12 +153,16 @@ export default class ESCacheStateStorage {
         return this.cache.set(doc);
     }
 
-    async mset(docArray: DataEntity[], keyField: string) {
+    async mset(docArray: DataEntity[], keyField?: string) {
         const dedupedDocs = this._dedupeDocs(docArray, keyField);
         if (this.persist) {
             return bPromise.all([this.cache.mset(dedupedDocs), this._esBulkUpdate(dedupedDocs)]);
         }
         return this.cache.mset(dedupedDocs);
+    }
+
+    count() {
+        return this.cache.count();
     }
 
     async initialize() {

@@ -1,10 +1,10 @@
 
-import ESCacheStateStorage from './elasticsearch-state-storage';
+import ESCachedStateStorage from './elasticsearch-state-storage';
 import CachedStateStorage from './cached-state-storage';
 
 export * from './interfaces';
 
 export {
-    ESCacheStateStorage,
+    ESCachedStateStorage,
     CachedStateStorage
 };

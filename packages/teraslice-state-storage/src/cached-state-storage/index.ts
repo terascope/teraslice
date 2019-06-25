@@ -1,7 +1,7 @@
 
 import LRU from 'lru-cache';
 import { DataEntity, TSError } from '@terascope/job-components';
-import { CacheConfig, MGetRespose } from '../interfaces';
+import { CacheConfig, MGetCacheResponse } from '../interfaces';
 
 export default class CachedStateStorage {
     protected IDField: string;
@@ -26,7 +26,7 @@ export default class CachedStateStorage {
         return this.cache.get(identifier);
     }
 
-    mget(docArray: DataEntity[]): MGetRespose {
+    mget(docArray: DataEntity[]): MGetCacheResponse {
         return docArray.reduce((cachedState, doc) => {
             const identifier = this.getIdentifier(doc);
             const state = this.cache.get(identifier);
