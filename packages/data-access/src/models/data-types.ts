@@ -1,8 +1,8 @@
 import * as es from 'elasticsearch';
 import { escapeString, unescapeString } from '@terascope/utils';
 import { IndexModel, IndexModelOptions } from 'elasticsearch-store';
+import { DataTypeConfig, LATEST_VERSION, TypeConfigFields } from '@terascope/data-types';
 import dataTypesConfig, { DataType } from './config/data-types';
-import { DataTypeConfig, LATEST_VERSION } from '@terascope/data-types';
 
 /**
  * Manager for DataTypes
@@ -12,6 +12,50 @@ export class DataTypes extends IndexModel<DataType> {
 
     constructor(client: es.Client, options: IndexModelOptions) {
         super(client, options, dataTypesConfig);
+    }
+
+    /**
+     * Get the type configuration for a data type
+     * including any merged fields
+     */
+    async getTypeConfig(id: string): Promise<DataTypeConfig> {
+        const dataType = await this.findByAnyId(id);
+        const dataTypes = await this._resolveDataTypes(dataType, []);
+        const fields = this._mergeTypeConfigFields(dataTypes);
+        if (dataType.inherit_from) {
+            this.logger.trace('resolved data types', dataTypes);
+        }
+
+        return {
+            version: dataType.config.version,
+            fields,
+        };
+    }
+
+    private async _resolveDataTypes(initialDataType: DataType, _resolved: ReadonlyArray<DataType>): Promise<ReadonlyArray<DataType>> {
+        let resolved: ReadonlyArray<DataType> = [initialDataType];
+
+        const inheritFrom = initialDataType.inherit_from;
+        if (!inheritFrom || !inheritFrom.length) return resolved;
+
+        for (const id of inheritFrom) {
+            const existing = _resolved.find(dt => dt.id === id);
+            if (existing) {
+                // TODO this should blow up but we need a test first
+            }
+
+            const dataType = await this.findById(id);
+            const moreDataTypes = await this._resolveDataTypes(dataType, resolved);
+            // TODO verify the that versions match
+            resolved = resolved.concat(moreDataTypes);
+        }
+
+        return resolved;
+    }
+
+    private _mergeTypeConfigFields(dataTypes: ReadonlyArray<DataType>): TypeConfigFields {
+        const allFields = dataTypes.map(({ config }) => config.fields).reverse();
+        return Object.assign({}, ...allFields);
     }
 
     private _escapeFields(typeConfig?: DataTypeConfig): DataTypeConfig {
