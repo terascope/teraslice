@@ -61,6 +61,9 @@
         },
         {
             "path": "packages/ui-components"
+        },
+        {
+            "path": "packages/teraslice-state-storage"
         }
     ]
 }
