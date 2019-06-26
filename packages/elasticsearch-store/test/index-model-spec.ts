@@ -419,6 +419,22 @@ describe('IndexModel', () => {
                     expect(record.name).toStartWith('Bob');
                 }
             });
+
+            it('should be able to use NOT query when finding bobs', async () => {
+                const queryAccess = new QueryAccess({
+                    constraint: 'name:Bob*',
+                    excludes: ['created'],
+                });
+
+                const NOT_NAME = 'Bob 1';
+                const result = await indexModel.find(`NOT name:"${NOT_NAME}"`, { size: 6 }, queryAccess);
+
+                expect(result).toBeArrayOfSize(4);
+                for (const record of result) {
+                    expect(record.name).not.toEqual(NOT_NAME);
+                    expect(record.name).toStartWith('Bob');
+                }
+            });
         });
     });
 
