@@ -1,9 +1,11 @@
 import gql from 'graphql-tag';
+import { get } from '@terascope/utils';
+import { DataType } from '@terascope/data-access';
 import { formatDate } from '@terascope/ui-components';
+import { LATEST_VERSION } from '@terascope/data-types';
 import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
 import { copyField } from '../utils';
-import { LATEST_VERSION } from '@terascope/data-types';
 
 const fieldsFragment = gql`
     fragment DataTypeFields on DataType {
@@ -11,7 +13,12 @@ const fieldsFragment = gql`
         client_id
         name
         description
+        inherit_from
         config {
+            version
+            fields
+        }
+        resolved_config {
             version
             fields
         }
@@ -27,7 +34,7 @@ const config: ModelConfig<Input> = {
     pluralLabel: 'Data Types',
     searchFields: ['name'],
     requiredFields: ['name'],
-    handleFormProps(authUser, { result, ...extra }) {
+    handleFormProps(authUser, { result, dataTypes: _dataTypes }) {
         const input = {} as Input;
         for (const field of inputFields) {
             if (field === 'config') {
@@ -35,14 +42,24 @@ const config: ModelConfig<Input> = {
                     version: LATEST_VERSION,
                     fields: {},
                 });
+            } else if (field === 'inherit_from') {
+                copyField(input, result, field, []);
             } else {
                 copyField(input, result, field, '');
             }
         }
+
+        const resolvedConfig = get(result, 'resolved_config', input.config);
+
+        const dataTypes = (_dataTypes || []).filter(({ id }: DataType) => {
+            return id !== input.id;
+        });
+
         if (!input.client_id && authUser.client_id) {
             input.client_id = authUser.client_id;
         }
-        return { input, ...extra };
+
+        return { input, resolvedConfig, dataTypes };
     },
     rowMapping: {
         getId(record) {
@@ -79,8 +96,30 @@ const config: ModelConfig<Input> = {
             result: dataType(id: $id) {
                 ...DataTypeFields
             }
+            dataTypes(size: 1000) {
+                id
+                client_id
+                name
+                config {
+                    version
+                    fields
+                }
+            }
         }
         ${fieldsFragment}
+    `,
+    createQuery: gql`
+        {
+            dataTypes(size: 10000) {
+                id
+                client_id
+                name
+                config {
+                    version
+                    fields
+                }
+            }
+        }
     `,
     createMutation: gql`
         mutation CreateDataType($input: CreateDataTypeInput!) {

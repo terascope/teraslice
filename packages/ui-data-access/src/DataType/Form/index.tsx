@@ -3,7 +3,12 @@ import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
 import { trim, toInteger } from '@terascope/utils';
 import { AvailableTypes } from '@terascope/data-types';
-import ModelForm, { FormInput, ClientID, Description } from '../../ModelForm';
+import ModelForm, {
+    FormInput,
+    ClientID,
+    Description,
+    FormSelect,
+} from '../../ModelForm';
 import { validateFieldName, parseTypeConfig } from '../../utils';
 import { Input } from '../interfaces';
 import TypeConfig from './TypeConfig';
@@ -50,7 +55,7 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
                 return errs;
             }}
         >
-            {({ defaultInputProps, updateModel, model }) => {
+            {({ defaultInputProps, updateModel, model, dataTypes }) => {
                 return (
                     <React.Fragment>
                         <Form.Group>
@@ -68,6 +73,14 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
                         <Description<Input>
                             {...defaultInputProps}
                             description={model.description}
+                        />
+                        <FormSelect<Input>
+                            {...defaultInputProps}
+                            label="Inherit Fields from Data Types"
+                            multiple
+                            options={dataTypes}
+                            name="inherit_from"
+                            value={model.inherit_from}
                         />
                         <TypeConfig
                             updateTypeConfig={typeConfig => {
