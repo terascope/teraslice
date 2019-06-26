@@ -8,7 +8,7 @@ module.exports = (projectDir) => {
     const name = path.basename(projectDir);
     const workspaceName = name === 'e2e' ? 'e2e' : 'packages';
     const rootDir = name === 'e2e' ? '../' : '../../';
-    const projectRoot = name === 'e2e' ? '<rootDir>/e2e' : `<rootDir>/${workspaceName}/${name}`;
+    const packageRoot = name === 'e2e' ? '<rootDir>/e2e' : `<rootDir>/${workspaceName}/${name}`;
     const isTypescript = fs.pathExistsSync(path.join(projectDir, 'tsconfig.json'));
     const runInPackage = projectDir === process.cwd();
 
@@ -18,13 +18,13 @@ module.exports = (projectDir) => {
         displayName: name,
         verbose: true,
         testEnvironment: 'node',
-        setupFilesAfterEnv: ['jest-extended'],
-        testMatch: [`${projectRoot}/test/**/*-spec.{ts,js}`, `${projectRoot}/test/*-spec.{ts,js}`],
+        setupFilesAfterEnv: ['jest-extended', '<rootDir>/scripts/add-test-env.js'],
+        testMatch: [`${packageRoot}/test/**/*-spec.{ts,js}`, `${packageRoot}/test/*-spec.{ts,js}`],
         testPathIgnorePatterns: [
             '<rootDir>/assets',
             `<rootDir>/${workspaceName}/*/node_modules`,
             `<rootDir>/${workspaceName}/*/dist`,
-            `<rootDir>/${workspaceName}/teraslice-cli/test/fixtures/`,
+            `<rootDir>/${workspaceName}/teraslice-cli/test/fixtures/`
         ],
         transformIgnorePatterns: ['^.+\\.js$'],
         moduleNameMapper: lernaAliases({ mainFields: ['srcMain', 'main'] }),
@@ -33,25 +33,25 @@ module.exports = (projectDir) => {
         coveragePathIgnorePatterns: ['/node_modules/', '/test/'],
         watchPathIgnorePatterns: [],
         coverageReporters: runInPackage ? ['html'] : ['lcov', 'text', 'html'],
-        coverageDirectory: `${projectRoot}/coverage`,
+        coverageDirectory: `${packageRoot}/coverage`,
         preset: 'ts-jest',
-        watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname'],
+        watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname']
     };
 
     if (fs.pathExistsSync(path.join(projectDir, 'test/global.setup.js'))) {
-        config.globalSetup = `${projectRoot}/test/global.setup.js`;
+        config.globalSetup = `${packageRoot}/test/global.setup.js`;
     }
 
     if (fs.pathExistsSync(path.join(projectDir, 'test/global.teardown.js'))) {
-        config.globalTeardown = `${projectRoot}/test/global.teardown.js`;
+        config.globalTeardown = `${packageRoot}/test/global.teardown.js`;
     }
 
     if (fs.pathExistsSync(path.join(projectDir, 'test/test.setup.js'))) {
-        config.setupFilesAfterEnv.push(`${projectRoot}/test/test.setup.js`);
+        config.setupFilesAfterEnv.push(`${packageRoot}/test/test.setup.js`);
     }
 
     config.globals = {
-        availableExtensions: ['.js', '.ts'],
+        availableExtensions: ['.js', '.ts']
     };
 
     if (isTypescript) {
@@ -59,37 +59,37 @@ module.exports = (projectDir) => {
             config.globals['ts-jest'] = {
                 tsConfig: './tsconfig.json',
                 diagnostics: true,
-                pretty: true,
+                pretty: true
             };
         } else {
             config.globals['ts-jest'] = {
                 tsConfig: `./${workspaceName}/${name}/tsconfig.json`,
                 diagnostics: true,
-                pretty: true,
+                pretty: true
             };
         }
     } else {
         config.globals['ts-jest'] = {
             diagnostics: true,
-            pretty: true,
+            pretty: true
         };
     }
 
-    config.roots = [`${projectRoot}/test`];
+    config.roots = [`${packageRoot}/test`];
 
     if (fs.pathExistsSync(path.join(projectDir, 'lib'))) {
-        config.roots.push(`${projectRoot}/lib`);
+        config.roots.push(`${packageRoot}/lib`);
     } else if (fs.pathExistsSync(path.join(projectDir, 'index.js'))) {
-        config.roots.push(`${projectRoot}`);
+        config.roots.push(`${packageRoot}`);
     }
 
     if (fs.pathExistsSync(path.join(projectDir, 'src'))) {
-        config.roots.push(`${projectRoot}/src`);
+        config.roots.push(`${packageRoot}/src`);
     }
 
     if (fs.pathExistsSync(path.join(projectDir, 'peg'))) {
-        config.watchPathIgnorePatterns.push(`${projectRoot}/peg/*engine*.js`);
-        config.roots.push(`${projectRoot}/peg`);
+        config.watchPathIgnorePatterns.push(`${packageRoot}/peg/*engine*.js`);
+        config.roots.push(`${packageRoot}/peg`);
     }
 
     return config;
