@@ -104,6 +104,10 @@
     min-width: 1rem;
 }
 
+.actionSegment > .fields {
+    margin: 0 !important;
+}
+
 .borderlessButton {
     box-shadow: none !important;
     background: transparent none !important;

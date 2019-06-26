@@ -35,7 +35,7 @@ const AddField: React.FC<Props> = ({ addField, fields }) => {
                 },
             ]}
         >
-            <Form.Group style={{ paddingTop: '0.8rem' }}>
+            <Form.Group>
                 <Form.Input
                     placeholder="Field Name"
                     value={field}

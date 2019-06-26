@@ -19,7 +19,7 @@ const Actions: React.FC<Props> = ({ actions }) => {
                         onClick();
                     }}
                 >
-                    <Icon name={icon as any} />
+                    {icon && <Icon name={icon as any} />)
                     {name}
                 </Button>
             ))}
@@ -38,7 +38,7 @@ const ActionSegment: React.FC<Props> = ({ children, actions }) => {
 
 type Props = {
     actions?: {
-        icon: string;
+        icon?: string;
         name: string;
         color?: 'red' | 'blue';
         onClick: () => void;

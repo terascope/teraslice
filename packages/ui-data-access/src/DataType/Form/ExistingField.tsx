@@ -18,7 +18,7 @@ const ExistingField: React.FC<Props> = ({ updateField, field, type }) => {
                 },
             ]}
         >
-            <Form.Group style={{ paddingTop: '0.8rem' }}>
+            <Form.Group>
                 <Form.Input value={field}>
                     <input readOnly />
                 </Form.Input>
