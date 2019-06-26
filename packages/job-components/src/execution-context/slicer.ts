@@ -1,10 +1,8 @@
-import { cloneDeep, debugLogger, Logger } from '@terascope/utils';
+import { cloneDeep, Logger } from '@terascope/utils';
 import { SlicerOperationLifeCycle, ExecutionStats, Slice, SliceResult } from '../interfaces';
 import SlicerCore from '../operations/core/slicer-core';
 import { ExecutionContextConfig } from './interfaces';
 import BaseExecutionContext from './base';
-
-const _logger = debugLogger('execution-context-slicer');
 
 /**
  * SlicerExecutionContext is designed to add more
@@ -15,9 +13,9 @@ export class SlicerExecutionContext extends BaseExecutionContext<SlicerOperation
     private readonly _slicer: SlicerCore;
     readonly logger: Logger;
 
-    constructor(config: ExecutionContextConfig, logger: Logger = _logger) {
+    constructor(config: ExecutionContextConfig) {
         super(config);
-        this.logger = logger;
+        this.logger = this.api.makeLogger('worker_context');
 
         this._methodRegistry.set('onSliceComplete', new Set());
         this._methodRegistry.set('onSliceDispatch', new Set());

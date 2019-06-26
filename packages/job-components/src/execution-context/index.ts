@@ -2,6 +2,7 @@ export * from './api';
 export * from './interfaces';
 export * from './slicer';
 export * from './worker';
+export * from './utils';
 
 import { Context, WorkerContext } from '../interfaces';
 import { SlicerExecutionContext } from './slicer';
@@ -25,32 +26,13 @@ export function isSlicerExecutionContext(context: any): context is SlicerExecuti
 }
 
 export function makeExecutionContext(config: ExecutionContextConfig) {
-    const { ex_id, job_id } = config.executionConfig;
-
     if (isSlicerContext(config.context)) {
-        const logger = makeContextLogger(config.context, 'slicer_context', { ex_id, job_id });
-        return new SlicerExecutionContext(config, logger);
+        return new SlicerExecutionContext(config);
     }
 
     if (isWorkerContext(config.context)) {
-        const logger = makeContextLogger(config.context, 'worker_context', { ex_id, job_id });
-        return new WorkerExecutionContext(config, logger);
+        return new WorkerExecutionContext(config);
     }
 
     throw new Error('ExecutionContext requires an assignment of "execution_controller" or "worker"');
-}
-
-export function makeContextLogger(context: Context, moduleName: string, extra = {}) {
-    const { assignment, cluster } = context;
-
-    return context.apis.foundation.makeLogger(
-        Object.assign(
-            {
-                module: moduleName,
-                worker_id: cluster.worker.id,
-                assignment,
-            },
-            extra
-        )
-    );
 }

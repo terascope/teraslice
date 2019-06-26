@@ -1,6 +1,6 @@
 {
     "name": "teraslice",
-    "version": "0.53.0",
+    "version": "0.53.1",
     "description": "Distributed computing platform for processing JSON data",
     "bin": "service.js",
     "main": "index.js",
@@ -36,7 +36,7 @@
     "dependencies": {
         "@terascope/elasticsearch-api": "^2.0.3",
         "@terascope/error-parser": "^1.0.2",
-        "@terascope/job-components": "^0.19.0",
+        "@terascope/job-components": "^0.20.0",
         "@terascope/queue": "^1.1.6",
         "@terascope/teraslice-messaging": "^0.3.2",
         "@terascope/utils": "^0.11.0",

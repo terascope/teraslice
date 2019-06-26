@@ -9,20 +9,20 @@ import ParallelSlicer from './parallel-slicer';
 import OperationAPI from './operation-api';
 
 export type APICoreConstructor<U> = {
-    new(context: WorkerContext, apiConfig: APIConfig, executionConfig: ExecutionConfig): U;
+    new (context: WorkerContext, apiConfig: APIConfig, executionConfig: ExecutionConfig): U;
 };
 
 export type OperationCoreConstructor<U> = {
-    new<T = OpConfig>(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig): U;
+    new <T = OpConfig>(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig): U;
 };
 
 export type SlicerCoreConstructor<U> = {
-    new<T = OpConfig>(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig): U;
+    new <T = OpConfig>(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig): U;
 };
 
 export type SchemaConstructor<T = any> = {
     type(): string;
-    new(context: Context, opType?: OpType): SchemaCore<T>;
+    new (context: Context, opType?: OpType): SchemaCore<T>;
 };
 
 export type OperationAPIConstructor = APICoreConstructor<OperationAPI>;
@@ -34,7 +34,7 @@ export type ParallelSlicerConstructor = SlicerCoreConstructor<ParallelSlicer>;
 export type FetcherConstructor = OperationCoreConstructor<FetcherCore>;
 export type ProcessorConstructor = OperationCoreConstructor<ProcessorCore>;
 
-export type CoreOperation = FetcherCore|SlicerCore|ProcessorCore;
+export type CoreOperation = FetcherCore | SlicerCore | ProcessorCore;
 
 export interface OperationModule {
     Schema: SchemaConstructor;
@@ -45,9 +45,10 @@ export interface SchemaModule {
     Schema: SchemaConstructor;
 }
 
+export type OperationAPIType = 'api' | 'observer';
 export interface APIModule extends SchemaModule {
-    API: OperationAPIConstructor|ObserverConstructor;
-    type: 'api'|'observer';
+    API: OperationAPIConstructor | ObserverConstructor;
+    type: OperationAPIType;
 }
 
 export interface ReaderModule extends OperationModule {

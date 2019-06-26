@@ -3,14 +3,11 @@ import { isFunction, cloneDeep } from '@terascope/utils';
 import { OperationLoader } from '../operation-loader';
 import { registerApis } from '../register-apis';
 import { ExecutionConfig, WorkerContext, OperationLifeCycle } from '../interfaces';
-import {
-    EventHandlers,
-    ExecutionContextConfig,
-} from './interfaces';
+import { EventHandlers, ExecutionContextConfig } from './interfaces';
 
 /**
  * A base class for an Execution Context
-*/
+ */
 export default class BaseExecutionContext<T extends OperationLifeCycle> {
     readonly config: ExecutionConfig;
     readonly context: WorkerContext;
@@ -56,7 +53,7 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
 
     /**
      * Called to initialize all of the registered operations
-    */
+     */
     async initialize(initConfig?: any) {
         const promises = [];
         for (const op of this.getOperations()) {
@@ -68,7 +65,7 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
 
     /**
      * Called to cleanup all of the registered operations
-    */
+     */
     async shutdown() {
         const promises = [];
         for (const op of this.getOperations()) {
@@ -77,17 +74,20 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
 
         await Promise.all(promises);
 
-        Object.keys(this._handlers)
-            .forEach((event) => {
-                const listener = this._handlers[event];
-                this.events.removeListener(event, listener);
-            });
+        Object.keys(this._handlers).forEach(event => {
+            const listener = this._handlers[event];
+            this.events.removeListener(event, listener);
+        });
+    }
+
+    get api() {
+        return this.context.apis.executionContext;
     }
 
     /**
      * Returns a list of any registered Operation that has been
      * initialized.
-    */
+     */
     getOperations() {
         return this._operations.values();
     }

@@ -1,16 +1,8 @@
 import 'jest-extended';
 import path from 'path';
+import { pDelay, DataEntity } from '@terascope/utils';
 import { terasliceOpPath } from '../helpers';
-import {
-    WorkerExecutionContext,
-    TestContext,
-    newTestExecutionConfig,
-    DataEntity,
-    FetcherCore,
-    ProcessorCore,
-    newTestSlice,
-    pDelay,
-} from '../../src';
+import { WorkerExecutionContext, TestContext, newTestExecutionConfig, FetcherCore, ProcessorCore, newTestSlice } from '../../src';
 
 describe('WorkerExecutionContext', () => {
     const assetIds = ['fixtures'];
@@ -48,14 +40,16 @@ describe('WorkerExecutionContext', () => {
             ],
         });
 
-        const executionContext = new WorkerExecutionContext({
-            context,
-            executionConfig,
-            assetIds,
-            terasliceOpPath,
-        });
+        let executionContext: WorkerExecutionContext;
 
         beforeAll(async () => {
+            executionContext = new WorkerExecutionContext({
+                context,
+                executionConfig,
+                assetIds,
+                terasliceOpPath,
+            });
+
             expect(executionContext).toHaveProperty('status', 'initializing');
             await executionContext.initialize();
             expect(executionContext).toHaveProperty('status', 'idle');
@@ -97,8 +91,24 @@ describe('WorkerExecutionContext', () => {
             }
         });
 
-        it('should have the APIs', () => {
-            expect(executionContext.apis).toContainKeys(['example-observer', 'example-api']);
+        it('should have the registered APIs', () => {
+            const registeredAPIs = Object.keys(executionContext.apis);
+            // this test is order specific to ensure everything is loaded correctly
+            expect(registeredAPIs).toEqual(['job-observer', 'example-observer', 'example-api', 'example-reader']);
+        });
+
+        it('should be able to get the example-api', async () => {
+            const delay = executionContext.getOperation('delay');
+            const api = await delay.getAPI('example-api');
+            expect(api).not.toBeNil();
+        });
+
+        it('should be able to create the example-api', async () => {
+            const delay = executionContext.getOperation('delay');
+            const api = await delay.createAPI('example-api');
+            expect(api).not.toBeNil();
+
+            expect(delay.getAPI('example-api')).toBe(api);
         });
 
         it('should be able to an operation instance by index', async () => {
@@ -121,10 +131,6 @@ describe('WorkerExecutionContext', () => {
 
             const processor = executionContext.getOperation<ProcessorCore>('example-op');
             expect(processor.opConfig._op).toEqual('example-op');
-        });
-
-        it('should have the registered apis', () => {
-            expect(context.apis.executionContext.registry).toContainKeys(['example-reader']);
         });
 
         it('should have the operations initialized', () => {
@@ -263,14 +269,15 @@ describe('WorkerExecutionContext', () => {
             },
         ];
 
-        const executionContext = new WorkerExecutionContext({
-            context,
-            executionConfig,
-            assetIds,
-            terasliceOpPath,
-        });
+        let executionContext: WorkerExecutionContext;
 
         beforeAll(() => {
+            executionContext = new WorkerExecutionContext({
+                context,
+                executionConfig,
+                assetIds,
+                terasliceOpPath,
+            });
             return executionContext.initialize();
         });
 

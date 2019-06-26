@@ -33,9 +33,9 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
             operations: [
                 {
                     _op: 'test-reader',
-                    passthrough_slice: true
+                    passthrough_slice: true,
                 },
-                opConfig
+                opConfig,
             ],
         });
         return new WorkerTestHarness(job, options);
@@ -48,7 +48,7 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
                 opConfig,
                 {
                     _op: 'noop',
-                }
+                },
             ],
         });
         return new WorkerTestHarness(job, options);
@@ -124,7 +124,9 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
     /**
      * Shutdown the Operations on the ExecutionContext
      */
-
+    async flush(): Promise<DataEntity[] | undefined>;
+    async flush(options: { fullResponse: false }): Promise<DataEntity[] | undefined>;
+    async flush(options: { fullResponse: true }): Promise<RunSliceResult | undefined>;
     async flush({ fullResponse = false } = {}) {
         const response = await this.executionContext.flush();
         if (response != null) {

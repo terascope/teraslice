@@ -1,13 +1,8 @@
+import 'jest-extended';
 import path from 'path';
 import { DataEntity, TestClientConfig } from '@terascope/job-components';
 import SimpleClient from './fixtures/asset/simple-connector/client';
-import {
-    JobTestHarness,
-    newTestJobConfig,
-    newTestSlice,
-    SlicerTestHarness,
-    WorkerTestHarness,
-} from '../src';
+import { JobTestHarness, newTestJobConfig, newTestSlice, SlicerTestHarness, WorkerTestHarness } from '../src';
 import { SimpleAPI } from './fixtures/asset/simple-api/interfaces';
 
 jest.mock('./fixtures/asset/simple-connector/client');
@@ -35,18 +30,18 @@ describe('Example Asset', () => {
         job.apis = [
             {
                 _name: 'simple-api',
-            }
+            },
         ];
         job.operations = [
             {
-                _op: 'simple-reader'
+                _op: 'simple-reader',
             },
             {
                 _op: 'transformer',
                 action: 'set',
                 key: 'foo',
                 setValue: 'bar',
-            }
+            },
         ];
 
         let harness: WorkerTestHarness;
@@ -60,7 +55,7 @@ describe('Example Asset', () => {
                         a: 'b',
                         c: 'd',
                         e: 'f',
-                    }
+                    },
                 };
             });
 
@@ -85,8 +80,7 @@ describe('Example Asset', () => {
             testSlice.request = { count: 10 };
             const results = await harness.runSlice(testSlice);
 
-            expect(Array.isArray(results)).toBe(true);
-            expect(results.length).toBe(10);
+            expect(results).toBeArrayOfSize(10);
 
             for (const result of results) {
                 expect(DataEntity.isDataEntity(result)).toBe(true);
@@ -100,9 +94,7 @@ describe('Example Asset', () => {
         });
 
         it('should have use the simple api', async () => {
-            expect(Object.keys(harness.apis)).toEqual([
-                'simple-api'
-            ]);
+            expect(Object.keys(harness.apis)).toContain('simple-api');
 
             const api = harness.apis['simple-api'].opAPI as SimpleAPI;
 
@@ -115,11 +107,11 @@ describe('Example Asset', () => {
         job.analytics = true;
         job.operations = [
             {
-                _op: 'simple-reader'
+                _op: 'simple-reader',
             },
             {
-                _op: 'noop'
-            }
+                _op: 'noop',
+            },
         ];
 
         let harness: SlicerTestHarness;
@@ -148,8 +140,7 @@ describe('Example Asset', () => {
 
         it('should return a list of records', async () => {
             const results = await harness.createSlices();
-            expect(Array.isArray(results)).toBe(true);
-            expect(results.length).toBe(10);
+            expect(results).toBeArrayOfSize(10);
 
             for (const result of results) {
                 expect(DataEntity.isDataEntity(result)).toBe(false);
@@ -165,11 +156,11 @@ describe('Example Asset', () => {
         job.apis = [
             {
                 _name: 'simple-api',
-            }
+            },
         ];
         job.operations = [
             {
-                _op: 'simple-reader'
+                _op: 'simple-reader',
             },
             {
                 _op: 'transformer',
@@ -182,7 +173,7 @@ describe('Example Asset', () => {
                 action: 'inc',
                 key: 'scale',
                 incBy: 1,
-            }
+            },
         ];
 
         let harness: JobTestHarness;
@@ -207,12 +198,10 @@ describe('Example Asset', () => {
         it('should batches of results', async () => {
             const batches = await harness.run();
 
-            expect(Array.isArray(batches)).toBe(true);
-            expect(batches.length).toBe(10);
+            expect(batches).toBeArrayOfSize(10);
 
             for (const results of batches) {
-                expect(Array.isArray(results)).toBe(true);
-                expect(results.length).toBe(10);
+                expect(results).toBeArrayOfSize(10);
 
                 for (const result of results) {
                     expect(DataEntity.isDataEntity(result)).toBe(true);
@@ -222,9 +211,7 @@ describe('Example Asset', () => {
         });
 
         it('should have one api', async () => {
-            expect(Object.keys(harness.apis)).toEqual([
-                'simple-api'
-            ]);
+            expect(Object.keys(harness.apis)).toContain('simple-api');
         });
 
         it('should be finished for the second batch of slices', async () => {
@@ -233,12 +220,10 @@ describe('Example Asset', () => {
             // @ts-ignore
             simpleClient.isFinished.mockReturnValue(true);
 
-            expect(Array.isArray(batches)).toBe(true);
-            expect(batches.length).toBe(10);
+            expect(batches).toBeArrayOfSize(10);
 
             for (const results of batches) {
-                expect(Array.isArray(results)).toBe(true);
-                expect(results.length).toBe(10);
+                expect(results).toBeArrayOfSize(10);
 
                 for (const result of results) {
                     expect(DataEntity.isDataEntity(result)).toBe(true);

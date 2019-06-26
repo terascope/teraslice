@@ -1,12 +1,10 @@
 import * as ts from '@terascope/utils';
+import { ExecutionContextConfig, RunSliceResult, WorkerSliceState, WorkerStatus, SliceStatus } from './interfaces';
+import { WorkerOperationLifeCycle, Slice, sliceAnalyticsMetrics, SliceAnalyticsData } from '../interfaces';
 import { FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
-import { OperationAPI, OperationAPIConstructor } from '../operations';
-import { WorkerOperationLifeCycle, Slice, OpAPI, sliceAnalyticsMetrics, SliceAnalyticsData } from '../interfaces';
-import { ExecutionContextConfig, RunSliceResult, JobAPIInstances, WorkerSliceState, WorkerStatus, SliceStatus } from './interfaces';
 import JobObserver from '../operations/job-observer';
 import BaseExecutionContext from './base';
-
-const _logger = ts.debugLogger('execution-context-worker');
+import { getMetric } from './utils';
 
 /**
  * WorkerExecutionContext is designed to add more
@@ -15,10 +13,6 @@ const _logger = ts.debugLogger('execution-context-worker');
  */
 export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperationLifeCycle> implements WorkerOperationLifeCycle {
     readonly processors: ProcessorCore[];
-    readonly apis: JobAPIInstances = {};
-
-    private readonly jobObserver: JobObserver;
-
     readonly logger: ts.Logger;
 
     /** the active (or last) run slice */
@@ -28,9 +22,9 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
     private readonly _fetcher: FetcherCore;
     private _queue: ((input: any) => Promise<ts.DataEntity[]>)[];
 
-    constructor(config: ExecutionContextConfig, logger: ts.Logger = _logger) {
+    constructor(config: ExecutionContextConfig) {
         super(config);
-        this.logger = logger;
+        this.logger = this.api.makeLogger('worker_context');
 
         this._methodRegistry.set('onSliceInitialized', new Set());
         this._methodRegistry.set('onSliceStarted', new Set());
@@ -43,49 +37,44 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         this._methodRegistry.set('onFlushStart', new Set());
         this._methodRegistry.set('onFlushEnd', new Set());
 
-        const readerConfig = this.config.operations[0];
-        const mod = this._loader.loadReader(readerConfig._op, this.assetIds);
-        this.registerAPI(readerConfig._op, mod.API);
+        // register the job-observer first
+        this.api.addToRegistry('job-observer', JobObserver);
 
-        const op = new mod.Fetcher(this.context, ts.cloneDeep(readerConfig), this.config);
-        this._fetcher = op;
-        this.addOperation(op);
-
-        this.processors = [];
-
-        for (const opConfig of this.config.operations.slice(1)) {
-            const name = opConfig._op;
-            const pMod = this._loader.loadProcessor(name, this.assetIds);
-            this.registerAPI(name, pMod.API);
-
-            const pOp = new pMod.Processor(this.context, ts.cloneDeep(opConfig), this.config);
-
-            this.addOperation(pOp);
-            this.processors.push(pOp);
-        }
-
-        const jobObserver = new JobObserver(
-            this.context,
-            {
-                _name: 'job-observer',
-            },
-            this.config
-        );
-
-        this.addOperation(jobObserver);
-        this.jobObserver = jobObserver;
-
+        // then register the apis specified in config.apis
         for (const apiConfig of this.config.apis || []) {
             const name = apiConfig._name;
             const apiMod = this._loader.loadAPI(name, this.assetIds);
 
-            const api = new apiMod.API(this.context, ts.cloneDeep(apiConfig), this.config);
+            this.api.addToRegistry(name, apiMod.API);
+        }
 
-            this.apis[name] = {
-                instance: api,
-                type: apiMod.type,
-            };
-            this.addOperation(api);
+        // then register an api associated to a Reader
+        const [readerConfig, ...processorConfigs] = this.config.operations;
+        const readerMod = this._loader.loadReader(readerConfig._op, this.assetIds);
+        if (readerMod.API) {
+            this.api.addToRegistry(readerConfig._op, readerMod.API);
+        }
+
+        // then register any apis associated to the processors
+        this.processors = [];
+
+        for (const opConfig of processorConfigs) {
+            const name = opConfig._op;
+            const pMod = this._loader.loadProcessor(name, this.assetIds);
+            if (pMod.API) {
+                this.api.addToRegistry(name, pMod.API);
+            }
+
+            const pOp = new pMod.Processor(this.context, ts.cloneDeep(opConfig), this.config);
+            this.processors.push(pOp);
+        }
+
+        // Then add the processors / readers
+        const op = new readerMod.Fetcher(this.context, ts.cloneDeep(readerConfig), this.config);
+        this._fetcher = op;
+        this.addOperation(op);
+        for (const pOp of this.processors) {
+            this.addOperation(pOp);
         }
 
         this._queue = [
@@ -122,24 +111,14 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
     async initialize() {
         await super.initialize();
 
-        const promises = [];
-
-        for (const [name, api] of Object.entries(this.apis)) {
-            const { instance } = api;
-
-            if (isOperationAPI(instance)) {
-                promises.push(
-                    (async () => {
-                        const opAPI = await instance.createAPI();
-                        api.opAPI = opAPI;
-
-                        this.addAPI(name, opAPI);
-                        this.apis[name] = api;
-                    })()
-                );
+        // make sure we autoload the api
+        const promises: Promise<any>[] = [];
+        for (const { _name: name } of this.config.apis || []) {
+            const api = this.apis[name];
+            if (api.type === 'api') {
+                promises.push(this.api.initAPI(name));
             }
         }
-
         await Promise.all(promises);
 
         this.status = 'idle';
@@ -161,7 +140,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
                 return op._op === findBy;
             });
         } else if (ts.isInteger(findBy) && findBy >= 0) {
-            index = findBy;
+            index = findBy as number;
         }
 
         if (index === 0) {
@@ -181,6 +160,16 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
     /** The instance of a "Fetcher" */
     fetcher<T extends FetcherCore = FetcherCore>(): T {
         return this._fetcher as T;
+    }
+
+    get apis() {
+        return this.api.apis;
+    }
+
+    get jobObserver(): JobObserver {
+        const jobObserver = this.api.getObserver<JobObserver>('job-observer');
+        if (jobObserver == null) throw new Error("Job Observer hasn't not be initialized");
+        return jobObserver;
     }
 
     async initializeSlice(slice: Slice) {
@@ -320,23 +309,6 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         await this._runMethodAsync('onSliceRetry', this._sliceId);
     }
 
-    /** Add an API to the executionContext api registry */
-    protected registerAPI(name: string, API?: OperationAPIConstructor) {
-        if (API == null) return;
-        const { apis = [] } = this.config;
-        const hasName = apis.some(({ _name }) => _name === name);
-        if (hasName) {
-            throw new Error(`Cannot register API ${name} due to conflict`);
-        }
-
-        this.context.apis.executionContext.addToRegistry(name, API);
-    }
-
-    /** Add an API to the executionContext api */
-    protected addAPI(name: string, opAPI: OpAPI) {
-        this.context.apis.executionContext.addAPI(name, opAPI);
-    }
-
     private _onOperationComplete(index: number, processed: number) {
         this._runMethod('onOperationComplete', this._sliceId, index, processed);
     }
@@ -445,14 +417,4 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
     private get _slice() {
         return this.sliceState && this.sliceState.slice;
     }
-}
-
-function getMetric(input: number[], i: number): number {
-    const val = input && input[i];
-    if (val > 0) return val;
-    return 0;
-}
-
-function isOperationAPI(api: any): api is OperationAPI {
-    return api && ts.isFunction(api.createAPI);
 }
