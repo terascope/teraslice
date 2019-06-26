@@ -3,7 +3,7 @@ import './add-externals';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import 'semantic-ui-less/semantic.less';
+import 'semantic-ui-css/semantic.min.css';
 import '@terascope/ui-components/index.css';
 import './index.css';
 

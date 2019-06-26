@@ -52,7 +52,6 @@
         "typescript": "^3.5.2"
     },
     "workspaces": [
-        "packages/*",
-        "e2e"
+        "packages/*"
     ]
 }
