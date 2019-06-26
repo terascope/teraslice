@@ -31,6 +31,7 @@ const AuthUserQuery = tsWithRouter(({ children, history }) => {
                     setOtherError(otherError);
                 }
             }}
+            fetchPolicy="network-only"
             notifyOnNetworkStatusChange
         >
             {({ loading }) => {

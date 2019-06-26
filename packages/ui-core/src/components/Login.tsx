@@ -56,6 +56,7 @@ const Login: React.FC = (props: any) => {
                     redirectToReferrer: authenticated,
                 });
             }}
+            fetchPolicy="network-only"
             notifyOnNetworkStatusChange
         >
             {({ loading, error }) => {

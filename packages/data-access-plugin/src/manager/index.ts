@@ -2,7 +2,7 @@ import { Express } from 'express';
 import { Client } from 'elasticsearch';
 import * as apollo from 'apollo-server-express';
 import { Context } from '@terascope/job-components';
-import { Logger, get, isProd } from '@terascope/utils';
+import { Logger, get } from '@terascope/utils';
 import { ACLManager } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { makeErrorHandler, getESClient } from '../utils';
