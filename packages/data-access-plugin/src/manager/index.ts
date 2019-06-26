@@ -147,12 +147,7 @@ export default class ManagerPlugin {
 
         this.logger.info(`Registering data-access-plugin manager at ${managerUri}`);
         this.server.applyMiddleware({
-            cors: isProd
-                ? false
-                : {
-                    origin: ['http://localhost:3000', 'http://localhost:8000'],
-                    credentials: true,
-                },
+            cors: false,
             app: this.app,
             path: managerUri,
         });

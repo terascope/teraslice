@@ -285,136 +285,140 @@ describe('IndexModel', () => {
             );
         });
 
-        it('should be able to count all of the Bobs', async () => {
-            const count = await indexModel.count('name:Bob*');
-            expect(count).toBe(5);
-        });
-
-        it('should be able to count with restrictions', async () => {
-            const queryAccess = new QueryAccess({
-                includes: ['name'],
+        describe('without query restrictions', () => {
+            it('should be able to count all of the Bobs', async () => {
+                const count = await indexModel.count('name:Bob*');
+                expect(count).toBe(5);
             });
 
-            const count = await indexModel.count('name:Bob*', queryAccess);
-            expect(count).toBe(5);
-        });
+            it('should be able to find all of the Bobs', async () => {
+                const result = await indexModel.find('name:Bob*', {
+                    size: 6,
+                });
 
-        it('should be able to find all of the Bobs', async () => {
-            const result = await indexModel.find('name:Bob*', {
-                size: 6,
-            });
-
-            expect(result).toBeArrayOfSize(5);
-            for (const record of result) {
-                expect(record).toHaveProperty('id');
-                expect(record).toHaveProperty('created');
-                expect(record).toHaveProperty('updated');
-                expect(record.name).toStartWith('Bob');
-            }
-        });
-
-        it('should be able to find all by ids with restrictions', async () => {
-            const queryAccess = new QueryAccess({
-                includes: ['id', 'name'],
-            });
-
-            const findResult = await indexModel.find('name:Bob*', {
-                size: 3,
-                includes: ['id'],
-            });
-
-            const ids = findResult.map(doc => doc.id);
-
-            const result = await indexModel.findAll(ids, queryAccess);
-
-            expect(result).toBeArrayOfSize(3);
-            for (const record of result) {
-                expect(record).toHaveProperty('id');
-                expect(record).toHaveProperty('name');
-                expect(record).not.toHaveProperty('created');
-            }
-        });
-
-        it('should be able to find all of the Bobs', async () => {
-            const queryAccess = new QueryAccess({
-                constraint: 'name:Bob*',
-                excludes: ['created'],
-            });
-
-            const result = await indexModel.find('name:Bob*', { size: 6 }, queryAccess);
-
-            expect(result).toBeArrayOfSize(5);
-            for (const record of result) {
-                expect(record).toHaveProperty('id');
-                expect(record).not.toHaveProperty('created');
-                expect(record).toHaveProperty('updated');
-                expect(record.name).toStartWith('Bob');
-            }
-        });
-
-        it('should be able to find all of the Joes', async () => {
-            const result = await indexModel.find('name:Joe*', { size: 6 });
-
-            expect(result).toBeArrayOfSize(5);
-
-            for (const record of result) {
-                expect(record).toHaveProperty('id');
-                expect(record).toHaveProperty('created');
-                expect(record).toHaveProperty('updated');
-                expect(record.name).toStartWith('Joe');
-            }
-        });
-
-        it('should be able to find 2 of the Joes', async () => {
-            const result = await indexModel.find('name:Joe*', { size: 2 });
-
-            expect(result).toBeArrayOfSize(2);
-
-            for (const record of result) {
-                expect(record.name).toStartWith('Joe');
-            }
-        });
-
-        it('should be able to sort by name', async () => {
-            const result = await indexModel.find('name:(Bob* OR Joe*)', {
-                size: 11,
-                sort: 'name:desc',
-                includes: ['name', 'updated'],
-            });
-
-            expect(result).toBeArrayOfSize(10);
-
-            result.reverse().forEach((record, index) => {
-                if (index < 5) {
-                    expect(record.name).toEqual(`Bob ${index}`);
-                } else {
-                    expect(record.name).toEqual(`Joe ${index - 5}`);
+                expect(result).toBeArrayOfSize(5);
+                for (const record of result) {
+                    expect(record).toHaveProperty('id');
+                    expect(record).toHaveProperty('created');
+                    expect(record).toHaveProperty('updated');
+                    expect(record.name).toStartWith('Bob');
                 }
             });
-        });
 
-        it('should be able to limit the fields returned', async () => {
-            const result = await indexModel.find('name:Joe*', {
-                size: 1,
-                includes: ['name'],
+            it('should be able to find all of the Joes', async () => {
+                const result = await indexModel.find('name:Joe*', { size: 6 });
+
+                expect(result).toBeArrayOfSize(5);
+
+                for (const record of result) {
+                    expect(record).toHaveProperty('id');
+                    expect(record).toHaveProperty('created');
+                    expect(record).toHaveProperty('updated');
+                    expect(record.name).toStartWith('Joe');
+                }
             });
 
-            expect(result).toBeArrayOfSize(1);
+            it('should be able to find 2 of the Joes', async () => {
+                const result = await indexModel.find('name:Joe*', { size: 2 });
 
-            for (const record of result) {
-                expect(record).not.toHaveProperty('id');
-                expect(record).not.toHaveProperty('created');
-                expect(record).not.toHaveProperty('updated');
-                expect(record.name).toStartWith('Joe');
-            }
-        });
+                expect(result).toBeArrayOfSize(2);
 
-        it('should be able to find no Ninjas', async () => {
-            const result = await indexModel.find('name:"Ninja"', {
-                size: 2,
+                for (const record of result) {
+                    expect(record.name).toStartWith('Joe');
+                }
             });
 
-            expect(result).toBeArrayOfSize(0);
+            it('should be able to sort by name', async () => {
+                const result = await indexModel.find('name:(Bob* OR Joe*)', {
+                    size: 11,
+                    sort: 'name:desc',
+                    includes: ['name', 'updated'],
+                });
+
+                expect(result).toBeArrayOfSize(10);
+
+                result.reverse().forEach((record, index) => {
+                    if (index < 5) {
+                        expect(record.name).toEqual(`Bob ${index}`);
+                    } else {
+                        expect(record.name).toEqual(`Joe ${index - 5}`);
+                    }
+                });
+            });
+
+            it('should be able to limit the fields returned', async () => {
+                const result = await indexModel.find('name:Joe*', {
+                    size: 1,
+                    includes: ['name'],
+                });
+
+                expect(result).toBeArrayOfSize(1);
+
+                for (const record of result) {
+                    expect(record).not.toHaveProperty('id');
+                    expect(record).not.toHaveProperty('created');
+                    expect(record).not.toHaveProperty('updated');
+                    expect(record.name).toStartWith('Joe');
+                }
+            });
+
+            it('should be able to find no Ninjas', async () => {
+                const result = await indexModel.find('name:"Ninja"', {
+                    size: 2,
+                });
+
+                expect(result).toBeArrayOfSize(0);
+            });
+        });
+
+        describe('with query restirctions', () => {
+            it('should be able to count all of the Bobs', async () => {
+                const queryAccess = new QueryAccess({
+                    includes: ['name'],
+                });
+
+                const count = await indexModel.count('name:Bob*', queryAccess);
+                expect(count).toBe(5);
+            });
+
+            it('should be able to find all by ids', async () => {
+                const queryAccess = new QueryAccess({
+                    includes: ['id', 'name'],
+                });
+
+                const findResult = await indexModel.find('name:Bob*', {
+                    size: 3,
+                    includes: ['id'],
+                });
+
+                const ids = findResult.map(doc => doc.id);
+
+                const result = await indexModel.findAll(ids, queryAccess);
+
+                expect(result).toBeArrayOfSize(3);
+                for (const record of result) {
+                    expect(record).toHaveProperty('id');
+                    expect(record).toHaveProperty('name');
+                    expect(record).not.toHaveProperty('created');
+                }
+            });
+
+            it('should be able to search for all of the Bobs', async () => {
+                const queryAccess = new QueryAccess({
+                    constraint: 'name:Bob*',
+                    excludes: ['created'],
+                });
+
+                const result = await indexModel.find('name:Bob*', { size: 6 }, queryAccess);
+
+                expect(result).toBeArrayOfSize(5);
+                for (const record of result) {
+                    expect(record).toHaveProperty('id');
+                    expect(record).not.toHaveProperty('created');
+                    expect(record).toHaveProperty('updated');
+                    expect(record.name).toStartWith('Bob');
+                }
+            });
         });
     });
 
