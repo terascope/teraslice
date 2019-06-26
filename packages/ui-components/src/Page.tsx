@@ -13,7 +13,7 @@ const Page = tsWithRouter<Props>(
                         <Menu.Header as="h2" className="pageTitle">
                             {title}
                         </Menu.Header>
-                        {actions.map((action, i) => {
+                        {actions.map(action => {
                             const onClick = action.onClick
                                 ? action.onClick
                                 : () => {
@@ -24,7 +24,7 @@ const Page = tsWithRouter<Props>(
                             return (
                                 <Menu.Item
                                     onClick={onClick}
-                                    key={`page-item-${i}`}
+                                    key={action.label}
                                     position="right"
                                     className="noActiveBg"
                                 >

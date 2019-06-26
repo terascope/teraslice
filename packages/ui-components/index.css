@@ -78,6 +78,9 @@
 }
 
 .sectionDescription {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-top: -0.1rem !important;
     margin-bottom: -0.1em !important;
 }
@@ -95,6 +98,10 @@
 
 .actionSegment .button {
     padding-top: 0.6rem;
+}
+
+.actionSegment .spacerButton {
+    min-width: 1rem;
 }
 
 .borderlessButton {

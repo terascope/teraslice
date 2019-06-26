@@ -27,7 +27,7 @@ const SuccessMessage: React.FC<Props> = ({
         content = (
             <Message.List>
                 {message.map((msg, i) => (
-                    <Message.Item key={`error-msg-${i}`}>{msg}</Message.Item>
+                    <Message.Item key={`msg-${i}`}>{msg}</Message.Item>
                 ))}
             </Message.List>
         );

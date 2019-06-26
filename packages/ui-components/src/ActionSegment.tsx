@@ -2,13 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Segment, Icon } from 'semantic-ui-react';
 
-const ActionSegment: React.FC<Props> = ({ children, actions }) => {
+const Actions: React.FC<Props> = ({ actions }) => {
+    if (!actions || !actions.length) {
+        return <div className="borderlessButton spacerButton" />;
+    }
+
     return (
-        <Segment className="actionSegment">
-            {children}
-            {actions.map(({ name, icon, color, onClick }, i) => (
+        <React.Fragment>
+            {actions.map(({ name, icon, color, onClick }) => (
                 <Button
-                    key={`action-${name}-${i}`}
+                    key={`action-${name}`}
                     className="borderlessButton"
                     color={color || 'blue'}
                     onClick={(e: React.MouseEvent) => {
@@ -20,12 +23,21 @@ const ActionSegment: React.FC<Props> = ({ children, actions }) => {
                     {name}
                 </Button>
             ))}
+        </React.Fragment>
+    );
+};
+
+const ActionSegment: React.FC<Props> = ({ children, actions }) => {
+    return (
+        <Segment className="actionSegment">
+            {children}
+            <Actions actions={actions} />
         </Segment>
     );
 };
 
 type Props = {
-    actions: {
+    actions?: {
         icon: string;
         name: string;
         color?: 'red' | 'blue';
@@ -41,7 +53,7 @@ ActionSegment.propTypes = {
             color: PropTypes.oneOf(['red', 'blue']),
             onClick: PropTypes.func.isRequired,
         }).isRequired
-    ).isRequired,
+    ),
 };
 
 export default ActionSegment;

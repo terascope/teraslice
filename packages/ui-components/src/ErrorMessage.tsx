@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Message, Icon } from 'semantic-ui-react';
-import { parseErrorInfo, TSError } from '@terascope/utils';
+import { parseErrorInfo, TSError, toString } from '@terascope/utils';
 import { ApolloError } from 'apollo-boost';
 import { Redirect } from 'react-router-dom';
 
@@ -33,7 +33,7 @@ const ErrorMessage: React.FC<Props> = ({
         content = (
             <Message.List>
                 {error.map((err, i) => (
-                    <Message.Item key={`error-msg-${i}`}>
+                    <Message.Item key={`${toString(err)}-${i}`}>
                         {parseError(err)}
                     </Message.Item>
                 ))}

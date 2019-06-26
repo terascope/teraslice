@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { get } from '@terascope/utils';
 import { DataType } from '@terascope/data-access';
 import { formatDate } from '@terascope/ui-components';
-import { LATEST_VERSION } from '@terascope/data-types';
+import { LATEST_VERSION, DataTypeConfig, TypeConfigFields } from '@terascope/data-types';
 import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
 import { copyField } from '../utils';
@@ -49,7 +49,19 @@ const config: ModelConfig<Input> = {
             }
         }
 
-        const resolvedConfig = get(result, 'resolved_config', input.config);
+        const resolvedConfig: DataTypeConfig = get(result, 'resolved_config', {
+            version: LATEST_VERSION,
+            fields: {},
+        });
+
+        const resolvedFields: TypeConfigFields = {};
+        const existing = Object.keys(input.config.fields);
+        for (const [field, type] of Object.entries(resolvedConfig.fields)) {
+            if (!existing.includes(field)) {
+                resolvedFields[field] = type;
+            }
+        }
+        resolvedConfig.fields = resolvedFields;
 
         const dataTypes = (_dataTypes || []).filter(({ id }: DataType) => {
             return id !== input.id;

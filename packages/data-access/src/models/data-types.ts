@@ -67,14 +67,18 @@ export class DataTypes extends IndexModel<DataType> {
 
             const dataType = await this.findById(id, options, queryAccess);
             if (dataType.config.version && dataType.config.version !== version) {
-                throw new TSError('Data Type config version mistmatch', {
-                    statusCode: 422,
-                    context: {
-                        initialDataType,
-                        dataType,
-                        resolved,
-                    },
-                });
+                // FIX?
+                this.logger.error(
+                    new TSError('Data Type config version mistmatch', {
+                        statusCode: 422,
+                        context: {
+                            initialDataType,
+                            dataType,
+                            resolved,
+                        },
+                    })
+                );
+                continue;
             }
 
             const moreDataTypes = await this._resolveDataTypes(dataType, resolved, options, queryAccess);

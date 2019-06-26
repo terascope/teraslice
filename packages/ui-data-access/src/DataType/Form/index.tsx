@@ -55,7 +55,13 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
                 return errs;
             }}
         >
-            {({ defaultInputProps, updateModel, model, dataTypes }) => {
+            {({
+                defaultInputProps,
+                updateModel,
+                model,
+                dataTypes,
+                resolvedConfig,
+            }) => {
                 return (
                     <React.Fragment>
                         <Form.Group>
@@ -83,6 +89,7 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
                             value={model.inherit_from}
                         />
                         <TypeConfig
+                            resolvedConfig={resolvedConfig}
                             updateTypeConfig={typeConfig => {
                                 updateModel({
                                     config: { ...typeConfig },
