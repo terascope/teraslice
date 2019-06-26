@@ -71,10 +71,10 @@ describe('registerApis', () => {
                 create() {
                     return {
                         client: {
-                            elasticsearch: true
-                        }
+                            elasticsearch: true,
+                        },
                     };
-                }
+                },
             },
             {
                 type: 'elasticsearch',
@@ -83,10 +83,10 @@ describe('registerApis', () => {
                     return {
                         client: {
                             elasticsearch: true,
-                            endpoint: 'otherConnection'
-                        }
+                            endpoint: 'otherConnection',
+                        },
                     };
-                }
+                },
             },
             {
                 type: 'elasticsearch',
@@ -95,10 +95,10 @@ describe('registerApis', () => {
                     return {
                         client: {
                             elasticsearch: true,
-                            endpoint: 'thirdConnection'
-                        }
+                            endpoint: 'thirdConnection',
+                        },
                     };
-                }
+                },
             },
             {
                 type: 'kafka',
@@ -106,63 +106,86 @@ describe('registerApis', () => {
                 create() {
                     return {
                         client: {
-                            kafka: true
-                        }
+                            kafka: true,
+                        },
                     };
-                }
+                },
             },
             {
                 type: 'mongo',
                 create() {
                     return {
                         client: {
-                            mongo: true
-                        }
+                            mongo: true,
+                        },
                     };
-                }
-            }
+                },
+            },
         ];
 
         context.apis.setTestClients(clients);
 
         it('getClient should return a client', () => {
             expect(getClient({}, 'elasticsearch')).toEqual({
-                elasticsearch: true
+                elasticsearch: true,
             });
 
-            const firstResult = getClient({
-                connection: 'otherConnection',
-                connection_cache: true
-            }, 'elasticsearch');
+            const firstResult = getClient(
+                {
+                    connection: 'otherConnection',
+                    connection_cache: true,
+                },
+                'elasticsearch'
+            );
 
             expect(firstResult).toEqual({
                 elasticsearch: true,
-                endpoint: 'otherConnection'
+                endpoint: 'otherConnection',
             });
 
-            expect(getClient({
-                connection: 'otherConnection',
-                connection_cache: true
-            }, 'elasticsearch')).toBe(firstResult);
+            expect(
+                getClient(
+                    {
+                        connection: 'otherConnection',
+                        connection_cache: true,
+                    },
+                    'elasticsearch'
+                )
+            ).toBe(firstResult);
 
-            expect(getClient({
-                connection: 'thirdConnection',
-                connection_cache: false,
-            }, 'elasticsearch')).toEqual({
+            expect(
+                getClient(
+                    {
+                        connection: 'thirdConnection',
+                        connection_cache: false,
+                    },
+                    'elasticsearch'
+                )
+            ).toEqual({
                 elasticsearch: true,
                 endpoint: 'thirdConnection',
             });
 
-            expect(getClient({
-                connection: 'someConnection'
-            }, 'kafka')).toEqual({
-                kafka: true
+            expect(
+                getClient(
+                    {
+                        connection: 'someConnection',
+                    },
+                    'kafka'
+                )
+            ).toEqual({
+                kafka: true,
             });
 
-            expect(getClient({
-                connection_cache: false
-            }, 'mongo')).toEqual({
-                mongo: true
+            expect(
+                getClient(
+                    {
+                        connection_cache: false,
+                    },
+                    'mongo'
+                )
+            ).toEqual({
+                mongo: true,
             });
         });
 
@@ -186,9 +209,7 @@ describe('registerApis', () => {
             failingContext.foundation.getConnection = makeError;
 
             const events = failingContext.apis.foundation.getSystemEvents();
-            const errStr =
-                    'No configuration for endpoint default ' +
-                    'was found in the terafoundation connectors';
+            const errStr = 'No configuration for endpoint default ' + 'was found in the terafoundation connectors';
 
             events.once('client:initialization:error', errMsg => {
                 expect(errMsg.error.includes(errStr)).toEqual(true);
@@ -230,14 +251,9 @@ describe('registerApis', () => {
                 expect(result()).toEqual('hello');
             });
 
-            it('should throw an error when the API is already created', async () => {
-                expect.hasAssertions();
-
-                try {
-                    await context.apis.executionContext.initAPI('hello');
-                } catch (err) {
-                    expect(err.message).toEqual('API "hello" can only be initalized once');
-                }
+            it('should not throw the API is already created', async () => {
+                const result = await context.apis.executionContext.initAPI('hello');
+                expect(result()).toEqual('hello');
             });
         });
 

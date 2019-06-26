@@ -1,11 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import {
-    OperationAPI,
-    OpAPIInstance,
-    ExecutionContextAPI,
-    newTestExecutionConfig,
-    TestContext
-} from '../../src';
+import { OperationAPI, OpAPIInstance, ExecutionContextAPI, newTestExecutionConfig, TestContext } from '../../src';
 
 describe('OperationAPI', () => {
     interface ExampleAPI extends OpAPIInstance {
@@ -15,7 +9,7 @@ describe('OperationAPI', () => {
     class ExampleOperationAPI extends OperationAPI {
         public async createAPI(): Promise<ExampleAPI> {
             return {
-                hi: () => 'hello'
+                hi: () => 'hello',
             };
         }
     }
@@ -35,16 +29,12 @@ describe('OperationAPI', () => {
     });
 
     it('should be able to be created', async () => {
-        const api:ExampleAPI = await context.apis.executionContext.initAPI('example/api');
+        const api: ExampleAPI = await context.apis.executionContext.initAPI('example/api');
         expect(api.hi()).toEqual('hello');
     });
 
-    it('should throw an error if created again', async () => {
-        return expect(context.apis.executionContext.initAPI('example/api')).rejects.toThrow();
-    });
-
     it('should be able to be fetched', async () => {
-        const api:ExampleAPI = await context.apis.executionContext.getAPI('example/api');
+        const api: ExampleAPI = await context.apis.executionContext.getAPI('example/api');
         expect(api.hi()).toEqual('hello');
     });
 });

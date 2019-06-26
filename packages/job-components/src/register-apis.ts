@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { parseJSON } from '@terascope/utils';
-import { ConnectionConfig, Context, ValidatedJobConfig, ExecutionConfig, OpConfig, GetClientConfig } from './interfaces';
+import { ConnectionConfig, Context, ValidatedJobConfig, ExecutionConfig, OpConfig, GetClientConfig, WorkerContextAPIs } from './interfaces';
 import { ExecutionContextAPI } from './execution-context';
 
 /** Get the first opConfig from an operation name */
@@ -81,18 +81,21 @@ export function getClient(context: Context, config: GetClientConfig, type: strin
 }
 
 export function registerApis(context: Context, job: ValidatedJobConfig | ExecutionConfig, assetIds?: string[]): void {
-    if (context.apis.executionContext == null) {
-        context.apis.registerAPI('executionContext', new ExecutionContextAPI(context, job as ExecutionConfig));
+    const cleanupApis: (keyof WorkerContextAPIs)[] = ['op_runner', 'executionContext', 'job_runner', 'assets'];
+    for (const api of cleanupApis) {
+        if (context.apis[api] != null) {
+            delete context.apis[api];
+        }
     }
 
-    delete context.apis.op_runner;
+    context.apis.registerAPI('executionContext', new ExecutionContextAPI(context, job as ExecutionConfig));
+
     context.apis.registerAPI('op_runner', {
         getClient(config: GetClientConfig, type: string): { client: any } {
             return getClient(context, config, type);
         },
     });
 
-    delete context.apis.job_runner;
     context.apis.registerAPI('job_runner', {
         getOpConfig(name: string): OpConfig | undefined {
             return getOpConfig(job, name);
@@ -100,8 +103,6 @@ export function registerApis(context: Context, job: ValidatedJobConfig | Executi
     });
 
     const assetDir = context.sysconfig.teraslice.assets_directory;
-
-    delete context.apis.assets;
     context.apis.registerAPI('assets', {
         getPath(name: string): Promise<string> {
             return getAssetPath(assetDir || '', assetIds || job.assets, name);
