@@ -10,10 +10,22 @@
         "lint:fix": "yarn lint --fix",
         "start": "env REACT_APP_DEV_MODE=true craco start",
         "build": "craco build",
+        "build:watch": "env FORCE_COLOR=1 npm-watch build",
         "prepublishOnly": "yarn build",
         "test": "env CI=true FORCE_COLOR=1 REACT_APP_DEV_MODE=true craco test --colors",
         "test:watch": "env REACT_APP_DEV_MODE=true craco test",
         "eject": "craco eject"
+    },
+    "watch": {
+        "build": {
+            "patterns": [
+                "./src"
+            ],
+            "delay": 500,
+            "ignore": "build",
+            "extensions": "*",
+            "quiet": true
+        }
     },
     "files": [
         "build/**/*",
@@ -44,6 +56,7 @@
         "apollo-client": "^2.6.3",
         "graphql": "^14.3.1",
         "history": "^4.9.0",
+        "npm-watch": "^0.6.0",
         "prop-types": "^15.7.2",
         "query-string": "^6.8.1",
         "react": "^16.8.6",

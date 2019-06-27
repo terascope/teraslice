@@ -19,7 +19,7 @@ const Actions: React.FC<Props> = ({ actions }) => {
                         onClick();
                     }}
                 >
-                    {icon && <Icon name={icon as any} />)
+                    {icon && <Icon name={icon as any} />}
                     {name}
                 </Button>
             ))}
