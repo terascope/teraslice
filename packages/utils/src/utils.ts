@@ -92,6 +92,13 @@ export function toBoolean(input: any): boolean {
     return thruthy.includes(val);
 }
 
+export function isBooleanLike(input: any): boolean {
+    if (input == null) return true;
+    if (typeof input === 'boolean') return true;
+    if (input === 1 || input === 0) return true;
+    return false;
+}
+
 /**
  * Maps an array of strings and and trims the result, or
  * parses a comma separated list and trims the result
@@ -122,10 +129,23 @@ export function noop(...args: any[]): any {}
  * it does not deal with dot notation (nested fields)
  * and it will use the default when dealing with OR statements
  */
-export function getField<T extends any, P extends keyof T, V extends T[P] | any>(
+export function getField<T extends any, P extends keyof NonNullable<T>>(input: T, field: P): NonNullable<T>[P];
+export function getField<T extends any, P extends keyof NonNullable<T>, V extends T[P] | any>(
+    input: T,
+    field: P,
+    defaultVal: V
+): NonNullable<T>[P] | V;
+export function getField<T extends undefined, P extends string, V extends any>(input: T, field: P, defaultVal: V): V;
+export function getField<T extends undefined, P extends string>(input: T, field: P): undefined;
+export function getField<T extends any, P extends keyof NonNullable<T>, V extends T[P] | any>(
     input: T,
     field: P,
     defaultVal?: V
-): V extends T[P] ? T[P] : V {
+): NonNullable<T>[P] | V {
+    const result = input && input[field];
+    if (isBooleanLike(defaultVal)) {
+        if (result == null) return defaultVal;
+        return result;
+    }
     return (input && input[field]) || defaultVal;
 }

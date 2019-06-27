@@ -198,7 +198,11 @@ describe('DataTypes', () => {
                 name: 'circular-a',
                 config: {
                     version: LATEST_VERSION,
-                    fields: {},
+                    fields: {
+                        foo: {
+                            type: 'Boolean',
+                        },
+                    },
                 },
             });
 
@@ -218,28 +222,94 @@ describe('DataTypes', () => {
             });
         });
 
-        it('should throw an error when resolving the record A', async () => {
-            expect.hasAssertions();
+        describe('when validate is set to true', () => {
+            it('should throw an error when resolving the record A', async () => {
+                expect.hasAssertions();
 
-            try {
-                const result = await dataTypes.resolveDataType(circularA.id);
-                expect(result).toThrowError();
-            } catch (err) {
-                expect(err.message).toEqual('Circular reference to Data Type');
-                expect(err.statusCode).toEqual(422);
-            }
+                try {
+                    const result = await dataTypes.resolveDataType(circularA.id);
+                    expect(result).toThrowError();
+                } catch (err) {
+                    expect(err.message).toStartWith('Circular reference to Data Type');
+                    expect(err.statusCode).toEqual(422);
+                }
+            });
+
+            it('should throw an error when resolving record B', async () => {
+                expect.hasAssertions();
+
+                try {
+                    const result = await dataTypes.resolveDataType(circularB.id, {
+                        validate: true,
+                    });
+                    expect(result).toThrowError();
+                } catch (err) {
+                    expect(err.message).toStartWith('Circular reference to Data Type');
+                    expect(err.statusCode).toEqual(422);
+                }
+            });
         });
 
-        it('should throw an error when resolving record B', async () => {
-            expect.hasAssertions();
+        describe('when validate is set to false', () => {
+            it('should not include that data type', async () => {
+                const result = await dataTypes.resolveDataType(circularA.id, {
+                    validate: false,
+                });
+                expect(result.config).toHaveProperty('fields.foo', {
+                    type: 'Boolean',
+                });
+            });
+        });
+    });
 
-            try {
-                const result = await dataTypes.resolveDataType(circularB.id);
-                expect(result).toThrowError();
-            } catch (err) {
-                expect(err.message).toEqual('Circular reference to Data Type');
-                expect(err.statusCode).toEqual(422);
-            }
+    describe('when there is a version mismatch', () => {
+        let dtA: DataType;
+        let dtB: DataType;
+
+        beforeAll(async () => {
+            dtA = await dataTypes.create({
+                client_id: 1,
+                name: 'mismatch-dt-a',
+                config: {
+                    version: 2 as any,
+                    fields: {},
+                },
+            });
+
+            dtB = await dataTypes.create({
+                client_id: 1,
+                name: 'mismatch-dt-b',
+                inherit_from: [dtA.id],
+                config: {
+                    version: LATEST_VERSION,
+                    fields: {},
+                },
+            });
+        });
+
+        describe('when validate is set to true', () => {
+            it('should throw an error when the version are wrong', async () => {
+                expect.hasAssertions();
+
+                try {
+                    const result = await dataTypes.resolveDataType(dtB.id, {
+                        validate: true,
+                    });
+                    expect(result).toThrowError();
+                } catch (err) {
+                    expect(err.message).toEndWith('has a mismatched version, expected version 2');
+                    expect(err.statusCode).toEqual(417);
+                }
+            });
+        });
+
+        describe('when validate is set to false', () => {
+            it('should throw an error when the version are wrong', async () => {
+                const dataType = await dataTypes.resolveDataType(dtB.id, {
+                    validate: false,
+                });
+                expect(dataType.config.version).toEqual(dtA.config.version);
+            });
         });
     });
 });

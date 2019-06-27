@@ -457,7 +457,9 @@ export class ACLManager {
 
         const [view, dataType] = await Promise.all([
             this._views.getViewOfSpace(space, role),
-            this._dataTypes.resolveDataType(space.data_type),
+            this._dataTypes.resolveDataType(space.data_type, {
+                validate: false,
+            }),
         ]);
 
         const clientIds = [role.client_id, space.client_id, dataType.client_id, view.client_id];
