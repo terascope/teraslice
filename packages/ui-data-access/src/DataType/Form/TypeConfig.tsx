@@ -19,10 +19,11 @@ const TypeConfig: React.FC<Props> = ({
     resolvedConfig,
     inherits,
 }) => {
+    const [recentlyAdded, addField] = useState<string[]>([]);
     const [showResolved, setShowResolved] = useState(false);
 
     const existingFields = Object.keys(typeConfig.fields);
-    const existing = parseTypeConfig(typeConfig);
+    const existing = parseTypeConfig(typeConfig, recentlyAdded);
     const resolved = parseTypeConfig(resolvedConfig);
 
     const updateField = (field: string, type: AvailableType | false) => {
@@ -96,7 +97,13 @@ const TypeConfig: React.FC<Props> = ({
                     Add field and type configuration below
                 </Segment>
             )}
-            <AddField addField={updateField} fields={existingFields} />
+            <AddField
+                addField={(field, type) => {
+                    addField(fields => fields.concat(field));
+                    updateField(field, type);
+                }}
+                fields={existingFields}
+            />
         </Section>
     );
 };

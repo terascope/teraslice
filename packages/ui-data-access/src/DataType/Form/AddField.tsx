@@ -1,17 +1,47 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Form } from 'semantic-ui-react';
-import { get, trim } from '@terascope/utils';
+import { Form, Label } from 'semantic-ui-react';
+import { trim } from '@terascope/utils';
 import { AvailableType } from '@terascope/data-types';
 import { ActionSegment } from '@terascope/ui-components';
 import { dataTypeOptions } from '../interfaces';
+import { validateFieldName } from '../../utils';
 
 const AddField: React.FC<Props> = ({ addField, fields }) => {
-    const [{ field, value }, setState] = useState<State>({
+    const [state, setState] = useState<State>({
         field: '',
-        value: '',
+        fieldError: '',
+        type: '',
+        typeError: '',
     });
-    const type: AvailableType = get(value, 'type', value);
+
+    const updateState = (updates: Partial<State>): void => {
+        const latestState = { ...state, ...updates };
+        validate(latestState);
+        setState(latestState);
+    };
+
+    const validate = (latestState: State): State => {
+        latestState.fieldError = '';
+        latestState.typeError = '';
+        if (!latestState.field) {
+            latestState.fieldError = 'Field is required';
+            return latestState;
+        }
+        if (fields.includes(latestState.field)) {
+            latestState.fieldError = 'Duplicate fields cannot be specified';
+            return latestState;
+        }
+        if (!validateFieldName(latestState.field)) {
+            latestState.fieldError = 'Invalid field name';
+            return latestState;
+        }
+        if (!latestState.type) {
+            latestState.typeError = 'Type is required';
+            return latestState;
+        }
+        return latestState;
+    };
 
     return (
         <ActionSegment
@@ -20,46 +50,59 @@ const AddField: React.FC<Props> = ({ addField, fields }) => {
                     name: 'Add',
                     icon: 'add',
                     onClick: () => {
-                        if (!value || !field) return;
-                        if (fields.includes(field)) return;
+                        if (state.fieldError || state.typeError) return;
 
-                        setState(state => {
-                            addField(state.field, state.value);
-
-                            return {
-                                field: '',
-                                value: '',
-                            };
+                        addField(state.field, {
+                            type: state.type,
+                        });
+                        setState({
+                            field: '',
+                            fieldError: '',
+                            type: '',
+                            typeError: '',
                         });
                     },
                 },
             ]}
         >
             <Form.Group>
-                <Form.Input
-                    placeholder="Field Name"
-                    value={field}
-                    error={fields.includes(field)}
-                    onChange={(e, { value: updatedField }) => {
-                        e.preventDefault();
-                        setState({
-                            field: trim(updatedField),
-                            value,
-                        });
-                    }}
-                />
-                <Form.Select
-                    placeholder="Select Field Type"
-                    value={type}
-                    onChange={(e, { value: updatedValue }) => {
-                        e.preventDefault();
-                        setState({
-                            value: updatedValue,
-                            field,
-                        });
-                    }}
-                    options={dataTypeOptions}
-                />
+                <Form.Field>
+                    <Form.Input
+                        type="text"
+                        placeholder="Field Name"
+                        value={state.field}
+                        error={Boolean(state.fieldError)}
+                        onChange={(e, { value: updatedField }) => {
+                            e.preventDefault();
+
+                            updateState({ field: trim(updatedField) });
+                        }}
+                    />
+                    {state.fieldError && (
+                        <Label pointing color="red" basic>
+                            {state.fieldError}
+                        </Label>
+                    )}
+                </Form.Field>
+                <Form.Field>
+                    <Form.Select
+                        placeholder="Select Field Type"
+                        value={state.type}
+                        error={Boolean(state.typeError)}
+                        onChange={(e, { value }) => {
+                            e.preventDefault();
+
+                            const updatedType = value as AvailableType;
+                            updateState({ type: updatedType });
+                        }}
+                        options={dataTypeOptions}
+                    />
+                    {state.typeError && (
+                        <Label pointing color="red" basic>
+                            {state.typeError}
+                        </Label>
+                    )}
+                </Form.Field>
             </Form.Group>
         </ActionSegment>
     );
@@ -67,7 +110,9 @@ const AddField: React.FC<Props> = ({ addField, fields }) => {
 
 type State = {
     field: string;
-    value: any;
+    fieldError: string;
+    type: AvailableType | '';
+    typeError: string;
 };
 
 type Props = {
