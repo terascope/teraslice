@@ -17,6 +17,7 @@ const TypeConfig: React.FC<Props> = ({
     updateTypeConfig,
     typeConfig,
     resolvedConfig,
+    inherits,
 }) => {
     const [showResolved, setShowResolved] = useState(false);
 
@@ -43,19 +44,24 @@ const TypeConfig: React.FC<Props> = ({
             title="Type Configuration"
             description={
                 <React.Fragment>
-                    <div style={{ textAlign: 'left' }}>
-                        <Label
-                            basic
-                            onClick={e => {
-                                e.preventDefault();
-                                setShowResolved(bool => !bool);
-                            }}
-                        >
-                            <Icon name={showResolved ? 'eye slash' : 'eye'} />
-                            {showResolved ? 'Hide' : 'Show'} Inherited Fields
-                        </Label>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
+                    {inherits && (
+                        <div>
+                            <Label
+                                basic
+                                onClick={e => {
+                                    e.preventDefault();
+                                    setShowResolved(bool => !bool);
+                                }}
+                            >
+                                <Icon
+                                    name={showResolved ? 'eye slash' : 'eye'}
+                                />
+                                {showResolved ? 'Hide' : 'Show'} Inherited
+                                Fields
+                            </Label>
+                        </div>
+                    )}
+                    <div style={{ flex: 1, textAlign: 'right' }}>
                         Data Types Version:&nbsp;
                         <strong>{typeConfig.version}</strong>
                     </div>
@@ -97,6 +103,7 @@ const TypeConfig: React.FC<Props> = ({
 
 type Props = {
     updateTypeConfig: (typeConfig: DataTypeConfig) => void;
+    inherits?: boolean;
     typeConfig: DataTypeConfig;
     resolvedConfig: DataTypeConfig;
 };
@@ -114,6 +121,7 @@ const TypeConfigProp = PropTypes.shape({
 TypeConfig.propTypes = {
     updateTypeConfig: PropTypes.func.isRequired,
     resolvedConfig: TypeConfigProp,
+    inherits: PropTypes.bool,
     typeConfig: TypeConfigProp,
 };
 
