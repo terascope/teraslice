@@ -48,15 +48,15 @@ export default class OperationCore<T = OpConfig> extends Core<WorkerContext> imp
     /**
      * Create an API and add it to the operation lifecycle
      */
-    async createAPI(name: string, ...params: any[]): Promise<OpAPI> {
-        return this.context.apis.executionContext.initAPI(name, ...params);
+    async createAPI<A extends OpAPI = OpAPI>(name: string, ...params: any[]): Promise<A> {
+        return this.context.apis.executionContext.initAPI<A>(name, ...params);
     }
 
     /**
      * Get a reference to an existing API
      */
-    getAPI(name: string): OpAPI {
-        return this.context.apis.executionContext.getAPI(name);
+    getAPI<A extends OpAPI = OpAPI>(name: string): A {
+        return this.context.apis.executionContext.getAPI<A>(name);
     }
 
     /**

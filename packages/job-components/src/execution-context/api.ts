@@ -103,7 +103,7 @@ export class ExecutionContextAPI {
      * @param name the name of API to create
      * @param params any additional options that the API may need
      */
-    async initAPI(name: string, ...params: any[]): Promise<OpAPI> {
+    async initAPI<T extends OpAPI = OpAPI>(name: string, ...params: any[]): Promise<T> {
         const api = this._apis[name];
         if (api == null) {
             throw new Error(`Unable to find API by name "${name}"`);
@@ -120,12 +120,12 @@ export class ExecutionContextAPI {
             } else {
                 this._logger.debug(`${msg}`);
             }
-            return api.opAPI;
+            return api.opAPI as T;
         }
 
         api.opAPI = await api.instance.createAPI(...params);
         this._logger.trace(`initialized api ${name}`);
-        return api.opAPI;
+        return api.opAPI as T;
     }
 
     /**
