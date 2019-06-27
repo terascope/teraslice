@@ -70,7 +70,7 @@ export class OperationLoader {
      * Load any LegacyOperation
      * DEPRECATED to accommadate for new Job APIs,
      * use loadReader, or loadProcessor
-    */
+     */
     load(name: string, assetIds?: string[]): LegacyOperation {
         const codePath = this.findOrThrow(name, assetIds);
 
@@ -88,9 +88,9 @@ export class OperationLoader {
             return this.shimLegacyProcessor(name, codePath);
         }
 
-        let Processor: ProcessorConstructor|undefined;
-        let Schema: SchemaConstructor|undefined;
-        let API: OperationAPIConstructor|undefined;
+        let Processor: ProcessorConstructor | undefined;
+        let Schema: SchemaConstructor | undefined;
+        let API: OperationAPIConstructor | undefined;
 
         try {
             Processor = this.require(codePath, 'processor');
@@ -106,8 +106,7 @@ export class OperationLoader {
 
         try {
             API = this.require(codePath, 'api');
-        } catch (err) {
-        }
+        } catch (err) {}
 
         return {
             // @ts-ignore
@@ -125,10 +124,10 @@ export class OperationLoader {
             return this.shimLegacyReader(name, codePath);
         }
 
-        let Fetcher: FetcherConstructor|undefined;
-        let Slicer: SlicerConstructor|undefined;
-        let Schema: SchemaConstructor|undefined;
-        let API: OperationAPIConstructor|undefined;
+        let Fetcher: FetcherConstructor | undefined;
+        let Slicer: SlicerConstructor | undefined;
+        let Schema: SchemaConstructor | undefined;
+        let API: OperationAPIConstructor | undefined;
 
         try {
             Slicer = this.require(codePath, 'slicer');
@@ -150,8 +149,7 @@ export class OperationLoader {
 
         try {
             API = this.require(codePath, 'api');
-        } catch (err) {
-        }
+        } catch (err) {}
 
         return {
             // @ts-ignore
@@ -168,21 +166,19 @@ export class OperationLoader {
         const [apiName] = name.split(':');
         const codePath = this.findOrThrow(apiName, assetIds);
 
-        let API: OperationAPIConstructor|undefined;
+        let API: OperationAPIConstructor | undefined;
 
         try {
             API = this.require(codePath, 'api');
-        } catch (err) {
-        }
+        } catch (err) {}
 
-        let Observer: ObserverConstructor|undefined;
+        let Observer: ObserverConstructor | undefined;
 
         try {
             Observer = this.require(codePath, 'observer');
-        } catch (err) {
-        }
+        } catch (err) {}
 
-        let Schema: SchemaConstructor|undefined;
+        let Schema: SchemaConstructor | undefined;
 
         try {
             Schema = this.require(codePath, 'schema');
@@ -243,26 +239,28 @@ export class OperationLoader {
     }
 
     private fileExists(dir: string, name: string): boolean {
-        const filePaths = this.availableExtensions.map((ext) => {
+        const filePaths = this.availableExtensions.map(ext => {
             return path.format({
                 dir,
                 name,
                 ext,
             });
         });
-        return filePaths.some((filePath) => fs.existsSync(filePath));
+        return filePaths.some(filePath => fs.existsSync(filePath));
     }
 
     private require<T>(dir: string, name?: string): T {
-        const filePaths = name ? this.availableExtensions.map((ext) => {
-            return path.format({
-                dir,
-                name,
-                ext,
-            });
-        }) : [dir];
+        const filePaths = name
+            ? this.availableExtensions.map(ext =>
+                  path.format({
+                      dir,
+                      name,
+                      ext,
+                  })
+              )
+            : [dir];
 
-        let err: Error|undefined;
+        let err: Error | undefined;
 
         for (const filePath of filePaths) {
             try {
@@ -281,11 +279,25 @@ export class OperationLoader {
     }
 
     private resolvePath(filePath: string): string | null {
+        if (!filePath) return null;
         if (fs.existsSync(filePath)) return filePath;
 
         try {
             return require.resolve(filePath);
         } catch (err) {
+            for (const ext of this.availableExtensions) {
+                try {
+                    return path.dirname(
+                        require.resolve(
+                            path.format({
+                                dir: filePath,
+                                name: 'schema',
+                                ext,
+                            })
+                        )
+                    );
+                } catch (err) {}
+            }
             return null;
         }
     }
@@ -299,7 +311,7 @@ export class OperationLoader {
     private findCode(name: string) {
         let filePath: string | null = null;
 
-        const codeNames = this.availableExtensions.map((ext) => {
+        const codeNames = this.availableExtensions.map(ext => {
             return path.format({
                 name,
                 ext,
@@ -308,14 +320,10 @@ export class OperationLoader {
 
         const allowedNames = uniq([name, ...codeNames]);
 
-        const invalid = [
-            'node_modules',
-            ...ignoreDirectories(),
-        ];
+        const invalid = ['node_modules', ...ignoreDirectories()];
 
-        const findCode = (rootDir: string): string|null => {
-            const fileNames = fs.readdirSync(rootDir)
-                .filter((fileName: string) => !invalid.includes(fileName));
+        const findCode = (rootDir: string): string | null => {
+            const fileNames = fs.readdirSync(rootDir).filter((fileName: string) => !invalid.includes(fileName));
 
             for (const fileName of fileNames) {
                 if (filePath) break;
