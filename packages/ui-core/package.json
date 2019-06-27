@@ -20,12 +20,13 @@
         "build": {
             "patterns": [
                 "./src",
-                "../ui-components/dist/src"
+                "../ui-components/dist/src",
+                "../ui-components/index.css"
             ],
             "delay": 500,
             "ignore": "build",
             "extensions": ".css,.js,.jsx,.tsx,.ts",
-            "quiet": true
+            "quiet": false
         }
     },
     "files": [

@@ -24,7 +24,7 @@ export function parseTypeConfig(typeConfig?: DataTypeConfig, recentlyAdded: stri
 
     const alwaysAtBottom: string[] = recentlyAdded.map(trimAndToLower);
     return Object.entries(typeConfig.fields)
-        .map(([field, val]) => ({ field, type: val.type }))
+        .map(([field, val]) => ({ field, type: val.type, array: val.array }))
         .filter(({ type, field }) => !!type && field !== '__typename')
         .sort((a, b) => {
             const aText = trimAndToLower(a.field);

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Form, Label } from 'semantic-ui-react';
 import { trim } from '@terascope/utils';
-import { AvailableType } from '@terascope/data-types';
+import { Form, Label } from 'semantic-ui-react';
 import { ActionSegment } from '@terascope/ui-components';
+import { AvailableType, Type as FieldTypeConfig } from '@terascope/data-types';
 import { dataTypeOptions } from '../interfaces';
 import { validateFieldName } from '../../utils';
+import ArrayCheckbox from './ArrayCheckbox';
 
 const AddField: React.FC<Props> = ({ addField, fields }) => {
     const [state, setState] = useState<State>({
@@ -47,13 +48,14 @@ const AddField: React.FC<Props> = ({ addField, fields }) => {
         <ActionSegment
             actions={[
                 {
-                    name: 'Add',
+                    name: '',
                     icon: 'add',
+                    color: 'blue',
                     onClick: () => {
                         if (state.fieldError || state.typeError) return;
 
                         addField(state.field, {
-                            type: state.type,
+                            type: state.type as AvailableType,
                         });
                         setState({
                             field: '',
@@ -72,10 +74,12 @@ const AddField: React.FC<Props> = ({ addField, fields }) => {
                         placeholder="Field Name"
                         value={state.field}
                         error={Boolean(state.fieldError)}
-                        onChange={(e, { value: updatedField }) => {
+                        onChange={(e, { value }) => {
                             e.preventDefault();
 
-                            updateState({ field: trim(updatedField) });
+                            updateState({
+                                field: trim(value),
+                            });
                         }}
                     />
                     {state.fieldError && (
@@ -92,8 +96,9 @@ const AddField: React.FC<Props> = ({ addField, fields }) => {
                         onChange={(e, { value }) => {
                             e.preventDefault();
 
-                            const updatedType = value as AvailableType;
-                            updateState({ type: updatedType });
+                            updateState({
+                                type: value as AvailableType,
+                            });
                         }}
                         options={dataTypeOptions}
                     />
@@ -103,6 +108,12 @@ const AddField: React.FC<Props> = ({ addField, fields }) => {
                         </Label>
                     )}
                 </Form.Field>
+                <ArrayCheckbox
+                    array={state.array}
+                    onChange={checked => {
+                        updateState({ array: checked });
+                    }}
+                />
             </Form.Group>
         </ActionSegment>
     );
@@ -113,10 +124,11 @@ type State = {
     fieldError: string;
     type: AvailableType | '';
     typeError: string;
+    array?: boolean;
 };
 
 type Props = {
-    addField: (field: string, value: any) => void;
+    addField: (field: string, config: FieldTypeConfig) => void;
     fields: string[];
 };
 

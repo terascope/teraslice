@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
 import PropTypes from 'prop-types';
 import { Form, FormSelectProps } from 'semantic-ui-react';
-import { DefaultInputProps, AnyModel, SelectOption } from './interfaces';
 import { castArray, getFirst, Overwrite } from '@terascope/utils';
+import { DefaultInputProps, AnyModel, SelectOption } from './interfaces';
 import { getSelectValue, mapFormOptions, getSelectId } from './utils';
 
 function FormSelect<T extends AnyModel>({

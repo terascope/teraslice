@@ -1,29 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Segment, Icon } from 'semantic-ui-react';
+import { Button, Segment } from 'semantic-ui-react';
 
 const Actions: React.FC<Props> = ({ actions }) => {
-    if (!actions || !actions.length) {
-        return <div className="borderlessButton spacerButton" />;
-    }
-
     return (
-        <React.Fragment>
-            {actions.map(({ name, icon, color, onClick }) => (
+        <Button.Group className="actionButtons">
+            {(actions || []).map(({ name, icon, color, onClick }, i) => (
                 <Button
-                    key={`action-${name}`}
-                    className="borderlessButton"
-                    color={color || 'blue'}
+                    icon={icon as any}
+                    key={`action-${name}-${i}`}
+                    compact
+                    className="actionButton"
+                    color={color as any}
                     onClick={(e: React.MouseEvent) => {
                         e.preventDefault();
                         onClick();
                     }}
-                >
-                    {icon && <Icon name={icon as any} />}
-                    {name}
-                </Button>
+                />
             ))}
-        </React.Fragment>
+        </Button.Group>
     );
 };
 
@@ -40,7 +35,7 @@ type Props = {
     actions?: {
         icon?: string;
         name: string;
-        color?: 'red' | 'blue';
+        color?: string;
         onClick: () => void;
     }[];
 };
@@ -50,7 +45,7 @@ ActionSegment.propTypes = {
         PropTypes.shape({
             icon: PropTypes.string.isRequired,
             name: PropTypes.string.isRequired,
-            color: PropTypes.oneOf(['red', 'blue']),
+            color: PropTypes.string,
             onClick: PropTypes.func.isRequired,
         }).isRequired
     ),

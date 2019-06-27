@@ -5,8 +5,8 @@ import { Section, Code } from '@terascope/ui-components';
 import {
     DataTypeConfig,
     AvailableTypes,
-    AvailableType,
     AvailableVersions,
+    Type as FieldTypeConfig,
 } from '@terascope/data-types';
 import { parseTypeConfig } from '../../utils';
 import ExistingField from './ExistingField';
@@ -26,12 +26,12 @@ const TypeConfig: React.FC<Props> = ({
     const existing = parseTypeConfig(typeConfig, recentlyAdded);
     const resolved = parseTypeConfig(resolvedConfig);
 
-    const updateField = (field: string, type: AvailableType | false) => {
+    const updateField = (field: string, config: FieldTypeConfig | false) => {
         const fields = { ...typeConfig.fields };
-        if (type === false) {
+        if (config === false) {
             delete fields[field];
         } else {
-            fields[field] = { type };
+            fields[field] = config;
         }
 
         updateTypeConfig({
@@ -76,20 +76,18 @@ const TypeConfig: React.FC<Props> = ({
             }
         >
             {showResolved &&
-                resolved.map(({ field, type }) => (
+                resolved.map(fieldConfig => (
                     <ResolvedField
-                        key={`resolved-${field}`}
-                        field={field}
-                        type={type}
+                        key={`resolved-${fieldConfig.field}`}
+                        {...fieldConfig}
                     />
                 ))}
             {existing.length ? (
-                existing.map(({ field, type }) => (
+                existing.map(fieldConfig => (
                     <ExistingField
-                        key={`existing-${field}`}
+                        key={`existing-${fieldConfig.field}`}
                         updateField={updateField}
-                        field={field}
-                        type={type}
+                        {...fieldConfig}
                     />
                 ))
             ) : (

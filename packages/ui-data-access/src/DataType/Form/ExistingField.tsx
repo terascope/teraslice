@@ -2,15 +2,26 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
 import { ActionSegment } from '@terascope/ui-components';
+import {
+    Type as FieldTypeConfig,
+    AvailableType,
+    AvailableTypes,
+} from '@terascope/data-types';
 import { dataTypeOptions } from '../interfaces';
+import ArrayCheckbox from './ArrayCheckbox';
 
-const ExistingField: React.FC<Props> = ({ updateField, field, type }) => {
+const ExistingField: React.FC<Props> = ({
+    updateField,
+    field,
+    type,
+    array,
+}) => {
     return (
         <ActionSegment
             actions={[
                 {
-                    name: 'Remove',
-                    icon: 'times',
+                    name: '',
+                    icon: 'trash alternate',
                     color: 'red',
                     onClick() {
                         updateField(field, false);
@@ -27,9 +38,21 @@ const ExistingField: React.FC<Props> = ({ updateField, field, type }) => {
                     value={type}
                     onChange={(e, { value }) => {
                         e.preventDefault();
-                        updateField(field, value);
+                        updateField(field, {
+                            array,
+                            type: value as AvailableType,
+                        });
                     }}
                     options={dataTypeOptions}
+                />
+                <ArrayCheckbox
+                    array={array}
+                    onChange={checked => {
+                        updateField(field, {
+                            type,
+                            array: checked,
+                        });
+                    }}
                 />
             </Form.Group>
         </ActionSegment>
@@ -37,15 +60,17 @@ const ExistingField: React.FC<Props> = ({ updateField, field, type }) => {
 };
 
 type Props = {
-    updateField: (field: string, type: any) => void;
+    updateField: (field: string, type: FieldTypeConfig | false) => void;
+    array?: boolean;
     field: string;
-    type: string;
+    type: AvailableType;
 };
 
 ExistingField.propTypes = {
+    array: PropTypes.bool,
     updateField: PropTypes.func.isRequired,
     field: PropTypes.string.isRequired,
-    type: PropTypes.string.isRequired,
+    type: PropTypes.oneOf(AvailableTypes).isRequired,
 };
 
 export default ExistingField;

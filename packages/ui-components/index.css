@@ -88,39 +88,21 @@
 .actionSegment {
     justify-content: space-between;
     display: flex;
-    padding: 1rem 0 1rem 1rem !important;
+    align-items: center;
 }
 
-.actionSegment > :not(.borderlessButton) {
+.actionSegment > :not(.actionButtons) {
     flex: 1;
     margin-top: 0.1rem !important;
 }
 
-.actionSegment .button {
-    padding-top: 0.6rem;
-}
-
-.actionSegment .spacerButton {
+.actionSegment .actionButtons {
+    margin-left: 0.5rem;
     min-width: 1rem;
 }
 
 .actionSegment > .fields {
     margin: 0 !important;
-}
-
-.borderlessButton {
-    box-shadow: none !important;
-    background: transparent none !important;
-    font-weight: normal !important;
-    text-transform: uppercase !important;
-}
-
-.borderlessButton.red {
-    color: #DB2828 !important;
-}
-
-.borderlessButton.blue {
-    color: #2185D0 !important;
 }
 
 .code {
