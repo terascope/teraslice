@@ -1,7 +1,7 @@
 {
     "name": "@terascope/data-access-plugin",
     "description": "A teraserver plugin for managing data access and searching spaces",
-    "version": "0.8.5",
+    "version": "0.9.0",
     "publishConfig": {
         "access": "public"
     },
@@ -32,10 +32,10 @@
         "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand --forceExit"
     },
     "dependencies": {
-        "@terascope/data-access": "^0.9.4",
+        "@terascope/data-access": "^0.10.0",
         "@terascope/data-types": "^0.3.0",
         "@terascope/elasticsearch-api": "^2.0.3",
-        "@terascope/utils": "^0.11.0",
+        "@terascope/utils": "^0.11.1",
         "apollo-server-express": "^2.6.5",
         "graphql": "^14.3.1",
         "graphql-iso-date": "^3.6.1",

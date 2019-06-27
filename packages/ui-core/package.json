@@ -1,6 +1,6 @@
 {
     "name": "@terascope/ui-core",
-    "version": "0.4.1",
+    "version": "0.4.2",
     "description": "A teraserver ui framework",
     "publishConfig": {
         "access": "public"
@@ -42,13 +42,13 @@
     },
     "main": "index.js",
     "dependencies": {
-        "@terascope/ui-data-access": "^0.2.2",
+        "@terascope/ui-data-access": "^0.3.0",
         "pkg-up": "^3.1.0"
     },
     "devDependencies": {
         "@craco/craco": "^5.2.3",
-        "@terascope/ui-components": "^0.3.1",
-        "@terascope/utils": "^0.11.0",
+        "@terascope/ui-components": "^0.3.2",
+        "@terascope/utils": "^0.11.1",
         "@types/jest": "24.0.15",
         "@types/node": "12.0.10",
         "@types/react": "16.8.22",
