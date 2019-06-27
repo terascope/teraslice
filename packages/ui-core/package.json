@@ -19,11 +19,12 @@
     "watch": {
         "build": {
             "patterns": [
-                "./src"
+                "./src",
+                "../ui-components/dist/src"
             ],
             "delay": 500,
             "ignore": "build",
-            "extensions": "*",
+            "extensions": ".css,.js,.jsx,.tsx,.ts",
             "quiet": true
         }
     },
