@@ -831,7 +831,7 @@ describe('ACLManager', () => {
                         id: compositeDataTypeId,
                         config: {
                             fields: {
-                                id: { type: 'keyword' },
+                                id: { type: 'Keyword' },
                                 updated: { type: 'Date' },
                                 created: { type: 'Date' },
                                 location: { type: 'Geo' },

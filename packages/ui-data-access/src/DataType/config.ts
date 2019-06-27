@@ -63,9 +63,15 @@ const config: ModelConfig<Input> = {
         }
         resolvedConfig.fields = resolvedFields;
 
-        const dataTypes = (_dataTypes || []).filter(({ id }: DataType) => {
-            return id !== input.id;
-        });
+        let dataTypes = _dataTypes || [];
+        if (input.id) {
+            dataTypes = dataTypes.filter((dt: DataType) => {
+                if (dt.id === input.id) return false;
+                const from = dt.inherit_from || [];
+                if (from.includes(input.id!)) return false;
+                return true;
+            });
+        }
 
         if (!input.client_id && authUser.client_id) {
             input.client_id = authUser.client_id;
@@ -112,6 +118,7 @@ const config: ModelConfig<Input> = {
                 id
                 client_id
                 name
+                inherit_from
                 config {
                     version
                     fields
@@ -126,6 +133,7 @@ const config: ModelConfig<Input> = {
                 id
                 client_id
                 name
+                inherit_from
                 config {
                     version
                     fields
