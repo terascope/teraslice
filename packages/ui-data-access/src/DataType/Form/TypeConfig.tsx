@@ -1,25 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Segment } from 'semantic-ui-react';
+import { Segment, Label, Icon } from 'semantic-ui-react';
 import { Section, Code } from '@terascope/ui-components';
 import {
     DataTypeConfig,
     AvailableTypes,
-    AvailableType,
     AvailableVersions,
+    Type as FieldTypeConfig,
 } from '@terascope/data-types';
 import { parseTypeConfig } from '../../utils';
 import ExistingField from './ExistingField';
 import AddField from './AddField';
+import ResolvedField from './ResolvedField';
 
-const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig }) => {
-    const entries = parseTypeConfig(typeConfig);
-    const updateField = (field: string, type: AvailableType | false) => {
+const TypeConfig: React.FC<Props> = ({
+    updateTypeConfig,
+    typeConfig,
+    resolvedConfig,
+    inherits,
+}) => {
+    const [recentlyAdded, addField] = useState<string[]>([]);
+    const [showResolved, setShowResolved] = useState(false);
+
+    const existingFields = Object.keys(typeConfig.fields);
+    const existing = parseTypeConfig(typeConfig, recentlyAdded);
+    const resolved = parseTypeConfig(resolvedConfig);
+
+    const updateField = (field: string, config: FieldTypeConfig | false) => {
         const fields = { ...typeConfig.fields };
-        if (type === false) {
+        if (config === false) {
             delete fields[field];
         } else {
-            fields[field] = { type };
+            fields[field] = config;
         }
 
         updateTypeConfig({
@@ -32,10 +44,29 @@ const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig }) => {
         <Section
             title="Type Configuration"
             description={
-                <div style={{ textAlign: 'right' }}>
-                    Data Types Version:&nbsp;
-                    <strong>{typeConfig.version}</strong>
-                </div>
+                <React.Fragment>
+                    {inherits && (
+                        <div>
+                            <Label
+                                basic
+                                onClick={e => {
+                                    e.preventDefault();
+                                    setShowResolved(bool => !bool);
+                                }}
+                            >
+                                <Icon
+                                    name={showResolved ? 'eye slash' : 'eye'}
+                                />
+                                {showResolved ? 'Hide' : 'Show'} Inherited
+                                Fields
+                            </Label>
+                        </div>
+                    )}
+                    <div style={{ flex: 1, textAlign: 'right' }}>
+                        Data Types Version:&nbsp;
+                        <strong>{typeConfig.version}</strong>
+                    </div>
+                </React.Fragment>
             }
             info={
                 <span>
@@ -44,26 +75,32 @@ const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig }) => {
                 </span>
             }
         >
-            {entries.length ? (
-                entries.map(({ field, type }, i) => {
-                    const key = `data-type-config-${field}-${i}`;
-                    return (
-                        <ExistingField
-                            key={key}
-                            updateField={updateField}
-                            field={field}
-                            type={type}
-                        />
-                    );
-                })
+            {showResolved &&
+                resolved.map(fieldConfig => (
+                    <ResolvedField
+                        key={`resolved-${fieldConfig.field}`}
+                        {...fieldConfig}
+                    />
+                ))}
+            {existing.length ? (
+                existing.map(fieldConfig => (
+                    <ExistingField
+                        key={`existing-${fieldConfig.field}`}
+                        updateField={updateField}
+                        {...fieldConfig}
+                    />
+                ))
             ) : (
                 <Segment textAlign="center" className="daFieldEmptyMessage">
                     Add field and type configuration below
                 </Segment>
             )}
             <AddField
-                addField={updateField}
-                fields={Object.keys(typeConfig.fields)}
+                addField={(field, type) => {
+                    addField(fields => fields.concat(field));
+                    updateField(field, type);
+                }}
+                fields={existingFields}
             />
         </Section>
     );
@@ -71,20 +108,26 @@ const TypeConfig: React.FC<Props> = ({ updateTypeConfig, typeConfig }) => {
 
 type Props = {
     updateTypeConfig: (typeConfig: DataTypeConfig) => void;
+    inherits?: boolean;
     typeConfig: DataTypeConfig;
+    resolvedConfig: DataTypeConfig;
 };
+
+const TypeConfigProp = PropTypes.shape({
+    version: PropTypes.oneOf(AvailableVersions).isRequired,
+    fields: PropTypes.objectOf(
+        PropTypes.shape({
+            type: PropTypes.oneOf(AvailableTypes).isRequired,
+            array: PropTypes.bool,
+        }).isRequired
+    ).isRequired,
+}).isRequired;
 
 TypeConfig.propTypes = {
     updateTypeConfig: PropTypes.func.isRequired,
-    typeConfig: PropTypes.shape({
-        version: PropTypes.oneOf(AvailableVersions).isRequired,
-        fields: PropTypes.objectOf(
-            PropTypes.shape({
-                type: PropTypes.oneOf(AvailableTypes).isRequired,
-                array: PropTypes.bool,
-            }).isRequired
-        ).isRequired,
-    }).isRequired,
+    resolvedConfig: TypeConfigProp,
+    inherits: PropTypes.bool,
+    typeConfig: TypeConfigProp,
 };
 
 export default TypeConfig;

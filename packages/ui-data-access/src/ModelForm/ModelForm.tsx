@@ -37,7 +37,7 @@ function ModelForm<T extends i.AnyModel>({
 
     return (
         <Query<any, Vars> query={query} variables={variables} skip={skip}>
-            {({ loading, error, data }) => {
+            {({ loading, error, data, client }) => {
                 if (loading) return <LoadingPage />;
                 if (error) return <ErrorPage error={error} />;
 
@@ -46,6 +46,7 @@ function ModelForm<T extends i.AnyModel>({
                 return (
                     <Segment basic>
                         <Form<T>
+                            client={client}
                             {...passThroughProps}
                             {...props}
                             modelName={modelName}

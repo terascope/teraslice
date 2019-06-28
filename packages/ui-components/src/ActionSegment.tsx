@@ -1,34 +1,41 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Segment, Icon } from 'semantic-ui-react';
+import { Button, Segment } from 'semantic-ui-react';
+
+const Actions: React.FC<Props> = ({ actions }) => {
+    return (
+        <Button.Group className="actionButtons">
+            {(actions || []).map(({ name, icon, color, onClick }, i) => (
+                <Button
+                    icon={icon as any}
+                    key={`action-${name}-${i}`}
+                    compact
+                    className="actionButton"
+                    color={color as any}
+                    onClick={(e: React.MouseEvent) => {
+                        e.preventDefault();
+                        onClick();
+                    }}
+                />
+            ))}
+        </Button.Group>
+    );
+};
 
 const ActionSegment: React.FC<Props> = ({ children, actions }) => {
     return (
         <Segment className="actionSegment">
             {children}
-            {actions.map(({ name, icon, color, onClick }, i) => (
-                <Button
-                    key={`action-${name}-${i}`}
-                    className="borderlessButton"
-                    color={color || 'blue'}
-                    onClick={(e: React.MouseEvent) => {
-                        e.preventDefault();
-                        onClick();
-                    }}
-                >
-                    <Icon name={icon as any} />
-                    {name}
-                </Button>
-            ))}
+            <Actions actions={actions} />
         </Segment>
     );
 };
 
 type Props = {
-    actions: {
-        icon: string;
+    actions?: {
+        icon?: string;
         name: string;
-        color?: 'red' | 'blue';
+        color?: string;
         onClick: () => void;
     }[];
 };
@@ -38,10 +45,10 @@ ActionSegment.propTypes = {
         PropTypes.shape({
             icon: PropTypes.string.isRequired,
             name: PropTypes.string.isRequired,
-            color: PropTypes.oneOf(['red', 'blue']),
+            color: PropTypes.string,
             onClick: PropTypes.func.isRequired,
         }).isRequired
-    ).isRequired,
+    ),
 };
 
 export default ActionSegment;

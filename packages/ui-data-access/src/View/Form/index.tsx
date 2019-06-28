@@ -1,9 +1,13 @@
 import React from 'react';
+import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
-import { concat } from '@terascope/utils';
+import { Query } from 'react-apollo';
+import { get } from '@terascope/utils';
 import { Form, Segment } from 'semantic-ui-react';
-import { Section } from '@terascope/ui-components';
+import { Section, ErrorMessage } from '@terascope/ui-components';
+import { DataTypeConfig, LATEST_VERSION } from '@terascope/data-types';
 import { validateFieldName, parseTypeConfig } from '../../utils';
+import RestrictedInfo from './RestrictedInfo';
 import { Input } from '../interfaces';
 import config from '../config';
 import ModelForm, {
@@ -14,7 +18,17 @@ import ModelForm, {
     Description,
     FormCheckbox,
 } from '../../ModelForm';
-import RestrictedInfo from './RestrictedInfo';
+
+const DataTypeQuery = gql`
+    query DataTypeQuery($id: ID!) {
+        dataType(id: $id) {
+            resolved_config {
+                version
+                fields
+            }
+        }
+    }
+`;
 
 const ViewForm: React.FC<Props> = ({ id }) => {
     const afterChange = (model: Input) => {
@@ -59,9 +73,6 @@ const ViewForm: React.FC<Props> = ({ id }) => {
             }}
         >
             {({ defaultInputProps, model, dataTypes }) => {
-                const availableFields = parseTypeConfig(
-                    model.data_type.config
-                ).map(({ field }) => field);
                 return (
                     <React.Fragment>
                         <Form.Group>
@@ -115,55 +126,104 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                                 label="Prevent Prefix Wildcard"
                             />
                         </Form.Group>
-                        <Section
-                            title="Allowed Fields"
-                            description={[
-                                'Fields that should be allowed in searches and returned results.',
-                                'If any fields are listed here then all other fields will be excluded automatically.',
-                            ].join(' ')}
-                            info={<RestrictedInfo />}
+                        <Query<QueryResult, QueryVars>
+                            query={DataTypeQuery}
+                            variables={{ id: model.data_type.id }}
+                            skip={!Boolean(model.data_type.id)}
                         >
-                            <Form.Group as={Segment} basic>
-                                <FormSelect<Input>
-                                    {...defaultInputProps}
-                                    label="Select Fields"
-                                    multiple
-                                    options={concat(
-                                        availableFields,
-                                        model.includes
-                                    )}
-                                    name="includes"
-                                    value={model.includes}
-                                />
-                            </Form.Group>
-                        </Section>
-                        <Section
-                            title="Excluded Fields"
-                            description={[
-                                'Fields that should be excluded from searches and returned results.',
-                                'If fields are listed here then all other fields will be allowed automatically.',
-                            ].join(' ')}
-                            info={<RestrictedInfo />}
-                        >
-                            <Form.Group as={Segment} basic>
-                                <FormSelect<Input>
-                                    {...defaultInputProps}
-                                    label="Select Fields"
-                                    multiple
-                                    options={concat(
-                                        availableFields,
-                                        model.excludes
-                                    )}
-                                    name="excludes"
-                                    value={model.excludes}
-                                />
-                            </Form.Group>
-                        </Section>
+                            {({ loading, error, data }) => {
+                                if (error) {
+                                    return <ErrorMessage error={error} />;
+                                }
+                                const resolvedConfig: DataTypeConfig = get(
+                                    data,
+                                    'dataType.resolved_config',
+                                    {
+                                        resolved_config: {
+                                            version: LATEST_VERSION,
+                                            fields: {},
+                                        },
+                                    }
+                                );
+                                return (
+                                    <Segment
+                                        basic
+                                        loading={loading}
+                                        className="nopadding"
+                                    >
+                                        <Section
+                                            title="Allowed Fields"
+                                            description={[
+                                                'Fields that should be allowed in searches and returned results.',
+                                                'If any fields are listed here then all other fields will be excluded automatically.',
+                                            ].join(' ')}
+                                            info={<RestrictedInfo />}
+                                        >
+                                            <Form.Group as={Segment} basic>
+                                                <FormSelect<Input>
+                                                    {...defaultInputProps}
+                                                    label="Select Fields"
+                                                    multiple
+                                                    options={getAvailableFields(
+                                                        resolvedConfig,
+                                                        model.includes
+                                                    )}
+                                                    name="includes"
+                                                    value={model.includes}
+                                                />
+                                            </Form.Group>
+                                        </Section>
+                                        <Section
+                                            title="Excluded Fields"
+                                            description={[
+                                                'Fields that should be excluded from searches and returned results.',
+                                                'If fields are listed here then all other fields will be allowed automatically.',
+                                            ].join(' ')}
+                                            info={<RestrictedInfo />}
+                                        >
+                                            <Form.Group as={Segment} basic>
+                                                <FormSelect<Input>
+                                                    {...defaultInputProps}
+                                                    label="Select Fields"
+                                                    multiple
+                                                    options={getAvailableFields(
+                                                        resolvedConfig,
+                                                        model.excludes
+                                                    )}
+                                                    name="excludes"
+                                                    value={model.excludes}
+                                                />
+                                            </Form.Group>
+                                        </Section>
+                                    </Segment>
+                                );
+                            }}
+                        </Query>
                     </React.Fragment>
                 );
             }}
         </ModelForm>
     );
+};
+
+function getAvailableFields(
+    resolvedConfig: DataTypeConfig,
+    existing: string[] = []
+): string[] {
+    return parseTypeConfig(resolvedConfig)
+        .map(({ field }) => field)
+        .filter(field => !existing.includes(field))
+        .concat(existing);
+}
+
+type QueryResult = {
+    dataType: {
+        resolved_config: DataTypeConfig;
+    };
+};
+
+type QueryVars = {
+    id: string;
 };
 
 type Props = {

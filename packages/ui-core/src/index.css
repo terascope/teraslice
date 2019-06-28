@@ -20,3 +20,13 @@ code {
     display: block;
 	flex-direction: column;
 }
+
+
+/** Semantic UI Overrides */
+.ui.form .disabled.field, .ui.disabled.input {
+    opacity: 0.8 !important;
+}
+
+.ui.basic.segment.nopadding, .nopadding {
+    padding: 0 !important;
+}

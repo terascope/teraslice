@@ -49,3 +49,16 @@
 .daTypeConfigVersion label {
     text-align: right;
 }
+
+.daArrayCheckbox {
+    display: flex;
+    align-items: center;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    margin: 0 0.8rem;
+}
+
+.daArrayCheckbox label {
+    font-weight: 600;
+    padding-right: 0.5rem;
+}

@@ -1,7 +1,8 @@
 import PropTypes from 'prop-types';
+import { ApolloClient } from 'apollo-boost';
 import { ModelName } from '@terascope/data-access';
-import { ModelNameProp } from '../interfaces';
 import { Overwrite, AnyObject } from '@terascope/utils';
+import { ModelNameProp } from '../interfaces';
 
 export type ErrorsState<T> = { fields: (keyof T)[]; messages: string[] };
 export const ErrorsStateProp = PropTypes.shape({
@@ -12,6 +13,7 @@ export const ErrorsStateProp = PropTypes.shape({
 export type FormChild<T> = React.FC<{
     [extra: string]: any;
     model: T;
+    client: ApolloClient<any>;
     updateModel: (model: Partial<T>) => void;
     defaultInputProps: DefaultInputProps<T>;
     update: boolean;
@@ -30,7 +32,11 @@ export type ComponentProps<T> = {
     children: FormChild<T>;
 };
 
-export type ComponentInputProps<T> = ComponentProps<T> & { [extra: string]: any; input: T };
+export type ComponentInputProps<T> = ComponentProps<T> & {
+    [extra: string]: any;
+    input: T;
+    client: ApolloClient<any>;
+};
 
 export type DefaultInputProps<T> = {
     hasError: (field: keyof T) => boolean;

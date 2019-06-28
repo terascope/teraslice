@@ -1,6 +1,6 @@
 {
     "name": "@terascope/ui-core",
-    "version": "0.4.1",
+    "version": "0.4.2",
     "description": "A teraserver ui framework",
     "publishConfig": {
         "access": "public"
@@ -10,10 +10,24 @@
         "lint:fix": "yarn lint --fix",
         "start": "env REACT_APP_DEV_MODE=true craco start",
         "build": "craco build",
+        "build:watch": "env FORCE_COLOR=1 npm-watch build",
         "prepublishOnly": "yarn build",
         "test": "env CI=true FORCE_COLOR=1 REACT_APP_DEV_MODE=true craco test --colors",
         "test:watch": "env REACT_APP_DEV_MODE=true craco test",
         "eject": "craco eject"
+    },
+    "watch": {
+        "build": {
+            "patterns": [
+                "./src",
+                "../ui-components/dist/src",
+                "../ui-components/index.css"
+            ],
+            "delay": 500,
+            "ignore": "build",
+            "extensions": ".css,.js,.jsx,.tsx,.ts",
+            "quiet": false
+        }
     },
     "files": [
         "build/**/*",
@@ -28,13 +42,13 @@
     },
     "main": "index.js",
     "dependencies": {
-        "@terascope/ui-data-access": "^0.2.2",
+        "@terascope/ui-data-access": "^0.3.0",
         "pkg-up": "^3.1.0"
     },
     "devDependencies": {
         "@craco/craco": "^5.2.3",
-        "@terascope/ui-components": "^0.3.1",
-        "@terascope/utils": "^0.11.0",
+        "@terascope/ui-components": "^0.3.2",
+        "@terascope/utils": "^0.11.1",
         "@types/jest": "24.0.15",
         "@types/node": "12.0.10",
         "@types/react": "16.8.22",
@@ -42,10 +56,9 @@
         "@types/react-router-dom": "^4.3.4",
         "apollo-boost": "^0.4.3",
         "apollo-client": "^2.6.3",
-        "cpy-cli": "^2.0.0",
-        "craco-less": "^1.9.0",
         "graphql": "^14.3.1",
         "history": "^4.9.0",
+        "npm-watch": "^0.6.0",
         "prop-types": "^15.7.2",
         "query-string": "^6.8.1",
         "react": "^16.8.6",
@@ -53,7 +66,7 @@
         "react-dom": "^16.8.6",
         "react-router-dom": "^5.0.1",
         "react-scripts": "3.0.1",
-        "semantic-ui-less": "^2.4.1",
+        "semantic-ui-css": "^2.4.1",
         "semantic-ui-react": "^0.87.2"
     },
     "browserslist": {

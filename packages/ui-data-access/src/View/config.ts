@@ -20,10 +20,6 @@ const fieldsFragment = gql`
             id
             client_id
             name
-            config {
-                version
-                fields
-            }
         }
         roles {
             id

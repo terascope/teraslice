@@ -2,7 +2,7 @@ import { Express } from 'express';
 import { Client } from 'elasticsearch';
 import * as apollo from 'apollo-server-express';
 import { Context } from '@terascope/job-components';
-import { Logger, get, isProd } from '@terascope/utils';
+import { Logger, get } from '@terascope/utils';
 import { ACLManager } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { makeErrorHandler, getESClient } from '../utils';
@@ -147,12 +147,7 @@ export default class ManagerPlugin {
 
         this.logger.info(`Registering data-access-plugin manager at ${managerUri}`);
         this.server.applyMiddleware({
-            cors: isProd
-                ? false
-                : {
-                    origin: ['http://localhost:3000', 'http://localhost:8000'],
-                    credentials: true,
-                },
+            cors: false,
             app: this.app,
             path: managerUri,
         });

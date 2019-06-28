@@ -15,8 +15,11 @@ export default `
         ${baseModel}
         name: String
         description: String
+        inherit_from: [ID!]
         config: DataTypeConfig
+
         # virutal references
+        resolved_config: DataTypeConfig
         spaces: [Space]
         views: [View]
     }
@@ -26,6 +29,7 @@ export default `
         name: String!
         description: String
         config: DataTypeConfigInput
+        inherit_from: [ID!]
     }
 
     input UpdateDataTypeInput {
@@ -34,5 +38,6 @@ export default `
         name: String
         description: String
         config: DataTypeConfigInput
+        inherit_from: [ID!]
     }
 `;

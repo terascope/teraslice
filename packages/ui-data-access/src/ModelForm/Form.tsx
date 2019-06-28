@@ -16,10 +16,10 @@ import {
     validateName,
     fixClientId,
 } from './utils';
-import { ApolloConsumer } from 'react-apollo';
 
 function Form<T extends AnyModel>({
     id,
+    client,
     input: _model,
     children,
     modelName,
@@ -131,48 +131,42 @@ function Form<T extends AnyModel>({
                 };
 
                 return (
-                    <ApolloConsumer>
-                        {client => {
-                            return (
-                                <RecordForm
-                                    onSubmit={onSubmit}
-                                    loading={loading}
-                                    requestError={error}
-                                    validationErrors={errors.messages}
-                                    recordType={config.singularLabel}
-                                    isCreate={create}
-                                    created={data && create}
-                                    updated={data && update}
-                                    redirectPath={`/${config.pathname}`}
-                                    deletable={
-                                        update &&
-                                        (canDelete ? canDelete(model) : true)
-                                    }
-                                    deleteRecord={async () => {
-                                        await client.mutate({
-                                            mutation: config.removeMutation,
-                                            variables: {
-                                                id: model.id,
-                                            },
-                                            refetchQueries: [
-                                                {
-                                                    query: config.listQuery,
-                                                },
-                                            ],
-                                        });
-                                    }}
-                                >
-                                    {children({
-                                        ...props,
-                                        model,
-                                        defaultInputProps,
-                                        updateModel,
-                                        update,
-                                    })}
-                                </RecordForm>
-                            );
+                    <RecordForm
+                        onSubmit={onSubmit}
+                        loading={loading}
+                        requestError={error}
+                        validationErrors={errors.messages}
+                        recordType={config.singularLabel}
+                        isCreate={create}
+                        created={data && create}
+                        updated={data && update}
+                        redirectPath={`/${config.pathname}`}
+                        deletable={
+                            update && (canDelete ? canDelete(model) : true)
+                        }
+                        deleteRecord={async () => {
+                            await client.mutate({
+                                mutation: config.removeMutation,
+                                variables: {
+                                    id: model.id,
+                                },
+                                refetchQueries: [
+                                    {
+                                        query: config.listQuery,
+                                    },
+                                ],
+                            });
                         }}
-                    </ApolloConsumer>
+                    >
+                        {children({
+                            ...props,
+                            client,
+                            model,
+                            defaultInputProps,
+                            updateModel,
+                            update,
+                        })}
+                    </RecordForm>
                 );
             }}
         </Mutation>

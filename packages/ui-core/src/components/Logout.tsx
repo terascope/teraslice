@@ -26,6 +26,7 @@ const Logout: React.FC = () => {
                             });
                             client.resetStore();
                         }}
+                        fetchPolicy="no-cache"
                         notifyOnNetworkStatusChange
                     >
                         {({ loading, error, data }) => {

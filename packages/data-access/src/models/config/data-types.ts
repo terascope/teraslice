@@ -97,8 +97,6 @@ export interface DataType extends IndexModelRecord {
 
     /**
      * DataType to inherit from
-     *
-     * @todo make this work and avoid circlular dependencies
      */
     inherit_from?: string[];
 

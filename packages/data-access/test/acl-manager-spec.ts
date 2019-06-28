@@ -572,17 +572,36 @@ describe('ACLManager', () => {
     });
 
     describe('when getting a view for a user', () => {
-        let dataTypeId: string;
+        let baseDataTypeId: string;
+        let compositeDataTypeId: string;
 
         beforeAll(async () => {
-            const dataType = await manager.createDataType(
+            const baseDataType = await manager.createDataType(
                 {
                     dataType: {
                         client_id: 1,
-                        name: 'MyExampleType',
+                        name: 'MyExampleBaseType',
                         config: {
                             fields: {
+                                id: { type: 'Keyword' },
                                 created: { type: 'Date' },
+                                updated: { type: 'Date' },
+                            },
+                            version: LATEST_VERSION,
+                        },
+                    },
+                },
+                superAdminUser
+            );
+            baseDataTypeId = baseDataType.id;
+            const compositeDataType = await manager.createDataType(
+                {
+                    dataType: {
+                        client_id: 1,
+                        name: 'MyExampleCompositeType',
+                        inherit_from: [baseDataTypeId],
+                        config: {
+                            fields: {
                                 location: { type: 'Geo' },
                             },
                             version: LATEST_VERSION,
@@ -591,7 +610,7 @@ describe('ACLManager', () => {
                 },
                 superAdminUser
             );
-            dataTypeId = dataType.id;
+            compositeDataTypeId = compositeDataType.id;
         });
 
         afterAll(() => {
@@ -650,7 +669,7 @@ describe('ACLManager', () => {
                         view: {
                             client_id: 1,
                             name: 'Example View',
-                            data_type: dataTypeId,
+                            data_type: compositeDataTypeId,
                             roles: [normalRole.id],
                             includes: ['foo'],
                         },
@@ -665,7 +684,7 @@ describe('ACLManager', () => {
                             type: 'SEARCH',
                             client_id: 1,
                             name: 'Example Space',
-                            data_type: dataTypeId,
+                            data_type: compositeDataTypeId,
                             endpoint: 'example-space',
                             roles: [normalRole.id],
                             views: [viewId],
@@ -720,7 +739,7 @@ describe('ACLManager', () => {
                     user_id: normalUser.id,
                     role_id: normalRole.id,
                     data_type: {
-                        id: dataTypeId,
+                        id: compositeDataTypeId,
                         config: {
                             fields: {
                                 created: { type: 'Date' },
@@ -776,7 +795,7 @@ describe('ACLManager', () => {
                             type: 'SEARCH',
                             client_id: 1,
                             name: 'Another Space',
-                            data_type: dataTypeId,
+                            data_type: compositeDataTypeId,
                             endpoint: 'another-space',
                             roles: [normalRole.id],
                             views: [],
@@ -809,9 +828,11 @@ describe('ACLManager', () => {
                     user_id: normalUser.id,
                     role_id: normalRole.id,
                     data_type: {
-                        id: dataTypeId,
+                        id: compositeDataTypeId,
                         config: {
                             fields: {
+                                id: { type: 'Keyword' },
+                                updated: { type: 'Date' },
                                 created: { type: 'Date' },
                                 location: { type: 'Geo' },
                             },

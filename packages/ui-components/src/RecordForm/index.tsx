@@ -122,7 +122,11 @@ const RecordForm: React.FC<Props> = ({
                 />
             )}
             {hasErrors && (
-                <ErrorMessage error={validationErrors} attached="bottom" />
+                <ErrorMessage
+                    title="Validation Error(s)"
+                    error={validationErrors}
+                    attached="bottom"
+                />
             )}
         </React.Fragment>
     );

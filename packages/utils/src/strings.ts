@@ -7,6 +7,7 @@ export function isString(val: any): val is string {
 export function toString(val: any): string {
     if (val == null) return '';
     if (isString(val)) return val;
+    if (typeof val === 'number' && !Number.isNaN(val)) return `${val}`;
     if (val && typeof val === 'object' && val.message && val.stack) {
         return val.toString();
     }
@@ -68,7 +69,7 @@ export function trim(input: any): string {
 
 /** A native implemation of lodash startsWith */
 export function startsWith(str: string, val: string) {
-    if (typeof str !== 'string') return false;
+    if (!isString(val)) return false;
     return str.startsWith(val);
 }
 

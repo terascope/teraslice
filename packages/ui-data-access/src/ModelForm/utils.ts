@@ -27,7 +27,7 @@ export function fixClientId<T extends AnyModel>(latestModel: T): void {
     }
 }
 
-export function validateName(errs: ErrorsState<any>, model: any): void {
+export function validateName(errs: ErrorsState<any>, model: ts.AnyObject): void {
     const name = ts.getField(model, 'name');
     if (name == null) return;
 
