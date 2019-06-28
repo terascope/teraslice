@@ -13,7 +13,7 @@ export type Input = OverwriteModelWith<
     View,
     {
         space: ViewSpace;
-        data_type: Pick<DataType, 'id' | 'client_id' | 'name' | 'config'>;
+        data_type: Pick<DataType, 'id' | 'client_id' | 'name'>;
         roles: (Pick<Role, 'id' | 'name'>)[];
     }
 >;
