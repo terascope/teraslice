@@ -20,12 +20,12 @@ export default class ESCachedStateStorage {
     constructor(client: Client, logger: Logger, config: ESStateStorageConfig) {
         this.index = config.index;
         this.type = config.type;
-        this.IDField = config.id_field;
+        this.IDField = '_id';
         this.concurrency = config.concurrency;
-        this.sourceFields = config.source_fields;
+        this.sourceFields = config.source_fields || [];
         this.chunkSize = config.chunk_size;
         this.persist = config.persist;
-        this.persistField = config.persist_field || config.id_field;
+        this.persistField = config.persist_field || this.IDField;
         this.cache = new CachedStateStorage(config);
         this.es = esApi(client, logger);
     }

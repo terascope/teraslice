@@ -8,7 +8,7 @@ export interface ESStateStorageConfig extends CacheConfig {
     source_fields: string[];
     chunk_size: number;
     persist: boolean;
-    persist_field: string;
+    persist_field?: string;
 }
 
 interface ESMeta {
@@ -32,7 +32,6 @@ export interface ESQUery {
 }
 
 export interface CacheConfig {
-    id_field: string;
     cache_size: number;
     max_age: number;
 }

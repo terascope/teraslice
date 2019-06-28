@@ -5,7 +5,7 @@ import { CachedStateStorage } from '../src';
 
 describe('Cache Storage State', () => {
 
-    const idField = 'id';
+    const idField = '_id';
 
     const doc = DataEntity.make({ data: 'thisIsSomeData' }, { [idField]: 1 });
 
