@@ -25,7 +25,7 @@ export default class ESCachedStateStorage {
         this.sourceFields = config.source_fields;
         this.chunkSize = config.chunk_size;
         this.persist = config.persist;
-        this.persistField = config.persist_field;
+        this.persistField = config.persist_field || config.id_field;
         this.cache = new CachedStateStorage(config);
         this.es = esApi(client, logger);
     }
