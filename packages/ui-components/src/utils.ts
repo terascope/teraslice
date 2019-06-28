@@ -1,9 +1,9 @@
 import React from 'react';
 import _parseDate from 'date-fns/parse';
 import _formatDate from 'date-fns/format';
-import { withRouter, RouteComponentProps, matchPath } from 'react-router-dom';
-import { PluginConfig, PluginRoute, ResolvedUser, UserPermissionMap } from './interfaces';
 import { UserType } from '@terascope/data-access';
+import { withRouter, RouteComponentProps, matchPath } from 'react-router-dom';
+import { PluginConfig, PluginRoute, ResolvedUser, UserPermissionMap, AccessLevel } from './interfaces';
 import PluginService from './PluginService';
 
 export function formatPath(...paths: (string | undefined)[]) {
@@ -56,14 +56,34 @@ export function findPluginRoute(pathname: string, authUser?: ResolvedUser): Find
     return undefined;
 }
 
-export function hasAccessToRoute(authUser?: ResolvedUser, result?: FindPluginRouteResult): boolean {
-    if (!result) return false;
-    return hasAccessTo(authUser, result.route.access || result.plugin.access);
+export function getAccessLevels(access?: AccessLevel): UserType[] | undefined {
+    if (!access || !access.length) return;
+    if (Array.isArray(access)) {
+        return access;
+    }
+    if (access) {
+        return [access];
+    }
+
+    return;
 }
 
-export function hasAccessTo(authUser?: ResolvedUser, type: UserType = 'ADMIN') {
+export function hasAccessToRoute(authUser?: ResolvedUser, result?: FindPluginRouteResult): boolean {
+    if (!result) return false;
+
+    const routeAccess = getAccessLevels(result.route.access);
+    if (routeAccess) return routeAccess.some(type => hasAccessTo(authUser, type));
+
+    const pluginAccess = getAccessLevels(result.plugin.access);
+    if (pluginAccess) return pluginAccess.some(type => hasAccessTo(authUser, type));
+
+    // default access
+    return hasAccessTo(authUser);
+}
+
+export function hasAccessTo(authUser?: ResolvedUser, _access: AccessLevel = 'ADMIN') {
+    const accessTo: UserType[] = getAccessLevels(_access) || ['ADMIN'];
     const authType = (authUser && authUser.type) || 'USER';
-    const accessTo = type || 'ADMIN';
     const permissions = UserPermissionMap[authType];
-    return permissions && permissions.includes(accessTo);
+    return permissions && accessTo.some(type => permissions.includes(type));
 }

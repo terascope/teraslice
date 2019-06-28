@@ -370,7 +370,7 @@ describe('ACLManager Permissions', () => {
             }
         });
 
-        it('should NOT be able be able to create a DATADMIN', async () => {
+        it('should NOT be able be able to create a DATAADMIN', async () => {
             expect.hasAssertions();
 
             try {

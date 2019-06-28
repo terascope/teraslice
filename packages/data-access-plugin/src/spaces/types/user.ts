@@ -4,7 +4,7 @@ export default `
     enum UserType {
         SUPERADMIN
         ADMIN
-        DATADMIN
+        DATAADMIN
         USER
     }
     type User {
