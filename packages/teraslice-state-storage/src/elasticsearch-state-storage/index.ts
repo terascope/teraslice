@@ -86,7 +86,7 @@ export default class ESCachedStateStorage {
         const response: MGetResponse = await this.es.mget(request);
 
         return response.docs
-            .filter(doc => doc.found === true)
+            .filter(doc => doc.found)
             .map(doc => DataEntity.make(doc._source, { [this.IDField]: doc._id }));
 
     }
