@@ -1,7 +1,7 @@
 import * as es from 'elasticsearch';
 import * as store from 'elasticsearch-store';
-import { TSError, Omit } from '@terascope/utils';
-import usersConfig, { User, UserType } from './config/users';
+import { TSError } from '@terascope/utils';
+import usersConfig, { User, UserType, UserTypes, CreateUserInput, UpdateUserInput } from './config/users';
 import * as utils from '../utils';
 
 /**
@@ -144,6 +144,4 @@ export class Users extends store.IndexModel<User> {
     }
 }
 
-type CreateUserInput = Omit<store.CreateRecordInput<User>, 'api_token' | 'hash' | 'salt'>;
-type UpdateUserInput = Omit<store.UpdateRecordInput<User>, 'api_token' | 'hash' | 'salt'>;
-export { User, UserType, CreateUserInput, UpdateUserInput };
+export { User, UserType, UserTypes, CreateUserInput, UpdateUserInput };

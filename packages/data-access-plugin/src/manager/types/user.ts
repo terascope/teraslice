@@ -2,9 +2,10 @@ import { baseModel } from './misc';
 
 export default `
     enum UserType {
-        USER
-        ADMIN
         SUPERADMIN
+        ADMIN
+        DATADMIN
+        USER
     }
     type User {
         ${baseModel}

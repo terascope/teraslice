@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Role, UserType } from '@terascope/data-access';
-
-export const UserTypes: UserType[] = ['USER', 'ADMIN', 'SUPERADMIN'];
+import { Role, UserType, UserTypes } from '@terascope/data-access';
 
 export type PageAction = {
     label: string;
