@@ -558,6 +558,13 @@ describe('ACLManager Permissions', () => {
             }
         });
 
+        it('should be able to find itself', async () => {
+            return expect(manager.findUser({ id: dataAdminUser.id }, dataAdminUser)).resolves.toMatchObject({
+                id: dataAdminUser.id,
+                client_id: dataAdminUser.client_id,
+            });
+        });
+
         it('should NOT be able to find other users of the same client', async () => {
             const result = await manager.findUsers({ query: `NOT id:"${dataAdminUser.id}"` }, dataAdminUser);
             expect(result).toBeArrayOfSize(0);

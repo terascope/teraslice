@@ -525,7 +525,6 @@ export class ACLManager {
         const restrictedTypes: models.UserType[] = ['USER', 'DATAADMIN'];
         if (restrictedTypes.includes(type)) {
             if (authUser && authUser.id) {
-                excludes.push('client_id');
                 if (constraint) constraint += ' AND ';
                 constraint += `id:"${authUser.id}"`;
             } else {
