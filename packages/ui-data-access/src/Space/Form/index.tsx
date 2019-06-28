@@ -15,6 +15,8 @@ import ModelForm, {
 
 const SpaceForm: React.FC<Props> = ({ id }) => {
     const authUser = useCoreContext().authUser!;
+    const canSeeConfig =
+        authUser.type === 'DATAADMIN' || authUser.type === 'SUPERADMIN';
 
     const afterChange = (model: Input) => {
         if (model.endpoint) {
@@ -108,7 +110,7 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
                                 options={model.data_type.views}
                             />
                         </Form.Group>
-                        {authUser.type === 'SUPERADMIN' && (
+                        {canSeeConfig && (
                             <SearchConfig
                                 config={model.config}
                                 updateConfig={searchConfig => {
