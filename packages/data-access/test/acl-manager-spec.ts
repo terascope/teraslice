@@ -507,7 +507,7 @@ describe('ACLManager', () => {
                 viewId = view.id;
             });
 
-            it('should remove the view from the old space', async () => {
+            it('should be able to remove the view from the old space', async () => {
                 expect.hasAssertions();
 
                 try {
@@ -724,6 +724,23 @@ describe('ACLManager', () => {
                     },
                     superAdminUser
                 );
+            });
+
+            it('should not be able to remove the data type until everything has been removed', async () => {
+                expect.hasAssertions();
+
+                try {
+                    await manager.removeDataType(
+                        {
+                            id: compositeDataTypeId,
+                        },
+                        superAdminUser
+                    );
+                } catch (err) {
+                    expect(err.message).toEqual('Unable to remove Data Type, please remove it from any associated View or Space');
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toEqual(412);
+                }
             });
 
             it('should be able to get config by space id', () => {
