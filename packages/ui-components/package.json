@@ -1,6 +1,6 @@
 {
     "name": "@terascope/ui-components",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "description": "A teraserver ui components library",
     "publishConfig": {
         "access": "public"
@@ -26,7 +26,7 @@
     },
     "main": "dist/src/index.js",
     "dependencies": {
-        "@terascope/data-access": "^0.10.0",
+        "@terascope/data-access": "^0.11.0",
         "@terascope/utils": "^0.11.1",
         "apollo-boost": "^0.4.3",
         "apollo-client": "^2.6.3",
