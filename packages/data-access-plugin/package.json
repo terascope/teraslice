@@ -1,7 +1,7 @@
 {
     "name": "@terascope/data-access-plugin",
     "description": "A teraserver plugin for managing data access and searching spaces",
-    "version": "0.9.0",
+    "version": "0.10.0",
     "publishConfig": {
         "access": "public"
     },
@@ -32,7 +32,7 @@
         "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand --forceExit"
     },
     "dependencies": {
-        "@terascope/data-access": "^0.10.0",
+        "@terascope/data-access": "^0.11.0",
         "@terascope/data-types": "^0.3.0",
         "@terascope/elasticsearch-api": "^2.0.3",
         "@terascope/utils": "^0.11.1",

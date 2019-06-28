@@ -281,6 +281,22 @@ export class ACLManager {
         const exists = await this._dataTypes.exists(args.id);
         if (!exists) return false;
 
+        const [spacesCount, viewCount] = await Promise.all([
+            this._spaces.countBy({ data_type: args.id }),
+            this._views.countBy({ data_type: args.id }),
+        ]);
+
+        if (spacesCount || viewCount) {
+            throw new ts.TSError('Unable to remove Data Type, please remove it from any associated View or Space', {
+                statusCode: 412,
+                context: {
+                    dataTypeId: args.id,
+                    spacesCount,
+                    viewCount,
+                },
+            });
+        }
+
         await this._dataTypes.deleteById(args.id);
 
         return true;
@@ -506,9 +522,9 @@ export class ACLManager {
             constraint += `client_id:"${clientId}"`;
         }
 
-        if (type === 'USER') {
+        const restrictedTypes: models.UserType[] = ['USER', 'DATAADMIN'];
+        if (restrictedTypes.includes(type)) {
             if (authUser && authUser.id) {
-                excludes.push('client_id');
                 if (constraint) constraint += ' AND ';
                 constraint += `id:"${authUser.id}"`;
             } else {
@@ -539,7 +555,8 @@ export class ACLManager {
             constraint += `client_id:"${clientId}"`;
         }
 
-        if (type === 'USER') {
+        const restrictedTypes: models.UserType[] = ['USER'];
+        if (restrictedTypes.includes(type)) {
             includes.push('id', 'name');
             if (constraint) constraint += ' AND ';
             if (authUser && authUser.role) {
@@ -598,7 +615,8 @@ export class ACLManager {
             constraint += `client_id:"${clientId}"`;
         }
 
-        if (type === 'USER') {
+        const restrictedTypes: models.UserType[] = ['USER'];
+        if (restrictedTypes.includes(type)) {
             if (authUser && authUser.role) {
                 includes.push('id', 'name');
 
@@ -681,7 +699,12 @@ export class ACLManager {
 
     private _getUserType(authUser: i.AuthUser): models.UserType {
         if (!authUser) return 'SUPERADMIN';
-        return authUser.type || 'USER';
+        if (!authUser.type) return 'USER';
+        if (models.UserTypes.includes(authUser.type)) return authUser.type;
+
+        throw new ts.TSError(`Forbidden User Type ${authUser.type}`, {
+            statusCode: 403,
+        });
     }
 
     private _parseDataAccessConfig(config: i.DataAccessConfig): i.DataAccessConfig {
@@ -764,13 +787,21 @@ export class ACLManager {
         const authClientId = this._getUserClientId(authUser);
         const { client_id: currentClientId, type: currentType } = await this._getCurrentUserInfo(authUser, user);
 
+        const restrictedCreateTypes: models.UserType[] = ['SUPERADMIN', 'DATAADMIN'];
+        if (!user.id && authType === 'ADMIN' && restrictedCreateTypes.includes(user.type!)) {
+            throw new ts.TSError(`User doesn't have permission to create user with type ${user.type}`, {
+                statusCode: 403,
+            });
+        }
+
         if (authType === 'ADMIN' && authClientId !== currentClientId) {
             throw new ts.TSError("User doesn't have permission to write to users outside of the their client id", {
                 statusCode: 403,
             });
         }
 
-        if (authUser && authType === 'USER' && !isAuthUser(authUser, user)) {
+        const restrictedTypes: models.UserType[] = ['USER', 'DATAADMIN'];
+        if (authUser && restrictedTypes.includes(authType) && !isAuthUser(authUser, user)) {
             throw new ts.TSError("User doesn't have permission to write to other users", {
                 statusCode: 403,
             });
@@ -783,7 +814,7 @@ export class ACLManager {
         }
 
         if (user.type && user.type !== currentType) {
-            if (authType === 'USER' || (authType === 'ADMIN' && user.type === 'SUPERADMIN')) {
+            if (restrictedTypes.includes(authType) || (authType === 'ADMIN' && user.type === 'SUPERADMIN')) {
                 throw new ts.TSError(`User doesn't have permission to elevate user to ${user.type}`, {
                     statusCode: 403,
                 });
@@ -894,9 +925,14 @@ export class ACLManager {
      */
     private async _validateCanCreate(model: i.ModelName, authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
-        const restricted: i.ModelName[] = ['Space', 'DataType'];
+        const adminRestricted: i.ModelName[] = ['Space', 'DataType'];
+        const dataAdminRestricted: i.ModelName[] = ['Role'];
 
-        if (type === 'USER' || (type === 'ADMIN' && restricted.includes(model))) {
+        if (
+            type === 'USER' ||
+            (type === 'ADMIN' && adminRestricted.includes(model)) ||
+            (type === 'DATAADMIN' && dataAdminRestricted.includes(model))
+        ) {
             throw new ts.TSError(`User doesn't have permission to create ${model}`, {
                 statusCode: 403,
             });
@@ -910,7 +946,8 @@ export class ACLManager {
      */
     private async _validateCanUpdate(model: i.ModelName, authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
-        if (type === 'USER') {
+        const dataAdminRestricted: i.ModelName[] = ['Role'];
+        if (type === 'USER' || (type === 'DATAADMIN' && dataAdminRestricted.includes(model))) {
             throw new ts.TSError(`User doesn't have permission to update ${model}`, {
                 statusCode: 403,
             });
@@ -924,8 +961,14 @@ export class ACLManager {
      */
     private async _validateCanRemove(model: i.ModelName, authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
-        const restricted: i.ModelName[] = ['Space', 'DataType'];
-        if (type === 'USER' || (type === 'ADMIN' && restricted.includes(model))) {
+        const adminRestricted: i.ModelName[] = ['Space', 'DataType'];
+        const dataAdminRestricted: i.ModelName[] = ['Role'];
+
+        if (
+            type === 'USER' ||
+            (type === 'ADMIN' && adminRestricted.includes(model)) ||
+            (type === 'DATAADMIN' && dataAdminRestricted.includes(model))
+        ) {
             throw new ts.TSError(`User doesn't have permission to remove ${model}`, {
                 statusCode: 403,
             });

@@ -1,4 +1,16 @@
-import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
+import { IndexModelConfig, IndexModelRecord, CreateRecordInput, UpdateRecordInput } from 'elasticsearch-store';
+
+/**
+ * A fixed permission level type system, used for primarly metadata management.
+ *
+ * Available Types:
+ * - `SUPERADMIN`: This type is multi-tenate and read/write everything.
+ * - `ADMIN`: This type is single-tenate and can read/write most things.
+ * - `DATAADMIN`: This type is single-tenate and read/write Spaces and DataTypes.
+ * - `USER`: This type is single-tenate and can only read/write things it has direct permission to.
+ */
+export type UserType = 'SUPERADMIN' | 'ADMIN' | 'DATAADMIN' | 'USER';
+export const UserTypes: ReadonlyArray<UserType> = ['SUPERADMIN', 'ADMIN', 'DATAADMIN', 'USER'];
 
 const config: IndexModelConfig<User> = {
     version: 1,
@@ -86,7 +98,7 @@ const config: IndexModelConfig<User> = {
             type: {
                 type: 'string',
                 default: 'USER',
-                enum: ['USER', 'ADMIN', 'SUPERADMIN'],
+                enum: UserTypes,
             },
             api_token: {
                 type: 'string',
@@ -150,9 +162,10 @@ export interface User extends IndexModelRecord {
     role_name?: string;
 
     /**
-     * The user's type
+     * A fixed permission level type system, used for primarly metadata management.
      *
-     * @default "User"
+     * @see {UserType}
+     * @default "USER"
      */
     type?: UserType;
 
@@ -179,6 +192,7 @@ export interface User extends IndexModelRecord {
     salt: string;
 }
 
-export type UserType = 'SUPERADMIN' | 'ADMIN' | 'USER';
+export type CreateUserInput = Omit<CreateRecordInput<User>, 'api_token' | 'hash' | 'salt'>;
+export type UpdateUserInput = Omit<UpdateRecordInput<User>, 'api_token' | 'hash' | 'salt'>;
 
 export default config;

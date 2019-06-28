@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Role, UserType } from '@terascope/data-access';
 
-export const UserTypes: UserType[] = ['USER', 'ADMIN', 'SUPERADMIN'];
+export const UserTypes: ReadonlyArray<UserType> = ['SUPERADMIN', 'ADMIN', 'DATAADMIN', 'USER'];
 
 export type PageAction = {
     label: string;
@@ -18,15 +18,21 @@ export const PageActionProp = PropTypes.shape({
     to: PropTypes.string,
 });
 
+export type AccessLevel = UserType | (UserType[]);
+
 export type PluginRoute = {
     name: string;
     path: string;
     icon: string;
     hidden?: boolean;
-    access?: UserType;
+    access?: AccessLevel;
     component: React.FC<any> | React.ComponentClass<any>;
     actions?: string[];
 };
+
+export const UserTypeProp = PropTypes.oneOf(UserTypes.slice());
+export const UserTypesProp = PropTypes.arrayOf(UserTypeProp.isRequired);
+export const UserAccessProp = PropTypes.oneOf([UserTypeProp.isRequired, UserTypesProp.isRequired]);
 
 export const PluginRoutesProp = PropTypes.arrayOf(
     PropTypes.shape({
@@ -35,7 +41,7 @@ export const PluginRoutesProp = PropTypes.arrayOf(
         icon: PropTypes.string.isRequired,
         hidden: PropTypes.bool,
         component: PropTypes.func.isRequired,
-        access: PropTypes.oneOf(UserTypes),
+        access: UserAccessProp,
         actions: PropTypes.arrayOf(PropTypes.string.isRequired),
     }).isRequired
 );
@@ -43,14 +49,14 @@ export const PluginRoutesProp = PropTypes.arrayOf(
 export type PluginConfig = {
     name: string;
     basepath?: string;
-    access?: UserType;
+    access?: AccessLevel;
     routes: PluginRoute[];
 };
 
 export const PluginConfigProp = PropTypes.shape({
     name: PropTypes.string.isRequired,
     basepath: PropTypes.string,
-    access: PropTypes.oneOf(UserTypes),
+    access: UserAccessProp,
     routes: PluginRoutesProp.isRequired,
 });
 
@@ -78,8 +84,9 @@ export type CoreContextState = {
 
 export const UserPermissionMap: { readonly [key in UserType]: ReadonlyArray<UserType> } = {
     USER: ['USER'],
+    DATAADMIN: ['USER', 'DATAADMIN'],
     ADMIN: ['USER', 'ADMIN'],
-    SUPERADMIN: ['USER', 'ADMIN', 'SUPERADMIN'],
+    SUPERADMIN: UserTypes.slice(),
 };
 
 export type RegisterPluginFn = () => PluginConfig;

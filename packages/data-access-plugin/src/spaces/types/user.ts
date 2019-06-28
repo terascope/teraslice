@@ -1,11 +1,11 @@
-
 import { baseModel } from '../../manager/types/misc';
 
 export default `
     enum UserType {
-        USER
-        ADMIN
         SUPERADMIN
+        ADMIN
+        DATAADMIN
+        USER
     }
     type User {
         ${baseModel}

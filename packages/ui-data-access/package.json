@@ -1,6 +1,6 @@
 {
     "name": "@terascope/ui-data-access",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "description": "A teraserver ui plugin for data-access",
     "publishConfig": {
         "access": "public"
@@ -26,9 +26,9 @@
     "main": "build/plugin.js",
     "dependencies": {},
     "devDependencies": {
-        "@terascope/data-access": "^0.10.0",
+        "@terascope/data-access": "^0.11.0",
         "@terascope/data-types": "^0.3.0",
-        "@terascope/ui-components": "^0.3.2",
+        "@terascope/ui-components": "^0.3.3",
         "@terascope/utils": "^0.11.1",
         "@types/jest": "24.0.15",
         "@types/node": "12.0.10",

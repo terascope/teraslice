@@ -1,24 +1,38 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
-import { ACLManager, User, DataType } from '../src';
+import { ACLManager, User, DataType, Role } from '../src';
 import { LATEST_VERSION } from '@terascope/data-types';
 
 describe('ACLManager Permissions', () => {
     const client = makeClient();
     const manager = new ACLManager(client, { namespace: 'test_manager_permissions' });
+
+    let someRole: Role;
     let superAdminUser: User;
     let adminUser: User;
     let otherAdminUser: User;
+    let dataAdminUser: User;
     let normalUser: User;
     let otherUser: User;
     let foreignUser: User;
     let foreignAdminUser: User;
+    let foreignDataAdminUser: User;
     let dataType: DataType;
 
     beforeAll(async () => {
         await cleanupIndexes(manager);
         await manager.initialize();
+
+        someRole = await manager.createRole(
+            {
+                role: {
+                    name: 'SomeRole',
+                    client_id: 1,
+                },
+            },
+            false
+        );
 
         const users = await Promise.all([
             manager.createUser(
@@ -40,7 +54,7 @@ describe('ACLManager Permissions', () => {
                     user: {
                         username: 'admin-admin',
                         email: 'admin-admin@example.com',
-                        firstname: 'Admin',
+                        firstname: 'Main',
                         lastname: 'Admin',
                         type: 'ADMIN',
                         client_id: 1,
@@ -66,9 +80,23 @@ describe('ACLManager Permissions', () => {
             manager.createUser(
                 {
                     user: {
+                        username: 'dataadmin',
+                        email: 'dataadmin@example.com',
+                        firstname: 'Main',
+                        lastname: 'DataAdmin',
+                        type: 'DATAADMIN',
+                        client_id: 1,
+                    },
+                    password: 'password',
+                },
+                false
+            ),
+            manager.createUser(
+                {
+                    user: {
                         username: 'user-user',
                         email: 'user-user@example.com',
-                        firstname: 'User',
+                        firstname: 'Main',
                         lastname: 'User',
                         type: 'USER',
                         client_id: 1,
@@ -119,9 +147,33 @@ describe('ACLManager Permissions', () => {
                 },
                 false
             ),
+            manager.createUser(
+                {
+                    user: {
+                        username: 'foreign-dataadmin',
+                        email: 'foreign-dataadmin@example.com',
+                        firstname: 'Foreign',
+                        lastname: 'DataAdmin',
+                        type: 'DATAADMIN',
+                        client_id: 2,
+                    },
+                    password: 'password',
+                },
+                false
+            ),
         ]);
 
-        [superAdminUser, adminUser, otherAdminUser, normalUser, otherUser, foreignUser, foreignAdminUser] = users;
+        [
+            superAdminUser,
+            adminUser,
+            otherAdminUser,
+            dataAdminUser,
+            normalUser,
+            otherUser,
+            foreignUser,
+            foreignAdminUser,
+            foreignDataAdminUser,
+        ] = users;
 
         dataType = await manager.createDataType(
             {
@@ -147,7 +199,7 @@ describe('ACLManager Permissions', () => {
 
     describe('when acting as a SUPERADMIN', () => {
         it('should be able to find users from another client', async () => {
-            const result = await manager.findUsers({ query: '' }, superAdminUser);
+            const result = await manager.findUsers({}, superAdminUser);
             expect(result).toBeArray();
             expect(result.length).toBeGreaterThan(0);
             expect(result[0]).toHaveProperty('api_token');
@@ -197,7 +249,7 @@ describe('ACLManager Permissions', () => {
         });
 
         it('should be able to find users with tokens of the same client', async () => {
-            const result = await manager.findUsers({ query: '' }, adminUser);
+            const result = await manager.findUsers({}, adminUser);
             expect(result).toBeArray();
             expect(result.length).toBeGreaterThan(0);
             expect(result[0]).toHaveProperty('api_token');
@@ -290,6 +342,54 @@ describe('ACLManager Permissions', () => {
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.message).toInclude("User doesn't have permission to elevate user to SUPERADMIN");
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+
+        it('should NOT be able be able to create a SUPERADMIN', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.createUser(
+                    {
+                        user: {
+                            username: 'test-superadmin',
+                            firstname: 'test-superadmin',
+                            lastname: 'test-superadmin',
+                            type: 'SUPERADMIN',
+                            client_id: 0,
+                        },
+                        password: 'password',
+                    },
+                    adminUser
+                );
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude("User doesn't have permission to create user with type SUPERADMIN");
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+
+        it('should NOT be able be able to create a DATAADMIN', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.createUser(
+                    {
+                        user: {
+                            username: 'test-dataadmin',
+                            firstname: 'test-dataadmin',
+                            lastname: 'test-dataadmin',
+                            type: 'DATAADMIN',
+                            client_id: 0,
+                        },
+                        password: 'password',
+                    },
+                    adminUser
+                );
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude("User doesn't have permission to create user with type DATAADMIN");
                 expect(err.statusCode).toEqual(403);
             }
         });
@@ -442,6 +542,256 @@ describe('ACLManager Permissions', () => {
                 expect(err.message).toInclude("User doesn't have permission to create Space");
                 expect(err.statusCode).toEqual(403);
             }
+        });
+    });
+
+    describe('when acting as a DATAADMIN', () => {
+        it('should NOT be able to find the other user', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.findUser({ id: otherUser.id }, dataAdminUser);
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Unable to find User');
+                expect(err.statusCode).toEqual(404);
+            }
+        });
+
+        it('should be able to find itself', async () => {
+            return expect(manager.findUser({ id: dataAdminUser.id }, dataAdminUser)).resolves.toMatchObject({
+                id: dataAdminUser.id,
+                client_id: dataAdminUser.client_id,
+            });
+        });
+
+        it('should NOT be able to find other users of the same client', async () => {
+            const result = await manager.findUsers({ query: `NOT id:"${dataAdminUser.id}"` }, dataAdminUser);
+            expect(result).toBeArrayOfSize(0);
+        });
+
+        it('should NOT be able to find other users of a different client', async () => {
+            const result = await manager.findUsers({ query: 'NOT firstname:Foreign' }, foreignDataAdminUser);
+            expect(result).toBeArrayOfSize(0);
+        });
+
+        it('should NOT be able to create a user', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.createUser(
+                    {
+                        user: {
+                            username: 'other-user-2',
+                            email: 'other-user-2@example.com',
+                            firstname: 'Other',
+                            lastname: 'User 2',
+                            type: 'USER',
+                            client_id: 1,
+                        },
+                        password: 'password',
+                    },
+                    dataAdminUser
+                );
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude("User doesn't have permission to write to other users");
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+
+        it('should NOT be able to update another user', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateUser(
+                    {
+                        user: {
+                            id: otherUser.id,
+                            firstname: 'Otherrr',
+                        },
+                    },
+                    dataAdminUser
+                );
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude("User doesn't have permission to write to other users");
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+
+        it('should be allowed to update itself', async () => {
+            return expect(
+                manager.updateToken(
+                    {
+                        id: dataAdminUser.id,
+                    },
+                    dataAdminUser
+                )
+            ).resolves.toBeString();
+        });
+
+        it('should NOT be allowed to update a user from another client', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateUser(
+                    {
+                        user: {
+                            id: foreignUser.id,
+                            firstname: 'Foreign',
+                        },
+                    },
+                    adminUser
+                );
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude("User doesn't have permission to write to users outside of the their client id");
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+
+        it("should NOT be able to elevate its own user's permission to ADMIN", async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateUser(
+                    {
+                        user: {
+                            id: dataAdminUser.id,
+                            type: 'ADMIN',
+                        },
+                    },
+                    dataAdminUser
+                );
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude("User doesn't have permission to elevate user to ADMIN");
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+
+        it('should NOT be able to change its client id', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.updateUser(
+                    {
+                        user: {
+                            id: dataAdminUser.id,
+                            client_id: 3,
+                        },
+                    },
+                    dataAdminUser
+                );
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude("User doesn't have permission to change client on user");
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+
+        it('should be able allowed to find roles', async () => {
+            const result = await manager.findRoles({ query: `name:"${someRole.name}"` }, dataAdminUser);
+            expect(result).toBeArrayOfSize(1);
+            expect(result[0]).toHaveProperty('id', someRole.id);
+        });
+
+        it('should NOT be able to create a role', async () => {
+            expect.hasAssertions();
+
+            try {
+                await manager.createRole(
+                    {
+                        role: {
+                            client_id: 1,
+                            name: 'IDKExampleRole',
+                        },
+                    },
+                    dataAdminUser
+                );
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude("User doesn't have permission to create Role");
+                expect(err.statusCode).toEqual(403);
+            }
+        });
+
+        it('should be allowed to read/write to Views, DataTypes and Spaces', async () => {
+            const { id: dataTypeId } = await manager.createDataType(
+                {
+                    dataType: {
+                        client_id: 1,
+                        name: 'IDKExampleDataType',
+                        config: {
+                            version: 1,
+                            fields: {},
+                        },
+                    },
+                },
+                dataAdminUser
+            );
+
+            await expect(manager.findDataType({ id: dataTypeId }, dataAdminUser)).resolves.toMatchObject({
+                id: dataTypeId,
+            });
+
+            const { id: spaceId } = await manager.createSpace(
+                {
+                    space: {
+                        type: 'SEARCH',
+                        client_id: 1,
+                        name: 'IDKExampleSpace',
+                        endpoint: 'idk-example-space',
+                        data_type: dataTypeId,
+                        roles: [],
+                        views: [],
+                    },
+                },
+                dataAdminUser
+            );
+
+            await expect(manager.findSpace({ id: spaceId }, dataAdminUser)).resolves.toMatchObject({
+                id: spaceId,
+            });
+
+            const { id: viewId } = await manager.createView(
+                {
+                    view: {
+                        client_id: 1,
+                        name: 'IDKExampleView',
+                        data_type: dataTypeId,
+                        roles: [],
+                        constraint: 'example:view',
+                    },
+                },
+                dataAdminUser
+            );
+
+            await expect(manager.findView({ id: viewId }, dataAdminUser)).resolves.toMatchObject({
+                id: viewId,
+            });
+
+            await manager.removeView(
+                {
+                    id: viewId,
+                },
+                dataAdminUser
+            );
+
+            await manager.removeSpace(
+                {
+                    id: spaceId,
+                },
+                dataAdminUser
+            );
+
+            await manager.removeDataType(
+                {
+                    id: dataTypeId,
+                },
+                dataAdminUser
+            );
         });
     });
 

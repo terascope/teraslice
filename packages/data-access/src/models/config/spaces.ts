@@ -1,5 +1,8 @@
 import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
 
+export type SpaceConfigType = 'SEARCH' | 'STREAMING';
+export const SpaceConfigTypes: ReadonlyArray<SpaceConfigType> = ['SEARCH', 'STREAMING'];
+
 const config: IndexModelConfig<Space> = {
     version: 1,
     name: 'spaces',
@@ -56,7 +59,7 @@ const config: IndexModelConfig<Space> = {
             type: {
                 type: 'string',
                 default: 'SEARCH',
-                enum: ['SEARCH', 'STREAMING'],
+                enum: SpaceConfigTypes,
             },
             endpoint: {
                 type: 'string',
@@ -169,8 +172,6 @@ const config: IndexModelConfig<Space> = {
     },
     strictMode: false,
 };
-
-export type SpaceConfigType = 'SEARCH' | 'STREAMING';
 
 /**
  * The definition of a Space model
