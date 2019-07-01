@@ -1,5 +1,5 @@
 
-import { DataEntity, Logger, TSError } from '@terascope/job-components';
+import { DataEntity, Logger, TSError, chunk, has } from '@terascope/job-components';
 import esApi, { Client } from '@terascope/elasticsearch-api';
 import { Promise as bPromise } from 'bluebird';
 import { ESStateStorageConfig, ESBulkQuery, ESQUery, MGetResponse } from '../interfaces';
@@ -32,7 +32,10 @@ export default class ESCachedStateStorage {
 
     private getIdentifier(doc: DataEntity) {
         const id =  doc.getMetadata(this.IDField);
-        if (id == null) throw new TSError(`There is no field "${this.IDField}" set in the metadata for doc: ${JSON.stringify(doc)}`);
+        if (!id) {
+            throw new TSError(`There is no field "${this.IDField}" set in the metadata`, { context: { doc } });
+        }
+
         return id;
     }
 
@@ -56,10 +59,9 @@ export default class ESCachedStateStorage {
 
     private _esBulkUpdate(docArray: DataEntity[]) {
         const bulkRequest = this._esBulkUpdatePrep(docArray);
+        const chunkedArray = chunk<ESBulkQuery>(bulkRequest, this.chunkSize);
 
-        return bPromise.map(chunk<ESBulkQuery>(bulkRequest, this.chunkSize),
-            chunkedData => this.es.bulkSend(chunkedData)
-            );
+        return bPromise.map<ESBulkQuery[], ESBulkQuery[]>(chunkedArray, chunkedData => this.es.bulkSend(chunkedData));
     }
 
     private async _esGet(doc: DataEntity) {
@@ -73,7 +75,7 @@ export default class ESCachedStateStorage {
         const results = await this.es.get(request);
         return DataEntity.make(results, { [this.IDField]: id });
     }
-
+    // @ts-ignore
     private async _esMget(query: string[]) {
         const request: ESQUery = {
             index: this.index,
@@ -131,11 +133,15 @@ export default class ESCachedStateStorage {
             }
         });
 
+        const chunkedArray = chunk<string>(unCachedDocKeys, this.chunkSize);
         // es search for keys not in cache
-        const mgetResults = await bPromise.map(chunk<string>(unCachedDocKeys, this.chunkSize),
-            chunked => this._esMget(chunked), { concurrency: this.concurrency });
+        const mgetResults = await bPromise.map<string[], DataEntity[]>(
+            chunkedArray,
+            chunked => this._esMget(chunked),
+            { concurrency: this.concurrency }
+        );
 
-        // update cache based on mget results
+       // update cache based on mget results
         mgetResults.forEach((results) => {
             results.forEach((doc: DataEntity) => {
                 // update cache
@@ -144,7 +150,7 @@ export default class ESCachedStateStorage {
                 savedDocs[this.getIdentifier(doc)] = doc;
             });
         });
-        // return state
+
         return savedDocs;
     }
 
@@ -173,25 +179,4 @@ export default class ESCachedStateStorage {
         this.cache.shutdown();
     }
 
-}
-
-function has(data: object, key: any) {
-    return key in data;
-}
-
-function chunk<T>(dataArray: T[], size:number) {
-    if (size < 1) return [dataArray];
-    const results: T[][] = [];
-    let chunked: T[] = [];
-
-    for (let i = 0; i < dataArray.length; i += 1) {
-        chunked.push(dataArray[i]);
-        if (chunked.length === size) {
-            results.push(chunked);
-            chunked = [];
-        }
-    }
-
-    if (chunked.length > 0) results.push(chunked);
-    return results;
 }
