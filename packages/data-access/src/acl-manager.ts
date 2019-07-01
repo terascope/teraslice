@@ -736,13 +736,7 @@ export class ACLManager {
         return config;
     }
 
-    private _validateAnyInput(input: { id?: string; client_id?: number } | undefined, authUser: i.AuthUser) {
-        if (!input) {
-            throw new ts.TSError('Invalid Input', {
-                statusCode: 422,
-            });
-        }
-
+    private _validateAnyInput(input: { id?: string; client_id?: number }, authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
         const clientId = this._getUserClientId(authUser);
 
@@ -856,45 +850,24 @@ export class ACLManager {
         if (space.views) {
             space.views = ts.uniq(space.views);
 
-            const views = await this._views.findAll(space.views!);
-            if (views.length !== space.views!.length) {
-                const viewsStr = space.views!.join(', ');
-                throw new ts.TSError(`Missing views with space, ${viewsStr}`, {
-                    statusCode: 422,
-                });
-            }
-
-            const dataTypes = views.map(view => view.data_type);
-            if (space.data_type && dataTypes.length && !dataTypes.includes(space.data_type)) {
-                throw new ts.TSError('Views must have the same data type', {
-                    statusCode: 422,
-                });
-            }
-
-            const roles: string[] = [];
-            views.forEach(view => {
-                roles.push(...ts.uniq(view.roles));
-            });
-            if (ts.uniq(roles).length !== roles.length) {
-                throw new ts.TSError('Multiple views cannot contain the same role within a space', {
-                    statusCode: 422,
-                });
-            }
+            await this._views.checkForViewConflicts(space);
         }
     }
-
-    private async _validateRoleInput(role: Partial<models.Role>, authUser: i.AuthUser) {
+    private async _validateRoleInput(_role: Partial<models.Role>, authUser: i.AuthUser) {
+        const role = await this._roles.findAndApply(_role);
         this._validateAnyInput(role, authUser);
     }
 
-    private async _validateDataTypeInput(dataType: Partial<models.DataType>, authUser: i.AuthUser) {
+    private async _validateDataTypeInput(_dataType: Partial<models.DataType>, authUser: i.AuthUser) {
+        const dataType = await this._dataTypes.findAndApply(_dataType);
         this._validateAnyInput(dataType, authUser);
         if (dataType.inherit_from && dataType.inherit_from) {
             await this._dataTypes.resolveTypeConfig(dataType as models.DataType);
         }
     }
 
-    private async _validateViewInput(view: Partial<models.View>, authUser: i.AuthUser) {
+    private async _validateViewInput(_view: Partial<models.View>, authUser: i.AuthUser) {
+        const view = await this._views.findAndApply(_view);
         this._validateAnyInput(view, authUser);
 
         if (view.roles) {
