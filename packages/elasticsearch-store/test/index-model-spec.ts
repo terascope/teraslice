@@ -166,6 +166,34 @@ describe('IndexModel', () => {
             }
         });
 
+        describe('when using the convience method findAndApply', () => {
+            describe('when given null', () => {
+                it('should throw an error', async () => {
+                    expect.hasAssertions();
+                    try {
+                        await indexModel.findAndApply(undefined);
+                    } catch (err) {
+                        expect(err.message).toEqual('Invalid input for IndexModel');
+                        expect(err).toBeInstanceOf(TSError);
+                        expect(err.statusCode).toEqual(422);
+                    }
+                });
+            });
+
+            describe('when given an object with a id', () => {
+                it('should resolve the full record', () => {
+                    return expect(indexModel.findAndApply({ id: fetched.id })).resolves.toEqual(fetched);
+                });
+            });
+
+            describe('when given an object without an id', () => {
+                it('should resolve the partial record record', () => {
+                    const input = { config: {} };
+                    return expect(indexModel.findAndApply(input)).resolves.toEqual(input);
+                });
+            });
+        });
+
         it('should not be able to update with a different name', async () => {
             expect.hasAssertions();
 

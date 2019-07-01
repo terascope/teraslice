@@ -76,7 +76,7 @@ describe('ACLManager', () => {
                 );
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Invalid Input');
+                expect(err.message).toStartWith('Invalid input for');
                 expect(err.statusCode).toEqual(422);
             }
         });
@@ -194,7 +194,7 @@ describe('ACLManager', () => {
                 );
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Invalid Input');
+                expect(err.message).toStartWith('Invalid input for');
                 expect(err.statusCode).toEqual(422);
             }
         });
@@ -545,7 +545,7 @@ describe('ACLManager', () => {
                 );
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Invalid Input');
+                expect(err.message).toStartWith('Invalid input for');
                 expect(err.statusCode).toEqual(422);
             }
         });
@@ -565,7 +565,7 @@ describe('ACLManager', () => {
                 );
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Invalid Input');
+                expect(err.message).toStartWith('Invalid input for');
                 expect(err.statusCode).toEqual(422);
             }
         });

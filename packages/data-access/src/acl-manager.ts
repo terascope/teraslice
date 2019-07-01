@@ -762,7 +762,7 @@ export class ACLManager {
 
     private async _validateUserInput(user: Partial<models.User>, authUser: i.AuthUser) {
         if (!user) {
-            throw new ts.TSError('Invalid Input', {
+            throw new ts.TSError('Invalid input for User', {
                 statusCode: 422,
             });
         }
@@ -828,7 +828,8 @@ export class ACLManager {
         }
     }
 
-    private async _validateSpaceInput(space: Partial<models.Space>, authUser: i.AuthUser) {
+    private async _validateSpaceInput(_space: Partial<models.Space>, authUser: i.AuthUser) {
+        const space = await this._spaces.findAndApply(_space);
         this._validateAnyInput(space, authUser);
 
         if (space.roles) {
