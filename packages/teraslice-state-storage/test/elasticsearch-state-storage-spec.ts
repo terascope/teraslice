@@ -54,7 +54,7 @@ describe('elasticsearch cached state storage', () => {
     const logger = debugLogger('ESCachedStateStorage');
     const client = new TestClient();
 
-    const idField = '_id';
+    const idField = '_key';
 
     const doc = DataEntity.make({ data: 'thisIsSomeData' }, { [idField]: 1 });
  // @ts-ignore
@@ -149,11 +149,11 @@ describe('elasticsearch cached state storage', () => {
     });
 
     it('should make an es bulk request if persist is true', async () => {
-        const testConfig = Object.assign({}, config, { persist: true, persist_field: '_id' });
+        const testConfig = Object.assign({}, config, { persist: true, persist_field: '_key' });
         // @ts-ignore
         const testStateStorage = new ESCachedStateStorage(client, logger, testConfig);
 
-        await testStateStorage.mset(docArray, '_id');
+        await testStateStorage.mset(docArray, '_key');
         const data = client.bulkRequest;
 
         expect(data.length).toBe(6);
@@ -259,7 +259,7 @@ describe('elasticsearch cached state storage', () => {
             // @ts-ignore
             await stateStorage.get(testDocs[0]);
         } catch (err) {
-            expect(err.message.includes('There is no field "_id" set in the metadata')).toEqual(true);
+            expect(err.message.includes('There is no field "_key" set in the metadata')).toEqual(true);
         }
     });
 

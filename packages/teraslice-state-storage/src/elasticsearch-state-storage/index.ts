@@ -20,7 +20,7 @@ export default class ESCachedStateStorage {
     constructor(client: Client, logger: Logger, config: ESStateStorageConfig) {
         this.index = config.index;
         this.type = config.type;
-        this.IDField = '_id';
+        this.IDField = '_key';
         this.concurrency = config.concurrency;
         this.sourceFields = config.source_fields || [];
         this.chunkSize = config.chunk_size;

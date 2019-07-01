@@ -8,7 +8,7 @@ export default class CachedStateStorage {
     private cache: LRU<string, DataEntity>;
 
     constructor(config: CacheConfig) {
-        this.IDField = '_id';
+        this.IDField = '_key';
         this.cache = new LRU({
             max: config.cache_size,
             maxAge: config.max_age
