@@ -40,5 +40,6 @@
         "@types/lodash.get": "^4.4.6",
         "@types/lodash.set": "^4.3.6",
         "benchmark": "^2.1.4"
-    }
+    },
+    "enableTypeDocs": true
 }

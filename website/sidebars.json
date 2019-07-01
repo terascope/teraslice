@@ -1,16 +1,8 @@
 {
     "docs": {
-        "Overview": [
-            "overview",
-            "getting-started"
-        ],
-        "Configuration": [
-            "configuration/teraslice",
-            "configuration/ops"
-        ],
-        "Clustering": [
-            "clustering/k8s"
-        ],
+        "Overview": ["overview", "getting-started"],
+        "Configuration": ["configuration/teraslice", "configuration/ops"],
+        "Clustering": ["clustering/k8s"],
         "Development": [
             "development/overview",
             "development/packages",
@@ -22,19 +14,18 @@
         ]
     },
     "api": {
-        "Overview": [
-            "api",
-            "api/rest"
-        ]
+        "Overview": ["api", "api/rest"]
     },
     "packages": {
-        "Overview": [
-            "packages"
-        ],
+        "Overview": ["packages"],
         "Packages": [
             "packages/elasticsearch-store/overview",
             "packages/elasticsearch-api/overview",
-            "packages/job-components/overview",
+            {
+                "type": "subcategory",
+                "label": "job-components",
+                "ids": ["packages/job-components/overview", "packages/job-components/api/README.md"]
+            },
             "packages/queue/overview",
             "packages/terafoundation/overview",
             "packages/teraslice/overview",
@@ -50,13 +41,14 @@
                     "packages/ts-transforms/operations"
                 ]
             },
-            "packages/utils/overview",
+            {
+                "type": "subcategory",
+                "label": "utils",
+                "ids": ["packages/utils/overview", "packages/utils/api/README.md"]
+            },
             "packages/xlucene-evaluator/overview"
         ],
-        "Legacy": [
-            "packages/error-parser/overview",
-            "packages/teraslice-op-test-harness/overview"
-        ],
+        "Legacy": ["packages/error-parser/overview", "packages/teraslice-op-test-harness/overview"],
         "Internal": [
             "packages/chunked-file-reader/overview",
             "packages/data-access/overview",
@@ -67,9 +59,6 @@
         ]
     },
     "examples": {
-        "Examples": [
-            "examples",
-            "examples/legacy-operations"
-        ]
+        "Examples": ["examples", "examples/legacy-operations"]
     }
 }

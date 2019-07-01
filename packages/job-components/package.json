@@ -48,6 +48,7 @@
         "fs-extra": "^8.0.1",
         "jest-fixtures": "^0.6.0"
     },
+    "enableTypeDocs": true,
     "engines": {
         "node": ">=8.0.0"
     }

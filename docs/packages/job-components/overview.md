@@ -1,6 +1,6 @@
 ---
 title: Job Components
-sidebar_label: job-components
+sidebar_label: Overview
 ---
 
 > A teraslice library for validating jobs schemas, registering apis, and defining and running new Job APIs

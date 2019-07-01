@@ -1,6 +1,6 @@
 ---
 title: Terascope Utils
-sidebar_label: utils
+sidebar_label: Overview
 ---
 
 > A collection of Teraslice Utilities, including DataEntity.
