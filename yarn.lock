@@ -11548,9 +11548,9 @@ mongoose-legacy-pluralize@1.0.2:
   integrity sha512-Yo/7qQU4/EyIS8YDFSeenIvXxZN+ld7YdV9LqFVQJzTLye8unujAWPZ4NWKfFA+RNjh+wvTWKY9Z3E5XM6ZZiQ==
 
 mongoose@~5.6.0:
-  version "5.6.1"
-  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-5.6.1.tgz#4efc3373b8121fdac4192896e303bb8cc572907b"
-  integrity sha512-/EBoXS+fZv8dYf0VKMXwhTEVYUI+6EbmVhmV2DzO9BGacTSgStQprU09rZYfVxe8EmLhmTrSV5eCIRLBYuXGag==
+  version "5.6.2"
+  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-5.6.2.tgz#71afc80bc27462a5fd12644db490c2c5b053646a"
+  integrity sha512-s2FQn/XTlM/yeYxqNPGU8khSA1nPhGiESO7iLdFf8Ntn6lEwgO9KKOIGkRKPk5s+peAOwO34ex6NPX8EWtKgFA==
   dependencies:
     async "2.6.2"
     bson "~1.1.1"
