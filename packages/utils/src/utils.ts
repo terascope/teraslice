@@ -132,6 +132,7 @@ export function noop(...args: any[]): any {}
 export function getField<V>(input: undefined, field: string, defaultVal?: V): V;
 export function getField<T extends {}, P extends keyof T>(input: T, field: P): T[P];
 export function getField<T extends {}, P extends keyof T>(input: T | undefined, field: P): T[P];
+export function getField<T extends {}, P extends keyof T>(input: T | undefined, field: P, defaultVal: never[]): T[P];
 export function getField<T extends {}, P extends keyof T, V>(input: T | undefined, field: P, defaultVal: V): T[P] | V;
 export function getField<T extends {}, P extends keyof T, V extends T[P]>(input: T | undefined, field: P, defaultVal: V): T[P];
 export function getField<T, P extends keyof T, V>(input: T, field: P, defaultVal?: V): any {

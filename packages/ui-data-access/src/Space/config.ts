@@ -6,6 +6,7 @@ import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
 import { formatStrong } from '../ModelList/Strong';
 import { copyField } from '../utils';
+import { makeLinkList } from '../ModelList/LinkList';
 
 const fieldsFragment = gql`
     fragment SpaceFields on Space {
@@ -95,6 +96,11 @@ const config: ModelConfig<Input> = {
                 format(record) {
                     return formatStrong(record.type);
                 },
+            },
+            data_type: {
+                label: 'Data Type',
+                sortable: false,
+                format: makeLinkList('DataType', 'data_type'),
             },
             description: {
                 label: 'Description',

@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
-import { get } from '@terascope/utils';
 import { formatDate } from '@terascope/ui-components';
 import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
 import { copyField, getModelType } from '../utils';
 import { formatStrong } from '../ModelList/Strong';
+import { makeLinkList } from '../ModelList/LinkList';
 
 const fieldsFragment = gql`
     fragment UserFields on User {
@@ -44,9 +44,7 @@ const config: ModelConfig<Input> = {
             role: {
                 label: 'Role',
                 sortable: false,
-                format(record) {
-                    return get(record, 'role.name');
-                },
+                format: makeLinkList('Role', 'role'),
             },
             type: {
                 label: 'Type',

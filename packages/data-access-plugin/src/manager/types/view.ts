@@ -11,10 +11,10 @@ export default `
         name: String!
         description: String
         data_type: DataType
-        roles: [Role]
+        roles: [Role!]
         ${commonViewModel}
         # virtual references
-        space: Space
+        spaces: [Space!]
     }
     input CreateViewInput {
         client_id: Int

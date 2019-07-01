@@ -58,8 +58,8 @@ const RecordForm: React.FC<Props> = ({
             <Form
                 loading={loading || actionState.loading}
                 onSubmit={onSubmit}
-                error={hasErrors}
-                success={!hasErrors}
+                error={hasErrors || requestError || actionState.error}
+                success={!hasErrors && actionState.success}
                 widths="equal"
             >
                 <Grid columns={2}>
@@ -73,6 +73,14 @@ const RecordForm: React.FC<Props> = ({
                             />
                         </ButtonRow>
                     </Grid.Row>
+                    {requestError && (
+                        <Grid.Row columns={1}>
+                            <ErrorMessage
+                                title="Request Error"
+                                error={requestError}
+                            />
+                        </Grid.Row>
+                    )}
                     <Grid.Row>
                         <Grid.Column
                             mobile={16}

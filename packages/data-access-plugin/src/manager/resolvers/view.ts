@@ -1,7 +1,6 @@
 import { View } from '@terascope/data-access';
 import { ManagerContext } from '../interfaces';
 import { findAll } from '../utils';
-import { getFirst } from '@terascope/utils';
 
 export default {
     View: {
@@ -12,10 +11,9 @@ export default {
             if (!view.data_type) return null;
             return ctx.manager.findDataType({ id: view.data_type }, ctx.user);
         },
-        async space(view: View, args: any, ctx: ManagerContext) {
+        async spaces(view: View, args: any, ctx: ManagerContext) {
             const query = `views: ${view.id}`;
-            const spaces = await ctx.manager.findSpaces({ query, size: 10000 }, ctx.user);
-            return getFirst(spaces);
+            return ctx.manager.findSpaces({ query, size: 10000 }, ctx.user);
         },
     },
 };
