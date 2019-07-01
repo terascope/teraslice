@@ -32,10 +32,9 @@ export default class ESCachedStateStorage {
 
     private getIdentifier(doc: DataEntity) {
         const id =  doc.getMetadata(this.IDField);
-        if (!id) {
-            throw new TSError(`There is no field "${this.IDField}" set in the metadata`, { context: { doc } });
+        if (id === '' || id == null) {
+            throw new TSError(`There is no field "${this.IDField}" set in the metadata ${id}`, { context: { doc } });
         }
-
         return id;
     }
 
