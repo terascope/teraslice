@@ -67,3 +67,24 @@ export function fastMap<T, U>(arr: T[], fn: (val: T, index: number) => U): U[] {
 
     return result;
 }
+
+export function chunk<T>(dataArray: T[], size:number) {
+    if (size < 1) return [dataArray];
+    const results: T[][] = [];
+    let chunked: T[] = [];
+
+    for (let i = 0; i < dataArray.length; i += 1) {
+        chunked.push(dataArray[i]);
+        if (chunked.length === size) {
+            results.push(chunked);
+            chunked = [];
+        }
+    }
+
+    if (chunked.length > 0) results.push(chunked);
+    return results;
+}
+
+export function has(data: object, key: any) {
+    return key in data;
+}
