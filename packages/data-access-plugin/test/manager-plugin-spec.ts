@@ -850,7 +850,7 @@ describe('Data Access Management', () => {
         });
     });
 
-    it('should be able to remove everything', async () => {
+    it('should be able to remove the Space and User', async () => {
         expect(userId).toBeTruthy();
         expect(roleId).toBeTruthy();
         expect(spaceId).toBeTruthy();
@@ -858,14 +858,12 @@ describe('Data Access Management', () => {
         const query = `
             mutation {
                 removeSpace(id: "${spaceId}")
-                removeRole(id: "${roleId}")
                 removeUser(id: "${userId}")
             }
         `;
 
         expect(await reqClient.request(query)).toEqual({
             removeSpace: true,
-            removeRole: true,
             removeUser: true,
         });
     });
