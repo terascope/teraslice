@@ -19,7 +19,7 @@ jobs:
   fast-finish: true
 
   include:
-  # tests only on master and on pull-request
+  # run the node:10 on every push to master, cron or a pull-request
   - stage: Tests
     name: Test Packages (node:10)
     if: branch = master
@@ -33,6 +33,7 @@ jobs:
     after_success:
         - bash <(curl -s https://codecov.io/bash)
 
+  # run the node:8 on every pull-request
   - script:
     name: Test Packages (node:8)
     if: branch = master AND type = pull_request
