@@ -17,7 +17,9 @@ export default class CachedStateStorage {
 
     private getIdentifier(doc: DataEntity) {
         const id =  doc.getMetadata(this.IDField);
-        if (id == null) throw new TSError(`There is no field "${this.IDField}" set in the metadata for doc: ${JSON.stringify(doc)}`);
+        if (id === '' || id == null) {
+            throw new TSError(`There is no field "${this.IDField}" set in the metadata`, { context: { doc } });
+        }
         return id;
     }
 

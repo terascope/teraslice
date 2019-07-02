@@ -33,7 +33,7 @@ export default class ESCachedStateStorage {
     private getIdentifier(doc: DataEntity) {
         const id =  doc.getMetadata(this.IDField);
         if (id === '' || id == null) {
-            throw new TSError(`There is no field "${this.IDField}" set in the metadata ${id}`, { context: { doc } });
+            throw new TSError(`There is no field "${this.IDField}" set in the metadata`, { context: { doc } });
         }
         return id;
     }
@@ -74,7 +74,7 @@ export default class ESCachedStateStorage {
         const results = await this.es.get(request);
         return DataEntity.make(results, { [this.IDField]: id });
     }
-    // @ts-ignore
+
     private async _esMget(query: string[]) {
         const request: ESQUery = {
             index: this.index,
