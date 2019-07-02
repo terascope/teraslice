@@ -21,23 +21,29 @@ jobs:
   include:
   # tests only on master and on pull-request
   - stage: Tests
-    name: Test Packages
+    name: Test Packages (node:10)
     if: branch = master
-    addons:
-      apt:
-        packages:
-          - docker-ce
     services:
-        - docker
         - elasticsearch
     before_install:
-        - . ./scripts/travis-install-docker-compose.sh
         - . ./scripts/travis-install-yarn.sh
         - . ./scripts/travis-install-es.sh
     # We are waiting on a new version of jest (>24.7.1)
     script: ./scripts/run-tests.sh
     after_success:
         - bash <(curl -s https://codecov.io/bash)
+
+  - script:
+    name: Test Packages (node:8)
+    if: branch = master AND type = pull_request
+    node_js:
+        - '8'
+    services:
+        - elasticsearch
+    before_install:
+        - . ./scripts/travis-install-yarn.sh
+        - . ./scripts/travis-install-es.sh
+    script: ./scripts/run-tests.sh
 
   # benchmarks and linting, only on pull-requests
   - script:

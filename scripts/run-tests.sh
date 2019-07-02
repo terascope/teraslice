@@ -5,16 +5,16 @@ set -e
 echoerr() { if [[ $QUIET -ne 1 ]]; then echo "$@" 1>&2; fi; }
 
 main() {
-    local coverage_dir="$PWD/coverage"
     for name in $(yarn --silent lerna list --toposort); do
-        local package="${name#\@terascope}"
+        local package="${name#\@terascope\/}"
+        [ "$package" == "docker-compose-js" ] && continue;
+
         echoerr "* running test for package $name"
-        pushd "$PWD/packages/$package" > /dev/null;
+        pushd "$PWD/packages/$package";
             yarn test --silent \
                 --forceExit \
-                --bail \
-                --coverageDirectory="$coverage_dir" || exit 1;
-        popd > /dev/null;
+                --bail || exit 1;
+        popd;
         echoerr ""
     done
 }
