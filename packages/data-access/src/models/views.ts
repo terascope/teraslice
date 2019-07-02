@@ -21,15 +21,15 @@ export class Views extends IndexModel<View> {
 
         // reverse the views list so the errors make more sense
         for (const view of views.reverse()) {
-            const errPrefix = `Unable to assign View "${view.name}" to Space with a`;
+            const errPrefix = `Unable to assign View "${view.name}" as it has`;
             if (view.client_id !== space.client_id) {
-                throw new TSError(`${errPrefix} different client id`, {
+                throw new TSError(`${errPrefix} Client ID conflict with the Space`, {
                     statusCode: 409,
                 });
             }
 
             if (view.data_type && space.data_type && view.data_type !== space.data_type) {
-                throw new TSError(`${errPrefix} different Data Type`, {
+                throw new TSError(`${errPrefix} DataType conflict with the Space`, {
                     statusCode: 409,
                 });
             }
@@ -42,7 +42,7 @@ export class Views extends IndexModel<View> {
                 });
 
                 if (hasConflict) {
-                    throw new TSError(`${errPrefix} conflicting Roles`, {
+                    throw new TSError(`${errPrefix} Role conflicts with existing Views`, {
                         statusCode: 409,
                     });
                 }

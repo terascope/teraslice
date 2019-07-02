@@ -332,7 +332,7 @@ describe('ACLManager', () => {
                 );
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Unable to assign View "BCD View" to Space with a different Data Type');
+                expect(err.message).toInclude('Unable to assign View "BCD View" as it has DataType conflict with the Space');
                 expect(err.statusCode).toEqual(409);
             }
         });
@@ -445,7 +445,7 @@ describe('ACLManager', () => {
                     );
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
-                    expect(err.message).toInclude('Unable to assign View "Some View 2" to Space with a conflicting Roles');
+                    expect(err.message).toInclude('Unable to assign View "Some View 2" as it has Role conflicts with existing Views');
                     expect(err.statusCode).toEqual(409);
                 }
             });
@@ -488,7 +488,7 @@ describe('ACLManager', () => {
                     );
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
-                    expect(err.message).toInclude('Unable to assign View "Some View 2" to Space with a conflicting Roles');
+                    expect(err.message).toInclude('Unable to assign View "Some View 2" as it has Role conflicts with existing Views');
                     expect(err.statusCode).toEqual(409);
                 }
             });
