@@ -21,7 +21,7 @@ jobs:
   include:
   # run the node:10 on every push to master, cron or a pull-request
   - stage: Tests
-    name: Test Packages (node:10)
+    name: Test Packages
     if: branch = master
     services:
         - elasticsearch
@@ -33,26 +33,22 @@ jobs:
     after_success:
         - bash <(curl -s https://codecov.io/bash)
 
-  # run the node:8 on every pull-request
+  # build all, benchmarks and linting, only on pull-requests
   - script:
-    name: Test Packages (node:8)
-    if: branch = master AND type = pull_request
     node_js:
         - '8'
-    services:
-        - elasticsearch
-    before_install:
-        - . ./scripts/travis-install-yarn.sh
-        - . ./scripts/travis-install-es.sh
-    script: ./scripts/run-tests.sh
-
-  # benchmarks and linting, only on pull-requests
-  - script:
-    name: Benchmarks and Linting
-    if: branch = master AND head_branch !~ /^dependabot/ AND type = pull_request
-    script:
-        - yarn lint
-        - yarn benchmark
+    name: Verify Build
+    if: branch = master AND type = pull_request
+    install:
+        # make it colorful
+        - export FORCE_COLOR=1
+        # Install the dependencies
+        - yarn && yarn lerna bootstrap --force-local
+        # Build all packages individually
+        - yarn build:all
+    script: yarn lint
+    after_success:
+        - yarn docs:update 
 
   # test end-to-end tests, only on pull-requests
   - script:
