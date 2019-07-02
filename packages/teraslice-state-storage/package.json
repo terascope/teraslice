@@ -1,7 +1,7 @@
 {
     "name": "@terascope/teraslice-state-storage",
     "description": "State storage operation api for teraslice",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "publishConfig": {
         "access": "public"
     },
@@ -30,7 +30,7 @@
     },
     "dependencies": {
         "@terascope/elasticsearch-api": "^2.0.3",
-        "@terascope/job-components": "0.20.1",
+        "@terascope/job-components": "^0.20.2",
         "bluebird": "^3.5.1",
         "lru-cache": "^5.1.1"
     },
