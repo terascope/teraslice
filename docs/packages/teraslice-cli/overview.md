@@ -1,6 +1,6 @@
 ---
 title: Teraslice CLI
-sidebar_label: teraslice-cli
+sidebar_label: Overview
 ---
 
 > Command line manager for teraslice jobs, assets, and cluster references.

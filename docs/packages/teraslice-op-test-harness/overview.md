@@ -1,6 +1,6 @@
 ---
 title: Teraslice Op Test Harness
-sidebar_label: teraslice-op-test-harness
+sidebar_label: Overview
 ---
 
 > A testing harness to simplify testing Teraslice processors and operations.

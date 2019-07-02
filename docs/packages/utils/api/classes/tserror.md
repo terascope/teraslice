@@ -42,7 +42,7 @@ like statusCode and fatalError
 
 \+ **new TSError**(`input`: *any*, `config`: *[TSErrorConfig](../interfaces/tserrorconfig.md)*): *[TSError](tserror.md)*
 
-*Defined in [errors.ts:37](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/utils/src/errors.ts#L37)*
+*Defined in [errors.ts:37](https://github.com/terascope/teraslice/blob/6e018493/packages/utils/src/errors.ts#L37)*
 
 **Parameters:**
 
@@ -59,7 +59,7 @@ Name | Type | Default |
 
 • **code**: *string*
 
-*Defined in [errors.ts:15](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/utils/src/errors.ts#L15)*
+*Defined in [errors.ts:15](https://github.com/terascope/teraslice/blob/6e018493/packages/utils/src/errors.ts#L15)*
 
 An descriptive error code that specifies the error type, this follows more
 node convention
@@ -70,7 +70,7 @@ ___
 
 • **context**: *[TSErrorContext](../interfaces/tserrorcontext.md)*
 
-*Defined in [errors.ts:37](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/utils/src/errors.ts#L37)*
+*Defined in [errors.ts:37](https://github.com/terascope/teraslice/blob/6e018493/packages/utils/src/errors.ts#L37)*
 
 Additional context metadata
 
@@ -80,7 +80,7 @@ ___
 
 • **fatalError**: *boolean*
 
-*Defined in [errors.ts:25](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/utils/src/errors.ts#L25)*
+*Defined in [errors.ts:25](https://github.com/terascope/teraslice/blob/6e018493/packages/utils/src/errors.ts#L25)*
 
 Used to indicate the an error is fatal
 
@@ -110,7 +110,7 @@ ___
 
 • **retryable**? : *undefined | false | true*
 
-*Defined in [errors.ts:32](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/utils/src/errors.ts#L32)*
+*Defined in [errors.ts:32](https://github.com/terascope/teraslice/blob/6e018493/packages/utils/src/errors.ts#L32)*
 
 Used sometimes to indicate whether an error is retryable
 
@@ -134,7 +134,7 @@ ___
 
 • **statusCode**: *number*
 
-*Defined in [errors.ts:20](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/utils/src/errors.ts#L20)*
+*Defined in [errors.ts:20](https://github.com/terascope/teraslice/blob/6e018493/packages/utils/src/errors.ts#L20)*
 
 A HTTP status code for easy use
 
@@ -152,6 +152,6 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 ▸ **cause**(): *any*
 
-*Defined in [errors.ts:67](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/utils/src/errors.ts#L67)*
+*Defined in [errors.ts:67](https://github.com/terascope/teraslice/blob/6e018493/packages/utils/src/errors.ts#L67)*
 
 **Returns:** *any*

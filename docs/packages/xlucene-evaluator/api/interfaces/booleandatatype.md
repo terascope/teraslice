@@ -22,7 +22,7 @@ sidebar_label: BooleanDataType
 
 • **data_type**: *"boolean"*
 
-*Defined in [parser/interfaces.ts:66](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/xlucene-evaluator/src/parser/interfaces.ts#L66)*
+*Defined in [parser/interfaces.ts:66](https://github.com/terascope/teraslice/blob/6e018493/packages/xlucene-evaluator/src/parser/interfaces.ts#L66)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **value**: *boolean*
 
-*Defined in [parser/interfaces.ts:67](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/xlucene-evaluator/src/parser/interfaces.ts#L67)*
+*Defined in [parser/interfaces.ts:67](https://github.com/terascope/teraslice/blob/6e018493/packages/xlucene-evaluator/src/parser/interfaces.ts#L67)*

@@ -25,7 +25,7 @@ sidebar_label: Slice
 
 • **_created**: *string*
 
-*Defined in [interfaces/operations.ts:42](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/job-components/src/interfaces/operations.ts#L42)*
+*Defined in [interfaces/operations.ts:42](https://github.com/terascope/teraslice/blob/6e018493/packages/job-components/src/interfaces/operations.ts#L42)*
 
 ___
 
@@ -33,7 +33,7 @@ ___
 
 • **request**: *[SliceRequest](slicerequest.md)*
 
-*Defined in [interfaces/operations.ts:41](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/job-components/src/interfaces/operations.ts#L41)*
+*Defined in [interfaces/operations.ts:41](https://github.com/terascope/teraslice/blob/6e018493/packages/job-components/src/interfaces/operations.ts#L41)*
 
 ___
 
@@ -41,7 +41,7 @@ ___
 
 • **slice_id**: *string*
 
-*Defined in [interfaces/operations.ts:38](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/job-components/src/interfaces/operations.ts#L38)*
+*Defined in [interfaces/operations.ts:38](https://github.com/terascope/teraslice/blob/6e018493/packages/job-components/src/interfaces/operations.ts#L38)*
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **slicer_id**: *number*
 
-*Defined in [interfaces/operations.ts:39](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/job-components/src/interfaces/operations.ts#L39)*
+*Defined in [interfaces/operations.ts:39](https://github.com/terascope/teraslice/blob/6e018493/packages/job-components/src/interfaces/operations.ts#L39)*
 
 ___
 
@@ -57,4 +57,4 @@ ___
 
 • **slicer_order**: *number*
 
-*Defined in [interfaces/operations.ts:40](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/job-components/src/interfaces/operations.ts#L40)*
+*Defined in [interfaces/operations.ts:40](https://github.com/terascope/teraslice/blob/6e018493/packages/job-components/src/interfaces/operations.ts#L40)*

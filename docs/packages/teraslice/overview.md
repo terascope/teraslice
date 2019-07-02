@@ -1,6 +1,6 @@
 ---
 title: Teraslice
-sidebar_label: teraslice
+sidebar_label: Overview
 ---
 
 > Distributed computing platform for processing JSON data

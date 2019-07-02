@@ -21,6 +21,6 @@ sidebar_label: ExistsQuery
 
 • **exists**: *object*
 
-*Defined in [translator/interfaces.ts:16](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/xlucene-evaluator/src/translator/interfaces.ts#L16)*
+*Defined in [translator/interfaces.ts:16](https://github.com/terascope/teraslice/blob/6e018493/packages/xlucene-evaluator/src/translator/interfaces.ts#L16)*
 
 #### Type declaration:

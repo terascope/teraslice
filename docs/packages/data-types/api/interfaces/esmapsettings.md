@@ -23,7 +23,7 @@ sidebar_label: ESMapSettings
 
 • **analysis**? : *undefined | object*
 
-*Defined in [interfaces.ts:147](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/data-types/src/interfaces.ts#L147)*
+*Defined in [interfaces.ts:147](https://github.com/terascope/teraslice/blob/6e018493/packages/data-types/src/interfaces.ts#L147)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **index.number_of_replicas**? : *undefined | number*
 
-*Defined in [interfaces.ts:146](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/data-types/src/interfaces.ts#L146)*
+*Defined in [interfaces.ts:146](https://github.com/terascope/teraslice/blob/6e018493/packages/data-types/src/interfaces.ts#L146)*
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **index.number_of_shards**? : *undefined | number*
 
-*Defined in [interfaces.ts:145](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/data-types/src/interfaces.ts#L145)*
+*Defined in [interfaces.ts:145](https://github.com/terascope/teraslice/blob/6e018493/packages/data-types/src/interfaces.ts#L145)*

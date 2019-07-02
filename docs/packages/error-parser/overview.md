@@ -1,6 +1,6 @@
 ---
 title: Error Parser
-sidebar_label: error-parser
+sidebar_label: Overview
 ---
 
 > A generic error parser

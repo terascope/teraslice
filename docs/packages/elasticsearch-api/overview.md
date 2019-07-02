@@ -1,6 +1,6 @@
 ---
 title: Elasticsearch API
-sidebar_label: elasticsearch-api
+sidebar_label: Overview
 ---
 
 > Elasticsearch client api used across multiple services, handles retries and exponential backoff

@@ -1,6 +1,6 @@
 ---
 title: Terafoundation
-sidebar_label: terafoundation
+sidebar_label: Overview
 ---
 
 > A Clustering and Foundation tool for Terascope Tools

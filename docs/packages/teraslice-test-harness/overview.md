@@ -1,6 +1,6 @@
 ---
 title: Teraslice Test Harness
-sidebar_label: teraslice-test-harness
+sidebar_label: Overview
 ---
 
 > A helpful library for testing teraslice jobs, operations, and other components.

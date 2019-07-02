@@ -1,6 +1,6 @@
 ---
 title: XLucene Evalutor
-sidebar_label: xlucene-evaluator
+sidebar_label: Overview
 ---
 
 > Flexible Lucene-like evalutor and language parser

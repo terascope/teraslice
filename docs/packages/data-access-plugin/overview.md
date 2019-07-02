@@ -1,6 +1,6 @@
 ---
 title: Data Access Plugin
-sidebar_label: data-access-plugin
+sidebar_label: Overview
 ---
 
 > A teraserver plugin for managing data access and searching spaces
