@@ -29,7 +29,7 @@ sidebar_label: TSErrorContext
 
 • **_cause**: *any*
 
-*Defined in [errors.ts:111](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/errors.ts#L111)*
+*Defined in [errors.ts:111](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/utils/src/errors.ts#L111)*
 
 ___
 
@@ -37,7 +37,7 @@ ___
 
 • **_createdAt**: *string*
 
-*Defined in [errors.ts:110](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/errors.ts#L110)*
+*Defined in [errors.ts:110](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/utils/src/errors.ts#L110)*
 
 ISO Date string
 
@@ -47,6 +47,6 @@ ___
 
 • **safe**? : *undefined | false | true*
 
-*Defined in [errors.ts:115](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/errors.ts#L115)*
+*Defined in [errors.ts:115](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/utils/src/errors.ts#L115)*
 
 Used to indicate the error message is safe to log and send to the user

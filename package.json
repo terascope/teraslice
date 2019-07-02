@@ -38,7 +38,6 @@
         "eslint": "^5.16.0",
         "eslint-config-airbnb-base": "^13.1.0",
         "eslint-plugin-import": "^2.17.3",
-        "execa": "^2.0.2",
         "fs-extra": "^8.0.1",
         "jest": "^24.8.0",
         "jest-extended": "^0.11.1",
@@ -51,8 +50,6 @@
         "ts-jest": "^24.0.2",
         "tslint": "^5.18.0",
         "tslint-config-airbnb": "^5.11.1",
-        "typedoc": "^0.15.0-0",
-        "typedoc-plugin-markdown": "^2.0.7",
         "typescript": "^3.5.2"
     },
     "workspaces": [

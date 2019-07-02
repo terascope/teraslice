@@ -21,7 +21,7 @@ sidebar_label: JobRunnerAPI
 
 ▸ **getOpConfig**(`name`: *string*): *[OpConfig](opconfig.md) | undefined*
 
-*Defined in [interfaces/context.ts:107](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L107)*
+*Defined in [interfaces/context.ts:107](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/job-components/src/interfaces/context.ts#L107)*
 
 Get the first opConfig from an operation name
 

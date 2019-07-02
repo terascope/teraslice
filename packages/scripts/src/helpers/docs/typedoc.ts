@@ -1,22 +1,19 @@
-/* eslint-disable no-console */
+import fs from 'fs';
+import _ from 'lodash';
+import path from 'path';
+import execa from 'execa';
+import fse from 'fs-extra';
+import { Application } from 'typedoc';
+import { PackageInfo } from '../interfaces';
 
-'use strict';
-
-const fs = require('fs');
-const _ = require('lodash');
-const path = require('path');
-const execa = require('execa');
-const fse = require('fs-extra');
-const TypeDoc = require('typedoc');
-
-function getName(input) {
+function getName(input: string): string {
     return _.words(input)
-        .map(str => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
+        .map((str: string) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
         .join(' ');
 }
 
-function listMdFiles(dir) {
-    const files = [];
+function listMdFiles(dir: string): string[] {
+    const files: string[] = [];
     for (const fileName of fs.readdirSync(dir)) {
         const filePath = path.join(dir, fileName);
         if (fs.statSync(filePath).isDirectory()) {
@@ -28,7 +25,7 @@ function listMdFiles(dir) {
     return files;
 }
 
-async function writeDocFile(filePath, { title, sidebarLabel }) {
+async function writeDocFile(filePath: string, { title, sidebarLabel }: { title: string; sidebarLabel: string }) {
     let contents = await fse.readFile(filePath, 'utf8');
     // remove header
     contents = contents
@@ -50,7 +47,7 @@ ${contents}
     await fse.writeFile(filePath, contents);
 }
 
-function getAPIName(overview, outputDir, filePath) {
+function getAPIName(overview: string, outputDir: string, filePath: string) {
     const relativePath = path.relative(outputDir, filePath).replace(/^[./]/, '');
 
     for (const line of overview.split('\n')) {
@@ -64,41 +61,43 @@ function getAPIName(overview, outputDir, filePath) {
     return getName(path.basename(filePath, '.md'));
 }
 
-async function fixDocs(outputDir, { folderName }) {
+async function fixDocs(outputDir: string, { folderName }: PackageInfo) {
     const pkgName = getName(folderName);
 
-    const overviewFilePath = listMdFiles(outputDir).find(
-        filePath => path.basename(filePath, '.md') === 'README'
-    );
+    const overviewFilePath = listMdFiles(outputDir).find(filePath => path.basename(filePath, '.md') === 'README');
+    if (!overviewFilePath) {
+        throw new Error('Package documentation was not generated correctly, missing README.md');
+    }
     const targetPath = path.join(path.dirname(overviewFilePath), 'overview.md');
     await fse.rename(overviewFilePath, targetPath);
     const overview = await fse.readFile(targetPath, 'utf8');
 
-    const promises = listMdFiles(outputDir).map(async (filePath) => {
+    const promises = listMdFiles(outputDir).map(async filePath => {
         const fileName = path.basename(filePath, '.md');
         if (fileName === 'overview') {
             await writeDocFile(filePath, {
                 title: `${pkgName} API Overview`,
-                sidebarLabel: 'API'
+                sidebarLabel: 'API',
             });
             return;
         }
         const component = getAPIName(overview, outputDir, filePath);
         await writeDocFile(filePath, {
             title: `${pkgName} :: ${component}`,
-            sidebarLabel: component
+            sidebarLabel: component,
         });
     });
 
     await Promise.all(promises);
 }
 
-async function generateTSDocs(pkgInfo, outputDir) {
+export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string) {
+    // tslint:disable-next-line: no-console
     console.log(`* building typedocs for package ${pkgInfo.name}`);
     const cwd = process.cwd();
     try {
         process.chdir(pkgInfo.dir);
-        const app = new TypeDoc.Application({
+        const app = new Application({
             name: pkgInfo.name,
             tsconfig: path.join(pkgInfo.dir, 'tsconfig.json'),
             platform: 'docusaurus',
@@ -113,7 +112,7 @@ async function generateTSDocs(pkgInfo, outputDir) {
             moduleResolution: 'node',
             module: 'commonjs',
             hideGenerator: true,
-            readme: 'none'
+            readme: 'none',
         });
         const inputFiles = [...app.expandInputFiles(['src'])];
 
@@ -126,17 +125,14 @@ async function generateTSDocs(pkgInfo, outputDir) {
         app.generateDocs(inputFiles, outputDir);
 
         await fixDocs(outputDir, pkgInfo);
-        await execa('yarn', 'run build');
+        await execa('yarn', ['run', 'build'], {
+            cwd: pkgInfo.dir,
+        });
     } finally {
         process.chdir(cwd);
     }
 }
 
-function isTSDocCompatible({ isTypescript, folderName }) {
-    return isTypescript && ['utils', 'job-components'].includes(folderName);
+export function isTSDocCompatible({ isTypescript, folderName }: PackageInfo) {
+    return isTypescript && !folderName.startsWith('ui-') && !folderName.startsWith('data-access') && folderName !== 'scripts';
 }
-
-module.exports = {
-    isTSDocCompatible,
-    generateTSDocs
-};

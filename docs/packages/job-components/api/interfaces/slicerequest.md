@@ -25,4 +25,4 @@ sidebar_label: SliceRequest
 
 • **request_worker**? : *undefined | string*
 
-*Defined in [interfaces/operations.ts:33](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/operations.ts#L33)*
+*Defined in [interfaces/operations.ts:33](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/job-components/src/interfaces/operations.ts#L33)*

@@ -32,7 +32,7 @@ sidebar_label: DelayConfig
 
 *Inherited from [OpConfig](opconfig.md).[_dead_letter_action](opconfig.md#optional-_dead_letter_action)*
 
-*Defined in [interfaces/jobs.ts:25](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/jobs.ts#L25)*
+*Defined in [interfaces/jobs.ts:25](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/job-components/src/interfaces/jobs.ts#L25)*
 
 This action will specify what to do when failing to parse or transform a record. ​​​​​
 ​​​​​     * The following builtin actions are supported: ​​​
@@ -51,7 +51,7 @@ ___
 
 *Inherited from [OpConfig](opconfig.md).[_encoding](opconfig.md#optional-_encoding)*
 
-*Defined in [interfaces/jobs.ts:14](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/jobs.ts#L14)*
+*Defined in [interfaces/jobs.ts:14](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/job-components/src/interfaces/jobs.ts#L14)*
 
 Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`.
 
@@ -63,7 +63,7 @@ ___
 
 *Inherited from [OpConfig](opconfig.md).[_op](opconfig.md#_op)*
 
-*Defined in [interfaces/jobs.ts:11](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/jobs.ts#L11)*
+*Defined in [interfaces/jobs.ts:11](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/job-components/src/interfaces/jobs.ts#L11)*
 
 The name of the operation
 
@@ -73,4 +73,4 @@ ___
 
 • **ms**: *number*
 
-*Defined in [builtin/delay/interfaces.ts:4](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/builtin/delay/interfaces.ts#L4)*
+*Defined in [builtin/delay/interfaces.ts:4](https://github.com/terascope/teraslice/blob/e7b0edd3/packages/job-components/src/builtin/delay/interfaces.ts#L4)*

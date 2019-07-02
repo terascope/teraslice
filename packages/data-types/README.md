@@ -2,7 +2,7 @@
 
 # data-types
 
-> distributed versioning type system
+> A library for defining the data structures and mapping, exports to Elasticsearch Mappings, GraphQL, Xlucene, and more.
 
 ## Installation
 
