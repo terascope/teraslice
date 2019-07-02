@@ -1,9 +1,7 @@
 ---
-title: Job Components Testclients
-sidebar_label: Testclients
+title: Job Components :: TestClients
+sidebar_label: TestClients
 ---
-
-[TestClients](testclients.md) /
 
 # Interface: TestClients
 

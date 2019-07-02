@@ -1,9 +1,7 @@
 ---
-title: Job Components Testcontext
-sidebar_label: Testcontext
+title: Job Components :: TestContext
+sidebar_label: TestContext
 ---
-
-[TestContext](testcontext.md) /
 
 # Class: TestContext
 
@@ -39,7 +37,7 @@ sidebar_label: Testcontext
 
 \+ **new TestContext**(`testName`: *string*, `options`: *[TestContextOptions](../interfaces/testcontextoptions.md)*): *[TestContext](testcontext.md)*
 
-*Defined in [src/test-helpers.ts:144](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/test-helpers.ts#L144)*
+*Defined in [test-helpers.ts:144](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/test-helpers.ts#L144)*
 
 **Parameters:**
 
@@ -58,7 +56,7 @@ Name | Type | Default |
 
 *Implementation of [Context](../interfaces/context.md).[apis](../interfaces/context.md#apis)*
 
-*Defined in [src/test-helpers.ts:139](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/test-helpers.ts#L139)*
+*Defined in [test-helpers.ts:139](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/test-helpers.ts#L139)*
 
 ___
 
@@ -68,7 +66,7 @@ ___
 
 *Implementation of [Context](../interfaces/context.md).[arch](../interfaces/context.md#arch)*
 
-*Defined in [src/test-helpers.ts:144](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/test-helpers.ts#L144)*
+*Defined in [test-helpers.ts:144](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/test-helpers.ts#L144)*
 
 ___
 
@@ -78,7 +76,7 @@ ___
 
 *Implementation of [Context](../interfaces/context.md).[assignment](../interfaces/context.md#assignment)*
 
-*Defined in [src/test-helpers.ts:142](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/test-helpers.ts#L142)*
+*Defined in [test-helpers.ts:142](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/test-helpers.ts#L142)*
 
 ___
 
@@ -88,7 +86,7 @@ ___
 
 *Implementation of [Context](../interfaces/context.md).[cluster](../interfaces/context.md#cluster)*
 
-*Defined in [src/test-helpers.ts:138](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/test-helpers.ts#L138)*
+*Defined in [test-helpers.ts:138](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/test-helpers.ts#L138)*
 
 ___
 
@@ -98,7 +96,7 @@ ___
 
 *Implementation of [Context](../interfaces/context.md).[foundation](../interfaces/context.md#foundation)*
 
-*Defined in [src/test-helpers.ts:140](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/test-helpers.ts#L140)*
+*Defined in [test-helpers.ts:140](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/test-helpers.ts#L140)*
 
 ___
 
@@ -108,7 +106,7 @@ ___
 
 *Implementation of [Context](../interfaces/context.md).[logger](../interfaces/context.md#logger)*
 
-*Defined in [src/test-helpers.ts:136](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/test-helpers.ts#L136)*
+*Defined in [test-helpers.ts:136](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/test-helpers.ts#L136)*
 
 ___
 
@@ -118,7 +116,7 @@ ___
 
 *Implementation of [Context](../interfaces/context.md).[name](../interfaces/context.md#name)*
 
-*Defined in [src/test-helpers.ts:141](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/test-helpers.ts#L141)*
+*Defined in [test-helpers.ts:141](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/test-helpers.ts#L141)*
 
 ___
 
@@ -128,7 +126,7 @@ ___
 
 *Implementation of [Context](../interfaces/context.md).[platform](../interfaces/context.md#platform)*
 
-*Defined in [src/test-helpers.ts:143](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/test-helpers.ts#L143)*
+*Defined in [test-helpers.ts:143](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/test-helpers.ts#L143)*
 
 ___
 
@@ -138,4 +136,4 @@ ___
 
 *Implementation of [Context](../interfaces/context.md).[sysconfig](../interfaces/context.md#sysconfig)*
 
-*Defined in [src/test-helpers.ts:137](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/test-helpers.ts#L137)*
+*Defined in [test-helpers.ts:137](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/test-helpers.ts#L137)*

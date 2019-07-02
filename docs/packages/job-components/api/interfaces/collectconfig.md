@@ -1,9 +1,7 @@
 ---
-title: Job Components Collectconfig
-sidebar_label: Collectconfig
+title: Job Components :: CollectConfig
+sidebar_label: CollectConfig
 ---
-
-[CollectConfig](collectconfig.md) /
 
 # Interface: CollectConfig
 
@@ -35,7 +33,7 @@ sidebar_label: Collectconfig
 
 *Inherited from [OpConfig](opconfig.md).[_dead_letter_action](opconfig.md#optional-_dead_letter_action)*
 
-*Defined in [src/interfaces/jobs.ts:25](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/jobs.ts#L25)*
+*Defined in [interfaces/jobs.ts:25](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/jobs.ts#L25)*
 
 This action will specify what to do when failing to parse or transform a record. ​​​​​
 ​​​​​     * The following builtin actions are supported: ​​​
@@ -54,7 +52,7 @@ ___
 
 *Inherited from [OpConfig](opconfig.md).[_encoding](opconfig.md#optional-_encoding)*
 
-*Defined in [src/interfaces/jobs.ts:14](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/jobs.ts#L14)*
+*Defined in [interfaces/jobs.ts:14](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/jobs.ts#L14)*
 
 Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`.
 
@@ -66,7 +64,7 @@ ___
 
 *Inherited from [OpConfig](opconfig.md).[_op](opconfig.md#_op)*
 
-*Defined in [src/interfaces/jobs.ts:11](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/jobs.ts#L11)*
+*Defined in [interfaces/jobs.ts:11](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/jobs.ts#L11)*
 
 The name of the operation
 
@@ -76,7 +74,7 @@ ___
 
 • **size**: *number*
 
-*Defined in [src/builtin/collect/interfaces.ts:5](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/builtin/collect/interfaces.ts#L5)*
+*Defined in [builtin/collect/interfaces.ts:5](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/builtin/collect/interfaces.ts#L5)*
 
 ___
 
@@ -84,4 +82,4 @@ ___
 
 • **wait**: *number*
 
-*Defined in [src/builtin/collect/interfaces.ts:4](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/builtin/collect/interfaces.ts#L4)*
+*Defined in [builtin/collect/interfaces.ts:4](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/builtin/collect/interfaces.ts#L4)*

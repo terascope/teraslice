@@ -1,9 +1,7 @@
 ---
-title: Job Components Testreaderconfig
-sidebar_label: Testreaderconfig
+title: Job Components :: TestReaderConfig
+sidebar_label: TestReaderConfig
 ---
-
-[TestReaderConfig](testreaderconfig.md) /
 
 # Interface: TestReaderConfig
 
@@ -36,7 +34,7 @@ sidebar_label: Testreaderconfig
 
 *Inherited from [OpConfig](opconfig.md).[_dead_letter_action](opconfig.md#optional-_dead_letter_action)*
 
-*Defined in [src/interfaces/jobs.ts:25](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/jobs.ts#L25)*
+*Defined in [interfaces/jobs.ts:25](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/jobs.ts#L25)*
 
 This action will specify what to do when failing to parse or transform a record. ​​​​​
 ​​​​​     * The following builtin actions are supported: ​​​
@@ -55,7 +53,7 @@ ___
 
 *Inherited from [OpConfig](opconfig.md).[_encoding](opconfig.md#optional-_encoding)*
 
-*Defined in [src/interfaces/jobs.ts:14](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/jobs.ts#L14)*
+*Defined in [interfaces/jobs.ts:14](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/jobs.ts#L14)*
 
 Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`.
 
@@ -67,7 +65,7 @@ ___
 
 *Inherited from [OpConfig](opconfig.md).[_op](opconfig.md#_op)*
 
-*Defined in [src/interfaces/jobs.ts:11](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/jobs.ts#L11)*
+*Defined in [interfaces/jobs.ts:11](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/jobs.ts#L11)*
 
 The name of the operation
 
@@ -77,7 +75,7 @@ ___
 
 • **fetcher_data_file_path**? : *undefined | string*
 
-*Defined in [src/builtin/test-reader/interfaces.ts:4](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/builtin/test-reader/interfaces.ts#L4)*
+*Defined in [builtin/test-reader/interfaces.ts:4](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/builtin/test-reader/interfaces.ts#L4)*
 
 ___
 
@@ -85,7 +83,7 @@ ___
 
 • **passthrough_slice**? : *undefined | false | true*
 
-*Defined in [src/builtin/test-reader/interfaces.ts:6](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/builtin/test-reader/interfaces.ts#L6)*
+*Defined in [builtin/test-reader/interfaces.ts:6](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/builtin/test-reader/interfaces.ts#L6)*
 
 ___
 
@@ -93,4 +91,4 @@ ___
 
 • **slicer_data_file_path**? : *undefined | string*
 
-*Defined in [src/builtin/test-reader/interfaces.ts:5](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/builtin/test-reader/interfaces.ts#L5)*
+*Defined in [builtin/test-reader/interfaces.ts:5](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/builtin/test-reader/interfaces.ts#L5)*

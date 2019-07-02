@@ -1,9 +1,7 @@
 ---
-title: Job Components Cachedclients
-sidebar_label: Cachedclients
+title: Job Components :: CachedClients
+sidebar_label: CachedClients
 ---
-
-[CachedClients](cachedclients.md) /
 
 # Interface: CachedClients
 

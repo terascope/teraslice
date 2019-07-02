@@ -1,9 +1,7 @@
 ---
-title: Job Components Oprunnerapi
-sidebar_label: Oprunnerapi
+title: Job Components :: OpRunnerAPI
+sidebar_label: OpRunnerAPI
 ---
-
-[OpRunnerAPI](oprunnerapi.md) /
 
 # Interface: OpRunnerAPI
 
@@ -23,7 +21,7 @@ sidebar_label: Oprunnerapi
 
 ▸ **getClient**(`config`: *[GetClientConfig](getclientconfig.md)*, `type`: *string*): *any*
 
-*Defined in [src/interfaces/context.ts:102](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/context.ts#L102)*
+*Defined in [interfaces/context.ts:102](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L102)*
 
 **Parameters:**
 

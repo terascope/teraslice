@@ -1,9 +1,7 @@
 ---
-title: Utils Anyobject
-sidebar_label: Anyobject
+title: Utils :: AnyObject
+sidebar_label: AnyObject
 ---
-
-[AnyObject](anyobject.md) /
 
 # Interface: AnyObject
 

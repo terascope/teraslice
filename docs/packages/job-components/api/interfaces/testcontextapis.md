@@ -1,9 +1,7 @@
 ---
-title: Job Components Testcontextapis
-sidebar_label: Testcontextapis
+title: Job Components :: TestContextAPIs
+sidebar_label: TestContextAPIs
 ---
-
-[TestContextAPIs](testcontextapis.md) /
 
 # Interface: TestContextAPIs
 
@@ -37,7 +35,7 @@ sidebar_label: Testcontextapis
 
 *Inherited from [ContextApis](contextapis.md).[foundation](contextapis.md#foundation)*
 
-*Defined in [src/interfaces/context.ts:82](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/context.ts#L82)*
+*Defined in [interfaces/context.ts:82](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L82)*
 
 ## Methods
 
@@ -45,7 +43,7 @@ sidebar_label: Testcontextapis
 
 ▸ **getTestClients**(): *[TestClients](testclients.md)*
 
-*Defined in [src/test-helpers.ts:101](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/test-helpers.ts#L101)*
+*Defined in [test-helpers.ts:101](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/test-helpers.ts#L101)*
 
 **Returns:** *[TestClients](testclients.md)*
 
@@ -57,7 +55,7 @@ ___
 
 *Inherited from [ContextApis](contextapis.md).[registerAPI](contextapis.md#registerapi)*
 
-*Defined in [src/interfaces/context.ts:83](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/context.ts#L83)*
+*Defined in [interfaces/context.ts:83](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L83)*
 
 **Parameters:**
 
@@ -74,7 +72,7 @@ ___
 
 ▸ **setTestClients**(`clients`: *[TestClientConfig](testclientconfig.md)[]*): *void*
 
-*Defined in [src/test-helpers.ts:100](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/test-helpers.ts#L100)*
+*Defined in [test-helpers.ts:100](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/test-helpers.ts#L100)*
 
 **Parameters:**
 

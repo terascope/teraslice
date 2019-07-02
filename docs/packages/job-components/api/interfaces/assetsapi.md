@@ -1,9 +1,7 @@
 ---
-title: Job Components Assetsapi
-sidebar_label: Assetsapi
+title: Job Components :: AssetsAPI
+sidebar_label: AssetsAPI
 ---
-
-[AssetsAPI](assetsapi.md) /
 
 # Interface: AssetsAPI
 
@@ -23,7 +21,7 @@ sidebar_label: Assetsapi
 
 ▸ **getPath**(`name`: *string*): *`Promise<string>`*
 
-*Defined in [src/interfaces/context.ts:112](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/context.ts#L112)*
+*Defined in [interfaces/context.ts:112](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L112)*
 
 **Parameters:**
 

@@ -1,9 +1,7 @@
 ---
-title: Job Components Slicerfn
-sidebar_label: Slicerfn
+title: Job Components :: SlicerFn
+sidebar_label: SlicerFn
 ---
-
-[SlicerFn](slicerfn.md) /
 
 # Interface: SlicerFn
 
@@ -15,6 +13,6 @@ sidebar_label: Slicerfn
 
 ▸ (): *`Promise<SlicerResult>`*
 
-*Defined in [src/interfaces/operations.ts:61](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/operations.ts#L61)*
+*Defined in [interfaces/operations.ts:61](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/operations.ts#L61)*
 
 **Returns:** *`Promise<SlicerResult>`*

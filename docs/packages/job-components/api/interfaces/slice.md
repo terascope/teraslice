@@ -1,9 +1,7 @@
 ---
-title: Job Components Slice
+title: Job Components :: Slice
 sidebar_label: Slice
 ---
-
-[Slice](slice.md) /
 
 # Interface: Slice
 
@@ -27,7 +25,7 @@ sidebar_label: Slice
 
 • **_created**: *string*
 
-*Defined in [src/interfaces/operations.ts:42](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/operations.ts#L42)*
+*Defined in [interfaces/operations.ts:42](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/operations.ts#L42)*
 
 ___
 
@@ -35,7 +33,7 @@ ___
 
 • **request**: *[SliceRequest](slicerequest.md)*
 
-*Defined in [src/interfaces/operations.ts:41](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/operations.ts#L41)*
+*Defined in [interfaces/operations.ts:41](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/operations.ts#L41)*
 
 ___
 
@@ -43,7 +41,7 @@ ___
 
 • **slice_id**: *string*
 
-*Defined in [src/interfaces/operations.ts:38](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/operations.ts#L38)*
+*Defined in [interfaces/operations.ts:38](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/operations.ts#L38)*
 
 ___
 
@@ -51,7 +49,7 @@ ___
 
 • **slicer_id**: *number*
 
-*Defined in [src/interfaces/operations.ts:39](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/operations.ts#L39)*
+*Defined in [interfaces/operations.ts:39](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/operations.ts#L39)*
 
 ___
 
@@ -59,4 +57,4 @@ ___
 
 • **slicer_order**: *number*
 
-*Defined in [src/interfaces/operations.ts:40](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/operations.ts#L40)*
+*Defined in [interfaces/operations.ts:40](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/operations.ts#L40)*

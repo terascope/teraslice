@@ -1,9 +1,7 @@
 ---
-title: Job Components Slicerequest
-sidebar_label: Slicerequest
+title: Job Components :: SliceRequest
+sidebar_label: SliceRequest
 ---
-
-[SliceRequest](slicerequest.md) /
 
 # Interface: SliceRequest
 
@@ -27,4 +25,4 @@ sidebar_label: Slicerequest
 
 • **request_worker**? : *undefined | string*
 
-*Defined in [src/interfaces/operations.ts:33](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/operations.ts#L33)*
+*Defined in [interfaces/operations.ts:33](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/operations.ts#L33)*

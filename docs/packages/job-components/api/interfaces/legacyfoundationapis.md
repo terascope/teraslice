@@ -1,9 +1,7 @@
 ---
-title: Job Components Legacyfoundationapis
-sidebar_label: Legacyfoundationapis
+title: Job Components :: LegacyFoundationApis
+sidebar_label: LegacyFoundationApis
 ---
-
-[LegacyFoundationApis](legacyfoundationapis.md) /
 
 # Interface: LegacyFoundationApis
 
@@ -25,7 +23,7 @@ sidebar_label: Legacyfoundationapis
 
 ▸ **getConnection**(`config`: *[ConnectionConfig](connectionconfig.md)*): *object*
 
-*Defined in [src/interfaces/context.ts:78](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/context.ts#L78)*
+*Defined in [interfaces/context.ts:78](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L78)*
 
 **Parameters:**
 
@@ -41,7 +39,7 @@ ___
 
 ▸ **getEventEmitter**(): *`EventEmitter`*
 
-*Defined in [src/interfaces/context.ts:77](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/context.ts#L77)*
+*Defined in [interfaces/context.ts:77](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L77)*
 
 **Returns:** *`EventEmitter`*
 
@@ -51,7 +49,7 @@ ___
 
 ▸ **makeLogger**(...`params`: *any[]*): *`Logger`*
 
-*Defined in [src/interfaces/context.ts:76](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/context.ts#L76)*
+*Defined in [interfaces/context.ts:76](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L76)*
 
 **Parameters:**
 

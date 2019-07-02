@@ -1,9 +1,7 @@
 ---
-title: Job Components Operationmodule
-sidebar_label: Operationmodule
+title: Job Components :: OperationModule
+sidebar_label: OperationModule
 ---
-
-[OperationModule](operationmodule.md) /
 
 # Interface: OperationModule
 
@@ -28,7 +26,7 @@ sidebar_label: Operationmodule
 
 • **API**? : *[OperationAPIConstructor](../overview.md#operationapiconstructor)*
 
-*Defined in [src/operations/interfaces.ts:41](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/interfaces.ts#L41)*
+*Defined in [operations/interfaces.ts:41](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/interfaces.ts#L41)*
 
 ___
 
@@ -36,4 +34,4 @@ ___
 
 • **Schema**: *[SchemaConstructor](../overview.md#schemaconstructor)*
 
-*Defined in [src/operations/interfaces.ts:40](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/interfaces.ts#L40)*
+*Defined in [operations/interfaces.ts:40](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/interfaces.ts#L40)*

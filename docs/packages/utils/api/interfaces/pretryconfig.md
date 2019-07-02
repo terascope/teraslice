@@ -1,9 +1,7 @@
 ---
-title: Utils Pretryconfig
-sidebar_label: Pretryconfig
+title: Utils :: PRetryConfig
+sidebar_label: PRetryConfig
 ---
-
-[PRetryConfig](pretryconfig.md) /
 
 # Interface: PRetryConfig
 
@@ -30,7 +28,7 @@ sidebar_label: Pretryconfig
 
 • **backoff**: *number*
 
-*Defined in [src/promises.ts:35](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils/src/promises.ts#L35)*
+*Defined in [promises.ts:35](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/promises.ts#L35)*
 
 The backoff multiplier
 
@@ -42,7 +40,7 @@ ___
 
 • **delay**: *number*
 
-*Defined in [src/promises.ts:21](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils/src/promises.ts#L21)*
+*Defined in [promises.ts:21](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/promises.ts#L21)*
 
 The initial time to delay before retrying the function
 
@@ -54,7 +52,7 @@ ___
 
 • **endWithFatal**: *boolean*
 
-*Defined in [src/promises.ts:40](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils/src/promises.ts#L40)*
+*Defined in [promises.ts:40](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/promises.ts#L40)*
 
 If set to true, this will set fail with fatalError to true
 
@@ -64,7 +62,7 @@ ___
 
 • **logError**: *function*
 
-*Defined in [src/promises.ts:50](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils/src/promises.ts#L50)*
+*Defined in [promises.ts:50](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/promises.ts#L50)*
 
 Log function for logging any errors that occurred
 
@@ -84,7 +82,7 @@ ___
 
 • **matches**? : *string | `RegExp`[]*
 
-*Defined in [src/promises.ts:57](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils/src/promises.ts#L57)*
+*Defined in [promises.ts:57](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/promises.ts#L57)*
 
 If this not specified or is empty, all errors will be treated as retryable.
 If any of the items in the array match the error message,
@@ -96,7 +94,7 @@ ___
 
 • **maxDelay**: *number*
 
-*Defined in [src/promises.ts:28](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils/src/promises.ts#L28)*
+*Defined in [promises.ts:28](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/promises.ts#L28)*
 
 The maximum time to delay when retrying in milliseconds
 
@@ -108,7 +106,7 @@ ___
 
 • **reason**? : *undefined | string*
 
-*Defined in [src/promises.ts:45](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils/src/promises.ts#L45)*
+*Defined in [promises.ts:45](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/promises.ts#L45)*
 
 Set a error message prefix
 
@@ -118,7 +116,7 @@ ___
 
 • **retries**: *number*
 
-*Defined in [src/promises.ts:14](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils/src/promises.ts#L14)*
+*Defined in [promises.ts:14](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/promises.ts#L14)*
 
 The number of retries to attempt before failing.
 This does not include the initial attempt

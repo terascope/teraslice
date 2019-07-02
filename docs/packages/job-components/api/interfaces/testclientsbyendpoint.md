@@ -1,9 +1,7 @@
 ---
-title: Job Components Testclientsbyendpoint
-sidebar_label: Testclientsbyendpoint
+title: Job Components :: TestClientsByEndpoint
+sidebar_label: TestClientsByEndpoint
 ---
-
-[TestClientsByEndpoint](testclientsbyendpoint.md) /
 
 # Interface: TestClientsByEndpoint
 

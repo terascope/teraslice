@@ -1,9 +1,7 @@
 ---
-title: Job Components Batchprocessor
-sidebar_label: Batchprocessor
+title: Job Components :: BatchProcessor
+sidebar_label: BatchProcessor
 ---
-
-[BatchProcessor](batchprocessor.md) /
 
 # Class: BatchProcessor <**T**>
 
@@ -24,8 +22,6 @@ A variation of "Processor" that can handle a batch of data at a time.
   * [Delay](delay.md)
 
   * [Noop](noop.md)
-
-  * [ExampleBatch](examplebatch.md)
 
 ## Implements
 
@@ -68,7 +64,7 @@ A variation of "Processor" that can handle a batch of data at a time.
 
 *Overrides [Core](core.md).[constructor](core.md#constructor)*
 
-*Defined in [src/operations/core/operation-core.ts:23](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/operation-core.ts#L23)*
+*Defined in [operations/core/operation-core.ts:23](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/operation-core.ts#L23)*
 
 **Parameters:**
 
@@ -88,7 +84,7 @@ Name | Type |
 
 *Inherited from [Core](core.md).[context](core.md#context)*
 
-*Defined in [src/operations/core/core.ts:10](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/core.ts#L10)*
+*Defined in [operations/core/core.ts:10](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/core.ts#L10)*
 
 ___
 
@@ -98,7 +94,7 @@ ___
 
 *Inherited from [OperationCore](operationcore.md).[deadLetterAction](operationcore.md#deadletteraction)*
 
-*Defined in [src/operations/core/operation-core.ts:23](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/operation-core.ts#L23)*
+*Defined in [operations/core/operation-core.ts:23](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/operation-core.ts#L23)*
 
 ___
 
@@ -108,7 +104,7 @@ ___
 
 *Inherited from [Core](core.md).[events](core.md#events)*
 
-*Defined in [src/operations/core/core.ts:13](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/core.ts#L13)*
+*Defined in [operations/core/core.ts:13](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/core.ts#L13)*
 
 ___
 
@@ -118,7 +114,7 @@ ___
 
 *Inherited from [Core](core.md).[executionConfig](core.md#executionconfig)*
 
-*Defined in [src/operations/core/core.ts:11](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/core.ts#L11)*
+*Defined in [operations/core/core.ts:11](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/core.ts#L11)*
 
 ___
 
@@ -128,7 +124,7 @@ ___
 
 *Inherited from [Core](core.md).[logger](core.md#logger)*
 
-*Defined in [src/operations/core/core.ts:12](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/core.ts#L12)*
+*Defined in [operations/core/core.ts:12](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/core.ts#L12)*
 
 ___
 
@@ -138,7 +134,7 @@ ___
 
 *Inherited from [OperationCore](operationcore.md).[opConfig](operationcore.md#opconfig)*
 
-*Defined in [src/operations/core/operation-core.ts:22](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/operation-core.ts#L22)*
+*Defined in [operations/core/operation-core.ts:22](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/operation-core.ts#L22)*
 
 ## Methods
 
@@ -148,7 +144,7 @@ ___
 
 *Inherited from [OperationCore](operationcore.md).[createAPI](operationcore.md#createapi)*
 
-*Defined in [src/operations/core/operation-core.ts:51](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/operation-core.ts#L51)*
+*Defined in [operations/core/operation-core.ts:51](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/operation-core.ts#L51)*
 
 Create an API and add it to the operation lifecycle
 
@@ -173,7 +169,7 @@ ___
 
 *Inherited from [OperationCore](operationcore.md).[getAPI](operationcore.md#getapi)*
 
-*Defined in [src/operations/core/operation-core.ts:58](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/operation-core.ts#L58)*
+*Defined in [operations/core/operation-core.ts:58](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/operation-core.ts#L58)*
 
 Get a reference to an existing API
 
@@ -197,7 +193,7 @@ ___
 
 *Overrides [ProcessorCore](processorcore.md).[handle](processorcore.md#abstract-handle)*
 
-*Defined in [src/operations/batch-processor.ts:16](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/batch-processor.ts#L16)*
+*Defined in [operations/batch-processor.ts:16](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/batch-processor.ts#L16)*
 
 **Parameters:**
 
@@ -217,7 +213,7 @@ ___
 
 *Overrides [Core](core.md).[initialize](core.md#abstract-initialize)*
 
-*Defined in [src/operations/core/operation-core.ts:40](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/operation-core.ts#L40)*
+*Defined in [operations/core/operation-core.ts:40](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/operation-core.ts#L40)*
 
 **Returns:** *`Promise<void>`*
 
@@ -227,7 +223,7 @@ ___
 
 ▸ **onBatch**(`batch`: *`DataEntity`[]*): *`Promise<DataEntity[]>`*
 
-*Defined in [src/operations/batch-processor.ts:14](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/batch-processor.ts#L14)*
+*Defined in [operations/batch-processor.ts:14](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/batch-processor.ts#L14)*
 
 A method called by {@link BatchProcessor#handle}
 
@@ -249,7 +245,7 @@ ___
 
 *Inherited from [OperationCore](operationcore.md).[rejectRecord](operationcore.md#rejectrecord)*
 
-*Defined in [src/operations/core/operation-core.ts:95](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/operation-core.ts#L95)*
+*Defined in [operations/core/operation-core.ts:95](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/operation-core.ts#L95)*
 
 Reject a record using the dead letter action
 
@@ -283,7 +279,7 @@ ___
 
 *Overrides [Core](core.md).[shutdown](core.md#abstract-shutdown)*
 
-*Defined in [src/operations/core/operation-core.ts:44](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/operation-core.ts#L44)*
+*Defined in [operations/core/operation-core.ts:44](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/operation-core.ts#L44)*
 
 **Returns:** *`Promise<void>`*
 
@@ -295,7 +291,7 @@ ___
 
 *Inherited from [OperationCore](operationcore.md).[tryRecord](operationcore.md#tryrecord)*
 
-*Defined in [src/operations/core/operation-core.ts:70](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/operation-core.ts#L70)*
+*Defined in [operations/core/operation-core.ts:70](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/operation-core.ts#L70)*
 
 Try catch a transformation on a record and place any failed records in a dead letter queue
 

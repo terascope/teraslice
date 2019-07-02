@@ -1,9 +1,7 @@
 ---
-title: Job Components Contextclusterconfig
-sidebar_label: Contextclusterconfig
+title: Job Components :: ContextClusterConfig
+sidebar_label: ContextClusterConfig
 ---
-
-[ContextClusterConfig](contextclusterconfig.md) /
 
 # Interface: ContextClusterConfig
 
@@ -23,6 +21,6 @@ sidebar_label: Contextclusterconfig
 
 • **worker**: *object*
 
-*Defined in [src/interfaces/context.ts:153](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/context.ts#L153)*
+*Defined in [interfaces/context.ts:153](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L153)*
 
 #### Type declaration:

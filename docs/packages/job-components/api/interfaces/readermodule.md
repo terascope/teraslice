@@ -1,9 +1,7 @@
 ---
-title: Job Components Readermodule
-sidebar_label: Readermodule
+title: Job Components :: ReaderModule
+sidebar_label: ReaderModule
 ---
-
-[ReaderModule](readermodule.md) /
 
 # Interface: ReaderModule
 
@@ -30,7 +28,7 @@ sidebar_label: Readermodule
 
 *Inherited from [OperationModule](operationmodule.md).[API](operationmodule.md#optional-api)*
 
-*Defined in [src/operations/interfaces.ts:41](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/interfaces.ts#L41)*
+*Defined in [operations/interfaces.ts:41](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/interfaces.ts#L41)*
 
 ___
 
@@ -38,7 +36,7 @@ ___
 
 • **Fetcher**: *[FetcherConstructor](../overview.md#fetcherconstructor)*
 
-*Defined in [src/operations/interfaces.ts:56](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/interfaces.ts#L56)*
+*Defined in [operations/interfaces.ts:56](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/interfaces.ts#L56)*
 
 ___
 
@@ -48,7 +46,7 @@ ___
 
 *Inherited from [OperationModule](operationmodule.md).[Schema](operationmodule.md#schema)*
 
-*Defined in [src/operations/interfaces.ts:40](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/interfaces.ts#L40)*
+*Defined in [operations/interfaces.ts:40](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/interfaces.ts#L40)*
 
 ___
 
@@ -56,4 +54,4 @@ ___
 
 • **Slicer**: *[SlicerConstructor](../overview.md#slicerconstructor)*
 
-*Defined in [src/operations/interfaces.ts:55](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/interfaces.ts#L55)*
+*Defined in [operations/interfaces.ts:55](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/interfaces.ts#L55)*

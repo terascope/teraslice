@@ -1,9 +1,7 @@
 ---
-title: Job Components Operationloader
-sidebar_label: Operationloader
+title: Job Components :: OperationLoader
+sidebar_label: OperationLoader
 ---
-
-[OperationLoader](operationloader.md) /
 
 # Class: OperationLoader
 
@@ -31,7 +29,7 @@ sidebar_label: Operationloader
 
 \+ **new OperationLoader**(`options`: *[LoaderOptions](../interfaces/loaderoptions.md)*): *[OperationLoader](operationloader.md)*
 
-*Defined in [src/operation-loader.ts:28](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operation-loader.ts#L28)*
+*Defined in [operation-loader.ts:28](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operation-loader.ts#L28)*
 
 **Parameters:**
 
@@ -47,7 +45,7 @@ Name | Type | Default |
 
 ▸ **find**(`name`: *string*, `assetIds?`: *string[]*): *string | null*
 
-*Defined in [src/operation-loader.ts:35](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operation-loader.ts#L35)*
+*Defined in [operation-loader.ts:35](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operation-loader.ts#L35)*
 
 **Parameters:**
 
@@ -64,7 +62,7 @@ ___
 
 ▸ **load**(`name`: *string*, `assetIds?`: *string[]*): *[LegacyOperation](../interfaces/legacyoperation.md)*
 
-*Defined in [src/operation-loader.ts:74](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operation-loader.ts#L74)*
+*Defined in [operation-loader.ts:74](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operation-loader.ts#L74)*
 
 Load any LegacyOperation
 DEPRECATED to accommadate for new Job APIs,
@@ -85,7 +83,7 @@ ___
 
 ▸ **loadAPI**(`name`: *string*, `assetIds?`: *string[]*): *[APIModule](../interfaces/apimodule.md)*
 
-*Defined in [src/operation-loader.ts:165](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operation-loader.ts#L165)*
+*Defined in [operation-loader.ts:165](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operation-loader.ts#L165)*
 
 **Parameters:**
 
@@ -102,7 +100,7 @@ ___
 
 ▸ **loadProcessor**(`name`: *string*, `assetIds?`: *string[]*): *[ProcessorModule](../interfaces/processormodule.md)*
 
-*Defined in [src/operation-loader.ts:84](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operation-loader.ts#L84)*
+*Defined in [operation-loader.ts:84](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operation-loader.ts#L84)*
 
 **Parameters:**
 
@@ -119,7 +117,7 @@ ___
 
 ▸ **loadReader**(`name`: *string*, `assetIds?`: *string[]*): *[ReaderModule](../interfaces/readermodule.md)*
 
-*Defined in [src/operation-loader.ts:120](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operation-loader.ts#L120)*
+*Defined in [operation-loader.ts:120](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operation-loader.ts#L120)*
 
 **Parameters:**
 

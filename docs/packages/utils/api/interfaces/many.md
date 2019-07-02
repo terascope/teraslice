@@ -1,9 +1,7 @@
 ---
-title: Utils Many
+title: Utils :: Many
 sidebar_label: Many
 ---
-
-[Many](many.md) /
 
 # Interface: Many <**T**>
 
@@ -72,7 +70,7 @@ A simple definitions of array
 
 • **Array**: *`ArrayConstructor`*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1368](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1368)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1368
 
 ___
 
@@ -82,7 +80,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1209](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1209)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1209
 
 Gets or sets the length of the array. This is a number one higher than the highest element defined in an array.
 
@@ -94,7 +92,7 @@ Gets or sets the length of the array. This is a number one higher than the highe
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:52](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts#L52)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:52
 
 Iterator
 
@@ -108,7 +106,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts:94](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts#L94)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts:94
 
 Returns an object whose properties have the value 'true'
 when they will be absent when used in a 'with' statement.
@@ -123,7 +121,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1231](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1231)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1231
 
 Combines two or more arrays.
 
@@ -139,7 +137,7 @@ Name | Type | Description |
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1236](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1236)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1236
 
 Combines two or more arrays.
 
@@ -159,7 +157,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts:64](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts#L64)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts:64
 
 Returns the this object after copying a section of the array identified by start and end
 to the same array starting at position target
@@ -182,7 +180,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:57](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts#L57)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:57
 
 Returns an iterable of key, value pairs for every entry in the array
 
@@ -196,7 +194,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1296](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1296)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1296
 
 Determines whether all the members of an array satisfy the specified test.
 
@@ -230,7 +228,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts:53](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts#L53)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts:53
 
 Returns the this object after filling the section identified by start and end with value
 
@@ -252,7 +250,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1320](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1320)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1320
 
 Returns the elements of an array that meet the condition specified in a callback function.
 
@@ -286,7 +284,7 @@ An object to which the this keyword can refer in the callbackfn function. If thi
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1326](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1326)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1326
 
 Returns the elements of an array that meet the condition specified in a callback function.
 
@@ -320,7 +318,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts:31](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts#L31)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts:31
 
 Returns the value of the first element in the array where predicate is true, and undefined
 otherwise.
@@ -359,7 +357,7 @@ predicate. If it is not provided, undefined is used instead.
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts:32](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts#L32)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts:32
 
 **Parameters:**
 
@@ -387,7 +385,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts:43](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts#L43)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts:43
 
 Returns the index of the first element in the array where predicate is true, and -1
 otherwise.
@@ -425,7 +423,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1308](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1308)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1308
 
 Performs the specified action for each element in an array.
 
@@ -459,7 +457,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2016.array.include.d.ts:27](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2016.array.include.d.ts#L27)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2016.array.include.d.ts:27
 
 Determines whether an array includes a certain element, returning true or false as appropriate.
 
@@ -480,7 +478,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1284](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1284)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1284
 
 Returns the index of the first occurrence of a value in an array.
 
@@ -501,7 +499,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1241](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1241)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1241
 
 Adds all the elements of an array separated by the specified separator string.
 
@@ -521,7 +519,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:62](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts#L62)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:62
 
 Returns an iterable of keys in the array
 
@@ -535,7 +533,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1290](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1290)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1290
 
 Returns the index of the last occurrence of a specified value in an array.
 
@@ -556,7 +554,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1314](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1314)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1314
 
 Calls a defined callback function on each element of an array, and returns an array that contains the results.
 
@@ -594,7 +592,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1221](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1221)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1221
 
 Removes the last element from an array and returns it.
 
@@ -608,7 +606,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1226](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1226)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1226
 
 Appends new elements to an array, and returns the new length of the array.
 
@@ -628,7 +626,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1332](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1332)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1332
 
 Calls the specified callback function for all the elements in an array. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function.
 
@@ -655,7 +653,7 @@ Name | Type |
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1333](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1333)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1333
 
 **Parameters:**
 
@@ -680,7 +678,7 @@ Name | Type |
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1339](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1339)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1339
 
 Calls the specified callback function for all the elements in an array. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function.
 
@@ -719,7 +717,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1345](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1345)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1345
 
 Calls the specified callback function for all the elements in an array, in descending order. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function.
 
@@ -746,7 +744,7 @@ Name | Type |
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1346](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1346)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1346
 
 **Parameters:**
 
@@ -771,7 +769,7 @@ Name | Type |
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1352](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1352)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1352
 
 Calls the specified callback function for all the elements in an array, in descending order. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function.
 
@@ -810,7 +808,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1245](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1245)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1245
 
 Reverses the elements in an Array.
 
@@ -824,7 +822,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1249](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1249)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1249
 
 Removes the first element from an array and returns it.
 
@@ -838,7 +836,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1255](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1255)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1255
 
 Returns a section of an array.
 
@@ -859,7 +857,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1302](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1302)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1302
 
 Determines whether the specified callback function returns true for any element of an array.
 
@@ -893,7 +891,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1260](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1260)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1260
 
 Sorts an array.
 
@@ -913,7 +911,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1266](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1266)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1266
 
 Removes elements from an array and, if necessary, inserts new elements in their place, returning the deleted elements.
 
@@ -930,7 +928,7 @@ Name | Type | Description |
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1273](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1273)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1273
 
 Removes elements from an array and, if necessary, inserts new elements in their place, returning the deleted elements.
 
@@ -952,7 +950,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1217](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1217)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1217
 
 Returns a string representation of an array. The elements are converted to string using their toLocalString methods.
 
@@ -966,7 +964,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1213](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1213)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1213
 
 Returns a string representation of an array.
 
@@ -980,7 +978,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1278](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L1278)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1278
 
 Inserts new elements at the start of an array.
 
@@ -1000,7 +998,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:67](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts#L67)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:67
 
 Returns an iterable of values in the array
 

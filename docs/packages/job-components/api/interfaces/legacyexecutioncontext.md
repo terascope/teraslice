@@ -1,9 +1,7 @@
 ---
-title: Job Components Legacyexecutioncontext
-sidebar_label: Legacyexecutioncontext
+title: Job Components :: LegacyExecutionContext
+sidebar_label: LegacyExecutionContext
 ---
-
-[LegacyExecutionContext](legacyexecutioncontext.md) /
 
 # Interface: LegacyExecutionContext
 
@@ -31,7 +29,7 @@ LegacyExecutionContext is the old ExecutionContext available
 
 • **config**: *[ExecutionConfig](executionconfig.md)*
 
-*Defined in [src/interfaces/jobs.ts:104](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/jobs.ts#L104)*
+*Defined in [interfaces/jobs.ts:104](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/jobs.ts#L104)*
 
 ___
 
@@ -39,7 +37,7 @@ ___
 
 • **dynamicQueueLength**: *boolean*
 
-*Defined in [src/interfaces/jobs.ts:107](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/jobs.ts#L107)*
+*Defined in [interfaces/jobs.ts:107](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/jobs.ts#L107)*
 
 ___
 
@@ -47,7 +45,7 @@ ___
 
 • **queue**: *`Function`[]*
 
-*Defined in [src/interfaces/jobs.ts:108](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/jobs.ts#L108)*
+*Defined in [interfaces/jobs.ts:108](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/jobs.ts#L108)*
 
 ___
 
@@ -55,7 +53,7 @@ ___
 
 • **queueLength**: *`10000` | number*
 
-*Defined in [src/interfaces/jobs.ts:106](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/jobs.ts#L106)*
+*Defined in [interfaces/jobs.ts:106](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/jobs.ts#L106)*
 
 ___
 
@@ -63,7 +61,7 @@ ___
 
 • **reader**: *`Function` | null*
 
-*Defined in [src/interfaces/jobs.ts:109](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/jobs.ts#L109)*
+*Defined in [interfaces/jobs.ts:109](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/jobs.ts#L109)*
 
 ___
 
@@ -71,7 +69,7 @@ ___
 
 • **reporter**: *null*
 
-*Defined in [src/interfaces/jobs.ts:110](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/jobs.ts#L110)*
+*Defined in [interfaces/jobs.ts:110](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/jobs.ts#L110)*
 
 ___
 
@@ -79,4 +77,4 @@ ___
 
 • **slicer**: *`Function`*
 
-*Defined in [src/interfaces/jobs.ts:105](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/jobs.ts#L105)*
+*Defined in [interfaces/jobs.ts:105](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/jobs.ts#L105)*

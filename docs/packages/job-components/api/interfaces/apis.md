@@ -1,9 +1,7 @@
 ---
-title: Job Components Apis
-sidebar_label: Apis
+title: Job Components :: APIs
+sidebar_label: APIs
 ---
-
-[APIs](apis.md) /
 
 # Interface: APIs
 

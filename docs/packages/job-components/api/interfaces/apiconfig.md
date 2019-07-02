@@ -1,9 +1,7 @@
 ---
-title: Job Components Apiconfig
-sidebar_label: Apiconfig
+title: Job Components :: APIConfig
+sidebar_label: APIConfig
 ---
-
-[APIConfig](apiconfig.md) /
 
 # Interface: APIConfig
 
@@ -33,7 +31,7 @@ into a ExecutionContext.
 
 • **_name**: *string*
 
-*Defined in [src/interfaces/jobs.ts:46](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/jobs.ts#L46)*
+*Defined in [interfaces/jobs.ts:46](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/jobs.ts#L46)*
 
 The name of the api, this must be unique among any loaded APIs
 but can be namespaced by using the format "example:0"

@@ -1,9 +1,7 @@
 ---
-title: Job Components Sliceroperationlifecycle
-sidebar_label: Sliceroperationlifecycle
+title: Job Components :: SlicerOperationLifeCycle
+sidebar_label: SlicerOperationLifeCycle
 ---
-
-[SlicerOperationLifeCycle](sliceroperationlifecycle.md) /
 
 # Interface: SlicerOperationLifeCycle
 
@@ -15,8 +13,6 @@ sidebar_label: Sliceroperationlifecycle
 
 ## Implemented by
 
-* [ExampleSlicer](../classes/exampleslicer.md)
-* [FailingSlicer](../classes/failingslicer.md)
 * [ParallelSlicer](../classes/parallelslicer.md)
 * [Slicer](../classes/slicer.md)
 * [SlicerCore](../classes/slicercore.md)
@@ -42,7 +38,7 @@ sidebar_label: Sliceroperationlifecycle
 
 *Overrides [OperationLifeCycle](operationlifecycle.md).[initialize](operationlifecycle.md#initialize)*
 
-*Defined in [src/interfaces/operation-lifecycle.ts:88](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/operation-lifecycle.ts#L88)*
+*Defined in [interfaces/operation-lifecycle.ts:88](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/operation-lifecycle.ts#L88)*
 
 Called during execution initialization
 
@@ -60,7 +56,7 @@ ___
 
 ▸ **onExecutionStats**(`stats`: *[ExecutionStats](executionstats.md)*): *void*
 
-*Defined in [src/interfaces/operation-lifecycle.ts:112](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/operation-lifecycle.ts#L112)*
+*Defined in [interfaces/operation-lifecycle.ts:112](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/operation-lifecycle.ts#L112)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track various slicer satistics
@@ -79,7 +75,7 @@ ___
 
 ▸ **onSliceComplete**(`result`: *[SliceResult](sliceresult.md)*): *void*
 
-*Defined in [src/interfaces/operation-lifecycle.ts:106](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/operation-lifecycle.ts#L106)*
+*Defined in [interfaces/operation-lifecycle.ts:106](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/operation-lifecycle.ts#L106)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track the slices completed by the execution controller
@@ -98,7 +94,7 @@ ___
 
 ▸ **onSliceDispatch**(`slice`: *[Slice](slice.md)*): *void*
 
-*Defined in [src/interfaces/operation-lifecycle.ts:100](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/operation-lifecycle.ts#L100)*
+*Defined in [interfaces/operation-lifecycle.ts:100](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/operation-lifecycle.ts#L100)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track the slices disptached by the execution controller
@@ -117,7 +113,7 @@ ___
 
 ▸ **onSliceEnqueued**(`slice`: *[Slice](slice.md)*): *void*
 
-*Defined in [src/interfaces/operation-lifecycle.ts:94](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/operation-lifecycle.ts#L94)*
+*Defined in [interfaces/operation-lifecycle.ts:94](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/operation-lifecycle.ts#L94)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track the slices enqueued by the execution controller
@@ -138,7 +134,7 @@ ___
 
 *Inherited from [OperationLifeCycle](operationlifecycle.md).[shutdown](operationlifecycle.md#shutdown)*
 
-*Defined in [src/interfaces/operation-lifecycle.ts:12](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/operation-lifecycle.ts#L12)*
+*Defined in [interfaces/operation-lifecycle.ts:12](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/operation-lifecycle.ts#L12)*
 
 Called during execution shutdown
 

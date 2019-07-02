@@ -1,9 +1,7 @@
 ---
-title: Job Components Executioncontextconfig
-sidebar_label: Executioncontextconfig
+title: Job Components :: ExecutionContextConfig
+sidebar_label: ExecutionContextConfig
 ---
-
-[ExecutionContextConfig](executioncontextconfig.md) /
 
 # Interface: ExecutionContextConfig
 
@@ -26,7 +24,7 @@ sidebar_label: Executioncontextconfig
 
 • **assetIds**? : *string[]*
 
-*Defined in [src/execution-context/interfaces.ts:17](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/execution-context/interfaces.ts#L17)*
+*Defined in [execution-context/interfaces.ts:17](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/execution-context/interfaces.ts#L17)*
 
 ___
 
@@ -34,7 +32,7 @@ ___
 
 • **context**: *[Context](context.md)*
 
-*Defined in [src/execution-context/interfaces.ts:14](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/execution-context/interfaces.ts#L14)*
+*Defined in [execution-context/interfaces.ts:14](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/execution-context/interfaces.ts#L14)*
 
 ___
 
@@ -42,7 +40,7 @@ ___
 
 • **executionConfig**: *[ExecutionConfig](executionconfig.md)*
 
-*Defined in [src/execution-context/interfaces.ts:15](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/execution-context/interfaces.ts#L15)*
+*Defined in [execution-context/interfaces.ts:15](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/execution-context/interfaces.ts#L15)*
 
 ___
 
@@ -50,4 +48,4 @@ ___
 
 • **terasliceOpPath**? : *undefined | string*
 
-*Defined in [src/execution-context/interfaces.ts:16](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/execution-context/interfaces.ts#L16)*
+*Defined in [execution-context/interfaces.ts:16](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/execution-context/interfaces.ts#L16)*

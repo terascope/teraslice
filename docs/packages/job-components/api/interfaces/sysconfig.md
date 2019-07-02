@@ -1,9 +1,7 @@
 ---
-title: Job Components Sysconfig
-sidebar_label: Sysconfig
+title: Job Components :: SysConfig
+sidebar_label: SysConfig
 ---
-
-[SysConfig](sysconfig.md) /
 
 # Interface: SysConfig
 
@@ -25,7 +23,7 @@ sidebar_label: Sysconfig
 
 • **_nodeName**: *string*
 
-*Defined in [src/interfaces/context.ts:58](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/context.ts#L58)*
+*Defined in [interfaces/context.ts:58](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L58)*
 
 ___
 
@@ -33,7 +31,7 @@ ___
 
 • **terafoundation**: *[TerafoundationConfig](terafoundationconfig.md)*
 
-*Defined in [src/interfaces/context.ts:56](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/context.ts#L56)*
+*Defined in [interfaces/context.ts:56](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L56)*
 
 ___
 
@@ -41,4 +39,4 @@ ___
 
 • **teraslice**: *[TerasliceConfig](terasliceconfig.md)*
 
-*Defined in [src/interfaces/context.ts:57](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/context.ts#L57)*
+*Defined in [interfaces/context.ts:57](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L57)*

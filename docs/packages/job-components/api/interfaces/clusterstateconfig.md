@@ -1,9 +1,7 @@
 ---
-title: Job Components Clusterstateconfig
-sidebar_label: Clusterstateconfig
+title: Job Components :: ClusterStateConfig
+sidebar_label: ClusterStateConfig
 ---
-
-[ClusterStateConfig](clusterstateconfig.md) /
 
 # Interface: ClusterStateConfig
 
@@ -23,4 +21,4 @@ sidebar_label: Clusterstateconfig
 
 • **connection**: *string | "default"*
 
-*Defined in [src/interfaces/context.ts:7](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/context.ts#L7)*
+*Defined in [interfaces/context.ts:7](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L7)*

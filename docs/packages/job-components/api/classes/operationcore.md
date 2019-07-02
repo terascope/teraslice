@@ -1,9 +1,7 @@
 ---
-title: Job Components Operationcore
-sidebar_label: Operationcore
+title: Job Components :: OperationCore
+sidebar_label: OperationCore
 ---
-
-[OperationCore](operationcore.md) /
 
 # Class: OperationCore <**T**>
 
@@ -65,7 +63,7 @@ since Teraslice only supports a few types varients based on this class.
 
 *Overrides [Core](core.md).[constructor](core.md#constructor)*
 
-*Defined in [src/operations/core/operation-core.ts:23](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/operation-core.ts#L23)*
+*Defined in [operations/core/operation-core.ts:23](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/operation-core.ts#L23)*
 
 **Parameters:**
 
@@ -85,7 +83,7 @@ Name | Type |
 
 *Inherited from [Core](core.md).[context](core.md#context)*
 
-*Defined in [src/operations/core/core.ts:10](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/core.ts#L10)*
+*Defined in [operations/core/core.ts:10](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/core.ts#L10)*
 
 ___
 
@@ -93,7 +91,7 @@ ___
 
 • **deadLetterAction**: *[DeadLetterAction](../overview.md#deadletteraction)*
 
-*Defined in [src/operations/core/operation-core.ts:23](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/operation-core.ts#L23)*
+*Defined in [operations/core/operation-core.ts:23](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/operation-core.ts#L23)*
 
 ___
 
@@ -103,7 +101,7 @@ ___
 
 *Inherited from [Core](core.md).[events](core.md#events)*
 
-*Defined in [src/operations/core/core.ts:13](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/core.ts#L13)*
+*Defined in [operations/core/core.ts:13](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/core.ts#L13)*
 
 ___
 
@@ -113,7 +111,7 @@ ___
 
 *Inherited from [Core](core.md).[executionConfig](core.md#executionconfig)*
 
-*Defined in [src/operations/core/core.ts:11](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/core.ts#L11)*
+*Defined in [operations/core/core.ts:11](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/core.ts#L11)*
 
 ___
 
@@ -123,7 +121,7 @@ ___
 
 *Inherited from [Core](core.md).[logger](core.md#logger)*
 
-*Defined in [src/operations/core/core.ts:12](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/core.ts#L12)*
+*Defined in [operations/core/core.ts:12](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/core.ts#L12)*
 
 ___
 
@@ -131,7 +129,7 @@ ___
 
 • **opConfig**: *`Readonly<OpConfig & T>`*
 
-*Defined in [src/operations/core/operation-core.ts:22](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/operation-core.ts#L22)*
+*Defined in [operations/core/operation-core.ts:22](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/operation-core.ts#L22)*
 
 ## Methods
 
@@ -139,7 +137,7 @@ ___
 
 ▸ **createAPI**<**A**>(`name`: *string*, ...`params`: *any[]*): *`Promise<A>`*
 
-*Defined in [src/operations/core/operation-core.ts:51](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/operation-core.ts#L51)*
+*Defined in [operations/core/operation-core.ts:51](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/operation-core.ts#L51)*
 
 Create an API and add it to the operation lifecycle
 
@@ -162,7 +160,7 @@ ___
 
 ▸ **getAPI**<**A**>(`name`: *string*): *`A`*
 
-*Defined in [src/operations/core/operation-core.ts:58](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/operation-core.ts#L58)*
+*Defined in [operations/core/operation-core.ts:58](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/operation-core.ts#L58)*
 
 Get a reference to an existing API
 
@@ -186,7 +184,7 @@ ___
 
 *Overrides [Core](core.md).[initialize](core.md#abstract-initialize)*
 
-*Defined in [src/operations/core/operation-core.ts:40](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/operation-core.ts#L40)*
+*Defined in [operations/core/operation-core.ts:40](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/operation-core.ts#L40)*
 
 **Returns:** *`Promise<void>`*
 
@@ -196,7 +194,7 @@ ___
 
 ▸ **rejectRecord**(`input`: *any*, `err`: *`Error`*): *never | null*
 
-*Defined in [src/operations/core/operation-core.ts:95](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/operation-core.ts#L95)*
+*Defined in [operations/core/operation-core.ts:95](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/operation-core.ts#L95)*
 
 Reject a record using the dead letter action
 
@@ -228,7 +226,7 @@ ___
 
 *Overrides [Core](core.md).[shutdown](core.md#abstract-shutdown)*
 
-*Defined in [src/operations/core/operation-core.ts:44](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/operation-core.ts#L44)*
+*Defined in [operations/core/operation-core.ts:44](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/operation-core.ts#L44)*
 
 **Returns:** *`Promise<void>`*
 
@@ -238,7 +236,7 @@ ___
 
 ▸ **tryRecord**<**I**, **R**>(`fn`: *function*): *function*
 
-*Defined in [src/operations/core/operation-core.ts:70](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/operation-core.ts#L70)*
+*Defined in [operations/core/operation-core.ts:70](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/operation-core.ts#L70)*
 
 Try catch a transformation on a record and place any failed records in a dead letter queue
 

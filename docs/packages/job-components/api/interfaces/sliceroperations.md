@@ -1,9 +1,7 @@
 ---
-title: Job Components Sliceroperations
-sidebar_label: Sliceroperations
+title: Job Components :: SlicerOperations
+sidebar_label: SlicerOperations
 ---
-
-[SlicerOperations](sliceroperations.md) /
 
 # Interface: SlicerOperations
 
@@ -39,7 +37,7 @@ sidebar_label: Sliceroperations
 
 • **Set**: *`SetConstructor`*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:71](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts#L71)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:71
 
 ___
 
@@ -49,7 +47,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts:138](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts#L138)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts:138
 
 ___
 
@@ -59,7 +57,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:64](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts#L64)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:64
 
 ## Methods
 
@@ -69,7 +67,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:163](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts#L163)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:163
 
 Iterates over values in the set.
 
@@ -83,7 +81,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:59](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts#L59)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:59
 
 **Parameters:**
 
@@ -101,7 +99,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:60](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts#L60)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:60
 
 **Returns:** *void*
 
@@ -113,7 +111,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:61](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts#L61)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:61
 
 **Parameters:**
 
@@ -131,7 +129,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:167](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts#L167)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:167
 
 Returns an iterable of [v,v] pairs for every value `v` in the set.
 
@@ -145,7 +143,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:62](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts#L62)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:62
 
 **Parameters:**
 
@@ -173,7 +171,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:63](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts#L63)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:63
 
 **Parameters:**
 
@@ -191,7 +189,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:171](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts#L171)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:171
 
 Despite its name, returns an iterable of the values in the set,
 
@@ -205,7 +203,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:176](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts#L176)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:176
 
 Returns an iterable of values in the set.
 

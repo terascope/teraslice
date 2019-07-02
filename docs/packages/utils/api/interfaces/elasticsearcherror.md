@@ -1,9 +1,7 @@
 ---
-title: Utils Elasticsearcherror
-sidebar_label: Elasticsearcherror
+title: Utils :: ElasticsearchError
+sidebar_label: ElasticsearchError
 ---
-
-[ElasticsearchError](elasticsearcherror.md) /
 
 # Interface: ElasticsearchError
 
@@ -37,7 +35,7 @@ sidebar_label: Elasticsearcherror
 
 • **Error**: *`ErrorConstructor`*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:984](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L984)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:984
 
 ___
 
@@ -45,7 +43,7 @@ ___
 
 • **body**? : *undefined | object*
 
-*Defined in [src/errors.ts:326](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils/src/errors.ts#L326)*
+*Defined in [errors.ts:326](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/errors.ts#L326)*
 
 ___
 
@@ -53,7 +51,7 @@ ___
 
 • **index**? : *undefined | string*
 
-*Defined in [src/errors.ts:344](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils/src/errors.ts#L344)*
+*Defined in [errors.ts:344](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/errors.ts#L344)*
 
 ___
 
@@ -63,7 +61,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:974](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L974)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:974
 
 ___
 
@@ -73,7 +71,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:973](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L973)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:973
 
 ___
 
@@ -81,7 +79,7 @@ ___
 
 • **reason**? : *undefined | string*
 
-*Defined in [src/errors.ts:343](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils/src/errors.ts#L343)*
+*Defined in [errors.ts:343](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/errors.ts#L343)*
 
 ___
 
@@ -93,7 +91,7 @@ ___
 
 *Overrides void*
 
-*Defined in [/Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:975](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils//Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts#L975)*
+Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:975
 
 ___
 
@@ -101,7 +99,7 @@ ___
 
 • **status**? : *undefined | number*
 
-*Defined in [src/errors.ts:341](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils/src/errors.ts#L341)*
+*Defined in [errors.ts:341](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/errors.ts#L341)*
 
 ___
 
@@ -109,7 +107,7 @@ ___
 
 • **type**? : *undefined | string*
 
-*Defined in [src/errors.ts:342](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils/src/errors.ts#L342)*
+*Defined in [errors.ts:342](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/errors.ts#L342)*
 
 ## Methods
 
@@ -117,6 +115,6 @@ ___
 
 ▸ **toJSON**(): *object*
 
-*Defined in [src/errors.ts:346](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils/src/errors.ts#L346)*
+*Defined in [errors.ts:346](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/errors.ts#L346)*
 
 **Returns:** *object*

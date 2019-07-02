@@ -1,9 +1,7 @@
 ---
-title: Job Components Jobapiinstance
-sidebar_label: Jobapiinstance
+title: Job Components :: JobAPIInstance
+sidebar_label: JobAPIInstance
 ---
-
-[JobAPIInstance](jobapiinstance.md) /
 
 # Interface: JobAPIInstance
 
@@ -25,7 +23,7 @@ sidebar_label: Jobapiinstance
 
 • **instance**: *[APICore](../classes/apicore.md)*
 
-*Defined in [src/execution-context/interfaces.ts:30](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/execution-context/interfaces.ts#L30)*
+*Defined in [execution-context/interfaces.ts:30](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/execution-context/interfaces.ts#L30)*
 
 ___
 
@@ -33,7 +31,7 @@ ___
 
 • **opAPI**? : *[OpAPI](../overview.md#opapi)*
 
-*Defined in [src/execution-context/interfaces.ts:31](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/execution-context/interfaces.ts#L31)*
+*Defined in [execution-context/interfaces.ts:31](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/execution-context/interfaces.ts#L31)*
 
 ___
 
@@ -41,4 +39,4 @@ ___
 
 • **type**: *[OperationAPIType](../overview.md#operationapitype)*
 
-*Defined in [src/execution-context/interfaces.ts:32](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/execution-context/interfaces.ts#L32)*
+*Defined in [execution-context/interfaces.ts:32](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/execution-context/interfaces.ts#L32)*

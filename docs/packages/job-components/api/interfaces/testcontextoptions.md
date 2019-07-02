@@ -1,9 +1,7 @@
 ---
-title: Job Components Testcontextoptions
-sidebar_label: Testcontextoptions
+title: Job Components :: TestContextOptions
+sidebar_label: TestContextOptions
 ---
-
-[TestContextOptions](testcontextoptions.md) /
 
 # Interface: TestContextOptions
 
@@ -24,7 +22,7 @@ sidebar_label: Testcontextoptions
 
 • **assignment**? : *`i.Assignment`*
 
-*Defined in [src/test-helpers.ts:128](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/test-helpers.ts#L128)*
+*Defined in [test-helpers.ts:128](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/test-helpers.ts#L128)*
 
 ___
 
@@ -32,4 +30,4 @@ ___
 
 • **clients**? : *[TestClientConfig](testclientconfig.md)[]*
 
-*Defined in [src/test-helpers.ts:129](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/test-helpers.ts#L129)*
+*Defined in [test-helpers.ts:129](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/test-helpers.ts#L129)*

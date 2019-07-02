@@ -1,64 +1,189 @@
 {
-    "docs": {
-        "Overview": ["overview", "getting-started"],
-        "Configuration": ["configuration/teraslice", "configuration/ops"],
-        "Clustering": ["clustering/k8s"],
-        "Development": [
-            "development/overview",
-            "development/packages",
-            "development/scripts",
-            "development/releases",
-            "development/tests",
-            "development/e2e-tests",
-            "development/contributing"
+  "docs": {
+    "Overview": [
+      "overview",
+      "getting-started"
+    ],
+    "Configuration": [
+      "configuration/teraslice",
+      "configuration/ops"
+    ],
+    "Clustering": [
+      "clustering/k8s"
+    ],
+    "Development": [
+      "development/overview",
+      "development/packages",
+      "development/scripts",
+      "development/releases",
+      "development/tests",
+      "development/e2e-tests",
+      "development/contributing"
+    ]
+  },
+  "api": {
+    "Overview": [
+      "api",
+      "api/rest"
+    ]
+  },
+  "packages": {
+    "Overview": [
+      "packages"
+    ],
+    "Packages": [
+      "packages/elasticsearch-store/overview",
+      "packages/elasticsearch-api/overview",
+      {
+        "type": "subcategory",
+        "label": "job-components",
+        "ids": [
+          "packages/job-components/overview",
+          "packages/job-components/api/overview"
         ]
-    },
-    "api": {
-        "Overview": ["api", "api/rest"]
-    },
-    "packages": {
-        "Overview": ["packages"],
-        "Packages": [
-            "packages/elasticsearch-store/overview",
-            "packages/elasticsearch-api/overview",
-            {
-                "type": "subcategory",
-                "label": "job-components",
-                "ids": ["packages/job-components/overview", "packages/job-components/api/overview"]
-            },
-            "packages/queue/overview",
-            "packages/terafoundation/overview",
-            "packages/teraslice/overview",
-            "packages/teraslice-cli/overview",
-            "packages/teraslice-client-js/overview",
-            "packages/teraslice-test-harness/overview",
-            {
-                "type": "subcategory",
-                "label": "ts-transforms",
-                "ids": [
-                    "packages/ts-transforms/overview",
-                    "packages/ts-transforms/plugins",
-                    "packages/ts-transforms/operations"
-                ]
-            },
-            {
-                "type": "subcategory",
-                "label": "utils",
-                "ids": ["packages/utils/overview", "packages/utils/api/overview"]
-            },
-            "packages/xlucene-evaluator/overview"
-        ],
-        "Legacy": ["packages/error-parser/overview", "packages/teraslice-op-test-harness/overview"],
-        "Internal": [
-            "packages/chunked-file-reader/overview",
-            "packages/data-access/overview",
-            "packages/data-access-plugin/overview",
-            "packages/docker-compose-js/overview",
-            "packages/generator-teraslice/overview",
-            "packages/teraslice-messaging/overview"
+      },
+      "packages/queue/overview",
+      "packages/terafoundation/overview",
+      "packages/teraslice/overview",
+      "packages/teraslice-cli/overview",
+      "packages/teraslice-client-js/overview",
+      "packages/teraslice-test-harness/overview",
+      {
+        "type": "subcategory",
+        "label": "ts-transforms",
+        "ids": [
+          "packages/ts-transforms/overview",
+          "packages/ts-transforms/plugins",
+          "packages/ts-transforms/operations"
         ]
-    },
-    "examples": {
-        "Examples": ["examples", "examples/legacy-operations"]
-    }
+      },
+      {
+        "type": "subcategory",
+        "label": "utils",
+        "ids": [
+          "packages/utils/overview",
+          "packages/utils/api/overview"
+        ]
+      },
+      "packages/xlucene-evaluator/overview"
+    ],
+    "Legacy": [
+      "packages/error-parser/overview",
+      "packages/teraslice-op-test-harness/overview"
+    ],
+    "Internal": [
+      "packages/chunked-file-reader/overview",
+      "packages/data-access/overview",
+      "packages/data-access-plugin/overview",
+      "packages/docker-compose-js/overview",
+      "packages/generator-teraslice/overview",
+      "packages/teraslice-messaging/overview"
+    ]
+  },
+  "examples": {
+    "Examples": [
+      "examples",
+      "examples/legacy-operations"
+    ]
+  },
+  "@terascope/job-components": {
+    "Introduction": [
+      "packages/job-components/api/index"
+    ],
+    "Classes": [
+      "packages/job-components/api/classes/apicore",
+      "packages/job-components/api/classes/baseexecutioncontext",
+      "packages/job-components/api/classes/batchprocessor",
+      "packages/job-components/api/classes/collect",
+      "packages/job-components/api/classes/convictschema",
+      "packages/job-components/api/classes/core",
+      "packages/job-components/api/classes/delay",
+      "packages/job-components/api/classes/eachprocessor",
+      "packages/job-components/api/classes/executioncontextapi",
+      "packages/job-components/api/classes/fetcher",
+      "packages/job-components/api/classes/fetchercore",
+      "packages/job-components/api/classes/filterprocessor",
+      "packages/job-components/api/classes/jobobserver",
+      "packages/job-components/api/classes/jobvalidator",
+      "packages/job-components/api/classes/mapprocessor",
+      "packages/job-components/api/classes/noop",
+      "packages/job-components/api/classes/observer",
+      "packages/job-components/api/classes/operationapi",
+      "packages/job-components/api/classes/operationcore",
+      "packages/job-components/api/classes/operationloader",
+      "packages/job-components/api/classes/parallelslicer",
+      "packages/job-components/api/classes/processorcore",
+      "packages/job-components/api/classes/schema",
+      "packages/job-components/api/classes/schemacore",
+      "packages/job-components/api/classes/slicer",
+      "packages/job-components/api/classes/slicercore",
+      "packages/job-components/api/classes/slicerexecutioncontext",
+      "packages/job-components/api/classes/testcontext",
+      "packages/job-components/api/classes/testfetcher",
+      "packages/job-components/api/classes/testslicer",
+      "packages/job-components/api/classes/workerexecutioncontext"
+    ],
+    "Interfaces": [
+      "packages/job-components/api/interfaces/apiconfig",
+      "packages/job-components/api/interfaces/apimodule",
+      "packages/job-components/api/interfaces/apis",
+      "packages/job-components/api/interfaces/assetsapi",
+      "packages/job-components/api/interfaces/cachedclients",
+      "packages/job-components/api/interfaces/clusterstateconfig",
+      "packages/job-components/api/interfaces/collectconfig",
+      "packages/job-components/api/interfaces/connectionconfig",
+      "packages/job-components/api/interfaces/context",
+      "packages/job-components/api/interfaces/contextapis",
+      "packages/job-components/api/interfaces/contextapis",
+      "packages/job-components/api/interfaces/contextclusterconfig",
+      "packages/job-components/api/interfaces/delayconfig",
+      "packages/job-components/api/interfaces/eventhandlers",
+      "packages/job-components/api/interfaces/executionconfig",
+      "packages/job-components/api/interfaces/executioncontextconfig",
+      "packages/job-components/api/interfaces/executionstats",
+      "packages/job-components/api/interfaces/foundationapis",
+      "packages/job-components/api/interfaces/getclientconfig",
+      "packages/job-components/api/interfaces/indexrolloverfrequency",
+      "packages/job-components/api/interfaces/jobapiinstance",
+      "packages/job-components/api/interfaces/jobapiinstances",
+      "packages/job-components/api/interfaces/jobrunnerapi",
+      "packages/job-components/api/interfaces/legacyexecutioncontext",
+      "packages/job-components/api/interfaces/legacyfoundationapis",
+      "packages/job-components/api/interfaces/legacyoperation",
+      "packages/job-components/api/interfaces/legacyprocessor",
+      "packages/job-components/api/interfaces/legacyreader",
+      "packages/job-components/api/interfaces/loaderoptions",
+      "packages/job-components/api/interfaces/opconfig",
+      "packages/job-components/api/interfaces/oprunnerapi",
+      "packages/job-components/api/interfaces/operationlifecycle",
+      "packages/job-components/api/interfaces/operationmodule",
+      "packages/job-components/api/interfaces/processormodule",
+      "packages/job-components/api/interfaces/readermodule",
+      "packages/job-components/api/interfaces/runsliceresult",
+      "packages/job-components/api/interfaces/schemamodule",
+      "packages/job-components/api/interfaces/slice",
+      "packages/job-components/api/interfaces/sliceanalyticsdata",
+      "packages/job-components/api/interfaces/slicerequest",
+      "packages/job-components/api/interfaces/sliceresult",
+      "packages/job-components/api/interfaces/slicerfn",
+      "packages/job-components/api/interfaces/sliceroperationlifecycle",
+      "packages/job-components/api/interfaces/sliceroperations",
+      "packages/job-components/api/interfaces/sysconfig",
+      "packages/job-components/api/interfaces/targets",
+      "packages/job-components/api/interfaces/terafoundationconfig",
+      "packages/job-components/api/interfaces/terasliceconfig",
+      "packages/job-components/api/interfaces/testclientconfig",
+      "packages/job-components/api/interfaces/testclients",
+      "packages/job-components/api/interfaces/testclientsbyendpoint",
+      "packages/job-components/api/interfaces/testcontextapis",
+      "packages/job-components/api/interfaces/testcontextoptions",
+      "packages/job-components/api/interfaces/testreaderconfig",
+      "packages/job-components/api/interfaces/validatedjobconfig",
+      "packages/job-components/api/interfaces/volume",
+      "packages/job-components/api/interfaces/workercontext",
+      "packages/job-components/api/interfaces/workercontextapis",
+      "packages/job-components/api/interfaces/workeroperationlifecycle",
+      "packages/job-components/api/interfaces/workeroperations"
+    ]
+  }
 }

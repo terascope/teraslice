@@ -1,9 +1,7 @@
 ---
-title: Job Components Eventhandlers
-sidebar_label: Eventhandlers
+title: Job Components :: EventHandlers
+sidebar_label: EventHandlers
 ---
-
-[EventHandlers](eventhandlers.md) /
 
 # Interface: EventHandlers
 

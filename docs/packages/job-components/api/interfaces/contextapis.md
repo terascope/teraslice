@@ -1,9 +1,7 @@
 ---
-title: Job Components Contextapis
-sidebar_label: Contextapis
+title: Job Components :: ContextAPIs
+sidebar_label: ContextAPIs
 ---
-
-[ContextApis](contextapis.md) /
 
 # Interface: ContextApis
 
@@ -33,7 +31,7 @@ sidebar_label: Contextapis
 
 • **foundation**: *[FoundationApis](foundationapis.md)*
 
-*Defined in [src/interfaces/context.ts:82](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/context.ts#L82)*
+*Defined in [interfaces/context.ts:82](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L82)*
 
 ## Methods
 
@@ -41,7 +39,7 @@ sidebar_label: Contextapis
 
 ▸ **registerAPI**(`namespace`: *string*, `apis`: *any*): *void*
 
-*Defined in [src/interfaces/context.ts:83](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/context.ts#L83)*
+*Defined in [interfaces/context.ts:83](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L83)*
 
 **Parameters:**
 

@@ -1,9 +1,7 @@
 ---
-title: Job Components Getclientconfig
-sidebar_label: Getclientconfig
+title: Job Components :: GetClientConfig
+sidebar_label: GetClientConfig
 ---
-
-[GetClientConfig](getclientconfig.md) /
 
 # Interface: GetClientConfig
 
@@ -25,7 +23,7 @@ sidebar_label: Getclientconfig
 
 • **connection**? : *undefined | string*
 
-*Defined in [src/interfaces/context.ts:90](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/context.ts#L90)*
+*Defined in [interfaces/context.ts:90](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L90)*
 
 ___
 
@@ -33,7 +31,7 @@ ___
 
 • **connection_cache**? : *undefined | false | true*
 
-*Defined in [src/interfaces/context.ts:92](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/context.ts#L92)*
+*Defined in [interfaces/context.ts:92](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L92)*
 
 ___
 
@@ -41,4 +39,4 @@ ___
 
 • **endpoint**? : *undefined | string*
 
-*Defined in [src/interfaces/context.ts:91](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/context.ts#L91)*
+*Defined in [interfaces/context.ts:91](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L91)*

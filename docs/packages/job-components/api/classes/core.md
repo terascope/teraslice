@@ -1,9 +1,7 @@
 ---
-title: Job Components Core
+title: Job Components :: Core
 sidebar_label: Core
 ---
-
-[Core](core.md) /
 
 # Class: Core <**T**>
 
@@ -51,7 +49,7 @@ The core class for creating for all varients or base classes for an operation.
 
 \+ **new Core**(`context`: *`T`*, `executionConfig`: *[ExecutionConfig](../interfaces/executionconfig.md)*, `logger`: *`Logger`*): *[Core](core.md)*
 
-*Defined in [src/operations/core/core.ts:13](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/core.ts#L13)*
+*Defined in [operations/core/core.ts:13](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/core.ts#L13)*
 
 **Parameters:**
 
@@ -69,7 +67,7 @@ Name | Type |
 
 • **context**: *`Readonly<T>`*
 
-*Defined in [src/operations/core/core.ts:10](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/core.ts#L10)*
+*Defined in [operations/core/core.ts:10](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/core.ts#L10)*
 
 ___
 
@@ -77,7 +75,7 @@ ___
 
 • **events**: *`EventEmitter`*
 
-*Defined in [src/operations/core/core.ts:13](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/core.ts#L13)*
+*Defined in [operations/core/core.ts:13](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/core.ts#L13)*
 
 ___
 
@@ -85,7 +83,7 @@ ___
 
 • **executionConfig**: *`Readonly<ExecutionConfig>`*
 
-*Defined in [src/operations/core/core.ts:11](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/core.ts#L11)*
+*Defined in [operations/core/core.ts:11](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/core.ts#L11)*
 
 ___
 
@@ -93,7 +91,7 @@ ___
 
 • **logger**: *`Logger`*
 
-*Defined in [src/operations/core/core.ts:12](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/core.ts#L12)*
+*Defined in [operations/core/core.ts:12](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/core.ts#L12)*
 
 ## Methods
 
@@ -103,7 +101,7 @@ ___
 
 *Implementation of [OperationLifeCycle](../interfaces/operationlifecycle.md)*
 
-*Defined in [src/operations/core/core.ts:22](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/core.ts#L22)*
+*Defined in [operations/core/core.ts:22](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/core.ts#L22)*
 
 **Parameters:**
 
@@ -121,6 +119,6 @@ ___
 
 *Implementation of [OperationLifeCycle](../interfaces/operationlifecycle.md)*
 
-*Defined in [src/operations/core/core.ts:24](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/core/core.ts#L24)*
+*Defined in [operations/core/core.ts:24](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/core/core.ts#L24)*
 
 **Returns:** *`Promise<void>`*

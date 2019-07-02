@@ -1,9 +1,7 @@
 ---
-title: Job Components Jobapiinstances
-sidebar_label: Jobapiinstances
+title: Job Components :: JobAPIInstances
+sidebar_label: JobAPIInstances
 ---
-
-[JobAPIInstances](jobapiinstances.md) /
 
 # Interface: JobAPIInstances
 

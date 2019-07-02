@@ -1,9 +1,7 @@
 ---
-title: Job Components Operationlifecycle
-sidebar_label: Operationlifecycle
+title: Job Components :: OperationLifeCycle
+sidebar_label: OperationLifeCycle
 ---
-
-[OperationLifeCycle](operationlifecycle.md) /
 
 # Interface: OperationLifeCycle
 
@@ -23,16 +21,6 @@ sidebar_label: Operationlifecycle
 * [Core](../classes/core.md)
 * [Delay](../classes/delay.md)
 * [EachProcessor](../classes/eachprocessor.md)
-* [ExampleAPI](../classes/exampleapi.md)
-* [ExampleAPI](../classes/exampleapi.md)
-* [ExampleAPI](../classes/exampleapi.md)
-* [ExampleBatch](../classes/examplebatch.md)
-* [ExampleFetcher](../classes/examplefetcher.md)
-* [ExampleObserver](../classes/exampleobserver.md)
-* [ExampleObserver](../classes/exampleobserver.md)
-* [ExampleSlicer](../classes/exampleslicer.md)
-* [FailingFetcher](../classes/failingfetcher.md)
-* [FailingSlicer](../classes/failingslicer.md)
 * [Fetcher](../classes/fetcher.md)
 * [FetcherCore](../classes/fetchercore.md)
 * [FilterProcessor](../classes/filterprocessor.md)
@@ -62,7 +50,7 @@ sidebar_label: Operationlifecycle
 
 ▸ **initialize**(`initConfig?`: *any*): *`Promise<void>`*
 
-*Defined in [src/interfaces/operation-lifecycle.ts:7](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/operation-lifecycle.ts#L7)*
+*Defined in [interfaces/operation-lifecycle.ts:7](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/operation-lifecycle.ts#L7)*
 
 Called during execution initialization
 
@@ -80,7 +68,7 @@ ___
 
 ▸ **shutdown**(): *`Promise<void>`*
 
-*Defined in [src/interfaces/operation-lifecycle.ts:12](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/operation-lifecycle.ts#L12)*
+*Defined in [interfaces/operation-lifecycle.ts:12](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/operation-lifecycle.ts#L12)*
 
 Called during execution shutdown
 

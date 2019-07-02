@@ -1,9 +1,7 @@
 ---
-title: Job Components Processormodule
-sidebar_label: Processormodule
+title: Job Components :: ProcessorModule
+sidebar_label: ProcessorModule
 ---
-
-[ProcessorModule](processormodule.md) /
 
 # Interface: ProcessorModule
 
@@ -29,7 +27,7 @@ sidebar_label: Processormodule
 
 *Inherited from [OperationModule](operationmodule.md).[API](operationmodule.md#optional-api)*
 
-*Defined in [src/operations/interfaces.ts:41](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/interfaces.ts#L41)*
+*Defined in [operations/interfaces.ts:41](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/interfaces.ts#L41)*
 
 ___
 
@@ -37,7 +35,7 @@ ___
 
 • **Processor**: *[ProcessorConstructor](../overview.md#processorconstructor)*
 
-*Defined in [src/operations/interfaces.ts:60](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/interfaces.ts#L60)*
+*Defined in [operations/interfaces.ts:60](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/interfaces.ts#L60)*
 
 ___
 
@@ -47,4 +45,4 @@ ___
 
 *Inherited from [OperationModule](operationmodule.md).[Schema](operationmodule.md#schema)*
 
-*Defined in [src/operations/interfaces.ts:40](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/operations/interfaces.ts#L40)*
+*Defined in [operations/interfaces.ts:40](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/operations/interfaces.ts#L40)*

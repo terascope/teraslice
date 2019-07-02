@@ -1,9 +1,7 @@
 ---
-title: Job Components Jobvalidator
-sidebar_label: Jobvalidator
+title: Job Components :: JobValidator
+sidebar_label: JobValidator
 ---
-
-[JobValidator](jobvalidator.md) /
 
 # Class: JobValidator
 
@@ -32,7 +30,7 @@ sidebar_label: Jobvalidator
 
 \+ **new JobValidator**(`context`: *[Context](../interfaces/context.md)*, `options`: *object*): *[JobValidator](jobvalidator.md)*
 
-*Defined in [src/job-validator.ts:15](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/job-validator.ts#L15)*
+*Defined in [job-validator.ts:15](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/job-validator.ts#L15)*
 
 **Parameters:**
 
@@ -49,7 +47,7 @@ Name | Type | Default |
 
 • **schema**: *`convict.Schema<any>`*
 
-*Defined in [src/job-validator.ts:13](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/job-validator.ts#L13)*
+*Defined in [job-validator.ts:13](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/job-validator.ts#L13)*
 
 ## Methods
 
@@ -57,7 +55,7 @@ Name | Type | Default |
 
 ▸ **hasSchema**(`obj`: *any*, `name`: *string*): *void*
 
-*Defined in [src/job-validator.ts:85](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/job-validator.ts#L85)*
+*Defined in [job-validator.ts:85](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/job-validator.ts#L85)*
 
 **Parameters:**
 
@@ -74,7 +72,7 @@ ___
 
 ▸ **validateConfig**(`jobSpec`: *[JobConfig](../overview.md#jobconfig)*): *[ValidatedJobConfig](../interfaces/validatedjobconfig.md)*
 
-*Defined in [src/job-validator.ts:27](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/job-validator.ts#L27)*
+*Defined in [job-validator.ts:27](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/job-validator.ts#L27)*
 
 Validate the job configuration, including the Operations and APIs configuration
 

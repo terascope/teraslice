@@ -1,9 +1,7 @@
 ---
-title: Utils Tserrorcontext
-sidebar_label: Tserrorcontext
+title: Utils :: TSErrorContext
+sidebar_label: TSErrorContext
 ---
-
-[TSErrorContext](tserrorcontext.md) /
 
 # Interface: TSErrorContext
 
@@ -31,7 +29,7 @@ sidebar_label: Tserrorcontext
 
 • **_cause**: *any*
 
-*Defined in [src/errors.ts:111](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils/src/errors.ts#L111)*
+*Defined in [errors.ts:111](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/errors.ts#L111)*
 
 ___
 
@@ -39,7 +37,7 @@ ___
 
 • **_createdAt**: *string*
 
-*Defined in [src/errors.ts:110](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils/src/errors.ts#L110)*
+*Defined in [errors.ts:110](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/errors.ts#L110)*
 
 ISO Date string
 
@@ -49,6 +47,6 @@ ___
 
 • **safe**? : *undefined | false | true*
 
-*Defined in [src/errors.ts:115](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/utils/src/errors.ts#L115)*
+*Defined in [errors.ts:115](https://github.com/terascope/teraslice/blob/e480fc67/packages/utils/src/errors.ts#L115)*
 
 Used to indicate the error message is safe to log and send to the user

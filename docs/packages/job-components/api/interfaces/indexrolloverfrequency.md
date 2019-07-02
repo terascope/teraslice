@@ -1,9 +1,7 @@
 ---
-title: Job Components Indexrolloverfrequency
-sidebar_label: Indexrolloverfrequency
+title: Job Components :: IndexRolloverFrequency
+sidebar_label: IndexRolloverFrequency
 ---
-
-[IndexRolloverFrequency](indexrolloverfrequency.md) /
 
 # Interface: IndexRolloverFrequency
 
@@ -24,7 +22,7 @@ sidebar_label: Indexrolloverfrequency
 
 • **analytics**: *[RolloverFrequency](../overview.md#rolloverfrequency)*
 
-*Defined in [src/interfaces/context.ts:14](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/context.ts#L14)*
+*Defined in [interfaces/context.ts:14](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L14)*
 
 ___
 
@@ -32,4 +30,4 @@ ___
 
 • **state**: *[RolloverFrequency](../overview.md#rolloverfrequency)*
 
-*Defined in [src/interfaces/context.ts:13](https://github.com/terascope/teraslice/tree/5f4f0ae4e2e522131e7b050bf1df57afbaf8e1c9/packages/job-components/src/interfaces/context.ts#L13)*
+*Defined in [interfaces/context.ts:13](https://github.com/terascope/teraslice/blob/e480fc67/packages/job-components/src/interfaces/context.ts#L13)*
