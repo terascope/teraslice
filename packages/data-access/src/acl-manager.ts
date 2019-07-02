@@ -212,11 +212,23 @@ export class ACLManager {
         const exists = await this._roles.exists(args.id);
         if (!exists) return false;
 
-        await Promise.all([
-            this._views.removeRoleFromViews(args.id),
-            this._users.removeRoleFromUsers(args.id),
-            this._roles.deleteById(args.id),
+        const [usersCount, spacesCount, viewCount] = await Promise.all([
+            this._users.countBy({ role: args.id }),
+            this._spaces.countBy({ roles: args.id }),
+            this._views.countBy({ roles: args.id }),
         ]);
+
+        if (usersCount || spacesCount || viewCount) {
+            throw new ts.TSError('Unable to remove Role, please remove it from any associated Space, View or User', {
+                statusCode: 412,
+                context: {
+                    dataTypeId: args.id,
+                    spacesCount,
+                },
+            });
+        }
+
+        await this._roles.deleteById(args.id);
 
         return true;
     }
@@ -442,7 +454,18 @@ export class ACLManager {
         const exists = await this._views.exists(args.id);
         if (!exists) return false;
 
-        await this._spaces.removeViewFromSpaces(args.id);
+        const spacesCount = await this._spaces.countBy({ views: args.id });
+
+        if (spacesCount) {
+            throw new ts.TSError('Unable to remove View, please remove it from any associated Space', {
+                statusCode: 412,
+                context: {
+                    dataTypeId: args.id,
+                    spacesCount,
+                },
+            });
+        }
+
         await this._views.deleteById(args.id);
         return true;
     }
