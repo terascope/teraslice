@@ -2,4 +2,5 @@
 
 process.env.USE_DEBUG_LOGGER = 'true';
 
-jest.setTimeout(15000);
+// use a larger timeout
+jest.setTimeout(20 * 1000);

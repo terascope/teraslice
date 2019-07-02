@@ -12,6 +12,7 @@ main() {
         echoerr "* running test for package $name"
         pushd "$PWD/packages/$package";
             yarn test --silent \
+                --detectOpenHandles \
                 --forceExit \
                 --bail || exit 1;
         popd;
