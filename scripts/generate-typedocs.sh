@@ -14,13 +14,13 @@ get_name() {
 
 list_ts_packages() {
     for pkg_info in $(yarn --silent lerna list --toposort --ndjson); do
-        local pkg_dir pkg_json is_typedoc_enabled
+        local pkg_dir tsconfig typedoc_options
         pkg_dir="$(echo "$pkg_info" | jq -r '.location')"
-        pkg_json="$pkg_dir/package.json"
-        [ ! -f "$pkg_json" ] && continue;
+        tsconfig="$pkg_dir/tsconfig.json"
+        [ ! -f "$tsconfig" ] && continue;
 
-        is_typedoc_enabled="$(jq -r '.enableTypeDocs // false' "$pkg_json")"
-        if [ "$is_typedoc_enabled" == "true" ]; then
+        typedoc_options="$(jq -r '.typedocOptions' "$tsconfig")"
+        if [ "$typedoc_options" != "null" ]; then
             echo "$pkg_info"
         fi
     done
@@ -50,8 +50,6 @@ title: $pkg_name $api_name
 sidebar_label: $api_name
 ---
 
-> $api_name for $name
-
 $contents" > "$copy_to"
 }
 
@@ -69,7 +67,9 @@ generate_docs() {
     commit_hash="$(git rev-parse HEAD)"
 
     echoerr "* generating docs for $pkg_basename"
-    rm -rf "${dest_docs:?}/*"
+    if [ -d "$dest_docs" ]; then
+        rm -rf "$dest_docs"
+    fi
     mkdir -p "$dest_docs"
 
     pushd "$pkg_dir" > /dev/null
@@ -78,14 +78,7 @@ generate_docs() {
         fi
         yarn --silent typedoc \
             --sourcefile-url-prefix "$base_url/$commit_hash/packages/$pkg_basename/" \
-            --theme markdown \
-            --readme none \
-            --excludePrivate \
-            --excludeNotExported \
-            --excludeExternals \
-            --exclude '**/test/**' \
-            --hideGenerator \
-            --name "$name" \
+            --tsconfig "$pkg_dir/tsconfig.json" \
             --out "$tmp_docs" \
             "." &&
             yarn build

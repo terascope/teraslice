@@ -4,8 +4,17 @@
         "outDir": "dist",
         "rootDir": "."
     },
-    "include": [
-        "./src/**/*",
-        "./test/**/*"
-    ]
+    "include": ["./src/**/*", "./test/**/*"],
+    "typedocOptions": {
+        "mode": "file",
+        "theme": "markdown",
+        "exclude": ["test", "node_modules"],
+        "excludePrivate": true,
+        "excludeExternals": true,
+        "excludeNotExported": true,
+        "moduleResolution": "node",
+        "module": "commonjs",
+        "hideGenerator": true,
+        "readme": "none"
+    }
 }

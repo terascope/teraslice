@@ -30,7 +30,7 @@ const siteConfig = {
         { doc: 'examples', label: 'Examples' },
         { doc: 'packages', label: 'Packages' },
         { page: 'help', label: 'Help' },
-        { blog: true, label: 'Blog' },
+        { blog: true, label: 'Blog' }
     ],
 
     /* path to images for header/footer */
@@ -40,7 +40,7 @@ const siteConfig = {
     /* Colors for website */
     colors: {
         primaryColor: '#2D898B',
-        secondaryColor: '#5FA9DD',
+        secondaryColor: '#5FA9DD'
     },
 
     /* Custom fonts for website */
@@ -62,13 +62,11 @@ const siteConfig = {
 
     highlight: {
         // Highlight.js theme to use for syntax highlighting in code blocks.
-        theme: 'default',
+        theme: 'default'
     },
 
     // Add custom scripts here that would be placed in <script> tags.
-    scripts: [
-        'https://buttons.github.io/buttons.js'
-    ],
+    scripts: ['https://buttons.github.io/buttons.js'],
 
     // On page navigation for the current documentation page.
     onPageNav: 'separate',
@@ -87,8 +85,10 @@ const siteConfig = {
 
     algolia: {
         apiKey: 'b074b9b57bfd2e4d8b411aee052825d2',
-        indexName: 'terascope_teraslice',
+        indexName: 'terascope_teraslice'
     },
+
+    docsSideNavCollapsible: true
 
     // You may provide arbitrary config keys to be used as needed by your
     // template. For example, if you need your repo's URL...
