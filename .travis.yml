@@ -19,19 +19,13 @@ jobs:
   fast-finish: true
 
   include:
-  # tests only on master and on pull-request
+  # run the node:10 on every push to master, cron or a pull-request
   - stage: Tests
     name: Test Packages
     if: branch = master
-    addons:
-      apt:
-        packages:
-          - docker-ce
     services:
-        - docker
         - elasticsearch
     before_install:
-        - . ./scripts/travis-install-docker-compose.sh
         - . ./scripts/travis-install-yarn.sh
         - . ./scripts/travis-install-es.sh
     # We are waiting on a new version of jest (>24.7.1)
@@ -39,13 +33,22 @@ jobs:
     after_success:
         - bash <(curl -s https://codecov.io/bash)
 
-  # benchmarks and linting, only on pull-requests
+  # build all, benchmarks and linting, only on pull-requests
   - script:
-    name: Benchmarks and Linting
-    if: branch = master AND head_branch !~ /^dependabot/ AND type = pull_request
-    script:
-        - yarn lint
-        - yarn benchmark
+    node_js:
+        - '8'
+    name: Verify Build
+    if: branch = master AND type = pull_request
+    install:
+        # make it colorful
+        - export FORCE_COLOR=1
+        # Install the dependencies
+        - yarn && yarn lerna bootstrap --force-local
+        # Build all packages individually
+        - yarn build:all
+    script: yarn lint
+    after_success:
+        - yarn docs:update 
 
   # test end-to-end tests, only on pull-requests
   - script:
