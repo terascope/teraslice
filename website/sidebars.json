@@ -24,7 +24,7 @@
             {
                 "type": "subcategory",
                 "label": "job-components",
-                "ids": ["packages/job-components/overview", "packages/job-components/api/README.md"]
+                "ids": ["packages/job-components/overview", "packages/job-components/api/overview"]
             },
             "packages/queue/overview",
             "packages/terafoundation/overview",
@@ -44,7 +44,7 @@
             {
                 "type": "subcategory",
                 "label": "utils",
-                "ids": ["packages/utils/overview", "packages/utils/api/README.md"]
+                "ids": ["packages/utils/overview", "packages/utils/api/overview"]
             },
             "packages/xlucene-evaluator/overview"
         ],

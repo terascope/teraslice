@@ -50,6 +50,8 @@
         "tslint": "^5.18.0",
         "tslint-config-airbnb": "^5.11.1",
         "typedoc": "^0.15.0-0",
+        "typedoc-plugin-external-module-name": "^2.1.0",
+        "typedoc-plugin-internal-external": "^2.0.2",
         "typedoc-plugin-markdown": "^2.0.7",
         "typedoc-plugin-sourcefile-url": "^1.0.4",
         "typescript": "^3.5.2"

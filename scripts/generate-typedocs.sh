@@ -2,7 +2,15 @@
 
 set -e
 
+ROOT_DIR="$(pwd)"
+TMP_DIR="$(mktemp -d)"
+
 echoerr() { if [[ $QUIET -ne 1 ]]; then echo "$@" 1>&2; fi; }
+
+get_name() {
+    local input="$1"
+    node -e "const l = require(\"$ROOT_DIR/node_modules/lodash\"); process.stdout.write(l.words(\"$input\").map(l.capitalize).join(' '))"
+}
 
 list_ts_packages() {
     for pkg_info in $(yarn --silent lerna list --toposort --ndjson); do
@@ -18,67 +26,50 @@ list_ts_packages() {
     done
 }
 
-write_api_file() {
-    local tmp_dir="$1"
-    local pkg_info="$2"
-    local pkg_dir pkg_name name pkg_basename tmp_doc dest_doc contents
+write_doc_file() {
+    local copy_from="$1"
+    local copy_to="$2"
+    local name="$3"
+    local pkg_name="$4"
+    local contents copy_to_folder api_name file_name
 
-    pkg_dir="$(echo "$pkg_info" | jq -r '.location')"
-    name="$(echo "$pkg_info" | jq -r '.name')"
-    pkg_basename="$(basename "$pkg_dir")"
-    tmp_doc="$tmp_dir/docs/packages/${pkg_basename}/README.md"
-    dest_doc="./docs/packages/${pkg_basename}/api.md"
-
-    pkg_name="$(node -e "const l = require(\"lodash\"); process.stdout.write(l.words(\"$pkg_basename\").map(l.capitalize).join(' '))")"
-    contents="$(tail -n +5 "$tmp_doc")"
-
-    echo "---
-title: $pkg_name API
-sidebar_label: API
----
-
-> Exported API for $name
-
-$contents" > "$dest_doc"
-}
-
-write_api_file() {
-    local tmp_dir="$1"
-    local pkg_info="$2"
-    local pkg_dir pkg_name name pkg_basename tmp_doc dest_doc contents
-
-    pkg_dir="$(echo "$pkg_info" | jq -r '.location')"
-    name="$(echo "$pkg_info" | jq -r '.name')"
-    pkg_basename="$(basename "$pkg_dir")"
-    tmp_doc="$tmp_dir/docs/packages/${pkg_basename}/README.md"
-    dest_doc="./docs/packages/${pkg_basename}/api.md"
-
-    pkg_name="$(node -e "const l = require(\"lodash\"); process.stdout.write(l.words(\"$pkg_basename\").map(l.capitalize).join(' '))")"
-    contents="$(tail -n +5 "$tmp_doc")"
+    file_name="$(basename "$copy_to")"
+    file_name="${file_name%\.md}"
+    contents="$(tail -n +3 "$copy_from" | sed "s/README\.md/overview\.md/g")"
+    copy_to_folder="$(dirname "$copy_to")"
+    if [ "$file_name" == "overview" ]; then
+        api_name="API"
+    else
+        api_name="$(get_name "$file_name")"
+    fi
+    mkdir -p "$copy_to_folder"
+    echoerr "Write API doc file: ${copy_to#$ROOT_DIR/}"
 
     echo "---
-title: $pkg_name API
-sidebar_label: API
+title: $pkg_name $api_name
+sidebar_label: $api_name
 ---
 
-> Exported API for $name
+> $api_name for $name
 
-$contents" > "$dest_doc"
+$contents" > "$copy_to"
 }
 
 generate_docs() {
-    local tmp_dir="$1"
-    local pkg_info="$2"
-    local pkg_dir pkg_basename tmp_docs dest_docs commit_hash base_url
+    local pkg_info="$1"
+    local name pkg_dir pkg_name pkg_basename tmp_docs dest_docs commit_hash base_url
 
+    name="$(echo "$pkg_info" | jq -r '.name')"
     pkg_dir="$(echo "$pkg_info" | jq -r '.location')"
     pkg_basename="$(basename "$pkg_dir")"
-    tmp_docs="$tmp_dir/docs/packages/${pkg_basename}"
-    dest_docs="./docs/packages/${pkg_basename}/api/"
+    tmp_docs="$TMP_DIR/docs/packages/${pkg_basename}"
+    dest_docs="$ROOT_DIR/docs/packages/${pkg_basename}/api"
+    pkg_name="$(get_name "$pkg_basename")"
     base_url="https://github.com/terascope/teraslice/tree"
     commit_hash="$(git rev-parse HEAD)"
 
     echoerr "* generating docs for $pkg_basename"
+    rm -rf "${dest_docs:?}/*"
     mkdir -p "$dest_docs"
 
     pushd "$pkg_dir" > /dev/null
@@ -94,25 +85,31 @@ generate_docs() {
             --excludeExternals \
             --exclude '**/test/**' \
             --hideGenerator \
-            --name "$pkg_basename" \
+            --name "$name" \
             --out "$tmp_docs" \
-            "."
+            "." &&
+            yarn build
     popd > /dev/null
 
-    cp -rfp "$tmp_docs" "$dest_docs"
-    # write_docs "$tmp_dir" "$pkg_info"
+    pushd "$tmp_docs" > /dev/null
+        if [ -f "$tmp_docs/README.md" ]; then
+            write_doc_file "$tmp_docs/README.md" "$dest_docs/overview.md" "$name" "$pkg_name"
+        fi
+        for copy_from in **/*.md; do
+            [[ -e "$copy_from" ]] || break
+            write_doc_file "$tmp_docs/$copy_from" "$dest_docs/$copy_from" "$name" "$pkg_name"
+        done
+    popd > /dev/null
+
     echoerr "* generated docs for $pkg_basename"
 }
 
 main() {
-    local tmp_dir
-    tmp_dir="$(mktemp -d)"
-
-    mkdir -p "$tmp_dir/website"
-    echo '{}' > "$tmp_dir/website/sidebars.json"
+    mkdir -p "$TMP_DIR/website"
+    echo '{}' > "$TMP_DIR/website/sidebars.json"
 
     for pkg_info in $(list_ts_packages); do
-        generate_docs "$tmp_dir" "$pkg_info";
+        generate_docs "$pkg_info";
     done
 }
 
