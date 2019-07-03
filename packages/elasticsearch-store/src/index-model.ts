@@ -159,7 +159,21 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return this.findBy(fields, 'OR', options, queryAccess);
     }
 
-    async findAll(input: string[] | string, options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>) {
+    async findAndApply(updates: Partial<T> | undefined, options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>): Promise<Partial<T>> {
+        if (!updates) {
+            throw new ts.TSError(`Invalid input for ${this.name}`, {
+                statusCode: 422,
+            });
+        }
+
+        const id: string | undefined = updates[this._idField];
+        if (!id) return { ...updates };
+
+        const current = await this.findById(id, options, queryAccess);
+        return { ...current, ...updates };
+    }
+
+    async findAll(input: string[] | string | undefined, options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>): Promise<T[]> {
         const ids: string[] = ts.parseList(input);
         if (!ids || !ids.length) return [];
 
@@ -179,11 +193,13 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         if (result.length !== ids.length) {
             const foundIds = result.map(doc => doc[this._idField]);
             const notFoundIds = ids.filter(id => !foundIds.includes(id));
-            throw new ts.TSError(`Unable to find documents ${notFoundIds.join(', ')}`, {
+            throw new ts.TSError(`Unable to find ${this.name}'s ${notFoundIds.join(', ')}`, {
                 statusCode: 404,
             });
         }
-        return result;
+
+        // maintain sort order
+        return ids.map(id => result.find(doc => doc[this._idField] === id)!);
     }
 
     async find(q: string = '', options: i.FindOptions<T> = {}, queryAccess?: QueryAccess<T>): Promise<T[]> {
@@ -381,9 +397,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     }
 }
 
-type AnyInput<T> = {
-    [P in keyof T]?: T[P] | any;
-};
+type AnyInput<T> = { [P in keyof T]?: T[P] | any };
 
 type JoinBy = 'AND' | 'OR';
 

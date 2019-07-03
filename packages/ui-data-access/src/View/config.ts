@@ -1,10 +1,11 @@
 import gql from 'graphql-tag';
 import { get } from '@terascope/utils';
 import { formatDate } from '@terascope/ui-components';
+import { LATEST_VERSION } from '@terascope/data-types';
+import { makeLinkList } from '../ModelList/LinkList';
 import { inputFields, Input } from './interfaces';
 import { ModelConfig } from '../interfaces';
 import { copyField } from '../utils';
-import { LATEST_VERSION } from '@terascope/data-types';
 
 const fieldsFragment = gql`
     fragment ViewFields on View {
@@ -21,17 +22,13 @@ const fieldsFragment = gql`
             client_id
             name
         }
-        roles {
+        spaces {
             id
             name
         }
-        space {
+        roles {
             id
             name
-            roles {
-                id
-                name
-            }
         }
         updated
         created
@@ -63,12 +60,8 @@ const config: ModelConfig<Input> = {
             } else if (field === 'roles') {
                 const defaultRoles = authUser.role ? [authUser.role] : [];
                 copyField(input, result, field, defaultRoles);
-            } else if (field === 'space') {
-                copyField(input, result, 'space', {
-                    id: '',
-                    name: '',
-                    roles: roles || [],
-                });
+            } else if (field === 'spaces') {
+                copyField(input, result, field, []);
             } else if (field === 'prevent_prefix_wildcard') {
                 copyField(input, result, field, false);
             } else {
@@ -80,7 +73,7 @@ const config: ModelConfig<Input> = {
         if (!input.client_id) {
             input.client_id = input.data_type.client_id || authUser.client_id;
         }
-        return { input, dataTypes, ...extra };
+        return { input, dataTypes, roles, ...extra };
     },
     rowMapping: {
         getId(record) {
@@ -95,12 +88,15 @@ const config: ModelConfig<Input> = {
                     return record.description || '--';
                 },
             },
-            space: {
-                label: 'space',
+            spaces: {
+                label: 'Spaces',
                 sortable: false,
-                format(record) {
-                    return get(record, 'space.name');
-                },
+                format: makeLinkList('Space', 'spaces'),
+            },
+            data_type: {
+                label: 'Data Type',
+                sortable: false,
+                format: makeLinkList('DataType', 'data_type'),
             },
             created: {
                 label: 'Created',
@@ -121,6 +117,10 @@ const config: ModelConfig<Input> = {
     `,
     updateQuery: gql`
         query UpdateQuery($id: ID!) {
+            roles(size: 10000) {
+                id
+                name
+            }
             result: view(id: $id) {
                 ...ViewFields
             }

@@ -212,11 +212,23 @@ export class ACLManager {
         const exists = await this._roles.exists(args.id);
         if (!exists) return false;
 
-        await Promise.all([
-            this._views.removeRoleFromViews(args.id),
-            this._users.removeRoleFromUsers(args.id),
-            this._roles.deleteById(args.id),
+        const [usersCount, spacesCount, viewCount] = await Promise.all([
+            this._users.countBy({ role: args.id }),
+            this._spaces.countBy({ roles: args.id }),
+            this._views.countBy({ roles: args.id }),
         ]);
+
+        if (usersCount || spacesCount || viewCount) {
+            throw new ts.TSError('Unable to remove Role, please remove it from any associated Space, View or User', {
+                statusCode: 412,
+                context: {
+                    dataTypeId: args.id,
+                    spacesCount,
+                },
+            });
+        }
+
+        await this._roles.deleteById(args.id);
 
         return true;
     }
@@ -442,7 +454,18 @@ export class ACLManager {
         const exists = await this._views.exists(args.id);
         if (!exists) return false;
 
-        await this._spaces.removeViewFromSpaces(args.id);
+        const spacesCount = await this._spaces.countBy({ views: args.id });
+
+        if (spacesCount) {
+            throw new ts.TSError('Unable to remove View, please remove it from any associated Space', {
+                statusCode: 412,
+                context: {
+                    dataTypeId: args.id,
+                    spacesCount,
+                },
+            });
+        }
+
         await this._views.deleteById(args.id);
         return true;
     }
@@ -736,13 +759,7 @@ export class ACLManager {
         return config;
     }
 
-    private _validateAnyInput(input: { id?: string; client_id?: number } | undefined, authUser: i.AuthUser) {
-        if (!input) {
-            throw new ts.TSError('Invalid Input', {
-                statusCode: 422,
-            });
-        }
-
+    private _validateAnyInput(input: { id?: string; client_id?: number }, authUser: i.AuthUser) {
         const type = this._getUserType(authUser);
         const clientId = this._getUserClientId(authUser);
 
@@ -762,7 +779,7 @@ export class ACLManager {
 
     private async _validateUserInput(user: Partial<models.User>, authUser: i.AuthUser) {
         if (!user) {
-            throw new ts.TSError('Invalid Input', {
+            throw new ts.TSError('Invalid input for User', {
                 statusCode: 422,
             });
         }
@@ -828,7 +845,8 @@ export class ACLManager {
         }
     }
 
-    private async _validateSpaceInput(space: Partial<models.Space>, authUser: i.AuthUser) {
+    private async _validateSpaceInput(_space: Partial<models.Space>, authUser: i.AuthUser) {
+        const space = await this._spaces.findAndApply(_space);
         this._validateAnyInput(space, authUser);
 
         if (space.roles) {
@@ -855,45 +873,24 @@ export class ACLManager {
         if (space.views) {
             space.views = ts.uniq(space.views);
 
-            const views = await this._views.findAll(space.views!);
-            if (views.length !== space.views!.length) {
-                const viewsStr = space.views!.join(', ');
-                throw new ts.TSError(`Missing views with space, ${viewsStr}`, {
-                    statusCode: 422,
-                });
-            }
-
-            const dataTypes = views.map(view => view.data_type);
-            if (space.data_type && dataTypes.length && !dataTypes.includes(space.data_type)) {
-                throw new ts.TSError('Views must have the same data type', {
-                    statusCode: 422,
-                });
-            }
-
-            const roles: string[] = [];
-            views.forEach(view => {
-                roles.push(...ts.uniq(view.roles));
-            });
-            if (ts.uniq(roles).length !== roles.length) {
-                throw new ts.TSError('Multiple views cannot contain the same role within a space', {
-                    statusCode: 422,
-                });
-            }
+            await this._views.checkForViewConflicts(space);
         }
     }
-
-    private async _validateRoleInput(role: Partial<models.Role>, authUser: i.AuthUser) {
+    private async _validateRoleInput(_role: Partial<models.Role>, authUser: i.AuthUser) {
+        const role = await this._roles.findAndApply(_role);
         this._validateAnyInput(role, authUser);
     }
 
-    private async _validateDataTypeInput(dataType: Partial<models.DataType>, authUser: i.AuthUser) {
+    private async _validateDataTypeInput(_dataType: Partial<models.DataType>, authUser: i.AuthUser) {
+        const dataType = await this._dataTypes.findAndApply(_dataType);
         this._validateAnyInput(dataType, authUser);
         if (dataType.inherit_from && dataType.inherit_from) {
             await this._dataTypes.resolveTypeConfig(dataType as models.DataType);
         }
     }
 
-    private async _validateViewInput(view: Partial<models.View>, authUser: i.AuthUser) {
+    private async _validateViewInput(_view: Partial<models.View>, authUser: i.AuthUser) {
+        const view = await this._views.findAndApply(_view);
         this._validateAnyInput(view, authUser);
 
         if (view.roles) {

@@ -68,11 +68,11 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                 input.prevent_prefix_wildcard = Boolean(
                     input.prevent_prefix_wildcard
                 );
-                delete input.space;
+                delete input.spaces;
                 return { input };
             }}
         >
-            {({ defaultInputProps, model, dataTypes }) => {
+            {({ defaultInputProps, model, roles, dataTypes }) => {
                 return (
                     <React.Fragment>
                         <Form.Group>
@@ -100,7 +100,7 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                                 placeholder="Select Roles"
                                 multiple
                                 value={model.roles}
-                                options={model.space.roles}
+                                options={roles}
                             />
                             <FormSelect<Input>
                                 {...defaultInputProps}

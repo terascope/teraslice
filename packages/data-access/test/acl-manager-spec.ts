@@ -76,7 +76,7 @@ describe('ACLManager', () => {
                 );
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Invalid Input');
+                expect(err.message).toStartWith('Invalid input for');
                 expect(err.statusCode).toEqual(422);
             }
         });
@@ -194,7 +194,7 @@ describe('ACLManager', () => {
                 );
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Invalid Input');
+                expect(err.message).toStartWith('Invalid input for');
                 expect(err.statusCode).toEqual(422);
             }
         });
@@ -332,13 +332,13 @@ describe('ACLManager', () => {
                 );
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Views must have the same data type');
-                expect(err.statusCode).toEqual(422);
+                expect(err.message).toInclude('Unable to assign View "BCD View" as it has DataType conflict with the Space');
+                expect(err.statusCode).toEqual(409);
             }
         });
     });
 
-    describe('when creating a space with a invalid roles', () => {
+    describe('when writing to a space with a conflicting roles', () => {
         let dataTypeId: string;
         let role1Id: string;
         let role2Id: string;
@@ -424,11 +424,38 @@ describe('ACLManager', () => {
             view2Id = view2.id;
         });
 
-        it('should throw an error if the view contains a extra role', async () => {
-            expect.hasAssertions();
+        describe('when creating a space', () => {
+            it('should throw an error', async () => {
+                expect.hasAssertions();
 
-            try {
-                await manager.createSpace(
+                try {
+                    await manager.createSpace(
+                        {
+                            space: {
+                                type: 'SEARCH',
+                                client_id: 1,
+                                name: 'uh-oh',
+                                endpoint: 'uh-oh',
+                                data_type: dataTypeId,
+                                views: [view1Id, view2Id],
+                                roles: [role1Id, role2Id, role3Id],
+                            },
+                        },
+                        superAdminUser
+                    );
+                } catch (err) {
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.message).toInclude('Unable to assign View "Some View 2" as it has Role conflicts with existing Views');
+                    expect(err.statusCode).toEqual(409);
+                }
+            });
+        });
+
+        describe('when updating a space', () => {
+            let spaceId: string;
+
+            beforeAll(async () => {
+                const space = await manager.createSpace(
                     {
                         space: {
                             type: 'SEARCH',
@@ -436,17 +463,35 @@ describe('ACLManager', () => {
                             name: 'uh-oh',
                             endpoint: 'uh-oh',
                             data_type: dataTypeId,
-                            views: [view1Id, view2Id],
+                            views: [view1Id],
                             roles: [role1Id, role2Id, role3Id],
                         },
                     },
                     superAdminUser
                 );
-            } catch (err) {
-                expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Multiple views cannot contain the same role within a space');
-                expect(err.statusCode).toEqual(422);
-            }
+
+                spaceId = space.id;
+            });
+
+            it('should throw an error', async () => {
+                expect.hasAssertions();
+
+                try {
+                    await manager.updateSpace(
+                        {
+                            space: {
+                                id: spaceId,
+                                views: [view1Id, view2Id],
+                            },
+                        },
+                        superAdminUser
+                    );
+                } catch (err) {
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.message).toInclude('Unable to assign View "Some View 2" as it has Role conflicts with existing Views');
+                    expect(err.statusCode).toEqual(409);
+                }
+            });
         });
     });
 
@@ -545,7 +590,7 @@ describe('ACLManager', () => {
                 );
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Invalid Input');
+                expect(err.message).toStartWith('Invalid input for');
                 expect(err.statusCode).toEqual(422);
             }
         });
@@ -565,7 +610,7 @@ describe('ACLManager', () => {
                 );
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Invalid Input');
+                expect(err.message).toStartWith('Invalid input for');
                 expect(err.statusCode).toEqual(422);
             }
         });
