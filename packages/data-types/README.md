@@ -1,18 +1,8 @@
-
 <!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/data-types/overview.md -->
 
-# @terascope/data-types
+# Data Types
 
 > A library for defining the data structures and mapping
-
-## Installation
-
-```bash
-# Using yarn
-yarn global add @terascope/data-types
-# Using npm
-npm install --global @terascope/data-types
-```
 
 This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo. See our [documentation](https://terascope.github.io/teraslice/docs/packages/data-types/overview) for more information or the [issues](https://github.com/terascope/teraslice/issues?q=is%3Aopen+is%3Aissue+label%3Apkg%2Fdata-types) associated with this package
 

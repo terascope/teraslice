@@ -1,18 +1,8 @@
-
 <!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/terafoundation/overview.md -->
 
-# terafoundation
+# Terafoundation
 
 > A Clustering and Foundation tool for Terascope Tools
-
-## Installation
-
-```bash
-# Using yarn
-yarn add terafoundation
-# Using npm
-npm install --save terafoundation
-```
 
 This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo. See our [documentation](https://terascope.github.io/teraslice/docs/packages/terafoundation/overview) for more information or the [issues](https://github.com/terascope/teraslice/issues?q=is%3Aopen+is%3Aissue+label%3Apkg%2Fterafoundation) associated with this package
 

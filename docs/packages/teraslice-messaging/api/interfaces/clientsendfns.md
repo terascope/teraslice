@@ -12,3 +12,4 @@ sidebar_label: ClientSendFns
 ## Indexable
 
 ● \[▪ **clientId**: *string*\]: [ClientSendFn](clientsendfn.md) | null
+

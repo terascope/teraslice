@@ -12,3 +12,4 @@ sidebar_label: MGetCacheResponse
 ## Indexable
 
 ● \[▪ **key**: *string*\]: `DataEntity`
+

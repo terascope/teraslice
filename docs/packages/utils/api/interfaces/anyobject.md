@@ -18,3 +18,4 @@ A simple object with any values
 ● \[▪ **prop**: *string*\]: any
 
 A simple object with any values
+

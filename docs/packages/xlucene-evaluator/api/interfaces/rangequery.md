@@ -21,8 +21,9 @@ sidebar_label: RangeQuery
 
 • **range**: *object*
 
-*Defined in [translator/interfaces.ts:53](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/xlucene-evaluator/src/translator/interfaces.ts#L53)*
+*Defined in [translator/interfaces.ts:53](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/xlucene-evaluator/src/translator/interfaces.ts#L53)*
 
 #### Type declaration:
 
 ● \[▪ **field**: *string*\]: [RangeExpression](rangeexpression.md)
+

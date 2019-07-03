@@ -1,18 +1,8 @@
-
 <!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/ui-core/overview.md -->
 
-# @terascope/ui-core
+# Ui Core
 
 > A teraserver ui framework
-
-## Installation
-
-```bash
-# Using yarn
-yarn global add @terascope/ui-core
-# Using npm
-npm install --global @terascope/ui-core
-```
 
 This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo. See our [documentation](https://terascope.github.io/teraslice/docs/packages/ui-core/overview) for more information or the [issues](https://github.com/terascope/teraslice/issues?q=is%3Aopen+is%3Aissue+label%3Apkg%2Fui-core) associated with this package
 

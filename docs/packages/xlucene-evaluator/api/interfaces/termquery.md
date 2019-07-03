@@ -21,8 +21,9 @@ sidebar_label: TermQuery
 
 • **term**: *object*
 
-*Defined in [translator/interfaces.ts:41](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/xlucene-evaluator/src/translator/interfaces.ts#L41)*
+*Defined in [translator/interfaces.ts:41](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/xlucene-evaluator/src/translator/interfaces.ts#L41)*
 
 #### Type declaration:
 
 ● \[▪ **field**: *string*\]: string | number | boolean
+

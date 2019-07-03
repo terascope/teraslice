@@ -43,7 +43,7 @@ to find the operation.
 
 • **_dead_letter_action**? : *[DeadLetterAction](../overview.md#deadletteraction)*
 
-*Defined in [interfaces/jobs.ts:25](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/interfaces/jobs.ts#L25)*
+*Defined in [interfaces/jobs.ts:25](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/jobs.ts#L25)*
 
 This action will specify what to do when failing to parse or transform a record. ​​​​​
 ​​​​​     * The following builtin actions are supported: ​​​
@@ -60,7 +60,7 @@ ___
 
 • **_encoding**? : *`DataEncoding`*
 
-*Defined in [interfaces/jobs.ts:14](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/interfaces/jobs.ts#L14)*
+*Defined in [interfaces/jobs.ts:14](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/jobs.ts#L14)*
 
 Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`.
 
@@ -70,6 +70,7 @@ ___
 
 • **_op**: *string*
 
-*Defined in [interfaces/jobs.ts:11](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/interfaces/jobs.ts#L11)*
+*Defined in [interfaces/jobs.ts:11](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/jobs.ts#L11)*
 
 The name of the operation
+

@@ -21,4 +21,5 @@ sidebar_label: ESQUery
 
 • **index**: *`ESMeta`*
 
-*Defined in [interfaces.ts:21](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/teraslice-state-storage/src/interfaces.ts#L21)*
+*Defined in [interfaces.ts:21](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/teraslice-state-storage/src/interfaces.ts#L21)*
+

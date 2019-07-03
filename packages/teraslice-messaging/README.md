@@ -1,18 +1,8 @@
-
 <!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/teraslice-messaging/overview.md -->
 
-# @terascope/teraslice-messaging
+# Teraslice Messaging
 
 > An internal teraslice messaging library using socket.io
-
-## Installation
-
-```bash
-# Using yarn
-yarn add @terascope/teraslice-messaging
-# Using npm
-npm install --save @terascope/teraslice-messaging
-```
 
 This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo. See our [documentation](https://terascope.github.io/teraslice/docs/packages/teraslice-messaging/overview) for more information or the [issues](https://github.com/terascope/teraslice/issues?q=is%3Aopen+is%3Aissue+label%3Apkg%2Fteraslice-messaging) associated with this package
 

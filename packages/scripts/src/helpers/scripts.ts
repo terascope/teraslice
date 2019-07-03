@@ -1,6 +1,6 @@
 import execa from 'execa';
-import { getRootDir } from './packages';
 import { TSCommands } from './interfaces';
+import { getRootDir } from './misc';
 
 export async function exec(cmd: string, args: string[] = [], cwd = getRootDir()): Promise<void> {
     let subprocess;

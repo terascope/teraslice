@@ -1,7 +1,6 @@
 import path from 'path';
 import fse from 'fs-extra';
-import { listMdFiles } from './misc';
-import { getRootDir } from '../packages';
+import { getRootDir, listMdFiles, writeIfChanged } from '../misc';
 
 function getSubcategories(pkgDocFolder: string): string[] {
     const docsFolder = path.join(getRootDir(), 'docs');
@@ -51,11 +50,7 @@ export async function updateSidebarJSON() {
             });
     }
 
-    // tslint:disable-next-line: no-console
-    console.log('* updating website/sidebars.json');
-    await fse.writeJSON(sidebarFilePath, sidebarJSON, {
-        spaces: 4,
-    });
+    await writeIfChanged(sidebarFilePath, sidebarJSON);
 }
 
 type Subcategory = {

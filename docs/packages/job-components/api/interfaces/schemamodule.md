@@ -23,4 +23,5 @@ sidebar_label: SchemaModule
 
 • **Schema**: *[SchemaConstructor](../overview.md#schemaconstructor)*
 
-*Defined in [operations/interfaces.ts:45](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/operations/interfaces.ts#L45)*
+*Defined in [operations/interfaces.ts:45](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/operations/interfaces.ts#L45)*
+

@@ -12,3 +12,4 @@ sidebar_label: CachedClients
 ## Indexable
 
 ● \[▪ **prop**: *string*\]: any
+

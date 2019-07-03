@@ -3,13 +3,7 @@ import path from 'path';
 import fse from 'fs-extra';
 import { Application } from 'typedoc';
 import { PackageInfo } from '../interfaces';
-import { listMdFiles } from './misc';
-
-function getName(input: string): string {
-    return _.words(input)
-        .map((str: string) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
-        .join(' ');
-}
+import { listMdFiles, getName, writeIfChanged } from '../misc';
 
 async function writeDocFile(filePath: string, { title, sidebarLabel }: { title: string; sidebarLabel: string }) {
     let contents = await fse.readFile(filePath, 'utf8');
@@ -28,9 +22,10 @@ title: ${title}
 sidebar_label: ${sidebarLabel}
 ---
 
-${contents}
-`;
-    await fse.writeFile(filePath, contents);
+${contents}`;
+    await writeIfChanged(filePath, contents, {
+        log: false,
+    });
 }
 
 function getAPIName(overview: string, outputDir: string, filePath: string) {
@@ -47,9 +42,7 @@ function getAPIName(overview: string, outputDir: string, filePath: string) {
     return getName(path.basename(filePath, '.md'));
 }
 
-async function fixDocs(outputDir: string, { folderName }: PackageInfo) {
-    const pkgName = getName(folderName);
-
+async function fixDocs(outputDir: string, { displayName }: PackageInfo) {
     const overviewFilePath = listMdFiles(outputDir).find(filePath => path.basename(filePath, '.md') === 'README');
     if (!overviewFilePath) {
         throw new Error('Package documentation was not generated correctly, missing README.md');
@@ -62,14 +55,14 @@ async function fixDocs(outputDir: string, { folderName }: PackageInfo) {
         const fileName = path.basename(filePath, '.md');
         if (fileName === 'overview') {
             await writeDocFile(filePath, {
-                title: `${pkgName} API Overview`,
+                title: `${displayName} API Overview`,
                 sidebarLabel: 'API',
             });
             return;
         }
         const component = getAPIName(overview, outputDir, filePath);
         await writeDocFile(filePath, {
-            title: `${pkgName} :: ${component}`,
+            title: `${displayName} :: ${component}`,
             sidebarLabel: component,
         });
     });

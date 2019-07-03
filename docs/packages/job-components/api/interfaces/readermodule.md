@@ -28,7 +28,7 @@ sidebar_label: ReaderModule
 
 *Inherited from [OperationModule](operationmodule.md).[API](operationmodule.md#optional-api)*
 
-*Defined in [operations/interfaces.ts:41](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/operations/interfaces.ts#L41)*
+*Defined in [operations/interfaces.ts:41](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/operations/interfaces.ts#L41)*
 
 ___
 
@@ -36,7 +36,7 @@ ___
 
 • **Fetcher**: *[FetcherConstructor](../overview.md#fetcherconstructor)*
 
-*Defined in [operations/interfaces.ts:56](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/operations/interfaces.ts#L56)*
+*Defined in [operations/interfaces.ts:56](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/operations/interfaces.ts#L56)*
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 *Inherited from [OperationModule](operationmodule.md).[Schema](operationmodule.md#schema)*
 
-*Defined in [operations/interfaces.ts:40](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/operations/interfaces.ts#L40)*
+*Defined in [operations/interfaces.ts:40](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/operations/interfaces.ts#L40)*
 
 ___
 
@@ -54,4 +54,5 @@ ___
 
 • **Slicer**: *[SlicerConstructor](../overview.md#slicerconstructor)*
 
-*Defined in [operations/interfaces.ts:55](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/operations/interfaces.ts#L55)*
+*Defined in [operations/interfaces.ts:55](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/operations/interfaces.ts#L55)*
+

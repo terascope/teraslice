@@ -31,7 +31,8 @@ into a ExecutionContext.
 
 • **_name**: *string*
 
-*Defined in [interfaces/jobs.ts:46](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/interfaces/jobs.ts#L46)*
+*Defined in [interfaces/jobs.ts:46](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/jobs.ts#L46)*
 
 The name of the api, this must be unique among any loaded APIs
 but can be namespaced by using the format "example:0"
+

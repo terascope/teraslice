@@ -30,7 +30,7 @@ sidebar_label: Term
 
 *Inherited from [AnyDataType](anydatatype.md).[data_type](anydatatype.md#data_type)*
 
-*Defined in [parser/interfaces.ts:51](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/xlucene-evaluator/src/parser/interfaces.ts#L51)*
+*Defined in [parser/interfaces.ts:51](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/xlucene-evaluator/src/parser/interfaces.ts#L51)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [parser/interfaces.ts:25](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/xlucene-evaluator/src/parser/interfaces.ts#L25)*
+*Defined in [parser/interfaces.ts:25](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/xlucene-evaluator/src/parser/interfaces.ts#L25)*
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [parser/interfaces.ts:131](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/xlucene-evaluator/src/parser/interfaces.ts#L131)*
+*Defined in [parser/interfaces.ts:131](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/xlucene-evaluator/src/parser/interfaces.ts#L131)*
 
 ___
 
@@ -60,4 +60,5 @@ ___
 
 *Inherited from [AnyDataType](anydatatype.md).[value](anydatatype.md#value)*
 
-*Defined in [parser/interfaces.ts:52](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/xlucene-evaluator/src/parser/interfaces.ts#L52)*
+*Defined in [parser/interfaces.ts:52](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/xlucene-evaluator/src/parser/interfaces.ts#L52)*
+

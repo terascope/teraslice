@@ -21,4 +21,5 @@ sidebar_label: MGetResponse
 
 • **docs**: *[MGetDoc](mgetdoc.md)[]*
 
-*Defined in [interfaces.ts:44](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/teraslice-state-storage/src/interfaces.ts#L44)*
+*Defined in [interfaces.ts:44](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/teraslice-state-storage/src/interfaces.ts#L44)*
+

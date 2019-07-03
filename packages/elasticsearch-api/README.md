@@ -1,18 +1,8 @@
-
 <!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/elasticsearch-api/overview.md -->
 
-# @terascope/elasticsearch-api
+# Elasticsearch Api
 
 > Elasticsearch client api used across multiple services, handles retries and exponential backoff
-
-## Installation
-
-```bash
-# Using yarn
-yarn add @terascope/elasticsearch-api
-# Using npm
-npm install --save @terascope/elasticsearch-api
-```
 
 This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo. See our [documentation](https://terascope.github.io/teraslice/docs/packages/elasticsearch-api/overview) for more information or the [issues](https://github.com/terascope/teraslice/issues?q=is%3Aopen+is%3Aissue+label%3Apkg%2Felasticsearch-api) associated with this package
 

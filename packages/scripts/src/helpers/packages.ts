@@ -1,21 +1,10 @@
 import fs from 'fs';
 import fse from 'fs-extra';
 import path from 'path';
-import pkgUp from 'pkg-up';
 // @ts-ignore
 import QueryGraph from '@lerna/query-graph';
+import { getName, getRootDir } from './misc';
 import * as i from './interfaces';
-
-export let rootDir: string | undefined;
-export function getRootDir() {
-    if (rootDir) return rootDir;
-    const rootPkgJSON = pkgUp.sync();
-    if (!rootPkgJSON) {
-        throw new Error('Unable to find root directory, run in the root of the repo');
-    }
-    rootDir = path.dirname(rootPkgJSON);
-    return rootDir;
-}
 
 export function listPackages(): i.PackageInfo[] {
     const packagesPath = path.join(getRootDir(), 'packages');
@@ -36,7 +25,7 @@ export function listPackages(): i.PackageInfo[] {
     const sorted = QueryGraph.toposort(packageJSONs);
     return sorted.map(
         (pkgJSON: any): i.PackageInfo => {
-            const { name, version, location } = pkgJSON;
+            const { name, version, description, location } = pkgJSON;
             const folderName = path.basename(location);
             const config: i.PackageConfig = pkgJSON.config || {};
             const isTypescript = fs.existsSync(path.join(location, 'tsconfig.json'));
@@ -49,9 +38,12 @@ export function listPackages(): i.PackageInfo[] {
 
             return {
                 dir: location,
+                displayName: pkgJSON.displayName || getName(folderName),
                 folderName,
                 name,
                 version,
+                description,
+                license: pkgJSON.license || 'MIT',
                 isTypescript,
                 config,
             };

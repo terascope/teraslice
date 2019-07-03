@@ -25,6 +25,7 @@ sidebar_label: ValidatorPlugins
 
 ▸ **init**(): *object*
 
-*Defined in [operations/lib/validations/validator.ts:36](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/ts-transforms/src/operations/lib/validations/validator.ts#L36)*
+*Defined in [operations/lib/validations/validator.ts:36](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/ts-transforms/src/operations/lib/validations/validator.ts#L36)*
 
 **Returns:** *object*
+

@@ -2,8 +2,11 @@ export type PackageInfo = {
     dir: string;
     folderName: string;
     name: string;
+    displayName: string;
     version: string;
+    description: string;
     isTypescript: boolean;
+    license: string;
     config: PackageConfig;
 };
 

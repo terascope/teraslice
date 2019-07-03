@@ -39,7 +39,7 @@ sidebar_label: PhaseBase
 
 \+ **new PhaseBase**(`opConfig`: *[WatcherConfig](../interfaces/watcherconfig.md)*): *[PhaseBase](phasebase.md)*
 
-*Defined in [phases/base.ts:9](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/ts-transforms/src/phases/base.ts#L9)*
+*Defined in [phases/base.ts:9](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/ts-transforms/src/phases/base.ts#L9)*
 
 **Parameters:**
 
@@ -55,7 +55,7 @@ Name | Type |
 
 • **hasProcessing**: *boolean*
 
-*Defined in [phases/base.ts:8](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/ts-transforms/src/phases/base.ts#L8)*
+*Defined in [phases/base.ts:8](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/ts-transforms/src/phases/base.ts#L8)*
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 • **opConfig**: *[WatcherConfig](../interfaces/watcherconfig.md)*
 
-*Defined in [phases/base.ts:9](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/ts-transforms/src/phases/base.ts#L9)*
+*Defined in [phases/base.ts:9](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/ts-transforms/src/phases/base.ts#L9)*
 
 ___
 
@@ -71,7 +71,7 @@ ___
 
 • **phase**: *[OperationsPipline](../interfaces/operationspipline.md)*
 
-*Defined in [phases/base.ts:7](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/ts-transforms/src/phases/base.ts#L7)*
+*Defined in [phases/base.ts:7](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/ts-transforms/src/phases/base.ts#L7)*
 
 ## Methods
 
@@ -79,7 +79,7 @@ ___
 
 ▸ **run**(`data`: *`DataEntity`[]*): *`DataEntity`[]*
 
-*Defined in [phases/base.ts:17](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/ts-transforms/src/phases/base.ts#L17)*
+*Defined in [phases/base.ts:17](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/ts-transforms/src/phases/base.ts#L17)*
 
 **Parameters:**
 
@@ -88,3 +88,4 @@ Name | Type |
 `data` | `DataEntity`[] |
 
 **Returns:** *`DataEntity`[]*
+
