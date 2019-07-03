@@ -4,6 +4,7 @@ import fse from 'fs-extra';
 import { uniq } from 'lodash';
 // @ts-ignore
 import QueryGraph from '@lerna/query-graph';
+import sortPackageJson from 'sort-package-json';
 import { getName, getRootDir, writeIfChanged } from './misc';
 import * as i from './interfaces';
 
@@ -13,14 +14,17 @@ export function listPackages(): i.PackageInfo[] {
     if (_packages && _packages.length) return _packages.slice();
 
     const packagesPath = path.join(getRootDir(), 'packages');
-    const packages = fs.readdirSync(packagesPath).filter((fileName: string) => {
-        const filePath = path.join(packagesPath, fileName);
+    const packages = fs
+        .readdirSync(packagesPath)
+        .filter((fileName: string) => {
+            const filePath = path.join(packagesPath, fileName);
 
-        if (!fs.statSync(filePath).isDirectory()) return false;
-        return readPackageInfo(path.join('packages', fileName));
-    });
+            if (!fs.statSync(filePath).isDirectory()) return false;
+            return fs.existsSync(path.join(filePath, 'package.json'));
+        })
+        .map(fileName => readPackageInfo(path.join(packagesPath, fileName)));
 
-    _packages = QueryGraph.toposort(packages).map(updatePkgInfo);
+    _packages = QueryGraph.toposort(packages);
     return _packages;
 }
 
@@ -34,7 +38,7 @@ export function addPackageConfig(pkgInfo: i.PackageInfo): void {
 }
 
 export function readPackageInfo(folderPath: string): i.PackageInfo {
-    const dir = path.join(getRootDir(), folderPath);
+    const dir = path.isAbsolute(folderPath) ? path.join(folderPath) : path.join(getRootDir(), folderPath);
     const pkgJSONPath = path.join(dir, 'package.json');
     const pkgJSON = fse.readJSONSync(pkgJSONPath);
     pkgJSON.dir = dir;
@@ -83,7 +87,9 @@ export function updatePkgJSON(pkgInfo: i.PackageInfo, log?: boolean): Promise<bo
     const pkgJSON = { ...pkgInfo };
     delete pkgJSON.folderName;
     delete pkgJSON.dir;
-    return writeIfChanged(path.join(pkgInfo.dir, 'package.json'), pkgJSON, {
+    const pkgJSONPath = path.join(pkgInfo.dir, 'package.json');
+
+    return writeIfChanged(pkgJSONPath, sortPackageJson(pkgJSON), {
         log,
     });
 }

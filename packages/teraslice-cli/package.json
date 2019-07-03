@@ -2,29 +2,26 @@
     "name": "teraslice-cli",
     "version": "0.7.1",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
-    "bin": {
-        "teraslice-cli": "./index.js",
-        "earl": "./index.js"
+    "keywords": [
+        "teraslice"
+    ],
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-cli#readme",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
     },
+    "repository": "git@github.com:terascope/teraslice.git",
+    "license": "MIT",
+    "author": "Terascope, LLC <info@terascope.io>",
     "main": "index.js",
-    "publishConfig": {
-        "access": "public"
+    "bin": {
+        "earl": "./index.js",
+        "teraslice-cli": "./index.js"
     },
     "scripts": {
         "lint": "eslint *.js cmds/**/*.js",
         "lint:fix": "yarn lint --fix",
         "test": "jest --forceExit",
         "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
-    },
-    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-cli#readme",
-    "repository": "git@github.com:terascope/teraslice.git",
-    "author": "Terascope, LLC <info@terascope.io>",
-    "license": "MIT",
-    "keywords": [
-        "teraslice"
-    ],
-    "bugs": {
-        "url": "https://github.com/terascope/teraslice/issues"
     },
     "dependencies": {
         "@terascope/fetch-github-release": "^0.6.0",
@@ -51,6 +48,10 @@
         "yeoman-assert": "^3.1.1",
         "yeoman-test": "^2.0.0"
     },
+    "publishConfig": {
+        "access": "public"
+    },
+    "displayName": "Teraslice Cli",
     "pkg": {
         "scripts": "cmds/**/*.js",
         "assets": [

@@ -1,36 +1,32 @@
 {
     "name": "@terascope/scripts",
-    "description": "A collection of terascope monorepo scripts",
     "version": "0.1.0",
-    "publishConfig": {
-        "access": "public"
-    },
+    "description": "A collection of terascope monorepo scripts",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/scripts#readme",
-    "repository": "git@github.com:terascope/teraslice.git",
-    "author": "Terascope, LLC <info@terascope.io>",
-    "license": "MIT",
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
     },
+    "repository": "git@github.com:terascope/teraslice.git",
+    "license": "MIT",
+    "author": "Terascope, LLC <info@terascope.io>",
     "files": [
         "dist/src/**/*",
         "bin/*"
     ],
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
     "bin": {
         "ts-scripts": "./bin/ts-scripts.js"
     },
-    "srcMain": "src/index.ts",
-    "main": "dist/src/index.js",
-    "typings": "dist/src/index.d.ts",
     "scripts": {
+        "build": "tsc --build --pretty",
+        "build:watch": "yarn build --watch",
         "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
-        "build": "tsc --build --pretty",
-        "build:watch": "yarn build --watch",
         "test": "jest",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
+        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {
         "@lerna/query-graph": "^3.14.0",
@@ -48,6 +44,11 @@
         "@types/lodash": "^4.14.135",
         "@types/semver": "^6.0.1"
     },
+    "publishConfig": {
+        "access": "public"
+    },
+    "displayName": "Scripts",
+    "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": false
     }

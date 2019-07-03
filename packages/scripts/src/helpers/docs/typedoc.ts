@@ -45,7 +45,8 @@ function getAPIName(overview: string, outputDir: string, filePath: string) {
 async function fixDocs(outputDir: string, { displayName }: PackageInfo) {
     const overviewFilePath = listMdFiles(outputDir).find(filePath => path.basename(filePath, '.md') === 'README');
     if (!overviewFilePath) {
-        throw new Error('Package documentation was not generated correctly, missing README.md');
+        console.error('Package documentation was not generated correctly, make you can build project');
+        return;
     }
     const targetPath = path.join(path.dirname(overviewFilePath), 'overview.md');
     await fse.rename(overviewFilePath, targetPath);

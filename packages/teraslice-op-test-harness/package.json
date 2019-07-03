@@ -1,31 +1,32 @@
 {
     "name": "@terascope/teraslice-op-test-harness",
     "version": "1.7.0",
-    "publishConfig": {
-        "access": "public"
-    },
     "description": "A testing harness to simplify testing Teraslice processors and operations.",
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-op-test-harness#readme",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
+    },
+    "repository": "git@github.com:terascope/teraslice.git",
+    "license": "Apache-2.0",
+    "author": "Terascope, LLC <info@terascope.io>",
     "main": "index.js",
     "typings": "types/index.d.ts",
     "scripts": {
         "lint": "eslint *.js lib/**/*.js test/**/*.js",
         "lint:fix": "yarn lint --fix",
         "test": "jest --forceExit",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
-    },
-    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-op-test-harness#readme",
-    "repository": "git@github.com:terascope/teraslice.git",
-    "author": "Terascope, LLC <info@terascope.io>",
-    "license": "Apache-2.0",
-    "bugs": {
-        "url": "https://github.com/terascope/teraslice/issues"
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
+        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.20.2",
+        "@terascope/job-components": "^0.20.3",
         "bluebird": "^3.5.5",
         "lodash": "^4.17.11"
     },
     "devDependencies": {},
+    "publishConfig": {
+        "access": "public"
+    },
+    "displayName": "Teraslice Op Test Harness",
     "terascope": {}
 }
