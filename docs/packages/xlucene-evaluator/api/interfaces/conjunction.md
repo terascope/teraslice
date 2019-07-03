@@ -22,7 +22,7 @@ sidebar_label: Conjunction
 
 • **nodes**: *[AST](../overview.md#ast)[]*
 
-*Defined in [parser/interfaces.ts:76](https://github.com/terascope/teraslice/blob/5e4063e2/packages/xlucene-evaluator/src/parser/interfaces.ts#L76)*
+*Defined in [parser/interfaces.ts:76](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/xlucene-evaluator/src/parser/interfaces.ts#L76)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **type**: *[Conjunction](../enums/asttype.md#conjunction)*
 
-*Defined in [parser/interfaces.ts:75](https://github.com/terascope/teraslice/blob/5e4063e2/packages/xlucene-evaluator/src/parser/interfaces.ts#L75)*
+*Defined in [parser/interfaces.ts:75](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/xlucene-evaluator/src/parser/interfaces.ts#L75)*

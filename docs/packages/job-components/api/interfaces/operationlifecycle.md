@@ -50,7 +50,7 @@ sidebar_label: OperationLifeCycle
 
 ▸ **initialize**(`initConfig?`: *any*): *`Promise<void>`*
 
-*Defined in [interfaces/operation-lifecycle.ts:7](https://github.com/terascope/teraslice/blob/5e4063e2/packages/job-components/src/interfaces/operation-lifecycle.ts#L7)*
+*Defined in [interfaces/operation-lifecycle.ts:7](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/interfaces/operation-lifecycle.ts#L7)*
 
 Called during execution initialization
 
@@ -68,7 +68,7 @@ ___
 
 ▸ **shutdown**(): *`Promise<void>`*
 
-*Defined in [interfaces/operation-lifecycle.ts:12](https://github.com/terascope/teraslice/blob/5e4063e2/packages/job-components/src/interfaces/operation-lifecycle.ts#L12)*
+*Defined in [interfaces/operation-lifecycle.ts:12](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/interfaces/operation-lifecycle.ts#L12)*
 
 Called during execution shutdown
 

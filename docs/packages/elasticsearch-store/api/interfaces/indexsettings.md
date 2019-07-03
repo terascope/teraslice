@@ -26,7 +26,7 @@ sidebar_label: IndexSettings
 
 • **index.number_of_replicas**: *number*
 
-*Defined in [interfaces.ts:117](https://github.com/terascope/teraslice/blob/5e4063e2/packages/elasticsearch-store/src/interfaces.ts#L117)*
+*Defined in [interfaces.ts:117](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/elasticsearch-store/src/interfaces.ts#L117)*
 
 ___
 
@@ -34,4 +34,4 @@ ___
 
 • **index.number_of_shards**: *number*
 
-*Defined in [interfaces.ts:116](https://github.com/terascope/teraslice/blob/5e4063e2/packages/elasticsearch-store/src/interfaces.ts#L116)*
+*Defined in [interfaces.ts:116](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/elasticsearch-store/src/interfaces.ts#L116)*

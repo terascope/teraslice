@@ -21,4 +21,4 @@ sidebar_label: ClusterStateConfig
 
 • **connection**: *string | "default"*
 
-*Defined in [interfaces/context.ts:7](https://github.com/terascope/teraslice/blob/5e4063e2/packages/job-components/src/interfaces/context.ts#L7)*
+*Defined in [interfaces/context.ts:7](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/interfaces/context.ts#L7)*

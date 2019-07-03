@@ -21,4 +21,4 @@ sidebar_label: TerafoundationConfig
 
 • **connectors**: *object*
 
-*Defined in [interfaces/context.ts:52](https://github.com/terascope/teraslice/blob/5e4063e2/packages/job-components/src/interfaces/context.ts#L52)*
+*Defined in [interfaces/context.ts:52](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/interfaces/context.ts#L52)*

@@ -2,6 +2,7 @@ import path from 'path';
 import { listPackages, getRootDir, getPkgInfo } from '../packages';
 import { isTSDocCompatible, generateTSDocs } from './typedoc';
 import { runTSScript, buildRoot } from '../scripts';
+import { updateSidebarJSON } from './sidebar';
 
 export async function buildAll() {
     for (const pkgInfo of listPackages()) {
@@ -9,6 +10,8 @@ export async function buildAll() {
 
         await runTSScript('docs', [pkgInfo.folderName]);
     }
+
+    await updateSidebarJSON();
 }
 
 export async function buildPackage(name: string) {

@@ -1,8 +1,16 @@
 {
     "docs": {
-        "Overview": ["overview", "getting-started"],
-        "Configuration": ["configuration/teraslice", "configuration/ops"],
-        "Clustering": ["clustering/k8s"],
+        "Overview": [
+            "overview",
+            "getting-started"
+        ],
+        "Configuration": [
+            "configuration/teraslice",
+            "configuration/ops"
+        ],
+        "Clustering": [
+            "clustering/k8s"
+        ],
         "Development": [
             "development/overview",
             "development/packages",
@@ -14,15 +22,23 @@
         ]
     },
     "api": {
-        "Overview": ["api", "api/rest"]
+        "Overview": [
+            "api",
+            "api/rest"
+        ]
     },
     "packages": {
-        "Overview": ["packages"],
+        "Overview": [
+            "packages"
+        ],
         "Packages": [
             {
                 "type": "subcategory",
                 "label": "data-types",
-                "ids": ["packages/data-types/overview", "packages/data-types/api/overview"]
+                "ids": [
+                    "packages/data-types/overview",
+                    "packages/data-types/api/overview"
+                ]
             },
             {
                 "type": "subcategory",
@@ -35,37 +51,52 @@
             {
                 "type": "subcategory",
                 "label": "elasticsearch-api",
-                "ids": ["packages/elasticsearch-api/overview"]
+                "ids": [
+                    "packages/elasticsearch-api/overview"
+                ]
             },
             {
                 "type": "subcategory",
                 "label": "job-components",
-                "ids": ["packages/job-components/overview", "packages/job-components/api/overview"]
+                "ids": [
+                    "packages/job-components/overview",
+                    "packages/job-components/api/overview"
+                ]
             },
             {
                 "type": "subcategory",
                 "label": "queue",
-                "ids": ["packages/queue/overview"]
+                "ids": [
+                    "packages/queue/overview"
+                ]
             },
             {
                 "type": "subcategory",
                 "label": "terafoundation",
-                "ids": ["packages/terafoundation/overview"]
+                "ids": [
+                    "packages/terafoundation/overview"
+                ]
             },
             {
                 "type": "subcategory",
                 "label": "teraslice",
-                "ids": ["packages/teraslice/overview"]
+                "ids": [
+                    "packages/teraslice/overview"
+                ]
             },
             {
                 "type": "subcategory",
                 "label": "teraslice-cli",
-                "ids": ["packages/teraslice-cli/overview"]
+                "ids": [
+                    "packages/teraslice-cli/overview"
+                ]
             },
             {
                 "type": "subcategory",
                 "label": "teraslice-client-js",
-                "ids": ["packages/teraslice-client-js/overview"]
+                "ids": [
+                    "packages/teraslice-client-js/overview"
+                ]
             },
             {
                 "type": "subcategory",
@@ -79,8 +110,8 @@
                 "type": "subcategory",
                 "label": "ts-transforms",
                 "ids": [
-                    "packages/ts-transforms/overview",
                     "packages/ts-transforms/plugins",
+                    "packages/ts-transforms/overview",
                     "packages/ts-transforms/operations",
                     "packages/ts-transforms/api/overview"
                 ]
@@ -88,7 +119,10 @@
             {
                 "type": "subcategory",
                 "label": "utils",
-                "ids": ["packages/utils/overview", "packages/utils/api/overview"]
+                "ids": [
+                    "packages/utils/overview",
+                    "packages/utils/api/overview"
+                ]
             },
             {
                 "type": "subcategory",
@@ -103,39 +137,53 @@
             {
                 "type": "subcategory",
                 "label": "error-parser",
-                "ids": ["packages/error-parser/overview"]
+                "ids": [
+                    "packages/error-parser/overview"
+                ]
             },
             {
                 "type": "subcategory",
                 "label": "teraslice-op-test-harness",
-                "ids": ["packages/teraslice-op-test-harness/overview"]
+                "ids": [
+                    "packages/teraslice-op-test-harness/overview"
+                ]
             }
         ],
         "Internal": [
             {
                 "type": "subcategory",
                 "label": "chunked-file-reader",
-                "ids": ["packages/chunked-file-reader/overview"]
+                "ids": [
+                    "packages/chunked-file-reader/overview"
+                ]
             },
             {
                 "type": "subcategory",
                 "label": "data-access",
-                "ids": ["packages/data-access/overview"]
+                "ids": [
+                    "packages/data-access/overview"
+                ]
             },
             {
                 "type": "subcategory",
                 "label": "data-access-plugin",
-                "ids": ["packages/data-access-plugin/overview"]
+                "ids": [
+                    "packages/data-access-plugin/overview"
+                ]
             },
             {
                 "type": "subcategory",
                 "label": "docker-compose-js",
-                "ids": ["packages/docker-compose-js/overview"]
+                "ids": [
+                    "packages/docker-compose-js/overview"
+                ]
             },
             {
                 "type": "subcategory",
                 "label": "generator-teraslice",
-                "ids": ["packages/generator-teraslice/overview"]
+                "ids": [
+                    "packages/generator-teraslice/overview"
+                ]
             },
             {
                 "type": "subcategory",
@@ -148,6 +196,9 @@
         ]
     },
     "examples": {
-        "Examples": ["examples", "examples/legacy-operations"]
+        "Examples": [
+            "examples",
+            "examples/legacy-operations"
+        ]
     }
 }

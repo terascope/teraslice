@@ -23,7 +23,7 @@ sidebar_label: ConnectionConfig
 
 • **cached**? : *undefined | false | true*
 
-*Defined in [interfaces/context.ts:63](https://github.com/terascope/teraslice/blob/5e4063e2/packages/job-components/src/interfaces/context.ts#L63)*
+*Defined in [interfaces/context.ts:63](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/interfaces/context.ts#L63)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **endpoint**: *string*
 
-*Defined in [interfaces/context.ts:62](https://github.com/terascope/teraslice/blob/5e4063e2/packages/job-components/src/interfaces/context.ts#L62)*
+*Defined in [interfaces/context.ts:62](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/interfaces/context.ts#L62)*
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **type**: *string*
 
-*Defined in [interfaces/context.ts:64](https://github.com/terascope/teraslice/blob/5e4063e2/packages/job-components/src/interfaces/context.ts#L64)*
+*Defined in [interfaces/context.ts:64](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/interfaces/context.ts#L64)*

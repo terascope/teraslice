@@ -18,7 +18,7 @@ sidebar_label: NotifyType
 
 • **matcher**: = "matcher"
 
-*Defined in [interfaces.ts:5](https://github.com/terascope/teraslice/blob/5e4063e2/packages/ts-transforms/src/interfaces.ts#L5)*
+*Defined in [interfaces.ts:5](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/ts-transforms/src/interfaces.ts#L5)*
 
 ___
 
@@ -26,4 +26,4 @@ ___
 
 • **transform**: = "transform"
 
-*Defined in [interfaces.ts:5](https://github.com/terascope/teraslice/blob/5e4063e2/packages/ts-transforms/src/interfaces.ts#L5)*
+*Defined in [interfaces.ts:5](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/ts-transforms/src/interfaces.ts#L5)*

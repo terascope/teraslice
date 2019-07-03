@@ -22,7 +22,7 @@ sidebar_label: ExecutionStats
 
 • **slices**: *`ExecutionSliceStats`*
 
-*Defined in [interfaces/operations.ts:85](https://github.com/terascope/teraslice/blob/5e4063e2/packages/job-components/src/interfaces/operations.ts#L85)*
+*Defined in [interfaces/operations.ts:85](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/interfaces/operations.ts#L85)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **workers**: *`ExecutionWorkerStats`*
 
-*Defined in [interfaces/operations.ts:84](https://github.com/terascope/teraslice/blob/5e4063e2/packages/job-components/src/interfaces/operations.ts#L84)*
+*Defined in [interfaces/operations.ts:84](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/interfaces/operations.ts#L84)*

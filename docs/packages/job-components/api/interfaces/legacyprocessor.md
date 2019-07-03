@@ -31,7 +31,7 @@ sidebar_label: LegacyProcessor
 
 *Inherited from [LegacyOperation](legacyoperation.md).[crossValidation](legacyoperation.md#optional-crossvalidation)*
 
-*Defined in [interfaces/operations.ts:11](https://github.com/terascope/teraslice/blob/5e4063e2/packages/job-components/src/interfaces/operations.ts#L11)*
+*Defined in [interfaces/operations.ts:11](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/interfaces/operations.ts#L11)*
 
 ___
 
@@ -41,7 +41,7 @@ ___
 
 *Inherited from [LegacyOperation](legacyoperation.md).[selfValidation](legacyoperation.md#optional-selfvalidation)*
 
-*Defined in [interfaces/operations.ts:12](https://github.com/terascope/teraslice/blob/5e4063e2/packages/job-components/src/interfaces/operations.ts#L12)*
+*Defined in [interfaces/operations.ts:12](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/interfaces/operations.ts#L12)*
 
 ## Methods
 
@@ -49,7 +49,7 @@ ___
 
 ▸ **newProcessor**(`context`: *[Context](context.md)*, `opConfig`: *[OpConfig](opconfig.md)*, `executionConfig`: *[ExecutionConfig](executionconfig.md)*): *`Promise<ProcessorFn<any>>`*
 
-*Defined in [interfaces/operations.ts:27](https://github.com/terascope/teraslice/blob/5e4063e2/packages/job-components/src/interfaces/operations.ts#L27)*
+*Defined in [interfaces/operations.ts:27](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/interfaces/operations.ts#L27)*
 
 **Parameters:**
 
@@ -69,7 +69,7 @@ ___
 
 *Overrides [LegacyOperation](legacyoperation.md).[schema](legacyoperation.md#schema)*
 
-*Defined in [interfaces/operations.ts:26](https://github.com/terascope/teraslice/blob/5e4063e2/packages/job-components/src/interfaces/operations.ts#L26)*
+*Defined in [interfaces/operations.ts:26](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/job-components/src/interfaces/operations.ts#L26)*
 
 **Parameters:**
 

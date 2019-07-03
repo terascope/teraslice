@@ -1,27 +1,14 @@
-import fs from 'fs';
 import _ from 'lodash';
 import path from 'path';
 import fse from 'fs-extra';
 import { Application } from 'typedoc';
 import { PackageInfo } from '../interfaces';
+import { listMdFiles } from './misc';
 
 function getName(input: string): string {
     return _.words(input)
         .map((str: string) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
         .join(' ');
-}
-
-function listMdFiles(dir: string): string[] {
-    const files: string[] = [];
-    for (const fileName of fs.readdirSync(dir)) {
-        const filePath = path.join(dir, fileName);
-        if (fs.statSync(filePath).isDirectory()) {
-            files.push(...listMdFiles(filePath));
-        } else if (path.extname(fileName) === '.md') {
-            files.push(filePath);
-        }
-    }
-    return files;
 }
 
 async function writeDocFile(filePath: string, { title, sidebarLabel }: { title: string; sidebarLabel: string }) {

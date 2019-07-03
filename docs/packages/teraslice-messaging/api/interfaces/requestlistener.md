@@ -13,7 +13,7 @@ sidebar_label: RequestListener
 
 ▸ (`request`: *`IncomingMessage`*, `response`: *`ServerResponse`*): *void*
 
-*Defined in [messenger/interfaces.ts:30](https://github.com/terascope/teraslice/blob/5e4063e2/packages/teraslice-messaging/src/messenger/interfaces.ts#L30)*
+*Defined in [messenger/interfaces.ts:30](https://github.com/terascope/teraslice/blob/7cdb60b1/packages/teraslice-messaging/src/messenger/interfaces.ts#L30)*
 
 **Parameters:**
 
