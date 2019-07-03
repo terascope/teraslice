@@ -24,7 +24,7 @@ an encoding focused interfaces
 
 • **_encoding**? : *[DataEncoding](../overview.md#dataencoding)*
 
-*Defined in [data-entity.ts:229](https://github.com/terascope/teraslice/blob/6e018493/packages/utils/src/data-entity.ts#L229)*
+*Defined in [data-entity.ts:229](https://github.com/terascope/teraslice/blob/5e4063e2/packages/utils/src/data-entity.ts#L229)*
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **_op**? : *undefined | string*
 
-*Defined in [data-entity.ts:228](https://github.com/terascope/teraslice/blob/6e018493/packages/utils/src/data-entity.ts#L228)*
+*Defined in [data-entity.ts:228](https://github.com/terascope/teraslice/blob/5e4063e2/packages/utils/src/data-entity.ts#L228)*

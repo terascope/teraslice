@@ -33,7 +33,7 @@ sidebar_label: DataType
 
 \+ **new DataType**(`__namedParameters`: *object*, `typeName?`: *undefined | string*): *[DataType](datatype.md)*
 
-*Defined in [datatype.ts:28](https://github.com/terascope/teraslice/blob/6e018493/packages/data-types/src/datatype.ts#L28)*
+*Defined in [datatype.ts:28](https://github.com/terascope/teraslice/blob/5e4063e2/packages/data-types/src/datatype.ts#L28)*
 
 **Parameters:**
 
@@ -50,7 +50,7 @@ Name | Type |
 
 ▸ **toESMapping**(`__namedParameters`: *object*): *object*
 
-*Defined in [datatype.ts:44](https://github.com/terascope/teraslice/blob/6e018493/packages/data-types/src/datatype.ts#L44)*
+*Defined in [datatype.ts:44](https://github.com/terascope/teraslice/blob/5e4063e2/packages/data-types/src/datatype.ts#L44)*
 
 **Parameters:**
 
@@ -68,7 +68,7 @@ ___
 
 *Implementation of [DataTypeManager](../interfaces/datatypemanager.md)*
 
-*Defined in [datatype.ts:103](https://github.com/terascope/teraslice/blob/6e018493/packages/data-types/src/datatype.ts#L103)*
+*Defined in [datatype.ts:103](https://github.com/terascope/teraslice/blob/5e4063e2/packages/data-types/src/datatype.ts#L103)*
 
 **Parameters:**
 
@@ -84,7 +84,7 @@ ___
 
 ▸ **toGraphQLTypes**(`args`: *[GraphQLArgs](../interfaces/graphqlargs.md)*): *object*
 
-*Defined in [datatype.ts:112](https://github.com/terascope/teraslice/blob/6e018493/packages/data-types/src/datatype.ts#L112)*
+*Defined in [datatype.ts:112](https://github.com/terascope/teraslice/blob/5e4063e2/packages/data-types/src/datatype.ts#L112)*
 
 **Parameters:**
 
@@ -102,7 +102,7 @@ ___
 
 *Implementation of [DataTypeManager](../interfaces/datatypemanager.md)*
 
-*Defined in [datatype.ts:144](https://github.com/terascope/teraslice/blob/6e018493/packages/data-types/src/datatype.ts#L144)*
+*Defined in [datatype.ts:144](https://github.com/terascope/teraslice/blob/5e4063e2/packages/data-types/src/datatype.ts#L144)*
 
 **Returns:** *object*
 
@@ -112,7 +112,7 @@ ___
 
 ▸ **mergeGraphQLDataTypes**(`types`: *[DataType](datatype.md)[]*, `typeInjection?`: *undefined | string*): *string*
 
-*Defined in [datatype.ts:12](https://github.com/terascope/teraslice/blob/6e018493/packages/data-types/src/datatype.ts#L12)*
+*Defined in [datatype.ts:12](https://github.com/terascope/teraslice/blob/5e4063e2/packages/data-types/src/datatype.ts#L12)*
 
 **Parameters:**
 

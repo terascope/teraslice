@@ -36,5 +36,8 @@
     },
     "devDependencies": {
         "@types/lru-cache": "^5.1.0"
+    },
+    "terascope": {
+        "enableTypedoc": true
     }
 }

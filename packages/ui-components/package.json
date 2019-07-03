@@ -47,5 +47,8 @@
         "@types/react-dom": "16.8.4",
         "@types/react-router-dom": "^4.3.4",
         "history": "^4.9.0"
+    },
+    "terascope": {
+        "enableTypedoc": true
     }
 }

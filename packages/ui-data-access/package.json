@@ -52,5 +52,8 @@
         "webpack": "^4.34.0",
         "webpack-cli": "^3.3.4",
         "xlucene-evaluator": "^0.9.3"
+    },
+    "terascope": {
+        "enableTypedoc": false
     }
 }

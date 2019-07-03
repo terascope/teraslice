@@ -54,5 +54,8 @@
         "express": "^4.17.1",
         "got": "^9.6.0",
         "graphql-request": "^1.8.2"
+    },
+    "terascope": {
+        "enableTypedoc": false
     }
 }

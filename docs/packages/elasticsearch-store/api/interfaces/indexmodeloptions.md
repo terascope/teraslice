@@ -23,7 +23,7 @@ sidebar_label: IndexModelOptions
 
 • **logger**? : *`Logger`*
 
-*Defined in [interfaces.ts:233](https://github.com/terascope/teraslice/blob/6e018493/packages/elasticsearch-store/src/interfaces.ts#L233)*
+*Defined in [interfaces.ts:233](https://github.com/terascope/teraslice/blob/5e4063e2/packages/elasticsearch-store/src/interfaces.ts#L233)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **namespace**? : *undefined | string*
 
-*Defined in [interfaces.ts:231](https://github.com/terascope/teraslice/blob/6e018493/packages/elasticsearch-store/src/interfaces.ts#L231)*
+*Defined in [interfaces.ts:231](https://github.com/terascope/teraslice/blob/5e4063e2/packages/elasticsearch-store/src/interfaces.ts#L231)*
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **storeOptions**? : *`Partial<IndexConfig>`*
 
-*Defined in [interfaces.ts:232](https://github.com/terascope/teraslice/blob/6e018493/packages/elasticsearch-store/src/interfaces.ts#L232)*
+*Defined in [interfaces.ts:232](https://github.com/terascope/teraslice/blob/5e4063e2/packages/elasticsearch-store/src/interfaces.ts#L232)*

@@ -1811,7 +1811,7 @@
   dependencies:
     npmlog "^4.1.2"
 
-"@lerna/query-graph@3.14.0":
+"@lerna/query-graph@3.14.0", "@lerna/query-graph@^3.14.0":
   version "3.14.0"
   resolved "https://registry.yarnpkg.com/@lerna/query-graph/-/query-graph-3.14.0.tgz#2abb36f445bd924d0f85ac7aec1445e9ef1e2c6c"
   integrity sha512-6YTh3vDMW2hUxHdKeRvx4bosc9lZClKaN+DzC1XKTkwDbWrsjmEzLcemKL6QnyyeuryN2f/eto7P9iSe3z3pQQ==

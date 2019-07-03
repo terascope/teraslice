@@ -56,5 +56,6 @@
         "assets": [
             "generators/**/templates/*"
         ]
-    }
+    },
+    "terascope": {}
 }

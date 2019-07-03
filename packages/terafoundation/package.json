@@ -43,5 +43,6 @@
         "shortid": "^2.2.14",
         "yargs": "^13.2.4"
     },
-    "devDependencies": {}
+    "devDependencies": {},
+    "terascope": {}
 }

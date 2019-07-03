@@ -1,7 +1,6 @@
 import fs from 'fs';
 import _ from 'lodash';
 import path from 'path';
-import execa from 'execa';
 import fse from 'fs-extra';
 import { Application } from 'typedoc';
 import { PackageInfo } from '../interfaces';
@@ -113,6 +112,7 @@ export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string) {
             module: 'commonjs',
             hideGenerator: true,
             readme: 'none',
+            logger: 'none',
         });
         const inputFiles = [...app.expandInputFiles(['src'])];
 
@@ -125,9 +125,6 @@ export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string) {
         app.generateDocs(inputFiles, outputDir);
 
         await fixDocs(outputDir, pkgInfo);
-        await execa('yarn', ['run', 'build'], {
-            cwd: pkgInfo.dir,
-        });
     } finally {
         process.chdir(cwd);
     }

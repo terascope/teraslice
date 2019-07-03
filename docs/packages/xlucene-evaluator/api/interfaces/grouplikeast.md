@@ -26,7 +26,7 @@ sidebar_label: GroupLikeAST
 
 • **flow**: *[Conjunction](conjunction.md)[]*
 
-*Defined in [parser/interfaces.ts:18](https://github.com/terascope/teraslice/blob/6e018493/packages/xlucene-evaluator/src/parser/interfaces.ts#L18)*
+*Defined in [parser/interfaces.ts:18](https://github.com/terascope/teraslice/blob/5e4063e2/packages/xlucene-evaluator/src/parser/interfaces.ts#L18)*
 
 ___
 
@@ -34,4 +34,4 @@ ___
 
 • **type**: *[GroupLikeType](../overview.md#groupliketype)*
 
-*Defined in [parser/interfaces.ts:17](https://github.com/terascope/teraslice/blob/6e018493/packages/xlucene-evaluator/src/parser/interfaces.ts#L17)*
+*Defined in [parser/interfaces.ts:17](https://github.com/terascope/teraslice/blob/5e4063e2/packages/xlucene-evaluator/src/parser/interfaces.ts#L17)*

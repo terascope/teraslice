@@ -22,5 +22,8 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "dependencies": {},
-    "devDependencies": {}
+    "devDependencies": {},
+    "terascope": {
+        "enableTypedoc": false
+    }
 }

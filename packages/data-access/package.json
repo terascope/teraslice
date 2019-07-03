@@ -37,5 +37,8 @@
     },
     "devDependencies": {
         "elasticsearch": "^15.4.1"
+    },
+    "terascope": {
+        "enableTypedoc": true
     }
 }

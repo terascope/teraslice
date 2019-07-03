@@ -30,7 +30,7 @@ sidebar_label: Extraction
 
 \+ **new Extraction**(`configArgs`: *[ExtractionConfig](../interfaces/extractionconfig.md) | [ExtractionConfig](../interfaces/extractionconfig.md)[]*): *[Extraction](extraction.md)*
 
-*Defined in [operations/lib/transforms/extraction.ts:104](https://github.com/terascope/teraslice/blob/6e018493/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L104)*
+*Defined in [operations/lib/transforms/extraction.ts:104](https://github.com/terascope/teraslice/blob/5e4063e2/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L104)*
 
 **Parameters:**
 
@@ -46,7 +46,7 @@ Name | Type |
 
 ▪ **cardinality**: *[InputOutputCardinality](../overview.md#inputoutputcardinality)* = "one-to-one"
 
-*Defined in [operations/lib/transforms/extraction.ts:104](https://github.com/terascope/teraslice/blob/6e018493/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L104)*
+*Defined in [operations/lib/transforms/extraction.ts:104](https://github.com/terascope/teraslice/blob/5e4063e2/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L104)*
 
 ## Methods
 
@@ -54,7 +54,7 @@ Name | Type |
 
 ▸ **extractRun**(`doc`: *`DataEntity`*, `results`: *object*): *void*
 
-*Defined in [operations/lib/transforms/extraction.ts:145](https://github.com/terascope/teraslice/blob/6e018493/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L145)*
+*Defined in [operations/lib/transforms/extraction.ts:145](https://github.com/terascope/teraslice/blob/5e4063e2/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L145)*
 
 **Parameters:**
 
@@ -71,7 +71,7 @@ ___
 
 ▸ **run**(`doc`: *`DataEntity`*): *`DataEntity` | null*
 
-*Defined in [operations/lib/transforms/extraction.ts:128](https://github.com/terascope/teraslice/blob/6e018493/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L128)*
+*Defined in [operations/lib/transforms/extraction.ts:128](https://github.com/terascope/teraslice/blob/5e4063e2/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L128)*
 
 **Parameters:**
 

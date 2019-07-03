@@ -33,6 +33,7 @@
         "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {
+        "@lerna/query-graph": "^3.14.0",
         "execa": "^2.0.2",
         "fs-extra": "^8.0.1",
         "lodash": "^4.17.11",
@@ -45,5 +46,8 @@
     },
     "devDependencies": {
         "@types/lodash": "^4.14.135"
+    },
+    "terascope": {
+        "enableTypedoc": false
     }
 }

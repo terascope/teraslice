@@ -1,8 +1,10 @@
 import fs from 'fs';
+import fse from 'fs-extra';
 import path from 'path';
-import execa from 'execa';
 import pkgUp from 'pkg-up';
-import { PackageInfo } from './interfaces';
+// @ts-ignore
+import QueryGraph from '@lerna/query-graph';
+import * as i from './interfaces';
 
 export let rootDir: string | undefined;
 export function getRootDir() {
@@ -15,16 +17,9 @@ export function getRootDir() {
     return rootDir;
 }
 
-export async function getCommitHash() {
-    const { stdout } = execa('git', ['rev-parse', 'HEAD'], {
-        cwd: getRootDir(),
-    });
-    return stdout;
-}
-
-export function listPackages(): PackageInfo[] {
+export function listPackages(): i.PackageInfo[] {
     const packagesPath = path.join(getRootDir(), 'packages');
-    return fs
+    const packageJSONs = fs
         .readdirSync(packagesPath)
         .filter((fileName: string) => {
             const filePath = path.join(packagesPath, fileName);
@@ -32,25 +27,48 @@ export function listPackages(): PackageInfo[] {
             if (!fs.statSync(filePath).isDirectory()) return false;
             return fs.existsSync(path.join(filePath, 'package.json'));
         })
-        .map(
-            (folderName: string): PackageInfo => {
-                const dir = path.join(packagesPath, folderName);
-                const pkgJSON = JSON.parse(fs.readFileSync(path.join(dir, 'package.json'), 'utf8'));
-                const { name, version } = pkgJSON;
-                const isTypescript = fs.existsSync(path.join(dir, 'tsconfig.json'));
+        .map(folderName => {
+            const location = path.join(packagesPath, folderName);
+            const pkgJSON = fse.readJSONSync(path.join(location, 'package.json'));
+            pkgJSON.location = location;
+            return pkgJSON;
+        });
+    const sorted = QueryGraph.toposort(packageJSONs);
+    return sorted.map(
+        (pkgJSON: any): i.PackageInfo => {
+            const { name, version, location } = pkgJSON;
+            const folderName = path.basename(location);
+            const config: i.PackageConfig = pkgJSON.config || {};
+            const isTypescript = fs.existsSync(path.join(location, 'tsconfig.json'));
 
-                return {
-                    dir,
-                    folderName,
-                    name,
-                    version,
-                    isTypescript,
-                };
+            if (config.enableTypedoc && !isTypescript) {
+                config.enableTypedoc = false;
             }
-        );
+
+            verifyPackageConfig(name, config);
+
+            return {
+                dir: location,
+                folderName,
+                name,
+                version,
+                isTypescript,
+                config,
+            };
+        }
+    );
 }
 
-export function getPkgInfo(name: string): PackageInfo {
+export function verifyPackageConfig(name: string, config: i.PackageConfig): void {
+    for (const _key of Object.keys(config)) {
+        const key = _key as (keyof i.PackageConfig);
+        if (!i.AvailablePackageConfigKeys.includes(key)) {
+            throw new Error(`Unknown terascope config "${key}" found in "${name}" package`);
+        }
+    }
+}
+
+export function getPkgInfo(name: string): i.PackageInfo {
     const found = listPackages().find(info => [info.name, info.folderName].includes(name));
     if (!found) {
         throw new Error(`Unable to find package ${name}`);
