@@ -8,6 +8,7 @@ export type PackageInfo = {
     isTypescript: boolean;
     license: string;
     config: PackageConfig;
+    pkgJSON: any;
 };
 
 export type PackageConfig = {
