@@ -1,7 +1,7 @@
 import semver from 'semver';
 import { keys, get } from 'lodash';
 import { PackageInfo } from '../interfaces';
-import { listPackages, updatePkgJSON, getOtherPkgInfo } from '../packages';
+import { listPackages, updatePkgJSON, readPackageInfo } from '../packages';
 
 export type BumpPackageOptions = {
     release: semver.ReleaseType;
@@ -14,13 +14,13 @@ export async function bumpPackage(mainPkgInfo: PackageInfo, options: BumpPackage
     for (const pkgInfo of listPackages()) {
         await updateDependent(mainPkgInfo, pkgInfo, options);
     }
-    const e2ePkgInfo = await getOtherPkgInfo('e2e');
+    const e2ePkgInfo = await readPackageInfo('e2e');
     await updateDependent(mainPkgInfo, e2ePkgInfo, options);
 }
 
 async function updateMainPkg(mainPkgInfo: PackageInfo, options: BumpPackageOptions) {
     const newVersion = bumpVersion(mainPkgInfo, options.release, options.preId);
-    mainPkgInfo.pkgJSON.version = newVersion;
+    mainPkgInfo.version = newVersion;
     await updatePkgJSON(mainPkgInfo, false);
 
     // tslint:disable-next-line: no-console
@@ -42,15 +42,14 @@ async function updateDependent(mainPkgInfo: PackageInfo, pkgInfo: PackageInfo, o
     const { name } = mainPkgInfo;
     const newVersion = formatVersion(mainPkgInfo.version);
 
-    const { pkgJSON } = pkgInfo;
     let isProdDep = false;
-    if (pkgJSON.dependencies && pkgJSON.dependencies[name]) {
+    if (pkgInfo.dependencies && pkgInfo.dependencies[name]) {
         isProdDep = true;
-        pkgJSON.dependencies[name] = newVersion;
-    } else if (pkgJSON.devDependencies && pkgJSON.devDependencies[name]) {
-        pkgJSON.devDependencies[name] = newVersion;
-    } else if (pkgJSON.peerDependencies && pkgJSON.peerDependencies[name]) {
-        pkgJSON.peerDependencies[name] = newVersion;
+        pkgInfo.dependencies[name] = newVersion;
+    } else if (pkgInfo.devDependencies && pkgInfo.devDependencies[name]) {
+        pkgInfo.devDependencies[name] = newVersion;
+    } else if (pkgInfo.peerDependencies && pkgInfo.peerDependencies[name]) {
+        pkgInfo.peerDependencies[name] = newVersion;
     }
 
     await updatePkgJSON(pkgInfo, false);
@@ -71,9 +70,9 @@ function formatVersion(version: string): string {
 
 function isDependent(mainPkgInfo: PackageInfo, pkgInfo: PackageInfo): boolean {
     if (pkgInfo.name === mainPkgInfo.name) return false;
-    const devDeps = keys(get(pkgInfo, 'pkgJSON.devDependencies'));
-    const peerDeps = keys(get(pkgInfo, 'pkgJSON.peerDependencies'));
-    const deps = keys(get(pkgInfo, 'pkgJSON.dependencies'));
+    const devDeps = keys(get(pkgInfo, 'devDependencies'));
+    const peerDeps = keys(get(pkgInfo, 'peerDependencies'));
+    const deps = keys(get(pkgInfo, 'dependencies'));
     const allDeps: string[] = [...devDeps, ...peerDeps, ...deps];
     return allDeps.includes(mainPkgInfo.name);
 }

@@ -1,6 +1,6 @@
 import path from 'path';
 import { listPackages } from '../packages';
-import { isTSDocCompatible, generateTSDocs } from './typedoc';
+import { generateTSDocs } from './typedoc';
 import { updateReadme, ensureOverview } from './overview';
 import { runTSScript, buildRoot } from '../scripts';
 import { updateSidebarJSON } from './sidebar';
@@ -16,7 +16,7 @@ export async function buildAll() {
 }
 
 export async function buildPackage(pkgInfo: PackageInfo) {
-    if (isTSDocCompatible(pkgInfo)) {
+    if (pkgInfo.terascope.enableTypedoc) {
         await buildRoot();
         const outputDir = path.join(getRootDir(), 'docs', 'packages', pkgInfo.folderName, 'api');
         await generateTSDocs(pkgInfo, outputDir);

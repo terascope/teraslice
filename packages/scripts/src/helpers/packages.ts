@@ -13,35 +13,19 @@ export function listPackages(): i.PackageInfo[] {
     if (_packages && _packages.length) return _packages.slice();
 
     const packagesPath = path.join(getRootDir(), 'packages');
-    const packageJSONs = fs
-        .readdirSync(packagesPath)
-        .filter((fileName: string) => {
-            const filePath = path.join(packagesPath, fileName);
+    const packages = fs.readdirSync(packagesPath).filter((fileName: string) => {
+        const filePath = path.join(packagesPath, fileName);
 
-            if (!fs.statSync(filePath).isDirectory()) return false;
-            return fs.existsSync(path.join(filePath, 'package.json'));
-        })
-        .map(folderName => {
-            const dir = path.join(packagesPath, folderName);
-            const pkgJSON = fse.readJSONSync(path.join(dir, 'package.json'));
-            pkgJSON.dir = dir;
-            return pkgJSON;
-        });
+        if (!fs.statSync(filePath).isDirectory()) return false;
+        return readPackageInfo(path.join('packages', fileName));
+    });
 
-    _packages = QueryGraph.toposort(packageJSONs).map(getPkgInfoFromPkgJSON);
+    _packages = QueryGraph.toposort(packages).map(updatePkgInfo);
     return _packages;
 }
 
-export function getPkgInfoFromPkgJSON(pkgJSON: any): i.PackageInfo {
-    return updatePkgInfo({}, pkgJSON);
-}
-
-export function verifyPackageConfig(pkgInfo: i.PackageInfo): void {
-    if (pkgInfo.config.enableTypedoc && !pkgInfo.isTypescript) {
-        pkgInfo.config.enableTypedoc = false;
-    }
-
-    for (const _key of Object.keys(pkgInfo.config)) {
+export function addPackageConfig(pkgInfo: i.PackageInfo): void {
+    for (const _key of Object.keys(pkgInfo.terascope)) {
         const key = _key as (keyof i.PackageConfig);
         if (!i.AvailablePackageConfigKeys.includes(key)) {
             throw new Error(`Unknown terascope config "${key}" found in "${name}" package`);
@@ -49,12 +33,13 @@ export function verifyPackageConfig(pkgInfo: i.PackageInfo): void {
     }
 }
 
-export function getOtherPkgInfo(folderPath: string): i.PackageInfo {
+export function readPackageInfo(folderPath: string): i.PackageInfo {
     const dir = path.join(getRootDir(), folderPath);
     const pkgJSONPath = path.join(dir, 'package.json');
     const pkgJSON = fse.readJSONSync(pkgJSONPath);
     pkgJSON.dir = dir;
-    return getPkgInfoFromPkgJSON(pkgJSON);
+    updatePkgInfo(pkgJSON);
+    return pkgJSON;
 }
 
 export function getPkgInfo(name: string): i.PackageInfo {
@@ -73,24 +58,32 @@ export function getPkgNames(packages: i.PackageInfo[]): string[] {
     return uniq(names).sort();
 }
 
-export function updatePkgInfo(pkgInfo: Partial<i.PackageInfo>, pkgJSON: any): i.PackageInfo {
-    if (!pkgInfo.pkgJSON) pkgInfo.pkgJSON = pkgJSON;
-    pkgInfo.dir = pkgJSON.dir;
-    pkgInfo.folderName = path.basename(pkgJSON.dir);
-    pkgInfo.isTypescript = fs.existsSync(path.join(pkgJSON.dir, 'tsconfig.json'));
-    pkgInfo.config = pkgJSON.config || {};
-    pkgInfo.name = pkgJSON.name;
-    pkgInfo.description = pkgJSON.description;
-    pkgInfo.version = pkgJSON.version;
-    pkgInfo.displayName = pkgJSON.displayName || getName(pkgInfo.folderName);
-    pkgInfo.license = pkgJSON.license || 'MIT';
-    verifyPackageConfig(pkgInfo as i.PackageInfo);
-    return pkgInfo as i.PackageInfo;
+export function updatePkgInfo(pkgInfo: i.PackageInfo): void {
+    if (!pkgInfo.dir) {
+        throw new Error('Missing dir on package.json reference');
+    }
+    if (!pkgInfo.terascope) pkgInfo.terascope = {};
+    if (pkgInfo.terascope.enableTypedoc && !fs.existsSync(path.join(pkgInfo.dir, 'tsconfig.json'))) {
+        pkgInfo.terascope.enableTypedoc = false;
+    }
+
+    pkgInfo.folderName = path.basename(pkgInfo.dir);
+    addPackageConfig(pkgInfo);
+    if (!pkgInfo.displayName) {
+        pkgInfo.displayName = getName(pkgInfo.folderName);
+    }
+    if (!pkgInfo.license) {
+        pkgInfo.license = 'MIT';
+    }
 }
 
 export function updatePkgJSON(pkgInfo: i.PackageInfo, log?: boolean): Promise<boolean> {
-    updatePkgInfo(pkgInfo, pkgInfo.pkgJSON);
-    return writeIfChanged(path.join(pkgInfo.dir, 'package.json'), pkgInfo.pkgJSON, {
+    updatePkgInfo(pkgInfo);
+
+    const pkgJSON = { ...pkgInfo };
+    delete pkgJSON.folderName;
+    delete pkgJSON.dir;
+    return writeIfChanged(path.join(pkgInfo.dir, 'package.json'), pkgJSON, {
         log,
     });
 }

@@ -5,10 +5,17 @@ export type PackageInfo = {
     displayName: string;
     version: string;
     description: string;
-    isTypescript: boolean;
     license: string;
-    config: PackageConfig;
-    pkgJSON: any;
+    terascope: PackageConfig;
+    dependencies: {
+        [pkg: string]: string;
+    };
+    devDependencies: {
+        [pkg: string]: string;
+    };
+    peerDependencies: {
+        [pkg: string]: string;
+    };
 };
 
 export type PackageConfig = {

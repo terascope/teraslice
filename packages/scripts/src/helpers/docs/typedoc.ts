@@ -109,7 +109,3 @@ export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string) {
         process.chdir(cwd);
     }
 }
-
-export function isTSDocCompatible({ isTypescript, folderName }: PackageInfo) {
-    return isTypescript && !folderName.startsWith('ui-') && !folderName.startsWith('data-access') && folderName !== 'scripts';
-}
