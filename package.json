@@ -12,7 +12,7 @@
         "build:watch": "yarn run build --watch",
         "benchmark": "lerna run --concurrency=1 --no-prefix --stream benchmark",
         "docs": "ts-scripts docs",
-        "bump": "./scripts/bump.js",
+        "bump": "ts-scripts bump",
         "test": "jest --silent --forceExit",
         "test:debug": "jest --colors --coverage=false --detectOpenHandles --runInBand  --forceExit $JEST_ARGS",
         "test:watch": "jest --coverage=false --notify --onlyChanged --watch",

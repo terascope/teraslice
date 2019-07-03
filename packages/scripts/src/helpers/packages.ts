@@ -28,43 +28,33 @@ export function listPackages(): i.PackageInfo[] {
             return pkgJSON;
         });
 
-    _packages = QueryGraph.toposort(packageJSONs).map(
-        (pkgJSON: any): i.PackageInfo => {
-            const { name, version, description, dir } = pkgJSON;
-            const folderName = path.basename(dir);
-            const config: i.PackageConfig = pkgJSON.config || {};
-            const isTypescript = fs.existsSync(path.join(dir, 'tsconfig.json'));
-
-            if (config.enableTypedoc && !isTypescript) {
-                config.enableTypedoc = false;
-            }
-
-            verifyPackageConfig(name, config);
-
-            return {
-                dir,
-                displayName: pkgJSON.displayName || getName(folderName),
-                folderName,
-                name,
-                version,
-                description,
-                license: pkgJSON.license || 'MIT',
-                isTypescript,
-                config,
-                pkgJSON,
-            };
-        }
-    );
+    _packages = QueryGraph.toposort(packageJSONs).map(getPkgInfoFromPkgJSON);
     return _packages;
 }
 
-export function verifyPackageConfig(name: string, config: i.PackageConfig): void {
-    for (const _key of Object.keys(config)) {
+export function getPkgInfoFromPkgJSON(pkgJSON: any): i.PackageInfo {
+    return updatePkgInfo({}, pkgJSON);
+}
+
+export function verifyPackageConfig(pkgInfo: i.PackageInfo): void {
+    if (pkgInfo.config.enableTypedoc && !pkgInfo.isTypescript) {
+        pkgInfo.config.enableTypedoc = false;
+    }
+
+    for (const _key of Object.keys(pkgInfo.config)) {
         const key = _key as (keyof i.PackageConfig);
         if (!i.AvailablePackageConfigKeys.includes(key)) {
             throw new Error(`Unknown terascope config "${key}" found in "${name}" package`);
         }
     }
+}
+
+export function getOtherPkgInfo(folderPath: string): i.PackageInfo {
+    const dir = path.join(getRootDir(), folderPath);
+    const pkgJSONPath = path.join(dir, 'package.json');
+    const pkgJSON = fse.readJSONSync(pkgJSONPath);
+    pkgJSON.dir = dir;
+    return getPkgInfoFromPkgJSON(pkgJSON);
 }
 
 export function getPkgInfo(name: string): i.PackageInfo {
@@ -83,12 +73,23 @@ export function getPkgNames(packages: i.PackageInfo[]): string[] {
     return uniq(names).sort();
 }
 
+export function updatePkgInfo(pkgInfo: Partial<i.PackageInfo>, pkgJSON: any): i.PackageInfo {
+    if (!pkgInfo.pkgJSON) pkgInfo.pkgJSON = pkgJSON;
+    pkgInfo.dir = pkgJSON.dir;
+    pkgInfo.folderName = path.basename(pkgJSON.dir);
+    pkgInfo.isTypescript = fs.existsSync(path.join(pkgJSON.dir, 'tsconfig.json'));
+    pkgInfo.config = pkgJSON.config || {};
+    pkgInfo.name = pkgJSON.name;
+    pkgInfo.description = pkgJSON.description;
+    pkgInfo.version = pkgJSON.version;
+    pkgInfo.displayName = pkgJSON.displayName || getName(pkgInfo.folderName);
+    pkgInfo.license = pkgJSON.license || 'MIT';
+    verifyPackageConfig(pkgInfo as i.PackageInfo);
+    return pkgInfo as i.PackageInfo;
+}
+
 export function updatePkgJSON(pkgInfo: i.PackageInfo, log?: boolean): Promise<boolean> {
-    pkgInfo.name = pkgInfo.pkgJSON.name;
-    pkgInfo.description = pkgInfo.pkgJSON.description;
-    pkgInfo.version = pkgInfo.pkgJSON.version;
-    pkgInfo.displayName = pkgInfo.pkgJSON.displayName || getName(pkgInfo.folderName);
-    pkgInfo.license = pkgInfo.pkgJSON.license || 'MIT';
+    updatePkgInfo(pkgInfo, pkgInfo.pkgJSON);
     return writeIfChanged(path.join(pkgInfo.dir, 'package.json'), pkgInfo.pkgJSON, {
         log,
     });

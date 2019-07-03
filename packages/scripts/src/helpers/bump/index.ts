@@ -1,7 +1,7 @@
 import semver from 'semver';
 import { keys, get } from 'lodash';
 import { PackageInfo } from '../interfaces';
-import { listPackages, updatePkgJSON } from '../packages';
+import { listPackages, updatePkgJSON, getOtherPkgInfo } from '../packages';
 
 export type BumpPackageOptions = {
     release: semver.ReleaseType;
@@ -12,17 +12,19 @@ export type BumpPackageOptions = {
 export async function bumpPackage(mainPkgInfo: PackageInfo, options: BumpPackageOptions) {
     await updateMainPkg(mainPkgInfo, options);
     for (const pkgInfo of listPackages()) {
-        await updateDependent(mainPkgInfo, pkgInfo, options.recursive);
+        await updateDependent(mainPkgInfo, pkgInfo, options);
     }
+    const e2ePkgInfo = await getOtherPkgInfo('e2e');
+    await updateDependent(mainPkgInfo, e2ePkgInfo, options);
 }
 
-async function updateMainPkg(pkgInfo: PackageInfo, options: BumpPackageOptions) {
-    const newVersion = bumpVersion(pkgInfo, options.release, options.preId);
-    // tslint:disable-next-line: no-console
-    console.log(`* Updating ${pkgInfo.name} to version ${pkgInfo.version} to ${newVersion}`);
+async function updateMainPkg(mainPkgInfo: PackageInfo, options: BumpPackageOptions) {
+    const newVersion = bumpVersion(mainPkgInfo, options.release, options.preId);
+    mainPkgInfo.pkgJSON.version = newVersion;
+    await updatePkgJSON(mainPkgInfo, false);
 
-    pkgInfo.version = newVersion;
-    await updatePkgJSON(pkgInfo, false);
+    // tslint:disable-next-line: no-console
+    console.log(`=> Updated ${mainPkgInfo.name} to version ${mainPkgInfo.version} to ${newVersion}`);
     return newVersion;
 }
 
@@ -35,7 +37,7 @@ function bumpVersion(pkgInfo: PackageInfo, release: semver.ReleaseType = 'patch'
     return version;
 }
 
-async function updateDependent(mainPkgInfo: PackageInfo, pkgInfo: PackageInfo, recursive: boolean) {
+async function updateDependent(mainPkgInfo: PackageInfo, pkgInfo: PackageInfo, options: BumpPackageOptions) {
     if (!isDependent(mainPkgInfo, pkgInfo)) return;
     const { name } = mainPkgInfo;
     const newVersion = formatVersion(mainPkgInfo.version);
@@ -51,16 +53,16 @@ async function updateDependent(mainPkgInfo: PackageInfo, pkgInfo: PackageInfo, r
         pkgJSON.peerDependencies[name] = newVersion;
     }
 
-    if (recursive && isProdDep && pkgInfo.name !== 'teraslice') {
+    await updatePkgJSON(pkgInfo, false);
+    // tslint:disable-next-line: no-console
+    console.log(`---> Updated dependency ${pkgInfo.name}'s version of ${name} to ${newVersion}`);
+
+    if (options.recursive && isProdDep && pkgInfo.name !== 'teraslice') {
         await bumpPackage(pkgInfo, {
             release: 'patch',
-            recursive: true,
+            recursive: false,
         });
     }
-
-    // tslint:disable-next-line: no-console
-    console.log(`* Updating dependency ${pkgInfo.name}'s version of ${pkgJSON.name} to ${newVersion}`);
-    await updatePkgJSON(pkgInfo);
 }
 
 function formatVersion(version: string): string {
