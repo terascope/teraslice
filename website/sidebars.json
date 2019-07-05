@@ -18,6 +18,7 @@
                 "ids": [
                     "jobs/operations/overview",
                     "jobs/operations/configuration",
+                    "jobs/operations/lifecycle",
                     "jobs/operations/development",
                     "jobs/operations/tests"
                 ]
