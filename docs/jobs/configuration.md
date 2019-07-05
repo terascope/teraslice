@@ -1,9 +1,7 @@
 ---
 title: Job Configuration
-sidebar_label: Operations
+sidebar_label: Configuration
 ---
-
-- [Configuration](#Configuration)
 
 A job configuration is the main way a Teraslice user describes the processing they want done. This page provides a detailed description of the configurations available for a job.
 

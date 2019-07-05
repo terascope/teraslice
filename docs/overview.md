@@ -6,7 +6,7 @@ Teraslice is an open source, distributed computing platform for processing JSON 
 
 It supports the creation of custom processor logic implemented in JavaScript and plugged into to the system to validate, transform and enrich data. Processing pipelines are scalable and easily distributable across many computers.
 
-TODO: rework this section
+*<strong>TODO:</strong> rework this section*
 
 Here are a few tasks it can help you with:
 

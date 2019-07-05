@@ -3,22 +3,7 @@ title: Operation Configuration
 sidebar_label: Configuration
 ---
 
-- [Operations Configuration](#Operations-Configuration)
-- [Operation APIs Configuration](#Operation-APIs-Configuration)
-- [Built-in Processors](#Built-in-Processors)
-  - [script](#script)
-  - [stdout](#stdout)
-  - [noop](#noop)
-  - [delay](#delay)
-- [Bundles](#Bundles)
-  - [standard](#standard)
-  - [elasticsearch](#elasticsearch)
-  - [kafka](#kafka)
-  - [file](#file)
-  - [hdfs](#hdfs)
-  - [alerting](#alerting)
-
-## Operations Configuration
+## Configuration
 
 Here is a list of configuration options that all operations have available to them.
 

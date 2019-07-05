@@ -12,17 +12,17 @@ setting the `assets_directory` setting in the `teraslice` section of your
 configuration file as shown below.
 
 ```yaml
-...
+# ...
 teraslice:
     assets_directory: '/app/source/assets/'
-...
+# ...
 ```
 
 This directory must contain a `package.json`, a `assets` directory with your
 custom operations, and the `node_modules` required by your custom code. It
 will look something like this:
 
-```
+```sh
 .
 ├── node_modules
 │   └── lodash
