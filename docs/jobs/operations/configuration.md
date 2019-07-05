@@ -3,9 +3,7 @@ title: Operation Configuration
 sidebar_label: Configuration
 ---
 
-## Configuration
-
-Here is a list of configuration options that all operations have available to them.
+### Readers and Processors
 
 | Configuration         | Description                                                                                                                                                                                                                                                                                                                                      | Type     | Notes    |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | -------- |
@@ -13,9 +11,7 @@ Here is a list of configuration options that all operations have available to th
 | `_encoding`           | Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`.                                                                                                                                                                                                                                               | `String` | optional |
 | `_dead_letter_action` | This action will specify what to do when failing to parse or transform a record. ​​​​​The following builtin actions are supported, "throw", "log", or "none". If none of the actions are specified it will try and use a registered Dead Letter Queue API under that name.The API must be already be created by a operation before it can used.​ | `String` | required |
 
-## Operation APIs Configuration
-
-Here is a list of configuration options that all APIs have available to them.
+### APIs
 
 | Configuration | Description                                                                                                                                                                                                          | Type     | Notes    |
 | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------- |
@@ -129,31 +125,3 @@ Example configuration
 | Configuration | Description                                       | Type     | Notes                       |
 | ------------- | ------------------------------------------------- | -------- | --------------------------- |
 | `ms`          | Milliseconds to delay before passing data through | `Number` | optional, defaults to `100` |
-
-## Bundles
-
-We support a few asset bundles for dealing with different data sources and operations.
-
-### standard
-
-[Documentation](https://github.com/terascope/standard-assets#readme)
-
-### elasticsearch
-
-[Documentation](https://github.com/terascope/elasticsearch-assets#readme)
-
-### kafka
-
-[Documentation](https://github.com/terascope/kafka-assets#readme)
-
-### file
-
-[Documentation](https://github.com/terascope/file-assets#readme)
-
-### hdfs
-
-[Documentation](https://github.com/terascope/hdfs-assets#readme)
-
-### alerting
-
-[Documentation](https://github.com/terascope/alerting-assets#readme)

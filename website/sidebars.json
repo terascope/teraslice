@@ -12,6 +12,7 @@
         "Jobs": [
             "jobs/overview",
             "jobs/configuration",
+            "jobs/asset-bundles",
             {
                 "type": "subcategory",
                 "label": "Operations",

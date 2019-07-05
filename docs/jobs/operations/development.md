@@ -1,5 +1,5 @@
 ---
-title: Operation Development
+title: Development
 sidebar_label: Development
 ---
 
