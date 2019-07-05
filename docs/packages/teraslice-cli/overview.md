@@ -20,7 +20,7 @@ Useful for referencing a cluster without having to write out the entire name. On
 
 ### aliases list
 
-List cluster aliases. By default localhost - http://localhost:5678 is already set up
+List cluster aliases. By default localhost - `http://localhost:5678` is already set up
 
 command:
 ```sh
@@ -31,7 +31,7 @@ output:
 ```txt
 cluster      host
 -----------  --------------------------------------
-localhost        http://localhost:5678
+localhost    http://localhost:5678
 ```
 
 ### aliases add
