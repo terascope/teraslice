@@ -5,44 +5,43 @@ sidebar_label: Configuration
 
 This entails information on how to set your configuration for teraslice itself. You may either set a config.json or config.yaml file at the root of teraslice or pass in the config file at startup time with the -c flag and the path to the file
 
-Example Config
+#### Example Config
 
-```json
-{
-  "teraslice": {
-    "master": true,
-    "network_timeout": 20000,
-    "master_hostname": "SomeIP",
-    "name": "teracluster",
-    "assets_directory": "/Some/path/to/assets_ops",
-    "workers": 8,
-    "shutdown_timeout": 60000
-  },
-  "terafoundation": {
-    "environment": "development",
-    "logging": "elasticsearch",
-    "log_path": "/some/path/to/logs",
-    "log_level": [{console: "warn"},{elasticsearch: "info"}]
-    "connectors": {
-      "elasticsearch": {
-        "default": {
-          "host": [
-            "127.0.0.1:9200"
-          ],
-          "keepAlive": true,
-          "maxRetries": 5,
-          "maxSockets": 20
-        }
-      },
-      "mongo": {
-        "default": {
-          "host": "127.0.0.1",
-          "mock": false
-        }
-      }
-    }
-  }
-}
+```yaml
+terafoundation:
+    environment: 'development'
+    # the log level to use
+    log_level: info
+    connectors:
+        # ***********************
+        # Elastic Search Configuration
+        # ***********************
+        elasticsearch:
+            default:
+                host:
+                    - "127.0.0.1:9200"
+                keepAlive: true
+                apiVersion: '6.5'
+                maxRetries: 5
+                maxSockets: 20
+
+        # ***********************
+        # Kafka Configuration
+        # ***********************
+        kafka:
+            default:
+                brokers:
+                    - "kafka:9092"
+teraslice:
+    master: true
+    master_hostname: "127.0.0.1"
+    workers: 8
+    name: "teracluster"
+    assets_directory: /path/to/assets
+
+    # change the default timeouts
+    action_timeout: 20000
+    shutdown_timeout: 60000
 
 ```
 
@@ -94,10 +93,7 @@ The configuration file essentially has two main fields, configuration for terasl
 |          **worker_disconnect_timeout**          |              `Number`              |          `300000`          |                time in milliseconds that the slicer will wait after all workers have disconnected before terminating the job                 |
 |                   **workers**                   |              `Number`              |            `4`             |                                                         Number of workers per server                                                         |
 
-
-
-
-### terafoundation
+## terafoundation
 
 |              Field               |                Type                |     Default     |                                                              Description                                                              |
 | :------------------------------: | :--------------------------------: | :-------------: | :-----------------------------------------------------------------------------------------------------------------------------------: |
@@ -112,50 +108,41 @@ The configuration file essentially has two main fields, configuration for terasl
 |           **workers**            |              `Number`              |       `4`       |                                                     Number of workers per server                                                      |
 
 
-##### connectors #####
+##### Connectors
 
 The connectors is an object whose keys correspond to supported databases. Those keys should be set to an object which holds
 endpoints, allowing you to specify multiple connections and connection configurations for each database.
 
 For Example
 
-```json
-"connectors": {
-      "elasticsearch": {
-        "default": {
-          "host": [
-            "127.0.0.1:9200"
-          ],
-          "keepAlive": false,
-          "maxRetries": 5,
-          "maxSockets": 20
-        },
-        "secondary": {
-          "host": [
-             "someOtherIP:9200"
-          ],
-          "keepAlive": true,
-          "maxRetries": 8,
-          "maxSockets": 30
-        }
-      },
-      "statsd": {
-        "default": {
-          "host": "127.0.0.1",
-          "mock": false
-        }
-      },
-      "mongodb": {
-        "default": {
-          "servers": "mongodb://localhost:27017/test"
-        }
-      },
-      "redis": {
-        "default": {
-          "host": "127.0.0.1"
-        }
-      }
-    }
+```yaml
+# ...
+terafoundation:
+    # ...
+    connectors:
+        elasticsearch:
+            default:
+                host:
+                    - '127.0.0.1:9200'
+                keepAlive: false
+                maxRetries: 5
+                maxSockets: 20
+            secondar:
+                host:
+                    - 'some-other-ip:9200'
+                apiVersion: '6.5'
+                maxRetries: 0
+        statsd:
+            default:
+            host: '127.0.0.1'
+            mock: false
+        mongodb:
+            default:
+            servers: 'mongodb://localhost:27017/test'
+        redis:
+            default:
+            host: '127.0.0.1'
+# ...
 ```
 
 In this example we specify four different connections: elasticsearch, statsd, mongod, and redis. We follow an idiom of naming the primary endpoint for each of them to be called `default`. Within each endpoint you may create custom configurations that will be validated against the defaults specified in node_modules/terafoundation/lib/connectors. As noted above, in elasticsearch there is the `default` endpoint and the `secondary` endpoint which connects to a different elasticsearch cluster each having different configurations. These different endpoints can be retrieved through terafoundations's api.
