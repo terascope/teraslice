@@ -2,14 +2,38 @@
     "docs": {
         "Overview": [
             "overview",
-            "getting-started"
+            "getting-started",
+            "configuration"
         ],
-        "Configuration": [
-            "configuration/teraslice",
-            "configuration/ops"
+        "API": [
+            "api/overview",
+            "api/rest"
+        ],
+        "Jobs": [
+            "jobs/overview",
+            "jobs/configuration",
+            {
+                "type": "subcategory",
+                "label": "Operations",
+                "ids": [
+                    "jobs/operations/overview",
+                    "jobs/operations/configuration",
+                    "jobs/operations/development",
+                    "jobs/operations/tests"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "Examples",
+                "ids": [
+                    "jobs/operations/examples/legacy-operations"
+                ]
+            }
         ],
         "Clustering": [
-            "clustering/k8s"
+            "clustering/overview",
+            "clustering/k8s",
+            "clustering/native"
         ],
         "Development": [
             "development/overview",
@@ -19,12 +43,6 @@
             "development/tests",
             "development/e2e-tests",
             "development/contributing"
-        ]
-    },
-    "api": {
-        "Overview": [
-            "api",
-            "api/rest"
         ]
     },
     "packages": {
@@ -193,12 +211,6 @@
                     "packages/teraslice-messaging/api/overview"
                 ]
             }
-        ]
-    },
-    "examples": {
-        "Examples": [
-            "examples",
-            "examples/legacy-operations"
         ]
     }
 }

@@ -3,7 +3,7 @@ title: K8s Clustering
 sidebar_label: K8s
 ---
 
-Teraslice supports the use of Kubernetes as a cluster manager.  The following
+Teraslice supports the use of Kubernetes as a cluster manager. The following
 versions of Kuberenetes have been used:
 
 * `1.10.*`
@@ -87,7 +87,7 @@ The table below shows the Teraslice configuration settings added
 to support k8s based Teraslice deployments.
 
 |        Configuration         |                                                                        Description                                                                         |  Type  |  Notes   |
-|:----------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------:|:------:|:--------:|
+| :--------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------: | :----: | :------: |
 |        assets_volume         |                               Name of kubernetes volume to be shared across all pods, where Teraslice assets will be stored                                | String | optional |
 |       kubernetes_image       |                                                     Name of docker image, default: `teraslice:k8sdev`                                                      | String | optional |
 | kubernetes_image_pull_secret |                                                    Secret used to pull docker images from private repo                                                     | String | optional |

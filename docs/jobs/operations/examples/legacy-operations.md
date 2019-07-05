@@ -1,5 +1,6 @@
 ---
-title: Legacy Operations
+title: Legacy Operation Examples
+sidebar_label: Legacy Operations
 ---
 
 It is possible to implement custom operations (slicers, readers, and processors)
