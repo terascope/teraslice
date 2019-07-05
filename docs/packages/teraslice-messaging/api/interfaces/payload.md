@@ -1,5 +1,5 @@
 ---
-title: Teraslice Messaging :: Payload
+title: Teraslice Messaging: `Payload`
 sidebar_label: Payload
 ---
 

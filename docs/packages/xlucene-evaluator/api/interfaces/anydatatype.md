@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator :: AnyDataType
+title: Xlucene Evaluator: `AnyDataType`
 sidebar_label: AnyDataType
 ---
 
@@ -24,7 +24,7 @@ sidebar_label: AnyDataType
 
 • **data_type**: *[DataType](../overview.md#datatype)*
 
-*Defined in [parser/interfaces.ts:51](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/xlucene-evaluator/src/parser/interfaces.ts#L51)*
+*Defined in [parser/interfaces.ts:51](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/parser/interfaces.ts#L51)*
 
 ___
 
@@ -32,5 +32,5 @@ ___
 
 • **value**: *string | number | boolean*
 
-*Defined in [parser/interfaces.ts:52](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/xlucene-evaluator/src/parser/interfaces.ts#L52)*
+*Defined in [parser/interfaces.ts:52](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/parser/interfaces.ts#L52)*
 

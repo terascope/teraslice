@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator :: RegExprQuery
+title: Xlucene Evaluator: `RegExprQuery`
 sidebar_label: RegExprQuery
 ---
 
@@ -21,7 +21,7 @@ sidebar_label: RegExprQuery
 
 • **regexp**: *object*
 
-*Defined in [translator/interfaces.ts:35](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/xlucene-evaluator/src/translator/interfaces.ts#L35)*
+*Defined in [translator/interfaces.ts:35](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/translator/interfaces.ts#L35)*
 
 #### Type declaration:
 

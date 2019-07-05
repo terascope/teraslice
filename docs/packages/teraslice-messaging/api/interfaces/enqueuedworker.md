@@ -1,5 +1,5 @@
 ---
-title: Teraslice Messaging :: EnqueuedWorker
+title: Teraslice Messaging: `EnqueuedWorker`
 sidebar_label: EnqueuedWorker
 ---
 
@@ -21,5 +21,5 @@ sidebar_label: EnqueuedWorker
 
 • **workerId**: *string*
 
-*Defined in [execution-controller/interfaces.ts:50](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L50)*
+*Defined in [execution-controller/interfaces.ts:50](https://github.com/terascope/teraslice/blob/d3a803c3/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L50)*
 

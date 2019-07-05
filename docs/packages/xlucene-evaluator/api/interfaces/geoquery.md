@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator :: GeoQuery
+title: Xlucene Evaluator: `GeoQuery`
 sidebar_label: GeoQuery
 ---
 
@@ -22,7 +22,7 @@ sidebar_label: GeoQuery
 
 • **geo_bounding_box**? : *undefined | object*
 
-*Defined in [translator/interfaces.ts:22](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/xlucene-evaluator/src/translator/interfaces.ts#L22)*
+*Defined in [translator/interfaces.ts:22](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/translator/interfaces.ts#L22)*
 
 ___
 
@@ -30,5 +30,5 @@ ___
 
 • **geo_distance**? : *undefined | object*
 
-*Defined in [translator/interfaces.ts:28](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/xlucene-evaluator/src/translator/interfaces.ts#L28)*
+*Defined in [translator/interfaces.ts:28](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/translator/interfaces.ts#L28)*
 

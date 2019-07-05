@@ -1,5 +1,5 @@
 ---
-title: Teraslice Messaging :: ErrorObj
+title: Teraslice Messaging: `ErrorObj`
 sidebar_label: ErrorObj
 ---
 
@@ -22,7 +22,7 @@ sidebar_label: ErrorObj
 
 • **message**: *string*
 
-*Defined in [messenger/interfaces.ts:39](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/teraslice-messaging/src/messenger/interfaces.ts#L39)*
+*Defined in [messenger/interfaces.ts:39](https://github.com/terascope/teraslice/blob/d3a803c3/packages/teraslice-messaging/src/messenger/interfaces.ts#L39)*
 
 ___
 
@@ -30,5 +30,5 @@ ___
 
 • **stack**? : *undefined | string*
 
-*Defined in [messenger/interfaces.ts:40](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/teraslice-messaging/src/messenger/interfaces.ts#L40)*
+*Defined in [messenger/interfaces.ts:40](https://github.com/terascope/teraslice/blob/d3a803c3/packages/teraslice-messaging/src/messenger/interfaces.ts#L40)*
 

@@ -1,5 +1,5 @@
 ---
-title: Job Components :: TestClientsByEndpoint
+title: Job Components: `TestClientsByEndpoint`
 sidebar_label: TestClientsByEndpoint
 ---
 

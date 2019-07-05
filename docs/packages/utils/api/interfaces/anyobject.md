@@ -1,5 +1,5 @@
 ---
-title: Utils :: AnyObject
+title: Utils: `AnyObject`
 sidebar_label: AnyObject
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms :: StateDict
+title: Ts Transforms: `StateDict`
 sidebar_label: StateDict
 ---
 

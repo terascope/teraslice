@@ -1,5 +1,5 @@
 ---
-title: Teraslice Messaging :: RequestListener
+title: Teraslice Messaging: `RequestListener`
 sidebar_label: RequestListener
 ---
 
@@ -13,7 +13,7 @@ sidebar_label: RequestListener
 
 ▸ (`request`: *`IncomingMessage`*, `response`: *`ServerResponse`*): *void*
 
-*Defined in [messenger/interfaces.ts:30](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/teraslice-messaging/src/messenger/interfaces.ts#L30)*
+*Defined in [messenger/interfaces.ts:30](https://github.com/terascope/teraslice/blob/d3a803c3/packages/teraslice-messaging/src/messenger/interfaces.ts#L30)*
 
 **Parameters:**
 

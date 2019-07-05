@@ -15,7 +15,8 @@ import {
  * that supports the job execution lifecycle events.
  * This class will likely not be used externally
  * since Teraslice only supports a few types varients based on this class.
- * @see Core
+ *
+ * See [[Core]] more information
  */
 
 export default class OperationCore<T = OpConfig> extends Core<WorkerContext> implements WorkerOperationLifeCycle {

@@ -1,5 +1,5 @@
 ---
-title: Job Components :: APIs
+title: Job Components: `APIs`
 sidebar_label: APIs
 ---
 

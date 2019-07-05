@@ -1,5 +1,5 @@
 ---
-title: Teraslice Messaging :: EventListener
+title: Teraslice Messaging: `EventListener`
 sidebar_label: EventListener
 ---
 
@@ -13,7 +13,7 @@ sidebar_label: EventListener
 
 ▸ (`msg`: *[EventMessage](eventmessage.md)*): *void*
 
-*Defined in [messenger/interfaces.ts:117](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/teraslice-messaging/src/messenger/interfaces.ts#L117)*
+*Defined in [messenger/interfaces.ts:117](https://github.com/terascope/teraslice/blob/d3a803c3/packages/teraslice-messaging/src/messenger/interfaces.ts#L117)*
 
 **Parameters:**
 

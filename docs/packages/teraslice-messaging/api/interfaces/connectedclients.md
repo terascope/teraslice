@@ -1,5 +1,5 @@
 ---
-title: Teraslice Messaging :: ConnectedClients
+title: Teraslice Messaging: `ConnectedClients`
 sidebar_label: ConnectedClients
 ---
 

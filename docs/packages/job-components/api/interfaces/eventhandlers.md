@@ -1,5 +1,5 @@
 ---
-title: Job Components :: EventHandlers
+title: Job Components: `EventHandlers`
 sidebar_label: EventHandlers
 ---
 

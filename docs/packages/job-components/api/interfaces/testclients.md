@@ -1,5 +1,5 @@
 ---
-title: Job Components :: TestClients
+title: Job Components: `TestClients`
 sidebar_label: TestClients
 ---
 

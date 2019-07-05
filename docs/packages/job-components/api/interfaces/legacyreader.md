@@ -1,5 +1,5 @@
 ---
-title: Job Components :: LegacyReader
+title: Job Components: `LegacyReader`
 sidebar_label: LegacyReader
 ---
 
@@ -33,7 +33,7 @@ sidebar_label: LegacyReader
 
 *Inherited from [LegacyOperation](legacyoperation.md).[crossValidation](legacyoperation.md#optional-crossvalidation)*
 
-*Defined in [interfaces/operations.ts:11](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/operations.ts#L11)*
+*Defined in [interfaces/operations.ts:11](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operations.ts#L11)*
 
 ___
 
@@ -43,7 +43,7 @@ ___
 
 *Inherited from [LegacyOperation](legacyoperation.md).[selfValidation](legacyoperation.md#optional-selfvalidation)*
 
-*Defined in [interfaces/operations.ts:12](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/operations.ts#L12)*
+*Defined in [interfaces/operations.ts:12](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operations.ts#L12)*
 
 ___
 
@@ -51,7 +51,7 @@ ___
 
 • **slicerQueueLength**? : *[sliceQueueLengthFn](../overview.md#slicequeuelengthfn)*
 
-*Defined in [interfaces/operations.ts:17](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/operations.ts#L17)*
+*Defined in [interfaces/operations.ts:17](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operations.ts#L17)*
 
 ## Methods
 
@@ -59,7 +59,7 @@ ___
 
 ▸ **newReader**(`context`: *[Context](context.md)*, `opConfig`: *[OpConfig](opconfig.md)*, `exectutionConfig`: *[ExecutionConfig](executionconfig.md)*): *`Promise<ReaderFn<any>>`*
 
-*Defined in [interfaces/operations.ts:19](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/operations.ts#L19)*
+*Defined in [interfaces/operations.ts:19](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operations.ts#L19)*
 
 **Parameters:**
 
@@ -77,7 +77,7 @@ ___
 
 ▸ **newSlicer**(`context`: *[Context](context.md)*, `executionContext`: *[LegacyExecutionContext](legacyexecutioncontext.md)*, `recoveryData`: *object[]*, `logger`: *`Logger`*): *`Promise<SlicerFns>`*
 
-*Defined in [interfaces/operations.ts:20](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/operations.ts#L20)*
+*Defined in [interfaces/operations.ts:20](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operations.ts#L20)*
 
 **Parameters:**
 
@@ -98,7 +98,7 @@ ___
 
 *Overrides [LegacyOperation](legacyoperation.md).[schema](legacyoperation.md#schema)*
 
-*Defined in [interfaces/operations.ts:18](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/operations.ts#L18)*
+*Defined in [interfaces/operations.ts:18](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operations.ts#L18)*
 
 **Parameters:**
 

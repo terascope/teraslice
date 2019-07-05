@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator :: CachedQueryAccess
+title: Xlucene Evaluator: `CachedQueryAccess`
 sidebar_label: CachedQueryAccess
 ---
 
@@ -27,7 +27,7 @@ sidebar_label: CachedQueryAccess
 
 \+ **new CachedQueryAccess**(): *[CachedQueryAccess](cachedqueryaccess.md)*
 
-*Defined in [query-access/cached-query-access.ts:8](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/xlucene-evaluator/src/query-access/cached-query-access.ts#L8)*
+*Defined in [query-access/cached-query-access.ts:8](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/query-access/cached-query-access.ts#L8)*
 
 **Returns:** *[CachedQueryAccess](cachedqueryaccess.md)*
 
@@ -37,7 +37,7 @@ sidebar_label: CachedQueryAccess
 
 ▸ **make**<**T**>(`config`: *[QueryAccessConfig](../interfaces/queryaccessconfig.md)‹*`T`*›*, `logger?`: *`Logger`*): *[QueryAccess](queryaccess.md)‹*`T`*›*
 
-*Defined in [query-access/cached-query-access.ts:13](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/xlucene-evaluator/src/query-access/cached-query-access.ts#L13)*
+*Defined in [query-access/cached-query-access.ts:13](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/query-access/cached-query-access.ts#L13)*
 
 **Type parameters:**
 
@@ -58,7 +58,7 @@ ___
 
 ▸ **reset**(): *void*
 
-*Defined in [query-access/cached-query-access.ts:26](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/xlucene-evaluator/src/query-access/cached-query-access.ts#L26)*
+*Defined in [query-access/cached-query-access.ts:26](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/query-access/cached-query-access.ts#L26)*
 
 **Returns:** *void*
 
@@ -68,7 +68,7 @@ ___
 
 ▸ **resetInstances**(): *void*
 
-*Defined in [query-access/cached-query-access.ts:33](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/xlucene-evaluator/src/query-access/cached-query-access.ts#L33)*
+*Defined in [query-access/cached-query-access.ts:33](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/query-access/cached-query-access.ts#L33)*
 
 **Returns:** *void*
 

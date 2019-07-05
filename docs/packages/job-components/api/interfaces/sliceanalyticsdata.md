@@ -1,5 +1,5 @@
 ---
-title: Job Components :: SliceAnalyticsData
+title: Job Components: `SliceAnalyticsData`
 sidebar_label: SliceAnalyticsData
 ---
 
@@ -23,7 +23,7 @@ sidebar_label: SliceAnalyticsData
 
 • **memory**: *number[]*
 
-*Defined in [interfaces/operations.ts:48](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/operations.ts#L48)*
+*Defined in [interfaces/operations.ts:67](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operations.ts#L67)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **size**: *number[]*
 
-*Defined in [interfaces/operations.ts:47](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/operations.ts#L47)*
+*Defined in [interfaces/operations.ts:66](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operations.ts#L66)*
 
 ___
 
@@ -39,5 +39,5 @@ ___
 
 • **time**: *number[]*
 
-*Defined in [interfaces/operations.ts:46](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/operations.ts#L46)*
+*Defined in [interfaces/operations.ts:65](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operations.ts#L65)*
 

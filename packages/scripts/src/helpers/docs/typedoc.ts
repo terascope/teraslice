@@ -5,12 +5,16 @@ import { Application } from 'typedoc';
 import { PackageInfo } from '../interfaces';
 import { listMdFiles, getName, writeIfChanged } from '../misc';
 
+function isOverview(filePath: string): boolean {
+    return path.basename(filePath, '.md') === 'overview';
+}
+
 async function writeDocFile(filePath: string, { title, sidebarLabel }: { title: string; sidebarLabel: string }) {
     let contents = await fse.readFile(filePath, 'utf8');
     // remove header
     contents = contents
         .split('\n')
-        .slice(3)
+        .slice(isOverview(filePath) ? 3 : 4)
         .join('\n')
         .trim();
 
@@ -45,7 +49,10 @@ function getAPIName(overview: string, outputDir: string, filePath: string) {
 async function fixDocs(outputDir: string, { displayName }: PackageInfo) {
     const overviewFilePath = listMdFiles(outputDir).find(filePath => path.basename(filePath, '.md') === 'README');
     if (!overviewFilePath) {
-        console.error('Error: Package documentation was not generated correctly, make you can build project');
+        console.error(
+            'Error: Package documentation was not generated correctly',
+            ", this means the package my not work with the typedoc's version of TypeScript."
+        );
         return;
     }
     const targetPath = path.join(path.dirname(overviewFilePath), 'overview.md');
@@ -63,7 +70,7 @@ async function fixDocs(outputDir: string, { displayName }: PackageInfo) {
         }
         const component = getAPIName(overview, outputDir, filePath);
         await writeDocFile(filePath, {
-            title: `${displayName} :: ${component}`,
+            title: `${displayName}: \`${component}\``,
             sidebarLabel: component,
         });
     });

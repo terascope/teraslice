@@ -1,5 +1,5 @@
 ---
-title: Utils :: EncodingConfig
+title: Utils: `EncodingConfig`
 sidebar_label: EncodingConfig
 ---
 
@@ -24,7 +24,7 @@ an encoding focused interfaces
 
 • **_encoding**? : *[DataEncoding](../overview.md#dataencoding)*
 
-*Defined in [data-entity.ts:229](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/utils/src/data-entity.ts#L229)*
+*Defined in [data-entity.ts:229](https://github.com/terascope/teraslice/blob/d3a803c3/packages/utils/src/data-entity.ts#L229)*
 
 ___
 
@@ -32,5 +32,5 @@ ___
 
 • **_op**? : *undefined | string*
 
-*Defined in [data-entity.ts:228](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/utils/src/data-entity.ts#L228)*
+*Defined in [data-entity.ts:228](https://github.com/terascope/teraslice/blob/d3a803c3/packages/utils/src/data-entity.ts#L228)*
 

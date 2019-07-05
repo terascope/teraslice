@@ -1,5 +1,5 @@
 ---
-title: Teraslice Messaging :: ActiveWorkers
+title: Teraslice Messaging: `ActiveWorkers`
 sidebar_label: ActiveWorkers
 ---
 

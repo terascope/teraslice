@@ -1,5 +1,5 @@
 ---
-title: Elasticsearch Store :: IndexSettings
+title: Elasticsearch Store: `IndexSettings`
 sidebar_label: IndexSettings
 ---
 
@@ -26,7 +26,7 @@ sidebar_label: IndexSettings
 
 • **index.number_of_replicas**: *number*
 
-*Defined in [interfaces.ts:117](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/elasticsearch-store/src/interfaces.ts#L117)*
+*Defined in [interfaces.ts:117](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L117)*
 
 ___
 
@@ -34,5 +34,5 @@ ___
 
 • **index.number_of_shards**: *number*
 
-*Defined in [interfaces.ts:116](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/elasticsearch-store/src/interfaces.ts#L116)*
+*Defined in [interfaces.ts:116](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L116)*
 

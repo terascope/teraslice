@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms :: ExtractionProcessingDict
+title: Ts Transforms: `ExtractionProcessingDict`
 sidebar_label: ExtractionProcessingDict
 ---
 

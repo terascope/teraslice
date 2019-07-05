@@ -1,5 +1,5 @@
 ---
-title: Job Components :: SchemaModule
+title: Job Components: `SchemaModule`
 sidebar_label: SchemaModule
 ---
 
@@ -23,5 +23,5 @@ sidebar_label: SchemaModule
 
 • **Schema**: *[SchemaConstructor](../overview.md#schemaconstructor)*
 
-*Defined in [operations/interfaces.ts:45](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/operations/interfaces.ts#L45)*
+*Defined in [operations/interfaces.ts:45](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/operations/interfaces.ts#L45)*
 

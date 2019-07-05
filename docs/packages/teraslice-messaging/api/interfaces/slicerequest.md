@@ -1,5 +1,5 @@
 ---
-title: Teraslice Messaging :: SliceRequest
+title: Teraslice Messaging: `SliceRequest`
 sidebar_label: SliceRequest
 ---
 
@@ -25,5 +25,5 @@ sidebar_label: SliceRequest
 
 • **request_worker**? : *undefined | string*
 
-*Defined in [execution-controller/interfaces.ts:54](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L54)*
+*Defined in [execution-controller/interfaces.ts:54](https://github.com/terascope/teraslice/blob/d3a803c3/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L54)*
 

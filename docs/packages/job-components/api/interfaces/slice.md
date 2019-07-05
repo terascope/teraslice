@@ -1,9 +1,11 @@
 ---
-title: Job Components :: Slice
+title: Job Components: `Slice`
 sidebar_label: Slice
 ---
 
 # Interface: Slice
+
+A trackable set of work to be preformed by a "Worker"
 
 ## Hierarchy
 
@@ -25,7 +27,7 @@ sidebar_label: Slice
 
 • **_created**: *string*
 
-*Defined in [interfaces/operations.ts:42](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/operations.ts#L42)*
+*Defined in [interfaces/operations.ts:61](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operations.ts#L61)*
 
 ___
 
@@ -33,7 +35,7 @@ ___
 
 • **request**: *[SliceRequest](slicerequest.md)*
 
-*Defined in [interfaces/operations.ts:41](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/operations.ts#L41)*
+*Defined in [interfaces/operations.ts:60](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operations.ts#L60)*
 
 ___
 
@@ -41,7 +43,9 @@ ___
 
 • **slice_id**: *string*
 
-*Defined in [interfaces/operations.ts:38](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/operations.ts#L38)*
+*Defined in [interfaces/operations.ts:51](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operations.ts#L51)*
+
+A unique identifier for the slice
 
 ___
 
@@ -49,7 +53,9 @@ ___
 
 • **slicer_id**: *number*
 
-*Defined in [interfaces/operations.ts:39](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/operations.ts#L39)*
+*Defined in [interfaces/operations.ts:55](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operations.ts#L55)*
+
+A reference to the slicer that created the slice.
 
 ___
 
@@ -57,5 +63,7 @@ ___
 
 • **slicer_order**: *number*
 
-*Defined in [interfaces/operations.ts:40](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/operations.ts#L40)*
+*Defined in [interfaces/operations.ts:59](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operations.ts#L59)*
+
+A reference to the slicer
 

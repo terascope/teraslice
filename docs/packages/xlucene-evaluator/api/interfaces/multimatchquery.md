@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator :: MultiMatchQuery
+title: Xlucene Evaluator: `MultiMatchQuery`
 sidebar_label: MultiMatchQuery
 ---
 
@@ -21,7 +21,7 @@ sidebar_label: MultiMatchQuery
 
 • **multi_match**: *object*
 
-*Defined in [translator/interfaces.ts:59](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/xlucene-evaluator/src/translator/interfaces.ts#L59)*
+*Defined in [translator/interfaces.ts:59](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/translator/interfaces.ts#L59)*
 
 #### Type declaration:
 

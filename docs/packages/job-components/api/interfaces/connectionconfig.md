@@ -1,5 +1,5 @@
 ---
-title: Job Components :: ConnectionConfig
+title: Job Components: `ConnectionConfig`
 sidebar_label: ConnectionConfig
 ---
 
@@ -23,7 +23,7 @@ sidebar_label: ConnectionConfig
 
 • **cached**? : *undefined | false | true*
 
-*Defined in [interfaces/context.ts:63](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L63)*
+*Defined in [interfaces/context.ts:63](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L63)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **endpoint**: *string*
 
-*Defined in [interfaces/context.ts:62](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L62)*
+*Defined in [interfaces/context.ts:62](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L62)*
 
 ___
 
@@ -39,5 +39,5 @@ ___
 
 • **type**: *string*
 
-*Defined in [interfaces/context.ts:64](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L64)*
+*Defined in [interfaces/context.ts:64](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L64)*
 

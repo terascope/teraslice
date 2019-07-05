@@ -3,13 +3,14 @@ import SlicerCore from './core/slicer-core';
 
 /**
  * The simpliest form a "Slicer"
- * @see SlicerCore
+ *
+ * See [[SlicerCore]]
  */
 
 export default abstract class Slicer<T = OpConfig> extends SlicerCore<T> {
     /**
      * @private
-    */
+     */
     protected order = 0;
 
     isFinished = false;
@@ -17,7 +18,7 @@ export default abstract class Slicer<T = OpConfig> extends SlicerCore<T> {
     /**
      * A method called by {@link Slicer#handle}
      * @returns a Slice, or SliceRequest
-    */
+     */
     abstract async slice(): Promise<SlicerResult>;
 
     slicers() {
@@ -39,7 +40,7 @@ export default abstract class Slicer<T = OpConfig> extends SlicerCore<T> {
 
         if (Array.isArray(result)) {
             this.events.emit('slicer:subslice');
-            result.forEach((item) => {
+            result.forEach(item => {
                 this.order += 1;
                 this.createSlice(item, this.order);
             });

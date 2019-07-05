@@ -1,5 +1,5 @@
 ---
-title: Job Components :: WorkerOperations
+title: Job Components: `WorkerOperations`
 sidebar_label: WorkerOperations
 ---
 

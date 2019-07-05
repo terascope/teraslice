@@ -35,6 +35,12 @@
             "clustering/k8s",
             "clustering/native"
         ],
+        "Nodes": [
+            "nodes/overview",
+            "nodes/cluster-master",
+            "nodes/execution-controller",
+            "nodes/worker"
+        ],
         "Development": [
             "development/overview",
             "development/packages",

@@ -1,5 +1,5 @@
 ---
-title: Elasticsearch Store :: IndexModelRecord
+title: Elasticsearch Store: `IndexModelRecord`
 sidebar_label: IndexModelRecord
 ---
 
@@ -23,7 +23,7 @@ sidebar_label: IndexModelRecord
 
 • **created**: *string*
 
-*Defined in [interfaces.ts:192](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/elasticsearch-store/src/interfaces.ts#L192)*
+*Defined in [interfaces.ts:192](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L192)*
 
 Creation date
 
@@ -33,7 +33,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [interfaces.ts:186](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/elasticsearch-store/src/interfaces.ts#L186)*
+*Defined in [interfaces.ts:186](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L186)*
 
 ID of the view - nanoid 12 digit
 
@@ -43,7 +43,7 @@ ___
 
 • **updated**: *string*
 
-*Defined in [interfaces.ts:189](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/elasticsearch-store/src/interfaces.ts#L189)*
+*Defined in [interfaces.ts:189](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L189)*
 
 Updated date
 

@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator :: DocumentMatcher
+title: Xlucene Evaluator: `DocumentMatcher`
 sidebar_label: DocumentMatcher
 ---
 
@@ -29,7 +29,7 @@ sidebar_label: DocumentMatcher
 
 \+ **new DocumentMatcher**(`luceneStr`: *string*, `typeConfig?`: *[TypeConfig](../interfaces/typeconfig.md)*): *[DocumentMatcher](documentmatcher.md)*
 
-*Defined in [document-matcher/index.ts:13](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/xlucene-evaluator/src/document-matcher/index.ts#L13)*
+*Defined in [document-matcher/index.ts:13](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/document-matcher/index.ts#L13)*
 
 **Parameters:**
 
@@ -46,7 +46,7 @@ Name | Type |
 
 • **typeConfig**: *[TypeConfig](../interfaces/typeconfig.md) | undefined*
 
-*Defined in [document-matcher/index.ts:13](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/xlucene-evaluator/src/document-matcher/index.ts#L13)*
+*Defined in [document-matcher/index.ts:13](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/document-matcher/index.ts#L13)*
 
 ## Methods
 
@@ -54,7 +54,7 @@ Name | Type |
 
 ▸ **match**(`doc`: *object*): *boolean*
 
-*Defined in [document-matcher/index.ts:21](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/xlucene-evaluator/src/document-matcher/index.ts#L21)*
+*Defined in [document-matcher/index.ts:21](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/document-matcher/index.ts#L21)*
 
 **Parameters:**
 

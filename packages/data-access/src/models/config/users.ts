@@ -164,7 +164,7 @@ export interface User extends IndexModelRecord {
     /**
      * A fixed permission level type system, used for primarly metadata management.
      *
-     * @see {UserType}
+     * See [[UserType]] for more details
      * @default "USER"
      */
     type?: UserType;

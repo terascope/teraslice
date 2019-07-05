@@ -1,5 +1,5 @@
 ---
-title: Job Components :: SlicerOperations
+title: Job Components: `SlicerOperations`
 sidebar_label: SlicerOperations
 ---
 

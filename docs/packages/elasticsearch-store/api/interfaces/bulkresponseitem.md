@@ -1,5 +1,5 @@
 ---
-title: Elasticsearch Store :: BulkResponseItem
+title: Elasticsearch Store: `BulkResponseItem`
 sidebar_label: BulkResponseItem
 ---
 
@@ -23,7 +23,7 @@ sidebar_label: BulkResponseItem
 
 • **_seq_no**? : *undefined | number*
 
-*Defined in [interfaces.ts:169](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/elasticsearch-store/src/interfaces.ts#L169)*
+*Defined in [interfaces.ts:169](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L169)*
 
 This only exists in 6.x
 
@@ -33,7 +33,7 @@ ___
 
 • **error**? : *undefined | object*
 
-*Defined in [interfaces.ts:161](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/elasticsearch-store/src/interfaces.ts#L161)*
+*Defined in [interfaces.ts:161](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L161)*
 
 ___
 
@@ -41,5 +41,5 @@ ___
 
 • **status**? : *undefined | number*
 
-*Defined in [interfaces.ts:165](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/elasticsearch-store/src/interfaces.ts#L165)*
+*Defined in [interfaces.ts:165](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L165)*
 

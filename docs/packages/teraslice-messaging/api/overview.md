@@ -66,7 +66,7 @@ sidebar_label: API
 
 Ƭ **ResponseError**: *[ErrorObj](interfaces/errorobj.md) | string*
 
-*Defined in [messenger/interfaces.ts:43](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/teraslice-messaging/src/messenger/interfaces.ts#L43)*
+*Defined in [messenger/interfaces.ts:43](https://github.com/terascope/teraslice/blob/d3a803c3/packages/teraslice-messaging/src/messenger/interfaces.ts#L43)*
 
 ## Functions
 
@@ -74,7 +74,7 @@ sidebar_label: API
 
 ▸ **formatURL**(`hostname`: *string*, `port`: *number*): *string*
 
-*Defined in [utils/index.ts:9](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/teraslice-messaging/src/utils/index.ts#L9)*
+*Defined in [utils/index.ts:9](https://github.com/terascope/teraslice/blob/d3a803c3/packages/teraslice-messaging/src/utils/index.ts#L9)*
 
 **Parameters:**
 
@@ -91,7 +91,7 @@ ___
 
 ▸ **newMsgId**(): *`Promise<string>`*
 
-*Defined in [utils/index.ts:5](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/teraslice-messaging/src/utils/index.ts#L5)*
+*Defined in [utils/index.ts:5](https://github.com/terascope/teraslice/blob/d3a803c3/packages/teraslice-messaging/src/utils/index.ts#L5)*
 
 **Returns:** *`Promise<string>`*
 

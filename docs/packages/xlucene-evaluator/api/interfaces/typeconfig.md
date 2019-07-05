@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator :: TypeConfig
+title: Xlucene Evaluator: `TypeConfig`
 sidebar_label: TypeConfig
 ---
 

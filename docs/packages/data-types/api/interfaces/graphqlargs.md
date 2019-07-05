@@ -1,5 +1,5 @@
 ---
-title: Data Types :: GraphQLArgs
+title: Data Types: `GraphQLArgs`
 sidebar_label: GraphQLArgs
 ---
 
@@ -22,7 +22,7 @@ sidebar_label: GraphQLArgs
 
 • **typeInjection**? : *undefined | string*
 
-*Defined in [interfaces.ts:16](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/data-types/src/interfaces.ts#L16)*
+*Defined in [interfaces.ts:16](https://github.com/terascope/teraslice/blob/d3a803c3/packages/data-types/src/interfaces.ts#L16)*
 
 ___
 
@@ -30,5 +30,5 @@ ___
 
 • **typeName**? : *undefined | string*
 
-*Defined in [interfaces.ts:15](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/data-types/src/interfaces.ts#L15)*
+*Defined in [interfaces.ts:15](https://github.com/terascope/teraslice/blob/d3a803c3/packages/data-types/src/interfaces.ts#L15)*
 

@@ -1,5 +1,5 @@
 ---
-title: Teraslice Messaging :: ClientSendFns
+title: Teraslice Messaging: `ClientSendFns`
 sidebar_label: ClientSendFns
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: Teraslice State Storage :: MGetCacheResponse
+title: Teraslice State Storage: `MGetCacheResponse`
 sidebar_label: MGetCacheResponse
 ---
 

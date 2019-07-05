@@ -1,5 +1,5 @@
 ---
-title: Data Types :: GraphQlResults
+title: Data Types: `GraphQlResults`
 sidebar_label: GraphQlResults
 ---
 
@@ -23,7 +23,7 @@ sidebar_label: GraphQlResults
 
 • **baseType**: *string*
 
-*Defined in [interfaces.ts:6](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/data-types/src/interfaces.ts#L6)*
+*Defined in [interfaces.ts:6](https://github.com/terascope/teraslice/blob/d3a803c3/packages/data-types/src/interfaces.ts#L6)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **customTypes**: *string[]*
 
-*Defined in [interfaces.ts:7](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/data-types/src/interfaces.ts#L7)*
+*Defined in [interfaces.ts:7](https://github.com/terascope/teraslice/blob/d3a803c3/packages/data-types/src/interfaces.ts#L7)*
 
 ___
 
@@ -39,5 +39,5 @@ ___
 
 • **results**: *string*
 
-*Defined in [interfaces.ts:5](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/data-types/src/interfaces.ts#L5)*
+*Defined in [interfaces.ts:5](https://github.com/terascope/teraslice/blob/d3a803c3/packages/data-types/src/interfaces.ts#L5)*
 

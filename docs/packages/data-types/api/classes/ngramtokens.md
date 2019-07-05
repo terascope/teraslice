@@ -1,5 +1,5 @@
 ---
-title: Data Types :: NgramTokens
+title: Data Types: `NgramTokens`
 sidebar_label: NgramTokens
 ---
 
@@ -37,7 +37,7 @@ sidebar_label: NgramTokens
 
 *Inherited from [BaseType](basetype.md).[constructor](basetype.md#constructor)*
 
-*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/data-types/src/types/versions/base-type.ts#L7)*
+*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/d3a803c3/packages/data-types/src/types/versions/base-type.ts#L7)*
 
 **Parameters:**
 
@@ -56,7 +56,7 @@ Name | Type |
 
 *Inherited from [BaseType](basetype.md).[config](basetype.md#protected-config)*
 
-*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/data-types/src/types/versions/base-type.ts#L7)*
+*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/d3a803c3/packages/data-types/src/types/versions/base-type.ts#L7)*
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 *Inherited from [BaseType](basetype.md).[field](basetype.md#protected-field)*
 
-*Defined in [types/versions/base-type.ts:6](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/data-types/src/types/versions/base-type.ts#L6)*
+*Defined in [types/versions/base-type.ts:6](https://github.com/terascope/teraslice/blob/d3a803c3/packages/data-types/src/types/versions/base-type.ts#L6)*
 
 ## Methods
 
@@ -76,7 +76,7 @@ ___
 
 *Inherited from [BaseType](basetype.md).[_formatGql](basetype.md#protected-_formatgql)*
 
-*Defined in [types/versions/base-type.ts:19](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/data-types/src/types/versions/base-type.ts#L19)*
+*Defined in [types/versions/base-type.ts:19](https://github.com/terascope/teraslice/blob/d3a803c3/packages/data-types/src/types/versions/base-type.ts#L19)*
 
 **Parameters:**
 
@@ -94,7 +94,7 @@ ___
 
 *Overrides [BaseType](basetype.md).[toESMapping](basetype.md#abstract-toesmapping)*
 
-*Defined in [types/versions/v1/ngram-tokens.ts:6](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/data-types/src/types/versions/v1/ngram-tokens.ts#L6)*
+*Defined in [types/versions/v1/ngram-tokens.ts:6](https://github.com/terascope/teraslice/blob/d3a803c3/packages/data-types/src/types/versions/v1/ngram-tokens.ts#L6)*
 
 **Parameters:**
 
@@ -112,7 +112,7 @@ ___
 
 *Overrides [BaseType](basetype.md).[toGraphQL](basetype.md#abstract-tographql)*
 
-*Defined in [types/versions/v1/ngram-tokens.ts:36](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/data-types/src/types/versions/v1/ngram-tokens.ts#L36)*
+*Defined in [types/versions/v1/ngram-tokens.ts:36](https://github.com/terascope/teraslice/blob/d3a803c3/packages/data-types/src/types/versions/v1/ngram-tokens.ts#L36)*
 
 **Returns:** *object*
 
@@ -124,7 +124,7 @@ ___
 
 *Overrides [BaseType](basetype.md).[toXlucene](basetype.md#abstract-toxlucene)*
 
-*Defined in [types/versions/v1/ngram-tokens.ts:40](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/data-types/src/types/versions/v1/ngram-tokens.ts#L40)*
+*Defined in [types/versions/v1/ngram-tokens.ts:40](https://github.com/terascope/teraslice/blob/d3a803c3/packages/data-types/src/types/versions/v1/ngram-tokens.ts#L40)*
 
 **Returns:** *object*
 

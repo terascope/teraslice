@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms :: OperationsDict
+title: Ts Transforms: `OperationsDict`
 sidebar_label: OperationsDict
 ---
 

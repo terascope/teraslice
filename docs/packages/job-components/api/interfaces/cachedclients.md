@@ -1,5 +1,5 @@
 ---
-title: Job Components :: CachedClients
+title: Job Components: `CachedClients`
 sidebar_label: CachedClients
 ---
 

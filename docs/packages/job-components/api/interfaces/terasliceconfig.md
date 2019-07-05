@@ -1,5 +1,5 @@
 ---
-title: Job Components :: TerasliceConfig
+title: Job Components: `TerasliceConfig`
 sidebar_label: TerasliceConfig
 ---
 
@@ -47,7 +47,7 @@ sidebar_label: TerasliceConfig
 
 • **action_timeout**: *number | `300000`*
 
-*Defined in [interfaces/context.ts:20](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L20)*
+*Defined in [interfaces/context.ts:20](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L20)*
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 • **analytics_rate**: *number | `60000`*
 
-*Defined in [interfaces/context.ts:21](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L21)*
+*Defined in [interfaces/context.ts:21](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L21)*
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 • **assets_directory**? : *undefined | string*
 
-*Defined in [interfaces/context.ts:22](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L22)*
+*Defined in [interfaces/context.ts:22](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L22)*
 
 ___
 
@@ -71,7 +71,7 @@ ___
 
 • **assets_volume**? : *undefined | string*
 
-*Defined in [interfaces/context.ts:23](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L23)*
+*Defined in [interfaces/context.ts:23](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L23)*
 
 ___
 
@@ -79,7 +79,7 @@ ___
 
 • **cluster_manager_type**: *[ClusterManagerType](../overview.md#clustermanagertype)*
 
-*Defined in [interfaces/context.ts:24](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L24)*
+*Defined in [interfaces/context.ts:24](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L24)*
 
 ___
 
@@ -87,7 +87,7 @@ ___
 
 • **cpu**? : *undefined | number*
 
-*Defined in [interfaces/context.ts:26](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L26)*
+*Defined in [interfaces/context.ts:26](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L26)*
 
 This will only be available in the context of k8s
 
@@ -97,7 +97,7 @@ ___
 
 • **hostname**: *string*
 
-*Defined in [interfaces/context.ts:27](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L27)*
+*Defined in [interfaces/context.ts:27](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L27)*
 
 ___
 
@@ -105,7 +105,7 @@ ___
 
 • **index_rollover_frequency**: *[IndexRolloverFrequency](indexrolloverfrequency.md)*
 
-*Defined in [interfaces/context.ts:28](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L28)*
+*Defined in [interfaces/context.ts:28](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L28)*
 
 ___
 
@@ -113,7 +113,7 @@ ___
 
 • **kubernetes_config_map_name**? : *string | "teraslice-worker"*
 
-*Defined in [interfaces/context.ts:29](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L29)*
+*Defined in [interfaces/context.ts:29](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L29)*
 
 ___
 
@@ -121,7 +121,7 @@ ___
 
 • **kubernetes_image**? : *string | "terascope/teraslice"*
 
-*Defined in [interfaces/context.ts:31](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L31)*
+*Defined in [interfaces/context.ts:31](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L31)*
 
 ___
 
@@ -129,7 +129,7 @@ ___
 
 • **kubernetes_image_pull_secret**? : *string | `""`*
 
-*Defined in [interfaces/context.ts:30](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L30)*
+*Defined in [interfaces/context.ts:30](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L30)*
 
 ___
 
@@ -137,7 +137,7 @@ ___
 
 • **kubernetes_namespace**? : *string | "default"*
 
-*Defined in [interfaces/context.ts:32](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L32)*
+*Defined in [interfaces/context.ts:32](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L32)*
 
 ___
 
@@ -145,7 +145,7 @@ ___
 
 • **master**: *boolean | false*
 
-*Defined in [interfaces/context.ts:34](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L34)*
+*Defined in [interfaces/context.ts:34](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L34)*
 
 ___
 
@@ -153,7 +153,7 @@ ___
 
 • **master_hostname**: *string | "localhost"*
 
-*Defined in [interfaces/context.ts:33](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L33)*
+*Defined in [interfaces/context.ts:33](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L33)*
 
 ___
 
@@ -161,7 +161,7 @@ ___
 
 • **memory**? : *undefined | number*
 
-*Defined in [interfaces/context.ts:36](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L36)*
+*Defined in [interfaces/context.ts:36](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L36)*
 
 This will only be available in the context of k8s
 
@@ -171,7 +171,7 @@ ___
 
 • **name**: *string | "teracluster"*
 
-*Defined in [interfaces/context.ts:37](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L37)*
+*Defined in [interfaces/context.ts:37](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L37)*
 
 ___
 
@@ -179,7 +179,7 @@ ___
 
 • **network_latency_buffer**: *number | `15000`*
 
-*Defined in [interfaces/context.ts:38](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L38)*
+*Defined in [interfaces/context.ts:38](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L38)*
 
 ___
 
@@ -187,7 +187,7 @@ ___
 
 • **node_disconnect_timeout**: *number | `300000`*
 
-*Defined in [interfaces/context.ts:39](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L39)*
+*Defined in [interfaces/context.ts:39](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L39)*
 
 ___
 
@@ -195,7 +195,7 @@ ___
 
 • **node_state_interval**: *number | `5000`*
 
-*Defined in [interfaces/context.ts:40](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L40)*
+*Defined in [interfaces/context.ts:40](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L40)*
 
 ___
 
@@ -203,7 +203,7 @@ ___
 
 • **port**: *number | `5678`*
 
-*Defined in [interfaces/context.ts:41](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L41)*
+*Defined in [interfaces/context.ts:41](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L41)*
 
 ___
 
@@ -211,7 +211,7 @@ ___
 
 • **shutdown_timeout**: *number | number*
 
-*Defined in [interfaces/context.ts:42](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L42)*
+*Defined in [interfaces/context.ts:42](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L42)*
 
 ___
 
@@ -219,7 +219,7 @@ ___
 
 • **slicer_allocation_attempts**: *number | `3`*
 
-*Defined in [interfaces/context.ts:43](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L43)*
+*Defined in [interfaces/context.ts:43](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L43)*
 
 ___
 
@@ -227,7 +227,7 @@ ___
 
 • **slicer_port_range**: *string | "45679:46678"*
 
-*Defined in [interfaces/context.ts:44](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L44)*
+*Defined in [interfaces/context.ts:44](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L44)*
 
 ___
 
@@ -235,7 +235,7 @@ ___
 
 • **slicer_timeout**: *number | `180000`*
 
-*Defined in [interfaces/context.ts:45](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L45)*
+*Defined in [interfaces/context.ts:45](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L45)*
 
 ___
 
@@ -243,7 +243,7 @@ ___
 
 • **state**: *[ClusterStateConfig](clusterstateconfig.md)*
 
-*Defined in [interfaces/context.ts:46](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L46)*
+*Defined in [interfaces/context.ts:46](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L46)*
 
 ___
 
@@ -251,7 +251,7 @@ ___
 
 • **worker_disconnect_timeout**: *number | `300000`*
 
-*Defined in [interfaces/context.ts:47](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L47)*
+*Defined in [interfaces/context.ts:47](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L47)*
 
 ___
 
@@ -259,5 +259,5 @@ ___
 
 • **workers**: *number | `4`*
 
-*Defined in [interfaces/context.ts:48](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L48)*
+*Defined in [interfaces/context.ts:48](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L48)*
 

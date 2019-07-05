@@ -1,5 +1,5 @@
 ---
-title: Teraslice State Storage :: CacheConfig
+title: Teraslice State Storage: `CacheConfig`
 sidebar_label: CacheConfig
 ---
 
@@ -24,7 +24,7 @@ sidebar_label: CacheConfig
 
 • **cache_size**: *number*
 
-*Defined in [interfaces.ts:35](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/teraslice-state-storage/src/interfaces.ts#L35)*
+*Defined in [interfaces.ts:35](https://github.com/terascope/teraslice/blob/d3a803c3/packages/teraslice-state-storage/src/interfaces.ts#L35)*
 
 ___
 
@@ -32,5 +32,5 @@ ___
 
 • **max_age**: *number*
 
-*Defined in [interfaces.ts:36](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/teraslice-state-storage/src/interfaces.ts#L36)*
+*Defined in [interfaces.ts:36](https://github.com/terascope/teraslice/blob/d3a803c3/packages/teraslice-state-storage/src/interfaces.ts#L36)*
 

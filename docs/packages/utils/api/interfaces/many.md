@@ -1,5 +1,5 @@
 ---
-title: Utils :: Many
+title: Utils: `Many`
 sidebar_label: Many
 ---
 

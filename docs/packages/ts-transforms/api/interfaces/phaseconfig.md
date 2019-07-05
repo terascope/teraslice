@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms :: PhaseConfig
+title: Ts Transforms: `PhaseConfig`
 sidebar_label: PhaseConfig
 ---
 
@@ -27,7 +27,7 @@ sidebar_label: PhaseConfig
 
 *Inherited from [WatcherConfig](watcherconfig.md).[rules](watcherconfig.md#rules)*
 
-*Defined in [interfaces.ts:96](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/ts-transforms/src/interfaces.ts#L96)*
+*Defined in [interfaces.ts:96](https://github.com/terascope/teraslice/blob/d3a803c3/packages/ts-transforms/src/interfaces.ts#L96)*
 
 ___
 
@@ -35,7 +35,7 @@ ___
 
 • **type**: *string*
 
-*Defined in [interfaces.ts:101](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/ts-transforms/src/interfaces.ts#L101)*
+*Defined in [interfaces.ts:101](https://github.com/terascope/teraslice/blob/d3a803c3/packages/ts-transforms/src/interfaces.ts#L101)*
 
 ___
 
@@ -45,5 +45,5 @@ ___
 
 *Inherited from [WatcherConfig](watcherconfig.md).[types](watcherconfig.md#optional-types)*
 
-*Defined in [interfaces.ts:97](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/ts-transforms/src/interfaces.ts#L97)*
+*Defined in [interfaces.ts:97](https://github.com/terascope/teraslice/blob/d3a803c3/packages/ts-transforms/src/interfaces.ts#L97)*
 

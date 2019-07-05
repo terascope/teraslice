@@ -1,5 +1,5 @@
 ---
-title: Teraslice State Storage :: ESQUery
+title: Teraslice State Storage: `ESQUery`
 sidebar_label: ESQUery
 ---
 
@@ -21,5 +21,5 @@ sidebar_label: ESQUery
 
 • **index**: *`ESMeta`*
 
-*Defined in [interfaces.ts:21](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/teraslice-state-storage/src/interfaces.ts#L21)*
+*Defined in [interfaces.ts:21](https://github.com/terascope/teraslice/blob/d3a803c3/packages/teraslice-state-storage/src/interfaces.ts#L21)*
 

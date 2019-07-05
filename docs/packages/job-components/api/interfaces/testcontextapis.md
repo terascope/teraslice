@@ -1,5 +1,5 @@
 ---
-title: Job Components :: TestContextAPIs
+title: Job Components: `TestContextAPIs`
 sidebar_label: TestContextAPIs
 ---
 
@@ -35,7 +35,7 @@ sidebar_label: TestContextAPIs
 
 *Inherited from [ContextApis](contextapis.md).[foundation](contextapis.md#foundation)*
 
-*Defined in [interfaces/context.ts:82](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L82)*
+*Defined in [interfaces/context.ts:82](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L82)*
 
 ## Methods
 
@@ -43,7 +43,7 @@ sidebar_label: TestContextAPIs
 
 ▸ **getTestClients**(): *[TestClients](testclients.md)*
 
-*Defined in [test-helpers.ts:101](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/test-helpers.ts#L101)*
+*Defined in [test-helpers.ts:101](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/test-helpers.ts#L101)*
 
 **Returns:** *[TestClients](testclients.md)*
 
@@ -55,7 +55,7 @@ ___
 
 *Inherited from [ContextApis](contextapis.md).[registerAPI](contextapis.md#registerapi)*
 
-*Defined in [interfaces/context.ts:83](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L83)*
+*Defined in [interfaces/context.ts:83](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L83)*
 
 **Parameters:**
 
@@ -72,7 +72,7 @@ ___
 
 ▸ **setTestClients**(`clients`: *[TestClientConfig](testclientconfig.md)[]*): *void*
 
-*Defined in [test-helpers.ts:100](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/test-helpers.ts#L100)*
+*Defined in [test-helpers.ts:100](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/test-helpers.ts#L100)*
 
 **Parameters:**
 

@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms :: NotifyType
+title: Ts Transforms: `NotifyType`
 sidebar_label: NotifyType
 ---
 
@@ -18,7 +18,7 @@ sidebar_label: NotifyType
 
 • **matcher**: = "matcher"
 
-*Defined in [interfaces.ts:5](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/ts-transforms/src/interfaces.ts#L5)*
+*Defined in [interfaces.ts:5](https://github.com/terascope/teraslice/blob/d3a803c3/packages/ts-transforms/src/interfaces.ts#L5)*
 
 ___
 
@@ -26,5 +26,5 @@ ___
 
 • **transform**: = "transform"
 
-*Defined in [interfaces.ts:5](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/ts-transforms/src/interfaces.ts#L5)*
+*Defined in [interfaces.ts:5](https://github.com/terascope/teraslice/blob/d3a803c3/packages/ts-transforms/src/interfaces.ts#L5)*
 

@@ -1,5 +1,7 @@
+import path from 'path';
 import execa from 'execa';
-import { TSCommands } from './interfaces';
+import fse from 'fs-extra';
+import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
 
 export async function exec(cmd: string, args: string[] = [], cwd = getRootDir()): Promise<string> {
@@ -32,8 +34,19 @@ export async function runTSScript(cmd: TSCommands, args: string[]) {
     return exec(scriptName, [cmd, ...args]);
 }
 
-export async function buildRoot() {
+export async function build(pkgInfo?: PackageInfo) {
+    if (pkgInfo) {
+        const distDir = path.join(pkgInfo.dir, 'dist');
+        if (fse.existsSync(distDir)) {
+            await fse.emptyDir(distDir);
+        }
+        return exec('yarn', ['run', 'build'], pkgInfo.dir);
+    }
     return exec('yarn', ['run', 'build']);
+}
+
+export async function setup() {
+    return await exec('yarn', ['run', 'setup']);
 }
 
 export async function getCommitHash() {

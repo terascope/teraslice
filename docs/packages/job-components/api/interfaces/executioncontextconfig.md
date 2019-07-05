@@ -1,5 +1,5 @@
 ---
-title: Job Components :: ExecutionContextConfig
+title: Job Components: `ExecutionContextConfig`
 sidebar_label: ExecutionContextConfig
 ---
 
@@ -24,7 +24,7 @@ sidebar_label: ExecutionContextConfig
 
 • **assetIds**? : *string[]*
 
-*Defined in [execution-context/interfaces.ts:17](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/execution-context/interfaces.ts#L17)*
+*Defined in [execution-context/interfaces.ts:17](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/execution-context/interfaces.ts#L17)*
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **context**: *[Context](context.md)*
 
-*Defined in [execution-context/interfaces.ts:14](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/execution-context/interfaces.ts#L14)*
+*Defined in [execution-context/interfaces.ts:14](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/execution-context/interfaces.ts#L14)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **executionConfig**: *[ExecutionConfig](executionconfig.md)*
 
-*Defined in [execution-context/interfaces.ts:15](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/execution-context/interfaces.ts#L15)*
+*Defined in [execution-context/interfaces.ts:15](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/execution-context/interfaces.ts#L15)*
 
 ___
 
@@ -48,5 +48,5 @@ ___
 
 • **terasliceOpPath**? : *undefined | string*
 
-*Defined in [execution-context/interfaces.ts:16](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/execution-context/interfaces.ts#L16)*
+*Defined in [execution-context/interfaces.ts:16](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/execution-context/interfaces.ts#L16)*
 

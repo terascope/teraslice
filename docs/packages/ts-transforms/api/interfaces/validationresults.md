@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms :: ValidationResults
+title: Ts Transforms: `ValidationResults`
 sidebar_label: ValidationResults
 ---
 
@@ -24,7 +24,7 @@ sidebar_label: ValidationResults
 
 • **extractions**: *[ExtractionProcessingDict](extractionprocessingdict.md)*
 
-*Defined in [interfaces.ts:122](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/ts-transforms/src/interfaces.ts#L122)*
+*Defined in [interfaces.ts:122](https://github.com/terascope/teraslice/blob/d3a803c3/packages/ts-transforms/src/interfaces.ts#L122)*
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **output**: *[OutputValidation](outputvalidation.md)*
 
-*Defined in [interfaces.ts:124](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/ts-transforms/src/interfaces.ts#L124)*
+*Defined in [interfaces.ts:124](https://github.com/terascope/teraslice/blob/d3a803c3/packages/ts-transforms/src/interfaces.ts#L124)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **postProcessing**: *[PostProcessingDict](postprocessingdict.md)*
 
-*Defined in [interfaces.ts:123](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/ts-transforms/src/interfaces.ts#L123)*
+*Defined in [interfaces.ts:123](https://github.com/terascope/teraslice/blob/d3a803c3/packages/ts-transforms/src/interfaces.ts#L123)*
 
 ___
 
@@ -48,5 +48,5 @@ ___
 
 • **selectors**: *[SelectorConfig](selectorconfig.md)[]*
 
-*Defined in [interfaces.ts:121](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/ts-transforms/src/interfaces.ts#L121)*
+*Defined in [interfaces.ts:121](https://github.com/terascope/teraslice/blob/d3a803c3/packages/ts-transforms/src/interfaces.ts#L121)*
 

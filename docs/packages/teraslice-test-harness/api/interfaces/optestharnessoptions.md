@@ -1,5 +1,5 @@
 ---
-title: Teraslice Test Harness :: OpTestHarnessOptions
+title: Teraslice Test Harness: `OpTestHarnessOptions`
 sidebar_label: OpTestHarnessOptions
 ---
 
@@ -21,5 +21,5 @@ sidebar_label: OpTestHarnessOptions
 
 • **clients**? : *`TestClientConfig`[]*
 
-*Defined in [interfaces.ts:19](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/teraslice-test-harness/src/interfaces.ts#L19)*
+*Defined in [interfaces.ts:19](https://github.com/terascope/teraslice/blob/d3a803c3/packages/teraslice-test-harness/src/interfaces.ts#L19)*
 

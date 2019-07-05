@@ -5,7 +5,7 @@ import OperationCore from './operation-core';
 /**
  * A base class for supporting "Fetcher" that run on a "Worker".
  * The "Fetcher" is a part of the "Reader" component of a job.
- * @see OperationCore
+ * See [[OperationCore]]
  */
 
 export default abstract class FetcherCore<T = OpConfig> extends OperationCore<T> {

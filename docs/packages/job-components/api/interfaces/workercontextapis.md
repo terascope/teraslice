@@ -1,5 +1,5 @@
 ---
-title: Job Components :: WorkerContextAPIs
+title: Job Components: `WorkerContextAPIs`
 sidebar_label: WorkerContextAPIs
 ---
 
@@ -43,7 +43,7 @@ This extends the Terafoundation Context.
 
 • **assets**: *[AssetsAPI](assetsapi.md)*
 
-*Defined in [interfaces/context.ts:126](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L126)*
+*Defined in [interfaces/context.ts:126](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L126)*
 
 Includes an API for getting a client from Terafoundation
 
@@ -53,7 +53,7 @@ ___
 
 • **executionContext**: *[ExecutionContextAPI](../classes/executioncontextapi.md)*
 
-*Defined in [interfaces/context.ts:132](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L132)*
+*Defined in [interfaces/context.ts:132](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L132)*
 
 An API for registering and loading the new Job APIs
 
@@ -65,7 +65,7 @@ ___
 
 *Inherited from [ContextApis](contextapis.md).[foundation](contextapis.md#foundation)*
 
-*Defined in [interfaces/context.ts:82](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L82)*
+*Defined in [interfaces/context.ts:82](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L82)*
 
 ___
 
@@ -73,7 +73,7 @@ ___
 
 • **job_runner**: *[JobRunnerAPI](jobrunnerapi.md)*
 
-*Defined in [interfaces/context.ts:130](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L130)*
+*Defined in [interfaces/context.ts:130](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L130)*
 
 Includes an API for getting a opConfig from the job
 
@@ -83,7 +83,7 @@ ___
 
 • **op_runner**: *[OpRunnerAPI](oprunnerapi.md)*
 
-*Defined in [interfaces/context.ts:128](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L128)*
+*Defined in [interfaces/context.ts:128](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L128)*
 
 Includes an API for getting a client from Terafoundation
 
@@ -95,7 +95,7 @@ Includes an API for getting a client from Terafoundation
 
 *Inherited from [ContextApis](contextapis.md).[registerAPI](contextapis.md#registerapi)*
 
-*Defined in [interfaces/context.ts:83](https://github.com/terascope/teraslice/blob/b0f73ab9/packages/job-components/src/interfaces/context.ts#L83)*
+*Defined in [interfaces/context.ts:83](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L83)*
 
 **Parameters:**
 

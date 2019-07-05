@@ -1,5 +1,5 @@
 ---
-title: Job Components :: JobAPIInstances
+title: Job Components: `JobAPIInstances`
 sidebar_label: JobAPIInstances
 ---
 
