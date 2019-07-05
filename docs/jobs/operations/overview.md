@@ -5,10 +5,6 @@ sidebar_label: Overview
 
 > Operations within [Teraslice Job](../overview.md) are designed to read, transform, write, or monitor data within a Teraslice job.
 
-## Types
-
-There are a few different operation types:
-
 ## Reader
 
 A `Reader` is a required components of a Job and is in-charge of distributing and reading partitions of data across many nodes. A `Reader` has two main components, a [Slicer](#slicer) and a [Fetcher](#fetcher).
