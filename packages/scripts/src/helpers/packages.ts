@@ -40,7 +40,7 @@ export function addPackageConfig(pkgInfo: i.PackageInfo): void {
 export function readPackageInfo(folderPath: string): i.PackageInfo {
     const dir = path.isAbsolute(folderPath) ? path.join(folderPath) : path.join(getRootDir(), folderPath);
     const pkgJSONPath = path.join(dir, 'package.json');
-    const pkgJSON = fse.readJSONSync(pkgJSONPath);
+    const pkgJSON = getSortedPkgJSON(fse.readJSONSync(pkgJSONPath));
     pkgJSON.dir = dir;
     updatePkgInfo(pkgJSON);
     return pkgJSON;
@@ -84,12 +84,14 @@ export function updatePkgInfo(pkgInfo: i.PackageInfo): void {
 export function updatePkgJSON(pkgInfo: i.PackageInfo, log?: boolean): Promise<boolean> {
     updatePkgInfo(pkgInfo);
 
-    const pkgJSON = { ...pkgInfo };
+    const pkgJSON = getSortedPkgJSON(pkgInfo);
     delete pkgJSON.folderName;
     delete pkgJSON.dir;
-    const pkgJSONPath = path.join(pkgInfo.dir, 'package.json');
-
-    return writeIfChanged(pkgJSONPath, sortPackageJson(pkgJSON), {
+    return writeIfChanged(path.join(pkgInfo.dir, 'package.json'), pkgJSON, {
         log,
     });
+}
+
+function getSortedPkgJSON(pkgInfo: i.PackageInfo) {
+    return JSON.parse(JSON.stringify(sortPackageJson(pkgInfo)));
 }

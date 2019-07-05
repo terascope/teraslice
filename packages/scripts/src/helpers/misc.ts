@@ -1,7 +1,7 @@
 import fse from 'fs-extra';
 import path from 'path';
 import pkgUp from 'pkg-up';
-import { words, isEqual, isPlainObject } from 'lodash';
+import { words, isPlainObject } from 'lodash';
 
 export let rootDir: string | undefined;
 export function getRootDir() {
@@ -64,13 +64,13 @@ export async function writeIfChanged(filePath: string, contents: any, options: W
         }
         if (exists) {
             const existing = await fse.readFile(filePath, 'utf8');
-            if (isEqual(existing, _contents)) {
+            if (existing === _contents) {
                 return false;
             }
         }
         if (options.log !== false) {
             // tslint:disable-next-line: no-console
-            console.log(`* wrote ${path.relative(getRootDir(), filePath)} file`);
+            console.error(`* wrote ${path.relative(getRootDir(), filePath)} file`);
         }
         await fse.writeFile(filePath, _contents, 'utf8');
         return true;
@@ -78,14 +78,14 @@ export async function writeIfChanged(filePath: string, contents: any, options: W
     if (isPlainObject(contents) || Array.isArray(contents)) {
         if (exists) {
             const existing = await fse.readJSON(filePath);
-            if (isEqual(existing, contents)) {
+            if (JSON.stringify(existing) === JSON.stringify(contents)) {
                 return false;
             }
         }
 
         if (options.log !== false) {
             // tslint:disable-next-line: no-console
-            console.log(`* wrote ${path.relative(getRootDir(), filePath)} JSON file`);
+            console.error(`* wrote ${path.relative(getRootDir(), filePath)} JSON file`);
         }
         await fse.writeJSON(filePath, contents, {
             spaces: 4,
@@ -94,4 +94,13 @@ export async function writeIfChanged(filePath: string, contents: any, options: W
     }
 
     throw new Error('Invalid contents given to writeIfChanged');
+}
+
+export function formatList(list: string[]) {
+    return `\n\n - ${list.join('\n - ')}`;
+}
+
+export function cliError<T>(prefix: string, error: string, ...args: any[]): never {
+    console.error(`${prefix}: ${error}`, ...args);
+    return process.exit(1);
 }

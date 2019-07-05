@@ -48,7 +48,7 @@ jobs:
         - yarn build:all
     script: yarn lint
     after_success:
-        - yarn docs 
+        - yarn sync
 
   # test end-to-end tests, only on pull-requests
   - script:

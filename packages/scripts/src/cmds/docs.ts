@@ -15,9 +15,9 @@ const cmd: CommandModule = {
         });
     },
     handler(argv) {
-        const pkgInfo = argv['package'];
+        const pkgInfo = argv.package as PackageInfo;
         if (pkgInfo) {
-            return buildPackage(pkgInfo as PackageInfo);
+            return buildPackage(pkgInfo);
         }
         return buildAll();
     },

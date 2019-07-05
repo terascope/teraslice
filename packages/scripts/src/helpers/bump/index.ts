@@ -24,7 +24,7 @@ async function updateMainPkg(mainPkgInfo: PackageInfo, options: BumpPackageOptio
     await updatePkgJSON(mainPkgInfo, false);
 
     // tslint:disable-next-line: no-console
-    console.log(`=> Updated ${mainPkgInfo.name} to version ${mainPkgInfo.version} to ${newVersion}`);
+    console.error(`=> Updated ${mainPkgInfo.name} to version ${mainPkgInfo.version} to ${newVersion}`);
     return newVersion;
 }
 
@@ -54,7 +54,7 @@ async function updateDependent(mainPkgInfo: PackageInfo, pkgInfo: PackageInfo, o
 
     await updatePkgJSON(pkgInfo, false);
     // tslint:disable-next-line: no-console
-    console.log(`---> Updated dependency ${pkgInfo.name}'s version of ${name} to ${newVersion}`);
+    console.error(`---> Updated dependency ${pkgInfo.name}'s version of ${name} to ${newVersion}`);
 
     if (options.recursive && isProdDep && pkgInfo.name !== 'teraslice') {
         await bumpPackage(pkgInfo, {

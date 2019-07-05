@@ -45,7 +45,7 @@ function getAPIName(overview: string, outputDir: string, filePath: string) {
 async function fixDocs(outputDir: string, { displayName }: PackageInfo) {
     const overviewFilePath = listMdFiles(outputDir).find(filePath => path.basename(filePath, '.md') === 'README');
     if (!overviewFilePath) {
-        console.error('Package documentation was not generated correctly, make you can build project');
+        console.error('Error: Package documentation was not generated correctly, make you can build project');
         return;
     }
     const targetPath = path.join(path.dirname(overviewFilePath), 'overview.md');
@@ -73,7 +73,7 @@ async function fixDocs(outputDir: string, { displayName }: PackageInfo) {
 
 export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string) {
     // tslint:disable-next-line: no-console
-    console.log(`* building typedocs for package ${pkgInfo.name}`);
+    console.error(`* building typedocs for package ${pkgInfo.name}`);
     const cwd = process.cwd();
     try {
         process.chdir(pkgInfo.dir);

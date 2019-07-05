@@ -2,7 +2,7 @@ import execa from 'execa';
 import { TSCommands } from './interfaces';
 import { getRootDir } from './misc';
 
-export async function exec(cmd: string, args: string[] = [], cwd = getRootDir()): Promise<void> {
+export async function exec(cmd: string, args: string[] = [], cwd = getRootDir()): Promise<string> {
     let subprocess;
     const options: execa.Options = {
         cwd,
@@ -18,12 +18,13 @@ export async function exec(cmd: string, args: string[] = [], cwd = getRootDir())
         subprocess = execa(cmd, options);
     }
 
-    if (!subprocess || !subprocess.stdout) {
+    if (!subprocess || !subprocess.stderr) {
         throw new Error(`Failed to execution ${cmd}`);
     }
 
-    subprocess.stdout.pipe(process.stdout);
-    await subprocess;
+    subprocess.stderr.pipe(process.stderr);
+    const { stdout } = await subprocess;
+    return stdout;
 }
 
 export async function runTSScript(cmd: TSCommands, args: string[]) {
@@ -32,9 +33,17 @@ export async function runTSScript(cmd: TSCommands, args: string[]) {
 }
 
 export async function buildRoot() {
-    await exec('yarn', ['run', 'build']);
+    return exec('yarn', ['run', 'build']);
 }
 
 export async function getCommitHash() {
-    await exec('git', ['rev-parse', 'HEAD']);
+    return exec('git', ['rev-parse', 'HEAD']);
+}
+
+export async function getChangedFiles(...files: string[]) {
+    const result = await exec('git', ['diff', '--name-only', ...files]);
+    return result
+        .split('\n')
+        .map(str => str.trim())
+        .filter(str => !!str);
 }

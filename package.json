@@ -11,6 +11,7 @@
         "build:pkg": "./scripts/build-pkg.sh",
         "build:watch": "yarn run build --watch",
         "benchmark": "lerna run --concurrency=1 --no-prefix --stream benchmark",
+        "sync": "ts-scripts sync",
         "docs": "ts-scripts docs",
         "bump": "ts-scripts bump",
         "test": "jest --silent --forceExit",
