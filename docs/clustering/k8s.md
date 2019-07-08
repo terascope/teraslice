@@ -14,14 +14,16 @@ versions of Kuberenetes have been used:
 We are not yet making an effort to ensure compatibility with older Kubernetes
 versions, so the newest version listed above is likely to be the best choice.
 
-# Setup
+## Setup
 
 You need Elasticsearch running and listening on a port accessible by the
 Teraslice master and worker nodes.  In the case of minikube based deployments
 (dev/test only) you'll need to make ES listen on your VirtualBox interface.  The
 IP address of that interface is what you need to set as:
 
-    `terafoundation.connectors.elasticsearch.default.host`
+```yaml
+terafoundation.connectors.elasticsearch.default.host
+```
 
 in both the `teraslice-master` and `teraslice-worker` ConfigMaps.
 
@@ -81,7 +83,7 @@ clusterName.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63)
 It is not necessary that the master be in cluster state for Teraslice to work,
 it's just kind of nice to have.
 
-# Kubernetes Specific Configuration Settings
+## Kubernetes Specific Configuration Settings
 
 The table below shows the Teraslice configuration settings added
 to support k8s based Teraslice deployments.
@@ -96,12 +98,12 @@ to support k8s based Teraslice deployments.
 
 Note that the `assets_volume` should also be mounted to your Teraslice master pod.
 
-# Teraslice Job Properties
+## Teraslice Job Properties
 
 Support for Kubernetes based clustering adds additional properties to a
 Teraslice job definition.  These are outlined below.
 
-## Resources
+### Resources
 
 It is possible to set CPU and memory resource constraints for your Teraslice
 workers that translate to Kubernetes resource constraints.  Currently you
@@ -120,7 +122,7 @@ will result in the Kubernetes `resources.requests.memory` and
 [Kubernetes Resource docs](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
 for further details on how Kubernetes interprets these values.
 
-## Node Affinity and Tolerance Using Teraslice Job Targets
+### Node Affinity and Tolerance Using Teraslice Job Targets
 
 If you need the workers (and execution controller) of your job to execute on
 specific set of nodes or tolerate node taints, you can use the Teraslice
@@ -148,7 +150,7 @@ are insufficient resources, they may be scheduled on nodes without this label.
 * `accepted` - Pods may be scheduled to nodes with the kubernetes taint
 provided by this label.  This uses a Kubernetes tolerance.
 
-### Examples
+#### Examples
 
 If you want to force pods to run on nodes with a given label, you can simply
 specify a target with just a `key` and `value`:
@@ -224,7 +226,6 @@ The example below is what you would get if you provided two `required` targets:
                       - texas
 ```
 
-
 #### Details of the `preferred` constraint
 
 For each entry in `targets` with a `constraint` set to `preferred`, the pod spec
@@ -253,7 +254,6 @@ below is what you would get if you provided two `preferred` targets:
                       - texas
 ```
 
-
 #### Details of the `accepted` constraint
 
 For each entry in `targets` with a `constraint` set to `accepted`, the pod spec
@@ -274,7 +274,6 @@ targets:
           effect: NoSchedule
 ```
 
-
 ## Attach existing volumes
 
 One or more volumes can be specified on your job and these volumes will be
@@ -289,7 +288,7 @@ property should be the name of the Kubernetes `persistentVolumeClaim`.  The
 ],
 ```
 
-# Makefile
+## Makefile
 
 There is a `Makefile` I use to help bootstrap Teraslice and do repetitive tasks,
 you can type `make` to see all of the possible targets.

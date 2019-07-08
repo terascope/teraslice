@@ -172,5 +172,4 @@ export default class ExampleDeadLetterQueue extends OperationAPI {
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-
 For example, see the code for [kafka_dead_letter](https://github.com/terascope/kafka-assets/tree/master/asset/src/kafka_dead_letter) api.

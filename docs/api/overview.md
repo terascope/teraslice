@@ -20,7 +20,8 @@ This will return the job_id (for access to the original job posted) and the job 
     "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
 }
 ```
-# Job Control
+
+## Job Control
 
 Please check the api docs at the bottom for a comprehensive in-depth list of all api's. What is listed here is just a small brief of only a few api's
 

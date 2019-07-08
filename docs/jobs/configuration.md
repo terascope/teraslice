@@ -24,6 +24,7 @@ Note that the job configuration is divided into top level job configuration, and
 | `probation_window` | time in ms that the execution controller checks for failed slices, if there are none then it updates the state of the execution to running (this is only when lifecycle is set to persistent)                       | `Number`        | optional                                                                                                                                                                                                |
 
 **Example Job:**
+
 ```js
 {
     "name": "Reindex Events",

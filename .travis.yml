@@ -46,7 +46,9 @@ jobs:
         - yarn && yarn lerna bootstrap --force-local
         # Build all packages individually
         - yarn build:all
-    script: yarn lint
+    script:
+        - yarn lint
+        - yarn lint:docs
     after_success:
         - yarn sync
 

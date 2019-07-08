@@ -18,12 +18,13 @@ It supports the creation of custom processor logic implemented in JavaScript and
 
 Teraslice is written in Node.js and has been tested on Linux and Mac OS X.
 
-### Dependencies ###
-* Node.js 8 or above
-* Yarn (development only)
-* At least one Elasticsearch 5 or above cluster
+### Dependencies
 
-### Installation ###
+- Node.js 8 or above
+- Yarn (development only)
+- At least one Elasticsearch 5 or above cluster
+
+### Installation
 
 ```sh
 # Install teraslice globally
@@ -38,7 +39,7 @@ npm install --global teraslice-cli
 # npm install terafoundation_kafka_connector
 ```
 
-### Running ###
+### Running
 
 Create a configuration file called `config.yaml`:
 
@@ -76,9 +77,9 @@ teraslice-cli assets deploy localhost terascope/elasticsearch-assets
 
 There are also asset bundles available for:
 
- * [Kafka](https://github.com/terascope/kafka-assets)
- * [Files](https://github.com/terascope/file-assets)
- * [HDFS](https://github.com/terascope/hdfs-assets)
+- [Kafka](https://github.com/terascope/kafka-assets)
+- [Files](https://github.com/terascope/file-assets)
+- [HDFS](https://github.com/terascope/hdfs-assets)
 
 If you want to get a simple cluster going use, the example docker-compose file:
 

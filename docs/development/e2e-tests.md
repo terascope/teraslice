@@ -6,10 +6,10 @@ title: End-to-End Tests
 
 ## Dependencies
 
-* Docker (not sure about minimal version but tested with 17.06.1-ce-rc1)
-* Docker Compose (not sure about minimal version but tested with 1.14.0)
+- Docker (not sure about minimal version but tested with 17.06.1-ce-rc1)
+- Docker Compose (not sure about minimal version but tested with 1.14.0)
 
-# General Notes
+## General Notes
 
 Unless specified, all commands are assumed to be run from this e2e tests
 directory - utils like `docker-compose` look for files in current dir.
@@ -22,10 +22,10 @@ When in dev mode, the teraslice project root will be built in a docker container
 
 1. From the teraslice project root, `yarn setup` and it will link the teraslice packages together
 
-1. From the e2e directory, `yarn test` will run
+2. From the e2e directory, `yarn test` will run
    the test suite against latest stable versions.
 
-1. Repeat as needed. When done, run `yarn clean` from this directory.
+3. Repeat as needed. When done, run `yarn clean` from this directory.
 
 ## CI Tests
 
@@ -37,7 +37,7 @@ Currently only the `elasticsearch-assets` and `kafka-assets` are automatically d
 
 To add additionally asset bundles, edit `${root}/e2e/test/download-assets.js`.
 
-# Trouble-Shooting
+## Trouble-Shooting
 
 The environment is managed by `docker-compose`. See the `ps` & `log`
 sub-commands to diagnose potential issues in the containers. Here is a recipe to
