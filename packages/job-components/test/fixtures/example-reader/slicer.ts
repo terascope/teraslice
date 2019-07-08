@@ -1,11 +1,11 @@
 import uuidv4 from 'uuid/v4';
-import { Slicer } from '../../../src';
+import { Slicer, SlicerRecoveryData } from '../../../src';
 
 export default class ExampleSlicer extends Slicer {
     _initialized = false;
     _shutdown = false;
 
-    async initialize(recoveryData: object[]) {
+    async initialize(recoveryData: SlicerRecoveryData[]) {
         this._initialized = true;
         return super.initialize(recoveryData);
     }
@@ -18,7 +18,7 @@ export default class ExampleSlicer extends Slicer {
     async slice() {
         return {
             id: uuidv4(),
-            fetchFrom: 'https://httpstat.us/200'
+            fetchFrom: 'https://httpstat.us/200',
         };
     }
 }

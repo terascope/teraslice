@@ -2,6 +2,7 @@
   "scripts": {
     "examples": "docusaurus-examples",
     "start": "docusaurus-start",
+    "start:watch": "env FORCE_COLOR=1 npm-watch start",
     "build": "docusaurus-build",
     "publish-gh-pages": "docusaurus-publish",
     "write-translations": "docusaurus-write-translations",
@@ -10,6 +11,21 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "docusaurus": "^1.11.1"
+    "docusaurus": "^1.11.1",
+    "npm-watch": "^0.6.0"
+  },
+  "watch": {
+    "start": {
+      "patterns": [
+        "sidebars.json",
+        "siteConfig.js",
+        "core",
+        "static",
+        "pages"
+      ],
+      "delay": 500,
+      "extensions": ".css,.md,.json,.js,.jsx",
+      "quiet": false
+    }
   }
 }

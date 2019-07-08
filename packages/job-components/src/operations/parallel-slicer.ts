@@ -1,5 +1,5 @@
 import { times, isFunction } from '@terascope/utils';
-import { SlicerFn, SlicerResult, OpConfig } from '../interfaces';
+import { SlicerFn, SlicerResult, OpConfig, SlicerRecoveryData } from '../interfaces';
 import SlicerCore from './core/slicer-core';
 
 /**
@@ -16,7 +16,7 @@ export default abstract class ParallelSlicer<T = OpConfig> extends SlicerCore<T>
      *
      * See [[SlicerCore#initialize]]
      */
-    async initialize(recoveryData: object[]): Promise<void> {
+    async initialize(recoveryData: SlicerRecoveryData[]): Promise<void> {
         await super.initialize(recoveryData);
         const { slicers = 1 } = this.executionConfig;
 

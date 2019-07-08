@@ -1,5 +1,14 @@
 import { DataEntity, isInteger, isFunction, toString } from '@terascope/utils';
-import { Context, LegacyExecutionContext, LegacyReader, SliceRequest, SlicerFns, ReaderFn, ValidatedJobConfig } from '../../interfaces';
+import {
+    Context,
+    LegacyExecutionContext,
+    LegacyReader,
+    SliceRequest,
+    SlicerFns,
+    ReaderFn,
+    ValidatedJobConfig,
+    SlicerRecoveryData,
+} from '../../interfaces';
 import FetcherCore from '../core/fetcher-core';
 import ParallelSlicer from '../parallel-slicer';
 import ConvictSchema from '../convict-schema';
@@ -8,17 +17,17 @@ import { convertResult } from './shim-utils';
 
 export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule {
     return {
-        Slicer: class LegacySlicerShim<T = object> extends ParallelSlicer<T>  {
+        Slicer: class LegacySlicerShim<T = object> extends ParallelSlicer<T> {
             private _maxQueueLength = 10000;
             private _dynamicQueueLength = false;
-            private slicerFns: SlicerFns|undefined;
+            private slicerFns: SlicerFns | undefined;
 
             /** legacy slicers should recoverable by default */
             isRecoverable() {
                 return true;
             }
 
-            async initialize(recoveryData: object[]) {
+            async initialize(recoveryData: SlicerRecoveryData[]) {
                 // @ts-ignore
                 const executionContext: LegacyExecutionContext = {
                     config: this.executionConfig,
@@ -54,7 +63,7 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
             }
         },
         Fetcher: class LegacyFetcherShim<T = object> extends FetcherCore<T> {
-            private fetcherFn: ReaderFn<DataEntity[]>|undefined;
+            private fetcherFn: ReaderFn<DataEntity[]> | undefined;
 
             async initialize() {
                 this.fetcherFn = await legacy.newReader(this.context, this.opConfig, this.executionConfig);
@@ -94,6 +103,6 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
             build(context?: Context) {
                 return legacy.schema(context);
             }
-        }
+        },
     };
 }

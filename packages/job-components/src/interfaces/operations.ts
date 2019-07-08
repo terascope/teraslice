@@ -42,6 +42,13 @@ export interface SliceRequest {
 }
 
 /**
+ * The metadata given to Slicer after succefully recovering the execution
+ */
+export interface SlicerRecoveryData {
+    lastSlice: Slice;
+}
+
+/**
  * A trackable set of work to be preformed by a "Worker"
  */
 export interface Slice {

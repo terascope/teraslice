@@ -5,16 +5,26 @@ sidebar_label: Lifecycle
 
 ## Execution Controller
 
-### Slicer
+See [SlicerOperationLifeCycle](../../packages/job-components/api/interfaces/sliceroperationlifecycle.md) API for more details.
 
-FIXME
+### `->initialize`
+
+Called when the Execution Controller starts up, when this is called perform any async setup.
+
+After recovering an execution the Slicer will be given a [`SlicerRecoveryData`](../../packages/job-components/api/interfaces/slicerrecoverydata.md) for each slicer.
+
+### `->shutdown`
+
+Called when the Execution Controller is shutting down, when this is cleanup any open connections or destroy any in-memory state.
 
 ## Worker
 
-### Fetcher
+See [WorkerOperationLifeCycle](../../packages/job-components/api/interfaces/workeroperationlifecycle.md) API for more details.
 
-FIXME
+### `->initialize`
 
-### Dead Letter Queue
+Called when the Execution Controller starts up, when this is called perform any async setup.
 
-FIXME
+### `->shutdown`
+
+Called when the Execution Controller is shutting down, when this is cleanup any open connections or destroy any in-memory state.

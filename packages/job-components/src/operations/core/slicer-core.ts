@@ -1,5 +1,14 @@
 import uuidv4 from 'uuid/v4';
-import { OpConfig, ExecutionConfig, Slice, SliceRequest, SlicerOperationLifeCycle, ExecutionStats, WorkerContext } from '../../interfaces';
+import {
+    OpConfig,
+    ExecutionConfig,
+    Slice,
+    SliceRequest,
+    SlicerOperationLifeCycle,
+    ExecutionStats,
+    WorkerContext,
+    SlicerRecoveryData,
+} from '../../interfaces';
 import Queue from '@terascope/queue';
 import Core from './core';
 
@@ -48,7 +57,7 @@ export default abstract class SlicerCore<T = OpConfig> extends Core<WorkerContex
      * Called during execution initialization
      * @param recoveryData is the data to recover from
      */
-    async initialize(recoveryData: object[]): Promise<void> {
+    async initialize(recoveryData: SlicerRecoveryData[]): Promise<void> {
         this.recoveryData = recoveryData;
         this.context.logger.trace(`${this.executionConfig.name}->${this.opConfig._op} is initializing...`, recoveryData);
     }

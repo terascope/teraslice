@@ -37,7 +37,7 @@
         "pkg-up": "^3.1.0",
         "semver": "^6.1.1",
         "sort-package-json": "^1.22.1",
-        "typedoc": "^0.15.0-0",
+        "typedoc": "TypeStrong/typedoc",
         "typedoc-plugin-markdown": "^2.0.7",
         "yargs": "^13.2.4"
     },

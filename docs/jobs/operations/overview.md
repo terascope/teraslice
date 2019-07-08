@@ -33,7 +33,7 @@ To develop a processor, see the [docs](./development.md#api).
 
 ### Operation API
 
-This type of API that exposes to functionality to other processors within a job. A [Dead Letter Queue](./lifecycle.md#dead-letter-queue) is a type of `Operation API`.
+This type of API that exposes to functionality to other processors within a job. A [Dead Letter Queue](./concepts.md#dead-letter-queue) is a type of `Operation API`.
 
 ### Observer
 
