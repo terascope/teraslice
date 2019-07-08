@@ -20,7 +20,7 @@
     },
     "scripts": {
         "build": "tsc --build --pretty",
-        "build:prepare": "./scripts/build-typedoc.js",
+        "prebuild": "./scripts/build-typedoc.js",
         "build:watch": "yarn build --watch",
         "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",

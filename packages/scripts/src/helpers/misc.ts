@@ -57,11 +57,7 @@ export async function writeIfChanged(filePath: string, contents: any, options: W
     }
 
     if (typeof contents === 'string') {
-        let _contents = contents;
-        // ensure it ends with a new line
-        if (!_contents.endsWith('\n\n')) {
-            _contents = `${_contents}\n\n`;
-        }
+        const _contents = `${contents.trim()}\n`;
         if (exists) {
             const existing = await fse.readFile(filePath, 'utf8');
             if (existing === _contents) {

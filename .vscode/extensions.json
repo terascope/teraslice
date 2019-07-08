@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "dbaeumer.vscode-eslint",
+        "ms-vscode.vscode-typescript-tslint-plugin",
+        "editorconfig.editorconfig",
+        "DavidAnson.vscode-markdownlint"
+    ],
+    "unwantedRecommendations": ["hookyqr.beautify", "dbaeumer.jshint"]
+}
