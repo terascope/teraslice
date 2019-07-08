@@ -26,7 +26,9 @@ const siteConfig = {
     // For no header links in the top nav bar -> headerLinks: [],
     headerLinks: [
         { doc: 'overview', label: 'Docs' },
+        { doc: 'asset-bundles', label: 'Assets' },
         { doc: 'packages', label: 'Packages' },
+        { href: 'https://github.com/terascope/teraslice', label: 'GitHub' },
         { page: 'help', label: 'Help' }
     ],
 
