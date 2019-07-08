@@ -4,14 +4,12 @@ import fse from 'fs-extra';
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
 
+process.env.FORCE_COLOR = '1';
+
 export async function exec(cmd: string, args: string[] = [], cwd = getRootDir()): Promise<string> {
     let subprocess;
     const options: execa.Options = {
         cwd,
-        env: {
-            FORCE_COLOR: 'true',
-        },
-        extendEnv: true,
     };
 
     if (args && args.length) {
