@@ -10,7 +10,7 @@ In order to use the Dead Letter Queue you have to specify the `_dead_letter_acti
 
 There are a few built-in actions available:
 
-- **"throw"** - Throw a specifically formatted error.
+- **"throw"** - Throw a specifically formatted error and retry the slice.
 - **"log"** - Log the invalid record. *WARNING: this can expose sensitive data production data*
 - **"none"** - Do nothing.
 

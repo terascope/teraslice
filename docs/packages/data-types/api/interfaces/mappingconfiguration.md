@@ -23,7 +23,7 @@ sidebar_label: MappingConfiguration
 
 • **mappingMetaData**? : *`ObjectConfig`*
 
-*Defined in [interfaces.ts:22](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-types/src/interfaces.ts#L22)*
+*Defined in [interfaces.ts:22](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-types/src/interfaces.ts#L22)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **settings**? : *[ESMapSettings](esmapsettings.md)*
 
-*Defined in [interfaces.ts:21](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-types/src/interfaces.ts#L21)*
+*Defined in [interfaces.ts:21](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-types/src/interfaces.ts#L21)*
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **typeName**? : *undefined | string*
 
-*Defined in [interfaces.ts:20](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-types/src/interfaces.ts#L20)*
+*Defined in [interfaces.ts:20](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-types/src/interfaces.ts#L20)*

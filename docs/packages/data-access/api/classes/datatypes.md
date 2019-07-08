@@ -63,7 +63,7 @@ Manager for DataTypes
 
 *Overrides void*
 
-*Defined in [models/data-types.ts:12](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/data-types.ts#L12)*
+*Defined in [models/data-types.ts:12](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/data-types.ts#L12)*
 
 **Parameters:**
 
@@ -110,7 +110,7 @@ ___
 
 ▪ **IndexModelConfig**: *`IndexModelConfig<DataType>`* =  dataTypesConfig
 
-*Defined in [models/data-types.ts:12](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/data-types.ts#L12)*
+*Defined in [models/data-types.ts:12](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/data-types.ts#L12)*
 
 ## Methods
 
@@ -198,7 +198,7 @@ ___
 
 *Overrides void*
 
-*Defined in [models/data-types.ts:164](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/data-types.ts#L164)*
+*Defined in [models/data-types.ts:164](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/data-types.ts#L164)*
 
 **Parameters:**
 
@@ -216,7 +216,7 @@ ___
 
 *Overrides void*
 
-*Defined in [models/data-types.ts:159](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/data-types.ts#L159)*
+*Defined in [models/data-types.ts:159](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/data-types.ts#L159)*
 
 **Parameters:**
 
@@ -533,7 +533,7 @@ ___
 
 ▸ **resolveDataType**(`id`: *string*, `options?`: *`ResolveDataTypeOptions`*, `queryAccess?`: *`QueryAccess<DataType>`*): *`Promise<DataType>`*
 
-*Defined in [models/data-types.ts:22](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/data-types.ts#L22)*
+*Defined in [models/data-types.ts:22](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/data-types.ts#L22)*
 
 Get the type configuration for a data type
 including any merged fields
@@ -554,7 +554,7 @@ ___
 
 ▸ **resolveTypeConfig**(`dataType`: *[DataType](../interfaces/datatype.md)*, `options?`: *`ResolveDataTypeOptions`*, `queryAccess?`: *`QueryAccess<DataType>`*): *`Promise<DataTypeConfig>`*
 
-*Defined in [models/data-types.ts:30](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/data-types.ts#L30)*
+*Defined in [models/data-types.ts:30](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/data-types.ts#L30)*
 
 **Parameters:**
 

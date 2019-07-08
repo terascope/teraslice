@@ -23,7 +23,7 @@ sidebar_label: SendOptions
 
 • **response**? : *undefined | false | true*
 
-*Defined in [messenger/interfaces.ts:59](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-messaging/src/messenger/interfaces.ts#L59)*
+*Defined in [messenger/interfaces.ts:59](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/interfaces.ts#L59)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **timeout**? : *undefined | number*
 
-*Defined in [messenger/interfaces.ts:60](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-messaging/src/messenger/interfaces.ts#L60)*
+*Defined in [messenger/interfaces.ts:60](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/interfaces.ts#L60)*
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **volatile**? : *undefined | false | true*
 
-*Defined in [messenger/interfaces.ts:58](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-messaging/src/messenger/interfaces.ts#L58)*
+*Defined in [messenger/interfaces.ts:58](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/interfaces.ts#L58)*

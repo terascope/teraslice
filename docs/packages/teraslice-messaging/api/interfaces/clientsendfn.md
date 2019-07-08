@@ -13,7 +13,7 @@ sidebar_label: ClientSendFn
 
 ▸ (`message`: *[Message](message.md)*): *void*
 
-*Defined in [messenger/interfaces.ts:93](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-messaging/src/messenger/interfaces.ts#L93)*
+*Defined in [messenger/interfaces.ts:93](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/interfaces.ts#L93)*
 
 **Parameters:**
 

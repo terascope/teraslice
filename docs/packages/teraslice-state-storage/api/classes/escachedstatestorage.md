@@ -31,7 +31,7 @@ sidebar_label: ESCachedStateStorage
 
 \+ **new ESCachedStateStorage**(`client`: *`Client`*, `logger`: *`Logger`*, `config`: *[ESStateStorageConfig](../interfaces/esstatestorageconfig.md)*): *[ESCachedStateStorage](escachedstatestorage.md)*
 
-*Defined in [elasticsearch-state-storage/index.ts:18](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L18)*
+*Defined in [elasticsearch-state-storage/index.ts:18](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L18)*
 
 **Parameters:**
 
@@ -49,7 +49,7 @@ Name | Type |
 
 ▸ **count**(): *number*
 
-*Defined in [elasticsearch-state-storage/index.ts:169](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L169)*
+*Defined in [elasticsearch-state-storage/index.ts:169](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L169)*
 
 **Returns:** *number*
 
@@ -59,7 +59,7 @@ ___
 
 ▸ **get**(`doc`: *`DataEntity`*): *`Promise<DataEntity<object>>`*
 
-*Defined in [elasticsearch-state-storage/index.ts:105](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L105)*
+*Defined in [elasticsearch-state-storage/index.ts:105](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L105)*
 
 **Parameters:**
 
@@ -75,7 +75,7 @@ ___
 
 ▸ **initialize**(): *`Promise<void>`*
 
-*Defined in [elasticsearch-state-storage/index.ts:173](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L173)*
+*Defined in [elasticsearch-state-storage/index.ts:173](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L173)*
 
 **Returns:** *`Promise<void>`*
 
@@ -85,7 +85,7 @@ ___
 
 ▸ **mget**(`docArray`: *`DataEntity`[]*): *`Promise<object>`*
 
-*Defined in [elasticsearch-state-storage/index.ts:113](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L113)*
+*Defined in [elasticsearch-state-storage/index.ts:113](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L113)*
 
 **Parameters:**
 
@@ -101,7 +101,7 @@ ___
 
 ▸ **mset**(`docArray`: *`DataEntity`[]*, `keyField?`: *undefined | string*): *`Promise<void | [void, (DataEntity<object> | ESQuery)[][]]>`*
 
-*Defined in [elasticsearch-state-storage/index.ts:161](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L161)*
+*Defined in [elasticsearch-state-storage/index.ts:161](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L161)*
 
 **Parameters:**
 
@@ -118,7 +118,7 @@ ___
 
 ▸ **set**(`doc`: *`DataEntity`*): *`Promise<void>`*
 
-*Defined in [elasticsearch-state-storage/index.ts:156](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L156)*
+*Defined in [elasticsearch-state-storage/index.ts:156](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L156)*
 
 **Parameters:**
 
@@ -134,6 +134,6 @@ ___
 
 ▸ **shutdown**(): *`Promise<void>`*
 
-*Defined in [elasticsearch-state-storage/index.ts:177](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L177)*
+*Defined in [elasticsearch-state-storage/index.ts:177](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L177)*
 
 **Returns:** *`Promise<void>`*

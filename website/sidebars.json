@@ -18,8 +18,7 @@
             "jobs/worker-lifecycle",
             "jobs/dead-letter-queue",
             "jobs/development",
-            "jobs/testing",
-            "jobs/legacy-operations"
+            "jobs/testing"
         ],
         "Clustering": [
             "clustering/overview",

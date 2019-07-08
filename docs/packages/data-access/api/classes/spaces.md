@@ -65,7 +65,7 @@ Manager for Spaces
 
 *Overrides void*
 
-*Defined in [models/spaces.ts:11](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/spaces.ts#L11)*
+*Defined in [models/spaces.ts:11](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/spaces.ts#L11)*
 
 **Parameters:**
 
@@ -112,7 +112,7 @@ ___
 
 ▪ **IndexModelConfig**: *`IndexModelConfig<Space>`* =  spacesConfig
 
-*Defined in [models/spaces.ts:10](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/spaces.ts#L10)*
+*Defined in [models/spaces.ts:10](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/spaces.ts#L10)*
 
 ___
 
@@ -120,7 +120,7 @@ ___
 
 ▪ **ReservedEndpoints**: *string[]* =  ['data-access', 'spaces']
 
-*Defined in [models/spaces.ts:11](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/spaces.ts#L11)*
+*Defined in [models/spaces.ts:11](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/spaces.ts#L11)*
 
 ## Methods
 
@@ -299,7 +299,7 @@ ___
 
 ▸ **addViewsToSpace**(`spaceId`: *string*, `views`: *string[] | string*): *`Promise<void>`*
 
-*Defined in [models/spaces.ts:18](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/spaces.ts#L18)*
+*Defined in [models/spaces.ts:18](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/spaces.ts#L18)*
 
 Associate views to space
 
@@ -562,7 +562,7 @@ ___
 
 ▸ **removeViewFromSpaces**(`viewId`: *string*): *`Promise<void>`*
 
-*Defined in [models/spaces.ts:39](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/spaces.ts#L39)*
+*Defined in [models/spaces.ts:39](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/spaces.ts#L39)*
 
 **Parameters:**
 
@@ -578,7 +578,7 @@ ___
 
 ▸ **removeViewsFromSpace**(`spaceId`: *string*, `views`: *string[] | string*): *`Promise<void>`*
 
-*Defined in [models/spaces.ts:29](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/spaces.ts#L29)*
+*Defined in [models/spaces.ts:29](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/spaces.ts#L29)*
 
 Disassociate views to space
 

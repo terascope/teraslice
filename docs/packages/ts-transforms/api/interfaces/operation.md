@@ -25,7 +25,7 @@ sidebar_label: Operation
 
 • **config**? : *[OperationConfig](../overview.md#operationconfig)*
 
-*Defined in [interfaces.ts:83](https://github.com/terascope/teraslice/blob/a2250fb9/packages/ts-transforms/src/interfaces.ts#L83)*
+*Defined in [interfaces.ts:83](https://github.com/terascope/teraslice/blob/a3992c27/packages/ts-transforms/src/interfaces.ts#L83)*
 
 ## Methods
 
@@ -33,7 +33,7 @@ sidebar_label: Operation
 
 ▸ **run**(`data`: *`DataEntity`*): *null | `DataEntity`*
 
-*Defined in [interfaces.ts:84](https://github.com/terascope/teraslice/blob/a2250fb9/packages/ts-transforms/src/interfaces.ts#L84)*
+*Defined in [interfaces.ts:84](https://github.com/terascope/teraslice/blob/a3992c27/packages/ts-transforms/src/interfaces.ts#L84)*
 
 **Parameters:**
 

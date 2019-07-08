@@ -13,7 +13,7 @@ sidebar_label: EventListener
 
 ▸ (`msg`: *[EventMessage](eventmessage.md)*): *void*
 
-*Defined in [messenger/interfaces.ts:117](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-messaging/src/messenger/interfaces.ts#L117)*
+*Defined in [messenger/interfaces.ts:117](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/interfaces.ts#L117)*
 
 **Parameters:**
 

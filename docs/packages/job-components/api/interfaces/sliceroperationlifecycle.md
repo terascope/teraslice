@@ -38,7 +38,7 @@ sidebar_label: SlicerOperationLifeCycle
 
 *Overrides [OperationLifeCycle](operationlifecycle.md).[initialize](operationlifecycle.md#initialize)*
 
-*Defined in [interfaces/operation-lifecycle.ts:91](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L91)*
+*Defined in [interfaces/operation-lifecycle.ts:93](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/operation-lifecycle.ts#L93)*
 
 Called during execution initialization,
 when this is cleanup any open connections or cleanup any in-memory state.
@@ -57,7 +57,7 @@ ___
 
 ▸ **onExecutionStats**(`stats`: *[ExecutionStats](executionstats.md)*): *void*
 
-*Defined in [interfaces/operation-lifecycle.ts:115](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L115)*
+*Defined in [interfaces/operation-lifecycle.ts:117](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/operation-lifecycle.ts#L117)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track various slicer satistics
@@ -76,7 +76,7 @@ ___
 
 ▸ **onSliceComplete**(`result`: *[SliceResult](sliceresult.md)*): *void*
 
-*Defined in [interfaces/operation-lifecycle.ts:109](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L109)*
+*Defined in [interfaces/operation-lifecycle.ts:111](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/operation-lifecycle.ts#L111)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track the slices completed by the execution controller
@@ -95,7 +95,7 @@ ___
 
 ▸ **onSliceDispatch**(`slice`: *[Slice](slice.md)*): *void*
 
-*Defined in [interfaces/operation-lifecycle.ts:103](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L103)*
+*Defined in [interfaces/operation-lifecycle.ts:105](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/operation-lifecycle.ts#L105)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track the slices disptached by the execution controller
@@ -114,7 +114,7 @@ ___
 
 ▸ **onSliceEnqueued**(`slice`: *[Slice](slice.md)*): *void*
 
-*Defined in [interfaces/operation-lifecycle.ts:97](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L97)*
+*Defined in [interfaces/operation-lifecycle.ts:99](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/operation-lifecycle.ts#L99)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track the slices enqueued by the execution controller
@@ -135,7 +135,7 @@ ___
 
 *Inherited from [OperationLifeCycle](operationlifecycle.md).[shutdown](operationlifecycle.md#shutdown)*
 
-*Defined in [interfaces/operation-lifecycle.ts:14](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L14)*
+*Defined in [interfaces/operation-lifecycle.ts:15](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/operation-lifecycle.ts#L15)*
 
 Called during execution shutdown,
 when this is cleanup any open connections or destroy any in-memory state.

@@ -61,7 +61,7 @@ Manager for Roles
 
 *Overrides void*
 
-*Defined in [models/roles.ts:9](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/roles.ts#L9)*
+*Defined in [models/roles.ts:9](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/roles.ts#L9)*
 
 **Parameters:**
 
@@ -108,7 +108,7 @@ ___
 
 ▪ **IndexModelConfig**: *`IndexModelConfig<Role>`* =  rolesConfig
 
-*Defined in [models/roles.ts:9](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/roles.ts#L9)*
+*Defined in [models/roles.ts:9](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/roles.ts#L9)*
 
 ## Methods
 

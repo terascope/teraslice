@@ -25,7 +25,7 @@ sidebar_label: Slice
 
 • **_created**: *string*
 
-*Defined in [execution-controller/interfaces.ts:63](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L63)*
+*Defined in [execution-controller/interfaces.ts:63](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L63)*
 
 ___
 
@@ -33,7 +33,7 @@ ___
 
 • **request**: *[SliceRequest](slicerequest.md)*
 
-*Defined in [execution-controller/interfaces.ts:62](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L62)*
+*Defined in [execution-controller/interfaces.ts:62](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L62)*
 
 ___
 
@@ -41,7 +41,7 @@ ___
 
 • **slice_id**: *string*
 
-*Defined in [execution-controller/interfaces.ts:59](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L59)*
+*Defined in [execution-controller/interfaces.ts:59](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L59)*
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **slicer_id**: *number*
 
-*Defined in [execution-controller/interfaces.ts:60](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L60)*
+*Defined in [execution-controller/interfaces.ts:60](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L60)*
 
 ___
 
@@ -57,4 +57,4 @@ ___
 
 • **slicer_order**: *number*
 
-*Defined in [execution-controller/interfaces.ts:61](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L61)*
+*Defined in [execution-controller/interfaces.ts:61](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L61)*

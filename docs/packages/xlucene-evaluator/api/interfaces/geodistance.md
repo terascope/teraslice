@@ -30,7 +30,7 @@ sidebar_label: GeoDistance
 
 • **distance**: *number*
 
-*Defined in [parser/interfaces.ts:107](https://github.com/terascope/teraslice/blob/a2250fb9/packages/xlucene-evaluator/src/parser/interfaces.ts#L107)*
+*Defined in [parser/interfaces.ts:107](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/interfaces.ts#L107)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [parser/interfaces.ts:25](https://github.com/terascope/teraslice/blob/a2250fb9/packages/xlucene-evaluator/src/parser/interfaces.ts#L25)*
+*Defined in [parser/interfaces.ts:25](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/interfaces.ts#L25)*
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 *Inherited from [GeoPoint](geopoint.md).[lat](geopoint.md#lat)*
 
-*Defined in [parser/interfaces.ts:112](https://github.com/terascope/teraslice/blob/a2250fb9/packages/xlucene-evaluator/src/parser/interfaces.ts#L112)*
+*Defined in [parser/interfaces.ts:112](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/interfaces.ts#L112)*
 
 ___
 
@@ -60,7 +60,7 @@ ___
 
 *Inherited from [GeoPoint](geopoint.md).[lon](geopoint.md#lon)*
 
-*Defined in [parser/interfaces.ts:113](https://github.com/terascope/teraslice/blob/a2250fb9/packages/xlucene-evaluator/src/parser/interfaces.ts#L113)*
+*Defined in [parser/interfaces.ts:113](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/interfaces.ts#L113)*
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [parser/interfaces.ts:106](https://github.com/terascope/teraslice/blob/a2250fb9/packages/xlucene-evaluator/src/parser/interfaces.ts#L106)*
+*Defined in [parser/interfaces.ts:106](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/interfaces.ts#L106)*
 
 ___
 
@@ -78,4 +78,4 @@ ___
 
 • **unit**: *`Units`*
 
-*Defined in [parser/interfaces.ts:108](https://github.com/terascope/teraslice/blob/a2250fb9/packages/xlucene-evaluator/src/parser/interfaces.ts#L108)*
+*Defined in [parser/interfaces.ts:108](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/interfaces.ts#L108)*

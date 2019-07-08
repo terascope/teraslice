@@ -2,9 +2,19 @@
 title: Builtin Operations
 ---
 
-### script
+## script
 
 This is used to allow other languages other than javascript to process data. Note that this is not meant to be highly efficient as it creates a child process that runs the specified script in the job.  Communication between teraslice and the script is done stdin and stdout with the data format expected to be JSON. If another language is needed, it might be a better idea to use C++ or rust to add a module that Node can create native bindings so that you can require the code like a regular javascript module.
+
+| Configuration | Description                                                   | Type     | Notes    |
+| ------------- | ------------------------------------------------------------- | -------- | -------- |
+| `_op`         | Name of operation, it must reflect the exact name of the file | `String` | required |
+| `command`     | what command to run                                           | String   | required |
+| `args`        | arguments to pass along with the command                      | `Array`  | optional |
+| `options`     | Obj containing options to pass into the process env           | `Object` | optional |
+| `asset`       | Name of asset containing command to run                       | `String` | optional |
+
+Note: [nodejs 8.x spawn documentation](https://nodejs.org/dist/latest-v8.x/docs/api/child_process.html#child_process_child_process_spawn_command_args_options)
 
 Example configuration:
 
@@ -46,19 +56,9 @@ Example Job: `examples/jobs/script/test_script_job.json`
 }
 ```
 
-| Configuration | Description                                                   | Type     | Notes    |
-| ------------- | ------------------------------------------------------------- | -------- | -------- |
-| `_op`         | Name of operation, it must reflect the exact name of the file | `String` | required |
-| `command`     | what command to run                                           | String   | required |
-| `args`        | arguments to pass along with the command                      | `Array`  | optional |
-| `options`     | Obj containing options to pass into the process env           | `Object` | optional |
-| `asset`       | Name of asset containing command to run                       | `String` | optional |
-
-Note: [nodejs 8.x spawn documentation](https://nodejs.org/dist/latest-v8.x/docs/api/child_process.html#child_process_child_process_spawn_command_args_options)
-
 **script usage example:**
 
-Create and upload asset
+- Create and upload asset
 
 ```bash
 cd examples/jobs/script
@@ -66,15 +66,19 @@ zip -r test_script.zip test_script
 curl -XPOST -H "Content-Type: application/octet-stream" localhost:5678/assets --data-binary @test_script.zip
 ```
 
-Submit Job
+- Submit Job
 
 ```bash
 curl -XPOST localhost:5678/jobs -d@test_script_job.json
 ```
 
-### stdout
+## stdout
 
 This is primarily used for develop purposes, it console logs the incoming data, it's meant to inspect in between operations or end of outputs
+
+| Configuration | Description                                                                                                       | Type     | Notes    |
+| ------------- | ----------------------------------------------------------------------------------------------------------------- | -------- | -------- |
+| `limit`       | Specify a number > 0 to limit the number of results printed to the console log.  Default is to print all results. | `Number` | optional |
 
 Example configuration
 
@@ -84,15 +88,11 @@ Example configuration
 }
 ```
 
-| Configuration | Description                                                                                                       | Type     | Notes    |
-| ------------- | ----------------------------------------------------------------------------------------------------------------- | -------- | -------- |
-| `limit`       | Specify a number > 0 to limit the number of results printed to the console log.  Default is to print all results. | `Number` | optional |
-
-### noop
+## noop
 
 This processor simply passes the data through, unmodified. It is primarily used for develop purposes.
 
-Example configuration
+Example configuration:
 
 ```json
 {
@@ -102,11 +102,15 @@ Example configuration
 
 There is no configuration for this processor.
 
-### delay
+## delay
 
 Wait a specific amount of time, and passes the data through.
 
-Example configuration
+| Configuration | Description                                       | Type     | Notes                       |
+| ------------- | ------------------------------------------------- | -------- | --------------------------- |
+| `ms`          | Milliseconds to delay before passing data through | `Number` | optional, defaults to `100` |
+
+Example configuration:
 
 ```json
 {
@@ -114,7 +118,3 @@ Example configuration
     "ms": 1000
 }
 ```
-
-| Configuration | Description                                       | Type     | Notes                       |
-| ------------- | ------------------------------------------------- | -------- | --------------------------- |
-| `ms`          | Milliseconds to delay before passing data through | `Number` | optional, defaults to `100` |

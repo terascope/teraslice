@@ -32,7 +32,7 @@ sidebar_label: SpaceSearchConfig
 
 • **connection**? : *undefined | string*
 
-*Defined in [models/config/spaces.ts:232](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/spaces.ts#L232)*
+*Defined in [models/config/spaces.ts:232](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/config/spaces.ts#L232)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **default_date_field**? : *undefined | string*
 
-*Defined in [models/config/spaces.ts:240](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/spaces.ts#L240)*
+*Defined in [models/config/spaces.ts:240](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/config/spaces.ts#L240)*
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 • **default_geo_field**? : *undefined | string*
 
-*Defined in [models/config/spaces.ts:237](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/spaces.ts#L237)*
+*Defined in [models/config/spaces.ts:237](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/config/spaces.ts#L237)*
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 • **enable_history**? : *undefined | false | true*
 
-*Defined in [models/config/spaces.ts:241](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/spaces.ts#L241)*
+*Defined in [models/config/spaces.ts:241](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/config/spaces.ts#L241)*
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **history_prefix**? : *undefined | string*
 
-*Defined in [models/config/spaces.ts:242](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/spaces.ts#L242)*
+*Defined in [models/config/spaces.ts:242](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/config/spaces.ts#L242)*
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **index**: *string*
 
-*Defined in [models/config/spaces.ts:231](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/spaces.ts#L231)*
+*Defined in [models/config/spaces.ts:231](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/config/spaces.ts#L231)*
 
 ___
 
@@ -80,7 +80,7 @@ ___
 
 • **max_query_size**? : *undefined | number*
 
-*Defined in [models/config/spaces.ts:233](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/spaces.ts#L233)*
+*Defined in [models/config/spaces.ts:233](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/config/spaces.ts#L233)*
 
 ___
 
@@ -88,7 +88,7 @@ ___
 
 • **preserve_index_name**? : *undefined | false | true*
 
-*Defined in [models/config/spaces.ts:238](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/spaces.ts#L238)*
+*Defined in [models/config/spaces.ts:238](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/config/spaces.ts#L238)*
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 • **require_query**? : *undefined | false | true*
 
-*Defined in [models/config/spaces.ts:239](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/spaces.ts#L239)*
+*Defined in [models/config/spaces.ts:239](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/config/spaces.ts#L239)*
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 • **sort_dates_only**? : *undefined | false | true*
 
-*Defined in [models/config/spaces.ts:235](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/spaces.ts#L235)*
+*Defined in [models/config/spaces.ts:235](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/config/spaces.ts#L235)*
 
 ___
 
@@ -112,7 +112,7 @@ ___
 
 • **sort_default**? : *undefined | string*
 
-*Defined in [models/config/spaces.ts:234](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/spaces.ts#L234)*
+*Defined in [models/config/spaces.ts:234](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/config/spaces.ts#L234)*
 
 ___
 
@@ -120,4 +120,4 @@ ___
 
 • **sort_enabled**? : *undefined | false | true*
 
-*Defined in [models/config/spaces.ts:236](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/spaces.ts#L236)*
+*Defined in [models/config/spaces.ts:236](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/config/spaces.ts#L236)*

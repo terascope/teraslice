@@ -21,7 +21,7 @@ sidebar_label: PegEngine
 
 ▸ **parse**(`input`: *string*, `options?`: *[PegEngineOptions](pegengineoptions.md)*): *[AST](../overview.md#ast)*
 
-*Defined in [parser/engine.ts:7](https://github.com/terascope/teraslice/blob/a2250fb9/packages/xlucene-evaluator/src/parser/engine.ts#L7)*
+*Defined in [parser/engine.ts:7](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/engine.ts#L7)*
 
 **Parameters:**
 

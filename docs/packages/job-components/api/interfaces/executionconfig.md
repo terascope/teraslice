@@ -44,7 +44,7 @@ sidebar_label: ExecutionConfig
 
 *Inherited from [ValidatedJobConfig](validatedjobconfig.md).[analytics](validatedjobconfig.md#analytics)*
 
-*Defined in [interfaces/jobs.ts:59](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L59)*
+*Defined in [interfaces/jobs.ts:59](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L59)*
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 *Inherited from [ValidatedJobConfig](validatedjobconfig.md).[apis](validatedjobconfig.md#apis)*
 
-*Defined in [interfaces/jobs.ts:65](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L65)*
+*Defined in [interfaces/jobs.ts:65](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L65)*
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 *Inherited from [ValidatedJobConfig](validatedjobconfig.md).[assetIds](validatedjobconfig.md#optional-assetids)*
 
-*Defined in [interfaces/jobs.ts:61](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L61)*
+*Defined in [interfaces/jobs.ts:61](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L61)*
 
 ___
 
@@ -74,7 +74,7 @@ ___
 
 *Inherited from [ValidatedJobConfig](validatedjobconfig.md).[assets](validatedjobconfig.md#assets)*
 
-*Defined in [interfaces/jobs.ts:60](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L60)*
+*Defined in [interfaces/jobs.ts:60](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L60)*
 
 ___
 
@@ -84,7 +84,7 @@ ___
 
 *Inherited from [ValidatedJobConfig](validatedjobconfig.md).[cpu](validatedjobconfig.md#optional-cpu)*
 
-*Defined in [interfaces/jobs.ts:74](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L74)*
+*Defined in [interfaces/jobs.ts:73](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L73)*
 
 This will only be available in the context of k8s
 
@@ -94,7 +94,7 @@ ___
 
 • **ex_id**: *string*
 
-*Defined in [interfaces/jobs.ts:94](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L94)*
+*Defined in [interfaces/jobs.ts:93](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L93)*
 
 ___
 
@@ -102,7 +102,7 @@ ___
 
 • **job_id**: *string*
 
-*Defined in [interfaces/jobs.ts:95](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L95)*
+*Defined in [interfaces/jobs.ts:94](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L94)*
 
 ___
 
@@ -112,7 +112,7 @@ ___
 
 *Inherited from [ValidatedJobConfig](validatedjobconfig.md).[kubernetes_image](validatedjobconfig.md#optional-kubernetes_image)*
 
-*Defined in [interfaces/jobs.ts:80](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L80)*
+*Defined in [interfaces/jobs.ts:79](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L79)*
 
 This will only be available in the context of k8s
 
@@ -124,7 +124,7 @@ ___
 
 *Inherited from [ValidatedJobConfig](validatedjobconfig.md).[lifecycle](validatedjobconfig.md#lifecycle)*
 
-*Defined in [interfaces/jobs.ts:62](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L62)*
+*Defined in [interfaces/jobs.ts:62](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L62)*
 
 ___
 
@@ -134,7 +134,7 @@ ___
 
 *Inherited from [ValidatedJobConfig](validatedjobconfig.md).[max_retries](validatedjobconfig.md#max_retries)*
 
-*Defined in [interfaces/jobs.ts:63](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L63)*
+*Defined in [interfaces/jobs.ts:63](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L63)*
 
 ___
 
@@ -144,7 +144,7 @@ ___
 
 *Inherited from [ValidatedJobConfig](validatedjobconfig.md).[memory](validatedjobconfig.md#optional-memory)*
 
-*Defined in [interfaces/jobs.ts:76](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L76)*
+*Defined in [interfaces/jobs.ts:75](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L75)*
 
 This will only be available in the context of k8s
 
@@ -156,7 +156,7 @@ ___
 
 *Inherited from [ValidatedJobConfig](validatedjobconfig.md).[name](validatedjobconfig.md#name)*
 
-*Defined in [interfaces/jobs.ts:64](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L64)*
+*Defined in [interfaces/jobs.ts:64](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L64)*
 
 ___
 
@@ -166,7 +166,7 @@ ___
 
 *Inherited from [ValidatedJobConfig](validatedjobconfig.md).[operations](validatedjobconfig.md#operations)*
 
-*Defined in [interfaces/jobs.ts:66](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L66)*
+*Defined in [interfaces/jobs.ts:66](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L66)*
 
 ___
 
@@ -176,17 +176,7 @@ ___
 
 *Inherited from [ValidatedJobConfig](validatedjobconfig.md).[probation_window](validatedjobconfig.md#probation_window)*
 
-*Defined in [interfaces/jobs.ts:67](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L67)*
-
-___
-
-###  recycle_worker
-
-• **recycle_worker**: *number*
-
-*Inherited from [ValidatedJobConfig](validatedjobconfig.md).[recycle_worker](validatedjobconfig.md#recycle_worker)*
-
-*Defined in [interfaces/jobs.ts:68](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L68)*
+*Defined in [interfaces/jobs.ts:67](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L67)*
 
 ___
 
@@ -194,7 +184,7 @@ ___
 
 • **slicer_hostname**: *string*
 
-*Defined in [interfaces/jobs.ts:96](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L96)*
+*Defined in [interfaces/jobs.ts:95](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L95)*
 
 ___
 
@@ -202,7 +192,7 @@ ___
 
 • **slicer_port**: *number*
 
-*Defined in [interfaces/jobs.ts:97](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L97)*
+*Defined in [interfaces/jobs.ts:96](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L96)*
 
 ___
 
@@ -212,7 +202,7 @@ ___
 
 *Inherited from [ValidatedJobConfig](validatedjobconfig.md).[slicers](validatedjobconfig.md#slicers)*
 
-*Defined in [interfaces/jobs.ts:69](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L69)*
+*Defined in [interfaces/jobs.ts:68](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L68)*
 
 ___
 
@@ -222,7 +212,7 @@ ___
 
 *Inherited from [ValidatedJobConfig](validatedjobconfig.md).[targets](validatedjobconfig.md#optional-targets)*
 
-*Defined in [interfaces/jobs.ts:72](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L72)*
+*Defined in [interfaces/jobs.ts:71](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L71)*
 
 This will only be available in the context of k8s
 
@@ -234,7 +224,7 @@ ___
 
 *Inherited from [ValidatedJobConfig](validatedjobconfig.md).[volumes](validatedjobconfig.md#optional-volumes)*
 
-*Defined in [interfaces/jobs.ts:78](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L78)*
+*Defined in [interfaces/jobs.ts:77](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L77)*
 
 This will only be available in the context of k8s
 
@@ -246,4 +236,4 @@ ___
 
 *Inherited from [ValidatedJobConfig](validatedjobconfig.md).[workers](validatedjobconfig.md#workers)*
 
-*Defined in [interfaces/jobs.ts:70](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L70)*
+*Defined in [interfaces/jobs.ts:69](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/jobs.ts#L69)*

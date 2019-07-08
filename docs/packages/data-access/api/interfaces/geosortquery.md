@@ -21,7 +21,7 @@ sidebar_label: GeoSortQuery
 
 • **_geo_distance**: *object*
 
-*Defined in [interfaces.ts:36](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/interfaces.ts#L36)*
+*Defined in [interfaces.ts:36](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/interfaces.ts#L36)*
 
 #### Type declaration:
 

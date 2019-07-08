@@ -21,6 +21,6 @@ sidebar_label: MultiMatchQuery
 
 • **multi_match**: *object*
 
-*Defined in [translator/interfaces.ts:59](https://github.com/terascope/teraslice/blob/a2250fb9/packages/xlucene-evaluator/src/translator/interfaces.ts#L59)*
+*Defined in [translator/interfaces.ts:59](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/translator/interfaces.ts#L59)*
 
 #### Type declaration:

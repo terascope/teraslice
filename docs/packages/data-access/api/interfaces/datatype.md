@@ -32,7 +32,7 @@ The definition a DataType model
 
 • **client_id**: *number*
 
-*Defined in [models/config/data-types.ts:86](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/data-types.ts#L86)*
+*Defined in [models/config/data-types.ts:86](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/config/data-types.ts#L86)*
 
 The mutli-tenant ID representing the client
 
@@ -42,7 +42,7 @@ ___
 
 • **config**: *`DataTypeConfig`*
 
-*Defined in [models/config/data-types.ts:106](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/data-types.ts#L106)*
+*Defined in [models/config/data-types.ts:106](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/config/data-types.ts#L106)*
 
 Data Type Config
 
@@ -64,7 +64,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [models/config/data-types.ts:96](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/data-types.ts#L96)*
+*Defined in [models/config/data-types.ts:96](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/config/data-types.ts#L96)*
 
 Description of the DataType
 
@@ -86,7 +86,7 @@ ___
 
 • **inherit_from**? : *string[]*
 
-*Defined in [models/config/data-types.ts:101](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/data-types.ts#L101)*
+*Defined in [models/config/data-types.ts:101](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/config/data-types.ts#L101)*
 
 DataType to inherit from
 
@@ -96,7 +96,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [models/config/data-types.ts:91](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/data-types.ts#L91)*
+*Defined in [models/config/data-types.ts:91](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/config/data-types.ts#L91)*
 
 Name of the DataType
 

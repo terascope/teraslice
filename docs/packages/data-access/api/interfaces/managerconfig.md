@@ -23,7 +23,7 @@ sidebar_label: ManagerConfig
 
 • **logger**? : *`Logger`*
 
-*Defined in [interfaces.ts:17](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/interfaces.ts#L17)*
+*Defined in [interfaces.ts:17](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/interfaces.ts#L17)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **namespace**? : *undefined | string*
 
-*Defined in [interfaces.ts:15](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/interfaces.ts#L15)*
+*Defined in [interfaces.ts:15](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/interfaces.ts#L15)*
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **storeOptions**? : *`Partial<IndexConfig>`*
 
-*Defined in [interfaces.ts:16](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/interfaces.ts#L16)*
+*Defined in [interfaces.ts:16](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/interfaces.ts#L16)*

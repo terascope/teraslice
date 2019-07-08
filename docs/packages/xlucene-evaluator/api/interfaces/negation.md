@@ -22,7 +22,7 @@ sidebar_label: Negation
 
 • **node**: *[AST](../overview.md#ast)*
 
-*Defined in [parser/interfaces.ts:81](https://github.com/terascope/teraslice/blob/a2250fb9/packages/xlucene-evaluator/src/parser/interfaces.ts#L81)*
+*Defined in [parser/interfaces.ts:81](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/interfaces.ts#L81)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **type**: *[Negation](../enums/asttype.md#negation)*
 
-*Defined in [parser/interfaces.ts:80](https://github.com/terascope/teraslice/blob/a2250fb9/packages/xlucene-evaluator/src/parser/interfaces.ts#L80)*
+*Defined in [parser/interfaces.ts:80](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/interfaces.ts#L80)*
