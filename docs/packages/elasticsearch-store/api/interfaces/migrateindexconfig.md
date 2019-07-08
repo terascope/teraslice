@@ -23,7 +23,7 @@ sidebar_label: MigrateIndexConfig
 
 • **from**: *[IndexConfig](indexconfig.md)*
 
-*Defined in [index-manager.ts:247](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/index-manager.ts#L247)*
+*Defined in [index-manager.ts:247](https://github.com/terascope/teraslice/blob/a2250fb9/packages/elasticsearch-store/src/index-manager.ts#L247)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **timeout**: *number*
 
-*Defined in [index-manager.ts:251](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/index-manager.ts#L251)*
+*Defined in [index-manager.ts:251](https://github.com/terascope/teraslice/blob/a2250fb9/packages/elasticsearch-store/src/index-manager.ts#L251)*
 
 **`default`** Infinity
 
@@ -41,5 +41,4 @@ ___
 
 • **to**: *[IndexConfig](indexconfig.md)*
 
-*Defined in [index-manager.ts:246](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/index-manager.ts#L246)*
-
+*Defined in [index-manager.ts:246](https://github.com/terascope/teraslice/blob/a2250fb9/packages/elasticsearch-store/src/index-manager.ts#L246)*

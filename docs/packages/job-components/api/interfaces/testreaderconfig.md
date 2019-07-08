@@ -34,7 +34,7 @@ sidebar_label: TestReaderConfig
 
 *Inherited from [OpConfig](opconfig.md).[_dead_letter_action](opconfig.md#optional-_dead_letter_action)*
 
-*Defined in [interfaces/jobs.ts:25](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/jobs.ts#L25)*
+*Defined in [interfaces/jobs.ts:25](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L25)*
 
 This action will specify what to do when failing to parse or transform a record. ​​​​​
 ​​​​​     * The following builtin actions are supported: ​​​
@@ -53,7 +53,7 @@ ___
 
 *Inherited from [OpConfig](opconfig.md).[_encoding](opconfig.md#optional-_encoding)*
 
-*Defined in [interfaces/jobs.ts:14](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/jobs.ts#L14)*
+*Defined in [interfaces/jobs.ts:14](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L14)*
 
 Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`.
 
@@ -65,7 +65,7 @@ ___
 
 *Inherited from [OpConfig](opconfig.md).[_op](opconfig.md#_op)*
 
-*Defined in [interfaces/jobs.ts:11](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/jobs.ts#L11)*
+*Defined in [interfaces/jobs.ts:11](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/jobs.ts#L11)*
 
 The name of the operation
 
@@ -75,7 +75,7 @@ ___
 
 • **fetcher_data_file_path**? : *undefined | string*
 
-*Defined in [builtin/test-reader/interfaces.ts:4](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/builtin/test-reader/interfaces.ts#L4)*
+*Defined in [builtin/test-reader/interfaces.ts:4](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/builtin/test-reader/interfaces.ts#L4)*
 
 ___
 
@@ -83,7 +83,7 @@ ___
 
 • **passthrough_slice**? : *undefined | false | true*
 
-*Defined in [builtin/test-reader/interfaces.ts:6](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/builtin/test-reader/interfaces.ts#L6)*
+*Defined in [builtin/test-reader/interfaces.ts:6](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/builtin/test-reader/interfaces.ts#L6)*
 
 ___
 
@@ -91,5 +91,4 @@ ___
 
 • **slicer_data_file_path**? : *undefined | string*
 
-*Defined in [builtin/test-reader/interfaces.ts:5](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/builtin/test-reader/interfaces.ts#L5)*
-
+*Defined in [builtin/test-reader/interfaces.ts:5](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/builtin/test-reader/interfaces.ts#L5)*

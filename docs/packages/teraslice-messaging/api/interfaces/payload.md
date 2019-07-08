@@ -12,4 +12,3 @@ sidebar_label: Payload
 ## Indexable
 
 ● \[▪ **prop**: *string*\]: any
-

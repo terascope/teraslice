@@ -21,5 +21,4 @@ sidebar_label: ClusterAnalytics
 
 • **controllers**: *[ClusterExecutionAnalytics](clusterexecutionanalytics.md)*
 
-*Defined in [cluster-master/interfaces.ts:37](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L37)*
-
+*Defined in [cluster-master/interfaces.ts:37](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L37)*

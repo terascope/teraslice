@@ -26,7 +26,7 @@ sidebar_label: MGetDoc
 
 • **_id**: *string*
 
-*Defined in [interfaces.ts:51](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/teraslice-state-storage/src/interfaces.ts#L51)*
+*Defined in [interfaces.ts:51](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-state-storage/src/interfaces.ts#L51)*
 
 ___
 
@@ -34,7 +34,7 @@ ___
 
 • **_index**: *string*
 
-*Defined in [interfaces.ts:48](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/teraslice-state-storage/src/interfaces.ts#L48)*
+*Defined in [interfaces.ts:48](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-state-storage/src/interfaces.ts#L48)*
 
 ___
 
@@ -42,7 +42,7 @@ ___
 
 • **_source**? : *any*
 
-*Defined in [interfaces.ts:53](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/teraslice-state-storage/src/interfaces.ts#L53)*
+*Defined in [interfaces.ts:53](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-state-storage/src/interfaces.ts#L53)*
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 • **_type**: *string*
 
-*Defined in [interfaces.ts:49](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/teraslice-state-storage/src/interfaces.ts#L49)*
+*Defined in [interfaces.ts:49](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-state-storage/src/interfaces.ts#L49)*
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 • **_version**: *number*
 
-*Defined in [interfaces.ts:50](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/teraslice-state-storage/src/interfaces.ts#L50)*
+*Defined in [interfaces.ts:50](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-state-storage/src/interfaces.ts#L50)*
 
 ___
 
@@ -66,5 +66,4 @@ ___
 
 • **found**: *boolean*
 
-*Defined in [interfaces.ts:52](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/teraslice-state-storage/src/interfaces.ts#L52)*
-
+*Defined in [interfaces.ts:52](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-state-storage/src/interfaces.ts#L52)*

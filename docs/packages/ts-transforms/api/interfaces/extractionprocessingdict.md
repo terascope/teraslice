@@ -12,4 +12,3 @@ sidebar_label: ExtractionProcessingDict
 ## Indexable
 
 ● \[▪ **field**: *string*\]: [ExtractionConfig](extractionconfig.md)[]
-

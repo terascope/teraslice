@@ -35,7 +35,7 @@ sidebar_label: Transform
 
 *Overrides [PhaseManager](phasemanager.md).[constructor](phasemanager.md#constructor)*
 
-*Defined in [transform.ts:7](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/ts-transforms/src/transform.ts#L7)*
+*Defined in [transform.ts:7](https://github.com/terascope/teraslice/blob/a2250fb9/packages/ts-transforms/src/transform.ts#L7)*
 
 **Parameters:**
 
@@ -54,7 +54,7 @@ Name | Type | Default |
 
 *Inherited from [PhaseManager](phasemanager.md).[isMatcher](phasemanager.md#ismatcher)*
 
-*Defined in [phases/phase_manager.ts:19](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/ts-transforms/src/phases/phase_manager.ts#L19)*
+*Defined in [phases/phase_manager.ts:19](https://github.com/terascope/teraslice/blob/a2250fb9/packages/ts-transforms/src/phases/phase_manager.ts#L19)*
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 *Inherited from [PhaseManager](phasemanager.md).[sequence](phasemanager.md#sequence)*
 
-*Defined in [phases/phase_manager.ts:18](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/ts-transforms/src/phases/phase_manager.ts#L18)*
+*Defined in [phases/phase_manager.ts:18](https://github.com/terascope/teraslice/blob/a2250fb9/packages/ts-transforms/src/phases/phase_manager.ts#L18)*
 
 ## Methods
 
@@ -74,7 +74,7 @@ ___
 
 *Inherited from [PhaseManager](phasemanager.md).[init](phasemanager.md#init)*
 
-*Defined in [phases/phase_manager.ts:29](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/ts-transforms/src/phases/phase_manager.ts#L29)*
+*Defined in [phases/phase_manager.ts:29](https://github.com/terascope/teraslice/blob/a2250fb9/packages/ts-transforms/src/phases/phase_manager.ts#L29)*
 
 **Parameters:**
 
@@ -92,7 +92,7 @@ ___
 
 *Inherited from [PhaseManager](phasemanager.md).[run](phasemanager.md#run)*
 
-*Defined in [phases/phase_manager.ts:47](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/ts-transforms/src/phases/phase_manager.ts#L47)*
+*Defined in [phases/phase_manager.ts:47](https://github.com/terascope/teraslice/blob/a2250fb9/packages/ts-transforms/src/phases/phase_manager.ts#L47)*
 
 **Parameters:**
 
@@ -101,4 +101,3 @@ Name | Type |
 `input` | object[] |
 
 **Returns:** *`DataEntity`[]*
-

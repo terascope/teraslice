@@ -24,7 +24,7 @@ sidebar_label: AnyDataType
 
 • **data_type**: *[DataType](../overview.md#datatype)*
 
-*Defined in [parser/interfaces.ts:51](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/xlucene-evaluator/src/parser/interfaces.ts#L51)*
+*Defined in [parser/interfaces.ts:51](https://github.com/terascope/teraslice/blob/a2250fb9/packages/xlucene-evaluator/src/parser/interfaces.ts#L51)*
 
 ___
 
@@ -32,5 +32,4 @@ ___
 
 • **value**: *string | number | boolean*
 
-*Defined in [parser/interfaces.ts:52](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/xlucene-evaluator/src/parser/interfaces.ts#L52)*
-
+*Defined in [parser/interfaces.ts:52](https://github.com/terascope/teraslice/blob/a2250fb9/packages/xlucene-evaluator/src/parser/interfaces.ts#L52)*

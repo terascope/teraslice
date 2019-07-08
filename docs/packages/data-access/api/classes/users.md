@@ -69,7 +69,7 @@ Manager for Users
 
 *Overrides void*
 
-*Defined in [models/users.ts:12](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/users.ts#L12)*
+*Defined in [models/users.ts:12](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/users.ts#L12)*
 
 **Parameters:**
 
@@ -116,7 +116,7 @@ ___
 
 ▪ **IndexModelConfig**: *`IndexModelConfig<User>`* =  usersConfig
 
-*Defined in [models/users.ts:12](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/users.ts#L12)*
+*Defined in [models/users.ts:12](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/users.ts#L12)*
 
 ___
 
@@ -124,7 +124,7 @@ ___
 
 ▪ **PrivateFields**: *string[]* =  ['api_token', 'salt', 'hash']
 
-*Defined in [models/users.ts:11](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/users.ts#L11)*
+*Defined in [models/users.ts:11](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/users.ts#L11)*
 
 ## Methods
 
@@ -303,7 +303,7 @@ ___
 
 ▸ **authenticate**(`username`: *string*, `password`: *string*): *`Promise<User>`*
 
-*Defined in [models/users.ts:49](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/users.ts#L49)*
+*Defined in [models/users.ts:49](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/users.ts#L49)*
 
 Authenticate the user
 
@@ -322,7 +322,7 @@ ___
 
 ▸ **authenticateWithToken**(`apiToken?`: *undefined | string*): *`Promise<User>`*
 
-*Defined in [models/users.ts:93](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/users.ts#L93)*
+*Defined in [models/users.ts:93](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/users.ts#L93)*
 
 Authenticate user by api token, returns private fields
 
@@ -397,7 +397,7 @@ ___
 
 ▸ **createWithPassword**(`record`: *[CreateUserInput](../overview.md#createuserinput)*, `password`: *string*): *`Promise<User>`*
 
-*Defined in [models/users.ts:21](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/users.ts#L21)*
+*Defined in [models/users.ts:21](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/users.ts#L21)*
 
 Create user with password, returns private fields
 
@@ -603,7 +603,7 @@ ___
 
 ▸ **isPrivateUser**(`user`: *`Partial<User>`*): *boolean*
 
-*Defined in [models/users.ts:119](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/users.ts#L119)*
+*Defined in [models/users.ts:119](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/users.ts#L119)*
 
 **Parameters:**
 
@@ -619,7 +619,7 @@ ___
 
 ▸ **removeRoleFromUsers**(`roleId`: *string*): *`Promise<void>`*
 
-*Defined in [models/users.ts:128](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/users.ts#L128)*
+*Defined in [models/users.ts:128](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/users.ts#L128)*
 
 **Parameters:**
 
@@ -665,7 +665,7 @@ ___
 
 ▸ **updatePassword**(`id`: *string*, `password`: *string*): *`Promise<void>`*
 
-*Defined in [models/users.ts:34](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/users.ts#L34)*
+*Defined in [models/users.ts:34](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/users.ts#L34)*
 
 **Parameters:**
 
@@ -682,7 +682,7 @@ ___
 
 ▸ **updateToken**(`id`: *string*): *`Promise<string>`*
 
-*Defined in [models/users.ts:78](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/users.ts#L78)*
+*Defined in [models/users.ts:78](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/users.ts#L78)*
 
 Update the API Token for a user
 
@@ -693,4 +693,3 @@ Name | Type |
 `id` | string |
 
 **Returns:** *`Promise<string>`*
-

@@ -12,4 +12,3 @@ sidebar_label: JobAPIInstances
 ## Indexable
 
 ● \[▪ **name**: *string*\]: [JobAPIInstance](jobapiinstance.md)
-

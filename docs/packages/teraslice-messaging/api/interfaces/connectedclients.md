@@ -12,4 +12,3 @@ sidebar_label: ConnectedClients
 ## Indexable
 
 ● \[▪ **clientId**: *string*\]: [ConnectedClient](connectedclient.md)
-

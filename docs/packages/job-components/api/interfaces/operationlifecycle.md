@@ -50,7 +50,7 @@ sidebar_label: OperationLifeCycle
 
 ▸ **initialize**(`initConfig?`: *any*): *`Promise<void>`*
 
-*Defined in [interfaces/operation-lifecycle.ts:8](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L8)*
+*Defined in [interfaces/operation-lifecycle.ts:8](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L8)*
 
 Called during execution initialization,
 when this is called perform any async setup.
@@ -69,10 +69,9 @@ ___
 
 ▸ **shutdown**(): *`Promise<void>`*
 
-*Defined in [interfaces/operation-lifecycle.ts:14](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L14)*
+*Defined in [interfaces/operation-lifecycle.ts:14](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L14)*
 
 Called during execution shutdown,
 when this is cleanup any open connections or destroy any in-memory state.
 
 **Returns:** *`Promise<void>`*
-

@@ -23,7 +23,7 @@ sidebar_label: GraphQlResults
 
 • **baseType**: *string*
 
-*Defined in [interfaces.ts:6](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-types/src/interfaces.ts#L6)*
+*Defined in [interfaces.ts:6](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-types/src/interfaces.ts#L6)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **customTypes**: *string[]*
 
-*Defined in [interfaces.ts:7](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-types/src/interfaces.ts#L7)*
+*Defined in [interfaces.ts:7](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-types/src/interfaces.ts#L7)*
 
 ___
 
@@ -39,5 +39,4 @@ ___
 
 • **results**: *string*
 
-*Defined in [interfaces.ts:5](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-types/src/interfaces.ts#L5)*
-
+*Defined in [interfaces.ts:5](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-types/src/interfaces.ts#L5)*

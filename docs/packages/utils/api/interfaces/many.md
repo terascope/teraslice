@@ -1003,4 +1003,3 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 Returns an iterable of values in the array
 
 **Returns:** *`IterableIterator<T>`*
-

@@ -72,7 +72,7 @@ See [SlicerCore](slicercore.md) for more informartion
 
 *Overrides [Core](core.md).[constructor](core.md#constructor)*
 
-*Defined in [operations/core/slicer-core.ts:28](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/core/slicer-core.ts#L28)*
+*Defined in [operations/core/slicer-core.ts:28](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/core/slicer-core.ts#L28)*
 
 **Parameters:**
 
@@ -90,7 +90,7 @@ Name | Type |
 
 • **_slicers**: *`SlicerObj`[]* =  []
 
-*Defined in [operations/parallel-slicer.ts:12](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/parallel-slicer.ts#L12)*
+*Defined in [operations/parallel-slicer.ts:12](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/parallel-slicer.ts#L12)*
 
 ___
 
@@ -100,7 +100,7 @@ ___
 
 *Inherited from [Core](core.md).[context](core.md#context)*
 
-*Defined in [operations/core/core.ts:10](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/core/core.ts#L10)*
+*Defined in [operations/core/core.ts:10](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/core/core.ts#L10)*
 
 ___
 
@@ -110,7 +110,7 @@ ___
 
 *Inherited from [Core](core.md).[events](core.md#events)*
 
-*Defined in [operations/core/core.ts:13](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/core/core.ts#L13)*
+*Defined in [operations/core/core.ts:13](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/core/core.ts#L13)*
 
 ___
 
@@ -120,7 +120,7 @@ ___
 
 *Inherited from [Core](core.md).[executionConfig](core.md#executionconfig)*
 
-*Defined in [operations/core/core.ts:11](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/core/core.ts#L11)*
+*Defined in [operations/core/core.ts:11](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/core/core.ts#L11)*
 
 ___
 
@@ -130,7 +130,7 @@ ___
 
 *Inherited from [Core](core.md).[logger](core.md#logger)*
 
-*Defined in [operations/core/core.ts:12](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/core/core.ts#L12)*
+*Defined in [operations/core/core.ts:12](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/core/core.ts#L12)*
 
 ___
 
@@ -140,7 +140,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[opConfig](slicercore.md#protected-opconfig)*
 
-*Defined in [operations/core/slicer-core.ts:27](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/core/slicer-core.ts#L27)*
+*Defined in [operations/core/slicer-core.ts:27](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/core/slicer-core.ts#L27)*
 
 ___
 
@@ -150,7 +150,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[recoveryData](slicercore.md#protected-recoverydata)*
 
-*Defined in [operations/core/slicer-core.ts:26](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/core/slicer-core.ts#L26)*
+*Defined in [operations/core/slicer-core.ts:26](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/core/slicer-core.ts#L26)*
 
 ___
 
@@ -160,7 +160,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[stats](slicercore.md#protected-stats)*
 
-*Defined in [operations/core/slicer-core.ts:25](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/core/slicer-core.ts#L25)*
+*Defined in [operations/core/slicer-core.ts:25](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/core/slicer-core.ts#L25)*
 
 ## Accessors
 
@@ -168,7 +168,7 @@ ___
 
 • **get isFinished**(): *boolean*
 
-*Defined in [operations/parallel-slicer.ts:68](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/parallel-slicer.ts#L68)*
+*Defined in [operations/parallel-slicer.ts:68](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/parallel-slicer.ts#L68)*
 
 **Returns:** *boolean*
 
@@ -180,7 +180,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[workersConnected](slicercore.md#protected-workersconnected)*
 
-*Defined in [operations/core/slicer-core.ts:158](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/core/slicer-core.ts#L158)*
+*Defined in [operations/core/slicer-core.ts:158](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/core/slicer-core.ts#L158)*
 
 **Returns:** *number*
 
@@ -192,7 +192,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[canComplete](slicercore.md#protected-cancomplete)*
 
-*Defined in [operations/core/slicer-core.ts:154](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/core/slicer-core.ts#L154)*
+*Defined in [operations/core/slicer-core.ts:154](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/core/slicer-core.ts#L154)*
 
 **Returns:** *boolean*
 
@@ -204,7 +204,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[createSlice](slicercore.md#createslice)*
 
-*Defined in [operations/core/slicer-core.ts:86](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/core/slicer-core.ts#L86)*
+*Defined in [operations/core/slicer-core.ts:86](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/core/slicer-core.ts#L86)*
 
 Create a Slice object from a slice request.
 In the case of recovery the "Slice" already has the required
@@ -228,7 +228,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[getSlice](slicercore.md#getslice)*
 
-*Defined in [operations/core/slicer-core.ts:103](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/core/slicer-core.ts#L103)*
+*Defined in [operations/core/slicer-core.ts:103](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/core/slicer-core.ts#L103)*
 
 A method called by the "Execution Controller" to dequeue a created "Slice"
 
@@ -242,7 +242,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[getSlices](slicercore.md#getslices)*
 
-*Defined in [operations/core/slicer-core.ts:111](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/core/slicer-core.ts#L111)*
+*Defined in [operations/core/slicer-core.ts:111](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/core/slicer-core.ts#L111)*
 
 A method called by the "Execution Controller" to dequeue many created slices
 
@@ -262,7 +262,7 @@ ___
 
 *Overrides [SlicerCore](slicercore.md).[handle](slicercore.md#abstract-handle)*
 
-*Defined in [operations/parallel-slicer.ts:59](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/parallel-slicer.ts#L59)*
+*Defined in [operations/parallel-slicer.ts:59](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/parallel-slicer.ts#L59)*
 
 **Returns:** *`Promise<boolean>`*
 
@@ -276,7 +276,7 @@ ___
 
 *Overrides [SlicerCore](slicercore.md).[initialize](slicercore.md#initialize)*
 
-*Defined in [operations/parallel-slicer.ts:19](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/parallel-slicer.ts#L19)*
+*Defined in [operations/parallel-slicer.ts:19](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/parallel-slicer.ts#L19)*
 
 Register the different Slicer instances
 
@@ -298,7 +298,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[isRecoverable](slicercore.md#isrecoverable)*
 
-*Defined in [operations/core/slicer-core.ts:136](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/core/slicer-core.ts#L136)*
+*Defined in [operations/core/slicer-core.ts:136](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/core/slicer-core.ts#L136)*
 
 Used to indicate whether this slicer is recoverable.
 
@@ -312,7 +312,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[maxQueueLength](slicercore.md#maxqueuelength)*
 
-*Defined in [operations/core/slicer-core.ts:146](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/core/slicer-core.ts#L146)*
+*Defined in [operations/core/slicer-core.ts:146](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/core/slicer-core.ts#L146)*
 
 Used to determine the maximum number of slices queued.
 Defaults to 10000
@@ -327,7 +327,7 @@ ___
 
 ▸ **newSlicer**(): *`Promise<SlicerFn | undefined>`*
 
-*Defined in [operations/parallel-slicer.ts:53](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/parallel-slicer.ts#L53)*
+*Defined in [operations/parallel-slicer.ts:53](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/parallel-slicer.ts#L53)*
 
 Called by {@link ParallelSlicer#handle} for every count of `slicers` in the ExecutionConfig
 
@@ -345,7 +345,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[onExecutionStats](slicercore.md#onexecutionstats)*
 
-*Defined in [operations/core/slicer-core.ts:150](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/core/slicer-core.ts#L150)*
+*Defined in [operations/core/slicer-core.ts:150](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/core/slicer-core.ts#L150)*
 
 **Parameters:**
 
@@ -365,7 +365,7 @@ ___
 
 *Overrides [SlicerCore](slicercore.md).[shutdown](slicercore.md#shutdown)*
 
-*Defined in [operations/parallel-slicer.ts:44](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/parallel-slicer.ts#L44)*
+*Defined in [operations/parallel-slicer.ts:44](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/parallel-slicer.ts#L44)*
 
 Cleanup the slicers functions
 
@@ -381,7 +381,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[sliceCount](slicercore.md#slicecount)*
 
-*Defined in [operations/core/slicer-core.ts:129](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/core/slicer-core.ts#L129)*
+*Defined in [operations/core/slicer-core.ts:129](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/core/slicer-core.ts#L129)*
 
 The number of enqueued slices
 
@@ -395,7 +395,6 @@ ___
 
 *Overrides [SlicerCore](slicercore.md).[slicers](slicercore.md#abstract-slicers)*
 
-*Defined in [operations/parallel-slicer.ts:55](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/parallel-slicer.ts#L55)*
+*Defined in [operations/parallel-slicer.ts:55](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/operations/parallel-slicer.ts#L55)*
 
 **Returns:** *number*
-

@@ -64,7 +64,7 @@ Manager for Views
 
 *Overrides void*
 
-*Defined in [models/views.ts:12](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/views.ts#L12)*
+*Defined in [models/views.ts:12](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/views.ts#L12)*
 
 **Parameters:**
 
@@ -111,7 +111,7 @@ ___
 
 ▪ **IndexModelConfig**: *`IndexModelConfig<View>`* =  viewsConfig
 
-*Defined in [models/views.ts:12](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/views.ts#L12)*
+*Defined in [models/views.ts:12](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/views.ts#L12)*
 
 ## Methods
 
@@ -290,7 +290,7 @@ ___
 
 ▸ **checkForViewConflicts**(`space`: *`Partial<Space>`*): *`Promise<void>`*
 
-*Defined in [models/views.ts:18](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/views.ts#L18)*
+*Defined in [models/views.ts:18](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/views.ts#L18)*
 
 **Parameters:**
 
@@ -538,7 +538,7 @@ ___
 
 ▸ **getViewOfSpace**(`space`: *[Space](../interfaces/space.md)*, `role`: *[Role](../interfaces/role.md)*): *`Promise<View>`*
 
-*Defined in [models/views.ts:53](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/views.ts#L53)*
+*Defined in [models/views.ts:53](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/views.ts#L53)*
 
 **Parameters:**
 
@@ -567,7 +567,7 @@ ___
 
 ▸ **removeRoleFromViews**(`roleId`: *string*): *`Promise<void>`*
 
-*Defined in [models/views.ts:70](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/views.ts#L70)*
+*Defined in [models/views.ts:70](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/views.ts#L70)*
 
 **Parameters:**
 
@@ -606,4 +606,3 @@ Name | Type |
 `record` | `i.UpdateRecordInput<View>` |
 
 **Returns:** *`Promise<void>`*
-

@@ -25,9 +25,8 @@ sidebar_label: PluginClassType
 
 • **init**: *function*
 
-*Defined in [interfaces.ts:71](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/ts-transforms/src/interfaces.ts#L71)*
+*Defined in [interfaces.ts:71](https://github.com/terascope/teraslice/blob/a2250fb9/packages/ts-transforms/src/interfaces.ts#L71)*
 
 #### Type declaration:
 
 ▸ (): *[OperationsDict](operationsdict.md)*
-

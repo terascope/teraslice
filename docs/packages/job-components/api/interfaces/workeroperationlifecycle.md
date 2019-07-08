@@ -56,7 +56,7 @@ sidebar_label: WorkerOperationLifeCycle
 
 *Inherited from [OperationLifeCycle](operationlifecycle.md).[initialize](operationlifecycle.md#initialize)*
 
-*Defined in [interfaces/operation-lifecycle.ts:8](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L8)*
+*Defined in [interfaces/operation-lifecycle.ts:8](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L8)*
 
 Called during execution initialization,
 when this is called perform any async setup.
@@ -75,7 +75,7 @@ ___
 
 ▸ **onFlushEnd**(`sliceId`: *string*): *`Promise<void>`*
 
-*Defined in [interfaces/operation-lifecycle.ts:81](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L81)*
+*Defined in [interfaces/operation-lifecycle.ts:81](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L81)*
 
 Called to notify the processors that the slice is finished being flushed
 (shutdown will likely be called immediately afterwards)
@@ -94,7 +94,7 @@ ___
 
 ▸ **onFlushStart**(`sliceId`: *string*): *`Promise<void>`*
 
-*Defined in [interfaces/operation-lifecycle.ts:75](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L75)*
+*Defined in [interfaces/operation-lifecycle.ts:75](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L75)*
 
 Called to notify the processors that the next slice being
 passed through will be an empty slice used to flush
@@ -114,7 +114,7 @@ ___
 
 ▸ **onOperationComplete**(`sliceId`: *string*, `index`: *number*, `processed`: *number*): *void*
 
-*Defined in [interfaces/operation-lifecycle.ts:68](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L68)*
+*Defined in [interfaces/operation-lifecycle.ts:68](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L68)*
 
 Called immediately after an operation has ended
 
@@ -134,7 +134,7 @@ ___
 
 ▸ **onOperationStart**(`sliceId`: *string*, `index`: *number*): *void*
 
-*Defined in [interfaces/operation-lifecycle.ts:59](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L59)*
+*Defined in [interfaces/operation-lifecycle.ts:59](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L59)*
 
 Called immediately before an operation is started
 
@@ -153,7 +153,7 @@ ___
 
 ▸ **onSliceFailed**(`sliceId`: *string*): *`Promise<void>`*
 
-*Defined in [interfaces/operation-lifecycle.ts:42](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L42)*
+*Defined in [interfaces/operation-lifecycle.ts:42](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L42)*
 
 Called after the slice has been marked as "Failed"
 
@@ -171,7 +171,7 @@ ___
 
 ▸ **onSliceFinalizing**(`sliceId`: *string*): *`Promise<void>`*
 
-*Defined in [interfaces/operation-lifecycle.ts:32](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L32)*
+*Defined in [interfaces/operation-lifecycle.ts:32](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L32)*
 
 Called after a slice is done with the last operation in the execution
 
@@ -189,7 +189,7 @@ ___
 
 ▸ **onSliceFinished**(`sliceId`: *string*): *`Promise<void>`*
 
-*Defined in [interfaces/operation-lifecycle.ts:37](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L37)*
+*Defined in [interfaces/operation-lifecycle.ts:37](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L37)*
 
 Called after the slice has been acknowledged by the "Execution Controller"
 
@@ -207,7 +207,7 @@ ___
 
 ▸ **onSliceInitialized**(`sliceId`: *string*): *`Promise<void>`*
 
-*Defined in [interfaces/operation-lifecycle.ts:22](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L22)*
+*Defined in [interfaces/operation-lifecycle.ts:22](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L22)*
 
 Called after a slice is initializated, but before the slice
 has been handed to any operation.
@@ -226,7 +226,7 @@ ___
 
 ▸ **onSliceRetry**(`sliceId`: *string*): *`Promise<void>`*
 
-*Defined in [interfaces/operation-lifecycle.ts:50](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L50)*
+*Defined in [interfaces/operation-lifecycle.ts:50](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L50)*
 
 Called after the operation failed to process the slice
 but before the slice is retried.
@@ -247,7 +247,7 @@ ___
 
 ▸ **onSliceStarted**(`sliceId`: *string*): *`Promise<void>`*
 
-*Defined in [interfaces/operation-lifecycle.ts:27](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L27)*
+*Defined in [interfaces/operation-lifecycle.ts:27](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L27)*
 
 Called after a the slice is sent to the "Fetcher"
 
@@ -267,10 +267,9 @@ ___
 
 *Inherited from [OperationLifeCycle](operationlifecycle.md).[shutdown](operationlifecycle.md#shutdown)*
 
-*Defined in [interfaces/operation-lifecycle.ts:14](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L14)*
+*Defined in [interfaces/operation-lifecycle.ts:14](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operation-lifecycle.ts#L14)*
 
 Called during execution shutdown,
 when this is cleanup any open connections or destroy any in-memory state.
 
 **Returns:** *`Promise<void>`*
-

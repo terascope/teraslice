@@ -12,4 +12,3 @@ sidebar_label: TypeConfig
 ## Indexable
 
 ● \[▪ **field**: *string*\]: [FieldType](../overview.md#fieldtype)
-

@@ -36,7 +36,7 @@ The definition of a View model
 
 • **client_id**? : *undefined | number*
 
-*Defined in [models/config/views.ts:107](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/config/views.ts#L107)*
+*Defined in [models/config/views.ts:107](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/views.ts#L107)*
 
 The mutli-tenant ID representing the client
 
@@ -46,7 +46,7 @@ ___
 
 • **constraint**? : *undefined | string*
 
-*Defined in [models/config/views.ts:142](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/config/views.ts#L142)*
+*Defined in [models/config/views.ts:142](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/views.ts#L142)*
 
 Constraint for queries and filtering
 
@@ -68,7 +68,7 @@ ___
 
 • **data_type**: *string*
 
-*Defined in [models/config/views.ts:122](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/config/views.ts#L122)*
+*Defined in [models/config/views.ts:122](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/views.ts#L122)*
 
 The associated data type
 
@@ -78,7 +78,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [models/config/views.ts:117](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/config/views.ts#L117)*
+*Defined in [models/config/views.ts:117](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/views.ts#L117)*
 
 Description of the view usage
 
@@ -88,7 +88,7 @@ ___
 
 • **excludes**? : *string[]*
 
-*Defined in [models/config/views.ts:132](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/config/views.ts#L132)*
+*Defined in [models/config/views.ts:132](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/views.ts#L132)*
 
 Fields to exclude
 
@@ -110,7 +110,7 @@ ___
 
 • **includes**? : *string[]*
 
-*Defined in [models/config/views.ts:137](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/config/views.ts#L137)*
+*Defined in [models/config/views.ts:137](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/views.ts#L137)*
 
 Fields to include
 
@@ -120,7 +120,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [models/config/views.ts:112](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/config/views.ts#L112)*
+*Defined in [models/config/views.ts:112](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/views.ts#L112)*
 
 Name of the view
 
@@ -130,7 +130,7 @@ ___
 
 • **prevent_prefix_wildcard**? : *undefined | false | true*
 
-*Defined in [models/config/views.ts:149](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/config/views.ts#L149)*
+*Defined in [models/config/views.ts:149](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/views.ts#L149)*
 
 Restrict prefix wildcards in search values
 
@@ -142,7 +142,7 @@ ___
 
 • **roles**: *string[]*
 
-*Defined in [models/config/views.ts:127](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/config/views.ts#L127)*
+*Defined in [models/config/views.ts:127](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/views.ts#L127)*
 
 A list of roles this view applys to
 
@@ -157,4 +157,3 @@ ___
 Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:161
 
 Updated date
-

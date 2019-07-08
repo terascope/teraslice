@@ -28,7 +28,7 @@ sidebar_label: Role
 
 • **client_id**: *number*
 
-*Defined in [models/config/roles.ts:45](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/config/roles.ts#L45)*
+*Defined in [models/config/roles.ts:45](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/roles.ts#L45)*
 
 The mutli-tenant ID representing the client
 
@@ -50,7 +50,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [models/config/roles.ts:55](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/config/roles.ts#L55)*
+*Defined in [models/config/roles.ts:55](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/roles.ts#L55)*
 
 Description of the Role
 
@@ -72,7 +72,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [models/config/roles.ts:50](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/data-access/src/models/config/roles.ts#L50)*
+*Defined in [models/config/roles.ts:50](https://github.com/terascope/teraslice/blob/a2250fb9/packages/data-access/src/models/config/roles.ts#L50)*
 
 Name of the Role
 
@@ -87,4 +87,3 @@ ___
 Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:161
 
 Updated date
-

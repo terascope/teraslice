@@ -12,4 +12,3 @@ sidebar_label: MatchRequirements
 ## Indexable
 
 ● \[▪ **field**: *string*\]: string
-

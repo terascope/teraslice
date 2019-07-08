@@ -12,4 +12,3 @@ sidebar_label: StateDict
 ## Indexable
 
 ● \[▪ **field**: *string*\]: string[]
-

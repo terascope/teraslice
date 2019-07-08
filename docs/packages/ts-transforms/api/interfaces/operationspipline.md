@@ -12,4 +12,3 @@ sidebar_label: OperationsPipline
 ## Indexable
 
 ● \[▪ **key**: *string*\]: [Operation](operation.md)[]
-

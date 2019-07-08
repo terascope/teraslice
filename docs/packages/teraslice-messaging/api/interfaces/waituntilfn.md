@@ -13,7 +13,6 @@ sidebar_label: WaitUntilFn
 
 ▸ (): *boolean*
 
-*Defined in [execution-controller/interfaces.ts:45](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L45)*
+*Defined in [execution-controller/interfaces.ts:45](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L45)*
 
 **Returns:** *boolean*
-

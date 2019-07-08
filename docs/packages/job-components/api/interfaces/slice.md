@@ -27,7 +27,7 @@ A trackable set of work to be preformed by a "Worker"
 
 • **_created**: *string*
 
-*Defined in [interfaces/operations.ts:68](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operations.ts#L68)*
+*Defined in [interfaces/operations.ts:68](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operations.ts#L68)*
 
 ___
 
@@ -35,7 +35,7 @@ ___
 
 • **request**: *[SliceRequest](slicerequest.md)*
 
-*Defined in [interfaces/operations.ts:67](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operations.ts#L67)*
+*Defined in [interfaces/operations.ts:67](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operations.ts#L67)*
 
 ___
 
@@ -43,7 +43,7 @@ ___
 
 • **slice_id**: *string*
 
-*Defined in [interfaces/operations.ts:58](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operations.ts#L58)*
+*Defined in [interfaces/operations.ts:58](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operations.ts#L58)*
 
 A unique identifier for the slice
 
@@ -53,7 +53,7 @@ ___
 
 • **slicer_id**: *number*
 
-*Defined in [interfaces/operations.ts:62](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operations.ts#L62)*
+*Defined in [interfaces/operations.ts:62](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operations.ts#L62)*
 
 A reference to the slicer that created the slice.
 
@@ -63,7 +63,6 @@ ___
 
 • **slicer_order**: *number*
 
-*Defined in [interfaces/operations.ts:66](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operations.ts#L66)*
+*Defined in [interfaces/operations.ts:66](https://github.com/terascope/teraslice/blob/a2250fb9/packages/job-components/src/interfaces/operations.ts#L66)*
 
 A reference to the slicer
-

@@ -35,7 +35,7 @@ sidebar_label: API
 
 Ƭ **AnyOperationConstructor**: *`ProcessorConstructor` | `SlicerConstructor`*
 
-*Defined in [interfaces.ts:22](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/teraslice-test-harness/src/interfaces.ts#L22)*
+*Defined in [interfaces.ts:22](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-test-harness/src/interfaces.ts#L22)*
 
 ___
 
@@ -43,7 +43,7 @@ ___
 
 Ƭ **BatchedResults**: *`DataEntity`[][]*
 
-*Defined in [job-test-harness.ts:120](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/teraslice-test-harness/src/job-test-harness.ts#L120)*
+*Defined in [job-test-harness.ts:120](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-test-harness/src/job-test-harness.ts#L120)*
 
 ___
 
@@ -51,7 +51,7 @@ ___
 
 Ƭ **Context**: *`WorkerContext`*
 
-*Defined in [interfaces.ts:11](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/teraslice-test-harness/src/interfaces.ts#L11)*
+*Defined in [interfaces.ts:11](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-test-harness/src/interfaces.ts#L11)*
 
 ___
 
@@ -59,7 +59,7 @@ ___
 
 Ƭ **ExecutionContext**: *`WorkerExecutionContext` | `SlicerExecutionContext`*
 
-*Defined in [interfaces.ts:10](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/teraslice-test-harness/src/interfaces.ts#L10)*
+*Defined in [interfaces.ts:10](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-test-harness/src/interfaces.ts#L10)*
 
 ## Functions
 
@@ -67,7 +67,7 @@ ___
 
 ▸ **isAssetDirRoot**(`assetDir`: *string*): *boolean*
 
-*Defined in [utils.ts:27](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/teraslice-test-harness/src/utils.ts#L27)*
+*Defined in [utils.ts:27](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-test-harness/src/utils.ts#L27)*
 
 **Parameters:**
 
@@ -83,7 +83,7 @@ ___
 
 ▸ **isBaseAssetDir**(`assetDir`: *string*): *boolean*
 
-*Defined in [utils.ts:21](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/teraslice-test-harness/src/utils.ts#L21)*
+*Defined in [utils.ts:21](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-test-harness/src/utils.ts#L21)*
 
 **Parameters:**
 
@@ -99,7 +99,7 @@ ___
 
 ▸ **resolveAssetDir**(`assetDir`: *string*): *string*
 
-*Defined in [utils.ts:4](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/teraslice-test-harness/src/utils.ts#L4)*
+*Defined in [utils.ts:4](https://github.com/terascope/teraslice/blob/a2250fb9/packages/teraslice-test-harness/src/utils.ts#L4)*
 
 **Parameters:**
 
@@ -108,4 +108,3 @@ Name | Type |
 `assetDir` | string |
 
 **Returns:** *string*
-

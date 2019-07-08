@@ -25,7 +25,7 @@ sidebar_label: RulesLoader
 
 \+ **new RulesLoader**(`opConfig`: *[WatcherConfig](../interfaces/watcherconfig.md)*, `logger`: *`Logger`*): *[RulesLoader](rulesloader.md)*
 
-*Defined in [loader/rules-loader.ts:10](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/ts-transforms/src/loader/rules-loader.ts#L10)*
+*Defined in [loader/rules-loader.ts:10](https://github.com/terascope/teraslice/blob/a2250fb9/packages/ts-transforms/src/loader/rules-loader.ts#L10)*
 
 **Parameters:**
 
@@ -42,7 +42,6 @@ Name | Type |
 
 ▸ **load**(): *`Promise<OperationConfigInput[]>`*
 
-*Defined in [loader/rules-loader.ts:17](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/ts-transforms/src/loader/rules-loader.ts#L17)*
+*Defined in [loader/rules-loader.ts:17](https://github.com/terascope/teraslice/blob/a2250fb9/packages/ts-transforms/src/loader/rules-loader.ts#L17)*
 
 **Returns:** *`Promise<OperationConfigInput[]>`*
-

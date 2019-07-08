@@ -12,4 +12,3 @@ sidebar_label: ActiveWorkers
 ## Indexable
 
 ● \[▪ **workerId**: *string*\]: boolean
-
