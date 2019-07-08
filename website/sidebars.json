@@ -19,11 +19,11 @@
                     "jobs/operations/overview",
                     "jobs/operations/configuration",
                     "jobs/operations/lifecycle",
-                    "jobs/operations/concepts",
                     "jobs/operations/development",
                     "jobs/operations/tests"
                 ]
             },
+            "jobs/dead-letter-queue",
             {
                 "type": "subcategory",
                 "label": "Examples",
