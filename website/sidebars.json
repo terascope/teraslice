@@ -18,11 +18,12 @@
                 "ids": [
                     "jobs/operations/overview",
                     "jobs/operations/configuration",
-                    "jobs/operations/lifecycle",
                     "jobs/operations/development",
                     "jobs/operations/tests"
                 ]
             },
+            "jobs/slicer-lifecycle",
+            "jobs/worker-lifecycle",
             "jobs/dead-letter-queue",
             {
                 "type": "subcategory",

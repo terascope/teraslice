@@ -1,3 +1,4 @@
+import { DataEntity } from '@terascope/utils';
 import { Slice, SlicerRecoveryData, SliceResult, ExecutionStats } from './operations';
 
 export interface OperationLifeCycle {
@@ -63,9 +64,10 @@ export interface WorkerOperationLifeCycle extends OperationLifeCycle {
      *
      * @param sliceId is the id of the slice being processed
      * @param index the index to the operation which completed
-     * @param processed is the number of records returned from the op
+     * @param processed is the number of records returned from last op
+     * @param results the records returned from last op
      */
-    onOperationComplete?(sliceId: string, index: number, processed: number): void;
+    onOperationComplete?(sliceId: string, index: number, processed: number, records: DataEntity[]): void;
 
     /**
      * Called to notify the processors that the next slice being

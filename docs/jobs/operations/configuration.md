@@ -20,10 +20,12 @@ sidebar_label: Configuration
 ## Built-in Processors
 
 ### script
+
 This is used to allow other languages other than javascript to process data. Note that this is not meant to be highly efficient as it creates a child process that runs the specified script in the job.  Communication between teraslice and the script is done stdin and stdout with the data format expected to be JSON. If another language is needed, it might be a better idea to use C++ or rust to add a module that Node can create native bindings so that you can require the code like a regular javascript module.
 
-Example configuration
-```js
+Example configuration:
+
+```json
 {
     "_op": "script",
     "command": "someFile.py",
@@ -34,7 +36,8 @@ Example configuration
 ```
 
 Example Job: `examples/jobs/script/test_script_job.json`
-```js
+
+```json
 {
     "name": "ES DataGen test script",
     "lifecycle": "persistent",
@@ -68,26 +71,31 @@ Example Job: `examples/jobs/script/test_script_job.json`
 | `options`     | Obj containing options to pass into the process env           | `Object` | optional |
 | `asset`       | Name of asset containing command to run                       | `String` | optional |
 
-Note: [ nodejs 8.x spawn documentation ](https://nodejs.org/dist/latest-v8.x/docs/api/child_process.html#child_process_child_process_spawn_command_args_options)
+Note: [nodejs 8.x spawn documentation](https://nodejs.org/dist/latest-v8.x/docs/api/child_process.html#child_process_child_process_spawn_command_args_options)
 
 **script usage example:**
 
 Create and upload asset
+
 ```bash
 cd examples/jobs/script
 zip -r test_script.zip test_script
 curl -XPOST -H "Content-Type: application/octet-stream" localhost:5678/assets --data-binary @test_script.zip
 ```
+
 Submit Job
+
 ```bash
 curl -XPOST localhost:5678/jobs -d@test_script_job.json
 ```
 
 ### stdout
+
 This is primarily used for develop purposes, it console logs the incoming data, it's meant to inspect in between operations or end of outputs
 
 Example configuration
-```js
+
+```json
 {
     "_op": "stdout"
 }
@@ -102,7 +110,8 @@ Example configuration
 This processor simply passes the data through, unmodified. It is primarily used for develop purposes.
 
 Example configuration
-```js
+
+```json
 {
     "_op": "noop"
 }
@@ -115,7 +124,8 @@ There is no configuration for this processor.
 Wait a specific amount of time, and passes the data through.
 
 Example configuration
-```js
+
+```json
 {
     "_op": "delay",
     "ms": 1000

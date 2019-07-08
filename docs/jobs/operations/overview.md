@@ -27,7 +27,7 @@ To develop a processor, see the [docs](./development.md#processor).
 
 ## APIs
 
-A Job can specify an Operation API which can expose an utility API, a [Dead Letter Queue](../dead-letter-queue.md) or can be used to monitor/track data going through the pipeline. APIs are [configured](./configuration.md#apis) separately and are attached to the [Operation Lifecycle](./lifecycle.md#worker) on startup. APIs are only available to the [Worker](../../nodes/worker.md).
+A Job can specify an Operation API which can expose an utility API, a [Dead Letter Queue](../dead-letter-queue.md) or can be used to monitor/track data going through the pipeline. APIs are [configured](./configuration.md#apis) separately and are attached to the [Operation Lifecycle](../worker-lifecycle.md) on startup. APIs are only available to the [Worker](../../nodes/worker.md).
 
 To develop a processor, see the [docs](./development.md#api).
 
