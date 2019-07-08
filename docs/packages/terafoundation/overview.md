@@ -9,9 +9,9 @@ Node.js framework for building clustered servers
 
 Here are a few tasks it can help you with:
 
-  * Managing multiple database connections
-  * Framework to create a number of general or special child workers
-  * Schema validations for app configurations
+- Managing multiple database connections
+- Framework to create a number of general or special child workers
+- Schema validations for app configurations
 
 ### Basic Example
 
@@ -33,10 +33,7 @@ var logger = context.logger
 }
 ```
 
-
-
 ## terafoundation call time settings
-
 
 |   Configuration   |                                                                                             Description                                                                                             |        Type        |                                              Notes                                              |
 | :---------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :----------------: | :---------------------------------------------------------------------------------------------: |
@@ -53,8 +50,9 @@ var logger = context.logger
 |      emitter      |                                                       you may pass down a node.js event emitter which will emit certain signals to listen on                                                        |      function      |                                            optional                                             |
 
 ### Complex example
+
 ```js
-var foundation = require('terafoundation')({
+const foundation = require('terafoundation')({
     name: 'teraslice',
     shutdownMessaging: true,
     worker: worker,
@@ -79,46 +77,53 @@ var foundation = require('terafoundation')({
     cluster_name: cluster_name
   });
 ```
+
 You may pass in multiple different type of child process that behave differently. To use them you must specify them on the descriptors. After this you may create them using `context.foundation.startWorkers` api to create that specific worker type. The descriptor is primarily needed for child worker restarts
 
 #### Schemas
+
 We use the [convict](https://github.com/mozilla/node-convict) library for configuration validations. Any top level program can pass down its schema as the config_schema parameter when instantiating terafoundation
 
 You may reference system_schema at the root of terafoundation for references
 
 #### Context
+
 As noted in the basic example above, all child process will be called with a context which contains configurations and apis
 
 The context is an object with the following keys:
- * `sysconfig` which contains all the fully validated configurations of your entire app
- * `cluster` which is the top level node cluster module used for all child processes
- * `name` which is the top level name of project
- * `cluster_name` which is name to distinguish the cluster
- * `logger` a base top level logger for any logging needs, we use [bunyan](https://github.com/trentm/node-bunyan)
- * `foundation` which contains the api to make a logger, create a database connection, or to make a worker
+
+- `sysconfig` which contains all the fully validated configurations of your entire app
+- `cluster` which is the top level node cluster module used for all child processes
+- `name` which is the top level name of project
+- `cluster_name` which is name to distinguish the cluster
+- `logger` a base top level logger for any logging needs, we use [bunyan](https://github.com/trentm/node-bunyan)
+- `foundation` which contains the api to make a logger, create a database connection, or to make a worker
 
 #### API
+
 The api is located at `context.apis.foundation`:
 
- * `getConnection` which is used to get a database client.
+- `getConnection` which is used to get a database client.
+
 ```js
-var client = context.apis.foundation.getConnection({
+const client = context.apis.foundation.getConnection({
         type: 'elasticsearch',
         endpoint: default,
         cached: true
       }).client;
 ```
-   In this example, `type` references which type of connector you are using. `Endpoint` references which of the endpoints you will use, and `cached` determines if the same client instance will be returned on subsequent calls.
 
-* `makeLogger` which is used to create a logger
+In this example, `type` references which type of connector you are using. `Endpoint` references which of the endpoints you will use, and `cached` determines if the same client instance will be returned on subsequent calls.
+
+- `makeLogger` which is used to create a logger
 
 ```js
 var logger = context.apis.foundation.makeLogger({module: 'worker', slice: '7dj38d'});
-
 ```
+
 The object attaches metadata to any of the logs done by the new child logger. This allows more visible logging per action taken or per module
 
-* `startWorkers` which is used to create specific child workers
+- `startWorkers` which is used to create specific child workers
 
 ```js
 context.apis.foundation.startWorkers(1, {
@@ -127,9 +132,10 @@ context.apis.foundation.startWorkers(1, {
     node_id: context.sysconfig._nodeName
 });
 ```
+
 The first argument is the number of specific workers you are going to make. The second parameter is an object. The key `assignment` must match whats listed in the descriptors listed in the complex terafoundation example above. It allows the system to know what type of child process to create. All keys and values in the object will also by stored in the process environment `process.env` . This allows you to pass a port number, identifier or anything else that the process needs to know before hand to boot up
 
-* `getSystemEvents` which returns the system wide event emitter
+- `getSystemEvents` which returns the system wide event emitter
 
 ```js
 var events = context.apis.foundation.getSystemEvents();
@@ -138,8 +144,8 @@ events.on('event', function() {
   // do something for this event.
 });
 ```
-This allows listening to and emitting events on the system events bus.
 
+This allows listening to and emitting events on the system events bus.
 
 ## terafoundation configuration
 
@@ -155,6 +161,7 @@ or by having the appropriate configuration file located at the root of your proj
   worker.js
   config.yaml
 ```
+
 or by setting an environmental variable `TERAFOUNDATION_CONFIG` to the configuration file
 
 ### Example Config
@@ -191,6 +198,7 @@ terafoundation:
 ```
 
 #### Connectors
+
 This is where client config used to set up database connections lives. It is an object with keys set to the different clients and must match the names of the clients listed in connectors/node-modules.
 
 The values are once again objects with keys set to different endpoints within each client. For example in the config above, elasticsearch database has two endpoints listed. The first one is called default which listens to an elasticsearch database on port 9200, and by what its name implies is the endpoint that's used when making a client without specifying an endpoint. The other is endpoint2 which connects to an elasticsearch database on port 9215

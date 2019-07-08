@@ -325,7 +325,7 @@ describe('Example Asset', () => {
     describe('using the JobTestHarness', () => {
         const job = newTestJobConfig({
             analytics: true,
-            operations: 
+            operations:
                 {
                     _op: 'simple-reader'
                 },

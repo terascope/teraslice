@@ -23,11 +23,13 @@ Useful for referencing a cluster without having to write out the entire name. On
 List cluster aliases. By default localhost - `http://localhost:5678` is already set up
 
 command:
+
 ```sh
 teraslice-cli aliases list
 ```
 
 output:
+
 ```txt
 cluster      host
 -----------  --------------------------------------
@@ -38,14 +40,9 @@ localhost    http://localhost:5678
 
 Adds a cluster alias to the config file
 
-command:
 ```sh
-teraslice-cli aliases add cluster1 http://cluster1.net:80
-```
-
-output:
-```sh
-> Added alias cluster1 host: http://cluster1.net:80
+$ teraslice-cli aliases add cluster1 http://cluster1.net:80
+Added alias cluster1 host: http://cluster1.net:80
 ```
 
 After adding a cluster the command teraslice-cli aliases list output:
@@ -61,17 +58,13 @@ cluster1     http://cluster1.net:80
 
 Removes a cluster alias to the config file
 
-command:
 ```sh
-teraslice-cli aliases remove cluster1
-```
-
-output:
-```txt
+$ teraslice-cli aliases remove cluster1
 > Removed cluster alias cluster1
 ```
 
 Now aliases cluster list will output:
+
 ```txt
 cluster      host
 -----------  --------------------------------------
@@ -82,17 +75,13 @@ localhost        http://localhost:5678
 
 update an alias
 
-command:
 ```sh
-teraslice-cli aliases update local localhost:3000
-```
-
-output:
-```txt
-> Updated alias local host: localhost:3000
+$ teraslice-cli aliases update local localhost:3000
+Updated alias local host: localhost:3000
 ```
 
 New aliases list will output:
+
 ```txt
 cluster      host
 -----------  --------------------------------------
@@ -109,39 +98,34 @@ Commands to manage assets.
 
 Creates a build directory and saves the zipped asset in the build directory.
 
-command:
 ```sh
-teraslice-cli assets build
+$ teraslice-cli assets build
 # or by specifying the path
-teraslice-cli assets build --src-dir /path/to/asset
-```
-
-output:
-```txt
+# teraslice-cli assets build --src-dir /path/to/asset
 Asset created:
         /dir/path/new_asset-v0.0.01-node-version-platform-architecture.zip
 ```
 
 ### assets deploy
+
 Deploys an asset to a cluster.  The asset can be a zipfile or a github repo.
 
 To deploy an asset from a github repo:
+
 ```sh
 teraslice-cli assets deploy <cluster-alias> <user/repo-name>
 ```
 
 working example:
-```sh
-teraslice-cli assets deploy localhost terascope/elasticsearch-assets
-```
 
-output:
-```txt
+```sh
+$ teraslice-cli assets deploy localhost terascope/elasticsearch-assets
 terascope/kafka-assets has either been downloaded or was already present on disk.
 Asset posted to localhost: <asset-hash>
 ```
 
 To deploy an asset from a zipfile:
+
 ```sh
 teraslice-cli assets deploy localhost --file /path/to/zipFile/asset.zip
 ```
@@ -158,7 +142,6 @@ See `teraslice-cli assets --help` for all examples and options
 
 Shows all the assets on a cluster.
 
-command:
 ```sh
 teraslice-cli assets list <cluster-alias>
 ```
@@ -168,11 +151,7 @@ teraslice-cli assets list <cluster-alias>
 Removes an asset from a cluster
 
 ```sh
-teraslice-cli assets remove <cluster-alias> <asset-id>
-```
-
-output:
-```txt
+$ teraslice-cli assets remove <cluster-alias> <asset-id>
 Asset <asset-id> deleted from <cluster-alias>
 ```
 
@@ -187,6 +166,7 @@ teraslice-cli assets init
 An asset is composed of processors that reside in the asset_name/asset directory.  This command creates the basic asset directory structure.  The teraslice-cli will ask for an asset name and brief description before creating the asset file structure, test framework, and it's needed dependencies.  It will create working tests in the test directory.  If `yarn` is installed then the cli will use `yarn` to install the dependencies, otherwise it will use `npm`.  Use `yarn test` or `npm test` to run the test suite.
 
 Asset directory contents
+
 ```sh
 <asset_name>
 - asset
@@ -238,6 +218,7 @@ teraslice-cli tjm convert jobFile.json
 ```
 
 ### tjm errors
+
 Displays errors for a job.
 
 ```sh
@@ -245,6 +226,7 @@ teraslice-cli tjm errors jobFile.json
 ```
 
 ### tjm init
+
 Creates an example teraslice-job in the current working directory
 
 ```sh
@@ -321,12 +303,14 @@ teraslice-cli tjm workers total 50 jobFile.json
 ## Jobs
 
 *** Job control commands start, stop, pause, resume, and restart all function with the same syntax.***
+
 - `-all` or `-a` performs action on all the jobs on a given cluster.
 - `--yes` or `y` answers yes to all prompts
 
 - When jobs are stopped or paused the state of the jobs are saved in `~/.teraslice/job_state_files`
 
 Commands:
+
 ```bash
 teraslice-cli jobs <command> <cluster> [-all|-a]
 # stop
@@ -346,9 +330,10 @@ teraslice-cli jobs restart local --all -y
 ### jobs errors
 
 List errors for a given job
+
 - `--size` Limit the number of errors to display, default is `100`.
 
-```
+```sh
 teraslice-cli jobs errors <cluster> <job_id>
 teraslice-cli jobs errors local 99999999-9999-9999-9999-999999999999
 ```

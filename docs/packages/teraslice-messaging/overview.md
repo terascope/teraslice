@@ -16,7 +16,7 @@ npm install --save @terascope/teraslice-messaging
 
 ## Usage
 
-```
+```js
 const { ... } = require('@terascope/teraslice-messaging');
 
 // TODO: DEMONSTRATE API

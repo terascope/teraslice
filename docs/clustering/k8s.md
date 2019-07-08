@@ -76,7 +76,7 @@ exposes port `5678` for user interaction.  The cluster master will only show
 up in cluster state if it is deployed with the label `clusterName` set to the
 clustername modified as follows:
 
-```javascript
+```js
 clusterName.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63)
 ```
 

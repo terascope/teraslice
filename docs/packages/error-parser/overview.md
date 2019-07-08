@@ -5,7 +5,6 @@ sidebar_label: Overview
 
 > A generic error parser
 
-<br>
 **DEPRECRATED**: Use `TSError` in the [@terascope/utils](../utils/overview) package.
 
 ## Installation

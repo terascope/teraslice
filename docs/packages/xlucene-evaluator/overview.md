@@ -5,9 +5,6 @@ sidebar_label: Overview
 
 > Flexible Lucene-like evalutor and language parser
 
-#### Installation
-
-
 ## Installation
 
 ```bash
@@ -18,6 +15,7 @@ npm install --save xlucene-evaluator
 ```
 
 ## Document Matcher
+
 This takes in a lucene based query along with some configuration and allows you to run data against it to see if it matches
 
 ```js
@@ -61,6 +59,7 @@ matcher4.match(data7)  => false
 ```
 
 ### Ranges
+
 You may specify ranges using `< > <= >=` syntax as well as `[]` (inclusive) and `{}` signs. A `*` may be used to signify infinity or -infinity depening where it is used.
 
 ```js
@@ -69,14 +68,14 @@ const data2 = { age: 10 };
 const data3 = { age: 15 };
 
 // This query is the same as age:{10 TO 20}
-const matcher1 = new DocumentMatcher('age:(>10 AND <20)'); 
+const matcher1 = new DocumentMatcher('age:(>10 AND <20)');
 
 matcher1.match(data)  => false
 matcher1.match(data2)  => false
 matcher1.match(data3)  => true
 
 //This is functionally equivalent to the query above
-const matcher2 = new DocumentMatcher('age:{10 TO 20}'); 
+const matcher2 = new DocumentMatcher('age:{10 TO 20}');
 
 matcher2.match(data)  => false
 matcher2.match(data2)  => false
@@ -102,11 +101,12 @@ matcher5.match(data2)  => false
 matcher5.match(data3)  => true
 ```
 
-
 ### Types
+
 NOTE: Strings that contain dates, ip's and the like will be treated as exact match queries unless you specify the type of the field in the configuration
 
 #### IP
+
 This has support for ipv4, ipv6 and cidr notation. Any cidr notation value need to be quoted while ipv4 and ipv6 do not
 
 ```js
@@ -142,6 +142,7 @@ rangeIpMatcher.match(data7)  => true
 ```
 
 #### Dates
+
 Has support for date comparison
 
 ```js
@@ -179,11 +180,13 @@ dateTypeMatcher2.match(data7)  => false
 ```
 
 #### Geo
+
 Has support for geo based queries. It expects all geopoints to be in the`lat,lon` format. If you specify a `_geo_box_top_left_ and _geo_box_bottom_right_` it creates a bounding box and checks to see if the point. If you specify `_geo_point_ and _geo_distance_` it checks to see if the incoming geopoint is within distance of that point.
 
 NOTE: since geo syntax is a grammar primitive no types are needed, it can automatically infer it.
 
 distance may be set to:
+
 - meters
 - yards
 - kilometers
@@ -193,7 +196,6 @@ distance may be set to:
 - millimeters
 - centimeters
 - feet
-
 
 ```js
 const data1 = { location: '33.435967,-111.867710' };
@@ -211,6 +213,7 @@ geoDistanceTypeMatcher.match(data2)  => false);
 ```
 
 #### Regex and Wildcard queries
+
 For this types DO NOT need to be specified and is done by the query itself. A wildcard query can use the `?`to represent a single non empty char and a `*` to match anything. A regex value must be wrapped in a `/ expression_here /` and follows the regular expression standard. NOTE: all regex expressions are anchored!!! Design you regex accordingly
 
 ie "abcde":

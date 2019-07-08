@@ -38,6 +38,7 @@ builds/*
 node_modules
 
 # developer tools
+.vscode/*
 !.vscode/extensions.json
 
 # teraslice assets
