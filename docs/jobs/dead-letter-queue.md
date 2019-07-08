@@ -4,7 +4,7 @@ title: Dead Letter Queue
 
 This API available to any operation running in the [`WorkerContext`](../packages/job-components/api/classes/workerexecutioncontext.md) for putting invalid records or data. This API is useful for placing records that were not formatted correctly or were unserializable.
 
-### Usage
+## Usage
 
 In order to use the Dead Letter Queue you have to specify the `_dead_letter_action` on configuration on the operation.
 
@@ -72,9 +72,9 @@ export default class ExampleFetcher extends Fetcher {
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-### Development
+## Building Your Own
 
-You can build a custom dead letter queue similar to how you develop an [Operation API](./operations/development.md#operation-api), the main difference is that the API returned via (`createAPI`) is a synchronous `function` that takes the invalid record as the first argument and error as the second argument.
+You can build a custom dead letter queue similar to how you develop an [Operation API](./development.md#operation-api), the main difference is that the API returned via (`createAPI`) is a synchronous `function` that takes the invalid record as the first argument and error as the second argument.
 
 **IMPORTANT:** Since this is a generic dead letter queue API, the arguments for invalid record and the error may vary in data structure or type, so make sure to handle any edge cases.
 

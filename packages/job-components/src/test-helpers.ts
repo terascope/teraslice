@@ -28,7 +28,6 @@ export function newTestJobConfig(defaults: Partial<i.JobConfig> = {}) {
             lifecycle: 'once',
             max_retries: 0,
             probation_window: 30000,
-            recycle_worker: 0,
             slicers: 1,
             workers: 1,
         },

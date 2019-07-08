@@ -7,4 +7,4 @@ sidebar_label: Overview
 
 ## Pipeline
 
-The first operation in the `operations` list, (see the [configuration](./configuration.md)) reads from a particular source, [see "Reader"](./operations/overview.md#Reader). The "Reader" will creates [Slices](../packages/job-components/api/interfaces/slice.md) which goes through the pipeline of operations specified on the job.
+The first operation in the `operations` list, (see the [configuration](./configuration.md)) reads from a particular source, [see "Reader"](./overview.md#Reader). The "Reader" will creates [Slices](../packages/job-components/api/interfaces/slice.md) which goes through the pipeline of operations specified on the job.

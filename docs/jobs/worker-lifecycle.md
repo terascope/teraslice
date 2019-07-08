@@ -1,6 +1,5 @@
 ---
 title: Worker Lifecycle
-sidebar_label: Worker Lifecycle
 ---
 
 See [WorkerOperationLifeCycle](../packages/job-components/api/interfaces/workeroperationlifecycle.md) API for more details.

@@ -287,7 +287,6 @@ $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/ex'
         }
     ],
     "probation_window": 300000,
-    "recycle_worker": null,
     "slicers": 1,
     "workers": 1,
     "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
@@ -502,7 +501,6 @@ $ curl 'localhost:5678/v1/ex?status=running&size=10'
             }
         ],
         "probation_window": 300000,
-        "recycle_worker": null,
         "slicers": 1,
         "workers": 1,
         "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
@@ -554,7 +552,6 @@ $ curl 'localhost:5678/v1/ex/77c94621-48cf-459f-9d95-dfbccf010f5c'
         }
     ],
     "probation_window": 300000,
-    "recycle_worker": null,
     "slicers": 1,
     "workers": 1,
     "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",

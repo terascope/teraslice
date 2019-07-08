@@ -1,23 +1,6 @@
 ---
-title: Operation Configuration
-sidebar_label: Configuration
+title: Builtin Operations
 ---
-
-### Readers and Processors
-
-| Configuration         | Description                                                                                                                                                                                                                                                                                                                                                                  | Type     | Notes    |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------- |
-| `_op`                 | Name of operation, it must reflect the exact name of the file                                                                                                                                                                                                                                                                                                                | `String` | required |
-| `_encoding`           | Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`.                                                                                                                                                                                                                                                                           | `String` | optional |
-| `_dead_letter_action` | This action will specify what to do when failing to parse or transform a record. ​​​​​The following builtin actions are supported, "throw", "log", or "none". If none of the actions are specified it will try and use a registered [Dead Letter Queue](../dead-letter-queue.md) API under that name. The API must be already be created by a operation before it can used.​ | `String` | required |
-
-### APIs
-
-| Configuration | Description                                                                                                                                                                                                          | Type     | Notes    |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------- |
-| `_name`       | The _name property is required, and it is required to be unqiue but can be suffixed with a identifier by using the format "example:0", anything after the ":" is stripped out when searching for the file or folder. | `String` | required |
-
-## Built-in Processors
 
 ### script
 

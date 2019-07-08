@@ -29,7 +29,6 @@ sidebar_label: ExecutionConfig
 * [name](executionconfig.md#name)
 * [operations](executionconfig.md#operations)
 * [probation_window](executionconfig.md#probation_window)
-* [recycle_worker](executionconfig.md#recycle_worker)
 * [slicer_hostname](executionconfig.md#slicer_hostname)
 * [slicer_port](executionconfig.md#slicer_port)
 * [slicers](executionconfig.md#slicers)

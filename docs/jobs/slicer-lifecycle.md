@@ -1,6 +1,5 @@
 ---
 title: Slicer Lifecycle
-sidebar_label: Slicer Lifecycle
 ---
 
 See [SlicerOperationLifeCycle](../packages/job-components/api/interfaces/sliceroperationlifecycle.md) API for more details.

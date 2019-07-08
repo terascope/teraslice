@@ -12,26 +12,14 @@
         "Jobs": [
             "jobs/overview",
             "jobs/configuration",
-            {
-                "type": "subcategory",
-                "label": "Operations",
-                "ids": [
-                    "jobs/operations/overview",
-                    "jobs/operations/configuration",
-                    "jobs/operations/development",
-                    "jobs/operations/tests"
-                ]
-            },
+            "jobs/operations",
+            "jobs/builtin-operations",
             "jobs/slicer-lifecycle",
             "jobs/worker-lifecycle",
             "jobs/dead-letter-queue",
-            {
-                "type": "subcategory",
-                "label": "Examples",
-                "ids": [
-                    "jobs/operations/examples/legacy-operations"
-                ]
-            }
+            "jobs/development",
+            "jobs/testing",
+            "jobs/legacy-operations"
         ],
         "Clustering": [
             "clustering/overview",
