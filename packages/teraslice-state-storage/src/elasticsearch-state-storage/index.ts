@@ -110,7 +110,7 @@ export default class ESCachedStateStorage {
         return cached;
     }
 
-    async mget(docArray: DataEntity[], cb = (doc: DataEntity) => doc) {
+    async mget(docArray: DataEntity[], mapperFn = (doc: DataEntity) => doc) {
         // dedupe docs
         const uniqDocs = this._dedupeDocs(docArray);
         const savedDocs = {};
@@ -142,7 +142,7 @@ export default class ESCachedStateStorage {
         // update cache based on mget results
         mgetResults.forEach((results) => {
             results.forEach((doc: DataEntity) => {
-                const data = cb(doc);
+                const data = mapperFn(doc);
                 // update cache
                 this.set(data);
                 // updated savedDocs object
