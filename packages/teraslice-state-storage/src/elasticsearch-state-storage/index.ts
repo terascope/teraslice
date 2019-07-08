@@ -15,7 +15,7 @@ export default class ESCachedStateStorage {
     private persist: boolean;
     private persistField: string;
     private es: Client;
-    private cache: CachedStateStorage;
+    public cache: CachedStateStorage;
 
     constructor(client: Client, logger: Logger, config: ESStateStorageConfig) {
         this.index = config.index;
@@ -110,10 +110,9 @@ export default class ESCachedStateStorage {
         return cached;
     }
 
-    async mget(docArray: DataEntity[]) {
+    async mget(docArray: DataEntity[], cb = (doc: DataEntity) => doc) {
         // dedupe docs
         const uniqDocs = this._dedupeDocs(docArray);
-
         const savedDocs = {};
         const unCachedDocKeys: string[] = [];
 
@@ -140,13 +139,14 @@ export default class ESCachedStateStorage {
             { concurrency: this.concurrency }
         );
 
-       // update cache based on mget results
+        // update cache based on mget results
         mgetResults.forEach((results) => {
             results.forEach((doc: DataEntity) => {
+                const data = cb(doc);
                 // update cache
-                this.set(doc);
+                this.set(data);
                 // updated savedDocs object
-                savedDocs[this.getIdentifier(doc)] = doc;
+                savedDocs[this.getIdentifier(data)] = data;
             });
         });
 

@@ -1,7 +1,7 @@
 {
     "name": "@terascope/teraslice-state-storage",
     "description": "State storage operation api for teraslice",
-    "version": "0.1.2",
+    "version": "0.2.0",
     "publishConfig": {
         "access": "public"
     },

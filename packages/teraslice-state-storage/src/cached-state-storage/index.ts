@@ -59,6 +59,10 @@ export default class CachedStateStorage {
         return this.cache.itemCount;
     }
 
+    values() {
+        return this.cache.values();
+    }
+
     has(doc: DataEntity) {
         const identifier = this.getIdentifier(doc);
         return this.cache.has(identifier);
