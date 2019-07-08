@@ -9,7 +9,7 @@ See [SlicerOperationLifeCycle](../packages/job-components/api/interfaces/slicero
 
 Called when the Execution Controller starts up, when this is called perform any async setup.
 
-After recovering an execution the Slicer will be given a [`SlicerRecoveryData`](../../packages/job-components/api/interfaces/slicerrecoverydata.md) for each slicer.
+After recovering an execution the Slicer will be given a [`SlicerRecoveryData`](../packages/job-components/api/interfaces/slicerrecoverydata.md) for each slicer.
 
 ### `->shutdown`
 

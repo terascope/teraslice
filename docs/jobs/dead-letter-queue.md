@@ -2,9 +2,13 @@
 title: Dead Letter Queue
 ---
 
-## Dead Letter Queue
+This API available to any operation running in the [`WorkerContext`](../packages/job-components/api/classes/workerexecutioncontext.md) for putting invalid records or data. This API is useful for placing records that were not formatted correctly or were unserializable.
 
-The Dead Letter Queue is an API available to any operation running in the [`WorkerContext`](../packages/job-components/api/classes/workerexecutioncontext.md) for putting invalid records or data. This API is useful for placing records that were not formatted correctly or were unserializable. There are a few built-in actions available:
+### Usage
+
+In order to use the Dead Letter Queue you have to specify the `_dead_letter_action` on configuration on the operation.
+
+There are a few built-in actions available:
 
 - **"throw"** - Throw a specifically formatted error.
 - **"log"** - Log the invalid record. *WARNING: this can expose sensitive data production data*
@@ -12,12 +16,72 @@ The Dead Letter Queue is an API available to any operation running in the [`Work
 
 The `kafka-assets` bundle includes a [kafka dead letter queue](https://github.com/terascope/kafka-assets/blob/master/README.md#kafka-dead-letter) which can be configured to store all records in a Kafka topic.
 
-Custom dead letter queues can also be created:
+Additionally the `Fetcher` or `Processor` will need to call the approperiate methods to ensure the record is sent to the dead letter queue. There are two methods avalable on the [OperationCore](../packages/job-components/api/classes/operationcore.md):
+
+- `rejectRecord(input: any, err: Error)` a simple method that will place an invalid record into with an error into the dead letter queue.
+- `tryRecord(fn: (record) => record)` a utility method curry a transformating or serialization function and automatically reject the record if needed. This uses `rejectRecord` under the hood.
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--rejectRecord()-->
+```ts
+export default class ExampleFetcher extends Fetcher {
+    // ...
+    async fetch() {
+        // get the data from a client
+        const records: (Buffer|string)[] = await this.client.getData();
+
+        let results: DataEntity[];
+
+        for (const data of records) {
+            try {
+                results.push(DataEntity.fromBuffer(record, this.opConfig));
+            } catch (err) {
+                this.rejectRecord(data, err);
+            }
+        }
+
+        return results;
+    }
+    // ...
+}
+```
+<!--tryRecord()-->
+```ts
+export default class ExampleFetcher extends Fetcher {
+    // ...
+    async fetch() {
+        // curry JSON.parse
+        const try = this.tryRecord((data) => DataEntity.fromBuffer(data, this.opConfig));
+
+        // get the data from a client
+        const records: (Buffer|string)[] = await this.client.getData();
+
+        let results: DataEntity[];
+
+        for (const data of records) {
+            const result = try(data);
+            // try will return undefined or null in some cases
+            // so make sure those values aren't included in the finally result
+            if (result) results.push(result);
+        }
+
+        return results;
+    }
+    // ...
+}
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
+
+### Development
+
+You can build a custom dead letter queue similar to how you develop an [Operation API](./operations/development.md#operation-api), the main difference is that the API returned via (`createAPI`) is a synchronous `function` that takes the invalid record as the first argument and error as the second argument.
+
+**IMPORTANT:** Since this is a generic dead letter queue API, the arguments for invalid record and the error may vary in data structure or type, so make sure to handle any edge cases.
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--JavaScript-->
 ```js
-const { OperationAPI, Collector } = require('@terascope/job-components');
+const { OperationAPI, Collector, parseError } = require('@terascope/job-components');
 const { ExampleClient } = require('example-client');
 
 class ExampleDeadLetterQueue extends OperationAPI {
@@ -91,7 +155,7 @@ module.exports = ExampleDeadLetterQueue;
 ```
 <!--TypeScript-->
 ```ts
-import { OperationAPI, Collector } from '@terascope/job-components';
+import { OperationAPI, Collector, parseError } from '@terascope/job-components';
 import { ExampleClient } from 'example-client';
 
 type DeadLetterMsg = {

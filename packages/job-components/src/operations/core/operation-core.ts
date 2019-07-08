@@ -91,7 +91,7 @@ export default class OperationCore<T = OpConfig> extends Core<WorkerContext> imp
      *
      * @param data the data to transform
      * @param fn a function to transform the data with
-     * @returns the transformed record
+     * @returns null
      */
     rejectRecord(input: any, err: Error): never | null {
         if (!this.deadLetterAction) return null;
