@@ -204,7 +204,7 @@ Determines whether all the members of an array satisfy the specified test.
 
 A function that accepts up to three arguments. The every method calls the callbackfn function for each element in array1 until the callbackfn returns false, or until the end of the array.
 
-▸ (`value`: *`T`*, `index`: *number*, `array`: *`T`[]*): *boolean*
+▸ (`value`: *`T`*, `index`: *number*, `array`: *`T`[]*): *unknown*
 
 **Parameters:**
 
@@ -294,7 +294,7 @@ Returns the elements of an array that meet the condition specified in a callback
 
 A function that accepts up to three arguments. The filter method calls the callbackfn function one time for each element in the array.
 
-▸ (`value`: *`T`*, `index`: *number*, `array`: *`T`[]*): *any*
+▸ (`value`: *`T`*, `index`: *number*, `array`: *`T`[]*): *unknown*
 
 **Parameters:**
 
@@ -363,7 +363,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 ▪ **predicate**: *function*
 
-▸ (`value`: *`T`*, `index`: *number*, `obj`: *`T`[]*): *boolean*
+▸ (`value`: *`T`*, `index`: *number*, `obj`: *`T`[]*): *unknown*
 
 **Parameters:**
 
@@ -398,7 +398,7 @@ find calls predicate once for each element of the array, in ascending
 order, until it finds one where predicate returns true. If such an element is found,
 findIndex immediately returns that element index. Otherwise, findIndex returns -1.
 
-▸ (`value`: *`T`*, `index`: *number*, `obj`: *`T`[]*): *boolean*
+▸ (`value`: *`T`*, `index`: *number*, `obj`: *`T`[]*): *unknown*
 
 **Parameters:**
 
@@ -867,7 +867,7 @@ Determines whether the specified callback function returns true for any element 
 
 A function that accepts up to three arguments. The some method calls the callbackfn function for each element in array1 until the callbackfn returns true, or until the end of the array.
 
-▸ (`value`: *`T`*, `index`: *number*, `array`: *`T`[]*): *boolean*
+▸ (`value`: *`T`*, `index`: *number*, `array`: *`T`[]*): *unknown*
 
 **Parameters:**
 

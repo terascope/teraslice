@@ -201,7 +201,8 @@
                 "type": "subcategory",
                 "label": "data-access",
                 "ids": [
-                    "packages/data-access/overview"
+                    "packages/data-access/overview",
+                    "packages/data-access/api/overview"
                 ]
             },
             {

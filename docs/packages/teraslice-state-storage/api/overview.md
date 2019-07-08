@@ -28,5 +28,5 @@ sidebar_label: API
 
 Ƭ **ESBulkQuery**: *[ESQuery](interfaces/esquery.md) | `DataEntity`*
 
-*Defined in [interfaces.ts:24](https://github.com/terascope/teraslice/blob/d3a803c3/packages/teraslice-state-storage/src/interfaces.ts#L24)*
+*Defined in [interfaces.ts:24](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/teraslice-state-storage/src/interfaces.ts#L24)*
 

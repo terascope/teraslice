@@ -32,7 +32,7 @@ sidebar_label: IndexModelConfig
 
 • **mapping**: *any*
 
-*Defined in [interfaces.ts:208](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L208)*
+*Defined in [interfaces.ts:208](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L208)*
 
 ElasticSearch Mapping
 
@@ -42,7 +42,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [interfaces.ts:205](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L205)*
+*Defined in [interfaces.ts:205](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L205)*
 
 Name of the Model/Data Type
 
@@ -52,7 +52,7 @@ ___
 
 • **sanitizeFields**? : *[SanitizeFields](../overview.md#sanitizefields)*
 
-*Defined in [interfaces.ts:220](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L220)*
+*Defined in [interfaces.ts:220](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L220)*
 
 Sanitize / cleanup fields mapping, like trim or trimAndToLower
 
@@ -62,7 +62,7 @@ ___
 
 • **schema**: *any*
 
-*Defined in [interfaces.ts:211](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L211)*
+*Defined in [interfaces.ts:211](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L211)*
 
 JSON Schema
 
@@ -72,7 +72,7 @@ ___
 
 • **storeOptions**? : *`Partial<IndexConfig>`*
 
-*Defined in [interfaces.ts:214](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L214)*
+*Defined in [interfaces.ts:214](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L214)*
 
 Additional IndexStore configuration
 
@@ -82,7 +82,7 @@ ___
 
 • **strictMode**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:223](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L223)*
+*Defined in [interfaces.ts:223](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L223)*
 
 Specify whether the data should be strictly validated, defaults to true
 
@@ -92,7 +92,7 @@ ___
 
 • **uniqueFields**? : *`keyof T`[]*
 
-*Defined in [interfaces.ts:217](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L217)*
+*Defined in [interfaces.ts:217](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L217)*
 
 Unqiue fields across on Index
 
@@ -102,7 +102,7 @@ ___
 
 • **version**: *number*
 
-*Defined in [interfaces.ts:202](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L202)*
+*Defined in [interfaces.ts:202](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L202)*
 
 Schema Version
 

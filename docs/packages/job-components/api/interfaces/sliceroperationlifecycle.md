@@ -34,19 +34,20 @@ sidebar_label: SlicerOperationLifeCycle
 
 ###  initialize
 
-▸ **initialize**(`recoveryData?`: *object[]*): *`Promise<void>`*
+▸ **initialize**(`recoveryData?`: *[SlicerRecoveryData](slicerrecoverydata.md)[]*): *`Promise<void>`*
 
 *Overrides [OperationLifeCycle](operationlifecycle.md).[initialize](operationlifecycle.md#initialize)*
 
-*Defined in [interfaces/operation-lifecycle.ts:88](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operation-lifecycle.ts#L88)*
+*Defined in [interfaces/operation-lifecycle.ts:91](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L91)*
 
-Called during execution initialization
+Called during execution initialization,
+when this is cleanup any open connections or cleanup any in-memory state.
 
 **Parameters:**
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`recoveryData?` | object[] | is the data to recover from  |
+`recoveryData?` | [SlicerRecoveryData](slicerrecoverydata.md)[] | is the data to recover from (one for each slicer)  |
 
 **Returns:** *`Promise<void>`*
 
@@ -56,7 +57,7 @@ ___
 
 ▸ **onExecutionStats**(`stats`: *[ExecutionStats](executionstats.md)*): *void*
 
-*Defined in [interfaces/operation-lifecycle.ts:112](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operation-lifecycle.ts#L112)*
+*Defined in [interfaces/operation-lifecycle.ts:115](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L115)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track various slicer satistics
@@ -75,7 +76,7 @@ ___
 
 ▸ **onSliceComplete**(`result`: *[SliceResult](sliceresult.md)*): *void*
 
-*Defined in [interfaces/operation-lifecycle.ts:106](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operation-lifecycle.ts#L106)*
+*Defined in [interfaces/operation-lifecycle.ts:109](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L109)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track the slices completed by the execution controller
@@ -94,7 +95,7 @@ ___
 
 ▸ **onSliceDispatch**(`slice`: *[Slice](slice.md)*): *void*
 
-*Defined in [interfaces/operation-lifecycle.ts:100](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operation-lifecycle.ts#L100)*
+*Defined in [interfaces/operation-lifecycle.ts:103](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L103)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track the slices disptached by the execution controller
@@ -113,7 +114,7 @@ ___
 
 ▸ **onSliceEnqueued**(`slice`: *[Slice](slice.md)*): *void*
 
-*Defined in [interfaces/operation-lifecycle.ts:94](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operation-lifecycle.ts#L94)*
+*Defined in [interfaces/operation-lifecycle.ts:97](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L97)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track the slices enqueued by the execution controller
@@ -134,9 +135,10 @@ ___
 
 *Inherited from [OperationLifeCycle](operationlifecycle.md).[shutdown](operationlifecycle.md#shutdown)*
 
-*Defined in [interfaces/operation-lifecycle.ts:12](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operation-lifecycle.ts#L12)*
+*Defined in [interfaces/operation-lifecycle.ts:14](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operation-lifecycle.ts#L14)*
 
-Called during execution shutdown
+Called during execution shutdown,
+when this is cleanup any open connections or destroy any in-memory state.
 
 **Returns:** *`Promise<void>`*
 

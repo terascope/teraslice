@@ -24,7 +24,7 @@ sidebar_label: NumberDataType
 
 • **data_type**: *"number" | "integer" | "float"*
 
-*Defined in [parser/interfaces.ts:56](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/parser/interfaces.ts#L56)*
+*Defined in [parser/interfaces.ts:56](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/xlucene-evaluator/src/parser/interfaces.ts#L56)*
 
 ___
 
@@ -32,5 +32,5 @@ ___
 
 • **value**: *number*
 
-*Defined in [parser/interfaces.ts:57](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/parser/interfaces.ts#L57)*
+*Defined in [parser/interfaces.ts:57](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/xlucene-evaluator/src/parser/interfaces.ts#L57)*
 

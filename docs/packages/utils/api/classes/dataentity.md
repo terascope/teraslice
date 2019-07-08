@@ -54,7 +54,7 @@ to create DataEntities that are significantly faster (600x-1000x faster).
 
 \+ **new DataEntity**(`data`: *`T`*, `metadata?`: *undefined | object*): *[DataEntity](dataentity.md)*
 
-*Defined in [data-entity.ts:118](https://github.com/terascope/teraslice/blob/d3a803c3/packages/utils/src/data-entity.ts#L118)*
+*Defined in [data-entity.ts:118](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/utils/src/data-entity.ts#L118)*
 
 **Parameters:**
 
@@ -71,13 +71,13 @@ Name | Type |
 
 ▸ **getMetadata**(): *`DataEntityMetadata`*
 
-*Defined in [data-entity.ts:138](https://github.com/terascope/teraslice/blob/d3a803c3/packages/utils/src/data-entity.ts#L138)*
+*Defined in [data-entity.ts:138](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/utils/src/data-entity.ts#L138)*
 
 **Returns:** *`DataEntityMetadata`*
 
 ▸ **getMetadata**(`key`: *string*): *any*
 
-*Defined in [data-entity.ts:139](https://github.com/terascope/teraslice/blob/d3a803c3/packages/utils/src/data-entity.ts#L139)*
+*Defined in [data-entity.ts:139](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/utils/src/data-entity.ts#L139)*
 
 **Parameters:**
 
@@ -93,7 +93,7 @@ ___
 
 ▸ **setMetadata**(`key`: *string*, `value`: *any*): *void*
 
-*Defined in [data-entity.ts:144](https://github.com/terascope/teraslice/blob/d3a803c3/packages/utils/src/data-entity.ts#L144)*
+*Defined in [data-entity.ts:144](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/utils/src/data-entity.ts#L144)*
 
 **Parameters:**
 
@@ -110,7 +110,7 @@ ___
 
 ▸ **toBuffer**(`opConfig`: *[EncodingConfig](../interfaces/encodingconfig.md)*): *`Buffer`*
 
-*Defined in [data-entity.ts:152](https://github.com/terascope/teraslice/blob/d3a803c3/packages/utils/src/data-entity.ts#L152)*
+*Defined in [data-entity.ts:152](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/utils/src/data-entity.ts#L152)*
 
 Convert the DataEntity to an encoded buffer
 
@@ -128,7 +128,7 @@ ___
 
 ▸ **fromBuffer**<**T**>(`input`: *`Buffer`*, `opConfig`: *[EncodingConfig](../interfaces/encodingconfig.md)*, `metadata?`: *undefined | object*): *[DataEntity](dataentity.md)‹*`T`*›*
 
-*Defined in [data-entity.ts:55](https://github.com/terascope/teraslice/blob/d3a803c3/packages/utils/src/data-entity.ts#L55)*
+*Defined in [data-entity.ts:55](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/utils/src/data-entity.ts#L55)*
 
 A utility for safely converting an `Buffer` to a `DataEntity`.
 
@@ -152,7 +152,7 @@ ___
 
 ▸ **getMetadata**(`input`: *[DataInput](../overview.md#datainput)*, `key?`: *undefined | string*): *any*
 
-*Defined in [data-entity.ts:107](https://github.com/terascope/teraslice/blob/d3a803c3/packages/utils/src/data-entity.ts#L107)*
+*Defined in [data-entity.ts:107](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/utils/src/data-entity.ts#L107)*
 
 Safely get the metadata from a `DataEntity`.
 If the input is object it will get the property from the object
@@ -172,7 +172,7 @@ ___
 
 ▸ **isDataEntity**(`input`: *any*): *boolean*
 
-*Defined in [data-entity.ts:84](https://github.com/terascope/teraslice/blob/d3a803c3/packages/utils/src/data-entity.ts#L84)*
+*Defined in [data-entity.ts:84](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/utils/src/data-entity.ts#L84)*
 
 Verify that an input is the `DataEntity`
 
@@ -190,7 +190,7 @@ ___
 
 ▸ **isDataEntityArray**(`input`: *any*): *boolean*
 
-*Defined in [data-entity.ts:96](https://github.com/terascope/teraslice/blob/d3a803c3/packages/utils/src/data-entity.ts#L96)*
+*Defined in [data-entity.ts:96](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/utils/src/data-entity.ts#L96)*
 
 Verify that an input is an Array of DataEntities,
 
@@ -208,7 +208,7 @@ ___
 
 ▸ **make**<**T**>(`input`: *[DataInput](../overview.md#datainput)*, `metadata?`: *undefined | object*): *[DataEntity](dataentity.md)‹*`T`*›*
 
-*Defined in [data-entity.ts:27](https://github.com/terascope/teraslice/blob/d3a803c3/packages/utils/src/data-entity.ts#L27)*
+*Defined in [data-entity.ts:27](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/utils/src/data-entity.ts#L27)*
 
 A utility for safely converting an object a `DataEntity`.
 If the input is a DataEntity it will return it and have no side-effect.
@@ -240,7 +240,7 @@ ___
 
 ▸ **makeArray**<**T**>(`input`: *[DataInput](../overview.md#datainput) | [DataInput](../overview.md#datainput)[]*): *[DataEntity](dataentity.md)‹*`T`*›[]*
 
-*Defined in [data-entity.ts:69](https://github.com/terascope/teraslice/blob/d3a803c3/packages/utils/src/data-entity.ts#L69)*
+*Defined in [data-entity.ts:69](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/utils/src/data-entity.ts#L69)*
 
 A utility for safely converting an input of an object,
 or an array of objects, to an array of DataEntities.
@@ -264,7 +264,7 @@ ___
 
 ▸ **makeRaw**<**T**>(`input?`: *[T]()*, `metadata?`: *undefined | object*): *object*
 
-*Defined in [data-entity.ts:41](https://github.com/terascope/teraslice/blob/d3a803c3/packages/utils/src/data-entity.ts#L41)*
+*Defined in [data-entity.ts:41](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/utils/src/data-entity.ts#L41)*
 
 A barebones method for creating data-entities. This does not do type detection
 and returns both the metadata and entity

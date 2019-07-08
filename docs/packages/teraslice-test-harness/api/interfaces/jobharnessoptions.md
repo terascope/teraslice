@@ -22,7 +22,7 @@ sidebar_label: JobHarnessOptions
 
 • **assetDir**? : *undefined | string*
 
-*Defined in [interfaces.ts:14](https://github.com/terascope/teraslice/blob/d3a803c3/packages/teraslice-test-harness/src/interfaces.ts#L14)*
+*Defined in [interfaces.ts:14](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/teraslice-test-harness/src/interfaces.ts#L14)*
 
 ___
 
@@ -30,5 +30,5 @@ ___
 
 • **clients**? : *`TestClientConfig`[]*
 
-*Defined in [interfaces.ts:15](https://github.com/terascope/teraslice/blob/d3a803c3/packages/teraslice-test-harness/src/interfaces.ts#L15)*
+*Defined in [interfaces.ts:15](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/teraslice-test-harness/src/interfaces.ts#L15)*
 

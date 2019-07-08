@@ -39,7 +39,7 @@ A versioned Index Configuration
 
 • **bulkMaxSize**? : *undefined | number*
 
-*Defined in [interfaces.ts:44](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L44)*
+*Defined in [interfaces.ts:44](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L44)*
 
 The number of records to accumulate before sending the bulk request
 
@@ -49,7 +49,7 @@ ___
 
 • **bulkMaxWait**? : *undefined | number*
 
-*Defined in [interfaces.ts:39](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L39)*
+*Defined in [interfaces.ts:39](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L39)*
 
 The maximum amount of time to wait for before send the bulk request
 
@@ -59,7 +59,7 @@ ___
 
 • **dataSchema**? : *[DataSchema](dataschema.md)*
 
-*Defined in [interfaces.ts:34](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L34)*
+*Defined in [interfaces.ts:34](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L34)*
 
 The data schema format
 
@@ -69,7 +69,7 @@ ___
 
 • **defaultSort**? : *undefined | string*
 
-*Defined in [interfaces.ts:56](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L56)*
+*Defined in [interfaces.ts:56](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L56)*
 
 Default sort
 
@@ -79,7 +79,7 @@ ___
 
 • **eventTimeField**? : *keyof T*
 
-*Defined in [interfaces.ts:71](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L71)*
+*Defined in [interfaces.ts:71](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L71)*
 
 Event Time field from the source record
 
@@ -89,7 +89,7 @@ ___
 
 • **idField**? : *keyof T*
 
-*Defined in [interfaces.ts:61](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L61)*
+*Defined in [interfaces.ts:61](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L61)*
 
 ID field
 
@@ -99,7 +99,7 @@ ___
 
 • **indexSchema**? : *[IndexSchema](indexschema.md)*
 
-*Defined in [interfaces.ts:29](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L29)*
+*Defined in [interfaces.ts:29](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L29)*
 
 Schema Specification for the Data and ES
 
@@ -109,7 +109,7 @@ ___
 
 • **indexSettings**? : *[IndexSettings](indexsettings.md)*
 
-*Defined in [interfaces.ts:24](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L24)*
+*Defined in [interfaces.ts:24](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L24)*
 
 Elasticsearch Index Settings
 
@@ -119,7 +119,7 @@ ___
 
 • **ingestTimeField**? : *keyof T*
 
-*Defined in [interfaces.ts:66](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L66)*
+*Defined in [interfaces.ts:66](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L66)*
 
 Ingest Time field on the source record
 
@@ -129,7 +129,7 @@ ___
 
 • **logger**? : *`Logger`*
 
-*Defined in [interfaces.ts:51](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L51)*
+*Defined in [interfaces.ts:51](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L51)*
 
 Logger to use for debugging and certian internal errors
 
@@ -141,7 +141,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [interfaces.ts:8](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L8)*
+*Defined in [interfaces.ts:8](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L8)*
 
 This is the data type and base name of the index
 
@@ -151,7 +151,7 @@ ___
 
 • **namespace**? : *undefined | string*
 
-*Defined in [interfaces.ts:14](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L14)*
+*Defined in [interfaces.ts:14](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L14)*
 
 The namespace that will be prefixed to the name value when generating
 the index name or anything else that needs to be namespaced.
@@ -162,7 +162,7 @@ ___
 
 • **version**? : *undefined | number*
 
-*Defined in [interfaces.ts:19](https://github.com/terascope/teraslice/blob/d3a803c3/packages/elasticsearch-store/src/interfaces.ts#L19)*
+*Defined in [interfaces.ts:19](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/elasticsearch-store/src/interfaces.ts#L19)*
 
 Data Version, this allows multiple versions of an index to exist with the same Schema
 

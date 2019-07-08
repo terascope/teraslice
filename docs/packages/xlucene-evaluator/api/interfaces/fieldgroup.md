@@ -25,7 +25,7 @@ sidebar_label: FieldGroup
 
 • **field**: *string*
 
-*Defined in [parser/interfaces.ts:86](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/parser/interfaces.ts#L86)*
+*Defined in [parser/interfaces.ts:86](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/xlucene-evaluator/src/parser/interfaces.ts#L86)*
 
 ___
 
@@ -35,7 +35,7 @@ ___
 
 *Inherited from [GroupLikeAST](grouplikeast.md).[flow](grouplikeast.md#flow)*
 
-*Defined in [parser/interfaces.ts:18](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/parser/interfaces.ts#L18)*
+*Defined in [parser/interfaces.ts:18](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/xlucene-evaluator/src/parser/interfaces.ts#L18)*
 
 ___
 
@@ -45,5 +45,5 @@ ___
 
 *Overrides [GroupLikeAST](grouplikeast.md).[type](grouplikeast.md#type)*
 
-*Defined in [parser/interfaces.ts:85](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/parser/interfaces.ts#L85)*
+*Defined in [parser/interfaces.ts:85](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/xlucene-evaluator/src/parser/interfaces.ts#L85)*
 

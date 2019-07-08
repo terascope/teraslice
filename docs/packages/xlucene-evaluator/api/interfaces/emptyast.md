@@ -21,5 +21,5 @@ sidebar_label: EmptyAST
 
 • **type**: *[Empty](../enums/asttype.md#empty)*
 
-*Defined in [parser/interfaces.ts:44](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/parser/interfaces.ts#L44)*
+*Defined in [parser/interfaces.ts:44](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/xlucene-evaluator/src/parser/interfaces.ts#L44)*
 

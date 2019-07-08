@@ -22,7 +22,7 @@ sidebar_label: Exists
 
 • **field**: *string*
 
-*Defined in [parser/interfaces.ts:91](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/parser/interfaces.ts#L91)*
+*Defined in [parser/interfaces.ts:91](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/xlucene-evaluator/src/parser/interfaces.ts#L91)*
 
 ___
 
@@ -30,5 +30,5 @@ ___
 
 • **type**: *[Exists](../enums/asttype.md#exists)*
 
-*Defined in [parser/interfaces.ts:90](https://github.com/terascope/teraslice/blob/d3a803c3/packages/xlucene-evaluator/src/parser/interfaces.ts#L90)*
+*Defined in [parser/interfaces.ts:90](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/xlucene-evaluator/src/parser/interfaces.ts#L90)*
 

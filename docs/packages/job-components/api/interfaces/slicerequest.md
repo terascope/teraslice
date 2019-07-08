@@ -33,7 +33,7 @@ See [Slice](slice.md)
 
 • **request_worker**? : *undefined | string*
 
-*Defined in [interfaces/operations.ts:39](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operations.ts#L39)*
+*Defined in [interfaces/operations.ts:39](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operations.ts#L39)*
 
 A reserved key for sending work to a particular worker
 

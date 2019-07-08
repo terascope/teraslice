@@ -22,7 +22,7 @@ sidebar_label: LoaderOptions
 
 • **assetPath**? : *undefined | string*
 
-*Defined in [operation-loader.ts:23](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/operation-loader.ts#L23)*
+*Defined in [operation-loader.ts:23](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operation-loader.ts#L23)*
 
 Path to where the assets are stored
 
@@ -32,7 +32,7 @@ ___
 
 • **terasliceOpPath**? : *undefined | string*
 
-*Defined in [operation-loader.ts:21](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/operation-loader.ts#L21)*
+*Defined in [operation-loader.ts:21](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operation-loader.ts#L21)*
 
 Path to teraslice lib directory
 

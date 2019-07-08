@@ -21,7 +21,7 @@ sidebar_label: AssetsAPI
 
 ▸ **getPath**(`name`: *string*): *`Promise<string>`*
 
-*Defined in [interfaces/context.ts:112](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/context.ts#L112)*
+*Defined in [interfaces/context.ts:112](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/context.ts#L112)*
 
 **Parameters:**
 

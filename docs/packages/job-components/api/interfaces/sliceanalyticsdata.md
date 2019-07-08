@@ -23,7 +23,7 @@ sidebar_label: SliceAnalyticsData
 
 • **memory**: *number[]*
 
-*Defined in [interfaces/operations.ts:67](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operations.ts#L67)*
+*Defined in [interfaces/operations.ts:74](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operations.ts#L74)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **size**: *number[]*
 
-*Defined in [interfaces/operations.ts:66](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operations.ts#L66)*
+*Defined in [interfaces/operations.ts:73](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operations.ts#L73)*
 
 ___
 
@@ -39,5 +39,5 @@ ___
 
 • **time**: *number[]*
 
-*Defined in [interfaces/operations.ts:65](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/interfaces/operations.ts#L65)*
+*Defined in [interfaces/operations.ts:72](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/interfaces/operations.ts#L72)*
 

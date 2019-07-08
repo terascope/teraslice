@@ -26,7 +26,7 @@ sidebar_label: OperationModule
 
 • **API**? : *[OperationAPIConstructor](../overview.md#operationapiconstructor)*
 
-*Defined in [operations/interfaces.ts:41](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/operations/interfaces.ts#L41)*
+*Defined in [operations/interfaces.ts:41](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/interfaces.ts#L41)*
 
 ___
 
@@ -34,5 +34,5 @@ ___
 
 • **Schema**: *[SchemaConstructor](../overview.md#schemaconstructor)*
 
-*Defined in [operations/interfaces.ts:40](https://github.com/terascope/teraslice/blob/d3a803c3/packages/job-components/src/operations/interfaces.ts#L40)*
+*Defined in [operations/interfaces.ts:40](https://github.com/terascope/teraslice/blob/9dc0f8b8/packages/job-components/src/operations/interfaces.ts#L40)*
 
