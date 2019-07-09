@@ -24,6 +24,8 @@ A reader is expected to have the following folder structure:
 <!--DOCUSAURUS_CODE_TABS-->
 <!--JavaScript-->
 ```js
+'use strict';
+
 const { Fetcher } = require('@terascope/job-components');
 
 class ExampleFetcher extends Fetcher {
@@ -94,6 +96,8 @@ export default class ExampleFetcher extends Fetcher {
 <!--DOCUSAURUS_CODE_TABS-->
 <!--JavaScript-->
 ```js
+'use strict';
+
 const { Fetcher } = require('@terascope/job-components');
 
 class ExampleFetcher extends Fetcher {

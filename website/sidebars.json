@@ -12,7 +12,7 @@
         "Jobs": [
             "jobs/overview",
             "jobs/configuration",
-            "jobs/operations",
+            "jobs/types-of-operations",
             "jobs/builtin-operations",
             "jobs/slicer-lifecycle",
             "jobs/worker-lifecycle",

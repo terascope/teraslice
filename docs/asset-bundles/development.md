@@ -1,5 +1,5 @@
 ---
-title: Asset Bundle Development
+title: Asset Development
 sidebar_label: Development
 ---
 
@@ -30,7 +30,6 @@ will look something like this:
 └── assets
     ├── asset.json
     └── count
-        ├── index.js
         ├── processor.js
         └── schema.js
 ```
@@ -55,14 +54,15 @@ operator just like any other operator, as shown below:
     "name": "Update Rate Test",
     "lifecycle": "once",
     "workers": 1,
-    "assets": ["elasticsearch"],
+    "assets": ["elasticsearch", "example"],
     "operations": [
         {
             "_op": "elasticsearch_data_generator",
             "size": 5000
         },
         {
-            "_op": "count"
+            "_op": "count",
+            "log_level": "debug"
         },
         {
             "_op": "elasticsearch_index_selector",
@@ -76,5 +76,85 @@ operator just like any other operator, as shown below:
     ]
 }
 ```
+
+The `count` operator used above simply logs the execution of the operator and
+counts the number of records passed in with the data object, it could be
+implemented as shown below:
+
+**Processor:**
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--JavaScript-->
+```js
+'use strict';
+
+const { BatchProcessor } = require('@terascope/job-components');
+
+class CountProcessor extends BatchProcessor {
+    async onBatch(data) {
+        const level = this.opConfig.log_level;
+        this.logger[level]('Inside custom processor \'count\'');
+        this.logger[level]('Number of items in data: ' + Object.keys(data).length);
+        return data;
+    }
+}
+
+module.exports = CountProcessor;
+```
+<!--TypeScript-->
+```ts
+import { BatchProcessor } from '@terascope/job-components';
+
+export default class CountProcessor extends BatchProcessor {
+    async onBatch(data) {
+        const level = this.opConfig.log_level;
+        this.logger[level]('Inside custom processor \'count\'');
+        this.logger[level]('Number of items in data: ' + Object.keys(data).length);
+        return data;
+    }
+}
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
+
+**Schema:**
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--JavaScript-->
+```js
+'use strict';
+
+const { ConvictSchema } = require('@terascope/job-components');
+
+class Schema extends ConvictSchema {
+    build() {
+        return {
+            log_level: {
+                default: 'info',
+                doc: 'The log level to use',
+                format: ['trace', 'debug', 'info'],
+            }
+        };
+    }
+}
+
+module.exports = Schema;
+```
+<!--TypeScript-->
+```ts
+import { ConvictSchema } from '@terascope/job-components';
+
+export default class Schema extends ConvictSchema {
+    build() {
+        return {
+            log_level: {
+                default: 'info',
+                doc: 'The log level to use',
+                format: ['trace', 'debug', 'info'],
+            }
+        };
+    }
+}
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 See the [teraslice-cli](../packages/teraslice-cli#assets) documentation for assets.

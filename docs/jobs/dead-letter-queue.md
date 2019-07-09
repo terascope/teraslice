@@ -81,6 +81,8 @@ You can build a custom dead letter queue similar to how you develop an [Operatio
 <!--DOCUSAURUS_CODE_TABS-->
 <!--JavaScript-->
 ```js
+'use strict';
+
 const { OperationAPI, Collector, parseError } = require('@terascope/job-components');
 const { ExampleClient } = require('example-client');
 

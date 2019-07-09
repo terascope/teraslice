@@ -1,5 +1,5 @@
 ---
-title: Operations
+title: Types of Operations
 ---
 
 > Operations within [Teraslice Job](./overview.md) are designed to read, transform, write, or monitor data within a Teraslice job.
@@ -14,6 +14,14 @@ To develop a reader, see the [docs](./development.md#reader).
 
 A `Slicer` runs on the [Execution Controller](../nodes/execution-controller.md) and its primary function to create [Slice Requests](../packages/job-components/api/interfaces/slicerequest.md) which will wrapped into [Slices](../packages/job-components/api/interfaces/slice.md) and dispatched to [Workers](../nodes/worker.md).
 
+#### Slicer
+
+The simpiliest varient of a "Slicer" that only handles on running "Slicer".
+
+#### Parallel Slicer
+
+A varient of a "Slicer" for running a parallel stream of slicers. The number of slicers can be configured via the "slicers" configuration on the [Job Configuration](./configuration.md#job-configuration).
+
 ### Fetchers
 
 A `Fetcher` runs on a [Worker](../nodes/worker.md) and its primary process [Slices](../packages/job-components/api/interfaces/slice.md). When processing a `Slice` the worker will use [Slice Request](../packages/job-components/api/interfaces/slicerequest.md) to read a set of data from its data source. The fetcher will then return the data through the pipeline.
@@ -23,6 +31,8 @@ A `Fetcher` runs on a [Worker](../nodes/worker.md) and its primary process [Slic
 A Job is required to contain a least one Processor. The duty of a processor is it transform or write data to external service.
 
 To develop a processor, see the [docs](./development.md#processor).
+
+### Batch
 
 ## APIs
 
