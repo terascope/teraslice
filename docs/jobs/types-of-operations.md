@@ -6,23 +6,27 @@ title: Types of Operations
 
 ## Readers
 
-A `Reader` is a required component of a Job and is in charge of distributing and reading partitions of data across many nodes. A `Reader` has two main components, a [Slicer](#slicer) and a [Fetcher](#fetcher).
+A `Reader` is the first operation specificed on the job and has two main components, a a [Slicer](#slicers) and a [Fetcher](#fetchers). The purpose of a Reader to distribute and read partitions of data across one or more [Workers](../nodes/worker.md).
 
 To develop a reader, see the [docs](./development.md#reader).
 
-### Slicers
+## Slicers
 
 A `Slicer` runs on the [Execution Controller](../nodes/execution-controller.md) and its primary function to create [Slice Requests](../packages/job-components/api/interfaces/slicerequest.md) which will wrapped into [Slices](../packages/job-components/api/interfaces/slice.md) and dispatched to [Workers](../nodes/worker.md).
 
-#### Slicer
+### Slicer
 
 The simpiliest varient of a "Slicer" that only handles on running "Slicer".
 
-#### Parallel Slicer
+Check out the [API docs](../packages/job-components/api/classes/slicer.md) for more details.
+
+### Parallel Slicer
 
 A varient of a "Slicer" for running a parallel stream of slicers. The number of slicers can be configured via the "slicers" configuration on the [Job Configuration](./configuration.md#job-configuration).
 
-### Fetchers
+Check out the [API docs](../packages/job-components/api/classes/parallelslicer.md) for more details.
+
+## Fetchers
 
 A `Fetcher` runs on a [Worker](../nodes/worker.md) and its primary process [Slices](../packages/job-components/api/interfaces/slice.md). When processing a `Slice` the worker will use [Slice Request](../packages/job-components/api/interfaces/slicerequest.md) to read a set of data from its data source. The fetcher will then return the data through the pipeline.
 
@@ -32,7 +36,17 @@ A Job is required to contain a least one Processor. The duty of a processor is i
 
 To develop a processor, see the [docs](./development.md#processor).
 
-### Batch
+### BatchProcessor
+
+A variation of "Processor" that deals with a batch of data at a time.
+
+Check out the [API docs](../packages/job-components/api/classes/batchprocessor.md) for more details.
+
+### EachProcessor
+
+A variation of Processor that can process a single DataEntity at a time. This processor should have zero side-effects on the data.
+
+Check out the [API docs](../packages/job-components/api/classes/batchprocessor.md) for more details.
 
 ## APIs
 

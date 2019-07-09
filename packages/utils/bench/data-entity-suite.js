@@ -18,7 +18,7 @@ for (let i = 0; i < 50; i++) {
         c: Math.random(),
         d: Math.random(),
         e: Math.random(),
-        f: Math.random(),
+        f: Math.random()
     };
 }
 
@@ -35,7 +35,7 @@ const run = async () => Suite('DataEntity')
         fn() {
             const input = makeObj();
             let entity = Object.assign({}, input);
-            entity.metadata = Object.assign({}, metadata, { createdAt: Date.now() });
+            entity.metadata = Object.assign({}, metadata, { _createTime: Date.now() });
             entity.hello = Math.random();
             entity.hello;
             entity = null;
@@ -76,7 +76,7 @@ const run = async () => Suite('DataEntity')
         fn() {
             const input = makeObj();
             // eslint-disable-next-line
-            let entity = DataEntity.makeRaw(input, metadata).entity;
+                let entity = DataEntity.makeRaw(input, metadata).entity;
             entity.hello = Math.random();
             entity.hello;
             entity = null;
@@ -86,7 +86,7 @@ const run = async () => Suite('DataEntity')
     .run({
         async: true,
         initCount: 1,
-        maxTime: 3,
+        maxTime: 3
     });
 
 if (require.main === module) {

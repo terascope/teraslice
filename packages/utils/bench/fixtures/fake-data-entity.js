@@ -2,7 +2,7 @@
 
 class FakeDataEntity {
     constructor(d, m) {
-        this.metadata = Object.assign({}, m, { createdAt: Date.now() });
+        this.metadata = Object.assign({}, m, { _createTime: Date.now() });
 
         Object.assign(this, d);
     }

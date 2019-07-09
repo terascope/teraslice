@@ -9,17 +9,13 @@ class SimpleFetcher extends Fetcher {
             const data = {
                 id: `${i}-${Math.random()}`,
                 filterMe: i % 10 === 0,
-                data: [
-                    Math.random(),
-                    Math.random(),
-                    Math.random(),
-                ]
+                data: [Math.random(), Math.random(), Math.random()]
             };
 
             // used when no data entity is created
             // in order to keep it as close to possible
             if (addMetadata) {
-                data.metadata = { createdAt: Date.now() };
+                data.metadata = { _createTime: Date.now() };
             }
 
             if (precreate) {
