@@ -21,7 +21,7 @@ export default abstract class ParallelSlicer<T = OpConfig> extends SlicerCore<T>
         const { slicers = 1 } = this.executionConfig;
 
         const promises = times(slicers, async id => {
-            const fn = await this.newSlicer();
+            const fn = await this.newSlicer(id);
             if (!isFunction(fn)) return;
 
             this._slicers.push({
@@ -50,7 +50,7 @@ export default abstract class ParallelSlicer<T = OpConfig> extends SlicerCore<T>
      * Called by {@link ParallelSlicer#handle} for every count of `slicers` in the ExecutionConfig
      * @returns a function which will be called in parallel
      */
-    abstract async newSlicer(): Promise<SlicerFn | undefined>;
+    abstract async newSlicer(id: number): Promise<SlicerFn | undefined>;
 
     slicers() {
         return this._slicers.length;

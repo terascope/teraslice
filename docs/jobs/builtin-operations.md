@@ -118,3 +118,68 @@ Example configuration:
     "ms": 1000
 }
 ```
+
+### test-reader
+
+Slice and fetch data specified in a file. Useful for testing processors in [teraslice-test-harness](../packages/teraslice-test-harness/overview.md).
+
+| Configuration            | Description                                                                                    | Type        | Notes    |
+| ------------------------ | ---------------------------------------------------------------------------------------------- | ----------- | -------- |
+| `passthrough_slice`      | If set to true then the fetcher will return what it is given, expects the value to be an array | `File Path` | optional |
+| `fetcher_data_file_path` | File to path to JSON array of data records.                                                    | `File Path` | optional |
+| `slicer_data_file_path`  | File to path to JSON array of slice request.                                                   | `File Path` | optional |
+
+Example configuration for reading for a file:
+
+```json
+{
+    "_op": "test-reader",
+    "fetcher_data_file_path": "/path/to/fetcher-data-file.json"
+}
+```
+
+`/path/to/fetcher-data-file.json`
+
+```json
+[
+    {
+        "foo": "bar"
+    },
+    {
+        "foo": "baz"
+    },
+]
+```
+
+Example test for `pass_through_slice`:
+
+```js
+const { WorkerTestHarness, newTestJobConfig } = require('teraslice-test-harness');
+
+describe('Pass Through Test', () => {
+    const job = newTestJobConfig({
+        operations: [
+            {
+                _op: 'test-reader',
+                passthrough_slice: true
+            },
+            { _op: 'noop' }
+        ],
+    });
+
+    const harness = new WorkerTestHarness(job, {});
+
+    beforeAll(() => harness.initialize());
+    afterAll(() => harness.shutdown());
+
+    it('should be able to run a slice', async () => {
+        const input = [
+            { foo: 'bar' },
+            { foo: 'baz' }
+        ];
+
+        const output = await harness.runSlice(input);
+        expect(output).toEqual(input);
+    });
+});
+```

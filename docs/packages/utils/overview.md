@@ -13,3 +13,5 @@ yarn add @terascope/utils
 # Using npm
 npm install --save @terascope/utils
 ```
+
+Checkout the [API docs](./api/overview.md)

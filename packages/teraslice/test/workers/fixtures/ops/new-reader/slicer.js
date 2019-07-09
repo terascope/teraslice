@@ -1,17 +1,14 @@
 'use strict';
 
-const times = require('lodash/times');
-const uniqueId = require('lodash/uniqueId');
-const Promise = require('bluebird');
-const { ParallelSlicer } = require('@terascope/job-components');
+const { ParallelSlicer, pDelay, times } = require('@terascope/job-components');
 
 class ExampleSlicer extends ParallelSlicer {
-    async newSlicer() {
+    async newSlicer(id) {
         const { countPerSlicer } = this.opConfig;
-        const records = times(countPerSlicer, () => ({ id: uniqueId('slicer-') }));
+        const records = times(countPerSlicer, i => ({ id: `slicer-${id}-${i}` }));
 
         return async () => {
-            await Promise.delay(0);
+            await pDelay(0);
             return records.shift();
         };
     }
