@@ -119,7 +119,7 @@ Example configuration:
 }
 ```
 
-### test-reader
+## test-reader
 
 Slice and fetch data specified in a file. Useful for testing processors in [teraslice-test-harness](../packages/teraslice-test-harness/overview.md).
 
