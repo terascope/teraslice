@@ -19,8 +19,8 @@
         "ts-scripts": "./bin/ts-scripts.js"
     },
     "scripts": {
-        "build": "tsc --build --pretty",
         "prebuild": "./scripts/build-typedoc.js",
+        "build": "tsc --build --pretty",
         "build:watch": "yarn build --watch",
         "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
