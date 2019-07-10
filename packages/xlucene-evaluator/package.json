@@ -20,8 +20,8 @@
         "test": "test"
     },
     "scripts": {
-        "build": "yarn run prebuild && tsc --build --pretty",
         "prebuild": "./scripts/generate-engine.js",
+        "build": "yarn run prebuild && tsc --build --pretty",
         "build:watch": "yarn build --watch",
         "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
@@ -32,7 +32,7 @@
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {
-        "@terascope/utils": "^0.12.1",
+        "@terascope/utils": "^0.12.2",
         "@turf/bbox": "^6.0.1",
         "@turf/bbox-polygon": "^6.0.1",
         "@turf/boolean-point-in-polygon": "^6.0.1",

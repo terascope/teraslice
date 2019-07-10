@@ -27,7 +27,7 @@
     },
     "dependencies": {
         "@terascope/data-types": "^0.3.1",
-        "@terascope/utils": "^0.12.1",
+        "@terascope/utils": "^0.12.2",
         "elasticsearch-store": "^0.9.1",
         "xlucene-evaluator": "^0.9.4"
     },
