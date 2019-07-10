@@ -1,6 +1,6 @@
 {
     "name": "@terascope/ui-data-access",
-    "version": "0.4.1",
+    "version": "0.4.2",
     "description": "A teraserver ui plugin for data-access",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/ui-data-access#readme",
     "bugs": {
@@ -25,7 +25,7 @@
     "devDependencies": {
         "@terascope/data-access": "^0.11.2",
         "@terascope/data-types": "^0.3.1",
-        "@terascope/ui-components": "^0.3.5",
+        "@terascope/ui-components": "^0.3.6",
         "@terascope/utils": "^0.12.2",
         "@types/jest": "24.0.15",
         "@types/node": "12.6.2",
