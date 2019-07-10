@@ -1,6 +1,6 @@
 ---
 title: Elasticsearch API
-sidebar_label: elasticsearch-api
+sidebar_label: Overview
 ---
 
 > Elasticsearch client api used across multiple services, handles retries and exponential backoff
@@ -33,8 +33,8 @@ elasticsearch.search(query)
     })
 ```
 
+## Configuration
 
-### Configuration
 The `@terascope/elasticsearch-api` module must be passed in an elasticsearch client and a bunyan based logger. You may also optional pass in an object as the third argument.
 
 | Configuration |                                      Description                                      |  Type   |                               Notes                               |
@@ -43,12 +43,15 @@ The `@terascope/elasticsearch-api` module must be passed in an elasticsearch cli
 |     index     |                     only used if you are using the version method                     | String  |  required if using the version method, if not then its optional   |
 
 ## API Methods
+
 The majority of methods exhibit the same behavior of the native elasticsearch client
 
-#### get
+### get
+
 It gets a single document
 
 Query requires:
+
 - id
 - type
 - index
@@ -62,10 +65,12 @@ elasticsearch.get(query)
    })
 ```
 
-#### index
+### index
+
 This will index a document to a given index
 
 Query requires:
+
 - index
 - type
 - body
@@ -79,12 +84,12 @@ elasticsearch.index(query)
    });
 ```
 
-
-#### indexWithId
+### indexWithId
 
 This will index a document to a given index with a specific id
 
 Query requires:
+
 - index
 - type
 - id
@@ -104,15 +109,16 @@ elasticsearch.indexWithId(query)
    })
 ```
 
+### create
 
-#### create
 Please reference index, they do the same except create will throw if doc already exists
 
+### update
 
-#### update
 Update parts of a document, body is a partial document, which will be merged with the existing one
 
 Query requires:
+
 - index
 - type
 - id
@@ -136,11 +142,12 @@ elasticsearch.update(query)
    })
 ```
 
-#### remove
+### remove
 
 Deletes a document for a given id
 
 Query requires:
+
 - index
 - type
 - id
@@ -154,15 +161,18 @@ elasticsearch.remove(query)
    })
 ```
 
-#### search
+### search
+
 Searches elasticsearch
+
 Query requires:
+
 - index (can be a single index or multiple)
 
 optional:
+
 - q  (lucene query)
 - body (Elasticsearch’s Query DSL)
-
 
 ```js
 const query = {index: 'someIndex', q: 'some:Data NOT other:Data'};
@@ -188,14 +198,17 @@ elasticsearch.search(query)
    })
 ```
 
-##### Note
+#### Note
+
 - If the incoming query has size set to 0, then it will return the count of the given query
 - If the passed in opConfig (third argument on instantiation of api) has set full_response to true, it will return docs with their associated metadata
 
-#### version
+### version
+
 Verifies if a given index exists and logs what the max_result_window for said index
 
 Query requires:
+
 - index (requires passed in opConfig to have set an index key with the value set to a index)
 
 ```js
@@ -211,10 +224,12 @@ elasticsearch.version()
    })
 ```
 
-#### putTemplate
+### putTemplate
+
 Adds a template
 
 Query requires:
+
 - template
 - name
 
@@ -226,10 +241,12 @@ const name = 'logs_template';
 elasticsearch.putTemplate(template, name)
 ```
 
-#### bulkSend
+### bulkSend
+
 Uses the client bulk functionality with exponential back-off retries
 
 Query requires:
+
 - data  (formatted to work with elasticsearch bulk queries)
 
 ```js
@@ -240,16 +257,20 @@ elasticsearch.bulkSend(data)
    });
 ```
 
-#### nodeInfo
+### nodeInfo
+
 directly calls elasticsearch client.nodes.info()
 
-#### nodeStats
-directly calls elasticsearch client.nodes.stats()
+### nodeStats
 
-#### index_exists
-calls client.indices.exists() with and retries if queue is overloaded
+directly calls elasticsearch `client.nodes.stats()`
+
+### index_exists
+
+calls `client.indices.exists()` with and retries if queue is overloaded
 
 Query requires:
+
 - index
 
 ```js
@@ -257,10 +278,12 @@ const existQuery = {index: index_name};
 elasticsearch.index_exists(existQuery)
 ```
 
-#### index_create
-calls client.indices.create() with and retries if queue is overloaded
+### index_create
+
+calls `client.indices.create()` with and retries if queue is overloaded
 
 Query requires:
+
 - index
 - body (mapping for index)
 
@@ -269,10 +292,12 @@ const createQuery = {index: index_name, body: mapping};
 elasticsearch.index_create(createQuery)
 ```
 
-#### index_refresh
+### index_refresh
+
 calls client.indices.refreash() with and retries if queue is overloaded
 
 Query requires:
+
 - index
 
 ```js
@@ -280,10 +305,12 @@ const query = {index: index_name};
 elasticsearch.index_refresh(query)
 ```
 
-#### index_recovery
-calls client.indices.recovery() with and retries if queue is overloaded
+### index_recovery
+
+calls `client.indices.recovery()` with and retries if queue is overloaded
 
 Query requires:
+
 - index
 
 ```js
@@ -291,23 +318,25 @@ const existQuery = {index: index_name};
 elasticsearch.index_recovery(existQuery)
 ```
 
-#### buildQuery
+### buildQuery
+
 basic elasticsearch dsl query builder
 
 Query requires:
+
 - opConfig (object)
 - msg  (object)
 
-
 Basic usage
+
 ```js
 const elasticsearch = require('@terascope/elasticsearch-api')(client, logger, opConfig);
 const query = elasticsearch.buildQuery(opConfig, msg);
 elasticsearch.search(query)
 ```
 
+#### Configuration for opConfig
 
-##### Configuration for opConfig
 |  Configuration  |                                                                                                                                         Description                                                                                                                                         |               Type                |                           Notes                           |
 | :-------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------: | :-------------------------------------------------------: |
 |      index      |                                                                                                                              Index in which you will read from                                                                                                                              |              String               |                         required                          |
@@ -315,7 +344,8 @@ elasticsearch.search(query)
 | date_field_name |                                                                                                        the field name of the document on which you will be performing a range query                                                                                                         |              String               | required only if msg parameter has a start and end value, |
 |      query      |                                                                                                  Must be lucene query syntax. If set then this will add a lucene query to the final query                                                                                                   |              String               |                         optional                          |
 
-##### Configuration for msg
+#### Configuration for msg
+
 | Configuration |                                           Description                                            |     Type      |                      Notes                       |
 | :-----------: | :----------------------------------------------------------------------------------------------: | :-----------: | :----------------------------------------------: |
 |     count     |                            determines the size parameter of the query                            |    Number     |                     required                     |
@@ -323,9 +353,11 @@ elasticsearch.search(query)
 |      end      |             used for a range query, searches for less than this value, non-inclusive             | String (date) | optional, must be used in conjunction with start |
 |      key      | if set then this will perform a wildcard query using this value against all document's _id value |    String     |                     optional                     |
 
-
 Example of query generated:
-    In the following example, this will create a query searching the index: someIndex with a _id that matches a76f*, with bytes greater than 80000 and in-between two dates
+
+```txt
+In the following example, this will create a query searching the index: someIndex with a _id that matches a76f*, with bytes greater than 80000 and in-between two dates
+```
 
 ```js
 const opConfig = {

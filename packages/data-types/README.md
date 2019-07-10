@@ -1,19 +1,10 @@
 <!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/data-types/overview.md -->
 
-# data-types
+# Data Types
 
-> distributed versioning type system
+> A library for defining the data structures and mapping
 
-## Installation
-
-```bash
-# Using yarn
-yarn add @terascope/data\-types
-# Using npm
-npm install --save @terascope/data\-types
-```
-
-This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo. See our [documentation](https://terascope.github.io/teraslice/docs/packages/data-types/overview) for more information or the [issues](https://github.com/terascope/teraslice/issues?q=is%3Aopen+is%3Aissue+label%3Apkg%2Fdata\-types) associated with this package
+This a package within the [Teraslice](https://github.com/terascope/teraslice) monorepo. See our [documentation](https://terascope.github.io/teraslice/docs/packages/data-types/overview) for more information or the [issues](https://github.com/terascope/teraslice/issues?q=is%3Aopen+is%3Aissue+label%3Apkg%2Fdata-types) associated with this package
 
 ## Contributing
 
@@ -22,4 +13,5 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Please make sure to update tests as appropriate.
 
 ## License
+
 [MIT](./LICENSE) licensed.

@@ -10,7 +10,7 @@ describe('DataEntity', () => {
         [
             'when using make',
             false, // use make
-        ]
+        ],
     ];
 
     // @ts-ignore
@@ -71,7 +71,7 @@ describe('DataEntity', () => {
 
             it('should be able to get the metadata', () => {
                 const metadata = dataEntity.getMetadata();
-                expect(metadata).toHaveProperty('createdAt');
+                expect(metadata).toHaveProperty('_createTime');
             });
 
             it('should be able to set and get a metadata property', () => {
@@ -80,14 +80,14 @@ describe('DataEntity', () => {
             });
 
             it('should be able to get the metadata by key', () => {
-                const createdAt = dataEntity.getMetadata('createdAt');
-                expect(createdAt).toBeNumber();
+                const _createTime = dataEntity.getMetadata('_createTime');
+                expect(_createTime).toBeNumber();
             });
 
-            it('should not be able to set createdAt', () => {
+            it('should not be able to set _createTime', () => {
                 expect(() => {
-                    dataEntity.setMetadata('createdAt', 'hello');
-                }).toThrowError('Cannot set readonly metadata property createdAt');
+                    dataEntity.setMetadata('_createTime', 'hello');
+                }).toThrowError('Cannot set readonly metadata property _createTime');
             });
 
             it('should be return undefined if getting a metadata that does not exist', () => {
@@ -150,7 +150,7 @@ describe('DataEntity', () => {
             });
 
             it('should throw an error when called with a Buffer', () => {
-                const buf = Buffer.from(JSON.stringify({ hello:true }));
+                const buf = Buffer.from(JSON.stringify({ hello: true }));
                 expect(() => {
                     if (useClass) {
                         // @ts-ignore
@@ -206,9 +206,11 @@ describe('DataEntity', () => {
 
         describe('when not wrapped', () => {
             it('should return a single data entity', () => {
-                const dataEntity = DataEntity.make(DataEntity.make({
-                    hello: 'there',
-                }));
+                const dataEntity = DataEntity.make(
+                    DataEntity.make({
+                        hello: 'there',
+                    })
+                );
                 expect(DataEntity.isDataEntity(dataEntity)).toBeTrue();
                 expect(dataEntity).toHaveProperty('hello', 'there');
             });
@@ -266,24 +268,15 @@ describe('DataEntity', () => {
 
         it('should return true when given a DataEntity compatible object', () => {
             const fakeDataEntity = {
-                getMetadata() {
-
-                },
-                setMetadata() {
-
-                },
-                toBuffer() {
-
-                }
+                getMetadata() {},
+                setMetadata() {},
+                toBuffer() {},
             };
             expect(DataEntity.isDataEntity(fakeDataEntity)).toBeTrue();
         });
 
         it('should return false when given an array of DataEntities', () => {
-            const input = DataEntity.makeArray([
-                { hi: true },
-                { hi: true },
-            ]);
+            const input = DataEntity.makeArray([{ hi: true }, { hi: true }]);
             expect(DataEntity.isDataEntity(input)).toBeFalse();
         });
     });
@@ -302,10 +295,7 @@ describe('DataEntity', () => {
         });
 
         it('should return true when given an array of DataEntities', () => {
-            const input = DataEntity.makeArray([
-                { hi: true },
-                { hi: true },
-            ]);
+            const input = DataEntity.makeArray([{ hi: true }, { hi: true }]);
             expect(DataEntity.isDataEntityArray(input)).toBeTrue();
         });
 
@@ -314,17 +304,13 @@ describe('DataEntity', () => {
         });
 
         it('should return true when given an array of DataEntity compatible objects', () => {
-            const fakeDataEntities = [{
-                getMetadata() {
-
+            const fakeDataEntities = [
+                {
+                    getMetadata() {},
+                    setMetadata() {},
+                    toBuffer() {},
                 },
-                setMetadata() {
-
-                },
-                toBuffer() {
-
-                }
-            }];
+            ];
             expect(DataEntity.isDataEntityArray(fakeDataEntities)).toBeTrue();
         });
     });
@@ -351,12 +337,16 @@ describe('DataEntity', () => {
     describe('#fromBuffer', () => {
         it('should be able to create a DataEntity from a buffer', () => {
             const buf = Buffer.from(JSON.stringify({ foo: 'bar' }));
-            const entity = DataEntity.fromBuffer(buf, {
-                _op: 'baz',
-                _encoding: 'json',
-            }, {
-                howdy: 'there'
-            });
+            const entity = DataEntity.fromBuffer(
+                buf,
+                {
+                    _op: 'baz',
+                    _encoding: 'json',
+                },
+                {
+                    howdy: 'there',
+                }
+            );
 
             expect(entity.foo).toEqual('bar');
             expect(entity.getMetadata('howdy')).toEqual('there');

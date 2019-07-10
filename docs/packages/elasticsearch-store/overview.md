@@ -1,6 +1,6 @@
 ---
 title: Elasticsearch Store
-sidebar_label: elasticsearch-store
+sidebar_label: Overview
 ---
 
 > An API for managing an elasticsearch index, with versioning and migration support.

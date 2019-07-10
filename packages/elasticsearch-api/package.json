@@ -1,30 +1,32 @@
 {
     "name": "@terascope/elasticsearch-api",
-    "publishConfig": {
-        "access": "public"
-    },
-    "version": "2.0.3",
+    "version": "2.0.4",
     "description": "Elasticsearch client api used across multiple services, handles retries and exponential backoff",
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/elasticsearch-api#readme",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
+    },
+    "repository": "git@github.com:terascope/teraslice.git",
+    "license": "MIT",
+    "author": "Terascope, LLC <info@terascope.io>",
     "main": "index.js",
     "typings": "types/index.d.ts",
     "scripts": {
         "lint": "eslint *.js test/**/*.js",
         "lint:fix": "yarn lint --fix",
         "test": "jest --forceExit",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG=\"${DEBUG:-*elasticsearch-api*}\" jest --detectOpenHandles --coverage=false --runInBand"
-    },
-    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/elasticsearch-api#readme",
-    "repository": "git@github.com:terascope/teraslice.git",
-    "author": "Terascope, LLC <info@terascope.io>",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/terascope/teraslice/issues"
+        "test:debug": "env DEBUG=\"${DEBUG:-*elasticsearch-api*}\" jest --detectOpenHandles --coverage=false --runInBand",
+        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {
-        "@terascope/utils": "^0.12.0",
+        "@terascope/utils": "^0.12.2",
         "bluebird": "^3.5.5",
         "lodash": "^4.17.11"
     },
-    "devDependencies": {}
+    "devDependencies": {},
+    "publishConfig": {
+        "access": "public"
+    },
+    "displayName": "Elasticsearch Api",
+    "terascope": {}
 }

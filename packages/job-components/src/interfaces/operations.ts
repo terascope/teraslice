@@ -29,14 +29,40 @@ export interface LegacyProcessor extends LegacyOperation {
 
 export type ProcessorFn<T> = (data: T, logger: Logger, sliceRequest: SliceRequest) => Promise<T> | T;
 
+/**
+ * The metadata created by the Slicer and ran through a job pipeline
+ *
+ * See [[Slice]]
+ */
 export interface SliceRequest {
+    /** A reserved key for sending work to a particular worker */
     request_worker?: string;
+    /** The slice request can contain any metdata */
     [prop: string]: any;
 }
 
+/**
+ * The metadata given to Slicer after succefully recovering the execution
+ */
+export interface SlicerRecoveryData {
+    lastSlice: Slice;
+}
+
+/**
+ * A trackable set of work to be preformed by a "Worker"
+ */
 export interface Slice {
+    /**
+     * A unique identifier for the slice
+     */
     slice_id: string;
+    /**
+     * A reference to the slicer that created the slice.
+     */
     slicer_id: number;
+    /**
+     * A reference to the slicer
+     */
     slicer_order: number;
     request: SliceRequest;
     _created: string;

@@ -46,9 +46,11 @@ jobs:
         - yarn && yarn lerna bootstrap --force-local
         # Build all packages individually
         - yarn build:all
-    script: yarn lint
+    script:
+        - yarn lint
+        - yarn lint:docs
     after_success:
-        - yarn docs:update 
+        - yarn sync
 
   # test end-to-end tests, only on pull-requests
   - script:
@@ -76,7 +78,7 @@ jobs:
         packages:
           - jq
     before_script: . ./scripts/travis-setup-credentials.sh
-    script: yarn docs:update
+    script: yarn docs
     deploy:
       - provider: script
         skip_cleanup: true
@@ -117,7 +119,7 @@ jobs:
     services:
         - docker
     before_script: . ./scripts/travis-setup-credentials.sh
-    script: yarn docs:update
+    script: yarn docs
     deploy:
       - provider: script
         script: ./scripts/docker-release.sh tag

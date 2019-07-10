@@ -1,6 +1,6 @@
 ---
 title: Teraslice
-sidebar_label: teraslice
+sidebar_label: Overview
 ---
 
 > Distributed computing platform for processing JSON data
@@ -9,14 +9,14 @@ Teraslice is an open source, distributed computing platform for processing JSON 
 
 Here are a few tasks it can help you with:
 
-  * Data ingest from Kafka to Elasticsearch
-  * Reindexing data at high volumes
-  * Moving data between clusters
-  * Moving data out of Elasticsearch into other systems
-  * Automatic syncing of data from Elasticsearch to other systems
-  * Exporting data to files
-  * Importing data from a previous export
-  * Periodic processing of data stored in an index
+- Data ingest from Kafka to Elasticsearch
+- Reindexing data at high volumes
+- Moving data between clusters
+- Moving data out of Elasticsearch into other systems
+- Automatic syncing of data from Elasticsearch to other systems
+- Exporting data to files
+- Importing data from a previous export
+- Periodic processing of data stored in an index
 
 In Teraslice you define jobs that specify a pipeline of work to be applied to a slice of data. That work will execute concurrently across many workers to achieve very high re-processing throughput.
 
@@ -65,7 +65,7 @@ Teraslice is currently in alpha status. Single node deployment and clustering su
 
 Teraslice is written in Node.js and has been tested on Linux and Mac OS X.
 
-### Installation ###
+### Installation
 
 ```sh
 # Install teraslice globally

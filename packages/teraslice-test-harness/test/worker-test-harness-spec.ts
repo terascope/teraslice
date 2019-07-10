@@ -18,17 +18,18 @@ describe('WorkerTestHarness', () => {
     ];
 
     describe('when given a valid job config', () => {
-        const job = newTestJobConfig();
-        job.max_retries = 2;
-        job.analytics = true;
-        job.operations = [
-            {
-                _op: 'test-reader',
-            },
-            {
-                _op: 'noop',
-            },
-        ];
+        const job = newTestJobConfig({
+            max_retries: 2,
+            analytics: true,
+            operations: [
+                {
+                    _op: 'test-reader',
+                },
+                {
+                    _op: 'noop',
+                },
+            ],
+        });
 
         const workerHarness = new WorkerTestHarness(job, {
             assetDir: path.join(__dirname, 'fixtures'),
@@ -125,7 +126,13 @@ describe('WorkerTestHarness', () => {
         let harness: WorkerTestHarness;
 
         beforeAll(async () => {
-            harness = WorkerTestHarness.testFetcher({ _op: 'test-reader', passthrough_slice: true }, options);
+            harness = WorkerTestHarness.testFetcher(
+                {
+                    _op: 'test-reader',
+                    passthrough_slice: true,
+                },
+                options
+            );
             await harness.initialize();
         });
 

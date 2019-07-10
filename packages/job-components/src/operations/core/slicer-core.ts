@@ -7,6 +7,7 @@ import {
     SlicerOperationLifeCycle,
     ExecutionStats,
     WorkerContext,
+    SlicerRecoveryData,
 } from '../../interfaces';
 import Queue from '@terascope/queue';
 import Core from './core';
@@ -16,7 +17,8 @@ import Core from './core';
  * that supports the execution lifecycle events.
  * This class will likely not be used externally
  * since Teraslice only supports a few type varients.
- * @see Core
+ *
+ * See [[Core]] for more information
  */
 
 export default abstract class SlicerCore<T = OpConfig> extends Core<WorkerContext> implements SlicerOperationLifeCycle {
@@ -47,15 +49,15 @@ export default abstract class SlicerCore<T = OpConfig> extends Core<WorkerContex
             slices: {
                 processed: 0,
                 failed: 0,
-            }
+            },
         };
     }
 
     /**
      * Called during execution initialization
      * @param recoveryData is the data to recover from
-    */
-    async initialize(recoveryData: object[]): Promise<void> {
+     */
+    async initialize(recoveryData: SlicerRecoveryData[]): Promise<void> {
         this.recoveryData = recoveryData;
         this.context.logger.trace(`${this.executionConfig.name}->${this.opConfig._op} is initializing...`, recoveryData);
     }
@@ -65,23 +67,23 @@ export default abstract class SlicerCore<T = OpConfig> extends Core<WorkerContex
     }
 
     /**
-    * A generic method called by the Teraslice framework to a give a "Slicer"
-    * the ability to handle creating slices.
-    * @returns a boolean depending on whether the slicer is done
-    */
+     * A generic method called by the Teraslice framework to a give a "Slicer"
+     * the ability to handle creating slices.
+     * @returns a boolean depending on whether the slicer is done
+     */
     abstract async handle(): Promise<boolean>;
 
     /**
      * Return the number of registered slicers
-    */
+     */
     abstract slicers(): number;
 
     /**
      * Create a Slice object from a slice request.
      * In the case of recovery the "Slice" already has the required
      * This will be enqueued and dequeued by the "Execution Controller"
-    */
-    createSlice(input: Slice|SliceRequest, order: number, id: number = 0) {
+     */
+    createSlice(input: Slice | SliceRequest, order: number, id: number = 0) {
         // recovery slices already have correct meta data
         if (input.slice_id) {
             this.queue.enqueue(input as Slice);
@@ -97,15 +99,15 @@ export default abstract class SlicerCore<T = OpConfig> extends Core<WorkerContex
 
     /**
      * A method called by the "Execution Controller" to dequeue a created "Slice"
-    */
-    getSlice(): Slice|null {
+     */
+    getSlice(): Slice | null {
         if (!this.sliceCount()) return null;
         return this.queue.dequeue();
     }
 
     /**
      * A method called by the "Execution Controller" to dequeue many created slices
-    */
+     */
     getSlices(max: number): Slice[] {
         const count = max > this.sliceCount() ? this.sliceCount() : max;
 
@@ -123,14 +125,14 @@ export default abstract class SlicerCore<T = OpConfig> extends Core<WorkerContex
 
     /**
      * The number of enqueued slices
-    */
+     */
     sliceCount(): number {
         return this.queue.size();
     }
 
     /**
      * Used to indicate whether this slicer is recoverable.
-    */
+     */
     isRecoverable() {
         return false;
     }
@@ -140,7 +142,7 @@ export default abstract class SlicerCore<T = OpConfig> extends Core<WorkerContex
      * Defaults to 10000
      * NOTE: if you want to base of the number of
      * workers use {@link #workersConnected}
-    */
+     */
     maxQueueLength() {
         return 10000;
     }

@@ -26,11 +26,10 @@ const siteConfig = {
     // For no header links in the top nav bar -> headerLinks: [],
     headerLinks: [
         { doc: 'overview', label: 'Docs' },
-        { doc: 'api', label: 'API' },
-        { doc: 'examples', label: 'Examples' },
+        { doc: 'asset-bundles', label: 'Assets' },
         { doc: 'packages', label: 'Packages' },
-        { page: 'help', label: 'Help' },
-        { blog: true, label: 'Blog' },
+        { href: 'https://github.com/terascope/teraslice', label: 'GitHub' },
+        { page: 'help', label: 'Help' }
     ],
 
     /* path to images for header/footer */
@@ -40,7 +39,7 @@ const siteConfig = {
     /* Colors for website */
     colors: {
         primaryColor: '#2D898B',
-        secondaryColor: '#5FA9DD',
+        secondaryColor: '#5FA9DD'
     },
 
     /* Custom fonts for website */
@@ -62,13 +61,16 @@ const siteConfig = {
 
     highlight: {
         // Highlight.js theme to use for syntax highlighting in code blocks.
-        theme: 'default',
+        theme: 'github'
     },
 
     // Add custom scripts here that would be placed in <script> tags.
     scripts: [
-        'https://buttons.github.io/buttons.js'
+        'https://buttons.github.io/buttons.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js',
+        '/teraslice/js/copy-code-block.js'
     ],
+    stylesheets: ['/teraslice/css/copy-code-block.css', '/teraslice/css/custom.css'],
 
     // On page navigation for the current documentation page.
     onPageNav: 'separate',
@@ -87,8 +89,10 @@ const siteConfig = {
 
     algolia: {
         apiKey: 'b074b9b57bfd2e4d8b411aee052825d2',
-        indexName: 'terascope_teraslice',
+        indexName: 'terascope_teraslice'
     },
+
+    docsSideNavCollapsible: true
 
     // You may provide arbitrary config keys to be used as needed by your
     // template. For example, if you need your repo's URL...

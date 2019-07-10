@@ -1,9 +1,6 @@
 {
     "name": "terafoundation",
-    "version": "0.9.0",
-    "publishConfig": {
-        "access": "public"
-    },
+    "version": "0.9.1",
     "description": "A Clustering and Foundation tool for Terascope Tools",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/terafoundation#readme",
     "bugs": {
@@ -12,12 +9,12 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "Apache-2.0",
     "author": "Terascope, LLC <info@terascope.io>",
-    "main": "./index.js",
     "files": [
         "*.js",
         "lib/**/*",
         "examples/**/*"
     ],
+    "main": "./index.js",
     "scripts": {
         "lint": "eslint *.js lib/**/*.js test/**/*.js",
         "lint:fix": "yarn lint --fix",
@@ -26,8 +23,8 @@
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {
-        "@terascope/elasticsearch-api": "^2.0.3",
-        "@terascope/utils": "^0.12.0",
+        "@terascope/elasticsearch-api": "^2.0.4",
+        "@terascope/utils": "^0.12.2",
         "agentkeepalive": "^4.0.2",
         "bluebird": "^3.5.5",
         "bunyan": "^1.8.12",
@@ -43,5 +40,10 @@
         "shortid": "^2.2.14",
         "yargs": "^13.2.4"
     },
-    "devDependencies": {}
+    "devDependencies": {},
+    "publishConfig": {
+        "access": "public"
+    },
+    "displayName": "Terafoundation",
+    "terascope": {}
 }

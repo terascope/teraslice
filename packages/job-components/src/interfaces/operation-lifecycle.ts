@@ -1,13 +1,16 @@
-import { Slice, SliceResult, ExecutionStats } from './operations';
+import { DataEntity } from '@terascope/utils';
+import { Slice, SlicerRecoveryData, SliceResult, ExecutionStats } from './operations';
 
 export interface OperationLifeCycle {
     /**
-     * Called during execution initialization
+     * Called during execution initialization,
+     * when this is called perform any async setup.
      */
     initialize(initConfig?: any): Promise<void>;
 
     /**
-     * Called during execution shutdown
+     * Called during execution shutdown,
+     * when this is cleanup any open connections or destroy any in-memory state.
      */
     shutdown(): Promise<void>;
 }
@@ -61,9 +64,10 @@ export interface WorkerOperationLifeCycle extends OperationLifeCycle {
      *
      * @param sliceId is the id of the slice being processed
      * @param index the index to the operation which completed
-     * @param processed is the number of records returned from the op
+     * @param processed is the number of records returned from last op
+     * @param results the records returned from last op
      */
-    onOperationComplete?(sliceId: string, index: number, processed: number): void;
+    onOperationComplete?(sliceId: string, index: number, processed: number, records: DataEntity[]): void;
 
     /**
      * Called to notify the processors that the next slice being
@@ -81,11 +85,12 @@ export interface WorkerOperationLifeCycle extends OperationLifeCycle {
 
 export interface SlicerOperationLifeCycle extends OperationLifeCycle {
     /**
-     * Called during execution initialization
+     * Called during execution initialization,
+     * when this is cleanup any open connections or cleanup any in-memory state.
      *
-     * @param recoveryData is the data to recover from
+     * @param recoveryData is the data to recover from (one for each slicer)
      */
-    initialize(recoveryData?: object[]): Promise<void>;
+    initialize(recoveryData?: SlicerRecoveryData[]): Promise<void>;
 
     /**
      * A method called by the "Execution Controller" to give a "Slicer"

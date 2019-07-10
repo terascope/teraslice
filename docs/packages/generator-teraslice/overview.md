@@ -1,6 +1,6 @@
 ---
 title: Teraslice Generator
-sidebar_label: generator-teraslice
+sidebar_label: Overview
 ---
 
 > Generate teraslice related packages and code

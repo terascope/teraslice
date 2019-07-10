@@ -5,115 +5,114 @@ const display = require('../../cmds/lib/display')();
 describe('display', () => {
     test('should parse response into an array', async () => {
         const header = ['name', 'job_id', 'ex_id', '_status'];
-        const response = [{
-            analytics: true,
-            assets: null,
-            lifecycle: 'once',
-            max_retries: 3,
-            name: 'test-job-1',
-            operations: [[Object], [Object]],
-            probation_window: 300000,
-            recycle_worker: null,
-            slicers: 1,
-            workers: 5,
-            targets: [],
-            cpu: -1,
-            memory: -1,
-            volumes: [],
-            job_id: 'a9999999-9999-9999-9999-999999999999',
-            _context: 'ex',
-            _created: '2019-01-01T00:00:00.000Z',
-            _updated: '2019-01-01T00:00:01.000Z',
-            ex_id: 'a9999999-9999-9999-9999-999999999998',
-            _status: 'failed',
-            slicer_hostname: 'teraslice-execution-controller-a9999999-9999-9999-9999-999999999999',
-            slicer_port: 45680,
-            _has_errors: true,
-            _failureReason: 'error',
-            _slicer_stats:
-             {
-                 workers_active: 0,
-                 workers_joined: 0,
-                 queued: 0,
-                 job_duration: 0,
-                 subslice_by_key: 0,
-                 started: '2019-01-01T00:00:00.000Z',
-                 failed: 0,
-                 subslices: 0,
-                 queuing_complete: '',
-                 slice_range_expansion: 0,
-                 processed: 0,
-                 workers_available: 0,
-                 workers_reconnected: 0,
-                 workers_disconnected: 0
-             }
-        },
-        {
-            analytics: true,
-            assets: null,
-            lifecycle: 'once',
-            max_retries: 3,
-            name: 'test-job-2',
-            operations: [[Object], [Object]],
-            probation_window: 300000,
-            recycle_worker: null,
-            slicers: 1,
-            workers: 5,
-            targets: [],
-            cpu: -1,
-            memory: -1,
-            volumes: [],
-            job_id: 'b9999999-9999-9999-9999-999999999999',
-            _context: 'ex',
-            _created: '2019-01-01T00:00:00.000Z',
-            _updated: '2019-01-01T00:00:01.000Z',
-            ex_id: 'b9999999-9999-9999-9999-999999999997',
-            _status: 'failed',
-            slicer_hostname: 'teraslice-execution-controller-b9999999-9999-9999-9999-999999999999',
-            slicer_port: 45680,
-            _has_errors: true,
-            _failureReason: 'error',
-            _slicer_stats:
-             {
-                 workers_active: 1,
-                 workers_joined: 9,
-                 queued: 0,
-                 job_duration: 1087497,
-                 subslice_by_key: 0,
-                 started: '2019-01-01T00:00:01.000Z',
-                 failed: 4,
-                 subslices: 0,
-                 slice_range_expansion: 0,
-                 processed: 1000000,
-                 workers_available: 4,
-                 workers_reconnected: 0,
-                 workers_disconnected: 0,
-                 slicers: 1,
-                 queuing_complete: '2019-01-01T00:00:01.000Z'
-             }
-        },
-        {
-            name: 'test-job-3',
-            lifecycle: 'once',
-            workers: 5,
-            operations: [[Object], [Object]],
-            job_id: 'c9999999-9999-9999-9999-999999999999',
-            _context: 'ex',
-            _created: '2019-01-01T00:00:00.000Z',
-            _updated: '2019-01-01T00:00:01.000Z',
-            analytics: true,
-            assets: null,
-            max_retries: 3,
-            probation_window: 300000,
-            recycle_worker: null,
-            slicers: 1,
-            targets: [],
-            cpu: -1,
-            memory: -1,
-            volumes: [],
-            ex_id: 'c9999999-9999-9999-9999-999999999996',
-            _status: 'failed'
-        }];
+        const response = [
+            {
+                analytics: true,
+                assets: null,
+                lifecycle: 'once',
+                max_retries: 3,
+                name: 'test-job-1',
+                operations: [[Object], [Object]],
+                probation_window: 300000,
+                slicers: 1,
+                workers: 5,
+                targets: [],
+                cpu: -1,
+                memory: -1,
+                volumes: [],
+                job_id: 'a9999999-9999-9999-9999-999999999999',
+                _context: 'ex',
+                _created: '2019-01-01T00:00:00.000Z',
+                _updated: '2019-01-01T00:00:01.000Z',
+                ex_id: 'a9999999-9999-9999-9999-999999999998',
+                _status: 'failed',
+                slicer_hostname:
+                    'teraslice-execution-controller-a9999999-9999-9999-9999-999999999999',
+                slicer_port: 45680,
+                _has_errors: true,
+                _failureReason: 'error',
+                _slicer_stats: {
+                    workers_active: 0,
+                    workers_joined: 0,
+                    queued: 0,
+                    job_duration: 0,
+                    subslice_by_key: 0,
+                    started: '2019-01-01T00:00:00.000Z',
+                    failed: 0,
+                    subslices: 0,
+                    queuing_complete: '',
+                    slice_range_expansion: 0,
+                    processed: 0,
+                    workers_available: 0,
+                    workers_reconnected: 0,
+                    workers_disconnected: 0
+                }
+            },
+            {
+                analytics: true,
+                assets: null,
+                lifecycle: 'once',
+                max_retries: 3,
+                name: 'test-job-2',
+                operations: [[Object], [Object]],
+                probation_window: 300000,
+                slicers: 1,
+                workers: 5,
+                targets: [],
+                cpu: -1,
+                memory: -1,
+                volumes: [],
+                job_id: 'b9999999-9999-9999-9999-999999999999',
+                _context: 'ex',
+                _created: '2019-01-01T00:00:00.000Z',
+                _updated: '2019-01-01T00:00:01.000Z',
+                ex_id: 'b9999999-9999-9999-9999-999999999997',
+                _status: 'failed',
+                slicer_hostname:
+                    'teraslice-execution-controller-b9999999-9999-9999-9999-999999999999',
+                slicer_port: 45680,
+                _has_errors: true,
+                _failureReason: 'error',
+                _slicer_stats: {
+                    workers_active: 1,
+                    workers_joined: 9,
+                    queued: 0,
+                    job_duration: 1087497,
+                    subslice_by_key: 0,
+                    started: '2019-01-01T00:00:01.000Z',
+                    failed: 4,
+                    subslices: 0,
+                    slice_range_expansion: 0,
+                    processed: 1000000,
+                    workers_available: 4,
+                    workers_reconnected: 0,
+                    workers_disconnected: 0,
+                    slicers: 1,
+                    queuing_complete: '2019-01-01T00:00:01.000Z'
+                }
+            },
+            {
+                name: 'test-job-3',
+                lifecycle: 'once',
+                workers: 5,
+                operations: [[Object], [Object]],
+                job_id: 'c9999999-9999-9999-9999-999999999999',
+                _context: 'ex',
+                _created: '2019-01-01T00:00:00.000Z',
+                _updated: '2019-01-01T00:00:01.000Z',
+                analytics: true,
+                assets: null,
+                max_retries: 3,
+                probation_window: 300000,
+                slicers: 1,
+                targets: [],
+                cpu: -1,
+                memory: -1,
+                volumes: [],
+                ex_id: 'c9999999-9999-9999-9999-999999999996',
+                _status: 'failed'
+            }
+        ];
         const result = await display.parseResponse(header, response, false);
         expect(result[0][0]).toEqual('test-job-1');
         expect(result[0][1]).toEqual('a9999999-9999-9999-9999-999999999999');
@@ -132,10 +131,16 @@ describe('display', () => {
     });
 
     test('should parse response into an array when active is true', async () => {
-        const header = ['assignment', 'job_id', 'ex_id', 'node_id', 'worker_id', 'teraslice_version'];
+        const header = [
+            'assignment',
+            'job_id',
+            'ex_id',
+            'node_id',
+            'worker_id',
+            'teraslice_version'
+        ];
         const response = {
-            '10.10.10.1':
-            {
+            '10.10.10.1': {
                 node_id: '10.10.10.1',
                 hostname: '10.10.10.1',
                 pid: 'N/A',
@@ -144,8 +149,8 @@ describe('display', () => {
                 total: 'N/A',
                 state: 'connected',
                 available: 'N/A',
-                active:
-                    [{
+                active: [
+                    {
                         worker_id: 'teraslice-worker-1',
                         assignment: 'worker',
                         pid: 'teraslice-worker-0000001',
@@ -153,11 +158,10 @@ describe('display', () => {
                         job_id: '0000002',
                         pod_ip: '192.1.1.1',
                         assets: []
-                    }]
-
+                    }
+                ]
             },
-            '10.10.10.2':
-            {
+            '10.10.10.2': {
                 node_id: '10.10.10.2',
                 hostname: '10.10.10.2',
                 pid: 'N/A',
@@ -166,8 +170,8 @@ describe('display', () => {
                 total: 'N/A',
                 state: 'connected',
                 available: 'N/A',
-                active:
-                    [{
+                active: [
+                    {
                         worker_id: 'teraslice-worker-2',
                         assignment: 'worker',
                         pid: 'teraslice-worker-0000002',
@@ -175,11 +179,10 @@ describe('display', () => {
                         job_id: '0000003',
                         pod_ip: '192.1.1.2',
                         assets: []
-                    }]
-
+                    }
+                ]
             },
-            '10.10.10.3':
-            {
+            '10.10.10.3': {
                 node_id: '10.10.10.3',
                 hostname: '10.10.10.3',
                 pid: 'N/A',
@@ -188,8 +191,8 @@ describe('display', () => {
                 total: 'N/A',
                 state: 'connected',
                 available: 'N/A',
-                active:
-                    [{
+                active: [
+                    {
                         worker_id: 'teraslice-worker-3',
                         assignment: 'worker',
                         pid: 'teraslice-worker-0000003',
@@ -197,8 +200,8 @@ describe('display', () => {
                         job_id: '0000004',
                         pod_ip: '192.1.1.3',
                         assets: []
-                    }]
-
+                    }
+                ]
             }
         };
         const id = '0000004';
@@ -214,10 +217,18 @@ describe('display', () => {
     });
 
     test('should parse state response into an array when id is not defined', async () => {
-        const header = ['assignment', 'job_id', 'ex_id', 'node_id', 'worker_id', 'teraslice_version', 'node_version', 'hostname'];
+        const header = [
+            'assignment',
+            'job_id',
+            'ex_id',
+            'node_id',
+            'worker_id',
+            'teraslice_version',
+            'node_version',
+            'hostname'
+        ];
         const response = {
-            '10.10.10.1':
-            {
+            '10.10.10.1': {
                 node_id: '10.10.10.1',
                 hostname: '10.10.10.1',
                 pid: 'N/A',
@@ -226,8 +237,8 @@ describe('display', () => {
                 total: 'N/A',
                 state: 'connected',
                 available: 'N/A',
-                active:
-                    [{
+                active: [
+                    {
                         worker_id: 'teraslice-worker-1',
                         assignment: 'worker',
                         pid: 'teraslice-worker-0000001',
@@ -235,11 +246,10 @@ describe('display', () => {
                         job_id: '0000002',
                         pod_ip: '192.1.1.1',
                         assets: []
-                    }]
-
+                    }
+                ]
             },
-            '10.10.10.2':
-            {
+            '10.10.10.2': {
                 node_id: '10.10.10.2',
                 hostname: '10.10.10.2',
                 pid: 'N/A',
@@ -248,8 +258,8 @@ describe('display', () => {
                 total: 'N/A',
                 state: 'connected',
                 available: 'N/A',
-                active:
-                    [{
+                active: [
+                    {
                         worker_id: 'teraslice-worker-2',
                         assignment: 'worker',
                         pid: 'teraslice-worker-0000002',
@@ -257,11 +267,10 @@ describe('display', () => {
                         job_id: '0000003',
                         pod_ip: '192.1.1.2',
                         assets: []
-                    }]
-
+                    }
+                ]
             },
-            '10.10.10.3':
-            {
+            '10.10.10.3': {
                 node_id: '10.10.10.3',
                 hostname: '10.10.10.3',
                 pid: 'N/A',
@@ -270,8 +279,8 @@ describe('display', () => {
                 total: 'N/A',
                 state: 'connected',
                 available: 'N/A',
-                active:
-                    [{
+                active: [
+                    {
                         worker_id: 'teraslice-worker-3',
                         assignment: 'worker',
                         pid: 'teraslice-worker-0000003',
@@ -279,8 +288,8 @@ describe('display', () => {
                         job_id: '0000004',
                         pod_ip: '192.1.1.3',
                         assets: []
-                    }]
-
+                    }
+                ]
             }
         };
         const result = await display.parseResponse(header, response, true);

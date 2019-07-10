@@ -1,6 +1,6 @@
 ---
 title: Teraslice Messaging
-sidebar_label: teraslice-messaging
+sidebar_label: Overview
 ---
 
 > An internal teraslice messaging library using socket.io
@@ -16,7 +16,7 @@ npm install --save @terascope/teraslice-messaging
 
 ## Usage
 
-```
+```js
 const { ... } = require('@terascope/teraslice-messaging');
 
 // TODO: DEMONSTRATE API

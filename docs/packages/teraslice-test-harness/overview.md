@@ -1,6 +1,6 @@
 ---
 title: Teraslice Test Harness
-sidebar_label: teraslice-test-harness
+sidebar_label: Overview
 ---
 
 > A helpful library for testing teraslice jobs, operations, and other components.
@@ -9,395 +9,393 @@ sidebar_label: teraslice-test-harness
 
 ## Installation
 
-```sh
+```bash
+# Using yarn
 yarn add --dev teraslice-test-harness
+# Using npm
+npm install --save-dev teraslice-test-harness
 ```
 
 ## Available Test Harnesses
 
 This package exports a few different test harnesses for running your operation.
 
-**Note:** All TestHarnesses except `OpTestHarness` require a path to the asset directory so it can the test can load and fully validate multiple different operations.
-
-### OpTestHarness
-
-A simple test harness for running an single operation with minimal customizations. Based of the older teraslice-op-test-harness package.
-
-**This is useful for testing Data in -> out on a Fetcher, Reader, or Processor.**
+**Note:** All TestHarnesses except `OpTestHarness` can take a path to the asset directory so it can the test can load and fully validate multiple different operations, if none are specified then it will assume it is running in a [asset bundle](../../asset-bundles/development.md).
 
 ### SlicerTestHarness
 
-A test harness for testing Operations that run on the Execution Controller, mainly the Slicer.
+A test harness for testing Operations that run on the Execution Controller, mainly [Slicers](../../jobs/types-of-operations.md#slicers).
 
 **This is useful for testing Slicers.**
 
+**Usage:**
+
+```js
+const {
+    newTestJobConfig,
+    SlicerTestHarness,
+} = require('teraslice-test-harness';
+
+describe('Example Asset (Slicer)', () => {
+    const job = newTestJobConfig({
+        analytics: true,
+        operations: [
+            {
+                _op: 'simple-reader'
+            },
+            {
+                _op: 'noop'
+            }
+        ]
+    });
+
+    let harness;
+
+    beforeEach(() => {
+        harness = new SlicerTestHarness(job, {
+            clients: [],
+        });
+
+        await harness.initialize();
+    });
+
+    afterEach(async () => {
+        await harness.shutdown();
+    });
+
+    it('should return a list of records', async () => {
+        const results = await harness.createSlices();
+        expect(Array.isArray(results)).toBe(true);
+        expect(results.length).toBe(10);
+
+        for (const result of results) {
+            expect(DataEntity.isDataEntity(result)).toBe(false);
+            expect(result.count).toEqual(10);
+            expect(result.super).toEqual('man');
+        }
+    });
+});
+```
+
 ### WorkerTestHarness
 
-A test harness for testing Operations that run on Workers, mainly Fetchers and Processors.
+A test harness for testing Operations that run on Workers, mainly [Fetchers](../../jobs/types-of-operations.md#fetchers) and [Processors](../../jobs/types-of-operations.md#processors).
 
-**This is useful for testing Fetcher and Processors together or individually.**
+**This is useful for testing [Fetchers](../../jobs/types-of-operations.md#fetchers) and [Processors](../../jobs/types-of-operations.md#processors) together or individually.**
+
+**Usage:**
+
+```js
+const {
+    newTestJobConfig,
+    newTestSlice,
+    WorkerTestHarness,
+} = require('teraslice-test-harness';
+
+describe('Example Asset (Worker)', () => {
+    const clients = [
+        {
+            type: 'example',
+            create: () => ({
+                client: {
+                    say() {
+                        return 'hello';
+                    },
+                },
+            }),
+        },
+    ];
+
+    describe('when given a valid job config', () => {
+        const job = newTestJobConfig({
+            max_retries: 2,
+            analytics: true,
+            operations: [
+                {
+                    _op: 'test-reader',
+                },
+                {
+                    _op: 'noop',
+                },
+            ],
+        });
+
+        const workerHarness = new WorkerTestHarness(job, {
+            clients,
+        });
+
+        beforeAll(() => workerHarness.initialize());
+        afterAll(() => workerHarness.shutdown());
+
+        it('should be able to call runSlice', async () => {
+            const result = await workerHarness.runSlice(newTestSlice());
+            expect(result).toBeArray();
+            expect(DataEntity.isDataEntityArray(result)).toBeTrue();
+        });
+
+        it('should be able to call runSlice with just a request object', async () => {
+            const result = await workerHarness.runSlice({ hello: true });
+            expect(result).toBeArray();
+            expect(DataEntity.isDataEntityArray(result)).toBeTrue();
+        });
+
+        it('should call slice retry', async () => {
+            const onSliceRetryEvent = jest.fn();
+            workerHarness.events.on('slice:retry', onSliceRetryEvent);
+            const err = new Error('oh no');
+
+            workerHarness.processors[0].handle
+                .mockClear()
+                .mockRejectedValueOnce(err)
+                .mockRejectedValueOnce(err);
+
+            const results = await workerHarness.runSlice({});
+            expect(results).toBeArray();
+
+            expect(onSliceRetryEvent).toHaveBeenCalledTimes(2);
+            expect(workerHarness.getOperation<NoopProcessor>('noop').handle).toHaveBeenCalledTimes(3);
+        });
+
+        it('should be able to call runSlice with fullResponse', async () => {
+            const result = await workerHarness.runSlice(newTestSlice(), {
+                fullResponse: true
+            });
+            expect(result.analytics).not.toBeNil();
+            expect(result.results).toBeArray();
+        });
+    });
+
+    describe('when using static method testProcessor', () => {
+        let harness;
+
+        beforeAll(async () => {
+            harness = WorkerTestHarness.testProcessor({ _op: 'noop' }, {});
+            await harness.initialize();
+        });
+
+        afterAll(async () => {
+            await harness.shutdown();
+        });
+
+        it('should return an instance of the test harness', () => {
+            expect(harness).toBeInstanceOf(WorkerTestHarness);
+        });
+
+        it('should be able run a slice', async () => {
+            const data = [{ some: 'data' }];
+            const results = await harness.runSlice(data);
+
+            expect(results).toEqual(data);
+        });
+    });
+
+    describe('when using static method testFetcher', () => {
+        let harness;
+
+        beforeAll(async () => {
+            harness = WorkerTestHarness.testFetcher({
+                _op: 'test-reader',
+                passthrough_slice: true
+            }, {});
+            await harness.initialize();
+        });
+
+        afterAll(async () => {
+            await harness.shutdown();
+        });
+
+        it('should return an instance of the test harness', () => {
+            expect(harness).toBeInstanceOf(WorkerTestHarness);
+        });
+
+        it('should be able to run a slice', async () => {
+            const data = [{ some: 'data' }];
+            const results = await harness.runSlice(data);
+
+            expect(results).toEqual(data);
+        });
+    });
+
+    describe('when testing flush', () => {
+        let harness;
+
+        beforeAll(async () => {
+            harness = WorkerTestHarness.testProcessor({ _op: 'simple-flush' }, {});
+            await harness.initialize();
+        });
+
+        afterAll(async () => {
+            await harness.shutdown();
+        });
+
+        it('should flush any remaining records', async () => {
+            const data = [{ some: 'data' }, { other: 'data' }];
+
+            const emptyResults = await harness.runSlice(data);
+            expect(emptyResults).toEqual([]);
+
+            const flushedResults = await harness.flush();
+            expect(flushedResults).toEqual(data);
+        });
+    });
+
+    describe('when testing flush with analytics', () => {
+        let harness;
+
+        beforeAll(async () => {
+            const job = newTestJobConfig({
+                max_retries: 0,
+                analytics: true,
+                operations: [
+                    {
+                        _op: 'test-reader',
+                        passthrough_slice: true,
+                    },
+                    { _op: 'simple-flush' },
+                ],
+            });
+
+            harness = new WorkerTestHarness(job, {});
+
+            await harness.initialize();
+        });
+
+        afterAll(async () => {
+            await harness.shutdown();
+        });
+
+        it('should able return the result with analytics', async () => {
+            const data = [{ some: 'data' }, { other: 'data' }];
+
+            const emptyResults = await harness.runSlice(data);
+            expect(emptyResults).toEqual([]);
+
+            const flushedResults = await harness.flush({ fullResponse: true });
+
+            expect(flushedResults).toHaveProperty('results', data);
+            expect(flushedResults).toHaveProperty('status', 'flushed');
+            expect(flushedResults).toHaveProperty('analytics');
+            expect(flushedResults!.analytics).toContainKeys(['time', 'memory', 'size']);
+        });
+    });
+});
+```
 
 ### JobTestHarness
 
 A test harness for both the Slicer and Fetcher, utilizing both the Slicer and Worker test harnesses.
 
-**This is useful for testing Readers.**
+**This is useful for testing [Readers](../../jobs/types-of-operations.md#readers).**
 
-## Builtin Operations
-
-There a several builtin operations that are useful for writing and configuring your tests.
-
-### Collect
-
-**Configuration:**
-
-- `size: number`: The target count records to collect before resolving.
-- `wait: number`: Maximum time to wait before resolving the currently queued records.
-
-**Description:** Collect data in batches. Useful for testing jobs.
-
-### Noop
-
-**Configuration:** N/A
-
-**Description:** Passes the data through. Useful for testing readers.
-
-### Delay
-
-**Configuration:**
-
-- `ms: number`: Milliseconds to delay before passing data through
-
-**Description:** Wait a specific amount of time, and passes the data through.
-
-### Test Reader
-
-**Configuration:**
-
-- `fetcher_data_file_path?: string`: File to path to JSON array of data records. (optional)
-- `slicer_data_file_path?: string`: File to path to JSON array of slice request. (optional)
-
-**Description:** Slice and fetch data specified in a file. Useful for testing Processors.
-
-## Usage
-
-See working [example asset spec](./test/example-asset-spec.ts), you can the asset bundle under test [here](./test/fixtures/asset).
-
-**Note:** This example uses Jest but that Jest is not required to run.
+**Usage:**
 
 ```js
-const path = require('path');
-const SimpleClient = require('./fixtures/asset/simple-connector/client');
 const {
     JobTestHarness,
     newTestJobConfig,
     newTestSlice,
-    SlicerTestHarness,
-    WorkerTestHarness,
 } = require('teraslice-test-harness';
 
-jest.mock('./fixtures/asset/simple-connector/client');
-
-describe('Example Asset', () => {
-    const assetDir = path.join(__dirname, 'fixtures');
-    const simpleClient = new SimpleClient();
-    const clientConfig = {
-        type: 'simple-client',
-        create: jest.fn(() => {
-            return { client: simpleClient };
-        }),
-    };
-
-    beforeEach(() => {
-        jest.restoreAllMocks();
-        clientConfig.create = jest.fn(() => {
-            return { client: simpleClient };
-        });
+describe('Example Asset (Job)', () => {
+    const job = newTestJobConfig({
+        analytics: true,
+        operations:
+            {
+                _op: 'simple-reader'
+            },
+            {
+                _op: 'transformer',
+                action: 'inc',
+                key: 'scale',
+                incBy: 5,
+            },
+            {
+                _op: 'transformer',
+                action: 'inc',
+                key: 'scale',
+                incBy: 1,
+            }
+        ]
     });
 
-    describe('using the WorkerTestHarness', () => {
-        describe('can use static helper testFetcher shorthand method', () => {
-            const options = { assetDir: path.join(__dirname, 'fixtures') };
-            let harness;
+    let harness;
 
-            beforeAll(async() => {
-                harness = WorkerTestHarness.testFetcher({ _op: 'test-reader', passthrough_slice: true }, options);
-                await harness.initialize();
-            });
+    beforeEach(async () => {
+        harness = new JobTestHarness(job);
 
-            afterAll(async() => {
-                await harness.shutdown();
-            });
-
-            it('can call testFetcher for easy instantiation', async() => {
-                const data = [{ some: 'data' }];
-                const results = await harness.runSlice(data);
-
-                expect(results).toEqual(data);
-            });
-        });
-
-        describe('can call lifecyle events', () => {
-            describe('shorthand flush with no analytics', () => {
-                const options = { assetDir: path.join(__dirname, 'fixtures') };
-                let harness;
-
-                beforeAll(async() => {
-                    harness = WorkerTestHarness.testProcessor({ _op: 'simple-flush' }, options);
-                    await harness.initialize();
-                });
-
-                afterAll(async() => {
-                    await harness.shutdown();
-                });
-
-                it('can call flush', async() => {
-                    const data = [{ some: 'data' }, { other: 'data' }];
-
-                    const emptyResults = await harness.runSlice(data);
-                    expect(emptyResults).toEqual([]);
-
-                    const flushedResults = await harness.flush();
-                    expect(flushedResults).toEqual(data);
-                });
-            });
-
-        describe('flush with analytics returned', () => {
-            const options = { assetDir: path.join(__dirname, 'fixtures') };
-            let harness;
-
-            beforeAll(async() => {
-                const job = newTestJobConfig({
-                    max_retries: 0,
-                    analytics: true,
-                    operations: [
-                        {
-                            _op: 'test-reader',
-                            passthrough_slice: true
-                        },
-                        { _op: 'simple-flush' }
-                    ],
-                });
-
-                harness = new WorkerTestHarness(job, options);
-
-                await harness.initialize();
-            });
-
-            afterAll(async() => {
-                await harness.shutdown();
-            });
-
-            it('can get full flush response', async() => {
-                const data = [{ some: 'data' }, { other: 'data' }];
-
-                const emptyResults = await harness.runSlice(data);
-                expect(emptyResults).toEqual([]);
-
-                const flushedResults = await harness.flush({ fullResponse: true }) as RunSliceResult;
-
-                expect(flushedResults).toBeDefined();
-                expect(flushedResults.results).toEqual(data);
-                expect(flushedResults.status).toEqual('flushed');
-                expect(flushedResults.analytics).toBeDefined();
-                expect(flushedResults.analytics!.time).toBeDefined();
-                expect(flushedResults.analytics!.memory).toBeDefined();
-                expect(flushedResults.analytics!.size).toBeDefined();
-            });
-        });
-
-        describe('using the long form', () => {
-            const job = newTestJobConfig({
-                analytics: true,
-                operations: [
-                    {
-                        _op: 'simple-reader'
-                    },
-                    {
-                        _op: 'transformer',
-                        action: 'set',
-                        key: 'foo',
-                        setValue: 'bar',
-                    }
-                ]
-            });
-
-            let harness;
-
-            beforeEach(async () => {
-                simpleClient.fetchRecord.mockImplementation((id) => {
-                    return {
-                        id,
-                        data: {
-                            a: 'b',
-                            c: 'd',
-                            e: 'f',
-                        }
-                    };
-                });
-
-                harness = new WorkerTestHarness(job, {
-                    clients: [clientConfig],
-                    assetDir,
-                });
-
-                await harness.initialize();
-            });
-
-            afterEach(async () => {
-                await harness.shutdown();
-            });
-
-            it('should call create client', () => {
-                expect(clientConfig.create).toHaveBeenCalledTimes(1);
-            });
-
-            it('should return a list of records', async () => {
-                const testSlice = newTestSlice();
-                testSlice.request = { count: 10 };
-                const results = await harness.runSlice(testSlice);
-
-                expect(Array.isArray(results)).toBe(true);
-                expect(results.length).toBe(10);
-
-                for (const result of results) {
-                    expect(DataEntity.isDataEntity(result)).toBe(true);
-                    expect(result).toHaveProperty('foo', 'bar');
-                    expect(result.data).toEqual({
-                        a: 'b',
-                        c: 'd',
-                        e: 'f',
-                    });
-                }
-            });
-        });
+        await harness.initialize();
     });
 
-    describe('using the SlicerTestHarness', () => {
-        const job = newTestJobConfig({
-            analytics: true,
-            operations: [
-                {
-                    _op: 'simple-reader'
-                },
-                {
-                    _op: 'noop'
-                }
-            ]
-        });
+    afterEach(async () => {
+        await harness.shutdown();
+    });
 
-        let harness: SlicerTestHarness;
+    it('should batches of results', async () => {
+        const batches = await harness.run();
 
-        beforeEach(async () => {
-            simpleClient.sliceRequest.mockImplementation((count) => {
-                return { count, super: 'man' };
-            });
+        expect(Array.isArray(batches)).toBe(true);
+        expect(batches.length).toBe(10);
 
-            harness = new SlicerTestHarness(job, {
-                clients: [clientConfig],
-                assetDir,
-            });
-
-            await harness.initialize();
-        });
-
-        afterEach(async () => {
-            await harness.shutdown();
-        });
-
-        it('should call create client', () => {
-            expect(clientConfig.create).toHaveBeenCalledTimes(1);
-        });
-
-        it('should return a list of records', async () => {
-            const results = await harness.createSlices();
+        for (const results of batches) {
             expect(Array.isArray(results)).toBe(true);
             expect(results.length).toBe(10);
 
             for (const result of results) {
-                expect(DataEntity.isDataEntity(result)).toBe(false);
-                expect(result.count).toEqual(10);
-                expect(result.super).toEqual('man');
+                expect(DataEntity.isDataEntity(result)).toBe(true);
+                expect(result.scale).toBe(6);
             }
-        });
+        }
     });
 
-    describe('using the JobTestHarness', () => {
-        const job = newTestJobConfig({
-            analytics: true,
-            operations: 
-                {
-                    _op: 'simple-reader'
-                },
-                {
-                    _op: 'transformer',
-                    action: 'inc',
-                    key: 'scale',
-                    incBy: 5,
-                },
-                {
-                    _op: 'transformer',
-                    action: 'inc',
-                    key: 'scale',
-                    incBy: 1,
-                }
-            ]
-        });
+    it('should be finished for the second batch of slices', async () => {
+        const batches = await harness.run();
 
-        let harness;
+        expect(Array.isArray(batches)).toBe(true);
+        expect(batches.length).toBe(10);
 
-        beforeEach(async () => {
-            harness = new JobTestHarness(job, {
-                clients: [clientConfig],
-                assetDir,
-            });
+        for (const results of batches) {
+            expect(Array.isArray(results)).toBe(true);
+            expect(results.length).toBe(10);
 
-            await harness.initialize();
-        });
-
-        afterEach(async () => {
-            await harness.shutdown();
-        });
-
-        it('should call create client', () => {
-            expect(clientConfig.create).toHaveBeenCalledTimes(2);
-        });
-
-        it('should batches of results', async () => {
-            const batches = await harness.run();
-
-            expect(Array.isArray(batches)).toBe(true);
-            expect(batches.length).toBe(10);
-
-            for (const results of batches) {
-                expect(Array.isArray(results)).toBe(true);
-                expect(results.length).toBe(10);
-
-                for (const result of results) {
-                    expect(DataEntity.isDataEntity(result)).toBe(true);
-                    expect(result.scale).toBe(6);
-                }
+            for (const result of results) {
+                expect(DataEntity.isDataEntity(result)).toBe(true);
+                expect(result.scale).toBe(6);
             }
-        });
-
-        it('should be finished for the second batch of slices', async () => {
-            const batches = await harness.run();
-
-            simpleClient.isFinished.mockReturnValue(true);
-
-            expect(Array.isArray(batches)).toBe(true);
-            expect(batches.length).toBe(10);
-
-            for (const results of batches) {
-                expect(Array.isArray(results)).toBe(true);
-                expect(results.length).toBe(10);
-
-                for (const result of results) {
-                    expect(DataEntity.isDataEntity(result)).toBe(true);
-                    expect(result.scale).toBe(6);
-                }
-            }
-        });
+        }
     });
 });
 ```
+
+### OpTestHarness
+
+A simple test harness for running an single operation with minimal customizations. Based of the older [teraslice-op-test-harness](../teraslice-op-test-harness/overview.md) package.
+
+**This is useful for testing Data in -> out on a Fetcher or Processor.**
+
+**Usage:**
+
+```js
+const { OpTestHarness } = require('teraslice-test-harness');
+const ExampleProcessor = require('../asset/example/processor');
+
+describe('Example Asset (Op)', () => {
+    let harness;
+    beforeEach(() => {
+        harness = new OpTestHarness(ExampleProcessor);
+        return harness.initialize();
+    });
+
+    afterEach(() => {
+        return harness.shutdown();
+    });
+
+    it('should be able to run a slice', () => {
+        const input = [{ foo: 'bar' }, { bar: 'baz' }];
+        return expect(harness.run(input)).resolves.toBeArrayOfSize(2);
+    });
+});
+```
+
+## Builtin Operations
+
+Checkout these [docs](../../jobs/builtin-operations.md) for a list of built-in operations.

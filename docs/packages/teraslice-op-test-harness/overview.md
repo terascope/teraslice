@@ -1,11 +1,10 @@
 ---
 title: Teraslice Op Test Harness
-sidebar_label: teraslice-op-test-harness
+sidebar_label: Overview
 ---
 
 > A testing harness to simplify testing Teraslice processors and operations.
 
-<br>
 **DEPRECRATED**: Use [teraslice-test-harness](../pacakges/teraslice-test-harness) instead.
 
 This project provides a processor execution function called `run()`, test data
@@ -17,7 +16,7 @@ the harness module as shown below.  The code examples below assume you are using
 the harness in a `test/` or `test/` subdirectory and your processor is
 implemented in `../index.js`, adjust paths accordingly.
 
-```javascript
+```js
 var processor = require('../index');
 var harness = require('@terascope/teraslice-op-test-harness')(processor);
 ```
@@ -29,7 +28,7 @@ Now, you can access functionality using the `harness` object.
 The manner to instanciate a new instance of your operation is by using init
 You make pass in optional clients under the `clients` key but they must follow the format listed in the setClients definition. This will work with both the new and old Job APIs.
 
-```javascript
+```js
 const { DataEntity } = require('@terascope/job-components');
 const processor = require('../asset/example-op');
 const reader = require('../asset/example-reader');
@@ -45,7 +44,9 @@ describe('setting up an operation', () => {
 
     beforeEach(() => {
         client = new MockClient();
-        readerOpTest.setClients([{ client, type: 'elasticsearch', endpoint: 'default' }])
+        readerOpTest.setClients([
+            { client, type: 'elasticsearch', endpoint: 'default' }
+        ]);
     });
 
     it('can make a processor instance', async () => {
@@ -126,11 +127,13 @@ describe('setting up an operation', () => {
     });
 })
 ```
+
 ## Processor Execution Function - `setClients()`
+
 This takes an array of client configurations that will be used internally.
 The obejct must have a client key and a type key set.
 
-```javascript
+```js
 const { DataEntity } = require('@terascope/job-components');
 const reader = require('../asset/example-reader');
 
@@ -195,10 +198,12 @@ describe('setting up an operation', () => {
     });
 })
 ```
+
 ## Processor Execution Function `processData()`
+
 This provides a short hand for processors to instantiate a new operation, run some data with it and return the results.
 
-```javascript
+```js
 const processor = require('../asset/example-op');
 
 describe('processor operation test', () => {
@@ -224,7 +229,7 @@ the output data from your processor so you can confirm that it behaved the way
 you expected.  Generally speaking, using `harness.run()` looks like the example
 below. The second argument passed to `run()`, `opConfig` is optional.
 
-```javascript
+```js
 var processor = require('../index');
 var harness = require('@terascope/teraslice-op-test-harness')(processor);
 
@@ -241,7 +246,7 @@ them in Teraslice directly.
 The example below shows a processor that, using the default operation settings,
 doesn't change the data in any way:
 
-```javascript
+```js
 var processor = require('../index');
 var harness = require('@terascope/teraslice-op-test-harness')(processor);
 
@@ -259,7 +264,7 @@ They will be merged into the default `opConfig` and validated automatically by
 the test harness.  The example below shows the modification of the `percentage`
 property on the operator:
 
-```javascript
+```js
 var processor = require('../index');
 var harness = require('@terascope/teraslice-op-test-harness')(processor);
 
@@ -291,7 +296,7 @@ you have two options:
 This will process all of the given slices, `emulateShutdown()`, then process a
 final empty slice to give the processor a chance to flush its state.
 
-```javascript
+```js
 var processor = require('../sum');
 var harness = require('@terascope/teraslice-op-test-harness')(processor);
 
@@ -312,7 +317,7 @@ describe('Add running total', function() {
 
 ### 2. Create a processor instance to call `process()` independently DEPRECIATED
 
-```javascript
+```js
 var processor = require('../index');
 var harness = require('@terascope/teraslice-op-test-harness')(processor);
 
@@ -339,7 +344,7 @@ describe('The data doubles when', function() {
 In some scenarios a processor will be asynchronous and needs to return a
 promise.
 
-```javascript
+```js
 var processor = require('../index');
 var harness = require('@terascope/teraslice-op-test-harness')(processor);
 
@@ -375,7 +380,7 @@ in `data` property.  The following data sources are currently available:
 These data sources can be used as the first argument to your processor in tests
 as shown below.
 
-```javascript
+```js
 var processor = require('../index');
 var harness = require('@terascope/teraslice-op-test-harness')(processor);
 
@@ -399,7 +404,7 @@ directory but it could be included at the top of another spec file.  Keeping it
 separate might help call out the fact that these specs are different from the
 tests you've implemented yourself because they come from somewhere else.
 
-```javascript
+```js
 'use strict';
 
 var processor = require('../index');

@@ -7,7 +7,8 @@ import { SliceRequest, OpConfig } from '../../interfaces';
  * A "Processor" cannot be the first operation in the job configuration.
  * This class will likely not be used externally
  * since Teraslice only supports a few types varients based on this class.
- * @see OperationCore
+ *
+ * See [[OperationCore]] for more information
  */
 
 export default abstract class ProcessorCore<T = OpConfig> extends OperationCore<T> {

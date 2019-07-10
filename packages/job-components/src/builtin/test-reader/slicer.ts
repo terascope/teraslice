@@ -1,16 +1,17 @@
 import fs from 'fs';
 import path from 'path';
 import { parseJSON } from '@terascope/utils';
+import { SlicerRecoveryData } from '../../interfaces';
 import { TestReaderConfig } from './interfaces';
+import defaultData from './data/slicer-data';
 import { Slicer } from '../../operations';
 import { dataClone } from './utils';
-import defaultData from './data/slicer-data';
 
 export default class TestSlicer extends Slicer<TestReaderConfig> {
     requests: object[] = [];
     position: number = 0;
 
-    async initialize(recoveryData: object[]) {
+    async initialize(recoveryData: SlicerRecoveryData[]) {
         await super.initialize(recoveryData);
         const filePath = this.opConfig.slicer_data_file_path;
 
@@ -38,7 +39,7 @@ export default class TestSlicer extends Slicer<TestReaderConfig> {
             return request;
         }
 
-        if ((this.position + 1) > this.requests.length) {
+        if (this.position + 1 > this.requests.length) {
             this.position = 0;
         }
 

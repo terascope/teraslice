@@ -1,6 +1,6 @@
 ---
 title: Terascope Utils
-sidebar_label: utils
+sidebar_label: Overview
 ---
 
 > A collection of Teraslice Utilities, including DataEntity.
@@ -13,3 +13,5 @@ yarn add @terascope/utils
 # Using npm
 npm install --save @terascope/utils
 ```
+
+Checkout the [API docs](./api/overview.md)

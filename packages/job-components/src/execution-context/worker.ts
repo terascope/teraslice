@@ -81,12 +81,12 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
             async (input: any) => {
                 this._onOperationStart(0);
                 if (this.status === 'flushing') {
-                    this._onOperationComplete(0, 0);
+                    this._onOperationComplete(0, []);
                     return [];
                 }
 
                 const results = await this.fetcher().handle(input);
-                this._onOperationComplete(0, results.length);
+                this._onOperationComplete(0, results);
                 return results;
             },
             async (input: any) => {
@@ -102,7 +102,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
             this._queue.push(async (input: any) => {
                 this._onOperationStart(index);
                 const results = await processor.handle(input);
-                this._onOperationComplete(index, results.length);
+                this._onOperationComplete(index, results);
                 return results;
             });
         }
@@ -308,8 +308,8 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         await this._runMethodAsync('onSliceRetry', this._sliceId);
     }
 
-    private _onOperationComplete(index: number, processed: number) {
-        this._runMethod('onOperationComplete', this._sliceId, index, processed);
+    private _onOperationComplete(index: number, records: ts.DataEntity[]) {
+        this._runMethod('onOperationComplete', this._sliceId, index, records.length, records);
     }
 
     private _onOperationStart(index: number) {

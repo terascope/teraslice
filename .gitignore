@@ -37,6 +37,10 @@ builds/*
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
 
+# developer tools
+.vscode/*
+!.vscode/extensions.json
+
 # teraslice assets
 assets/*
 !assets/README.md

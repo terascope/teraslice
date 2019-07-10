@@ -2,14 +2,34 @@
     "docs": {
         "Overview": [
             "overview",
-            "getting-started"
+            "getting-started",
+            "configuration"
         ],
-        "Configuration": [
-            "configuration/teraslice",
-            "configuration/ops"
+        "REST API": [
+            "rest-api/overview",
+            "rest-api/endpoints"
+        ],
+        "Jobs": [
+            "jobs/overview",
+            "jobs/configuration",
+            "jobs/types-of-operations",
+            "jobs/builtin-operations",
+            "jobs/slices",
+            "jobs/data-entities",
+            "jobs/dead-letter-queue",
+            "jobs/development",
+            "jobs/testing"
         ],
         "Clustering": [
-            "clustering/k8s"
+            "clustering/overview",
+            "clustering/k8s",
+            "clustering/native"
+        ],
+        "Nodes": [
+            "nodes/overview",
+            "nodes/cluster-master",
+            "nodes/execution-controller",
+            "nodes/worker"
         ],
         "Development": [
             "development/overview",
@@ -21,10 +41,17 @@
             "development/contributing"
         ]
     },
-    "api": {
+    "assets-bundles": {
         "Overview": [
-            "api",
-            "api/rest"
+            "asset-bundles",
+            "asset-bundles/development"
+        ],
+        "Available Bundles": [
+            "asset-bundles/elasticsearch-assets/overview",
+            "asset-bundles/standard-assets/overview",
+            "asset-bundles/kafka-assets/overview",
+            "asset-bundles/file-assets/overview",
+            "asset-bundles/hdfs-assets/overview"
         ]
     },
     "packages": {
@@ -32,44 +59,168 @@
             "packages"
         ],
         "Packages": [
-            "packages/elasticsearch-store/overview",
-            "packages/elasticsearch-api/overview",
-            "packages/job-components/overview",
-            "packages/queue/overview",
-            "packages/terafoundation/overview",
-            "packages/teraslice/overview",
-            "packages/teraslice-cli/overview",
-            "packages/teraslice-client-js/overview",
-            "packages/teraslice-test-harness/overview",
+            {
+                "type": "subcategory",
+                "label": "data-types",
+                "ids": [
+                    "packages/data-types/overview",
+                    "packages/data-types/api/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "elasticsearch-store",
+                "ids": [
+                    "packages/elasticsearch-store/overview",
+                    "packages/elasticsearch-store/api/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "elasticsearch-api",
+                "ids": [
+                    "packages/elasticsearch-api/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "job-components",
+                "ids": [
+                    "packages/job-components/overview",
+                    "packages/job-components/api/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "queue",
+                "ids": [
+                    "packages/queue/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "terafoundation",
+                "ids": [
+                    "packages/terafoundation/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "teraslice",
+                "ids": [
+                    "packages/teraslice/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "teraslice-cli",
+                "ids": [
+                    "packages/teraslice-cli/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "teraslice-client-js",
+                "ids": [
+                    "packages/teraslice-client-js/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "teraslice-test-harness",
+                "ids": [
+                    "packages/teraslice-test-harness/overview",
+                    "packages/teraslice-test-harness/api/overview"
+                ]
+            },
             {
                 "type": "subcategory",
                 "label": "ts-transforms",
                 "ids": [
-                    "packages/ts-transforms/overview",
                     "packages/ts-transforms/plugins",
-                    "packages/ts-transforms/operations"
+                    "packages/ts-transforms/overview",
+                    "packages/ts-transforms/operations",
+                    "packages/ts-transforms/api/overview"
                 ]
             },
-            "packages/utils/overview",
-            "packages/xlucene-evaluator/overview"
+            {
+                "type": "subcategory",
+                "label": "utils",
+                "ids": [
+                    "packages/utils/overview",
+                    "packages/utils/api/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "xlucene-evaluator",
+                "ids": [
+                    "packages/xlucene-evaluator/overview",
+                    "packages/xlucene-evaluator/api/overview"
+                ]
+            }
         ],
         "Legacy": [
-            "packages/error-parser/overview",
-            "packages/teraslice-op-test-harness/overview"
+            {
+                "type": "subcategory",
+                "label": "error-parser",
+                "ids": [
+                    "packages/error-parser/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "teraslice-op-test-harness",
+                "ids": [
+                    "packages/teraslice-op-test-harness/overview"
+                ]
+            }
         ],
         "Internal": [
-            "packages/chunked-file-reader/overview",
-            "packages/data-access/overview",
-            "packages/data-access-plugin/overview",
-            "packages/docker-compose-js/overview",
-            "packages/generator-teraslice/overview",
-            "packages/teraslice-messaging/overview"
-        ]
-    },
-    "examples": {
-        "Examples": [
-            "examples",
-            "examples/legacy-operations"
+            {
+                "type": "subcategory",
+                "label": "chunked-file-reader",
+                "ids": [
+                    "packages/chunked-file-reader/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "data-access",
+                "ids": [
+                    "packages/data-access/overview",
+                    "packages/data-access/api/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "data-access-plugin",
+                "ids": [
+                    "packages/data-access-plugin/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "docker-compose-js",
+                "ids": [
+                    "packages/docker-compose-js/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "generator-teraslice",
+                "ids": [
+                    "packages/generator-teraslice/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "teraslice-messaging",
+                "ids": [
+                    "packages/teraslice-messaging/overview",
+                    "packages/teraslice-messaging/api/overview"
+                ]
+            }
         ]
     }
 }

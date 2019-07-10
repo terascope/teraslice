@@ -2,25 +2,29 @@
     "name": "@terascope/queue",
     "version": "1.1.6",
     "description": "This is a typical FIFO queue implementation with a few extra helper methods",
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/queue#readme",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
+    },
+    "repository": "git@github.com:terascope/teraslice.git",
+    "license": "MIT",
+    "author": "Terascope, LLC <info@terascope.io>",
     "main": "index.js",
     "typings": "types/index.d.ts",
-    "publishConfig": {
-        "access": "public"
-    },
     "scripts": {
         "lint": "eslint *.js test/**/*.js",
         "lint:fix": "yarn lint --fix",
         "test": "jest --forceExit",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
-    },
-    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/queue#readme",
-    "repository": "git@github.com:terascope/teraslice.git",
-    "author": "Terascope, LLC <info@terascope.io>",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/terascope/teraslice/issues"
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
+        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {},
-    "devDependencies": {}
+    "devDependencies": {},
+    "publishConfig": {
+        "access": "public"
+    },
+    "displayName": "Queue",
+    "terascope": {
+        "enableTypedoc": false
+    }
 }

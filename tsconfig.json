@@ -33,6 +33,9 @@
             "path": "packages/utils"
         },
         {
+            "path": "packages/scripts"
+        },
+        {
             "path": "packages/job-components"
         },
         {

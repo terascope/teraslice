@@ -1,6 +1,6 @@
 ---
 title: Queue
-sidebar_label: queue
+sidebar_label: Overview
 ---
 
 > This is a typical FIFO queue implementation with a few extra helper methods

@@ -5,7 +5,7 @@ import { DataEncoding } from '@terascope/utils';
  * for a Operation.
  * The only required property is `_op` since that is used
  * to find the operation.
-*/
+ */
 export interface OpConfig {
     /** The name of the operation */
     _op: string;
@@ -28,8 +28,8 @@ export interface OpConfig {
 
 /**
  * available dead letter queue actions
-*/
-export type DeadLetterAction = 'throw'|'log'|'none'|string;
+ */
+export type DeadLetterAction = 'throw' | 'log' | 'none' | string;
 
 /** A supported DeadLetterAPIFn */
 export type DeadLetterAPIFn = (input: any, err: Error) => void;
@@ -37,7 +37,7 @@ export type DeadLetterAPIFn = (input: any, err: Error) => void;
 /**
  * APIConfig is the configuration for loading APIs and Observers
  * into a ExecutionContext.
-*/
+ */
 export interface APIConfig {
     /**
      * The name of the api, this must be unique among any loaded APIs
@@ -47,12 +47,12 @@ export interface APIConfig {
     [prop: string]: any;
 }
 
-export type LifeCycle = 'once'|'persistent';
+export type LifeCycle = 'once' | 'persistent';
 
 /**
  * JobConfig is the configuration that user specifies
  * for a Job
-*/
+ */
 export type JobConfig = Partial<ValidatedJobConfig>;
 
 export interface ValidatedJobConfig {
@@ -65,7 +65,6 @@ export interface ValidatedJobConfig {
     apis: APIConfig[];
     operations: OpConfig[];
     probation_window: number;
-    recycle_worker: number;
     slicers: number;
     workers: number;
     /** This will only be available in the context of k8s */
@@ -99,13 +98,13 @@ export interface ExecutionConfig extends ValidatedJobConfig {
 
 /**
  * LegacyExecutionContext is the old ExecutionContext available
-*/
+ */
 export interface LegacyExecutionContext {
     config: ExecutionConfig;
     slicer: Function;
-    queueLength: 10000|number;
+    queueLength: 10000 | number;
     dynamicQueueLength: boolean;
     queue: Function[];
-    reader: Function|null;
+    reader: Function | null;
     reporter: null;
 }

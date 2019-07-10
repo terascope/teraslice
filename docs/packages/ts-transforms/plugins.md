@@ -5,7 +5,8 @@ sidebar_label: Plugins
 
 > General Plugin Structure, generally the transform/validation operation would be in a seperate file
 
-PluginFile.ts
+`PluginFile.ts`
+
 ```ts
 
 import { DataEntity } from '@terascope/utils';
@@ -34,17 +35,16 @@ export default class Plugin {
 
 `NOTE`: it is important to know that the key of the object returned from init will be the name that must be used in the rules and the value is the actual class
 
+`pluginRules.txt`
 
-pluginRules.txt
 ```json
 { "selector": "size:2", "source_field": "size", "target_field": "height", "tag": "pluginTag" }
 { "follow": "pluginTag", "post_process": "double" }
 ```
 
-
 You insert an array of plugin classes at init
-```ts
 
+```ts
 import Plugins from 'PluginFile';
 import { Transform } from 'ts-transforms'
 
@@ -61,10 +61,10 @@ await transform.init([Plugins]);
 const results = transform.run(data);
 
 console.log(results) // [{ height: 4 }]
-
 ```
 
 #### Transform Operations
+
 It is important to inherit from the TransformOpBase class if at all possible as it does some normailization and validation. You can of course do things as you would like. You can also override the validateConfig method if you have another specific way to do so.
 
 The returning class must have a `run` method which is called by the framework and is given an object (DataEntity, which is just an object with a way to set and manipulate metadata transparently)
@@ -73,7 +73,8 @@ Errors must not interupt the pipeline
 
 The configuration `source_field` and `target_field` are set to `this.source` and `this.target` respectively
 
-Example
+**Example:**
+
 ```ts
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
@@ -100,13 +101,15 @@ export default class JsonParse extends TransformOpBase {
 ```
 
 #### Validation Operations
+
 It is important to inherit from the ValidationOpBase class if at all possible as it does some normailization, validation and other important framework behaviour especially in regards to how `output:false` works.
 
 The returning class must have a `run` method (which is done through the ValidationOpBase class). If you are using the base class then you need to specify a `validate` method which takes in the value of the source key and must return a boolen if it is valid. You may also specify a `normalize` method which will alter the data before it hits the `validate` method. This will also normalize the output record itself
 
 The configuration `source_field` and `target_field` are set to `this.source` and `this.target` respectively
 
-Example
+**Example:**
+
 ```ts
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
@@ -138,11 +141,11 @@ export default class MacAddress extends ValidationOpBase<any> {
         return true;
     }
 }
-
+```
 
 #### Operation Cardinality
-Each operation is designed for a specify task. These operations work either work on a single input, several inputs (like the join operator) and return a single output. To differentiate the operators and to determine at validation time if the operator can take in multiple outputs each class must have a static varialble labeling what it is meant to do. The options are either `one-to-one` or `many-to-one`. If by using the tag/follow rules a `one-to-one` has several inputs then it will be cloned as many times as there are inputs so that each operation will have a single input. A `many-to-one` will take multiple outputs and set it at `source_fields` (note that it is the plural form). If you inherit from the base clase then it will default to `one-to-one`.
 
+Each operation is designed for a specify task. These operations work either work on a single input, several inputs (like the join operator) and return a single output. To differentiate the operators and to determine at validation time if the operator can take in multiple outputs each class must have a static varialble labeling what it is meant to do. The options are either `one-to-one` or `many-to-one`. If by using the tag/follow rules a `one-to-one` has several inputs then it will be cloned as many times as there are inputs so that each operation will have a single input. A `many-to-one` will take multiple outputs and set it at `source_fields` (note that it is the plural form). If you inherit from the base clase then it will default to `one-to-one`.
 
 ```js
 // the none inherited version of a plugin
@@ -162,7 +165,6 @@ export default class Double {
 ```
 
 ``` js
-
 import _ from 'lodash';
 
 export default class MakeArray {
@@ -176,7 +178,6 @@ export default class MakeArray {
         this.target = config.target_field;
     }
 
-
     run(doc) {
         const results = [];
         this.fields.forEach(field => {
@@ -187,6 +188,4 @@ export default class MakeArray {
         return doc;
     }
 }
-
-
 ```

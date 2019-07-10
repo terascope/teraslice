@@ -1,6 +1,6 @@
 ---
 title: Data Access
-sidebar_label: data-access
+sidebar_label: Overview
 ---
 
 > A tool designed to limit access to reading and querying data

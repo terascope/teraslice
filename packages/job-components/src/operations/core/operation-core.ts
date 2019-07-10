@@ -15,7 +15,8 @@ import {
  * that supports the job execution lifecycle events.
  * This class will likely not be used externally
  * since Teraslice only supports a few types varients based on this class.
- * @see Core
+ *
+ * See [[Core]] more information
  */
 
 export default class OperationCore<T = OpConfig> extends Core<WorkerContext> implements WorkerOperationLifeCycle {
@@ -90,7 +91,7 @@ export default class OperationCore<T = OpConfig> extends Core<WorkerContext> imp
      *
      * @param data the data to transform
      * @param fn a function to transform the data with
-     * @returns the transformed record
+     * @returns null
      */
     rejectRecord(input: any, err: Error): never | null {
         if (!this.deadLetterAction) return null;

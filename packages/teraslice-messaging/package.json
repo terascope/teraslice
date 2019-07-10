@@ -1,43 +1,39 @@
 {
     "name": "@terascope/teraslice-messaging",
-    "version": "0.3.2",
-    "publishConfig": {
-        "access": "public"
-    },
+    "version": "0.3.3",
     "description": "An internal teraslice messaging library using socket.io",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-messaging#readme",
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
     },
-    "author": "Terascope, LLC <info@terascope.io>",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/terascope/teraslice.git"
     },
     "license": "MIT",
+    "author": "Terascope, LLC <info@terascope.io>",
+    "files": [
+        "dist/src/**/*"
+    ],
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
     "directories": {
         "lib": "dist/src",
         "test": "test"
     },
-    "files": [
-        "dist/src/**/*"
-    ],
-    "srcMain": "src/index.ts",
-    "main": "dist/src/index.js",
-    "typings": "dist/src/index.d.ts",
     "scripts": {
+        "build": "tsc --build --pretty",
+        "build:watch": "yarn build --watch",
         "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
-        "build": "tsc --build --pretty",
-        "build:watch": "yarn build --watch",
         "test": "jest --forceExit",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
+        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {
         "@terascope/queue": "^1.1.6",
-        "@terascope/utils": "^0.12.0",
+        "@terascope/utils": "^0.12.2",
         "nanoid": "^2.0.3",
         "p-event": "^4.1.0",
         "porty": "^3.1.1",
@@ -47,5 +43,13 @@
     "devDependencies": {},
     "engines": {
         "node": ">=8.0.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "displayName": "Teraslice Messaging",
+    "srcMain": "src/index.ts",
+    "terascope": {
+        "enableTypedoc": true
     }
 }

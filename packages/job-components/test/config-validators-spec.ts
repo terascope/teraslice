@@ -1,12 +1,6 @@
 import 'jest-extended'; // require for type definitions
 import { Schema } from 'convict';
-import {
-    jobSchema,
-    validateJobConfig,
-    validateOpConfig,
-    TestContext,
-    validateAPIConfig,
-} from '../src';
+import { jobSchema, validateJobConfig, validateOpConfig, TestContext, validateAPIConfig } from '../src';
 
 describe('when using native clustering', () => {
     describe('when passed a valid jobSchema and jobConfig', () => {
@@ -33,7 +27,6 @@ describe('when using native clustering', () => {
                 apis: [],
                 operations: [{ _op: 'noop' }, { _op: 'noop' }],
                 probation_window: 300000,
-                recycle_worker: null,
                 slicers: 1,
             };
 
@@ -60,7 +53,7 @@ describe('when using native clustering', () => {
             const job = {
                 operations: [
                     {
-                        _op: 'test-reader'
+                        _op: 'test-reader',
                     },
                     123,
                 ],
@@ -145,15 +138,13 @@ describe('when using native clustering', () => {
 
             const schema = jobSchema(context);
             const job = {
-                apis: [
-                    123
-                ],
+                apis: [123],
                 operations: [
                     {
-                        _op: 'test-reader'
+                        _op: 'test-reader',
                     },
                     {
-                        _op: 'noop'
+                        _op: 'noop',
                     },
                 ],
             };
@@ -179,9 +170,7 @@ describe('when using native clustering', () => {
 
             const schema = jobSchema(context);
             const job = {
-                apis: [
-                    {}
-                ],
+                apis: [{}],
                 operations: [
                     {
                         _op: 'test-reader',
@@ -214,11 +203,11 @@ describe('when using native clustering', () => {
             const job = {
                 apis: [
                     {
-                        _name: 'hello'
+                        _name: 'hello',
                     },
                     {
-                        _name: 'hello'
-                    }
+                        _name: 'hello',
+                    },
                 ],
                 operations: [
                     {
@@ -253,8 +242,8 @@ describe('when using native clustering', () => {
                 apis: [
                     {
                         _name: 'test-api',
-                        connection: 'unknown'
-                    }
+                        connection: 'unknown',
+                    },
                 ],
                 operations: [
                     {
@@ -472,7 +461,6 @@ describe('when validating k8s clustering', () => {
 
     describe('when passed a jobConfig with resources', () => {
         it('should return a completed and valid jobConfig', () => {
-
             const schema = jobSchema(context);
             const job = {
                 cpu: 1,
@@ -500,8 +488,8 @@ describe('when validating k8s clustering', () => {
                 targets: [
                     {
                         key: 'zone',
-                        value: 'west'
-                    }
+                        value: 'west',
+                    },
                 ],
                 operations: [
                     {
@@ -522,13 +510,12 @@ describe('when validating k8s clustering', () => {
                 apis: [],
                 operations: [{ _op: 'noop' }, { _op: 'noop' }],
                 probation_window: 300000,
-                recycle_worker: null,
                 slicers: 1,
                 targets: [
                     {
                         key: 'zone',
-                        value: 'west'
-                    }
+                        value: 'west',
+                    },
                 ],
                 volumes: [],
             };
@@ -546,8 +533,8 @@ describe('when validating k8s clustering', () => {
                 volumes: [
                     {
                         name: 'pvc-name',
-                        path: '/srv'
-                    }
+                        path: '/srv',
+                    },
                 ],
                 operations: [
                     {
@@ -567,13 +554,12 @@ describe('when validating k8s clustering', () => {
                 apis: [],
                 operations: [{ _op: 'noop' }, { _op: 'noop' }],
                 probation_window: 300000,
-                recycle_worker: null,
                 targets: [],
                 volumes: [
                     {
                         name: 'pvc-name',
-                        path: '/srv'
-                    }
+                        path: '/srv',
+                    },
                 ],
                 slicers: 1,
             };
