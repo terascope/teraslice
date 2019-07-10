@@ -1,6 +1,5 @@
 ---
-title: REST API
-sidebar_label: REST
+title: Endpoints
 ---
 
 Default endpoint in development is `localhost:5678`.

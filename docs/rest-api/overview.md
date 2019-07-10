@@ -1,13 +1,12 @@
 ---
-title: API Overview
-sidebar_label: Overview
+title: Overview
 ---
 
 The master publishes a REST style API on port 5678.
 
-To submit a job you just post to the /jobs endpoint.
+To submit a job you just post to the `/jobs` endpoint.
 
-Assuming your job is in a file called 'job.json' it's as simple as
+Assuming your job is in a file called `job.json'` it's as simple as
 
 ```sh
 curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs" -d@job.json

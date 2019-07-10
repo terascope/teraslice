@@ -5,9 +5,9 @@
             "getting-started",
             "configuration"
         ],
-        "API": [
-            "api/overview",
-            "api/rest"
+        "REST API": [
+            "rest-api/overview",
+            "rest-api/endpoints"
         ],
         "Jobs": [
             "jobs/overview",
