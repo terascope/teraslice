@@ -14,9 +14,8 @@
             "jobs/configuration",
             "jobs/types-of-operations",
             "jobs/builtin-operations",
+            "jobs/slices",
             "jobs/data-entities",
-            "jobs/slicer-lifecycle",
-            "jobs/worker-lifecycle",
             "jobs/dead-letter-queue",
             "jobs/development",
             "jobs/testing"
