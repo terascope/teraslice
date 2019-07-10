@@ -7,7 +7,7 @@ export function copyField<T extends any, P extends keyof T, V extends T[P]>(to: 
 }
 
 function testFieldName(field: string) {
-    return /^[^.][a-zA-Z0-9-_.]+[^.]$/.test(field);
+    return /^[^.]*[a-zA-Z0-9-_.]*[^.]*$/.test(field);
 }
 export function validateFieldName(field: any): boolean {
     if (!field) return false;
