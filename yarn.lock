@@ -14095,9 +14095,9 @@ raf@3.4.1:
     performance-now "^2.1.0"
 
 rambda@^2.11.1:
-  version "2.11.1"
-  resolved "https://registry.yarnpkg.com/rambda/-/rambda-2.11.1.tgz#9e2c5afd6d4d0c9ee2d5eb5b31e96ef4f337b947"
-  integrity sha512-zo4X/mOHz8Sg2f+8sm9BLiwpK2DeNVKwPD+X+VgkAwag+REXVhP2STAuWKbQqejJVynBhkPaODDsnOvmWXTXdA==
+  version "2.11.2"
+  resolved "https://registry.yarnpkg.com/rambda/-/rambda-2.11.2.tgz#10f49a117c3509b91ab9cce8defa0d76dcc0fd2e"
+  integrity sha512-AbsCpfilce0dcf/HxDdda4AWXe0mPr3L8kIJ3TGimNMDABVYkZXCWYZ7grNNR30FZIIRjv5MIlHwc2dVj9RMqg==
 
 randomatic@^3.0.0:
   version "3.1.1"
