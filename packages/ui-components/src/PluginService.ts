@@ -29,17 +29,16 @@ class PluginService {
         }
 
         this._registry[id] = fn;
-        // tslint:disable-next-line: no-console
-        console.info(`Registered plugin "${id}"`);
 
         if (this._loaded) {
-            // tslint:disable-next-line: no-console
-            console.info('Plugin registed after already refreshing, reloading in 1 second...');
+            console.warn(`Plugin "${id}" registed after already refreshing, reloading in 2 seconds...`);
 
             clearTimeout(this._reloadTimer);
             this._reloadTimer = setTimeout(() => {
                 location.reload();
-            }, 1000);
+            }, 2000);
+        } else {
+            console.debug(`Registered plugin "${id}"`);
         }
     }
 
