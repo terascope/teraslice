@@ -5,7 +5,6 @@ import { FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
 import JobObserver from '../operations/job-observer';
 import BaseExecutionContext from './base';
 import { getMetric } from './utils';
-import { DataEntity } from '@terascope/utils';
 
 /**
  * WorkerExecutionContext is designed to add more
@@ -309,7 +308,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
         await this._runMethodAsync('onSliceRetry', this._sliceId);
     }
 
-    private _onOperationComplete(index: number, records: DataEntity[]) {
+    private _onOperationComplete(index: number, records: ts.DataEntity[]) {
         this._runMethod('onOperationComplete', this._sliceId, index, records.length, records);
     }
 
