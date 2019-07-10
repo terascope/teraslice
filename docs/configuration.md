@@ -47,7 +47,6 @@ teraslice:
 
 The configuration file essentially has two main fields, configuration for teraslice and for terafoundation which is a module that sits below it. terafoundation handles clustering/worker creation, general errors and database connection instantiation
 
-
 ## teraslice
 
 |                      Field                      |                Type                |          Default           |                                                                 Description                                                                  |
@@ -107,8 +106,7 @@ The configuration file essentially has two main fields, configuration for terasl
 |           **logging**            |              `Array`               |   `"console"`   |                   Logging destinations. Expects an array of logging targets. options: console, file, elasticsearch                    |
 |           **workers**            |              `Number`              |       `4`       |                                                     Number of workers per server                                                      |
 
-
-##### Connectors
+### Connectors
 
 The connectors is an object whose keys correspond to supported databases. Those keys should be set to an object which holds
 endpoints, allowing you to specify multiple connections and connection configurations for each database.
@@ -147,7 +145,7 @@ terafoundation:
 
 In this example we specify four different connections: elasticsearch, statsd, mongod, and redis. We follow an idiom of naming the primary endpoint for each of them to be called `default`. Within each endpoint you may create custom configurations that will be validated against the defaults specified in node_modules/terafoundation/lib/connectors. As noted above, in elasticsearch there is the `default` endpoint and the `secondary` endpoint which connects to a different elasticsearch cluster each having different configurations. These different endpoints can be retrieved through terafoundations's api.
 
-# Configuration Single Node / Cluster Master
+## Configuration Single Node / Cluster Master
 
 Teraslice requires a configuration file in order to run. The configuration file defines your service connections and system level configurations.
 
@@ -156,7 +154,6 @@ This configuration example defines a single connection to Elasticsearch on local
 The cluster configuration defines this node as a master node. The node will still have workers
 available and this configuration is sufficient to do useful work if you don't have multiple
 nodes available. The workers will connect to the master on localhost and do work just as if they were in a real cluster.
-
 
 ```yaml
 teraslice:
@@ -176,7 +173,7 @@ terafoundation:
                     - "localhost:9200"
 ```
 
-# Configuration Cluster Worker Node
+## Configuration Cluster Worker Node
 
 Configuration for a worker node is very similar. You just set 'master' to false and provide the IP address where the master node can be located.
 
