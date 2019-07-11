@@ -5,7 +5,7 @@ import ManagerPlugin from '../src/manager';
 import SearchPlugin from '../src/search';
 import { PluginConfig } from '../src/interfaces';
 import index from '../src';
-import SpacesPlugin from '../src/spaces';
+import QueryPointPlugin from '../src/query-point';
 
 describe('TeraserverAdapterPlugin', () => {
     const client = makeClient();
@@ -70,7 +70,7 @@ describe('TeraserverAdapterPlugin', () => {
         expect(index._initialized).toBeFalse();
 
         expect(index._manager).toBeInstanceOf(ManagerPlugin);
-        expect(index._spaces).toBeInstanceOf(SpacesPlugin);
+        expect(index._queryPoint).toBeInstanceOf(QueryPointPlugin);
         expect(index._search).toBeInstanceOf(SearchPlugin);
 
         // @ts-ignore
@@ -81,7 +81,7 @@ describe('TeraserverAdapterPlugin', () => {
         };
 
         // @ts-ignore
-        index._spaces = {
+        index._queryPoint = {
             async initialize() {},
             async shutdown() {},
             registerRoutes() {},

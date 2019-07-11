@@ -8,7 +8,7 @@ import { makeClient, cleanupIndexes, deleteIndices, populateIndex } from './help
 import { PluginConfig } from '../src/interfaces';
 import ManagerPlugin from '../src/manager';
 import SearchPlugin from '../src/search';
-import SpacesPlugin from '../src/spaces';
+import QueryPointPlugin from '../src/query-point';
 import { LATEST_VERSION } from '@terascope/data-types';
 
 describe('Spaces API', () => {
@@ -17,7 +17,7 @@ describe('Spaces API', () => {
     const app = express();
     let listener: Server;
 
-    const context = new TestContext('space-plugin-spec', {
+    const context = new TestContext('query-point-plugin-spec', {
         clients: [
             {
                 type: 'elasticsearch',
@@ -48,7 +48,7 @@ describe('Spaces API', () => {
     };
 
     const manager = new ManagerPlugin(pluginConfig);
-    const spaces = new SpacesPlugin(pluginConfig);
+    const spaces = new QueryPointPlugin(pluginConfig);
     const search = new SearchPlugin(pluginConfig);
 
     function formatBaseUri(uri: string = ''): string {
@@ -275,7 +275,7 @@ describe('Spaces API', () => {
         spaces.registerRoutes();
         search.registerRoutes();
 
-        spaceUrl = formatBaseUri('/spaces');
+        spaceUrl = formatBaseUri('/qp');
 
         await deleteIndices(client, [space1, space2, space3]);
 

@@ -1,19 +1,19 @@
 import ManagerPlugin from './manager';
 import SearchPlugin from './search';
-import SpacesPlugin from './spaces';
+import QueryPointPlugin from './query-point';
 import { PluginConfig } from './interfaces';
 
 const adapter: TeraserverPluginAdapter = {
     _initialized: false,
     _manager: undefined,
     _search: undefined,
-    _spaces: undefined,
+    _queryPoint: undefined,
     _config: undefined,
 
     config_schema() {
         return {
             connection: {
-                doc: 'Elasticsearch cluster where users, roles, spaces and views are stored',
+                doc: 'Elasticsearch cluster where users, roles, query-point and views are stored',
                 default: 'default',
                 format(val: any) {
                     if (typeof val !== 'string') {
@@ -31,16 +31,16 @@ const adapter: TeraserverPluginAdapter = {
     config(config: PluginConfig) {
         this._manager = new ManagerPlugin(config);
         this._search = new SearchPlugin(config);
-        this._spaces = new SpacesPlugin(config);
+        this._queryPoint = new QueryPointPlugin(config);
         this._config = config;
     },
 
     async init() {
-        if (this._manager == null || this._search == null || this._spaces == null) {
+        if (this._manager == null || this._search == null || this._queryPoint == null) {
             throw new Error('Plugin has not been configured');
         }
 
-        await Promise.all([this._manager.initialize(), this._search.initialize(), this._spaces.initialize()]);
+        await Promise.all([this._manager.initialize(), this._search.initialize(), this._queryPoint.initialize()]);
         this._initialized = true;
     },
 
@@ -57,7 +57,7 @@ const adapter: TeraserverPluginAdapter = {
     },
 
     routes(deferred) {
-        if (this._manager == null || this._search == null || this._spaces == null || this._config == null) {
+        if (this._manager == null || this._search == null || this._queryPoint == null || this._config == null) {
             throw new Error('Plugin has not been configured');
         }
 
@@ -67,7 +67,7 @@ const adapter: TeraserverPluginAdapter = {
 
         // ORDER MATTERS
         this._manager.registerRoutes();
-        this._spaces.registerRoutes();
+        this._queryPoint.registerRoutes();
         this._search.registerMiddleware();
     },
 };
@@ -78,7 +78,7 @@ interface TeraserverPluginAdapter {
     _config?: PluginConfig;
     _manager?: ManagerPlugin;
     _search?: SearchPlugin;
-    _spaces?: SpacesPlugin;
+    _queryPoint?: QueryPointPlugin;
     _initialized: boolean;
 
     config_schema(): any;
