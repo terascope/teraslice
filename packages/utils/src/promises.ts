@@ -110,10 +110,12 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetry
             context,
         });
 
-        if (context.lastErr) {
-            err.stack += `, caused by ${context.lastErr.stack}`;
+        if (_err && _err.stack) {
+            err.stack += `\n${_err.stack
+                .split('\n')
+                .slice(1)
+                .join('\n')}`;
         }
-        config._context.lastErr = err;
 
         if (!isFatalError(err) && err.retryable == null) {
             err.retryable = matches;
@@ -163,7 +165,6 @@ export function getBackoffDelay(current: number, factor: number = 2, max = 60000
 }
 
 type PRetryContext = {
-    lastErr?: Error;
     attempts: number;
     startTime: number;
 };

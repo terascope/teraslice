@@ -15,13 +15,20 @@ class Service {
         this.context = context;
 
         this.logger = this.context.logger;
-        this.shutdownTimeout = _.get(this.context, 'sysconfig.teraslice.shutdown_timeout', 60 * 1000);
+        this.shutdownTimeout = _.get(
+            this.context,
+            'sysconfig.teraslice.shutdown_timeout',
+            60 * 1000
+        );
     }
 
     async initialize() {
         const { assignment } = this.context;
         const { ex_id: exId } = this.executionConfig;
-        this.logger.trace(`Initializing ${assignment} for execution ${exId}...`, this.executionConfig);
+        this.logger.trace(
+            `Initializing ${assignment} for execution ${exId}...`,
+            this.executionConfig
+        );
 
         const executionContext = await makeExecutionContext(this.context, this.executionConfig);
 
@@ -42,7 +49,7 @@ class Service {
 
     shutdown(err) {
         if (err) {
-            this.logger.error('Teraslice Worker shutting down due to failure!', err);
+            this.logger.error(err, 'Teraslice Worker shutting down due to failure!');
         }
         this.shutdownHandler.exit('error', err);
     }

@@ -126,6 +126,21 @@ type ErrorInfo = {
 const DEFAULT_STATUS_CODE = 500;
 const DEFAULT_ERR_MSG = STATUS_CODES[DEFAULT_STATUS_CODE] as string;
 
+/**
+ * Use following the chain of caused by stack of an error.
+ * Don't use this when logging the error, only when sending it
+ * */
+export function getFullErrorStack(err: any): string {
+    return `${parseError(err, true)}${getCauseStack(err)}`;
+}
+
+function getCauseStack(err: any) {
+    if (!err || !utils.isFunction(err.cause)) return '';
+    const cause = err.cause();
+    if (!cause) return '';
+    return `\nCaused by: ${getFullErrorStack(cause)}`;
+}
+
 /** parse error for info */
 export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInfo {
     const { defaultErrorMsg, defaultStatusCode = DEFAULT_STATUS_CODE } = config;

@@ -36,7 +36,7 @@ function shutdownHandler(context, shutdownFn) {
     const restartOnFailure = assignment !== 'exectution_controller';
     const api = {
         exiting: false,
-        exit,
+        exit
     };
 
     const shutdownTimeout = get(context, 'sysconfig.teraslice.shutdown_timeout', 20 * 1000);
@@ -92,7 +92,7 @@ function shutdownHandler(context, shutdownFn) {
             await shutdownWithTimeout(event, err);
             logger.info(`${assignment} shutdown took ${Date.now() - startTime}ms`);
         } catch (error) {
-            logger.error(`${assignment} while shutting down`, error);
+            logger.error(error, `${assignment} while shutting down`);
         } finally {
             await flushLogs();
             process.exit();
@@ -169,5 +169,5 @@ function shutdownHandler(context, shutdownFn) {
 
 module.exports = {
     shutdownHandler,
-    waitForWorkerShutdown,
+    waitForWorkerShutdown
 };
