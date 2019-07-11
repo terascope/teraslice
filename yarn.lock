@@ -895,12 +895,12 @@
     minimist "^1.2.0"
 
 "@craco/craco@^5.2.3":
-  version "5.2.3"
-  resolved "https://registry.yarnpkg.com/@craco/craco/-/craco-5.2.3.tgz#5d7d0ffb34953bb30b1265c14fef66b377efaf02"
-  integrity sha512-fV4BGsARe6W723rDsmrQfezZVT52wI+GJGmK7Ec8DhqzWgMVaULVwqdDm8CIdhKBUzltEs/YcZmig6jh8lvdLQ==
+  version "5.2.4"
+  resolved "https://registry.yarnpkg.com/@craco/craco/-/craco-5.2.4.tgz#689201b4f1d4af0833e94edb12e7392f21ebe929"
+  integrity sha512-PStzEKDtmeueIhLti0X8VF3LymWi66X0N5g7XL4WV0X/D9eroKY7ar80950IzJWVKSU5mR/4JNDS5EKKw4SLPQ==
   dependencies:
     cross-spawn "^6.0.5"
-    lodash.mergewith "^4.6.1"
+    lodash.mergewith "^4.6.2"
     webpack-merge "^4.2.1"
 
 "@csstools/convert-colors@^1.4.0":
@@ -10768,7 +10768,7 @@ lodash.memoize@^4.1.2:
   resolved "https://registry.yarnpkg.com/lodash.memoize/-/lodash.memoize-4.1.2.tgz#bcc6c49a42a2840ed997f323eada5ecd182e0bfe"
   integrity sha1-vMbEmkKihA7Zl/Mj6tpezRguC/4=
 
-lodash.mergewith@^4.6.1:
+lodash.mergewith@^4.6.2:
   version "4.6.2"
   resolved "https://registry.yarnpkg.com/lodash.mergewith/-/lodash.mergewith-4.6.2.tgz#617121f89ac55f59047c7aec1ccd6654c6590f55"
   integrity sha512-GK3g5RPZWTRSeLSpgP8Xhra+pnjBC56q9FZYe1d5RN3TJ35dbkGy3YqBSMbyCrlbi+CM9Z3Jk5yTL7RCsqboyQ==
