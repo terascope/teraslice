@@ -38,8 +38,8 @@ module.exports = {
         return {
             plugins: {
                 doc: 'List of plugins that will be loaded into the UI',
-                default: ['data-access-ui'],
-            },
+                default: ['data-access-ui']
+            }
         };
     },
 
@@ -63,6 +63,7 @@ module.exports = {
             router.use(
                 express.static(buildPath, {
                     index: false,
+                    maxAge: '31536000s'
                 })
             );
             router.get('*', index);
@@ -70,7 +71,7 @@ module.exports = {
         } else {
             throw new Error(`Failure to add UI at ${uri}, please build ui-core first`);
         }
-    },
+    }
 };
 
 function index(req, res) {
@@ -250,7 +251,7 @@ function getPluginAssets() {
                         fileName,
                         publicPath,
                         targetFileName,
-                        assetPath,
+                        assetPath
                     };
                 })
             );
@@ -337,7 +338,7 @@ function getPluginPath(name) {
     if (resolvedPath) {
         resolvedPath = path.dirname(
             pkgUp.sync({
-                cwd: resolvedPath,
+                cwd: resolvedPath
             })
         );
     }
