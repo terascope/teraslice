@@ -22,7 +22,7 @@
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {
-        "@terascope/utils": "^0.12.2",
+        "@terascope/utils": "^0.12.3",
         "bluebird": "^3.5.5",
         "csvtojson": "^2.0.8",
         "lodash": "^4.17.11"
