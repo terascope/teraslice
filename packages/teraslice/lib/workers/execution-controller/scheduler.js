@@ -171,7 +171,7 @@ class Scheduler {
             try {
                 await this.recover.shutdown();
             } catch (err) {
-                this.logger.error('failed to shutdown recovery', err);
+                this.logger.error(err, 'failed to shutdown recovery');
             }
         }
 
@@ -312,14 +312,14 @@ class Scheduler {
                 })
                 .catch((err) => {
                     _handling = false;
-                    this.logger.error('failure to run slicers', err);
+                    this.logger.error(err, 'failure to run slicers');
                 });
         }, 3);
 
         createInterval = setInterval(() => {
             if (!this.pendingSlicerCount) return;
 
-            this._drainPendingSlices().catch(err => this.logger.error('failure creating slices', err));
+            this._drainPendingSlices().catch(err => this.logger.error(err, 'failure creating slices'));
         }, 5);
 
         this._processCleanup = cleanup;

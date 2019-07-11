@@ -4,11 +4,7 @@ import { waterfall, pRetry, TSError, PRetryConfig, getBackoffDelay } from '../sr
 describe('Utils', () => {
     describe('waterfall', () => {
         it('should call all methods and return the correct value', async () => {
-            const queue = [
-                jest.fn().mockResolvedValue('hello'),
-                jest.fn().mockResolvedValue('hi'),
-                jest.fn().mockResolvedValue('howdy'),
-            ];
+            const queue = [jest.fn().mockResolvedValue('hello'), jest.fn().mockResolvedValue('hi'), jest.fn().mockResolvedValue('howdy')];
 
             const result = await waterfall('greetings', queue);
             expect(result).toEqual('howdy');
@@ -102,7 +98,7 @@ describe('Utils', () => {
 
         it('should end early with a StopError', async () => {
             const error = new TSError('Stop Error', {
-                retryable: false
+                retryable: false,
             });
 
             const fn = jest.fn();
@@ -126,7 +122,7 @@ describe('Utils', () => {
             const input = min;
             const result = getBackoffDelay(input, factor, max, min);
 
-            expect(result).toBeWithin((input - jitter), (input * factor) + jitter);
+            expect(result).toBeWithin(input - jitter, input * factor + jitter);
             expect(result).toBeGreaterThanOrEqual(min);
             expect(result).toBeLessThanOrEqual(max);
         });
@@ -145,7 +141,7 @@ describe('Utils', () => {
             const input = 150;
             const result = getBackoffDelay(input, factor, max, min);
 
-            expect(result).toBeWithin((input - jitter), (input * factor) + jitter);
+            expect(result).toBeWithin(input - jitter, input * factor + jitter);
             expect(result).toBeGreaterThanOrEqual(min);
             expect(result).toBeLessThanOrEqual(max);
         });
