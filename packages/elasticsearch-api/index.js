@@ -267,7 +267,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                             },
                         });
 
-                        return Promise.reject(error);
+                        reject(error);
                     });
             }
 

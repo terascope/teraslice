@@ -34,7 +34,7 @@
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {
-        "@terascope/elasticsearch-api": "^2.0.4",
+        "@terascope/elasticsearch-api": "^2.0.5",
         "@terascope/error-parser": "^1.0.2",
         "@terascope/job-components": "^0.20.4",
         "@terascope/queue": "^1.1.6",
