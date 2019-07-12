@@ -31,14 +31,15 @@ sidebar_label: CachedStateStorage
 * [mset](cachedstatestorage.md#mset)
 * [set](cachedstatestorage.md#set)
 * [shutdown](cachedstatestorage.md#shutdown)
+* [values](cachedstatestorage.md#values)
 
 ## Constructors
 
 ###  constructor
 
-\+ **new CachedStateStorage**(`config`: *[CacheConfig](../interfaces/cacheconfig.md)*): *[CachedStateStorage](cachedstatestorage.md)*
+\+ **new CachedStateStorage**(`config`: [CacheConfig](../interfaces/cacheconfig.md)): *[CachedStateStorage](cachedstatestorage.md)*
 
-*Defined in [cached-state-storage/index.ts:8](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L8)*
+*Defined in [cached-state-storage/index.ts:8](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L8)*
 
 **Parameters:**
 
@@ -54,7 +55,7 @@ Name | Type |
 
 • **IDField**: *string*
 
-*Defined in [cached-state-storage/index.ts:7](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L7)*
+*Defined in [cached-state-storage/index.ts:7](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L7)*
 
 ## Methods
 
@@ -62,7 +63,7 @@ Name | Type |
 
 ▸ **count**(): *number*
 
-*Defined in [cached-state-storage/index.ts:58](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L58)*
+*Defined in [cached-state-storage/index.ts:58](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L58)*
 
 **Returns:** *number*
 
@@ -70,9 +71,9 @@ ___
 
 ###  delete
 
-▸ **delete**(`doc`: *`DataEntity`*): *void*
+▸ **delete**(`doc`: `DataEntity`): *void*
 
-*Defined in [cached-state-storage/index.ts:49](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L49)*
+*Defined in [cached-state-storage/index.ts:49](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L49)*
 
 **Parameters:**
 
@@ -86,9 +87,9 @@ ___
 
 ###  get
 
-▸ **get**(`doc`: *`DataEntity`*): *`DataEntity<object>` | undefined*
+▸ **get**(`doc`: `DataEntity`): *`DataEntity<object>` | undefined*
 
-*Defined in [cached-state-storage/index.ts:26](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L26)*
+*Defined in [cached-state-storage/index.ts:26](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L26)*
 
 **Parameters:**
 
@@ -102,9 +103,9 @@ ___
 
 ###  has
 
-▸ **has**(`doc`: *`DataEntity`*): *boolean*
+▸ **has**(`doc`: `DataEntity`): *boolean*
 
-*Defined in [cached-state-storage/index.ts:62](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L62)*
+*Defined in [cached-state-storage/index.ts:66](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L66)*
 
 **Parameters:**
 
@@ -120,7 +121,7 @@ ___
 
 ▸ **initialize**(): *void*
 
-*Defined in [cached-state-storage/index.ts:67](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L67)*
+*Defined in [cached-state-storage/index.ts:71](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L71)*
 
 **Returns:** *void*
 
@@ -128,9 +129,9 @@ ___
 
 ###  mdelete
 
-▸ **mdelete**(`docArray`: *`DataEntity`[]*): *void*
+▸ **mdelete**(`docArray`: `DataEntity`[]): *void*
 
-*Defined in [cached-state-storage/index.ts:54](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L54)*
+*Defined in [cached-state-storage/index.ts:54](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L54)*
 
 **Parameters:**
 
@@ -144,9 +145,9 @@ ___
 
 ###  mget
 
-▸ **mget**(`docArray`: *`DataEntity`[]*): *[MGetCacheResponse](../interfaces/mgetcacheresponse.md)*
+▸ **mget**(`docArray`: `DataEntity`[]): *[MGetCacheResponse](../interfaces/mgetcacheresponse.md)*
 
-*Defined in [cached-state-storage/index.ts:31](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L31)*
+*Defined in [cached-state-storage/index.ts:31](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L31)*
 
 **Parameters:**
 
@@ -160,9 +161,9 @@ ___
 
 ###  mset
 
-▸ **mset**(`docArray`: *`DataEntity`[]*): *void*
+▸ **mset**(`docArray`: `DataEntity`[]): *void*
 
-*Defined in [cached-state-storage/index.ts:45](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L45)*
+*Defined in [cached-state-storage/index.ts:45](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L45)*
 
 **Parameters:**
 
@@ -176,9 +177,9 @@ ___
 
 ###  set
 
-▸ **set**(`doc`: *`DataEntity`*): *void*
+▸ **set**(`doc`: `DataEntity`): *void*
 
-*Defined in [cached-state-storage/index.ts:40](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L40)*
+*Defined in [cached-state-storage/index.ts:40](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L40)*
 
 **Parameters:**
 
@@ -194,6 +195,16 @@ ___
 
 ▸ **shutdown**(): *void*
 
-*Defined in [cached-state-storage/index.ts:69](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L69)*
+*Defined in [cached-state-storage/index.ts:73](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L73)*
 
 **Returns:** *void*
+
+___
+
+###  values
+
+▸ **values**(): *`DataEntity<object>`[]*
+
+*Defined in [cached-state-storage/index.ts:62](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L62)*
+
+**Returns:** *`DataEntity<object>`[]*

@@ -30,9 +30,9 @@ sidebar_label: Parser
 
 ###  constructor
 
-\+ **new Parser**(`query`: *string*, `logger?`: *`Logger`*): *[Parser](parser.md)*
+\+ **new Parser**(`query`: string, `logger?`: `Logger`): *[Parser](parser.md)*
 
-*Defined in [parser/parser.ts:11](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/parser.ts#L11)*
+*Defined in [parser/parser.ts:11](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/parser.ts#L11)*
 
 **Parameters:**
 
@@ -49,7 +49,7 @@ Name | Type |
 
 • **ast**: *`i.AST`*
 
-*Defined in [parser/parser.ts:9](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/parser.ts#L9)*
+*Defined in [parser/parser.ts:9](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/parser.ts#L9)*
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **logger**: *`Logger`*
 
-*Defined in [parser/parser.ts:11](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/parser.ts#L11)*
+*Defined in [parser/parser.ts:11](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/parser.ts#L11)*
 
 ___
 
@@ -65,21 +65,21 @@ ___
 
 • **query**: *string*
 
-*Defined in [parser/parser.ts:10](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/parser.ts#L10)*
+*Defined in [parser/parser.ts:10](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/parser.ts#L10)*
 
 ## Methods
 
 ###  forTermTypes
 
-▸ **forTermTypes**(`cb`: *function*): *void*
+▸ **forTermTypes**(`cb`: function): *void*
 
-*Defined in [parser/parser.ts:70](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/parser.ts#L70)*
+*Defined in [parser/parser.ts:70](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/parser.ts#L70)*
 
 **Parameters:**
 
 ▪ **cb**: *function*
 
-▸ (`node`: *`i.TermLike`*): *void*
+▸ (`node`: `i.TermLike`): *void*
 
 **Parameters:**
 
@@ -93,9 +93,9 @@ ___
 
 ###  forTypes
 
-▸ **forTypes**<**T**>(`types`: *`T`*, `cb`: *function*): *void*
+▸ **forTypes**<**T**>(`types`: `T`, `cb`: function): *void*
 
-*Defined in [parser/parser.ts:41](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/parser.ts#L41)*
+*Defined in [parser/parser.ts:41](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/parser.ts#L41)*
 
 **Type parameters:**
 
@@ -107,7 +107,7 @@ ___
 
 ▪ **cb**: *function*
 
-▸ (`node`: *`i.AnyAST`*): *void*
+▸ (`node`: `i.AnyAST`): *void*
 
 **Parameters:**
 

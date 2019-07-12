@@ -28,9 +28,9 @@ sidebar_label: Extraction
 
 ###  constructor
 
-\+ **new Extraction**(`configArgs`: *[ExtractionConfig](../interfaces/extractionconfig.md) | [ExtractionConfig](../interfaces/extractionconfig.md)[]*): *[Extraction](extraction.md)*
+\+ **new Extraction**(`configArgs`: [ExtractionConfig](../interfaces/extractionconfig.md) | [ExtractionConfig](../interfaces/extractionconfig.md)[]): *[Extraction](extraction.md)*
 
-*Defined in [operations/lib/transforms/extraction.ts:104](https://github.com/terascope/teraslice/blob/a3992c27/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L104)*
+*Defined in [operations/lib/transforms/extraction.ts:104](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L104)*
 
 **Parameters:**
 
@@ -46,15 +46,15 @@ Name | Type |
 
 ▪ **cardinality**: *[InputOutputCardinality](../overview.md#inputoutputcardinality)* = "one-to-one"
 
-*Defined in [operations/lib/transforms/extraction.ts:104](https://github.com/terascope/teraslice/blob/a3992c27/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L104)*
+*Defined in [operations/lib/transforms/extraction.ts:104](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L104)*
 
 ## Methods
 
 ###  extractRun
 
-▸ **extractRun**(`doc`: *`DataEntity`*, `results`: *object*): *void*
+▸ **extractRun**(`doc`: `DataEntity`, `results`: object): *void*
 
-*Defined in [operations/lib/transforms/extraction.ts:145](https://github.com/terascope/teraslice/blob/a3992c27/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L145)*
+*Defined in [operations/lib/transforms/extraction.ts:145](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L145)*
 
 **Parameters:**
 
@@ -69,9 +69,9 @@ ___
 
 ###  run
 
-▸ **run**(`doc`: *`DataEntity`*): *`DataEntity` | null*
+▸ **run**(`doc`: `DataEntity`): *`DataEntity` | null*
 
-*Defined in [operations/lib/transforms/extraction.ts:128](https://github.com/terascope/teraslice/blob/a3992c27/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L128)*
+*Defined in [operations/lib/transforms/extraction.ts:128](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L128)*
 
 **Parameters:**
 

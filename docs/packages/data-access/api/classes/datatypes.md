@@ -59,11 +59,11 @@ Manager for DataTypes
 
 ###  constructor
 
-\+ **new DataTypes**(`client`: *`Client`*, `options`: *`IndexModelOptions`*): *[DataTypes](datatypes.md)*
+\+ **new DataTypes**(`client`: `Client`, `options`: `IndexModelOptions`): *[DataTypes](datatypes.md)*
 
 *Overrides void*
 
-*Defined in [models/data-types.ts:12](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/data-types.ts#L12)*
+*Defined in [models/data-types.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/data-types.ts#L12)*
 
 **Parameters:**
 
@@ -110,13 +110,13 @@ ___
 
 ▪ **IndexModelConfig**: *`IndexModelConfig<DataType>`* =  dataTypesConfig
 
-*Defined in [models/data-types.ts:12](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/data-types.ts#L12)*
+*Defined in [models/data-types.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/data-types.ts#L12)*
 
 ## Methods
 
 ### `Protected` _appendToArray
 
-▸ **_appendToArray**(`id`: *string*, `field`: *keyof DataType*, `values`: *string[] | string*): *`Promise<void>`*
+▸ **_appendToArray**(`id`: string, `field`: keyof DataType, `values`: string[] | string): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -136,7 +136,7 @@ ___
 
 ### `Protected` _createJoinQuery
 
-▸ **_createJoinQuery**(`fields`: *`AnyInput<DataType>`*, `joinBy?`: *`JoinBy`*, `arrayJoinBy?`: *`JoinBy`*): *string*
+▸ **_createJoinQuery**(`fields`: `AnyInput<DataType>`, `joinBy?`: `JoinBy`, `arrayJoinBy?`: `JoinBy`): *string*
 
 *Inherited from void*
 
@@ -156,7 +156,7 @@ ___
 
 ### `Protected` _ensureUnique
 
-▸ **_ensureUnique**(`record`: *`AnyInput<DataType>`*): *`Promise<void>`*
+▸ **_ensureUnique**(`record`: `AnyInput<DataType>`): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -174,7 +174,7 @@ ___
 
 ### `Protected` _find
 
-▸ **_find**(`q?`: *undefined | string*, `options?`: *`i.FindOptions<DataType>`*, `queryAccess?`: *`QueryAccess<DataType>`*): *`Promise<DataType[]>`*
+▸ **_find**(`q?`: undefined | string, `options?`: `i.FindOptions<DataType>`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<DataType[]>`*
 
 *Inherited from void*
 
@@ -194,11 +194,11 @@ ___
 
 ### `Protected` _postProcess
 
-▸ **_postProcess**(`record`: *[DataType](../interfaces/datatype.md)*): *[DataType](../interfaces/datatype.md)*
+▸ **_postProcess**(`record`: [DataType](../interfaces/datatype.md)): *[DataType](../interfaces/datatype.md)*
 
 *Overrides void*
 
-*Defined in [models/data-types.ts:164](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/data-types.ts#L164)*
+*Defined in [models/data-types.ts:164](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/data-types.ts#L164)*
 
 **Parameters:**
 
@@ -212,11 +212,11 @@ ___
 
 ### `Protected` _preProcess
 
-▸ **_preProcess**(`record`: *[DataType](../interfaces/datatype.md)*): *[DataType](../interfaces/datatype.md)*
+▸ **_preProcess**(`record`: [DataType](../interfaces/datatype.md)): *[DataType](../interfaces/datatype.md)*
 
 *Overrides void*
 
-*Defined in [models/data-types.ts:159](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/data-types.ts#L159)*
+*Defined in [models/data-types.ts:159](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/data-types.ts#L159)*
 
 **Parameters:**
 
@@ -230,7 +230,7 @@ ___
 
 ### `Protected` _removeFromArray
 
-▸ **_removeFromArray**(`id`: *string*, `field`: *keyof DataType*, `values`: *string[] | string*): *`Promise<void>`*
+▸ **_removeFromArray**(`id`: string, `field`: keyof DataType, `values`: string[] | string): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -250,7 +250,7 @@ ___
 
 ### `Protected` _sanitizeRecord
 
-▸ **_sanitizeRecord**(`record`: *[DataType](../interfaces/datatype.md)*): *[DataType](../interfaces/datatype.md)*
+▸ **_sanitizeRecord**(`record`: [DataType](../interfaces/datatype.md)): *[DataType](../interfaces/datatype.md)*
 
 *Inherited from void*
 
@@ -268,7 +268,7 @@ ___
 
 ### `Protected` _updateWith
 
-▸ **_updateWith**(`id`: *string*, `body`: *any*): *`Promise<void>`*
+▸ **_updateWith**(`id`: string, `body`: any): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -287,7 +287,7 @@ ___
 
 ###  count
 
-▸ **count**(`q?`: *undefined | string*, `queryAccess?`: *`QueryAccess<DataType>`*): *`Promise<number>`*
+▸ **count**(`q?`: undefined | string, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<number>`*
 
 *Inherited from void*
 
@@ -306,7 +306,7 @@ ___
 
 ###  countBy
 
-▸ **countBy**(`fields`: *`AnyInput<DataType>`*, `joinBy?`: *`JoinBy`*, `arrayJoinBy?`: *`JoinBy`*): *`Promise<number>`*
+▸ **countBy**(`fields`: `AnyInput<DataType>`, `joinBy?`: `JoinBy`, `arrayJoinBy?`: `JoinBy`): *`Promise<number>`*
 
 *Inherited from void*
 
@@ -326,7 +326,7 @@ ___
 
 ###  create
 
-▸ **create**(`record`: *`i.CreateRecordInput<DataType>`*): *`Promise<DataType>`*
+▸ **create**(`record`: `i.CreateRecordInput<DataType>`): *`Promise<DataType>`*
 
 *Inherited from void*
 
@@ -344,7 +344,7 @@ ___
 
 ###  deleteAll
 
-▸ **deleteAll**(`ids`: *string[]*): *`Promise<void>`*
+▸ **deleteAll**(`ids`: string[]): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -362,7 +362,7 @@ ___
 
 ###  deleteById
 
-▸ **deleteById**(`id`: *string*): *`Promise<void>`*
+▸ **deleteById**(`id`: string): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -380,7 +380,7 @@ ___
 
 ###  exists
 
-▸ **exists**(`id`: *string[] | string*): *`Promise<boolean>`*
+▸ **exists**(`id`: string[] | string): *`Promise<boolean>`*
 
 *Inherited from void*
 
@@ -398,7 +398,7 @@ ___
 
 ###  find
 
-▸ **find**(`q?`: *undefined | string*, `options?`: *`i.FindOptions<DataType>`*, `queryAccess?`: *`QueryAccess<DataType>`*): *`Promise<DataType[]>`*
+▸ **find**(`q?`: undefined | string, `options?`: `i.FindOptions<DataType>`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<DataType[]>`*
 
 *Inherited from void*
 
@@ -418,7 +418,7 @@ ___
 
 ###  findAll
 
-▸ **findAll**(`input`: *string[] | string | undefined*, `options?`: *`i.FindOneOptions<DataType>`*, `queryAccess?`: *`QueryAccess<DataType>`*): *`Promise<DataType[]>`*
+▸ **findAll**(`input`: string[] | string | undefined, `options?`: `i.FindOneOptions<DataType>`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<DataType[]>`*
 
 *Inherited from void*
 
@@ -438,7 +438,7 @@ ___
 
 ###  findAndApply
 
-▸ **findAndApply**(`updates`: *`Partial<DataType>` | undefined*, `options?`: *`i.FindOneOptions<DataType>`*, `queryAccess?`: *`QueryAccess<DataType>`*): *`Promise<Partial<DataType>>`*
+▸ **findAndApply**(`updates`: `Partial<DataType>` | undefined, `options?`: `i.FindOneOptions<DataType>`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<Partial<DataType>>`*
 
 *Inherited from void*
 
@@ -458,7 +458,7 @@ ___
 
 ###  findBy
 
-▸ **findBy**(`fields`: *`AnyInput<DataType>`*, `joinBy?`: *`JoinBy`*, `options?`: *`i.FindOneOptions<DataType>`*, `queryAccess?`: *`QueryAccess<DataType>`*): *`Promise<DataType>`*
+▸ **findBy**(`fields`: `AnyInput<DataType>`, `joinBy?`: `JoinBy`, `options?`: `i.FindOneOptions<DataType>`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<DataType>`*
 
 *Inherited from void*
 
@@ -479,7 +479,7 @@ ___
 
 ###  findByAnyId
 
-▸ **findByAnyId**(`anyId`: *any*, `options?`: *`i.FindOneOptions<DataType>`*, `queryAccess?`: *`QueryAccess<DataType>`*): *`Promise<DataType>`*
+▸ **findByAnyId**(`anyId`: any, `options?`: `i.FindOneOptions<DataType>`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<DataType>`*
 
 *Inherited from void*
 
@@ -499,7 +499,7 @@ ___
 
 ###  findById
 
-▸ **findById**(`id`: *string*, `options?`: *`i.FindOneOptions<DataType>`*, `queryAccess?`: *`QueryAccess<DataType>`*): *`Promise<DataType>`*
+▸ **findById**(`id`: string, `options?`: `i.FindOneOptions<DataType>`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<DataType>`*
 
 *Inherited from void*
 
@@ -531,9 +531,9 @@ ___
 
 ###  resolveDataType
 
-▸ **resolveDataType**(`id`: *string*, `options?`: *`ResolveDataTypeOptions`*, `queryAccess?`: *`QueryAccess<DataType>`*): *`Promise<DataType>`*
+▸ **resolveDataType**(`id`: string, `options?`: `ResolveDataTypeOptions`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<DataType>`*
 
-*Defined in [models/data-types.ts:22](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/data-types.ts#L22)*
+*Defined in [models/data-types.ts:22](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/data-types.ts#L22)*
 
 Get the type configuration for a data type
 including any merged fields
@@ -552,9 +552,9 @@ ___
 
 ###  resolveTypeConfig
 
-▸ **resolveTypeConfig**(`dataType`: *[DataType](../interfaces/datatype.md)*, `options?`: *`ResolveDataTypeOptions`*, `queryAccess?`: *`QueryAccess<DataType>`*): *`Promise<DataTypeConfig>`*
+▸ **resolveTypeConfig**(`dataType`: [DataType](../interfaces/datatype.md), `options?`: `ResolveDataTypeOptions`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<DataTypeConfig>`*
 
-*Defined in [models/data-types.ts:30](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/data-types.ts#L30)*
+*Defined in [models/data-types.ts:30](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/data-types.ts#L30)*
 
 **Parameters:**
 
@@ -582,7 +582,7 @@ ___
 
 ###  update
 
-▸ **update**(`record`: *`i.UpdateRecordInput<DataType>`*): *`Promise<void>`*
+▸ **update**(`record`: `i.UpdateRecordInput<DataType>`): *`Promise<void>`*
 
 *Inherited from void*
 

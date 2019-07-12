@@ -11,9 +11,9 @@ sidebar_label: EventListener
 
 ## Callable
 
-▸ (`msg`: *[EventMessage](eventmessage.md)*): *void*
+▸ (`msg`: [EventMessage](eventmessage.md)): *void*
 
-*Defined in [messenger/interfaces.ts:117](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/interfaces.ts#L117)*
+*Defined in [messenger/interfaces.ts:117](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/interfaces.ts#L117)*
 
 **Parameters:**
 

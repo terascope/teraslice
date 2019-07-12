@@ -28,7 +28,7 @@ Elasticsearch Index Schema, Mapping and Version
 
 • **mapping**: *any*
 
-*Defined in [interfaces.ts:79](https://github.com/terascope/teraslice/blob/a3992c27/packages/elasticsearch-store/src/interfaces.ts#L79)*
+*Defined in [interfaces.ts:79](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L79)*
 
 The ElasticSearch index mapping
 
@@ -38,7 +38,7 @@ ___
 
 • **rollover_frequency**? : *[TimeSeriesFormat](../overview.md#timeseriesformat)*
 
-*Defined in [interfaces.ts:102](https://github.com/terascope/teraslice/blob/a3992c27/packages/elasticsearch-store/src/interfaces.ts#L102)*
+*Defined in [interfaces.ts:102](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L102)*
 
 Rollover Frequency for the Timeseries Index.
 This is only valid if timeseries is set to true
@@ -51,7 +51,7 @@ ___
 
 • **strict**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:110](https://github.com/terascope/teraslice/blob/a3992c27/packages/elasticsearch-store/src/interfaces.ts#L110)*
+*Defined in [interfaces.ts:110](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L110)*
 
 If enabled and the index does not match the version and mapping.
 Additionally this will prevent any mapping changes to automatically happen.
@@ -64,7 +64,7 @@ ___
 
 • **template**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:89](https://github.com/terascope/teraslice/blob/a3992c27/packages/elasticsearch-store/src/interfaces.ts#L89)*
+*Defined in [interfaces.ts:89](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L89)*
 
 Use a Templated Index
 
@@ -74,7 +74,7 @@ ___
 
 • **timeseries**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:94](https://github.com/terascope/teraslice/blob/a3992c27/packages/elasticsearch-store/src/interfaces.ts#L94)*
+*Defined in [interfaces.ts:94](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L94)*
 
 Use a Timeseries Index
 
@@ -84,6 +84,6 @@ ___
 
 • **version**? : *undefined | number*
 
-*Defined in [interfaces.ts:84](https://github.com/terascope/teraslice/blob/a3992c27/packages/elasticsearch-store/src/interfaces.ts#L84)*
+*Defined in [interfaces.ts:84](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L84)*
 
 The version of this particular Schema definition

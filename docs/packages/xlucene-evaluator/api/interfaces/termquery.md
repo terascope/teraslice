@@ -21,7 +21,7 @@ sidebar_label: TermQuery
 
 • **term**: *object*
 
-*Defined in [translator/interfaces.ts:41](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/translator/interfaces.ts#L41)*
+*Defined in [translator/interfaces.ts:41](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/interfaces.ts#L41)*
 
 #### Type declaration:
 
