@@ -45,11 +45,11 @@ export default class QueryPointPlugin {
     async shutdown() {}
 
     registerRoutes() {
-        const managerUri = '/api/v2/qp';
-        this.logger.info(`Registering data-access-plugin space manager at ${managerUri}`);
+        const queryPointURI = '/api/v2/qp';
+        this.logger.info(`Registering data-access-plugin query-point at ${queryPointURI}`);
         this.server.applyMiddleware({
             app: this.app,
-            path: managerUri,
+            path: queryPointURI,
         });
     }
 }

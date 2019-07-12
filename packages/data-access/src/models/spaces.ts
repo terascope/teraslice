@@ -8,7 +8,7 @@ import spacesConfig, { Space, SpaceSearchConfig, SpaceStreamingConfig, SpaceConf
  */
 export class Spaces extends IndexModel<Space> {
     static IndexModelConfig = spacesConfig;
-    static ReservedEndpoints = ['data-access', 'spaces'];
+    static ReservedEndpoints = ['data-access', 'qp'];
 
     constructor(client: es.Client, options: IndexModelOptions) {
         super(client, options, spacesConfig);
