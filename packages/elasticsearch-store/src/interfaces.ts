@@ -34,6 +34,11 @@ export interface IndexConfig<T = any> {
     dataSchema?: DataSchema;
 
     /**
+     * When true this will disable the ability to create or migrate an index
+     */
+    isWorker?: boolean;
+
+    /**
      * The maximum amount of time to wait for before send the bulk request
      */
     bulkMaxWait?: number;
@@ -185,6 +190,9 @@ export interface IndexModelRecord {
      */
     id: string;
 
+    /** The identifier for the client */
+    client_id: number;
+
     /** Updated date */
     updated: string;
 
@@ -204,8 +212,8 @@ export interface IndexModelConfig<T extends IndexModelRecord> {
     /** Name of the Model/Data Type */
     name: string;
 
-    /** ElasticSearch Mapping */
-    mapping: any;
+    /** The Data Type to use for the elasticsearch mapping */
+    dataType: DataType;
 
     /** JSON Schema */
     schema: any;
@@ -221,6 +229,9 @@ export interface IndexModelConfig<T extends IndexModelRecord> {
 
     /** Specify whether the data should be strictly validated, defaults to true */
     strictMode?: boolean;
+
+    /** The default sort field and direction */
+    defaultSort: string;
 }
 
 export type SanitizeFields = {

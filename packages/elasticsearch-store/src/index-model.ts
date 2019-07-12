@@ -6,7 +6,8 @@ import * as utils from './utils';
 import * as i from './interfaces';
 
 /**
- * An abstract class for an elasticsearch resource, with a CRUD-like interface
+ * An high-level, opionionated, abstract class
+ * for an elasticsearch DataType, with a CRUD-like interface
  */
 export default abstract class IndexModel<T extends i.IndexModelRecord> {
     readonly store: IndexStore<T>;
@@ -15,7 +16,6 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
 
     private _uniqueFields: (keyof T)[];
     private _sanitizeFields: i.SanitizeFields;
-    private _idField: 'id';
 
     constructor(client: es.Client, options: i.IndexModelOptions, modelConfig: i.IndexModelConfig<T>) {
         const baseConfig: i.IndexConfig<T> = {
@@ -44,6 +44,12 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
                     },
                 },
             },
+        };
+
+        const indexConfig: i.IndexConfig<T> = {
+            ...baseConfig,
+            ...options.storeOptions,
+            ...modelConfig.storeOptions,
             idField: 'id',
             ingestTimeField: 'created',
             eventTimeField: 'updated',
@@ -51,16 +57,13 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             defaultSort: 'updated:desc',
         };
 
-        const indexConfig = Object.assign(baseConfig, options.storeOptions, modelConfig.storeOptions);
-
         this.name = utils.toInstanceName(modelConfig.name);
         this.store = new IndexStore(client, indexConfig);
 
         const debugLoggerName = `elasticsearch-store:index-model:${this.name}`;
         this.logger = options.logger || ts.debugLogger(debugLoggerName);
 
-        this._idField = (indexConfig.idField || 'id') as 'id';
-        this._uniqueFields = ts.concat(this._idField, modelConfig.uniqueFields);
+        this._uniqueFields = ts.concat('id', modelConfig.uniqueFields);
         this._sanitizeFields = modelConfig.sanitizeFields || {};
     }
 
@@ -89,7 +92,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         } as T;
 
         const id = await utils.makeId();
-        docInput[this._idField] = id;
+        docInput['id'] = id;
 
         const doc = this._sanitizeRecord(docInput);
 
@@ -115,7 +118,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         if (!ids.length) return true;
 
         const count = await this.countBy({
-            [this._idField]: ids,
+            id: ids,
         } as AnyInput<T>);
 
         return count === ids.length;
@@ -144,8 +147,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     }
 
     async findById(id: string, options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>): Promise<T> {
-        const fields: Partial<T> = {};
-        fields[this._idField] = id;
+        const fields = { id } as Partial<T>;
         return this.findBy(fields, 'AND', options, queryAccess);
     }
 
@@ -166,7 +168,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             });
         }
 
-        const id: string | undefined = updates[this._idField];
+        const id: string | undefined = updates.id;
         if (!id) return { ...updates };
 
         const current = await this.findById(id, options, queryAccess);
@@ -177,9 +179,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         const ids: string[] = ts.parseList(input);
         if (!ids || !ids.length) return [];
 
-        const query = this._createJoinQuery({
-            [this._idField]: ids,
-        } as AnyInput<T>);
+        const query = this._createJoinQuery({ id: ids } as AnyInput<T>);
 
         const result = await this._find(
             query,
@@ -191,7 +191,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         );
 
         if (result.length !== ids.length) {
-            const foundIds = result.map(doc => doc[this._idField]);
+            const foundIds = result.map(doc => doc.id);
             const notFoundIds = ids.filter(id => !foundIds.includes(id));
             throw new ts.TSError(`Unable to find ${this.name}'s ${notFoundIds.join(', ')}`, {
                 statusCode: 404,
@@ -199,7 +199,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         }
 
         // maintain sort order
-        return ids.map(id => result.find(doc => doc[this._idField] === id)!);
+        return ids.map(id => result.find(doc => doc[id] === id)!);
     }
 
     async find(q: string = '', options: i.FindOptions<T> = {}, queryAccess?: QueryAccess<T>): Promise<T[]> {
@@ -207,9 +207,9 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     }
 
     async update(record: i.UpdateRecordInput<T>) {
-        const id: unknown = record[this._idField];
+        const id: unknown = record.id;
         if (!id || !ts.isString(id)) {
-            throw new ts.TSError(`${this.name} update requires ${this._idField}`, {
+            throw new ts.TSError(`${this.name} update requires ${id}`, {
                 statusCode: 422,
             });
         }
@@ -217,13 +217,13 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return this.store.updatePartial(id, async existing => {
             const uniqueFields = this._uniqueFields as (keyof i.UpdateRecordInput<T>)[];
             for (const field of uniqueFields) {
-                if (field === this._idField) continue;
+                if (field === 'id') continue;
                 if (record[field] == null) continue;
 
                 if (existing[field] !== record[field]) {
                     const count = await this.countBy({
                         [field]: record[field],
-                    } as any);
+                    } as AnyInput<T>);
 
                     if (count > 0) {
                         throw new ts.TSError(`${this.name} update requires ${field} to be unique`, {
@@ -318,7 +318,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
 
     protected async _ensureUnique(record: AnyInput<T>) {
         for (const field of this._uniqueFields) {
-            if (field === this._idField) continue;
+            if (field === 'id') continue;
             if (record[field] == null) {
                 throw new ts.TSError(`${this.name} create requires field ${field}`, {
                     statusCode: 422,

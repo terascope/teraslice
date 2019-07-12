@@ -220,7 +220,7 @@ export default class IndexManager {
     protected async waitForIndexAvailability(index: string) {
         const query = {
             index,
-            q: '*',
+            q: '',
             size: 0,
             terminate_after: '1',
         };
