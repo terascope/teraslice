@@ -32,9 +32,9 @@ records and fields
 
 ###  constructor
 
-\+ **new StreamAccess**(`acl`: *[DataAccessConfig](../interfaces/dataaccessconfig.md)*): *[StreamAccess](streamaccess.md)*
+\+ **new StreamAccess**(`acl`: [DataAccessConfig](../interfaces/dataaccessconfig.md)): *[StreamAccess](streamaccess.md)*
 
-*Defined in [stream-access.ts:9](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/stream-access.ts#L9)*
+*Defined in [stream-access.ts:9](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/stream-access.ts#L9)*
 
 **Parameters:**
 
@@ -48,9 +48,9 @@ Name | Type |
 
 ###  filter
 
-▸ **filter**(`incoming`: *`T`[]*): *`T`[]*
+▸ **filter**(`incoming`: `T`[]): *`T`[]*
 
-*Defined in [stream-access.ts:14](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/stream-access.ts#L14)*
+*Defined in [stream-access.ts:14](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/stream-access.ts#L14)*
 
 **Parameters:**
 

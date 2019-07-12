@@ -117,7 +117,7 @@ ___
 
 ###  concat
 
-▸ **concat**(...`items`: *`ConcatArray<T>`[]*): *`T`[]*
+▸ **concat**(...`items`: `ConcatArray<T>`[]): *`T`[]*
 
 *Inherited from void*
 
@@ -133,7 +133,7 @@ Name | Type | Description |
 
 **Returns:** *`T`[]*
 
-▸ **concat**(...`items`: *`T` | `ConcatArray<T>`[]*): *`T`[]*
+▸ **concat**(...`items`: `T` | `ConcatArray<T>`[]): *`T`[]*
 
 *Inherited from void*
 
@@ -153,7 +153,7 @@ ___
 
 ###  copyWithin
 
-▸ **copyWithin**(`target`: *number*, `start`: *number*, `end?`: *undefined | number*): *this*
+▸ **copyWithin**(`target`: number, `start`: number, `end?`: undefined | number): *this*
 
 *Inherited from void*
 
@@ -190,7 +190,7 @@ ___
 
 ###  every
 
-▸ **every**(`callbackfn`: *function*, `thisArg?`: *any*): *boolean*
+▸ **every**(`callbackfn`: function, `thisArg?`: any): *boolean*
 
 *Inherited from void*
 
@@ -204,7 +204,7 @@ Determines whether all the members of an array satisfy the specified test.
 
 A function that accepts up to three arguments. The every method calls the callbackfn function for each element in array1 until the callbackfn returns false, or until the end of the array.
 
-▸ (`value`: *`T`*, `index`: *number*, `array`: *`T`[]*): *unknown*
+▸ (`value`: `T`, `index`: number, `array`: `T`[]): *unknown*
 
 **Parameters:**
 
@@ -224,7 +224,7 @@ ___
 
 ###  fill
 
-▸ **fill**(`value`: *`T`*, `start?`: *undefined | number*, `end?`: *undefined | number*): *this*
+▸ **fill**(`value`: `T`, `start?`: undefined | number, `end?`: undefined | number): *this*
 
 *Inherited from void*
 
@@ -246,7 +246,7 @@ ___
 
 ###  filter
 
-▸ **filter**<**S**>(`callbackfn`: *function*, `thisArg?`: *any*): *`S`[]*
+▸ **filter**<**S**>(`callbackfn`: function, `thisArg?`: any): *`S`[]*
 
 *Inherited from void*
 
@@ -264,7 +264,7 @@ Returns the elements of an array that meet the condition specified in a callback
 
 A function that accepts up to three arguments. The filter method calls the callbackfn function one time for each element in the array.
 
-▸ (`value`: *`T`*, `index`: *number*, `array`: *`T`[]*): *boolean*
+▸ (`value`: `T`, `index`: number, `array`: `T`[]): *boolean*
 
 **Parameters:**
 
@@ -280,7 +280,7 @@ An object to which the this keyword can refer in the callbackfn function. If thi
 
 **Returns:** *`S`[]*
 
-▸ **filter**(`callbackfn`: *function*, `thisArg?`: *any*): *`T`[]*
+▸ **filter**(`callbackfn`: function, `thisArg?`: any): *`T`[]*
 
 *Inherited from void*
 
@@ -294,7 +294,7 @@ Returns the elements of an array that meet the condition specified in a callback
 
 A function that accepts up to three arguments. The filter method calls the callbackfn function one time for each element in the array.
 
-▸ (`value`: *`T`*, `index`: *number*, `array`: *`T`[]*): *unknown*
+▸ (`value`: `T`, `index`: number, `array`: `T`[]): *unknown*
 
 **Parameters:**
 
@@ -314,7 +314,7 @@ ___
 
 ###  find
 
-▸ **find**<**S**>(`predicate`: *function*, `thisArg?`: *any*): *`S` | undefined*
+▸ **find**<**S**>(`predicate`: function, `thisArg?`: any): *`S` | undefined*
 
 *Inherited from void*
 
@@ -335,7 +335,7 @@ find calls predicate once for each element of the array, in ascending
 order, until it finds one where predicate returns true. If such an element is found, find
 immediately returns that element value. Otherwise, find returns undefined.
 
-▸ (`this`: *void*, `value`: *`T`*, `index`: *number*, `obj`: *`T`[]*): *boolean*
+▸ (`this`: void, `value`: `T`, `index`: number, `obj`: `T`[]): *boolean*
 
 **Parameters:**
 
@@ -353,7 +353,7 @@ predicate. If it is not provided, undefined is used instead.
 
 **Returns:** *`S` | undefined*
 
-▸ **find**(`predicate`: *function*, `thisArg?`: *any*): *`T` | undefined*
+▸ **find**(`predicate`: function, `thisArg?`: any): *`T` | undefined*
 
 *Inherited from void*
 
@@ -363,7 +363,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 ▪ **predicate**: *function*
 
-▸ (`value`: *`T`*, `index`: *number*, `obj`: *`T`[]*): *unknown*
+▸ (`value`: `T`, `index`: number, `obj`: `T`[]): *unknown*
 
 **Parameters:**
 
@@ -381,7 +381,7 @@ ___
 
 ###  findIndex
 
-▸ **findIndex**(`predicate`: *function*, `thisArg?`: *any*): *number*
+▸ **findIndex**(`predicate`: function, `thisArg?`: any): *number*
 
 *Inherited from void*
 
@@ -398,7 +398,7 @@ find calls predicate once for each element of the array, in ascending
 order, until it finds one where predicate returns true. If such an element is found,
 findIndex immediately returns that element index. Otherwise, findIndex returns -1.
 
-▸ (`value`: *`T`*, `index`: *number*, `obj`: *`T`[]*): *unknown*
+▸ (`value`: `T`, `index`: number, `obj`: `T`[]): *unknown*
 
 **Parameters:**
 
@@ -419,7 +419,7 @@ ___
 
 ###  forEach
 
-▸ **forEach**(`callbackfn`: *function*, `thisArg?`: *any*): *void*
+▸ **forEach**(`callbackfn`: function, `thisArg?`: any): *void*
 
 *Inherited from void*
 
@@ -433,7 +433,7 @@ Performs the specified action for each element in an array.
 
 A function that accepts up to three arguments. forEach calls the callbackfn function one time for each element in the array.
 
-▸ (`value`: *`T`*, `index`: *number*, `array`: *`T`[]*): *void*
+▸ (`value`: `T`, `index`: number, `array`: `T`[]): *void*
 
 **Parameters:**
 
@@ -453,7 +453,7 @@ ___
 
 ###  includes
 
-▸ **includes**(`searchElement`: *`T`*, `fromIndex?`: *undefined | number*): *boolean*
+▸ **includes**(`searchElement`: `T`, `fromIndex?`: undefined | number): *boolean*
 
 *Inherited from void*
 
@@ -474,7 +474,7 @@ ___
 
 ###  indexOf
 
-▸ **indexOf**(`searchElement`: *`T`*, `fromIndex?`: *undefined | number*): *number*
+▸ **indexOf**(`searchElement`: `T`, `fromIndex?`: undefined | number): *number*
 
 *Inherited from void*
 
@@ -495,7 +495,7 @@ ___
 
 ###  join
 
-▸ **join**(`separator?`: *undefined | string*): *string*
+▸ **join**(`separator?`: undefined | string): *string*
 
 *Inherited from void*
 
@@ -529,7 +529,7 @@ ___
 
 ###  lastIndexOf
 
-▸ **lastIndexOf**(`searchElement`: *`T`*, `fromIndex?`: *undefined | number*): *number*
+▸ **lastIndexOf**(`searchElement`: `T`, `fromIndex?`: undefined | number): *number*
 
 *Inherited from void*
 
@@ -550,7 +550,7 @@ ___
 
 ###  map
 
-▸ **map**<**U**>(`callbackfn`: *function*, `thisArg?`: *any*): *`U`[]*
+▸ **map**<**U**>(`callbackfn`: function, `thisArg?`: any): *`U`[]*
 
 *Inherited from void*
 
@@ -568,7 +568,7 @@ Calls a defined callback function on each element of an array, and returns an ar
 
 A function that accepts up to three arguments. The map method calls the callbackfn function one time for each element in the array.
 
-▸ (`value`: *`T`*, `index`: *number*, `array`: *`T`[]*): *`U`*
+▸ (`value`: `T`, `index`: number, `array`: `T`[]): *`U`*
 
 **Parameters:**
 
@@ -602,7 +602,7 @@ ___
 
 ###  push
 
-▸ **push**(...`items`: *`T`[]*): *number*
+▸ **push**(...`items`: `T`[]): *number*
 
 *Inherited from void*
 
@@ -622,7 +622,7 @@ ___
 
 ###  reduce
 
-▸ **reduce**(`callbackfn`: *function*): *`T`*
+▸ **reduce**(`callbackfn`: function): *`T`*
 
 *Inherited from void*
 
@@ -636,7 +636,7 @@ Calls the specified callback function for all the elements in an array. The retu
 
 A function that accepts up to four arguments. The reduce method calls the callbackfn function one time for each element in the array.
 
-▸ (`previousValue`: *`T`*, `currentValue`: *`T`*, `currentIndex`: *number*, `array`: *`T`[]*): *`T`*
+▸ (`previousValue`: `T`, `currentValue`: `T`, `currentIndex`: number, `array`: `T`[]): *`T`*
 
 **Parameters:**
 
@@ -649,7 +649,7 @@ Name | Type |
 
 **Returns:** *`T`*
 
-▸ **reduce**(`callbackfn`: *function*, `initialValue`: *`T`*): *`T`*
+▸ **reduce**(`callbackfn`: function, `initialValue`: `T`): *`T`*
 
 *Inherited from void*
 
@@ -659,7 +659,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 ▪ **callbackfn**: *function*
 
-▸ (`previousValue`: *`T`*, `currentValue`: *`T`*, `currentIndex`: *number*, `array`: *`T`[]*): *`T`*
+▸ (`previousValue`: `T`, `currentValue`: `T`, `currentIndex`: number, `array`: `T`[]): *`T`*
 
 **Parameters:**
 
@@ -674,7 +674,7 @@ Name | Type |
 
 **Returns:** *`T`*
 
-▸ **reduce**<**U**>(`callbackfn`: *function*, `initialValue`: *`U`*): *`U`*
+▸ **reduce**<**U**>(`callbackfn`: function, `initialValue`: `U`): *`U`*
 
 *Inherited from void*
 
@@ -692,7 +692,7 @@ Calls the specified callback function for all the elements in an array. The retu
 
 A function that accepts up to four arguments. The reduce method calls the callbackfn function one time for each element in the array.
 
-▸ (`previousValue`: *`U`*, `currentValue`: *`T`*, `currentIndex`: *number*, `array`: *`T`[]*): *`U`*
+▸ (`previousValue`: `U`, `currentValue`: `T`, `currentIndex`: number, `array`: `T`[]): *`U`*
 
 **Parameters:**
 
@@ -713,7 +713,7 @@ ___
 
 ###  reduceRight
 
-▸ **reduceRight**(`callbackfn`: *function*): *`T`*
+▸ **reduceRight**(`callbackfn`: function): *`T`*
 
 *Inherited from void*
 
@@ -727,7 +727,7 @@ Calls the specified callback function for all the elements in an array, in desce
 
 A function that accepts up to four arguments. The reduceRight method calls the callbackfn function one time for each element in the array.
 
-▸ (`previousValue`: *`T`*, `currentValue`: *`T`*, `currentIndex`: *number*, `array`: *`T`[]*): *`T`*
+▸ (`previousValue`: `T`, `currentValue`: `T`, `currentIndex`: number, `array`: `T`[]): *`T`*
 
 **Parameters:**
 
@@ -740,7 +740,7 @@ Name | Type |
 
 **Returns:** *`T`*
 
-▸ **reduceRight**(`callbackfn`: *function*, `initialValue`: *`T`*): *`T`*
+▸ **reduceRight**(`callbackfn`: function, `initialValue`: `T`): *`T`*
 
 *Inherited from void*
 
@@ -750,7 +750,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 ▪ **callbackfn**: *function*
 
-▸ (`previousValue`: *`T`*, `currentValue`: *`T`*, `currentIndex`: *number*, `array`: *`T`[]*): *`T`*
+▸ (`previousValue`: `T`, `currentValue`: `T`, `currentIndex`: number, `array`: `T`[]): *`T`*
 
 **Parameters:**
 
@@ -765,7 +765,7 @@ Name | Type |
 
 **Returns:** *`T`*
 
-▸ **reduceRight**<**U**>(`callbackfn`: *function*, `initialValue`: *`U`*): *`U`*
+▸ **reduceRight**<**U**>(`callbackfn`: function, `initialValue`: `U`): *`U`*
 
 *Inherited from void*
 
@@ -783,7 +783,7 @@ Calls the specified callback function for all the elements in an array, in desce
 
 A function that accepts up to four arguments. The reduceRight method calls the callbackfn function one time for each element in the array.
 
-▸ (`previousValue`: *`U`*, `currentValue`: *`T`*, `currentIndex`: *number*, `array`: *`T`[]*): *`U`*
+▸ (`previousValue`: `U`, `currentValue`: `T`, `currentIndex`: number, `array`: `T`[]): *`U`*
 
 **Parameters:**
 
@@ -832,7 +832,7 @@ ___
 
 ###  slice
 
-▸ **slice**(`start?`: *undefined | number*, `end?`: *undefined | number*): *`T`[]*
+▸ **slice**(`start?`: undefined | number, `end?`: undefined | number): *`T`[]*
 
 *Inherited from void*
 
@@ -853,7 +853,7 @@ ___
 
 ###  some
 
-▸ **some**(`callbackfn`: *function*, `thisArg?`: *any*): *boolean*
+▸ **some**(`callbackfn`: function, `thisArg?`: any): *boolean*
 
 *Inherited from void*
 
@@ -867,7 +867,7 @@ Determines whether the specified callback function returns true for any element 
 
 A function that accepts up to three arguments. The some method calls the callbackfn function for each element in array1 until the callbackfn returns true, or until the end of the array.
 
-▸ (`value`: *`T`*, `index`: *number*, `array`: *`T`[]*): *unknown*
+▸ (`value`: `T`, `index`: number, `array`: `T`[]): *unknown*
 
 **Parameters:**
 
@@ -887,7 +887,7 @@ ___
 
 ###  sort
 
-▸ **sort**(`compareFn?`: *undefined | function*): *this*
+▸ **sort**(`compareFn?`: undefined | function): *this*
 
 *Inherited from void*
 
@@ -907,7 +907,7 @@ ___
 
 ###  splice
 
-▸ **splice**(`start`: *number*, `deleteCount?`: *undefined | number*): *`T`[]*
+▸ **splice**(`start`: number, `deleteCount?`: undefined | number): *`T`[]*
 
 *Inherited from void*
 
@@ -924,7 +924,7 @@ Name | Type | Description |
 
 **Returns:** *`T`[]*
 
-▸ **splice**(`start`: *number*, `deleteCount`: *number*, ...`items`: *`T`[]*): *`T`[]*
+▸ **splice**(`start`: number, `deleteCount`: number, ...`items`: `T`[]): *`T`[]*
 
 *Inherited from void*
 
@@ -974,7 +974,7 @@ ___
 
 ###  unshift
 
-▸ **unshift**(...`items`: *`T`[]*): *number*
+▸ **unshift**(...`items`: `T`[]): *number*
 
 *Inherited from void*
 

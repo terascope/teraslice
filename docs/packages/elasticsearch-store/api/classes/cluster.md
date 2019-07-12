@@ -30,9 +30,9 @@ Get Cluster Metadata and Stats
 
 ###  constructor
 
-\+ **new Cluster**(`client`: *`Client`*): *[Cluster](cluster.md)*
+\+ **new Cluster**(`client`: `Client`): *[Cluster](cluster.md)*
 
-*Defined in [cluster.ts:5](https://github.com/terascope/teraslice/blob/a3992c27/packages/elasticsearch-store/src/cluster.ts#L5)*
+*Defined in [cluster.ts:5](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/cluster.ts#L5)*
 
 **Parameters:**
 
@@ -48,15 +48,15 @@ Name | Type |
 
 • **client**: *`Client`*
 
-*Defined in [cluster.ts:5](https://github.com/terascope/teraslice/blob/a3992c27/packages/elasticsearch-store/src/cluster.ts#L5)*
+*Defined in [cluster.ts:5](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/cluster.ts#L5)*
 
 ## Methods
 
 ###  nodeInfo
 
-▸ **nodeInfo**(`params`: *`NodesInfoParams`*): *`Promise<void>`*
+▸ **nodeInfo**(`params`: `NodesInfoParams`): *`Promise<void>`*
 
-*Defined in [cluster.ts:14](https://github.com/terascope/teraslice/blob/a3992c27/packages/elasticsearch-store/src/cluster.ts#L14)*
+*Defined in [cluster.ts:14](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/cluster.ts#L14)*
 
 Get the Cluster Nodes Info
 
@@ -72,9 +72,9 @@ ___
 
 ###  nodeStats
 
-▸ **nodeStats**(`params`: *`NodesStatsParams`*): *`Promise<void>`*
+▸ **nodeStats**(`params`: `NodesStatsParams`): *`Promise<void>`*
 
-*Defined in [cluster.ts:21](https://github.com/terascope/teraslice/blob/a3992c27/packages/elasticsearch-store/src/cluster.ts#L21)*
+*Defined in [cluster.ts:21](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/cluster.ts#L21)*
 
 Get the Cluster Nodes Stats
 

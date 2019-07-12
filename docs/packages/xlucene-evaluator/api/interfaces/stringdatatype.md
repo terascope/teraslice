@@ -26,7 +26,7 @@ sidebar_label: StringDataType
 
 • **data_type**: *"string"*
 
-*Defined in [parser/interfaces.ts:61](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/interfaces.ts#L61)*
+*Defined in [parser/interfaces.ts:61](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L61)*
 
 ___
 
@@ -34,4 +34,4 @@ ___
 
 • **value**: *string*
 
-*Defined in [parser/interfaces.ts:62](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/interfaces.ts#L62)*
+*Defined in [parser/interfaces.ts:62](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L62)*

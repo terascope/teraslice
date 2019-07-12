@@ -34,11 +34,11 @@ sidebar_label: SlicerOperationLifeCycle
 
 ###  initialize
 
-▸ **initialize**(`recoveryData?`: *[SlicerRecoveryData](slicerrecoverydata.md)[]*): *`Promise<void>`*
+▸ **initialize**(`recoveryData?`: [SlicerRecoveryData](slicerrecoverydata.md)[]): *`Promise<void>`*
 
 *Overrides [OperationLifeCycle](operationlifecycle.md).[initialize](operationlifecycle.md#initialize)*
 
-*Defined in [interfaces/operation-lifecycle.ts:93](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/operation-lifecycle.ts#L93)*
+*Defined in [interfaces/operation-lifecycle.ts:93](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/interfaces/operation-lifecycle.ts#L93)*
 
 Called during execution initialization,
 when this is cleanup any open connections or cleanup any in-memory state.
@@ -55,9 +55,9 @@ ___
 
 ### `Optional` onExecutionStats
 
-▸ **onExecutionStats**(`stats`: *[ExecutionStats](executionstats.md)*): *void*
+▸ **onExecutionStats**(`stats`: [ExecutionStats](executionstats.md)): *void*
 
-*Defined in [interfaces/operation-lifecycle.ts:117](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/operation-lifecycle.ts#L117)*
+*Defined in [interfaces/operation-lifecycle.ts:117](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/interfaces/operation-lifecycle.ts#L117)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track various slicer satistics
@@ -74,9 +74,9 @@ ___
 
 ### `Optional` onSliceComplete
 
-▸ **onSliceComplete**(`result`: *[SliceResult](sliceresult.md)*): *void*
+▸ **onSliceComplete**(`result`: [SliceResult](sliceresult.md)): *void*
 
-*Defined in [interfaces/operation-lifecycle.ts:111](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/operation-lifecycle.ts#L111)*
+*Defined in [interfaces/operation-lifecycle.ts:111](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/interfaces/operation-lifecycle.ts#L111)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track the slices completed by the execution controller
@@ -93,9 +93,9 @@ ___
 
 ### `Optional` onSliceDispatch
 
-▸ **onSliceDispatch**(`slice`: *[Slice](slice.md)*): *void*
+▸ **onSliceDispatch**(`slice`: [Slice](slice.md)): *void*
 
-*Defined in [interfaces/operation-lifecycle.ts:105](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/operation-lifecycle.ts#L105)*
+*Defined in [interfaces/operation-lifecycle.ts:105](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/interfaces/operation-lifecycle.ts#L105)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track the slices disptached by the execution controller
@@ -112,9 +112,9 @@ ___
 
 ### `Optional` onSliceEnqueued
 
-▸ **onSliceEnqueued**(`slice`: *[Slice](slice.md)*): *void*
+▸ **onSliceEnqueued**(`slice`: [Slice](slice.md)): *void*
 
-*Defined in [interfaces/operation-lifecycle.ts:99](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/operation-lifecycle.ts#L99)*
+*Defined in [interfaces/operation-lifecycle.ts:99](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/interfaces/operation-lifecycle.ts#L99)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track the slices enqueued by the execution controller
@@ -135,7 +135,7 @@ ___
 
 *Inherited from [OperationLifeCycle](operationlifecycle.md).[shutdown](operationlifecycle.md#shutdown)*
 
-*Defined in [interfaces/operation-lifecycle.ts:15](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/interfaces/operation-lifecycle.ts#L15)*
+*Defined in [interfaces/operation-lifecycle.ts:15](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/interfaces/operation-lifecycle.ts#L15)*
 
 Called during execution shutdown,
 when this is cleanup any open connections or destroy any in-memory state.

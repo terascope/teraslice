@@ -43,7 +43,7 @@ ___
 
 • **body**? : *undefined | object*
 
-*Defined in [errors.ts:326](https://github.com/terascope/teraslice/blob/a3992c27/packages/utils/src/errors.ts#L326)*
+*Defined in [errors.ts:341](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L341)*
 
 ___
 
@@ -51,7 +51,7 @@ ___
 
 • **index**? : *undefined | string*
 
-*Defined in [errors.ts:344](https://github.com/terascope/teraslice/blob/a3992c27/packages/utils/src/errors.ts#L344)*
+*Defined in [errors.ts:359](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L359)*
 
 ___
 
@@ -79,7 +79,7 @@ ___
 
 • **reason**? : *undefined | string*
 
-*Defined in [errors.ts:343](https://github.com/terascope/teraslice/blob/a3992c27/packages/utils/src/errors.ts#L343)*
+*Defined in [errors.ts:358](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L358)*
 
 ___
 
@@ -99,7 +99,7 @@ ___
 
 • **status**? : *undefined | number*
 
-*Defined in [errors.ts:341](https://github.com/terascope/teraslice/blob/a3992c27/packages/utils/src/errors.ts#L341)*
+*Defined in [errors.ts:356](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L356)*
 
 ___
 
@@ -107,7 +107,7 @@ ___
 
 • **type**? : *undefined | string*
 
-*Defined in [errors.ts:342](https://github.com/terascope/teraslice/blob/a3992c27/packages/utils/src/errors.ts#L342)*
+*Defined in [errors.ts:357](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L357)*
 
 ## Methods
 
@@ -115,6 +115,6 @@ ___
 
 ▸ **toJSON**(): *object*
 
-*Defined in [errors.ts:346](https://github.com/terascope/teraslice/blob/a3992c27/packages/utils/src/errors.ts#L346)*
+*Defined in [errors.ts:361](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L361)*
 
 **Returns:** *object*

@@ -31,11 +31,11 @@ sidebar_label: Matcher
 
 ###  constructor
 
-\+ **new Matcher**(`opConfig`: *[WatcherConfig](../interfaces/watcherconfig.md)*, `logger`: *`Logger`*): *[Matcher](matcher.md)*
+\+ **new Matcher**(`opConfig`: [WatcherConfig](../interfaces/watcherconfig.md), `logger`: `Logger`): *[Matcher](matcher.md)*
 
 *Overrides [PhaseManager](phasemanager.md).[constructor](phasemanager.md#constructor)*
 
-*Defined in [matcher.ts:7](https://github.com/terascope/teraslice/blob/a3992c27/packages/ts-transforms/src/matcher.ts#L7)*
+*Defined in [matcher.ts:7](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/matcher.ts#L7)*
 
 **Parameters:**
 
@@ -54,7 +54,7 @@ Name | Type | Default |
 
 *Inherited from [PhaseManager](phasemanager.md).[isMatcher](phasemanager.md#ismatcher)*
 
-*Defined in [phases/phase_manager.ts:19](https://github.com/terascope/teraslice/blob/a3992c27/packages/ts-transforms/src/phases/phase_manager.ts#L19)*
+*Defined in [phases/phase_manager.ts:19](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/phase_manager.ts#L19)*
 
 ___
 
@@ -64,17 +64,17 @@ ___
 
 *Inherited from [PhaseManager](phasemanager.md).[sequence](phasemanager.md#sequence)*
 
-*Defined in [phases/phase_manager.ts:18](https://github.com/terascope/teraslice/blob/a3992c27/packages/ts-transforms/src/phases/phase_manager.ts#L18)*
+*Defined in [phases/phase_manager.ts:18](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/phase_manager.ts#L18)*
 
 ## Methods
 
 ###  init
 
-▸ **init**(`Plugins?`: *[PluginList](../overview.md#pluginlist)*): *`Promise<void>`*
+▸ **init**(`Plugins?`: [PluginList](../overview.md#pluginlist)): *`Promise<void>`*
 
 *Inherited from [PhaseManager](phasemanager.md).[init](phasemanager.md#init)*
 
-*Defined in [phases/phase_manager.ts:29](https://github.com/terascope/teraslice/blob/a3992c27/packages/ts-transforms/src/phases/phase_manager.ts#L29)*
+*Defined in [phases/phase_manager.ts:29](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/phase_manager.ts#L29)*
 
 **Parameters:**
 
@@ -88,11 +88,11 @@ ___
 
 ###  run
 
-▸ **run**(`input`: *object[]*): *`DataEntity`[]*
+▸ **run**(`input`: object[]): *`DataEntity`[]*
 
 *Inherited from [PhaseManager](phasemanager.md).[run](phasemanager.md#run)*
 
-*Defined in [phases/phase_manager.ts:47](https://github.com/terascope/teraslice/blob/a3992c27/packages/ts-transforms/src/phases/phase_manager.ts#L47)*
+*Defined in [phases/phase_manager.ts:47](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/phase_manager.ts#L47)*
 
 **Parameters:**
 

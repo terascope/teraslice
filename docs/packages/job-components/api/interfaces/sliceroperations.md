@@ -77,7 +77,7 @@ ___
 
 ###  add
 
-▸ **add**(`value`: *[SlicerOperationLifeCycle](sliceroperationlifecycle.md)*): *this*
+▸ **add**(`value`: [SlicerOperationLifeCycle](sliceroperationlifecycle.md)): *this*
 
 *Inherited from void*
 
@@ -107,7 +107,7 @@ ___
 
 ###  delete
 
-▸ **delete**(`value`: *[SlicerOperationLifeCycle](sliceroperationlifecycle.md)*): *boolean*
+▸ **delete**(`value`: [SlicerOperationLifeCycle](sliceroperationlifecycle.md)): *boolean*
 
 *Inherited from void*
 
@@ -139,7 +139,7 @@ ___
 
 ###  forEach
 
-▸ **forEach**(`callbackfn`: *function*, `thisArg?`: *any*): *void*
+▸ **forEach**(`callbackfn`: function, `thisArg?`: any): *void*
 
 *Inherited from void*
 
@@ -149,7 +149,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 ▪ **callbackfn**: *function*
 
-▸ (`value`: *[SlicerOperationLifeCycle](sliceroperationlifecycle.md)*, `value2`: *[SlicerOperationLifeCycle](sliceroperationlifecycle.md)*, `set`: *`Set<SlicerOperationLifeCycle>`*): *void*
+▸ (`value`: [SlicerOperationLifeCycle](sliceroperationlifecycle.md), `value2`: [SlicerOperationLifeCycle](sliceroperationlifecycle.md), `set`: `Set<SlicerOperationLifeCycle>`): *void*
 
 **Parameters:**
 
@@ -167,7 +167,7 @@ ___
 
 ###  has
 
-▸ **has**(`value`: *[SlicerOperationLifeCycle](sliceroperationlifecycle.md)*): *boolean*
+▸ **has**(`value`: [SlicerOperationLifeCycle](sliceroperationlifecycle.md)): *boolean*
 
 *Inherited from void*
 

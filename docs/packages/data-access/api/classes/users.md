@@ -65,11 +65,11 @@ Manager for Users
 
 ###  constructor
 
-\+ **new Users**(`client`: *`Client`*, `options`: *`IndexModelOptions`*): *[Users](users.md)*
+\+ **new Users**(`client`: `Client`, `options`: `IndexModelOptions`): *[Users](users.md)*
 
 *Overrides void*
 
-*Defined in [models/users.ts:12](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/users.ts#L12)*
+*Defined in [models/users.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L12)*
 
 **Parameters:**
 
@@ -116,7 +116,7 @@ ___
 
 ▪ **IndexModelConfig**: *`IndexModelConfig<User>`* =  usersConfig
 
-*Defined in [models/users.ts:12](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/users.ts#L12)*
+*Defined in [models/users.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L12)*
 
 ___
 
@@ -124,13 +124,13 @@ ___
 
 ▪ **PrivateFields**: *string[]* =  ['api_token', 'salt', 'hash']
 
-*Defined in [models/users.ts:11](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/users.ts#L11)*
+*Defined in [models/users.ts:11](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L11)*
 
 ## Methods
 
 ### `Protected` _appendToArray
 
-▸ **_appendToArray**(`id`: *string*, `field`: *keyof User*, `values`: *string[] | string*): *`Promise<void>`*
+▸ **_appendToArray**(`id`: string, `field`: keyof User, `values`: string[] | string): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -150,7 +150,7 @@ ___
 
 ### `Protected` _createJoinQuery
 
-▸ **_createJoinQuery**(`fields`: *`AnyInput<User>`*, `joinBy?`: *`JoinBy`*, `arrayJoinBy?`: *`JoinBy`*): *string*
+▸ **_createJoinQuery**(`fields`: `AnyInput<User>`, `joinBy?`: `JoinBy`, `arrayJoinBy?`: `JoinBy`): *string*
 
 *Inherited from void*
 
@@ -170,7 +170,7 @@ ___
 
 ### `Protected` _ensureUnique
 
-▸ **_ensureUnique**(`record`: *`AnyInput<User>`*): *`Promise<void>`*
+▸ **_ensureUnique**(`record`: `AnyInput<User>`): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -188,7 +188,7 @@ ___
 
 ### `Protected` _find
 
-▸ **_find**(`q?`: *undefined | string*, `options?`: *`i.FindOptions<User>`*, `queryAccess?`: *`QueryAccess<User>`*): *`Promise<User[]>`*
+▸ **_find**(`q?`: undefined | string, `options?`: `i.FindOptions<User>`, `queryAccess?`: `QueryAccess<User>`): *`Promise<User[]>`*
 
 *Inherited from void*
 
@@ -208,7 +208,7 @@ ___
 
 ### `Protected` _postProcess
 
-▸ **_postProcess**(`record`: *[User](../interfaces/user.md)*): *[User](../interfaces/user.md)*
+▸ **_postProcess**(`record`: [User](../interfaces/user.md)): *[User](../interfaces/user.md)*
 
 *Inherited from void*
 
@@ -226,7 +226,7 @@ ___
 
 ### `Protected` _preProcess
 
-▸ **_preProcess**(`record`: *[User](../interfaces/user.md)*): *[User](../interfaces/user.md)*
+▸ **_preProcess**(`record`: [User](../interfaces/user.md)): *[User](../interfaces/user.md)*
 
 *Inherited from void*
 
@@ -244,7 +244,7 @@ ___
 
 ### `Protected` _removeFromArray
 
-▸ **_removeFromArray**(`id`: *string*, `field`: *keyof User*, `values`: *string[] | string*): *`Promise<void>`*
+▸ **_removeFromArray**(`id`: string, `field`: keyof User, `values`: string[] | string): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -264,7 +264,7 @@ ___
 
 ### `Protected` _sanitizeRecord
 
-▸ **_sanitizeRecord**(`record`: *[User](../interfaces/user.md)*): *[User](../interfaces/user.md)*
+▸ **_sanitizeRecord**(`record`: [User](../interfaces/user.md)): *[User](../interfaces/user.md)*
 
 *Inherited from void*
 
@@ -282,7 +282,7 @@ ___
 
 ### `Protected` _updateWith
 
-▸ **_updateWith**(`id`: *string*, `body`: *any*): *`Promise<void>`*
+▸ **_updateWith**(`id`: string, `body`: any): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -301,9 +301,9 @@ ___
 
 ###  authenticate
 
-▸ **authenticate**(`username`: *string*, `password`: *string*): *`Promise<User>`*
+▸ **authenticate**(`username`: string, `password`: string): *`Promise<User>`*
 
-*Defined in [models/users.ts:49](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/users.ts#L49)*
+*Defined in [models/users.ts:49](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L49)*
 
 Authenticate the user
 
@@ -320,9 +320,9 @@ ___
 
 ###  authenticateWithToken
 
-▸ **authenticateWithToken**(`apiToken?`: *undefined | string*): *`Promise<User>`*
+▸ **authenticateWithToken**(`apiToken?`: undefined | string): *`Promise<User>`*
 
-*Defined in [models/users.ts:93](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/users.ts#L93)*
+*Defined in [models/users.ts:93](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L93)*
 
 Authenticate user by api token, returns private fields
 
@@ -338,7 +338,7 @@ ___
 
 ###  count
 
-▸ **count**(`q?`: *undefined | string*, `queryAccess?`: *`QueryAccess<User>`*): *`Promise<number>`*
+▸ **count**(`q?`: undefined | string, `queryAccess?`: `QueryAccess<User>`): *`Promise<number>`*
 
 *Inherited from void*
 
@@ -357,7 +357,7 @@ ___
 
 ###  countBy
 
-▸ **countBy**(`fields`: *`AnyInput<User>`*, `joinBy?`: *`JoinBy`*, `arrayJoinBy?`: *`JoinBy`*): *`Promise<number>`*
+▸ **countBy**(`fields`: `AnyInput<User>`, `joinBy?`: `JoinBy`, `arrayJoinBy?`: `JoinBy`): *`Promise<number>`*
 
 *Inherited from void*
 
@@ -377,7 +377,7 @@ ___
 
 ###  create
 
-▸ **create**(`record`: *`i.CreateRecordInput<User>`*): *`Promise<User>`*
+▸ **create**(`record`: `i.CreateRecordInput<User>`): *`Promise<User>`*
 
 *Inherited from void*
 
@@ -395,9 +395,9 @@ ___
 
 ###  createWithPassword
 
-▸ **createWithPassword**(`record`: *[CreateUserInput](../overview.md#createuserinput)*, `password`: *string*): *`Promise<User>`*
+▸ **createWithPassword**(`record`: [CreateUserInput](../overview.md#createuserinput), `password`: string): *`Promise<User>`*
 
-*Defined in [models/users.ts:21](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/users.ts#L21)*
+*Defined in [models/users.ts:21](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L21)*
 
 Create user with password, returns private fields
 
@@ -414,7 +414,7 @@ ___
 
 ###  deleteAll
 
-▸ **deleteAll**(`ids`: *string[]*): *`Promise<void>`*
+▸ **deleteAll**(`ids`: string[]): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -432,7 +432,7 @@ ___
 
 ###  deleteById
 
-▸ **deleteById**(`id`: *string*): *`Promise<void>`*
+▸ **deleteById**(`id`: string): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -450,7 +450,7 @@ ___
 
 ###  exists
 
-▸ **exists**(`id`: *string[] | string*): *`Promise<boolean>`*
+▸ **exists**(`id`: string[] | string): *`Promise<boolean>`*
 
 *Inherited from void*
 
@@ -468,7 +468,7 @@ ___
 
 ###  find
 
-▸ **find**(`q?`: *undefined | string*, `options?`: *`i.FindOptions<User>`*, `queryAccess?`: *`QueryAccess<User>`*): *`Promise<User[]>`*
+▸ **find**(`q?`: undefined | string, `options?`: `i.FindOptions<User>`, `queryAccess?`: `QueryAccess<User>`): *`Promise<User[]>`*
 
 *Inherited from void*
 
@@ -488,7 +488,7 @@ ___
 
 ###  findAll
 
-▸ **findAll**(`input`: *string[] | string | undefined*, `options?`: *`i.FindOneOptions<User>`*, `queryAccess?`: *`QueryAccess<User>`*): *`Promise<User[]>`*
+▸ **findAll**(`input`: string[] | string | undefined, `options?`: `i.FindOneOptions<User>`, `queryAccess?`: `QueryAccess<User>`): *`Promise<User[]>`*
 
 *Inherited from void*
 
@@ -508,7 +508,7 @@ ___
 
 ###  findAndApply
 
-▸ **findAndApply**(`updates`: *`Partial<User>` | undefined*, `options?`: *`i.FindOneOptions<User>`*, `queryAccess?`: *`QueryAccess<User>`*): *`Promise<Partial<User>>`*
+▸ **findAndApply**(`updates`: `Partial<User>` | undefined, `options?`: `i.FindOneOptions<User>`, `queryAccess?`: `QueryAccess<User>`): *`Promise<Partial<User>>`*
 
 *Inherited from void*
 
@@ -528,7 +528,7 @@ ___
 
 ###  findBy
 
-▸ **findBy**(`fields`: *`AnyInput<User>`*, `joinBy?`: *`JoinBy`*, `options?`: *`i.FindOneOptions<User>`*, `queryAccess?`: *`QueryAccess<User>`*): *`Promise<User>`*
+▸ **findBy**(`fields`: `AnyInput<User>`, `joinBy?`: `JoinBy`, `options?`: `i.FindOneOptions<User>`, `queryAccess?`: `QueryAccess<User>`): *`Promise<User>`*
 
 *Inherited from void*
 
@@ -549,7 +549,7 @@ ___
 
 ###  findByAnyId
 
-▸ **findByAnyId**(`anyId`: *any*, `options?`: *`i.FindOneOptions<User>`*, `queryAccess?`: *`QueryAccess<User>`*): *`Promise<User>`*
+▸ **findByAnyId**(`anyId`: any, `options?`: `i.FindOneOptions<User>`, `queryAccess?`: `QueryAccess<User>`): *`Promise<User>`*
 
 *Inherited from void*
 
@@ -569,7 +569,7 @@ ___
 
 ###  findById
 
-▸ **findById**(`id`: *string*, `options?`: *`i.FindOneOptions<User>`*, `queryAccess?`: *`QueryAccess<User>`*): *`Promise<User>`*
+▸ **findById**(`id`: string, `options?`: `i.FindOneOptions<User>`, `queryAccess?`: `QueryAccess<User>`): *`Promise<User>`*
 
 *Inherited from void*
 
@@ -601,9 +601,9 @@ ___
 
 ###  isPrivateUser
 
-▸ **isPrivateUser**(`user`: *`Partial<User>`*): *boolean*
+▸ **isPrivateUser**(`user`: `Partial<User>`): *boolean*
 
-*Defined in [models/users.ts:119](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/users.ts#L119)*
+*Defined in [models/users.ts:119](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L119)*
 
 **Parameters:**
 
@@ -617,9 +617,9 @@ ___
 
 ###  removeRoleFromUsers
 
-▸ **removeRoleFromUsers**(`roleId`: *string*): *`Promise<void>`*
+▸ **removeRoleFromUsers**(`roleId`: string): *`Promise<void>`*
 
-*Defined in [models/users.ts:128](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/users.ts#L128)*
+*Defined in [models/users.ts:128](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L128)*
 
 **Parameters:**
 
@@ -645,7 +645,7 @@ ___
 
 ###  update
 
-▸ **update**(`record`: *`i.UpdateRecordInput<User>`*): *`Promise<void>`*
+▸ **update**(`record`: `i.UpdateRecordInput<User>`): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -663,9 +663,9 @@ ___
 
 ###  updatePassword
 
-▸ **updatePassword**(`id`: *string*, `password`: *string*): *`Promise<void>`*
+▸ **updatePassword**(`id`: string, `password`: string): *`Promise<void>`*
 
-*Defined in [models/users.ts:34](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/users.ts#L34)*
+*Defined in [models/users.ts:34](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L34)*
 
 **Parameters:**
 
@@ -680,9 +680,9 @@ ___
 
 ###  updateToken
 
-▸ **updateToken**(`id`: *string*): *`Promise<string>`*
+▸ **updateToken**(`id`: string): *`Promise<string>`*
 
-*Defined in [models/users.ts:78](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/users.ts#L78)*
+*Defined in [models/users.ts:78](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L78)*
 
 Update the API Token for a user
 

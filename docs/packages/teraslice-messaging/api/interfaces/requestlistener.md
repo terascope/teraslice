@@ -11,9 +11,9 @@ sidebar_label: RequestListener
 
 ## Callable
 
-▸ (`request`: *`IncomingMessage`*, `response`: *`ServerResponse`*): *void*
+▸ (`request`: `IncomingMessage`, `response`: `ServerResponse`): *void*
 
-*Defined in [messenger/interfaces.ts:30](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/interfaces.ts#L30)*
+*Defined in [messenger/interfaces.ts:30](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/interfaces.ts#L30)*
 
 **Parameters:**
 

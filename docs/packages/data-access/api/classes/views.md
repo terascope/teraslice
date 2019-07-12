@@ -60,11 +60,11 @@ Manager for Views
 
 ###  constructor
 
-\+ **new Views**(`client`: *`Client`*, `config`: *`IndexModelOptions`*): *[Views](views.md)*
+\+ **new Views**(`client`: `Client`, `config`: `IndexModelOptions`): *[Views](views.md)*
 
 *Overrides void*
 
-*Defined in [models/views.ts:12](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/views.ts#L12)*
+*Defined in [models/views.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/views.ts#L12)*
 
 **Parameters:**
 
@@ -111,13 +111,13 @@ ___
 
 ▪ **IndexModelConfig**: *`IndexModelConfig<View>`* =  viewsConfig
 
-*Defined in [models/views.ts:12](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/views.ts#L12)*
+*Defined in [models/views.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/views.ts#L12)*
 
 ## Methods
 
 ### `Protected` _appendToArray
 
-▸ **_appendToArray**(`id`: *string*, `field`: *keyof View*, `values`: *string[] | string*): *`Promise<void>`*
+▸ **_appendToArray**(`id`: string, `field`: keyof View, `values`: string[] | string): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -137,7 +137,7 @@ ___
 
 ### `Protected` _createJoinQuery
 
-▸ **_createJoinQuery**(`fields`: *`AnyInput<View>`*, `joinBy?`: *`JoinBy`*, `arrayJoinBy?`: *`JoinBy`*): *string*
+▸ **_createJoinQuery**(`fields`: `AnyInput<View>`, `joinBy?`: `JoinBy`, `arrayJoinBy?`: `JoinBy`): *string*
 
 *Inherited from void*
 
@@ -157,7 +157,7 @@ ___
 
 ### `Protected` _ensureUnique
 
-▸ **_ensureUnique**(`record`: *`AnyInput<View>`*): *`Promise<void>`*
+▸ **_ensureUnique**(`record`: `AnyInput<View>`): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -175,7 +175,7 @@ ___
 
 ### `Protected` _find
 
-▸ **_find**(`q?`: *undefined | string*, `options?`: *`i.FindOptions<View>`*, `queryAccess?`: *`QueryAccess<View>`*): *`Promise<View[]>`*
+▸ **_find**(`q?`: undefined | string, `options?`: `i.FindOptions<View>`, `queryAccess?`: `QueryAccess<View>`): *`Promise<View[]>`*
 
 *Inherited from void*
 
@@ -195,7 +195,7 @@ ___
 
 ### `Protected` _postProcess
 
-▸ **_postProcess**(`record`: *[View](../interfaces/view.md)*): *[View](../interfaces/view.md)*
+▸ **_postProcess**(`record`: [View](../interfaces/view.md)): *[View](../interfaces/view.md)*
 
 *Inherited from void*
 
@@ -213,7 +213,7 @@ ___
 
 ### `Protected` _preProcess
 
-▸ **_preProcess**(`record`: *[View](../interfaces/view.md)*): *[View](../interfaces/view.md)*
+▸ **_preProcess**(`record`: [View](../interfaces/view.md)): *[View](../interfaces/view.md)*
 
 *Inherited from void*
 
@@ -231,7 +231,7 @@ ___
 
 ### `Protected` _removeFromArray
 
-▸ **_removeFromArray**(`id`: *string*, `field`: *keyof View*, `values`: *string[] | string*): *`Promise<void>`*
+▸ **_removeFromArray**(`id`: string, `field`: keyof View, `values`: string[] | string): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -251,7 +251,7 @@ ___
 
 ### `Protected` _sanitizeRecord
 
-▸ **_sanitizeRecord**(`record`: *[View](../interfaces/view.md)*): *[View](../interfaces/view.md)*
+▸ **_sanitizeRecord**(`record`: [View](../interfaces/view.md)): *[View](../interfaces/view.md)*
 
 *Inherited from void*
 
@@ -269,7 +269,7 @@ ___
 
 ### `Protected` _updateWith
 
-▸ **_updateWith**(`id`: *string*, `body`: *any*): *`Promise<void>`*
+▸ **_updateWith**(`id`: string, `body`: any): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -288,9 +288,9 @@ ___
 
 ###  checkForViewConflicts
 
-▸ **checkForViewConflicts**(`space`: *`Partial<Space>`*): *`Promise<void>`*
+▸ **checkForViewConflicts**(`space`: `Partial<Space>`): *`Promise<void>`*
 
-*Defined in [models/views.ts:18](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/views.ts#L18)*
+*Defined in [models/views.ts:18](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/views.ts#L18)*
 
 **Parameters:**
 
@@ -304,7 +304,7 @@ ___
 
 ###  count
 
-▸ **count**(`q?`: *undefined | string*, `queryAccess?`: *`QueryAccess<View>`*): *`Promise<number>`*
+▸ **count**(`q?`: undefined | string, `queryAccess?`: `QueryAccess<View>`): *`Promise<number>`*
 
 *Inherited from void*
 
@@ -323,7 +323,7 @@ ___
 
 ###  countBy
 
-▸ **countBy**(`fields`: *`AnyInput<View>`*, `joinBy?`: *`JoinBy`*, `arrayJoinBy?`: *`JoinBy`*): *`Promise<number>`*
+▸ **countBy**(`fields`: `AnyInput<View>`, `joinBy?`: `JoinBy`, `arrayJoinBy?`: `JoinBy`): *`Promise<number>`*
 
 *Inherited from void*
 
@@ -343,7 +343,7 @@ ___
 
 ###  create
 
-▸ **create**(`record`: *`i.CreateRecordInput<View>`*): *`Promise<View>`*
+▸ **create**(`record`: `i.CreateRecordInput<View>`): *`Promise<View>`*
 
 *Inherited from void*
 
@@ -361,7 +361,7 @@ ___
 
 ###  deleteAll
 
-▸ **deleteAll**(`ids`: *string[]*): *`Promise<void>`*
+▸ **deleteAll**(`ids`: string[]): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -379,7 +379,7 @@ ___
 
 ###  deleteById
 
-▸ **deleteById**(`id`: *string*): *`Promise<void>`*
+▸ **deleteById**(`id`: string): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -397,7 +397,7 @@ ___
 
 ###  exists
 
-▸ **exists**(`id`: *string[] | string*): *`Promise<boolean>`*
+▸ **exists**(`id`: string[] | string): *`Promise<boolean>`*
 
 *Inherited from void*
 
@@ -415,7 +415,7 @@ ___
 
 ###  find
 
-▸ **find**(`q?`: *undefined | string*, `options?`: *`i.FindOptions<View>`*, `queryAccess?`: *`QueryAccess<View>`*): *`Promise<View[]>`*
+▸ **find**(`q?`: undefined | string, `options?`: `i.FindOptions<View>`, `queryAccess?`: `QueryAccess<View>`): *`Promise<View[]>`*
 
 *Inherited from void*
 
@@ -435,7 +435,7 @@ ___
 
 ###  findAll
 
-▸ **findAll**(`input`: *string[] | string | undefined*, `options?`: *`i.FindOneOptions<View>`*, `queryAccess?`: *`QueryAccess<View>`*): *`Promise<View[]>`*
+▸ **findAll**(`input`: string[] | string | undefined, `options?`: `i.FindOneOptions<View>`, `queryAccess?`: `QueryAccess<View>`): *`Promise<View[]>`*
 
 *Inherited from void*
 
@@ -455,7 +455,7 @@ ___
 
 ###  findAndApply
 
-▸ **findAndApply**(`updates`: *`Partial<View>` | undefined*, `options?`: *`i.FindOneOptions<View>`*, `queryAccess?`: *`QueryAccess<View>`*): *`Promise<Partial<View>>`*
+▸ **findAndApply**(`updates`: `Partial<View>` | undefined, `options?`: `i.FindOneOptions<View>`, `queryAccess?`: `QueryAccess<View>`): *`Promise<Partial<View>>`*
 
 *Inherited from void*
 
@@ -475,7 +475,7 @@ ___
 
 ###  findBy
 
-▸ **findBy**(`fields`: *`AnyInput<View>`*, `joinBy?`: *`JoinBy`*, `options?`: *`i.FindOneOptions<View>`*, `queryAccess?`: *`QueryAccess<View>`*): *`Promise<View>`*
+▸ **findBy**(`fields`: `AnyInput<View>`, `joinBy?`: `JoinBy`, `options?`: `i.FindOneOptions<View>`, `queryAccess?`: `QueryAccess<View>`): *`Promise<View>`*
 
 *Inherited from void*
 
@@ -496,7 +496,7 @@ ___
 
 ###  findByAnyId
 
-▸ **findByAnyId**(`anyId`: *any*, `options?`: *`i.FindOneOptions<View>`*, `queryAccess?`: *`QueryAccess<View>`*): *`Promise<View>`*
+▸ **findByAnyId**(`anyId`: any, `options?`: `i.FindOneOptions<View>`, `queryAccess?`: `QueryAccess<View>`): *`Promise<View>`*
 
 *Inherited from void*
 
@@ -516,7 +516,7 @@ ___
 
 ###  findById
 
-▸ **findById**(`id`: *string*, `options?`: *`i.FindOneOptions<View>`*, `queryAccess?`: *`QueryAccess<View>`*): *`Promise<View>`*
+▸ **findById**(`id`: string, `options?`: `i.FindOneOptions<View>`, `queryAccess?`: `QueryAccess<View>`): *`Promise<View>`*
 
 *Inherited from void*
 
@@ -536,9 +536,9 @@ ___
 
 ###  getViewOfSpace
 
-▸ **getViewOfSpace**(`space`: *[Space](../interfaces/space.md)*, `role`: *[Role](../interfaces/role.md)*): *`Promise<View>`*
+▸ **getViewOfSpace**(`space`: [Space](../interfaces/space.md), `role`: [Role](../interfaces/role.md)): *`Promise<View>`*
 
-*Defined in [models/views.ts:53](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/views.ts#L53)*
+*Defined in [models/views.ts:53](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/views.ts#L53)*
 
 **Parameters:**
 
@@ -565,9 +565,9 @@ ___
 
 ###  removeRoleFromViews
 
-▸ **removeRoleFromViews**(`roleId`: *string*): *`Promise<void>`*
+▸ **removeRoleFromViews**(`roleId`: string): *`Promise<void>`*
 
-*Defined in [models/views.ts:70](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/views.ts#L70)*
+*Defined in [models/views.ts:70](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/views.ts#L70)*
 
 **Parameters:**
 
@@ -593,7 +593,7 @@ ___
 
 ###  update
 
-▸ **update**(`record`: *`i.UpdateRecordInput<View>`*): *`Promise<void>`*
+▸ **update**(`record`: `i.UpdateRecordInput<View>`): *`Promise<void>`*
 
 *Inherited from void*
 

@@ -61,11 +61,11 @@ Manager for Spaces
 
 ###  constructor
 
-\+ **new Spaces**(`client`: *`Client`*, `options`: *`IndexModelOptions`*): *[Spaces](spaces.md)*
+\+ **new Spaces**(`client`: `Client`, `options`: `IndexModelOptions`): *[Spaces](spaces.md)*
 
 *Overrides void*
 
-*Defined in [models/spaces.ts:11](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/spaces.ts#L11)*
+*Defined in [models/spaces.ts:11](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/spaces.ts#L11)*
 
 **Parameters:**
 
@@ -112,7 +112,7 @@ ___
 
 ▪ **IndexModelConfig**: *`IndexModelConfig<Space>`* =  spacesConfig
 
-*Defined in [models/spaces.ts:10](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/spaces.ts#L10)*
+*Defined in [models/spaces.ts:10](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/spaces.ts#L10)*
 
 ___
 
@@ -120,13 +120,13 @@ ___
 
 ▪ **ReservedEndpoints**: *string[]* =  ['data-access', 'spaces']
 
-*Defined in [models/spaces.ts:11](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/spaces.ts#L11)*
+*Defined in [models/spaces.ts:11](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/spaces.ts#L11)*
 
 ## Methods
 
 ### `Protected` _appendToArray
 
-▸ **_appendToArray**(`id`: *string*, `field`: *keyof Space*, `values`: *string[] | string*): *`Promise<void>`*
+▸ **_appendToArray**(`id`: string, `field`: keyof Space, `values`: string[] | string): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -146,7 +146,7 @@ ___
 
 ### `Protected` _createJoinQuery
 
-▸ **_createJoinQuery**(`fields`: *`AnyInput<Space>`*, `joinBy?`: *`JoinBy`*, `arrayJoinBy?`: *`JoinBy`*): *string*
+▸ **_createJoinQuery**(`fields`: `AnyInput<Space>`, `joinBy?`: `JoinBy`, `arrayJoinBy?`: `JoinBy`): *string*
 
 *Inherited from void*
 
@@ -166,7 +166,7 @@ ___
 
 ### `Protected` _ensureUnique
 
-▸ **_ensureUnique**(`record`: *`AnyInput<Space>`*): *`Promise<void>`*
+▸ **_ensureUnique**(`record`: `AnyInput<Space>`): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -184,7 +184,7 @@ ___
 
 ### `Protected` _find
 
-▸ **_find**(`q?`: *undefined | string*, `options?`: *`i.FindOptions<Space>`*, `queryAccess?`: *`QueryAccess<Space>`*): *`Promise<Space[]>`*
+▸ **_find**(`q?`: undefined | string, `options?`: `i.FindOptions<Space>`, `queryAccess?`: `QueryAccess<Space>`): *`Promise<Space[]>`*
 
 *Inherited from void*
 
@@ -204,7 +204,7 @@ ___
 
 ### `Protected` _postProcess
 
-▸ **_postProcess**(`record`: *[Space](../interfaces/space.md)*): *[Space](../interfaces/space.md)*
+▸ **_postProcess**(`record`: [Space](../interfaces/space.md)): *[Space](../interfaces/space.md)*
 
 *Inherited from void*
 
@@ -222,7 +222,7 @@ ___
 
 ### `Protected` _preProcess
 
-▸ **_preProcess**(`record`: *[Space](../interfaces/space.md)*): *[Space](../interfaces/space.md)*
+▸ **_preProcess**(`record`: [Space](../interfaces/space.md)): *[Space](../interfaces/space.md)*
 
 *Inherited from void*
 
@@ -240,7 +240,7 @@ ___
 
 ### `Protected` _removeFromArray
 
-▸ **_removeFromArray**(`id`: *string*, `field`: *keyof Space*, `values`: *string[] | string*): *`Promise<void>`*
+▸ **_removeFromArray**(`id`: string, `field`: keyof Space, `values`: string[] | string): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -260,7 +260,7 @@ ___
 
 ### `Protected` _sanitizeRecord
 
-▸ **_sanitizeRecord**(`record`: *[Space](../interfaces/space.md)*): *[Space](../interfaces/space.md)*
+▸ **_sanitizeRecord**(`record`: [Space](../interfaces/space.md)): *[Space](../interfaces/space.md)*
 
 *Inherited from void*
 
@@ -278,7 +278,7 @@ ___
 
 ### `Protected` _updateWith
 
-▸ **_updateWith**(`id`: *string*, `body`: *any*): *`Promise<void>`*
+▸ **_updateWith**(`id`: string, `body`: any): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -297,9 +297,9 @@ ___
 
 ###  addViewsToSpace
 
-▸ **addViewsToSpace**(`spaceId`: *string*, `views`: *string[] | string*): *`Promise<void>`*
+▸ **addViewsToSpace**(`spaceId`: string, `views`: string[] | string): *`Promise<void>`*
 
-*Defined in [models/spaces.ts:18](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/spaces.ts#L18)*
+*Defined in [models/spaces.ts:18](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/spaces.ts#L18)*
 
 Associate views to space
 
@@ -316,7 +316,7 @@ ___
 
 ###  count
 
-▸ **count**(`q?`: *undefined | string*, `queryAccess?`: *`QueryAccess<Space>`*): *`Promise<number>`*
+▸ **count**(`q?`: undefined | string, `queryAccess?`: `QueryAccess<Space>`): *`Promise<number>`*
 
 *Inherited from void*
 
@@ -335,7 +335,7 @@ ___
 
 ###  countBy
 
-▸ **countBy**(`fields`: *`AnyInput<Space>`*, `joinBy?`: *`JoinBy`*, `arrayJoinBy?`: *`JoinBy`*): *`Promise<number>`*
+▸ **countBy**(`fields`: `AnyInput<Space>`, `joinBy?`: `JoinBy`, `arrayJoinBy?`: `JoinBy`): *`Promise<number>`*
 
 *Inherited from void*
 
@@ -355,7 +355,7 @@ ___
 
 ###  create
 
-▸ **create**(`record`: *`i.CreateRecordInput<Space>`*): *`Promise<Space>`*
+▸ **create**(`record`: `i.CreateRecordInput<Space>`): *`Promise<Space>`*
 
 *Inherited from void*
 
@@ -373,7 +373,7 @@ ___
 
 ###  deleteAll
 
-▸ **deleteAll**(`ids`: *string[]*): *`Promise<void>`*
+▸ **deleteAll**(`ids`: string[]): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -391,7 +391,7 @@ ___
 
 ###  deleteById
 
-▸ **deleteById**(`id`: *string*): *`Promise<void>`*
+▸ **deleteById**(`id`: string): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -409,7 +409,7 @@ ___
 
 ###  exists
 
-▸ **exists**(`id`: *string[] | string*): *`Promise<boolean>`*
+▸ **exists**(`id`: string[] | string): *`Promise<boolean>`*
 
 *Inherited from void*
 
@@ -427,7 +427,7 @@ ___
 
 ###  find
 
-▸ **find**(`q?`: *undefined | string*, `options?`: *`i.FindOptions<Space>`*, `queryAccess?`: *`QueryAccess<Space>`*): *`Promise<Space[]>`*
+▸ **find**(`q?`: undefined | string, `options?`: `i.FindOptions<Space>`, `queryAccess?`: `QueryAccess<Space>`): *`Promise<Space[]>`*
 
 *Inherited from void*
 
@@ -447,7 +447,7 @@ ___
 
 ###  findAll
 
-▸ **findAll**(`input`: *string[] | string | undefined*, `options?`: *`i.FindOneOptions<Space>`*, `queryAccess?`: *`QueryAccess<Space>`*): *`Promise<Space[]>`*
+▸ **findAll**(`input`: string[] | string | undefined, `options?`: `i.FindOneOptions<Space>`, `queryAccess?`: `QueryAccess<Space>`): *`Promise<Space[]>`*
 
 *Inherited from void*
 
@@ -467,7 +467,7 @@ ___
 
 ###  findAndApply
 
-▸ **findAndApply**(`updates`: *`Partial<Space>` | undefined*, `options?`: *`i.FindOneOptions<Space>`*, `queryAccess?`: *`QueryAccess<Space>`*): *`Promise<Partial<Space>>`*
+▸ **findAndApply**(`updates`: `Partial<Space>` | undefined, `options?`: `i.FindOneOptions<Space>`, `queryAccess?`: `QueryAccess<Space>`): *`Promise<Partial<Space>>`*
 
 *Inherited from void*
 
@@ -487,7 +487,7 @@ ___
 
 ###  findBy
 
-▸ **findBy**(`fields`: *`AnyInput<Space>`*, `joinBy?`: *`JoinBy`*, `options?`: *`i.FindOneOptions<Space>`*, `queryAccess?`: *`QueryAccess<Space>`*): *`Promise<Space>`*
+▸ **findBy**(`fields`: `AnyInput<Space>`, `joinBy?`: `JoinBy`, `options?`: `i.FindOneOptions<Space>`, `queryAccess?`: `QueryAccess<Space>`): *`Promise<Space>`*
 
 *Inherited from void*
 
@@ -508,7 +508,7 @@ ___
 
 ###  findByAnyId
 
-▸ **findByAnyId**(`anyId`: *any*, `options?`: *`i.FindOneOptions<Space>`*, `queryAccess?`: *`QueryAccess<Space>`*): *`Promise<Space>`*
+▸ **findByAnyId**(`anyId`: any, `options?`: `i.FindOneOptions<Space>`, `queryAccess?`: `QueryAccess<Space>`): *`Promise<Space>`*
 
 *Inherited from void*
 
@@ -528,7 +528,7 @@ ___
 
 ###  findById
 
-▸ **findById**(`id`: *string*, `options?`: *`i.FindOneOptions<Space>`*, `queryAccess?`: *`QueryAccess<Space>`*): *`Promise<Space>`*
+▸ **findById**(`id`: string, `options?`: `i.FindOneOptions<Space>`, `queryAccess?`: `QueryAccess<Space>`): *`Promise<Space>`*
 
 *Inherited from void*
 
@@ -560,9 +560,9 @@ ___
 
 ###  removeViewFromSpaces
 
-▸ **removeViewFromSpaces**(`viewId`: *string*): *`Promise<void>`*
+▸ **removeViewFromSpaces**(`viewId`: string): *`Promise<void>`*
 
-*Defined in [models/spaces.ts:39](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/spaces.ts#L39)*
+*Defined in [models/spaces.ts:39](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/spaces.ts#L39)*
 
 **Parameters:**
 
@@ -576,9 +576,9 @@ ___
 
 ###  removeViewsFromSpace
 
-▸ **removeViewsFromSpace**(`spaceId`: *string*, `views`: *string[] | string*): *`Promise<void>`*
+▸ **removeViewsFromSpace**(`spaceId`: string, `views`: string[] | string): *`Promise<void>`*
 
-*Defined in [models/spaces.ts:29](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-access/src/models/spaces.ts#L29)*
+*Defined in [models/spaces.ts:29](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/spaces.ts#L29)*
 
 Disassociate views to space
 
@@ -607,7 +607,7 @@ ___
 
 ###  update
 
-▸ **update**(`record`: *`i.UpdateRecordInput<Space>`*): *`Promise<void>`*
+▸ **update**(`record`: `i.UpdateRecordInput<Space>`): *`Promise<void>`*
 
 *Inherited from void*
 

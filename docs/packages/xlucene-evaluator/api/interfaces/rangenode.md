@@ -27,7 +27,7 @@ sidebar_label: RangeNode
 
 *Inherited from [NumberDataType](numberdatatype.md).[data_type](numberdatatype.md#data_type)*
 
-*Defined in [parser/interfaces.ts:56](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/interfaces.ts#L56)*
+*Defined in [parser/interfaces.ts:56](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L56)*
 
 ___
 
@@ -35,7 +35,7 @@ ___
 
 • **operator**: *[RangeOperator](../overview.md#rangeoperator)*
 
-*Defined in [parser/interfaces.ts:102](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/interfaces.ts#L102)*
+*Defined in [parser/interfaces.ts:102](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L102)*
 
 ___
 
@@ -45,4 +45,4 @@ ___
 
 *Inherited from [NumberDataType](numberdatatype.md).[value](numberdatatype.md#value)*
 
-*Defined in [parser/interfaces.ts:57](https://github.com/terascope/teraslice/blob/a3992c27/packages/xlucene-evaluator/src/parser/interfaces.ts#L57)*
+*Defined in [parser/interfaces.ts:57](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L57)*
