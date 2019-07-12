@@ -12,7 +12,7 @@ import * as utils from '../manager/utils';
  * A graphql api for managing spaces
  */
 
-export default class SpacesPlugin {
+export default class QueryPointPlugin {
     readonly config: TeraserverConfig;
     readonly logger: Logger;
     readonly app: Express;
@@ -45,11 +45,11 @@ export default class SpacesPlugin {
     async shutdown() {}
 
     registerRoutes() {
-        const managerUri = '/api/v2/spaces';
-        this.logger.info(`Registering data-access-plugin space manager at ${managerUri}`);
+        const queryPointURI = '/api/v2/qp';
+        this.logger.info(`Registering data-access-plugin query-point at ${queryPointURI}`);
         this.server.applyMiddleware({
             app: this.app,
-            path: managerUri,
+            path: queryPointURI,
         });
     }
 }
