@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { waterfall, pRetry, TSError, PRetryConfig, getBackoffDelay } from '../src';
+import { waterfall, pWhile, pRetry, TSError, PRetryConfig, getBackoffDelay, PWhileOptions } from '../src';
 
 describe('Utils', () => {
     describe('waterfall', () => {
@@ -158,6 +158,33 @@ describe('Utils', () => {
             const result = getBackoffDelay(input, factor, max, min);
 
             expect(result).toEqual(max);
+        });
+    });
+
+    describe('pWhile', () => {
+        const defaultOptions: PWhileOptions = {
+            timeoutMs: 100,
+            enabledJitter: true,
+        };
+
+        it('should run until it returns true on first attempt', async () => {
+            await pWhile(async () => true, defaultOptions);
+        });
+
+        it('should run until it returns true on second attempt', async () => {
+            let i = 0;
+            await pWhile(async () => (i++ > 0 ? true : false), defaultOptions);
+        });
+
+        it('should run until throws an error', async () => {
+            const fn = async () => {
+                throw new Error('Uh oh');
+            };
+            return expect(pWhile(fn, defaultOptions)).rejects.toThrow('Uh oh');
+        });
+
+        it('should run until it times out', async () => {
+            return expect(pWhile(async () => false, defaultOptions)).rejects.toThrow(/Request timeout after \d+(ms|sec) while waiting/);
         });
     });
 });

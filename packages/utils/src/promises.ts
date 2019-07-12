@@ -1,5 +1,6 @@
 import { debugLogger } from './logger';
 import { isEmpty } from './utils';
+import { toHumanTime, trackTimeout } from './dates';
 import { isRetryableError, TSError, parseError, isFatalError } from './errors';
 
 const logger = debugLogger('utils:promises');
@@ -141,6 +142,65 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetry
 
         throw err;
     }
+}
+
+export type PWhileOptions = {
+    /** @defaults to -1 which is never */
+    timeoutMs?: number;
+
+    /** @defaults to "Request" */
+    name?: string;
+
+    /** enable jitter to stagger requests */
+    enabledJitter?: boolean;
+};
+
+/**
+ * Run a function until it returns true or throws an error
+ */
+export async function pWhile(fn: PromiseFn, options: PWhileOptions = {}): Promise<void> {
+    const timeoutMs = options.timeoutMs != null ? options.timeoutMs : -1;
+    const minJitter = timeoutMs > 100 ? timeoutMs : 100;
+    const name = options.name || 'Request';
+
+    const checkTimeout = trackTimeout(timeoutMs);
+    let running = false;
+    await new Promise((resolve, reject) => {
+        const interval = setInterval(async () => {
+            if (running) return;
+
+            const timeout = checkTimeout();
+            if (timeout !== false) {
+                reject(
+                    new TSError(`${name} timeout after ${toHumanTime(timeout)} while waiting`, {
+                        statusCode: 503,
+                    })
+                );
+                return;
+            }
+
+            running = true;
+
+            try {
+                const result = await fn();
+                if (result) {
+                    clearInterval(interval);
+                    resolve();
+                    return;
+                }
+
+                if (options.enabledJitter) {
+                    const delay = getBackoffDelay(minJitter, 3, timeoutMs / 2, minJitter);
+                    await pDelay(delay);
+                }
+            } catch (err) {
+                clearInterval(interval);
+                reject(err);
+            } finally {
+                running = false;
+            }
+        }, 1);
+    });
 }
 
 /**
