@@ -91,11 +91,11 @@ sidebar_label: Client
 
 ###  constructor
 
-\+ **new Client**(`opts`: *[ClientOptions](../interfaces/clientoptions.md)*): *[Client](client.md)*
+\+ **new Client**(`opts`: [ClientOptions](../interfaces/clientoptions.md)): *[Client](client.md)*
 
 *Overrides [Core](core.md).[constructor](core.md#constructor)*
 
-*Defined in [messenger/client.ts:18](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/client.ts#L18)*
+*Defined in [messenger/client.ts:18](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/client.ts#L18)*
 
 **Parameters:**
 
@@ -115,7 +115,7 @@ Name | Type |
 
 *Overrides [Core](core.md).[actionTimeout](core.md#protected-actiontimeout)*
 
-*Defined in [messenger/core.ts:12](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/core.ts#L12)*
+*Defined in [messenger/core.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/core.ts#L12)*
 
 ___
 
@@ -125,7 +125,7 @@ ___
 
 *Overrides [Client](client.md).[available](client.md#available)*
 
-*Defined in [messenger/client.ts:16](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/client.ts#L16)*
+*Defined in [messenger/client.ts:16](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/client.ts#L16)*
 
 ___
 
@@ -135,7 +135,7 @@ ___
 
 *Overrides [Client](client.md).[clientId](client.md#clientid)*
 
-*Defined in [messenger/client.ts:11](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/client.ts#L11)*
+*Defined in [messenger/client.ts:11](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/client.ts#L11)*
 
 ___
 
@@ -145,7 +145,7 @@ ___
 
 *Overrides [Client](client.md).[clientType](client.md#clienttype)*
 
-*Defined in [messenger/client.ts:12](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/client.ts#L12)*
+*Defined in [messenger/client.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/client.ts#L12)*
 
 ___
 
@@ -157,7 +157,7 @@ ___
 
 *Overrides [Core](core.md).[closed](core.md#closed)*
 
-*Defined in [messenger/core.ts:9](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/core.ts#L9)*
+*Defined in [messenger/core.ts:9](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/core.ts#L9)*
 
 ___
 
@@ -167,7 +167,7 @@ ___
 
 *Overrides [Client](client.md).[connectTimeout](client.md#connecttimeout)*
 
-*Defined in [messenger/client.ts:14](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/client.ts#L14)*
+*Defined in [messenger/client.ts:14](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/client.ts#L14)*
 
 ___
 
@@ -175,7 +175,7 @@ ___
 
 • **exId**: *string*
 
-*Defined in [cluster-master/client.ts:6](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/cluster-master/client.ts#L6)*
+*Defined in [cluster-master/client.ts:6](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/cluster-master/client.ts#L6)*
 
 ___
 
@@ -185,7 +185,7 @@ ___
 
 *Overrides [Client](client.md).[hostUrl](client.md#hosturl)*
 
-*Defined in [messenger/client.ts:15](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/client.ts#L15)*
+*Defined in [messenger/client.ts:15](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/client.ts#L15)*
 
 ___
 
@@ -197,7 +197,7 @@ ___
 
 *Overrides [Core](core.md).[logger](core.md#protected-logger)*
 
-*Defined in [messenger/core.ts:13](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/core.ts#L13)*
+*Defined in [messenger/core.ts:13](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/core.ts#L13)*
 
 ___
 
@@ -209,7 +209,7 @@ ___
 
 *Overrides [Core](core.md).[networkLatencyBuffer](core.md#protected-networklatencybuffer)*
 
-*Defined in [messenger/core.ts:11](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/core.ts#L11)*
+*Defined in [messenger/core.ts:11](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/core.ts#L11)*
 
 ___
 
@@ -219,7 +219,7 @@ ___
 
 *Overrides [Client](client.md).[ready](client.md#protected-ready)*
 
-*Defined in [messenger/client.ts:17](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/client.ts#L17)*
+*Defined in [messenger/client.ts:17](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/client.ts#L17)*
 
 ___
 
@@ -229,7 +229,7 @@ ___
 
 *Overrides [Client](client.md).[serverName](client.md#servername)*
 
-*Defined in [messenger/client.ts:13](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/client.ts#L13)*
+*Defined in [messenger/client.ts:13](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/client.ts#L13)*
 
 ___
 
@@ -239,7 +239,7 @@ ___
 
 *Overrides [Client](client.md).[serverShutdown](client.md#protected-servershutdown)*
 
-*Defined in [messenger/client.ts:18](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/client.ts#L18)*
+*Defined in [messenger/client.ts:18](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/client.ts#L18)*
 
 ___
 
@@ -249,7 +249,7 @@ ___
 
 *Overrides [Client](client.md).[socket](client.md#socket)*
 
-*Defined in [messenger/client.ts:10](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/client.ts#L10)*
+*Defined in [messenger/client.ts:10](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/client.ts#L10)*
 
 ___
 
@@ -257,7 +257,7 @@ ___
 
 • **workerId**: *string*
 
-*Defined in [execution-controller/client.ts:8](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/execution-controller/client.ts#L8)*
+*Defined in [execution-controller/client.ts:8](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/execution-controller/client.ts#L8)*
 
 ___
 
@@ -275,7 +275,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:
 
 ###  addListener
 
-▸ **addListener**(`event`: *string | symbol*, `listener`: *function*): *this*
+▸ **addListener**(`event`: string | symbol, `listener`: function): *this*
 
 *Inherited from void*
 
@@ -289,7 +289,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:
 
 ▪ **listener**: *function*
 
-▸ (...`args`: *any[]*): *void*
+▸ (...`args`: any[]): *void*
 
 **Parameters:**
 
@@ -309,7 +309,7 @@ ___
 
 *Overrides [Core](core.md).[close](core.md#close)*
 
-*Defined in [messenger/core.ts:35](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/core.ts#L35)*
+*Defined in [messenger/core.ts:35](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/core.ts#L35)*
 
 **Returns:** *void*
 
@@ -321,7 +321,7 @@ ___
 
 *Overrides [Client](client.md).[connect](client.md#connect)*
 
-*Defined in [messenger/client.ts:86](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/client.ts#L86)*
+*Defined in [messenger/client.ts:86](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/client.ts#L86)*
 
 **Returns:** *`Promise<void>`*
 
@@ -329,11 +329,11 @@ ___
 
 ###  emit
 
-▸ **emit**(`eventName`: *string*, `msg`: *[ClientEventMessage](../interfaces/clienteventmessage.md)*): *void*
+▸ **emit**(`eventName`: string, `msg`: [ClientEventMessage](../interfaces/clienteventmessage.md)): *void*
 
 *Overrides [Core](core.md).[emit](core.md#emit)*
 
-*Defined in [messenger/client.ts:229](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/client.ts#L229)*
+*Defined in [messenger/client.ts:229](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/client.ts#L229)*
 
 **Parameters:**
 
@@ -366,7 +366,7 @@ ___
 
 *Overrides [Client](client.md).[forceReconnect](client.md#forcereconnect)*
 
-*Defined in [messenger/client.ts:265](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/client.ts#L265)*
+*Defined in [messenger/client.ts:265](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/client.ts#L265)*
 
 **Returns:** *`Promise<unknown>`*
 
@@ -388,13 +388,13 @@ ___
 
 ###  getTimeout
 
-▸ **getTimeout**(`timeout?`: *undefined | number*): *number*
+▸ **getTimeout**(`timeout?`: undefined | number): *number*
 
 *Inherited from [Core](core.md).[getTimeout](core.md#gettimeout)*
 
 *Overrides [Core](core.md).[getTimeout](core.md#gettimeout)*
 
-*Defined in [messenger/core.ts:119](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/core.ts#L119)*
+*Defined in [messenger/core.ts:119](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/core.ts#L119)*
 
 **Parameters:**
 
@@ -408,13 +408,13 @@ ___
 
 ###  getTimeoutWithMax
 
-▸ **getTimeoutWithMax**(`maxTimeout`: *number*): *number*
+▸ **getTimeoutWithMax**(`maxTimeout`: number): *number*
 
 *Inherited from [Core](core.md).[getTimeoutWithMax](core.md#gettimeoutwithmax)*
 
 *Overrides [Core](core.md).[getTimeoutWithMax](core.md#gettimeoutwithmax)*
 
-*Defined in [messenger/core.ts:114](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/core.ts#L114)*
+*Defined in [messenger/core.ts:114](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/core.ts#L114)*
 
 **Parameters:**
 
@@ -428,13 +428,13 @@ ___
 
 ### `Protected` handleResponse
 
-▸ **handleResponse**(`socket`: *[SocketEmitter](../interfaces/socketemitter.md)*, `eventName`: *string*, `fn`: *[MessageHandler](../interfaces/messagehandler.md)*): *void*
+▸ **handleResponse**(`socket`: [SocketEmitter](../interfaces/socketemitter.md), `eventName`: string, `fn`: [MessageHandler](../interfaces/messagehandler.md)): *void*
 
 *Inherited from [Core](core.md).[handleResponse](core.md#protected-handleresponse)*
 
 *Overrides [Core](core.md).[handleResponse](core.md#protected-handleresponse)*
 
-*Defined in [messenger/core.ts:62](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/core.ts#L62)*
+*Defined in [messenger/core.ts:62](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/core.ts#L62)*
 
 **Parameters:**
 
@@ -450,13 +450,13 @@ ___
 
 ### `Protected` handleSendResponse
 
-▸ **handleSendResponse**(`sent`: *[Message](../interfaces/message.md)*): *`Promise<Message | null>`*
+▸ **handleSendResponse**(`sent`: [Message](../interfaces/message.md)): *`Promise<Message | null>`*
 
 *Inherited from [Core](core.md).[handleSendResponse](core.md#protected-handlesendresponse)*
 
 *Overrides [Core](core.md).[handleSendResponse](core.md#protected-handlesendresponse)*
 
-*Defined in [messenger/core.ts:40](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/core.ts#L40)*
+*Defined in [messenger/core.ts:40](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/core.ts#L40)*
 
 **Parameters:**
 
@@ -474,7 +474,7 @@ ___
 
 *Overrides [Core](core.md).[isClientReady](core.md#isclientready)*
 
-*Defined in [messenger/client.ts:234](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/client.ts#L234)*
+*Defined in [messenger/client.ts:234](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/client.ts#L234)*
 
 **Returns:** *boolean*
 
@@ -482,7 +482,7 @@ ___
 
 ###  listenerCount
 
-▸ **listenerCount**(`type`: *string | symbol*): *number*
+▸ **listenerCount**(`type`: string | symbol): *number*
 
 *Inherited from void*
 
@@ -502,7 +502,7 @@ ___
 
 ###  listeners
 
-▸ **listeners**(`event`: *string | symbol*): *`Function`[]*
+▸ **listeners**(`event`: string | symbol): *`Function`[]*
 
 *Inherited from void*
 
@@ -522,7 +522,7 @@ ___
 
 ###  off
 
-▸ **off**(`event`: *string | symbol*, `listener`: *function*): *this*
+▸ **off**(`event`: string | symbol, `listener`: function): *this*
 
 *Inherited from void*
 
@@ -536,7 +536,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:
 
 ▪ **listener**: *function*
 
-▸ (...`args`: *any[]*): *void*
+▸ (...`args`: any[]): *void*
 
 **Parameters:**
 
@@ -550,7 +550,7 @@ ___
 
 ###  on
 
-▸ **on**(`event`: *string | symbol*, `listener`: *function*): *this*
+▸ **on**(`event`: string | symbol, `listener`: function): *this*
 
 *Inherited from void*
 
@@ -564,7 +564,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:
 
 ▪ **listener**: *function*
 
-▸ (...`args`: *any[]*): *void*
+▸ (...`args`: any[]): *void*
 
 **Parameters:**
 
@@ -578,9 +578,9 @@ ___
 
 ###  onExecutionAnalytics
 
-▸ **onExecutionAnalytics**(`fn`: *[MessageHandler](../interfaces/messagehandler.md)*): *void*
+▸ **onExecutionAnalytics**(`fn`: [MessageHandler](../interfaces/messagehandler.md)): *void*
 
-*Defined in [cluster-master/client.ts:65](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/cluster-master/client.ts#L65)*
+*Defined in [cluster-master/client.ts:65](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/cluster-master/client.ts#L65)*
 
 **Parameters:**
 
@@ -594,9 +594,9 @@ ___
 
 ###  onExecutionFinished
 
-▸ **onExecutionFinished**(`fn`: *function*): *void*
+▸ **onExecutionFinished**(`fn`: function): *void*
 
-*Defined in [execution-controller/client.ts:65](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/execution-controller/client.ts#L65)*
+*Defined in [execution-controller/client.ts:65](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/execution-controller/client.ts#L65)*
 
 **Parameters:**
 
@@ -610,9 +610,9 @@ ___
 
 ###  onExecutionPause
 
-▸ **onExecutionPause**(`fn`: *[MessageHandler](../interfaces/messagehandler.md)*): *void*
+▸ **onExecutionPause**(`fn`: [MessageHandler](../interfaces/messagehandler.md)): *void*
 
-*Defined in [cluster-master/client.ts:69](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/cluster-master/client.ts#L69)*
+*Defined in [cluster-master/client.ts:69](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/cluster-master/client.ts#L69)*
 
 **Parameters:**
 
@@ -626,9 +626,9 @@ ___
 
 ###  onExecutionResume
 
-▸ **onExecutionResume**(`fn`: *[MessageHandler](../interfaces/messagehandler.md)*): *void*
+▸ **onExecutionResume**(`fn`: [MessageHandler](../interfaces/messagehandler.md)): *void*
 
-*Defined in [cluster-master/client.ts:73](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/cluster-master/client.ts#L73)*
+*Defined in [cluster-master/client.ts:73](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/cluster-master/client.ts#L73)*
 
 **Parameters:**
 
@@ -642,11 +642,11 @@ ___
 
 ###  onServerShutdown
 
-▸ **onServerShutdown**(`fn`: *function*): *void*
+▸ **onServerShutdown**(`fn`: function): *void*
 
 *Overrides [Client](client.md).[onServerShutdown](client.md#onservershutdown)*
 
-*Defined in [messenger/client.ts:76](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/client.ts#L76)*
+*Defined in [messenger/client.ts:76](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/client.ts#L76)*
 
 **Parameters:**
 
@@ -660,7 +660,7 @@ ___
 
 ###  once
 
-▸ **once**(`event`: *string | symbol*, `listener`: *function*): *this*
+▸ **once**(`event`: string | symbol, `listener`: function): *this*
 
 *Inherited from void*
 
@@ -674,7 +674,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:
 
 ▪ **listener**: *function*
 
-▸ (...`args`: *any[]*): *void*
+▸ (...`args`: any[]): *void*
 
 **Parameters:**
 
@@ -688,13 +688,13 @@ ___
 
 ###  onceWithTimeout
 
-▸ **onceWithTimeout**(`eventName`: *string*, `timeout?`: *undefined | number*): *`Promise<any>`*
+▸ **onceWithTimeout**(`eventName`: string, `timeout?`: undefined | number): *`Promise<any>`*
 
 *Inherited from [Core](core.md).[onceWithTimeout](core.md#oncewithtimeout)*
 
 *Overrides [Core](core.md).[onceWithTimeout](core.md#oncewithtimeout)*
 
-*Defined in [messenger/core.ts:131](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/core.ts#L131)*
+*Defined in [messenger/core.ts:131](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/core.ts#L131)*
 
 **Parameters:**
 
@@ -709,7 +709,7 @@ ___
 
 ###  prependListener
 
-▸ **prependListener**(`event`: *string | symbol*, `listener`: *function*): *this*
+▸ **prependListener**(`event`: string | symbol, `listener`: function): *this*
 
 *Inherited from void*
 
@@ -723,7 +723,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:
 
 ▪ **listener**: *function*
 
-▸ (...`args`: *any[]*): *void*
+▸ (...`args`: any[]): *void*
 
 **Parameters:**
 
@@ -737,7 +737,7 @@ ___
 
 ###  prependOnceListener
 
-▸ **prependOnceListener**(`event`: *string | symbol*, `listener`: *function*): *this*
+▸ **prependOnceListener**(`event`: string | symbol, `listener`: function): *this*
 
 *Inherited from void*
 
@@ -751,7 +751,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:
 
 ▪ **listener**: *function*
 
-▸ (...`args`: *any[]*): *void*
+▸ (...`args`: any[]): *void*
 
 **Parameters:**
 
@@ -765,7 +765,7 @@ ___
 
 ###  rawListeners
 
-▸ **rawListeners**(`event`: *string | symbol*): *`Function`[]*
+▸ **rawListeners**(`event`: string | symbol): *`Function`[]*
 
 *Inherited from void*
 
@@ -785,7 +785,7 @@ ___
 
 ###  removeAllListeners
 
-▸ **removeAllListeners**(`event?`: *string | symbol*): *this*
+▸ **removeAllListeners**(`event?`: string | symbol): *this*
 
 *Inherited from void*
 
@@ -805,7 +805,7 @@ ___
 
 ###  removeListener
 
-▸ **removeListener**(`event`: *string | symbol*, `listener`: *function*): *this*
+▸ **removeListener**(`event`: string | symbol, `listener`: function): *this*
 
 *Inherited from void*
 
@@ -819,7 +819,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:
 
 ▪ **listener**: *function*
 
-▸ (...`args`: *any[]*): *void*
+▸ (...`args`: any[]): *void*
 
 **Parameters:**
 
@@ -833,11 +833,11 @@ ___
 
 ### `Protected` send
 
-▸ **send**(`eventName`: *string*, `payload`: *[Payload](../interfaces/payload.md)*, `options`: *[SendOptions](../interfaces/sendoptions.md)*): *`Promise<Message | null>`*
+▸ **send**(`eventName`: string, `payload`: [Payload](../interfaces/payload.md), `options`: [SendOptions](../interfaces/sendoptions.md)): *`Promise<Message | null>`*
 
 *Overrides [Client](client.md).[send](client.md#protected-send)*
 
-*Defined in [messenger/client.ts:197](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/client.ts#L197)*
+*Defined in [messenger/client.ts:197](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/client.ts#L197)*
 
 **Parameters:**
 
@@ -853,11 +853,11 @@ ___
 
 ###  sendAvailable
 
-▸ **sendAvailable**(`payload?`: *`i.Payload`*): *`Promise<undefined | null | Message>`*
+▸ **sendAvailable**(`payload?`: `i.Payload`): *`Promise<undefined | null | Message>`*
 
 *Overrides [Client](client.md).[sendAvailable](client.md#sendavailable)*
 
-*Defined in [messenger/client.ts:179](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/client.ts#L179)*
+*Defined in [messenger/client.ts:179](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/client.ts#L179)*
 
 **Parameters:**
 
@@ -871,9 +871,9 @@ ___
 
 ###  sendClusterAnalytics
 
-▸ **sendClusterAnalytics**(`stats`: *[ClusterExecutionAnalytics](../interfaces/clusterexecutionanalytics.md)*, `timeout?`: *undefined | number*): *`Promise<null | Message>`*
+▸ **sendClusterAnalytics**(`stats`: [ClusterExecutionAnalytics](../interfaces/clusterexecutionanalytics.md), `timeout?`: undefined | number): *`Promise<null | Message>`*
 
-*Defined in [cluster-master/client.ts:38](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/cluster-master/client.ts#L38)*
+*Defined in [cluster-master/client.ts:38](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/cluster-master/client.ts#L38)*
 
 **Parameters:**
 
@@ -888,9 +888,9 @@ ___
 
 ###  sendExecutionFinished
 
-▸ **sendExecutionFinished**(`error?`: *undefined | string*): *undefined | `Promise<null | Message>`*
+▸ **sendExecutionFinished**(`error?`: undefined | string): *undefined | `Promise<null | Message>`*
 
-*Defined in [cluster-master/client.ts:53](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/cluster-master/client.ts#L53)*
+*Defined in [cluster-master/client.ts:53](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/cluster-master/client.ts#L53)*
 
 **Parameters:**
 
@@ -904,9 +904,9 @@ ___
 
 ###  sendSliceComplete
 
-▸ **sendSliceComplete**(`payload`: *[SliceCompletePayload](../interfaces/slicecompletepayload.md)*): *`Promise<null | Message>`*
+▸ **sendSliceComplete**(`payload`: [SliceCompletePayload](../interfaces/slicecompletepayload.md)): *`Promise<null | Message>`*
 
-*Defined in [execution-controller/client.ts:69](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/execution-controller/client.ts#L69)*
+*Defined in [execution-controller/client.ts:69](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/execution-controller/client.ts#L69)*
 
 **Parameters:**
 
@@ -920,11 +920,11 @@ ___
 
 ###  sendUnavailable
 
-▸ **sendUnavailable**(`payload?`: *`i.Payload`*): *`Promise<undefined | null | Message>`*
+▸ **sendUnavailable**(`payload?`: `i.Payload`): *`Promise<undefined | null | Message>`*
 
 *Overrides [Client](client.md).[sendUnavailable](client.md#sendunavailable)*
 
-*Defined in [messenger/client.ts:188](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/client.ts#L188)*
+*Defined in [messenger/client.ts:188](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/client.ts#L188)*
 
 **Parameters:**
 
@@ -938,7 +938,7 @@ ___
 
 ###  setMaxListeners
 
-▸ **setMaxListeners**(`n`: *number*): *this*
+▸ **setMaxListeners**(`n`: number): *this*
 
 *Inherited from void*
 
@@ -962,7 +962,7 @@ ___
 
 *Overrides [Client](client.md).[shutdown](client.md#shutdown)*
 
-*Defined in [messenger/client.ts:238](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/client.ts#L238)*
+*Defined in [messenger/client.ts:238](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/client.ts#L238)*
 
 **Returns:** *`Promise<void>`*
 
@@ -972,7 +972,7 @@ ___
 
 ▸ **start**(): *`Promise<void>`*
 
-*Defined in [cluster-master/client.ts:34](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/cluster-master/client.ts#L34)*
+*Defined in [cluster-master/client.ts:34](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/cluster-master/client.ts#L34)*
 
 **Returns:** *`Promise<void>`*
 
@@ -980,13 +980,13 @@ ___
 
 ###  waitForClientReady
 
-▸ **waitForClientReady**(`clientId`: *string*, `timeout?`: *undefined | number*): *`Promise<boolean>`*
+▸ **waitForClientReady**(`clientId`: string, `timeout?`: undefined | number): *`Promise<boolean>`*
 
 *Inherited from [Core](core.md).[waitForClientReady](core.md#waitforclientready)*
 
 *Overrides [Core](core.md).[waitForClientReady](core.md#waitforclientready)*
 
-*Defined in [messenger/core.ts:100](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/messenger/core.ts#L100)*
+*Defined in [messenger/core.ts:100](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/core.ts#L100)*
 
 **Parameters:**
 
@@ -1001,9 +1001,9 @@ ___
 
 ###  waitForSlice
 
-▸ **waitForSlice**(`fn`: *[WaitUntilFn](../interfaces/waituntilfn.md)*, `timeoutMs`: *number*): *`Promise<Slice | undefined>`*
+▸ **waitForSlice**(`fn`: [WaitUntilFn](../interfaces/waituntilfn.md), `timeoutMs`: number): *`Promise<Slice | undefined>`*
 
-*Defined in [execution-controller/client.ts:76](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-messaging/src/execution-controller/client.ts#L76)*
+*Defined in [execution-controller/client.ts:76](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/execution-controller/client.ts#L76)*
 
 **Parameters:**
 
@@ -1018,7 +1018,7 @@ ___
 
 ### `Static` listenerCount
 
-▸ **listenerCount**(`emitter`: *`EventEmitter`*, `event`: *string | symbol*): *number*
+▸ **listenerCount**(`emitter`: `EventEmitter`, `event`: string | symbol): *number*
 
 *Inherited from void*
 

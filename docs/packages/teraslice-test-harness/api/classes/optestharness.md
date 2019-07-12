@@ -42,9 +42,9 @@ Reader, or Processor.
 
 ###  constructor
 
-\+ **new OpTestHarness**(`op`: *`OpHarness.OpTestHarnessInput`*, `options?`: *[OpTestHarnessOptions](../interfaces/optestharnessoptions.md)*): *[OpTestHarness](optestharness.md)*
+\+ **new OpTestHarness**(`op`: `OpHarness.OpTestHarnessInput`, `options?`: [OpTestHarnessOptions](../interfaces/optestharnessoptions.md)): *[OpTestHarness](optestharness.md)*
 
-*Defined in [op-test-harness.ts:15](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-test-harness/src/op-test-harness.ts#L15)*
+*Defined in [op-test-harness.ts:15](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-test-harness/src/op-test-harness.ts#L15)*
 
 **Parameters:**
 
@@ -61,7 +61,7 @@ Name | Type |
 
 • **harness**: *`OpHarness.TestHarness`*
 
-*Defined in [op-test-harness.ts:14](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-test-harness/src/op-test-harness.ts#L14)*
+*Defined in [op-test-harness.ts:14](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-test-harness/src/op-test-harness.ts#L14)*
 
 ___
 
@@ -69,7 +69,7 @@ ___
 
 • **opTester**: *`OpHarness.OperationTester` | undefined*
 
-*Defined in [op-test-harness.ts:15](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-test-harness/src/op-test-harness.ts#L15)*
+*Defined in [op-test-harness.ts:15](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-test-harness/src/op-test-harness.ts#L15)*
 
 ## Accessors
 
@@ -77,7 +77,7 @@ ___
 
 • **get operation**(): *`CoreOperation` | null*
 
-*Defined in [op-test-harness.ts:35](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-test-harness/src/op-test-harness.ts#L35)*
+*Defined in [op-test-harness.ts:35](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-test-harness/src/op-test-harness.ts#L35)*
 
 Get the Operation from the op test harness
 
@@ -87,9 +87,9 @@ Get the Operation from the op test harness
 
 ###  initialize
 
-▸ **initialize**(`options?`: *`OpHarness.InitOptions`*): *`Promise<void>`*
+▸ **initialize**(`options?`: `OpHarness.InitOptions`): *`Promise<void>`*
 
-*Defined in [op-test-harness.ts:43](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-test-harness/src/op-test-harness.ts#L43)*
+*Defined in [op-test-harness.ts:43](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-test-harness/src/op-test-harness.ts#L43)*
 
 Initialize the Operations on the ExecutionContext
 
@@ -105,9 +105,9 @@ ___
 
 ###  run
 
-▸ **run**(`input`: *`OpHarness.RunInput`*): *`Promise<OpHarness.RunResult>`*
+▸ **run**(`input`: `OpHarness.RunInput`): *`Promise<OpHarness.RunResult>`*
 
-*Defined in [op-test-harness.ts:53](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-test-harness/src/op-test-harness.ts#L53)*
+*Defined in [op-test-harness.ts:53](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-test-harness/src/op-test-harness.ts#L53)*
 
 **Parameters:**
 
@@ -121,9 +121,9 @@ ___
 
 ###  setClients
 
-▸ **setClients**(`clients`: *`TestClientConfig`[]*): *void*
+▸ **setClients**(`clients`: `TestClientConfig`[]): *void*
 
-*Defined in [op-test-harness.ts:28](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-test-harness/src/op-test-harness.ts#L28)*
+*Defined in [op-test-harness.ts:28](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-test-harness/src/op-test-harness.ts#L28)*
 
 Set the Terafoundation Clients on both
 the Slicer and Worker contexts
@@ -142,7 +142,7 @@ ___
 
 ▸ **shutdown**(): *`Promise<void>`*
 
-*Defined in [op-test-harness.ts:64](https://github.com/terascope/teraslice/blob/a3992c27/packages/teraslice-test-harness/src/op-test-harness.ts#L64)*
+*Defined in [op-test-harness.ts:64](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-test-harness/src/op-test-harness.ts#L64)*
 
 Shutdown the Operations on the ExecutionContext
 

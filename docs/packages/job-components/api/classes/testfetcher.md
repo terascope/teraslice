@@ -48,13 +48,13 @@ sidebar_label: TestFetcher
 
 ###  constructor
 
-\+ **new TestFetcher**(`context`: *[WorkerContext](../interfaces/workercontext.md)*, `opConfig`: *[OpConfig](../interfaces/opconfig.md) & [TestReaderConfig](../interfaces/testreaderconfig.md)*, `executionConfig`: *[ExecutionConfig](../interfaces/executionconfig.md)*): *[TestFetcher](testfetcher.md)*
+\+ **new TestFetcher**(`context`: [WorkerContext](../interfaces/workercontext.md), `opConfig`: [OpConfig](../interfaces/opconfig.md) & [TestReaderConfig](../interfaces/testreaderconfig.md), `executionConfig`: [ExecutionConfig](../interfaces/executionconfig.md)): *[TestFetcher](testfetcher.md)*
 
 *Inherited from [OperationCore](operationcore.md).[constructor](operationcore.md#constructor)*
 
 *Overrides [Core](core.md).[constructor](core.md#constructor)*
 
-*Defined in [operations/core/operation-core.ts:24](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/operations/core/operation-core.ts#L24)*
+*Defined in [operations/core/operation-core.ts:24](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/operations/core/operation-core.ts#L24)*
 
 **Parameters:**
 
@@ -72,7 +72,7 @@ Name | Type |
 
 • **cachedData**: *`Buffer` | null* =  null
 
-*Defined in [builtin/test-reader/fetcher.ts:11](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/builtin/test-reader/fetcher.ts#L11)*
+*Defined in [builtin/test-reader/fetcher.ts:11](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/builtin/test-reader/fetcher.ts#L11)*
 
 ___
 
@@ -82,7 +82,7 @@ ___
 
 *Inherited from [Core](core.md).[context](core.md#context)*
 
-*Defined in [operations/core/core.ts:10](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/operations/core/core.ts#L10)*
+*Defined in [operations/core/core.ts:10](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/operations/core/core.ts#L10)*
 
 ___
 
@@ -92,7 +92,7 @@ ___
 
 *Inherited from [OperationCore](operationcore.md).[deadLetterAction](operationcore.md#deadletteraction)*
 
-*Defined in [operations/core/operation-core.ts:24](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/operations/core/operation-core.ts#L24)*
+*Defined in [operations/core/operation-core.ts:24](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/operations/core/operation-core.ts#L24)*
 
 ___
 
@@ -102,7 +102,7 @@ ___
 
 *Inherited from [Core](core.md).[events](core.md#events)*
 
-*Defined in [operations/core/core.ts:13](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/operations/core/core.ts#L13)*
+*Defined in [operations/core/core.ts:13](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/operations/core/core.ts#L13)*
 
 ___
 
@@ -112,7 +112,7 @@ ___
 
 *Inherited from [Core](core.md).[executionConfig](core.md#executionconfig)*
 
-*Defined in [operations/core/core.ts:11](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/operations/core/core.ts#L11)*
+*Defined in [operations/core/core.ts:11](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/operations/core/core.ts#L11)*
 
 ___
 
@@ -120,7 +120,7 @@ ___
 
 • **lastFilePath**: *string* = ""
 
-*Defined in [builtin/test-reader/fetcher.ts:12](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/builtin/test-reader/fetcher.ts#L12)*
+*Defined in [builtin/test-reader/fetcher.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/builtin/test-reader/fetcher.ts#L12)*
 
 ___
 
@@ -130,7 +130,7 @@ ___
 
 *Inherited from [Core](core.md).[logger](core.md#logger)*
 
-*Defined in [operations/core/core.ts:12](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/operations/core/core.ts#L12)*
+*Defined in [operations/core/core.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/operations/core/core.ts#L12)*
 
 ___
 
@@ -140,17 +140,17 @@ ___
 
 *Inherited from [OperationCore](operationcore.md).[opConfig](operationcore.md#opconfig)*
 
-*Defined in [operations/core/operation-core.ts:23](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/operations/core/operation-core.ts#L23)*
+*Defined in [operations/core/operation-core.ts:23](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/operations/core/operation-core.ts#L23)*
 
 ## Methods
 
 ###  createAPI
 
-▸ **createAPI**<**A**>(`name`: *string*, ...`params`: *any[]*): *`Promise<A>`*
+▸ **createAPI**<**A**>(`name`: string, ...`params`: any[]): *`Promise<A>`*
 
 *Inherited from [OperationCore](operationcore.md).[createAPI](operationcore.md#createapi)*
 
-*Defined in [operations/core/operation-core.ts:52](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/operations/core/operation-core.ts#L52)*
+*Defined in [operations/core/operation-core.ts:52](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/operations/core/operation-core.ts#L52)*
 
 Create an API and add it to the operation lifecycle
 
@@ -171,11 +171,11 @@ ___
 
 ###  fetch
 
-▸ **fetch**(`slice?`: *[SliceRequest](../interfaces/slicerequest.md)[]*): *`Promise<any>`*
+▸ **fetch**(`slice?`: [SliceRequest](../interfaces/slicerequest.md)[]): *`Promise<any>`*
 
 *Overrides [Fetcher](fetcher.md).[fetch](fetcher.md#abstract-fetch)*
 
-*Defined in [builtin/test-reader/fetcher.ts:18](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/builtin/test-reader/fetcher.ts#L18)*
+*Defined in [builtin/test-reader/fetcher.ts:18](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/builtin/test-reader/fetcher.ts#L18)*
 
 **Parameters:**
 
@@ -189,11 +189,11 @@ ___
 
 ###  getAPI
 
-▸ **getAPI**<**A**>(`name`: *string*): *`A`*
+▸ **getAPI**<**A**>(`name`: string): *`A`*
 
 *Inherited from [OperationCore](operationcore.md).[getAPI](operationcore.md#getapi)*
 
-*Defined in [operations/core/operation-core.ts:59](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/operations/core/operation-core.ts#L59)*
+*Defined in [operations/core/operation-core.ts:59](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/operations/core/operation-core.ts#L59)*
 
 Get a reference to an existing API
 
@@ -213,13 +213,13 @@ ___
 
 ###  handle
 
-▸ **handle**(`sliceRequest?`: *any*): *`Promise<DataEntity[]>`*
+▸ **handle**(`sliceRequest?`: any): *`Promise<DataEntity[]>`*
 
 *Inherited from [Fetcher](fetcher.md).[handle](fetcher.md#handle)*
 
 *Overrides [FetcherCore](fetchercore.md).[handle](fetchercore.md#abstract-handle)*
 
-*Defined in [operations/fetcher.ts:16](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/operations/fetcher.ts#L16)*
+*Defined in [operations/fetcher.ts:16](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/operations/fetcher.ts#L16)*
 
 **Parameters:**
 
@@ -237,7 +237,7 @@ ___
 
 *Overrides [OperationCore](operationcore.md).[initialize](operationcore.md#initialize)*
 
-*Defined in [builtin/test-reader/fetcher.ts:14](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/builtin/test-reader/fetcher.ts#L14)*
+*Defined in [builtin/test-reader/fetcher.ts:14](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/builtin/test-reader/fetcher.ts#L14)*
 
 **Returns:** *`Promise<void>`*
 
@@ -245,11 +245,11 @@ ___
 
 ###  rejectRecord
 
-▸ **rejectRecord**(`input`: *any*, `err`: *`Error`*): *never | null*
+▸ **rejectRecord**(`input`: any, `err`: `Error`): *never | null*
 
 *Inherited from [OperationCore](operationcore.md).[rejectRecord](operationcore.md#rejectrecord)*
 
-*Defined in [operations/core/operation-core.ts:96](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/operations/core/operation-core.ts#L96)*
+*Defined in [operations/core/operation-core.ts:96](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/operations/core/operation-core.ts#L96)*
 
 Reject a record using the dead letter action
 
@@ -283,7 +283,7 @@ ___
 
 *Overrides [Core](core.md).[shutdown](core.md#abstract-shutdown)*
 
-*Defined in [operations/core/operation-core.ts:45](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/operations/core/operation-core.ts#L45)*
+*Defined in [operations/core/operation-core.ts:45](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/operations/core/operation-core.ts#L45)*
 
 **Returns:** *`Promise<void>`*
 
@@ -291,11 +291,11 @@ ___
 
 ###  tryRecord
 
-▸ **tryRecord**<**I**, **R**>(`fn`: *function*): *function*
+▸ **tryRecord**<**I**, **R**>(`fn`: function): *function*
 
 *Inherited from [OperationCore](operationcore.md).[tryRecord](operationcore.md#tryrecord)*
 
-*Defined in [operations/core/operation-core.ts:71](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/operations/core/operation-core.ts#L71)*
+*Defined in [operations/core/operation-core.ts:71](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/operations/core/operation-core.ts#L71)*
 
 Try catch a transformation on a record and place any failed records in a dead letter queue
 
@@ -313,7 +313,7 @@ See {@link #rejectRecord} for handling
 
 a function to transform the data with
 
-▸ (`input`: *`I`*): *`R`*
+▸ (`input`: `I`): *`R`*
 
 **Parameters:**
 
@@ -325,7 +325,7 @@ Name | Type |
 
 a curried a function that will be called with the data and handle the dead letter action
 
-▸ (`input`: *`I`*): *`R` | null*
+▸ (`input`: `I`): *`R` | null*
 
 **Parameters:**
 

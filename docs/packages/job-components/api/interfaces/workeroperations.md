@@ -77,7 +77,7 @@ ___
 
 ###  add
 
-▸ **add**(`value`: *[WorkerOperationLifeCycle](workeroperationlifecycle.md)*): *this*
+▸ **add**(`value`: [WorkerOperationLifeCycle](workeroperationlifecycle.md)): *this*
 
 *Inherited from void*
 
@@ -107,7 +107,7 @@ ___
 
 ###  delete
 
-▸ **delete**(`value`: *[WorkerOperationLifeCycle](workeroperationlifecycle.md)*): *boolean*
+▸ **delete**(`value`: [WorkerOperationLifeCycle](workeroperationlifecycle.md)): *boolean*
 
 *Inherited from void*
 
@@ -139,7 +139,7 @@ ___
 
 ###  forEach
 
-▸ **forEach**(`callbackfn`: *function*, `thisArg?`: *any*): *void*
+▸ **forEach**(`callbackfn`: function, `thisArg?`: any): *void*
 
 *Inherited from void*
 
@@ -149,7 +149,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 ▪ **callbackfn**: *function*
 
-▸ (`value`: *[WorkerOperationLifeCycle](workeroperationlifecycle.md)*, `value2`: *[WorkerOperationLifeCycle](workeroperationlifecycle.md)*, `set`: *`Set<WorkerOperationLifeCycle>`*): *void*
+▸ (`value`: [WorkerOperationLifeCycle](workeroperationlifecycle.md), `value2`: [WorkerOperationLifeCycle](workeroperationlifecycle.md), `set`: `Set<WorkerOperationLifeCycle>`): *void*
 
 **Parameters:**
 
@@ -167,7 +167,7 @@ ___
 
 ###  has
 
-▸ **has**(`value`: *[WorkerOperationLifeCycle](workeroperationlifecycle.md)*): *boolean*
+▸ **has**(`value`: [WorkerOperationLifeCycle](workeroperationlifecycle.md)): *boolean*
 
 *Inherited from void*
 

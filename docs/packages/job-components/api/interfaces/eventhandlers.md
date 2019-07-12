@@ -17,7 +17,7 @@ event handlers that should be cleaned up
 
 event handlers that should be cleaned up
 
-▸ (...`args`: *any[]*): *void*
+▸ (...`args`: any[]): *void*
 
 **Parameters:**
 

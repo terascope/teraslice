@@ -26,9 +26,9 @@ sidebar_label: DataTypeManager
 
 ###  toESMapping
 
-▸ **toESMapping**(`args`: *[MappingConfiguration](mappingconfiguration.md)*): *any*
+▸ **toESMapping**(`args`: [MappingConfiguration](mappingconfiguration.md)): *any*
 
-*Defined in [interfaces.ts:26](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-types/src/interfaces.ts#L26)*
+*Defined in [interfaces.ts:26](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-types/src/interfaces.ts#L26)*
 
 **Parameters:**
 
@@ -42,9 +42,9 @@ ___
 
 ###  toGraphQL
 
-▸ **toGraphQL**(`args?`: *[GraphQLArgs](graphqlargs.md)*): *string*
+▸ **toGraphQL**(`args?`: [GraphQLArgs](graphqlargs.md)): *string*
 
-*Defined in [interfaces.ts:27](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-types/src/interfaces.ts#L27)*
+*Defined in [interfaces.ts:27](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-types/src/interfaces.ts#L27)*
 
 **Parameters:**
 
@@ -58,9 +58,9 @@ ___
 
 ###  toGraphQLTypes
 
-▸ **toGraphQLTypes**(`args?`: *[GraphQLArgs](graphqlargs.md)*): *[GraphQlResults](graphqlresults.md)*
+▸ **toGraphQLTypes**(`args?`: [GraphQLArgs](graphqlargs.md)): *[GraphQlResults](graphqlresults.md)*
 
-*Defined in [interfaces.ts:28](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-types/src/interfaces.ts#L28)*
+*Defined in [interfaces.ts:28](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-types/src/interfaces.ts#L28)*
 
 **Parameters:**
 
@@ -76,6 +76,6 @@ ___
 
 ▸ **toXlucene**(): *`TypeConfig`*
 
-*Defined in [interfaces.ts:29](https://github.com/terascope/teraslice/blob/a3992c27/packages/data-types/src/interfaces.ts#L29)*
+*Defined in [interfaces.ts:29](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-types/src/interfaces.ts#L29)*
 
 **Returns:** *`TypeConfig`*

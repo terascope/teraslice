@@ -38,9 +38,9 @@ A base class for supporting "Schema" definition
 
 ###  constructor
 
-\+ **new SchemaCore**(`context`: *[Context](../interfaces/context.md)*, `opType`: *[OpType](../overview.md#optype)*): *[SchemaCore](schemacore.md)*
+\+ **new SchemaCore**(`context`: [Context](../interfaces/context.md), `opType`: [OpType](../overview.md#optype)): *[SchemaCore](schemacore.md)*
 
-*Defined in [operations/core/schema-core.ts:9](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/operations/core/schema-core.ts#L9)*
+*Defined in [operations/core/schema-core.ts:9](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/operations/core/schema-core.ts#L9)*
 
 **Parameters:**
 
@@ -57,7 +57,7 @@ Name | Type |
 
 • **context**: *[Context](../interfaces/context.md)*
 
-*Defined in [operations/core/schema-core.ts:8](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/operations/core/schema-core.ts#L8)*
+*Defined in [operations/core/schema-core.ts:8](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/operations/core/schema-core.ts#L8)*
 
 ___
 
@@ -65,15 +65,15 @@ ___
 
 • **opType**: *[OpType](../overview.md#optype)*
 
-*Defined in [operations/core/schema-core.ts:9](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/operations/core/schema-core.ts#L9)*
+*Defined in [operations/core/schema-core.ts:9](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/operations/core/schema-core.ts#L9)*
 
 ## Methods
 
 ### `Abstract` build
 
-▸ **build**(`context?`: *[Context](../interfaces/context.md)*): *any*
+▸ **build**(`context?`: [Context](../interfaces/context.md)): *any*
 
-*Defined in [operations/core/schema-core.ts:16](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/operations/core/schema-core.ts#L16)*
+*Defined in [operations/core/schema-core.ts:16](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/operations/core/schema-core.ts#L16)*
 
 **Parameters:**
 
@@ -87,9 +87,9 @@ ___
 
 ### `Abstract` validate
 
-▸ **validate**(`inputConfig`: *any*): *[OpConfig](../interfaces/opconfig.md) & `T`*
+▸ **validate**(`inputConfig`: any): *[OpConfig](../interfaces/opconfig.md) & `T`*
 
-*Defined in [operations/core/schema-core.ts:17](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/operations/core/schema-core.ts#L17)*
+*Defined in [operations/core/schema-core.ts:17](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/operations/core/schema-core.ts#L17)*
 
 **Parameters:**
 
@@ -103,9 +103,9 @@ ___
 
 ### `Optional` `Abstract` validateJob
 
-▸ **validateJob**(`job`: *[ValidatedJobConfig](../interfaces/validatedjobconfig.md)*): *void*
+▸ **validateJob**(`job`: [ValidatedJobConfig](../interfaces/validatedjobconfig.md)): *void*
 
-*Defined in [operations/core/schema-core.ts:18](https://github.com/terascope/teraslice/blob/a3992c27/packages/job-components/src/operations/core/schema-core.ts#L18)*
+*Defined in [operations/core/schema-core.ts:18](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/operations/core/schema-core.ts#L18)*
 
 **Parameters:**
 

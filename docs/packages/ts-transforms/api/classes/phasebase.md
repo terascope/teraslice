@@ -37,9 +37,9 @@ sidebar_label: PhaseBase
 
 ###  constructor
 
-\+ **new PhaseBase**(`opConfig`: *[WatcherConfig](../interfaces/watcherconfig.md)*): *[PhaseBase](phasebase.md)*
+\+ **new PhaseBase**(`opConfig`: [WatcherConfig](../interfaces/watcherconfig.md)): *[PhaseBase](phasebase.md)*
 
-*Defined in [phases/base.ts:9](https://github.com/terascope/teraslice/blob/a3992c27/packages/ts-transforms/src/phases/base.ts#L9)*
+*Defined in [phases/base.ts:9](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/base.ts#L9)*
 
 **Parameters:**
 
@@ -55,7 +55,7 @@ Name | Type |
 
 • **hasProcessing**: *boolean*
 
-*Defined in [phases/base.ts:8](https://github.com/terascope/teraslice/blob/a3992c27/packages/ts-transforms/src/phases/base.ts#L8)*
+*Defined in [phases/base.ts:8](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/base.ts#L8)*
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 • **opConfig**: *[WatcherConfig](../interfaces/watcherconfig.md)*
 
-*Defined in [phases/base.ts:9](https://github.com/terascope/teraslice/blob/a3992c27/packages/ts-transforms/src/phases/base.ts#L9)*
+*Defined in [phases/base.ts:9](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/base.ts#L9)*
 
 ___
 
@@ -71,15 +71,15 @@ ___
 
 • **phase**: *[OperationsPipline](../interfaces/operationspipline.md)*
 
-*Defined in [phases/base.ts:7](https://github.com/terascope/teraslice/blob/a3992c27/packages/ts-transforms/src/phases/base.ts#L7)*
+*Defined in [phases/base.ts:7](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/base.ts#L7)*
 
 ## Methods
 
 ### `Abstract` run
 
-▸ **run**(`data`: *`DataEntity`[]*): *`DataEntity`[]*
+▸ **run**(`data`: `DataEntity`[]): *`DataEntity`[]*
 
-*Defined in [phases/base.ts:17](https://github.com/terascope/teraslice/blob/a3992c27/packages/ts-transforms/src/phases/base.ts#L17)*
+*Defined in [phases/base.ts:17](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/base.ts#L17)*
 
 **Parameters:**
 
