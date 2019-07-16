@@ -17,8 +17,7 @@ function logWrapper(logger) {
                 responseStatus
             });
         };
-        this.close = function _close() {
-        };
+        this.close = function _close() {};
     };
 }
 

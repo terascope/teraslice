@@ -4,7 +4,11 @@ const fs = require('fs');
 const _ = require('lodash');
 const path = require('path');
 const {
-    TSError, parseError, isTest, pDelay
+    TSError,
+    parseError,
+    isTest,
+    pDelay,
+    pRetry
 } = require('@terascope/utils');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
@@ -193,8 +197,7 @@ module.exports = function module(backendConfig) {
             _type: recordType,
         };
 
-        bulkQueue.push(indexRequest);
-        bulkQueue.push(record);
+        bulkQueue.push(indexRequest, record);
 
         // We only flush once enough records have accumulated for it to make sense.
         if (bulkQueue.length >= bulkSize) {
@@ -239,30 +242,41 @@ module.exports = function module(backendConfig) {
         });
     }
 
-    function _flush(shuttingDown = false) {
-        if (!bulkQueue.length) return Promise.resolve();
-        if (!shuttingDown && savingBulk) return Promise.resolve();
+    async function _flush(shuttingDown = false) {
+        if (!bulkQueue.length) return;
+        if (!shuttingDown && savingBulk) return;
         savingBulk = true;
 
         const bulkRequest = bulkQueue.slice();
         bulkQueue = [];
 
-        return elasticsearch
-            .bulkSend(bulkRequest)
-            .then((results) => {
-                const records = results.items.length;
-                const extraMsg = shuttingDown ? ', on shutdown' : '';
-                logger.debug(`flushed ${records}${extraMsg} records to index ${indexName}`);
-            })
-            .catch((err) => {
-                const error = new TSError(err, {
-                    reason: `Failure to flush "${recordType}"`,
-                });
-                return Promise.reject(error);
-            })
-            .finally(() => {
-                savingBulk = false;
+        let recordCount = 0;
+        try {
+            await pRetry(async () => {
+                const results = await elasticsearch.bulkSend(bulkRequest);
+                recordCount = results.items.length;
+            }, {
+                // retry any error that has Request Timeout or No Living Connections
+                matches: ['Request Timeout', 'No Living Connections'],
+                logError: logger.warn,
             });
+        } catch (err) {
+            throw new TSError(err, {
+                reason: `Failure to flush "${recordType}"`,
+            });
+        } finally {
+            savingBulk = false;
+        }
+
+        // since this library only supports bulk updates by pairs
+        // we can log when the expected count is different
+        const expectedCount = (bulkRequest.length / 2);
+        if (recordCount !== expectedCount) {
+            logger.warn(`expected to flush ${expectedCount} records but got ${count}`);
+        }
+
+        const extraMsg = shuttingDown ? ', on shutdown' : '';
+        logger.debug(`flushed ${recordCount}${extraMsg} records to index ${indexName}`);
     }
 
     function getMapFile() {
@@ -279,7 +293,7 @@ module.exports = function module(backendConfig) {
     function isAvailable(indexArg = indexName) {
         const query = {
             index: indexArg,
-            q: '*',
+            q: '',
             size: 0,
             terminate_after: '1',
         };
@@ -417,12 +431,17 @@ module.exports = function module(backendConfig) {
         newIndex = timeseriesIndex(timeseriesFormat, indexName.slice(0, nameSize)).index;
     }
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         const clientName = JSON.stringify({
             connection: config.state.connection,
             index: indexName,
         });
+
         client = getClient(context, config.state, 'elasticsearch');
+        if (!client) {
+            reject(new Error(`Unable to get client for connection: ${config.state.connection}`));
+            return;
+        }
 
         let { connection } = config.state;
         if (config.state.endpoint) {
@@ -435,7 +454,7 @@ module.exports = function module(backendConfig) {
         };
 
         elasticsearch = elasticsearchApi(client, logger, options);
-        return _createIndex(newIndex)
+        _createIndex(newIndex)
             .then(() => isAvailable(newIndex))
             .then(() => resolve(api))
             .catch((err) => {

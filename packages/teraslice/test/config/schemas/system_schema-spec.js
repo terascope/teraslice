@@ -1,8 +1,10 @@
 'use strict';
 
 const convict = require('convict');
-const sysSchema = require('../../../lib/config/schemas/system');
+// load any convict schema
 require('@terascope/job-components');
+
+const sysSchema = require('../../../lib/config/schemas/system');
 
 describe('system_schema', () => {
     const schema = sysSchema.config_schema({}).teraslice;
@@ -25,10 +27,12 @@ describe('system_schema', () => {
         expect(schema).toBeDefined();
         expect(schema.port.default).toEqual(5678);
         expect(schema.name.default).toEqual('teracluster');
-        expect(schema.state.default).toEqual({ connection: 'default' });
+        expect(schema.state.default).toEqual({ connection: 'default', connection_cache: false });
     });
 
     it('assets_directory is optional but requires a string', () => {
-        expect(checkValidation({ assets_directory: 234 })).toEqual('assets_directory: This field is optional but if specified it must be of type string: value was 234');
+        expect(checkValidation({ assets_directory: 234 })).toEqual(
+            'assets_directory: This field is optional but if specified it must be of type string: value was 234'
+        );
     });
 });

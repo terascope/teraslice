@@ -6,7 +6,7 @@ const path = require('path');
 const ip = _.chain(require('os').networkInterfaces())
     .values()
     .flatten()
-    .filter(val => (val.family === 'IPv4' && val.internal === false))
+    .filter(val => val.family === 'IPv4' && val.internal === false)
     .map('address')
     .head()
     .value();
@@ -30,13 +30,16 @@ const schema = {
         format: 'optional_String'
     },
     shutdown_timeout: {
-        doc: 'time in milliseconds, to allow workers and slicers to finish operations before forcefully shutting down',
+        doc:
+            'time in milliseconds, to allow workers and slicers to finish operations before forcefully shutting down',
         default: 60000,
         format(val) {
             if (isNaN(val)) {
                 throw new Error('shutdown_timeout parameter for teraslice must be a number');
             } else if (val < 0) {
-                throw new Error('shutdown_timeout parameter for teraslice must be a positive number');
+                throw new Error(
+                    'shutdown_timeout parameter for teraslice must be a positive number'
+                );
             }
         }
     },
@@ -66,7 +69,8 @@ const schema = {
         format: Boolean
     },
     master_hostname: {
-        doc: 'hostname where the cluster_master resides, used to notify all node_masters where to connect',
+        doc:
+            'hostname where the cluster_master resides, used to notify all node_masters where to connect',
         default: 'localhost',
         format: 'required_String'
     },
@@ -82,13 +86,15 @@ const schema = {
     },
     state: {
         doc: 'Elasticsearch cluster where job state, analytics and logs are stored',
-        default: { connection: 'default' },
+        default: { connection: 'default', connection_cache: false },
         format(val) {
             if (!val.connection) {
                 throw new Error('state parameter must be an object with a key named "connection"');
             }
             if (typeof val.connection !== 'string') {
-                throw new Error('state parameter object with a key "connection" must be of type String as the value');
+                throw new Error(
+                    'state parameter object with a key "connection" must be of type String as the value'
+                );
             }
         }
     },
@@ -96,56 +102,57 @@ const schema = {
         analytics: {
             number_of_shards: {
                 doc: 'The number of shards for the analytics index',
-                default: 5,
+                default: 5
             },
             number_of_replicas: {
                 doc: 'The number of replicas for the analytics index',
-                default: 1,
-            },
+                default: 1
+            }
         },
         assets: {
             number_of_shards: {
                 doc: 'The number of shards for the assets index',
-                default: 5,
+                default: 5
             },
             number_of_replicas: {
                 doc: 'The number of replicas for the assets index',
-                default: 1,
-            },
+                default: 1
+            }
         },
         jobs: {
             number_of_shards: {
                 doc: 'The number of shards for the jobs index',
-                default: 5,
+                default: 5
             },
             number_of_replicas: {
                 doc: 'The number of replicas for the jobs index',
-                default: 1,
-            },
+                default: 1
+            }
         },
         execution: {
             number_of_shards: {
                 doc: 'The number of shards for the execution index',
-                default: 5,
+                default: 5
             },
             number_of_replicas: {
                 doc: 'The number of replicas for the execution index',
-                default: 1,
-            },
+                default: 1
+            }
         },
         state: {
             number_of_shards: {
                 doc: 'The number of shards for the state index',
-                default: 5,
+                default: 5
             },
             number_of_replicas: {
                 doc: 'The number of replicas for the state index',
-                default: 1,
-            },
-        },
+                default: 1
+            }
+        }
     },
     action_timeout: {
-        doc: 'time in milliseconds for waiting for a action ( pause/stop job, etc) to complete before throwing an error',
+        doc:
+            'time in milliseconds for waiting for a action ( pause/stop job, etc) to complete before throwing an error',
         default: 300000,
         format(val) {
             if (isNaN(val)) {
@@ -156,18 +163,22 @@ const schema = {
         }
     },
     network_latency_buffer: {
-        doc: 'time in milliseconds buffer which is combined with action_timeout to determine how long the cluster master will wait till it throws an error',
+        doc:
+            'time in milliseconds buffer which is combined with action_timeout to determine how long the cluster master will wait till it throws an error',
         default: 15000,
         format(val) {
             if (isNaN(val)) {
                 throw new Error('network_latency_buffer parameter for teraslice must be a number');
             } else if (val <= 0) {
-                throw new Error('network_latency_buffer parameter for teraslice must be greater than zero');
+                throw new Error(
+                    'network_latency_buffer parameter for teraslice must be greater than zero'
+                );
             }
         }
     },
     slicer_timeout: {
-        doc: 'time in milliseconds that the slicer will wait for worker connection before terminating the job',
+        doc:
+            'time in milliseconds that the slicer will wait for worker connection before terminating the job',
         default: 180000,
         format(val) {
             if (isNaN(val)) {
@@ -182,42 +193,57 @@ const schema = {
         default: 3,
         format(val) {
             if (isNaN(val)) {
-                throw new Error('slicer_allocation_attempts parameter for teraslice must be a number');
+                throw new Error(
+                    'slicer_allocation_attempts parameter for teraslice must be a number'
+                );
             } else if (val <= 0) {
-                throw new Error('slicer_allocation_attempts parameter for teraslice must be greater than zero');
+                throw new Error(
+                    'slicer_allocation_attempts parameter for teraslice must be greater than zero'
+                );
             }
         }
     },
     node_state_interval: {
-        doc: 'time in milliseconds that indicates when the cluster master will ping nodes for their state',
+        doc:
+            'time in milliseconds that indicates when the cluster master will ping nodes for their state',
         default: 5000,
         format(val) {
             if (isNaN(val)) {
                 throw new Error('node_state_interval parameter for teraslice must be a number');
             } else if (val <= 0) {
-                throw new Error('node_state_interval parameter for teraslice must be greater than zero');
+                throw new Error(
+                    'node_state_interval parameter for teraslice must be greater than zero'
+                );
             }
         }
     },
     node_disconnect_timeout: {
-        doc: 'time in milliseconds that the cluster  will wait untill it drops that node from state and attempts to provision the lost workers',
+        doc:
+            'time in milliseconds that the cluster  will wait untill it drops that node from state and attempts to provision the lost workers',
         default: 300000,
         format(val) {
             if (isNaN(val)) {
                 throw new Error('node_disconnect_timeout parameter for teraslice must be a number');
             } else if (val <= 0) {
-                throw new Error('node_disconnect_timeout parameter for teraslice must be greater than zero');
+                throw new Error(
+                    'node_disconnect_timeout parameter for teraslice must be greater than zero'
+                );
             }
         }
     },
     worker_disconnect_timeout: {
-        doc: 'time in milliseconds that the slicer will wait after all workers have disconnected before terminating the job',
+        doc:
+            'time in milliseconds that the slicer will wait after all workers have disconnected before terminating the job',
         default: 300000,
         format(val) {
             if (isNaN(val)) {
-                throw new Error('worker_disconnect_timeout parameter for teraslice must be a number');
+                throw new Error(
+                    'worker_disconnect_timeout parameter for teraslice must be a number'
+                );
             } else if (val <= 0) {
-                throw new Error('worker_disconnect_timeout parameter for teraslice must be greater than zero');
+                throw new Error(
+                    'worker_disconnect_timeout parameter for teraslice must be greater than zero'
+                );
             }
         }
     },
@@ -231,7 +257,9 @@ const schema = {
             }
             arr.forEach((value) => {
                 if (isNaN(value)) {
-                    throw new Error('values specified in slicer_port_range must be a number specified as a string');
+                    throw new Error(
+                        'values specified in slicer_port_range must be a number specified as a string'
+                    );
                 }
             });
         }
@@ -289,7 +317,6 @@ const schema = {
         format: 'optional_String'
     }
 };
-
 
 function configSchema() {
     return { teraslice: schema };
