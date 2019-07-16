@@ -379,6 +379,7 @@ class ExecutionController {
         clearInterval(this.sliceFailureInterval);
         clearTimeout(this.workerConnectTimeoutId);
         clearTimeout(this.workerDisconnectTimeoutId);
+        clearInterval(this._verifyStoresInterval);
 
         await this._waitForExecutionFinished();
 
@@ -426,6 +427,7 @@ class ExecutionController {
         this.startTime = Date.now();
 
         this.isStarted = true;
+        this._verifyStores();
 
         // wait for paused
         await pWhilst(() => this.isPaused && !this.isShuttdown, () => pDelay(100));
@@ -824,6 +826,39 @@ class ExecutionController {
 
         this.logger.warn('Unable to verify execution on initialization', error.stack);
         return false;
+    }
+
+    _verifyStores() {
+        let paused = false;
+        this._verifyStoresInterval = setInterval(() => {
+            if (!this.stores) return;
+            if (this.isShuttingDown || this.isShutdown) return;
+
+            let invalid = false;
+            for (const [name, store] of Object.entries(this.stores)) {
+                try {
+                    const valid = store.verifyClient();
+                    if (!valid) {
+                        this.logger.warn(`elasticsearch store ${name} is in a invalid state`);
+                        invalid = true;
+                    }
+                } catch (err) {
+                    this._terminalError(err);
+                    return;
+                }
+            }
+            if (invalid) {
+                this.logger.warn('elasticsearch stores are a invalid state, pausing scheduler...');
+                paused = true;
+                this.scheduler.pause();
+            } else if (paused) {
+                this.logger.info(
+                    'elasticsearch stores are now in a valid state, resumming scheduler...'
+                );
+                paused = false;
+                this.scheduler.start();
+            }
+        }, 1000);
     }
 
     _initSliceFailureWatchDog() {

@@ -191,10 +191,11 @@ module.exports = function module(backendConfig) {
 
         const type = _type || 'index';
 
-        const indexRequest = {};
-        indexRequest[type] = {
-            _index: indexArg,
-            _type: recordType,
+        const indexRequest = {
+            [type]: {
+                _index: indexArg,
+                _type: recordType,
+            }
         };
 
         bulkQueue.push(indexRequest, record);
@@ -242,14 +243,7 @@ module.exports = function module(backendConfig) {
         });
     }
 
-    async function _flush(shuttingDown = false) {
-        if (!bulkQueue.length) return;
-        if (!shuttingDown && savingBulk) return;
-        savingBulk = true;
-
-        const bulkRequest = bulkQueue.slice();
-        bulkQueue = [];
-
+    async function bulkSend(bulkRequest) {
         let recordCount = 0;
         try {
             await pRetry(async () => {
@@ -262,21 +256,34 @@ module.exports = function module(backendConfig) {
             });
         } catch (err) {
             throw new TSError(err, {
-                reason: `Failure to flush "${recordType}"`,
+                reason: `Failure to bulk create "${recordType}"`,
             });
-        } finally {
-            savingBulk = false;
         }
-
         // since this library only supports bulk updates by pairs
         // we can log when the expected count is different
         const expectedCount = (bulkRequest.length / 2);
         if (recordCount !== expectedCount) {
-            logger.warn(`expected to flush ${expectedCount} records but got ${count}`);
+            logger.warn(`expected to bulk send ${expectedCount} records but got ${count}`);
         }
+        return recordCount;
+    }
 
-        const extraMsg = shuttingDown ? ', on shutdown' : '';
-        logger.debug(`flushed ${recordCount}${extraMsg} records to index ${indexName}`);
+    async function _flush(shuttingDown = false) {
+        if (!bulkQueue.length) return;
+        if (!shuttingDown && savingBulk) return;
+
+        savingBulk = true;
+
+        const bulkRequest = bulkQueue.slice();
+        bulkQueue = [];
+
+        try {
+            const recordCount = await bulkSend(bulkRequest);
+            const extraMsg = shuttingDown ? ', on shutdown' : '';
+            logger.debug(`flushed ${recordCount}${extraMsg} records to index ${indexName}`);
+        } finally {
+            savingBulk = false;
+        }
     }
 
     function getMapFile() {
@@ -396,6 +403,11 @@ module.exports = function module(backendConfig) {
         return elasticsearch.putTemplate(template, name);
     }
 
+    function verifyClient() {
+        if (isShutdown) return false;
+        return elasticsearch.verifyClient();
+    }
+
     // Periodically flush the bulkQueue so we don't end up with cached data lingering.
     flushInterval = setInterval(() => {
         _flush().catch((err) => {
@@ -415,10 +427,12 @@ module.exports = function module(backendConfig) {
         create,
         update,
         bulk,
+        bulkSend,
         remove,
         shutdown,
         count,
         putTemplate,
+        verifyClient,
     };
 
     const isMultiIndex = indexName[indexName.length - 1] === '*';

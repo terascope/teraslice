@@ -52,12 +52,17 @@ module.exports = function module(context) {
         return backend.shutdown(forceShutdown);
     }
 
+    function verifyClient() {
+        return backend.verifyClient();
+    }
+
     const api = {
         get: getJob,
         search,
         create,
         update,
         remove,
+        verifyClient,
         shutdown
     };
 

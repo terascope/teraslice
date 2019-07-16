@@ -129,6 +129,10 @@ module.exports = function module(context) {
         return backend.shutdown(forceShutdown);
     }
 
+    function verifyClient() {
+        return backend.verifyClient();
+    }
+
     function getTerminalStatuses() {
         return TERMINAL_STATUS.slice();
     }
@@ -171,6 +175,7 @@ module.exports = function module(context) {
         getStatus,
         executionMetaData,
         verifyStatusUpdate,
+        verifyClient,
     };
 
     const backendConfig = {

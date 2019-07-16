@@ -72,6 +72,10 @@ module.exports = function module(context) {
         return backend.refresh(index);
     }
 
+    function verifyClient() {
+        return backend.verifyClient();
+    }
+
     const api = {
         log,
         get: getRecord,
@@ -80,6 +84,7 @@ module.exports = function module(context) {
         remove,
         shutdown,
         refresh,
+        verifyClient,
     };
 
     const backendConfig = {

@@ -233,6 +233,9 @@ module.exports = function module(context) {
         await Promise.all(promises);
     }
 
+    function verifyClient() {
+        return backend.verifyClient();
+    }
 
     const api = {
         save,
@@ -241,7 +244,8 @@ module.exports = function module(context) {
         remove,
         autoload,
         parseAssetsArray,
-        shutdown
+        shutdown,
+        verifyClient,
     };
 
     const backendConfig = {

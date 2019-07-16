@@ -569,7 +569,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function _isAvailable(index) {
-        const query = { index, q: '*' };
+        const query = { index, q: '*', size: 0 };
 
         return new Promise((resolve) => {
             search(query)
@@ -585,11 +585,30 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                                 resolve(results);
                             })
                             .catch(() => {
-                                logger.warn('verifying job index is open');
+                                logger.warn('verifying index is open...');
                             });
                     }, 200);
                 });
         });
+    }
+
+    /**
+     * Verify the state of the underlying es client
+     *
+     * @returns {boolean} if the client has available connections
+    */
+    function verifyClient() {
+        const closed = _.get(client, 'transport.closed', false);
+        if (closed) {
+            throw new Error('Client is closed');
+        }
+
+        const alive = _.get(client, 'transport.connectionPool._conns.alive', []);
+        if (!alive) {
+            return false;
+        }
+
+        return true;
     }
 
     function _migrate(index, migrantIndexName, mapping, recordType, clusterName) {
@@ -845,6 +864,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         indexRefresh,
         indexRecovery,
         indexSetup,
+        verifyClient,
         validateGeoParameters,
         // The APIs below are deprecated and should be removed.
         index_exists: indexExists,

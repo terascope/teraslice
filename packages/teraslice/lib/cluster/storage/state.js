@@ -6,7 +6,7 @@ const {
     pRetry,
     toString,
     isRetryableError,
-    parseErrorInfo
+    parseErrorInfo,
 } = require('@terascope/utils');
 const { timeseriesIndex } = require('../../utils/date_utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
@@ -15,6 +15,8 @@ const elasticsearchBackend = require('./backends/elasticsearch_store');
 // All functions in this module return promises that must be resolved to
 // get the final result.
 module.exports = function module(context) {
+    const recordType = 'state';
+
     const logger = context.apis.foundation.makeLogger({ module: 'state_storage' });
     const config = context.sysconfig.teraslice;
     const _index = `${config.name}__state`;
@@ -25,6 +27,26 @@ module.exports = function module(context) {
     let backend;
 
     function createState(exId, slice, state, error) {
+        const { record, index } = _createSliceRecord(exId, slice, state, error);
+        return backend.indexWithId(slice.slice_id, record, index);
+    }
+
+    async function createSlices(exId, slices) {
+        const bulkRequest = [];
+        for (const slice of slices) {
+            const { record, index } = _createSliceRecord(exId, slice, 'start');
+            bulkRequest.push({
+                index: {
+                    _index: index,
+                    _type: recordType,
+                    _id: record.slice_id,
+                },
+            }, record);
+        }
+        return backend.bulkSend(bulkRequest);
+    }
+
+    function _createSliceRecord(exId, slice, state, error) {
         const { index } = timeseriesIndex(timeseriesFormat, _index, slice._created);
         const record = {
             slice_id: slice.slice_id,
@@ -40,8 +62,7 @@ module.exports = function module(context) {
         if (error) {
             record.error = toString(error);
         }
-
-        return backend.indexWithId(slice.slice_id, record, index);
+        return { record, index };
     }
 
     function updateState(slice, state, error) {
@@ -150,13 +171,19 @@ module.exports = function module(context) {
         return backend.refresh(index);
     }
 
+    function verifyClient() {
+        return backend.verifyClient();
+    }
+
     const api = {
         search,
         createState,
+        createSlices,
         updateState,
         recoverSlices,
         executionStartingSlice,
         count,
+        verifyClient,
         shutdown,
         refresh,
     };
@@ -164,7 +191,7 @@ module.exports = function module(context) {
     const backendConfig = {
         context,
         indexName,
-        recordType: 'state',
+        recordType,
         idField: 'slice_id',
         fullResponse: false,
         logRecord: false,
