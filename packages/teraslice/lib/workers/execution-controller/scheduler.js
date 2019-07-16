@@ -1,7 +1,7 @@
 'use strict';
 
 const {
-    noop, pDelay, get, toString
+    noop, pDelay, get, toString, makeISODate
 } = require('@terascope/utils');
 const pWhilst = require('p-whilst');
 const Queue = require('@terascope/queue');
@@ -351,7 +351,7 @@ class Scheduler {
     _ensureSliceState(slice) {
         if (slice._created) return Promise.resolve(slice);
 
-        slice._created = new Date().toISOString();
+        slice._created = makeISODate();
 
         // this.stateStore is attached from the execution_controller
         return this.stateStore.createState(this.exId, slice, 'start').then(() => slice);

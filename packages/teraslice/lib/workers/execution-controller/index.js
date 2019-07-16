@@ -499,7 +499,7 @@ class ExecutionController {
                     });
                     dispatch.length = 0;
 
-                    Promise.all(promises).catch(err => this.logger.error('failure to dispatch slices', err));
+                    Promise.all(promises).catch(err => this.logger.error(err, 'failure to dispatch slices'));
                 });
             }
 
