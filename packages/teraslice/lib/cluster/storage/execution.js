@@ -87,13 +87,17 @@ module.exports = function executionStorage(context) {
 
                 // when the current status is running it cannot be set to an init status
                 if (_isRunningStatus(status) && _isInitStatus(desiredStatus)) {
-                    const error = new Error(`Cannot update running job status of "${status}" to init status of "${desiredStatus}"`);
+                    const error = new TSError(`Cannot update running job status of "${status}" to init status of "${desiredStatus}"`, {
+                        statusCode: 422
+                    });
                     return Promise.reject(error);
                 }
 
                 // when the status is a terminal status, it cannot be set to again
                 if (_isTerminalStatus(status)) {
-                    const error = new Error(`Cannot update terminal job status of "${status}" to "${desiredStatus}"`);
+                    const error = new TSError(`Cannot update terminal job status of "${status}" to "${desiredStatus}"`, {
+                        statusCode: 422
+                    });
                     return Promise.reject(error);
                 }
 
@@ -102,23 +106,23 @@ module.exports = function executionStorage(context) {
             });
     }
 
-    function setStatus(exId, status, metaData) {
-        return verifyStatusUpdate(exId, status)
-            .then(() => {
-                const statusObj = { _status: status };
-                if (metaData) {
-                    _.assign(statusObj, metaData);
-                }
-                return update(exId, statusObj);
-            })
-            .then(() => exId)
-            .catch((err) => {
-                const error = new TSError(err, {
-                    statusCode: 422,
-                    reason: `Unable to set execution ${exId} status code to ${status}`
-                });
-                return Promise.reject(error);
+    async function setStatus(exId, status, metaData) {
+        await verifyStatusUpdate(exId, status);
+
+        try {
+            const statusObj = { _status: status };
+            if (metaData) {
+                Object.assign(statusObj, metaData);
+            }
+            await update(exId, statusObj);
+        } catch (err) {
+            throw new TSError(err, {
+                statusCode: 422,
+                reason: `Unable to set execution ${exId} status code to ${status}`
             });
+        }
+
+        return exId;
     }
 
     function remove(exId) {
