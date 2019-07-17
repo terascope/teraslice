@@ -363,7 +363,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
                 analytics: this.sliceState.analytics,
             };
         } catch (err) {
-            this.logger.error(`An error has occurred: ${ts.toString(err)}, slice:`, this.sliceState.slice);
+            this.logger.error(err, 'A slice error occurred', { slice: this.sliceState.slice });
 
             if (shouldRetry) {
                 try {

@@ -3,10 +3,11 @@
 const _ = require('lodash');
 const Promise = require('bluebird');
 const {
+    isTest,
     TSError,
     isFatalError,
     getBackoffDelay,
-    isTest
+    isRetryableError
 } = require('@terascope/utils');
 
 const DOCUMENT_EXISTS = 409;
@@ -524,7 +525,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                     .catch(errHandler);
             }
 
-            _performSearch(query);
+            _waitForClient(() => _performSearch(query), reject);
         });
     }
 
@@ -539,7 +540,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         const startTime = Date.now();
 
         // set different values for when process.env.NODE_ENV === test
-        const timeoutMs = isTest ? 1000 : 2 * 60 * 1000;
+        const timeoutMs = isTest ? 1000 : _.random(15000, 30000);
         const intervalMs = isTest ? 50 : 100;
 
         // avoiding setting the interval if we don't need to
@@ -588,16 +589,22 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     function _errorHandler(fn, data, reject, fnName = '->unknown()') {
         const retry = _retryFn(fn, data, reject);
         return function _errorHandlerFn(err) {
-            const isRejectedError = _.get(err, 'body.error.type') === 'es_rejected_execution_exception';
-            const isConnectionError = _.get(err, 'message', '').includes('No Living connections');
+            let retryable = false;
+            if (isRetryableError(err)) {
+                retryable = true;
+            } else {
+                const isRejectedError = _.get(err, 'body.error.type') === 'es_rejected_execution_exception';
+                const isConnectionError = _.get(err, 'message', '').includes('No Living connections');
+                if (isRejectedError || isConnectionError) {
+                    retryable = true;
+                }
+            }
 
-            if (isRejectedError) {
-                // this iteration we will not handle with no living connections issue
+            if (retryable) {
                 retry();
             } else {
                 reject(
                     new TSError(err, {
-                        retryable: isConnectionError,
                         context: {
                             fnName,
                             connection,
