@@ -33,8 +33,9 @@ function shutdownHandler(context, shutdownFn) {
         || process.env.assignment
         || 'unknown-assignment';
 
+    const isK8s = get(context, 'sysconfig.teraslice.cluster_manager_type') === 'kubernetes';
     const isProcessRestart = process.env.process_restart;
-    const restartOnFailure = assignment !== 'exectution_controller';
+    const allowNonZeroExitCode = isK8s || assignment !== 'exectution_controller';
     const api = {
         exiting: false,
         exit
@@ -96,7 +97,11 @@ function shutdownHandler(context, shutdownFn) {
             logger.error(error, `${assignment} while shutting down`);
         } finally {
             await flushLogs();
-            process.exit();
+            if (allowNonZeroExitCode) {
+                process.exit();
+            } else {
+                process.exit(0);
+            }
         }
     }
 
@@ -119,7 +124,7 @@ function shutdownHandler(context, shutdownFn) {
     process.on('uncaughtException', (err) => {
         logger.fatal(err, `${assignment} received an uncaughtException, ${exitingIn()}`);
         if (!api.exiting) {
-            process.exitCode = restartOnFailure ? 1 : 0;
+            process.exitCode = 1;
         }
         exit('uncaughtException', err);
     });
@@ -127,7 +132,7 @@ function shutdownHandler(context, shutdownFn) {
     process.once('unhandledRejection', (err) => {
         logger.fatal(err, `${assignment} received an unhandledRejection, ${exitingIn()}`);
         if (!api.exiting) {
-            process.exitCode = restartOnFailure ? 1 : 0;
+            process.exitCode = 1;
         }
         exit('unhandledRejection', err);
     });
@@ -148,7 +153,7 @@ function shutdownHandler(context, shutdownFn) {
     events.once('client:initialization:error', (err) => {
         logger.fatal(`${assignment} received a client initialization error, ${exitingIn()}`, err);
         if (!api.exiting) {
-            process.exitCode = restartOnFailure ? 1 : 0;
+            process.exitCode = 1;
         }
         exit('client:initialization:error', err);
     });
