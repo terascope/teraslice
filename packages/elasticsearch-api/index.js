@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
-const { TSError, isFatalError } = require('@terascope/utils');
+const { TSError, isFatalError, getBackoffDelay } = require('@terascope/utils');
 
 const DOCUMENT_EXISTS = 409;
 
@@ -230,7 +230,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         }
 
         if (nonRetriableError) {
-            return { data: [], error: nonRetriableError, reason };
+            return { data: [], error: true, reason };
         }
 
         return { data: retry, error: false };
@@ -247,13 +247,15 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                             const response = _filterResponse(formattedData, results);
 
                             if (response.error) {
-                                reject(new TSError(response.reason));
+                                reject(new TSError(response.reason, {
+                                    retryable: false
+                                }));
                             } else if (response.data.length === 0) {
                                 // may get doc already created error, if so just return
                                 resolve(results);
                             } else {
                                 warning();
-                                retry(response.data);
+                                retry(response.data, reject);
                             }
                         } else {
                             resolve(results);
@@ -511,7 +513,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                             });
                             reject(error);
                         } else {
-                            retry();
+                            retry(null, reject);
                         }
                     })
                     .catch(errHandler);
@@ -521,23 +523,54 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         });
     }
 
+    /**
+     * Wait for the client to be available before resolving
+     * - reject if the connection is closed
+     * - resolve if exceeds the request timeout specified on the underlying es client or two minutes
+    */
+    function waitForClient(resolve, reject) {
+        const startTime = Date.now();
+        const TWO_MIN = 2 * 60 * 1000;
+        const timeoutMs = _.get(client, 'transport.requestTimeout', TWO_MIN);
+        const intervalMs = timeoutMs < 100 ? timeoutMs : 100;
+
+        const intervalId = setInterval(() => {
+            try {
+                if (!verifyClient()) return;
+
+                const elapsed = Date.now() - startTime;
+                if (elapsed < timeoutMs) return;
+
+                clearInterval(intervalId);
+                resolve(elapsed);
+            } catch (err) {
+                clearInterval(intervalId);
+                if (typeof reject === 'function') {
+                    reject(err);
+                } else {
+                    logger.error(err);
+                    resolve(Date.now() - startTime);
+                }
+            }
+        }, intervalMs);
+    }
+
     function _retryFn(fn, data) {
-        const retryTimer = { start: retryStart, limit: retryLimit };
+        let delay = 0;
 
-        return (_data) => {
+        return (_data, reject) => {
             const args = _data || data;
-            const randomMs = Math.random() * (retryTimer.limit - retryTimer.start);
-            const timer = Math.floor(randomMs + retryTimer.start);
 
-            if (retryTimer.limit < 60000) {
-                retryTimer.limit += retryLimit;
-            }
-            if (retryTimer.start < 30000) {
-                retryTimer.start += retryStart;
-            }
-            setTimeout(() => {
-                fn(args);
-            }, timer);
+            waitForClient((elapsed) => {
+                delay = getBackoffDelay(delay, 2, retryLimit, retryStart);
+
+                let timeoutMs = delay - elapsed;
+                if (timeoutMs < 1) timeoutMs = 1;
+
+                setTimeout(() => {
+                    fn(args);
+                }, timeoutMs);
+            }, reject);
         };
     }
 
@@ -545,7 +578,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         const retry = _retryFn(fn, data);
         return function _errorHandlerFn(err) {
             const isRejectedError = _.get(err, 'body.error.type') === 'es_rejected_execution_exception';
-            // const isConnectionError = _.get(err, 'message') === 'No Living connections';
+            const isConnectionError = _.get(err, 'message') === 'No Living connections';
 
             if (isRejectedError) {
                 // this iteration we will not handle with no living connections issue
@@ -553,6 +586,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             } else {
                 reject(
                     new TSError(err, {
+                        retryable: isConnectionError,
                         context: {
                             fnName,
                             connection,
@@ -629,7 +663,9 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     function verifyClient() {
         const closed = _.get(client, 'transport.closed', false);
         if (closed) {
-            throw new Error('Elasticsearch Client is closed');
+            throw new TSError('Elasticsearch Client is closed', {
+                fatalError: true
+            });
         }
 
         const alive = _.get(client, 'transport.connectionPool._conns.alive');

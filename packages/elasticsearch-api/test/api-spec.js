@@ -207,6 +207,7 @@ describe('elasticsearch-api', () => {
         // set this so we can verify the index
         transport: {
             closed: false,
+            requestTimeout: 50,
             connectionPool: {
                 _conns: {
                     alive: [{}],
