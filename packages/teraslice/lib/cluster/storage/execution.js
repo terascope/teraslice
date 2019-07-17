@@ -5,6 +5,7 @@ const _ = require('lodash');
 const { TSError } = require('@terascope/utils');
 const uuid = require('uuid');
 const Promise = require('bluebird');
+const { makeLogger } = require('../../workers/helpers/terafoundation');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
 const INIT_STATUS = ['pending', 'scheduling', 'initializing'];
@@ -16,8 +17,8 @@ const VALID_STATUS = INIT_STATUS.concat(RUNNING_STATUS).concat(TERMINAL_STATUS);
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
-module.exports = function module(context) {
-    const logger = context.apis.foundation.makeLogger({ module: 'ex_storage' });
+module.exports = function executionStorage(context) {
+    const logger = makeLogger(context, 'ex_storage');
     const config = context.sysconfig.teraslice;
     const jobType = 'ex';
     const indexName = `${config.name}__ex`;

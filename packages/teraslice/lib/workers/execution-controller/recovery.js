@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
+const { makeLogger } = require('../helpers/terafoundation');
 
 function recovery(context, stateStore, executionContext) {
     const events = context.apis.foundation.getSystemEvents();
@@ -11,16 +12,12 @@ function recovery(context, stateStore, executionContext) {
 
     const cleanupType = executionContext.config.recovered_slice_type;
     const recoverExecution = executionContext.config.recovered_execution;
-    const { exId, jobId } = executionContext;
+    const { exId } = executionContext;
 
     let recoverComplete = true;
     let isShutdown = false;
 
-    const logger = context.apis.foundation.makeLogger({
-        module: 'execution_recovery',
-        ex_id: exId,
-        job_id: jobId,
-    });
+    const logger = makeLogger(context, 'execution_recovery');
 
     const retryState = {};
 
@@ -169,7 +166,7 @@ function recovery(context, stateStore, executionContext) {
             _recoveryBatchCompleted,
             _setId,
             _waitForRecoveryBatchCompletion,
-            _sliceComplete,
+            _sliceComplete
         };
     }
 
@@ -183,7 +180,7 @@ function recovery(context, stateStore, executionContext) {
         recoveryComplete,
         handle,
         shutdown,
-        __test_context: testContext,
+        __test_context: testContext
     };
 }
 

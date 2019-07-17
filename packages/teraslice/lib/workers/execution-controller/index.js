@@ -21,7 +21,7 @@ const { formatURL } = Messaging;
 class ExecutionController {
     constructor(context, executionContext) {
         const workerId = generateWorkerId(context);
-        const logger = makeLogger(context, executionContext, 'execution_controller');
+        const logger = makeLogger(context, 'execution_controller');
         const events = context.apis.foundation.getSystemEvents();
         const slicerPort = executionContext.config.slicer_port;
         const config = context.sysconfig.teraslice;
@@ -833,7 +833,7 @@ class ExecutionController {
 
         const prettyStoreNames = {
             exStore: 'execution',
-            stateStore: 'state',
+            stateStore: 'state'
         };
 
         const logPaused = _.throttle((storesStr) => {

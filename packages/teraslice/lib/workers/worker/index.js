@@ -10,7 +10,7 @@ const Slice = require('./slice');
 class Worker {
     constructor(context, executionContext) {
         const workerId = generateWorkerId(context);
-        const logger = makeLogger(context, executionContext, 'worker');
+        const logger = makeLogger(context, 'worker');
         const events = context.apis.foundation.getSystemEvents();
 
         const {

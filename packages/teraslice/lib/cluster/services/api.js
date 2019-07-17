@@ -6,6 +6,7 @@ const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const request = require('request');
 const { parseErrorInfo, parseList } = require('@terascope/utils');
+const { makeLogger } = require('../../workers/helpers/terafoundation');
 const {
     makePrometheus,
     isPrometheusRequest,
@@ -20,7 +21,7 @@ const terasliceVersion = require('../../../package.json').version;
 module.exports = async function makeAPI(context, app, options) {
     const { assetsUrl, stateStore: _stateStore } = options;
     const clusterType = context.sysconfig.teraslice.cluster_manager_type;
-    const logger = context.apis.foundation.makeLogger({ module: 'api_service' });
+    const logger = makeLogger(context, 'api_service');
     const executionService = context.services.execution;
     const jobsService = context.services.jobs;
     const v1routes = new Router();

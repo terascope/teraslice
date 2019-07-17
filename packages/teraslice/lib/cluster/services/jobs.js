@@ -5,13 +5,14 @@ const _ = require('lodash');
 const util = require('util');
 const { TSError } = require('@terascope/utils');
 const { JobValidator } = require('@terascope/job-components');
-const { terasliceOpPath } = require('../../config');
+const { makeLogger } = require('../../workers/helpers/terafoundation');
 const spawnAssetsLoader = require('../../workers/assets/spawn');
+const { terasliceOpPath } = require('../../config');
 const makeJobStore = require('../storage/jobs');
 
-module.exports = function module(context) {
+module.exports = function jobsService(context) {
     const executionService = context.services.execution;
-    const logger = context.apis.foundation.makeLogger({ module: 'jobs_service' });
+    const logger = makeLogger(context, 'jobs_service');
 
     const jobValidator = new JobValidator(context, {
         terasliceOpPath,

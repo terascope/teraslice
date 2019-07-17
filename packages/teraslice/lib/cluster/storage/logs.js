@@ -4,7 +4,7 @@ const _ = require('lodash');
 const Promise = require('bluebird');
 const { getClient } = require('@terascope/job-components');
 
-module.exports = function module(context) {
+module.exports = function logsStorage(context) {
     if (_.includes(context.sysconfig.terafoundation.logging, 'elasticsearch')) {
         const client = getClient(context, context.sysconfig.teraslice.state, 'elasticsearch');
         const template = require('./backends/mappings/logs.json');

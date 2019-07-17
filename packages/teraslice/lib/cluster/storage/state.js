@@ -7,17 +7,19 @@ const {
     toString,
     isRetryableError,
     parseErrorInfo,
+    isTest,
 } = require('@terascope/utils');
 const { timeseriesIndex } = require('../../utils/date_utils');
+const { makeLogger } = require('../../workers/helpers/terafoundation');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
-module.exports = function module(context) {
+module.exports = function stateStorage(context) {
     const recordType = 'state';
 
-    const logger = context.apis.foundation.makeLogger({ module: 'state_storage' });
+    const logger = makeLogger(context, 'state_storage');
     const config = context.sysconfig.teraslice;
     const _index = `${config.name}__state`;
     // making this to pass down to backend for dynamic index searches

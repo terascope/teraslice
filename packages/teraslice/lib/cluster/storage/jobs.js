@@ -1,15 +1,14 @@
 'use strict';
 
 const uuid = require('uuid');
+const { makeLogger } = require('../../workers/helpers/terafoundation');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
-module.exports = function module(context) {
-    const logger = context.apis.foundation.makeLogger({
-        module: 'job_storage'
-    });
+module.exports = function jobsStorage(context) {
+    const logger = makeLogger(context, 'job_storage');
 
     const config = context.sysconfig.teraslice;
     const jobType = 'job';

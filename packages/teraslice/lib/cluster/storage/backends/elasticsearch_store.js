@@ -12,9 +12,10 @@ const {
 } = require('@terascope/utils');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
+const { makeLogger } = require('../../../workers/helpers/terafoundation');
 const { timeseriesIndex } = require('../../../utils/date_utils');
 
-module.exports = function module(backendConfig) {
+module.exports = function elasticsearchStorage(backendConfig) {
     const {
         context,
         indexName,
@@ -27,10 +28,7 @@ module.exports = function module(backendConfig) {
         forceRefresh = true,
     } = backendConfig;
 
-    const logger = context.apis.foundation.makeLogger({
-        module: 'elasticsearch_backend',
-        storageName,
-    });
+    const logger = makeLogger(context, 'elasticsearch_backend', { storageName });
 
     const config = context.sysconfig.teraslice;
 

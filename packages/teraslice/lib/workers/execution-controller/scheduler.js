@@ -11,7 +11,7 @@ const { makeLogger } = require('../helpers/terafoundation');
 class Scheduler {
     constructor(context, executionContext) {
         this.context = context;
-        this.logger = makeLogger(context, executionContext, 'execution_scheduler');
+        this.logger = makeLogger(context, 'execution_scheduler');
         this.events = context.apis.foundation.getSystemEvents();
         this.executionContext = executionContext;
         this.exId = executionContext.exId;

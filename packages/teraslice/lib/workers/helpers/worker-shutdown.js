@@ -2,6 +2,7 @@
 
 const Promise = require('bluebird');
 const { get, pDelay, isError } = require('@terascope/utils');
+const { makeLogger } = require('./terafoundation');
 
 function waitForWorkerShutdown(context, eventName) {
     const shutdownTimeout = get(context, 'sysconfig.teraslice.shutdown_timeout', 30000);
@@ -42,7 +43,7 @@ function shutdownHandler(context, shutdownFn) {
     const shutdownTimeout = get(context, 'sysconfig.teraslice.shutdown_timeout', 20 * 1000);
 
     const events = context.apis.foundation.getSystemEvents();
-    const logger = context.apis.foundation.makeLogger({ module: `${assignment}:shutdown_handler` });
+    const logger = makeLogger(context, `${assignment}:shutdown_handler`);
 
     if (assignment === 'execution_controller' && isProcessRestart) {
         logger.fatal(

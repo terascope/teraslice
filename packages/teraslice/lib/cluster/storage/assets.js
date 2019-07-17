@@ -7,15 +7,16 @@ const crypto = require('crypto');
 const Promise = require('bluebird');
 const fs = Promise.promisifyAll(require('fs'));
 const { TSError } = require('@terascope/utils');
-const { saveAsset } = require('../../utils/file_utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
+const { makeLogger } = require('../../workers/helpers/terafoundation');
+const { saveAsset } = require('../../utils/file_utils');
 
 
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
-module.exports = function module(context) {
-    const logger = context.apis.foundation.makeLogger({ module: 'assets_storage' });
+module.exports = function assetsStore(context) {
+    const logger = makeLogger(context, 'assets_storage');
     const config = context.sysconfig.teraslice;
     const assetsPath = config.assets_directory;
     const indexName = `${config.name}__assets`;
