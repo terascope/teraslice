@@ -831,17 +831,25 @@ class ExecutionController {
     _verifyStores() {
         let paused = false;
 
+        const prettyStoreNames = {
+            exStore: 'execution',
+            stateStore: 'state',
+        };
+
+        const logPaused = _.throttle((storesStr) => {
+            this.logger.warn(`${storesStr} are in a invalid state, scheduler is paused`);
+        }, 10 * 1000);
+        clearInterval(this._verifyStoresInterval);
         this._verifyStoresInterval = setInterval(() => {
             if (!this.stores) return;
             if (this.isShuttingDown || this.isShutdown) return;
 
-            let invalid = false;
+            const invalid = [];
             for (const [name, store] of Object.entries(this.stores)) {
                 try {
                     const valid = store.verifyClient();
                     if (!valid) {
-                        this.logger.warn(`elasticsearch store ${name} is in a invalid state`);
-                        invalid = true;
+                        invalid.push(prettyStoreNames[name] || name);
                     }
                 } catch (err) {
                     clearInterval(this._verifyStoresInterval);
@@ -850,13 +858,20 @@ class ExecutionController {
                 }
             }
 
-            if (invalid) {
-                this.logger.warn(
-                    'elasticsearch stores are in a invalid state, pausing scheduler...'
-                );
+            if (invalid.length) {
+                const storesStr = `elasticsearch stores ${invalid.join(', ')}`;
+                if (paused) {
+                    logPaused(storesStr);
+                    return;
+                }
+
+                this.logger.warn(`${storesStr} are in a invalid state, pausing scheduler...`);
                 paused = true;
                 this.scheduler.pause();
-            } else if (paused) {
+                return;
+            }
+
+            if (paused) {
                 this.logger.info(
                     'elasticsearch stores are now in a valid state, resumming scheduler...'
                 );
