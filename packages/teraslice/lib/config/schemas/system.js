@@ -86,7 +86,7 @@ const schema = {
     },
     state: {
         doc: 'Elasticsearch cluster where job state, analytics and logs are stored',
-        default: { connection: 'default', connection_cache: false },
+        default: { connection: 'default' },
         format(val) {
             if (!val.connection) {
                 throw new Error('state parameter must be an object with a key named "connection"');

@@ -451,7 +451,11 @@ module.exports = function module(backendConfig) {
             index: indexName,
         });
 
-        client = getClient(context, config.state, 'elasticsearch');
+        const connectionConfig = Object.assign({}, config.state);
+        if (connectionConfig.connection_cache == null) {
+            connectionConfig.connection_cache = true;
+        }
+        client = getClient(context, connectionConfig, 'elasticsearch');
         if (!client) {
             reject(new Error(`Unable to get client for connection: ${config.state.connection}`));
             return;

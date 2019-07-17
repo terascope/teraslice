@@ -27,7 +27,7 @@ describe('system_schema', () => {
         expect(schema).toBeDefined();
         expect(schema.port.default).toEqual(5678);
         expect(schema.name.default).toEqual('teracluster');
-        expect(schema.state.default).toEqual({ connection: 'default', connection_cache: false });
+        expect(schema.state.default).toEqual({ connection: 'default' });
     });
 
     it('assets_directory is optional but requires a string', () => {
