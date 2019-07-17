@@ -319,7 +319,7 @@ class Scheduler {
         createInterval = setInterval(() => {
             if (!this.pendingSlicerCount) return;
 
-            this._drainPendingSlices().catch(err => this.logger.error(err, 'failure creating slices'));
+            this._drainPendingSlices().catch(onSlicerFailure);
         }, 5);
 
         this._processCleanup = cleanup;
@@ -370,8 +370,12 @@ class Scheduler {
             this.enqueueSlices(slices);
             this._creating -= count;
         } catch (err) {
-            // should never get here
-            this.logger.error(err, 'failure creating slices');
+            const { lifecycle } = this.executionContext.config;
+            if (lifecycle === 'once') {
+                throw err;
+            } else {
+                this.logger.error(err, 'failure creating slices');
+            }
         }
     }
 
