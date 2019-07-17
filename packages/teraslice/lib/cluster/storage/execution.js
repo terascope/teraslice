@@ -108,7 +108,12 @@ module.exports = function executionStorage(context) {
 
     async function setStatus(exId, status, metaData) {
         await waitForClient();
-        await pRetry(() => verifyStatusUpdate(exId, status));
+        await pRetry(() => verifyStatusUpdate(exId, status), {
+            matches: ['no_shard_available_action_exception'],
+            delay: 1000,
+            retries: 10,
+            backoff: 5
+        });
 
         try {
             const statusObj = { _status: status };
