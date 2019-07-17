@@ -830,6 +830,7 @@ class ExecutionController {
 
     _verifyStores() {
         let paused = false;
+
         this._verifyStoresInterval = setInterval(() => {
             if (!this.stores) return;
             if (this.isShuttingDown || this.isShutdown) return;
@@ -843,12 +844,16 @@ class ExecutionController {
                         invalid = true;
                     }
                 } catch (err) {
+                    clearInterval(this._verifyStoresInterval);
                     this._terminalError(err);
                     return;
                 }
             }
+
             if (invalid) {
-                this.logger.warn('elasticsearch stores are a invalid state, pausing scheduler...');
+                this.logger.warn(
+                    'elasticsearch stores are in a invalid state, pausing scheduler...'
+                );
                 paused = true;
                 this.scheduler.pause();
             } else if (paused) {
@@ -858,7 +863,7 @@ class ExecutionController {
                 paused = false;
                 this.scheduler.start();
             }
-        }, 1000);
+        }, 100);
     }
 
     _initSliceFailureWatchDog() {
