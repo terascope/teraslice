@@ -1,7 +1,6 @@
 'use strict';
 
-const { get } = require('@terascope/utils');
-const { isFatalError } = require('@terascope/job-components');
+const { get, getFullErrorStack, isFatalError } = require('@terascope/utils');
 const { ExecutionController, formatURL } = require('@terascope/teraslice-messaging');
 const { makeStateStore, makeAnalyticsStore } = require('../../cluster/storage');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
@@ -16,7 +15,7 @@ class Worker {
 
         const {
             slicer_port: slicerPort,
-            slicer_hostname: slicerHostname,
+            slicer_hostname: slicerHostname
         } = executionContext.config;
 
         const config = context.sysconfig.teraslice;
@@ -31,7 +30,7 @@ class Worker {
             networkLatencyBuffer,
             connectTimeout: workerDisconnectTimeout,
             actionTimeout,
-            logger,
+            logger
         });
 
         this.slice = new Slice(context, executionContext);
@@ -136,7 +135,7 @@ class Worker {
 
             await this.client.sendSliceComplete({
                 slice: this.slice.slice,
-                analytics: this.slice.analyticsData,
+                analytics: this.slice.analyticsData
             });
 
             await this.executionContext.onSliceFinished(sliceId);
@@ -150,7 +149,7 @@ class Worker {
             await this.client.sendSliceComplete({
                 slice: this.slice.slice,
                 analytics: this.slice.analyticsData,
-                error: err.toString(),
+                error: getFullErrorStack(err)
             });
         }
 
@@ -166,7 +165,7 @@ class Worker {
                 'worker',
                 `shutdown was called for ${this.exId}`,
                 'but it was already shutting down',
-                block ? ', will block until done' : '',
+                block ? ', will block until done' : ''
             ];
             this.logger.debug(msgs.join(' '));
 
@@ -192,7 +191,7 @@ class Worker {
         // and wait for the slice to finish
         await Promise.all([
             this.slice.flush().catch(pushError),
-            this._waitForSliceToFinish().catch(pushError),
+            this._waitForSliceToFinish().catch(pushError)
         ]);
 
         this.events.emit('worker:shutdown');
@@ -211,7 +210,7 @@ class Worker {
             })(),
             (async () => {
                 await this.client.shutdown().catch(pushError);
-            })(),
+            })()
         ]);
 
         const n = this.slicesProcessed;
