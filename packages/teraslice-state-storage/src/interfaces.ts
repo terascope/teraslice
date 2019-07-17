@@ -33,7 +33,6 @@ export interface ESQUery {
 
 export interface CacheConfig {
     cache_size: number;
-    max_age: number;
 }
 
 export interface MGetCacheResponse {
@@ -51,4 +50,11 @@ export interface MGetDoc {
     _id: string;
     found: boolean;
     _source?: any;
+}
+
+export type ValuesFn<T> = (doc: T) => void;
+
+export interface SetTuple<T> {
+    key: string;
+    data: T;
 }

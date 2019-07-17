@@ -108,7 +108,6 @@ describe('elasticsearch cached state storage', () => {
         source_fields: [],
         chunk_size: 10,
         cache_size: 100000,
-        max_age: 24 * 3600 * 1000,
         persist: false,
         persist_field: idField
     };
@@ -269,5 +268,30 @@ describe('elasticsearch cached state storage', () => {
         const deduped = stateStorage._dedupeDocs(doubleDocs);
         expect(doubleDocs.length).toBe(6);
         expect(deduped.length).toBe(3);
+    });
+
+    it('should log if mget drops keys from cache', async () => {
+        const testConfig: ESStateStorageConfig = {
+            index: 'some_index',
+            type: 'sometype',
+            concurrency: 10,
+            source_fields: [],
+            chunk_size: 10,
+            cache_size: 2,
+            persist: false,
+            persist_field: idField
+        };
+        let msg;
+
+        const testLogger = {
+            info: (_msg:string) => msg = _msg
+        };
+        // @ts-ignore
+        const testStateStorage = new ESCachedStateStorage(client, testLogger, testConfig);
+        // create bulk response
+        client.setMGetData({ docs: createMgetData(docArray.slice()) });
+        // state response
+        await testStateStorage.mget(docArray);
+        expect(msg).toEqual('1 keys have been evicted from elasticsearch-state-storgae cache');
     });
 });
