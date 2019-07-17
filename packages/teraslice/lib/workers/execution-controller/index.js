@@ -662,7 +662,7 @@ class ExecutionController {
 
         this.executionAnalytics.set('job_duration', time);
 
-        if (this.collectAnalytics) {
+        if (this.collectAnalytics && this.slicerAnalytics) {
             this.slicerAnalytics.analyzeStats();
         }
 
