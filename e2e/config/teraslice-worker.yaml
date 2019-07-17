@@ -9,6 +9,12 @@ terafoundation:
             default:
                 host:
                     - 'elasticsearch:49200'
+                requestTimeout: 60000
+                deadTimeout: 45000
+                sniffOnStart: false
+                sniffOnConnectionFault: false
+                suggestCompression: false
+
         # ***********************
         # Kafka Configuration
         # ***********************
