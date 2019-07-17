@@ -568,24 +568,52 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         return num >= 210;
     }
 
-    function _isAvailable(index) {
-        const query = { index, q: '*', size: 0 };
+    function isAvailable(index, recordType) {
+        const query = {
+            index,
+            q: '',
+            size: 0,
+            terminate_after: '1'
+        };
 
-        return new Promise((resolve) => {
-            search(query)
+        const label = recordType ? `for ${recordType}` : index;
+
+        return new Promise((resolve, reject) => {
+            client
+                .search(query)
                 .then((results) => {
-                    logger.trace(`index ${index} is now available`);
+                    logger.trace(`index ${label} is now available`);
                     resolve(results);
                 })
                 .catch(() => {
-                    const isReady = setInterval(() => {
-                        search(query)
+                    let running = false;
+                    const checkInterval = setInterval(() => {
+                        if (running) return;
+
+                        try {
+                            const valid = verifyClient();
+                            if (!valid) {
+                                logger.trace(`index ${label} is in an invalid state`);
+                                return;
+                            }
+                        } catch (err) {
+                            reject(err);
+                        }
+
+                        running = true;
+
+                        client
+                            .search(query)
                             .then((results) => {
-                                clearInterval(isReady);
+                                running = false;
+
+                                clearInterval(checkInterval);
                                 resolve(results);
                             })
                             .catch(() => {
-                                logger.warn('verifying index is open...');
+                                running = false;
+
+                                logger.warn(`verifying index ${label} is open`);
                             });
                     }, 200);
                 });
@@ -593,18 +621,20 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     /**
-     * Verify the state of the underlying es client
+     * Verify the state of the underlying es client.
+     * Will throw error if in fatal state, like the connection is closed.
      *
-     * @returns {boolean} if the client has available connections
+     * @returns {boolean} if client is working state it will return true
     */
     function verifyClient() {
         const closed = _.get(client, 'transport.closed', false);
         if (closed) {
-            throw new Error('Client is closed');
+            throw new Error('Elasticsearch Client is closed');
         }
 
-        const alive = _.get(client, 'transport.connectionPool._conns.alive', []);
-        if (!alive) {
+        const alive = _.get(client, 'transport.connectionPool._conns.alive');
+        const aliveCount = alive && Array.isArray(alive) ? alive.length : 0;
+        if (!aliveCount) {
             return false;
         }
 
@@ -774,7 +804,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         return new Promise((resolve, reject) => {
             const attemptToCreateIndex = () => {
                 _createIndex(newIndex, migrantIndexName, mapping, recordType, clusterName)
-                    .then(() => _isAvailable(newIndex))
+                    .then(() => isAvailable(newIndex))
                     .catch((err) => {
                         if (isFatalError(err)) return Promise.reject(err);
 
@@ -812,7 +842,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                                 }
                                 if (bool) {
                                     logger.info('connection to elasticsearch has been established');
-                                    return _isAvailable(newIndex);
+                                    return isAvailable(newIndex);
                                 }
                                 return Promise.resolve();
                             })
@@ -850,6 +880,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         mget,
         index: indexFn,
         indexWithId,
+        isAvailable,
         create,
         update,
         remove,

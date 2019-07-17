@@ -22,6 +22,7 @@ declare namespace elasticsearchAPI {
         mget: (query: es.MGetParams) => Promise<any>;
         index: (query: es.IndexDocumentParams) => Promise<any>;
         indexWithId: (query: es.IndexDocumentParams) => Promise<any>;
+        isAvailable: (index: string, recordType?: string) => Promise<any>;
         create: (query: es.CreateDocumentParams) => Promise<any>;
         update: (query: es.UpdateDocumentParams) => Promise<any>;
         remove: (query: es.DeleteDocumentParams) => Promise<es.DeleteDocumentResponse>;
@@ -36,7 +37,7 @@ declare namespace elasticsearchAPI {
         indexRefresh: (query: es.IndicesRefreshParams) => Promise<any>;
         indexRecovery: (query: es.IndicesRecoveryParams) => Promise<any>;
         indexSetup: (clusterName, newIndex, migrantIndexName, mapping, recordType, clientName) => Promise<boolean>;
-        verifyClient: () => Error | null;
+        verifyClient: () => boolean;
         validateGeoParameters: (opConfig: any) => any;
     }
 }

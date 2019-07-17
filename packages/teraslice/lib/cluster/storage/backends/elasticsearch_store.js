@@ -297,50 +297,6 @@ module.exports = function module(backendConfig) {
         return mapping;
     }
 
-    function isAvailable(indexArg = indexName) {
-        const query = {
-            index: indexArg,
-            q: '',
-            size: 0,
-            terminate_after: '1',
-        };
-
-        return new Promise((resolve) => {
-            elasticsearch
-                .search(query)
-                .then((results) => {
-                    logger.trace(`index ${indexName} is now available`);
-                    resolve(results);
-                })
-                .catch(() => {
-                    let running = false;
-                    const isReady = setInterval(() => {
-                        if (isShutdown) {
-                            clearInterval(isReady);
-                            return;
-                        }
-
-                        if (running) return;
-                        running = true;
-
-                        elasticsearch
-                            .search(query)
-                            .then((results) => {
-                                running = false;
-
-                                clearInterval(isReady);
-                                resolve(results);
-                            })
-                            .catch(() => {
-                                running = false;
-
-                                logger.warn(`verifying ${recordType} index is open`);
-                            });
-                    }, 200);
-                });
-        });
-    }
-
     function sendTemplate(mapping) {
         if (mapping.template) {
             const clusterName = context.sysconfig.teraslice.name;
@@ -473,7 +429,7 @@ module.exports = function module(backendConfig) {
 
         elasticsearch = elasticsearchApi(client, logger, options);
         _createIndex(newIndex)
-            .then(() => isAvailable(newIndex))
+            .then(() => elasticsearch.isAvailable(newIndex, recordType))
             .then(() => resolve(api))
             .catch((err) => {
                 const error = new TSError(err, {
@@ -510,7 +466,7 @@ module.exports = function module(backendConfig) {
                             if (bool) {
                                 clearInterval(checking);
                                 logger.info('connection to elasticsearch has been established');
-                                return isAvailable(newIndex).then(() => {
+                                return elasticsearch.isAvailable(newIndex, recordType).then(() => {
                                     resolve(api);
                                 });
                             }
