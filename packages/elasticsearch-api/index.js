@@ -2,7 +2,12 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
-const { TSError, isFatalError, getBackoffDelay } = require('@terascope/utils');
+const {
+    TSError,
+    isFatalError,
+    getBackoffDelay,
+    isTest
+} = require('@terascope/utils');
 
 const DOCUMENT_EXISTS = 409;
 
@@ -52,7 +57,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                     .catch(errHandler);
             }
 
-            _runRequest();
+            _waitForClient(() => _runRequest(), reject);
         });
     }
 
@@ -175,7 +180,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                     if (resultIndex.found) {
                         resultIndex.indexWindowSize.forEach((ind) => {
                             logger.warn(
-                                `max_result_window for index: ${ind.name} is set at ${ind.windowSize} . On very large indices it is possible that a slice can not be divided to stay below this limit. If that occurs an error will be thrown by Elasticsearch and the slice can not be processed. Increasing max_result_window in the Elasticsearch index settings will resolve the problem.`
+                                `max_result_window for index: ${ind.name} is set at ${ind.windowSize}. On very large indices it is possible that a slice can not be divided to stay below this limit. If that occurs an error will be thrown by Elasticsearch and the slice can not be processed. Increasing max_result_window in the Elasticsearch index settings will resolve the problem.`
                             );
                         });
                     } else {
@@ -238,7 +243,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
     function bulkSend(data) {
         return new Promise((resolve, reject) => {
-            const retry = _retryFn(_sendData, data);
+            const retry = _retryFn(_sendData, data, reject);
 
             function _sendData(formattedData) {
                 return _clientRequest('bulk', { body: formattedData })
@@ -255,7 +260,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                                 resolve(results);
                             } else {
                                 warning();
-                                retry(response.data, reject);
+                                retry(response.data);
                             }
                         } else {
                             resolve(results);
@@ -486,7 +491,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     function _searchES(query) {
         return new Promise((resolve, reject) => {
             const errHandler = _errorHandler(_performSearch, query, reject, '->search()');
-            const retry = _retryFn(_performSearch, query);
+            const retry = _retryFn(_performSearch, query, reject);
 
             function _performSearch(queryParam) {
                 client
@@ -513,7 +518,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                             });
                             reject(error);
                         } else {
-                            retry(null, reject);
+                            retry();
                         }
                     })
                     .catch(errHandler);
@@ -525,43 +530,49 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
     /**
      * Wait for the client to be available before resolving
+     *
      * - reject if the connection is closed
-     * - resolve if exceeds the request timeout specified on the underlying es client or two minutes
+     * - resolve after timeout to let the underlying client deal with any problems
     */
-    function waitForClient(resolve, reject) {
+    function _waitForClient(resolve, reject) {
+        let intervalId = null;
         const startTime = Date.now();
-        const TWO_MIN = 2 * 60 * 1000;
-        const timeoutMs = _.get(client, 'transport.requestTimeout', TWO_MIN);
-        const intervalMs = timeoutMs < 100 ? timeoutMs : 100;
 
-        const intervalId = setInterval(() => {
+        // set different values for when process.env.NODE_ENV === test
+        const timeoutMs = isTest ? 1000 : 2 * 60 * 1000;
+        const intervalMs = isTest ? 50 : 100;
+
+        // avoiding setting the interval if we don't need to
+        if (_checkClient()) {
+            return;
+        }
+
+        intervalId = setInterval(_checkClient, intervalMs);
+
+        function _checkClient() {
+            const elapsed = Date.now() - startTime;
             try {
-                if (!verifyClient()) return;
-
-                const elapsed = Date.now() - startTime;
-                if (elapsed < timeoutMs) return;
+                const valid = verifyClient();
+                if (!valid && elapsed <= timeoutMs) return false;
 
                 clearInterval(intervalId);
                 resolve(elapsed);
+                return true;
             } catch (err) {
                 clearInterval(intervalId);
-                if (typeof reject === 'function') {
-                    reject(err);
-                } else {
-                    logger.error(err);
-                    resolve(Date.now() - startTime);
-                }
+                reject(err);
+                return true;
             }
-        }, intervalMs);
+        }
     }
 
-    function _retryFn(fn, data) {
+    function _retryFn(fn, data, reject) {
         let delay = 0;
 
-        return (_data, reject) => {
+        return (_data) => {
             const args = _data || data;
 
-            waitForClient((elapsed) => {
+            _waitForClient((elapsed) => {
                 delay = getBackoffDelay(delay, 2, retryLimit, retryStart);
 
                 let timeoutMs = delay - elapsed;
@@ -575,10 +586,10 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function _errorHandler(fn, data, reject, fnName = '->unknown()') {
-        const retry = _retryFn(fn, data);
+        const retry = _retryFn(fn, data, reject);
         return function _errorHandlerFn(err) {
             const isRejectedError = _.get(err, 'body.error.type') === 'es_rejected_execution_exception';
-            const isConnectionError = _.get(err, 'message') === 'No Living connections';
+            const isConnectionError = _.get(err, 'message', '').includes('No Living connections');
 
             if (isRejectedError) {
                 // this iteration we will not handle with no living connections issue
@@ -607,7 +618,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             index,
             q: '',
             size: 0,
-            terminate_after: '1'
+            terminate_after: '1',
         };
 
         const label = recordType ? `for ${recordType}` : index;
@@ -623,18 +634,20 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                     let running = false;
                     const checkInterval = setInterval(() => {
                         if (running) return;
+                        running = true;
 
                         try {
                             const valid = verifyClient();
                             if (!valid) {
-                                logger.trace(`index ${label} is in an invalid state`);
+                                logger.debug(`index ${label} is in an invalid state`);
                                 return;
                             }
                         } catch (err) {
+                            running = false;
+                            clearInterval(checkInterval);
                             reject(err);
+                            return;
                         }
-
-                        running = true;
 
                         client
                             .search(query)

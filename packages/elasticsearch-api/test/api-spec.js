@@ -331,59 +331,55 @@ describe('elasticsearch-api', () => {
         expect(typeof api.indexSetup).toEqual('function');
     });
 
-    it('count returns total amount for query', () => {
+    it('count returns total amount for query', async () => {
         const query = { body: 'someQuery' };
         const api = esApi(client, logger);
 
-        return api
-            .count(query)
-            .then((results) => {
-                expect(query).toEqual({ body: 'someQuery', size: 0 });
-                expect(results).toEqual(0);
-                total = 500;
-                return api.count(query);
-            })
-            .then(results => expect(results).toEqual(500));
+        const results = await api.count(query);
+        expect(query).toEqual({ body: 'someQuery', size: 0 });
+        expect(results).toEqual(0);
+        total = 500;
+        return expect(api.count(query)).resolves.toEqual(500);
     });
 
-    it('can search', () => {
+    it('can search', async () => {
         const query = { body: 'someQuery' };
         const api = esApi(client, logger);
         const apiFullResponse = esApi(client, logger, { full_response: true });
         recordsReturned = [{ _source: { some: 'data' } }];
 
-        return Promise.all([api.search(query), apiFullResponse.search(query)]).spread(
-            (results1, results2) => {
-                expect(results1).toEqual([recordsReturned[0]._source]);
-                expect(results2).toEqual(getData());
-            }
-        );
+        const [results1, results2] = await Promise.all([
+            api.search(query),
+            apiFullResponse.search(query)
+        ]);
+        expect(results1).toEqual([recordsReturned[0]._source]);
+        expect(results2).toEqual(getData());
     });
 
-    it('search can handle rejection errors', () => {
+    it('search can handle rejection errors', async () => {
         const query = { body: 'someQuery' };
         const api = esApi(client, logger);
         let queryFailed = false;
         searchError = { body: { error: { type: 'es_rejected_execution_exception' } } };
         recordsReturned = [{ _source: { some: 'data' } }];
 
-        return Promise.all([
+        const [results] = await Promise.all([
             api.search(query),
             waitFor(50, () => {
                 searchError = false;
             })
-        ])
-            .spread((results) => {
-                expect(results).toEqual([recordsReturned[0]._source]);
-                searchError = { body: { error: { type: 'some_thing_else' } } };
-                return api.search(query).catch(() => {
-                    queryFailed = true;
-                });
-            })
-            .then(() => expect(queryFailed).toEqual(true));
+        ]);
+        expect(results).toEqual([recordsReturned[0]._source]);
+        searchError = { body: { error: { type: 'some_thing_else' } } };
+        try {
+            await api.search(query);
+        } catch (e) {
+            queryFailed = true;
+        }
+        return expect(queryFailed).toEqual(true);
     });
 
-    it('search can handle shard errors', () => {
+    it('search can handle shard errors', async () => {
         const query = { body: 'someQuery' };
         const api = esApi(client, logger);
         let queryFailed = false;
@@ -391,54 +387,57 @@ describe('elasticsearch-api', () => {
         failures = [{ reason: { type: 'es_rejected_execution_exception' } }];
         recordsReturned = [{ _source: { some: 'data' } }];
 
-        return Promise.all([
+        const [results] = await Promise.all([
             api.search(query),
             waitFor(20, () => {
                 failed = 0;
                 failures = [];
             })
-        ])
-            .spread((results) => {
-                expect(results).toEqual([recordsReturned[0]._source]);
-                failed = 4;
-                failures = [{ reason: { type: 'some other error' } }];
-                return Promise.all([
-                    api.search(query),
-                    waitFor(50, () => {
-                        failed = 0;
-                        failures = [];
-                    })
-                ]).catch(() => {
-                    queryFailed = true;
-                });
-            })
-            .then(() => expect(queryFailed).toEqual(true));
+        ]);
+        expect(results).toEqual([recordsReturned[0]._source]);
+        failed = 4;
+        failures = [{ reason: { type: 'some other error' } }];
+        try {
+            await Promise.all([
+                api.search(query),
+                waitFor(50, () => {
+                    failed = 0;
+                    failures = [];
+                })
+            ]);
+        } catch (e) {
+            queryFailed = true;
+        }
+        return expect(queryFailed).toEqual(true);
     });
 
-    it('can call mget', () => {
+    it('can call mget', async () => {
         const query = { body: 'someQuery' };
         const api = esApi(client, logger);
         recordsReturned = [{ _source: { some: 'data' } }];
 
-        return api.mget(query).then(results => expect(results).toEqual(getData()));
+        const results = await api.mget(query);
+        return expect(results).toEqual(getData());
     });
 
-    it('can call get', () => {
+    it('can call get', async () => {
         const query = { body: 'someQuery' };
         const api = esApi(client, logger);
         recordsReturned = [{ _source: { some: 'data' } }];
 
-        return api.get(query).then(results => expect(results).toEqual(recordsReturned[0]._source));
+        const results = await api.get(query);
+        return expect(results).toEqual(recordsReturned[0]._source);
     });
 
-    it('can call index', () => {
+    it('can call index', async () => {
         const query = { index: 'someIndex', type: 'sometype', body: 'someQuery' };
         const api = esApi(client, logger);
 
-        return api.index(query).then(results => expect(results.created).toEqual(true));
+        const results = await api.index(query);
+        return expect(results.created).toEqual(true);
     });
 
-    it('can call indexWithId', () => {
+    it('can call indexWithId', async () => {
         const query = {
             index: 'someIndex',
             id: 'someId',
@@ -448,74 +447,85 @@ describe('elasticsearch-api', () => {
         const api = esApi(client, logger);
         recordsReturned = [{ _source: { some: 'data' } }];
 
-        return api.indexWithId(query).then(results => expect(results).toEqual(query.body));
+        const results = await api.indexWithId(query);
+        return expect(results).toEqual(query.body);
     });
 
-    it('can call create', () => {
+    it('can call create', async () => {
         const query = { index: 'someIndex', type: 'sometype', body: 'someQuery' };
         const api = esApi(client, logger);
 
-        return api.create(query).then(results => expect(results).toEqual(query.body));
+        const results = await api.create(query);
+        return expect(results).toEqual(query.body);
     });
 
-    it('can call update', () => {
+    it('can call update', async () => {
         const query = { index: 'someIndex', type: 'sometype', body: { doc: { some: 'data' } } };
         const api = esApi(client, logger);
 
-        return api.update(query).then(results => expect(results).toEqual(query.body.doc));
+        const results = await api.update(query);
+        return expect(results).toEqual(query.body.doc);
     });
 
-    it('can call remove', () => {
+    it('can call remove', async () => {
         const query = { index: 'someIndex', type: 'sometype', id: 'someId' };
         const api = esApi(client, logger);
 
-        return api.remove(query).then(results => expect(results).toEqual(true));
+        const results = await api.remove(query);
+        return expect(results).toEqual(true);
     });
 
-    it('can call indexExists', () => {
+    it('can call indexExists', async () => {
         const query = { index: 'someIndex' };
         const api = esApi(client, logger);
 
-        return api.indexExists(query).then(results => expect(results).toEqual(true));
+        const results = await api.indexExists(query);
+        return expect(results).toEqual(true);
     });
 
-    it('can call indexCreate', () => {
+    it('can call indexCreate', async () => {
         const query = { index: 'someIndex' };
         const api = esApi(client, logger);
 
-        return api.indexCreate(query).then(results => expect(results.acknowledged).toEqual(true));
+        const results = await api.indexCreate(query);
+        return expect(results.acknowledged).toEqual(true);
     });
 
-    it('can call indexRefresh', () => {
+    it('can call indexRefresh', async () => {
         const query = { index: 'someIndex' };
         const api = esApi(client, logger);
 
-        return api.indexRefresh(query).then(results => expect(results).toBeTruthy());
+        const results = await api.indexRefresh(query);
+        return expect(results).toBeTruthy();
     });
 
-    it('can call indexRecovery', () => {
+    it('can call indexRecovery', async () => {
         const query = { index: 'someIndex' };
         const api = esApi(client, logger);
 
-        return api.indexRecovery(query).then(results => expect(results[query.index]).toBeTruthy());
+        const results = await api.indexRecovery(query);
+        return expect(results[query.index]).toBeTruthy();
     });
 
-    it('can call nodeInfo', () => {
+    it('can call nodeInfo', async () => {
         const api = esApi(client, logger);
 
-        return api.nodeInfo().then(results => expect(results).toBeTruthy());
+        const results = await api.nodeInfo();
+        return expect(results).toBeTruthy();
     });
 
-    it('can call nodeStats', () => {
+    it('can call nodeStats', async () => {
         const api = esApi(client, logger);
 
-        return api.nodeStats().then(results => expect(results).toBeTruthy());
+        const results = await api.nodeStats();
+        return expect(results).toBeTruthy();
     });
 
-    it('can call nodeStats', () => {
+    it('can call nodeStats', async () => {
         const api = esApi(client, logger);
 
-        return api.nodeStats().then(results => expect(results).toBeTruthy());
+        const results = await api.nodeStats();
+        return expect(results).toBeTruthy();
     });
 
     it('can warn window size with version', () => {
@@ -524,15 +534,14 @@ describe('elasticsearch-api', () => {
         return api.version();
     });
 
-    it('can call putTemplate', () => {
+    it('can call putTemplate', async () => {
         const api = esApi(client, logger);
 
-        return api
-            .putTemplate(template, 'somename')
-            .then(results => expect(results.acknowledged).toEqual(true));
+        const results = await api.putTemplate(template, 'somename');
+        return expect(results.acknowledged).toEqual(true);
     });
 
-    it('can call bulkSend', () => {
+    it('can call bulkSend', async () => {
         const api = esApi(client, logger);
         const myBulkData = [
             { index: { _index: 'some_index', _type: 'events', _id: 1 } },
@@ -540,43 +549,42 @@ describe('elasticsearch-api', () => {
             { delete: { _index: 'some_index', _type: 'events', _id: 5 } }
         ];
 
-        return api.bulkSend(myBulkData).then(results => expect(results).toBeTruthy());
+        const results = await api.bulkSend(myBulkData);
+        return expect(results).toBeTruthy();
     });
 
-    it('can call bulkSend with errors', () => {
+    it('can call bulkSend with errors', async () => {
         const api = esApi(client, logger);
         const myBulkData = [
             { index: { _index: 'some_index', _type: 'events', _id: 1 } },
             { title: 'foo' },
             { delete: { _index: 'some_index', _type: 'events', _id: 5 } }
         ];
+
         bulkError = [
             'es_rejected_execution_exception',
             'es_rejected_execution_exception',
             'es_rejected_execution_exception'
         ];
-        let queryFailed = false;
 
-        return Promise.all([
+        const [results] = await Promise.all([
             api.bulkSend(myBulkData),
             waitFor(20, () => {
                 bulkError = false;
             })
-        ])
-            .spread((results) => {
-                expect(results).toBeTruthy();
-                bulkError = ['some_thing_else', 'some_thing_else', 'some_thing_else'];
-                return Promise.all([
-                    api.bulkSend(myBulkData),
-                    waitFor(20, () => {
-                        bulkError = false;
-                    })
-                ]).catch((err) => {
-                    queryFailed = true;
-                    expect(err.message).toInclude('some_thing_else--someReason');
-                });
-            })
-            .then(() => expect(queryFailed).toEqual(true));
+        ]);
+
+        expect(results).toBeTruthy();
+        bulkError = ['some_thing_else', 'some_thing_else', 'some_thing_else'];
+
+        return expect(
+            Promise.all([
+                api.bulkSend(myBulkData),
+                waitFor(20, () => {
+                    bulkError = false;
+                })
+            ])
+        ).rejects.toThrow(/some_thing_else--someReason/);
     });
 
     it('can call buildQuery for geo queries', () => {
@@ -918,7 +926,7 @@ describe('elasticsearch-api', () => {
         ]);
     });
 
-    it('can send template on state mapping changes, does not migrate', () => {
+    it('can send template on state mapping changes, does not migrate', async () => {
         const api = esApi(client, logger);
         const clusterName = 'teracluster';
         const newIndex = 'teracluster__state';
@@ -928,15 +936,19 @@ describe('elasticsearch-api', () => {
 
         changeMappings = true;
 
-        return api
-            .indexSetup(clusterName, newIndex, migrantIndexName, template, recordType, clientName)
-            .then(() => {
-                expect(putTemplateCalled).toEqual(true);
-                expect(reindexCalled).toEqual(false);
-            });
+        await api.indexSetup(
+            clusterName,
+            newIndex,
+            migrantIndexName,
+            template,
+            recordType,
+            clientName
+        );
+        expect(putTemplateCalled).toEqual(true);
+        expect(reindexCalled).toEqual(false);
     });
 
-    it('can migrate on mapping changes', () => {
+    it('can migrate on mapping changes', async () => {
         const api = esApi(client, logger);
         const clusterName = 'teracluster';
         const newIndex = 'teracluster__ex';
@@ -947,12 +959,16 @@ describe('elasticsearch-api', () => {
         changeMappings = true;
         isExecutionTemplate = true;
 
-        return api
-            .indexSetup(clusterName, newIndex, migrantIndexName, template, recordType, clientName)
-            .then(() => {
-                expect(reindexCalled).toEqual(true);
-                expect(indicesDeleteCalled).toEqual(true);
-                expect(indicesPutAliasCalled).toEqual(true);
-            });
+        await api.indexSetup(
+            clusterName,
+            newIndex,
+            migrantIndexName,
+            template,
+            recordType,
+            clientName
+        );
+        expect(reindexCalled).toEqual(true);
+        expect(indicesDeleteCalled).toEqual(true);
+        expect(indicesPutAliasCalled).toEqual(true);
     });
 });

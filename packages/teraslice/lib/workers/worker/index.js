@@ -79,7 +79,8 @@ class Worker {
             try {
                 await this.runOnce();
             } catch (err) {
-                this.logger.fatal(err, 'Worker must shutdown to Fatal Error');
+                process.exitCode = 1;
+                this.logger.fatal(err, 'Worker must shutdown due to fatal error');
                 this.shutdown(false);
             } finally {
                 running = false;
@@ -160,10 +161,12 @@ class Worker {
     async shutdown(block = true) {
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
+        const { exId } = this.executionContext;
+
         if (this.isShuttingDown) {
             const msgs = [
                 'worker',
-                `shutdown was called for ${this.exId}`,
+                `shutdown was called for ${exId}`,
                 'but it was already shutting down',
                 block ? ', will block until done' : ''
             ];
@@ -174,8 +177,6 @@ class Worker {
             }
             return;
         }
-
-        const { exId } = this.executionContext;
 
         this.client.available = false;
         this.isShuttingDown = true;

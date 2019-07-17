@@ -245,20 +245,16 @@ module.exports = function module(backendConfig) {
 
     async function bulkSend(bulkRequest) {
         let recordCount = 0;
-        try {
-            await pRetry(async () => {
-                const results = await elasticsearch.bulkSend(bulkRequest);
-                recordCount = results.items.length;
-            }, {
-                // retry any error that has Request Timeout or No Living Connections
-                matches: ['Request Timeout', 'No Living Connections'],
-                logError: logger.warn,
-            });
-        } catch (err) {
-            throw new TSError(err, {
-                reason: `Failure to bulk create "${recordType}"`,
-            });
-        }
+        await pRetry(async () => {
+            const results = await elasticsearch.bulkSend(bulkRequest);
+            recordCount = results.items.length;
+        }, {
+            reason: `Failure to bulk create "${recordType}"`,
+            logError: logger.warn,
+            delay: isTest ? 100 : 1000,
+            backoff: 5,
+            retries: 100,
+        });
         // since this library only supports bulk updates by pairs
         // we can log when the expected count is different
         const expectedCount = (bulkRequest.length / 2);
@@ -334,7 +330,7 @@ module.exports = function module(backendConfig) {
                     .then(results => results)
                     .catch((err) => {
                         // It's not really an error if it's just that the index is already there
-                        if (parseError(err).match(/index_already_exists_exception/)) {
+                        if (parseError(err).match(/already_exists_exception/)) {
                             return true;
                         }
 

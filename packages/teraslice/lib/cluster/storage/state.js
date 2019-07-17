@@ -100,7 +100,7 @@ module.exports = function module(context) {
 
         return pRetry(update, {
             retries: 10000,
-            delay: 1000,
+            delay: isTest ? 100 : 1000,
             backoff: 5,
             endWithFatal: true,
         });
