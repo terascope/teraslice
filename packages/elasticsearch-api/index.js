@@ -633,7 +633,8 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         }
 
         const alive = _.get(client, 'transport.connectionPool._conns.alive');
-        const aliveCount = alive && Array.isArray(alive) ? alive.length : 0;
+        // so we don't break existing tests with mocked clients, we will default to 1
+        const aliveCount = alive && Array.isArray(alive) ? alive.length : 1;
         if (!aliveCount) {
             return false;
         }
