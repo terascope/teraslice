@@ -243,23 +243,16 @@ module.exports = function elasticsearchStorage(backendConfig) {
     }
 
     async function bulkSend(bulkRequest) {
-        let recordCount = 0;
-        await pRetry(async () => {
-            const results = await elasticsearch.bulkSend(bulkRequest);
-            recordCount = results.items.length;
-        }, {
+        const recordCount = (bulkRequest.length / 2);
+
+        await pRetry(async () => elasticsearch.bulkSend(bulkRequest), {
             reason: `Failure to bulk create "${recordType}"`,
             logError: logger.warn,
             delay: isTest ? 100 : 1000,
             backoff: 5,
             retries: 100,
         });
-        // since this library only supports bulk updates by pairs
-        // we can log when the expected count is different
-        const expectedCount = (bulkRequest.length / 2);
-        if (recordCount !== expectedCount) {
-            logger.warn(`expected to bulk send ${expectedCount} records but got ${count}`);
-        }
+
         return recordCount;
     }
 
