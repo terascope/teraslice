@@ -2,7 +2,7 @@
 
 
 const _ = require('lodash');
-const { TSError } = require('@terascope/utils');
+const { TSError, pRetry } = require('@terascope/utils');
 const uuid = require('uuid');
 const Promise = require('bluebird');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
@@ -25,8 +25,8 @@ module.exports = function executionStorage(context) {
 
     let backend;
 
-    function getExecution(exId) {
-        if (!exId) return Promise.reject(new Error('Execution.get() requires a exId'));
+    async function getExecution(exId) {
+        if (!exId) throw new Error('Execution.get() requires a exId');
         return backend.get(exId);
     }
 
@@ -59,15 +59,15 @@ module.exports = function executionStorage(context) {
         return metaData;
     }
 
-    function getStatus(exId) {
-        return getExecution(exId)
-            .then(result => result._status)
-            .catch((err) => {
-                const error = new TSError(err, {
-                    reason: `Cannot get execution status ${exId}`
-                });
-                return Promise.reject(error);
+    async function getStatus(exId) {
+        try {
+            const result = await getExecution(exId);
+            return result._status;
+        } catch (err) {
+            throw new TSError(err, {
+                reason: `Cannot get execution status ${exId}`
             });
+        }
     }
 
     // verify the current status to make sure it can be updated to the desired status
@@ -107,7 +107,8 @@ module.exports = function executionStorage(context) {
     }
 
     async function setStatus(exId, status, metaData) {
-        await verifyStatusUpdate(exId, status);
+        await waitForClient();
+        await pRetry(() => verifyStatusUpdate(exId, status));
 
         try {
             const statusObj = { _status: status };

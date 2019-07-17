@@ -16,7 +16,7 @@ const elasticsearchBackend = require('./backends/elasticsearch_store');
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
-module.exports = function stateStorage(context) {
+module.exports = async function stateStorage(context) {
     const recordType = 'state';
 
     const logger = makeLogger(context, 'state_storage');
@@ -28,12 +28,16 @@ module.exports = function stateStorage(context) {
 
     let backend;
 
-    function createState(exId, slice, state, error) {
+    async function createState(exId, slice, state, error) {
+        await waitForClient();
+
         const { record, index } = _createSliceRecord(exId, slice, state, error);
         return backend.indexWithId(slice.slice_id, record, index);
     }
 
     async function createSlices(exId, slices) {
+        await waitForClient();
+
         const bulkRequest = [];
         for (const slice of slices) {
             const { record, index } = _createSliceRecord(exId, slice, 'start');
@@ -81,6 +85,8 @@ module.exports = function stateStorage(context) {
         let notFoundErrCount = 0;
 
         async function update() {
+            await waitForClient();
+
             try {
                 return await backend.update(slice.slice_id, record, indexData.index);
             } catch (_err) {
@@ -108,28 +114,28 @@ module.exports = function stateStorage(context) {
         });
     }
 
-    function executionStartingSlice(exId, slicerId) {
+    async function executionStartingSlice(exId, slicerId) {
         const startQuery = `ex_id:${exId} AND slicer_id:${slicerId}`;
         const recoveryData = {};
 
-        return backend.search(startQuery, 0, 1, 'slicer_order:desc')
-            .then((startingData) => {
-                if (startingData.length > 0) {
-                    recoveryData.lastSlice = JSON.parse(startingData[0].request);
-                    logger.info(`last slice process for slicer_id ${slicerId}, ex_id: ${exId} is`, recoveryData.lastSlice);
-                }
+        await waitForClient();
 
-                return recoveryData;
-            })
-            .catch((err) => {
-                const error = new TSError(err, {
-                    reason: 'Failure getting the newest record'
-                });
-                return Promise.reject(error);
+        try {
+            const startingData = await backend.search(startQuery, 0, 1, 'slicer_order:desc');
+            if (startingData.length > 0) {
+                recoveryData.lastSlice = JSON.parse(startingData[0].request);
+                logger.info(`last slice process for slicer_id ${slicerId}, ex_id: ${exId} is`, recoveryData.lastSlice);
+            }
+
+            return recoveryData;
+        } catch (err) {
+            throw new TSError(err, {
+                reason: 'Failure getting the newest record'
             });
+        }
     }
 
-    function recoverSlices(exId, slicerId, cleanupType) {
+    async function recoverSlices(exId, slicerId, cleanupType) {
         let retryQuery = `ex_id:${exId} AND slicer_id:${slicerId}`;
 
         if (cleanupType && cleanupType === 'errors') {
@@ -139,20 +145,23 @@ module.exports = function stateStorage(context) {
         }
 
         // Look for all slices that haven't been completed so they can be retried.
-        return backend.refresh(indexName)
-            .then(() => backend.search(retryQuery, 0, 5000))
-            .then(results => results.map(doc => ({
+        try {
+            await waitForClient();
+            await backend.refresh(indexName);
+
+            const results = await backend.search(retryQuery, 0, 5000);
+            return results.map(doc => ({
                 slice_id: doc.slice_id,
                 slicer_id: doc.slicer_id,
                 request: JSON.parse(doc.request),
                 _created: doc._created
-            })))
-            .catch((err) => {
-                const error = new TSError(err, {
-                    reason: 'An error has occurred accessing the state log for retry'
-                });
-                return Promise.reject(error);
+            }));
+        } catch (err) {
+            const error = new TSError(err, {
+                reason: 'An error has occurred accessing the state log for retry'
             });
+            return Promise.reject(error);
+        }
     }
 
     function search(query, from, size, sort) {
@@ -177,6 +186,10 @@ module.exports = function stateStorage(context) {
         return backend.verifyClient();
     }
 
+    function waitForClient() {
+        return backend.waitForClient();
+    }
+
     const api = {
         search,
         createState,
@@ -185,6 +198,7 @@ module.exports = function stateStorage(context) {
         recoverSlices,
         executionStartingSlice,
         count,
+        waitForClient,
         verifyClient,
         shutdown,
         refresh,
@@ -201,10 +215,8 @@ module.exports = function stateStorage(context) {
         storageName: 'state'
     };
 
-    return elasticsearchBackend(backendConfig)
-        .then((elasticsearch) => {
-            backend = elasticsearch;
-            logger.info('state storage initialized');
-            return api;
-        });
+    const elasticsearch = await elasticsearchBackend(backendConfig);
+    backend = elasticsearch;
+    logger.info('state storage initialized');
+    return api;
 };
