@@ -58,7 +58,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                     .catch(errHandler);
             }
 
-            _waitForClient(() => _runRequest(), reject);
+            waitForClient(() => _runRequest(), reject);
         });
     }
 
@@ -525,22 +525,23 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                     .catch(errHandler);
             }
 
-            _waitForClient(() => _performSearch(query), reject);
+            waitForClient(() => _performSearch(query), reject);
         });
     }
 
     /**
-     * Wait for the client to be available before resolving
+     * Wait for the client to be available before resolving,
+     * this will also naturally stagger many in-flight requests
      *
      * - reject if the connection is closed
      * - resolve after timeout to let the underlying client deal with any problems
     */
-    function _waitForClient(resolve, reject) {
+    function waitForClient(resolve, reject) {
         let intervalId = null;
         const startTime = Date.now();
 
         // set different values for when process.env.NODE_ENV === test
-        const timeoutMs = isTest ? 1000 : _.random(15000, 30000);
+        const timeoutMs = isTest ? 1000 : _.random(5000, 15000);
         const intervalMs = isTest ? 50 : 100;
 
         // avoiding setting the interval if we don't need to
@@ -573,7 +574,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         return (_data) => {
             const args = _data || data;
 
-            _waitForClient((elapsed) => {
+            waitForClient((elapsed) => {
                 delay = getBackoffDelay(delay, 2, retryLimit, retryStart);
 
                 let timeoutMs = delay - elapsed;

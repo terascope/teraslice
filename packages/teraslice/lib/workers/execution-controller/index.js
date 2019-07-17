@@ -218,7 +218,9 @@ class ExecutionController {
 
             // this is updating the opConfig for elasticsearch start and/or end dates for ex,
             // this assumes elasticsearch is first
-            this.stores.exStore.update(this.exId, { operations: update });
+            this.stores.exStore.update(this.exId, { operations: update }).catch((err) => {
+                this.logger.error(err, 'slicer event execution update failure');
+            });
         };
 
         this._handlers['slicers:finished'] = (err) => {
@@ -612,7 +614,6 @@ class ExecutionController {
         // if this.slicerFailed is true, slicer has already been marked as failed
         if (this.slicerFailed) return;
 
-        const { logger } = this;
         const { exStore } = this.stores;
 
         const executionStats = this.executionAnalytics.getAnalytics();
@@ -623,7 +624,7 @@ class ExecutionController {
             const isStopping = status === 'stopping' || status === 'stopped';
             if (isStopping) {
                 const metaData = exStore.executionMetaData(executionStats);
-                logger.debug(`execution is set to ${status}, status will not be updated`);
+                this.logger.debug(`execution is set to ${status}, status will not be updated`);
                 await exStore.update(this.exId, metaData);
                 return;
             }
@@ -632,7 +633,7 @@ class ExecutionController {
                 this.exId
             } received shutdown before the slicer could complete, setting status to "terminated"`;
             const metaData = exStore.executionMetaData(executionStats, errMsg);
-            logger.error(errMsg);
+            this.logger.error(errMsg);
             await exStore.setStatus(this.exId, 'terminated', metaData);
             return;
         }
@@ -645,13 +646,13 @@ class ExecutionController {
         if (errors > 0 || started > 0) {
             const errMsg = this._formartExecutionFailure({ errors, started });
             const errorMeta = exStore.executionMetaData(executionStats, errMsg);
-            logger.error(errMsg);
+            this.logger.error(errMsg);
             await exStore.setStatus(this.exId, 'failed', errorMeta);
             return;
         }
 
         const metaData = exStore.executionMetaData(executionStats);
-        logger.info(`execution ${this.exId} has completed`);
+        this.logger.info(`execution ${this.exId} has completed`);
         await exStore.setStatus(this.exId, 'completed', metaData);
     }
 
@@ -839,6 +840,7 @@ class ExecutionController {
         const logPaused = _.throttle((storesStr) => {
             this.logger.warn(`${storesStr} are in a invalid state, scheduler is paused`);
         }, 10 * 1000);
+
         clearInterval(this._verifyStoresInterval);
         this._verifyStoresInterval = setInterval(() => {
             if (!this.stores) return;

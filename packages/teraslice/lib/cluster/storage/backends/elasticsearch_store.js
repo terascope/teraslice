@@ -10,6 +10,7 @@ const {
     pDelay,
     pRetry
 } = require('@terascope/utils');
+const pWhilst = require('p-whilst');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
 const { makeLogger } = require('../../../workers/helpers/terafoundation');
@@ -358,6 +359,17 @@ module.exports = function elasticsearchStorage(backendConfig) {
         return elasticsearch.verifyClient();
     }
 
+    async function waitForClient() {
+        let valid = elasticsearch.verifyClient();
+        if (valid) return;
+
+        await pWhilst(() => valid, async () => {
+            if (isShutdown) throw new Error('Elasticsearch store is shutdown');
+            valid = elasticsearch.verifyClient();
+            await pDelay(100);
+        });
+    }
+
     // Periodically flush the bulkQueue so we don't end up with cached data lingering.
     flushInterval = setInterval(() => {
         _flush().catch((err) => {
@@ -382,6 +394,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
         shutdown,
         count,
         putTemplate,
+        waitForClient,
         verifyClient,
     };
 

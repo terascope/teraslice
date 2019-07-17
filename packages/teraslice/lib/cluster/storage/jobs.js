@@ -55,6 +55,10 @@ module.exports = function jobsStorage(context) {
         return backend.verifyClient();
     }
 
+    function waitForClient() {
+        return backend.waitForClient();
+    }
+
     const api = {
         get: getJob,
         search,
@@ -62,6 +66,7 @@ module.exports = function jobsStorage(context) {
         update,
         remove,
         verifyClient,
+        waitForClient,
         shutdown
     };
 

@@ -238,6 +238,10 @@ module.exports = function assetsStore(context) {
         return backend.verifyClient();
     }
 
+    function waitForClient() {
+        return backend.waitForClient();
+    }
+
     const api = {
         save,
         search,
@@ -246,6 +250,7 @@ module.exports = function assetsStore(context) {
         autoload,
         parseAssetsArray,
         shutdown,
+        waitForClient,
         verifyClient,
     };
 

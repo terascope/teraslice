@@ -77,6 +77,10 @@ module.exports = function analyticsService(context) {
         return backend.verifyClient();
     }
 
+    function waitForClient() {
+        return backend.waitForClient();
+    }
+
     const api = {
         log,
         get: getRecord,
@@ -85,6 +89,7 @@ module.exports = function analyticsService(context) {
         remove,
         shutdown,
         refresh,
+        waitForClient,
         verifyClient,
     };
 

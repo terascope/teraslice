@@ -138,6 +138,10 @@ module.exports = function executionStorage(context) {
         return backend.verifyClient();
     }
 
+    function waitForClient() {
+        return backend.waitForClient();
+    }
+
     function getTerminalStatuses() {
         return TERMINAL_STATUS.slice();
     }
@@ -180,6 +184,7 @@ module.exports = function executionStorage(context) {
         getStatus,
         executionMetaData,
         verifyStatusUpdate,
+        waitForClient,
         verifyClient,
     };
 
