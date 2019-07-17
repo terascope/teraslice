@@ -2,11 +2,10 @@
 
 /* eslint-disable no-console */
 
-const Promise = require('bluebird');
-const _ = require('lodash');
-const { createTempDirSync, cleanupTempDirs } = require('jest-fixtures');
-const path = require('path');
 const fs = require('fs-extra');
+const path = require('path');
+const { createTempDirSync, cleanupTempDirs } = require('jest-fixtures');
+const { newTestSlice, get } = require('@terascope/job-components');
 const { ClusterMaster } = require('@terascope/teraslice-messaging');
 
 const {
@@ -14,7 +13,7 @@ const {
     makeStateStore,
     makeAnalyticsStore,
     makeExStore,
-    makeJobStore,
+    makeJobStore
 } = require('../../../lib/cluster/storage');
 
 const { initializeJob } = require('../../../lib/workers/helpers/job');
@@ -22,7 +21,7 @@ const makeTerafoundationContext = require('../../../lib/workers/context/terafoun
 const makeExecutionContext = require('../../../lib/workers/context/execution-context');
 const { newId } = require('../../../lib/utils/id_utils');
 const { findPort } = require('../../../lib/utils/port_utils');
-const { newConfig, newSysConfig, newSliceConfig } = require('./configs');
+const { newConfig, newSysConfig } = require('./configs');
 const zipDirectory = require('./zip-directory');
 
 const { TERASLICE_CLUSTER_NAME } = process.env;
@@ -36,10 +35,7 @@ const stores = {};
 class TestContext {
     constructor(options = {}) {
         const {
-            clusterMasterPort,
-            shutdownTimeout,
-            actionTimeout,
-            timeout,
+            clusterMasterPort, shutdownTimeout, actionTimeout, timeout
         } = options;
 
         this.setupId = newId('setup', true);
@@ -51,7 +47,7 @@ class TestContext {
             clusterMasterPort,
             actionTimeout,
             timeout,
-            shutdownTimeout,
+            shutdownTimeout
         });
 
         this.config = newConfig(options);
@@ -83,7 +79,8 @@ class TestContext {
         this.jobId = this.executionContext.config.job_id;
     }
 
-    get stores() { // eslint-disable-line
+    get stores() {
+        // eslint-disable-line
         return stores;
     }
 
@@ -91,15 +88,21 @@ class TestContext {
         if (this.clusterMaster) return this.clusterMaster;
 
         const port = await findPort();
-        const networkLatencyBuffer = _.get(this.context, 'sysconfig.teraslice.network_latency_buffer');
-        const actionTimeout = _.get(this.context, 'sysconfig.teraslice.action_timeout');
-        const nodeDisconnectTimeout = _.get(this.context, 'sysconfig.teraslice.node_disconnect_timeout');
+        const networkLatencyBuffer = get(
+            this.context,
+            'sysconfig.teraslice.network_latency_buffer'
+        );
+        const actionTimeout = get(this.context, 'sysconfig.teraslice.action_timeout');
+        const nodeDisconnectTimeout = get(
+            this.context,
+            'sysconfig.teraslice.node_disconnect_timeout'
+        );
 
         this.clusterMaster = new ClusterMaster.Server({
             port,
             networkLatencyBuffer,
             actionTimeout,
-            nodeDisconnectTimeout,
+            nodeDisconnectTimeout
         });
 
         await this.clusterMaster.start();
@@ -128,7 +131,7 @@ class TestContext {
     }
 
     async newSlice() {
-        const sliceConfig = newSliceConfig();
+        const sliceConfig = newTestSlice({ request: { example: 'slice-data' } });
         await this.addStateStore();
         await stores.stateStore.createState(this.exId, sliceConfig, 'start');
         return sliceConfig;
@@ -173,7 +176,7 @@ class TestContext {
     async cleanup() {
         if (this.clean) return;
 
-        await Promise.map(this._cleanupFns, fn => fn());
+        await Promise.all(this._cleanupFns.map(fn => fn()));
         this._cleanupFns.length = 0;
 
         this.events.removeAllListeners();
@@ -208,7 +211,7 @@ async function cleanupAll(withEs) {
 
     if (withEs && Object.keys(stores).length) {
         try {
-            await Promise.map(stores, store => store.shutdown(true));
+            await Promise.all(Object.values(stores).map(store => store.shutdown(true)));
         } catch (err) {
             console.error(err);
         }

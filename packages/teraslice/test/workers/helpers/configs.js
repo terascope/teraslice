@@ -2,7 +2,6 @@
 
 const path = require('path');
 const Chance = require('chance');
-const random = require('lodash/random');
 const pickBy = require('lodash/pickBy');
 const { newId } = require('../../../lib/utils/id_utils');
 
@@ -12,14 +11,6 @@ const { ELASTICSEARCH_HOST } = process.env;
 
 const chance = new Chance();
 
-const newSliceConfig = (request = { example: 'slice-data' }) => ({
-    slice_id: newId('slice-id', true),
-    slicer_id: newId('slicer-id', true),
-    slicer_order: random(0, 1000),
-    request,
-    _created: new Date().toISOString()
-});
-
 const newConfig = (options = {}) => {
     const { newOps } = options;
     let { operations } = options;
@@ -28,11 +19,11 @@ const newConfig = (options = {}) => {
             operations = [
                 pickBy({
                     _op: path.join(opsPath, 'new-reader'),
-                    countPerSlicer: options.countPerSlicer,
+                    countPerSlicer: options.countPerSlicer
                 }),
                 pickBy({
                     _op: path.join(opsPath, 'new-op'),
-                    failOnSliceRetry: options.failOnSliceRetry || false,
+                    failOnSliceRetry: options.failOnSliceRetry || false
                 }),
                 {
                     _op: 'noop'
@@ -47,13 +38,13 @@ const newConfig = (options = {}) => {
                     results: options.readerResults,
                     slicerResults: options.slicerResults,
                     slicerErrorAt: options.slicerErrorAt,
-                    slicerQueueLength: options.slicerQueueLength,
+                    slicerQueueLength: options.slicerQueueLength
                 }),
                 pickBy({
                     _op: path.join(opsPath, 'example-op'),
                     exampleProp: 123,
                     errorAt: options.opErrorAt,
-                    results: options.opResults,
+                    results: options.opResults
                 })
             ];
         }
@@ -69,7 +60,7 @@ const newConfig = (options = {}) => {
         slicers = 1,
         recoveredExecution,
         recoveredSliceType,
-        probationWindow = 5000,
+        probationWindow = 5000
     } = options;
 
     return {
@@ -88,10 +79,9 @@ const newConfig = (options = {}) => {
         node_id: newId('node-id', true),
         slicer_port: slicerPort,
         slicer_hostname: 'localhost',
-        probation_window: probationWindow,
+        probation_window: probationWindow
     };
 };
-
 
 const newSysConfig = (options = {}) => {
     const {
@@ -100,7 +90,7 @@ const newSysConfig = (options = {}) => {
         actionTimeout = 2000,
         shutdownTimeout = 4000,
         assetDir,
-        clusterMasterPort,
+        clusterMasterPort
     } = options;
 
     return {
@@ -111,7 +101,7 @@ const newSysConfig = (options = {}) => {
                     default: {
                         host: [ELASTICSEARCH_HOST],
                         requestTimeout: timeout,
-                        deadTimeout: timeout,
+                        deadTimeout: timeout
                     }
                 }
             }
@@ -150,7 +140,7 @@ const newSysConfig = (options = {}) => {
                 state: {
                     number_of_shards: 1,
                     number_of_replicas: 0
-                },
+                }
             }
         }
     };
@@ -159,6 +149,5 @@ const newSysConfig = (options = {}) => {
 module.exports = {
     opsPath,
     newConfig,
-    newSliceConfig,
     newSysConfig
 };
