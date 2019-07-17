@@ -1,7 +1,7 @@
 
 import 'jest-extended';
 import { DataEntity } from '@terascope/job-components';
-import { CachedStateStorage } from '../src';
+import { CachedStateStorage, SetTuple } from '../src';
 
 describe('Cache Storage State', () => {
 
@@ -21,54 +21,68 @@ describe('Cache Storage State', () => {
         }
     ].map((obj, index) => DataEntity.make(obj, { [idField]: index + 1 }));
 
+    const formattedMSet: SetTuple<DataEntity>[] = docArray.map((obj) => ({ data: obj, key: obj.getMetadata(idField) }));
+    const formattedMGet = docArray.map(data => data.getMetadata(idField));
+
     const config = {
         id_field: idField,
         cache_size: 100000,
-        max_age: 24 * 3600 * 1000
     };
 
-    let cache: CachedStateStorage;
+    let cache: CachedStateStorage<DataEntity>;
 
     beforeEach(() => {
         cache = new CachedStateStorage(config);
     });
 
     afterEach(() => {
-        cache.shutdown();
+        cache.clear();
     });
 
     it('set should add items to the storage', () => {
-        cache.set(doc);
+        const key = doc.getMetadata(idField);
+        cache.set(key, doc);
         expect(cache.count()).toBe(1);
     });
 
     it('get should return data from storage', () => {
-        cache.set(doc);
-        const cachedData = cache.get(doc);
+        const key = doc.getMetadata(idField);
+        cache.set(key, doc);
+        const cachedData = cache.get(key);
 
         expect(cachedData).toEqual(doc);
         expect(DataEntity.isDataEntity(cachedData)).toEqual(true);
     });
 
     it('get should return undefined if not stored', () => {
-        const cachedData = cache.get(doc);
+        const key = doc.getMetadata(idField);
+        const cachedData = cache.get(key);
         expect(cachedData).toBeUndefined();
     });
 
-    it('delete should delete item from storage', () => {
-        cache.set(doc);
-        cache.delete(doc);
-        expect(cache.get(doc)).toBeUndefined();
-    });
-
     it('mset should add many items to storage', () => {
-        cache.mset(docArray);
+        cache.mset(formattedMSet);
         expect(cache.count()).toEqual(3);
+    });
+    // we are making this async becuase thats how the consumer will be using this
+    it('values returns an iterator to fetch all values from cache', async() => {
+        const results: DataEntity[] = [];
+        cache.mset(formattedMSet);
+
+        function mapper(data: DataEntity) {
+            results.push(data);
+        }
+
+        await cache.values(mapper);
+
+        expect(cache.count()).toEqual(3);
+        expect(results).toBeArrayOfSize(3);
+        expect(results.reverse()).toEqual(docArray);
     });
 
     it('mget should return many items from storage', () => {
-        cache.mset(docArray);
-        const data = cache.mget(docArray);
+        cache.mset(formattedMSet);
+        const data = cache.mget(formattedMGet);
         const keys = Object.keys(data);
         expect(keys.length).toBe(3);
 
@@ -81,16 +95,32 @@ describe('Cache Storage State', () => {
         });
     });
 
-    it('mdelete should delete many records from storage', () => {
-        cache.mset(docArray);
-        cache.mdelete(docArray);
+    it('clear should remove all cached data', () => {
+        cache.mset(formattedMSet);
+        expect(cache.count()).toBe(docArray.length);
+        cache.clear();
         expect(cache.count()).toBe(0);
     });
 
-    it('shutdown should remove all cached data', () => {
-        cache.mset(docArray);
-        expect(cache.count()).toBe(docArray.length);
-        cache.shutdown();
-        expect(cache.count()).toBe(0);
+    it('when cache is to large it returns the oldest value on set', async() => {
+        const smallSizeConfig = {
+            id_field: idField,
+            cache_size: 2,
+        };
+
+        const testCache = new CachedStateStorage(smallSizeConfig);
+        const set1 = testCache.set(formattedMSet[0].key, formattedMSet[0].data);
+        const set2 = testCache.set(formattedMSet[1].key, formattedMSet[1].data);
+
+        expect(set1).toBeUndefined();
+        expect(set2).toBeUndefined();
+        expect(testCache.count()).toEqual(2);
+
+        const set3 = testCache.set(formattedMSet[2].key, formattedMSet[2].data);
+
+        expect(testCache.count()).toEqual(2);
+        expect(set3!.key).toEqual(formattedMSet[0].key);
+        expect(set3!.value).toEqual(formattedMSet[0].data);
+        expect(set3!.evicted).toBeTrue();
     });
 });

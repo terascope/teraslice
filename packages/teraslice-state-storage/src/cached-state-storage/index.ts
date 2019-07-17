@@ -1,76 +1,63 @@
 
-import LRU from 'lru-cache';
-import { DataEntity, TSError } from '@terascope/job-components';
-import { CacheConfig, MGetCacheResponse } from '../interfaces';
+import LRU from 'mnemonist/lru-cache';
+import { promisify } from 'util';
+import { CacheConfig, MGetCacheResponse, SetTuple, ValuesFn } from '../interfaces';
 
-export default class CachedStateStorage {
+const immediate = promisify(setImmediate);
+
+export default class CachedStateStorage<T> {
     protected IDField: string;
-    private cache: LRU<string, DataEntity>;
+    private cache: LRU<string, T>;
 
     constructor(config: CacheConfig) {
         this.IDField = '_key';
-        this.cache = new LRU({
-            max: config.cache_size,
-            maxAge: config.max_age
-        });
+        this.cache = new LRU(config.cache_size);
     }
 
-    private getIdentifier(doc: DataEntity) {
-        const id =  doc.getMetadata(this.IDField);
-        if (id === '' || id == null) {
-            throw new TSError(`There is no field "${this.IDField}" set in the metadata`, { context: { doc } });
-        }
-        return id;
+    get(key: string): T | undefined {
+        return this.cache.get(key);
     }
 
-    get(doc: DataEntity): DataEntity<object>|undefined {
-        const identifier = this.getIdentifier(doc);
-        return this.cache.get(identifier);
-    }
-
-    mget(docArray: DataEntity[]): MGetCacheResponse {
-        return docArray.reduce((cachedState, doc) => {
-            const identifier = this.getIdentifier(doc);
-            const state = this.cache.get(identifier);
-            if (state) cachedState[identifier] = state;
+    mget(keyArray: string[]): MGetCacheResponse {
+        return keyArray.reduce((cachedState, key) => {
+            const state = this.cache.get(key);
+            if (state) cachedState[key] = state;
             return cachedState;
         }, {});
     }
 
-    set(doc: DataEntity) {
-        const identifier = this.getIdentifier(doc);
-        this.cache.set(identifier, doc);
+    set(key: string, value: T) {
+        const results = this.cache.setpop(key, value);
+        if (results && results.evicted) return results;
+        return undefined;
     }
 
-    mset(docArray: DataEntity[]) {
-        docArray.forEach(doc => this.set(doc));
-    }
-
-    delete(doc: DataEntity) {
-        const identifier = this.getIdentifier(doc);
-        this.cache.del(identifier);
-    }
-
-    mdelete(docArray: DataEntity[]) {
-        docArray.forEach(doc => this.delete(doc));
+    mset(docArray: SetTuple<T>[]) {
+        return docArray.map(doc => this.set(doc.key, doc.data)).filter(Boolean);
     }
 
     count() {
-        return this.cache.itemCount;
+        return this.cache.size;
     }
 
-    values() {
-        return this.cache.values();
+    async values(fn: ValuesFn<T>) {
+        const iterator = this.cache.values();
+        // @ts-ignore
+        while (!iterator.done) {
+            const next = iterator.next();
+            const { done, value } = next;
+            if (!done) fn(value);
+            await immediate();
+        }
     }
 
-    has(doc: DataEntity) {
-        const identifier = this.getIdentifier(doc);
-        return this.cache.has(identifier);
+    has(key: string) {
+        return this.cache.has(key);
     }
 
     initialize() {}
 
-    shutdown() {
-        this.cache.reset();
+    clear() {
+        this.cache.clear();
     }
 }

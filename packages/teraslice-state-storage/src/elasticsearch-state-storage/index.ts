@@ -15,7 +15,8 @@ export default class ESCachedStateStorage {
     private persist: boolean;
     private persistField: string;
     private es: Client;
-    public cache: CachedStateStorage;
+    private logger: Logger;
+    public cache: CachedStateStorage<DataEntity>;
 
     constructor(client: Client, logger: Logger, config: ESStateStorageConfig) {
         this.index = config.index;
@@ -27,6 +28,7 @@ export default class ESCachedStateStorage {
         this.persist = config.persist;
         this.persistField = config.persist_field || this.IDField;
         this.cache = new CachedStateStorage(config);
+        this.logger = logger;
         this.es = esApi(client, logger);
     }
 
@@ -103,7 +105,8 @@ export default class ESCachedStateStorage {
     }
 
     async get(doc: DataEntity) {
-        let cached = this.cache.get(doc);
+        const indentifier = this.getIdentifier(doc);
+        let cached = this.cache.get(indentifier);
         if (!cached) {
             cached = await this._esGet(doc);
         }
@@ -115,11 +118,11 @@ export default class ESCachedStateStorage {
         const uniqDocs = this._dedupeDocs(docArray);
         const savedDocs = {};
         const unCachedDocKeys: string[] = [];
-
+        let droppedCachedKeys = 0;
         // need to add valid docs to return object and find non-cached docs
         uniqDocs.forEach((doc) => {
             const key = this.getIdentifier(doc);
-            const cachedDoc = this.cache.get(doc);
+            const cachedDoc = this.cache.get(key);
 
             if (cachedDoc) {
                 savedDocs[key] = cachedDoc;
@@ -144,26 +147,34 @@ export default class ESCachedStateStorage {
             results.forEach((doc: DataEntity) => {
                 const data = mapperFn(doc);
                 // update cache
-                this.set(data);
+                // TODO: need to deal with overflows here
+                const dropped = this.set(data);
+                if (dropped && dropped.evicted) droppedCachedKeys++;
                 // updated savedDocs object
                 savedDocs[this.getIdentifier(data)] = data;
             });
         });
 
+        if (droppedCachedKeys > 0) {
+            this.logger.info(`${droppedCachedKeys} keys have been evicted from elasticsearch-state-storgae cache`);
+        }
+
         return savedDocs;
     }
 
-    async set(doc: DataEntity) {
+    set(doc: DataEntity) {
         // update cache, if persistance is needed use mset
-        return this.cache.set(doc);
+        const identifier = this.getIdentifier(doc);
+        return this.cache.set(identifier, doc);
     }
 
     async mset(docArray: DataEntity[], keyField?: string) {
         const dedupedDocs = this._dedupeDocs(docArray, keyField);
+        const formattedDocs = dedupedDocs.map((doc) => ({ data: doc, key: this.getIdentifier(doc) }));
         if (this.persist) {
-            return bPromise.all([this.cache.mset(dedupedDocs), this._esBulkUpdate(dedupedDocs)]);
+            return bPromise.all([this.cache.mset(formattedDocs), this._esBulkUpdate(dedupedDocs)]);
         }
-        return this.cache.mset(dedupedDocs);
+        return this.cache.mset(formattedDocs);
     }
 
     count() {
@@ -175,7 +186,7 @@ export default class ESCachedStateStorage {
     }
 
     async shutdown() {
-        this.cache.shutdown();
+        this.cache.clear();
     }
 
 }
