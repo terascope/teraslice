@@ -3,10 +3,10 @@
 const _ = require('lodash');
 const { TSError } = require('@terascope/utils');
 const Promise = require('bluebird');
-const K8s = require('./k8s');
-const k8sState = require('./k8sState');
+const { makeLogger } = require('../../../../../workers/helpers/terafoundation');
 const K8sResource = require('./k8sResource');
-
+const k8sState = require('./k8sState');
+const K8s = require('./k8s');
 
 /*
  Execution Life Cycle for _status
@@ -18,7 +18,7 @@ const K8sResource = require('./k8sResource');
  */
 
 module.exports = function kubernetesClusterBackend(context, clusterMasterServer) {
-    const logger = context.apis.foundation.makeLogger({ module: 'kubernetes_cluster_service' });
+    const logger = makeLogger(context, 'kubernetes_cluster_service');
     // const slicerAllocationAttempts = context.sysconfig.teraslice.slicer_allocation_attempts;
 
     const clusterName = _.get(context, 'sysconfig.teraslice.name');

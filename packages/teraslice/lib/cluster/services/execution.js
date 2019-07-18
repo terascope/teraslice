@@ -4,6 +4,7 @@ const _ = require('lodash');
 const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
 const { TSError, parseError } = require('@terascope/utils');
+const { makeLogger } = require('../../workers/helpers/terafoundation');
 const makeExStore = require('../storage/execution');
 
 /*
@@ -15,8 +16,8 @@ const makeExStore = require('../storage/execution');
  aborted - when a execution was running at the point when the cluster shutsdown
  */
 
-module.exports = function module(context, { clusterMasterServer }) {
-    const logger = context.apis.foundation.makeLogger({ module: 'execution_service' });
+module.exports = function executionService(context, { clusterMasterServer }) {
+    const logger = makeLogger(context, 'execution_service');
     const pendingExecutionQueue = new Queue();
     const isNative = context.sysconfig.teraslice.cluster_manager_type === 'native';
 

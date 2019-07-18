@@ -1,4 +1,4 @@
-import { isFunction } from '@terascope/utils';
+import { isFunction, get } from '@terascope/utils';
 import { OperationAPI, OperationAPIType } from '../operations';
 import { Context } from '../interfaces';
 
@@ -17,14 +17,12 @@ export function getOperationAPIType(api: any): OperationAPIType {
 }
 
 export function makeContextLogger(context: Context, moduleName: string, extra = {}) {
-    const { assignment, cluster } = context;
-
     return context.apis.foundation.makeLogger(
         Object.assign(
             {
                 module: moduleName,
-                worker_id: cluster.worker.id,
-                assignment,
+                worker_id: get(context, 'cluster.worker.id'),
+                assignment: get(context, 'assignment'),
             },
             extra
         )

@@ -5,13 +5,14 @@ const _ = require('lodash');
 const express = require('express');
 const request = require('request');
 const { ClusterMaster } = require('@terascope/teraslice-messaging');
+const { makeLogger } = require('../workers/helpers/terafoundation');
 const ExecutionService = require('./services/execution');
 const APIService = require('./services/api');
 const JobService = require('./services/jobs');
 const makeLogs = require('./storage/logs');
 
 module.exports = function _clusterMaster(context) {
-    const logger = context.apis.foundation.makeLogger({ module: 'cluster_master' });
+    const logger = makeLogger(context, 'cluster_master');
     const clusterConfig = context.sysconfig.teraslice;
     const assetsPort = process.env.assets_port;
     const assetsUrl = `http://127.0.0.1:${assetsPort}`;

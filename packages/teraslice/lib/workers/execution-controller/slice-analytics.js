@@ -1,15 +1,10 @@
 'use strict';
 
 const _ = require('lodash');
+const { makeLogger } = require('../helpers/terafoundation');
 
 module.exports = function _sliceAnalytics(context, executionContext) {
-    const { exId, jobId } = executionContext;
-
-    const logger = context.apis.foundation.makeLogger({
-        module: 'slice_analytics',
-        ex_id: exId,
-        job_id: jobId,
-    });
+    const logger = makeLogger(context, 'slice_analytics');
 
     const events = context.apis.foundation.getSystemEvents();
 
@@ -19,7 +14,7 @@ module.exports = function _sliceAnalytics(context, executionContext) {
     const sliceAnalytics = {
         time: [],
         size: [],
-        memory: [],
+        memory: []
     };
 
     for (let i = 0; i < operations.length; i += 1) {
@@ -28,21 +23,21 @@ module.exports = function _sliceAnalytics(context, executionContext) {
             max: 0,
             sum: 0,
             total: 0,
-            average: 0,
+            average: 0
         });
         sliceAnalytics.size.push({
             min: 0,
             max: 0,
             sum: 0,
             total: 0,
-            average: 0,
+            average: 0
         });
         sliceAnalytics.memory.push({
             min: 0,
             max: 0,
             sum: 0,
             total: 0,
-            average: 0,
+            average: 0
         });
     }
 
@@ -115,6 +110,6 @@ average memory: ${memory.average}, min: ${memory.min}, and max: ${memory.max}
         addStats,
         analyzeStats,
         getStats,
-        shutdown,
+        shutdown
     };
 };

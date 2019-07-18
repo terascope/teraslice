@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const uuidv4 = require('uuid/v4');
-const Promise = require('bluebird');
+const { pDelay } = require('@terascope/utils');
 const TestContext = require('../helpers/test-context');
 const Scheduler = require('../../../lib/workers/execution-controller/scheduler');
 
@@ -38,7 +38,7 @@ describe('Scheduler', () => {
             assignment: 'execution_controller',
             slicers,
             newOps: true,
-            countPerSlicer,
+            countPerSlicer
         });
 
         await testContext.initialize();
@@ -46,7 +46,11 @@ describe('Scheduler', () => {
         scheduler = new Scheduler(testContext.context, testContext.executionContext);
 
         scheduler.stateStore = {
-            createState: () => Promise.delay(),
+            createState: () => pDelay(0),
+            createSlices: async (exId, slices) => {
+                await pDelay(0);
+                return slices.length;
+            }
         };
 
         testContext.attachCleanup(() => scheduler.shutdown());
@@ -66,18 +70,18 @@ describe('Scheduler', () => {
     it('should be able to reenqueue a slice', () => {
         scheduler.enqueueSlices([
             {
-                slice_id: 1,
+                slice_id: 1
             },
             {
-                slice_id: 2,
-            },
+                slice_id: 2
+            }
         ]);
 
         scheduler.enqueueSlice({ slice_id: 1 });
 
         scheduler.enqueueSlice(
             {
-                slice_id: 3,
+                slice_id: 3
             },
             true
         );
@@ -85,14 +89,14 @@ describe('Scheduler', () => {
         const slices = scheduler.getSlices(100);
         expect(slices).toEqual([
             {
-                slice_id: 3,
+                slice_id: 3
             },
             {
-                slice_id: 1,
+                slice_id: 1
             },
             {
-                slice_id: 2,
-            },
+                slice_id: 2
+            }
         ]);
     });
 
@@ -103,13 +107,13 @@ describe('Scheduler', () => {
             scheduler.run(),
             getSlices().then((_slices) => {
                 slices = _slices;
-            }),
+            })
         ]);
 
         expect(scheduler.paused).toBeFalse();
         expect(scheduler.slicersDone).toBeTrue();
         expect(scheduler.queueLength).toEqual(0);
-        expect(slices).toBeArrayOfSize(expectedCount);
+        expect(slices).toHaveLength(expectedCount);
         expect(scheduler.isFinished).toBeTrue();
     });
 
@@ -127,10 +131,10 @@ describe('Scheduler', () => {
             scheduler.run(),
             getSlices().then((_slices) => {
                 slices = _slices;
-            }),
+            })
         ]);
 
-        expect(slices).toBeArrayOfSize(expectedCount);
+        expect(slices).toHaveLength(expectedCount);
         expect(scheduler.isFinished).toBeTrue();
         expect(scheduler.slicersDone).toBeTrue();
     });
@@ -144,7 +148,7 @@ describe('Scheduler', () => {
             scheduler.run(),
             getSlices().then((_slices) => {
                 slices = _slices;
-            }),
+            })
         ]);
 
         // be more flexible
@@ -163,9 +167,9 @@ describe('Scheduler', () => {
             slicer_id: 1,
             slicer_order: 0,
             request: {
-                id: _.uniqueId('recover-'),
+                id: _.uniqueId('recover-')
             },
-            _created: new Date().toISOString(),
+            _created: new Date().toISOString()
         }));
 
         const emitDone = _.once(() => {
@@ -208,7 +212,7 @@ describe('Scheduler', () => {
             },
             exitAfterComplete() {
                 return false;
-            },
+            }
         };
 
         expectedCount += recoveryRecords.length;
@@ -217,10 +221,10 @@ describe('Scheduler', () => {
             scheduler.run(),
             getSlices().then((_slices) => {
                 slices = _slices;
-            }),
+            })
         ]);
 
-        expect(slices).toBeArrayOfSize(expectedCount);
+        expect(slices).toHaveLength(expectedCount);
         expect(scheduler.ready).toBeTrue();
         expect(scheduler.isFinished).toBeTrue();
         expect(scheduler.stopped).toBeFalse();
@@ -234,9 +238,9 @@ describe('Scheduler', () => {
             slicer_id: 1,
             slicer_order: 0,
             request: {
-                id: _.uniqueId('recover-'),
+                id: _.uniqueId('recover-')
             },
-            _created: new Date().toISOString(),
+            _created: new Date().toISOString()
         }));
 
         let slices = [];
@@ -278,7 +282,7 @@ describe('Scheduler', () => {
             },
             exitAfterComplete() {
                 return true;
-            },
+            }
         };
 
         expectedCount = recoveryRecords.length;
@@ -287,10 +291,10 @@ describe('Scheduler', () => {
             scheduler.run(),
             getSlices().then((_slices) => {
                 slices = _slices;
-            }),
+            })
         ]);
 
-        expect(slices).toBeArrayOfSize(expectedCount);
+        expect(slices).toHaveLength(expectedCount);
         expect(scheduler.ready).toBeFalse();
         expect(scheduler.isFinished).toBeTrue();
         expect(scheduler.stopped).toBeFalse();

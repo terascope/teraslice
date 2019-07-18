@@ -8,7 +8,7 @@ export function toString(val: any): string {
     if (val == null) return '';
     if (isString(val)) return val;
     if (typeof val === 'number' && !Number.isNaN(val)) return `${val}`;
-    if (val && typeof val === 'object' && val.message && val.stack) {
+    if (val.message && val.stack) {
         return val.toString();
     }
 

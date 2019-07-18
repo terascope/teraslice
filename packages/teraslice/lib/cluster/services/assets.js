@@ -4,6 +4,7 @@ const _ = require('lodash');
 const express = require('express');
 const Promise = require('bluebird');
 const { TSError, parseErrorInfo } = require('@terascope/utils');
+const { makeLogger } = require('../../workers/helpers/terafoundation');
 const makeAssetsStore = require('../storage/assets');
 const {
     makeTable,
@@ -12,8 +13,8 @@ const {
     sendError,
 } = require('../../utils/api_utils');
 
-module.exports = function module(context) {
-    const logger = context.apis.foundation.makeLogger({ module: 'assets_service' });
+module.exports = function assetsService(context) {
+    const logger = makeLogger(context, 'assets_service');
     const app = express();
 
     let assetsStore;

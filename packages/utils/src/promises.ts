@@ -122,10 +122,10 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetry
         }
 
         if (isRetryableError(err) && config.retries > 1) {
-            await pDelay(config._currentDelay);
-
             config.retries--;
             config._currentDelay = getBackoffDelay(config._currentDelay, config.backoff, config.maxDelay, config.delay);
+
+            await pDelay(config._currentDelay);
 
             config.logError(err, 'retry error, retrying...', {
                 ...config,

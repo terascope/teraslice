@@ -4,6 +4,7 @@ const _ = require('lodash');
 const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
 const { TSError, parseError } = require('@terascope/utils');
+const { makeLogger } = require('../../../../../workers/helpers/terafoundation');
 const stateUtils = require('../state-utils');
 const Messaging = require('./messaging');
 
@@ -16,9 +17,9 @@ const Messaging = require('./messaging');
  aborted - when a job was running at the point when the cluster shutsdown
  */
 
-module.exports = function module(context, clusterMasterServer, executionService) {
+module.exports = function nativeClustering(context, clusterMasterServer, executionService) {
     const events = context.apis.foundation.getSystemEvents();
-    const logger = context.apis.foundation.makeLogger({ module: 'native_cluster_service' });
+    const logger = makeLogger(context, 'native_cluster_service');
     const pendingWorkerRequests = new Queue();
     const nodeDisconnectTimeout = context.sysconfig.teraslice.node_disconnect_timeout;
     const nodeStateInterval = context.sysconfig.teraslice.node_state_interval;

@@ -21,7 +21,7 @@ const { formatURL } = Messaging;
 class ExecutionController {
     constructor(context, executionContext) {
         const workerId = generateWorkerId(context);
-        const logger = makeLogger(context, executionContext, 'execution_controller');
+        const logger = makeLogger(context, 'execution_controller');
         const events = context.apis.foundation.getSystemEvents();
         const slicerPort = executionContext.config.slicer_port;
         const config = context.sysconfig.teraslice;
@@ -218,7 +218,9 @@ class ExecutionController {
 
             // this is updating the opConfig for elasticsearch start and/or end dates for ex,
             // this assumes elasticsearch is first
-            this.stores.exStore.update(this.exId, { operations: update });
+            this.stores.exStore.update(this.exId, { operations: update }).catch((err) => {
+                this.logger.error(err, 'slicer event execution update failure');
+            });
         };
 
         this._handlers['slicers:finished'] = (err) => {
@@ -379,6 +381,7 @@ class ExecutionController {
         clearInterval(this.sliceFailureInterval);
         clearTimeout(this.workerConnectTimeoutId);
         clearTimeout(this.workerDisconnectTimeoutId);
+        clearInterval(this._verifyStoresInterval);
 
         await this._waitForExecutionFinished();
 
@@ -426,6 +429,7 @@ class ExecutionController {
         this.startTime = Date.now();
 
         this.isStarted = true;
+        this._verifyStores();
 
         // wait for paused
         await pWhilst(() => this.isPaused && !this.isShuttdown, () => pDelay(100));
@@ -499,7 +503,7 @@ class ExecutionController {
                     });
                     dispatch.length = 0;
 
-                    Promise.all(promises).catch(err => this.logger.error('failure to dispatch slices', err));
+                    Promise.all(promises).catch(err => this.logger.error(err, 'failure to dispatch slices'));
                 });
             }
 
@@ -610,7 +614,6 @@ class ExecutionController {
         // if this.slicerFailed is true, slicer has already been marked as failed
         if (this.slicerFailed) return;
 
-        const { logger } = this;
         const { exStore } = this.stores;
 
         const executionStats = this.executionAnalytics.getAnalytics();
@@ -621,7 +624,7 @@ class ExecutionController {
             const isStopping = status === 'stopping' || status === 'stopped';
             if (isStopping) {
                 const metaData = exStore.executionMetaData(executionStats);
-                logger.debug(`execution is set to ${status}, status will not be updated`);
+                this.logger.debug(`execution is set to ${status}, status will not be updated`);
                 await exStore.update(this.exId, metaData);
                 return;
             }
@@ -630,7 +633,7 @@ class ExecutionController {
                 this.exId
             } received shutdown before the slicer could complete, setting status to "terminated"`;
             const metaData = exStore.executionMetaData(executionStats, errMsg);
-            logger.error(errMsg);
+            this.logger.error(errMsg);
             await exStore.setStatus(this.exId, 'terminated', metaData);
             return;
         }
@@ -643,13 +646,13 @@ class ExecutionController {
         if (errors > 0 || started > 0) {
             const errMsg = this._formartExecutionFailure({ errors, started });
             const errorMeta = exStore.executionMetaData(executionStats, errMsg);
-            logger.error(errMsg);
+            this.logger.error(errMsg);
             await exStore.setStatus(this.exId, 'failed', errorMeta);
             return;
         }
 
         const metaData = exStore.executionMetaData(executionStats);
-        logger.info(`execution ${this.exId} has completed`);
+        this.logger.info(`execution ${this.exId} has completed`);
         await exStore.setStatus(this.exId, 'completed', metaData);
     }
 
@@ -660,7 +663,7 @@ class ExecutionController {
 
         this.executionAnalytics.set('job_duration', time);
 
-        if (this.collectAnalytics) {
+        if (this.collectAnalytics && this.slicerAnalytics) {
             this.slicerAnalytics.analyzeStats();
         }
 
@@ -824,6 +827,60 @@ class ExecutionController {
 
         this.logger.warn('Unable to verify execution on initialization', error.stack);
         return false;
+    }
+
+    _verifyStores() {
+        let paused = false;
+
+        const prettyStoreNames = {
+            exStore: 'execution',
+            stateStore: 'state'
+        };
+
+        const logPaused = _.throttle((storesStr) => {
+            this.logger.warn(`${storesStr} are in a invalid state, scheduler is paused`);
+        }, 10 * 1000);
+
+        clearInterval(this._verifyStoresInterval);
+        this._verifyStoresInterval = setInterval(() => {
+            if (!this.stores) return;
+            if (this.isShuttingDown || this.isShutdown) return;
+
+            const invalid = [];
+            for (const [name, store] of Object.entries(this.stores)) {
+                try {
+                    const valid = store.verifyClient();
+                    if (!valid) {
+                        invalid.push(prettyStoreNames[name] || name);
+                    }
+                } catch (err) {
+                    clearInterval(this._verifyStoresInterval);
+                    this._terminalError(err);
+                    return;
+                }
+            }
+
+            if (invalid.length) {
+                const storesStr = `elasticsearch stores ${invalid.join(', ')}`;
+                if (paused) {
+                    logPaused(storesStr);
+                    return;
+                }
+
+                this.logger.warn(`${storesStr} are in a invalid state, pausing scheduler...`);
+                paused = true;
+                this.scheduler.pause();
+                return;
+            }
+
+            if (paused) {
+                this.logger.info(
+                    'elasticsearch stores are now in a valid state, resumming scheduler...'
+                );
+                paused = false;
+                this.scheduler.start();
+            }
+        }, 100);
     }
 
     _initSliceFailureWatchDog() {

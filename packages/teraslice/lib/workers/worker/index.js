@@ -1,7 +1,6 @@
 'use strict';
 
-const { get } = require('@terascope/utils');
-const { isFatalError } = require('@terascope/job-components');
+const { get, getFullErrorStack, isFatalError } = require('@terascope/utils');
 const { ExecutionController, formatURL } = require('@terascope/teraslice-messaging');
 const { makeStateStore, makeAnalyticsStore } = require('../../cluster/storage');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
@@ -11,12 +10,12 @@ const Slice = require('./slice');
 class Worker {
     constructor(context, executionContext) {
         const workerId = generateWorkerId(context);
-        const logger = makeLogger(context, executionContext, 'worker');
+        const logger = makeLogger(context, 'worker');
         const events = context.apis.foundation.getSystemEvents();
 
         const {
             slicer_port: slicerPort,
-            slicer_hostname: slicerHostname,
+            slicer_hostname: slicerHostname
         } = executionContext.config;
 
         const config = context.sysconfig.teraslice;
@@ -31,7 +30,7 @@ class Worker {
             networkLatencyBuffer,
             connectTimeout: workerDisconnectTimeout,
             actionTimeout,
-            logger,
+            logger
         });
 
         this.slice = new Slice(context, executionContext);
@@ -80,7 +79,8 @@ class Worker {
             try {
                 await this.runOnce();
             } catch (err) {
-                this.logger.fatal(err, 'Worker must shutdown to Fatal Error');
+                process.exitCode = 1;
+                this.logger.fatal(err, 'Worker must shutdown due to fatal error');
                 this.shutdown(false);
             } finally {
                 running = false;
@@ -136,7 +136,7 @@ class Worker {
 
             await this.client.sendSliceComplete({
                 slice: this.slice.slice,
-                analytics: this.slice.analyticsData,
+                analytics: this.slice.analyticsData
             });
 
             await this.executionContext.onSliceFinished(sliceId);
@@ -150,7 +150,7 @@ class Worker {
             await this.client.sendSliceComplete({
                 slice: this.slice.slice,
                 analytics: this.slice.analyticsData,
-                error: err.toString(),
+                error: getFullErrorStack(err)
             });
         }
 
@@ -161,12 +161,14 @@ class Worker {
     async shutdown(block = true) {
         if (this.isShutdown) return;
         if (!this.isInitialized) return;
+        const { exId } = this.executionContext;
+
         if (this.isShuttingDown) {
             const msgs = [
                 'worker',
-                `shutdown was called for ${this.exId}`,
+                `shutdown was called for ${exId}`,
                 'but it was already shutting down',
-                block ? ', will block until done' : '',
+                block ? ', will block until done' : ''
             ];
             this.logger.debug(msgs.join(' '));
 
@@ -175,8 +177,6 @@ class Worker {
             }
             return;
         }
-
-        const { exId } = this.executionContext;
 
         this.client.available = false;
         this.isShuttingDown = true;
@@ -192,7 +192,7 @@ class Worker {
         // and wait for the slice to finish
         await Promise.all([
             this.slice.flush().catch(pushError),
-            this._waitForSliceToFinish().catch(pushError),
+            this._waitForSliceToFinish().catch(pushError)
         ]);
 
         this.events.emit('worker:shutdown');
@@ -211,7 +211,7 @@ class Worker {
             })(),
             (async () => {
                 await this.client.shutdown().catch(pushError);
-            })(),
+            })()
         ]);
 
         const n = this.slicesProcessed;

@@ -4,13 +4,19 @@ const fs = require('fs');
 const _ = require('lodash');
 const path = require('path');
 const {
-    TSError, parseError, isTest, pDelay
+    TSError,
+    parseError,
+    isTest,
+    pDelay,
+    pRetry
 } = require('@terascope/utils');
+const pWhilst = require('p-whilst');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
+const { makeLogger } = require('../../../workers/helpers/terafoundation');
 const { timeseriesIndex } = require('../../../utils/date_utils');
 
-module.exports = function module(backendConfig) {
+module.exports = function elasticsearchStorage(backendConfig) {
     const {
         context,
         indexName,
@@ -23,10 +29,7 @@ module.exports = function module(backendConfig) {
         forceRefresh = true,
     } = backendConfig;
 
-    const logger = context.apis.foundation.makeLogger({
-        module: 'elasticsearch_backend',
-        storageName,
-    });
+    const logger = makeLogger(context, 'elasticsearch_backend', { storageName });
 
     const config = context.sysconfig.teraslice;
 
@@ -187,14 +190,14 @@ module.exports = function module(backendConfig) {
 
         const type = _type || 'index';
 
-        const indexRequest = {};
-        indexRequest[type] = {
-            _index: indexArg,
-            _type: recordType,
+        const indexRequest = {
+            [type]: {
+                _index: indexArg,
+                _type: recordType,
+            }
         };
 
-        bulkQueue.push(indexRequest);
-        bulkQueue.push(record);
+        bulkQueue.push(indexRequest, record);
 
         // We only flush once enough records have accumulated for it to make sense.
         if (bulkQueue.length >= bulkSize) {
@@ -239,30 +242,36 @@ module.exports = function module(backendConfig) {
         });
     }
 
-    function _flush(shuttingDown = false) {
-        if (!bulkQueue.length) return Promise.resolve();
-        if (!shuttingDown && savingBulk) return Promise.resolve();
+    async function bulkSend(bulkRequest) {
+        const recordCount = (bulkRequest.length / 2);
+
+        await pRetry(async () => elasticsearch.bulkSend(bulkRequest), {
+            reason: `Failure to bulk create "${recordType}"`,
+            logError: logger.warn,
+            delay: isTest ? 100 : 1000,
+            backoff: 5,
+            retries: 100,
+        });
+
+        return recordCount;
+    }
+
+    async function _flush(shuttingDown = false) {
+        if (!bulkQueue.length) return;
+        if (!shuttingDown && savingBulk) return;
+
         savingBulk = true;
 
         const bulkRequest = bulkQueue.slice();
         bulkQueue = [];
 
-        return elasticsearch
-            .bulkSend(bulkRequest)
-            .then((results) => {
-                const records = results.items.length;
-                const extraMsg = shuttingDown ? ', on shutdown' : '';
-                logger.debug(`flushed ${records}${extraMsg} records to index ${indexName}`);
-            })
-            .catch((err) => {
-                const error = new TSError(err, {
-                    reason: `Failure to flush "${recordType}"`,
-                });
-                return Promise.reject(error);
-            })
-            .finally(() => {
-                savingBulk = false;
-            });
+        try {
+            const recordCount = await bulkSend(bulkRequest);
+            const extraMsg = shuttingDown ? ', on shutdown' : '';
+            logger.debug(`flushed ${recordCount}${extraMsg} records to index ${indexName}`);
+        } finally {
+            savingBulk = false;
+        }
     }
 
     function getMapFile() {
@@ -274,50 +283,6 @@ module.exports = function module(backendConfig) {
             'index.number_of_replicas': indexSettings.number_of_replicas,
         };
         return mapping;
-    }
-
-    function isAvailable(indexArg = indexName) {
-        const query = {
-            index: indexArg,
-            q: '*',
-            size: 0,
-            terminate_after: '1',
-        };
-
-        return new Promise((resolve) => {
-            elasticsearch
-                .search(query)
-                .then((results) => {
-                    logger.trace(`index ${indexName} is now available`);
-                    resolve(results);
-                })
-                .catch(() => {
-                    let running = false;
-                    const isReady = setInterval(() => {
-                        if (isShutdown) {
-                            clearInterval(isReady);
-                            return;
-                        }
-
-                        if (running) return;
-                        running = true;
-
-                        elasticsearch
-                            .search(query)
-                            .then((results) => {
-                                running = false;
-
-                                clearInterval(isReady);
-                                resolve(results);
-                            })
-                            .catch(() => {
-                                running = false;
-
-                                logger.warn(`verifying ${recordType} index is open`);
-                            });
-                    }, 200);
-                });
-        });
     }
 
     function sendTemplate(mapping) {
@@ -357,7 +322,7 @@ module.exports = function module(backendConfig) {
                     .then(results => results)
                     .catch((err) => {
                         // It's not really an error if it's just that the index is already there
-                        if (parseError(err).match(/index_already_exists_exception/)) {
+                        if (parseError(err).match(/already_exists_exception/)) {
                             return true;
                         }
 
@@ -382,6 +347,22 @@ module.exports = function module(backendConfig) {
         return elasticsearch.putTemplate(template, name);
     }
 
+    function verifyClient() {
+        if (isShutdown) return false;
+        return elasticsearch.verifyClient();
+    }
+
+    async function waitForClient() {
+        let valid = elasticsearch.verifyClient();
+        if (valid) return;
+
+        await pWhilst(() => valid, async () => {
+            if (isShutdown) throw new Error('Elasticsearch store is shutdown');
+            valid = elasticsearch.verifyClient();
+            await pDelay(100);
+        });
+    }
+
     // Periodically flush the bulkQueue so we don't end up with cached data lingering.
     flushInterval = setInterval(() => {
         _flush().catch((err) => {
@@ -401,10 +382,13 @@ module.exports = function module(backendConfig) {
         create,
         update,
         bulk,
+        bulkSend,
         remove,
         shutdown,
         count,
         putTemplate,
+        waitForClient,
+        verifyClient,
     };
 
     const isMultiIndex = indexName[indexName.length - 1] === '*';
@@ -417,12 +401,21 @@ module.exports = function module(backendConfig) {
         newIndex = timeseriesIndex(timeseriesFormat, indexName.slice(0, nameSize)).index;
     }
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         const clientName = JSON.stringify({
             connection: config.state.connection,
             index: indexName,
         });
-        client = getClient(context, config.state, 'elasticsearch');
+
+        const connectionConfig = Object.assign({}, config.state);
+        if (connectionConfig.connection_cache == null) {
+            connectionConfig.connection_cache = true;
+        }
+        client = getClient(context, connectionConfig, 'elasticsearch');
+        if (!client) {
+            reject(new Error(`Unable to get client for connection: ${config.state.connection}`));
+            return;
+        }
 
         let { connection } = config.state;
         if (config.state.endpoint) {
@@ -435,8 +428,8 @@ module.exports = function module(backendConfig) {
         };
 
         elasticsearch = elasticsearchApi(client, logger, options);
-        return _createIndex(newIndex)
-            .then(() => isAvailable(newIndex))
+        _createIndex(newIndex)
+            .then(() => elasticsearch.isAvailable(newIndex, recordType))
             .then(() => resolve(api))
             .catch((err) => {
                 const error = new TSError(err, {
@@ -473,7 +466,7 @@ module.exports = function module(backendConfig) {
                             if (bool) {
                                 clearInterval(checking);
                                 logger.info('connection to elasticsearch has been established');
-                                return isAvailable(newIndex).then(() => {
+                                return elasticsearch.isAvailable(newIndex, recordType).then(() => {
                                     resolve(api);
                                 });
                             }

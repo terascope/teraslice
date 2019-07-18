@@ -56,7 +56,10 @@ module.exports = function module(context) {
             let moduleConfig = {};
 
             if (Object.prototype.hasOwnProperty.call(connectors[type], endpoint)) {
-                moduleConfig = sysconfig.terafoundation.connectors[type][endpoint];
+                moduleConfig = Object.assign(
+                    {},
+                    sysconfig.terafoundation.connectors[type][endpoint]
+                );
                 // If an endpoint was specified and doesn't exist we need to error.
             } else if (endpoint) {
                 throw new Error(`No ${type} endpoint configuration found for ${endpoint}`);

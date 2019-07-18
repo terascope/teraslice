@@ -4,6 +4,7 @@ const Promise = require('bluebird');
 const _ = require('lodash');
 const parseError = require('@terascope/error-parser');
 const { Mutex } = require('async-mutex');
+const { makeLogger } = require('../workers/helpers/terafoundation');
 const messageModule = require('./services/cluster/backends/native/messaging');
 const spawnAssetLoader = require('../workers/assets/spawn');
 const { safeEncode } = require('../utils/encoding_utils');
@@ -13,7 +14,7 @@ const nodeVersion = process.version;
 const terasliceVersion = require('../../package.json').version;
 
 module.exports = async function nodeMaster(context) {
-    const logger = context.apis.foundation.makeLogger({ module: 'node_master' });
+    const logger = makeLogger(context, 'node_master');
     const configWorkerLimit = context.sysconfig.teraslice.workers;
     const config = context.sysconfig.teraslice;
     const events = context.apis.foundation.getSystemEvents();

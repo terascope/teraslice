@@ -6,7 +6,7 @@ import { Logger } from '@terascope/utils';
 
 export = elasticsearchAPI;
 
-declare function elasticsearchAPI(client: Client, logger: Logger, config?: elasticsearchAPI.Config): elasticsearchAPI.Client
+declare function elasticsearchAPI(client: Client, logger: Logger, config?: elasticsearchAPI.Config): elasticsearchAPI.Client;
 
 declare namespace elasticsearchAPI {
     export interface Config {
@@ -16,12 +16,13 @@ declare namespace elasticsearchAPI {
     }
 
     export interface Client {
-        search: (query: es.SearchParams) => Promise<es.SearchResponse|any[]>;
+        search: (query: es.SearchParams) => Promise<es.SearchResponse | any[]>;
         count: (query: es.CountParams) => Promise<number>;
         get: (query: es.GetParams) => Promise<any>;
         mget: (query: es.MGetParams) => Promise<any>;
         index: (query: es.IndexDocumentParams) => Promise<any>;
         indexWithId: (query: es.IndexDocumentParams) => Promise<any>;
+        isAvailable: (index: string, recordType?: string) => Promise<any>;
         create: (query: es.CreateDocumentParams) => Promise<any>;
         update: (query: es.UpdateDocumentParams) => Promise<any>;
         remove: (query: es.DeleteDocumentParams) => Promise<es.DeleteDocumentResponse>;
@@ -36,6 +37,7 @@ declare namespace elasticsearchAPI {
         indexRefresh: (query: es.IndicesRefreshParams) => Promise<any>;
         indexRecovery: (query: es.IndicesRecoveryParams) => Promise<any>;
         indexSetup: (clusterName, newIndex, migrantIndexName, mapping, recordType, clientName) => Promise<boolean>;
+        verifyClient: () => boolean;
         validateGeoParameters: (opConfig: any) => any;
     }
 }

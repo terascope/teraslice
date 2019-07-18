@@ -17,8 +17,8 @@ class Slice {
         this.stateStore = stores.stateStore;
         this.analyticsStore = stores.analyticsStore;
         this.slice = slice;
-        this.logger = makeLogger(this.context, this.executionContext, 'slice', {
-            slice_id: sliceId,
+        this.logger = makeLogger(this.context, 'slice', {
+            slice_id: sliceId
         });
 
         await this.executionContext.initializeSlice(slice);
@@ -72,7 +72,7 @@ class Slice {
         } catch (err) {
             this.logger.error(
                 new TSError(err, {
-                    reason: `Slice: ${slice.slice_id} failure on lifecycle event onSliceFinalizing`,
+                    reason: `Slice: ${slice.slice_id} failure on lifecycle event onSliceFinalizing`
                 })
             );
         }
@@ -84,7 +84,7 @@ class Slice {
         } catch (err) {
             this.logger.error(
                 new TSError(err, {
-                    reason: `Slice: ${slice.slice_id} failure on lifecycle event onSliceFailed`,
+                    reason: `Slice: ${slice.slice_id} failure on lifecycle event onSliceFailed`
                 })
             );
         }
@@ -106,7 +106,7 @@ class Slice {
         } catch (_err) {
             this.logger.error(
                 new TSError(_err, {
-                    reason: 'Failure to update analytics',
+                    reason: 'Failure to update analytics'
                 })
             );
         }
@@ -133,7 +133,7 @@ class Slice {
         await this._onSliceFailure(slice);
 
         throw new TSError(err, {
-            reason: 'Slice failed processing',
+            reason: 'Slice failed processing'
         });
     }
 }

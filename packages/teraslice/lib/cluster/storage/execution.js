@@ -2,9 +2,10 @@
 
 
 const _ = require('lodash');
-const { TSError } = require('@terascope/utils');
+const { TSError, pRetry } = require('@terascope/utils');
 const uuid = require('uuid');
 const Promise = require('bluebird');
+const { makeLogger } = require('../../workers/helpers/terafoundation');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
 const INIT_STATUS = ['pending', 'scheduling', 'initializing'];
@@ -16,16 +17,16 @@ const VALID_STATUS = INIT_STATUS.concat(RUNNING_STATUS).concat(TERMINAL_STATUS);
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
-module.exports = function module(context) {
-    const logger = context.apis.foundation.makeLogger({ module: 'ex_storage' });
+module.exports = function executionStorage(context) {
+    const logger = makeLogger(context, 'ex_storage');
     const config = context.sysconfig.teraslice;
     const jobType = 'ex';
     const indexName = `${config.name}__ex`;
 
     let backend;
 
-    function getExecution(exId) {
-        if (!exId) return Promise.reject(new Error('Execution.get() requires a exId'));
+    async function getExecution(exId) {
+        if (!exId) throw new Error('Execution.get() requires a exId');
         return backend.get(exId);
     }
 
@@ -58,15 +59,15 @@ module.exports = function module(context) {
         return metaData;
     }
 
-    function getStatus(exId) {
-        return getExecution(exId)
-            .then(result => result._status)
-            .catch((err) => {
-                const error = new TSError(err, {
-                    reason: `Cannot get execution status ${exId}`
-                });
-                return Promise.reject(error);
+    async function getStatus(exId) {
+        try {
+            const result = await getExecution(exId);
+            return result._status;
+        } catch (err) {
+            throw new TSError(err, {
+                reason: `Cannot get execution status ${exId}`
             });
+        }
     }
 
     // verify the current status to make sure it can be updated to the desired status
@@ -86,13 +87,17 @@ module.exports = function module(context) {
 
                 // when the current status is running it cannot be set to an init status
                 if (_isRunningStatus(status) && _isInitStatus(desiredStatus)) {
-                    const error = new Error(`Cannot update running job status of "${status}" to init status of "${desiredStatus}"`);
+                    const error = new TSError(`Cannot update running job status of "${status}" to init status of "${desiredStatus}"`, {
+                        statusCode: 422
+                    });
                     return Promise.reject(error);
                 }
 
                 // when the status is a terminal status, it cannot be set to again
                 if (_isTerminalStatus(status)) {
-                    const error = new Error(`Cannot update terminal job status of "${status}" to "${desiredStatus}"`);
+                    const error = new TSError(`Cannot update terminal job status of "${status}" to "${desiredStatus}"`, {
+                        statusCode: 422
+                    });
                     return Promise.reject(error);
                 }
 
@@ -101,23 +106,29 @@ module.exports = function module(context) {
             });
     }
 
-    function setStatus(exId, status, metaData) {
-        return verifyStatusUpdate(exId, status)
-            .then(() => {
-                const statusObj = { _status: status };
-                if (metaData) {
-                    _.assign(statusObj, metaData);
-                }
-                return update(exId, statusObj);
-            })
-            .then(() => exId)
-            .catch((err) => {
-                const error = new TSError(err, {
-                    statusCode: 422,
-                    reason: `Unable to set execution ${exId} status code to ${status}`
-                });
-                return Promise.reject(error);
+    async function setStatus(exId, status, metaData) {
+        await waitForClient();
+        await pRetry(() => verifyStatusUpdate(exId, status), {
+            matches: ['no_shard_available_action_exception'],
+            delay: 1000,
+            retries: 10,
+            backoff: 5
+        });
+
+        try {
+            const statusObj = { _status: status };
+            if (metaData) {
+                Object.assign(statusObj, metaData);
+            }
+            await update(exId, statusObj);
+        } catch (err) {
+            throw new TSError(err, {
+                statusCode: 422,
+                reason: `Unable to set execution ${exId} status code to ${status}`
             });
+        }
+
+        return exId;
     }
 
     function remove(exId) {
@@ -127,6 +138,14 @@ module.exports = function module(context) {
     function shutdown(forceShutdown) {
         logger.info('shutting down.');
         return backend.shutdown(forceShutdown);
+    }
+
+    function verifyClient() {
+        return backend.verifyClient();
+    }
+
+    function waitForClient() {
+        return backend.waitForClient();
     }
 
     function getTerminalStatuses() {
@@ -171,6 +190,8 @@ module.exports = function module(context) {
         getStatus,
         executionMetaData,
         verifyStatusUpdate,
+        waitForClient,
+        verifyClient,
     };
 
     const backendConfig = {

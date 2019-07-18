@@ -32,7 +32,7 @@
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.20.4",
+        "@terascope/job-components": "^0.20.5",
         "@terascope/teraslice-op-test-harness": "^1.6.0",
         "lodash": "^4.17.11"
     },

@@ -468,7 +468,7 @@ type BulkRequestMetadata = {
         _index: string;
         _type: string;
         _id?: string;
-    };
+    }
 };
 
 interface RecordResponse<T> {

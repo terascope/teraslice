@@ -32,7 +32,7 @@
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {
-        "@terascope/utils": "^0.12.3",
+        "@terascope/utils": "^0.12.4",
         "@turf/bbox": "^6.0.1",
         "@turf/bbox-polygon": "^6.0.1",
         "@turf/boolean-point-in-polygon": "^6.0.1",
