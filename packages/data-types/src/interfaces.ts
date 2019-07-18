@@ -71,17 +71,17 @@ export const AvailableTypes: AvailableType[] = [
 export type AvailableVersion = 1;
 export const AvailableVersions: AvailableVersion[] = [1];
 
-export type Type = {
+export type FieldTypeConfig = {
     type: AvailableType;
     array?: boolean;
 };
 
-type ActualType = { [key in AvailableType]: { new (field: string, config: Type): BaseType } };
+type ActualType = { [key in AvailableType]: { new (field: string, config: FieldTypeConfig): BaseType } };
 
 export type DataTypeMapping = { [key in AvailableVersion]: ActualType };
 
 export type TypeConfigFields = {
-    [key: string]: Type;
+    [key: string]: FieldTypeConfig;
 };
 
 export type DataTypeConfig = {

@@ -1,12 +1,12 @@
 import { TypeConfig } from 'xlucene-evaluator';
 import * as ts from '@terascope/utils';
-import { TypeESMapping, GraphQLType, Type } from '../../interfaces';
+import { TypeESMapping, GraphQLType, FieldTypeConfig } from '../../interfaces';
 
 export default abstract class BaseType {
     protected field: string;
-    protected config: Type;
+    protected config: FieldTypeConfig;
 
-    constructor(field: string, config: Type) {
+    constructor(field: string, config: FieldTypeConfig) {
         if (!field || !ts.isString(field)) throw new ts.TSError('A field must be provided and must be of type string');
         this.field = field;
         this.config = config;

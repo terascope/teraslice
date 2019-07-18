@@ -1,4 +1,3 @@
-
 import { DataEntity } from '@terascope/utils';
 import path from 'path';
 import _ from 'lodash';
@@ -17,7 +16,7 @@ describe('matcher', () => {
     it('can return matching documents', async () => {
         const config: WatcherConfig = {
             rules: [matchRules1Path],
-            types: { _created: 'date' }
+            types: { _created: 'date' },
         };
 
         const data = DataEntity.makeArray([
@@ -25,11 +24,11 @@ describe('matcher', () => {
             { some: 'data', bytes: 200 },
             { some: 'other', bytes: 1200 },
             { other: 'xabcd' },
-            { _created: '2018-12-16T15:16:09.076Z' }
+            { _created: '2018-12-16T15:16:09.076Z' },
         ]);
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
 
         expect(results.length).toEqual(3);
     });
@@ -37,7 +36,7 @@ describe('matcher', () => {
     it('it add metadata to returning docs', async () => {
         const config: WatcherConfig = {
             rules: [matchRules1Path],
-            types: { _created: 'date' }
+            types: { _created: 'date' },
         };
 
         const data = DataEntity.makeArray([
@@ -45,35 +44,32 @@ describe('matcher', () => {
             { some: 'data', bytes: 200 },
             { some: 'other', bytes: 1200 },
             { other: 'xabcd' },
-            { _created: '2018-12-16T15:16:09.076Z' }
+            { _created: '2018-12-16T15:16:09.076Z' },
         ]);
 
         const test = await opTest.init(config);
-        const results: DataEntity[] =  await test.run(data);
+        const results: DataEntity[] = await test.run(data);
 
         expect(results.length).toEqual(3);
         results.forEach(doc => expect(doc.getMetadata('selectors')).toBeDefined());
     });
 
-    it('it can match multiple rules', async () => {
+    it('should match multiple rules', async () => {
         const config: WatcherConfig = {
             rules: [matchRules1Path],
-            types: { _created: 'date' }
+            types: { _created: 'date' },
         };
 
         const data = DataEntity.makeArray([
             { some: 'data', bytes: 1200, _created: '2018-12-16T15:16:09.076Z' },
             { some: 'data', bytes: 200 },
-            { some: 'other', bytes: 1200 }
+            { some: 'other', bytes: 1200 },
         ]);
 
-        const rules = [
-            'some:data AND bytes:>=1000',
-            'other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z'
-        ];
+        const rules = ['some:data AND bytes:>=1000', 'other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z'];
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
         // each match will be inserted into the results
         expect(results.length).toEqual(1);
         expect(results[0].getMetadata('selectors')).toEqual(rules);

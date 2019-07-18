@@ -1,14 +1,14 @@
 import Keyword from '../../../src/types/versions/v1/keyword';
 import { TSError } from '@terascope/utils';
-import { Type } from '../../../src/interfaces';
+import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Keyword V1', () => {
     const field = 'someField';
-    const typeConfig: Type = { type: 'Keyword' };
+    const typeConfig: FieldTypeConfig = { type: 'Keyword' };
 
     it('can requires a field and proper configs', () => {
         try {
-           // @ts-ignore
+            // @ts-ignore
             new Keyword();
             throw new Error('it should have errored with no configs');
         } catch (err) {

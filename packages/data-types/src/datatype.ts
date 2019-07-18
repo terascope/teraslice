@@ -2,6 +2,7 @@ import * as ts from '@terascope/utils';
 import { formatSchema } from './graphql-helper';
 import { DataTypeConfig, ESMappingOptions, GraphQLArgs, ESMapping } from './interfaces';
 import BaseType from './types/versions/base-type';
+import { validateDataTypeConfig } from './utils';
 import { TypesManager } from './types';
 
 export class DataType {
@@ -26,18 +27,12 @@ export class DataType {
         return formatSchema(strSchema);
     }
 
-    constructor({ version, fields: typesConfiguration }: DataTypeConfig, typeName?: string) {
-        if (version == null) throw new ts.TSError('No version was specified in type config');
-        const typeManager = new TypesManager(version);
-        const types: BaseType[] = [];
-
-        for (const key in typesConfiguration) {
-            const typeDef = typesConfiguration[key];
-            types.push(typeManager.getType(key, typeDef));
-        }
-
+    constructor(config: DataTypeConfig, typeName?: string) {
         if (typeName != null) this._name = typeName;
-        this._types = types;
+        validateDataTypeConfig(config);
+
+        const typeManager = new TypesManager(config.version);
+        this._types = typeManager.getTypes(config.fields);
     }
 
     toESMapping({ typeName = this._name, settings, mappingMetaData }: ESMappingOptions): ESMapping {

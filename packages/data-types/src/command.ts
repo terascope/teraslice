@@ -51,8 +51,13 @@ function wrapper(handler: CommandHandler) {
         try {
             const data = await getDataTypeFromStdin();
             const results = handler(data, argv);
-            const output = typeof results === 'string' ? results : `${JSON.stringify(results, null, 4)} \n`;
-            process.stdout.write(output);
+            if (typeof results === 'string') {
+                // tslint:disable-next-line: no-console
+                console.log(results);
+            } else {
+                // tslint:disable-next-line: no-console
+                console.log(JSON.stringify(results, null, 4));
+            }
         } catch (err) {
             console.error(err);
             process.exit(1);

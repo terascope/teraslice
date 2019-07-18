@@ -2,7 +2,7 @@ import { GraphQLScalarType, ASTNode, buildSchema, printSchema } from 'graphql';
 import { Kind } from 'graphql/language';
 import { TSError } from '@terascope/utils';
 import { mapping } from './types/versions/mapping';
-import { Type } from './interfaces';
+import { FieldTypeConfig } from './interfaces';
 
 let allTypes = {};
 
@@ -32,8 +32,8 @@ function parseLiteral(ast: ASTNode) {
                 value: { value: keyValue },
             },
         ] = curr.value.fields;
-        const validKeys: (keyof Type)[] = ['type', 'array'];
-        if (!validKeys.includes(keyName as keyof Type)) {
+        const validKeys: (keyof FieldTypeConfig)[] = ['type', 'array'];
+        if (!validKeys.includes(keyName as keyof FieldTypeConfig)) {
             throw new TSError(`field ${fieldName} must be set to an object with only only key of type`);
         }
         if (!keyValue) {

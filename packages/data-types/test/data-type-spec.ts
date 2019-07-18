@@ -1,30 +1,103 @@
-
 import 'jest-extended';
 import { DataType, DataTypeConfig, LATEST_VERSION, formatSchema } from '../src';
 import { TSError } from '@terascope/utils';
 
 describe('DataType', () => {
-    it('it will throw without versioning', () => {
-        expect.hasAssertions();
-        try {
-            // @ts-ignore
-            new DataType({});
-        } catch (err) {
-            expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('No version was specified in type config');
-        }
+    describe('when constructing', () => {
+        it('should throw when given an empty object', () => {
+            expect.hasAssertions();
+            try {
+                // @ts-ignore
+                new DataType({});
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Missing data type config');
+            }
+        });
+
+        it('should throw when given no version', () => {
+            expect.hasAssertions();
+            try {
+                new DataType({
+                    // @ts-ignore
+                    version: null,
+                    fields: {},
+                });
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Missing version in data type config');
+            }
+        });
+
+        it('should throw when given a non-integer version', () => {
+            expect.hasAssertions();
+            try {
+                new DataType({
+                    // @ts-ignore
+                    version: '1',
+                    fields: {},
+                });
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Invalid version was specified in data type config');
+            }
+        });
+
+        it('should throw when given a unknown version', () => {
+            expect.hasAssertions();
+            try {
+                new DataType({
+                    // @ts-ignore
+                    version: 999,
+                    fields: {},
+                });
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Unknown data type version 999');
+            }
+        });
+
+        it('should throw when missing fields', () => {
+            expect.hasAssertions();
+            try {
+                new DataType({
+                    version: 1,
+                    // @ts-ignore
+                    fields: null,
+                });
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Invalid fields was specified in data type config');
+            }
+        });
+
+        it('should throw when given invalid field type configs', () => {
+            expect.hasAssertions();
+            try {
+                new DataType({
+                    version: 1,
+                    fields: {
+                        // @ts-ignore
+                        blah: true,
+                    },
+                });
+            } catch (err) {
+                expect(err).toBeInstanceOf(TSError);
+                expect(err.message).toInclude('Invalid type config for field "blah" in data type config');
+            }
+        });
+
+        it('should instantiate correctly', () => {
+            const typeConfig: DataTypeConfig = {
+                version: LATEST_VERSION,
+                fields: { hello: { type: 'Keyword' } },
+            };
+
+            expect(() => new DataType(typeConfig)).not.toThrow();
+        });
     });
 
-    it('it can instantiate correctly', () => {
-        const typeConfig: DataTypeConfig = {
-            version: LATEST_VERSION,
-            fields: { hello: { type: 'Keyword' } },
-        };
-
-        expect(() => new DataType(typeConfig)).not.toThrow();
-    });
-
-    it('it can return an xlucene ready typeconfig', () => {
+    it('should return an xlucene ready typeconfig', () => {
         const typeConfig: DataTypeConfig = {
             version: LATEST_VERSION,
             fields: {
@@ -48,7 +121,7 @@ describe('DataType', () => {
         expect(xluceneConfig).toEqual(results);
     });
 
-    it('it can return graphql results', () => {
+    it('should return graphql results', () => {
         const typeConfig: DataTypeConfig = {
             version: LATEST_VERSION,
             fields: {
@@ -83,7 +156,7 @@ describe('DataType', () => {
         expect(results).toEqual(schema);
     });
 
-    it('it can add type name at toGraphQL call', () => {
+    it('should add type name at toGraphQL call', () => {
         const typeConfig: DataTypeConfig = {
             version: LATEST_VERSION,
             fields: {
@@ -116,7 +189,7 @@ describe('DataType', () => {
         expect(results).toEqual(schema);
     });
 
-    it('it can add default types for toGraphQL', () => {
+    it('should add default types for toGraphQL', () => {
         const typeConfig: DataTypeConfig = {
             version: LATEST_VERSION,
             fields: {
