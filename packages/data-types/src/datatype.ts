@@ -29,10 +29,10 @@ export class DataType {
 
     constructor(config: DataTypeConfig, typeName?: string) {
         if (typeName != null) this._name = typeName;
-        validateDataTypeConfig(config);
+        const { version, fields } = validateDataTypeConfig(config);
 
-        const typeManager = new TypesManager(config.version);
-        this._types = typeManager.getTypes(config.fields);
+        const typeManager = new TypesManager(version);
+        this._types = typeManager.getTypes(fields);
     }
 
     toESMapping({ typeName = this._name, settings, mappingMetaData }: ESMappingOptions): ESMapping {

@@ -29,20 +29,6 @@ describe('DataType', () => {
             }
         });
 
-        it('should throw when given a non-integer version', () => {
-            expect.hasAssertions();
-            try {
-                new DataType({
-                    // @ts-ignore
-                    version: '1',
-                    fields: {},
-                });
-            } catch (err) {
-                expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('Invalid version was specified in data type config');
-            }
-        });
-
         it('should throw when given a unknown version', () => {
             expect.hasAssertions();
             try {
@@ -87,9 +73,19 @@ describe('DataType', () => {
             }
         });
 
-        it('should instantiate correctly', () => {
+        it('should work when given a valid config', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
+                fields: { hello: { type: 'Keyword' } },
+            };
+
+            expect(() => new DataType(typeConfig)).not.toThrow();
+        });
+
+        it('should work when given a stringified version', () => {
+            const typeConfig: DataTypeConfig = {
+                // @ts-ignore
+                version: `${LATEST_VERSION}`,
                 fields: { hello: { type: 'Keyword' } },
             };
 
