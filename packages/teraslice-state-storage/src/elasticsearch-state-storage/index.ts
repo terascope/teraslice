@@ -1,5 +1,5 @@
 
-import { DataEntity, Logger, TSError, chunk, has } from '@terascope/job-components';
+import { DataEntity, Logger, TSError, chunk } from '@terascope/job-components';
 import esApi, { Client } from '@terascope/elasticsearch-api';
 import { Promise as bPromise } from 'bluebird';
 import { ESStateStorageConfig, ESBulkQuery, ESQUery, MGetResponse } from '../interfaces';
@@ -15,7 +15,6 @@ export default class ESCachedStateStorage {
     private persist: boolean;
     private persistField: string;
     private es: Client;
-    private logger: Logger;
     public cache: CachedStateStorage<DataEntity>;
 
     constructor(client: Client, logger: Logger, config: ESStateStorageConfig) {
@@ -28,7 +27,6 @@ export default class ESCachedStateStorage {
         this.persist = config.persist;
         this.persistField = config.persist_field || this.IDField;
         this.cache = new CachedStateStorage(config);
-        this.logger = logger;
         this.es = esApi(client, logger);
     }
 
@@ -61,7 +59,6 @@ export default class ESCachedStateStorage {
     private _esBulkUpdate(docArray: DataEntity[]) {
         const bulkRequest = this._esBulkUpdatePrep(docArray);
         const chunkedArray = chunk<ESBulkQuery>(bulkRequest, this.chunkSize);
-
         return bPromise.map<ESBulkQuery[], ESBulkQuery[]>(chunkedArray, chunkedData => this.es.bulkSend(chunkedData));
     }
 
@@ -94,33 +91,29 @@ export default class ESCachedStateStorage {
 
     }
 
-    private _dedupeDocs(docArray: DataEntity[], idField = this.IDField) {
-        // returns uniq docs from an array of docs
-        const uniqKeys = {};
-        return docArray.filter((doc) => {
-            const id = doc.getMetadata(idField);
-            const uniq = has(uniqKeys, id) ? false : uniqKeys[id] = true;
-            return uniq;
-        });
+    getFromCache(doc: DataEntity) {
+        const indentifier = this.getIdentifier(doc);
+        return this.cache.get(indentifier);
+    }
+
+    isCached(doc: DataEntity) {
+        const indentifier = this.getIdentifier(doc);
+        return this.cache.has(indentifier);
     }
 
     async get(doc: DataEntity) {
-        const indentifier = this.getIdentifier(doc);
-        let cached = this.cache.get(indentifier);
-        if (!cached) {
-            cached = await this._esGet(doc);
-        }
-        return cached;
+        const cached = this.getFromCache(doc);
+        if (cached) return cached;
+        const results = await this._esGet(doc);
+        this.set(results);
+        return results;
     }
 
     async mget(docArray: DataEntity[], mapperFn = (doc: DataEntity) => doc) {
-        // dedupe docs
-        const uniqDocs = this._dedupeDocs(docArray);
         const savedDocs = {};
         const unCachedDocKeys: string[] = [];
-        let droppedCachedKeys = 0;
         // need to add valid docs to return object and find non-cached docs
-        uniqDocs.forEach((doc) => {
+        docArray.forEach((doc) => {
             const key = this.getIdentifier(doc);
             const cachedDoc = this.cache.get(key);
 
@@ -147,17 +140,11 @@ export default class ESCachedStateStorage {
             results.forEach((doc: DataEntity) => {
                 const data = mapperFn(doc);
                 // update cache
-                // TODO: need to deal with overflows here
-                const dropped = this.set(data);
-                if (dropped && dropped.evicted) droppedCachedKeys++;
+                this.set(data);
                 // updated savedDocs object
                 savedDocs[this.getIdentifier(data)] = data;
             });
         });
-
-        if (droppedCachedKeys > 0) {
-            this.logger.info(`${droppedCachedKeys} keys have been evicted from elasticsearch-state-storgae cache`);
-        }
 
         return savedDocs;
     }
@@ -168,11 +155,11 @@ export default class ESCachedStateStorage {
         return this.cache.set(identifier, doc);
     }
 
-    async mset(docArray: DataEntity[], keyField?: string) {
-        const dedupedDocs = this._dedupeDocs(docArray, keyField);
-        const formattedDocs = dedupedDocs.map((doc) => ({ data: doc, key: this.getIdentifier(doc) }));
+    async mset(docArray: DataEntity[]) {
+        const formattedDocs = docArray.map((doc) => ({ data: doc, key: this.getIdentifier(doc) }));
         if (this.persist) {
-            return bPromise.all([this.cache.mset(formattedDocs), this._esBulkUpdate(dedupedDocs)]);
+            const [results] = await bPromise.all([this.cache.mset(formattedDocs), this._esBulkUpdate(docArray)]);
+            return results;
         }
         return this.cache.mset(formattedDocs);
     }
