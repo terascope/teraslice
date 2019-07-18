@@ -1,7 +1,7 @@
 
 import 'jest-extended';
 import { DataEntity } from '@terascope/job-components';
-import { CachedStateStorage, SetTuple } from '../src';
+import { CachedStateStorage, SetTuple, EvictedEvent } from '../src';
 
 describe('Cache Storage State', () => {
 
@@ -102,25 +102,58 @@ describe('Cache Storage State', () => {
         expect(cache.count()).toBe(0);
     });
 
-    it('when cache is to large it returns the oldest value on set', async() => {
+    it('when cache is to large using set emits an evicted event', async() => {
+        let key: string;
+        let data: DataEntity;
+
         const smallSizeConfig = {
             id_field: idField,
             cache_size: 2,
         };
 
+        function catchEviction(evicted: EvictedEvent<DataEntity>) {
+            key = evicted.key;
+            data = evicted.data;
+        }
+
         const testCache = new CachedStateStorage(smallSizeConfig);
-        const set1 = testCache.set(formattedMSet[0].key, formattedMSet[0].data);
-        const set2 = testCache.set(formattedMSet[1].key, formattedMSet[1].data);
+        testCache.on('eviction', catchEviction);
 
-        expect(set1).toBeUndefined();
-        expect(set2).toBeUndefined();
+        testCache.set(formattedMSet[0].key, formattedMSet[0].data);
+        testCache.set(formattedMSet[1].key, formattedMSet[1].data);
+
+        expect(key!).toBeUndefined();
+        expect(data!).toBeUndefined();
         expect(testCache.count()).toEqual(2);
 
-        const set3 = testCache.set(formattedMSet[2].key, formattedMSet[2].data);
+        testCache.set(formattedMSet[2].key, formattedMSet[2].data);
 
         expect(testCache.count()).toEqual(2);
-        expect(set3!.key).toEqual(formattedMSet[0].key);
-        expect(set3!.value).toEqual(formattedMSet[0].data);
-        expect(set3!.evicted).toBeTrue();
+        expect(key!).toEqual(formattedMSet[0].key);
+        expect(data!).toEqual(formattedMSet[0].data);
+    });
+
+    it('when cache is to large using mset emits an evicted event', async() => {
+        let key: string;
+        let data: DataEntity;
+
+        const smallSizeConfig = {
+            id_field: idField,
+            cache_size: 2,
+        };
+
+        function catchEviction(evicted: EvictedEvent<DataEntity>) {
+            key = evicted.key;
+            data = evicted.data;
+        }
+
+        const testCache = new CachedStateStorage(smallSizeConfig);
+        testCache.on('eviction', catchEviction);
+
+        testCache.mset(formattedMSet);
+
+        expect(testCache.count()).toEqual(2);
+        expect(key!).toEqual(formattedMSet[0].key);
+        expect(data!).toEqual(formattedMSet[0].data);
     });
 });
