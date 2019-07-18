@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { debugLogger, get } from '@terascope/utils';
+import { debugLogger, get, times } from '@terascope/utils';
 import { buildAnyQuery } from '../src/translator/utils';
 import { Translator, TypeConfig } from '../src';
 import { AST, Parser } from '../src/parser';
@@ -62,6 +62,80 @@ describe('Translator', () => {
             });
         });
     }
+
+    describe('when testing edge cases', () => {
+        describe('given a gigantic query', () => {
+            it('should be able to translate it', () => {
+                const randomFloat = (n: number) => {
+                    return Math.random() * n;
+                };
+
+                const randomInt = (n: number) => {
+                    return Math.round(randomFloat(n));
+                };
+
+                const randomVal = (n: number): string => {
+                    if (Math.random() < Math.random()) {
+                        return `(${randomInt(n)} ${randomInt(n)} ${randomInt(n)})`;
+                    }
+                    if (Math.random() < Math.random()) {
+                        return `[* TO ${randomInt(n)}}`;
+                    }
+                    if (Math.random() < Math.random()) {
+                        return '/[a-z]+/';
+                    }
+                    if (Math.random() < Math.random()) {
+                        return 'hi:the?e';
+                    }
+                    if (Math.random() < Math.random()) {
+                        return `>=${randomInt(n)}`;
+                    }
+                    if (Math.random() < Math.random()) {
+                        return `<${randomFloat(n)}`;
+                    }
+                    if (Math.random() < Math.random()) {
+                        return '[2012-01-01 TO 2012-12-31]';
+                    }
+                    if (Math.random() < Math.random()) {
+                        return `[* TO ${randomInt(n)}}`;
+                    }
+                    if (Math.random() < Math.random()) {
+                        return `(_geo_point_:"${randomFloat(n)},${randomFloat(n)}" _geo_distance_:${randomInt(n)}m)`;
+                    }
+                    return '"some-random-string"';
+                };
+
+                const joinParts = (parts: string[]) => {
+                    return parts
+                        .map((part, i, arr) => {
+                            if (i + 1 === arr.length) return `${part}`;
+                            if (i % 2 === 0) return `(${part}) OR`;
+                            if (i % 5 === 0) return `${part} OR`;
+                            if (i % 7 === 0) return `${part} AND NOT`;
+                            return `(${part}) AND`;
+                        })
+                        .join(' ');
+                };
+
+                const partsA = times(20, n => times(20, i => `example_a_${n}_${i}:${randomVal(n)}`).join(n % 10 === 0 ? ') OR (' : ' OR '));
+                const partsB = times(20, n => times(20, i => `example_b_${n}_${i}:${randomVal(n)}`).join(n % 10 === 0 ? ') OR (' : ' OR '));
+                const partsC = times(20, n => times(20, i => `example_c_${n}_${i}:${randomVal(n)}`).join(n % 10 === 0 ? ') OR (' : ' OR '));
+                const query = joinParts([partsA, partsB, partsC].map(joinParts));
+
+                const translator = new Translator(query);
+                const result = translator.toElasticsearchDSL();
+                expect(result).toMatchObject({
+                    query: {
+                        constant_score: {
+                            filter: {
+                                bool: {},
+                            },
+                        },
+                    },
+                });
+            });
+        });
+    });
 
     describe('when given an empty string', () => {
         it('should translate it to an empty query', () => {

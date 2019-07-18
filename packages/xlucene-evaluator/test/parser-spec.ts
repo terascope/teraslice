@@ -1,7 +1,7 @@
 import 'jest-extended';
-import { TSError } from '@terascope/utils';
+import { TSError, times } from '@terascope/utils';
 import allTestCases from './cases/parser';
-import { Parser } from '../src/parser';
+import { Parser, ASTType } from '../src/parser';
 
 describe('Parser', () => {
     for (const [key, testCases] of Object.entries(allTestCases)) {
@@ -14,6 +14,20 @@ describe('Parser', () => {
             });
         });
     }
+
+    describe('when testing edge cases', () => {
+        describe('given a gigantic query', () => {
+            it('should be able to parse it', () => {
+                const partOne = times(300, n => `a:${n}`).join(' OR ');
+                const partTwo = times(200, n => `b:${n}`).join(' OR ');
+                const partThree = times(500, n => `c:${n}`).join(') OR (');
+                const parser = new Parser(`(${partOne}) AND ${partTwo} OR (${partThree})`);
+                expect(parser.ast).toMatchObject({
+                    type: ASTType.LogicalGroup,
+                });
+            });
+        });
+    });
 
     describe('when given a invalid query "(ba"', () => {
         it('should throw an error', () => {
