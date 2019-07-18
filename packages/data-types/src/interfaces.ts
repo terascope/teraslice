@@ -1,5 +1,4 @@
 import BaseType from './types/versions/base-type';
-import { TypeConfig } from 'xlucene-evaluator';
 
 export interface GraphQlResults {
     results: string;
@@ -7,26 +6,9 @@ export interface GraphQlResults {
     customTypes: string[];
 }
 
-interface ObjectConfig {
-    [key: string]: any;
-}
-
 export interface GraphQLArgs {
     typeName?: string;
     typeInjection?: string;
-}
-
-export interface MappingConfiguration {
-    typeName?: string;
-    settings?: ESMapSettings;
-    mappingMetaData?: ObjectConfig;
-}
-
-export interface DataTypeManager {
-    toESMapping(args: MappingConfiguration): any;
-    toGraphQL(args?: GraphQLArgs): string;
-    toGraphQLTypes(args?: GraphQLArgs): GraphQlResults;
-    toXlucene(): TypeConfig;
 }
 
 export type ElasticSearchTypes =
@@ -94,13 +76,9 @@ export type Type = {
     array?: boolean;
 };
 
-type ActualType = {
-    [key in AvailableType]: { new (field: string, config: Type): BaseType };
-};
+type ActualType = { [key in AvailableType]: { new (field: string, config: Type): BaseType } };
 
-export type DataTypeMapping = {
-    [key in AvailableVersion]: ActualType;
-};
+export type DataTypeMapping = { [key in AvailableVersion]: ActualType };
 
 export type TypeConfigFields = {
     [key: string]: Type;
@@ -124,7 +102,7 @@ interface PropertyESTypeMapping {
     };
 }
 
-export interface ESMapping {
+export interface TypeESMapping {
     mapping: {
         [key: string]: ESTypeMapping;
     };
@@ -134,6 +112,32 @@ export interface ESMapping {
     tokenizer?: {
         [key: string]: any;
     };
+}
+
+export interface ESMappingConfig {
+    _all?: {
+        enabled?: boolean;
+        [key: string]: any;
+    };
+    dynamic?: boolean;
+    [key: string]: any;
+}
+
+export interface ESMappingOptions {
+    typeName?: string;
+    settings?: ESMapSettings;
+    mappingMetaData?: ESMappingConfig;
+}
+
+export interface ESMapping {
+    mappings: {
+        [typeName: string]: {
+            properties: {
+                [key: string]: ESTypeMapping;
+            };
+        } & ESMappingConfig;
+    };
+    settings: ESMapSettings;
 }
 
 export interface GraphQLType {

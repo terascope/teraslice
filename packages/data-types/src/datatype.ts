@@ -1,11 +1,10 @@
-
 import * as ts from '@terascope/utils';
 import { formatSchema } from './graphql-helper';
-import { DataTypeManager, DataTypeConfig, ESMapSettings, MappingConfiguration, GraphQLArgs } from './interfaces';
+import { DataTypeConfig, ESMappingOptions, GraphQLArgs, ESMapping } from './interfaces';
 import BaseType from './types/versions/base-type';
 import { TypesManager } from './types';
 
-export class DataType implements DataTypeManager {
+export class DataType {
     private _name!: string;
     private _types: BaseType[];
 
@@ -15,7 +14,7 @@ export class DataType implements DataTypeManager {
 
         types.forEach(type => {
             const { baseType, customTypes } = type.toGraphQLTypes({ typeInjection });
-            customTypesList.push(...customTypes.map((str) => str.trim()));
+            customTypesList.push(...customTypes.map(str => str.trim()));
             baseTypeList.push(baseType.trim());
         });
 
@@ -41,9 +40,9 @@ export class DataType implements DataTypeManager {
         this._types = types;
     }
 
-    toESMapping({ typeName = this._name, settings: settingsConfig, mappingMetaData }: MappingConfiguration) {
-        const argAnalyzer = ts.get(settingsConfig || {}, ['analysis', 'analyzer'], {});
-        const argTokenizer = ts.get(settingsConfig || {}, ['analysis', 'tokenizer'], {});
+    toESMapping({ typeName = this._name, settings, mappingMetaData }: ESMappingOptions): ESMapping {
+        const argAnalyzer = ts.get(settings || {}, ['analysis', 'analyzer'], {});
+        const argTokenizer = ts.get(settings || {}, ['analysis', 'tokenizer'], {});
 
         const analyzer = { ...argAnalyzer };
         const tokenizer = { ...argTokenizer };
@@ -76,28 +75,20 @@ export class DataType implements DataTypeManager {
             },
         };
 
-        // TODO: what default settings and analyzers should go here?
-        const settings: ESMapSettings = {
-            ...settingsConfig,
-            ...analysis,
-        };
-
-        const mappingConfig = {
-            properties,
-        };
-
-        if (mappingMetaData != null && ts.isPlainObject(mappingMetaData)) {
-            for (const key in mappingMetaData) {
-                mappingConfig[key] = mappingMetaData[key];
-            }
-        }
-
-        return {
-            settings,
+        const esMapping: ESMapping = {
+            settings: {
+                ...settings,
+                ...analysis,
+            },
             mappings: {
-                [typeName]: mappingConfig,
+                [typeName]: {
+                    properties,
+                    ...mappingMetaData,
+                },
             },
         };
+
+        return esMapping;
     }
 
     toGraphQL(args?: GraphQLArgs) {
@@ -108,6 +99,7 @@ export class DataType implements DataTypeManager {
             ${[...new Set(customTypes)].join('\n')}
         `);
     }
+
     // typeName = this._name, typeInjection?:string
     toGraphQLTypes(args = {} as GraphQLArgs) {
         const { typeName = this._name, typeInjection } = args;

@@ -1,6 +1,6 @@
 import { TypeConfig } from 'xlucene-evaluator';
 import * as ts from '@terascope/utils';
-import { ESMapping, GraphQLType, Type } from '../../interfaces';
+import { TypeESMapping, GraphQLType, Type } from '../../interfaces';
 
 export default abstract class BaseType {
     protected field: string;
@@ -12,7 +12,7 @@ export default abstract class BaseType {
         this.config = config;
     }
 
-    abstract toESMapping(version?: number): ESMapping;
+    abstract toESMapping(version?: number): TypeESMapping;
     abstract toGraphQL(): GraphQLType;
     abstract toXlucene(): TypeConfig;
 
