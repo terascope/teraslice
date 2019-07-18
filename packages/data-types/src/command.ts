@@ -1,64 +1,56 @@
 import yargs from 'yargs';
 import path from 'path';
 import fs from 'fs';
-import { debugLogger, get } from '@terascope/utils';
+import { TSError, get } from '@terascope/utils';
 import { DataType, DataTypeConfig } from './index';
 
-// @ts-ignore
-const logger = debugLogger('data-type-cli');
 // change pathing due to /dist/src issues
 const packagePath = path.join(__dirname, '../../package.json');
 const { version } = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 
+const esMappingOptions = {
+    name: {
+        alias: 'n',
+        describe: 'name of the type that the record has for elasticsearch mappings',
+        demandOption: true,
+    },
+    settings: {
+        alias: 's',
+        describe: 'additional settings added to the mapping',
+    },
+};
+
+const gqlOptions = {
+    name: {
+        alias: 'n',
+        describe: 'name of the type for the generated schema',
+        demandOption: true,
+    },
+};
+
 yargs
-    .command('es-mapping', 'create an elasticsearch mapping from the provided data type',
-    {
-        name: {
-            alias: 'n',
-            describe: 'name of the type that the record has for elasticsearch mappings',
-            demandOption: true
-        },
-        settings: {
-            alias: 's',
-            describe: 'additional settings added to the mapping'
-        }
-    },
-     wrapper(getESMapping)
-    )
-    .command('gql', 'creates an graphql schema for the data type',
-    {
-        name: {
-            alias: 'n',
-            describe: 'name of the type for the generated schema',
-            demandOption: true
-        }
-    },
-    wrapper(getGraphQlSchema)
-    )
-    .command('xlucene', 'create an elasticsearch mapping from the provided data type',
-        {},
-        wrapper(getXluceneValues)
-    )
-    .example('$0 es-mapping --name=event -s index.number_of_shards:20 -s index.number_of_replicas:1', '')
-    .example('$0 gql --name=event', '')
+    .command('es-mapping', 'create an elasticsearch mapping from the provided data type', esMappingOptions, wrapper(getESMapping))
+    .command('gql', 'creates an graphql schema for the data type', gqlOptions, wrapper(getGraphQlSchema))
+    .command('xlucene', 'create an elasticsearch mapping from the provided data type', {}, wrapper(getXluceneValues))
+    .example('cat ./example-data-type.json | $0 es-mapping --name=event -s index.number_of_shards:20 -s index.number_of_replicas:1', '')
+    .example('cat ./example-data-type.json | $0 gql --name=event', '')
     .example('$0 xlucene', '')
     .help('h')
     .alias('h', 'help')
     .version(version)
-    .wrap(yargs.terminalWidth())
-    .argv;
+    .wrap(yargs.terminalWidth()).argv;
 
 interface ESData {
     _source: object;
 }
 
-type CB = (data: DataTypeConfig, argv: any) => any;
+type CommandHandler = (data: DataType, argv: any) => any;
 
-function wrapper(cb: CB) {
+function wrapper(handler: CommandHandler) {
     return async (argv: any) => {
         try {
-            const data = await getData();
-            const results = cb(data, argv);
+            const data = await getDataTypeFromStdin();
+            const results = handler(data, argv);
             const output = typeof results === 'string' ? results : `${JSON.stringify(results, null, 4)} \n`;
             process.stdout.write(output);
         } catch (err) {
@@ -73,97 +65,105 @@ function parseSettings(settings: string) {
     if (settings == null) return results;
     const settingsList = Array.isArray(settings) ? settings : [settings];
 
-    settingsList.forEach((str) => {
-        const setting = str.split(':');
-        if (setting.length !== 2) throw new Error(`setting "${str}" is not fomatted correctly, please follow "key:value" format`);
-        results[setting[0]] = setting[1];
+    settingsList.forEach(str => {
+        const [key, value] = str.split(':').map((s: string) => s.trim());
+        if (!key || !value) {
+            throw new Error(`setting "${str}" is not fomatted correctly, please follow "key:value" format`);
+        }
+        results[key] = value;
     });
+
     return results;
 }
 
-function getESMapping(data: DataTypeConfig, argv: any) {
-    const dataType = new DataType(data);
+function getESMapping(dataType: DataType, argv: any) {
     const settings = parseSettings(argv.settings);
     const typeName = argv.name;
     return dataType.toESMapping({ typeName, settings });
 }
 
-function getGraphQlSchema(data: DataTypeConfig, argv: any) {
-    const dataType = new DataType(data);
+function getGraphQlSchema(dataType: DataType, argv: any) {
     const typeName = argv.name;
     return dataType.toGraphQL({ typeName });
 }
 
-function getXluceneValues(data: DataTypeConfig, argv: any) {
-    const dataType = new DataType(data);
+function getXluceneValues(dataType: DataType) {
     return dataType.toXlucene();
 }
 
 function getPipedData(): Promise<string> {
     return new Promise((resolve, reject) => {
-        let strResults = '';
+        let rawData = '';
+        const errMsg = 'please pipe an elasticsearch response or the data-type itself';
         if (process.stdin.isTTY) {
-            reject('please pipe an elasticsearch response or the data-type itself');
+            reject(new Error(errMsg));
             return;
         }
         process.stdin.resume();
         process.stdin.setEncoding('utf8');
         process.stdin.on('data', (data: string) => {
-            strResults += data;
+            rawData += data;
         });
 
         process.stdin.on('end', () => {
-            resolve(strResults);
+            rawData = rawData.trim();
+            if (!rawData) {
+                reject(new Error(errMsg));
+                return;
+            }
+            resolve(rawData);
         });
     });
 }
 
-function parseData(data: string): object[] {
-    // handle elasticsearch, teraserver or the data type itself
-    // if error continue on because that means it is probably ldjson
-    if (data) {
-        try {
-            return JSON.parse(data);
-        } catch (err) {}
+function parseInput(rawData: string): DataTypeConfig {
+    let parsedData: any;
+    try {
+        parsedData = JSON.parse(rawData);
+    } catch (err) {
+        throw new TSError('Failure to parse input, expected JSON', {
+            context: {
+                rawData,
+            },
+        });
     }
 
-    // handle ldjson
-    const results: object[] = [];
-    const lines = data.split('\n');
-
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].trim();
-        // if its not an empty space or a comment then parse it
-        if (line.length > 0) {
-            try {
-                results.push(JSON.parse(line));
-            } catch (err) {
-                const errorMsg = `Failed to parse line ${i + 1} -- "${line}"`;
-                throw new Error(errorMsg);
-            }
-        }
-    }
-
-    return results;
-}
-
-function handleParsedData(data: object[]|object) {
     // input from elasticsearch
-    const elasticSearchResults = get(data, 'hits.hits', null);
-    if (elasticSearchResults) {
-        return elasticSearchResults.map((doc:ESData) => doc._source)[0];
+    const results = get(parsedData, 'hits.hits', null);
+    if (results && Array.isArray(results)) {
+        const records = results.map((doc: ESData) => doc._source);
+        if (!records.length) {
+            throw new TSError('No elasticsearch results', {
+                context: { rawData, parsedData, results, records },
+            });
+        }
+        if (records.length > 1) {
+            throw new TSError('Expected only one elasticsearch results', {
+                context: { rawData, parsedData, results, records },
+            });
+        }
+        return records[0] as DataTypeConfig;
     }
-    // input from teraserver
-    const teraserverResults = get(data, 'results', null);
-    if (teraserverResults) {
-        return teraserverResults[0];
+
+    if (parsedData && !Array.isArray(parsedData)) {
+        return parsedData as DataTypeConfig;
     }
-    if (data) return data;
-    throw new Error('could not get parse data');
+
+    throw new TSError('Failure to parse input, expected object', {
+        context: { rawData, parsedData },
+    });
 }
 
-async function getData() {
-    const rawData = await getPipedData();
-    const parsedData = parseData(rawData);
-    return handleParsedData(parsedData);
+async function getDataTypeFromStdin(): Promise<DataType> {
+    let rawData: string;
+    try {
+        rawData = await getPipedData();
+    } catch (err) {
+        yargs.showHelp('error');
+        console.error(err.message);
+        return process.exit(1);
+    }
+
+    const config = parseInput(rawData);
+    return new DataType(config);
 }
