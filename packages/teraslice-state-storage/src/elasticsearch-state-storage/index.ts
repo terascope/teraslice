@@ -15,6 +15,7 @@ export default class ESCachedStateStorage {
     private persist: boolean;
     private persistField: string;
     private es: Client;
+    private logger: Logger;
     public cache: CachedStateStorage<DataEntity>;
 
     constructor(client: Client, logger: Logger, config: ESStateStorageConfig) {
@@ -27,6 +28,7 @@ export default class ESCachedStateStorage {
         this.persist = config.persist;
         this.persistField = config.persist_field || this.IDField;
         this.cache = new CachedStateStorage(config);
+        this.logger = logger;
         this.es = esApi(client, logger);
     }
 
@@ -111,23 +113,31 @@ export default class ESCachedStateStorage {
 
     async mget(docArray: DataEntity[], mapperFn = (doc: DataEntity) => doc) {
         const savedDocs = {};
-        const unCachedDocKeys: string[] = [];
+        const unCachedDocKeys = new Set<string>();
         // need to add valid docs to return object and find non-cached docs
+        let cachedHits = 0;
+
         docArray.forEach((doc) => {
             const key = this.getIdentifier(doc);
             const cachedDoc = this.cache.get(key);
 
             if (cachedDoc) {
-                savedDocs[key] = cachedDoc;
+                if (!savedDocs[key]) {
+                    cachedHits++;
+                    savedDocs[key] = cachedDoc;
+                }
                 return;
             }
 
             if (key) {
-                unCachedDocKeys.push(key);
+                unCachedDocKeys.add(key);
             }
         });
+        const unCached = unCachedDocKeys.size;
+        const logMsg = `elasticsearch-state-storage mget hit ${cachedHits} cached records and is fetching ${unCached} from elasticsearch`;
+        this.logger.info(logMsg);
 
-        const chunkedArray = chunk<string>(unCachedDocKeys, this.chunkSize);
+        const chunkedArray = chunk<string>([...unCachedDocKeys], this.chunkSize);
         // es search for keys not in cache
         const mgetResults = await bPromise.map<string[], DataEntity[]>(
             chunkedArray,
