@@ -15,6 +15,7 @@
         "no-debugger": true,
         "trailing-comma": false,
         "comma-dangle": false,
+        "prefer-for-of": true,
         "no-shadowed-variable": true,
         "variable-name": [
             true,

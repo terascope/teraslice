@@ -39,7 +39,7 @@ describe('Object V1', () => {
 
     it('can get proper graphQl types when given an array', () => {
         const graphQlTypes = new ObejctType(field, { ...typeConfig, array: true }).toGraphQL();
-        const results = { type: `${field}: [JSON]`, custom_type: 'scalar JSON' };
+        const results = { type: `${field}: JSON`, custom_type: 'scalar JSON' };
 
         expect(graphQlTypes).toEqual(results);
     });

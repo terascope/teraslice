@@ -14,7 +14,7 @@ export default class GeoType extends BaseType {
                 lon: String!
             }
         `;
-        return { type: this._formatGql('GeoPointType'), custom_type: customType };
+        return this._formatGql('GeoPointType', customType);
     }
 
     toXlucene() {

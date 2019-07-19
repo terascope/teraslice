@@ -33,7 +33,7 @@ describe('matcher', () => {
         expect(results.length).toEqual(3);
     });
 
-    it('it add metadata to returning docs', async () => {
+    it('should add metadata to returning docs', async () => {
         const config: WatcherConfig = {
             rules: [matchRules1Path],
             types: { _created: 'date' },

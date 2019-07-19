@@ -14,13 +14,22 @@ const { version } = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 yargs
     .command({
         command: 'es-mapping',
-        describe: 'create an elasticsearch mapping from the provided data type',
+        aliases: ['es'],
+        describe: 'Create an elasticsearch mapping from the provided data type',
         builder: {
             name: {
                 alias: 'n',
                 string: true,
                 describe: 'name of the type that the record has for elasticsearch mappings',
                 demandOption: true,
+            },
+            overrides: {
+                alias: 'c',
+                describe: 'Override the elasticsearch mapping configuration',
+                string: true,
+                coerce: arg => {
+                    return JSON.parse(fs.readFileSync(arg, 'utf8'));
+                },
             },
             shards: {
                 number: true,
@@ -34,8 +43,9 @@ yargs
         handler: wrapper(getESMapping),
     })
     .command({
-        command: 'gql',
-        describe: 'creates an graphql schema for the data type',
+        command: 'graphql',
+        aliases: ['gql'],
+        describe: 'Create a graphql schema for the data type',
         builder: {
             name: {
                 alias: 'n',
@@ -48,15 +58,24 @@ yargs
     })
     .command({
         command: 'xlucene',
-        describe: 'create an elasticsearch mapping from the provided data type',
+        describe: 'Create an elasticsearch mapping from the provided data type',
+        builder: {
+            name: {
+                alias: 'n',
+                string: true,
+                describe: 'Name of the type for the generated schema',
+            },
+        },
         handler: wrapper(getXluceneValues),
     })
-    .example('cat ./example-data-type.json | $0 es-mapping --name=event -s settings.index.number_of_shards:20 -s order:1', '')
+    .example('cat ./example-data-type.json | $0 es-mapping --name=event --shards 1 --replicas 2', '')
     .example('cat ./example-data-type.json | $0 gql --name=event', '')
     .example('$0 xlucene', '')
     .help('h')
     .alias('h', 'help')
     .version(version)
+    .strict()
+    .showHelpOnFail(false, 'Specify --help for available options')
     .wrap(yargs.terminalWidth()).argv;
 
 interface ESData {
@@ -72,11 +91,10 @@ function wrapper(handler: CommandHandler) {
             const dataType = new DataType(config, argv.name);
             const results = handler(dataType, argv);
             if (typeof results === 'string') {
-                // tslint:disable-next-line: no-console
-                console.log(results);
+                process.stdout.write(results);
             } else {
-                // tslint:disable-next-line: no-console
-                console.log(JSON.stringify(results, null, 4));
+                process.stdout.write(JSON.stringify(results, null, 4));
+                process.stdout.write('\n');
             }
         } catch (err) {
             console.error(err);
@@ -86,14 +104,14 @@ function wrapper(handler: CommandHandler) {
 }
 
 function getESMapping(dataType: DataType, argv: yargs.Arguments<any>) {
-    const overrides: Partial<ESMapping> = {};
+    const overrides: Partial<ESMapping> = argv.overrides || {};
     if (argv.shards != null) {
         set(overrides, ['settings', 'index.number_of_shards'], argv.shards);
     }
     if (argv.replicas != null) {
         set(overrides, ['settings', 'index.number_of_replicas'], argv.replicas);
     }
-    return dataType.toESMapping({ typeName: argv.name, overrides });
+    return dataType.toESMapping({ overrides });
 }
 
 function getGraphQlSchema(dataType: DataType) {
@@ -107,7 +125,7 @@ function getXluceneValues(dataType: DataType) {
 function getPipedData(): Promise<string> {
     return new Promise((resolve, reject) => {
         let rawData = '';
-        const errMsg = 'please pipe an elasticsearch response or the data-type itself';
+        const errMsg = 'Please pipe an elasticsearch response or the data-type itself';
         if (process.stdin.isTTY) {
             reject(new Error(errMsg));
             return;
@@ -172,11 +190,15 @@ async function getDataTypeConfigFromStdin(): Promise<DataTypeConfig> {
     try {
         rawData = await getPipedData();
     } catch (err) {
-        yargs.showHelp('error');
-        console.error(err.message);
-        return process.exit(1);
+        return throwHelpError(err.message);
     }
 
     const config = parseInput(rawData);
     return validateDataTypeConfig(config);
+}
+
+function throwHelpError(msg: string): never {
+    yargs.showHelp('error');
+    console.error(`\nERROR: ${msg}`);
+    return process.exit(1);
 }

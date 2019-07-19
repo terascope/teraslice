@@ -2,7 +2,7 @@ import * as ts from '@terascope/utils';
 import set from 'lodash.set';
 import defaultsDeep from 'lodash.defaultsdeep';
 import { formatSchema } from './graphql-helper';
-import { DataTypeConfig, ESMappingOptions, GraphQLArgs, ESMapping } from './interfaces';
+import * as i from './interfaces';
 import BaseType from './types/versions/base-type';
 import { validateDataTypeConfig } from './utils';
 import { TypesManager } from './types';
@@ -16,30 +16,37 @@ import { TypesManager } from './types';
  * - Xlucene
  */
 export class DataType {
-    private _name!: string;
+    name!: string;
     private _types: BaseType[];
 
     /** Merge multiple data types into one GraphQL schema, useful for removing duplicates */
-    static mergeGraphQLDataTypes(types: DataType[], typeInjection?: string) {
+    static mergeGraphQLDataTypes(types: DataType[], typeReferences: i.GraphQLTypeReferences = {}) {
         const customTypesList: string[] = [];
         const baseTypeList: string[] = [];
 
         types.forEach(type => {
-            const { baseType, customTypes } = type.toGraphQLTypes({ typeInjection });
-            customTypesList.push(...customTypes.map(str => str.trim()));
+            const global = typeReferences.__all || [];
+            const typeSpecific = typeReferences[type.name] || [];
+            const references: string[] = [...global, ...typeSpecific];
+
+            const { baseType, customTypes } = type.toGraphQLTypes({
+                references,
+            });
+
+            customTypesList.push(...customTypes.map(ts.trim));
             baseTypeList.push(baseType.trim());
         });
 
         const strSchema = `
             ${baseTypeList.join('\n')}
-            ${[...new Set(customTypesList)].join('\n')}
+            ${ts.uniq(customTypesList).join('\n')}
         `;
 
         return formatSchema(strSchema);
     }
 
-    constructor(config: DataTypeConfig, typeName?: string) {
-        if (typeName != null) this._name = typeName;
+    constructor(config: i.DataTypeConfig, typeName?: string) {
+        if (typeName != null) this.name = typeName;
         const { version, fields } = validateDataTypeConfig(config);
 
         const typeManager = new TypesManager(version);
@@ -49,9 +56,9 @@ export class DataType {
     /**
      * Convert the DataType to an elasticsearch mapping.
      */
-    toESMapping({ typeName, overrides }: ESMappingOptions = {}): ESMapping {
-        const indexType = typeName || this._name || '_doc';
-        const esMapping: ESMapping = {
+    toESMapping({ typeName, overrides }: i.ESMappingOptions = {}): i.ESMapping {
+        const indexType = typeName || this.name || '_doc';
+        const esMapping: i.ESMapping = {
             settings: {},
             mappings: {
                 [indexType]: {
@@ -86,48 +93,51 @@ export class DataType {
         return defaultsDeep(ts.cloneDeep(overrides), esMapping);
     }
 
-    toGraphQL(args?: GraphQLArgs) {
-        const { baseType, customTypes } = this.toGraphQLTypes(args);
+    toGraphQL(args?: i.GraphQLOptions) {
+        const { schema } = this.toGraphQLTypes(args);
 
-        return formatSchema(`
-            ${baseType}
-            ${[...new Set(customTypes)].join('\n')}
-        `);
+        return formatSchema(schema);
     }
 
-    // typeName = this._name, typeInjection?:string
-    toGraphQLTypes(args = {} as GraphQLArgs) {
-        const { typeName = this._name, typeInjection } = args;
+    toGraphQLTypes(args: i.GraphQLOptions = {}): i.GraphQLTypesResult {
+        const { typeName = this.name, references = [] } = args;
         if (!typeName) {
             throw new ts.TSError('No typeName was specified to create the graphql type representing this data structure');
         }
 
-        const customTypes: string[] = [];
-        const baseCollection: string[] = [];
-
-        if (typeInjection) baseCollection.push(typeInjection);
+        const customTypes = new Set<string>();
+        const baseProperties = new Set<string>();
 
         this._types.forEach(typeClass => {
             const { type, custom_type: customType } = typeClass.toGraphQL();
-            baseCollection.push(type);
-            if (customType != null) customTypes.push(customType);
+            baseProperties.add(type.trim());
+            if (customType) {
+                customTypes.add(customType.trim());
+            }
         });
+
+        if (references.length) {
+            baseProperties.add('# references and virtual fields');
+            references.forEach(prop => {
+                baseProperties.add(prop.trim());
+            });
+        }
 
         const baseType = `
             type ${typeName} {
-                ${baseCollection.join('\n')}
+                ${[...baseProperties].join('\n')}
             }
         `;
 
-        const results = `
+        const schema = `
             ${baseType}
-            ${[...new Set(customTypes)].join('\n')}
+            ${[...customTypes].join('\n')}
         `;
 
         return {
-            results,
+            schema,
             baseType,
-            customTypes,
+            customTypes: [...customTypes],
         };
     }
 

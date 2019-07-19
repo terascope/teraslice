@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { trim } from '@terascope/utils';
 import { Form, Label } from 'semantic-ui-react';
 import { ActionSegment } from '@terascope/ui-components';
-import { AvailableType, Type as FieldTypeConfig } from '@terascope/data-types';
+import { AvailableType, FieldTypeConfig } from '@terascope/data-types';
 import { dataTypeOptions } from '../interfaces';
 import { validateFieldName } from '../../utils';
 import ArrayCheckbox from './ArrayCheckbox';

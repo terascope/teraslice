@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Form } from 'semantic-ui-react';
 import { ActionSegment } from '@terascope/ui-components';
 import {
-    Type as FieldTypeConfig,
+    FieldTypeConfig,
     AvailableType,
     AvailableTypes,
 } from '@terascope/data-types';

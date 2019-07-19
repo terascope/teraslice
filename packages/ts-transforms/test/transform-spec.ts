@@ -554,7 +554,8 @@ describe('can transform matches', () => {
         expect(results3).toEqual([]);
     });
 
-    it('it works like the test before but with different config layout', async () => {
+    // TODO fix this test description is ambiguous, use describe blocks to group tests
+    it('should work like the test before but with different config layout', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules16.txt')],
         };

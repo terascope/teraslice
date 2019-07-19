@@ -16,10 +16,18 @@ export default abstract class BaseType {
     abstract toGraphQL(): GraphQLType;
     abstract toXlucene(): TypeConfig;
 
-    protected _formatGql(type: string): string {
-        if (this.config.array) {
-            return `${this.field}: [${type}]`;
+    protected _formatGql(type: string, customType?: string): { type: string; custom_type?: string } {
+        if (this.field.includes('.')) {
+            const [base] = this.field.split('.');
+            if (!ts.isTest) {
+                console.warn('[WARNING]: typed nested objects are not supported when converting to graphql\n');
+            }
+            return { type: `${base}: JSON`, custom_type: 'scalar JSON' };
         }
-        return `${this.field}: ${type}`;
+
+        if (type !== 'JSON' && this.config.array) {
+            return { type: `${this.field}: [${type}]`, custom_type: customType };
+        }
+        return { type: `${this.field}: ${type}`, custom_type: customType };
     }
 }

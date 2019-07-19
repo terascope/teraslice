@@ -1,16 +1,20 @@
 import BaseType from './types/versions/base-type';
 import { AnyObject } from '@terascope/utils';
 
-export interface GraphQlResults {
-    results: string;
+export type GraphQLTypesResult = {
+    schema: string;
     baseType: string;
     customTypes: string[];
-}
+};
 
-export interface GraphQLArgs {
+export type GraphQLOptions = {
     typeName?: string;
-    typeInjection?: string;
-}
+    references?: string[];
+};
+
+export type GraphQLTypeReferences = { __all?: string[] } & {
+    [typeName: string]: string[];
+};
 
 export type ElasticSearchTypes =
     | 'long'

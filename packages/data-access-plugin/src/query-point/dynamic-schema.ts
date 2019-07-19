@@ -2,7 +2,7 @@ import { makeExecutableSchema } from 'apollo-server-express';
 import { ACLManager, User, DataAccessConfig } from '@terascope/data-access';
 import { Context } from '@terascope/job-components';
 import * as ts from '@terascope/utils';
-import { DataType, TypeConfigFields } from '@terascope/data-types';
+import * as dt from '@terascope/data-types';
 import Usertype from './types/user';
 import { createResolvers } from './resolvers';
 
@@ -12,14 +12,16 @@ import { createResolvers } from './resolvers';
 export default async function getSchemaByRole(aclManager: ACLManager, user: User, logger: ts.Logger, context: Context) {
     const query = `roles: ${user.role} AND type:SEARCH AND _exists_:endpoint`;
     const spaces = await aclManager.findSpaces({ query, size: 10000 }, false);
-    const fetchViews = spaces.map(space => aclManager.getViewForSpace({ space: space.id }, user));
-    const list = await Promise.all(fetchViews);
-    const sanatizedList = list.map(view => {
-        view.space_endpoint = sanitize(view.space_endpoint!);
-        return view;
+
+    const promises = spaces.map(space => aclManager.getViewForSpace({ space: space.id }, user));
+    const dataAccessConfigs = await Promise.all(promises);
+
+    const sanatizedList = dataAccessConfigs.map(dataAccessConfig => {
+        const endpoint = sanitize(dataAccessConfig.space_endpoint!);
+        return Object.assign({}, dataAccessConfig, { space_endpoint: endpoint });
     });
 
-    const types = createTypings(sanatizedList);
+    const types = createTypes(sanatizedList);
     const myResolvers = createResolvers(sanatizedList, types[0], logger, context);
 
     const schema = makeExecutableSchema({
@@ -43,18 +45,23 @@ function makeEndpoint(endpoint: string) {
     return `${endpoint}(join: [String], query: String, size: Int, from: Int, sort: String): [${endpoint}!]!`;
 }
 
-function createTypings(configs: DataAccessConfig[]) {
+function createTypes(dataAccessConfigs: DataAccessConfig[]) {
     const results: string[] = [Usertype];
-    const endpointList: string = configs.map(config => makeEndpoint(config.space_endpoint!)).join('\n    ');
-    const filteredDataTypes = configs.map(filterDataTypes);
-    const myTypes = DataType.mergeGraphQLDataTypes(filteredDataTypes, endpointList);
+    const endpointList = dataAccessConfigs.map(config => makeEndpoint(config.space_endpoint!));
+    const typeReferences: dt.GraphQLTypeReferences = {
+        __all: endpointList,
+    };
+
+    const filteredDataTypes = dataAccessConfigs.map(filterDataTypes);
+    const myTypes = dt.DataType.mergeGraphQLDataTypes(filteredDataTypes, typeReferences);
 
     // create query type
     results.push(
         myTypes,
-        ` type Query {
-                ${endpointList}
-            }
+        `
+        type Query {
+            ${endpointList.join('\n')}
+        }
         `
     );
 
@@ -81,8 +88,8 @@ function iterateList(srcList: string[], comparaterList: string[], cb: CB) {
     });
 }
 
-function restrict(fields: TypeConfigFields, includes: string[], exludes: string[]): TypeConfigFields {
-    let results: TypeConfigFields;
+function restrict(fields: dt.TypeConfigFields, includes: string[], exludes: string[]): dt.TypeConfigFields {
+    let results: dt.TypeConfigFields;
     const fieldsList = Object.keys(fields);
 
     if (includes.length === 0) {
@@ -110,5 +117,5 @@ function filterDataTypes(config: DataAccessConfig) {
         },
     } = config;
     const typeObj = restrict(fields, includes, excludes);
-    return new DataType({ version, fields: typeObj }, name);
+    return new dt.DataType({ version, fields: typeObj }, name);
 }

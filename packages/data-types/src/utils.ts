@@ -18,18 +18,29 @@ export function validateDataTypeConfig(config: DataTypeConfig): DataTypeConfig {
     }
 
     const fields: TypeConfigFields = {};
-    for (const [field, typeDef] of Object.entries(config.fields)) {
-        if (!field) {
-            throw new ts.TSError(`Invalid field for ${field}`);
+    for (const [_field, typeDef] of Object.entries(config.fields)) {
+        const field = _field ? ts.unescapeString(_field).trim() : '';
+        if (!field || !validateField(field)) {
+            throw new ts.TSError(`Invalid field "${field}" in data type config`);
         }
         if (!typeDef || !ts.isPlainObject(typeDef) || !typeDef.type) {
             throw new ts.TSError(`Invalid type config for field "${field}" in data type config`);
         }
-        fields[ts.unescapeString(field)] = typeDef;
+        fields[field] = typeDef;
     }
 
     return {
         version,
         fields,
     };
+}
+
+function _testFieldRegex(field: string) {
+    return /^[^.]*[a-zA-Z0-9-_.]*[^.]*$/.test(field);
+}
+
+export function validateField(field: any): boolean {
+    if (!field) return false;
+    if (!_testFieldRegex(field)) return false;
+    return !field.includes('..');
 }
