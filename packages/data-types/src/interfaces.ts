@@ -163,6 +163,8 @@ export interface ESMapping {
 export interface ESMapSettings {
     'index.number_of_shards'?: number;
     'index.number_of_replicas'?: number;
+    'index.refresh_interval'?: string;
+    'index.max_result_window'?: number;
     analysis?: {
         analyzer?: {
             [key: string]: any;
@@ -171,4 +173,5 @@ export interface ESMapSettings {
             [key: string]: any;
         };
     };
+    [setting: string]: any;
 }
