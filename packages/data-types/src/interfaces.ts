@@ -1,4 +1,5 @@
 import BaseType from './types/versions/base-type';
+import { AnyObject } from '@terascope/utils';
 
 export interface GraphQlResults {
     results: string;
@@ -89,6 +90,11 @@ export type DataTypeConfig = {
     version: AvailableVersion;
 };
 
+export interface GraphQLType {
+    type: string;
+    custom_type?: string;
+}
+
 export type ESTypeMapping = PropertyESTypeMapping | BasicESTypeMapping;
 
 interface BasicESTypeMapping {
@@ -124,9 +130,15 @@ export interface ESMappingConfig {
 }
 
 export interface ESMappingOptions {
+    /**
+     * The elasticsearch index type
+     */
     typeName?: string;
-    settings?: ESMapSettings;
-    mappingMetaData?: ESMappingConfig;
+    /**
+     * Any elasitcsearch mapping overrides,
+     * uses a deep assignment so nested fields can be overwritten.
+     */
+    overrides?: Partial<ESMapping>;
 }
 
 export interface ESMapping {
@@ -137,19 +149,21 @@ export interface ESMapping {
             };
         } & ESMappingConfig;
     };
+    template?: string;
+    order?: number;
+    aliases?: AnyObject;
+    index_patterns?: string[];
     settings: ESMapSettings;
-}
-
-export interface GraphQLType {
-    type: string;
-    custom_type?: string;
 }
 
 export interface ESMapSettings {
     'index.number_of_shards'?: number;
     'index.number_of_replicas'?: number;
     analysis?: {
-        analyzer: {
+        analyzer?: {
+            [key: string]: any;
+        };
+        tokenizer?: {
             [key: string]: any;
         };
     };

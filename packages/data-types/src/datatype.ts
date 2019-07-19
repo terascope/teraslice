@@ -1,14 +1,25 @@
 import * as ts from '@terascope/utils';
+import set from 'lodash.set';
+import defaultsDeep from 'lodash.defaultsdeep';
 import { formatSchema } from './graphql-helper';
 import { DataTypeConfig, ESMappingOptions, GraphQLArgs, ESMapping } from './interfaces';
 import BaseType from './types/versions/base-type';
 import { validateDataTypeConfig } from './utils';
 import { TypesManager } from './types';
 
+/**
+ * A DataType is used to define the structure of data with version support
+ * and can be converted to the following formats:
+ *
+ * - Elasticsearch Mappings
+ * - GraphQL Schemas
+ * - Xlucene
+ */
 export class DataType {
     private _name!: string;
     private _types: BaseType[];
 
+    /** Merge multiple data types into one GraphQL schema, useful for removing duplicates */
     static mergeGraphQLDataTypes(types: DataType[], typeInjection?: string) {
         const customTypesList: string[] = [];
         const baseTypeList: string[] = [];
@@ -35,55 +46,43 @@ export class DataType {
         this._types = typeManager.getTypes(fields);
     }
 
-    toESMapping({ typeName = this._name, settings, mappingMetaData }: ESMappingOptions): ESMapping {
-        const argAnalyzer = ts.get(settings || {}, ['analysis', 'analyzer'], {});
-        const argTokenizer = ts.get(settings || {}, ['analysis', 'tokenizer'], {});
-
-        const analyzer = { ...argAnalyzer };
-        const tokenizer = { ...argTokenizer };
-
-        const properties = this._types.reduce((accum, type) => {
-            const { mapping, analyzer: typeAnalyzer = {}, tokenizer: typeTokenizer = {} } = type.toESMapping();
-
-            // get mapping configuration
-            for (const key in mapping) {
-                accum[key] = mapping[key];
-            }
-
-            // get analyzer configuration
-            for (const key in typeAnalyzer) {
-                analyzer[key] = typeAnalyzer[key];
-            }
-
-            // get tokenizer configuration
-            for (const key in typeTokenizer) {
-                tokenizer[key] = typeTokenizer[key];
-            }
-
-            return accum;
-        }, {});
-
-        const analysis = {
-            analysis: {
-                analyzer,
-                tokenizer,
-            },
-        };
-
+    /**
+     * Convert the DataType to an elasticsearch mapping.
+     */
+    toESMapping({ typeName = this._name, overrides }: ESMappingOptions = {}): ESMapping {
         const esMapping: ESMapping = {
-            settings: {
-                ...settings,
-                ...analysis,
-            },
+            settings: {},
             mappings: {
                 [typeName]: {
-                    properties,
-                    ...mappingMetaData,
+                    _all: {
+                        enabled: false,
+                    },
+                    dynamic: false,
+                    properties: {},
                 },
             },
         };
 
-        return esMapping;
+        for (const type of this._types) {
+            const { mapping, analyzer, tokenizer } = type.toESMapping();
+            if (mapping) {
+                for (const [key, config] of Object.entries(mapping)) {
+                    set(esMapping, ['mappings', typeName, 'properties', key], config);
+                }
+            }
+            if (analyzer) {
+                for (const [key, config] of Object.entries(analyzer)) {
+                    set(esMapping, ['settings', 'analysis', 'analyzer', key], config);
+                }
+            }
+            if (tokenizer) {
+                for (const [key, config] of Object.entries(tokenizer)) {
+                    set(esMapping, ['settings', 'analysis', 'tokenizer', key], config);
+                }
+            }
+        }
+
+        return defaultsDeep(ts.cloneDeep(overrides), esMapping);
     }
 
     toGraphQL(args?: GraphQLArgs) {

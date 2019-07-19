@@ -274,6 +274,10 @@ describe('DataType', () => {
         const results = {
             mappings: {
                 events: {
+                    _all: {
+                        enabled: false,
+                    },
+                    dynamic: false,
                     properties: {
                         hello: { type: 'text' },
                         location: { type: 'geo_point' },
@@ -283,23 +287,19 @@ describe('DataType', () => {
                     },
                 },
             },
-            settings: {
-                analysis: {
-                    analyzer: {},
-                    tokenizer: {},
-                },
-            },
+            settings: {},
         };
 
-        const mapping = new DataType(typeConfig).toESMapping({ typeName: 'events' });
-        expect(mapping).toEqual(results);
+        const dataType = new DataType(typeConfig);
+
+        expect(dataType.toESMapping({ typeName: 'events' })).toEqual(results);
     });
 
     it('can add additional settings to a elasticsearch mapping', () => {
         const typeConfig: DataTypeConfig = {
             version: LATEST_VERSION,
             fields: {
-                hello: { type: 'Text' },
+                hello: { type: 'KeywordTokensCaseInsensitive' },
                 location: { type: 'Geo' },
                 date: { type: 'Date' },
                 ip: { type: 'IP' },
@@ -307,24 +307,40 @@ describe('DataType', () => {
             },
         };
 
-        const settings = {
-            'index.number_of_shards': 5,
-            'index.number_of_replicas': 1,
-            analysis: {
-                analyzer: {
-                    lowercase_keyword_analyzer: {
-                        tokenizer: 'keyword',
-                        filter: 'lowercase',
+        const overrides = {
+            settings: {
+                'index.number_of_shards': 5,
+                'index.number_of_replicas': 1,
+                analysis: {
+                    analyzer: {
+                        some_other_analyzer: {
+                            tokenizer: 'keyword',
+                            filter: 'lowercase',
+                        },
                     },
                 },
             },
         };
 
-        const results = {
+        const dataType = new DataType(typeConfig, 'events');
+        expect(dataType.toESMapping({ overrides })).toEqual({
             mappings: {
                 events: {
+                    _all: {
+                        enabled: false,
+                    },
+                    dynamic: false,
                     properties: {
-                        hello: { type: 'text' },
+                        hello: {
+                            type: 'text',
+                            analyzer: 'lowercase_keyword_analyzer',
+                            fields: {
+                                tokens: {
+                                    analyzer: 'simple',
+                                    type: 'text',
+                                },
+                            },
+                        },
                         location: { type: 'geo_point' },
                         date: { type: 'date' },
                         ip: { type: 'ip' },
@@ -341,14 +357,14 @@ describe('DataType', () => {
                             tokenizer: 'keyword',
                             filter: 'lowercase',
                         },
+                        some_other_analyzer: {
+                            tokenizer: 'keyword',
+                            filter: 'lowercase',
+                        },
                     },
-                    tokenizer: {},
                 },
             },
-        };
-
-        const mapping = new DataType(typeConfig).toESMapping({ typeName: 'events', settings });
-        expect(mapping).toEqual(results);
+        });
     });
 
     it('can build a single graphql schema from multiple types', () => {
