@@ -1,15 +1,14 @@
-
 import DateType from '../../../src/types/versions/v1/date';
 import { TSError } from '@terascope/utils';
-import { Type } from '../../../src/interfaces';
+import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Date V1', () => {
     const field = 'someField';
-    const typeConfig: Type = { type: 'Date' };
+    const typeConfig: FieldTypeConfig = { type: 'Date' };
 
     it('can requires a field and proper configs', () => {
         try {
-           // @ts-ignore
+            // @ts-ignore
             new DateType();
             throw new Error('it should have errored with no configs');
         } catch (err) {
@@ -33,7 +32,7 @@ describe('Date V1', () => {
 
     it('can get proper graphQl types', () => {
         const graphQlTypes = new DateType(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: DateTime`,  custom_type: 'scalar DateTime' };
+        const results = { type: `${field}: DateTime`, custom_type: 'scalar DateTime' };
 
         expect(graphQlTypes).toEqual(results);
     });

@@ -6,7 +6,7 @@ import ErrorPage from './ErrorPage';
 import LoadingPage from './LoadingPage';
 import Page from './Page';
 import PluginPage from './PluginPage';
-import PluginService from './PluginService';
+import PluginService from './plugin-service';
 import RecordForm from './RecordForm';
 import Section from './Section';
 import StateMessage from './StateMessage';

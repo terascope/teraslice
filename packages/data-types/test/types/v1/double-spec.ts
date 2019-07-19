@@ -1,15 +1,14 @@
-
 import DoubleType from '../../../src/types/versions/v1/double';
 import { TSError } from '@terascope/utils';
-import { Type } from '../../../src/interfaces';
+import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Double V1', () => {
     const field = 'someField';
-    const typeConfig:Type = { type: 'Double' };
+    const typeConfig: FieldTypeConfig = { type: 'Double' };
 
     it('can requires a field and proper configs', () => {
         try {
-           // @ts-ignore
+            // @ts-ignore
             new DoubleType();
             throw new Error('it should have errored with no configs');
         } catch (err) {

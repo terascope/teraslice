@@ -4,7 +4,7 @@ import _formatDate from 'date-fns/format';
 import { UserType } from '@terascope/data-access';
 import { withRouter, RouteComponentProps, matchPath } from 'react-router-dom';
 import { PluginConfig, PluginRoute, ResolvedUser, UserPermissionMap, AccessLevel } from './interfaces';
-import PluginService from './PluginService';
+import PluginService from './plugin-service';
 
 export function formatPath(...paths: (string | undefined)[]) {
     return `/${paths

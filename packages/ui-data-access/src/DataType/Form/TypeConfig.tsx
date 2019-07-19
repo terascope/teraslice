@@ -6,7 +6,7 @@ import {
     DataTypeConfig,
     AvailableTypes,
     AvailableVersions,
-    Type as FieldTypeConfig,
+    FieldTypeConfig,
 } from '@terascope/data-types';
 import { parseTypeConfig } from '../../utils';
 import ExistingField from './ExistingField';

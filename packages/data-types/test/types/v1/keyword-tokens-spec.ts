@@ -1,14 +1,14 @@
 import KeywordTokens from '../../../src/types/versions/v1/keyword-tokens';
 import { TSError } from '@terascope/utils';
-import { Type, ElasticSearchTypes } from '../../../src/interfaces';
+import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('KeywordTokens V1', () => {
     const field = 'someField';
-    const typeConfig: Type = { type: 'KeywordTokens' };
+    const typeConfig: FieldTypeConfig = { type: 'KeywordTokens' };
 
     it('can requires a field and proper configs', () => {
         try {
-           // @ts-ignore
+            // @ts-ignore
             new KeywordTokens();
             throw new Error('it should have errored with no configs');
         } catch (err) {
@@ -33,11 +33,11 @@ describe('KeywordTokens V1', () => {
                         tokens: {
                             type: 'text',
                             index: 'true',
-                            analyzer: 'simple'
-                        }
-                    }
-                }
-            }
+                            analyzer: 'simple',
+                        },
+                    },
+                },
+            },
         };
 
         expect(esMapping).toEqual(results);

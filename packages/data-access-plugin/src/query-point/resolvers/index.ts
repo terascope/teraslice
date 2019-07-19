@@ -106,7 +106,7 @@ function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger:
         };
     });
 
-    for (const key in endpoints) {
+    for (const key of Object.keys(endpoints)) {
         // we create individual resolver
         results[key] = endpoints;
     }

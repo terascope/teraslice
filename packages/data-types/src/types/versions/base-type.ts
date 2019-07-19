@@ -1,25 +1,33 @@
 import { TypeConfig } from 'xlucene-evaluator';
 import * as ts from '@terascope/utils';
-import { ESMapping, GraphQLType, Type } from '../../interfaces';
+import { TypeESMapping, GraphQLType, FieldTypeConfig } from '../../interfaces';
 
 export default abstract class BaseType {
     protected field: string;
-    protected config: Type;
+    protected config: FieldTypeConfig;
 
-    constructor(field: string, config: Type) {
+    constructor(field: string, config: FieldTypeConfig) {
         if (!field || !ts.isString(field)) throw new ts.TSError('A field must be provided and must be of type string');
         this.field = field;
         this.config = config;
     }
 
-    abstract toESMapping(version?: number): ESMapping;
+    abstract toESMapping(version?: number): TypeESMapping;
     abstract toGraphQL(): GraphQLType;
     abstract toXlucene(): TypeConfig;
 
-    protected _formatGql(type: string): string {
-        if (this.config.array) {
-            return `${this.field}: [${type}]`;
+    protected _formatGql(type: string, customType?: string): { type: string; custom_type?: string } {
+        if (this.field.includes('.')) {
+            const [base] = this.field.split('.');
+            if (!ts.isTest) {
+                console.warn('[WARNING]: typed nested objects are not supported when converting to graphql\n');
+            }
+            return { type: `${base}: JSON`, custom_type: 'scalar JSON' };
         }
-        return `${this.field}: ${type}`;
+
+        if (type !== 'JSON' && this.config.array) {
+            return { type: `${this.field}: [${type}]`, custom_type: customType };
+        }
+        return { type: `${this.field}: ${type}`, custom_type: customType };
     }
 }

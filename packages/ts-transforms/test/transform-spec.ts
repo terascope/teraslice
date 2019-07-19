@@ -22,7 +22,7 @@ describe('can transform matches', () => {
         return buff.toString(type);
     }
 
-    it('it can transform matching data', async () => {
+    it('should transform matching data', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules1.txt')],
             types: { _created: 'date' },
@@ -67,7 +67,7 @@ describe('can transform matches', () => {
         expect(results[1]).toEqual({ point: data[1].location });
     });
 
-    it('it can transform matching data with no selector', async () => {
+    it('should transform matching data with no selector', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules3.txt')],
         };
@@ -441,7 +441,7 @@ describe('can transform matches', () => {
         });
     });
 
-    it('it can transform data if previous transforms had occured', async () => {
+    it('should transform data if previous transforms had occured', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules14.txt')],
         };
@@ -490,7 +490,7 @@ describe('can transform matches', () => {
         });
     });
 
-    it('it can transform data if previous transforms had occured with other post_processing', async () => {
+    it('should transform data if previous transforms had occured with other post_processing', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules15.txt')],
         };
@@ -554,7 +554,8 @@ describe('can transform matches', () => {
         expect(results3).toEqual([]);
     });
 
-    it('it works like the test before but with different config layout', async () => {
+    // TODO fix this test description is ambiguous, use describe blocks to group tests
+    it('should work like the test before but with different config layout', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules16.txt')],
         };
