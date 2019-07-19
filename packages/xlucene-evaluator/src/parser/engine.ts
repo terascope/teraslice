@@ -1,4 +1,3 @@
-
 // @ts-ignore
 import Tracer from 'pegjs-backtrace';
 import { AST } from './interfaces';
@@ -16,10 +15,12 @@ export interface PegEngineOptions {
 let parser: PegEngine;
 
 try {
-     // @ts-ignore because the types don't exist
+    // @ts-ignore because the types don't exist
+    // tslint:disable-next-line: no-require-imports
     parser = require('../../peg/peg-engine.js');
 } catch (err) {
     // @ts-ignore because the types don't exist
+    // tslint:disable-next-line: no-require-imports
     parser = require('../../../peg/peg-engine.js');
 }
 

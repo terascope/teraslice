@@ -1,4 +1,3 @@
-
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
 import validator from 'validator';

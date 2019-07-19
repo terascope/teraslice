@@ -1,4 +1,3 @@
-
 import _ from 'lodash';
 
 import OperationBase from './lib/base';
@@ -7,7 +6,7 @@ import ValidationOpBase from './lib/validations/base';
 
 import Join from './lib/transforms/join';
 import Selector from './lib/transforms/selector';
-import Extraction  from './lib/transforms/extraction';
+import Extraction from './lib/transforms/extraction';
 import Base64Decode from './lib/transforms/base64decode';
 import UrlDecode from './lib/transforms/urldecode';
 import HexDecode from './lib/transforms/hexdecode';
@@ -24,7 +23,7 @@ import BooleanValidation from './lib/validations/boolean';
 import Url from './lib/validations/url';
 import Email from './lib/validations/email';
 import Ip from './lib/validations/ip';
-import MacAddress from './lib/validations/mac_address';
+import MacAddress from './lib/validations/mac-address';
 import Uuid from './lib/validations/uuid';
 import ISDN from './lib/validations/isdn';
 import { Validator, ValidatorPlugins } from './lib/validations/validator';
@@ -54,7 +53,7 @@ class CorePlugins implements PluginClassType {
             lowercase: Lowercase,
             uppercase: Uppercase,
             array: MakeArray,
-            dedup: Dedup
+            dedup: Dedup,
         };
     }
 }
@@ -110,5 +109,5 @@ export {
     Lowercase,
     Uppercase,
     MakeArray,
-    Dedup
+    Dedup,
 };

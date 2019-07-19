@@ -80,7 +80,6 @@ class TestContext {
     }
 
     get stores() {
-        // eslint-disable-line
         return stores;
     }
 

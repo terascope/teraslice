@@ -4,11 +4,7 @@ import { TSError } from '@terascope/utils';
 import { mapping } from './types/versions/mapping';
 import { FieldTypeConfig } from './interfaces';
 
-let allTypes = {};
-
-for (const version in mapping) {
-    allTypes = Object.assign(allTypes, mapping[version]);
-}
+const allTypes = Object.assign({}, ...Object.values(mapping));
 
 function serialize(value: any) {
     return value;

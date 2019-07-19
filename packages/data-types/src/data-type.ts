@@ -143,11 +143,7 @@ export class DataType {
 
     toXlucene() {
         return this._types.reduce((accum, type) => {
-            const xluceneType = type.toXlucene();
-            for (const key in xluceneType) {
-                accum[key] = xluceneType[key];
-            }
-            return accum;
+            return { ...accum, ...type.toXlucene() };
         }, {});
     }
 }

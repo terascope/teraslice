@@ -1,12 +1,11 @@
-
 import { DataEntity, Logger, debugLogger } from '@terascope/utils';
 import _ from 'lodash';
 import { PhaseConfig, PluginList } from '../interfaces';
 import { Loader } from '../loader';
-import SelectionPhase from './selector_phase';
-import ExtractionPhase from './extraction_phase';
-import PostProcessPhase from './post_process_phase';
-import OutputPhase from './output_phase';
+import SelectionPhase from './selector-phase';
+import ExtractionPhase from './extraction-phase';
+import PostProcessPhase from './post-process-phase';
+import OutputPhase from './output-phase';
 import { OperationsManager } from '../operations';
 import PhaseBase from './base';
 
@@ -18,7 +17,7 @@ export default class PhaseManager {
     public sequence: PhaseBase[];
     readonly isMatcher: boolean;
 
-    constructor(opConfig: PhaseConfig, logger:Logger = debugLogger('ts-transforms')) {
+    constructor(opConfig: PhaseConfig, logger: Logger = debugLogger('ts-transforms')) {
         this.opConfig = opConfig;
         this.loader = new Loader(opConfig, logger);
         this.logger = logger;
@@ -26,17 +25,15 @@ export default class PhaseManager {
         this.isMatcher = opConfig.type === 'matcher';
     }
 
-    public async init (Plugins?: PluginList) {
+    public async init(Plugins?: PluginList) {
         const opsManager = new OperationsManager(Plugins);
         const phaseConfiguration = await this.loader.load(opsManager);
-        const sequence: PhaseBase[] = [
-            new SelectionPhase(this.opConfig, phaseConfiguration.selectors, opsManager),
-        ];
+        const sequence: PhaseBase[] = [new SelectionPhase(this.opConfig, phaseConfiguration.selectors, opsManager)];
 
         if (!this.isMatcher) {
             sequence.push(
                 new ExtractionPhase(this.opConfig, phaseConfiguration.extractions, opsManager),
-                new PostProcessPhase(this.opConfig, phaseConfiguration.postProcessing, opsManager),
+                new PostProcessPhase(this.opConfig, phaseConfiguration.postProcessing, opsManager)
             );
         }
 
@@ -46,8 +43,11 @@ export default class PhaseManager {
 
     public run(input: object[]): DataEntity[] {
         const data = DataEntity.makeArray(input);
-        return this.sequence.reduce<DataEntity[]>((dataArray, phase:PhaseBase) => {
-            return phase.run(dataArray);
-        }, data as DataEntity[]);
+        return this.sequence.reduce<DataEntity[]>(
+            (dataArray, phase: PhaseBase) => {
+                return phase.run(dataArray);
+            },
+            data as DataEntity[]
+        );
     }
 }
