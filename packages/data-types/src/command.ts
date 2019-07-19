@@ -1,38 +1,57 @@
-import yargs from 'yargs';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
+import yargs from 'yargs';
+import set from 'lodash.set';
 import { TSError, get } from '@terascope/utils';
 import { DataType, DataTypeConfig } from './index';
+import { ESMapping } from './interfaces';
+import { validateDataTypeConfig } from './utils';
 
 // change pathing due to /dist/src issues
 const packagePath = path.join(__dirname, '../../package.json');
 const { version } = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 
-const esMappingOptions = {
-    name: {
-        alias: 'n',
-        describe: 'name of the type that the record has for elasticsearch mappings',
-        demandOption: true,
-    },
-    settings: {
-        alias: 's',
-        describe: 'additional settings added to the mapping',
-    },
-};
-
-const gqlOptions = {
-    name: {
-        alias: 'n',
-        describe: 'name of the type for the generated schema',
-        demandOption: true,
-    },
-};
-
 yargs
-    .command('es-mapping', 'create an elasticsearch mapping from the provided data type', esMappingOptions, wrapper(getESMapping))
-    .command('gql', 'creates an graphql schema for the data type', gqlOptions, wrapper(getGraphQlSchema))
-    .command('xlucene', 'create an elasticsearch mapping from the provided data type', {}, wrapper(getXluceneValues))
-    .example('cat ./example-data-type.json | $0 es-mapping --name=event -s index.number_of_shards:20 -s index.number_of_replicas:1', '')
+    .command({
+        command: 'es-mapping',
+        describe: 'create an elasticsearch mapping from the provided data type',
+        builder: {
+            name: {
+                alias: 'n',
+                string: true,
+                describe: 'name of the type that the record has for elasticsearch mappings',
+                demandOption: true,
+            },
+            shards: {
+                number: true,
+                describe: 'Specify the number of shards for the index',
+            },
+            replicas: {
+                number: true,
+                describe: 'Specify the number of replicas for the index',
+            },
+        },
+        handler: wrapper(getESMapping),
+    })
+    .command({
+        command: 'gql',
+        describe: 'creates an graphql schema for the data type',
+        builder: {
+            name: {
+                alias: 'n',
+                string: true,
+                describe: 'name of the type for the generated schema',
+                demandOption: true,
+            },
+        },
+        handler: wrapper(getGraphQlSchema),
+    })
+    .command({
+        command: 'xlucene',
+        describe: 'create an elasticsearch mapping from the provided data type',
+        handler: wrapper(getXluceneValues),
+    })
+    .example('cat ./example-data-type.json | $0 es-mapping --name=event -s settings.index.number_of_shards:20 -s order:1', '')
     .example('cat ./example-data-type.json | $0 gql --name=event', '')
     .example('$0 xlucene', '')
     .help('h')
@@ -44,13 +63,14 @@ interface ESData {
     _source: object;
 }
 
-type CommandHandler = (data: DataType, argv: any) => any;
+type CommandHandler = (data: DataType, argv: yargs.Arguments<any>) => any;
 
 function wrapper(handler: CommandHandler) {
-    return async (argv: any) => {
+    return async (argv: yargs.Arguments<any>) => {
         try {
-            const data = await getDataTypeFromStdin();
-            const results = handler(data, argv);
+            const config = await getDataTypeConfigFromStdin();
+            const dataType = new DataType(config, argv.name);
+            const results = handler(dataType, argv);
             if (typeof results === 'string') {
                 // tslint:disable-next-line: no-console
                 console.log(results);
@@ -65,31 +85,19 @@ function wrapper(handler: CommandHandler) {
     };
 }
 
-function parseSettings(settings: string) {
-    const results = {};
-    if (settings == null) return results;
-    const settingsList = Array.isArray(settings) ? settings : [settings];
-
-    settingsList.forEach(str => {
-        const [key, value] = str.split(':').map((s: string) => s.trim());
-        if (!key || !value) {
-            throw new Error(`setting "${str}" is not fomatted correctly, please follow "key:value" format`);
-        }
-        results[key] = value;
-    });
-
-    return results;
+function getESMapping(dataType: DataType, argv: yargs.Arguments<any>) {
+    const overrides: Partial<ESMapping> = {};
+    if (argv.shards != null) {
+        set(overrides, ['settings', 'index.number_of_shards'], argv.shards);
+    }
+    if (argv.replicas != null) {
+        set(overrides, ['settings', 'index.number_of_replicas'], argv.replicas);
+    }
+    return dataType.toESMapping({ typeName: argv.name, overrides });
 }
 
-function getESMapping(dataType: DataType, argv: any) {
-    const settings = parseSettings(argv.settings);
-    const typeName = argv.name;
-    return dataType.toESMapping({ typeName, settings });
-}
-
-function getGraphQlSchema(dataType: DataType, argv: any) {
-    const typeName = argv.name;
-    return dataType.toGraphQL({ typeName });
+function getGraphQlSchema(dataType: DataType) {
+    return dataType.toGraphQL();
 }
 
 function getXluceneValues(dataType: DataType) {
@@ -159,7 +167,7 @@ function parseInput(rawData: string): DataTypeConfig {
     });
 }
 
-async function getDataTypeFromStdin(): Promise<DataType> {
+async function getDataTypeConfigFromStdin(): Promise<DataTypeConfig> {
     let rawData: string;
     try {
         rawData = await getPipedData();
@@ -170,5 +178,5 @@ async function getDataTypeFromStdin(): Promise<DataType> {
     }
 
     const config = parseInput(rawData);
-    return new DataType(config);
+    return validateDataTypeConfig(config);
 }

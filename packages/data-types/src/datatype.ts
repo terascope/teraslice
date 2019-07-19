@@ -49,11 +49,12 @@ export class DataType {
     /**
      * Convert the DataType to an elasticsearch mapping.
      */
-    toESMapping({ typeName = this._name, overrides }: ESMappingOptions = {}): ESMapping {
+    toESMapping({ typeName, overrides }: ESMappingOptions = {}): ESMapping {
+        const indexType = typeName || this._name || '_doc';
         const esMapping: ESMapping = {
             settings: {},
             mappings: {
-                [typeName]: {
+                [indexType]: {
                     _all: {
                         enabled: false,
                     },
@@ -67,7 +68,7 @@ export class DataType {
             const { mapping, analyzer, tokenizer } = type.toESMapping();
             if (mapping) {
                 for (const [key, config] of Object.entries(mapping)) {
-                    set(esMapping, ['mappings', typeName, 'properties', key], config);
+                    set(esMapping, ['mappings', indexType, 'properties', key], config);
                 }
             }
             if (analyzer) {
@@ -97,7 +98,10 @@ export class DataType {
     // typeName = this._name, typeInjection?:string
     toGraphQLTypes(args = {} as GraphQLArgs) {
         const { typeName = this._name, typeInjection } = args;
-        if (!typeName) throw new ts.TSError('No typeName was specified to create the graphql type representing this data structure');
+        if (!typeName) {
+            throw new ts.TSError('No typeName was specified to create the graphql type representing this data structure');
+        }
+
         const customTypes: string[] = [];
         const baseCollection: string[] = [];
 
