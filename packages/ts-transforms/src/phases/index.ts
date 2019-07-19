@@ -1,14 +1,7 @@
+import SelectionPhase from './selector-phase';
+import ExtractionPhase from './extraction-phase';
+import PostProcessPhase from './post-process-phase';
+import OutputPhase from './output-phase';
+import PhaseManager from './phase-manager';
 
-import SelectionPhase from './selector_phase';
-import ExtractionPhase from './extraction_phase';
-import PostProcessPhase from './post_process_phase';
-import OutputPhase from './output_phase';
-import PhaseManager from './phase_manager';
-
-export {
-    SelectionPhase,
-    ExtractionPhase,
-    PostProcessPhase,
-    OutputPhase,
-    PhaseManager
-};
+export { SelectionPhase, ExtractionPhase, PostProcessPhase, OutputPhase, PhaseManager };
