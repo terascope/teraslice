@@ -215,7 +215,7 @@ describe('Elasticsearch Store Utils', () => {
                 expect(() => {
                     validateIndexConfig({
                         // @ts-ignore
-                        indexSchema: {
+                        index_schema: {
                             mapping: { properties: {} },
                             version: '8',
                         },
@@ -228,7 +228,7 @@ describe('Elasticsearch Store Utils', () => {
             it('should throw if a negative integer is used for the Index Schema version', () => {
                 expect(() => {
                     validateIndexConfig({
-                        indexSchema: {
+                        index_schema: {
                             mapping: { properties: {} },
                             version: -8,
                         },
@@ -241,7 +241,7 @@ describe('Elasticsearch Store Utils', () => {
             it('should throw if a string is used for the Data Schema version', () => {
                 expect(() => {
                     validateIndexConfig({
-                        indexSchema: {
+                        index_schema: {
                             mapping: { properties: {} },
                             version: 8,
                         },
@@ -255,7 +255,7 @@ describe('Elasticsearch Store Utils', () => {
             it('should throw if a negative integer is used for the Data Schema version', () => {
                 expect(() => {
                     validateIndexConfig({
-                        indexSchema: {
+                        index_schema: {
                             mapping: { properties: {} },
                             version: 8,
                         },

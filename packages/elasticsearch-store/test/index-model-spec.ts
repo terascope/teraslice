@@ -1,7 +1,6 @@
 import 'jest-extended';
 import { Client } from 'elasticsearch';
 import { QueryAccess } from 'xlucene-evaluator';
-import { ElasticSearchTypes } from '@terascope/data-types';
 import { times, TSError, AnyObject } from '@terascope/utils';
 import { IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions } from '../src';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
@@ -21,7 +20,7 @@ describe('IndexModel', () => {
                     type: 'keyword',
                     fields: {
                         text: {
-                            type: 'text' as ElasticSearchTypes,
+                            type: 'text',
                             analyzer: 'lowercase_keyword_analyzer',
                         },
                     },
@@ -43,8 +42,8 @@ describe('IndexModel', () => {
                 },
             },
         },
-        defaultSort: 'name:asc',
-        uniqueFields: ['name'],
+        default_sort: 'name:asc',
+        unique_fields: ['name'],
         version: 1,
     };
 
@@ -74,6 +73,7 @@ describe('IndexModel', () => {
 
         beforeAll(async () => {
             created = await indexModel.create({
+                client_id: 0,
                 name: 'Billy',
                 config: {
                     foo: 1,
@@ -132,6 +132,7 @@ describe('IndexModel', () => {
 
             try {
                 await indexModel.create({
+                    client_id: 0,
                     name: 'Billy',
                     config: {
                         foo: 2,
@@ -195,6 +196,7 @@ describe('IndexModel', () => {
             const name = 'fooooobarrr';
             await indexModel.create({
                 name,
+                client_id: 0,
                 config: {},
             });
 
@@ -292,6 +294,7 @@ describe('IndexModel', () => {
             await Promise.all(
                 times(5, n => {
                     return indexModel.create({
+                        client_id: 0,
                         name: `Joe ${n}`,
                         config: {},
                     });
@@ -301,6 +304,7 @@ describe('IndexModel', () => {
             await Promise.all(
                 times(5, n => {
                     return indexModel.create({
+                        client_id: 0,
                         name: `Bob ${n}`,
                         config: {},
                     });
@@ -420,6 +424,7 @@ describe('IndexModel', () => {
 
                 expect(result).toBeArrayOfSize(3);
                 for (const record of result) {
+                    expect(record).not.toBeNil();
                     expect(record).toHaveProperty('id');
                     expect(record).toHaveProperty('name');
                     expect(record).not.toHaveProperty('created');
@@ -436,6 +441,7 @@ describe('IndexModel', () => {
 
                 expect(result).toBeArrayOfSize(5);
                 for (const record of result) {
+                    expect(record).not.toBeNil();
                     expect(record).toHaveProperty('id');
                     expect(record).not.toHaveProperty('created');
                     expect(record).toHaveProperty('updated');
@@ -454,6 +460,7 @@ describe('IndexModel', () => {
 
                 expect(result).toBeArrayOfSize(4);
                 for (const record of result) {
+                    expect(record).not.toBeNil();
                     expect(record.name).not.toEqual(NOT_NAME);
                     expect(record.name).toStartWith('Bob');
                 }

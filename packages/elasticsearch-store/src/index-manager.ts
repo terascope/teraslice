@@ -37,12 +37,12 @@ export default class IndexManager {
 
         const indexName = utils.formatIndexName([namespace, name, dataVersion, schemaVersion]);
 
-        if (utils.isTimeSeriesIndex(config.indexSchema) && !useWildcard) {
+        if (utils.isTimeSeriesIndex(config.index_schema) && !useWildcard) {
             const timeSeriesFormat = utils.getRolloverFrequency(config);
             return utils.timeseriesIndex(indexName, timeSeriesFormat);
         }
 
-        if (utils.isTemplatedIndex(config.indexSchema) && useWildcard) {
+        if (utils.isTemplatedIndex(config.index_schema) && useWildcard) {
             return `${indexName}*`;
         }
 
@@ -70,7 +70,7 @@ export default class IndexManager {
         const indexName = this.formatIndexName(config, false);
         const logger = this._logger(config);
 
-        const settings = Object.assign({}, config.indexSettings);
+        const settings = Object.assign({}, config.index_settings);
 
         if (!ts.isTest) {
             // stagger the index creation in start up when in non test mode
@@ -84,7 +84,7 @@ export default class IndexManager {
             },
         };
 
-        if (utils.isTemplatedIndex(config.indexSchema)) {
+        if (utils.isTemplatedIndex(config.index_schema)) {
             const templateName = this.formatTemplateName(config);
             const schemaVersion = utils.getSchemaVersion(config);
 

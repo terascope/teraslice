@@ -8,9 +8,6 @@ const config: IndexModelConfig<Space> = {
     name: 'spaces',
     mapping: {
         properties: {
-            client_id: {
-                type: 'integer',
-            },
             name: {
                 type: 'keyword',
                 fields: {
@@ -48,11 +45,6 @@ const config: IndexModelConfig<Space> = {
     },
     schema: {
         properties: {
-            client_id: {
-                type: 'number',
-                multipleOf: 1.0,
-                minimum: 0,
-            },
             name: {
                 type: 'string',
             },
@@ -164,24 +156,19 @@ const config: IndexModelConfig<Space> = {
                 },
             },
         ],
-        required: ['client_id', 'name', 'type', 'data_type'],
+        required: ['name', 'type', 'data_type'],
     },
-    uniqueFields: ['endpoint'],
-    sanitizeFields: {
+    unique_fields: ['endpoint'],
+    sanitize_fields: {
         endpoint: 'toSafeString',
     },
-    strictMode: false,
+    strict_mode: false,
 };
 
 /**
  * The definition of a Space model
  */
 export interface Space extends IndexModelRecord {
-    /**
-     * The mutli-tenant ID representing the client
-     */
-    client_id: number;
-
     /**
      * Name of the Space
      */

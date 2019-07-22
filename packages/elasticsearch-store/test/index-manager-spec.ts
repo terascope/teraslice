@@ -98,7 +98,7 @@ describe('IndexManager', () => {
                     const indexName = indexManager.formatIndexName(
                         {
                             name: 'hello',
-                            indexSchema: {
+                            index_schema: {
                                 version: 1,
                                 mapping: { properties: {} },
                                 template: true,
@@ -118,7 +118,7 @@ describe('IndexManager', () => {
                 it('should return a correctly formatted index name', () => {
                     const indexName = indexManager.formatIndexName({
                         name: 'hello',
-                        indexSchema: {
+                        index_schema: {
                             version: 1,
                             mapping: {
                                 properties: {},
@@ -137,7 +137,7 @@ describe('IndexManager', () => {
                     const indexName = indexManager.formatIndexName({
                         name: 'hello',
                         version: 3,
-                        indexSchema: {
+                        index_schema: {
                             version: 2,
                             mapping: {
                                 properties: {},

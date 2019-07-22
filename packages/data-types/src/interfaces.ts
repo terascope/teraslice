@@ -111,10 +111,10 @@ type BasicESTypeMapping = {
 };
 
 type FieldsESTypeMapping = {
-    type: ElasticSearchTypes;
+    type: ElasticSearchTypes | string;
     fields: {
         [key: string]: {
-            type: ElasticSearchTypes;
+            type: ElasticSearchTypes | string;
             index?: boolean | string;
             analyzer?: string;
         };

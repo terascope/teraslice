@@ -22,17 +22,17 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             version: 1,
             name: modelConfig.name,
             namespace: options.namespace,
-            indexSchema: {
+            index_schema: {
                 version: modelConfig.version,
                 mapping: utils.addDefaultMapping(modelConfig.mapping),
             },
-            dataSchema: {
+            data_schema: {
                 schema: utils.addDefaultSchema(modelConfig.schema),
-                strict: modelConfig.strictMode === false ? false : true,
-                log_level: modelConfig.strictMode === false ? 'trace' : 'warn',
-                allFormatters: true,
+                strict: modelConfig.strict_mode === false ? false : true,
+                log_level: modelConfig.strict_mode === false ? 'trace' : 'warn',
+                all_formatters: true,
             },
-            indexSettings: {
+            index_settings: {
                 'index.number_of_shards': ts.isProd ? 5 : 1,
                 'index.number_of_replicas': ts.isProd ? 1 : 0,
                 analysis: {
@@ -48,11 +48,11 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
 
         const indexConfig: i.IndexConfig<T> = {
             ...baseConfig,
-            idField: 'id',
-            ingestTimeField: 'created',
-            eventTimeField: 'updated',
+            id_field: 'id',
+            ingest_time_field: 'created',
+            event_time_field: 'updated',
             logger: options.logger,
-            defaultSort: 'updated:desc',
+            default_sort: 'updated:desc',
         };
 
         this.name = utils.toInstanceName(modelConfig.name);
@@ -61,8 +61,8 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         const debugLoggerName = `elasticsearch-store:index-model:${this.name}`;
         this.logger = options.logger || ts.debugLogger(debugLoggerName);
 
-        this._uniqueFields = ts.concat('id', modelConfig.uniqueFields);
-        this._sanitizeFields = modelConfig.sanitizeFields || {};
+        this._uniqueFields = ts.concat('id', modelConfig.unique_fields);
+        this._sanitizeFields = modelConfig.sanitize_fields || {};
     }
 
     async initialize() {
@@ -197,7 +197,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         }
 
         // maintain sort order
-        return ids.map(id => result.find(doc => doc[id] === id)!);
+        return ids.map(id => result.find(doc => doc.id === id)!);
     }
 
     async find(q: string = '', options: i.FindOptions<T> = {}, queryAccess?: QueryAccess<T>): Promise<T[]> {
@@ -207,7 +207,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     async update(record: i.UpdateRecordInput<T>) {
         const id: unknown = record.id;
         if (!id || !ts.isString(id)) {
-            throw new ts.TSError(`${this.name} update requires ${id}`, {
+            throw new ts.TSError(`${this.name} update requires id`, {
                 statusCode: 422,
             });
         }
@@ -218,6 +218,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
                 if (field === 'id') continue;
                 if (record[field] == null) continue;
 
+                // @ts-ignore
                 if (existing[field] !== record[field]) {
                     const count = await this.countBy({
                         [field]: record[field],

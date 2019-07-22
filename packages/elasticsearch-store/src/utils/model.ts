@@ -13,6 +13,9 @@ export const mapping: ESTypeMappings = {
         id: {
             type: 'keyword',
         },
+        client_id: {
+            type: 'integer',
+        },
         created: {
             type: 'date',
         },
@@ -29,8 +32,11 @@ export const schema = {
         id: {
             type: 'string',
         },
-        description: {
-            type: 'string',
+        client_id: {
+            type: 'number',
+            multipleOf: 1.0,
+            minimum: 0,
+            default: 0,
         },
         created: {
             format: 'date-time',
@@ -39,7 +45,7 @@ export const schema = {
             format: 'date-time',
         },
     },
-    required: ['id', 'created', 'updated'],
+    required: ['id', 'client_id', 'created', 'updated'],
 };
 
 export function addDefaultMapping(input: ESTypeMappings): ESTypeMappings {

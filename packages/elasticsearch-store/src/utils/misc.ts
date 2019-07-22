@@ -16,11 +16,11 @@ export const getFirstKey: getFirstFn = R.pipe(
     R.head
 );
 
-export const getIndexMapping = R.path(['indexSchema', 'mapping']);
+export const getIndexMapping = R.path(['index_schema', 'mapping']);
 
-export const getRolloverFrequency = R.pathOr('monthly', ['indexSchema', 'rollover_frequency']);
+export const getRolloverFrequency = R.pathOr('monthly', ['index_schema', 'rollover_frequency']);
 
-export const getSchemaVersion = R.pathOr(1, ['indexSchema', 'version']);
+export const getSchemaVersion = R.pathOr(1, ['index_schema', 'version']);
 export const getSchemaVersionStr: (config: any) => string = R.pipe(
     getSchemaVersion,
     R.toString as any,

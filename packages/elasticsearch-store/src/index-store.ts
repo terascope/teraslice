@@ -43,12 +43,12 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
         this.indexQuery = this.manager.formatIndexName(config);
 
-        if (this.config.bulkMaxSize != null) {
-            this._bulkMaxSize = this.config.bulkMaxSize;
+        if (this.config.bulk_max_size != null) {
+            this._bulkMaxSize = this.config.bulk_max_size;
         }
 
-        if (this.config.bulkMaxWait != null) {
-            this._bulkMaxWait = this.config.bulkMaxWait;
+        if (this.config.bulk_max_wait != null) {
+            this._bulkMaxWait = this.config.bulk_max_wait;
         }
 
         const debugLoggerName = `elasticsearch-store:index-store:${config.name}`;
@@ -59,16 +59,16 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             wait: this._bulkMaxWait,
         });
 
-        if (config.indexSchema != null) {
-            this._xluceneTypes = utils.getXLuceneTypesFromMapping(config.indexSchema.mapping);
+        if (config.index_schema != null) {
+            this._xluceneTypes = utils.getXLuceneTypesFromMapping(config.index_schema.mapping);
         }
 
-        if (config.dataSchema != null) {
-            const { allFormatters, schema, strict, log_level = 'warn' } = config.dataSchema;
+        if (config.data_schema != null) {
+            const { all_formatters, schema, strict, log_level = 'warn' } = config.data_schema;
 
             const ajv = new Ajv({
                 useDefaults: true,
-                format: allFormatters ? 'full' : 'fast',
+                format: all_formatters ? 'full' : 'fast',
                 allErrors: true,
                 coerceTypes: true,
                 logger: {
@@ -95,8 +95,8 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         }
 
         this._toRecord = this._toRecord.bind(this);
-        this._getIngestTime = utils.getTimeByField(this.config.ingestTimeField as string);
-        this._getEventTime = utils.getTimeByField(this.config.eventTimeField as string);
+        this._getIngestTime = utils.getTimeByField(this.config.ingest_time_field as string);
+        this._getEventTime = utils.getTimeByField(this.config.event_time_field as string);
     }
 
     /**
@@ -336,7 +336,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             return this.client.search<T>(
                 this.getDefaultParams(
                     {
-                        sort: this.config.defaultSort,
+                        sort: this.config.default_sort,
                     },
                     params
                 )
