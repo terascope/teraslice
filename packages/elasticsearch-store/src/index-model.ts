@@ -302,7 +302,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         for (const field of this._uniqueFields) {
             if (field === 'id') continue;
             if (field === 'client_id') continue;
-            if (record[field] == null) {
+            if (!existing && record[field] == null) {
                 throw new ts.TSError(`${this.name} requires field ${field}`, {
                     statusCode: 422,
                 });
