@@ -36,7 +36,7 @@ export const schema = {
             type: 'number',
             multipleOf: 1.0,
             minimum: 0,
-            default: 0,
+            default: 1,
         },
         created: {
             format: 'date-time',

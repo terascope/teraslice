@@ -213,30 +213,13 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         }
 
         return this.store.updatePartial(id, async existing => {
-            const uniqueFields = this._uniqueFields as (keyof i.UpdateRecordInput<T>)[];
-            for (const field of uniqueFields) {
-                if (field === 'id') continue;
-                if (record[field] == null) continue;
-
-                // @ts-ignore
-                if (existing[field] !== record[field]) {
-                    const count = await this.countBy({
-                        [field]: record[field],
-                    } as AnyInput<T>);
-
-                    if (count > 0) {
-                        throw new ts.TSError(`${this.name} update requires ${field} to be unique`, {
-                            statusCode: 409,
-                        });
-                    }
-                }
-            }
-
-            const doc: T = this._sanitizeRecord({
+            const doc = this._sanitizeRecord({
                 ...existing,
                 ...record,
                 updated: ts.makeISODate(),
             } as T);
+
+            await this._ensureUnique(doc, existing);
             return doc;
         });
     }
@@ -315,20 +298,26 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return records.map(record => this._postProcess(record));
     }
 
-    protected async _ensureUnique(record: AnyInput<T>) {
+    protected async _ensureUnique(record: T, existing?: T) {
         for (const field of this._uniqueFields) {
             if (field === 'id') continue;
+            if (field === 'client_id') continue;
             if (record[field] == null) {
-                throw new ts.TSError(`${this.name} create requires field ${field}`, {
+                throw new ts.TSError(`${this.name} requires field ${field}`, {
                     statusCode: 422,
                 });
             }
+            if (existing && existing[field] === record[field]) continue;
 
             const count = await this.countBy({
                 [field]: record[field],
+                ...(record.client_id && {
+                    client_id: record.client_id,
+                }),
             } as AnyInput<T>);
+
             if (count > 0) {
-                throw new ts.TSError(`${this.name} create requires ${field} to be unique`, {
+                throw new ts.TSError(`${this.name} requires ${field} to be unique`, {
                     statusCode: 409,
                 });
             }

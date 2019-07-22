@@ -73,7 +73,7 @@ describe('IndexModel', () => {
 
         beforeAll(async () => {
             created = await indexModel.create({
-                client_id: 0,
+                client_id: 1,
                 name: 'Billy',
                 config: {
                     foo: 1,
@@ -127,12 +127,12 @@ describe('IndexModel', () => {
             });
         });
 
-        it('should not be able to create the record again due to conflicts', async () => {
+        it('should not be able to create the record with conflicts', async () => {
             expect.hasAssertions();
 
             try {
                 await indexModel.create({
-                    client_id: 0,
+                    client_id: 1,
                     name: 'Billy',
                     config: {
                         foo: 2,
@@ -143,10 +143,29 @@ describe('IndexModel', () => {
                     },
                 });
             } catch (err) {
-                expect(err.message).toEqual('IndexModel create requires name to be unique');
+                expect(err.message).toEqual('IndexModel requires name to be unique');
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(409);
             }
+        });
+
+        it('should be able to create the same name in different client', async () => {
+            return expect(
+                indexModel.create({
+                    client_id: 2,
+                    name: 'Billy',
+                    config: {
+                        foo: 2,
+                        bar: 2,
+                        baz: {
+                            a: 2,
+                        },
+                    },
+                })
+            ).resolves.toMatchObject({
+                client_id: 2,
+                name: 'Billy',
+            });
         });
 
         it('should not be able to create the record without a name', async () => {
@@ -156,7 +175,7 @@ describe('IndexModel', () => {
                 // @ts-ignore
                 await indexModel.create({});
             } catch (err) {
-                expect(err.message).toEqual('IndexModel create requires field name');
+                expect(err.message).toEqual('IndexModel requires field name');
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(422);
             }
@@ -196,7 +215,7 @@ describe('IndexModel', () => {
             const name = 'fooooobarrr';
             await indexModel.create({
                 name,
-                client_id: 0,
+                client_id: 1,
                 config: {},
             });
 
@@ -206,7 +225,7 @@ describe('IndexModel', () => {
                     name,
                 });
             } catch (err) {
-                expect(err.message).toEqual('IndexModel update requires name to be unique');
+                expect(err.message).toEqual('IndexModel requires name to be unique');
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(409);
             }
@@ -294,7 +313,7 @@ describe('IndexModel', () => {
             await Promise.all(
                 times(5, n => {
                     return indexModel.create({
-                        client_id: 0,
+                        client_id: 1,
                         name: `Joe ${n}`,
                         config: {},
                     });
@@ -304,7 +323,7 @@ describe('IndexModel', () => {
             await Promise.all(
                 times(5, n => {
                     return indexModel.create({
-                        client_id: 0,
+                        client_id: 1,
                         name: `Bob ${n}`,
                         config: {},
                     });
