@@ -6,9 +6,6 @@ const config: IndexModelConfig<DataType> = {
     name: 'data_types',
     mapping: {
         properties: {
-            client_id: {
-                type: 'integer',
-            },
             name: {
                 type: 'keyword',
                 fields: {
@@ -35,11 +32,6 @@ const config: IndexModelConfig<DataType> = {
     },
     schema: {
         properties: {
-            client_id: {
-                type: 'number',
-                multipleOf: 1.0,
-                minimum: 0,
-            },
             name: {
                 type: 'string',
             },
@@ -70,21 +62,16 @@ const config: IndexModelConfig<DataType> = {
                 },
             },
         },
-        required: ['client_id', 'name', 'config'],
+        required: ['name', 'config'],
     },
-    uniqueFields: ['name'],
-    strictMode: false,
+    unique_fields: ['name'],
+    strict_mode: false,
 };
 
 /**
  * The definition a DataType model
  */
 export interface DataType extends IndexModelRecord {
-    /**
-     * The mutli-tenant ID representing the client
-     */
-    client_id: number;
-
     /**
      * Name of the DataType
      */

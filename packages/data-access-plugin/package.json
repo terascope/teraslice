@@ -28,8 +28,8 @@
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged --forceExit"
     },
     "dependencies": {
-        "@terascope/data-access": "^0.12.1",
-        "@terascope/data-types": "^0.4.0",
+        "@terascope/data-access": "^0.12.2",
+        "@terascope/data-types": "^0.4.1",
         "@terascope/elasticsearch-api": "^2.1.0",
         "@terascope/utils": "^0.12.4",
         "apollo-server-express": "^2.6.5",

@@ -1,13 +1,12 @@
 import { FieldType } from 'xlucene-evaluator';
 import BaseType from '../base-type';
-import { ElasticSearchTypes } from '../../../interfaces';
 
 export default class KeywordTokens extends BaseType {
     toESMapping(version?: number) {
         return {
             mapping: {
                 [this.field]: {
-                    type: 'keyword' as ElasticSearchTypes,
+                    type: 'keyword',
                     fields: {
                         tokens: {
                             type: 'text',

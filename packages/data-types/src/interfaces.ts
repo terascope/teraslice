@@ -27,6 +27,7 @@ export type ElasticSearchTypes =
     | 'text'
     | 'boolean'
     | 'ip'
+    | 'date'
     | 'geo_point'
     | 'object';
 
@@ -81,7 +82,11 @@ export type FieldTypeConfig = {
     array?: boolean;
 };
 
-type ActualType = { [key in AvailableType]: { new (field: string, config: FieldTypeConfig): BaseType } };
+type ActualType = {
+    [key in AvailableType]: {
+        new (field: string, config: FieldTypeConfig): BaseType;
+    }
+};
 
 export type DataTypeMapping = { [key in AvailableVersion]: ActualType };
 
@@ -99,18 +104,29 @@ export interface GraphQLType {
     custom_type?: string;
 }
 
-export type ESTypeMapping = PropertyESTypeMapping | BasicESTypeMapping;
+export type ESTypeMapping = PropertyESTypeMapping | FieldsESTypeMapping | BasicESTypeMapping;
 
-interface BasicESTypeMapping {
+type BasicESTypeMapping = {
     type: ElasticSearchTypes;
-}
+};
 
-interface PropertyESTypeMapping {
+type FieldsESTypeMapping = {
+    type: ElasticSearchTypes | string;
+    fields: {
+        [key: string]: {
+            type: ElasticSearchTypes | string;
+            index?: boolean | string;
+            analyzer?: string;
+        };
+    };
+};
+
+type PropertyESTypeMapping = {
     type?: 'nested';
     properties: {
-        [key: string]: BasicESTypeMapping;
+        [key: string]: FieldsESTypeMapping | BasicESTypeMapping;
     };
-}
+};
 
 export interface TypeESMapping {
     mapping: {
@@ -122,15 +138,6 @@ export interface TypeESMapping {
     tokenizer?: {
         [key: string]: any;
     };
-}
-
-export interface ESMappingConfig {
-    _all?: {
-        enabled?: boolean;
-        [key: string]: any;
-    };
-    dynamic?: boolean;
-    [key: string]: any;
 }
 
 export interface ESMappingOptions {
@@ -145,22 +152,29 @@ export interface ESMappingOptions {
     overrides?: Partial<ESMapping>;
 }
 
+export interface ESTypeMappings extends AnyObject {
+    _all?: {
+        enabled?: boolean;
+        [key: string]: any;
+    };
+    dynamic?: boolean;
+    properties: {
+        [key: string]: ESTypeMapping;
+    };
+}
+
 export interface ESMapping {
     mappings: {
-        [typeName: string]: {
-            properties: {
-                [key: string]: ESTypeMapping;
-            };
-        } & ESMappingConfig;
+        [typeName: string]: ESTypeMappings;
     };
     template?: string;
     order?: number;
     aliases?: AnyObject;
     index_patterns?: string[];
-    settings: ESMapSettings;
+    settings: ESIndexSettings;
 }
 
-export interface ESMapSettings {
+export interface ESIndexSettings {
     'index.number_of_shards'?: number;
     'index.number_of_replicas'?: number;
     'index.refresh_interval'?: string;
