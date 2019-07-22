@@ -1,6 +1,7 @@
 import 'jest-extended';
 import { Client } from 'elasticsearch';
 import { QueryAccess } from 'xlucene-evaluator';
+import { ElasticSearchTypes } from '@terascope/data-types';
 import { times, TSError, AnyObject } from '@terascope/utils';
 import { IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions } from '../src';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
@@ -20,7 +21,7 @@ describe('IndexModel', () => {
                     type: 'keyword',
                     fields: {
                         text: {
-                            type: 'text',
+                            type: 'text' as ElasticSearchTypes,
                             analyzer: 'lowercase_keyword_analyzer',
                         },
                     },
@@ -42,9 +43,7 @@ describe('IndexModel', () => {
                 },
             },
         },
-        storeOptions: {
-            defaultSort: 'name:asc',
-        },
+        defaultSort: 'name:asc',
         uniqueFields: ['name'],
         version: 1,
     };
@@ -57,10 +56,6 @@ describe('IndexModel', () => {
 
     const indexModel = new ExampleIndexModel(client, {
         namespace: 'test',
-        storeOptions: {
-            bulkMaxSize: 50,
-            bulkMaxWait: 300,
-        },
     });
 
     beforeAll(async () => {

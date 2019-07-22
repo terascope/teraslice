@@ -48,8 +48,6 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
 
         const indexConfig: i.IndexConfig<T> = {
             ...baseConfig,
-            ...options.storeOptions,
-            ...modelConfig.storeOptions,
             idField: 'id',
             ingestTimeField: 'created',
             eventTimeField: 'updated',

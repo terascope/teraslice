@@ -1,24 +1,25 @@
+import { ESTypeMappings } from '@terascope/data-types';
 import * as ts from '@terascope/utils';
-import nanoid from 'nanoid/async';
 import generate from 'nanoid/generate';
+import nanoid from 'nanoid/async';
 
 /** ElasticSearch Mapping */
-export const mapping = {
+export const mapping: ESTypeMappings = {
     _all: {
-        enabled: false
+        enabled: false,
     },
     dynamic: false,
     properties: {
         id: {
-            type: 'keyword'
+            type: 'keyword',
         },
         created: {
-            type: 'date'
+            type: 'date',
         },
         updated: {
-            type: 'date'
-        }
-    }
+            type: 'date',
+        },
+    },
 };
 
 /** JSON Schema */
@@ -26,22 +27,22 @@ export const schema = {
     additionalProperties: false,
     properties: {
         id: {
-            type: 'string'
+            type: 'string',
         },
         description: {
-            type: 'string'
+            type: 'string',
         },
         created: {
             format: 'date-time',
         },
         updated: {
             format: 'date-time',
-        }
+        },
     },
-    required: ['id', 'created', 'updated']
+    required: ['id', 'created', 'updated'],
 };
 
-export function addDefaultMapping(input: object) {
+export function addDefaultMapping(input: ESTypeMappings): ESTypeMappings {
     return mergeDefaults(input, mapping);
 }
 
@@ -53,7 +54,7 @@ const badIdRegex = new RegExp(/^[-_]+/);
 
 /**
  * Make unique URL friendly id
-*/
+ */
 export async function makeId(len = 12): Promise<string> {
     const id = await nanoid(len);
     const result = badIdRegex.exec(id);
@@ -66,10 +67,10 @@ export async function makeId(len = 12): Promise<string> {
 
 /**
  * Deep copy two levels deep (useful for mapping and schema)
-*/
-export function mergeDefaults(source: object, from: object = {}) {
+ */
+export function mergeDefaults<T>(source: T, from: Partial<T>): T {
     const output = ts.cloneDeep(source);
-    const _mapping = ts.cloneDeep(from);
+    const _mapping = from ? ts.cloneDeep(from) : {};
 
     for (const [key, val] of Object.entries(_mapping)) {
         if (output[key] != null) {
@@ -90,5 +91,8 @@ export function toInstanceName(name: string): string {
     let s = ts.trim(name);
     s = s.replace(/[_-\s]+/g, ' ');
     s = s.replace(/s$/, '');
-    return s.split(' ').map(ts.firstToUpper).join('');
+    return s
+        .split(' ')
+        .map(ts.firstToUpper)
+        .join('');
 }

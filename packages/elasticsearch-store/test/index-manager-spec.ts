@@ -38,7 +38,7 @@ describe('IndexManager', () => {
 
             describe('when no logger is configured', () => {
                 const config = {
-                    name: 'hello-there'
+                    name: 'hello-there',
                 };
 
                 const logger = loggerFn(config);
@@ -56,7 +56,7 @@ describe('IndexManager', () => {
 
                 it('should return the a different logger if given a different config', () => {
                     const newConfig = {
-                        name: 'howdy-there'
+                        name: 'howdy-there',
                     };
 
                     expect(loggerFn(newConfig)).not.toBe(logger);
@@ -86,7 +86,7 @@ describe('IndexManager', () => {
                 it('should return a correctly formatted index name', () => {
                     const indexName = indexManager.formatIndexName({
                         name: 'hello',
-                        namespace: 'test'
+                        namespace: 'test',
                     });
 
                     expect(indexName).toEqual('test-hello-v1-s1');
@@ -95,17 +95,23 @@ describe('IndexManager', () => {
 
             describe('when passed a timeseries config', () => {
                 it('should return a correctly formatted index name if useWildCard is set to false', () => {
-                    const indexName = indexManager.formatIndexName({
-                        name: 'hello',
-                        indexSchema: {
-                            version: 1,
-                            mapping: {},
-                            template: true,
-                            timeseries: true
+                    const indexName = indexManager.formatIndexName(
+                        {
+                            name: 'hello',
+                            indexSchema: {
+                                version: 1,
+                                mapping: { properties: {} },
+                                template: true,
+                                timeseries: true,
+                            },
                         },
-                    }, false);
+                        false
+                    );
 
-                    const dateStr = new Date().toISOString().slice(0, 7).replace(/-/g, '.');
+                    const dateStr = new Date()
+                        .toISOString()
+                        .slice(0, 7)
+                        .replace(/-/g, '.');
                     expect(indexName).toEqual(`hello-v1-s1-${dateStr}`);
                 });
 
@@ -114,9 +120,11 @@ describe('IndexManager', () => {
                         name: 'hello',
                         indexSchema: {
                             version: 1,
-                            mapping: {},
+                            mapping: {
+                                properties: {},
+                            },
                             template: true,
-                            timeseries: true
+                            timeseries: true,
                         },
                     });
 
@@ -131,8 +139,10 @@ describe('IndexManager', () => {
                         version: 3,
                         indexSchema: {
                             version: 2,
-                            mapping: {}
-                        }
+                            mapping: {
+                                properties: {},
+                            },
+                        },
                     });
 
                     expect(indexName).toEqual('hello-v3-s2');
@@ -155,7 +165,7 @@ describe('IndexManager', () => {
                 it('should return a correctly formatted template name', () => {
                     const templateName = indexManager.formatTemplateName({
                         name: 'hello',
-                        namespace: 'test'
+                        namespace: 'test',
                     });
 
                     expect(templateName).toEqual('test-hello-v1');

@@ -1,4 +1,5 @@
 import { Logger, Omit } from '@terascope/utils';
+import { ESTypeMappings, ESIndexSettings } from '@terascope/data-types';
 
 /** A versioned Index Configuration */
 export interface IndexConfig<T = any> {
@@ -21,7 +22,7 @@ export interface IndexConfig<T = any> {
     /**
      * Elasticsearch Index Settings
      */
-    indexSettings?: IndexSettings;
+    indexSettings?: ESIndexSettings;
 
     /**
      * Schema Specification for the Data and ES
@@ -81,7 +82,7 @@ export interface IndexSchema {
     /**
      * The ElasticSearch index mapping
      */
-    mapping: any;
+    mapping: ESTypeMappings;
 
     /**
      * The version of this particular Schema definition
@@ -116,12 +117,6 @@ export interface IndexSchema {
 }
 
 export type TimeSeriesFormat = 'daily' | 'monthly' | 'yearly';
-
-export interface IndexSettings {
-    'index.number_of_shards': number;
-    'index.number_of_replicas': number;
-    [key: string]: any;
-}
 
 /** Data Schema and Version */
 export interface DataSchema {
@@ -212,14 +207,11 @@ export interface IndexModelConfig<T extends IndexModelRecord> {
     /** Name of the Model/Data Type */
     name: string;
 
-    /** The Data Type to use for the elasticsearch mapping */
-    dataType: DataType;
+    /** the elasticsearch type mappings */
+    mapping: ESTypeMappings;
 
     /** JSON Schema */
     schema: any;
-
-    /** Additional IndexStore configuration */
-    storeOptions?: Partial<IndexConfig>;
 
     /** Unqiue fields across on Index */
     uniqueFields?: (keyof T)[];
@@ -240,7 +232,6 @@ export type SanitizeFields = {
 
 export interface IndexModelOptions {
     namespace?: string;
-    storeOptions?: Partial<IndexConfig>;
     logger?: Logger;
 }
 

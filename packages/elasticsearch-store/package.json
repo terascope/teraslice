@@ -26,6 +26,7 @@
     },
     "dependencies": {
         "@terascope/utils": "^0.12.4",
+        "@terascope/data-types": "^0.4.0",
         "ajv": "^6.10.0",
         "nanoid": "^2.0.3",
         "rambda": "^2.11.1",

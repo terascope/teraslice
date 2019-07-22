@@ -7,104 +7,129 @@ import {
     validateIndexConfig,
     getFirstValue,
     getFirstKey,
-    getXLuceneTypesFromMapping
+    getXLuceneTypesFromMapping,
 } from '../src/utils';
 
 describe('Elasticsearch Store Utils', () => {
     describe('#isSimpleIndex', () => {
         it('should return true when given a simple index', () => {
-            expect(isSimpleIndex({
-                mapping: {},
-                version: 1
-            })).toBeTrue();
+            expect(
+                isSimpleIndex({
+                    mapping: { properties: {} },
+                    version: 1,
+                })
+            ).toBeTrue();
         });
 
         it('should return false when given missing map', () => {
-            // @ts-ignore
-            expect(isSimpleIndex({
-                version: 'v1'
-            })).toBeFalse();
+            expect(
+                // @ts-ignore
+                isSimpleIndex({
+                    version: 'v1',
+                })
+            ).toBeFalse();
         });
 
         it('should return false when given a templated index', () => {
             // @ts-ignore
-            expect(isSimpleIndex({
-                mapping: {},
-                template: true,
-                version: 1
-            })).toBeFalse();
+            expect(
+                isSimpleIndex({
+                    mapping: { properties: {} },
+                    template: true,
+                    version: 1,
+                })
+            ).toBeFalse();
         });
     });
 
     describe('#isTemplatedIndex', () => {
         it('should return false when given a simple index', () => {
-            expect(isTemplatedIndex({
-                mapping: {},
-                template: false,
-                version: 1
-            })).toBeFalse();
+            expect(
+                isTemplatedIndex({
+                    mapping: { properties: {} },
+                    template: false,
+                    version: 1,
+                })
+            ).toBeFalse();
         });
 
         it('should return false when given missing map', () => {
-            // @ts-ignore
-            expect(isTemplatedIndex({
-                version: 'v1'
-            })).toBeFalse();
+            expect(
+                // @ts-ignore
+                isTemplatedIndex({
+                    version: 'v1',
+                })
+            ).toBeFalse();
         });
 
         it('should return true when given a templated index', () => {
-            // @ts-ignore
-            expect(isTemplatedIndex({
-                mapping: {},
-                template: true,
-                version: 'v1'
-            })).toBeTrue();
+            expect(
+                isTemplatedIndex({
+                    mapping: { properties: {} },
+                    template: true,
+                    version: 1,
+                })
+            ).toBeTrue();
         });
 
         it('should return true when given a timeseries index', () => {
             // @ts-ignore
-            expect(isTemplatedIndex({
-                mapping: {},
-                template: true,
-                timeseries: true,
-                version: 1
-            })).toBeTrue();
+            expect(
+                isTemplatedIndex({
+                    mapping: {
+                        properties: {},
+                    },
+                    template: true,
+                    timeseries: true,
+                    version: 1,
+                })
+            ).toBeTrue();
         });
     });
 
     describe('#isTimeSeriesIndex', () => {
         it('should return false when given a simple index', () => {
-            expect(isTimeSeriesIndex({
-                mapping: {},
-                template: false,
-                version: 1
-            })).toBeFalse();
+            expect(
+                isTimeSeriesIndex({
+                    mapping: {
+                        properties: {},
+                    },
+                    template: false,
+                    version: 1,
+                })
+            ).toBeFalse();
         });
 
         it('should return false when given missing map', () => {
-            // @ts-ignore
-            expect(isTimeSeriesIndex({
-                version: 1
-            })).toBeFalse();
+            expect(
+                // @ts-ignore
+                isTimeSeriesIndex({
+                    version: 1,
+                })
+            ).toBeFalse();
         });
 
         it('should return false when given a templated index', () => {
             // @ts-ignore
-            expect(isTimeSeriesIndex({
-                mapping: {},
-                template: true,
-                version: 1
-            })).toBeFalse();
+            expect(
+                isTimeSeriesIndex({
+                    mapping: { properties: {} },
+                    template: true,
+                    version: 1,
+                })
+            ).toBeFalse();
         });
 
         it('should return true when given a timeseries index', () => {
             // @ts-ignore
-            expect(isTimeSeriesIndex({
-                mapping: {},
-                template: true,
-                timeseries: true,
-                version: 1
-            })).toBeTrue();
+            expect(
+                isTimeSeriesIndex({
+                    mapping: { properties: {} },
+                    template: true,
+                    timeseries: true,
+                    version: 1,
+                })
+            ).toBeTrue();
         });
     });
 
@@ -124,7 +149,7 @@ describe('Elasticsearch Store Utils', () => {
         describe('when passed an empty name', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    validateIndexConfig({ });
+                    validateIndexConfig({});
                 }).toThrowWithMessage(TSError, validateIndexMsg);
             });
         });
@@ -191,11 +216,11 @@ describe('Elasticsearch Store Utils', () => {
                     validateIndexConfig({
                         // @ts-ignore
                         indexSchema: {
-                            mapping: {},
-                            version: '8'
+                            mapping: { properties: {} },
+                            version: '8',
                         },
                         version: 8,
-                        index: 'hello'
+                        index: 'hello',
                     });
                 }).toThrowWithMessage(TSError, /Index Version must a Integer, got "String"/);
             });
@@ -204,11 +229,11 @@ describe('Elasticsearch Store Utils', () => {
                 expect(() => {
                     validateIndexConfig({
                         indexSchema: {
-                            mapping: {},
-                            version: -8
+                            mapping: { properties: {} },
+                            version: -8,
                         },
                         version: 8,
-                        index: 'hello'
+                        index: 'hello',
                     });
                 }).toThrowWithMessage(TSError, /Index Version must be greater than 0, got "-8"/);
             });
@@ -217,12 +242,12 @@ describe('Elasticsearch Store Utils', () => {
                 expect(() => {
                     validateIndexConfig({
                         indexSchema: {
-                            mapping: {},
-                            version: 8
+                            mapping: { properties: {} },
+                            version: 8,
                         },
-                            // @ts-ignore
+                        // @ts-ignore
                         version: '8',
-                        index: 'hello'
+                        index: 'hello',
                     });
                 }).toThrowWithMessage(TSError, /Data Version must a Integer, got "String"/);
             });
@@ -231,11 +256,11 @@ describe('Elasticsearch Store Utils', () => {
                 expect(() => {
                     validateIndexConfig({
                         indexSchema: {
-                            mapping: {},
-                            version: 8
+                            mapping: { properties: {} },
+                            version: 8,
                         },
                         version: -8,
-                        index: 'hello'
+                        index: 'hello',
                     });
                 }).toThrowWithMessage(TSError, /Data Version must be greater than 0, got "-8"/);
             });
@@ -252,7 +277,7 @@ describe('Elasticsearch Store Utils', () => {
 
         describe('when given an empty object', () => {
             it('should return nil', () => {
-                expect(getFirstValue({ })).toBeNil();
+                expect(getFirstValue({})).toBeNil();
             });
         });
     });
@@ -267,7 +292,7 @@ describe('Elasticsearch Store Utils', () => {
 
         describe('when given an empty object', () => {
             it('should return nil', () => {
-                expect(getFirstKey({ })).toBeNil();
+                expect(getFirstKey({})).toBeNil();
             });
         });
     });
@@ -276,7 +301,7 @@ describe('Elasticsearch Store Utils', () => {
         describe('when given a mapping', () => {
             const mapping = {
                 _all: {
-                    enabled: false
+                    enabled: false,
                 },
                 dynamic: false,
                 properties: {
@@ -287,41 +312,41 @@ describe('Elasticsearch Store Utils', () => {
                         type: 'text',
                     },
                     test_numeric: {
-                        type: 'integer'
+                        type: 'integer',
                     },
                     test_boolean: {
-                        type: 'boolean'
+                        type: 'boolean',
                     },
                     test_integer_range: {
-                        type: 'integer_range'
+                        type: 'integer_range',
                     },
                     test_date: {
-                        type: 'date'
+                        type: 'date',
                     },
                     test_object: {
                         properties: {
                             nested_ip: {
-                                type: 'ip'
+                                type: 'ip',
                             },
                             nested_geo: {
                                 properties: {
                                     test_location: {
-                                        type: 'geo_point'
-                                    }
-                                }
-                            }
-                        }
+                                        type: 'geo_point',
+                                    },
+                                },
+                            },
+                        },
                     },
                     test_ip: {
-                        type: 'ip'
+                        type: 'ip',
                     },
                     test_geo_point: {
-                        type: 'geo_point'
+                        type: 'geo_point',
                     },
                     test_geo_shape: {
-                        type: 'geo_shape'
+                        type: 'geo_shape',
                     },
-                }
+                },
             };
 
             it('should return test_keyword:term', () => {
