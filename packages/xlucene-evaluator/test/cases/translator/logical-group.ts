@@ -10,14 +10,18 @@ export default [
                     filter: [
                         {
                             match: {
-                                operator: 'and',
-                                some: 'query',
+                                some: {
+                                    query: 'query',
+                                    operator: 'and',
+                                },
                             },
                         },
                         {
                             match: {
-                                operator: 'and',
-                                other: 'thing',
+                                other: {
+                                    query: 'thing',
+                                    operator: 'and',
+                                },
                             },
                         },
                     ],
@@ -35,8 +39,10 @@ export default [
                         must_not: [
                             {
                                 match: {
-                                    operator: 'and',
-                                    value: 'awesome',
+                                    value: {
+                                        operator: 'and',
+                                        query: 'awesome',
+                                    },
                                 },
                             },
                         ],
@@ -44,8 +50,10 @@ export default [
                 },
                 {
                     match: {
-                        operator: 'and',
-                        other: 'thing',
+                        other: {
+                            query: 'thing',
+                            operator: 'and',
+                        },
                     },
                 },
             ],
@@ -160,8 +168,10 @@ export default [
                         },
                         {
                             match: {
-                                operator: 'and',
-                                field: 'value',
+                                field: {
+                                    query: 'value',
+                                    operator: 'and',
+                                },
                             },
                         },
                         {
@@ -252,8 +262,10 @@ export default [
                                                             },
                                                             {
                                                                 match: {
-                                                                    operator: 'and',
-                                                                    sometype: 'thevalue',
+                                                                    sometype: {
+                                                                        operator: 'and',
+                                                                        query: 'thevalue',
+                                                                    },
                                                                 },
                                                             },
                                                         ],
@@ -270,8 +282,10 @@ export default [
                                 must_not: [
                                     {
                                         match: {
-                                            operator: 'and',
-                                            anotherfield: 'value',
+                                            anotherfield: {
+                                                operator: 'and',
+                                                query: 'value',
+                                            },
                                         },
                                     },
                                 ],
@@ -309,8 +323,10 @@ export default [
                     filter: [
                         {
                             match: {
-                                operator: 'and',
-                                foo: 'bar',
+                                foo: {
+                                    operator: 'and',
+                                    query: 'bar',
+                                },
                             },
                         },
                         {
@@ -318,8 +334,10 @@ export default [
                                 must_not: [
                                     {
                                         match: {
-                                            operator: 'and',
-                                            bar: 'foo',
+                                            bar: {
+                                                query: 'foo',
+                                                operator: 'and',
+                                            },
                                         },
                                     },
                                 ],
@@ -336,8 +354,10 @@ export default [
         [
             {
                 match: {
-                    operator: 'and',
-                    some: 'key',
+                    some: {
+                        query: 'key',
+                        operator: 'and',
+                    },
                 },
             },
             {
@@ -397,8 +417,10 @@ export default [
                         filter: [
                             {
                                 match: {
-                                    operator: 'and',
-                                    some: 'query',
+                                    some: {
+                                        operator: 'and',
+                                        query: 'query',
+                                    },
                                 },
                             },
                         ],
@@ -409,8 +431,10 @@ export default [
                         filter: [
                             {
                                 match: {
-                                    operator: 'and',
-                                    other: 'thing',
+                                    other: {
+                                        operator: 'and',
+                                        query: 'thing',
+                                    },
                                 },
                             },
                         ],
@@ -421,8 +445,10 @@ export default [
                         filter: [
                             {
                                 match: {
-                                    operator: 'and',
-                                    next: 'value',
+                                    next: {
+                                        operator: 'and',
+                                        query: 'value',
+                                    },
                                 },
                             },
                         ],
@@ -438,8 +464,10 @@ export default [
             filter: [
                 {
                     match: {
-                        operator: 'and',
-                        some: 'query',
+                        some: {
+                            operator: 'and',
+                            query: 'query',
+                        },
                     },
                 },
                 {
@@ -447,8 +475,10 @@ export default [
                         must_not: [
                             {
                                 match: {
-                                    operator: 'and',
-                                    other: 'thing',
+                                    other: {
+                                        query: 'thing',
+                                        operator: 'and',
+                                    },
                                 },
                             },
                         ],

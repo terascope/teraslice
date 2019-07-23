@@ -15,8 +15,10 @@ export default [
         'query.constant_score.filter',
         {
             match: {
-                operator: 'and',
-                hello: 'world',
+                hello: {
+                    operator: 'and',
+                    query: 'world',
+                },
             },
         },
     ],
@@ -105,8 +107,10 @@ export default [
         'query.constant_score.filter',
         {
             match: {
-                operator: 'and',
-                'nested.*': 'hello-there',
+                'nested.*': {
+                    operator: 'and',
+                    query: 'hello-there',
+                },
             },
         },
     ],
@@ -115,8 +119,10 @@ export default [
         'query.constant_score.filter',
         {
             match: {
-                operator: 'and',
-                'field.subfield': 'value=something=*',
+                'field.subfield': {
+                    operator: 'and',
+                    query: 'value=something=*',
+                },
             },
         },
     ],

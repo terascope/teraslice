@@ -53,8 +53,10 @@ export default [
                             filter: [
                                 {
                                     match: {
-                                        operator: 'and',
-                                        id: 'hi',
+                                        id: {
+                                            query: 'hi',
+                                            operator: 'and',
+                                        },
                                     },
                                 },
                             ],
@@ -65,8 +67,10 @@ export default [
                             filter: [
                                 {
                                     match: {
-                                        operator: 'and',
-                                        id: 'hello',
+                                        id: {
+                                            query: 'hello',
+                                            operator: 'and',
+                                        },
                                     },
                                 },
                             ],
@@ -77,8 +81,10 @@ export default [
                             filter: [
                                 {
                                     match: {
-                                        operator: 'and',
-                                        id: 'howdy',
+                                        id: {
+                                            query: 'howdy',
+                                            operator: 'and',
+                                        },
                                     },
                                 },
                             ],
@@ -89,8 +95,10 @@ export default [
                             filter: [
                                 {
                                     match: {
-                                        operator: 'and',
-                                        id: 'aloha',
+                                        id: {
+                                            query: 'aloha',
+                                            operator: 'and',
+                                        },
                                     },
                                 },
                             ],
@@ -101,8 +109,10 @@ export default [
                             filter: [
                                 {
                                     match: {
-                                        operator: 'and',
-                                        id: 'hey',
+                                        id: {
+                                            query: 'hey',
+                                            operator: 'and',
+                                        },
                                     },
                                 },
                             ],
@@ -113,8 +123,10 @@ export default [
                             filter: [
                                 {
                                     match: {
-                                        operator: 'and',
-                                        id: 'sup',
+                                        id: {
+                                            query: 'sup',
+                                            operator: 'and',
+                                        },
                                     },
                                 },
                             ],

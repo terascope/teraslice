@@ -155,8 +155,10 @@ export function buildTermQuery(node: p.Term): i.TermQuery | i.MatchQuery | i.Mul
     if (isString(node.value)) {
         const matchQuery: i.MatchQuery = {
             match: {
-                operator: 'and',
-                [field]: `${node.value}`,
+                [field]: {
+                    operator: 'and',
+                    query: `${node.value}`,
+                },
             },
         };
 
