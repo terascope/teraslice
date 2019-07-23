@@ -108,4 +108,13 @@ export default [
             },
         },
     ],
+    [
+        'field.subfield:"value=something=*"',
+        'query.constant_score.filter',
+        {
+            match: {
+                'field.subfield': 'value=something=*',
+            },
+        },
+    ],
 ] as TestCase[];
