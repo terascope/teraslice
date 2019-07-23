@@ -10,11 +10,13 @@ export default [
                     filter: [
                         {
                             match: {
+                                operator: 'and',
                                 some: 'query',
                             },
                         },
                         {
                             match: {
+                                operator: 'and',
                                 other: 'thing',
                             },
                         },
@@ -33,6 +35,7 @@ export default [
                         must_not: [
                             {
                                 match: {
+                                    operator: 'and',
                                     value: 'awesome',
                                 },
                             },
@@ -41,6 +44,7 @@ export default [
                 },
                 {
                     match: {
+                        operator: 'and',
                         other: 'thing',
                     },
                 },
@@ -156,6 +160,7 @@ export default [
                         },
                         {
                             match: {
+                                operator: 'and',
                                 field: 'value',
                             },
                         },
@@ -247,6 +252,7 @@ export default [
                                                             },
                                                             {
                                                                 match: {
+                                                                    operator: 'and',
                                                                     sometype: 'thevalue',
                                                                 },
                                                             },
@@ -264,6 +270,7 @@ export default [
                                 must_not: [
                                     {
                                         match: {
+                                            operator: 'and',
                                             anotherfield: 'value',
                                         },
                                     },
@@ -302,6 +309,7 @@ export default [
                     filter: [
                         {
                             match: {
+                                operator: 'and',
                                 foo: 'bar',
                             },
                         },
@@ -310,6 +318,7 @@ export default [
                                 must_not: [
                                     {
                                         match: {
+                                            operator: 'and',
                                             bar: 'foo',
                                         },
                                     },
@@ -327,6 +336,7 @@ export default [
         [
             {
                 match: {
+                    operator: 'and',
                     some: 'key',
                 },
             },
@@ -387,6 +397,7 @@ export default [
                         filter: [
                             {
                                 match: {
+                                    operator: 'and',
                                     some: 'query',
                                 },
                             },
@@ -398,6 +409,7 @@ export default [
                         filter: [
                             {
                                 match: {
+                                    operator: 'and',
                                     other: 'thing',
                                 },
                             },
@@ -409,6 +421,7 @@ export default [
                         filter: [
                             {
                                 match: {
+                                    operator: 'and',
                                     next: 'value',
                                 },
                             },
@@ -425,6 +438,7 @@ export default [
             filter: [
                 {
                     match: {
+                        operator: 'and',
                         some: 'query',
                     },
                 },
@@ -433,6 +447,7 @@ export default [
                         must_not: [
                             {
                                 match: {
+                                    operator: 'and',
                                     other: 'thing',
                                 },
                             },

@@ -48,6 +48,7 @@ export interface RegExprQuery {
 
 export interface MatchQuery {
     match: {
+        operator: 'or' | 'and';
         [field: string]: string;
     };
 }

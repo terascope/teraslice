@@ -53,6 +53,7 @@ export default [
                             filter: [
                                 {
                                     match: {
+                                        operator: 'and',
                                         id: 'hi',
                                     },
                                 },
@@ -64,6 +65,7 @@ export default [
                             filter: [
                                 {
                                     match: {
+                                        operator: 'and',
                                         id: 'hello',
                                     },
                                 },
@@ -75,6 +77,7 @@ export default [
                             filter: [
                                 {
                                     match: {
+                                        operator: 'and',
                                         id: 'howdy',
                                     },
                                 },
@@ -86,6 +89,7 @@ export default [
                             filter: [
                                 {
                                     match: {
+                                        operator: 'and',
                                         id: 'aloha',
                                     },
                                 },
@@ -97,6 +101,7 @@ export default [
                             filter: [
                                 {
                                     match: {
+                                        operator: 'and',
                                         id: 'hey',
                                     },
                                 },
@@ -108,6 +113,7 @@ export default [
                             filter: [
                                 {
                                     match: {
+                                        operator: 'and',
                                         id: 'sup',
                                     },
                                 },
