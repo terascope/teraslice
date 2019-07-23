@@ -9,12 +9,12 @@ export default [
                 bool: {
                     filter: [
                         {
-                            term: {
+                            match: {
                                 some: 'query',
                             },
                         },
                         {
-                            term: {
+                            match: {
                                 other: 'thing',
                             },
                         },
@@ -32,7 +32,7 @@ export default [
                     bool: {
                         must_not: [
                             {
-                                term: {
+                                match: {
                                     value: 'awesome',
                                 },
                             },
@@ -40,7 +40,7 @@ export default [
                     },
                 },
                 {
-                    term: {
+                    match: {
                         other: 'thing',
                     },
                 },
@@ -155,7 +155,7 @@ export default [
                             },
                         },
                         {
-                            term: {
+                            match: {
                                 field: 'value',
                             },
                         },
@@ -246,7 +246,7 @@ export default [
                                                                 },
                                                             },
                                                             {
-                                                                term: {
+                                                                match: {
                                                                     sometype: 'thevalue',
                                                                 },
                                                             },
@@ -263,7 +263,7 @@ export default [
                             bool: {
                                 must_not: [
                                     {
-                                        term: {
+                                        match: {
                                             anotherfield: 'value',
                                         },
                                     },
@@ -301,7 +301,7 @@ export default [
                 bool: {
                     filter: [
                         {
-                            term: {
+                            match: {
                                 foo: 'bar',
                             },
                         },
@@ -309,7 +309,7 @@ export default [
                             bool: {
                                 must_not: [
                                     {
-                                        term: {
+                                        match: {
                                             bar: 'foo',
                                         },
                                     },
@@ -326,7 +326,7 @@ export default [
         'query.constant_score.filter.bool.should[0].bool.filter',
         [
             {
-                term: {
+                match: {
                     some: 'key',
                 },
             },
@@ -386,7 +386,7 @@ export default [
                     bool: {
                         filter: [
                             {
-                                term: {
+                                match: {
                                     some: 'query',
                                 },
                             },
@@ -397,7 +397,7 @@ export default [
                     bool: {
                         filter: [
                             {
-                                term: {
+                                match: {
                                     other: 'thing',
                                 },
                             },
@@ -408,7 +408,7 @@ export default [
                     bool: {
                         filter: [
                             {
-                                term: {
+                                match: {
                                     next: 'value',
                                 },
                             },
@@ -424,7 +424,7 @@ export default [
         {
             filter: [
                 {
-                    term: {
+                    match: {
                         some: 'query',
                     },
                 },
@@ -432,7 +432,7 @@ export default [
                     bool: {
                         must_not: [
                             {
-                                term: {
+                                match: {
                                     other: 'thing',
                                 },
                             },
