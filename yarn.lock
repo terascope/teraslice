@@ -16693,9 +16693,9 @@ tty-browserify@0.0.0:
   integrity sha1-oVe6QC2iTpv5V/mqadUk7tQpAaY=
 
 tty-table@^2.7.0:
-  version "2.7.1"
-  resolved "https://registry.yarnpkg.com/tty-table/-/tty-table-2.7.1.tgz#c998b54f13b7372805d15b861525b60016823fa4"
-  integrity sha512-SSZuvvququToH7zbj9kFGqLVkfh7d2DlbCUSatTq+HwJ8naWCt3YRmcJxGsFFf0DyzEg8WHw6+Xc5j9iQIoXqw==
+  version "2.7.3"
+  resolved "https://registry.yarnpkg.com/tty-table/-/tty-table-2.7.3.tgz#752a0235551c9a8e6e980eb35cbdbbef70319ae5"
+  integrity sha512-EyzKu5JSZ8BArl/W7fuYtKTB8equFr7Dd+joLs6A1M1EdjmpCVejh8gndYJaoU7O4uUl3qurPxofSdVoPnun/A==
   dependencies:
     chalk "^2.4.2"
     csv "^5.1.1"
