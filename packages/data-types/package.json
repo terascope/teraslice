@@ -38,7 +38,7 @@
         "@types/lodash.defaultsdeep": "^4.6.6",
         "@types/lodash.set": "^4.3.6",
         "@types/yargs": "^13.0.0",
-        "xlucene-evaluator": "^0.9.4"
+        "xlucene-evaluator": "^0.9.5"
     },
     "engines": {
         "node": ">=8.0.0"
