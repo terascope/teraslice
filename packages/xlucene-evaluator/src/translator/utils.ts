@@ -144,7 +144,7 @@ export function buildRangeQuery(node: p.Range): i.RangeQuery | i.MultiMatchQuery
     return rangeQuery;
 }
 
-export function buildTermQuery(node: p.Term): i.TermQuery | i.MatchQuery | i.MultiMatchQuery {
+export function buildTermQuery(node: p.Term): i.TermQuery | i.MatchQuery | i.MatchPhraseQuery | i.MultiMatchQuery {
     if (isMultiMatch(node)) {
         const query = `${node.value}`;
         return buildMultiMatchQuery(node, query);
@@ -153,6 +153,20 @@ export function buildTermQuery(node: p.Term): i.TermQuery | i.MatchQuery | i.Mul
     const field = getTermField(node);
 
     if (isString(node.value)) {
+        // @ts-ignore
+        if (node.quoted) {
+            const matchPhraseQuery: i.MatchPhraseQuery = {
+                match_phrase: {
+                    [field]: {
+                        query: `${node.value}`,
+                    },
+                },
+            };
+
+            logger.trace('built match phrase query', { node, matchPhraseQuery });
+            return matchPhraseQuery;
+        }
+
         const matchQuery: i.MatchQuery = {
             match: {
                 [field]: {

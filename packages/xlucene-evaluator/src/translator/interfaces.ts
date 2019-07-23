@@ -15,6 +15,7 @@ export type AnyQuery =
     | GeoQuery
     | TermQuery
     | MatchQuery
+    | MatchPhraseQuery
     | WildcardQuery
     | ExistsQuery
     | RegExprQuery
@@ -51,6 +52,14 @@ export interface MatchQuery {
         [field: string]: {
             query: string;
             operator: 'and' | 'or';
+        };
+    };
+}
+
+export interface MatchPhraseQuery {
+    match_phrase: {
+        [field: string]: {
+            query: string;
         };
     };
 }
