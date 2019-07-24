@@ -10,7 +10,17 @@ export type BoolQuery = {
 
 export type BoolQueryTypes = 'filter' | 'should' | 'must_not';
 
-export type AnyQuery = BoolQuery | GeoQuery | TermQuery | WildcardQuery | ExistsQuery | RegExprQuery | RangeQuery | MultiMatchQuery;
+export type AnyQuery =
+    | BoolQuery
+    | GeoQuery
+    | TermQuery
+    | MatchQuery
+    | MatchPhraseQuery
+    | WildcardQuery
+    | ExistsQuery
+    | RegExprQuery
+    | RangeQuery
+    | MultiMatchQuery;
 
 export interface ExistsQuery {
     exists: {
@@ -37,9 +47,26 @@ export interface RegExprQuery {
     };
 }
 
+export interface MatchQuery {
+    match: {
+        [field: string]: {
+            query: string;
+            operator: 'and' | 'or';
+        };
+    };
+}
+
+export interface MatchPhraseQuery {
+    match_phrase: {
+        [field: string]: {
+            query: string;
+        };
+    };
+}
+
 export interface TermQuery {
     term: {
-        [field: string]: string | number | boolean;
+        [field: string]: number | boolean;
     };
 }
 

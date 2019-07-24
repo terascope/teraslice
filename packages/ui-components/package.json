@@ -23,7 +23,7 @@
         "test": "echo '* tests not supported yet'"
     },
     "dependencies": {
-        "@terascope/data-access": "^0.12.2",
+        "@terascope/data-access": "^0.12.3",
         "@terascope/utils": "^0.12.4",
         "apollo-boost": "^0.4.3",
         "apollo-client": "^2.6.3",

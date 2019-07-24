@@ -185,6 +185,17 @@ export default [
         },
     ],
     [
+        'foo:"ba?"',
+        'field with q quoted wildcard',
+        {
+            type: ASTType.Term,
+            data_type: 'string',
+            field: 'foo',
+            quoted: true,
+            value: 'ba?',
+        },
+    ],
+    [
         'val:(155 223)',
         'a field with parens unqouted string',
         {
