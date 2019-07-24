@@ -132,28 +132,3 @@ export function matchAll(reg:string, str:string, { options = 'g', multivalue = t
     if (matches.length === 0) return null;
     return multivalue ? matches : matches[0];
 }
-// export function matchAll(regexp:string, str: string, options: string = 'g') {
-//     const regex = new RegExp(regexp, options);
-//     const matches: string[] = [];
-//     let match = regex.exec(str);
-// ​    console.log('the regex', regex,);
-// ​    console.log('the str', str);
-// ​    console.log('the match', match);
-
-//     console.log('bool', match != null);
-
-//     const results = regex.exec(str);
-
-//     console.log('next', results)
-//     // while (match != null) {
-//     //     console.log('what is the matcher', match)
-//     //     if (match.length > 1) {
-//     //         matches.push(...match.slice(1));
-//     //     } else {
-//     //         matches.push(match[0]);
-//     //     }
-//     //     match = regex.exec(str);
-//     // }
-// ​
-//     return matches.length > 0 ? matches : null;
-// }
