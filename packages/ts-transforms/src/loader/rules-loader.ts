@@ -1,8 +1,9 @@
 import fs from 'fs';
 import readline from 'readline';
+import { Readable } from 'stream';
 import { WatcherConfig, OperationConfigInput } from '../interfaces';
 import _ from 'lodash';
-import { Logger } from '@terascope/utils';
+import { Logger, TSError } from '@terascope/utils';
 
 export default class RulesLoader {
     private opConfig: WatcherConfig;
@@ -15,8 +16,18 @@ export default class RulesLoader {
     }
 
     public async load(): Promise<OperationConfigInput[]> {
-        const results = await Promise.all<OperationConfigInput[]>(this.opConfig.rules.map((ruleFile) => this.fileLoader(ruleFile)));
-        return _.flatten(results);
+        const { notification_rules, rules } = this.opConfig;
+
+        if (notification_rules) {
+            return this.dataLoader(false, this.opConfig.notification_rules);
+        }
+
+        if (rules) {
+            const results = await Promise.all<OperationConfigInput[]>(rules.map((ruleFile) => this.dataLoader(ruleFile)));
+            return _.flatten(results);
+        }
+
+        throw new TSError('rules or notifications must be provided');
     }
 
     private parseConfig(strConfig: string): OperationConfigInput {
@@ -26,14 +37,34 @@ export default class RulesLoader {
         return JSON.parse(strConfig);
     }
 
-    private async fileLoader(ruleFile: string): Promise<OperationConfigInput[]> {
+    private async dataLoader(ruleFile: string|false, notifications?: string): Promise<OperationConfigInput[]> {
         const parseConfig = this.parseConfig.bind(this);
         const results: OperationConfigInput[] = [];
         const errorResults: string[] = [];
         let hasError = false;
 
+        let inputStream;
+
+        if (ruleFile) {
+            inputStream = fs.createReadStream(ruleFile);
+        } else if (notifications != null && notifications.length > 0) {
+            const notificationsRules = [notifications];
+
+            inputStream = new Readable({
+                read() {
+                    const rule = notificationsRules.pop();
+                    if (!rule) {
+                        this.push(null);
+                    }
+                    this.push(rule);
+                },
+            });
+        } else {
+            throw new TSError('rules or notifications must be provided');
+        }
+
         const rl = readline.createInterface({
-            input: fs.createReadStream(ruleFile),
+            input: inputStream,
             crlfDelay: Infinity
         });
 
