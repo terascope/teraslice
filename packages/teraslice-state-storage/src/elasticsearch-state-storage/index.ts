@@ -5,6 +5,8 @@ import { Promise as bPromise } from 'bluebird';
 import { ESStateStorageConfig, ESBulkQuery, ESQUery, MGetResponse } from '../interfaces';
 import CachedStateStorage from '../cached-state-storage';
 
+type CB = (key: string, doc: DataEntity) => void;
+
 export default class ESCachedStateStorage {
     private index: string;
     private type: string;
@@ -111,51 +113,63 @@ export default class ESCachedStateStorage {
         return results;
     }
 
-    async mget(docArray: DataEntity[], mapperFn = (doc: DataEntity) => doc) {
-        const savedDocs = {};
+    private _checkCache(docArray: DataEntity[], fn?:CB): Set<string> {
+        const cachedDocsDict = {};
         const unCachedDocKeys = new Set<string>();
-        // need to add valid docs to return object and find non-cached docs
         let cachedHits = 0;
 
-        docArray.forEach((doc) => {
+        for (const doc of docArray) {
             const key = this.getIdentifier(doc);
             const cachedDoc = this.cache.get(key);
 
             if (cachedDoc) {
-                if (!savedDocs[key]) {
+                if (!cachedDocsDict[key]) {
+                    cachedDocsDict[key] = true;
                     cachedHits++;
-                    savedDocs[key] = cachedDoc;
+                    if (fn) fn(key, cachedDoc);
                 }
-                return;
-            }
-
-            if (key) {
+            } else {
                 unCachedDocKeys.add(key);
             }
-        });
-        const unCached = unCachedDocKeys.size;
-        const logMsg = `elasticsearch-state-storage mget hit ${cachedHits} cached records and is fetching ${unCached} from elasticsearch`;
+        }
+
+        const logMsg = `elasticsearch-state-storage hit ${cachedHits} cached records and is fetching ${unCachedDocKeys.size}`;
         this.logger.info(logMsg);
 
+        return unCachedDocKeys;
+    }
+
+    private async _fetchRecords(unCachedDocKeys: Set<string>) {
         const chunkedArray = chunk<string>([...unCachedDocKeys], this.chunkSize);
         // es search for keys not in cache
-        const mgetResults = await bPromise.map<string[], DataEntity[]>(
+        return bPromise.map<string[], DataEntity[]>(
             chunkedArray,
             chunked => this._esMget(chunked),
             { concurrency: this.concurrency }
         );
+    }
 
-        // update cache based on mget results
-        mgetResults.forEach((results) => {
-            results.forEach((doc: DataEntity) => {
-                const data = mapperFn(doc);
-                // update cache
-                this.set(data);
-                // updated savedDocs object
-                savedDocs[this.getIdentifier(data)] = data;
-            });
-        });
+    private _cacheFetchedRecords(recordLists: DataEntity<object>[][], fn?: CB) {
+        for (const list of recordLists) {
+            for (const doc of list) {
+                this.set(doc);
+                if (fn) fn(this.getIdentifier(doc), doc);
+            }
+        }
+    }
 
+    async sync(docArray: DataEntity[], fn?: CB) {
+        const unCachedDocKeys = this._checkCache(docArray, fn);
+        if (unCachedDocKeys.size > 1) {
+            const results = await this._fetchRecords(unCachedDocKeys);
+            this._cacheFetchedRecords(results, fn);
+        }
+    }
+
+    async mget(docArray: DataEntity[]) {
+        const savedDocs = {};
+        const setDocs: CB = (key, doc) => savedDocs[key] = doc;
+        await this.sync(docArray, setDocs);
         return savedDocs;
     }
 

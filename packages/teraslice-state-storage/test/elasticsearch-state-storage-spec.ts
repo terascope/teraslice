@@ -41,7 +41,6 @@ describe('elasticsearch cached state storage', () => {
         }
 
         async mget(mgetSearch: any) {
-            // this.mgetData = mgetSearch;
             return this.mgetData;
         }
 
@@ -242,6 +241,26 @@ describe('elasticsearch cached state storage', () => {
             const metaId = stateResponse[id].getMetadata(idField);
             expect(metaId).toEqual(id);
         });
+    });
+
+    it('sync should chech cache/fetch data but not return anything', async () => {
+        const results: DataEntity[] = [];
+        const setResults = (data: DataEntity) => results.push(data);
+        // set doc in cache
+        await stateStorage.mset(docArray.slice(0, 1));
+
+        // create bulk response
+        client.setMGetData({ docs: createMgetData(docArray.slice(1, 3)) });
+
+        // state response
+        const response = await stateStorage.sync(docArray);
+
+        expect(response).toBeUndefined();
+
+        await stateStorage.cache.values(setResults);
+
+        expect(results.length).toBe(3);
+        expect(results.reverse()).toEqual(docArray);
     });
 
     it('should return all the found and cached docs', async () => {
