@@ -5,7 +5,7 @@ import { runTSScript, build, setup } from '../scripts';
 import { updateSidebarJSON } from './sidebar';
 import { PackageInfo } from '../interfaces';
 import { generateTSDocs } from './typedoc';
-import { getRootDir } from '../misc';
+import { getRootDir, writePkgHeader } from '../misc';
 
 export async function buildAll() {
     await setup();
@@ -19,7 +19,7 @@ export async function buildAll() {
 
 export async function buildPackages(pkgInfos: PackageInfo[]) {
     for (const pkgInfo of pkgInfos) {
-        process.stdout.write('\n');
+        writePkgHeader('building docs', [pkgInfo]);
 
         if (pkgInfo.terascope.enableTypedoc) {
             const outputDir = path.join(getRootDir(), 'docs', 'packages', pkgInfo.folderName, 'api');

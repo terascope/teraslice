@@ -2,7 +2,7 @@ import path from 'path';
 import { updateReadme, ensureOverview } from '../docs/overview';
 import { listPackages, updatePkgJSON } from '../packages';
 import { updateSidebarJSON } from '../docs/sidebar';
-import { cliError, formatList } from '../misc';
+import { cliError, formatList, writePkgHeader } from '../misc';
 import { getChangedFiles } from '../scripts';
 import { PackageInfo } from '../interfaces';
 
@@ -21,6 +21,8 @@ export async function syncAll(options: SyncOptions = {}) {
 
 export async function syncPackages(pkgInfos: PackageInfo[], options: SyncOptions = {}) {
     const files: string[] = [];
+
+    writePkgHeader('syncing files', pkgInfos);
 
     await Promise.all(
         pkgInfos.map(async pkgInfo => {

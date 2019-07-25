@@ -2,6 +2,7 @@ import semver from 'semver';
 import { keys, get } from 'lodash';
 import { PackageInfo } from '../interfaces';
 import { listPackages, updatePkgJSON, readPackageInfo } from '../packages';
+import { writePkgHeader } from '../misc';
 
 export type BumpPackageOptions = {
     release: semver.ReleaseType;
@@ -11,7 +12,7 @@ export type BumpPackageOptions = {
 
 export async function bumpPackages(pkgInfos: PackageInfo[], options: BumpPackageOptions) {
     for (const pkgInfo of pkgInfos) {
-        process.stdout.write('\n');
+        writePkgHeader('bumping', [pkgInfo]);
         await bumpPackage(pkgInfo, { ...options });
     }
 }

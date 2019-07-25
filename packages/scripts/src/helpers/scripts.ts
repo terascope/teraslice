@@ -43,6 +43,10 @@ export async function build(pkgInfo?: PackageInfo) {
     return exec('yarn', ['run', 'build']);
 }
 
+export async function runTest(pkgInfo: PackageInfo, args: string[]) {
+    return exec('yarn', ['jest', ...args], pkgInfo.dir);
+}
+
 export async function setup() {
     return await exec('yarn', ['run', 'setup']);
 }

@@ -2,6 +2,7 @@ import fse from 'fs-extra';
 import path from 'path';
 import pkgUp from 'pkg-up';
 import { words, isPlainObject } from 'lodash';
+import { PackageInfo } from './interfaces';
 
 export let rootDir: string | undefined;
 export function getRootDir() {
@@ -99,4 +100,9 @@ export function formatList(list: string[]) {
 export function cliError<T>(prefix: string, error: string, ...args: any[]): never {
     console.error(`${prefix}: ${error}`, ...args);
     return process.exit(1);
+}
+
+export function writePkgHeader(prefix: string, pkgInfos: PackageInfo[]): void {
+    const names = pkgInfos.map(({ name }) => name).join(', ');
+    process.stderr.write(`* ${prefix} for ${names}\n\n`);
 }
