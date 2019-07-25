@@ -19,7 +19,7 @@
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {
-        "@terascope/utils": "^0.12.4",
+        "@terascope/utils": "^0.13.0",
         "bluebird": "^3.5.5",
         "lodash": "^4.17.11"
     },

@@ -95,4 +95,43 @@ describe('email validation', () => {
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
     });
+
+    it('can validate uncommon email fields', () => {
+        const opConfig = { source_field: 'uri', target_field: 'uri', __id: 'someId', follow: 'otherId' };
+        const test = new Email(opConfig);
+        const metaData = { selectors: { 'some:query': true } };
+
+        const data1 = new DataEntity({ uri: 'user@blah@blah.com' }, metaData);
+        const data2 = new DataEntity({ uri: 'junk user@blah.com' }, metaData);
+        const data3 = new DataEntity({ uri: 'user@blah.com/junk.morejunk' }, metaData);
+        const data4 = new DataEntity({ uri: 'user@blah.com&value=junk' }, metaData);
+        const data5 = new DataEntity({ uri: 'user@blah.com/junk.junk?a=<tag value="junk"' }, metaData);
+
+        const results1 = test.run(data1);
+        const results2 = test.run(data2);
+        const results3 = test.run(data3);
+        const results4 = test.run(data4);
+        const results5 = test.run(data5);
+
+        expect(DataEntity.isDataEntity(results1)).toEqual(true);
+        expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results1).toEqual({ uri: 'user@blah@blah.com' });
+
+        expect(DataEntity.isDataEntity(results2)).toEqual(true);
+        expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results2).toEqual({ uri: 'junk user@blah.com' });
+
+        expect(DataEntity.isDataEntity(results3)).toEqual(true);
+        expect(DataEntity.getMetadata(results3 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results3).toEqual({ uri: 'user@blah.com/junk.morejunk' });
+
+        expect(DataEntity.isDataEntity(results4)).toEqual(true);
+        expect(DataEntity.getMetadata(results4 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results4).toEqual({ uri: 'user@blah.com&value=junk' });
+
+        expect(DataEntity.isDataEntity(results5)).toEqual(true);
+        expect(DataEntity.getMetadata(results5 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results5).toEqual({ uri: 'user@blah.com/junk.junk?a=<tag value="junk"' });
+    });
+
 });
