@@ -9,6 +9,13 @@ export type BumpPackageOptions = {
     preId?: string;
 };
 
+export async function bumpPackages(pkgInfos: PackageInfo[], options: BumpPackageOptions) {
+    for (const pkgInfo of pkgInfos) {
+        process.stdout.write('\n');
+        await bumpPackage(pkgInfo, { ...options });
+    }
+}
+
 export async function bumpPackage(mainPkgInfo: PackageInfo, options: BumpPackageOptions) {
     await updateMainPkg(mainPkgInfo, options);
     for (const pkgInfo of listPackages()) {

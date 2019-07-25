@@ -1,23 +1,24 @@
 import { CommandModule } from 'yargs';
-import { buildAll, buildPackage } from '../helpers/docs';
+import { buildAll, buildPackages } from '../helpers/docs';
+import { coercePkgArg } from '../helpers/args';
 import { PackageInfo } from '../helpers/interfaces';
-import { validatePkgName } from '../helpers/args';
 
 const cmd: CommandModule = {
-    command: 'docs [package]',
+    command: 'docs [packages..]',
     describe: 'Update documentation for all packages or a specific package',
     builder(yargs) {
-        return yargs.positional('package', {
-            description: 'Run scripts for particular package',
+        return yargs.positional('packages', {
+            description: 'Run scripts for one or more packages',
+            type: 'string',
             coerce(arg) {
-                return validatePkgName(arg, false);
+                return coercePkgArg(arg);
             },
         });
     },
     handler(argv) {
-        const pkgInfo = argv.package as PackageInfo;
-        if (pkgInfo) {
-            return buildPackage(pkgInfo);
+        const pkgInfos = argv.packages as PackageInfo[];
+        if (pkgInfos) {
+            return buildPackages(pkgInfos);
         }
         return buildAll();
     },

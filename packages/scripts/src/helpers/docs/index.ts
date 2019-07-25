@@ -17,13 +17,17 @@ export async function buildAll() {
     await updateSidebarJSON();
 }
 
-export async function buildPackage(pkgInfo: PackageInfo) {
-    if (pkgInfo.terascope.enableTypedoc) {
-        const outputDir = path.join(getRootDir(), 'docs', 'packages', pkgInfo.folderName, 'api');
-        await generateTSDocs(pkgInfo, outputDir);
-        await build(pkgInfo);
-    }
+export async function buildPackages(pkgInfos: PackageInfo[]) {
+    for (const pkgInfo of pkgInfos) {
+        process.stdout.write('\n');
 
-    await updateReadme(pkgInfo);
-    await ensureOverview(pkgInfo);
+        if (pkgInfo.terascope.enableTypedoc) {
+            const outputDir = path.join(getRootDir(), 'docs', 'packages', pkgInfo.folderName, 'api');
+            await generateTSDocs(pkgInfo, outputDir);
+            await build(pkgInfo);
+        }
+
+        await updateReadme(pkgInfo);
+        await ensureOverview(pkgInfo);
+    }
 }
