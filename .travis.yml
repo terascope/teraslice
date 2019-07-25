@@ -24,28 +24,27 @@ jobs:
 
   include:
   - stage: Verify
-    node_js:
-        - '8.16'
-        - '10.16'
     name: Verify Build
     if: branch = master AND type = pull_request
-    install:
-        # make it colorful
-        - export FORCE_COLOR=1
-        # Install the dependencies
-        - yarn
-        # Install the packages
-        - yarn setup
-        # Build all packages individually
-        - yarn build:all
-    before_script:
-        - yarn sync --verify
+    after_install:
+        - yarn --cwd=./packages/ui-core build
+        - yarn --cwd=./packages/ui-data-access build
     script:
         - yarn lint
         - yarn lint:docs
+        - yarn sync --verify
 
   - stage: Test Suites
-    name: Unit Test Suite
+    name: Unit Test Suite (node 8)
+    if: branch = master
+    node_js:
+        - '8.16'
+    script: yarn test --suite unit
+    after_success:
+        - bash <(curl -s https://codecov.io/bash)
+
+  - script:
+    name: Unit Test Suite (node 10)
     if: branch = master
     node_js:
         - '10.16'
@@ -54,21 +53,25 @@ jobs:
         - bash <(curl -s https://codecov.io/bash)
 
   - script:
-    name: ElasticSearch Test Suite
+    name: ElasticSearch Test Suite (6.8)
     if: branch = master
     node_js:
         - '8.16'
+    services:
+        - elasticsearch
     script: yarn test --suite elasticsearch
     after_success:
         - bash <(curl -s https://codecov.io/bash)
 
   # test end-to-end tests, only on pull-requests
   - script:
-    name: End-to-End Tests
+    name: End-to-End Test Suite
     if: branch = master AND type IN (pull_request, cron) AND fork = false
     services:
         - docker
     script: yarn test --suite e2e
+    after_success:
+        - bash <(curl -s https://codecov.io/bash)
 
   # if not a tagged build and is on master
   - stage: Publish

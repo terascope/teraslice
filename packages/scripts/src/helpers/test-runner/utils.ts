@@ -8,7 +8,7 @@ export function getArgs(options: TestOptions): string[] {
     args['forceExit'] = '';
 
     if (isCI) {
-        args['silient'] = '';
+        args['silent'] = '';
     }
 
     if (options.bail) {
