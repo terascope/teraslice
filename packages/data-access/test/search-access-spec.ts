@@ -213,6 +213,28 @@ describe('SearchAccess', () => {
                 });
             });
 
+            it('should be able to handle stringified values', () => {
+                const searchAccess = makeWith({
+                    sort_default: 'default:asc',
+                    sort_enabled: true,
+                    index: 'cool',
+                });
+
+                const query: InputQuery = {
+                    q: 'howdy',
+                    size: '1000',
+                    start: '10',
+                };
+
+                const params = searchAccess.getSearchParams(query);
+
+                expect(params).toMatchObject({
+                    q: 'howdy',
+                    size: 1000,
+                    from: 10,
+                });
+            });
+
             it('should be able to handle complex query options', () => {
                 const query: InputQuery = {
                     q: 'example:hello',
