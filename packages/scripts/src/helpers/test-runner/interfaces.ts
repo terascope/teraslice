@@ -1,7 +1,9 @@
+import { TestSuite } from '../interfaces';
+
 export type TestOptions = {
     bail?: boolean;
     debug?: boolean;
     filter?: string;
+    all?: boolean;
+    suite?: TestSuite;
 };
-
-export type ScopeFn = (options: TestOptions) => Promise<void>;

@@ -4,28 +4,40 @@ import fse from 'fs-extra';
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
 
-function _exec(cmd: string, args: string[] = [], cwd = getRootDir()) {
+type ExecEnv = { [name: string]: string };
+type ExecOpts = {
+    cmd: string;
+    args?: string[];
+    cwd?: string;
+    env?: ExecEnv;
+};
+
+function _exec(opts: ExecOpts) {
     let subprocess;
     const options: execa.Options = {
-        cwd,
+        cwd: opts.cwd || getRootDir(),
+        env: opts.env,
     };
 
-    if (args && args.length) {
-        subprocess = execa(cmd, args, options);
+    if (opts.args && opts.args.length) {
+        subprocess = execa(opts.cmd, opts.args, options);
     } else {
-        subprocess = execa(cmd, options);
+        subprocess = execa(opts.cmd, options);
     }
     if (!subprocess || !subprocess.stderr || !subprocess.stdout) {
-        throw new Error(`Failed to execution ${cmd}`);
+        throw new Error(`Failed to execution ${opts.cmd}`);
     }
 
     subprocess.stderr.pipe(process.stderr);
     return subprocess;
 }
 
-export async function exec(cmd: string, args?: string[], cwd?: string): Promise<string> {
+export async function exec(opts: ExecOpts): Promise<string> {
     try {
-        const subprocess = _exec(cmd, args, cwd);
+        const env: ExecEnv = { FORCE_COLOR: '0', ...opts.env };
+        const _opts = { ...opts };
+        _opts.env = env;
+        const subprocess = _exec(_opts);
         const { stdout } = await subprocess;
         return stdout.trim();
     } catch (err) {
@@ -34,23 +46,26 @@ export async function exec(cmd: string, args?: string[], cwd?: string): Promise<
     }
 }
 
-export async function fork(cmd: string, args: string[] = [], cwd = getRootDir()): Promise<void> {
-    const resetForceColor = addForceColor();
+export async function fork(opts: ExecOpts): Promise<void> {
     try {
-        const subprocess = _exec(cmd, args, cwd);
+        const env: ExecEnv = { FORCE_COLOR: '1', ...opts.env };
+        const _opts = { ...opts };
+        _opts.env = env;
+        const subprocess = _exec(_opts);
         subprocess.stdout!.pipe(process.stdout);
         await subprocess;
     } catch (err) {
         process.exitCode = err.exitCode || 1;
         throw new Error(err.message);
-    } finally {
-        resetForceColor();
     }
 }
 
 export async function runTSScript(cmd: TSCommands, args: string[]): Promise<void> {
     const scriptName = process.argv[1];
-    return fork(scriptName, [cmd, ...args]);
+    return fork({
+        cmd: scriptName,
+        args: [cmd, ...args],
+    });
 }
 
 export async function build(pkgInfo?: PackageInfo): Promise<void> {
@@ -59,28 +74,46 @@ export async function build(pkgInfo?: PackageInfo): Promise<void> {
         if (fse.existsSync(distDir)) {
             await fse.emptyDir(distDir);
         }
-        await fork('yarn', ['run', 'build'], pkgInfo.dir);
+        await fork({
+            cmd: 'yarn',
+            args: ['run', 'build'],
+            cwd: pkgInfo.dir,
+        });
+        return;
     }
-    await fork('yarn', ['run', 'build']);
+    await fork({
+        cmd: 'yarn',
+        args: ['run', 'build'],
+    });
 }
 
-export async function runJest(pkgInfo: PackageInfo, args: string[]): Promise<void> {
+export async function runJest(pkgInfo: PackageInfo, args: string[], env?: ExecEnv): Promise<void> {
     const cwd = pkgInfo.dir;
-    const jestPath = await exec('yarn', ['--silent', 'bin', 'jest'], cwd);
+    const jestPath = await exec({
+        cmd: 'yarn',
+        args: ['--silent', 'bin', 'jest'],
+        cwd,
+        env,
+    });
 
-    await fork(jestPath, [...args], cwd);
+    await fork({
+        cmd: jestPath,
+        args: [...args],
+        cwd,
+        env,
+    });
 }
 
 export async function setup(): Promise<void> {
-    await exec('yarn', ['run', 'setup']);
+    await fork({ cmd: 'yarn', args: ['run', 'setup'] });
 }
 
 export async function getCommitHash(): Promise<string> {
-    return await exec('git', ['rev-parse', 'HEAD']);
+    return exec({ cmd: 'git', args: ['rev-parse', 'HEAD'] });
 }
 
 export async function getChangedFiles(...files: string[]) {
-    const result = await exec('git', ['diff', '--name-only', ...files]);
+    const result = await exec({ cmd: 'git', args: ['diff', '--name-only', ...files] });
     return result
         .split('\n')
         .map(str => str.trim())
@@ -97,16 +130,4 @@ export function mapToArgs(input: { [key: string]: string }): string[] {
         }
     }
     return args.filter(str => str != null && str !== '');
-}
-
-function addForceColor() {
-    const { FORCE_COLOR } = process.env;
-    if (!FORCE_COLOR) {
-        process.env.FORCE_COLOR = '1';
-    }
-
-    return () => {
-        // reset env
-        process.env.FORCE_COLOR = FORCE_COLOR;
-    };
 }

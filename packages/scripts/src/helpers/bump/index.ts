@@ -11,9 +11,11 @@ export type BumpPackageOptions = {
 };
 
 export async function bumpPackages(pkgInfos: PackageInfo[], options: BumpPackageOptions) {
+    let runOnce = false;
     for (const pkgInfo of pkgInfos) {
-        writePkgHeader('bumping', [pkgInfo]);
+        writePkgHeader('bumping', [pkgInfo], runOnce);
         await bumpPackage(pkgInfo, { ...options });
+        runOnce = true;
     }
 }
 

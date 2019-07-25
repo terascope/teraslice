@@ -1,25 +1,33 @@
-import { listPackages } from '../packages';
-import { TestOptions, ScopeFn } from './interfaces';
-import { coercePkgArg, makeArray } from '../args';
-import { runTests } from './utils';
+import { writePkgHeader, formatList, cliError } from '../misc';
+import { getArgs, filterBySuite, getEnv } from './utils';
+import { PackageInfo } from '../interfaces';
+import { TestOptions } from './interfaces';
+import { runJest } from '../scripts';
 
-export function testAll() {
-    return async (options: TestOptions) => {
-        await runTests(listPackages(), options);
-    };
-}
+export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
+    const errors: string[] = [];
 
-export function testPackages(name: string): ScopeFn {
-    const pkgInfos = coercePkgArg(name, true);
+    let runOnce = false;
+    for (const pkgInfo of filterBySuite(pkgInfos, options)) {
+        writePkgHeader('running test', [pkgInfo], runOnce);
 
-    return async (options: TestOptions) => {
-        await runTests(pkgInfos, options);
-    };
-}
+        try {
+            await runJest(pkgInfo, getArgs(options), getEnv(options));
+        } catch (err) {
+            console.error(err);
+            errors.push(`Test ${pkgInfo.name} Failed`);
 
-export function getTestScope(input: any): ScopeFn {
-    const scopes = makeArray(input);
-    if (!scopes.length || scopes.includes('all')) return testAll();
+            if (options.bail) {
+                break;
+            }
+        } finally {
+            runOnce = true;
+        }
+    }
 
-    return testPackages(input);
+    if (errors.length > 1) {
+        cliError('Error', `Multiple Test Failures:${formatList(errors)}`);
+    } else if (errors.length === 1) {
+        cliError('Error', errors[0]);
+    }
 }
