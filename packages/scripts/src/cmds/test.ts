@@ -1,5 +1,6 @@
 import { CommandModule } from 'yargs';
-import { getTestScope, ScopeFn, TestOptions } from '../helpers/test-runner';
+import { ScopeFn, TestOptions } from '../helpers/test-runner/interfaces';
+import { getTestScope } from '../helpers/test-runner';
 
 const cmd: CommandModule = {
     command: 'test [scopes..]',

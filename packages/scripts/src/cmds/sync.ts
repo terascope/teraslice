@@ -1,3 +1,4 @@
+import isCI from 'is-ci';
 import { CommandModule } from 'yargs';
 import { syncAll, syncPackages } from '../helpers/sync';
 import { PackageInfo } from '../helpers/interfaces';
@@ -11,7 +12,7 @@ const cmd: CommandModule = {
             .option('verify', {
                 description: 'This will verify that all the files are synced. Defaults to true in CI',
                 type: 'boolean',
-                default: process.env.CI === 'true',
+                default: isCI,
             })
             .positional('packages', {
                 description: 'Run scripts for one or more a package',

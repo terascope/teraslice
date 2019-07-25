@@ -6,7 +6,7 @@ import { getRootDir } from './misc';
 
 process.env.FORCE_COLOR = '1';
 
-export async function exec(cmd: string, args: string[] = [], cwd = getRootDir()): Promise<string> {
+function _exec(cmd: string, args: string[] = [], cwd = getRootDir()) {
     let subprocess;
     const options: execa.Options = {
         cwd,
@@ -18,41 +18,63 @@ export async function exec(cmd: string, args: string[] = [], cwd = getRootDir())
         subprocess = execa(cmd, options);
     }
 
-    if (!subprocess || !subprocess.stderr) {
+    if (!subprocess || !subprocess.stderr || !subprocess.stdout) {
         throw new Error(`Failed to execution ${cmd}`);
     }
 
     subprocess.stderr.pipe(process.stderr);
-    const { stdout } = await subprocess;
-    return stdout;
+    return subprocess;
 }
 
-export async function runTSScript(cmd: TSCommands, args: string[]) {
+export async function exec(cmd: string, args?: string[], cwd?: string): Promise<string> {
+    const subprocess = _exec(cmd, args, cwd);
+    try {
+        const { stdout } = await subprocess;
+        return stdout;
+    } catch (err) {
+        console.error(err.toString());
+        return process.exit(err.exitCode);
+    }
+}
+
+export async function fork(cmd: string, args: string[] = [], cwd = getRootDir()): Promise<void> {
+    const subprocess = _exec(cmd, args, cwd);
+    subprocess.stdout!.pipe(process.stdout);
+
+    try {
+        await subprocess;
+    } catch (err) {
+        console.error(err.toString());
+        return process.exit(err.exitCode);
+    }
+}
+
+export async function runTSScript(cmd: TSCommands, args: string[]): Promise<void> {
     const scriptName = process.argv[1];
-    return exec(scriptName, [cmd, ...args]);
+    return fork(scriptName, [cmd, ...args]);
 }
 
-export async function build(pkgInfo?: PackageInfo) {
+export async function build(pkgInfo?: PackageInfo): Promise<void> {
     if (pkgInfo) {
         const distDir = path.join(pkgInfo.dir, 'dist');
         if (fse.existsSync(distDir)) {
             await fse.emptyDir(distDir);
         }
-        return exec('yarn', ['run', 'build'], pkgInfo.dir);
+        await exec('yarn', ['run', 'build'], pkgInfo.dir);
     }
-    return exec('yarn', ['run', 'build']);
+    await exec('yarn', ['run', 'build']);
 }
 
-export async function runTest(pkgInfo: PackageInfo, args: string[]) {
-    return exec('yarn', ['jest', ...args], pkgInfo.dir);
+export async function runJest(pkgInfo: PackageInfo, args: string[]): Promise<void> {
+    await fork('yarn', ['jest', ...args], pkgInfo.dir);
 }
 
-export async function setup() {
-    return await exec('yarn', ['run', 'setup']);
+export async function setup(): Promise<void> {
+    await exec('yarn', ['run', 'setup']);
 }
 
-export async function getCommitHash() {
-    return exec('git', ['rev-parse', 'HEAD']);
+export async function getCommitHash(): Promise<string> {
+    return await exec('git', ['rev-parse', 'HEAD']);
 }
 
 export async function getChangedFiles(...files: string[]) {
@@ -61,4 +83,16 @@ export async function getChangedFiles(...files: string[]) {
         .split('\n')
         .map(str => str.trim())
         .filter(str => !!str);
+}
+
+export function mapToArgs(input: { [key: string]: string }): string[] {
+    const args: string[] = [];
+    for (const [key, value] of Object.entries(input)) {
+        if (key.length > 1) {
+            args.push(`--${key}`, value);
+        } else {
+            args.push(`-${key}`, value);
+        }
+    }
+    return args.filter(str => str != null && str !== '');
 }
