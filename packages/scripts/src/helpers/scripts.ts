@@ -87,19 +87,18 @@ export async function build(pkgInfo?: PackageInfo): Promise<void> {
     });
 }
 
-export async function runJest(pkgInfo: PackageInfo, args: string[], env?: ExecEnv): Promise<void> {
-    const cwd = pkgInfo.dir;
+export async function runJest(pkgDir: string, args: string[], env?: ExecEnv): Promise<void> {
     const jestPath = await exec({
         cmd: 'yarn',
         args: ['--silent', 'bin', 'jest'],
-        cwd,
+        cwd: pkgDir,
         env,
     });
 
     await fork({
         cmd: jestPath,
         args: [...args],
-        cwd,
+        cwd: pkgDir,
         env,
     });
 }

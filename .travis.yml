@@ -1,9 +1,13 @@
+# set the dist to bionic
+dist: bionic
 language: node_js
 node_js:
-- '10'
+- '10.16'
 
-# by default install just yarn
-before_install: . ./scripts/travis-install-yarn.sh
+# Disable caching since it is on by default
+cache:
+  npm: false
+
 install:
     # make it colorful
     - export FORCE_COLOR=1
@@ -19,55 +23,52 @@ jobs:
   fast-finish: true
 
   include:
-  # run the node:10 on every push to master, cron or a pull-request
-  - stage: Tests
-    name: Test Packages
-    if: branch = master
-    services:
-        - elasticsearch
-    before_install:
-        - . ./scripts/travis-install-yarn.sh
-        - . ./scripts/travis-install-es.sh
-    # We are waiting on a new version of jest (>24.7.1)
-    script: ./scripts/run-tests.sh
-    after_success:
-        - bash <(curl -s https://codecov.io/bash)
-
-  # build all, benchmarks and linting, only on pull-requests
-  - script:
+  - stage: Verify
     node_js:
-        - '8'
+        - '8.16'
+        - '10.16'
     name: Verify Build
     if: branch = master AND type = pull_request
     install:
         # make it colorful
         - export FORCE_COLOR=1
         # Install the dependencies
-        - yarn && yarn lerna bootstrap --force-local
+        - yarn
+        # Install the packages
+        - yarn setup
         # Build all packages individually
         - yarn build:all
+    before_script:
+        - yarn sync --verify
     script:
         - yarn lint
         - yarn lint:docs
+
+  - stage: Test Suites
+    name: Unit Test Suite
+    if: branch = master
+    node_js:
+        - '10.16'
+    script: yarn test --suite unit
     after_success:
-        - yarn sync
+        - bash <(curl -s https://codecov.io/bash)
+
+  - script:
+    name: ElasticSearch Test Suite
+    if: branch = master
+    node_js:
+        - '8.16'
+    script: yarn test --suite elasticsearch
+    after_success:
+        - bash <(curl -s https://codecov.io/bash)
 
   # test end-to-end tests, only on pull-requests
   - script:
     name: End-to-End Tests
     if: branch = master AND type IN (pull_request, cron) AND fork = false
-    addons:
-      apt:
-        packages:
-          - docker-ce
     services:
         - docker
-    before_install:
-        - . ./scripts/travis-install-docker-compose.sh
-        - . ./scripts/travis-install-yarn.sh
-    before_script:
-        - cd e2e
-    script: yarn test:ci
+    script: yarn test --suite e2e
 
   # if not a tagged build and is on master
   - stage: Publish

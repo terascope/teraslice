@@ -22,6 +22,7 @@ export enum TestSuite {
     Kafka = 'kafka',
     Elasticsearch = 'elasticsearch',
     Unit = 'unit',
+    E2E = 'e2e',
     Disabled = 'disabled',
 }
 

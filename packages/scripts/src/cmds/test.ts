@@ -40,24 +40,23 @@ const cmd: CommandModule = {
             });
     },
     handler(argv) {
-        const all = isAll(argv);
-        const pkgInfos = getPkgInfos(argv.packages, all);
+        const pkgInfos = getPkgInfos(argv);
         return runTests(pkgInfos, {
             debug: Boolean(argv.debug),
             bail: Boolean(argv.bail),
             suite: argv.suite as TestSuite,
             filter: argv.filter as string,
-            all,
+            all: isAll(argv),
         });
     },
 };
 
 function isAll(argv: any): boolean {
-    return argv.packages && argv.packages.length;
+    return !argv.packages.length;
 }
 
-function getPkgInfos(argv: any, all: boolean): PackageInfo[] {
-    if (all) return argv.packages;
+function getPkgInfos(argv: any): PackageInfo[] {
+    if (argv.packages.length > 0) return argv.packages;
     return listPackages();
 }
 
