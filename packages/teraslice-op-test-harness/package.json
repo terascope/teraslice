@@ -28,5 +28,7 @@
         "access": "public"
     },
     "displayName": "Teraslice Op Test Harness",
-    "terascope": {}
+    "terascope": {
+        "testSuite": "unit"
+    }
 }

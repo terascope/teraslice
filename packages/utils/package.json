@@ -43,6 +43,7 @@
     },
     "displayName": "Utils",
     "terascope": {
-        "enableTypedoc": true
+        "enableTypedoc": true,
+        "testSuite": "unit"
     }
 }

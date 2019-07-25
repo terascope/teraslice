@@ -56,6 +56,7 @@
     "displayName": "Xlucene Evaluator",
     "srcMain": "src/index.ts",
     "terascope": {
-        "enableTypedoc": true
+        "enableTypedoc": true,
+        "testSuite": "unit"
     }
 }

@@ -68,9 +68,10 @@
     "publishConfig": {
         "access": "public"
     },
-    "displayName": "Ui Core",
+    "displayName": "UI Core",
     "terascope": {
-        "enableTypedoc": false
+        "enableTypedoc": false,
+        "testSuite": "disabled"
     },
     "watch": {
         "build": {

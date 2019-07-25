@@ -27,6 +27,8 @@
     "publishConfig": {
         "access": "public"
     },
-    "displayName": "Elasticsearch Api",
-    "terascope": {}
+    "displayName": "Elasticsearch API",
+    "terascope": {
+        "testSuite": "unit"
+    }
 }

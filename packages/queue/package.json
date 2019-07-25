@@ -25,6 +25,7 @@
     },
     "displayName": "Queue",
     "terascope": {
-        "enableTypedoc": false
+        "enableTypedoc": false,
+        "testSuite": "unit"
     }
 }

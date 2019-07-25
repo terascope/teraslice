@@ -75,6 +75,7 @@
     },
     "displayName": "Teraslice",
     "terascope": {
-        "enableTypedoc": false
+        "enableTypedoc": false,
+        "testSuite": "elasticsearch"
     }
 }

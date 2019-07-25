@@ -18,10 +18,18 @@ export type PackageInfo = {
     };
 };
 
+export enum TestSuite {
+    Kafka = 'kafka',
+    Elasticsearch = 'elasticsearch',
+    Unit = 'unit',
+    Disabled = 'disabled',
+}
+
 export type PackageConfig = {
     enableTypedoc?: boolean;
+    testSuite?: TestSuite;
 };
 
-export const AvailablePackageConfigKeys: ReadonlyArray<keyof PackageConfig> = ['enableTypedoc'];
+export const AvailablePackageConfigKeys: ReadonlyArray<keyof PackageConfig> = ['enableTypedoc', 'testSuite'];
 
 export type TSCommands = 'docs';

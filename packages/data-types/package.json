@@ -49,6 +49,7 @@
     "displayName": "Data Types",
     "srcMain": "src/index.ts",
     "terascope": {
-        "enableTypedoc": true
+        "enableTypedoc": true,
+        "testSuite": "unit"
     }
 }

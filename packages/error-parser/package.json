@@ -25,5 +25,7 @@
         "access": "public"
     },
     "displayName": "Error Parser",
-    "terascope": {}
+    "terascope": {
+        "testSuite": "unit"
+    }
 }

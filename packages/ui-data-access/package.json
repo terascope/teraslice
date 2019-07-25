@@ -53,8 +53,9 @@
     "publishConfig": {
         "access": "public"
     },
-    "displayName": "Ui Data Access",
+    "displayName": "UI Data Access",
     "terascope": {
-        "enableTypedoc": false
+        "enableTypedoc": false,
+        "testSuite": "disabled"
     }
 }

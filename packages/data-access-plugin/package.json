@@ -57,6 +57,7 @@
     "displayName": "Data Access Plugin",
     "srcMain": "src/index.ts",
     "terascope": {
-        "enableTypedoc": false
+        "enableTypedoc": false,
+        "testSuite": "elasticsearch"
     }
 }

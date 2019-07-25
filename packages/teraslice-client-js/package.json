@@ -36,6 +36,8 @@
     "publishConfig": {
         "access": "public"
     },
-    "displayName": "Teraslice Client Js",
-    "terascope": {}
+    "displayName": "Teraslice Client (JavaScript)",
+    "terascope": {
+        "testSuite": "unit"
+    }
 }

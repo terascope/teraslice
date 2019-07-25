@@ -31,5 +31,7 @@
         "access": "public"
     },
     "displayName": "Docker Compose Js",
-    "terascope": {}
+    "terascope": {
+        "testSuite": "disabled"
+    }
 }

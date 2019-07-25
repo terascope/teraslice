@@ -46,5 +46,7 @@
         "access": "public"
     },
     "displayName": "Terafoundation",
-    "terascope": {}
+    "terascope": {
+        "testSuite": "unit"
+    }
 }

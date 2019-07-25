@@ -38,5 +38,7 @@
         "access": "public"
     },
     "displayName": "Generator Teraslice",
-    "terascope": {}
+    "terascope": {
+        "testSuite": "unit"
+    }
 }

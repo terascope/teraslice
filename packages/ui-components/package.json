@@ -50,6 +50,7 @@
     },
     "displayName": "Ui Components",
     "terascope": {
-        "enableTypedoc": true
+        "enableTypedoc": true,
+        "testSuite": "disabled"
     }
 }

@@ -52,12 +52,14 @@
     "publishConfig": {
         "access": "public"
     },
-    "displayName": "Teraslice Cli",
+    "displayName": "Teraslice CLI",
     "pkg": {
         "scripts": "cmds/**/*.js",
         "assets": [
             "generators/**/templates/*"
         ]
     },
-    "terascope": {}
+    "terascope": {
+        "testSuite": "unit"
+    }
 }

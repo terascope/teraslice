@@ -40,6 +40,7 @@
     "displayName": "Data Access",
     "srcMain": "src/index.ts",
     "terascope": {
-        "enableTypedoc": true
+        "enableTypedoc": true,
+        "testSuite": "elasticsearch"
     }
 }

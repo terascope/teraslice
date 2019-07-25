@@ -54,6 +54,7 @@
     "displayName": "Scripts",
     "srcMain": "src/index.ts",
     "terascope": {
-        "enableTypedoc": false
+        "enableTypedoc": false,
+        "testSuite": "unit"
     }
 }

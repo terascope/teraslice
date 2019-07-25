@@ -36,6 +36,7 @@
     "displayName": "Teraslice State Storage",
     "srcMain": "src/index.ts",
     "terascope": {
-        "enableTypedoc": true
+        "enableTypedoc": true,
+        "testSuite": "unit"
     }
 }
