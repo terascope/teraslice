@@ -221,8 +221,8 @@ export class SearchAccess {
         }
 
         let info = `${response.hits.total} results found.`;
-        if (params.size && response.hits.total > params.size) {
-            returning = params.size;
+        if (response.hits.total > params.size!) {
+            returning = params.size!;
             info += ` Returning ${returning}.`;
         }
 
