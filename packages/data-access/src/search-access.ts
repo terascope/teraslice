@@ -110,11 +110,9 @@ export class SearchAccess {
             throw new ts.TSError(...validationErr('size', `must be less than ${maxQuerySize}`, query));
         }
 
-        const start = ts.get(query, 'start');
-        if (start) {
-            if (!ts.isNumber(start)) {
-                throw new ts.TSError(...validationErr('start', 'must be a valid number', query));
-            }
+        const start = ts.toInteger(ts.get(query, 'start', 0));
+        if (start === false) {
+            throw new ts.TSError(...validationErr('start', 'must be a valid number', query));
         }
 
         let sort = ts.get(query, 'sort');
@@ -173,7 +171,7 @@ export class SearchAccess {
 
         params.q = q;
         params.size = size;
-        params.from = ts.toInteger(start) || 0;
+        params.from = start;
         params.sort = sort;
         params.index = this._getIndex(query);
         params.ignoreUnavailable = true;
@@ -223,8 +221,8 @@ export class SearchAccess {
         }
 
         let info = `${response.hits.total} results found.`;
-        if (params.size && response.hits.total > params.size) {
-            returning = params.size;
+        if (response.hits.total > params.size!) {
+            returning = params.size!;
             info += ` Returning ${returning}.`;
         }
 

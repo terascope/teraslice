@@ -24,7 +24,7 @@ export interface InputQuery {
     q?: string;
     start?: number | string;
     fields?: string | string[];
-    history?: boolean;
+    history?: number;
     history_start?: string;
     geo_sort_point?: string;
     geo_sort_order?: SortOrder;
