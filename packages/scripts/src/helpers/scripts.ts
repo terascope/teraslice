@@ -4,8 +4,6 @@ import fse from 'fs-extra';
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
 
-process.env.FORCE_COLOR = '1';
-
 function _exec(cmd: string, args: string[] = [], cwd = getRootDir()) {
     let subprocess;
     const options: execa.Options = {
@@ -17,7 +15,6 @@ function _exec(cmd: string, args: string[] = [], cwd = getRootDir()) {
     } else {
         subprocess = execa(cmd, options);
     }
-
     if (!subprocess || !subprocess.stderr || !subprocess.stdout) {
         throw new Error(`Failed to execution ${cmd}`);
     }
@@ -27,25 +24,27 @@ function _exec(cmd: string, args: string[] = [], cwd = getRootDir()) {
 }
 
 export async function exec(cmd: string, args?: string[], cwd?: string): Promise<string> {
-    const subprocess = _exec(cmd, args, cwd);
     try {
+        const subprocess = _exec(cmd, args, cwd);
         const { stdout } = await subprocess;
-        return stdout;
+        return stdout.trim();
     } catch (err) {
-        console.error(err.toString());
-        return process.exit(err.exitCode);
+        process.exitCode = err.exitCode || 1;
+        throw new Error(err.message);
     }
 }
 
 export async function fork(cmd: string, args: string[] = [], cwd = getRootDir()): Promise<void> {
-    const subprocess = _exec(cmd, args, cwd);
-    subprocess.stdout!.pipe(process.stdout);
-
+    const resetForceColor = addForceColor();
     try {
+        const subprocess = _exec(cmd, args, cwd);
+        subprocess.stdout!.pipe(process.stdout);
         await subprocess;
     } catch (err) {
-        console.error(err.toString());
-        return process.exit(err.exitCode);
+        process.exitCode = err.exitCode || 1;
+        throw new Error(err.message);
+    } finally {
+        resetForceColor();
     }
 }
 
@@ -60,13 +59,16 @@ export async function build(pkgInfo?: PackageInfo): Promise<void> {
         if (fse.existsSync(distDir)) {
             await fse.emptyDir(distDir);
         }
-        await exec('yarn', ['run', 'build'], pkgInfo.dir);
+        await fork('yarn', ['run', 'build'], pkgInfo.dir);
     }
-    await exec('yarn', ['run', 'build']);
+    await fork('yarn', ['run', 'build']);
 }
 
 export async function runJest(pkgInfo: PackageInfo, args: string[]): Promise<void> {
-    await fork('yarn', ['jest', ...args], pkgInfo.dir);
+    const cwd = pkgInfo.dir;
+    const jestPath = await exec('yarn', ['--silent', 'bin', 'jest'], cwd);
+
+    await fork(jestPath, [...args], cwd);
 }
 
 export async function setup(): Promise<void> {
@@ -95,4 +97,16 @@ export function mapToArgs(input: { [key: string]: string }): string[] {
         }
     }
     return args.filter(str => str != null && str !== '');
+}
+
+function addForceColor() {
+    const { FORCE_COLOR } = process.env;
+    if (!FORCE_COLOR) {
+        process.env.FORCE_COLOR = '1';
+    }
+
+    return () => {
+        // reset env
+        process.env.FORCE_COLOR = FORCE_COLOR;
+    };
 }

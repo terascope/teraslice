@@ -5,9 +5,7 @@ import { runTests } from './utils';
 
 export function testAll() {
     return async (options: TestOptions) => {
-        for (const pkgInfo of listPackages()) {
-            await runTests([pkgInfo], options);
-        }
+        await runTests(listPackages(), options);
     };
 }
 

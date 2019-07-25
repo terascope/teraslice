@@ -1,3 +1,4 @@
+import isCI from 'is-ci';
 import { CommandModule } from 'yargs';
 import { ScopeFn, TestOptions } from '../helpers/test-runner/interfaces';
 import { getTestScope } from '../helpers/test-runner';
@@ -8,6 +9,7 @@ const cmd: CommandModule = {
     builder(yargs) {
         return yargs
             .option('debug', {
+                alias: 'd',
                 description: 'This will run all of the tests in-band and output any debug info',
                 type: 'boolean',
                 default: false,
@@ -15,7 +17,12 @@ const cmd: CommandModule = {
             .option('bail', {
                 description: 'This will cause the tests to stop at the first failed test.',
                 type: 'boolean',
-                default: false,
+                default: isCI,
+            })
+            .option('filter', {
+                alias: 'f',
+                description: 'This will filter the tests by file pattern',
+                type: 'string',
             })
             .positional('scopes', {
                 description: 'Runs the test for one or more package or test suite, if none specified it will run all of the tests',
@@ -27,6 +34,7 @@ const cmd: CommandModule = {
         const options: TestOptions = {
             debug: Boolean(argv.debug),
             bail: Boolean(argv.bail),
+            filter: argv.filter as string,
         };
         return scope(options);
     },

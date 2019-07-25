@@ -98,7 +98,7 @@ export function formatList(list: string[]) {
 }
 
 export function cliError<T>(prefix: string, error: string, ...args: any[]): never {
-    console.error(`${prefix}: ${error}`, ...args);
+    console.error(`\n${prefix}: ${error}`, ...args);
     return process.exit(1);
 }
 
