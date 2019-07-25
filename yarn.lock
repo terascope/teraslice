@@ -3692,9 +3692,9 @@ autoprefixer@^9.4.9:
     postcss-value-parser "^3.3.1"
 
 awesome-phonenumber@^2.12.0:
-  version "2.13.1"
-  resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-2.13.1.tgz#a1158207c9040daa1f3391c60d529f755a759265"
-  integrity sha512-vSe9zg8BOrCdKTJKsDuSTVQ32Z2SfYTtiJXhA6RrhlLmR6TbiyG8k64xe+sUGCcNMZPECK2hBC572sb/wJWJgw==
+  version "2.14.0"
+  resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-2.14.0.tgz#f0785c1aa9bd29cd61c01a90777ddd6ce31db7e7"
+  integrity sha512-XVqPFeJ/O5+txNbD0IajLvTfzv58kjZE/+FiCybn1JOZzVhQ9cnhSguYFUpSA2KTjC948Arcr93x8UyZOtG22w==
 
 aws-sign2@~0.7.0:
   version "0.7.0"
