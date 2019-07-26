@@ -38,7 +38,8 @@ module.exports = {
                 format: String
             },
             maxRetries: {
-                default: '3'
+                default: 3,
+                format: Number
             }
         };
     }
