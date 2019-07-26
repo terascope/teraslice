@@ -4,7 +4,7 @@ import fse from 'fs-extra';
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
 
-type ExecEnv = { [name: string]: string };
+export type ExecEnv = { [name: string]: string };
 type ExecOpts = {
     cmd: string;
     args?: string[];
@@ -100,6 +100,26 @@ export async function runJest(pkgDir: string, args: string[], env?: ExecEnv): Pr
         args: [...args],
         cwd: pkgDir,
         env,
+    });
+}
+
+export async function dockerPull(image: string): Promise<void> {
+    await exec({
+        cmd: 'docker',
+        args: ['pull', image],
+    });
+}
+
+export async function dockerBuild(target: string, cacheFrom: string[] = []): Promise<void> {
+    const cacheFromArgs: string[] = [];
+
+    cacheFrom.forEach(image => {
+        cacheFromArgs.push('--cache-from', image);
+    });
+
+    await exec({
+        cmd: 'docker',
+        args: ['build', '--target', target, ...cacheFrom, '.'],
     });
 }
 

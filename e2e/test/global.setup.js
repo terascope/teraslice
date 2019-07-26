@@ -1,12 +1,14 @@
 'use strict';
 
+const ms = require('ms');
 const _ = require('lodash');
 const signale = require('signale');
 const Promise = require('bluebird');
 const uuid = require('uuid/v4');
 const { waitForClusterState, waitForJobStatus } = require('./wait');
-const misc = require('./misc');
+const setupTerasliceConfig = require('./setup-config');
 const downloadAssets = require('./download-assets');
+const misc = require('./misc');
 
 const jobList = [];
 
@@ -15,21 +17,16 @@ const generateOnly = GENERATE_ONLY ? parseInt(GENERATE_ONLY, 100) : null;
 
 function getElapsed(time) {
     const elapsed = Date.now() - time;
-    if (elapsed < 1000) {
-        return `took ${elapsed}ms`;
-    }
-    return `took ${_.round(elapsed / 1000, 2)}s`;
+    return `took ${ms(elapsed)}`;
 }
 
 function dockerUp() {
     const startTime = Date.now();
     signale.pending('Bringing Docker environment up...');
 
-    return misc.compose
-        .up({}, ['elasticsearch', 'teraslice-master', 'teraslice-worker'])
-        .then(() => {
-            signale.success('Docker environment is good to go', getElapsed(startTime));
-        });
+    return misc.compose.up({}).then(() => {
+        signale.success('Docker environment is good to go', getElapsed(startTime));
+    });
 }
 
 function waitForTeraslice() {
@@ -62,7 +59,7 @@ function generateTestData() {
                 exConfig.ex_id = textExId;
                 const date = new Date();
                 const iso = date.toISOString();
-                const index = `teracluster__state-${iso
+                const index = `${misc.CLUSTER_NAME}__state-${iso
                     .split('-')
                     .slice(0, 2)
                     .join('.')}`;
@@ -110,7 +107,7 @@ function generateTestData() {
                         body: notCompleted
                     }),
                     client.index({
-                        index: 'teracluster__ex',
+                        index: `${misc.CLUSTER_NAME}__ex`,
                         type: 'ex',
                         id: exConfig.ex_id,
                         body: exConfig
@@ -139,7 +136,7 @@ function generateTestData() {
         if (generateOnly && generateOnly !== count) return Promise.resolve();
 
         const genStartTime = Date.now();
-        let indexName = `example-logs-${count}`;
+        let indexName = misc.getExampleIndex(count);
         if (hex) {
             indexName += '-hex';
         }
@@ -190,12 +187,7 @@ function generateTestData() {
     }
 
     return (
-        Promise.all([
-            generate(100),
-            generate(1000)
-            // no need for id slicing in elasticsearch 6.x, see id-reader-spec.js
-            // generate(1000, ['d', '3'])
-        ])
+        Promise.all(misc.EXAMLPE_INDEX_SIZES.map((size) => generate(size))
             // we need fully active jobs so we can get proper meta data for recovery state tests
             .then(() => Promise.all([
                 populateStateForRecoveryTests('testex-errors', 'test-recovery-100'),
@@ -216,8 +208,9 @@ module.exports = async () => {
 
     signale.time('global setup');
 
-    await Promise.all([downloadAssets(), dockerUp()]);
+    await Promise.all([setupTerasliceConfig(), downloadAssets()]);
 
+    await dockerUp();
     await waitForTeraslice();
 
     try {

@@ -26,8 +26,6 @@
         "test": "test"
     },
     "scripts": {
-        "lint": "eslint *.js lib/**/*.js test/**/*.js",
-        "lint:fix": "yarn lint --fix",
         "start": "node service.js",
         "test": "jest --forceExit",
         "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*,-teraslice-messaging*}\" jest --colors --forceExit --detectOpenHandles --coverage=false --runInBand",

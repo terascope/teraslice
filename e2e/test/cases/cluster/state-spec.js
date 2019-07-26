@@ -83,10 +83,11 @@ describe('cluster state', () => {
 
     it('should be correct for running job with 1 worker', async () => {
         const jobSpec = misc.newJob('reindex');
+        const specIndex = misc.newSpecIndex('state');
         jobSpec.name = 'cluster state with 1 worker';
-        jobSpec.operations[0].index = 'example-logs-1000';
+        jobSpec.operations[0].index = misc.getExampleIndex(1000);
         jobSpec.operations[0].size = 100;
-        jobSpec.operations[1].index = 'test-clusterstate-job-1-1000';
+        jobSpec.operations[1].index = specIndex;
 
         const job = await submitAndStart(jobSpec);
         const jobId = job.id();
@@ -115,11 +116,13 @@ describe('cluster state', () => {
 
     it('should be correct for running job with 4 workers', async () => {
         const jobSpec = misc.newJob('reindex');
+        const specIndex = misc.newSpecIndex('state');
+
         jobSpec.name = 'cluster state with 2 workers';
         jobSpec.workers = 4;
-        jobSpec.operations[0].index = 'example-logs-1000';
+        jobSpec.operations[0].index = misc.getExampleIndex(1000);
         jobSpec.operations[0].size = 20;
-        jobSpec.operations[1].index = 'test-clusterstate-job-4-1000';
+        jobSpec.operations[1].index = specIndex;
 
         const job = await submitAndStart(jobSpec, 5000);
         const jobId = job.id();
@@ -141,7 +144,7 @@ describe('cluster state', () => {
         });
 
         await complete;
-        const { count } = await misc.indexStats('test-clusterstate-job-4-1000');
+        const { count } = await misc.indexStats(specIndex);
         expect(count).toBe(1000);
     });
 });

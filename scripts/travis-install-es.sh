@@ -33,7 +33,7 @@ main() {
     esac
 
     only_ci
-    local file="elasticsearch-6.5.4.deb"
+    local file="elasticsearch-${arg}.deb"
 
     echoerr "* downloading $file..."
     curl -O "https://artifacts.elastic.co/downloads/elasticsearch/$file"

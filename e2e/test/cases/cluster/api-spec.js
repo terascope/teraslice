@@ -53,8 +53,10 @@ describe('cluster api', () => {
 
     it('will not send lifecycle changes to executions that are not active', async () => {
         const jobSpec = misc.newJob('reindex');
+        const specIndex = misc.newSpecIndex('api');
         jobSpec.name = 'basic reindex for lifecycle';
-        jobSpec.operations[1].index = 'test-reindex-100-lifecycle';
+        jobSpec.operations[0].index = misc.getExampleIndex(100);
+        jobSpec.operations[1].index = specIndex;
 
         async function didError(p) {
             try {
@@ -77,7 +79,7 @@ describe('cluster api', () => {
             didError(teraslice.cluster.post(`/jobs/${jobId}/_pause`)),
             didError(teraslice.cluster.post(`/ex/${exId}/_stop`)),
             didError(teraslice.cluster.post(`/ex/${exId}/_resume`)),
-            didError(teraslice.cluster.post(`/ex/${exId}/_pause`)),
+            didError(teraslice.cluster.post(`/ex/${exId}/_pause`))
         ]);
 
         expect(result).toEqual([true, true, true, true, true, true]);

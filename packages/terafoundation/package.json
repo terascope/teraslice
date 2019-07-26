@@ -16,8 +16,6 @@
     ],
     "main": "./index.js",
     "scripts": {
-        "lint": "eslint *.js lib/**/*.js test/**/*.js",
-        "lint:fix": "yarn lint --fix",
         "test": "jest --forceExit",
         "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged"

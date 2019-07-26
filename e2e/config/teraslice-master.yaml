@@ -8,7 +8,7 @@ terafoundation:
         elasticsearch:
             default:
                 host:
-                    - 'elasticsearch:49200'
+                    - '$ELASTICSEARCH_URL'
                 requestTimeout: 60000
                 deadTimeout: 45000
                 sniffOnStart: false
@@ -21,7 +21,7 @@ terafoundation:
         kafka:
             default:
                 brokers:
-                    - 'kafka:49092'
+                    - '$KAFKA_BROKERS'
 
 teraslice:
     worker_disconnect_timeout: 120000
@@ -35,7 +35,7 @@ teraslice:
     master: true
     master_hostname: '127.0.0.1'
     port: 45678
-    name: 'teracluster'
+    name: '$CLUSTER_NAME'
     index_settings:
         analytics:
             number_of_shards: 1

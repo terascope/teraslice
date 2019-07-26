@@ -1,9 +1,21 @@
 'use strict';
 
 const _ = require('lodash');
+const { address } = require('ip');
 const Promise = require('bluebird');
+const nanoid = require('nanoid/generate');
 const TerasliceClient = require('teraslice-client-js');
 const ElasticsearchClient = require('elasticsearch').Client;
+
+const { ELASTICSEARCH_URL = 'http://locahost:9200', KAFKA_BROKERS = 'locahost:9092' } = process.env;
+
+const TEST_INDEX_PREFIX = 'test__';
+const SPEC_INDEX_PREFIX = `${TEST_INDEX_PREFIX}spec`;
+const EXAMPLE_INDEX_PREFIX = `${TEST_INDEX_PREFIX}example`;
+const EXAMLPE_INDEX_SIZES = [100, 1000];
+
+// the uniq cluster name
+const CLUSTER_NAME = newId(`${TEST_INDEX_PREFIX}teracluster`, true, 2);
 
 // The number of teraslice-worker instances (see the docker-compose.yml)
 const DEFAULT_WORKERS = 2;
@@ -12,8 +24,20 @@ const DEFAULT_NODES = DEFAULT_WORKERS + 1;
 // The number of workers per number (see the process-master.yaml and process-worker.yaml)
 const WORKERS_PER_NODE = 12;
 
-const DOCKER_IP = process.env.ip ? process.env.ip : 'localhost';
+const MY_IP = address();
 const compose = require('@terascope/docker-compose-js')('docker-compose.yml');
+
+const es = _.memoize(
+    () => new ElasticsearchClient({
+        host: ELASTICSEARCH_URL,
+        log: 'warn'
+    })
+);
+
+const teraslice = _.memoize(() => TerasliceClient({
+    host: `http://${MY_IP}:45678`,
+    timeout: 2 * 60 * 1000
+}));
 
 function newJob(name) {
     return _.cloneDeep(require(`./fixtures/jobs/${name}.json`));
@@ -24,24 +48,26 @@ function injectDelay(jobSpec, ms = 1000) {
         jobSpec.operations[0],
         {
             _op: 'delay',
-            ms,
+            ms
         },
-        ...jobSpec.operations.slice(1, jobSpec.operations.length),
+        ...jobSpec.operations.slice(1, jobSpec.operations.length)
     ];
 }
 
-function teraslice() {
-    return TerasliceClient({
-        host: `http://${DOCKER_IP}:45678`,
-        timeout: 2 * 60 * 1000,
-    });
+async function cleanupIndices() {
+    await cleanupIndex(TEST_INDEX_PREFIX);
 }
 
-function es() {
-    return new ElasticsearchClient({
-        host: `http://${DOCKER_IP}:49200`,
-        log: '', // This suppresses error logging from the ES library.
-    });
+function newSpecIndex(name) {
+    return newId(`${SPEC_INDEX_PREFIX}-${name}`, true, 4);
+}
+
+function getExampleIndex(size) {
+    if (!EXAMLPE_INDEX_SIZES.includes(size)) {
+        throw new Error(`No example index with ${size}`);
+    }
+
+    return `${EXAMPLE_INDEX_PREFIX}-${size}`;
 }
 
 function indexStats(indexName) {
@@ -69,10 +95,8 @@ function indexStats(indexName) {
     });
 }
 
-function cleanupIndex(indexName) {
-    return Promise.resolve()
-        .then(() => es().indices.delete({ index: indexName }))
-        .catch(() => Promise.resolve());
+async function cleanupIndex(indexName) {
+    await es().indices.delete({ index: indexName });
 }
 
 // Adds teraslice-workers to the environment
@@ -86,21 +110,45 @@ function scaleService(service, count) {
         scale: `${service}=${count}`,
         'no-recreate': '',
         'no-deps': '',
-        'no-build': '',
+        'no-build': ''
     });
+}
+
+function newId(prefix, lowerCase = false, length = 15) {
+    let characters = '-0123456789abcdefghijklmnopqrstuvwxyz';
+    if (!lowerCase) {
+        characters += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    }
+    let id = _.trim(nanoid(characters, length), '-');
+    id = _.padEnd(id, length, 'abcdefghijklmnopqrstuvwxyz');
+    if (prefix) {
+        return `${prefix}-${id}`;
+    }
+    return id;
 }
 
 module.exports = {
     newJob,
     cleanupIndex,
-    teraslice: _.memoize(teraslice),
-    es: _.memoize(es),
+    teraslice,
+    es,
     indexStats,
     compose,
     injectDelay,
     scaleWorkers,
     scaleService,
+    cleanupIndices,
+    getExampleIndex,
+    newSpecIndex,
+    MY_IP,
+    EXAMLPE_INDEX_SIZES,
+    EXAMPLE_INDEX_PREFIX,
+    SPEC_INDEX_PREFIX,
+    ELASTICSEARCH_URL,
+    KAFKA_BROKERS,
+    CLUSTER_NAME,
+    TEST_INDEX_PREFIX,
     DEFAULT_NODES,
     DEFAULT_WORKERS,
-    WORKERS_PER_NODE,
+    WORKERS_PER_NODE
 };

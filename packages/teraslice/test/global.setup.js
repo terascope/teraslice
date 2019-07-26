@@ -3,9 +3,11 @@
 const ElasticsearchClient = require('elasticsearch').Client;
 const { newId } = require('../lib/utils/id_utils');
 
+const TEST_INDEX_PREFIX = 'test__';
+
 const {
     ELASTICSEARCH_URL = 'http://localhost:9200',
-    TERASLICE_CLUSTER_NAME = newId('test-teraworker', true, 2)
+    TERASLICE_CLUSTER_NAME = newId(`${TEST_INDEX_PREFIX}_teraslice`, true, 2)
 } = process.env;
 
 process.env.TERASLICE_CLUSTER_NAME = TERASLICE_CLUSTER_NAME;
@@ -17,5 +19,5 @@ const es = new ElasticsearchClient({
 });
 
 module.exports = async () => {
-    await es.indices.delete({ index: 'test-teraworker*' });
+    await es.indices.delete({ index: `${TEST_INDEX_PREFIX}*` });
 };

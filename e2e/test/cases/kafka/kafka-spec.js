@@ -12,13 +12,8 @@ const { waitForJobStatus, waitForIndexCount } = wait;
 describe('kafka', () => {
     beforeAll(async () => {
         await resetState();
-        await misc.scaleService('kafka', 1);
         // give kafka time to come up
         await Promise.delay(5000);
-    });
-
-    afterAll(async () => {
-        await misc.scaleService('kafka', 0);
     });
 
     const teraslice = misc.teraslice();
@@ -27,31 +22,33 @@ describe('kafka', () => {
         const topic = uuidv4();
         const groupId = uuidv4();
         const total = 1000;
+        const specIndex = misc.newSpecIndex('kafka');
 
         const senderSpec = misc.newJob('kafka-sender');
         const readerSpec = misc.newJob('kafka-reader');
 
+        senderSpec.operations[0].index = misc.getExampleIndex(1000);
         senderSpec.operations[1].topic = topic;
+        senderSpec.operations[0].index = specIndex;
 
         readerSpec.operations[0].topic = topic;
         readerSpec.operations[0].group = groupId;
-        const { index } = readerSpec.operations[1];
 
         const sender = await teraslice.jobs.submit(senderSpec);
 
         const [reader] = await Promise.all([
             teraslice.jobs.submit(readerSpec),
-            waitForJobStatus(sender, 'completed'),
+            waitForJobStatus(sender, 'completed')
         ]);
 
-        await waitForIndexCount(index, total);
+        await waitForIndexCount(specIndex, total);
         await reader.stop();
 
         await waitForJobStatus(reader, 'stopped');
 
         let count = 0;
         try {
-            ({ count } = await misc.indexStats(index));
+            ({ count } = await misc.indexStats(specIndex));
         } catch (err) {
             signale.error(err);
         }

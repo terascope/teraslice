@@ -1,11 +1,11 @@
 import path from 'path';
 import { writePkgHeader, writeHeader, formatList, cliError, getRootDir } from '../misc';
-import { getArgs, filterBySuite, getEnv, groupBySuite } from './utils';
+import { getArgs, filterBySuite, getEnv, groupBySuite, buildDockerImage } from './utils';
 import { PackageInfo, TestSuite } from '../interfaces';
+import { ensureServices } from './services';
 import { TestOptions } from './interfaces';
 import { runJest } from '../scripts';
 import debug from './debug';
-import { ensureServices } from './services';
 
 export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
     debug('running tests with options', options);
@@ -81,6 +81,9 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
 }
 
 async function runE2ETest(options: TestOptions): Promise<void> {
+    await ensureServices(TestSuite.E2E, options);
+    await buildDockerImage('e2e_teraslice');
+
     const e2eDir = path.join(getRootDir(), 'e2e');
     try {
         await runJest(e2eDir, getArgs(options), getEnv(options));

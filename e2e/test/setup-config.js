@@ -1,0 +1,104 @@
+'use strict';
+
+const _ = require('lodash');
+const path = require('path');
+const fse = require('fs-extra');
+const {
+    DEFAULT_WORKERS, KAFKA_BROKERS, MY_IP, ELASTICSEARCH_URL
+} = require('./misc');
+
+module.exports = async function setupTerasliceConfig() {
+    const dockerIP = getInternalDockerIP();
+    const elasticsearchHosts = injectDockerIP(ELASTICSEARCH_URL, dockerIP);
+    const kafkaBrokers = injectDockerIP(KAFKA_BROKERS, dockerIP);
+
+    const baseConfig = {
+        terafoundation: {
+            environment: 'development',
+            log_level: 'debug',
+            connectors: {
+                elasticsearch: {
+                    default: {
+                        host: elasticsearchHosts,
+                        requestTimeout: 60000,
+                        deadTimeout: 45000,
+                        sniffOnStart: false,
+                        sniffOnConnectionFault: false,
+                        suggestCompression: false
+                    }
+                },
+                kafka: {
+                    default: {
+                        brokers: kafkaBrokers
+                    }
+                }
+            }
+        },
+        teraslice: {
+            worker_disconnect_timeout: 120000,
+            node_disconnect_timeout: 120000,
+            slicer_timeout: 180000,
+            shutdown_timeout: 30000,
+            action_timeout: 30000,
+            assets_directory: '/app/assets',
+            autoload_directory: '/app/autoload',
+            workers: DEFAULT_WORKERS,
+            master_hostname: '127.0.0.1',
+            port: 45678,
+            name: '$CLUSTER_NAME',
+            index_settings: {
+                analytics: {
+                    number_of_shards: 1,
+                    number_of_replicas: 0
+                },
+                assets: {
+                    number_of_shards: 1,
+                    number_of_replicas: 0
+                },
+                jobs: {
+                    number_of_shards: 1,
+                    number_of_replicas: 0
+                },
+                execution: {
+                    number_of_shards: 1,
+                    number_of_replicas: 0
+                },
+                state: {
+                    number_of_shards: 1,
+                    number_of_replicas: 0
+                }
+            }
+        }
+    };
+
+    const configPath = path.join(__dirname, '..', '.config');
+
+    if (!fse.existsSync(configPath)) {
+        await fse.emptyDir(configPath);
+    }
+
+    await fse.ensureDir(configPath);
+
+    const masterConfigPath = path.join(configPath, 'teraslice-master.json');
+    const masterConfig = _.cloneDeep(baseConfig);
+    masterConfig.teraslice.master = true;
+    await fse.writeJSON(masterConfigPath, masterConfig);
+
+    const workerConfigPath = path.join(configPath, 'teraslice-worker.json');
+    const workerConfig = _.cloneDeep(baseConfig);
+    workerConfig.teraslice.master = false;
+    await fse.writeJSON(workerConfigPath, workerConfig);
+};
+
+function getInternalDockerIP() {
+    if (process.platform === 'darwin') return 'docker.for.mac.localhost';
+    return MY_IP;
+}
+
+function injectDockerIP(uri, ip) {
+    return uri
+        .split(',')
+        .map(str => str.trim())
+        .filter(Boolean)
+        .map(str => str.replace(/localhost|127\.0\.0\.1/g, ip));
+}

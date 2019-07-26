@@ -1,6 +1,6 @@
 import isCI from 'is-ci';
 import { PackageInfo, TestSuite } from '../interfaces';
-import { mapToArgs } from '../scripts';
+import { mapToArgs, ExecEnv, dockerBuild, dockerPull } from '../scripts';
 import { TestOptions, GroupedPackages } from './interfaces';
 import debug from './debug';
 
@@ -26,13 +26,23 @@ export function getArgs(options: TestOptions): string[] {
         args['testPathPattern'] = options.filter;
     }
 
+    if (options.suite === TestSuite.E2E) {
+        args['runInBand'] = '';
+    }
+
     return mapToArgs(args);
 }
 
-export function getEnv(options: TestOptions): { [name: string]: string } {
-    if (!options.debug && !process.env.DEBUG) return {};
+export function getEnv(options: TestOptions): ExecEnv {
+    const defaults: ExecEnv = {
+        ELASTICSEARCH_URL: options.elasticsearchUrl,
+        KAFKA_BROKERS: options.kafkaBrokers.join(','),
+    };
+
+    if (!options.debug && !process.env.DEBUG) return defaults;
 
     return {
+        ...defaults,
         DEBUG: '*teraslice*',
     };
 }
@@ -70,4 +80,10 @@ export function groupBySuite(pkgInfos: PackageInfo[]): GroupedPackages {
     }
 
     return groups;
+}
+
+export async function buildDockerImage(target: string): Promise<void> {
+    const cacheFrom = isCI ? ['node:10.16.0-alpine', 'terascope/teraslice:dev-base', 'terascope/teraslice:dev-connectors'] : [];
+    await Promise.all(cacheFrom.map(dockerPull));
+    await dockerBuild(target, cacheFrom);
 }

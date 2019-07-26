@@ -30,6 +30,7 @@ builds/*
 
 # cache directory
 .cache
+.travis-cache
 .yarn-cache/*
 !.yarn-cache/.gitkeep
 

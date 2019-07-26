@@ -16,9 +16,13 @@
         "docs": "ts-scripts docs",
         "bump": "ts-scripts bump",
         "test": "ts-scripts test",
-        "lint": "env FORCE_COLOR=1 lerna run lint --no-bail && yarn lint:docs",
-        "lint:docs": "markdownlint docs/*.md docs/**/*.md docs/**/**/*.md packages/*/*.md README.md || echo '* lint:docs failed but it's okay",
-        "lint:fix": "env FORCE_COLOR=1 lerna run lint:fix --no-bail"
+        "lint": "yarn lint:js && yarn lint:ts && yarn lint:docs && yarn sync --verify",
+        "lint:js": "eslint *.js packages/*/*.js packages/*/lib/**/*.js packages/*/test/**/*.js packages/*/cmds/**/*.js e2e/**/*.js",
+        "lint:ts": "env FORCE_COLOR=1 lerna run lint --no-bail",
+        "lint:docs": "markdownlint docs/*.md docs/**/*.md docs/**/**/*.md packages/*/*.md README.md",
+        "lint:fix": "yarn lint:js:fix && yarn lint:ts:fix",
+        "lint:js:fix": "yarn lint:js --fix",
+        "lint:ts:fix": "env FORCE_COLOR=1 lerna run lint:fix --no-bail"
     },
     "displayName": "Teraslice",
     "homepage": "https://github.com/terascope/teraslice",

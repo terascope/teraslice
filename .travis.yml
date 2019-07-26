@@ -4,13 +4,20 @@ language: node_js
 node_js:
 - '10.16'
 
-# Disable caching since it is on by default
 cache:
-  npm: false
+  yarn: true
+  directories:
+    - "$HOME/.travis-cache"
 
-install:
+before_install:
     # make it colorful
     - export FORCE_COLOR=1
+    # setup the cache dir
+    - export CACHE_DIR="$HOME/.travis-cache"
+    - mkdir -p "$CACHE_DIR"
+    # setup an credentials
+    - . ./scripts/travis-setup-credentials.sh
+install:
     # Install the dependencies
     - yarn
     # Build setup the build
@@ -26,13 +33,10 @@ jobs:
   - stage: Verify
     name: Verify Build
     if: branch = master AND type = pull_request
-    after_install:
+    before_script:
         - yarn --cwd=./packages/ui-core build
         - yarn --cwd=./packages/ui-data-access build
-    script:
-        - yarn lint
-        - yarn lint:docs
-        - yarn sync --verify
+    script: yarn lint
 
   - stage: Test Suites
     name: Unit Test Suite (node 8)
@@ -59,6 +63,7 @@ jobs:
         - '8.16'
     services:
         - elasticsearch
+    before_script: . ./scripts/travis-install-elasticsearch.sh 6.8.1
     script: yarn test --suite elasticsearch
     after_success:
         - bash <(curl -s https://codecov.io/bash)
@@ -69,6 +74,9 @@ jobs:
     if: branch = master AND type IN (pull_request, cron) AND fork = false
     services:
         - docker
+    before_script:
+        - . ./scripts/travis-install-elasticsearch.sh 6.8.1
+        - . ./scripts/travis-install-kafka.sh
     script: yarn test --suite e2e
     after_success:
         - bash <(curl -s https://codecov.io/bash)
@@ -81,7 +89,6 @@ jobs:
       apt:
         packages:
           - jq
-    before_script: . ./scripts/travis-setup-credentials.sh
     script: yarn docs
     deploy:
       - provider: script
@@ -102,7 +109,6 @@ jobs:
           - docker-ce
     services:
         - docker
-    before_script: . ./scripts/travis-setup-credentials.sh
     script: true
     deploy:
       - provider: script
@@ -122,7 +128,6 @@ jobs:
           - docker-ce
     services:
         - docker
-    before_script: . ./scripts/travis-setup-credentials.sh
     script: yarn docs
     deploy:
       - provider: script
@@ -147,7 +152,6 @@ jobs:
           - docker-ce
     services:
         - docker
-    before_script: . ./scripts/travis-setup-credentials.sh
     script: true
     deploy:
       - provider: script
