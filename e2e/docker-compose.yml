@@ -2,14 +2,6 @@ version: '2.4'
 services:
     teraslice-master:
         image: e2e_teraslice
-        command: [
-            "./scripts/wait-for-it.sh",
-            "elasticsearch:49200",
-            "--timeout=60",
-            "--",
-            "node",
-            "service.js"
-        ]
         ports:
             - '45678:45678'
         scale: 1
@@ -27,10 +19,8 @@ services:
     teraslice-worker:
         image: e2e_teraslice
         command: [
-            "./scripts/wait-for-it.sh",
-            "elasticsearch:49200",
-            "--timeout=75",
-            "--",
+            "./scripts/wait-for-teraslice.sh",
+            "teraslice-master:45678",
             "node",
             "service.js"
         ]
@@ -46,6 +36,7 @@ services:
             - teraslice-assets:/app/assets
             - ./autoload:/app/autoload:delegated
             - ./.config:/app/config:delegated
+
 volumes:
     teraslice-assets:
         driver_opts:

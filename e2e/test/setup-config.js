@@ -4,7 +4,11 @@ const _ = require('lodash');
 const path = require('path');
 const fse = require('fs-extra');
 const {
-    DEFAULT_WORKERS, KAFKA_BROKERS, MY_IP, ELASTICSEARCH_URL
+    DEFAULT_WORKERS,
+    KAFKA_BROKERS,
+    MY_IP,
+    ELASTICSEARCH_URL,
+    CLUSTER_NAME
 } = require('./misc');
 
 module.exports = async function setupTerasliceConfig() {
@@ -43,9 +47,8 @@ module.exports = async function setupTerasliceConfig() {
             assets_directory: '/app/assets',
             autoload_directory: '/app/autoload',
             workers: DEFAULT_WORKERS,
-            master_hostname: '127.0.0.1',
             port: 45678,
-            name: '$CLUSTER_NAME',
+            name: CLUSTER_NAME,
             index_settings: {
                 analytics: {
                     number_of_shards: 1,
@@ -79,15 +82,23 @@ module.exports = async function setupTerasliceConfig() {
 
     await fse.ensureDir(configPath);
 
-    const masterConfigPath = path.join(configPath, 'teraslice-master.json');
     const masterConfig = _.cloneDeep(baseConfig);
     masterConfig.teraslice.master = true;
-    await fse.writeJSON(masterConfigPath, masterConfig);
+    masterConfig.teraslice.master_hostname = '127.0.0.1';
 
-    const workerConfigPath = path.join(configPath, 'teraslice-worker.json');
+    const masterConfigPath = path.join(configPath, 'teraslice-master.json');
+    await fse.writeJSON(masterConfigPath, masterConfig, {
+        spaces: 4
+    });
+
     const workerConfig = _.cloneDeep(baseConfig);
     workerConfig.teraslice.master = false;
-    await fse.writeJSON(workerConfigPath, workerConfig);
+    masterConfig.teraslice.master_hostname = 'teraslice-master';
+
+    const workerConfigPath = path.join(configPath, 'teraslice-worker.json');
+    await fse.writeJSON(workerConfigPath, workerConfig, {
+        spaces: 4
+    });
 };
 
 function getInternalDockerIP() {

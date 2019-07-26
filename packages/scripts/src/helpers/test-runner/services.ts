@@ -45,6 +45,6 @@ async function ensureElasticsearch(options: TestOptions): Promise<void> {
 }
 
 async function ensureKafka(options: TestOptions) {
-    debug(`assuming ${options.kafkaBrokers.join(', ')} are up... FIXME`);
+    debug(`assuming kafka brokers at ${options.kafkaBrokers.join(', ')} are up... FIXME`);
     return;
 }

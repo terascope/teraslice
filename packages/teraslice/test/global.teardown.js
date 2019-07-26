@@ -2,7 +2,7 @@
 
 const ElasticsearchClient = require('elasticsearch').Client;
 
-const TEST_INDEX_PREFIX = 'test__';
+const TEST_INDEX_PREFIX = 'teratest_';
 const { ELASTICSEARCH_URL } = process.env;
 
 const es = new ElasticsearchClient({

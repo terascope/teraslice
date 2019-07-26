@@ -84,6 +84,11 @@ export function groupBySuite(pkgInfos: PackageInfo[]): GroupedPackages {
 
 export async function buildDockerImage(target: string): Promise<void> {
     const cacheFrom = isCI ? ['node:10.16.0-alpine', 'terascope/teraslice:dev-base', 'terascope/teraslice:dev-connectors'] : [];
-    await Promise.all(cacheFrom.map(dockerPull));
+    if (cacheFrom.length) {
+        console.error(`* pulling images ${cacheFrom}`);
+        await Promise.all(cacheFrom.map(dockerPull));
+    }
+
+    console.error(`* building docker image ${target}`);
     await dockerBuild(target, cacheFrom);
 }

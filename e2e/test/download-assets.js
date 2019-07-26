@@ -29,7 +29,7 @@ function assetFileInfo(assetName) {
         name,
         version: semver.coerce(version),
         repo: `${name}-assets`,
-        fileName: assetName,
+        fileName: assetName
     };
 }
 
@@ -52,11 +52,13 @@ function filterAsset(asset) {
 }
 
 function listAssets() {
-    return fs.readdirSync(autoloadDir)
+    return fs
+        .readdirSync(autoloadDir)
         .filter((file) => {
             const ext = path.extname(file);
             return ext === '.zip';
-        }).map(assetFileInfo);
+        })
+        .map(assetFileInfo);
 }
 
 function count(arr, fn) {
@@ -68,21 +70,19 @@ function count(arr, fn) {
 }
 
 function deleteOlderAssets() {
-    const duplicateAssets = listAssets()
-        .filter(({ name }, i, all) => {
-            const c = count(all, a => a.name === name);
-            return c > 1;
-        });
+    const duplicateAssets = listAssets().filter(({ name }, i, all) => {
+        const c = count(all, a => a.name === name);
+        return c > 1;
+    });
 
-    const olderAssets = duplicateAssets
-        .reduce((acc, current, index, src) => {
-            const without = src.filter((a, i) => index !== i);
-            const hasNewer = hasNewerAsset(without, current.fileName);
-            if (hasNewer) {
-                return acc;
-            }
-            return acc.concat([current]);
-        }, []);
+    const olderAssets = duplicateAssets.reduce((acc, current, index, src) => {
+        const without = src.filter((a, i) => index !== i);
+        const hasNewer = hasNewerAsset(without, current.fileName);
+        if (hasNewer) {
+            return acc;
+        }
+        return acc.concat([current]);
+    }, []);
 
     for (const asset of olderAssets) {
         signale.warn(`Deleting asset ${asset.name}@v${asset.version} in-favor of newer one`);
@@ -91,14 +91,21 @@ function deleteOlderAssets() {
 }
 
 function logAssets() {
-    const assets = listAssets()
-        .map(({ name, version }) => `${name}@v${version}`);
-    signale.info(`Autoload assets: ${assets.join(', ')}`);
+    const assets = listAssets().map(({ name, version }) => `${name}@v${version}`);
+    signale.info(`Downloading asset bundles: ${assets.join(', ')}`);
 }
 
 async function downloadAssets() {
     const promises = bundles.map(async ({ repo }) => {
-        await downloadRelease('terascope', repo, autoloadDir, filterRelease, filterAsset, leaveZipped, disableLogging);
+        await downloadRelease(
+            'terascope',
+            repo,
+            autoloadDir,
+            filterRelease,
+            filterAsset,
+            leaveZipped,
+            disableLogging
+        );
     });
 
     await Promise.all(promises);

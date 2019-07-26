@@ -220,9 +220,7 @@ module.exports = async function assetsStore(context) {
         const assets = await findAssetsToAutoload(autoloadDir);
 
         const promises = assets.map(async (asset) => {
-            if (assets.length > 1) {
-                await pDelay(_.random(0, 1000));
-            }
+
             logger.info(`autoloading asset ${asset}...`);
             const assetPath = path.join(autoloadDir, asset);
             try {

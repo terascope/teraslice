@@ -117,9 +117,9 @@ export async function dockerBuild(target: string, cacheFrom: string[] = []): Pro
         cacheFromArgs.push('--cache-from', image);
     });
 
-    await exec({
+    await fork({
         cmd: 'docker',
-        args: ['build', '--target', target, ...cacheFrom, '.'],
+        args: ['build', '-t', target, ...cacheFrom, '.'],
     });
 }
 

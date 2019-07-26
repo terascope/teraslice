@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const { address } = require('ip');
+const signale = require('signale');
 const Promise = require('bluebird');
 const nanoid = require('nanoid/generate');
 const TerasliceClient = require('teraslice-client-js');
@@ -9,7 +10,7 @@ const ElasticsearchClient = require('elasticsearch').Client;
 
 const { ELASTICSEARCH_URL = 'http://locahost:9200', KAFKA_BROKERS = 'locahost:9092' } = process.env;
 
-const TEST_INDEX_PREFIX = 'test__';
+const TEST_INDEX_PREFIX = 'teratest_';
 const SPEC_INDEX_PREFIX = `${TEST_INDEX_PREFIX}spec`;
 const EXAMPLE_INDEX_PREFIX = `${TEST_INDEX_PREFIX}example`;
 const EXAMLPE_INDEX_SIZES = [100, 1000];
@@ -30,12 +31,12 @@ const compose = require('@terascope/docker-compose-js')('docker-compose.yml');
 const es = _.memoize(
     () => new ElasticsearchClient({
         host: ELASTICSEARCH_URL,
-        log: 'warn'
+        log: 'error'
     })
 );
 
 const teraslice = _.memoize(() => TerasliceClient({
-    host: `http://${MY_IP}:45678`,
+    host: 'http://localhost:45678',
     timeout: 2 * 60 * 1000
 }));
 
@@ -52,10 +53,6 @@ function injectDelay(jobSpec, ms = 1000) {
         },
         ...jobSpec.operations.slice(1, jobSpec.operations.length)
     ];
-}
-
-async function cleanupIndices() {
-    await cleanupIndex(TEST_INDEX_PREFIX);
 }
 
 function newSpecIndex(name) {
@@ -127,6 +124,18 @@ function newId(prefix, lowerCase = false, length = 15) {
     return id;
 }
 
+async function globalTeardown() {
+    signale.time('tear down');
+
+    await compose.down({
+        'remove-orphans': '',
+        volumes: ''
+    });
+
+    await cleanupIndex(`${TEST_INDEX_PREFIX}*`);
+    signale.timeEnd('tear down');
+}
+
 module.exports = {
     newJob,
     cleanupIndex,
@@ -137,8 +146,8 @@ module.exports = {
     injectDelay,
     scaleWorkers,
     scaleService,
-    cleanupIndices,
     getExampleIndex,
+    globalTeardown,
     newSpecIndex,
     MY_IP,
     EXAMLPE_INDEX_SIZES,

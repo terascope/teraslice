@@ -3,11 +3,11 @@
 const ElasticsearchClient = require('elasticsearch').Client;
 const { newId } = require('../lib/utils/id_utils');
 
-const TEST_INDEX_PREFIX = 'test__';
+const TEST_INDEX_PREFIX = 'teratest_';
 
 const {
     ELASTICSEARCH_URL = 'http://localhost:9200',
-    TERASLICE_CLUSTER_NAME = newId(`${TEST_INDEX_PREFIX}_teraslice`, true, 2)
+    TERASLICE_CLUSTER_NAME = newId(`${TEST_INDEX_PREFIX}teraslice`, true, 2)
 } = process.env;
 
 process.env.TERASLICE_CLUSTER_NAME = TERASLICE_CLUSTER_NAME;

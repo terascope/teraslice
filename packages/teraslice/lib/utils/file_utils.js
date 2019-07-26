@@ -1,11 +1,13 @@
 'use strict';
 
+const _ = require('lodash');
 const fs = require('fs');
 const _ = require('lodash');
 const path = require('path');
 const fse = require('fs-extra');
 const shortid = require('shortid');
 const Promise = require('bluebird');
+const { pDelay } = require('@terascope/utils');
 const decompress = require('decompress');
 
 function existsSync(filename) {
