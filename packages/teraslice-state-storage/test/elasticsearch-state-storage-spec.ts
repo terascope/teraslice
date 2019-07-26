@@ -41,7 +41,6 @@ describe('elasticsearch cached state storage', () => {
         }
 
         async mget(mgetSearch: any) {
-            // this.mgetData = mgetSearch;
             return this.mgetData;
         }
 
@@ -123,7 +122,7 @@ describe('elasticsearch cached state storage', () => {
         stateStorage.shutdown();
     });
 
-    it('should save doc in cache and retrieve it', async () => {
+    it('get can pull record from cache', async () => {
         stateStorage.set(doc);
         const stateDoc = await stateStorage.get(doc);
 
@@ -131,8 +130,42 @@ describe('elasticsearch cached state storage', () => {
         expect(DataEntity.isDataEntity(stateDoc)).toEqual(true);
     });
 
+    it('get can pull record from elasticsearch if not in cache', async () => {
+        const myDoc = docArray.slice(0, 1)[0];
+        const getData = createMgetData([myDoc])[0];
+        client.setGetData(getData);
+
+        const stateDoc = await stateStorage.get(myDoc);
+
+        expect(stateDoc).toEqual(myDoc);
+        expect(DataEntity.isDataEntity(stateDoc)).toEqual(true);
+    });
+
+    it('getFromCache/isCached checks cache, not elasticsearch for doc', async () => {
+        const myDoc = docArray.slice(0, 1)[0];
+        // @ts-ignore
+        const notFoundData = createMgetData([myDoc], false)[0];
+        const foundData = createMgetData([myDoc])[0];
+
+        client.setGetData(notFoundData);
+
+        const empty = stateStorage.getFromCache(myDoc);
+
+        expect(empty).toBeUndefined();
+        expect(stateStorage.isCached(myDoc)).toEqual(false);
+
+        client.setGetData(foundData);
+
+        const stateDoc = await stateStorage.get(myDoc);
+
+        expect(stateDoc).toEqual(myDoc);
+        expect(DataEntity.isDataEntity(stateDoc)).toEqual(true);
+        expect(stateStorage.isCached(myDoc)).toEqual(true);
+
+    });
+
     it('should save many docs to cache and retrieve', async () => {
-        await stateStorage.mset(docArray, idField);
+        await stateStorage.mset(docArray);
 
         const saved1 = await stateStorage.get(docArray[0]);
         const saved2 = await stateStorage.get(docArray[1]);
@@ -210,6 +243,26 @@ describe('elasticsearch cached state storage', () => {
         });
     });
 
+    it('sync should chech cache/fetch data but not return anything', async () => {
+        const results: DataEntity[] = [];
+        const setResults = (data: DataEntity) => results.push(data);
+        // set doc in cache
+        await stateStorage.mset(docArray.slice(0, 1));
+
+        // create bulk response
+        client.setMGetData({ docs: createMgetData(docArray.slice(1, 3)) });
+
+        // state response
+        const response = await stateStorage.sync(docArray);
+
+        expect(response).toBeUndefined();
+
+        await stateStorage.cache.values(setResults);
+
+        expect(results.length).toBe(3);
+        expect(results.reverse()).toEqual(docArray);
+    });
+
     it('should return all the found and cached docs', async () => {
         const mgetDocArray: DataEntity[] = [];
         for (let i = 0; i < 5000; i += 1) {
@@ -260,38 +313,5 @@ describe('elasticsearch cached state storage', () => {
         } catch (err) {
             expect(err.message.includes('There is no field "_key" set in the metadata')).toEqual(true);
         }
-    });
-
-    it('dedupe removes docs with duplicate keys', () => {
-        const doubleDocs = [...docArray, ...docArray];
-        // @ts-ignore
-        const deduped = stateStorage._dedupeDocs(doubleDocs);
-        expect(doubleDocs.length).toBe(6);
-        expect(deduped.length).toBe(3);
-    });
-
-    it('should log if mget drops keys from cache', async () => {
-        const testConfig: ESStateStorageConfig = {
-            index: 'some_index',
-            type: 'sometype',
-            concurrency: 10,
-            source_fields: [],
-            chunk_size: 10,
-            cache_size: 2,
-            persist: false,
-            persist_field: idField
-        };
-        let msg;
-
-        const testLogger = {
-            info: (_msg:string) => msg = _msg
-        };
-        // @ts-ignore
-        const testStateStorage = new ESCachedStateStorage(client, testLogger, testConfig);
-        // create bulk response
-        client.setMGetData({ docs: createMgetData(docArray.slice()) });
-        // state response
-        await testStateStorage.mget(docArray);
-        expect(msg).toEqual('1 keys have been evicted from elasticsearch-state-storgae cache');
     });
 });

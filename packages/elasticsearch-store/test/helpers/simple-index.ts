@@ -1,4 +1,5 @@
 import { Overwrite } from '@terascope/utils';
+import { ESTypeMappings } from '@terascope/data-types';
 
 export interface SimpleRecord {
     test_id: string;
@@ -10,21 +11,24 @@ export interface SimpleRecord {
     _updated: string;
 }
 
-export type SimpleRecordInput = Overwrite<SimpleRecord, {
-    test_number?: number;
-    test_boolean?: boolean;
-    _created?: Date|string;
-    _updated?: Date|string;
-}>;
+export type SimpleRecordInput = Overwrite<
+    SimpleRecord,
+    {
+        test_number?: number;
+        test_boolean?: boolean;
+        _created?: Date | string;
+        _updated?: Date | string;
+    }
+>;
 
 export const schema = {
     additionalProperties: false,
     properties: {
         test_id: {
-            type: 'string'
+            type: 'string',
         },
         test_keyword: {
-            type: 'string'
+            type: 'string',
         },
         test_object: {
             type: 'object',
@@ -44,37 +48,37 @@ export const schema = {
         },
         _updated: {
             format: 'date-time',
-        }
+        },
     },
-    required: ['test_id', 'test_keyword']
+    required: ['test_id', 'test_keyword'],
 };
 
-export const mapping = {
+export const mapping: ESTypeMappings = {
     _all: {
-        enabled: false
+        enabled: false,
     },
     dynamic: false,
     properties: {
         test_id: {
-            type: 'keyword'
+            type: 'keyword',
         },
         test_keyword: {
-            type: 'keyword'
+            type: 'keyword',
         },
         test_object: {
-            type: 'object'
+            type: 'object',
         },
         test_boolean: {
-            type: 'boolean'
+            type: 'boolean',
         },
         test_number: {
-            type: 'integer'
+            type: 'integer',
         },
         _created: {
-            type: 'date'
+            type: 'date',
         },
         _updated: {
-            type: 'date'
-        }
-    }
+            type: 'date',
+        },
+    },
 };

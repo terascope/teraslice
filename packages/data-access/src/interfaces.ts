@@ -1,5 +1,5 @@
 import { Logger } from '@terascope/utils';
-import { IndexConfig, FindOptions, FindOneOptions } from 'elasticsearch-store';
+import { FindOptions, FindOneOptions } from 'elasticsearch-store';
 import * as models from './models';
 
 export type ModelName = 'User' | 'Role' | 'DataType' | 'Space' | 'View';
@@ -13,7 +13,6 @@ export type FindOneArgs<T> = { id: string } & FindOneOptions<T>;
 
 export interface ManagerConfig {
     namespace?: string;
-    storeOptions?: Partial<IndexConfig>;
     logger?: Logger;
 }
 
@@ -25,7 +24,7 @@ export interface InputQuery {
     q?: string;
     start?: number | string;
     fields?: string | string[];
-    history?: boolean;
+    history?: number;
     history_start?: string;
     geo_sort_point?: string;
     geo_sort_order?: SortOrder;

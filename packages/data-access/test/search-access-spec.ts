@@ -213,6 +213,28 @@ describe('SearchAccess', () => {
                 });
             });
 
+            it('should be able to handle stringified values', () => {
+                const searchAccess = makeWith({
+                    sort_default: 'default:asc',
+                    sort_enabled: true,
+                    index: 'cool',
+                });
+
+                const query: InputQuery = {
+                    q: 'howdy',
+                    size: '1000',
+                    start: '10',
+                };
+
+                const params = searchAccess.getSearchParams(query);
+
+                expect(params).toMatchObject({
+                    q: 'howdy',
+                    size: 1000,
+                    from: 10,
+                });
+            });
+
             it('should be able to handle complex query options', () => {
                 const query: InputQuery = {
                     q: 'example:hello',
@@ -310,6 +332,87 @@ describe('SearchAccess', () => {
             });
 
             it('should be able to return a valid result', () => {
+                const total = 5;
+                const input: unknown = {
+                    _shards: {
+                        total: 2,
+                    },
+                    hits: {
+                        hits: ts.times(total, n => ({
+                            _index: 'example',
+                            _source: {
+                                example: n,
+                            },
+                        })),
+                        total,
+                    },
+                };
+
+                const searchAccess = makeWith({
+                    index: 'example',
+                    sort_enabled: true,
+                });
+
+                const query = {
+                    sort: 'example:asc',
+                    start: 0,
+                    size: 2,
+                };
+
+                const params = searchAccess.getSearchParams(query);
+
+                const result = searchAccess.getSearchResponse(input as SearchResponse<any>, query, params);
+                expect(result).toEqual({
+                    total,
+                    info: '5 results found. Returning 2.',
+                    returning: 2,
+                    results: ts.times(total, n => ({
+                        example: n,
+                    })),
+                });
+            });
+
+            it('should be able to return a valid "Returning" result', () => {
+                const total = 150;
+                const input: unknown = {
+                    _shards: {
+                        total: 2,
+                    },
+                    hits: {
+                        hits: ts.times(total, n => ({
+                            _index: 'example',
+                            _source: {
+                                example: n,
+                            },
+                        })),
+                        total,
+                    },
+                };
+
+                const searchAccess = makeWith({
+                    index: 'example',
+                    sort_enabled: true,
+                });
+
+                const query = {
+                    sort: 'example:asc',
+                    start: 0,
+                };
+
+                const params = searchAccess.getSearchParams(query);
+
+                const result = searchAccess.getSearchResponse(input as SearchResponse<any>, query, params);
+                expect(result).toEqual({
+                    total,
+                    info: '150 results found. Returning 100.',
+                    returning: 100,
+                    results: ts.times(total, n => ({
+                        example: n,
+                    })),
+                });
+            });
+
+            it('should be able to return a valid result when not requesting a "size"', () => {
                 const total = 5;
                 const input: unknown = {
                     _shards: {

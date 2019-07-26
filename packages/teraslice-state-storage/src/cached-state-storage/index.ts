@@ -1,63 +1,72 @@
 
-import LRU from 'mnemonist/lru-cache';
+import LRU from 'mnemonist/lru-map';
 import { promisify } from 'util';
-import { CacheConfig, MGetCacheResponse, SetTuple, ValuesFn } from '../interfaces';
+import { EventEmitter } from 'events';
+
+import {
+    CacheConfig,
+    MGetCacheResponse,
+    SetTuple,
+    ValuesFn,
+    EvictedEvent
+} from '../interfaces';
 
 const immediate = promisify(setImmediate);
 
-export default class CachedStateStorage<T> {
+export default class CachedStateStorage<T> extends EventEmitter {
     protected IDField: string;
-    private cache: LRU<string, T>;
+    private _cache: LRU<string, T>;
 
     constructor(config: CacheConfig) {
+        super();
         this.IDField = '_key';
-        this.cache = new LRU(config.cache_size);
+        this._cache = new LRU(config.cache_size);
     }
 
     get(key: string): T | undefined {
-        return this.cache.get(key);
+        return this._cache.get(key);
     }
 
     mget(keyArray: string[]): MGetCacheResponse {
         return keyArray.reduce((cachedState, key) => {
-            const state = this.cache.get(key);
+            const state = this.get(key);
             if (state) cachedState[key] = state;
             return cachedState;
         }, {});
     }
 
     set(key: string, value: T) {
-        const results = this.cache.setpop(key, value);
-        if (results && results.evicted) return results;
-        return undefined;
+        const results = this._cache.setpop(key, value);
+        if (results && results.evicted) this.emit('eviction', { key: results.key, data: results.value } as EvictedEvent<T>);
     }
 
     mset(docArray: SetTuple<T>[]) {
-        return docArray.map(doc => this.set(doc.key, doc.data)).filter(Boolean);
+        docArray.forEach(doc => this.set(doc.key, doc.data));
     }
 
     count() {
-        return this.cache.size;
+        return this._cache.size;
     }
 
     async values(fn: ValuesFn<T>) {
-        const iterator = this.cache.values();
-        // @ts-ignore
-        while (!iterator.done) {
-            const next = iterator.next();
-            const { done, value } = next;
-            if (!done) fn(value);
-            await immediate();
+        let i = 0;
+        for (const [, value] of this._cache) {
+            fn(value);
+            if (i % 100000 === 0) {
+                await immediate();
+            }
+            i++;
         }
     }
 
     has(key: string) {
-        return this.cache.has(key);
+        return this._cache.has(key);
     }
 
     initialize() {}
 
     clear() {
-        this.cache.clear();
+        this.removeAllListeners();
+        this._cache.clear();
     }
 }

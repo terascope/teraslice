@@ -8,7 +8,7 @@ export default class BooleanType extends BaseType {
     }
 
     toGraphQL() {
-        return { type: this._formatGql('Boolean') };
+        return this._formatGql('Boolean');
     }
 
     toXlucene() {

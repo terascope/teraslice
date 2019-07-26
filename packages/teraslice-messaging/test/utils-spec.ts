@@ -1,5 +1,5 @@
 import 'jest-extended'; // require for type definitions
-const { formatURL } = require('../src');
+import { formatURL } from '../src';
 
 describe('Utils', () => {
     describe('->formatUrl', () => {

@@ -14,13 +14,13 @@ describe('IndexManager->indexSetup()', () => {
 
         const config: IndexConfig = {
             name: 'test__simple',
-            indexSchema: {
+            index_schema: {
                 version: 1,
                 mapping: simple.mapping,
                 strict: true,
             },
             version: 1,
-            indexSettings: {
+            index_settings: {
                 'index.number_of_shards': 1,
                 'index.number_of_replicas': 0,
             },
@@ -73,14 +73,14 @@ describe('IndexManager->indexSetup()', () => {
 
         const config: IndexConfig = {
             name: 'test__template',
-            indexSchema: {
+            index_schema: {
                 version: 1,
                 mapping: template.mapping,
                 template: true,
                 strict: true,
             },
             version: 1,
-            indexSettings: {
+            index_settings: {
                 'index.number_of_shards': 1,
                 'index.number_of_replicas': 0,
             },
@@ -140,16 +140,16 @@ describe('IndexManager->indexSetup()', () => {
 
         it('should be able upsert the same template safely', async () => {
             // @ts-ignore
-            const mapping = config.indexSchema.mapping;
+            const mapping = config.index_schema.mapping;
             // @ts-ignore
-            const version = config.indexSchema.version;
+            const version = config.index_schema.version;
 
             const mappings = {};
             mappings[config.name] = mapping;
 
             await indexManager.upsertTemplate({
                 template: templateName,
-                settings: config.indexSettings,
+                settings: config.index_settings,
                 mappings,
                 version,
             });
@@ -163,8 +163,8 @@ describe('IndexManager->indexSetup()', () => {
         });
 
         it('should be able to upsert a newer template safely', async () => {
-            const mapping = R.pathOr({}, ['indexSchema', 'mapping'], config);
-            const version = R.pathOr(1, ['indexSchema', 'version'], config);
+            const mapping = R.pathOr({}, ['index_schema', 'mapping'], config);
+            const version = R.pathOr(1, ['index_schema', 'version'], config);
 
             const mappings = {};
             mappings[config.name] = mapping;
@@ -172,7 +172,7 @@ describe('IndexManager->indexSetup()', () => {
             const newVersion = version + 1;
             await indexManager.upsertTemplate({
                 template: templateName,
-                settings: config.indexSettings,
+                settings: config.index_settings,
                 mappings,
                 version: newVersion,
             });
@@ -196,7 +196,7 @@ describe('IndexManager->indexSetup()', () => {
 
         const config: IndexConfig = {
             name: 'test__timeseries',
-            indexSchema: {
+            index_schema: {
                 version: 1,
                 mapping: template.mapping,
                 template: true,
@@ -205,7 +205,7 @@ describe('IndexManager->indexSetup()', () => {
                 strict: true,
             },
             version: 1,
-            indexSettings: {
+            index_settings: {
                 'index.number_of_shards': 1,
                 'index.number_of_replicas': 0,
             },

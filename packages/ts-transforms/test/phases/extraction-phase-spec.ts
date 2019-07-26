@@ -1,4 +1,4 @@
-
+import 'jest-extended';
 import path from 'path';
 import { DataEntity, debugLogger } from '@terascope/utils';
 import { ExtractionPhase, Loader, OperationsManager, ExtractionProcessingDict } from '../../src';
@@ -62,11 +62,11 @@ describe('extraction phase', () => {
         const extractionPhase = new ExtractionPhase(transformOpconfig, configList, opManager);
 
         const data = [
-            { some: 'data',  bytes: 367, myfield: 'something' },
+            { some: 'data', bytes: 367, myfield: 'something' },
             { other: 'zabc', myfield: 'field1=something' },
             { some: 'data', someField: 'something' },
             { hostname: 'www.example.com', pathLat: '/path/tiles/latitude/53.453', pathLon: '/path/tiles/longitude/46.343' },
-            { location: '33.242, -111.453' }
+            { location: '33.242, -111.453' },
         ];
 
         const metaArray = [
@@ -74,7 +74,7 @@ describe('extraction phase', () => {
             { selectors: ['other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z'] },
             { selectors: ['some:data'] },
             { selectors: ['hostname:www.example.com'] },
-            { selectors: ['location:(_geo_box_top_left_: \"33.906320,  -112.758421\" _geo_box_bottom_right_:\"32.813646,-111.058902\")'] }
+            { selectors: ['location:(_geo_box_top_left_: "33.906320,  -112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")'] },
         ];
 
         const resultsArray = [
@@ -82,7 +82,7 @@ describe('extraction phase', () => {
             { topfield: { value1: 'something' } },
             { wholeRegexResponse: 'something', partRegexResponse: 'thing' },
             { location: { lat: '53.453', lon: '46.343' } },
-            { point: '33.242, -111.453' }
+            { point: '33.242, -111.453' },
         ];
 
         const dataArray = data.map((obj, ind) => new DataEntity(obj, metaArray[ind]));
@@ -102,12 +102,12 @@ describe('extraction phase', () => {
         const key = '12345680';
         const date = new Date().toISOString();
         const metaData = {
-            selectors: ['domain:example.com', '*']
+            selectors: ['domain:example.com', '*'],
         };
 
         const data = [
             new DataEntity({ domain: 'www.example.com', url: 'http://hello.com?value=hello&value2=goodbye', date, key }, metaData),
-            new DataEntity({ domain: 'www.example.com', url: 'http://hello.com?value3=hello&value4=goodbye', date, key }, metaData)
+            new DataEntity({ domain: 'www.example.com', url: 'http://hello.com?value3=hello&value4=goodbye', date, key }, metaData),
         ];
 
         const results = extractionPhase.run(data);

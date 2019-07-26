@@ -1,10 +1,10 @@
 import Text from '../../../src/types/versions/v1/text';
 import { TSError } from '@terascope/utils';
-import { Type } from '../../../src/interfaces';
+import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Text V1', () => {
     const field = 'someField';
-    const typeConfig: Type = { type: 'Text' };
+    const typeConfig: FieldTypeConfig = { type: 'Text' };
 
     it('can requires a field and proper configs', () => {
         try {

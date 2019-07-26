@@ -1,15 +1,14 @@
-
 import FloatType from '../../../src/types/versions/v1/float';
 import { TSError } from '@terascope/utils';
-import { Type } from '../../../src/interfaces';
+import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Float V1', () => {
     const field = 'someField';
-    const typeConfig: Type = { type: 'Float' };
+    const typeConfig: FieldTypeConfig = { type: 'Float' };
 
     it('can requires a field and proper configs', () => {
         try {
-           // @ts-ignore
+            // @ts-ignore
             new FloatType();
             throw new Error('it should have errored with no configs');
         } catch (err) {

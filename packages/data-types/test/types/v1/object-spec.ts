@@ -1,10 +1,10 @@
 import ObejctType from '../../../src/types/versions/v1/object';
-import { Type } from '../../../src/interfaces';
+import { FieldTypeConfig } from '../../../src/interfaces';
 import { TSError } from '@terascope/utils';
 
 describe('Object V1', () => {
     const field = 'someField';
-    const typeConfig: Type = { type: 'Object' };
+    const typeConfig: FieldTypeConfig = { type: 'Object' };
 
     it('can requires a field and proper configs', () => {
         try {
@@ -39,7 +39,7 @@ describe('Object V1', () => {
 
     it('can get proper graphQl types when given an array', () => {
         const graphQlTypes = new ObejctType(field, { ...typeConfig, array: true }).toGraphQL();
-        const results = { type: `${field}: [JSON]`, custom_type: 'scalar JSON' };
+        const results = { type: `${field}: JSON`, custom_type: 'scalar JSON' };
 
         expect(graphQlTypes).toEqual(results);
     });

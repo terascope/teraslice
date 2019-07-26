@@ -23,7 +23,7 @@ export default class Boundary extends BaseType {
                 lon: Int!
             }
         `;
-        return { type: this._formatGql('GeoBoundaryType'), custom_type: customType };
+        return this._formatGql('GeoBoundaryType', customType);
     }
 
     toXlucene() {

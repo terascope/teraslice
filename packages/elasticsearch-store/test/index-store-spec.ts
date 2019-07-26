@@ -30,22 +30,22 @@ describe('IndexStore', () => {
     const index = 'test__store-v1-s1';
     const config: IndexConfig = {
         name: 'test__store',
-        indexSchema: {
+        index_schema: {
             version: 1,
             mapping,
             strict: true,
         },
         version: 1,
-        indexSettings: {
+        index_settings: {
             'index.number_of_shards': 1,
             'index.number_of_replicas': 0,
         },
         logger,
-        bulkMaxSize: 50,
-        bulkMaxWait: 300,
-        idField: 'test_id',
-        ingestTimeField: '_created',
-        eventTimeField: '_updated',
+        bulk_max_size: 50,
+        bulk_max_wait: 300,
+        id_field: 'test_id',
+        ingest_time_field: '_created',
+        event_time_field: '_updated',
     };
 
     describe('when constructed without a data schema', () => {
@@ -504,9 +504,9 @@ describe('IndexStore', () => {
         const _client = makeClient();
 
         const configWithDataSchema = Object.assign(config, {
-            dataSchema: {
+            data_schema: {
                 schema,
-                allFormatters: true,
+                all_formatters: true,
                 strict: true,
             },
         });

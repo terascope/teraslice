@@ -8,7 +8,7 @@ export default class Float extends BaseType {
     }
 
     toGraphQL() {
-        return { type: this._formatGql('Float') };
+        return this._formatGql('Float');
     }
 
     toXlucene() {

@@ -1,33 +1,20 @@
 import BaseType from './types/versions/base-type';
-import { TypeConfig } from 'xlucene-evaluator';
+import { AnyObject } from '@terascope/utils';
 
-export interface GraphQlResults {
-    results: string;
+export type GraphQLTypesResult = {
+    schema: string;
     baseType: string;
     customTypes: string[];
-}
+};
 
-interface ObjectConfig {
-    [key: string]: any;
-}
-
-export interface GraphQLArgs {
+export type GraphQLOptions = {
     typeName?: string;
-    typeInjection?: string;
-}
+    references?: string[];
+};
 
-export interface MappingConfiguration {
-    typeName?: string;
-    settings?: ESMapSettings;
-    mappingMetaData?: ObjectConfig;
-}
-
-export interface DataTypeManager {
-    toESMapping(args: MappingConfiguration): any;
-    toGraphQL(args?: GraphQLArgs): string;
-    toGraphQLTypes(args?: GraphQLArgs): GraphQlResults;
-    toXlucene(): TypeConfig;
-}
+export type GraphQLTypeReferences = { __all?: string[] } & {
+    [typeName: string]: string[];
+};
 
 export type ElasticSearchTypes =
     | 'long'
@@ -40,6 +27,7 @@ export type ElasticSearchTypes =
     | 'text'
     | 'boolean'
     | 'ip'
+    | 'date'
     | 'geo_point'
     | 'object';
 
@@ -89,21 +77,21 @@ export const AvailableTypes: AvailableType[] = [
 export type AvailableVersion = 1;
 export const AvailableVersions: AvailableVersion[] = [1];
 
-export type Type = {
+export type FieldTypeConfig = {
     type: AvailableType;
     array?: boolean;
 };
 
 type ActualType = {
-    [key in AvailableType]: { new (field: string, config: Type): BaseType };
+    [key in AvailableType]: {
+        new (field: string, config: FieldTypeConfig): BaseType;
+    }
 };
 
-export type DataTypeMapping = {
-    [key in AvailableVersion]: ActualType;
-};
+export type DataTypeMapping = { [key in AvailableVersion]: ActualType };
 
 export type TypeConfigFields = {
-    [key: string]: Type;
+    [key: string]: FieldTypeConfig;
 };
 
 export type DataTypeConfig = {
@@ -111,20 +99,36 @@ export type DataTypeConfig = {
     version: AvailableVersion;
 };
 
-export type ESTypeMapping = PropertyESTypeMapping | BasicESTypeMapping;
-
-interface BasicESTypeMapping {
-    type: ElasticSearchTypes;
+export interface GraphQLType {
+    type: string;
+    custom_type?: string;
 }
 
-interface PropertyESTypeMapping {
+export type ESTypeMapping = PropertyESTypeMapping | FieldsESTypeMapping | BasicESTypeMapping;
+
+type BasicESTypeMapping = {
+    type: ElasticSearchTypes;
+};
+
+type FieldsESTypeMapping = {
+    type: ElasticSearchTypes | string;
+    fields: {
+        [key: string]: {
+            type: ElasticSearchTypes | string;
+            index?: boolean | string;
+            analyzer?: string;
+        };
+    };
+};
+
+type PropertyESTypeMapping = {
     type?: 'nested';
     properties: {
-        [key: string]: BasicESTypeMapping;
+        [key: string]: FieldsESTypeMapping | BasicESTypeMapping;
     };
-}
+};
 
-export interface ESMapping {
+export interface TypeESMapping {
     mapping: {
         [key: string]: ESTypeMapping;
     };
@@ -136,17 +140,52 @@ export interface ESMapping {
     };
 }
 
-export interface GraphQLType {
-    type: string;
-    custom_type?: string;
+export interface ESMappingOptions {
+    /**
+     * The elasticsearch index type
+     */
+    typeName?: string;
+    /**
+     * Any elasitcsearch mapping overrides,
+     * uses a deep assignment so nested fields can be overwritten.
+     */
+    overrides?: Partial<ESMapping>;
 }
 
-export interface ESMapSettings {
+export interface ESTypeMappings extends AnyObject {
+    _all?: {
+        enabled?: boolean;
+        [key: string]: any;
+    };
+    dynamic?: boolean;
+    properties: {
+        [key: string]: ESTypeMapping;
+    };
+}
+
+export interface ESMapping {
+    mappings: {
+        [typeName: string]: ESTypeMappings;
+    };
+    template?: string;
+    order?: number;
+    aliases?: AnyObject;
+    index_patterns?: string[];
+    settings: ESIndexSettings;
+}
+
+export interface ESIndexSettings {
     'index.number_of_shards'?: number;
     'index.number_of_replicas'?: number;
+    'index.refresh_interval'?: string;
+    'index.max_result_window'?: number;
     analysis?: {
-        analyzer: {
+        analyzer?: {
+            [key: string]: any;
+        };
+        tokenizer?: {
             [key: string]: any;
         };
     };
+    [setting: string]: any;
 }

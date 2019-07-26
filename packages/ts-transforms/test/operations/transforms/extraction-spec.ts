@@ -106,39 +106,123 @@ describe('transform operator', () => {
         expect(results3).toEqual({ otherField: ['data'] });
     });
 
-    it('can transform data with regex', () => {
-        const opConfig = { regex: /d.*ta/, source_field: 'someField', target_field: 'otherField', __id: 'someId', mutate: false };
-        const test = new Extraction(opConfig);
+    describe('regexp handling', () => {
 
-        const data1 = new DataEntity({ someField: '56.234,95.234' });
-        const data2 = new DataEntity({});
-        const data3 = new DataEntity({ someField: 'data' });
-        const data4 = new DataEntity({ someField: { some: 'data' } });
-        const data5 = new DataEntity({ someField: false });
-        const data6 = new DataEntity({ someField: 'other' });
-        const data7 = new DataEntity({ otherField: 'data' });
-        const data8 = new DataEntity({ someField: ['other', 'data'] });
-        const data9 = new DataEntity({ someField: ['otherdatastruff', 'data'] });
+        it('can transform data with regex', () => {
+            const opConfig = {
+                regex: '/d.*ta/',
+                source_field: 'someField',
+                target_field: 'otherField',
+                __id: 'someId',
+                mutate: false
+            };
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
-        const results3 = test.run(data3);
-        const results4 = test.run(data4);
-        const results5 = test.run(data5);
-        const results6 = test.run(data6);
-        const results7 = test.run(data7);
-        const results8 = test.run(data8);
-        const results9 = test.run(data9);
+            const test = new Extraction(opConfig);
 
-        expect(results1).toEqual(null);
-        expect(results2).toEqual(null);
-        expect(results3).toEqual({ otherField: 'data' });
-        expect(results4).toEqual(null);
-        expect(results5).toEqual(null);
-        expect(results6).toEqual(null);
-        expect(results7).toEqual(null);
-        expect(results8).toEqual({ otherField: ['data'] });
-        expect(results9).toEqual({ otherField: ['data', 'data'] });
+            const data1 = new DataEntity({ someField: '56.234,95.234' });
+            const data2 = new DataEntity({});
+            const data3 = new DataEntity({ someField: 'data' });
+            const data4 = new DataEntity({ someField: { some: 'data' } });
+            const data5 = new DataEntity({ someField: false });
+            const data6 = new DataEntity({ someField: 'other' });
+            const data7 = new DataEntity({ otherField: 'data' });
+            const data8 = new DataEntity({ someField: ['other', 'data'] });
+            const data9 = new DataEntity({ someField: ['otherdatastruff', 'data'] });
+
+            const results1 = test.run(data1);
+            const results2 = test.run(data2);
+            const results3 = test.run(data3);
+            const results4 = test.run(data4);
+            const results5 = test.run(data5);
+            const results6 = test.run(data6);
+            const results7 = test.run(data7);
+            const results8 = test.run(data8);
+            const results9 = test.run(data9);
+            expect(results1).toEqual(null);
+            expect(results2).toEqual(null);
+            expect(results3).toEqual({ otherField: 'data' });
+            expect(results4).toEqual(null);
+            expect(results5).toEqual(null);
+            expect(results6).toEqual(null);
+            expect(results7).toEqual(null);
+            expect(results8).toEqual({ otherField: ['data'] });
+            expect(results9).toEqual({ otherField: ['data', 'data'] });
+        });
+
+        it('regex matching multiple values with a capturing group will return an array', () => {
+            const opConfig = {
+                regex: '/<(.*?)>/',
+                source_field: 'field',
+                target_field: 'otherField',
+                __id: 'someId',
+                multivalue: true,
+                mutate: false
+            };
+            const test = new Extraction(opConfig);
+            const field = '<tag1> something <tag2>';
+
+            const data = new DataEntity({ field });
+
+            const results = test.run(data);
+
+            expect(results).toEqual({ otherField: ['tag1', 'tag2'] });
+        });
+
+        it('regex matching multiple values with mutliple capturing group will return an array', () => {
+            const opConfig = {
+                regex: '<(\\w+)>.*<(\\d+)>',
+                source_field: 'field',
+                target_field: 'otherField',
+                __id: 'someId',
+                multivalue: true,
+                mutate: false
+            };
+            const test = new Extraction(opConfig);
+            const field = '<tag1> hello <1234>';
+
+            const data = new DataEntity({ field });
+
+            const results = test.run(data);
+
+            expect(results).toEqual({ otherField: ['tag1', '1234'] });
+        });
+
+        it('can match extended values', () => {
+            const opConfig = {
+                regex: '<(\\w+)>\\s\\w+\\s+<(\\d+)>',
+                source_field: 'field',
+                target_field: 'otherField',
+                __id: 'someId',
+                multivalue: true,
+                mutate: false
+            };
+            const test = new Extraction(opConfig);
+            const field = '<tag1> hello <1234> <tag2> hello <4567>';
+
+            const data = new DataEntity({ field });
+
+            const results = test.run(data);
+
+            expect(results).toEqual({ otherField: ['tag1', '1234', 'tag2', '4567'] });
+        });
+
+        it('can have sub capturing groups', () => {
+            const opConfig = {
+                regex: '<(?:(\\w+)-(\\d+))>.*<(\\d+)>',
+                source_field: 'field',
+                target_field: 'otherField',
+                __id: 'someId',
+                multivalue: true,
+                mutate: false
+            };
+            const test = new Extraction(opConfig);
+            const field = '<tag-1> hello <1234>';
+
+            const data = new DataEntity({ field });
+
+            const results = test.run(data);
+            expect(results).toEqual({ otherField: ['tag', '1', '1234'] });
+        });
     });
 
     it('can maintain extract array values to array extractions and singular values to singular extractions', () => {

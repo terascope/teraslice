@@ -1,10 +1,10 @@
 import BooleanType from '../../../src/types/versions/v1/boolean';
-import { Type } from '../../../src/interfaces';
+import { FieldTypeConfig } from '../../../src/interfaces';
 import { TSError } from '@terascope/utils';
 
 describe('Boolean V1', () => {
     const field = 'someField';
-    const typeConfig: Type = { type: 'Boolean' };
+    const typeConfig: FieldTypeConfig = { type: 'Boolean' };
 
     it('can requires a field and proper configs', () => {
         try {

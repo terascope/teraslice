@@ -1,14 +1,14 @@
 import Hostname from '../../../src/types/versions/v1/hostname';
 import { TSError } from '@terascope/utils';
-import { Type, ElasticSearchTypes } from '../../../src/interfaces';
+import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('Hostname V1', () => {
     const field = 'someField';
-    const typeConfig: Type = { type: 'Hostname' };
+    const typeConfig: FieldTypeConfig = { type: 'Hostname' };
 
     it('can requires a field and proper configs', () => {
         try {
-           // @ts-ignore
+            // @ts-ignore
             new Hostname();
             throw new Error('it should have errored with no configs');
         } catch (err) {
@@ -33,34 +33,34 @@ describe('Hostname V1', () => {
                     fields: {
                         tokens: {
                             type: 'text' as ElasticSearchTypes,
-                            analyzer: 'standard'
+                            analyzer: 'standard',
                         },
                         right: {
                             type: 'text' as ElasticSearchTypes,
                             analyzer: 'domain_analyzer',
-                            search_analyzer: 'lowercase_keyword_analyzer'
-                        }
-                    }
-                }
+                            search_analyzer: 'lowercase_keyword_analyzer',
+                        },
+                    },
+                },
             },
             analyzer: {
                 lowercase_keyword_analyzer: {
                     tokenizer: 'keyword',
-                    filter: 'lowercase'
+                    filter: 'lowercase',
                 },
                 domain_analyzer: {
-                    filter : 'lowercase',
-                    type : 'custom',
-                    tokenizer : 'domain_tokens'
-                }
+                    filter: 'lowercase',
+                    type: 'custom',
+                    tokenizer: 'domain_tokens',
+                },
             },
-            tokenizer : {
-                domain_tokens : {
-                    reverse : 'true',
-                    type : 'PathHierarchy',
-                    delimiter : '.'
-                }
-            }
+            tokenizer: {
+                domain_tokens: {
+                    reverse: 'true',
+                    type: 'PathHierarchy',
+                    delimiter: '.',
+                },
+            },
         };
 
         expect(esMapping).toEqual(results);

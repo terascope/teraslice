@@ -54,6 +54,11 @@ export interface MGetDoc {
 
 export type ValuesFn<T> = (doc: T) => void;
 
+export interface EvictedEvent<T> {
+    key: string;
+    data: T;
+}
+
 export interface SetTuple<T> {
     key: string;
     data: T;
