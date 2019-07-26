@@ -4,14 +4,14 @@ import express from 'express';
 import { Server } from 'http';
 import { GraphQLClient } from 'graphql-request';
 import { TestContext } from '@terascope/job-components';
+import { LATEST_VERSION, TypeConfigFields } from '@terascope/data-types';
 import { makeClient, cleanupIndexes, deleteIndices, populateIndex } from './helpers/elasticsearch';
 import { PluginConfig } from '../src/interfaces';
 import ManagerPlugin from '../src/manager';
 import SearchPlugin from '../src/search';
 import QueryPointPlugin from '../src/query-point';
-import { LATEST_VERSION } from '@terascope/data-types';
 
-describe('Spaces API', () => {
+describe('Query Point API', () => {
     const client = makeClient();
 
     const app = express();
@@ -70,21 +70,7 @@ describe('Spaces API', () => {
     const date2 = new Date(startingDate.getTime() + 2000000);
     const date3 = new Date(startingDate.getTime() + 3000000);
 
-    function createTypes(obj: any) {
-        const results = [];
-        for (const key in obj) {
-            results.push(`${key}: { type: ${obj[key].type} },`);
-        }
-
-        return `
-            fields: {
-                ${results.join('\n')}
-            },
-            version: ${LATEST_VERSION}
-        `;
-    }
-
-    const space1Properties = {
+    const space1Properties: TypeConfigFields = {
         ip: { type: 'IP' },
         ipv6: { type: 'IP' },
         url: { type: 'Keyword' },
@@ -94,9 +80,9 @@ describe('Spaces API', () => {
         bytes: { type: 'Long' },
     };
 
-    const space2Properties = {
+    const space2Properties: TypeConfigFields = {
         ip: { type: 'IP' },
-        url: { type: 'Keyword', array: true },
+        urls: { type: 'Keyword', array: true },
         location: { type: 'Geo' },
         bytes: { type: 'Long' },
         created: { type: 'Date' },
@@ -104,11 +90,14 @@ describe('Spaces API', () => {
         bool: { type: 'Boolean' },
     };
 
-    const space3Properties = {
+    const space3Properties: TypeConfigFields = {
         location: { type: 'Geo' },
         bytes: { type: 'Long' },
         wasFound: { type: 'Boolean' },
         date: { type: 'Date' },
+        'nested.field': {
+            type: 'Keyword',
+        },
     };
 
     const space1Data: any[] = [
@@ -153,7 +142,7 @@ describe('Spaces API', () => {
     const space2Data: any[] = [
         {
             ip: '152.223.244.212',
-            url: 'http://google.com',
+            urls: ['http://google.com'],
             location: {
                 lat: '0.05102',
                 lon: '-41.82129',
@@ -165,7 +154,7 @@ describe('Spaces API', () => {
         },
         {
             ip: '152.113.244.212',
-            url: 'http://amazon.com',
+            urls: ['http://amazon.com'],
             location: {
                 lat: '81.90873',
                 lon: '-98.281',
@@ -177,7 +166,7 @@ describe('Spaces API', () => {
         },
         {
             ip: '152.113.244.200',
-            url: 'http://twitter.com',
+            urls: ['http://twitter.com'],
             location: {
                 lat: '61.90873',
                 lon: '-118.281',
@@ -197,6 +186,9 @@ describe('Spaces API', () => {
             },
             bytes: 1234,
             wasFound: true,
+            nested: {
+                field: 'baz',
+            },
             date: date1.toISOString(),
         },
         {
@@ -206,6 +198,9 @@ describe('Spaces API', () => {
             },
             bytes: 210,
             wasFound: false,
+            nested: {
+                field: 'bar',
+            },
             date: date2.toISOString(),
         },
         {
@@ -215,6 +210,9 @@ describe('Spaces API', () => {
             },
             bytes: 1500,
             wasFound: true,
+            nested: {
+                field: 'foo',
+            },
             date: date3.toISOString(),
         },
     ];
@@ -366,51 +364,13 @@ describe('Spaces API', () => {
             }
         `;
 
-        const dataTypeSpace1 = `
-            mutation {
-                createDataType(
-                    dataType:{
-                        client_id: 1,
-                        name: "Data Type 1",
-                        config: {
-                            ${createTypes(space1Properties)}
-                        }
-                }){
-                    id,
+        const createDataTypeMutation = `
+            mutation CreateDataType($input: CreateDataTypeInput!) {
+                createDataType(dataType: $input) {
+                    id
                 }
             }
         `;
-
-        const dataTypeSpace2 = `
-            mutation {
-                createDataType(
-                    dataType:{
-                        client_id: 1,
-                        name: "Data Type 2",
-                        config: {
-                            ${createTypes(space2Properties)}
-                        }
-                }){
-                    id,
-                }
-            }
-        `;
-
-        const dataTypeSpace3 = `
-            mutation {
-                createDataType(
-                    dataType:{
-                        client_id: 1,
-                        name: "Data Type 3",
-                        config: {
-                            ${createTypes(space3Properties)}
-                        }
-                }){
-                    id,
-                }
-            }
-        `;
-
         interface CreateUser {
             createUser: {
                 id: string;
@@ -443,9 +403,36 @@ describe('Spaces API', () => {
         ] = await Promise.all([
             reqClient.request<CreateUser>(user1Query),
             reqClient.request<CreateUser>(user2Query),
-            reqClient.request<CreateDataType>(dataTypeSpace1),
-            reqClient.request<CreateDataType>(dataTypeSpace2),
-            reqClient.request<CreateDataType>(dataTypeSpace3),
+            reqClient.request<CreateDataType>(createDataTypeMutation, {
+                input: {
+                    client_id: 1,
+                    name: 'Data Type 1',
+                    config: {
+                        version: LATEST_VERSION,
+                        fields: space1Properties,
+                    },
+                },
+            }),
+            reqClient.request<CreateDataType>(createDataTypeMutation, {
+                input: {
+                    client_id: 1,
+                    name: 'Data Type 2',
+                    config: {
+                        version: LATEST_VERSION,
+                        fields: space2Properties,
+                    },
+                },
+            }),
+            reqClient.request<CreateDataType>(createDataTypeMutation, {
+                input: {
+                    client_id: 1,
+                    name: 'Data Type 3',
+                    config: {
+                        version: LATEST_VERSION,
+                        fields: space3Properties,
+                    },
+                },
+            }),
         ]);
 
         const view1Query = `
@@ -493,7 +480,7 @@ describe('Spaces API', () => {
                         client_id: 1,
                         name: "Test View 2B",
                         data_type: "${dataType2}",
-                        includes: ["url", "bytes", "bool", "ip"],
+                        includes: ["urls", "bytes", "bool", "ip"],
                         excludes: [],
                         roles: ["${lowRoleId}"],
                         constraint: "bytes:>=1300"
@@ -945,7 +932,7 @@ describe('Spaces API', () => {
                         bytes
                         ${space2}(join:["bytes"]){
                             bool,
-                            url
+                            urls
                         }
                     }
                 }
@@ -958,7 +945,7 @@ describe('Spaces API', () => {
                     [space2]: [
                         {
                             bool: true,
-                            url: 'http://google.com',
+                            urls: ['http://google.com'],
                         },
                     ],
                 },
@@ -967,7 +954,7 @@ describe('Spaces API', () => {
                     [space2]: [
                         {
                             bool: true,
-                            url: 'http://twitter.com',
+                            urls: ['http://twitter.com'],
                         },
                     ],
                 },

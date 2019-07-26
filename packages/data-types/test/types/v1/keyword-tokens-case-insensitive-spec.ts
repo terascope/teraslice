@@ -1,14 +1,14 @@
 import KeywordTokensCaseInsensitive from '../../../src/types/versions/v1/keyword-tokens-case-insensitive';
 import { TSError } from '@terascope/utils';
-import { Type, ElasticSearchTypes } from '../../../src/interfaces';
+import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('KeywordTokensCaseInsensitive V1', () => {
     const field = 'someField';
-    const typeConfig: Type = { type: 'KeywordTokensCaseInsensitive' };
+    const typeConfig: FieldTypeConfig = { type: 'KeywordTokensCaseInsensitive' };
 
     it('can requires a field and proper configs', () => {
         try {
-           // @ts-ignore
+            // @ts-ignore
             new KeywordTokensCaseInsensitive();
             throw new Error('it should have errored with no configs');
         } catch (err) {
@@ -34,17 +34,17 @@ describe('KeywordTokensCaseInsensitive V1', () => {
                     fields: {
                         tokens: {
                             type: 'text' as ElasticSearchTypes,
-                            analyzer: 'simple'
-                        }
-                    }
-                }
+                            analyzer: 'simple',
+                        },
+                    },
+                },
             },
             analyzer: {
                 lowercase_keyword_analyzer: {
                     tokenizer: 'keyword',
-                    filter: 'lowercase'
+                    filter: 'lowercase',
                 },
-            }
+            },
         };
 
         expect(esMapping).toEqual(results);

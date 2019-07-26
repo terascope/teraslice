@@ -75,11 +75,6 @@ const config: IndexModelConfig<User> = {
     },
     schema: {
         properties: {
-            client_id: {
-                type: 'number',
-                multipleOf: 1.0,
-                minimum: 0,
-            },
             username: {
                 type: 'string',
             },
@@ -110,25 +105,20 @@ const config: IndexModelConfig<User> = {
                 type: 'string',
             },
         },
-        required: ['client_id', 'username', 'firstname', 'lastname'],
+        required: ['username', 'firstname', 'lastname'],
     },
-    uniqueFields: ['username', 'api_token'],
-    sanitizeFields: {
+    unique_fields: ['username', 'api_token'],
+    sanitize_fields: {
         email: 'trimAndToLower',
         username: 'trim',
     },
-    strictMode: false,
+    strict_mode: false,
 };
 
 /**
  * The definition of a User model
  */
 export interface User extends IndexModelRecord {
-    /**
-     * The mutli-tenant ID representing the client
-     */
-    client_id?: number;
-
     /**
      * The User's username
      */

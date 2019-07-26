@@ -1,14 +1,14 @@
 import NgramTokens from '../../../src/types/versions/v1/ngram-tokens';
 import { TSError } from '@terascope/utils';
-import { Type, ElasticSearchTypes } from '../../../src/interfaces';
+import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('NgramTokens V1', () => {
     const field = 'someField';
-    const typeConfig: Type = { type: 'NgramTokens' };
+    const typeConfig: FieldTypeConfig = { type: 'NgramTokens' };
 
     it('can requires a field and proper configs', () => {
         try {
-           // @ts-ignore
+            // @ts-ignore
             new NgramTokens();
             throw new Error('it should have errored with no configs');
         } catch (err) {
@@ -33,26 +33,24 @@ describe('NgramTokens V1', () => {
                     fields: {
                         tokens: {
                             type: 'text' as ElasticSearchTypes,
-                            analyzer: 'ngram_analyzer'
-                        }
-                    }
-                }
+                            analyzer: 'ngram_analyzer',
+                        },
+                    },
+                },
             },
             analyzer: {
                 ngram_analyzer: {
-                    tokenizer: 'ngram_tokenizer'
-                }
+                    tokenizer: 'ngram_tokenizer',
+                },
             },
             tokenizer: {
                 ngram_tokenizer: {
                     type: 'ngram',
                     min_gram: 3,
                     max_gram: 3,
-                    token_chars: [
-                        'digit'
-                    ]
-                }
-            }
+                    token_chars: ['digit'],
+                },
+            },
         };
 
         expect(esMapping).toEqual(results);

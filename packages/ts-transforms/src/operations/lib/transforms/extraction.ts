@@ -1,19 +1,18 @@
 
 import _ from 'lodash';
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, matchAll, MatchAllOptions } from '@terascope/utils';
 import { ExtractionConfig, InputOutputCardinality } from '../../../interfaces';
 
 function isMutation(configs: ExtractionConfig[]): boolean {
     return _.some(configs, 'mutate');
 }
 
-function formatRegex(str: string): RegExp {
-    if (str[0] === '/' && str[str.length - 1] === '/') {
-        const fullExp = /\/(.*)\/(.*)/.exec(str);
-        if (!fullExp) throw new Error(`cannot parse regex input: ${str}`);
-        return new RegExp(fullExp[1], fullExp[2]);
+function formatRegex(str: string): [string, string|false]  {
+    const isRegex = /\/(.*)\/([igmuy])*$/.exec(str);
+    if (isRegex) {
+        return [isRegex[1], isRegex[2]];
     }
-    return new RegExp(str);
+    return [str, false];
 }
 
 function getSubslice(start:string, end: string) {
@@ -30,7 +29,7 @@ function getSubslice(start:string, end: string) {
     };
 }
 
-type Cb = (data:any) => string|null;
+type Cb = (data:any) => string|string[]|null;
 
 function extractField(data: any, fn: Cb, isMultiValue = true) {
     if (typeof data === 'string') {
@@ -42,7 +41,13 @@ function extractField(data: any, fn: Cb, isMultiValue = true) {
         data.forEach((subData:any) => {
             if (typeof subData === 'string') {
                 const extractedSlice = fn(subData);
-                if (extractedSlice) results.push(extractedSlice);
+                if (extractedSlice) {
+                    if (Array.isArray(extractedSlice)) {
+                        results.push(...extractedSlice);
+                    } else {
+                        results.push(extractedSlice);
+                    }
+                }
             }
         });
 
@@ -54,14 +59,14 @@ function extractField(data: any, fn: Cb, isMultiValue = true) {
     return null;
 }
 
-function matchRegex(regex: RegExp) {
-    return (data:string) => {
-        const results = data.match(regex);
-        if (results) {
-            return results.length === 1 ? results[0] : results[1];
-        }
-        return results;
-    };
+function matchRegex(config: ExtractionConfig) {
+    const [regexp, options] = formatRegex(config.regex as string);
+    const matchAllConfig: MatchAllOptions = { multivalue: false };
+
+    if (config.multivalue) matchAllConfig.multivalue = true;
+    if (options) matchAllConfig.options = options;
+
+    return (data:string) => matchAll(regexp, data, matchAllConfig);
 }
 
 function extractAndTransferFields(data: any, dest: DataEntity, config: ExtractionConfig) {
@@ -69,7 +74,7 @@ function extractAndTransferFields(data: any, dest: DataEntity, config: Extractio
         let extractedResult;
 
         if (config.regex) {
-            const checkRegex = matchRegex(config.regex);
+            const checkRegex = matchRegex(config);
             extractedResult = extractField(data, checkRegex, config.multivalue);
         } else if (config.start && config.end) {
             const { start, end } = config;
@@ -116,17 +121,17 @@ export default class Extraction {
         this.isMutation = isMutation(configs);
 
         configs = configs.map((config) => {
-            // @ts-ignore
-            if (config.regex) config.regex = formatRegex(config.regex);
             if (config.end === 'EOP') config.end = '&';
             if (config.source_field.includes('.')) config.deepSourceField = true;
             return config;
         });
+
         this.configs = configs;
     }
 
     run(doc: DataEntity): DataEntity | null {
         let record;
+
         if (this.isMutation) {
             record = doc;
         } else {

@@ -1,4 +1,3 @@
-
 export default `
     type Geo {
         lat: String!

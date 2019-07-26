@@ -28,7 +28,7 @@ export default class KeywordTokensCaseInsensitive extends BaseType {
     }
 
     toGraphQL() {
-        return { type: this._formatGql('String') };
+        return this._formatGql('String');
     }
 
     toXlucene() {

@@ -15,7 +15,16 @@
         "no-debugger": true,
         "trailing-comma": false,
         "comma-dangle": false,
+        "forin": true,
+        "no-string-throw": true,
+        "no-for-in-array": true,
+        "no-require-imports": true,
+        "no-unnecessary-initializer": true,
         "no-shadowed-variable": true,
+        "file-name-casing": [
+            true,
+            { "index.tsx": "kebab-case", ".tsx": "pascal-case", ".ts": "kebab-case" }
+        ],
         "variable-name": [
             true,
             "ban-keywords",

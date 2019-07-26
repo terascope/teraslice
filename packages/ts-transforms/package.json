@@ -1,6 +1,6 @@
 {
     "name": "ts-transforms",
-    "version": "0.20.1",
+    "version": "0.21.0",
     "description": "An ETL framework built upon xlucene-evaluator",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/ts-transforms#readme",
     "bugs": {
@@ -37,7 +37,7 @@
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {
-        "@terascope/utils": "^0.12.4",
+        "@terascope/utils": "^0.13.0",
         "@types/graphlib": "^2.1.5",
         "@types/shortid": "^0.0.29",
         "awesome-phonenumber": "^2.12.0",
@@ -46,7 +46,7 @@
         "shortid": "^2.2.14",
         "valid-url": "^1.0.9",
         "validator": "^11.0.0",
-        "xlucene-evaluator": "^0.9.4",
+        "xlucene-evaluator": "^0.9.5",
         "yargs": "^13.2.4"
     },
     "devDependencies": {

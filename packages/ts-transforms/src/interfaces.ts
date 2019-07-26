@@ -55,7 +55,7 @@ export interface ExtractionConfig {
     __id: string;
     start?: string;
     end?: string;
-    regex?: RegExp;
+    regex?: string;
     mutate: boolean;
     output?: boolean;
     source_field: string;

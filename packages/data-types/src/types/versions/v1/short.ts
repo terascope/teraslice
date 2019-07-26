@@ -8,7 +8,7 @@ export default class Short extends BaseType {
     }
 
     toGraphQL() {
-        return { type: this._formatGql('Int') };
+        return this._formatGql('Int');
     }
 
     toXlucene() {

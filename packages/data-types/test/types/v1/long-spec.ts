@@ -1,14 +1,14 @@
 import LongType from '../../../src/types/versions/v1/long';
 import { TSError } from '@terascope/utils';
-import { Type } from '../../../src/interfaces';
+import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Long V1', () => {
     const field = 'someField';
-    const typeConfig: Type = { type: 'Long' };
+    const typeConfig: FieldTypeConfig = { type: 'Long' };
 
     it('can requires a field and proper configs', () => {
         try {
-           // @ts-ignore
+            // @ts-ignore
             new LongType();
             throw new Error('it should have errored with no configs');
         } catch (err) {

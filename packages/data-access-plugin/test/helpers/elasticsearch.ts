@@ -37,18 +37,15 @@ function format(arr: any[], index: string) {
 }
 
 export async function populateIndex(client: es.Client, index: string, _properties: any, data: any[]) {
-    const settings = {
-        'index.number_of_shards': 1,
-        'index.number_of_replicas': 0,
-    };
-    const mappingMetaData = {
-        _all: {
-            enabled: false,
+    const overrides = {
+        settings: {
+            'index.number_of_shards': 1,
+            'index.number_of_replicas': 0,
         },
-        dynamic: false,
     };
+
     const dataType = new DataType({ version: LATEST_VERSION, fields: _properties });
-    const mapping = dataType.toESMapping({ typeName: 'events', mappingMetaData, settings });
+    const mapping = dataType.toESMapping({ typeName: 'events', overrides });
 
     await client.indices.create({
         index,

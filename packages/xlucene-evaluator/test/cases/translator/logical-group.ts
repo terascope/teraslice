@@ -9,13 +9,19 @@ export default [
                 bool: {
                     filter: [
                         {
-                            term: {
-                                some: 'query',
+                            match: {
+                                some: {
+                                    query: 'query',
+                                    operator: 'and',
+                                },
                             },
                         },
                         {
-                            term: {
-                                other: 'thing',
+                            match: {
+                                other: {
+                                    query: 'thing',
+                                    operator: 'and',
+                                },
                             },
                         },
                     ],
@@ -32,16 +38,22 @@ export default [
                     bool: {
                         must_not: [
                             {
-                                term: {
-                                    value: 'awesome',
+                                match: {
+                                    value: {
+                                        operator: 'and',
+                                        query: 'awesome',
+                                    },
                                 },
                             },
                         ],
                     },
                 },
                 {
-                    term: {
-                        other: 'thing',
+                    match: {
+                        other: {
+                            query: 'thing',
+                            operator: 'and',
+                        },
                     },
                 },
             ],
@@ -155,8 +167,11 @@ export default [
                             },
                         },
                         {
-                            term: {
-                                field: 'value',
+                            match: {
+                                field: {
+                                    query: 'value',
+                                    operator: 'and',
+                                },
                             },
                         },
                         {
@@ -246,8 +261,11 @@ export default [
                                                                 },
                                                             },
                                                             {
-                                                                term: {
-                                                                    sometype: 'thevalue',
+                                                                match: {
+                                                                    sometype: {
+                                                                        operator: 'and',
+                                                                        query: 'thevalue',
+                                                                    },
                                                                 },
                                                             },
                                                         ],
@@ -263,8 +281,11 @@ export default [
                             bool: {
                                 must_not: [
                                     {
-                                        term: {
-                                            anotherfield: 'value',
+                                        match: {
+                                            anotherfield: {
+                                                operator: 'and',
+                                                query: 'value',
+                                            },
                                         },
                                     },
                                 ],
@@ -301,16 +322,22 @@ export default [
                 bool: {
                     filter: [
                         {
-                            term: {
-                                foo: 'bar',
+                            match: {
+                                foo: {
+                                    operator: 'and',
+                                    query: 'bar',
+                                },
                             },
                         },
                         {
                             bool: {
                                 must_not: [
                                     {
-                                        term: {
-                                            bar: 'foo',
+                                        match: {
+                                            bar: {
+                                                query: 'foo',
+                                                operator: 'and',
+                                            },
                                         },
                                     },
                                 ],
@@ -326,8 +353,11 @@ export default [
         'query.constant_score.filter.bool.should[0].bool.filter',
         [
             {
-                term: {
-                    some: 'key',
+                match: {
+                    some: {
+                        query: 'key',
+                        operator: 'and',
+                    },
                 },
             },
             {
@@ -386,8 +416,11 @@ export default [
                     bool: {
                         filter: [
                             {
-                                term: {
-                                    some: 'query',
+                                match: {
+                                    some: {
+                                        operator: 'and',
+                                        query: 'query',
+                                    },
                                 },
                             },
                         ],
@@ -397,8 +430,11 @@ export default [
                     bool: {
                         filter: [
                             {
-                                term: {
-                                    other: 'thing',
+                                match: {
+                                    other: {
+                                        operator: 'and',
+                                        query: 'thing',
+                                    },
                                 },
                             },
                         ],
@@ -408,8 +444,11 @@ export default [
                     bool: {
                         filter: [
                             {
-                                term: {
-                                    next: 'value',
+                                match: {
+                                    next: {
+                                        operator: 'and',
+                                        query: 'value',
+                                    },
                                 },
                             },
                         ],
@@ -424,16 +463,22 @@ export default [
         {
             filter: [
                 {
-                    term: {
-                        some: 'query',
+                    match: {
+                        some: {
+                            operator: 'and',
+                            query: 'query',
+                        },
                     },
                 },
                 {
                     bool: {
                         must_not: [
                             {
-                                term: {
-                                    other: 'thing',
+                                match: {
+                                    other: {
+                                        query: 'thing',
+                                        operator: 'and',
+                                    },
                                 },
                             },
                         ],

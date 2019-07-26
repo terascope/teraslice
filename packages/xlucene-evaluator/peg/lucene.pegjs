@@ -212,12 +212,6 @@ TermExpression
             field: null,
         }
     }
-    / term:WildcardType {
-        return {
-            ...term,
-            field: null,
-        }
-    }
     / term:TermType {
         return {
             ...term,
@@ -335,13 +329,13 @@ RangeTermType
     / RestrictedStringType
 
 TermType
-    = FloatType
+    = QuotedStringType
+    / FloatType
     / IntegerType
     / RegexpType
     / BooleanType
-    / WildcardType
     / ParensStringType
-    / QuotedStringType
+    / WildcardType
     / RestrictedStringType
 
 NegativeInfinityType

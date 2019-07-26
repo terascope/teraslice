@@ -1,4 +1,5 @@
 import { Logger, Omit } from '@terascope/utils';
+import { ESTypeMappings, ESIndexSettings } from '@terascope/data-types';
 
 /** A versioned Index Configuration */
 export interface IndexConfig<T = any> {
@@ -21,27 +22,32 @@ export interface IndexConfig<T = any> {
     /**
      * Elasticsearch Index Settings
      */
-    indexSettings?: IndexSettings;
+    index_settings?: ESIndexSettings;
 
     /**
      * Schema Specification for the Data and ES
      */
-    indexSchema?: IndexSchema;
+    index_schema?: IndexSchema;
 
     /**
      * The data schema format
      */
-    dataSchema?: DataSchema;
+    data_schema?: DataSchema;
+
+    /**
+     * When false this will disable the ability to create or migrate an index
+     */
+    is_master?: boolean;
 
     /**
      * The maximum amount of time to wait for before send the bulk request
      */
-    bulkMaxWait?: number;
+    bulk_max_wait?: number;
 
     /**
      * The number of records to accumulate before sending the bulk request
      */
-    bulkMaxSize?: number;
+    bulk_max_size?: number;
 
     /**
      * Logger to use for debugging and certian internal errors
@@ -53,22 +59,22 @@ export interface IndexConfig<T = any> {
     /**
      * Default sort
      */
-    defaultSort?: string;
+    default_sort?: string;
 
     /**
      * ID field
      */
-    idField?: keyof T;
+    id_field?: keyof T;
 
     /**
      * Ingest Time field on the source record
      */
-    ingestTimeField?: keyof T;
+    ingest_time_field?: keyof T;
 
     /**
      * Event Time field from the source record
      */
-    eventTimeField?: keyof T;
+    event_time_field?: keyof T;
 }
 
 /** Elasticsearch Index Schema, Mapping and Version */
@@ -76,7 +82,7 @@ export interface IndexSchema {
     /**
      * The ElasticSearch index mapping
      */
-    mapping: any;
+    mapping: ESTypeMappings;
 
     /**
      * The version of this particular Schema definition
@@ -112,12 +118,6 @@ export interface IndexSchema {
 
 export type TimeSeriesFormat = 'daily' | 'monthly' | 'yearly';
 
-export interface IndexSettings {
-    'index.number_of_shards': number;
-    'index.number_of_replicas': number;
-    [key: string]: any;
-}
-
 /** Data Schema and Version */
 export interface DataSchema {
     /**
@@ -150,7 +150,7 @@ export interface DataSchema {
      * - "hostname"
      * - "email"
      */
-    allFormatters?: boolean;
+    all_formatters?: boolean;
 }
 
 export type AsyncFn<T> = () => Promise<T>;
@@ -181,19 +181,32 @@ export type Shard = { primary: boolean; stage: string };
 
 export interface IndexModelRecord {
     /**
-     * ID of the view - nanoid 12 digit
+     * A unique ID for the record - nanoid 12 digit
      */
     id: string;
 
-    /** Updated date */
+    /**
+     * The mutli-tenant ID representing the client
+     */
+    client_id: number;
+
+    /**
+     * Updated date
+     */
     updated: string;
 
-    /** Creation date */
+    /**
+     * Creation date
+     */
     created: string;
 }
 
-export type CreateRecordInput<T extends IndexModelRecord> = Omit<T, keyof IndexModelRecord>;
+export type CreateRecordInput<T extends IndexModelRecord> = Omit<T, keyof IndexModelRecord> & {
+    client_id: number;
+};
+
 export type UpdateRecordInput<T extends IndexModelRecord> = Partial<Omit<T, keyof IndexModelRecord>> & {
+    client_id?: number;
     id: string;
 };
 
@@ -204,23 +217,23 @@ export interface IndexModelConfig<T extends IndexModelRecord> {
     /** Name of the Model/Data Type */
     name: string;
 
-    /** ElasticSearch Mapping */
-    mapping: any;
+    /** the elasticsearch type mappings */
+    mapping: ESTypeMappings;
 
     /** JSON Schema */
     schema: any;
 
-    /** Additional IndexStore configuration */
-    storeOptions?: Partial<IndexConfig>;
-
     /** Unqiue fields across on Index */
-    uniqueFields?: (keyof T)[];
+    unique_fields?: (keyof T)[];
 
     /** Sanitize / cleanup fields mapping, like trim or trimAndToLower */
-    sanitizeFields?: SanitizeFields;
+    sanitize_fields?: SanitizeFields;
 
     /** Specify whether the data should be strictly validated, defaults to true */
-    strictMode?: boolean;
+    strict_mode?: boolean;
+
+    /** The default sort field and direction */
+    default_sort?: string;
 }
 
 export type SanitizeFields = {
@@ -229,7 +242,6 @@ export type SanitizeFields = {
 
 export interface IndexModelOptions {
     namespace?: string;
-    storeOptions?: Partial<IndexConfig>;
     logger?: Logger;
 }
 

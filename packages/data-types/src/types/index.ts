@@ -1,6 +1,7 @@
 import * as ts from '@terascope/utils';
 import { mapping } from './versions/mapping';
-import { Type as DataType, AvailableVersion } from '../interfaces';
+import { FieldTypeConfig, AvailableVersion, TypeConfigFields } from '../interfaces';
+import BaseType from './versions/base-type';
 
 export class TypesManager {
     public version: AvailableVersion;
@@ -10,7 +11,15 @@ export class TypesManager {
         if (mapping[this.version] == null) throw new ts.TSError(`Unknown DataType version v${version}`);
     }
 
-    getType(field: string, type: DataType) {
+    getTypes(fields: TypeConfigFields) {
+        const types: BaseType[] = [];
+        for (const [field, typeDef] of Object.entries(fields)) {
+            types.push(this.getType(field, typeDef));
+        }
+        return types;
+    }
+
+    getType(field: string, type: FieldTypeConfig) {
         const Type = ts.get(mapping, [this.version, type.type]);
         if (Type == null) throw new ts.TSError(`Type "${type.type}" was not found in version v${this.version}`);
         return new Type(field, type);

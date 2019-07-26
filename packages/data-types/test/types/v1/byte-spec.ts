@@ -1,10 +1,10 @@
 import ByteType from '../../../src/types/versions/v1/byte';
 import { TSError } from '@terascope/utils';
-import { Type } from '../../../src/interfaces';
+import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Byte V1', () => {
     const field = 'someField';
-    const typeConfig: Type = { type: 'Byte' };
+    const typeConfig: FieldTypeConfig = { type: 'Byte' };
 
     it('can requires a field and proper configs', () => {
         try {
