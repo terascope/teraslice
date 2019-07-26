@@ -2,10 +2,10 @@
 
 const ElasticsearchClient = require('elasticsearch').Client;
 
-const { TERASLICE_CLUSTER_NAME, ELASTICSEARCH_HOST } = process.env;
+const { TERASLICE_CLUSTER_NAME, ELASTICSEARCH_URL } = process.env;
 
 const es = new ElasticsearchClient({
-    host: ELASTICSEARCH_HOST,
+    host: ELASTICSEARCH_URL,
     log: '' // This suppresses error logging from the ES library.
 });
 

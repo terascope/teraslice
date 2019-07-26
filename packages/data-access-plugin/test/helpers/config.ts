@@ -1,5 +1,5 @@
 const {
-    ELASTICSEARCH_HOST = 'http://localhost:9200',
+    ELASTICSEARCH_URL = 'http://localhost:9200',
 } = process.env;
 
-export { ELASTICSEARCH_HOST };
+export { ELASTICSEARCH_URL };

@@ -41,7 +41,7 @@ const cmd: CommandModule = {
                     return coercePkgArg(arg);
                 },
             })
-            .requiresArg(['packages']);
+            .demandOption(['packages'], 'Please provide a package to bump');
     },
     handler(argv) {
         return bumpPackages(argv.packages as PackageInfo[], {

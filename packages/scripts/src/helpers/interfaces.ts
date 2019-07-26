@@ -34,3 +34,5 @@ export type PackageConfig = {
 export const AvailablePackageConfigKeys: ReadonlyArray<keyof PackageConfig> = ['enableTypedoc', 'testSuite'];
 
 export type TSCommands = 'docs';
+
+export type GlobalCMDOptions = {};

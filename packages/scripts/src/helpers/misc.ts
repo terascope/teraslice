@@ -102,7 +102,11 @@ export function cliError<T>(prefix: string, error: string, ...args: any[]): neve
     return process.exit(1);
 }
 
+export function writeHeader(msg: string, prefixNewline?: boolean): void {
+    process.stderr.write(`${prefixNewline ? '\n' : ''}* ${msg}\n\n`);
+}
+
 export function writePkgHeader(prefix: string, pkgInfos: PackageInfo[], prefixNewline?: boolean): void {
     const names = pkgInfos.map(({ name }) => name).join(', ');
-    process.stderr.write(`${prefixNewline ? '\n' : ''}* ${prefix} for ${names}\n\n`);
+    writeHeader(`${prefix} for ${names}`);
 }

@@ -1,7 +1,8 @@
 import isCI from 'is-ci';
-import { PackageInfo } from '../interfaces';
+import { PackageInfo, TestSuite } from '../interfaces';
 import { mapToArgs } from '../scripts';
-import { TestOptions } from './interfaces';
+import { TestOptions, GroupedPackages } from './interfaces';
+import debug from './debug';
 
 export function getArgs(options: TestOptions): string[] {
     const args: { [key: string]: string } = {};
@@ -47,7 +48,26 @@ export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): Pa
         if (suite === options.suite) return true;
         if (!options.all) {
             console.error(`* skipping ${suite} test`);
+        } else {
+            debug(`* skipping ${suite} test`);
         }
         return false;
     });
+}
+
+export function groupBySuite(pkgInfos: PackageInfo[]): GroupedPackages {
+    const groups: GroupedPackages = {
+        [TestSuite.Unit]: [],
+        [TestSuite.Elasticsearch]: [],
+        [TestSuite.Kafka]: [],
+        [TestSuite.E2E]: [],
+    };
+
+    for (const pkgInfo of pkgInfos) {
+        const suite = pkgInfo.terascope.testSuite || TestSuite.Disabled;
+        if (suite === TestSuite.Disabled) continue;
+        groups[suite].push(pkgInfo);
+    }
+
+    return groups;
 }

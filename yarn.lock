@@ -2447,6 +2447,15 @@
     "@types/tough-cookie" "*"
     form-data "^2.5.0"
 
+"@types/got@^9.6.4":
+  version "9.6.4"
+  resolved "https://registry.yarnpkg.com/@types/got/-/got-9.6.4.tgz#4b03d6bb0beeed46a689c075814924eb3cef6084"
+  integrity sha512-zFVFoD9YRICaQFe9l8cYvuOWUT65cWRAt7ngNh+lCbTE12EmAvFp1/9WMS75m/jUoSKYjeKl5S2ztC3sHftGVA==
+  dependencies:
+    "@types/node" "*"
+    "@types/tough-cookie" "*"
+    form-data "^2.5.0"
+
 "@types/graphlib@^2.1.5":
   version "2.1.5"
   resolved "https://registry.yarnpkg.com/@types/graphlib/-/graphlib-2.1.5.tgz#ed0435f99c91531aaa93086529804bbe3cd42c3b"

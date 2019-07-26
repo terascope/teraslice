@@ -1,32 +1,67 @@
 import path from 'path';
-import { writePkgHeader, formatList, cliError, getRootDir } from '../misc';
-import { getArgs, filterBySuite, getEnv } from './utils';
+import { writePkgHeader, writeHeader, formatList, cliError, getRootDir } from '../misc';
+import { getArgs, filterBySuite, getEnv, groupBySuite } from './utils';
 import { PackageInfo, TestSuite } from '../interfaces';
 import { TestOptions } from './interfaces';
 import { runJest } from '../scripts';
+import debug from './debug';
+import { ensureServices } from './services';
 
 export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
+    debug('running tests with options', options);
+
     if (options.suite === TestSuite.E2E) {
-        const e2eDir = path.join(getRootDir(), 'e2e');
-        try {
-            await runJest(e2eDir, getArgs(options), getEnv(options));
-        } catch (err) {
-            cliError('Error', 'Test e2e Failed');
-        }
-        return;
+        return runE2ETest(options);
     }
 
     const filtered = filterBySuite(pkgInfos, options);
     if (!filtered.length) {
         console.error('No tests found.');
-        process.exit(0);
+        return;
     }
 
-    const errors: string[] = [];
-    let runOnce = false;
+    const grouped = groupBySuite(pkgInfos);
 
-    for (const pkgInfo of filtered) {
-        writePkgHeader('running test', [pkgInfo], runOnce);
+    const errors: string[] = [];
+    let ranOnce = false;
+
+    for (const [suite, pkgs] of Object.entries(grouped)) {
+        writeHeader(`running test suite for ${suite}`, ranOnce);
+
+        try {
+            const suiteErrors = await runTestSuite(suite as TestSuite, pkgs, options);
+            if (suiteErrors.length) {
+                errors.push(`Test Suite ${suite} Failed`, ...suiteErrors);
+                if (options.bail) {
+                    break;
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            break;
+        } finally {
+            ranOnce = true;
+        }
+    }
+
+    if (errors.length > 1) {
+        cliError('Error', `Multiple Test Failures:${formatList(errors)}`);
+    } else if (errors.length === 1) {
+        cliError('Error', errors[0]);
+    }
+}
+
+/**
+ * @todo run multiple at once
+ */
+async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
+    await ensureServices(suite, options);
+
+    const errors: string[] = [];
+
+    let ranOnce = false;
+    for (const pkgInfo of pkgInfos) {
+        writePkgHeader('running test', [pkgInfo], ranOnce);
 
         try {
             await runJest(pkgInfo.dir, getArgs(options), getEnv(options));
@@ -38,13 +73,20 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
                 break;
             }
         } finally {
-            runOnce = true;
+            ranOnce = true;
         }
     }
 
-    if (errors.length > 1) {
-        cliError('Error', `Multiple Test Failures:${formatList(errors)}`);
-    } else if (errors.length === 1) {
-        cliError('Error', errors[0]);
+    return errors;
+}
+
+async function runE2ETest(options: TestOptions): Promise<void> {
+    const e2eDir = path.join(getRootDir(), 'e2e');
+    try {
+        await runJest(e2eDir, getArgs(options), getEnv(options));
+    } catch (err) {
+        console.error(err);
+        cliError('Error', 'Test e2e Failed');
     }
+    return;
 }

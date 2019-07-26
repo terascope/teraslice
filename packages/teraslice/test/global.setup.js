@@ -4,15 +4,15 @@ const ElasticsearchClient = require('elasticsearch').Client;
 const { newId } = require('../lib/utils/id_utils');
 
 const {
-    ELASTICSEARCH_HOST = 'http://localhost:9200',
+    ELASTICSEARCH_URL = 'http://localhost:9200',
     TERASLICE_CLUSTER_NAME = newId('test-teraworker', true, 2)
 } = process.env;
 
 process.env.TERASLICE_CLUSTER_NAME = TERASLICE_CLUSTER_NAME;
-process.env.ELASTICSEARCH_HOST = ELASTICSEARCH_HOST;
+process.env.ELASTICSEARCH_URL = ELASTICSEARCH_URL;
 
 const es = new ElasticsearchClient({
-    host: ELASTICSEARCH_HOST,
+    host: ELASTICSEARCH_URL,
     log: '' // This suppresses error logging from the ES library.
 });
 
