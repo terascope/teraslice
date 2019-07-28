@@ -61,9 +61,7 @@ jobs:
     if: branch = master
     node_js:
         - '8.16'
-    services:
-        - elasticsearch
-    before_script: . ./scripts/travis-install-elasticsearch.sh 6.8.1
+    before_script: . ./scripts/travis-install-es.sh 6.8.1
     script: yarn test --suite elasticsearch
     after_success:
         - bash <(curl -s https://codecov.io/bash)
@@ -75,7 +73,7 @@ jobs:
     services:
         - docker
     before_script:
-        - . ./scripts/travis-install-elasticsearch.sh 6.8.1
+        - . ./scripts/travis-install-es.sh 6.8.1
         - . ./scripts/travis-install-kafka.sh
     script: yarn test --suite e2e
     after_success:
