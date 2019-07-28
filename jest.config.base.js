@@ -32,7 +32,7 @@ module.exports = (projectDir) => {
         collectCoverage: true,
         coveragePathIgnorePatterns: ['/node_modules/', '/test/'],
         watchPathIgnorePatterns: [],
-        coverageReporters: runInPackage ? ['html'] : ['lcov', 'text', 'html'],
+        coverageReporters: ['lcov', 'html', 'text-summary'],
         coverageDirectory: `${packageRoot}/coverage`,
         preset: 'ts-jest',
         watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname']

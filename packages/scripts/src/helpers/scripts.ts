@@ -3,6 +3,7 @@ import execa from 'execa';
 import fse from 'fs-extra';
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
+import debug from './debug';
 
 export type ExecEnv = { [name: string]: string };
 type ExecOpts = {
@@ -18,6 +19,8 @@ function _exec(opts: ExecOpts) {
         cwd: opts.cwd || getRootDir(),
         env: opts.env,
     };
+
+    debug('executing command', opts);
 
     if (opts.args && opts.args.length) {
         subprocess = execa(opts.cmd, opts.args, options);
@@ -39,7 +42,9 @@ export async function exec(opts: ExecOpts): Promise<string> {
         _opts.env = env;
         const subprocess = _exec(_opts);
         const { stdout } = await subprocess;
-        return stdout.trim();
+        const result = stdout.trim();
+        debug(`exec result: ${opts.cmd} ${(opts.args || []).join(' ')}`, result);
+        return result;
     } catch (err) {
         process.exitCode = err.exitCode || 1;
         throw new Error(err.message);
@@ -87,7 +92,7 @@ export async function build(pkgInfo?: PackageInfo): Promise<void> {
     });
 }
 
-export async function runJest(pkgDir: string, args: string[], env?: ExecEnv): Promise<void> {
+export async function runJest(pkgDir: string, args: ArgsMap, env?: ExecEnv): Promise<void> {
     const jestPath = await exec({
         cmd: 'yarn',
         args: ['--silent', 'bin', 'jest'],
@@ -97,7 +102,7 @@ export async function runJest(pkgDir: string, args: string[], env?: ExecEnv): Pr
 
     await fork({
         cmd: jestPath,
-        args: [...args],
+        args: mapToArgs(args),
         cwd: pkgDir,
         env,
     });
@@ -139,13 +144,15 @@ export async function getChangedFiles(...files: string[]) {
         .filter(str => !!str);
 }
 
-export function mapToArgs(input: { [key: string]: string }): string[] {
+export type ArgsMap = { [key: string]: string | string[] };
+export function mapToArgs(input: ArgsMap): string[] {
     const args: string[] = [];
     for (const [key, value] of Object.entries(input)) {
+        const vals = Array.isArray(value) ? value : [value];
         if (key.length > 1) {
-            args.push(`--${key}`, value);
+            args.push(`--${key}`, ...vals);
         } else {
-            args.push(`-${key}`, value);
+            args.push(`-${key}`, ...vals);
         }
     }
     return args.filter(str => str != null && str !== '');

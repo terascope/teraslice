@@ -20,16 +20,24 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
         return;
     }
 
-    const grouped = groupBySuite(pkgInfos);
+    const grouped = groupBySuite(filtered);
 
     const errors: string[] = [];
     let ranOnce = false;
 
     for (const [suite, pkgs] of Object.entries(grouped)) {
+        if (!pkgs.length) continue;
+
         writeHeader(`running test suite for ${suite}`, ranOnce);
 
         try {
-            const suiteErrors = await runTestSuite(suite as TestSuite, pkgs, options);
+            let suiteErrors: string[];
+            if (!options.debug) {
+                suiteErrors = await runTestSuiteFast(suite as TestSuite, pkgs, options);
+            } else {
+                suiteErrors = await runTestSuiteSlow(suite as TestSuite, pkgs, options);
+            }
+
             if (suiteErrors.length) {
                 errors.push(`Test Suite ${suite} Failed`, ...suiteErrors);
                 if (options.bail) {
@@ -54,15 +62,15 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
 /**
  * @todo run multiple at once
  */
-async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
+async function runTestSuiteSlow(suite: TestSuite, pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
     await ensureServices(suite, options);
 
     const errors: string[] = [];
 
     let ranOnce = false;
-    for (const pkgInfo of pkgInfos) {
-        writePkgHeader('running test', [pkgInfo], ranOnce);
 
+    for (const pkgInfo of pkgInfos) {
+        writePkgHeader('running test in series', [pkgInfo], ranOnce);
         try {
             await runJest(pkgInfo.dir, getArgs(options), getEnv(options));
         } catch (err) {
@@ -75,6 +83,26 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
         } finally {
             ranOnce = true;
         }
+    }
+
+    return errors;
+}
+
+async function runTestSuiteFast(suite: TestSuite, pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
+    await ensureServices(suite, options);
+
+    const errors: string[] = [];
+
+    writePkgHeader('running tests in parallel', pkgInfos);
+
+    const args = getArgs(options);
+    args.projects = pkgInfos.map(pkgInfo => path.join('packages', pkgInfo.folderName));
+
+    try {
+        await runJest(getRootDir(), args, getEnv(options));
+    } catch (err) {
+        console.error(err);
+        errors.push(`Test(s) ${pkgInfos.map(pkgInfo => pkgInfo.name)} Failed`);
     }
 
     return errors;

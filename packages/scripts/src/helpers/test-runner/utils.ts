@@ -1,36 +1,38 @@
 import isCI from 'is-ci';
 import { PackageInfo, TestSuite } from '../interfaces';
-import { mapToArgs, ExecEnv, dockerBuild, dockerPull } from '../scripts';
+import { ArgsMap, ExecEnv, dockerBuild, dockerPull } from '../scripts';
 import { TestOptions, GroupedPackages } from './interfaces';
 import debug from './debug';
 
-export function getArgs(options: TestOptions): string[] {
-    const args: { [key: string]: string } = {};
-    args['forceExit'] = '';
-
-    if (isCI) {
-        args['silent'] = '';
-    }
+export function getArgs(options: TestOptions): ArgsMap {
+    const args: ArgsMap = {};
+    args.forceExit = '';
+    args.passWithNoTests = '';
+    args.maxWorkers = '50%';
+    args.coverage = 'true';
 
     if (options.bail) {
-        args['bail'] = '';
+        args.bail = '';
     }
 
     if (options.debug) {
-        args['detectOpenHandles'] = '';
-        args['coverage'] = 'false';
-        args['runInBand'] = '';
+        args.detectOpenHandles = '';
+        args.coverage = 'false';
+        args.runInBand = '';
+    } else {
+        args.silent = '';
     }
 
     if (options.filter) {
-        args['testPathPattern'] = options.filter;
+        args.testPathPattern = options.filter;
     }
 
     if (options.suite === TestSuite.E2E) {
-        args['runInBand'] = '';
+        args.runInBand = '';
+        args.coverage = 'false';
     }
 
-    return mapToArgs(args);
+    return args;
 }
 
 export function getEnv(options: TestOptions): ExecEnv {
@@ -39,11 +41,11 @@ export function getEnv(options: TestOptions): ExecEnv {
         KAFKA_BROKERS: options.kafkaBrokers.join(','),
     };
 
-    if (!options.debug && !process.env.DEBUG) return defaults;
+    if (!options.debug) return defaults;
 
     return {
         ...defaults,
-        DEBUG: '*teraslice*',
+        DEBUG: `${process.env.DEBUG},*teraslice*`,
     };
 }
 
@@ -56,10 +58,11 @@ export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): Pa
             throw new Error(`Package ${pkgInfo.name} missing required "terascope.testSuite" configuration`);
         }
         if (suite === options.suite) return true;
+        const msg = `* skipping ${pkgInfo.name} ${suite} test`;
         if (!options.all) {
-            console.error(`* skipping ${suite} test`);
+            console.error(msg);
         } else {
-            debug(`* skipping ${suite} test`);
+            debug(msg);
         }
         return false;
     });
