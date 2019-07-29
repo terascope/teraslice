@@ -1,50 +1,152 @@
 import got from 'got';
 import semver from 'semver';
-import debug from './debug';
+import { debugLogger, pRetry, TSError } from '@terascope/utils';
 import { TestOptions } from './interfaces';
-import { cliError } from '../misc';
 import { TestSuite } from '../interfaces';
+import { dockerRun, DockerRunOptions, getContainerInfo, dockerStop, pgrep } from '../scripts';
 
-export async function ensureServices(suite: TestSuite, options: TestOptions): Promise<void> {
+const logger = debugLogger('ts-scripts:cmd:test');
+
+type Service = TestSuite.Elasticsearch | TestSuite.Kafka;
+const services: { [service in Service]: DockerRunOptions } = {
+    [TestSuite.Elasticsearch]: {
+        image: 'blacktop/elasticsearch',
+        name: 'ts_test_elasticsearch',
+        tmpfs: ['/usr/share/elasticsearch/data'],
+        ports: [9200],
+        env: {
+            ES_JAVA_OPTS: '-Xms256m -Xmx256m',
+            'network.host': '0.0.0.0',
+            'discovery.type': 'single-node',
+        },
+    },
+    [TestSuite.Kafka]: {
+        image: 'terascope/kafka-zookeeper',
+        name: 'ts_test_kafka',
+        tmpfs: ['/kafka', '/zookeeper'],
+        ports: [2181, 9092],
+        env: {
+            KAFKA_HEAP_OPTS: '-Xms256m -Xmx256m',
+        },
+    },
+};
+
+export async function ensureServices(suite: TestSuite, options: TestOptions): Promise<() => void> {
     const needsES = [TestSuite.Elasticsearch, TestSuite.E2E];
     const needsKafka = [TestSuite.Kafka, TestSuite.E2E];
+    const cleanupFns: (() => void)[] = [];
+
     if (needsES.includes(suite)) {
-        await ensureElasticsearch(options);
+        try {
+            await checkElasticsearch(options, 2);
+        } catch (err) {
+            cleanupFns.push(await startElasticsearch(options));
+            await checkElasticsearch(options, 10);
+        }
     }
 
     if (needsKafka.includes(suite)) {
-        await ensureKafka(options);
+        try {
+            await checkKafka(options);
+        } catch (err) {
+            cleanupFns.push(await startKafka(options));
+            await checkKafka(options);
+        }
     }
+
+    return () => {
+        cleanupFns.forEach(fn => fn());
+    };
 }
 
-async function ensureElasticsearch(options: TestOptions): Promise<void> {
-    const { body } = await got(options.elasticsearchUrl, {
-        json: true,
-        throwHttpErrors: false,
-    });
+export async function stopAllServices(): Promise<void> {
+    const promises = Object.keys(services).map(service => stopService(service as Service));
 
-    debug('got response from elasticsearch service', body);
-
-    if (!body || !body.version || !body.version.number) {
-        throw new Error(`Invalid response from elasticsearch at ${options.elasticsearchUrl}`);
-    }
-
-    const actual: string = body.version.number;
-    const expected = options.serviceVersion;
-    if (!expected) {
-        debug(`using local version of elasticsearch v${actual}`);
-        return;
-    }
-
-    const satifies = semver.satisfies(actual, `^${expected}`);
-    if (satifies) {
-        return;
-    }
-
-    return cliError('Error', `Elasticsearch at ${options.elasticsearchUrl} does not satify required version of ${expected}, got ${actual}`);
+    await Promise.all(promises);
 }
 
-async function ensureKafka(options: TestOptions) {
-    debug(`assuming kafka brokers at ${options.kafkaBrokers.join(', ')} are up... FIXME`);
+async function stopService(service: Service) {
+    const { name } = services[service];
+    const info = await getContainerInfo(name);
+    if (!info) return;
+
+    console.error(`* stopping service ${service}`);
+    await dockerStop(name);
+}
+
+async function checkElasticsearch(options: TestOptions, retries: number): Promise<void> {
+    return pRetry(
+        async () => {
+            logger.debug(`* checking elasticsearch at ${options.elasticsearchUrl}`);
+
+            let body: any;
+            try {
+                ({ body } = await got(options.elasticsearchUrl, {
+                    json: true,
+                    throwHttpErrors: true,
+                    retry: 0,
+                }));
+            } catch (err) {
+                throw new TSError(err, {
+                    retryable: true,
+                });
+            }
+
+            logger.debug('got response from elasticsearch service', body);
+
+            if (!body || !body.version || !body.version.number) {
+                throw new TSError(`Invalid response from elasticsearch at ${options.elasticsearchUrl}`, {
+                    retryable: true,
+                });
+            }
+
+            const actual: string = body.version.number;
+            const expected = options.serviceVersion;
+            if (!expected) {
+                logger.debug(`using local version of elasticsearch v${actual}`);
+                return;
+            }
+
+            const satifies = semver.satisfies(actual, `^${expected}`);
+            if (satifies) {
+                return;
+            }
+
+            throw new TSError(
+                `Elasticsearch at ${options.elasticsearchUrl} does not satify required version of ${expected}, got ${actual}`,
+                {
+                    retryable: false,
+                }
+            );
+        },
+        {
+            retries,
+        }
+    );
+}
+
+async function startElasticsearch(options: TestOptions) {
+    console.error('* starting elasticsearch service');
+    const serviceOptions = services.elasticsearch;
+    const version = options.serviceVersion || '6.8';
+    await stopService(TestSuite.Elasticsearch);
+    return dockerRun(serviceOptions, version);
+}
+
+async function checkKafka(options: TestOptions) {
+    const p = await pgrep('kafka');
+    if (!p) {
+        throw new Error('Kafka is not running');
+    }
+
+    logger.debug(`assuming kafka brokers at ${options.kafkaBrokers.join(', ')} are up...`, p);
     return;
+}
+
+async function startKafka(options: TestOptions) {
+    console.error('* starting service kafka');
+    const serviceOptions = services.kafka;
+    const version = options.serviceVersion || 'v1.1.1';
+    await stopService(TestSuite.Kafka);
+    return dockerRun(serviceOptions, version);
 }

@@ -1,9 +1,11 @@
 import path from 'path';
 import execa from 'execa';
 import fse from 'fs-extra';
+import { debugLogger, pDelay } from '@terascope/utils';
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
-import debug from './debug';
+
+const logger = debugLogger('ts-scripts:cmd');
 
 export type ExecEnv = { [name: string]: string };
 type ExecOpts = {
@@ -11,6 +13,7 @@ type ExecOpts = {
     args?: string[];
     cwd?: string;
     env?: ExecEnv;
+    detached?: boolean;
 };
 
 function _exec(opts: ExecOpts) {
@@ -18,9 +21,11 @@ function _exec(opts: ExecOpts) {
     const options: execa.Options = {
         cwd: opts.cwd || getRootDir(),
         env: opts.env,
+        preferLocal: true,
+        detached: opts.detached,
     };
 
-    debug('executing command', opts);
+    logger.debug('executing command', opts);
 
     if (opts.args && opts.args.length) {
         subprocess = execa(opts.cmd, opts.args, options);
@@ -43,9 +48,12 @@ export async function exec(opts: ExecOpts): Promise<string> {
         const subprocess = _exec(_opts);
         const { stdout } = await subprocess;
         const result = stdout.trim();
-        debug(`exec result: ${opts.cmd} ${(opts.args || []).join(' ')}`, result);
+        logger.debug(`exec result: ${opts.cmd} ${(opts.args || []).join(' ')}`, result);
         return result;
     } catch (err) {
+        if (!err.command) {
+            throw err;
+        }
         process.exitCode = err.exitCode || 1;
         throw new Error(err.message);
     }
@@ -60,6 +68,9 @@ export async function fork(opts: ExecOpts): Promise<void> {
         subprocess.stdout!.pipe(process.stdout);
         await subprocess;
     } catch (err) {
+        if (!err.command) {
+            throw err;
+        }
         process.exitCode = err.exitCode || 1;
         throw new Error(err.message);
     }
@@ -92,16 +103,13 @@ export async function build(pkgInfo?: PackageInfo): Promise<void> {
     });
 }
 
-export async function runJest(pkgDir: string, args: ArgsMap, env?: ExecEnv): Promise<void> {
-    const jestPath = await exec({
-        cmd: 'yarn',
-        args: ['--silent', 'bin', 'jest'],
-        cwd: pkgDir,
-        env,
-    });
+export async function setup(): Promise<void> {
+    await fork({ cmd: 'yarn', args: ['run', 'setup'] });
+}
 
+export async function runJest(pkgDir: string, args: ArgsMap, env?: ExecEnv): Promise<void> {
     await fork({
-        cmd: jestPath,
+        cmd: 'jest',
         args: mapToArgs(args),
         cwd: pkgDir,
         env,
@@ -113,6 +121,95 @@ export async function dockerPull(image: string): Promise<void> {
         cmd: 'docker',
         args: ['pull', image],
     });
+}
+
+export async function dockerStop(name: string): Promise<void> {
+    await exec({
+        cmd: 'docker',
+        args: ['stop', name],
+    });
+}
+
+export async function getContainerInfo(name: string): Promise<any> {
+    const result = await exec({
+        cmd: 'docker',
+        args: ['ps', '--format={{json .}}', `--filter=name=${name}`],
+    });
+
+    if (!result) return null;
+    return JSON.parse(result);
+}
+
+export type DockerRunOptions = {
+    name: string;
+    image: string;
+    ports?: number[];
+    tmpfs?: string[];
+    env?: ExecEnv;
+};
+
+export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): Promise<() => void> {
+    const args: string[] = [];
+    if (!opt.image) {
+        throw new Error('Missing required image option');
+    }
+
+    if (!opt.name) {
+        throw new Error('Missing required name option');
+    }
+
+    if (opt.ports && opt.ports.length) {
+        opt.ports.forEach(port => {
+            args.push('--publish', `${port}:${port}`);
+        });
+    }
+
+    if (opt.env) {
+        Object.entries(opt.env).forEach(([key, val]) => {
+            args.push('--env', `${key}=${val}`);
+        });
+    }
+
+    if (opt.tmpfs && opt.tmpfs.length) {
+        args.push('--tmpfs', opt.tmpfs.join(','));
+    }
+
+    args.push('--name', opt.name);
+    args.push(`${opt.image}:${tag}`);
+
+    let error: any;
+    let done: boolean = true;
+
+    const subprocess = execa('docker', ['run', '--rm', ...args]);
+    if (!subprocess || !subprocess.stderr) {
+        throw new Error('Failed to execute docker run');
+    }
+    subprocess.stderr.pipe(process.stderr);
+
+    (async () => {
+        done = false;
+        try {
+            await subprocess;
+        } catch (err) {
+            error = err;
+        } finally {
+            done = true;
+        }
+    })();
+
+    await pDelay(1000);
+
+    if (error) {
+        throw error;
+    }
+
+    return () => {
+        if (done && !subprocess.killed) return;
+        if (error) {
+            console.error(error);
+        }
+        subprocess.kill();
+    };
 }
 
 export async function dockerBuild(target: string, cacheFrom: string[] = []): Promise<void> {
@@ -128,8 +225,20 @@ export async function dockerBuild(target: string, cacheFrom: string[] = []): Pro
     });
 }
 
-export async function setup(): Promise<void> {
-    await fork({ cmd: 'yarn', args: ['run', 'setup'] });
+export async function pgrep(name: string): Promise<string> {
+    const result = await exec({ cmd: 'ps', args: ['aux'] });
+    if (!result) {
+        throw new Error('Invalid result from ps aux');
+    }
+    const found = result.split('\n').find(line => {
+        if (!line) return false;
+        return line.toLowerCase().includes(name.toLowerCase());
+    });
+    if (found) {
+        logger.debug('found process', found);
+        return found;
+    }
+    return '';
 }
 
 export async function getCommitHash(): Promise<string> {

@@ -6,8 +6,10 @@ node_js:
 
 cache:
   npm: false
+  yarn: false
   directories:
     - "$HOME/.travis-cache"
+    - "$TRAVIS_BUILD_DIR/.yarn-cache"
 
 before_install:
     # make it colorful
@@ -61,7 +63,6 @@ jobs:
     if: branch = master
     node_js:
         - '8.16'
-    before_script: . ./scripts/travis-install-es.sh 6.8.1
     script: yarn test --suite elasticsearch
     after_success:
         - bash <(curl -s https://codecov.io/bash)
@@ -72,9 +73,6 @@ jobs:
     if: branch = master AND type IN (pull_request, cron) AND fork = false
     services:
         - docker
-    before_script:
-        - . ./scripts/travis-install-es.sh 6.8.1
-        - . ./scripts/travis-install-kafka.sh
     script: yarn test --suite e2e
     after_success:
         - bash <(curl -s https://codecov.io/bash)

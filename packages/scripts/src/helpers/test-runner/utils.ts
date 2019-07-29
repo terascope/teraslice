@@ -1,8 +1,10 @@
 import isCI from 'is-ci';
+import { debugLogger } from '@terascope/utils';
 import { PackageInfo, TestSuite } from '../interfaces';
 import { ArgsMap, ExecEnv, dockerBuild, dockerPull } from '../scripts';
 import { TestOptions, GroupedPackages } from './interfaces';
-import debug from './debug';
+
+const logger = debugLogger('ts-scripts:cmd:test');
 
 export function getArgs(options: TestOptions): ArgsMap {
     const args: ArgsMap = {};
@@ -56,12 +58,15 @@ export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): Pa
         if (!suite) {
             throw new Error(`Package ${pkgInfo.name} missing required "terascope.testSuite" configuration`);
         }
-        if (suite === options.suite) return true;
+        if (suite === options.suite) {
+            logger.info(`* found ${pkgInfo.name} for suite ${suite} to test`);
+            return true;
+        }
         const msg = `* skipping ${pkgInfo.name} ${suite} test`;
         if (!options.all) {
             console.error(msg);
         } else {
-            debug(msg);
+            logger.debug(msg);
         }
         return false;
     });

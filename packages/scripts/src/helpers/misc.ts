@@ -1,7 +1,7 @@
 import fse from 'fs-extra';
 import path from 'path';
 import pkgUp from 'pkg-up';
-import { words, isPlainObject } from 'lodash';
+import { isPlainObject } from '@terascope/utils';
 import { PackageInfo } from './interfaces';
 
 export let rootDir: string | undefined;
@@ -16,7 +16,10 @@ export function getRootDir() {
 }
 
 export function getName(input: string): string {
-    return words(input)
+    return input
+        .split(/\W/g)
+        .map(str => str.trim())
+        .filter(str => str.length > 0)
         .map((str: string) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
         .join(' ');
 }

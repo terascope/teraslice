@@ -1,5 +1,5 @@
 import semver from 'semver';
-import { keys, get } from 'lodash';
+import { get } from '@terascope/utils';
 import { PackageInfo } from '../interfaces';
 import { listPackages, updatePkgJSON, readPackageInfo } from '../packages';
 import { writePkgHeader } from '../misc';
@@ -80,9 +80,9 @@ function formatVersion(version: string): string {
 
 function isDependent(mainPkgInfo: PackageInfo, pkgInfo: PackageInfo): boolean {
     if (pkgInfo.name === mainPkgInfo.name) return false;
-    const devDeps = keys(get(pkgInfo, 'devDependencies'));
-    const peerDeps = keys(get(pkgInfo, 'peerDependencies'));
-    const deps = keys(get(pkgInfo, 'dependencies'));
+    const devDeps = Object.keys(get(pkgInfo, 'devDependencies', {}));
+    const peerDeps = Object.keys(get(pkgInfo, 'peerDependencies', {}));
+    const deps = Object.keys(get(pkgInfo, 'dependencies', {}));
     const allDeps: string[] = [...devDeps, ...peerDeps, ...deps];
     return allDeps.includes(mainPkgInfo.name);
 }

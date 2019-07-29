@@ -1,15 +1,36 @@
 import path from 'path';
+import { debugLogger, chunk } from '@terascope/utils';
 import { writePkgHeader, writeHeader, formatList, cliError, getRootDir } from '../misc';
 import { getArgs, filterBySuite, getEnv, groupBySuite, buildDockerImage } from './utils';
+import { ensureServices, stopAllServices } from './services';
 import { PackageInfo, TestSuite } from '../interfaces';
-import { ensureServices } from './services';
 import { TestOptions } from './interfaces';
 import { runJest } from '../scripts';
-import debug from './debug';
+
+const logger = debugLogger('ts-scripts:cmd:test');
 
 export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
-    debug('running tests with options', options);
+    logger.info('running tests with options', options);
+    let errors: string[];
 
+    try {
+        errors = await _runTests(pkgInfos, options);
+    } finally {
+        if (options.suite !== TestSuite.Unit) {
+            await stopAllServices().catch(err => {
+                console.error('Failure stopping services', err);
+            });
+        }
+    }
+
+    if (errors.length > 1) {
+        cliError('Error', `Multiple Test Failures:${formatList(errors)}`);
+    } else if (errors.length === 1) {
+        cliError('Error', errors[0]);
+    }
+}
+
+async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
     if (options.suite === TestSuite.E2E) {
         return runE2ETest(options);
     }
@@ -17,13 +38,13 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
     const filtered = filterBySuite(pkgInfos, options);
     if (!filtered.length) {
         console.error('No tests found.');
-        return;
+        return [];
     }
 
     const grouped = groupBySuite(filtered);
 
-    const errors: string[] = [];
     let ranOnce = false;
+    const errors: string[] = [];
 
     for (const [suite, pkgs] of Object.entries(grouped)) {
         if (!pkgs.length) continue;
@@ -52,15 +73,11 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
         }
     }
 
-    if (errors.length > 1) {
-        cliError('Error', `Multiple Test Failures:${formatList(errors)}`);
-    } else if (errors.length === 1) {
-        cliError('Error', errors[0]);
-    }
+    return errors;
 }
 
 async function runTestSuiteSerial(suite: TestSuite, pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
-    await ensureServices(suite, options);
+    const cleanup = await ensureServices(suite, options);
 
     const errors: string[] = [];
 
@@ -78,11 +95,17 @@ async function runTestSuiteSerial(suite: TestSuite, pkgInfos: PackageInfo[], opt
         }
     }
 
+    try {
+        cleanup();
+    } catch (err) {
+        console.error(err);
+    }
+
     return errors;
 }
 
 async function runTestSuiteInParallel(suite: TestSuite, pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
-    await ensureServices(suite, options);
+    const cleanup = await ensureServices(suite, options);
 
     const errors: string[] = [];
 
@@ -105,11 +128,16 @@ async function runTestSuiteInParallel(suite: TestSuite, pkgInfos: PackageInfo[],
         }
     }
 
+    try {
+        cleanup();
+    } catch (err) {
+        console.error(err);
+    }
     return errors;
 }
 
-async function runE2ETest(options: TestOptions): Promise<void> {
-    await ensureServices(TestSuite.E2E, options);
+async function runE2ETest(options: TestOptions): Promise<string[]> {
+    const cleanup = await ensureServices(TestSuite.E2E, options);
     await buildDockerImage('e2e_teraslice');
 
     const e2eDir = path.join(getRootDir(), 'e2e');
@@ -117,24 +145,14 @@ async function runE2ETest(options: TestOptions): Promise<void> {
         await runJest(e2eDir, getArgs(options), getEnv(options));
     } catch (err) {
         console.error(err);
-        cliError('Error', 'Test e2e Failed');
-    }
-    return;
-}
-
-export function chunk<T>(dataArray: T[], size: number) {
-    if (size < 1) return [dataArray];
-    const results: T[][] = [];
-    let chunked: T[] = [];
-
-    for (let i = 0; i < dataArray.length; i += 1) {
-        chunked.push(dataArray[i]);
-        if (chunked.length === size) {
-            results.push(chunked);
-            chunked = [];
+        return ['Test e2e Failed'];
+    } finally {
+        try {
+            cleanup();
+        } catch (err) {
+            console.error(err);
         }
     }
 
-    if (chunked.length > 0) results.push(chunked);
-    return results;
+    return [];
 }

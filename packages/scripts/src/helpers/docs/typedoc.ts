@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import path from 'path';
 import fse from 'fs-extra';
 import { Application } from 'typedoc';

@@ -27,15 +27,13 @@
         }
     },
     "include": [],
+    // these project references should be ordered by dependants first
     "references": [
-        // Make sure to list this in order of depedencies
         {
-            // scripts should be first because should never have teraslice dependencies
-            "path": "packages/scripts"
+            "path": "packages/utils"
         },
         {
-            // scripts should be next because shouldn't have teraslice dependencies
-            "path": "packages/utils"
+            "path": "packages/scripts"
         },
         {
             "path": "packages/job-components"

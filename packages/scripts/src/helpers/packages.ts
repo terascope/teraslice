@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import fse from 'fs-extra';
-import { uniq } from 'lodash';
+import { uniq } from '@terascope/utils';
 // @ts-ignore
 import QueryGraph from '@lerna/query-graph';
 import sortPackageJson from 'sort-package-json';
