@@ -16,8 +16,8 @@
     "author": "Terascope, LLC <info@terascope.io>",
     "main": "index.js",
     "scripts": {
-        "test": "jest --forceExit",
-        "test:debug": "env DEBUG=\"${DEBUG:*docker-compose-js*}\" jest --detectOpenHandles --coverage=false --runInBand",
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {

@@ -24,10 +24,6 @@ export function getArgs(options: TestOptions): ArgsMap {
         args.silent = '';
     }
 
-    if (options.filter) {
-        args.testPathPattern = options.filter;
-    }
-
     if (options.suite === TestSuite.E2E) {
         args.runInBand = '';
         args.coverage = 'false';
@@ -39,7 +35,9 @@ export function getArgs(options: TestOptions): ArgsMap {
 export function getEnv(options: TestOptions): ExecEnv {
     const defaults: ExecEnv = {
         ELASTICSEARCH_URL: options.elasticsearchUrl,
+        ELASTICSEARCH_VERSION: options.elasticsearchVersion,
         KAFKA_BROKERS: options.kafkaBrokers.join(','),
+        KAFKA_VERSION: options.kafkaVersion,
     };
 
     if (!options.debug) return defaults;
@@ -69,6 +67,12 @@ export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): Pa
             logger.debug(msg);
         }
         return false;
+    });
+}
+
+export function onlyUnitTests(pkgInfos: PackageInfo[]): boolean {
+    return pkgInfos.some(pkgInfo => {
+        return pkgInfo.terascope.testSuite === TestSuite.Unit;
     });
 }
 

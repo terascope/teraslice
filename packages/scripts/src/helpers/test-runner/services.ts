@@ -101,7 +101,7 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
             }
 
             const actual: string = body.version.number;
-            const expected = options.serviceVersion;
+            const expected = options.elasticsearchVersion;
             if (!expected) {
                 logger.debug(`using local version of elasticsearch v${actual}`);
                 return;
@@ -126,11 +126,10 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
 }
 
 async function startElasticsearch(options: TestOptions) {
-    console.error('* starting elasticsearch service');
-    const serviceOptions = services.elasticsearch;
-    const version = options.serviceVersion || '6.8';
+    console.error(`* starting elasticsearch@${options.elasticsearchVersion} service`);
+
     await stopService(TestSuite.Elasticsearch);
-    return dockerRun(serviceOptions, version);
+    return dockerRun(services.elasticsearch, options.elasticsearchVersion);
 }
 
 async function checkKafka(options: TestOptions) {
@@ -144,9 +143,8 @@ async function checkKafka(options: TestOptions) {
 }
 
 async function startKafka(options: TestOptions) {
-    console.error('* starting service kafka');
-    const serviceOptions = services.kafka;
-    const version = options.serviceVersion || 'v1.1.1';
+    console.error(`* starting kafka@${options.kafkaVersion} service`);
+
     await stopService(TestSuite.Kafka);
-    return dockerRun(serviceOptions, version);
+    return dockerRun(services.kafka, options.kafkaVersion);
 }

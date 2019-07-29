@@ -111,10 +111,10 @@ export async function yarnInstall(): Promise<void> {
     await fork({ cmd: 'yarn', args: ['install'] });
 }
 
-export async function runJest(pkgDir: string, args: ArgsMap, env?: ExecEnv): Promise<void> {
+export async function runJest(pkgDir: string, args: ArgsMap, env?: ExecEnv, extraArgs?: string[]): Promise<void> {
     await fork({
         cmd: 'jest',
-        args: mapToArgs(args),
+        args: [...mapToArgs(args), ...(extraArgs || [])],
         cwd: pkgDir,
         env,
     });

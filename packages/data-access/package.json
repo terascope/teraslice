@@ -21,8 +21,8 @@
         "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
-        "test": "jest --forceExit",
-        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {

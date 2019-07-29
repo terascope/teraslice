@@ -42,5 +42,6 @@ export function makeArray(input: string | string[] | undefined): string[] {
         const arr = input.map((str: string) => str.trim()).filter(Boolean);
         return [...new Set(arr)];
     }
+    if (typeof input !== 'string') return [];
     return [input.trim()];
 }

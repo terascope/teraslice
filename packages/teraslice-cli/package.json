@@ -18,7 +18,7 @@
         "teraslice-cli": "./index.js"
     },
     "scripts": {
-        "test": "jest --forceExit",
+        "test": "ts-scripts test . --",
         "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {

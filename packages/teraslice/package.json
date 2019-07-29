@@ -27,8 +27,8 @@
     },
     "scripts": {
         "start": "node service.js",
-        "test": "jest --forceExit",
-        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*,-teraslice-messaging*}\" jest --colors --forceExit --detectOpenHandles --coverage=false --runInBand",
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {

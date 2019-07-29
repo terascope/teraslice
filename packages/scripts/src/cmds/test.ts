@@ -8,13 +8,15 @@ import { listPackages } from '../helpers/packages';
 type Options = {
     debug: boolean;
     bail: boolean;
-    filter?: string;
     suite?: TestSuite;
     'elasticsearch-url': string;
+    'elasticsearch-version': string;
     'kafka-brokers': string;
-    'service-version'?: string;
+    'kafka-version': string;
     packages?: PackageInfo[];
 };
+
+const jestArgs = getExtraArgs();
 
 const cmd: CommandModule<GlobalCMDOptions, Options> = {
     command: 'test [packages..]',
@@ -31,10 +33,6 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'boolean',
                 default: isCI,
             })
-            .option('filter', {
-                description: 'This will filter the tests by file pattern',
-                type: 'string',
-            })
             .option('suite', {
                 description: 'Run a test given a particular suite. Defaults to running all',
                 choices: Object.values(TestSuite).filter(suite => suite !== TestSuite.Disabled),
@@ -42,23 +40,36 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                     return arg;
                 },
             })
-            .option('service-version', {
-                description: 'Suites may work for multiple version, specify the version here',
-                type: 'string',
-            })
             .option('elasticsearch-url', {
                 description: 'The elasticsearch URL to use when needed (usually for --suite elasticsearch or e2e)',
                 type: 'string',
                 default: process.env.ELASTICSEARCH_URL || 'http://localhost:9200/',
+            })
+            .option('elasticsearch-version', {
+                description: 'The elasticsearch version to use',
+                type: 'string',
+                default: process.env.ELASTICSEARCH_VERSION || '6.8',
             })
             .option('kafka-brokers', {
                 description: 'The elasticsearch URL to use when needed (usually for --suite kafka or e2e)',
                 type: 'string',
                 default: process.env.KAFKA_BROKERS || 'localhost:9092',
             })
+            .option('kafka-version', {
+                description: 'The kafka version to use, format $SCALA_VERSION-$KAFKA_VERSION',
+                type: 'string',
+                default: process.env.KAFKA_VERSION || '2.11-2.1.1',
+                choices: ['2.11-2.1.1'],
+            })
             .positional('packages', {
-                description: 'Runs the test for one or more package or test suite, if none specified it will run all of the tests',
+                description: 'Runs the test for one or more package, if none specified it will run all of the tests',
                 coerce(arg) {
+                    if (Array.isArray(arg)) {
+                        arg.forEach((a, i) => {
+                            if (!jestArgs.includes(a)) return;
+                            arg.splice(i, 1);
+                        });
+                    }
                     return coercePkgArg(arg);
                 },
             });
@@ -68,14 +79,25 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             debug: argv.debug,
             bail: argv.bail,
             suite: argv.suite,
-            filter: argv.filter,
             elasticsearchUrl: argv['elasticsearch-url'],
-            serviceVersion: argv['service-version'],
+            elasticsearchVersion: argv['elasticsearch-version'],
             kafkaBrokers: parseBrokers(argv['kafka-brokers']),
+            kafkaVersion: argv['kafka-version'],
             all: !argv.packages || !argv.packages.length,
+            jestArgs,
         });
     },
 };
+
+function getExtraArgs(): string[] {
+    const args: string[] = [];
+    let extra = false;
+    process.argv.forEach(arg => {
+        if (extra) args.push(arg);
+        if (arg === '--') extra = true;
+    });
+    return args;
+}
 
 function parseBrokers(arg: string): string[] {
     if (!arg) return [];

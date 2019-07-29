@@ -3,12 +3,13 @@ import { TestSuite, PackageInfo } from '../interfaces';
 export type TestOptions = {
     bail: boolean;
     debug: boolean;
-    filter?: string;
     all: boolean;
     suite?: TestSuite;
-    serviceVersion?: string;
     elasticsearchUrl: string;
+    elasticsearchVersion: string;
     kafkaBrokers: string[];
+    kafkaVersion: string;
+    jestArgs?: string[];
 };
 
 export type GroupedPackages = {

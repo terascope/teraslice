@@ -1,11 +1,11 @@
 import path from 'path';
 import { debugLogger, chunk } from '@terascope/utils';
 import { writePkgHeader, writeHeader, formatList, cliError, getRootDir } from '../misc';
-import { getArgs, filterBySuite, getEnv, groupBySuite, buildDockerImage } from './utils';
+import { getArgs, filterBySuite, getEnv, groupBySuite, buildDockerImage, onlyUnitTests } from './utils';
 import { ensureServices, stopAllServices } from './services';
 import { PackageInfo, TestSuite } from '../interfaces';
-import { TestOptions } from './interfaces';
 import { runJest, yarnInstall } from '../scripts';
+import { TestOptions } from './interfaces';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -16,7 +16,7 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
     try {
         errors = await _runTests(pkgInfos, options);
     } finally {
-        if (options.suite !== TestSuite.Unit) {
+        if (onlyUnitTests(pkgInfos)) {
             await stopAllServices().catch(err => {
                 console.error('Failure stopping services', err);
             });
@@ -52,12 +52,7 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
         writeHeader(`running test suite for ${suite}`, ranOnce);
 
         try {
-            let suiteErrors: string[];
-            if (!options.debug) {
-                suiteErrors = await runTestSuiteInParallel(suite as TestSuite, pkgs, options);
-            } else {
-                suiteErrors = await runTestSuiteSerial(suite as TestSuite, pkgs, options);
-            }
+            const suiteErrors: string[] = await runTestSuite(suite as TestSuite, pkgs, options);
 
             if (suiteErrors.length) {
                 errors.push(`Test Suite ${suite} Failed`, ...suiteErrors);
@@ -76,40 +71,12 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
     return errors;
 }
 
-async function runTestSuiteSerial(suite: TestSuite, pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
+async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
     const cleanup = await ensureServices(suite, options);
 
     const errors: string[] = [];
 
-    for (const pkgInfo of pkgInfos) {
-        writePkgHeader('running test', [pkgInfo], true);
-        try {
-            await runJest(pkgInfo.dir, getArgs(options), getEnv(options));
-        } catch (err) {
-            console.error(err);
-            errors.push(`Test ${pkgInfo.name} Failed`);
-
-            if (options.bail) {
-                break;
-            }
-        }
-    }
-
-    try {
-        cleanup();
-    } catch (err) {
-        console.error(err);
-    }
-
-    return errors;
-}
-
-async function runTestSuiteInParallel(suite: TestSuite, pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
-    const cleanup = await ensureServices(suite, options);
-
-    const errors: string[] = [];
-
-    const chunked = chunk(pkgInfos, 5);
+    const chunked = chunk(pkgInfos, options.debug ? 1 : 5);
 
     for (const pkgs of chunked) {
         writePkgHeader('running tests', pkgs, true);
@@ -118,7 +85,7 @@ async function runTestSuiteInParallel(suite: TestSuite, pkgInfos: PackageInfo[],
         args.projects = pkgs.map(pkgInfo => path.join('packages', pkgInfo.folderName));
 
         try {
-            await runJest(getRootDir(), args, getEnv(options));
+            await runJest(getRootDir(), args, getEnv(options), options.jestArgs);
         } catch (err) {
             console.error(err);
             errors.push(`Test(s) ${pkgs.map(pkgInfo => pkgInfo.name)} Failed`);

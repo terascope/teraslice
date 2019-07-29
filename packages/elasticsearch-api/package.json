@@ -12,8 +12,8 @@
     "main": "index.js",
     "typings": "types/index.d.ts",
     "scripts": {
-        "test": "jest --forceExit",
-        "test:debug": "env DEBUG=\"${DEBUG:-*elasticsearch-api*}\" jest --detectOpenHandles --coverage=false --runInBand",
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {
