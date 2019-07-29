@@ -33,9 +33,9 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
         try {
             let suiteErrors: string[];
             if (!options.debug) {
-                suiteErrors = await runTestSuiteFast(suite as TestSuite, pkgs, options);
+                suiteErrors = await runTestSuiteInParallel(suite as TestSuite, pkgs, options);
             } else {
-                suiteErrors = await runTestSuiteSlow(suite as TestSuite, pkgs, options);
+                suiteErrors = await runTestSuiteSerial(suite as TestSuite, pkgs, options);
             }
 
             if (suiteErrors.length) {
@@ -59,18 +59,13 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
     }
 }
 
-/**
- * @todo run multiple at once
- */
-async function runTestSuiteSlow(suite: TestSuite, pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
+async function runTestSuiteSerial(suite: TestSuite, pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
     await ensureServices(suite, options);
 
     const errors: string[] = [];
 
-    let ranOnce = false;
-
     for (const pkgInfo of pkgInfos) {
-        writePkgHeader('running test in series', [pkgInfo], ranOnce);
+        writePkgHeader('running test', [pkgInfo], true);
         try {
             await runJest(pkgInfo.dir, getArgs(options), getEnv(options));
         } catch (err) {
@@ -80,29 +75,34 @@ async function runTestSuiteSlow(suite: TestSuite, pkgInfos: PackageInfo[], optio
             if (options.bail) {
                 break;
             }
-        } finally {
-            ranOnce = true;
         }
     }
 
     return errors;
 }
 
-async function runTestSuiteFast(suite: TestSuite, pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
+async function runTestSuiteInParallel(suite: TestSuite, pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
     await ensureServices(suite, options);
 
     const errors: string[] = [];
 
-    writePkgHeader('running tests in parallel', pkgInfos);
+    const chunked = chunk(pkgInfos, 3);
 
-    const args = getArgs(options);
-    args.projects = pkgInfos.map(pkgInfo => path.join('packages', pkgInfo.folderName));
+    for (const pkgs of chunked) {
+        writePkgHeader('running tests', pkgs, true);
 
-    try {
-        await runJest(getRootDir(), args, getEnv(options));
-    } catch (err) {
-        console.error(err);
-        errors.push(`Test(s) ${pkgInfos.map(pkgInfo => pkgInfo.name)} Failed`);
+        const args = getArgs(options);
+        args.projects = pkgs.map(pkgInfo => path.join('packages', pkgInfo.folderName));
+
+        try {
+            await runJest(getRootDir(), args, getEnv(options));
+        } catch (err) {
+            console.error(err);
+            errors.push(`Test(s) ${pkgs.map(pkgInfo => pkgInfo.name)} Failed`);
+            if (options.bail) {
+                break;
+            }
+        }
     }
 
     return errors;
@@ -120,4 +120,21 @@ async function runE2ETest(options: TestOptions): Promise<void> {
         cliError('Error', 'Test e2e Failed');
     }
     return;
+}
+
+export function chunk<T>(dataArray: T[], size: number) {
+    if (size < 1) return [dataArray];
+    const results: T[][] = [];
+    let chunked: T[] = [];
+
+    for (let i = 0; i < dataArray.length; i += 1) {
+        chunked.push(dataArray[i]);
+        if (chunked.length === size) {
+            results.push(chunked);
+            chunked = [];
+        }
+    }
+
+    if (chunked.length > 0) results.push(chunked);
+    return results;
 }

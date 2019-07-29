@@ -5,7 +5,7 @@ node_js:
 - '10.16'
 
 cache:
-  yarn: true
+  npm: false
   directories:
     - "$HOME/.travis-cache"
 

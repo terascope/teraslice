@@ -8,7 +8,6 @@ export function getArgs(options: TestOptions): ArgsMap {
     const args: ArgsMap = {};
     args.forceExit = '';
     args.passWithNoTests = '';
-    args.maxWorkers = '50%';
     args.coverage = 'true';
 
     if (options.bail) {

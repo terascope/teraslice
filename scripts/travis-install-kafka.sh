@@ -43,7 +43,7 @@ main() {
     export KAFKA_HOME="$HOME/.kafka"
     mkdir -p "$KAFKA_HOME"
 
-    if [ -f "$CACHE_DIR/kafka.tgz" ]; then
+    if [ ! -f "$CACHE_DIR/kafka.tgz" ]; then
         echoerr "* downloading kafka"
         wget https://www.apache.org/dist/kafka/2.1.1/kafka_2.11-2.1.1.tgz -O "$CACHE_DIR/kafka.tgz"
     else
