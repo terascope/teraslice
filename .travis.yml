@@ -29,7 +29,7 @@ jobs:
 
   include:
   - stage: Verify
-    name: Verify Build node:10.16)
+    name: "Verify Build (node 10.16)"
     if: branch = master AND type = pull_request
     before_script:
         - yarn --cwd=./packages/ui-core build
@@ -41,7 +41,7 @@ jobs:
         - yarn sync --verify
 
   - stage: Test Suites
-    name: Unit Test Suite (node:8.16)
+    name: "Unit Test Suite (node 8)"
     if: branch = master
     node_js:
         - '8.16'
@@ -50,7 +50,7 @@ jobs:
         - bash <(curl -s https://codecov.io/bash)
 
   - script:
-    name: Unit Test Suite (node 10)
+    name: "Unit Test Suite (node 10)"
     if: branch = master
     node_js:
         - '10.16'
@@ -59,7 +59,7 @@ jobs:
         - bash <(curl -s https://codecov.io/bash)
 
    - script:
-    name: ElasticSearch Test Suite (elasticsearch:6.8 & 7.2) (node:10.16)
+    name: "ES Test Suite (elasticsearch 6-7) (node 10)"
     if: branch = master
     node_js:
         - '10.16'
@@ -70,7 +70,7 @@ jobs:
         - bash <(curl -s https://codecov.io/bash)
 
   - script:
-    name: ElasticSearch Test Suite (elasticsearch:5.6) (node:8.16)
+    name: "ES Test Suite (elasticsearch 5) (node 8)"
     if: branch = master
     node_js:
         - '8.16'
@@ -80,7 +80,7 @@ jobs:
 
   # test end-to-end tests, only on pull-requests
   - script:
-    name: End-to-End Test Suite (elasticsearch:6.8) (kafka:2.11-2.1.1) (node:10.16)
+    name: "End-to-End Test Suite"
     if: branch = master AND type IN (pull_request, cron) AND fork = false
     services:
         - docker
