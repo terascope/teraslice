@@ -58,7 +58,7 @@ jobs:
     after_success:
         - bash <(curl -s https://codecov.io/bash)
 
-   - script:
+  - script:
     name: "ES Test Suite (elasticsearch 6-7) (node 10)"
     if: branch = master
     node_js:
