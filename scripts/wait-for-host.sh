@@ -8,10 +8,15 @@ main () {
 
     local i;
 
+    if ! command -v curl &> /dev/null; then
+        echoerr "* Missing required curl command";
+        exit 1;
+    fi
+
     for i in {1..30}; do
-        echoerr "* attempt ${i} waiting for teraslice to up at $host..."
+        echoerr "* attempt ${i} waiting for host $host..."
         if curl -fSs "$host" 2> /dev/null; then
-            echoerr "* teraslice is ready!"
+            echoerr "* $host is ready!"
             break;
         fi
 

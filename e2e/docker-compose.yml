@@ -19,7 +19,7 @@ services:
     teraslice-worker:
         image: e2e_teraslice
         command: [
-            "./scripts/wait-for-teraslice.sh",
+            "./scripts/wait-for-host.sh",
             "teraslice-master:45678",
             "node",
             "service.js"

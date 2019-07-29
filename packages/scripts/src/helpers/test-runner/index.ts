@@ -109,7 +109,7 @@ async function runTestSuiteInParallel(suite: TestSuite, pkgInfos: PackageInfo[],
 
     const errors: string[] = [];
 
-    const chunked = chunk(pkgInfos, 3);
+    const chunked = chunk(pkgInfos, 5);
 
     for (const pkgs of chunked) {
         writePkgHeader('running tests', pkgs, true);
@@ -137,11 +137,10 @@ async function runTestSuiteInParallel(suite: TestSuite, pkgInfos: PackageInfo[],
 }
 
 async function runE2ETest(options: TestOptions): Promise<string[]> {
-    const cleanup = await ensureServices(TestSuite.E2E, options);
-    await yarnInstall();
-    await buildDockerImage('e2e_teraslice');
+    const [cleanup] = await Promise.all([ensureServices(TestSuite.E2E, options), yarnInstall(), buildDockerImage('e2e_teraslice')]);
 
     const e2eDir = path.join(getRootDir(), 'e2e');
+
     try {
         await runJest(e2eDir, getArgs(options), getEnv(options));
     } catch (err) {

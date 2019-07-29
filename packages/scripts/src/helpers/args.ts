@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import { listPackages, getPkgNames } from './packages';
 import { cliError, formatList } from './misc';
 import { PackageInfo } from './interfaces';
@@ -15,7 +17,16 @@ export function coercePkgArg(input: CoercePkgInput, required = false): PackageIn
     const packages = listPackages();
 
     for (const name of names) {
-        const found = packages.find(info => [info.name, info.folderName].includes(name));
+        let folderName: string = '';
+        if (fs.existsSync(path.resolve(name))) {
+            folderName = path.basename(path.resolve(name));
+        }
+
+        const found = packages.find(info => {
+            if (folderName === info.folderName) return true;
+            return [info.name, info.folderName].includes(name);
+        });
+
         if (!found) {
             return cliError('ValidationError', `Package name "${name}" must be one of:${formatList(getPkgNames(packages))}`);
         }

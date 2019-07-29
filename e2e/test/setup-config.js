@@ -4,7 +4,7 @@ const _ = require('lodash');
 const path = require('path');
 const fse = require('fs-extra');
 const {
-    DEFAULT_WORKERS,
+    WORKERS_PER_NODE,
     KAFKA_BROKERS,
     MY_IP,
     ELASTICSEARCH_URL,
@@ -46,7 +46,7 @@ module.exports = async function setupTerasliceConfig() {
             action_timeout: 30000,
             assets_directory: '/app/assets',
             autoload_directory: '/app/autoload',
-            workers: DEFAULT_WORKERS,
+            workers: WORKERS_PER_NODE,
             port: 45678,
             name: CLUSTER_NAME,
             index_settings: {

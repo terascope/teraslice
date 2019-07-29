@@ -24,7 +24,9 @@ async function dockerUp() {
     const startTime = Date.now();
     signale.pending('Bringing Docker environment up...');
 
-    await misc.compose.up({});
+    await misc.compose.up({
+        'force-recreate': ''
+    });
     signale.success('Docker environment is good to go', getElapsed(startTime));
 }
 
