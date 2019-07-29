@@ -13,8 +13,6 @@ cache:
 before_install:
     # make it colorful
     - export FORCE_COLOR=1
-    # install the latest yarn
-    - . ./scripts/travis-install-yarn.sh
     # setup an credentials
     - . ./scripts/travis-setup-credentials.sh
 install:

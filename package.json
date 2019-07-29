@@ -64,13 +64,13 @@
         "tslint-config-airbnb": "^5.11.1",
         "typescript": "^3.5.2"
     },
+    "root": true,
     "workspaces": [
-        "packages/*",
-        "e2e"
+        "packages/*"
     ],
     "engines" : {
         "node" : ">=8.16.0",
-        "yarn" : ">=1.17.0"
+        "yarn" : ">=1.16.0"
     },
     "os" : [ "darwin", "linux" ]
 }

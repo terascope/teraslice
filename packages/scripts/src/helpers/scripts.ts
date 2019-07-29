@@ -40,7 +40,7 @@ function _exec(opts: ExecOpts) {
     return subprocess;
 }
 
-export async function exec(opts: ExecOpts): Promise<string> {
+export async function exec(opts: ExecOpts, log: boolean = true): Promise<string> {
     try {
         const env: ExecEnv = { FORCE_COLOR: '0', ...opts.env };
         const _opts = { ...opts };
@@ -48,7 +48,7 @@ export async function exec(opts: ExecOpts): Promise<string> {
         const subprocess = _exec(_opts);
         const { stdout } = await subprocess;
         const result = stdout.trim();
-        logger.debug(`exec result: ${opts.cmd} ${(opts.args || []).join(' ')}`, result);
+        logger.debug(`exec result: ${opts.cmd} ${(opts.args || []).join(' ')}`, log && result);
         return result;
     } catch (err) {
         if (!err.command) {
@@ -105,6 +105,10 @@ export async function build(pkgInfo?: PackageInfo): Promise<void> {
 
 export async function setup(): Promise<void> {
     await fork({ cmd: 'yarn', args: ['run', 'setup'] });
+}
+
+export async function yarnInstall(): Promise<void> {
+    await fork({ cmd: 'yarn', args: ['install'] });
 }
 
 export async function runJest(pkgDir: string, args: ArgsMap, env?: ExecEnv): Promise<void> {
@@ -221,12 +225,12 @@ export async function dockerBuild(target: string, cacheFrom: string[] = []): Pro
 
     await fork({
         cmd: 'docker',
-        args: ['build', '-t', target, ...cacheFrom, '.'],
+        args: ['build', ...cacheFromArgs, '-t', target, '.'],
     });
 }
 
 export async function pgrep(name: string): Promise<string> {
-    const result = await exec({ cmd: 'ps', args: ['aux'] });
+    const result = await exec({ cmd: 'ps', args: ['aux'] }, false);
     if (!result) {
         throw new Error('Invalid result from ps aux');
     }

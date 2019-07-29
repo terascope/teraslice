@@ -4,10 +4,8 @@
     "version": "0.1.0",
     "description": "Teraslice integration test suite",
     "scripts": {
-        "test": "./scripts/run-test.sh",
-        "test:ci": "env CI=true ./scripts/run-test.sh",
+        "test": "ts-scripts test --suite e2e",
         "logs": "./scripts/logs.sh",
-        "logs:ci": "env CI=true ./scripts/logs.sh",
         "logs-follow": "docker-compose logs --follow --no-color | awk -F' [|] ' '{print $2}' | bunyan -o short",
         "clean": "docker-compose down --volumes --remove-orphans --timeout=5"
     },

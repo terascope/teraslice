@@ -5,7 +5,7 @@ import { getArgs, filterBySuite, getEnv, groupBySuite, buildDockerImage } from '
 import { ensureServices, stopAllServices } from './services';
 import { PackageInfo, TestSuite } from '../interfaces';
 import { TestOptions } from './interfaces';
-import { runJest } from '../scripts';
+import { runJest, yarnInstall } from '../scripts';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -138,6 +138,7 @@ async function runTestSuiteInParallel(suite: TestSuite, pkgInfos: PackageInfo[],
 
 async function runE2ETest(options: TestOptions): Promise<string[]> {
     const cleanup = await ensureServices(TestSuite.E2E, options);
+    await yarnInstall();
     await buildDockerImage('e2e_teraslice');
 
     const e2eDir = path.join(getRootDir(), 'e2e');

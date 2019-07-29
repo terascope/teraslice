@@ -1,15 +1,9 @@
 {
-    "packages": [
-        "packages/*",
-        "e2e"
-    ],
+    "packages": ["packages/*"],
     "command": {
         "bootstrap": {
             "forceLocal": true,
-            "npmClientArgs": [
-                "--no-progress",
-                "--frozen-lockfile"
-            ]
+            "npmClientArgs": ["--no-progress", "--frozen-lockfile"]
         },
         "publish": {
             "npmClient": "npm"

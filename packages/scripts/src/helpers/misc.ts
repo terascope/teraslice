@@ -5,14 +5,19 @@ import { isPlainObject } from '@terascope/utils';
 import { PackageInfo } from './interfaces';
 
 export let rootDir: string | undefined;
-export function getRootDir() {
+export function getRootDir(cwd: string = process.cwd()): string {
     if (rootDir) return rootDir;
-    const rootPkgJSON = pkgUp.sync();
+    const rootPkgJSON = pkgUp.sync({ cwd });
     if (!rootPkgJSON) {
         throw new Error('Unable to find root directory, run in the root of the repo');
     }
-    rootDir = path.dirname(rootPkgJSON);
-    return rootDir;
+
+    const pkg = fse.readJSONSync(rootPkgJSON);
+    if (pkg && pkg.root) {
+        rootDir = path.dirname(rootPkgJSON);
+        return rootDir;
+    }
+    return getRootDir(path.join(path.dirname(rootPkgJSON), '..'));
 }
 
 export function getName(input: string): string {
