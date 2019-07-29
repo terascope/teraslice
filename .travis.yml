@@ -8,15 +8,13 @@ cache:
   npm: false
   yarn: false
   directories:
-    - "$HOME/.travis-cache"
     - "$TRAVIS_BUILD_DIR/.yarn-cache"
 
 before_install:
     # make it colorful
     - export FORCE_COLOR=1
-    # setup the cache dir
-    - export CACHE_DIR="$HOME/.travis-cache"
-    - mkdir -p "$CACHE_DIR"
+    # install the latest yarn
+    - . ./scripts/travis-install-yarn.sh
     # setup an credentials
     - . ./scripts/travis-setup-credentials.sh
 install:
