@@ -29,15 +29,19 @@ jobs:
 
   include:
   - stage: Verify
-    name: Verify Build
+    name: Verify Build node:10.16)
     if: branch = master AND type = pull_request
     before_script:
         - yarn --cwd=./packages/ui-core build
         - yarn --cwd=./packages/ui-data-access build
-    script: yarn lint
+    script:
+        - yarn lint:js
+        - yarn lint:ts --parallel
+        - yarn lint:docs
+        - yarn sync --verify
 
   - stage: Test Suites
-    name: Unit Test Suite (node 8)
+    name: Unit Test Suite (node:8.16)
     if: branch = master
     node_js:
         - '8.16'
@@ -54,22 +58,33 @@ jobs:
     after_success:
         - bash <(curl -s https://codecov.io/bash)
 
+   - script:
+    name: ElasticSearch Test Suite (elasticsearch:6.8 & 7.2) (node:10.16)
+    if: branch = master
+    node_js:
+        - '10.16'
+    script:
+        - yarn test --suite elasticsearch --elasticsearch-version 6.8
+        - yarn test --suite elasticsearch --elasticsearch-version 7.2
+    after_success:
+        - bash <(curl -s https://codecov.io/bash)
+
   - script:
-    name: ElasticSearch Test Suite (6.8)
+    name: ElasticSearch Test Suite (elasticsearch:5.6) (node:8.16)
     if: branch = master
     node_js:
         - '8.16'
-    script: yarn test --suite elasticsearch
+    script: yarn test --suite elasticsearch --elasticsearch-version 5.6
     after_success:
         - bash <(curl -s https://codecov.io/bash)
 
   # test end-to-end tests, only on pull-requests
   - script:
-    name: End-to-End Test Suite
+    name: End-to-End Test Suite (elasticsearch:6.8) (kafka:2.11-2.1.1) (node:10.16)
     if: branch = master AND type IN (pull_request, cron) AND fork = false
     services:
         - docker
-    script: yarn test --suite e2e
+    script: yarn test --suite e2e --elasticsearch-version 6.8 --kafka-version 2.11-2.1.1
     after_success:
         - bash <(curl -s https://codecov.io/bash)
 

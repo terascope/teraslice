@@ -8,9 +8,7 @@
         "publish": {
             "npmClient": "npm"
         },
-        "run": {
-            "ignore": "teraslice-e2e"
-        }
+        "run": {}
     },
     "sort": true,
     "loglevel": "warn",

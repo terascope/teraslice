@@ -4,14 +4,13 @@ const misc = require('../../misc');
 const { resetState, testJobLifeCycle, runEsJob } = require('../../helpers');
 
 /**
- * The HEX ID Slicer doesn't working in
- * elasticsearch 6.x
+ * The id reader don't work in 6.x and greater
  *
  * See:
  *  - https://github.com/terascope/teraslice/issues/68
  *  - https://github.com/terascope/elasticsearch-assets/issues/12
  */
-describe('id reader', () => {
+xdescribe('id reader', () => {
     beforeAll(() => resetState());
 
     it('should support reindexing', async () => {
@@ -26,7 +25,7 @@ describe('id reader', () => {
         expect(count).toBe(1000);
     });
 
-    xit('should support reindexing by hex id', async () => {
+    it('should support reindexing by hex id', async () => {
         const jobSpec = misc.newJob('id');
         const specIndex = misc.newSpecIndex('id-reader');
         jobSpec.name = 'reindex by hex id';
@@ -38,7 +37,7 @@ describe('id reader', () => {
         expect(count).toBe(1000);
     });
 
-    xit('should support reindexing by hex id + key_range', async () => {
+    it('should support reindexing by hex id + key_range', async () => {
         const jobSpec = misc.newJob('id');
         const specIndex = misc.newSpecIndex('id-reader');
 

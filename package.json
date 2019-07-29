@@ -17,7 +17,7 @@
         "bump": "ts-scripts bump",
         "test": "ts-scripts test",
         "lint": "yarn lint:js && yarn lint:ts && yarn lint:docs && yarn sync --verify",
-        "lint:js": "eslint *.js packages/*/*.js packages/*/lib/**/*.js packages/*/test/**/*.js packages/*/cmds/**/*.js e2e/**/*.js",
+        "lint:js": "eslint *.js packages/*/*.js packages/*/lib/**/*.js packages/*/test/**/*.js packages/*/cmds/**/*.js",
         "lint:ts": "env FORCE_COLOR=1 lerna run lint --no-bail",
         "lint:docs": "markdownlint docs/*.md docs/**/*.md docs/**/**/*.md packages/*/*.md README.md",
         "lint:fix": "yarn lint:js:fix && yarn lint:ts:fix",
