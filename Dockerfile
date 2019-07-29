@@ -41,7 +41,7 @@ RUN npm init --yes > /dev/null \
     && npm install \
     --quiet \
     --no-package-lock \
-    'terafoundation_kafka_connector@~0.4.1' \
+    'terafoundation_kafka_connector@~0.4.2' \
     # clean up node-rdkafka
     && rm -rf node_modules/node-rdkafka/docs \
     node_modules/node-rdkafka/deps/librdkafka
