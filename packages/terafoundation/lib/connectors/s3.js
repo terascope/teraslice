@@ -37,9 +37,35 @@ module.exports = {
                 default: null,
                 format: String
             },
+            region: {
+                doc: '',
+                default: 'us-east-1',
+                format: String
+            },
             maxRetries: {
+                doc: '',
                 default: 3,
                 format: Number
+            },
+            maxRedirects: {
+                doc: '',
+                default: 10,
+                format: Number
+            },
+            sslEnabled: {
+                doc: '',
+                default: true,
+                format: Boolean
+            },
+            s3ForcePathStyle: {
+                doc: '',
+                default: false,
+                format: Boolean
+            },
+            s3BucketEndpoint: {
+                doc: '',
+                default: false,
+                format: Boolean
             }
         };
     }
