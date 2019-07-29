@@ -82,6 +82,11 @@ module.exports = async function setupTerasliceConfig() {
 
     await fse.ensureDir(configPath);
 
+    await writeMasterConfig(configPath, baseConfig);
+    await writeWorkerConfig(configPath, baseConfig);
+};
+
+async function writeMasterConfig(configPath, baseConfig) {
     const masterConfig = _.cloneDeep(baseConfig);
     masterConfig.teraslice.master = true;
     masterConfig.teraslice.master_hostname = '127.0.0.1';
@@ -90,16 +95,18 @@ module.exports = async function setupTerasliceConfig() {
     await fse.writeJSON(masterConfigPath, masterConfig, {
         spaces: 4
     });
+}
 
+async function writeWorkerConfig(configPath, baseConfig) {
     const workerConfig = _.cloneDeep(baseConfig);
     workerConfig.teraslice.master = false;
-    masterConfig.teraslice.master_hostname = 'teraslice-master';
+    workerConfig.teraslice.master_hostname = 'teraslice-master';
 
     const workerConfigPath = path.join(configPath, 'teraslice-worker.json');
     await fse.writeJSON(workerConfigPath, workerConfig, {
         spaces: 4
     });
-};
+}
 
 function getInternalDockerIP() {
     if (process.platform === 'darwin') return 'docker.for.mac.localhost';
