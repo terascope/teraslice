@@ -1,6 +1,8 @@
 'use strict';
 
 const Promise = require('bluebird');
+const fs = require('fs');
+const https = require('https');
 
 
 function create(customConfig, logger) {
@@ -11,6 +13,26 @@ function create(customConfig, logger) {
     customConfig.defer = function _defer() {
         return Promise.defer();
     };
+
+    // https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/node-registering-certs.html
+    // Instead of updating the client, we can just update the config before creating the client
+    if (customConfig.sslEnabled) {
+        if (customConfig.certLocation.length === 0) {
+            throw new Error(
+                `Must provide a certificate for S3 endpoint ${customConfig.endpoint} since SSL is`
+                + 'enabled!'
+            );
+        }
+        // Assumes all certs needed are in a single bundle
+        const certs = [
+            fs.readFileSync(customConfig.certLocation)
+        ];
+        if (!customConfig.httpOptions) customConfig.httpOptions = {};
+        customConfig.httpOptions.agent = new https.Agent({
+            rejectUnauthorized: true,
+            ca: certs
+        });
+    }
 
     const client = new AWS.S3(customConfig);
 
@@ -56,6 +78,11 @@ module.exports = {
                 doc: '',
                 default: true,
                 format: Boolean
+            },
+            certLocation: {
+                doc: 'Location of ssl cert. Must be provided if `sslEnabled` is true',
+                default: '',
+                format: String
             },
             s3ForcePathStyle: {
                 doc: '',
