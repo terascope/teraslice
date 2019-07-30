@@ -1,6 +1,6 @@
 {
     "name": "@terascope/data-access-plugin",
-    "version": "0.11.3",
+    "version": "0.11.4",
     "description": "A teraserver plugin for managing data access and searching spaces",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-access-plugin#readme",
     "bugs": {
