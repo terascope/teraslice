@@ -1,7 +1,7 @@
 import path from 'path';
 import execa from 'execa';
 import fse from 'fs-extra';
-import { debugLogger, pDelay } from '@terascope/utils';
+import { debugLogger, pDelay, uniq } from '@terascope/utils';
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
 import signale from './signale';
@@ -106,9 +106,11 @@ export async function yarnRun(script: string, args: string[] = [], cwd?: string)
 }
 
 export async function runJest(pkgDir: string, args: ArgsMap, env?: ExecEnv, extraArgs?: string[]): Promise<void> {
+    const allArgs = uniq([...mapToArgs(args), ...(extraArgs || [])]);
+    signale.debug(`running jest ${allArgs.join(' ')}`);
     await fork({
         cmd: 'jest',
-        args: [...mapToArgs(args), ...(extraArgs || [])],
+        args: allArgs,
         cwd: pkgDir,
         env,
     });
@@ -141,13 +143,15 @@ export async function getContainerInfo(name: string): Promise<any> {
 export type DockerRunOptions = {
     name: string;
     image: string;
+    hostname: string;
+    network: string;
     ports?: number[];
     tmpfs?: string[];
     env?: ExecEnv;
 };
 
 export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): Promise<() => void> {
-    const args: string[] = [];
+    const args: string[] = ['--rm'];
     if (!opt.image) {
         throw new Error('Missing required image option');
     }
@@ -172,13 +176,15 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
         args.push('--tmpfs', opt.tmpfs.join(','));
     }
 
+    args.push('--network', opt.network);
+    args.push('--hostname', opt.hostname);
     args.push('--name', opt.name);
     args.push(`${opt.image}:${tag}`);
 
     let error: any;
     let done: boolean = true;
 
-    const subprocess = execa('docker', ['run', '--rm', ...args]);
+    const subprocess = execa('docker', ['run', ...args]);
     if (!subprocess || !subprocess.stderr) {
         throw new Error('Failed to execute docker run');
     }
@@ -220,6 +226,20 @@ export async function dockerBuild(target: string, cacheFrom: string[] = []): Pro
     await fork({
         cmd: 'docker',
         args: ['build', ...cacheFromArgs, '-t', target, '.'],
+    });
+}
+
+export async function ensureDockerNetwork(name: string) {
+    const existsResult = await execa.command(`docker network ls --filter=name=${name} -q`);
+    const exists = existsResult.stdout && existsResult.exitCode === 0;
+    if (exists) {
+        logger.debug(`network ${name} exists`, existsResult);
+        return;
+    }
+
+    await fork({
+        cmd: 'docker',
+        args: ['network', 'create', '--attachable', name],
     });
 }
 

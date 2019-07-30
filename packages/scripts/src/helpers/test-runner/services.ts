@@ -1,9 +1,8 @@
 import ms from 'ms';
 import got from 'got';
 import semver from 'semver';
-import { address } from 'ip';
 import { debugLogger, pRetry, TSError } from '@terascope/utils';
-import { dockerRun, DockerRunOptions, getContainerInfo, dockerStop, pgrep } from '../scripts';
+import { dockerRun, DockerRunOptions, getContainerInfo, dockerStop, pgrep, ensureDockerNetwork } from '../scripts';
 import { TestOptions } from './interfaces';
 import { TestSuite } from '../interfaces';
 import signale from '../signale';
@@ -15,6 +14,8 @@ const services: { [service in Service]: DockerRunOptions } = {
     [TestSuite.Elasticsearch]: {
         image: 'blacktop/elasticsearch',
         name: 'ts_test_elasticsearch',
+        hostname: 'elasticsearch',
+        network: 'ts_test',
         tmpfs: ['/usr/share/elasticsearch/data'],
         ports: [9200],
         env: {
@@ -24,43 +25,59 @@ const services: { [service in Service]: DockerRunOptions } = {
         },
     },
     [TestSuite.Kafka]: {
-        image: 'terascope/kafka-zookeeper',
+        image: 'blacktop/kafka',
         name: 'ts_test_kafka',
-        tmpfs: ['/kafka', '/zookeeper'],
+        network: 'ts_test',
+        hostname: 'elasticsearch',
+        tmpfs: ['/tmp/kafka-logs'],
         ports: [2181, 9092],
         env: {
             KAFKA_HEAP_OPTS: '-Xms256m -Xmx256m',
-            ADVERTISED_HOST: address(),
         },
     },
 };
 
 export async function ensureServices(suite: TestSuite, options: TestOptions): Promise<() => void> {
-    const needsES = [TestSuite.Elasticsearch, TestSuite.E2E];
-    const needsKafka = [TestSuite.Kafka, TestSuite.E2E];
-    const cleanupFns: (() => void)[] = [];
-
-    if (needsES.includes(suite)) {
-        try {
-            await checkElasticsearch(options, 2);
-        } catch (err) {
-            cleanupFns.push(await startService(options, TestSuite.Elasticsearch));
-            await checkElasticsearch(options, 10);
-        }
+    if (suite === TestSuite.Elasticsearch) {
+        return ensureElasticsearch(options);
     }
 
-    if (needsKafka.includes(suite)) {
-        try {
-            await checkKafka(options);
-        } catch (err) {
-            cleanupFns.push(await startService(options, TestSuite.Kafka));
-            await checkKafka(options);
-        }
+    if (suite === TestSuite.Kafka) {
+        return ensureKafka(options);
     }
 
-    return () => {
-        cleanupFns.forEach(fn => fn());
-    };
+    if (suite === TestSuite.E2E) {
+        const fns = await Promise.all([ensureElasticsearch(options), ensureKafka(options)]);
+        return () => {
+            fns.forEach(fn => fn());
+        };
+    }
+
+    return () => {};
+}
+
+export async function ensureKafka(options: TestOptions): Promise<() => void> {
+    let fn = () => {};
+    try {
+        await checkKafka(options);
+    } catch (err) {
+        const hostname = options.suite === TestSuite.E2E ? services.kafka.hostname : 'localhost';
+        services.kafka.env!.KAFKA_ADVERTISED_HOST_NAME = hostname;
+        fn = await startService(options, TestSuite.Kafka);
+        await checkKafka(options);
+    }
+    return fn;
+}
+
+export async function ensureElasticsearch(options: TestOptions): Promise<() => void> {
+    let fn = () => {};
+    try {
+        await checkElasticsearch(options, 2);
+    } catch (err) {
+        fn = await startService(options, TestSuite.Elasticsearch);
+        await checkElasticsearch(options, 10);
+    }
+    return fn;
 }
 
 export async function stopAllServices(): Promise<void> {
@@ -138,6 +155,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     signale.pending(`starting ${service}@${version} service...`);
 
     await stopService(service);
+    await ensureDockerNetwork(services[service].network);
     const fn = await dockerRun(services[service], version);
 
     signale.success(`started ${service}@${version} service, took ${ms(Date.now() - startTime)}`);

@@ -56,10 +56,9 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 default: process.env.KAFKA_BROKERS || 'localhost:9092',
             })
             .option('kafka-version', {
-                description: 'The kafka version to use, format $SCALA_VERSION-$KAFKA_VERSION',
+                description: 'The kafka version to use',
                 type: 'string',
-                default: process.env.KAFKA_VERSION || '2.11-2.1.1',
-                choices: ['2.11-2.1.1'],
+                default: process.env.KAFKA_VERSION || '2.1',
             })
             .positional('packages', {
                 description: 'Runs the test for one or more package, if none specified it will run all of the tests',

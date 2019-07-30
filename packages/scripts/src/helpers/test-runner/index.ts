@@ -115,7 +115,7 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
     const errors: string[] = [];
 
     try {
-        await runJest(e2eDir, getArgs(options), getEnv(options));
+        await runJest(e2eDir, getArgs(options), getEnv(options), options.jestArgs);
     } catch (err) {
         signale.error(err);
         errors.push('Test e2e Failed');

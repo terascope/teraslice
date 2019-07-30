@@ -5,22 +5,18 @@ const path = require('path');
 const isCI = require('is-ci');
 const fse = require('fs-extra');
 const {
-    WORKERS_PER_NODE,
-    KAFKA_BROKERS,
-    MY_IP,
-    ELASTICSEARCH_URL,
-    CLUSTER_NAME
+    WORKERS_PER_NODE, KAFKA_BROKERS, ELASTICSEARCH_URL, CLUSTER_NAME
 } = require('./misc');
 
 module.exports = async function setupTerasliceConfig() {
-    const dockerIP = getInternalDockerIP();
-    const elasticsearchHosts = injectDockerIP(ELASTICSEARCH_URL, dockerIP);
-    const kafkaBrokers = injectDockerIP(KAFKA_BROKERS, dockerIP);
+    // const dockerIP = getInternalDockerIP();
+    const elasticsearchHosts = injectDockerIP(ELASTICSEARCH_URL, 'elasticsearch');
+    const kafkaBrokers = injectDockerIP(KAFKA_BROKERS, 'kafka');
 
     const baseConfig = {
         terafoundation: {
             environment: 'development',
-            log_level: isCI ? 'warn' : 'debug',
+            log_level: isCI ? 'info' : 'debug',
             connectors: {
                 elasticsearch: {
                     default: {
@@ -107,10 +103,6 @@ async function writeWorkerConfig(configPath, baseConfig) {
     await fse.writeJSON(workerConfigPath, workerConfig, {
         spaces: 4
     });
-}
-
-function getInternalDockerIP() {
-    return MY_IP;
 }
 
 function injectDockerIP(uri, ip) {
