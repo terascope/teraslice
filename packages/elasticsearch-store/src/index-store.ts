@@ -318,8 +318,6 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
             await this.flush(true);
         }
-
-        this.client.close();
     }
 
     /** Search with a given Lucene Query */

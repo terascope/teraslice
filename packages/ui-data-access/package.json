@@ -23,7 +23,7 @@
     },
     "dependencies": {},
     "devDependencies": {
-        "@terascope/data-access": "^0.12.4",
+        "@terascope/data-access": "^0.12.5",
         "@terascope/data-types": "^0.4.1",
         "@terascope/ui-components": "^0.3.6",
         "@terascope/utils": "^0.13.0",
