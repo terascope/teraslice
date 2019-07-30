@@ -22,7 +22,7 @@ export async function syncAll(options: SyncOptions = {}) {
 export async function syncPackages(pkgInfos: PackageInfo[], options: SyncOptions = {}) {
     const files: string[] = [];
 
-    writePkgHeader('syncing files', pkgInfos);
+    writePkgHeader('Syncing files', pkgInfos);
 
     await Promise.all(
         pkgInfos.map(async pkgInfo => {

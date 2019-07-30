@@ -3,6 +3,7 @@ import path from 'path';
 import pkgUp from 'pkg-up';
 import { isPlainObject } from '@terascope/utils';
 import { PackageInfo } from './interfaces';
+import signale from './signale';
 
 export let rootDir: string | undefined;
 export function getRootDir(cwd: string = process.cwd()): string {
@@ -74,8 +75,7 @@ export async function writeIfChanged(filePath: string, contents: any, options: W
             }
         }
         if (options.log !== false) {
-            // tslint:disable-next-line: no-console
-            console.error(`* wrote ${path.relative(getRootDir(), filePath)} file`);
+            signale.debug(`wrote ${path.relative(getRootDir(), filePath)} file`);
         }
         await fse.writeFile(filePath, _contents, 'utf8');
         return true;
@@ -89,8 +89,7 @@ export async function writeIfChanged(filePath: string, contents: any, options: W
         }
 
         if (options.log !== false) {
-            // tslint:disable-next-line: no-console
-            console.error(`* wrote ${path.relative(getRootDir(), filePath)} JSON file`);
+            signale.debug(`wrote ${path.relative(getRootDir(), filePath)} JSON file`);
         }
         await fse.writeJSON(filePath, contents, {
             spaces: 4,
@@ -106,15 +105,16 @@ export function formatList(list: string[]) {
 }
 
 export function cliError<T>(prefix: string, error: string, ...args: any[]): never {
-    console.error(`\n${prefix}: ${error}`, ...args);
+    signale.error(`\n${prefix}: ${error}`, ...args);
     return process.exit(1);
 }
 
 export function writeHeader(msg: string, prefixNewline?: boolean): void {
-    process.stderr.write(`${prefixNewline ? '\n' : ''}* ${msg}\n\n`);
+    if (prefixNewline) process.stderr.write('\n');
+    signale.star(`${msg}`);
 }
 
 export function writePkgHeader(prefix: string, pkgInfos: PackageInfo[], prefixNewline?: boolean): void {
     const names = pkgInfos.map(({ name }) => name).join(', ');
-    writeHeader(`${prefix} for ${names}`);
+    writeHeader(`${prefix} for ${names}`, prefixNewline);
 }

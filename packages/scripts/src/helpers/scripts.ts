@@ -4,6 +4,7 @@ import fse from 'fs-extra';
 import { debugLogger, pDelay } from '@terascope/utils';
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
+import signale from './signale';
 
 const logger = debugLogger('ts-scripts:cmd');
 
@@ -210,7 +211,7 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
     return () => {
         if (done && !subprocess.killed) return;
         if (error) {
-            console.error(error);
+            signale.error(error);
         }
         subprocess.kill();
     };

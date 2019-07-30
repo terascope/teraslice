@@ -1,6 +1,8 @@
 'use strict';
 
 const _ = require('lodash');
+const path = require('path');
+const fse = require('fs-extra');
 const { address } = require('ip');
 const signale = require('signale');
 const Promise = require('bluebird');
@@ -133,6 +135,8 @@ async function globalTeardown() {
     });
 
     await cleanupIndex(`${TEST_INDEX_PREFIX}*`);
+    await fse.remove(path.join(__dirname, '../.config'));
+
     signale.timeEnd('tear down');
 }
 

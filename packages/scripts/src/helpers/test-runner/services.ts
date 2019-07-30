@@ -4,6 +4,7 @@ import { debugLogger, pRetry, TSError } from '@terascope/utils';
 import { TestOptions } from './interfaces';
 import { TestSuite } from '../interfaces';
 import { dockerRun, DockerRunOptions, getContainerInfo, dockerStop, pgrep } from '../scripts';
+import signale from '../signale';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -40,7 +41,7 @@ export async function ensureServices(suite: TestSuite, options: TestOptions): Pr
         try {
             await checkElasticsearch(options, 2);
         } catch (err) {
-            cleanupFns.push(await startElasticsearch(options));
+            cleanupFns.push(await startService(options, TestSuite.Elasticsearch));
             await checkElasticsearch(options, 10);
         }
     }
@@ -49,7 +50,7 @@ export async function ensureServices(suite: TestSuite, options: TestOptions): Pr
         try {
             await checkKafka(options);
         } catch (err) {
-            cleanupFns.push(await startKafka(options));
+            cleanupFns.push(await startService(options, TestSuite.Kafka));
             await checkKafka(options);
         }
     }
@@ -70,14 +71,15 @@ async function stopService(service: Service) {
     const info = await getContainerInfo(name);
     if (!info) return;
 
-    console.error(`* stopping service ${service}`);
+    signale.await(`stopping service ${service}`);
     await dockerStop(name);
+    signale.success(`stopped service ${service}`);
 }
 
 async function checkElasticsearch(options: TestOptions, retries: number): Promise<void> {
     return pRetry(
         async () => {
-            logger.debug(`* checking elasticsearch at ${options.elasticsearchUrl}`);
+            logger.debug(`checking elasticsearch at ${options.elasticsearchUrl}`);
 
             let body: any;
             try {
@@ -125,11 +127,13 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
     );
 }
 
-async function startElasticsearch(options: TestOptions) {
-    console.error(`* starting elasticsearch@${options.elasticsearchVersion} service`);
-
-    await stopService(TestSuite.Elasticsearch);
-    return dockerRun(services.elasticsearch, options.elasticsearchVersion);
+async function startService(options: TestOptions, service: Service): Promise<() => void> {
+    const version = options[`${service}Version`] as string;
+    signale.await(`starting ${service}@${version} service`);
+    await stopService(service);
+    const fn = await dockerRun(services[service], version);
+    signale.success(`started ${service}@${version} service`);
+    return fn;
 }
 
 async function checkKafka(options: TestOptions) {
@@ -138,13 +142,6 @@ async function checkKafka(options: TestOptions) {
         throw new Error('Kafka is not running');
     }
 
-    logger.debug(`assuming kafka brokers at ${options.kafkaBrokers.join(', ')} are up...`, p);
+    signale.debug(`assuming kafka brokers at ${options.kafkaBrokers.join(', ')} are up...`, p);
     return;
-}
-
-async function startKafka(options: TestOptions) {
-    console.error(`* starting kafka@${options.kafkaVersion} service`);
-
-    await stopService(TestSuite.Kafka);
-    return dockerRun(services.kafka, options.kafkaVersion);
 }

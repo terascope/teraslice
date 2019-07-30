@@ -3,6 +3,7 @@ import { debugLogger } from '@terascope/utils';
 import { PackageInfo, TestSuite } from '../interfaces';
 import { ArgsMap, ExecEnv, dockerBuild, dockerPull } from '../scripts';
 import { TestOptions, GroupedPackages } from './interfaces';
+import signale from '../signale';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -63,7 +64,7 @@ export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): Pa
         }
         const msg = `* skipping ${pkgInfo.name} ${suite} test`;
         if (!options.all) {
-            console.error(msg);
+            signale.warn(msg);
         } else {
             logger.debug(msg);
         }
@@ -95,12 +96,13 @@ export function groupBySuite(pkgInfos: PackageInfo[]): GroupedPackages {
 }
 
 export async function buildDockerImage(target: string): Promise<void> {
+    signale.await(`building docker image ${target}`);
     const cacheFrom = isCI ? ['node:10.16.0-alpine', 'terascope/teraslice:dev-base', 'terascope/teraslice:dev-connectors'] : [];
     if (cacheFrom.length) {
-        console.error(`* pulling images ${cacheFrom}`);
+        signale.await(`pulling images ${cacheFrom}`);
         await Promise.all(cacheFrom.map(dockerPull));
     }
 
-    console.error(`* building docker image ${target}`);
     await dockerBuild(target, cacheFrom);
+    signale.success(`built docker image ${target}`);
 }

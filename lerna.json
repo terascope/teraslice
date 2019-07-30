@@ -1,5 +1,5 @@
 {
-    "packages": ["packages/*"],
+    "packages": ["packages/*", "e2e"],
     "command": {
         "bootstrap": {
             "forceLocal": true,
@@ -8,7 +8,9 @@
         "publish": {
             "npmClient": "npm"
         },
-        "run": {}
+        "run": {
+            "ignore": "teraslice-e2e"
+        }
     },
     "sort": true,
     "loglevel": "warn",

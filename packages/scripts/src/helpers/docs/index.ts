@@ -20,7 +20,7 @@ export async function buildAll() {
 export async function buildPackages(pkgInfos: PackageInfo[]) {
     let runOnce = false;
     for (const pkgInfo of pkgInfos) {
-        writePkgHeader('building docs', [pkgInfo], runOnce);
+        writePkgHeader('Building docs', [pkgInfo], runOnce);
 
         if (pkgInfo.terascope.enableTypedoc) {
             const outputDir = path.join(getRootDir(), 'docs', 'packages', pkgInfo.folderName, 'api');

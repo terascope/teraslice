@@ -2,6 +2,7 @@ import semver from 'semver';
 import { get } from '@terascope/utils';
 import { PackageInfo } from '../interfaces';
 import { listPackages, updatePkgJSON, readPackageInfo } from '../packages';
+import signale from '../signale';
 import { writePkgHeader } from '../misc';
 
 export type BumpPackageOptions = {
@@ -13,7 +14,7 @@ export type BumpPackageOptions = {
 export async function bumpPackages(pkgInfos: PackageInfo[], options: BumpPackageOptions) {
     let runOnce = false;
     for (const pkgInfo of pkgInfos) {
-        writePkgHeader('bumping', [pkgInfo], runOnce);
+        writePkgHeader('Bumping', [pkgInfo], runOnce);
         await bumpPackage(pkgInfo, { ...options });
         runOnce = true;
     }
@@ -33,8 +34,7 @@ async function updateMainPkg(mainPkgInfo: PackageInfo, options: BumpPackageOptio
     mainPkgInfo.version = newVersion;
     await updatePkgJSON(mainPkgInfo, false);
 
-    // tslint:disable-next-line: no-console
-    console.error(`=> Updated ${mainPkgInfo.name} to version ${mainPkgInfo.version} to ${newVersion}`);
+    signale.log(`=> Updated ${mainPkgInfo.name} to version ${mainPkgInfo.version} to ${newVersion}`);
     return newVersion;
 }
 
@@ -63,8 +63,7 @@ async function updateDependent(mainPkgInfo: PackageInfo, pkgInfo: PackageInfo, o
     }
 
     await updatePkgJSON(pkgInfo, false);
-    // tslint:disable-next-line: no-console
-    console.error(`---> Updated dependency ${pkgInfo.name}'s version of ${name} to ${newVersion}`);
+    signale.log(`---> Updated dependency ${pkgInfo.name}'s version of ${name} to ${newVersion}`);
 
     if (options.recursive && isProdDep && pkgInfo.name !== 'teraslice') {
         await bumpPackage(pkgInfo, {

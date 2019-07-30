@@ -1,11 +1,12 @@
 import path from 'path';
-import { debugLogger, chunk } from '@terascope/utils';
+import { debugLogger, chunk, TSError } from '@terascope/utils';
 import { writePkgHeader, writeHeader, formatList, cliError, getRootDir } from '../misc';
 import { getArgs, filterBySuite, getEnv, groupBySuite, buildDockerImage, onlyUnitTests } from './utils';
 import { ensureServices, stopAllServices } from './services';
 import { PackageInfo, TestSuite } from '../interfaces';
-import { runJest, yarnInstall } from '../scripts';
+import { runJest } from '../scripts';
 import { TestOptions } from './interfaces';
+import signale from '../signale';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -18,7 +19,7 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
     } finally {
         if (onlyUnitTests(pkgInfos)) {
             await stopAllServices().catch(err => {
-                console.error('Failure stopping services', err);
+                signale.error(new TSError(err, { reason: 'Failure stopping services' }));
             });
         }
     }
@@ -37,19 +38,21 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
 
     const filtered = filterBySuite(pkgInfos, options);
     if (!filtered.length) {
-        console.error('No tests found.');
+        signale.warn('No tests found.');
         return [];
     }
 
     const grouped = groupBySuite(filtered);
 
-    let ranOnce = false;
     const errors: string[] = [];
+    let ranOnce = false;
 
     for (const [suite, pkgs] of Object.entries(grouped)) {
         if (!pkgs.length) continue;
 
-        writeHeader(`running test suite for ${suite}`, ranOnce);
+        const timeLabel = `test suite "${suite}"`;
+        signale.time(timeLabel);
+        writeHeader(`Running test suite "${suite}"`, ranOnce);
 
         try {
             const suiteErrors: string[] = await runTestSuite(suite as TestSuite, pkgs, options);
@@ -61,9 +64,10 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
                 }
             }
         } catch (err) {
-            console.error(err);
+            signale.error(err);
             break;
         } finally {
+            signale.timeEnd(timeLabel);
             ranOnce = true;
         }
     }
@@ -79,7 +83,7 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
     const chunked = chunk(pkgInfos, options.debug ? 1 : 5);
 
     for (const pkgs of chunked) {
-        writePkgHeader('running tests', pkgs, true);
+        writePkgHeader('Running tests', pkgs, true);
 
         const args = getArgs(options);
         args.projects = pkgs.map(pkgInfo => path.join('packages', pkgInfo.folderName));
@@ -87,7 +91,7 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
         try {
             await runJest(getRootDir(), args, getEnv(options), options.jestArgs);
         } catch (err) {
-            console.error(err);
+            signale.error(err);
             errors.push(`Test(s) ${pkgs.map(pkgInfo => pkgInfo.name)} Failed`);
             if (options.bail) {
                 break;
@@ -98,26 +102,26 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
     try {
         cleanup();
     } catch (err) {
-        console.error(err);
+        signale.error(err);
     }
     return errors;
 }
 
 async function runE2ETest(options: TestOptions): Promise<string[]> {
-    const [cleanup] = await Promise.all([ensureServices(TestSuite.E2E, options), yarnInstall(), buildDockerImage('e2e_teraslice')]);
+    const [cleanup] = await Promise.all([ensureServices(TestSuite.E2E, options), buildDockerImage('e2e_teraslice')]);
 
     const e2eDir = path.join(getRootDir(), 'e2e');
 
     try {
         await runJest(e2eDir, getArgs(options), getEnv(options));
     } catch (err) {
-        console.error(err);
+        signale.error(err);
         return ['Test e2e Failed'];
     } finally {
         try {
             cleanup();
         } catch (err) {
-            console.error(err);
+            signale.error(err);
         }
     }
 
