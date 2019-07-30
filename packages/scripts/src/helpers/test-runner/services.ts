@@ -9,13 +9,16 @@ import signale from '../signale';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
+const network = 'ts_test';
+let ensuredNetwork = false;
+
 type Service = TestSuite.Elasticsearch | TestSuite.Kafka;
 const services: { [service in Service]: DockerRunOptions } = {
     [TestSuite.Elasticsearch]: {
         image: 'blacktop/elasticsearch',
         name: 'ts_test_elasticsearch',
         hostname: 'elasticsearch',
-        network: 'ts_test',
+        network,
         tmpfs: ['/usr/share/elasticsearch/data'],
         ports: [9200],
         env: {
@@ -27,12 +30,14 @@ const services: { [service in Service]: DockerRunOptions } = {
     [TestSuite.Kafka]: {
         image: 'blacktop/kafka',
         name: 'ts_test_kafka',
-        network: 'ts_test',
-        hostname: 'elasticsearch',
+        hostname: 'kafka',
+        network,
         tmpfs: ['/tmp/kafka-logs'],
         ports: [2181, 9092],
         env: {
             KAFKA_HEAP_OPTS: '-Xms256m -Xmx256m',
+            KAKFA_AUTO_CREATE_TOPICS_ENABLE: 'true',
+            KAFKA_NUM_PARTITIONS: '2',
         },
     },
 };
@@ -58,25 +63,17 @@ export async function ensureServices(suite: TestSuite, options: TestOptions): Pr
 
 export async function ensureKafka(options: TestOptions): Promise<() => void> {
     let fn = () => {};
-    try {
-        await checkKafka(options);
-    } catch (err) {
-        const hostname = options.suite === TestSuite.E2E ? services.kafka.hostname : 'localhost';
-        services.kafka.env!.KAFKA_ADVERTISED_HOST_NAME = hostname;
-        fn = await startService(options, TestSuite.Kafka);
-        await checkKafka(options);
-    }
+    const hostname = options.suite === TestSuite.E2E ? services.kafka.hostname : 'localhost';
+    services.kafka.env!.KAFKA_ADVERTISED_HOST_NAME = hostname;
+    fn = await startService(options, TestSuite.Kafka);
+    await checkKafka(options);
     return fn;
 }
 
 export async function ensureElasticsearch(options: TestOptions): Promise<() => void> {
     let fn = () => {};
-    try {
-        await checkElasticsearch(options, 2);
-    } catch (err) {
-        fn = await startService(options, TestSuite.Elasticsearch);
-        await checkElasticsearch(options, 10);
-    }
+    fn = await startService(options, TestSuite.Elasticsearch);
+    await checkElasticsearch(options, 10);
     return fn;
 }
 
@@ -125,10 +122,6 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
 
             const actual: string = body.version.number;
             const expected = options.elasticsearchVersion;
-            if (!expected) {
-                signale.debug(`using local version of elasticsearch v${actual}`);
-                return;
-            }
 
             const satifies = semver.satisfies(actual, `^${expected}`);
             if (satifies) {
@@ -155,7 +148,10 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     signale.pending(`starting ${service}@${version} service...`);
 
     await stopService(service);
-    await ensureDockerNetwork(services[service].network);
+    if (ensuredNetwork) {
+        await ensureDockerNetwork(network);
+        ensuredNetwork = true;
+    }
     const fn = await dockerRun(services[service], version);
 
     signale.success(`started ${service}@${version} service, took ${ms(Date.now() - startTime)}`);
@@ -168,6 +164,6 @@ async function checkKafka(options: TestOptions) {
         throw new Error('Kafka is not running');
     }
 
-    signale.debug(`kafka should be running at ${options.kafkaBrokers.join(', ')}`, p);
+    signale.debug(`kafka should be running at ${options.kafkaBrokers.join(', ')}`);
     return;
 }

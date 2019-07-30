@@ -115,12 +115,15 @@ async function getE2ELogs(dir: string, env: ExecEnv): Promise<string> {
     const pkgJSON = await fse.readJSON(path.join(dir, 'package.json'));
     const hasLogsScript = Boolean(get(pkgJSON, 'scripts.logs'));
     if (hasLogsScript) {
-        const result = await exec({
-            cmd: 'yarn',
-            args: ['run', 'logs'],
-            cwd: dir,
-            env,
-        });
+        const result = await exec(
+            {
+                cmd: 'yarn',
+                args: ['run', 'logs'],
+                cwd: dir,
+                env,
+            },
+            false
+        );
         return result || '';
     }
     return '';
@@ -130,8 +133,10 @@ export async function logE2E(dir: string, failed: boolean): Promise<void> {
     if (failed) {
         const errLogs = await getE2ELogs(dir, {
             LOG_LEVEL: 'WARN',
+            RAW_LOGS: 'false',
+            FORCE_COLOR: '1',
         });
-        process.stderr.write(errLogs);
+        process.stderr.write(`${errLogs}\n`);
     }
 
     const rawLogs = await getE2ELogs(dir, {

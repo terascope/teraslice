@@ -13,14 +13,14 @@ main () {
         exit 1;
     fi
 
-    for i in {1..30}; do
+    for i in {1..60}; do
         echoerr "* attempt ${i} waiting for host $host..."
         if curl -fSs "$host" 2> /dev/null; then
             echoerr "* $host is ready!"
             break;
         fi
 
-        sleep "${i}s";
+        sleep "1s";
     done
 
     exec "${CLI[@]}"

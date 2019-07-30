@@ -10,16 +10,12 @@ services:
         environment:
             - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.json
             - NODE_OPTIONS=--max-old-space-size=256
-        external_links:
-            - ts_test_kafka:kafka
-            - ts_test_elasticsearch:elasticsearch
         networks:
-            - cluster
             - ts_test
         volumes:
             - teraslice-assets:/app/assets
             - ./autoload:/app/autoload:delegated
-            - ./.config:/app/config
+            - ./.config:/app/config:ro
     teraslice-worker:
         image: e2e_teraslice
         command: [
@@ -34,16 +30,12 @@ services:
         environment:
             - TERAFOUNDATION_CONFIG=/app/config/teraslice-worker.json
             - NODE_OPTIONS=--max-old-space-size=256
-        external_links:
-            - ts_test_kafka:kafka
-            - ts_test_elasticsearch:elasticsearch
         networks:
-            - cluster
             - ts_test
         volumes:
             - teraslice-assets:/app/assets
             - ./autoload:/app/autoload:delegated
-            - ./.config:/app/config
+            - ./.config:/app/config:ro
 
 volumes:
     teraslice-assets:
@@ -51,6 +43,5 @@ volumes:
             type: tmpfs
             device: tmpfs
 networks:
-    cluster:
     ts_test:
         external: true

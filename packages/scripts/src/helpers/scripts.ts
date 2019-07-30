@@ -177,25 +177,30 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
     }
 
     args.push('--network', opt.network);
-    args.push('--hostname', opt.hostname);
+    args.push('--network-alias', opt.hostname);
     args.push('--name', opt.name);
     args.push(`${opt.image}:${tag}`);
 
     let error: any;
+    let stderr: any;
     let done: boolean = true;
 
     const subprocess = execa('docker', ['run', ...args]);
     if (!subprocess || !subprocess.stderr) {
         throw new Error('Failed to execute docker run');
     }
-    subprocess.stderr.pipe(process.stderr);
 
     (async () => {
         done = false;
         try {
-            await subprocess;
+            const result = await subprocess;
+            if (result.exitCode > 0) {
+                stderr = result.all;
+                error = new Error(`${result.command} failed`);
+            }
         } catch (err) {
-            error = err;
+            error = err.stack;
+            stderr = err.all;
         } finally {
             done = true;
         }
@@ -210,6 +215,9 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
     return () => {
         if (done && !subprocess.killed) return;
         if (error) {
+            if (stderr) {
+                process.stderr.write(stderr);
+            }
             signale.error(error);
         }
         subprocess.kill();
@@ -253,7 +261,7 @@ export async function pgrep(name: string): Promise<string> {
         return line.toLowerCase().includes(name.toLowerCase());
     });
     if (found) {
-        logger.debug('found process', found);
+        logger.trace('found process', found);
         return found;
     }
     return '';

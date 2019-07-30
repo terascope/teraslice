@@ -13,7 +13,7 @@ main() {
     ps_result="$(docker-compose ps -q 2>/dev/null)"
     if [ -n "$ps_result" ]; then
         if [ "$RAW_LOGS" == "true" ] || [ "$RAW_LOGS" == "1" ]; then
-            get_logs
+            get_logs 2>&1
         else
             get_logs | bunyan -o short -l "${LOG_LEVEL:-DEBUG}"
         fi

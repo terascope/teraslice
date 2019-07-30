@@ -9,7 +9,6 @@ const {
 } = require('./misc');
 
 module.exports = async function setupTerasliceConfig() {
-    // const dockerIP = getInternalDockerIP();
     const elasticsearchHosts = injectDockerIP(ELASTICSEARCH_URL, 'elasticsearch');
     const kafkaBrokers = injectDockerIP(KAFKA_BROKERS, 'kafka');
 

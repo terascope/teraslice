@@ -8,7 +8,7 @@ const { resetState, submitAndStart } = require('../../helpers');
 const { waitForJobStatus, scaleWorkersAndWait } = wait;
 
 describe('cluster state', () => {
-    beforeEach(() => resetState());
+    beforeAll(() => resetState());
 
     const teraslice = misc.teraslice();
 
@@ -104,7 +104,7 @@ describe('cluster state', () => {
             // The node with more than one worker should have the actual worker
             // and there should only be one.
             if (state[node].active.length > 2) {
-                expect(findWorkers(state[node].active, 'worker', jobId).length).toBe(1);
+                expect(findWorkers(state[node].active, 'worker', jobId)).toBeArrayOfSize(1);
             }
             expect(checkState(state, null, jobId)).toBe(2);
         });

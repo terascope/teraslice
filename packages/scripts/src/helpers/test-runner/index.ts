@@ -121,16 +121,16 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         errors.push('Test e2e Failed');
     } finally {
         try {
+            await logE2E(e2eDir, errors.length > 0);
+        } catch (err) {
+            signale.error(err);
+        }
+
+        try {
             cleanup();
         } catch (err) {
             signale.error(err);
         }
-    }
-
-    try {
-        await logE2E(e2eDir, errors.length > 0);
-    } catch (err) {
-        signale.error(err);
     }
 
     return errors;
