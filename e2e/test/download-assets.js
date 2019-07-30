@@ -3,8 +3,8 @@
 const fs = require('fs');
 const path = require('path');
 const semver = require('semver');
-const signale = require('signale');
 const downloadRelease = require('@terascope/fetch-github-release');
+const signale = require('./signale');
 
 // When the docker image is switched to use node:10 this value needs to be changed to '10'
 const nodeVersion = '10';

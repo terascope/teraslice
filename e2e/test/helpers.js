@@ -1,7 +1,8 @@
 'use strict';
 
+const ms = require('ms');
 const _ = require('lodash');
-const signale = require('signale');
+const signale = require('./signale');
 const misc = require('./misc');
 const wait = require('./wait');
 
@@ -49,7 +50,7 @@ async function resetState() {
 
     const elapsed = Date.now() - startTime;
     if (elapsed > 1000) {
-        signale.warn(`resetting took ${elapsed}ms`);
+        signale.warn(`resetting took ${ms(elapsed)}`);
     }
 }
 

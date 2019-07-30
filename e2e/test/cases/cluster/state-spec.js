@@ -8,7 +8,7 @@ const { resetState, submitAndStart } = require('../../helpers');
 const { waitForJobStatus, scaleWorkersAndWait } = wait;
 
 describe('cluster state', () => {
-    beforeAll(() => resetState());
+    beforeEach(() => resetState());
 
     const teraslice = misc.teraslice();
 
@@ -110,7 +110,7 @@ describe('cluster state', () => {
         });
 
         await complete;
-        const stats = await misc.indexStats('test-clusterstate-job-1-1000');
+        const stats = await misc.indexStats(specIndex);
         expect(stats.count).toBe(1000);
     });
 

@@ -2,19 +2,15 @@
 
 const Promise = require('bluebird');
 const uuidv4 = require('uuid/v4');
-const signale = require('signale');
 const misc = require('../../misc');
 const wait = require('../../wait');
+const signale = require('../../signale');
 const { resetState } = require('../../helpers');
 
 const { waitForJobStatus, waitForIndexCount } = wait;
 
 describe('kafka', () => {
-    beforeAll(async () => {
-        await resetState();
-        // give kafka time to come up
-        await Promise.delay(5000);
-    });
+    beforeAll(() => resetState());
 
     const teraslice = misc.teraslice();
 
@@ -29,10 +25,10 @@ describe('kafka', () => {
 
         senderSpec.operations[0].index = misc.getExampleIndex(1000);
         senderSpec.operations[1].topic = topic;
-        senderSpec.operations[0].index = specIndex;
 
         readerSpec.operations[0].topic = topic;
         readerSpec.operations[0].group = groupId;
+        readerSpec.operations[1].index = specIndex;
 
         const sender = await teraslice.jobs.submit(senderSpec);
 

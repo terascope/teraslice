@@ -1,7 +1,10 @@
+import ms from 'ms';
+import path from 'path';
 import isCI from 'is-ci';
-import { debugLogger } from '@terascope/utils';
+import fse from 'fs-extra';
+import { debugLogger, get } from '@terascope/utils';
 import { PackageInfo, TestSuite } from '../interfaces';
-import { ArgsMap, ExecEnv, dockerBuild, dockerPull } from '../scripts';
+import { ArgsMap, ExecEnv, dockerBuild, dockerPull, exec } from '../scripts';
 import { TestOptions, GroupedPackages } from './interfaces';
 import signale from '../signale';
 
@@ -96,13 +99,51 @@ export function groupBySuite(pkgInfos: PackageInfo[]): GroupedPackages {
 }
 
 export async function buildDockerImage(target: string): Promise<void> {
-    signale.await(`building docker image ${target}`);
+    const startTime = Date.now();
+    signale.pending(`building docker image ${target}`);
     const cacheFrom = isCI ? ['node:10.16.0-alpine', 'terascope/teraslice:dev-base', 'terascope/teraslice:dev-connectors'] : [];
     if (cacheFrom.length) {
-        signale.await(`pulling images ${cacheFrom}`);
+        logger.debug(`pulling images ${cacheFrom}`);
         await Promise.all(cacheFrom.map(dockerPull));
     }
 
     await dockerBuild(target, cacheFrom);
-    signale.success(`built docker image ${target}`);
+    signale.success(`built docker image ${target}, took ${ms(Date.now() - startTime)}`);
+}
+
+async function getE2ELogs(dir: string, env: ExecEnv): Promise<string> {
+    const pkgJSON = await fse.readJSON(path.join(dir, 'package.json'));
+    const hasLogsScript = Boolean(get(pkgJSON, 'scripts.logs'));
+    if (hasLogsScript) {
+        const result = await exec({
+            cmd: 'yarn',
+            args: ['run', 'logs'],
+            cwd: dir,
+            env,
+        });
+        return result || '';
+    }
+    return '';
+}
+
+export async function logE2E(dir: string, failed: boolean): Promise<void> {
+    if (failed) {
+        const errLogs = await getE2ELogs(dir, {
+            LOG_LEVEL: 'WARN',
+        });
+        process.stderr.write(errLogs);
+    }
+
+    const rawLogs = await getE2ELogs(dir, {
+        RAW_LOGS: 'true',
+    });
+
+    const logFilePath = path.join(dir, './teraslice-test.log');
+    if (!rawLogs) {
+        await fse.remove(logFilePath);
+        return;
+    }
+
+    await fse.writeFile(logFilePath, rawLogs);
+    signale.debug(`Wrote e2e log files to ${path.relative(process.cwd(), logFilePath)}`);
 }

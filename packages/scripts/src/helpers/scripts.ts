@@ -91,25 +91,18 @@ export async function build(pkgInfo?: PackageInfo): Promise<void> {
         if (fse.existsSync(distDir)) {
             await fse.emptyDir(distDir);
         }
-        await fork({
-            cmd: 'yarn',
-            args: ['run', 'build'],
-            cwd: pkgInfo.dir,
-        });
+        await yarnRun('build', [], pkgInfo.dir);
         return;
     }
-    await fork({
-        cmd: 'yarn',
-        args: ['run', 'build'],
-    });
+    await yarnRun('build');
 }
 
 export async function setup(): Promise<void> {
-    await fork({ cmd: 'yarn', args: ['run', 'setup'] });
+    await yarnRun('setup');
 }
 
-export async function yarnInstall(): Promise<void> {
-    await fork({ cmd: 'yarn', args: ['install'] });
+export async function yarnRun(script: string, args: string[] = [], cwd?: string): Promise<any> {
+    return fork({ cmd: 'yarn', args: ['run', script, ...args], cwd });
 }
 
 export async function runJest(pkgDir: string, args: ArgsMap, env?: ExecEnv, extraArgs?: string[]): Promise<void> {

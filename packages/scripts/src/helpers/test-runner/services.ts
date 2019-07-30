@@ -1,9 +1,11 @@
+import ms from 'ms';
 import got from 'got';
 import semver from 'semver';
+import { address } from 'ip';
 import { debugLogger, pRetry, TSError } from '@terascope/utils';
+import { dockerRun, DockerRunOptions, getContainerInfo, dockerStop, pgrep } from '../scripts';
 import { TestOptions } from './interfaces';
 import { TestSuite } from '../interfaces';
-import { dockerRun, DockerRunOptions, getContainerInfo, dockerStop, pgrep } from '../scripts';
 import signale from '../signale';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -28,6 +30,7 @@ const services: { [service in Service]: DockerRunOptions } = {
         ports: [2181, 9092],
         env: {
             KAFKA_HEAP_OPTS: '-Xms256m -Xmx256m',
+            ADVERTISED_HOST: address(),
         },
     },
 };
@@ -71,9 +74,10 @@ async function stopService(service: Service) {
     const info = await getContainerInfo(name);
     if (!info) return;
 
-    signale.await(`stopping service ${service}`);
+    const startTime = Date.now();
+    signale.pending(`stopping service ${service}`);
     await dockerStop(name);
-    signale.success(`stopped service ${service}`);
+    signale.success(`stopped service ${service}, took ${ms(Date.now() - startTime)}`);
 }
 
 async function checkElasticsearch(options: TestOptions, retries: number): Promise<void> {
@@ -105,12 +109,13 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
             const actual: string = body.version.number;
             const expected = options.elasticsearchVersion;
             if (!expected) {
-                logger.debug(`using local version of elasticsearch v${actual}`);
+                signale.debug(`using local version of elasticsearch v${actual}`);
                 return;
             }
 
             const satifies = semver.satisfies(actual, `^${expected}`);
             if (satifies) {
+                signale.debug(`elasticsearch@${actual} is running`);
                 return;
             }
 
@@ -129,10 +134,13 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
 
 async function startService(options: TestOptions, service: Service): Promise<() => void> {
     const version = options[`${service}Version`] as string;
-    signale.await(`starting ${service}@${version} service`);
+    const startTime = Date.now();
+    signale.pending(`starting ${service}@${version} service...`);
+
     await stopService(service);
     const fn = await dockerRun(services[service], version);
-    signale.success(`started ${service}@${version} service`);
+
+    signale.success(`started ${service}@${version} service, took ${ms(Date.now() - startTime)}`);
     return fn;
 }
 
@@ -142,6 +150,6 @@ async function checkKafka(options: TestOptions) {
         throw new Error('Kafka is not running');
     }
 
-    signale.debug(`assuming kafka brokers at ${options.kafkaBrokers.join(', ')} are up...`, p);
+    signale.debug(`kafka should be running at ${options.kafkaBrokers.join(', ')}`, p);
     return;
 }

@@ -2,9 +2,9 @@
 
 const ms = require('ms');
 const _ = require('lodash');
-const signale = require('signale');
 const Promise = require('bluebird');
 const uuid = require('uuid/v4');
+const signale = require('./signale');
 const { waitForClusterState, waitForJobStatus } = require('./wait');
 const setupTerasliceConfig = require('./setup-config');
 const downloadAssets = require('./download-assets');

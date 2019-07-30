@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
-const signale = require('signale');
+const signale = require('./signale');
 const misc = require('./misc');
 
 /*

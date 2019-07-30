@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const path = require('path');
+const isCI = require('is-ci');
 const fse = require('fs-extra');
 const {
     WORKERS_PER_NODE,
@@ -19,7 +20,7 @@ module.exports = async function setupTerasliceConfig() {
     const baseConfig = {
         terafoundation: {
             environment: 'development',
-            log_level: 'debug',
+            log_level: isCI ? 'warn' : 'debug',
             connectors: {
                 elasticsearch: {
                     default: {
@@ -109,7 +110,6 @@ async function writeWorkerConfig(configPath, baseConfig) {
 }
 
 function getInternalDockerIP() {
-    if (process.platform === 'darwin') return 'docker.for.mac.localhost';
     return MY_IP;
 }
 

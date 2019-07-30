@@ -4,7 +4,6 @@ const _ = require('lodash');
 const path = require('path');
 const fse = require('fs-extra');
 const { address } = require('ip');
-const signale = require('signale');
 const Promise = require('bluebird');
 const nanoid = require('nanoid/generate');
 const TerasliceClient = require('teraslice-client-js');
@@ -29,6 +28,7 @@ const WORKERS_PER_NODE = 12;
 
 const MY_IP = address();
 const compose = require('@terascope/docker-compose-js')('docker-compose.yml');
+const signale = require('./signale');
 
 const es = _.memoize(
     () => new ElasticsearchClient({
@@ -107,6 +107,7 @@ function scaleWorkers(workerToAdd = 0) {
 function scaleService(service, count) {
     return compose.up({
         scale: `${service}=${count}`,
+        timeout: 30,
         'no-recreate': '',
         'no-deps': '',
         'no-build': ''

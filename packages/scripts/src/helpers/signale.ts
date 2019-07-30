@@ -4,7 +4,6 @@ export default new Signale({
     // @ts-ignore because the types are wrong
     logLevel: 'info',
     stream: process.stderr,
-    interactive: true,
     types: {
         log: {
             stream: [process.stdout],

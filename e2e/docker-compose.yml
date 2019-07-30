@@ -15,7 +15,7 @@ services:
         volumes:
             - teraslice-assets:/app/assets
             - ./autoload:/app/autoload:delegated
-            - ./.config:/app/config:delegated
+            - ./.config:/app/config
     teraslice-worker:
         image: e2e_teraslice
         command: [
@@ -35,7 +35,7 @@ services:
         volumes:
             - teraslice-assets:/app/assets
             - ./autoload:/app/autoload:delegated
-            - ./.config:/app/config:delegated
+            - ./.config:/app/config
 
 volumes:
     teraslice-assets:

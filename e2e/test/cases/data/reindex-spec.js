@@ -46,17 +46,17 @@ describe('reindex', () => {
     });
 
     it('should collect cluster level stats', async () => {
-        await teraslice.cluster.stats().then((stats) => {
-            expect(stats.controllers.processed).toBeGreaterThan(0);
-            expect(stats.controllers.failed).toBe(0);
-            expect(stats.controllers.queued).toBeDefined();
-            expect(stats.controllers.job_duration).toBeGreaterThan(0);
-            expect(stats.controllers.workers_joined).toBeGreaterThan(0);
-            expect(stats.controllers.workers_disconnected).toBeDefined();
-            expect(stats.controllers.workers_reconnected).toBeDefined();
-            // executions: total, failed, active?
-            // exceptions?
-        });
+        const stats = await teraslice.cluster.stats();
+
+        expect(stats.controllers.processed).toBeGreaterThan(0);
+        expect(stats.controllers.failed).toBe(0);
+        expect(stats.controllers.queued).toBeNumber();
+        expect(stats.controllers.job_duration).toBeGreaterThan(0);
+        expect(stats.controllers.workers_joined).toBeGreaterThan(0);
+        expect(stats.controllers.workers_disconnected).toBeNumber();
+        expect(stats.controllers.workers_reconnected).toBeNumber();
+        // executions: total, failed, active?
+        // exceptions?
     });
 
     it('should complete after lifecycle changes', async () => {
@@ -94,7 +94,7 @@ describe('reindex', () => {
         expect(stats.count).toEqual(200);
     });
 
-    it('should support idempotency', () => {
+    it('should support idempotency', async () => {
         const iterations = 3;
 
         const jobSpec = misc.newJob('reindex');
@@ -104,18 +104,18 @@ describe('reindex', () => {
         jobSpec.operations[0].index = misc.getExampleIndex(100);
         jobSpec.operations[1].index = specIndex;
 
-        const jobs = _.times(iterations, () => jobSpec);
-
-        return Promise.map(jobs, async (spec) => {
-            const job = await teraslice.jobs.submit(spec);
+        const promises = _.times(iterations, async () => {
+            const job = await teraslice.jobs.submit(jobSpec);
             expect(job).toBeDefined();
             expect(job.id()).toBeDefined();
 
             return waitForJobStatus(job, 'completed');
-        }).then(async () => {
-            const stats = await misc.indexStats(specIndex);
-
-            expect(stats.count).toBe(100);
         });
+
+        await Promise.all(promises);
+
+        const stats = await misc.indexStats(specIndex);
+
+        expect(stats.count).toBe(100);
     });
 });

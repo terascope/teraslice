@@ -1,7 +1,7 @@
 import path from 'path';
 import { debugLogger, chunk, TSError } from '@terascope/utils';
 import { writePkgHeader, writeHeader, formatList, cliError, getRootDir } from '../misc';
-import { getArgs, filterBySuite, getEnv, groupBySuite, buildDockerImage, onlyUnitTests } from './utils';
+import { getArgs, filterBySuite, getEnv, groupBySuite, buildDockerImage, onlyUnitTests, logE2E } from './utils';
 import { ensureServices, stopAllServices } from './services';
 import { PackageInfo, TestSuite } from '../interfaces';
 import { runJest } from '../scripts';
@@ -108,15 +108,17 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
 }
 
 async function runE2ETest(options: TestOptions): Promise<string[]> {
-    const [cleanup] = await Promise.all([ensureServices(TestSuite.E2E, options), buildDockerImage('e2e_teraslice')]);
+    const cleanup = await ensureServices(TestSuite.E2E, options);
+    await buildDockerImage('e2e_teraslice');
 
     const e2eDir = path.join(getRootDir(), 'e2e');
+    const errors: string[] = [];
 
     try {
         await runJest(e2eDir, getArgs(options), getEnv(options));
     } catch (err) {
         signale.error(err);
-        return ['Test e2e Failed'];
+        errors.push('Test e2e Failed');
     } finally {
         try {
             cleanup();
@@ -125,5 +127,11 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         }
     }
 
-    return [];
+    try {
+        await logE2E(e2eDir, errors.length > 0);
+    } catch (err) {
+        signale.error(err);
+    }
+
+    return errors;
 }
