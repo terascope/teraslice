@@ -25,7 +25,7 @@
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {
-        "@terascope/data-types": "^0.4.1",
+        "@terascope/data-types": "^0.5.0",
         "@terascope/utils": "^0.13.0",
         "ajv": "^6.10.0",
         "nanoid": "^2.0.3",

@@ -4,6 +4,7 @@ import BooleanV1 from './v1/boolean';
 import DateV1 from './v1/date';
 import GeoV1 from './v1/geo';
 import IPV1 from './v1/ip';
+import IPRangeV1 from './v1/ip-range';
 import ByteV1 from './v1/byte';
 import DoubleV1 from './v1/double';
 import FloatV1 from './v1/float';
@@ -15,8 +16,10 @@ import TextV1 from './v1/text';
 import ObjectV1 from './v1/object';
 import KeywordTokensV1 from './v1/keyword-tokens';
 import HostnameV1 from './v1/hostname';
+import DomainV1 from './v1/domain';
 import KeywordCaseInsensitiveV1 from './v1/keyword-case-insensitive';
 import KeywordTokensCaseInsensitiveV1 from './v1/keyword-tokens-case-insensitive';
+import KeywordPathAnalyzerV1 from './v1/keyword-path-analyzer';
 import NgramTokensV1 from './v1/ngram-tokens';
 import BoundaryV1 from './v1/boundary';
 
@@ -26,6 +29,7 @@ export const mapping: DataTypeMapping = {
         Date: DateV1,
         Geo: GeoV1,
         IP: IPV1,
+        IPRange: IPRangeV1,
         Byte: ByteV1,
         Double: DoubleV1,
         Float: FloatV1,
@@ -36,8 +40,10 @@ export const mapping: DataTypeMapping = {
         Text: TextV1,
         KeywordTokens: KeywordTokensV1,
         Hostname: HostnameV1,
+        Domain: DomainV1,
         KeywordCaseInsensitive: KeywordCaseInsensitiveV1,
         KeywordTokensCaseInsensitive: KeywordTokensCaseInsensitiveV1,
+        KeywordPathAnalyzer: KeywordPathAnalyzerV1,
         NgramTokens: NgramTokensV1,
         Boundary: BoundaryV1,
         Object: ObjectV1,

@@ -1,22 +1,22 @@
-import Hostname from '../../../src/types/versions/v1/hostname';
+import KeywordPathAnalyzer from '../../../src/types/versions/v1/keyword-path-analyzer';
 import { TSError } from '@terascope/utils';
 import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
-describe('Hostname V1', () => {
+describe('KeywordPathAnalyzer V1', () => {
     const field = 'someField';
-    const typeConfig: FieldTypeConfig = { type: 'Hostname' };
+    const typeConfig: FieldTypeConfig = { type: 'KeywordPathAnalyzer' };
 
     it('can requires a field and proper configs', () => {
         try {
             // @ts-ignore
-            new Hostname();
+            new KeywordPathAnalyzer();
             throw new Error('it should have errored with no configs');
         } catch (err) {
             expect(err).toBeInstanceOf(TSError);
             expect(err.message).toInclude('A field must be provided and must be of type string');
         }
 
-        const type = new Hostname(field, typeConfig);
+        const type = new KeywordPathAnalyzer(field, typeConfig);
         expect(type).toBeDefined();
         expect(type.toESMapping).toBeDefined();
         expect(type.toGraphQL).toBeDefined();
@@ -24,30 +24,29 @@ describe('Hostname V1', () => {
     });
 
     it('can get proper ES Mappings', () => {
-        const esMapping = new Hostname(field, typeConfig).toESMapping();
+        const esMapping = new KeywordPathAnalyzer(field, typeConfig).toESMapping();
         const results = {
             mapping: {
                 [field]: {
                     type: 'keyword' as ElasticSearchTypes,
-                    analyzer: 'lowercase_keyword_analyzer',
                     fields: {
                         tokens: {
-                            type: 'text' as ElasticSearchTypes,
-                            analyzer: 'hostname_analyzer',
+                            type: 'text',
+                            analyzer: 'path_analyzer',
                         },
                     },
                 },
             },
             analyzer: {
-                hostname_analyzer: {
+                path_tokenizer: {
                     type: 'custom',
-                    tokenizer: 'hostname_tokenizer'
+                    pattern: 'path_tokenizer'
                 }
             },
             tokenizer: {
-                hostname_tokenizer: {
+                path_tokenizer: {
                     type: 'pattern',
-                    pattern: '\\.'
+                    pattern: '\/'
                 }
             },
         };
@@ -56,14 +55,14 @@ describe('Hostname V1', () => {
     });
 
     it('can get proper graphQl types', () => {
-        const graphQlTypes = new Hostname(field, typeConfig).toGraphQL();
+        const graphQlTypes = new KeywordPathAnalyzer(field, typeConfig).toGraphQL();
         const results = { type: `${field}: String` };
 
         expect(graphQlTypes).toEqual(results);
     });
 
     it('can get proper xlucene properties', () => {
-        const xlucene = new Hostname(field, typeConfig).toXlucene();
+        const xlucene = new KeywordPathAnalyzer(field, typeConfig).toXlucene();
         const results = { [field]: 'string' };
 
         expect(xlucene).toEqual(results);
