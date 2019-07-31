@@ -2,7 +2,7 @@
 
 This monorepo contains sub-packages for various Terascope projects.
 
-[![Build Status](https://travis-ci.org/terascope/teraslice.svg?branch=master)](https://travis-ci.org/terascope/teraslice)
+[![Build Status](https://travis-ci.com/terascope/teraslice.svg?branch=master)](https://travis-ci.com/terascope/teraslice)
 [![codecov](https://codecov.io/gh/terascope/teraslice/branch/master/graph/badge.svg)](https://codecov.io/gh/terascope/teraslice)
 [![tested with jest](https://img.shields.io/badge/tested_with-jest-99424f.svg)](https://github.com/facebook/jest)
 [![Known Vulnerabilities](https://snyk.io/test/github/terascope/teraslice/badge.svg)](https://snyk.io/test/github/terascope/teraslice)
