@@ -2,10 +2,10 @@ import ms from 'ms';
 import path from 'path';
 import isCI from 'is-ci';
 import fse from 'fs-extra';
-import { debugLogger, get, TSError } from '@terascope/utils';
-import { PackageInfo, TestSuite } from '../interfaces';
-import { ArgsMap, ExecEnv, dockerBuild, dockerPull, exec, fork } from '../scripts';
+import { ArgsMap, ExecEnv, dockerBuild, dockerPull, exec } from '../scripts';
+import { debugLogger, get, TSError, isFunction } from '@terascope/utils';
 import { TestOptions, GroupedPackages } from './interfaces';
+import { PackageInfo, TestSuite } from '../interfaces';
 import signale from '../signale';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -117,7 +117,10 @@ export async function globalTeardown(pkgs: { name: string; dir: string }[]) {
         if (fse.existsSync(filePath)) {
             signale.debug(`Running ${path.relative(process.cwd(), filePath)}`);
             try {
-                await fork({ cmd: 'node', args: [filePath], cwd: dir });
+                const teardownFn = require(filePath);
+                if (isFunction(teardownFn)) {
+                    await teardownFn();
+                }
             } catch (err) {
                 signale.error(
                     new TSError(err, {

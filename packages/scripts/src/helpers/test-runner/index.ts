@@ -1,11 +1,11 @@
 import path from 'path';
 import { debugLogger, chunk, TSError, getFullErrorStack } from '@terascope/utils';
-import { writePkgHeader, writeHeader, formatList, cliError, getRootDir } from '../misc';
-import * as utils from './utils';
+import { writePkgHeader, writeHeader, formatList, getRootDir } from '../misc';
 import { ensureServices, stopAllServices } from './services';
 import { PackageInfo, TestSuite } from '../interfaces';
-import { runJest } from '../scripts';
 import { TestOptions } from './interfaces';
+import { runJest } from '../scripts';
+import * as utils from './utils';
 import signale from '../signale';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -36,7 +36,7 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
     if (errors.length) {
         signale.error(`\n\n${errorMsg}`);
         const exitCode = (process.exitCode || 0) > 0 ? process.exitCode : 1;
-        return process.exit(exitCode);
+        process.exit(exitCode);
     }
 }
 
