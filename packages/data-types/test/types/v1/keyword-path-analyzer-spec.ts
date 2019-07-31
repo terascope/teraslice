@@ -2,7 +2,7 @@ import KeywordPathAnalyzer from '../../../src/types/versions/v1/keyword-path-ana
 import { TSError } from '@terascope/utils';
 import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
-describe('KeywordTokensCaseInsensitive V1', () => {
+describe('KeywordPathAnalyzer V1', () => {
     const field = 'someField';
     const typeConfig: FieldTypeConfig = { type: 'KeywordPathAnalyzer' };
 
