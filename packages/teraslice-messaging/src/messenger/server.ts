@@ -68,7 +68,7 @@ export class Server extends Core {
 
         // @ts-ignore
         this.server = new SocketIOServer({
-            pingTimeout,
+            pingTimeout: pingTimeout || clientDisconnectTimeout,
             pingInterval,
             perMessageDeflate: false,
             serveClient: false,
