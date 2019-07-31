@@ -51,10 +51,10 @@ setup_docker() {
     docker_ip="$(ifconfig docker0 | grep "inet addr:" | awk '{print $2}' | cut -d ':' -f 2)"
 
     export DOCKER_IP="$docker_ip"
-    errecho "* set DOCKER_IP=${DOCKER_IP}"
+    echoerr "* set DOCKER_IP=${DOCKER_IP}"
 
     export ELASTICSEARCH_HOST="http://${DOCKER_IP}:9200"
-    errecho "* set ELASTICSEARCH_HOST=${ELASTICSEARCH_HOST}"
+    echoerr "* set ELASTICSEARCH_HOST=${ELASTICSEARCH_HOST}"
 }
 
 setup_github() {
@@ -89,7 +89,7 @@ main() {
     esac
 
     export FORCE_COLOR=1
-    errecho "* set FORCE_COLOR=1"
+    echoerr "* set FORCE_COLOR=1"
 
     only_ci
     setup_npm
