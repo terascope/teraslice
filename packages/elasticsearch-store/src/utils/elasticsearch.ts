@@ -169,6 +169,12 @@ export function getESVersion(client: Client): number {
     return 6;
 }
 
-export function getESIndexSettings(client: Client) {
-    return getESVersion(client) >= 6 ? { include_type_name: true } : {};
+export function getESIndexParams(client: Client) {
+    return getESVersion(client) >= 7 ? { include_type_name: true } : {};
+}
+
+export function removeAllFromMapping(client: Client, mapping: any) {
+    if (getESVersion(client) >= 7 && mapping._all) {
+        delete mapping._all;
+    }
 }

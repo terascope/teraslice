@@ -221,7 +221,7 @@ export class SearchAccess {
         }
 
         let results;
-        const total = response.hits.total;
+        const total = ts.get(response, 'hits.total.value', ts.get(response, 'hits.total'));
         let returning = total;
 
         if (this.spaceConfig.preserve_index_name) {
@@ -234,8 +234,8 @@ export class SearchAccess {
             results = response.hits.hits.map(data => data._source);
         }
 
-        let info = `${response.hits.total} results found.`;
-        if (response.hits.total > params.size!) {
+        let info = `${total} results found.`;
+        if (total > params.size!) {
             returning = params.size!;
             info += ` Returning ${returning}.`;
         }

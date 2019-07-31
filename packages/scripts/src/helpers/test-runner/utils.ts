@@ -45,6 +45,7 @@ export function getEnv(options: TestOptions): ExecEnv {
         KAFKA_BROKER: options.kafkaBroker,
         KAFKA_VERSION: options.kafkaVersion,
         LOCAL_IP,
+        FORCE_COLOR: '1',
     };
 
     if (!options.debug) return defaults;

@@ -35,7 +35,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
     function count(query) {
         query.size = 0;
-        return _searchES(query).then(data => data.hits.total);
+        return _searchES(query).then(data => _.get(data, 'hits.total.value', _.get(data, 'hits.total')));
     }
 
     function search(query) {
@@ -103,7 +103,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function indexCreate(query) {
-        const indexSettings = _getESIndexSettings();
+        const indexSettings = _getESIndexParams();
         return _clientIndicesRequest('create', Object.assign(query, indexSettings));
     }
 
@@ -199,7 +199,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function putTemplate(template, name) {
-        const indexSettings = _getESIndexSettings();
+        const indexSettings = _getESIndexParams();
         return _clientIndicesRequest('putTemplate', Object.assign({ body: template, name }, indexSettings)).then(
             results => results
         );
@@ -710,7 +710,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         return 6;
     }
 
-    function _getESIndexSettings() {
+    function _getESIndexParams() {
         return getESVersion() >= 6 ? { include_type_name: true } : {};
     }
 
@@ -975,6 +975,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         indexRecovery,
         indexSetup,
         verifyClient,
+        getESVersion,
         validateGeoParameters,
         // The APIs below are deprecated and should be removed.
         index_exists: indexExists,

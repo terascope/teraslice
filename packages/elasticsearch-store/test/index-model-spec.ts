@@ -385,9 +385,9 @@ describe('IndexModel', () => {
 
                 result.reverse().forEach((record, index) => {
                     if (index < 5) {
-                        expect(record.name).toEqual(`Bob ${index}`);
+                        expect(record).toHaveProperty('name', `Bob ${index}`);
                     } else {
-                        expect(record.name).toEqual(`Joe ${index - 5}`);
+                        expect(record).toHaveProperty('name', `Joe ${index - 5}`);
                     }
                 });
             });
