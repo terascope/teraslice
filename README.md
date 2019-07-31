@@ -1,10 +1,6 @@
-# Teraslice
+# Terascope Projects
 
-> Distributed computing platform for processing JSON data
-
-Teraslice is an open source, distributed computing platform for processing JSON data. It works together with Elasticsearch and Kafka to enable highly scalable data processing pipelines.
-
-It supports the creation of custom processor logic implemented in JavaScript and plugged into to the system to validate, transform and enrich data. Processing pipelines are scalable and easily distributable across many computers.
+This monorepo contains sub-packages for various Terascope projects.
 
 [![Build Status](https://travis-ci.org/terascope/teraslice.svg?branch=master)](https://travis-ci.org/terascope/teraslice)
 [![codecov](https://codecov.io/gh/terascope/teraslice/branch/master/graph/badge.svg)](https://codecov.io/gh/terascope/teraslice)
@@ -12,87 +8,33 @@ It supports the creation of custom processor logic implemented in JavaScript and
 [![Known Vulnerabilities](https://snyk.io/test/github/terascope/teraslice/badge.svg)](https://snyk.io/test/github/terascope/teraslice)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-## Getting Started
+## Notable Projects
 
-<!-- copied from Getting Started docs -->
+- Teraslice - Scalable distributed data processing pipelines in JavaScript.
+  - [Source Code](https://github.com/terascope/teraslice/tree/master/packages/teraslice)
+  - [Documentation](https://terascope.github.io/teraslice/docs/overview)
+- Teraslice CLI - Command line tools to manage Teraslice 
+  - [Source Code](https://github.com/terascope/teraslice/tree/master/packages/teraslice-cli)
+  - [Documentation](https://terascope.github.io/teraslice/docs/packages/teraslice-cli/overview)
+- Teraslice Test Harness - Unit testing harness for Teraslice Processors
+  - [Source Code](https://github.com/terascope/teraslice/tree/master/packages/teraslice-test-harness)
+  - [Documentation](https://terascope.github.io/teraslice/docs/packages/teraslice-test-harness/overview)
+- Teraslice JS - Teraslice Node.js client library
+  - [Source Code](https://github.com/terascope/teraslice/tree/master/packages/teraslice-js)
+  - [Documentation](https://terascope.github.io/teraslice/docs/packages/teraslice-js/overview)
+- Terafoundation - Multiprocess runtime for Node.js
+  - [Source Code](https://github.com/terascope/teraslice/tree/master/packages/terafoundation)
+  - [Documentation](https://terascope.github.io/teraslice/docs/packages/terafoundation/overview)
+- TS Transforms - Declarative JSON data transformation framework
+  - [Source Code](https://github.com/terascope/teraslice/tree/master/packages/ts-transforms)
+  - [Documentation](https://terascope.github.io/teraslice/docs/packages/ts-transforms/overview)
+- xLucene - Extensible Lucene query syntax parser and executor
+  - [Source Code](https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator)
+  - [Documentation](https://terascope.github.io/teraslice/docs/packages/xlucene-evaluator/overview)
+- Other - Various supporting packages
+  - [Source Code](https://github.com/terascope/teraslice/tree/master/packages)
+  - [Documentation](https://terascope.github.io/teraslice/docs/packages)
 
-Teraslice is written in Node.js and has been tested on Linux and Mac OS X.
-
-### Dependencies
-
-- Node.js 8 or above
-- Yarn (development only)
-- At least one Elasticsearch 5 or above cluster
-
-### Installation
-
-```sh
-# Install teraslice globally
-npm install --global teraslice
-# Or with yarn, yarn global add teraslice
-
-# A teraslice CLI client
-npm install --global teraslice-cli
-# Or with yarn, yarn global add teraslice-cli
-
-# To add additional connectors, use
-# npm install terafoundation_kafka_connector
-```
-
-### Running
-
-Create a configuration file called `config.yaml`:
-
-```yaml
-terafoundation:
-    connectors:
-        elasticsearch:
-            default:
-                host:
-                    - localhost:9200
-
-teraslice:
-    workers: 8
-    master: true
-    master_hostname: 127.0.0.1
-    name: teraslice
-    hostname: 127.0.0.1
-```
-
-Starting a single-node teraslice instance:
-
-NOTE: Elasticsearch must be running first.
-
-```sh
-teraslice -c config.yaml
-```
-
-Deploy needed assets:
-
-For many use cases elasticsearch is a good start.
-
-```sh
-teraslice-cli assets deploy localhost terascope/elasticsearch-assets
-```
-
-There are also asset bundles available for:
-
-- [Kafka](https://github.com/terascope/kafka-assets)
-- [Files](https://github.com/terascope/file-assets)
-- [HDFS](https://github.com/terascope/hdfs-assets)
-
-If you want to get a simple cluster going use, the example docker-compose file:
-
-```sh
-docker-compose up --build
-```
-
-## Documentation
-
-- [Getting Started](https://terascope.github.io/teraslice/docs/getting-started)
-- [API](https://terascope.github.io/teraslice/docs/api)
-- [Packages](https://terascope.github.io/teraslice/docs/packages)
-- [Development](https://terascope.github.io/teraslice/docs/development/overview)
 
 ## Contributing
 
