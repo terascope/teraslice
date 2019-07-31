@@ -26,10 +26,17 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
         }
     }
 
+    let errorMsg: string = '';
     if (errors.length > 1) {
-        cliError('\n\n', `Multiple Test Failures:${formatList(errors)}`);
+        errorMsg = `Multiple Test Failures:${formatList(errors)}`;
     } else if (errors.length === 1) {
-        cliError('\n\n', errors[0]);
+        errorMsg = errors[0];
+    }
+
+    if (errors.length) {
+        signale.error(`\n\n${errorMsg}`);
+        const exitCode = (process.exitCode || 0) > 0 ? process.exitCode : 1;
+        return process.exit(exitCode);
     }
 }
 
@@ -84,10 +91,7 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
     try {
         cleanup = await ensureServices(suite, options);
     } catch (err) {
-        const error = new TSError(err, {
-            message: `Failed to start services for "${suite}"`,
-        });
-        errors.push(getFullErrorStack(error));
+        errors.push(getFullErrorStack(err));
     }
 
     if (!errors.length) {
@@ -115,15 +119,7 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
         }
     }
 
-    try {
-        cleanup();
-    } catch (err) {
-        signale.error(
-            new TSError(err, {
-                message: `Failed to cleanup after "${suite}" test suite`,
-            })
-        );
-    }
+    cleanup();
     return errors;
 }
 
@@ -132,14 +128,12 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
     const errors: string[] = [];
     const e2eDir = path.join(getRootDir(), 'e2e');
     const suite = TestSuite.E2E;
+    let startedTest = false;
 
     try {
         cleanup = await ensureServices(suite, options);
     } catch (err) {
-        const error = new TSError(err, {
-            message: `Failed to start services for ${suite}`,
-        });
-        errors.push(getFullErrorStack(error));
+        errors.push(getFullErrorStack(err));
     }
 
     const image = 'ts_test_teraslice';
@@ -157,6 +151,7 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
     if (!errors.length) {
         const timeLabel = `test suite "${suite}"`;
         signale.time(timeLabel);
+        startedTest = true;
 
         try {
             await runJest(e2eDir, utils.getArgs(options), utils.getEnv(options), options.jestArgs);
@@ -172,25 +167,19 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         signale.timeEnd(timeLabel);
     }
 
-    try {
-        await utils.logE2E(e2eDir, errors.length > 0);
-    } catch (err) {
-        signale.error(
-            new TSError(err, {
-                reason: `Writing the "${suite}" logs failed`,
-            })
-        );
+    if (startedTest) {
+        try {
+            await utils.logE2E(e2eDir, errors.length > 0);
+        } catch (err) {
+            signale.error(
+                new TSError(err, {
+                    reason: `Writing the "${suite}" logs failed`,
+                })
+            );
+        }
     }
 
-    try {
-        cleanup();
-    } catch (err) {
-        signale.error(
-            new TSError(err, {
-                reason: `Failed to cleanup after "${suite}" test suite`,
-            })
-        );
-    }
+    cleanup();
 
     return errors;
 }

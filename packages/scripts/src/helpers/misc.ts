@@ -106,7 +106,8 @@ export function formatList(list: string[]) {
 
 export function cliError<T>(prefix: string, error: string, ...args: any[]): never {
     signale.error(`\n${prefix}: ${error}`, ...args);
-    return process.exit(1);
+    const exitCode = (process.exitCode || 0) > 0 ? process.exitCode : 1;
+    return process.exit(exitCode);
 }
 
 export function writeHeader(msg: string, prefixNewline?: boolean): void {

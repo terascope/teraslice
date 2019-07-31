@@ -32,6 +32,14 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 description: 'This will cause the tests to stop at the first failed test.',
                 type: 'boolean',
                 default: isCI,
+                coerce(arg) {
+                    const index = jestArgs.indexOf('--bail');
+                    if (index > -1) {
+                        jestArgs.splice(index, 1);
+                        return true;
+                    }
+                    return arg;
+                },
             })
             .option('suite', {
                 description: 'Run a test given a particular suite. Defaults to running all',

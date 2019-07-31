@@ -44,19 +44,25 @@ const services: { [service in Service]: DockerRunOptions } = {
 };
 
 export async function ensureServices(suite: TestSuite, options: TestOptions): Promise<() => void> {
-    if (suite === TestSuite.Elasticsearch) {
-        return ensureElasticsearch(options);
-    }
+    try {
+        if (suite === TestSuite.Elasticsearch) {
+            return ensureElasticsearch(options);
+        }
 
-    if (suite === TestSuite.Kafka) {
-        return ensureKafka(options);
-    }
+        if (suite === TestSuite.Kafka) {
+            return ensureKafka(options);
+        }
 
-    if (suite === TestSuite.E2E) {
-        const fns = await Promise.all([ensureElasticsearch(options), ensureKafka(options)]);
-        return () => {
-            fns.forEach(fn => fn());
-        };
+        if (suite === TestSuite.E2E) {
+            const fns = await Promise.all([ensureElasticsearch(options), ensureKafka(options)]);
+            return () => {
+                fns.forEach(fn => fn());
+            };
+        }
+    } catch (err) {
+        throw new TSError(err, {
+            message: `Failed to start services for test suite "${suite}"`,
+        });
     }
 
     return () => {};
@@ -170,8 +176,19 @@ async function startService(options: TestOptions, service: Service): Promise<() 
 
     const fn = await dockerRun(services[service], version);
 
-    signale.success(`started ${service}@${version} service, took ${ms(Date.now() - startTime)}`);
-    return fn;
+    signale.success(`started ${service}@${version} service, took ~${ms(Date.now() - startTime)}`);
+
+    return () => {
+        try {
+            fn();
+        } catch (err) {
+            signale.error(
+                new TSError(err, {
+                    reason: `Failed to stop ${service}@${version} service`,
+                })
+            );
+        }
+    };
 }
 
 async function checkKafka(options: TestOptions) {

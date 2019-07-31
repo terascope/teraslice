@@ -17,7 +17,11 @@ main() {
         if [ "$RAW_LOGS" == "true" ] || [ "$RAW_LOGS" == "1" ]; then
             get_logs "${args[@]}" 2>&1
         else
-            get_logs "${args[@]}" | bunyan --color -o short -l "${LOG_LEVEL:-DEBUG}"
+            local color=""
+            if [ "$FORCE_COLOR" == "1" ]; then
+                color="--color"
+            fi
+            get_logs "${args[@]}" | bunyan "$color" -o short -l "${LOG_LEVEL:-DEBUG}"
         fi
     fi
 }

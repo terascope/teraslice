@@ -176,7 +176,7 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
         args.push('--tmpfs', opt.tmpfs.join(','));
     }
 
-    if (process.platform !== 'darwin') {
+    if (process.platform === 'darwin') {
         args.push('--network', 'host');
     }
     args.push('--network', opt.network);
@@ -212,17 +212,21 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
     await pDelay(2000);
 
     if (error) {
+        if (stderr) {
+            process.stderr.write(stderr);
+        }
         throw error;
     }
 
     return () => {
-        if (done && !subprocess.killed) return;
         if (error) {
             if (stderr) {
                 process.stderr.write(stderr);
             }
             signale.error(error);
         }
+
+        if (done && !subprocess.killed) return;
         subprocess.kill();
     };
 }
