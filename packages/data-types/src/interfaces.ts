@@ -27,6 +27,7 @@ export type ElasticSearchTypes =
     | 'text'
     | 'boolean'
     | 'ip'
+    | 'ip_range'
     | 'date'
     | 'geo_point'
     | 'object';
@@ -36,6 +37,7 @@ export type AvailableType =
     | 'Date'
     | 'Geo'
     | 'IP'
+    | 'IPRange'
     | 'Byte'
     | 'Double'
     | 'Float'

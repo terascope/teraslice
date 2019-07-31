@@ -4,6 +4,7 @@ import BooleanV1 from './v1/boolean';
 import DateV1 from './v1/date';
 import GeoV1 from './v1/geo';
 import IPV1 from './v1/ip';
+import IPRangeV1 from './v1/ip-range';
 import ByteV1 from './v1/byte';
 import DoubleV1 from './v1/double';
 import FloatV1 from './v1/float';
@@ -27,6 +28,7 @@ export const mapping: DataTypeMapping = {
         Date: DateV1,
         Geo: GeoV1,
         IP: IPV1,
+        IPRange: IPRangeV1,
         Byte: ByteV1,
         Double: DoubleV1,
         Float: FloatV1,
