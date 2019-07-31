@@ -1,9 +1,10 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import * as x from 'xlucene-evaluator';
+import * as t from '@terascope/data-types';
+import { getESVersion } from 'elasticsearch-store';
 import { SpaceSearchConfig } from './models';
 import * as i from './interfaces';
-import * as t from '@terascope/data-types';
 
 const _logger = ts.debugLogger('search-access');
 
@@ -68,6 +69,19 @@ export class SearchAccess {
         }
 
         this._logger.trace(esQuery, 'searching....');
+
+        const esVersion = getESVersion(client);
+        if (esVersion >= 7) {
+            const p: any = params;
+            if (p._sourceExclude) {
+                p._source_excludes = p._sourceExclude;
+                delete p._sourceExclude;
+            }
+            if (p._sourceInclude) {
+                p._source_includes = p._sourceInclude;
+                delete p._sourceInclude;
+            }
+        }
 
         let response: any = {};
         try {

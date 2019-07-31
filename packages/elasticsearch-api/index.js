@@ -103,7 +103,8 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function indexCreate(query) {
-        return _clientIndicesRequest('create', query);
+        const indexSettings = _getESIndexSettings();
+        return _clientIndicesRequest('create', Object.assign(query, indexSettings));
     }
 
     function indexRefresh(query) {
@@ -198,7 +199,8 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function putTemplate(template, name) {
-        return _clientIndicesRequest('putTemplate', { body: template, name }).then(
+        const indexSettings = _getESIndexSettings();
+        return _clientIndicesRequest('putTemplate', Object.assign({ body: template, name }, indexSettings)).then(
             results => results
         );
     }
@@ -699,6 +701,19 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         return true;
     }
 
+    function getESVersion() {
+        const esVersion = process.env.ELASTICSEARCH_VERSION || _.get(client, 'transport._config.apiVersion');
+        if (esVersion && _.isString(esVersion)) {
+            const [majorVersion] = esVersion.split('.');
+            return _.toNumber(majorVersion);
+        }
+        return 6;
+    }
+
+    function _getESIndexSettings() {
+        return getESVersion() >= 6 ? { include_type_name: true } : {};
+    }
+
     function _migrate(index, migrantIndexName, mapping, recordType, clusterName) {
         const reindexQuery = {
             slices: 4,
@@ -755,6 +770,12 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
         return indexExists(existQuery).then((exists) => {
             if (!exists) {
+                const esVersion = getESVersion();
+                const hasAll = _.has(mapping, ['mappings', recordType, '_all']);
+                if (esVersion >= 7 && hasAll) {
+                    delete mapping.mappings[recordType]._all;
+                }
+
                 // Make sure the index exists before we do anything else.
                 const createQuery = {
                     index,

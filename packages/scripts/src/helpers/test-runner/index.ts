@@ -97,7 +97,11 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
         signale.time(timeLabel);
 
         for (const pkgs of chunked) {
-            writePkgHeader('Running batch of tests', pkgs, true);
+            if (pkgs.length > 1) {
+                writePkgHeader('Running batch of tests', pkgs, true);
+            } else {
+                writePkgHeader('Running test', pkgs, true);
+            }
 
             const args = utils.getArgs(options);
             args.projects = pkgs.map(pkgInfo => path.join('packages', pkgInfo.folderName));
@@ -105,10 +109,17 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
             try {
                 await runJest(getRootDir(), args, utils.getEnv(options), options.jestArgs);
             } catch (err) {
-                const error = new TSError(err, {
-                    message: `Test(s) ${pkgs.map(pkgInfo => pkgInfo.name)} failed`,
-                });
-                errors.push(getFullErrorStack(error));
+                if (pkgs.length > 1) {
+                    const error = new TSError(err, {
+                        message: `At least one of these tests failed ${pkgs.map(pkgInfo => pkgInfo.name).join(', ')} failed`,
+                    });
+                    errors.push(getFullErrorStack(error));
+                } else {
+                    const error = new TSError(err, {
+                        message: `Test ${pkgs.map(pkgInfo => pkgInfo.name).join(', ')} failed`,
+                    });
+                    errors.push(getFullErrorStack(error));
+                }
 
                 await utils.globalTeardown(options, pkgs.map(({ name, dir }) => ({ name, dir })));
 

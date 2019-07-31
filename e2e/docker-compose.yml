@@ -10,8 +10,6 @@ services:
         environment:
             - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.json
             - NODE_OPTIONS=--max-old-space-size=256
-        networks:
-            - cluster
         volumes:
             - teraslice-assets:/app/assets
             - ./autoload:/app/autoload:delegated
@@ -20,7 +18,7 @@ services:
         image: ts_test_teraslice
         command: [
             "./scripts/wait-for-host.sh",
-            "teraslice-master:45678",
+            "${LOCAL_IP}:45678",
             "node",
             "service.js"
         ]
@@ -30,8 +28,6 @@ services:
         environment:
             - TERAFOUNDATION_CONFIG=/app/config/teraslice-worker.json
             - NODE_OPTIONS=--max-old-space-size=256
-        networks:
-            - cluster
         volumes:
             - teraslice-assets:/app/assets
             - ./autoload:/app/autoload:delegated
@@ -42,5 +38,3 @@ volumes:
         driver_opts:
             type: tmpfs
             device: tmpfs
-networks:
-    cluster:

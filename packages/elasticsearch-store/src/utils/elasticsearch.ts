@@ -1,9 +1,10 @@
 import * as R from 'rambda';
+import { Client } from 'elasticsearch';
 import { TypeConfig, FieldType } from 'xlucene-evaluator';
-import { TSError, isPlainObject, isEmpty } from '@terascope/utils';
-import * as i from '../interfaces';
-import { getErrorType } from './errors';
+import { TSError, isPlainObject, isEmpty, isString, toNumber, get } from '@terascope/utils';
 import { getFirstKey, getFirstValue, buildNestPath } from './misc';
+import { getErrorType } from './errors';
+import * as i from '../interfaces';
 
 export function getTimeByField(field = ''): (input: any) => number {
     return R.ifElse(
@@ -157,4 +158,17 @@ export function getXluceneTypeFromESType(type?: string): FieldType | undefined {
     if (type === 'date') return 'date';
 
     return;
+}
+
+export function getESVersion(client: Client): number {
+    const version = process.env.ELASTICSEARCH_VERSION || get(client, 'transport._config.apiVersion');
+    if (version && isString(version)) {
+        const [majorVersion] = version.split('.');
+        return toNumber(majorVersion);
+    }
+    return 6;
+}
+
+export function getESIndexSettings(client: Client) {
+    return getESVersion(client) >= 6 ? { include_type_name: true } : {};
 }

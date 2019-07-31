@@ -110,6 +110,7 @@ function scaleService(service, count) {
     return compose.up({
         scale: `${service}=${count}`,
         timeout: 30,
+        'no-recreate': '',
         'no-build': ''
     });
 }

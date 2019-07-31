@@ -56,23 +56,30 @@ export class DataType {
     /**
      * Convert the DataType to an elasticsearch mapping.
      */
-    toESMapping({ typeName, overrides }: i.ESMappingOptions = {}): i.ESMapping {
+    toESMapping({ typeName, overrides, version = 6 }: i.ESMappingOptions = {}): i.ESMapping {
         const indexType = typeName || this.name || '_doc';
+        const mappingSettings = {
+            dynamic: false,
+            properties: {},
+        };
+
+        if (version < 7) {
+            Object.assign(mappingSettings, {
+                _all: {
+                    enabled: false,
+                },
+            });
+        }
+
         const esMapping: i.ESMapping = {
             settings: {},
             mappings: {
-                [indexType]: {
-                    _all: {
-                        enabled: false,
-                    },
-                    dynamic: false,
-                    properties: {},
-                },
+                [indexType]: mappingSettings,
             },
         };
 
         for (const type of this._types) {
-            const { mapping, analyzer, tokenizer } = type.toESMapping();
+            const { mapping, analyzer, tokenizer } = type.toESMapping(version);
             if (mapping) {
                 for (const [key, config] of Object.entries(mapping)) {
                     set(esMapping, ['mappings', indexType, 'properties', key], config);
