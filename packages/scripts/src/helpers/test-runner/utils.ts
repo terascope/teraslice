@@ -6,6 +6,7 @@ import { ArgsMap, ExecEnv, dockerBuild, dockerPull, exec } from '../scripts';
 import { debugLogger, get, TSError, isFunction } from '@terascope/utils';
 import { TestOptions, GroupedPackages } from './interfaces';
 import { PackageInfo, TestSuite } from '../interfaces';
+import { LOCAL_IP } from '../config';
 import signale from '../signale';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -43,6 +44,7 @@ export function getEnv(options: TestOptions): ExecEnv {
         ELASTICSEARCH_VERSION: options.elasticsearchVersion,
         KAFKA_BROKER: options.kafkaBroker,
         KAFKA_VERSION: options.kafkaVersion,
+        LOCAL_IP,
     };
 
     if (!options.debug) return defaults;

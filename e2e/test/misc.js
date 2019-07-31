@@ -8,7 +8,11 @@ const nanoid = require('nanoid/generate');
 const TerasliceClient = require('teraslice-client-js');
 const ElasticsearchClient = require('elasticsearch').Client;
 
-const { ELASTICSEARCH_HOST = 'http://locahost:9200', KAFKA_BROKER = 'locahost:9092' } = process.env;
+const {
+    ELASTICSEARCH_HOST = 'http://locahost:9200',
+    KAFKA_BROKER = 'locahost:9092',
+    LOCAL_IP = '127.0.0.1'
+} = process.env;
 
 const TEST_INDEX_PREFIX = 'teratest_';
 const SPEC_INDEX_PREFIX = `${TEST_INDEX_PREFIX}spec`;
@@ -25,7 +29,6 @@ const DEFAULT_NODES = DEFAULT_WORKERS + 1;
 // The number of workers per number (see the process-master.yaml and process-worker.yaml)
 const WORKERS_PER_NODE = 12;
 
-const IP = process.env.DOCKER_IP ? process.env.DOCKER_IP : '127.0.0.1';
 const compose = require('@terascope/docker-compose-js')('docker-compose.yml');
 const signale = require('./signale');
 
@@ -37,7 +40,7 @@ const es = _.memoize(
 );
 
 const teraslice = _.memoize(() => TerasliceClient({
-    host: `http://${IP}:45678`,
+    host: `http://${LOCAL_IP}:45678`,
     timeout: 2 * 60 * 1000
 }));
 
@@ -166,6 +169,7 @@ module.exports = {
     EXAMPLE_INDEX_PREFIX,
     SPEC_INDEX_PREFIX,
     ELASTICSEARCH_HOST,
+    LOCAL_IP,
     KAFKA_BROKER,
     CLUSTER_NAME,
     TEST_INDEX_PREFIX,

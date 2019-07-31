@@ -46,15 +46,6 @@ setup_docker() {
     username="$(docker info | grep Username)"
 
     echoerr "* logged into docker hub as $username"
-
-    local docker_ip;
-    docker_ip="$(ifconfig docker0 | grep "inet addr:" | awk '{print $2}' | cut -d ':' -f 2)"
-
-    export DOCKER_IP="$docker_ip"
-    echoerr "* set DOCKER_IP=${DOCKER_IP}"
-
-    export ELASTICSEARCH_HOST="http://${DOCKER_IP}:9200"
-    echoerr "* set ELASTICSEARCH_HOST=${ELASTICSEARCH_HOST}"
 }
 
 setup_github() {

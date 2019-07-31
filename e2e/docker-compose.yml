@@ -11,7 +11,7 @@ services:
             - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.json
             - NODE_OPTIONS=--max-old-space-size=256
         networks:
-            - ts_test
+            - cluster
         volumes:
             - teraslice-assets:/app/assets
             - ./autoload:/app/autoload:delegated
@@ -31,7 +31,7 @@ services:
             - TERAFOUNDATION_CONFIG=/app/config/teraslice-worker.json
             - NODE_OPTIONS=--max-old-space-size=256
         networks:
-            - ts_test
+            - cluster
         volumes:
             - teraslice-assets:/app/assets
             - ./autoload:/app/autoload:delegated
@@ -43,5 +43,4 @@ volumes:
             type: tmpfs
             device: tmpfs
 networks:
-    ts_test:
-        external: true
+    cluster:

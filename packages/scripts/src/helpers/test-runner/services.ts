@@ -3,22 +3,19 @@ import got from 'got';
 import isCI from 'is-ci';
 import semver from 'semver';
 import { debugLogger, pRetry, TSError } from '@terascope/utils';
-import { dockerRun, DockerRunOptions, getContainerInfo, dockerStop, pgrep, ensureDockerNetwork } from '../scripts';
+import { dockerRun, DockerRunOptions, getContainerInfo, dockerStop, pgrep } from '../scripts';
 import { TestOptions } from './interfaces';
 import { TestSuite } from '../interfaces';
+import { LOCAL_IP } from '../config';
 import signale from '../signale';
 
 const logger = debugLogger('ts-scripts:cmd:test');
-
-const network = 'ts_test';
 
 type Service = TestSuite.Elasticsearch | TestSuite.Kafka;
 const services: { [service in Service]: DockerRunOptions } = {
     [TestSuite.Elasticsearch]: {
         image: 'blacktop/elasticsearch',
         name: 'ts_test_elasticsearch',
-        hostname: 'elasticsearch',
-        network,
         tmpfs: ['/usr/share/elasticsearch/data'],
         ports: [9200],
         env: {
@@ -30,13 +27,12 @@ const services: { [service in Service]: DockerRunOptions } = {
     [TestSuite.Kafka]: {
         image: 'blacktop/kafka',
         name: 'ts_test_kafka',
-        hostname: 'kafka',
-        network,
         tmpfs: ['/tmp/kafka-logs'],
         ports: [2181, 9092],
         env: {
             KAFKA_HEAP_OPTS: '-Xms256m -Xmx256m',
             KAKFA_AUTO_CREATE_TOPICS_ENABLE: 'true',
+            KAFKA_ADVERTISED_HOST_NAME: LOCAL_IP,
             KAFKA_NUM_PARTITIONS: '2',
         },
     },
@@ -45,15 +41,14 @@ const services: { [service in Service]: DockerRunOptions } = {
 export async function ensureServices(suite: TestSuite, options: TestOptions): Promise<() => void> {
     try {
         if (suite === TestSuite.Elasticsearch) {
-            return ensureElasticsearch(options, true);
+            return ensureElasticsearch(options);
         }
 
         if (suite === TestSuite.Kafka) {
-            return ensureKafka(options, true);
+            return ensureKafka(options);
         }
 
         if (suite === TestSuite.E2E) {
-            await ensureDockerNetwork(network);
             const fns = await Promise.all([ensureElasticsearch(options), ensureKafka(options)]);
             return () => {
                 fns.forEach(fn => fn());
@@ -68,14 +63,9 @@ export async function ensureServices(suite: TestSuite, options: TestOptions): Pr
     return () => {};
 }
 
-export async function ensureKafka(options: TestOptions, ensureNetwork?: boolean): Promise<() => void> {
+export async function ensureKafka(options: TestOptions): Promise<() => void> {
     let fn = () => {};
-    const hostname = options.suite === TestSuite.E2E ? services.kafka.hostname : 'localhost';
-    services.kafka.env!.KAFKA_ADVERTISED_HOST_NAME = hostname;
     fn = await startService(options, TestSuite.Kafka);
-    if (ensureNetwork) {
-        await ensureDockerNetwork(network);
-    }
     await checkKafka(options);
     return fn;
 }
@@ -95,9 +85,6 @@ export async function ensureElasticsearch(options: TestOptions, ensureNetwork?: 
     }
 
     if (shouldStart) {
-        if (ensureNetwork) {
-            await ensureDockerNetwork(network);
-        }
         fn = await startService(options, TestSuite.Elasticsearch);
         await checkElasticsearch(options, 10);
     }

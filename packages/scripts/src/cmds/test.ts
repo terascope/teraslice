@@ -4,6 +4,7 @@ import { runTests } from '../helpers/test-runner';
 import { TestSuite, PackageInfo, GlobalCMDOptions } from '../helpers/interfaces';
 import { coercePkgArg } from '../helpers/args';
 import { listPackages } from '../helpers/packages';
+import { KAFKA_BROKER, ELASTICSEARCH_HOST } from '../helpers/config';
 
 type Options = {
     debug: boolean;
@@ -51,7 +52,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .option('elasticsearch-host', {
                 description: 'The elasticsearch URL to use when needed (usually for --suite elasticsearch or e2e)',
                 type: 'string',
-                default: process.env.ELASTICSEARCH_HOST || 'http://localhost:9200/',
+                default: ELASTICSEARCH_HOST,
             })
             .option('elasticsearch-version', {
                 description: 'The elasticsearch version to use',
@@ -61,7 +62,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .option('kafka-broker', {
                 description: 'The kafka brokers to use when needed (usually for --suite kafka or e2e)',
                 type: 'string',
-                default: process.env.KAFKA_BROKER || 'localhost:9092',
+                default: KAFKA_BROKER,
             })
             .option('kafka-version', {
                 description: 'The kafka version to use',

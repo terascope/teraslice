@@ -9,9 +9,6 @@ const {
 } = require('./misc');
 
 module.exports = async function setupTerasliceConfig() {
-    const elasticsearchHost = injectDockerIP(ELASTICSEARCH_HOST, 'elasticsearch');
-    const kafkaBroker = injectDockerIP(KAFKA_BROKER, 'kafka');
-
     const baseConfig = {
         terafoundation: {
             environment: 'development',
@@ -19,7 +16,7 @@ module.exports = async function setupTerasliceConfig() {
             connectors: {
                 elasticsearch: {
                     default: {
-                        host: [elasticsearchHost],
+                        host: [ELASTICSEARCH_HOST],
                         requestTimeout: 60000,
                         deadTimeout: 45000,
                         sniffOnStart: false,
@@ -29,7 +26,7 @@ module.exports = async function setupTerasliceConfig() {
                 },
                 kafka: {
                     default: {
-                        brokers: [kafkaBroker]
+                        brokers: [KAFKA_BROKER]
                     }
                 }
             }
@@ -102,11 +99,4 @@ async function writeWorkerConfig(configPath, baseConfig) {
     await fse.writeJSON(workerConfigPath, workerConfig, {
         spaces: 4
     });
-}
-
-function injectDockerIP(uri, ip) {
-    if (!uri || typeof uri !== 'string' || !uri.trim()) {
-        throw new Error('Invalid URI for e2e test');
-    }
-    return uri.replace(/localhost|127\.0\.0\.1/g, ip);
 }

@@ -143,8 +143,6 @@ export async function getContainerInfo(name: string): Promise<any> {
 export type DockerRunOptions = {
     name: string;
     image: string;
-    hostname: string;
-    network: string;
     ports?: number[];
     tmpfs?: string[];
     env?: ExecEnv;
@@ -176,8 +174,6 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
         args.push('--tmpfs', opt.tmpfs.join(','));
     }
 
-    args.push('--network', opt.network);
-    args.push('--network-alias', opt.hostname);
     args.push('--name', opt.name);
     args.push(`${opt.image}:${tag}`);
 
@@ -213,6 +209,10 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
             process.stderr.write(stderr);
         }
         throw error;
+    }
+
+    if (done) {
+        throw new Error('Service ended early');
     }
 
     return () => {
