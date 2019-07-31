@@ -48,6 +48,7 @@ export type AvailableType =
     | 'Text'
     | 'KeywordTokens'
     | 'Hostname'
+    | 'Domain'
     | 'KeywordCaseInsensitive'
     | 'KeywordTokensCaseInsensitive'
     | 'KeywordPathAnalyzer'

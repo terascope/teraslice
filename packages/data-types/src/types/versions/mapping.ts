@@ -16,6 +16,7 @@ import TextV1 from './v1/text';
 import ObjectV1 from './v1/object';
 import KeywordTokensV1 from './v1/keyword-tokens';
 import HostnameV1 from './v1/hostname';
+import DomainV1 from './v1/domain';
 import KeywordCaseInsensitiveV1 from './v1/keyword-case-insensitive';
 import KeywordTokensCaseInsensitiveV1 from './v1/keyword-tokens-case-insensitive';
 import KeywordPathAnalyzerV1 from './v1/keyword-path-analyzer';
@@ -39,6 +40,7 @@ export const mapping: DataTypeMapping = {
         Text: TextV1,
         KeywordTokens: KeywordTokensV1,
         Hostname: HostnameV1,
+        Domain: DomainV1,
         KeywordCaseInsensitive: KeywordCaseInsensitiveV1,
         KeywordTokensCaseInsensitive: KeywordTokensCaseInsensitiveV1,
         KeywordPathAnalyzer: KeywordPathAnalyzerV1,

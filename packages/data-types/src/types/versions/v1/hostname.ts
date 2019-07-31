@@ -7,38 +7,27 @@ export default class Hostname extends BaseType {
         return {
             mapping: {
                 [this.field]: {
-                    type: 'text' as ElasticSearchTypes,
+                    type: 'keyword' as ElasticSearchTypes,
                     analyzer: 'lowercase_keyword_analyzer',
                     fields: {
                         tokens: {
                             type: 'text' as ElasticSearchTypes,
-                            analyzer: 'standard',
-                        },
-                        right: {
-                            type: 'text' as ElasticSearchTypes,
-                            analyzer: 'domain_analyzer',
-                            search_analyzer: 'lowercase_keyword_analyzer',
+                            analyzer: 'hostname_analyzer',
                         },
                     },
                 },
             },
             analyzer: {
-                lowercase_keyword_analyzer: {
-                    tokenizer: 'keyword',
-                    filter: 'lowercase',
-                },
-                domain_analyzer: {
-                    filter: 'lowercase',
+                hostname_analyzer: {
                     type: 'custom',
-                    tokenizer: 'domain_tokens',
-                },
+                    tokenizer: 'hostname_tokenizer'
+                }
             },
             tokenizer: {
-                domain_tokens: {
-                    reverse: 'true',
-                    type: 'PathHierarchy',
-                    delimiter: '.',
-                },
+                hostname_tokenizer: {
+                    type: 'pattern',
+                    pattern: '\\.'
+                }
             },
         };
     }
