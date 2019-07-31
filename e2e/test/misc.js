@@ -3,7 +3,6 @@
 const _ = require('lodash');
 const path = require('path');
 const fse = require('fs-extra');
-const { address } = require('ip');
 const Promise = require('bluebird');
 const nanoid = require('nanoid/generate');
 const TerasliceClient = require('teraslice-client-js');
@@ -26,7 +25,7 @@ const DEFAULT_NODES = DEFAULT_WORKERS + 1;
 // The number of workers per number (see the process-master.yaml and process-worker.yaml)
 const WORKERS_PER_NODE = 12;
 
-const MY_IP = address();
+const IP = process.env.DOCKER_IP ? process.env.DOCKER_IP : '127.0.0.1';
 const compose = require('@terascope/docker-compose-js')('docker-compose.yml');
 const signale = require('./signale');
 
@@ -38,7 +37,7 @@ const es = _.memoize(
 );
 
 const teraslice = _.memoize(() => TerasliceClient({
-    host: 'http://localhost:45678',
+    host: `http://${IP}:45678`,
     timeout: 2 * 60 * 1000
 }));
 
@@ -142,11 +141,10 @@ async function globalTeardown(shouldThrow) {
     signale.timeEnd('tear down');
     if (shouldThrow && errors.length === 1) {
         throw errors[0];
-    } else if (errors.length > 1) {
-        // eslint-disable-next-line no-console
-        errors.forEach(err => console.error(err));
+    } else if (errors.length) {
+        errors.forEach(err => signale.error(err));
         if (shouldThrow) {
-            throw new Error('Multiple global teardown errors');
+            throw new Error('Multiple e2e teardown errors');
         }
     }
 }
@@ -164,7 +162,6 @@ module.exports = {
     getExampleIndex,
     globalTeardown,
     newSpecIndex,
-    MY_IP,
     EXAMLPE_INDEX_SIZES,
     EXAMPLE_INDEX_PREFIX,
     SPEC_INDEX_PREFIX,

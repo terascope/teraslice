@@ -251,11 +251,9 @@ export async function ensureDockerNetwork(name: string) {
         return;
     }
 
-    const driver = process.platform === 'darwin' ? 'bridge' : 'host';
-
     await fork({
         cmd: 'docker',
-        args: ['network', 'create', '--driver', driver, '--attachable', name],
+        args: ['network', 'create', '--attachable', name],
     });
 }
 
