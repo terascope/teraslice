@@ -48,6 +48,7 @@ export type AvailableType =
     | 'Hostname'
     | 'KeywordCaseInsensitive'
     | 'KeywordTokensCaseInsensitive'
+    | 'KeywordPathAnalyzer'
     | 'NgramTokens'
     | 'Boundary'
     | 'Object';
