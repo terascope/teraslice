@@ -34,7 +34,7 @@ teraslice:
 
 |              Field               |                Type                |     Default     |                                                              Description                                                              |
 | :------------------------------: | :--------------------------------: | :-------------: | :-----------------------------------------------------------------------------------------------------------------------------------: |
-|         **environment**          |              `String`              | `"development"` |                       If set to `production`, console logging will be disabled and logs will be sent to a file                        |
+|         **environment**          |              `String`              | `"development"` |   If set to `production`, console logging will be disabled and logs will be sent to a file                        |
 |     **log_buffer_interval**      |              `Number`              |     `60000`     |                                 How often the log buffer will flush the logs (number in milliseconds)                                 |
 |       **log_buffer_limit**       |              `Number`              |      `30`       | Number of log lines to buffer before sending to elasticsearch, logging must have elasticsearch set as a value for this to take effect |
 |        **log_connection**        |              `String`              |   `"default"`   |                                   logging connection endpoint if logging is saved to elasticsearch                                    |

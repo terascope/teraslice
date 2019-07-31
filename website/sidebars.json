@@ -3,6 +3,7 @@
         "Overview": [
             "overview",
             "getting-started",
+            "terminology",
             "configuration"
         ],
         "REST API": [
