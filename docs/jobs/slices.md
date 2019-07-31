@@ -4,7 +4,7 @@ title: Slices
 
 Slices are a like heartbeat within teraslice, each heartbeat tracks metadata around the work being down.
 
-A Slice request is created by the [Slicer](./types-of-operations.md#Slicers) and the [Execution Controller](../nodes/execution-controller.md) wraps the request with [Slice Metadata](#slice-metadata) stores in the state store in Teraslice and distributes the slice to the available [Workers](../nodes/worker.md).
+A Slice request is created by the [Slicer](./types-of-operations.md#Slicers) and the Execution Controller wraps the request with [Slice Metadata](#slice-metadata) stores in the state store in Teraslice and distributes the slice to the available Workers.
 
 ## Slice Metadata
 
