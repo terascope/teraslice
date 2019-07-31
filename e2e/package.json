@@ -6,7 +6,7 @@
     "scripts": {
         "test": "ts-scripts test --suite e2e",
         "logs": "./scripts/logs.sh",
-        "logs-follow": "docker-compose logs --follow --no-color | awk -F' [|] ' '{print $2}' | bunyan -o short",
+        "logs-follow": "./scripts/logs.sh --follow",
         "clean": "docker-compose down --volumes --remove-orphans --timeout=5"
     },
     "repository": {

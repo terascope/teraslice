@@ -203,10 +203,8 @@ async function generateTestData() {
 }
 
 module.exports = async () => {
-    process.stdout.write('\n');
     await misc.globalTeardown();
 
-    process.stdout.write('\n');
     signale.time('global setup');
 
     await Promise.all([setupTerasliceConfig(), downloadAssets()]);

@@ -2,9 +2,9 @@ import ms from 'ms';
 import path from 'path';
 import isCI from 'is-ci';
 import fse from 'fs-extra';
-import { debugLogger, get } from '@terascope/utils';
+import { debugLogger, get, TSError } from '@terascope/utils';
 import { PackageInfo, TestSuite } from '../interfaces';
-import { ArgsMap, ExecEnv, dockerBuild, dockerPull, exec } from '../scripts';
+import { ArgsMap, ExecEnv, dockerBuild, dockerPull, exec, fork } from '../scripts';
 import { TestOptions, GroupedPackages } from './interfaces';
 import signale from '../signale';
 
@@ -39,9 +39,9 @@ export function getArgs(options: TestOptions): ArgsMap {
 
 export function getEnv(options: TestOptions): ExecEnv {
     const defaults: ExecEnv = {
-        ELASTICSEARCH_URL: options.elasticsearchUrl,
+        ELASTICSEARCH_HOST: options.elasticsearchUrl,
         ELASTICSEARCH_VERSION: options.elasticsearchVersion,
-        KAFKA_BROKERS: options.kafkaBrokers.join(','),
+        KAFKA_BROKER: options.kafkaBroker,
         KAFKA_VERSION: options.kafkaVersion,
     };
 
@@ -109,6 +109,24 @@ export async function buildDockerImage(target: string): Promise<void> {
 
     await dockerBuild(target, cacheFrom);
     signale.success(`built docker image ${target}, took ${ms(Date.now() - startTime)}`);
+}
+
+export async function globalTeardown(pkgs: { name: string; dir: string }[]) {
+    for (const { name, dir } of pkgs) {
+        const filePath = path.join(dir, 'test/global.teardown.js');
+        if (fse.existsSync(filePath)) {
+            signale.debug(`Running ${path.relative(process.cwd(), filePath)}`);
+            try {
+                await fork({ cmd: 'node', args: [filePath], cwd: dir });
+            } catch (err) {
+                signale.error(
+                    new TSError(err, {
+                        message: `Failed to teardown test for "${name}"`,
+                    })
+                );
+            }
+        }
+    }
 }
 
 async function getE2ELogs(dir: string, env: ExecEnv): Promise<string> {

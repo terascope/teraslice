@@ -2,7 +2,7 @@ import isCI from 'is-ci';
 import { CommandModule } from 'yargs';
 import { runTests } from '../helpers/test-runner';
 import { TestSuite, PackageInfo, GlobalCMDOptions } from '../helpers/interfaces';
-import { coercePkgArg, makeArray } from '../helpers/args';
+import { coercePkgArg } from '../helpers/args';
 import { listPackages } from '../helpers/packages';
 
 type Options = {
@@ -11,7 +11,7 @@ type Options = {
     suite?: TestSuite;
     'elasticsearch-url': string;
     'elasticsearch-version': string;
-    'kafka-brokers': string;
+    'kafka-broker': string;
     'kafka-version': string;
     packages?: PackageInfo[];
 };
@@ -43,17 +43,17 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .option('elasticsearch-url', {
                 description: 'The elasticsearch URL to use when needed (usually for --suite elasticsearch or e2e)',
                 type: 'string',
-                default: process.env.ELASTICSEARCH_URL || 'http://localhost:9200/',
+                default: process.env.ELASTICSEARCH_HOST || 'http://localhost:9200/',
             })
             .option('elasticsearch-version', {
                 description: 'The elasticsearch version to use',
                 type: 'string',
                 default: process.env.ELASTICSEARCH_VERSION || '6.8',
             })
-            .option('kafka-brokers', {
-                description: 'The elasticsearch URL to use when needed (usually for --suite kafka or e2e)',
+            .option('kafka-broker', {
+                description: 'The kafka brokers to use when needed (usually for --suite kafka or e2e)',
                 type: 'string',
-                default: process.env.KAFKA_BROKERS || 'localhost:9092',
+                default: process.env.KAFKA_BROKER || 'localhost:9092',
             })
             .option('kafka-version', {
                 description: 'The kafka version to use',
@@ -80,7 +80,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             suite: argv.suite,
             elasticsearchUrl: argv['elasticsearch-url'],
             elasticsearchVersion: argv['elasticsearch-version'],
-            kafkaBrokers: parseBrokers(argv['kafka-brokers']),
+            kafkaBroker: argv['kafka-broker'],
             kafkaVersion: argv['kafka-version'],
             all: !argv.packages || !argv.packages.length,
             jestArgs,
@@ -96,11 +96,6 @@ function getExtraArgs(): string[] {
         if (arg === '--') extra = true;
     });
     return args;
-}
-
-function parseBrokers(arg: string): string[] {
-    if (!arg) return [];
-    return makeArray(arg.split(','));
 }
 
 function getPkgInfos(packages?: PackageInfo[]): PackageInfo[] {

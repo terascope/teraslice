@@ -9,7 +9,7 @@ const nanoid = require('nanoid/generate');
 const TerasliceClient = require('teraslice-client-js');
 const ElasticsearchClient = require('elasticsearch').Client;
 
-const { ELASTICSEARCH_URL = 'http://locahost:9200', KAFKA_BROKERS = 'locahost:9092' } = process.env;
+const { ELASTICSEARCH_HOST = 'http://locahost:9200', KAFKA_BROKER = 'locahost:9092' } = process.env;
 
 const TEST_INDEX_PREFIX = 'teratest_';
 const SPEC_INDEX_PREFIX = `${TEST_INDEX_PREFIX}spec`;
@@ -32,7 +32,7 @@ const signale = require('./signale');
 
 const es = _.memoize(
     () => new ElasticsearchClient({
-        host: ELASTICSEARCH_URL,
+        host: ELASTICSEARCH_HOST,
         log: 'error'
     })
 );
@@ -156,8 +156,8 @@ module.exports = {
     EXAMLPE_INDEX_SIZES,
     EXAMPLE_INDEX_PREFIX,
     SPEC_INDEX_PREFIX,
-    ELASTICSEARCH_URL,
-    KAFKA_BROKERS,
+    ELASTICSEARCH_HOST,
+    KAFKA_BROKER,
     CLUSTER_NAME,
     TEST_INDEX_PREFIX,
     DEFAULT_NODES,

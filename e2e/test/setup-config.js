@@ -5,12 +5,12 @@ const path = require('path');
 const isCI = require('is-ci');
 const fse = require('fs-extra');
 const {
-    WORKERS_PER_NODE, KAFKA_BROKERS, ELASTICSEARCH_URL, CLUSTER_NAME
+    WORKERS_PER_NODE, KAFKA_BROKER, ELASTICSEARCH_HOST, CLUSTER_NAME
 } = require('./misc');
 
 module.exports = async function setupTerasliceConfig() {
-    const elasticsearchHosts = injectDockerIP(ELASTICSEARCH_URL, 'elasticsearch');
-    const kafkaBrokers = injectDockerIP(KAFKA_BROKERS, 'kafka');
+    const elasticsearchHost = injectDockerIP(ELASTICSEARCH_HOST, 'elasticsearch');
+    const kafkaBroker = injectDockerIP(KAFKA_BROKER, 'kafka');
 
     const baseConfig = {
         terafoundation: {
@@ -19,7 +19,7 @@ module.exports = async function setupTerasliceConfig() {
             connectors: {
                 elasticsearch: {
                     default: {
-                        host: elasticsearchHosts,
+                        host: [elasticsearchHost],
                         requestTimeout: 60000,
                         deadTimeout: 45000,
                         sniffOnStart: false,
@@ -29,7 +29,7 @@ module.exports = async function setupTerasliceConfig() {
                 },
                 kafka: {
                     default: {
-                        brokers: kafkaBrokers
+                        brokers: [kafkaBroker]
                     }
                 }
             }
@@ -105,9 +105,8 @@ async function writeWorkerConfig(configPath, baseConfig) {
 }
 
 function injectDockerIP(uri, ip) {
-    return uri
-        .split(',')
-        .map(str => str.trim())
-        .filter(Boolean)
-        .map(str => str.replace(/localhost|127\.0\.0\.1/g, ip));
+    if (!uri || typeof uri !== 'string' || !uri.trim()) {
+        throw new Error('Invalid URI for e2e test');
+    }
+    return uri.replace(/localhost|127\.0\.0\.1/g, ip);
 }

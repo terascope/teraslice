@@ -107,7 +107,7 @@ export async function yarnRun(script: string, args: string[] = [], cwd?: string)
 
 export async function runJest(pkgDir: string, args: ArgsMap, env?: ExecEnv, extraArgs?: string[]): Promise<void> {
     const allArgs = uniq([...mapToArgs(args), ...(extraArgs || [])]);
-    signale.debug(`running jest ${allArgs.join(' ')}`);
+    signale.debug(`executing: jest ${allArgs.join(' ')}`);
     await fork({
         cmd: 'jest',
         args: allArgs,
@@ -176,6 +176,9 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
         args.push('--tmpfs', opt.tmpfs.join(','));
     }
 
+    if (process.platform !== 'darwin') {
+        args.push('--network', 'host');
+    }
     args.push('--network', opt.network);
     args.push('--network-alias', opt.hostname);
     args.push('--name', opt.name);
@@ -206,7 +209,7 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
         }
     })();
 
-    await pDelay(1000);
+    await pDelay(2000);
 
     if (error) {
         throw error;

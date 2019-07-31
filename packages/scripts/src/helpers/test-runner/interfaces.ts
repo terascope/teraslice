@@ -7,7 +7,7 @@ export type TestOptions = {
     suite?: TestSuite;
     elasticsearchUrl: string;
     elasticsearchVersion: string;
-    kafkaBrokers: string[];
+    kafkaBroker: string;
     kafkaVersion: string;
     jestArgs?: string[];
 };

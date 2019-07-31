@@ -7,7 +7,7 @@ const { newId } = require('../../../lib/utils/id_utils');
 
 const opsPath = path.join(__dirname, '..', 'fixtures', 'ops');
 
-const { ELASTICSEARCH_URL } = process.env;
+const { ELASTICSEARCH_HOST } = process.env;
 
 const chance = new Chance();
 
@@ -99,7 +99,7 @@ const newSysConfig = (options = {}) => {
             connectors: {
                 elasticsearch: {
                     default: {
-                        host: [ELASTICSEARCH_URL],
+                        host: [ELASTICSEARCH_HOST],
                         requestTimeout: timeout,
                         deadTimeout: timeout
                     }

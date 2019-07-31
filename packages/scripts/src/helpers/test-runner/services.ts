@@ -1,5 +1,6 @@
 import ms from 'ms';
 import got from 'got';
+import isCI from 'is-ci';
 import semver from 'semver';
 import { debugLogger, pRetry, TSError } from '@terascope/utils';
 import { dockerRun, DockerRunOptions, getContainerInfo, dockerStop, pgrep, ensureDockerNetwork } from '../scripts';
@@ -72,8 +73,22 @@ export async function ensureKafka(options: TestOptions): Promise<() => void> {
 
 export async function ensureElasticsearch(options: TestOptions): Promise<() => void> {
     let fn = () => {};
-    fn = await startService(options, TestSuite.Elasticsearch);
-    await checkElasticsearch(options, 10);
+    let shouldStart = false;
+
+    try {
+        if (!isCI) {
+            await checkElasticsearch(options, 2);
+        } else {
+            shouldStart = true;
+        }
+    } catch (err) {
+        shouldStart = true;
+    }
+
+    if (shouldStart) {
+        fn = await startService(options, TestSuite.Elasticsearch);
+        await checkElasticsearch(options, 10);
+    }
     return fn;
 }
 
@@ -125,7 +140,7 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
 
             const satifies = semver.satisfies(actual, `^${expected}`);
             if (satifies) {
-                signale.debug(`elasticsearch@${actual} is running`);
+                signale.debug(`elasticsearch@${actual} is running at ${options.elasticsearchUrl}`);
                 return;
             }
 
@@ -152,6 +167,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
         await ensureDockerNetwork(network);
         ensuredNetwork = true;
     }
+
     const fn = await dockerRun(services[service], version);
 
     signale.success(`started ${service}@${version} service, took ${ms(Date.now() - startTime)}`);
@@ -164,6 +180,6 @@ async function checkKafka(options: TestOptions) {
         throw new Error('Kafka is not running');
     }
 
-    signale.debug(`kafka should be running at ${options.kafkaBrokers.join(', ')}`);
+    signale.debug(`kafka should be running at ${options.kafkaBroker}`);
     return;
 }

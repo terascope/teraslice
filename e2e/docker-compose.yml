@@ -1,7 +1,7 @@
 version: '2.4'
 services:
     teraslice-master:
-        image: e2e_teraslice
+        image: ts_test_teraslice
         ports:
             - '45678:45678'
         scale: 1
@@ -17,7 +17,7 @@ services:
             - ./autoload:/app/autoload:delegated
             - ./.config:/app/config:ro
     teraslice-worker:
-        image: e2e_teraslice
+        image: ts_test_teraslice
         command: [
             "./scripts/wait-for-host.sh",
             "teraslice-master:45678",

@@ -82,8 +82,6 @@ jobs:
   - script:
     name: "End-to-End Test Suite"
     if: branch = master AND type IN (pull_request, cron) AND fork = false
-    services:
-        - docker
     script: yarn test --suite e2e --elasticsearch-version 6.8 --kafka-version 2.1
     after_success:
         - bash <(curl -s https://codecov.io/bash)
@@ -113,9 +111,6 @@ jobs:
       apt:
         packages:
           - jq
-          - docker-ce
-    services:
-        - docker
     script: true
     deploy:
       - provider: script
@@ -156,9 +151,6 @@ jobs:
       apt:
         packages:
           - jq
-          - docker-ce
-    services:
-        - docker
     script: true
     deploy:
       - provider: script
