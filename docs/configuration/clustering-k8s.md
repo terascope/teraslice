@@ -1,6 +1,6 @@
 ---
-title: K8s Clustering
-sidebar_label: K8s
+title: Kubernetes Clustering
+sidebar_label: Kubernetes Clustering
 ---
 
 Teraslice supports the use of Kubernetes as a cluster manager. The following

@@ -1,6 +1,6 @@
 ---
 title: Teraslice Configuration
-sidebar_label: Configuration
+sidebar_label: Overview
 ---
 
 Teraslice configuration is provided via a YAML configuration file. This file will typically have 2 sections.
