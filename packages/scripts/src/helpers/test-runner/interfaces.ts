@@ -5,7 +5,7 @@ export type TestOptions = {
     debug: boolean;
     all: boolean;
     suite?: TestSuite;
-    elasticsearchUrl: string;
+    elasticsearchHost: string;
     elasticsearchVersion: string;
     kafkaBroker: string;
     kafkaVersion: string;

@@ -11,7 +11,6 @@ import signale from '../signale';
 const logger = debugLogger('ts-scripts:cmd:test');
 
 const network = 'ts_test';
-let ensuredNetwork = false;
 
 type Service = TestSuite.Elasticsearch | TestSuite.Kafka;
 const services: { [service in Service]: DockerRunOptions } = {
@@ -46,14 +45,15 @@ const services: { [service in Service]: DockerRunOptions } = {
 export async function ensureServices(suite: TestSuite, options: TestOptions): Promise<() => void> {
     try {
         if (suite === TestSuite.Elasticsearch) {
-            return ensureElasticsearch(options);
+            return ensureElasticsearch(options, true);
         }
 
         if (suite === TestSuite.Kafka) {
-            return ensureKafka(options);
+            return ensureKafka(options, true);
         }
 
         if (suite === TestSuite.E2E) {
+            await ensureDockerNetwork(network);
             const fns = await Promise.all([ensureElasticsearch(options), ensureKafka(options)]);
             return () => {
                 fns.forEach(fn => fn());
@@ -68,16 +68,19 @@ export async function ensureServices(suite: TestSuite, options: TestOptions): Pr
     return () => {};
 }
 
-export async function ensureKafka(options: TestOptions): Promise<() => void> {
+export async function ensureKafka(options: TestOptions, ensureNetwork?: boolean): Promise<() => void> {
     let fn = () => {};
     const hostname = options.suite === TestSuite.E2E ? services.kafka.hostname : 'localhost';
     services.kafka.env!.KAFKA_ADVERTISED_HOST_NAME = hostname;
     fn = await startService(options, TestSuite.Kafka);
+    if (ensureNetwork) {
+        await ensureDockerNetwork(network);
+    }
     await checkKafka(options);
     return fn;
 }
 
-export async function ensureElasticsearch(options: TestOptions): Promise<() => void> {
+export async function ensureElasticsearch(options: TestOptions, ensureNetwork?: boolean): Promise<() => void> {
     let fn = () => {};
     let shouldStart = false;
 
@@ -92,6 +95,9 @@ export async function ensureElasticsearch(options: TestOptions): Promise<() => v
     }
 
     if (shouldStart) {
+        if (ensureNetwork) {
+            await ensureDockerNetwork(network);
+        }
         fn = await startService(options, TestSuite.Elasticsearch);
         await checkElasticsearch(options, 10);
     }
@@ -118,11 +124,11 @@ async function stopService(service: Service) {
 async function checkElasticsearch(options: TestOptions, retries: number): Promise<void> {
     return pRetry(
         async () => {
-            logger.debug(`checking elasticsearch at ${options.elasticsearchUrl}`);
+            logger.debug(`checking elasticsearch at ${options.elasticsearchHost}`);
 
             let body: any;
             try {
-                ({ body } = await got(options.elasticsearchUrl, {
+                ({ body } = await got(options.elasticsearchHost, {
                     json: true,
                     throwHttpErrors: true,
                     retry: 0,
@@ -136,7 +142,7 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
             logger.debug('got response from elasticsearch service', body);
 
             if (!body || !body.version || !body.version.number) {
-                throw new TSError(`Invalid response from elasticsearch at ${options.elasticsearchUrl}`, {
+                throw new TSError(`Invalid response from elasticsearch at ${options.elasticsearchHost}`, {
                     retryable: true,
                 });
             }
@@ -146,12 +152,12 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
 
             const satifies = semver.satisfies(actual, `^${expected}`);
             if (satifies) {
-                signale.debug(`elasticsearch@${actual} is running at ${options.elasticsearchUrl}`);
+                signale.debug(`elasticsearch@${actual} is running at ${options.elasticsearchHost}`);
                 return;
             }
 
             throw new TSError(
-                `Elasticsearch at ${options.elasticsearchUrl} does not satify required version of ${expected}, got ${actual}`,
+                `Elasticsearch at ${options.elasticsearchHost} does not satify required version of ${expected}, got ${actual}`,
                 {
                     retryable: false,
                 }
@@ -169,10 +175,6 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     signale.pending(`starting ${service}@${version} service...`);
 
     await stopService(service);
-    if (ensuredNetwork) {
-        await ensureDockerNetwork(network);
-        ensuredNetwork = true;
-    }
 
     const fn = await dockerRun(services[service], version);
 

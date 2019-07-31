@@ -9,7 +9,7 @@ type Options = {
     debug: boolean;
     bail: boolean;
     suite?: TestSuite;
-    'elasticsearch-url': string;
+    'elasticsearch-host': string;
     'elasticsearch-version': string;
     'kafka-broker': string;
     'kafka-version': string;
@@ -48,7 +48,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                     return arg;
                 },
             })
-            .option('elasticsearch-url', {
+            .option('elasticsearch-host', {
                 description: 'The elasticsearch URL to use when needed (usually for --suite elasticsearch or e2e)',
                 type: 'string',
                 default: process.env.ELASTICSEARCH_HOST || 'http://localhost:9200/',
@@ -86,7 +86,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             debug: argv.debug,
             bail: argv.bail,
             suite: argv.suite,
-            elasticsearchUrl: argv['elasticsearch-url'],
+            elasticsearchHost: argv['elasticsearch-host'],
             elasticsearchVersion: argv['elasticsearch-version'],
             kafkaBroker: argv['kafka-broker'],
             kafkaVersion: argv['kafka-version'],

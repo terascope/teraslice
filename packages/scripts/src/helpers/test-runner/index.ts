@@ -19,7 +19,7 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
     } catch (err) {
         errors = [getFullErrorStack(err)];
     } finally {
-        if (!utils.onlyUnitTests(pkgInfos)) {
+        if (options.suite === TestSuite.E2E || !utils.onlyUnitTests(pkgInfos)) {
             await stopAllServices().catch(err => {
                 signale.error(new TSError(err, { reason: 'Failure stopping services' }));
             });
@@ -86,6 +86,7 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
 
 async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
     let cleanup = () => {};
+    let startedTest = false;
     const errors: string[] = [];
 
     try {
@@ -98,11 +99,12 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
         const chunked = chunk(pkgInfos, options.debug ? 1 : 5);
 
         for (const pkgs of chunked) {
-            writePkgHeader('Running tests', pkgs, true);
+            writePkgHeader('Running batch of tests', pkgs, true);
 
             const args = utils.getArgs(options);
             args.projects = pkgs.map(pkgInfo => path.join('packages', pkgInfo.folderName));
 
+            startedTest = true;
             try {
                 await runJest(getRootDir(), args, utils.getEnv(options), options.jestArgs);
             } catch (err) {
@@ -111,7 +113,6 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
                 });
                 errors.push(getFullErrorStack(error));
 
-                await utils.globalTeardown(pkgs.map(({ name, dir }) => ({ name, dir })));
                 if (options.bail) {
                     break;
                 }
@@ -120,6 +121,10 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
     }
 
     cleanup();
+
+    if (startedTest && errors.length) {
+        await utils.globalTeardown(options, pkgInfos.map(({ name, dir }) => ({ name, dir })));
+    }
     return errors;
 }
 
@@ -160,8 +165,6 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
                 message: `Test suite "${suite}" Failed`,
             });
             errors.push(getFullErrorStack(error));
-
-            await utils.globalTeardown([{ name: suite, dir: e2eDir }]);
         }
 
         signale.timeEnd(timeLabel);
@@ -180,6 +183,10 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
     }
 
     cleanup();
+
+    if (startedTest && errors.length) {
+        await utils.globalTeardown(options, [{ name: suite, dir: e2eDir }]);
+    }
 
     return errors;
 }

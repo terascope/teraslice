@@ -176,9 +176,6 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
         args.push('--tmpfs', opt.tmpfs.join(','));
     }
 
-    if (process.platform === 'darwin') {
-        args.push('--network', 'host');
-    }
     args.push('--network', opt.network);
     args.push('--network-alias', opt.hostname);
     args.push('--name', opt.name);
@@ -227,6 +224,8 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
         }
 
         if (done && !subprocess.killed) return;
+
+        signale.debug(`killing "${opt.name}" docker container`);
         subprocess.kill();
     };
 }
@@ -252,9 +251,11 @@ export async function ensureDockerNetwork(name: string) {
         return;
     }
 
+    const driver = process.platform === 'darwin' ? 'bridge' : 'host';
+
     await fork({
         cmd: 'docker',
-        args: ['network', 'create', '--attachable', name],
+        args: ['network', 'create', '--driver', driver, '--attachable', name],
     });
 }
 

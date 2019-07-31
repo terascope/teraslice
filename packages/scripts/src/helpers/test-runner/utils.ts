@@ -39,7 +39,7 @@ export function getArgs(options: TestOptions): ArgsMap {
 
 export function getEnv(options: TestOptions): ExecEnv {
     const defaults: ExecEnv = {
-        ELASTICSEARCH_HOST: options.elasticsearchUrl,
+        ELASTICSEARCH_HOST: options.elasticsearchHost,
         ELASTICSEARCH_VERSION: options.elasticsearchVersion,
         KAFKA_BROKER: options.kafkaBroker,
         KAFKA_VERSION: options.kafkaVersion,
@@ -47,10 +47,21 @@ export function getEnv(options: TestOptions): ExecEnv {
 
     if (!options.debug) return defaults;
 
+    let DEBUG = process.env.DEBUG || '';
+    if (!DEBUG.includes('*teraslice*')) {
+        DEBUG += ',*teraslice*';
+    }
     return {
         ...defaults,
-        DEBUG: `${process.env.DEBUG},*teraslice*`,
+        DEBUG,
     };
+}
+
+export function setEnv(options: TestOptions) {
+    const env = getEnv(options);
+    for (const [key, value] of Object.entries(env)) {
+        process.env[key] = value;
+    }
 }
 
 export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): PackageInfo[] {
@@ -111,10 +122,11 @@ export async function buildDockerImage(target: string): Promise<void> {
     signale.success(`built docker image ${target}, took ${ms(Date.now() - startTime)}`);
 }
 
-export async function globalTeardown(pkgs: { name: string; dir: string }[]) {
+export async function globalTeardown(options: TestOptions, pkgs: { name: string; dir: string }[]) {
     for (const { name, dir } of pkgs) {
         const filePath = path.join(dir, 'test/global.teardown.js');
         if (fse.existsSync(filePath)) {
+            setEnv(options);
             signale.debug(`Running ${path.relative(process.cwd(), filePath)}`);
             try {
                 const teardownFn = require(filePath);
