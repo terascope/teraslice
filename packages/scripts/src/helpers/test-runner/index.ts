@@ -34,7 +34,8 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
     }
 
     if (errors.length) {
-        signale.error(`\n\n${errorMsg}`);
+        process.stderr.write('\n\n');
+        signale.error(`${errorMsg}`);
         const exitCode = (process.exitCode || 0) > 0 ? process.exitCode : 1;
         process.exit(exitCode);
     }
@@ -59,13 +60,10 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
     for (const [suite, pkgs] of Object.entries(grouped)) {
         if (!pkgs.length) continue;
 
-        const timeLabel = `test suite "${suite}"`;
-        signale.time(timeLabel);
         writeHeader(`Running test suite "${suite}"`, ranOnce);
 
         try {
             const suiteErrors: string[] = await runTestSuite(suite as TestSuite, pkgs, options);
-
             if (suiteErrors.length) {
                 errors.push(...suiteErrors);
                 if (options.bail) {
@@ -76,7 +74,6 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
             errors.push(getFullErrorStack(err));
             break;
         } finally {
-            signale.timeEnd(timeLabel);
             ranOnce = true;
         }
     }
@@ -86,7 +83,6 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
 
 async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
     let cleanup = () => {};
-    let startedTest = false;
     const errors: string[] = [];
 
     try {
@@ -97,6 +93,8 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
 
     if (!errors.length) {
         const chunked = chunk(pkgInfos, options.debug ? 1 : 5);
+        const timeLabel = `test suite "${suite}"`;
+        signale.time(timeLabel);
 
         for (const pkgs of chunked) {
             writePkgHeader('Running batch of tests', pkgs, true);
@@ -104,27 +102,26 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
             const args = utils.getArgs(options);
             args.projects = pkgs.map(pkgInfo => path.join('packages', pkgInfo.folderName));
 
-            startedTest = true;
             try {
                 await runJest(getRootDir(), args, utils.getEnv(options), options.jestArgs);
             } catch (err) {
                 const error = new TSError(err, {
-                    message: `Test(s) ${pkgs.map(pkgInfo => pkgInfo.name)} Failed`,
+                    message: `Test(s) ${pkgs.map(pkgInfo => pkgInfo.name)} failed`,
                 });
                 errors.push(getFullErrorStack(error));
+
+                await utils.globalTeardown(options, pkgs.map(({ name, dir }) => ({ name, dir })));
 
                 if (options.bail) {
                     break;
                 }
             }
         }
+
+        signale.timeEnd(timeLabel);
     }
 
     cleanup();
-
-    if (startedTest && errors.length) {
-        await utils.globalTeardown(options, pkgInfos.map(({ name, dir }) => ({ name, dir })));
-    }
     return errors;
 }
 
@@ -162,7 +159,7 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
             await runJest(e2eDir, utils.getArgs(options), utils.getEnv(options), options.jestArgs);
         } catch (err) {
             const error = new TSError(err, {
-                message: `Test suite "${suite}" Failed`,
+                message: `Test suite "${suite}" failed`,
             });
             errors.push(getFullErrorStack(error));
         }
@@ -182,11 +179,11 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         }
     }
 
-    cleanup();
-
     if (startedTest && errors.length) {
         await utils.globalTeardown(options, [{ name: suite, dir: e2eDir }]);
     }
+
+    cleanup();
 
     return errors;
 }

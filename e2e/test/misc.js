@@ -95,7 +95,7 @@ function indexStats(indexName) {
 }
 
 async function cleanupIndex(indexName) {
-    await es().indices.delete({ index: indexName });
+    await es().indices.delete({ index: indexName, ignoreUnavailable: true });
 }
 
 // Adds teraslice-workers to the environment
@@ -125,18 +125,30 @@ function newId(prefix, lowerCase = false, length = 15) {
     return id;
 }
 
-async function globalTeardown() {
+async function globalTeardown(shouldThrow) {
     signale.time('tear down');
+    const errors = [];
 
-    await compose.down({
-        'remove-orphans': '',
-        volumes: ''
-    });
+    await compose
+        .down({
+            'remove-orphans': '',
+            volumes: ''
+        })
+        .catch(err => errors.push(err));
 
-    await cleanupIndex(`${TEST_INDEX_PREFIX}*`);
-    await fse.remove(path.join(__dirname, '../.config'));
+    await cleanupIndex(`${TEST_INDEX_PREFIX}*`).catch(err => errors.push(err));
+    await fse.remove(path.join(__dirname, '../.config')).catch(err => errors.push(err));
 
     signale.timeEnd('tear down');
+    if (shouldThrow && errors.length === 1) {
+        throw errors[0];
+    } else if (errors.length > 1) {
+        // eslint-disable-next-line no-console
+        errors.forEach(err => console.error(err));
+        if (shouldThrow) {
+            throw new Error('Multiple global teardown errors');
+        }
+    }
 }
 
 module.exports = {

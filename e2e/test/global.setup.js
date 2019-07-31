@@ -203,7 +203,7 @@ async function generateTestData() {
 }
 
 module.exports = async () => {
-    await misc.globalTeardown();
+    await misc.globalTeardown(false);
 
     signale.time('global setup');
 

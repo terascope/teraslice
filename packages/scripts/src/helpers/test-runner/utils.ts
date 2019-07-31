@@ -126,8 +126,11 @@ export async function globalTeardown(options: TestOptions, pkgs: { name: string;
     for (const { name, dir } of pkgs) {
         const filePath = path.join(dir, 'test/global.teardown.js');
         if (fse.existsSync(filePath)) {
+            const cwd = process.cwd();
             setEnv(options);
             signale.debug(`Running ${path.relative(process.cwd(), filePath)}`);
+            process.chdir(dir);
+
             try {
                 const teardownFn = require(filePath);
                 if (isFunction(teardownFn)) {
@@ -139,6 +142,8 @@ export async function globalTeardown(options: TestOptions, pkgs: { name: string;
                         message: `Failed to teardown test for "${name}"`,
                     })
                 );
+            } finally {
+                process.chdir(cwd);
             }
         }
     }
