@@ -93,7 +93,7 @@ teraslice:
 
 ### Terafoundation Connectors
 
-You use Terafoundation connectors to define how to access you various data sources. Connectors are grouped by type with each each key defining a separate connection name for that type of data source. This allows you to define many connections to different data sources so that you can route data between them. The connection name defined here can then be used in the `connection` attribute provided to processors in your jobs.
+You use Terafoundation connectors to define how to access your various data sources. Connectors are grouped by type with each each key defining a separate connection name for that type of data source. This allows you to define many connections to different data sources so that you can route data between them. The connection name defined here can then be used in the `connection` attribute provided to processors in your jobs.
 
 For Example
 

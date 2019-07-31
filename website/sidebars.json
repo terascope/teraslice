@@ -6,7 +6,7 @@
             "terminology",
             "configuration"
         ],
-        "REST API": [
+        "Management API": [
             "rest-api/overview",
             "rest-api/endpoints"
         ],
