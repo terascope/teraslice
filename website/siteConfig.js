@@ -12,7 +12,7 @@
 
 const siteConfig = {
     title: 'Teraslice', // Title for your website.
-    tagline: 'Distributed computing platform for processing JSON data',
+    tagline: 'Scalable data processing pipelines in JavaScript',
     url: 'https://terascope.github.io', // Your website URL
     baseUrl: '/teraslice/', // Base URL for your project */
     // For github.io type URLs, you would set the url and baseUrl like:

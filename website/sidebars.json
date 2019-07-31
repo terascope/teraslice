@@ -3,11 +3,17 @@
         "Overview": [
             "overview",
             "getting-started",
-            "configuration"
+            "terminology"
         ],
-        "REST API": [
-            "rest-api/overview",
-            "rest-api/endpoints"
+        "Configuration": [
+            "configuration/overview",
+            "configuration/clustering-native",
+            "configuration/clustering-k8s"
+        ],
+        "Management APIs": [
+            "management-apis/overview",
+            "management-apis/endpoints-json",
+            "management-apis/endpoints-txt"
         ],
         "Jobs": [
             "jobs/overview",
@@ -19,17 +25,6 @@
             "jobs/dead-letter-queue",
             "jobs/development",
             "jobs/testing"
-        ],
-        "Clustering": [
-            "clustering/overview",
-            "clustering/k8s",
-            "clustering/native"
-        ],
-        "Nodes": [
-            "nodes/overview",
-            "nodes/cluster-master",
-            "nodes/execution-controller",
-            "nodes/worker"
         ],
         "Development": [
             "development/overview",

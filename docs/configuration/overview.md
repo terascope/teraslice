@@ -1,53 +1,51 @@
 ---
 title: Teraslice Configuration
-sidebar_label: Configuration
+sidebar_label: Overview
 ---
 
-This entails information on how to set your configuration for teraslice itself. You may either set a config.json or config.yaml file at the root of teraslice or pass in the config file at startup time with the -c flag and the path to the file
+Teraslice configuration is provided via a YAML configuration file. This file will typically have 2 sections.
+
+1. `terafoundation` - Configuration related to the terafoundation runtime. Most significantly this is where you configure your datasource connectors.
+2. `teraslice` - Configuration for the Teraslice node. When deploying a `native` clustering Teraslice you'll have separate configurations for the master and worker nodes. Otherwise a single configuration is all that is required.
+
+The configuration file is provided to the Teraslice process at startup using the `-c` command line option along with the path to the file
 
 #### Example Config
 
 ```yaml
+```yaml
 terafoundation:
-    environment: 'development'
-    # the log level to use
-    log_level: info
     connectors:
-        # ***********************
-        # Elastic Search Configuration
-        # ***********************
         elasticsearch:
             default:
                 host:
-                    - "127.0.0.1:9200"
-                keepAlive: true
-                apiVersion: '6.5'
-                maxRetries: 5
-                maxSockets: 20
+                    - localhost:9200
 
-        # ***********************
-        # Kafka Configuration
-        # ***********************
-        kafka:
-            default:
-                brokers:
-                    - "kafka:9092"
 teraslice:
-    master: true
-    master_hostname: "127.0.0.1"
     workers: 8
-    name: "teracluster"
-    assets_directory: /path/to/assets
-
-    # change the default timeouts
-    action_timeout: 20000
-    shutdown_timeout: 60000
+    master: true
+    master_hostname: 127.0.0.1
+    name: teraslice
+    hostname: 127.0.0.1
 
 ```
 
-The configuration file essentially has two main fields, configuration for teraslice and for terafoundation which is a module that sits below it. terafoundation handles clustering/worker creation, general errors and database connection instantiation
+## Terafoundation Configuration Reference
 
-## teraslice
+|              Field               |                Type                |     Default     |                                                              Description                                                              |
+| :------------------------------: | :--------------------------------: | :-------------: | :-----------------------------------------------------------------------------------------------------------------------------------: |
+|         **environment**          |              `String`              | `"development"` |   If set to `production`, console logging will be disabled and logs will be sent to a file                        |
+|     **log_buffer_interval**      |              `Number`              |     `60000`     |                                 How often the log buffer will flush the logs (number in milliseconds)                                 |
+|       **log_buffer_limit**       |              `Number`              |      `30`       | Number of log lines to buffer before sending to elasticsearch, logging must have elasticsearch set as a value for this to take effect |
+|        **log_connection**        |              `String`              |   `"default"`   |                                   logging connection endpoint if logging is saved to elasticsearch                                    |
+| **log_index_rollover_frequency** | `"daily"`, `"monthly"`, `"yearly"` |   `"monthly"`   |                                              How frequently the log indices are created                                               |
+|          **log_level**           |              `String`              |    `"info"`     |                                                        Default logging levels                                                         |
+|           **log_path**           |              `String`              |    `"$PWD"`     |                                  Directory where the logs will be stored if logging is set to `file`                                  |
+|           **logging**            |              `Array`               |   `"console"`   |                   Logging destinations. Expects an array of logging targets. options: console, file, elasticsearch                    |
+|           **workers**            |              `Number`              |       `4`       |                                                     Number of workers per server                                                      |
+
+
+## Teraslice Configuration Reference
 
 |                      Field                      |                Type                |          Default           |                                                                 Description                                                                  |
 | :---------------------------------------------: | :--------------------------------: | :------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------: |
@@ -92,24 +90,10 @@ The configuration file essentially has two main fields, configuration for terasl
 |          **worker_disconnect_timeout**          |              `Number`              |          `300000`          |                time in milliseconds that the slicer will wait after all workers have disconnected before terminating the job                 |
 |                   **workers**                   |              `Number`              |            `4`             |                                                         Number of workers per server                                                         |
 
-## terafoundation
 
-|              Field               |                Type                |     Default     |                                                              Description                                                              |
-| :------------------------------: | :--------------------------------: | :-------------: | :-----------------------------------------------------------------------------------------------------------------------------------: |
-|         **environment**          |              `String`              | `"development"` |                       If set to `production`, console logging will be disabled and logs will be sent to a file                        |
-|     **log_buffer_interval**      |              `Number`              |     `60000`     |                                 How often the log buffer will flush the logs (number in milliseconds)                                 |
-|       **log_buffer_limit**       |              `Number`              |      `30`       | Number of log lines to buffer before sending to elasticsearch, logging must have elasticsearch set as a value for this to take effect |
-|        **log_connection**        |              `String`              |   `"default"`   |                                   logging connection endpoint if logging is saved to elasticsearch                                    |
-| **log_index_rollover_frequency** | `"daily"`, `"monthly"`, `"yearly"` |   `"monthly"`   |                                              How frequently the log indices are created                                               |
-|          **log_level**           |              `String`              |    `"info"`     |                                                        Default logging levels                                                         |
-|           **log_path**           |              `String`              |    `"$PWD"`     |                                  Directory where the logs will be stored if logging is set to `file`                                  |
-|           **logging**            |              `Array`               |   `"console"`   |                   Logging destinations. Expects an array of logging targets. options: console, file, elasticsearch                    |
-|           **workers**            |              `Number`              |       `4`       |                                                     Number of workers per server                                                      |
+### Terafoundation Connectors
 
-### Connectors
-
-The connectors is an object whose keys correspond to supported databases. Those keys should be set to an object which holds
-endpoints, allowing you to specify multiple connections and connection configurations for each database.
+You use Terafoundation connectors to define how to access your various data sources. Connectors are grouped by type with each each key defining a separate connection name for that type of data source. This allows you to define many connections to different data sources so that you can route data between them. The connection name defined here can then be used in the `connection` attribute provided to processors in your jobs.
 
 For Example
 
@@ -125,35 +109,26 @@ terafoundation:
                 keepAlive: false
                 maxRetries: 5
                 maxSockets: 20
-            secondar:
+            secondary:
                 host:
                     - 'some-other-ip:9200'
                 apiVersion: '6.5'
                 maxRetries: 0
-        statsd:
+        kafka:
             default:
-            host: '127.0.0.1'
-            mock: false
-        mongodb:
-            default:
-            servers: 'mongodb://localhost:27017/test'
-        redis:
-            default:
-            host: '127.0.0.1'
+                brokers: "localhost:9092"            
 # ...
 ```
 
-In this example we specify four different connections: elasticsearch, statsd, mongod, and redis. We follow an idiom of naming the primary endpoint for each of them to be called `default`. Within each endpoint you may create custom configurations that will be validated against the defaults specified in node_modules/terafoundation/lib/connectors. As noted above, in elasticsearch there is the `default` endpoint and the `secondary` endpoint which connects to a different elasticsearch cluster each having different configurations. These different endpoints can be retrieved through terafoundations's api.
+In this example we specify two different connector types: `elasticsearch` and `kafka`. Under each connector type you may then create custom endpoint configurations that will be validated against the defaults specified in node_modules/terafoundation/lib/connectors. In the elasticsearch example there is the `default` endpoint and the `secondary` endpoint which connects to a different elasticsearch cluster. Each endpoint has independent configuration options. 
 
-## Configuration Single Node / Cluster Master
+These different endpoints can be retrieved through terafoundations's connector API. As it's name implies, the `default` connector is what will be provided if a connection is requested without providing a specific name. In general we don't recommend doing that if you have multiple clusters, but it's convenient if you only have one.
 
-Teraslice requires a configuration file in order to run. The configuration file defines your service connections and system level configurations.
+## Configuration Single Node / Native Clustering - Cluster Master 
 
-This configuration example defines a single connection to Elasticsearch on localhost with 8 workers available to Teraslice.
+If you're running a single Teraslice node or using the simple native clustering you'll need a master node configuration.
 
-The cluster configuration defines this node as a master node. The node will still have workers
-available and this configuration is sufficient to do useful work if you don't have multiple
-nodes available. The workers will connect to the master on localhost and do work just as if they were in a real cluster.
+The master node will still have workers available and this configuration is sufficient to do useful work if you don't yet have multiple nodes available. The workers will connect to the master on localhost and do work just as if they were in a real cluster. Then if you want to add workers you can use the worker configuration below as a starting point on adding more nodes.
 
 ```yaml
 teraslice:
@@ -163,19 +138,18 @@ teraslice:
     name: "teracluster"
 
 terafoundation:
-    environment: 'development'
     log_path: '/path/to/logs'
 
     connectors:
         elasticsearch:
             default:
                 host:
-                    - "localhost:9200"
+                    - YOUR_ELASTICSEARCH_IP:9200
 ```
 
-## Configuration Cluster Worker Node
+## Configuration Native Clustering - Worker Node
 
-Configuration for a worker node is very similar. You just set 'master' to false and provide the IP address where the master node can be located.
+Configuration for a worker node is very similar. You just set `master` to false and provide the IP address where the master node can be located.
 
 ```yaml
 teraslice:
@@ -185,12 +159,11 @@ teraslice:
     name: "teracluster"
 
 terafoundation:
-    environment: 'development'
     log_path: '/path/to/logs'
 
     connectors:
         elasticsearch:
             default:
                 host:
-                    - "YOUR_MASTER_IP":9200
+                    - YOUR_ELASTICSEARCH_IP:9200
 ```
