@@ -25,7 +25,7 @@ jobs:
 
   include:
   - stage: Verify
-    name: "Verify Build (node 10.16)"
+    name: "Verify Build (node 10)"
     if: branch = master AND type = pull_request
     # FIXME - this should be enabled before merging
     # before_script:

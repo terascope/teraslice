@@ -77,12 +77,15 @@ function forWorkers(workerCount = misc.DEFAULT_WORKERS) {
 
 async function scaleWorkersAndWait(workersToAdd = 0) {
     const workerCount = misc.DEFAULT_WORKERS + workersToAdd;
+    await Promise.delay(500);
+
     const state = await misc.teraslice().cluster.state();
     if (Object.keys(state) === workerCount) return state;
 
     return misc
         .scaleWorkers(workersToAdd)
         .then(() => forWorkers(workerCount))
+        .then(() => Promise.delay(500))
         .then(() => misc.teraslice().cluster.state());
 }
 

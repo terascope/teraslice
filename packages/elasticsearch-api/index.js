@@ -39,6 +39,17 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function search(query) {
+        const esVersion = getESVersion();
+        if (esVersion >= 7) {
+            if (query._sourceExclude) {
+                query._source_excludes = query._sourceExclude.slice();
+                delete query._sourceExclude;
+            }
+            if (query._sourceInclude) {
+                query._source_includes = query._sourceInclude.slice();
+                delete query._sourceInclude;
+            }
+        }
         return _searchES(query).then((data) => {
             if (config.full_response) {
                 return data;

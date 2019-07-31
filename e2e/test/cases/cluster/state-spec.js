@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const Promise = require('bluebird');
 const misc = require('../../misc');
 const wait = require('../../wait');
 const { resetState, submitAndStart } = require('../../helpers');
@@ -89,7 +90,8 @@ describe('cluster state', () => {
         jobSpec.operations[0].size = 100;
         jobSpec.operations[1].index = specIndex;
 
-        const job = await submitAndStart(jobSpec);
+        const job = await submitAndStart(jobSpec, 1000);
+        await Promise.delay(1000);
         const jobId = job.id();
         const state = await teraslice.cluster.state();
 
@@ -125,6 +127,7 @@ describe('cluster state', () => {
         jobSpec.operations[1].index = specIndex;
 
         const job = await submitAndStart(jobSpec, 5000);
+        await Promise.delay(1000);
         const jobId = job.id();
 
         const state = await teraslice.cluster.state();
