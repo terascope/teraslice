@@ -1,7 +1,7 @@
 import * as es from 'elasticsearch';
-import { getESVersion, getESIndexParams } from 'elasticsearch-store';
 import { ACLManager } from '@terascope/data-access';
 import { DataType, LATEST_VERSION } from '@terascope/data-types';
+import { fixMappingRequest, getESVersion } from 'elasticsearch-store';
 import { ELASTICSEARCH_HOST, ELASTICSEARCH_API_VERSION } from './config';
 
 // automatically set the timeout to 10s when using elasticsearch
@@ -49,12 +49,13 @@ export async function populateIndex(client: es.Client, index: string, _propertie
     const version = getESVersion(client);
     const mapping = dataType.toESMapping({ typeName: 'events', overrides, version });
 
-    await client.indices.create({
-        index,
-        waitForActiveShards: 'all',
-        body: mapping,
-        ...getESIndexParams(client),
-    });
+    await client.indices.create(
+        fixMappingRequest(client, {
+            index,
+            waitForActiveShards: 'all',
+            body: mapping,
+        })
+    );
 
     return client.bulk({ index, type: 'events', body: format(data, index), refresh: true });
 }

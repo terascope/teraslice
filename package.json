@@ -3,7 +3,7 @@
     "private": true,
     "scripts": {
         "start": "node service.js",
-        "setup": "yarn build:cleanup dist && lerna bootstrap --force-local && yarn build",
+        "setup": "lerna bootstrap --force-local && yarn build:cleanup dist && yarn build",
         "cleanup": "./scripts/cleanup.sh",
         "prebuild": "lerna run prebuild",
         "build": "tsc --build --pretty",

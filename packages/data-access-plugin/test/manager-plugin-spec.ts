@@ -5,7 +5,7 @@ import { Server } from 'http';
 import { GraphQLClient } from 'graphql-request';
 import { LATEST_VERSION } from '@terascope/data-types';
 import { TestContext } from '@terascope/job-components';
-import { getESIndexParams, removeAllFromMapping } from 'elasticsearch-store';
+import { fixMappingRequest } from 'elasticsearch-store';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
 import { PluginConfig } from '../src/interfaces';
 import ManagerPlugin from '../src/manager';
@@ -614,22 +614,22 @@ describe('Data Access Management', () => {
                     },
                 },
             };
-            removeAllFromMapping(client, mapping);
 
-            await client.indices.create({
-                index,
-                waitForActiveShards: 'all',
-                body: {
-                    settings: {
-                        'index.number_of_shards': 1,
-                        'index.number_of_replicas': 0,
+            await client.indices.create(
+                fixMappingRequest(client, {
+                    index,
+                    waitForActiveShards: 'all',
+                    body: {
+                        settings: {
+                            'index.number_of_shards': 1,
+                            'index.number_of_replicas': 0,
+                        },
+                        mappings: {
+                            hello: mapping,
+                        },
                     },
-                    mappings: {
-                        hello: mapping,
-                    },
-                },
-                ...getESIndexParams(client),
-            });
+                })
+            );
 
             await client.create({
                 index,
