@@ -72,11 +72,12 @@ function normalizeZipFile(id, newPath, logger) {
 
 function moveContents(rootPath, subDirPath) {
     const children = fs.readdirSync(subDirPath);
-    return Promise.map(children, (child) => {
+    const promises = children.map((child) => {
         const src = path.join(subDirPath, child);
         const dest = path.join(rootPath, child);
         return fse.move(src, dest);
-    }).then(() => fse.remove(subDirPath));
+    });
+    return Promise.all(promises).then(() => fse.remove(subDirPath));
 }
 
 function saveAsset(logger, assetsPath, id, binaryData, metaCheck) {

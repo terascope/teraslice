@@ -5,7 +5,6 @@ const path = require('path');
 const fse = require('fs-extra');
 const crypto = require('crypto');
 const Promise = require('bluebird');
-const fs = Promise.promisifyAll(require('fs'));
 const { TSError } = require('@terascope/utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
@@ -15,7 +14,7 @@ const { saveAsset } = require('../../utils/file_utils');
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
-module.exports = function assetsStore(context) {
+module.exports = async function assetsStore(context) {
     const logger = makeLogger(context, 'assets_storage');
     const config = context.sysconfig.teraslice;
     const assetsPath = config.assets_directory;
@@ -27,7 +26,7 @@ module.exports = function assetsStore(context) {
         let metaData;
         const esData = data.toString('base64');
         const id = crypto.createHash('sha1').update(esData).digest('hex');
-        return fs.openAsync(path.join(assetsPath, id), 'r')
+        return fse.open(path.join(assetsPath, id), 'r')
             .then(() => {
                 // directory exists, need to check if the index has it, if not then save it
                 logger.debug(`asset ${id} exists, verifying that it exists in backend`);
@@ -130,7 +129,7 @@ module.exports = function assetsStore(context) {
     }
 
     function parseAssetsArray(assetsArray) {
-        return Promise.map(assetsArray, _getAssetId);
+        return Promise.all(assetsArray, _getAssetId);
     }
 
     function _compareVersions(prev, curr, wildcardPlacement, versionSlice, versionWithWildcard) {
@@ -157,17 +156,18 @@ module.exports = function assetsStore(context) {
         return curr;
     }
 
-    function _metaIsUnqiue(meta) {
-        return search(`name:${meta.name} AND version:${meta.version}`, null, 10000)
-            .then((results) => {
-                if (results.hits.hits.length === 0) {
-                    return meta;
-                }
-                const error = new Error(`asset name:${meta.name} and version:${meta.version} already exists, please increment the version and send again`);
-                error.code = 409;
-                error.alreadyExists = true;
-                return Promise.reject(error);
-            });
+    async function _metaIsUnqiue(meta) {
+        const results = await search(`name:${meta.name} AND version:${meta.version}`, null, 10000);
+        if (results.hits.hits.length === 0) {
+            return meta;
+        }
+
+        const error = new TSError(`asset name:${meta.name} and version:${meta.version} already exists, please increment the version and send again`, {
+            statusCode: 409
+        });
+        error.code = 409;
+        error.alreadyExists = true;
+        throw error;
     }
 
     function shutdown(forceShutdown) {
@@ -175,31 +175,33 @@ module.exports = function assetsStore(context) {
         return backend.shutdown(forceShutdown);
     }
 
-    function remove(assetId) {
-        return Promise.resolve()
-            .then(() => backend.get(assetId, null, ['name']))
-            .catch((err) => {
-                if (_.toString(err).indexOf('Not Found')) {
-                    const error = new Error(`Unable to find asset ${assetId}`);
-                    error.code = 404;
-                    return Promise.reject(error);
-                }
-                return Promise.reject(err);
-            })
-            .then(() => backend.remove(assetId))
-            .then(() => fse.remove(path.join(assetsPath, assetId)));
+    async function remove(assetId) {
+        try {
+            backend.get(assetId, null, ['name']);
+        } catch (err) {
+            if (_.toString(err).indexOf('Not Found')) {
+                const error = new TSError(`Unable to find asset ${assetId}`, {
+                    statusCode: 404
+                });
+                error.code = 404;
+                throw error;
+            }
+            throw err;
+        }
+        backend.remove(assetId);
+        return fse.remove(path.join(assetsPath, assetId));
     }
 
-    function ensureAssetDir() {
+    async function ensureAssetDir() {
         if (!assetsPath || !_.isString(assetsPath)) {
-            return Promise.reject(new Error('Asset Store requires a valid assetsPath'));
+            throw new Error('Asset Store requires a valid assetsPath');
         }
 
-        return fse.ensureDir(assetsPath)
-            .catch((err) => {
-                const error = new Error(`Failure to the ensure assets directory ${assetsPath}, for reason ${err.message}`);
-                return Promise.reject(error);
-            });
+        try {
+            return fse.ensureDir(assetsPath);
+        } catch (err) {
+            throw new Error(`Failure to the ensure assets directory ${assetsPath}, for reason ${err.message}`);
+        }
     }
 
     async function findAssetsToAutoload(autoloadDir) {
@@ -264,11 +266,9 @@ module.exports = function assetsStore(context) {
         storageName: 'assets'
     };
 
-    return ensureAssetDir()
-        .then(() => elasticsearchBackend(backendConfig))
-        .then((elasticsearch) => {
-            backend = elasticsearch;
-            logger.info('assets storage initialized');
-            return api;
-        });
+    await ensureAssetDir();
+    const elasticsearch = await elasticsearchBackend(backendConfig);
+    backend = elasticsearch;
+    logger.info('assets storage initialized');
+    return api;
 };
