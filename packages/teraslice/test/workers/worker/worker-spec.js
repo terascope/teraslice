@@ -3,10 +3,11 @@
 /* eslint-disable no-console */
 
 const Promise = require('bluebird');
+const { pDelay } = require('@terascope/utils');
 const { ExecutionController } = require('@terascope/teraslice-messaging');
+const { findPort } = require('../../../lib/utils/port_utils');
 const Worker = require('../../../lib/workers/worker');
 const { TestContext } = require('../helpers');
-const { findPort } = require('../../../lib/utils/port_utils');
 
 describe('Worker', () => {
     async function setupTest(options = {}) {
@@ -20,7 +21,7 @@ describe('Worker', () => {
             port: slicerPort,
             networkLatencyBuffer: 0,
             actionTimeout: 1000,
-            workerDisconnectTimeout: 3000,
+            workerDisconnectTimeout: 3000
         });
 
         testContext.attachCleanup(() => server.shutdown());
@@ -76,7 +77,7 @@ describe('Worker', () => {
             expect(sliceFailure).toBeNil();
 
             expect(sliceSuccess).toMatchObject({
-                slice: sliceConfig,
+                slice: sliceConfig
             });
         });
     });
@@ -127,7 +128,7 @@ describe('Worker', () => {
             expect(sliceFailure).toBeNil();
 
             expect(sliceSuccess).toMatchObject({
-                slice: sliceConfig,
+                slice: sliceConfig
             });
         });
     });
@@ -162,7 +163,7 @@ describe('Worker', () => {
             await worker.runOnce();
 
             // avoid on slice events don't fire immediatley now
-            await Promise.delay(0);
+            await pDelay(0);
         });
 
         afterEach(async () => {
@@ -173,7 +174,7 @@ describe('Worker', () => {
             expect(sliceFailure).toBeNil();
 
             expect(sliceSuccess).toMatchObject({
-                slice: sliceConfig,
+                slice: sliceConfig
             });
         });
     });
@@ -203,7 +204,7 @@ describe('Worker', () => {
 
             const workerStart = worker.runOnce();
 
-            await Promise.delay(500);
+            await pDelay(500);
             sliceConfig = await testContext.newSlice();
 
             await server.dispatchSlice(sliceConfig, worker.workerId);
@@ -212,7 +213,7 @@ describe('Worker', () => {
 
             msg = await msgPromise;
 
-            await Promise.delay(100);
+            await pDelay(100);
         });
 
         afterEach(async () => {
@@ -222,7 +223,7 @@ describe('Worker', () => {
         it('should re-enqueue the worker after receiving the slice complete message', () => {
             expect(msg).not.toBeNil();
             expect(sliceSuccess).toMatchObject({
-                slice: sliceConfig,
+                slice: sliceConfig
             });
             expect(sliceFailure).toBeNil();
         });
@@ -266,7 +267,7 @@ describe('Worker', () => {
 
             msg = await msgPromise;
 
-            await Promise.delay(100);
+            await pDelay(100);
         });
 
         afterEach(() => testContext.cleanup());
@@ -297,7 +298,7 @@ describe('Worker', () => {
 
             worker.context.sysconfig.teraslice.shutdown_timeout = 1000;
             worker.shutdownTimeout = 1000;
-            worker.slice.run = jest.fn(async () => Promise.delay(500));
+            worker.slice.run = jest.fn(async () => pDelay(500));
 
             const sliceConfig = await testContext.newSlice();
 
@@ -331,7 +332,7 @@ describe('Worker', () => {
             worker.context.sysconfig.teraslice.shutdown_timeout = 500;
             worker.shutdownTimeout = 500;
 
-            worker.slice.run = jest.fn(() => Promise.delay(1000));
+            worker.slice.run = jest.fn(() => pDelay(1000));
             const sliceConfig = await testContext.newSlice();
 
             server.onClientAvailable(() => {
@@ -415,7 +416,7 @@ describe('Worker', () => {
 
                     worker.stores = {};
                     worker.stores.someStore = {
-                        shutdown: () => Promise.reject(new Error('Store Error')),
+                        shutdown: () => Promise.reject(new Error('Store Error'))
                     };
 
                     worker.slice = {};

@@ -25,24 +25,36 @@ describe('messaging module', () => {
                     ex_id: testExId,
                     assignment: 'execution_controller',
                     connected: true,
-                    send: (msg) => { firstWorkerMsg = msg; },
-                    on: (key, fn) => { clusterFn = fn; },
+                    send: (msg) => {
+                        firstWorkerMsg = msg;
+                    },
+                    on: (key, fn) => {
+                        clusterFn = fn;
+                    },
                     removeListener: () => {}
                 },
                 second: {
                     ex_id: testExId,
                     assignment: 'worker',
                     connected: true,
-                    send: (msg) => { secondWorkerMsg = msg; },
-                    on: (key, fn) => { clusterFn = fn; },
+                    send: (msg) => {
+                        secondWorkerMsg = msg;
+                    },
+                    on: (key, fn) => {
+                        clusterFn = fn;
+                    },
                     removeListener: () => {}
                 },
                 third: {
                     ex_id: 'somethingElse',
                     assignment: 'worker',
                     connected: true,
-                    send: (msg) => { thirdWorkerMsg = msg; },
-                    on: (key, fn) => { clusterFn = fn; },
+                    send: (msg) => {
+                        thirdWorkerMsg = msg;
+                    },
+                    on: (key, fn) => {
+                        clusterFn = fn;
+                    },
                     removeListener: () => {}
                 }
             };
@@ -61,16 +73,14 @@ describe('messaging module', () => {
             in: address => ({
                 emit: (msg, msgObj) => {
                     socketMsg = { message: msg, data: msgObj, address };
-                },
+                }
             }),
-            connected,
+            connected
         },
         eio: {
             clientsCount: 2
         },
-        close() {
-
-        }
+        close() {}
     };
 
     function getContext(obj) {
@@ -104,7 +114,7 @@ describe('messaging module', () => {
             },
             cluster: clusterEmitter,
             __testingModule: config,
-            cleanup,
+            cleanup
         };
     }
 
@@ -181,7 +191,7 @@ describe('messaging module', () => {
 
         const routingData = {
             cluster_master: {
-                node_master: 'network',
+                node_master: 'network'
             },
             node_master: {
                 cluster_process: 'ipc',
@@ -239,7 +249,7 @@ describe('messaging module', () => {
         const testContext = getContext({
             env: {
                 assignment: 'cluster_master'
-            },
+            }
         });
 
         const messaging = messagingModule(testContext, logger);
@@ -290,7 +300,9 @@ describe('messaging module', () => {
 
         let emittedData = null;
 
-        eventEmitter.once(msgId, (data) => { emittedData = data; });
+        eventEmitter.once(msgId, (data) => {
+            emittedData = data;
+        });
 
         handleResponse(nodeMsg);
         expect(emittedData).toEqual(nodeMsg);
@@ -309,23 +321,26 @@ describe('messaging module', () => {
         testContext.cleanup();
     });
 
-    xit('can send transactional and non-transactional messages', (done) => {
+    xit('can send transactional and non-transactional messages', async () => {
         const testContext = getContext({ env: { assignment: 'cluster_master' } });
         const eventEmitter = testContext.apis.foundation.getSystemEvents();
         const messaging = messagingModule(testContext, logger);
         messaging.__test_context(io);
-        const workerMsg = { to: 'node_master', node_id: 'someId', message: 'cluster:execution:stop' };
+        const workerMsg = {
+            to: 'node_master',
+            node_id: 'someId',
+            message: 'cluster:execution:stop'
+        };
         const transactionalMsg = Object.assign({}, workerMsg, { response: true });
-        const transactionalErrorMsg = Object.assign(
-            {},
-            workerMsg,
-            { response: true, error: 'someError' }
-        );
-        const transactionalTimeoutErrorMsg = Object.assign(
-            {},
-            workerMsg,
-            { response: true, error: 'someError', timeout: 30 }
-        );
+        const transactionalErrorMsg = Object.assign({}, workerMsg, {
+            response: true,
+            error: 'someError'
+        });
+        const transactionalTimeoutErrorMsg = Object.assign({}, workerMsg, {
+            response: true,
+            error: 'someError',
+            timeout: 30
+        });
 
         function sendEvent(timer) {
             return new Promise((resolve) => {
@@ -344,34 +359,36 @@ describe('messaging module', () => {
 
         // this is technically a sync message, but a promise is returned for composability
         // and to act similiar to its transactional counterpart
-        messaging.send(workerMsg)
-            .then((bool) => {
-                expect(bool).toEqual(true);
-                expect(firstWorkerMsg).toEqual(workerMsg);
-                return Promise.all([messaging.send(transactionalMsg), sendEvent(20)]);
-            })
-            .spread((results) => {
-                expect(results).toEqual(secondWorkerMsg);
-                // testing error scenario
-                return Promise.all([messaging.send(transactionalErrorMsg), sendEvent(20)])
-                    .catch((err) => {
-                        expect(err).toEqual('Error: someError occurred on node: node_master');
-                        return Promise.all([
-                            messaging.send(transactionalTimeoutErrorMsg),
-                            sendEvent(100)
-                        ])
-                            .catch((error) => {
-                                const messageSent = secondWorkerMsg;
-                                expect(error.message).toEqual(`timeout error while communicating with ${messageSent.to}, msg: ${messageSent.message}, data: ${JSON.stringify(messageSent)}`);
-                                return true;
-                            });
-                    });
-            })
-            .catch(fail)
-            .finally(() => {
-                testContext.cleanup();
-                done();
-            });
+        try {
+            const bool = await messaging.send(workerMsg);
+            expect(bool).toEqual(true);
+            expect(firstWorkerMsg).toEqual(workerMsg);
+
+            const [results] = await Promise.all([messaging.send(transactionalMsg), sendEvent(20)]);
+            expect(results).toEqual(secondWorkerMsg);
+
+            // testing error scenario
+            try {
+                await Promise.all([messaging.send(transactionalErrorMsg), sendEvent(20)]);
+            } catch (err) {
+                expect(err).toEqual('Error: someError occurred on node: node_master');
+                try {
+                    await Promise.all([
+                        messaging.send(transactionalTimeoutErrorMsg),
+                        sendEvent(100)
+                    ]);
+                } catch (error) {
+                    const messageSent = secondWorkerMsg;
+                    expect(error.message).toEqual(
+                        `timeout error while communicating with ${messageSent.to}, msg: ${
+                            messageSent.message
+                        }, data: ${JSON.stringify(messageSent)}`
+                    );
+                }
+            }
+        } finally {
+            testContext.cleanup();
+        }
     });
 
     it('can register callbacks and attach them to socket/io', () => {
@@ -398,14 +415,17 @@ describe('messaging module', () => {
 
         messaging.register({
             event: 'child:exit',
-            callback: () => { exitIsCalled = true; }
+            callback: () => {
+                exitIsCalled = true;
+            }
         });
 
         expect(() => messaging.register({
             event: 'some:event',
-            callback: () => { exitIsCalled = true; }
+            callback: () => {
+                exitIsCalled = true;
+            }
         })).toThrow();
-
 
         const results = getRegistry();
 
@@ -429,10 +449,18 @@ describe('messaging module', () => {
         const joinList = {};
         const socket = {
             rooms: joinList,
-            on: (key, fn) => { socketList[key] = fn; },
-            join: (id) => { joinList[id] = id; },
-            removeListener: (key) => { delete socketList[key]; },
-            removeListeners: (key) => { delete socketList[key]; }
+            on: (key, fn) => {
+                socketList[key] = fn;
+            },
+            join: (id) => {
+                joinList[id] = id;
+            },
+            removeListener: (key) => {
+                delete socketList[key];
+            },
+            removeListeners: (key) => {
+                delete socketList[key];
+            }
         };
 
         registerFns(socket);

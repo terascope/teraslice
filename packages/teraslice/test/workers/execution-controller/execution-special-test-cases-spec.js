@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const uuidv4 = require('uuid/v4');
 const Promise = require('bluebird');
+const { pDelay } = require('@terascope/utils');
 const Messaging = require('@terascope/teraslice-messaging');
 const { TestContext } = require('../helpers');
 const { makeShutdownEarlyFn, getTestCases } = require('../helpers/execution-controller-helper');
@@ -19,11 +20,7 @@ describe('ExecutionController Special Tests', () => {
         [
             'recovering a slicer no cleanup type',
             {
-                slicerResults: [
-                    { example: 'slice-recovery' },
-                    { example: 'slice-recovery' },
-                    null
-                ],
+                slicerResults: [{ example: 'slice-recovery' }, { example: 'slice-recovery' }, null],
                 recover: true,
                 recoverySlices: [
                     {
@@ -53,31 +50,24 @@ describe('ExecutionController Special Tests', () => {
                 ],
                 body: { example: 'slice-recovery' },
                 count: 4,
-                analytics: _.sample([true, false]),
+                analytics: _.sample([true, false])
             }
         ],
         [
             'recovering with no slices to recover',
             {
-                slicerResults: [
-                    { example: 'slice-recovery' },
-                    { example: 'slice-recovery' },
-                    null
-                ],
+                slicerResults: [{ example: 'slice-recovery' }, { example: 'slice-recovery' }, null],
                 recover: true,
                 recoverySlices: [],
                 body: { example: 'slice-recovery' },
                 count: 2,
-                analytics: _.sample([true, false]),
+                analytics: _.sample([true, false])
             }
         ],
         [
             'recovering a slicer with a cleanup type of errors',
             {
-                slicerResults: [
-                    { example: 'slice-recovery-error-after' },
-                    null
-                ],
+                slicerResults: [{ example: 'slice-recovery-error-after' }, null],
                 recover: true,
                 cleanupType: 'errors',
                 recoverySlices: [
@@ -104,20 +94,17 @@ describe('ExecutionController Special Tests', () => {
                             slicer_order: 1,
                             _created: new Date().toISOString()
                         }
-                    },
+                    }
                 ],
                 body: { example: 'slice-recovery-error' },
                 count: 1,
-                analytics: _.sample([true, false]),
+                analytics: _.sample([true, false])
             }
         ],
         [
             'recovering a slicer with a cleanup type of all',
             {
-                slicerResults: [
-                    { example: 'slice-recovery-all-after' },
-                    null
-                ],
+                slicerResults: [{ example: 'slice-recovery-all-after' }, null],
                 recover: true,
                 cleanupType: 'all',
                 recoverySlices: [
@@ -148,7 +135,7 @@ describe('ExecutionController Special Tests', () => {
                 ],
                 body: { example: 'slice-recovery-all' },
                 count: 2,
-                analytics: _.sample([true, false]),
+                analytics: _.sample([true, false])
             }
         ],
         [
@@ -158,16 +145,16 @@ describe('ExecutionController Special Tests', () => {
                     { example: 'slice-shutdown-early' },
                     { example: 'slice-shutdown-early' },
                     { example: 'slice-shutdown-early' },
-                    { example: 'slice-shutdown-early' },
+                    { example: 'slice-shutdown-early' }
                 ],
                 lifecycle: 'persistent',
                 shutdownTimeout: 2000,
                 shutdownEarly: true,
                 body: { example: 'slice-shutdown-early' },
                 count: 1,
-                analytics: _.sample([true, false]),
+                analytics: _.sample([true, false])
             }
-        ],
+        ]
     ];
 
     // for testing add a "only" property to the test cases you want
@@ -186,7 +173,7 @@ describe('ExecutionController Special Tests', () => {
             shutdownEarly = false,
             cleanupType,
             recover = false,
-            recoverySlices = [],
+            recoverySlices = []
         } = options;
 
         let exController;
@@ -210,7 +197,7 @@ describe('ExecutionController Special Tests', () => {
                 timeout: reconnect ? 5000 : 3000,
                 lifecycle,
                 workers,
-                analytics,
+                analytics
             });
 
             await testContext.addClusterMaster();
@@ -233,20 +220,21 @@ describe('ExecutionController Special Tests', () => {
                     testContext.executionContext.config.recovered_slice_type = cleanupType;
                 }
 
-                await Promise.map(recoverySlices, (recoverySlice) => {
+                const promises = recoverySlices.map((recoverySlice) => {
                     const { slice, state } = recoverySlice;
                     return stateStore.createState(exId, slice, state);
                 });
+                await Promise.all(promises);
             }
 
             exController = new ExecutionController(
                 testContext.context,
-                testContext.executionContext,
+                testContext.executionContext
             );
 
             const {
                 network_latency_buffer: networkLatencyBuffer,
-                action_timeout: actionTimeout,
+                action_timeout: actionTimeout
             } = testContext.context.sysconfig.teraslice;
 
             testContext.attachCleanup(() => exController.shutdown());
@@ -255,20 +243,22 @@ describe('ExecutionController Special Tests', () => {
 
             await exController.initialize();
 
-            const socketOptions = reconnect ? {
-                reconnection: true,
-                reconnectionAttempts: 10,
-                reconnectionDelay: 500,
-                reconnectionDelayMax: 500
-            } : {
-                reconnection: false
-            };
+            const socketOptions = reconnect
+                ? {
+                    reconnection: true,
+                    reconnectionAttempts: 10,
+                    reconnectionDelay: 500,
+                    reconnectionDelayMax: 500
+                }
+                : {
+                    reconnection: false
+                };
 
             let firedReconnect = false;
 
             shutdownEarlyFn = makeShutdownEarlyFn({
                 enabled: shutdownEarly,
-                exController,
+                exController
             });
 
             const workerClients = [];
@@ -303,7 +293,7 @@ describe('ExecutionController Special Tests', () => {
                     firedReconnect = true;
                     await Promise.all([
                         workerClient.forceReconnect(),
-                        exController.server.waitForClientReady(workerId),
+                        exController.server.waitForClientReady(workerId)
                     ]);
                 }
 
@@ -324,26 +314,23 @@ describe('ExecutionController Special Tests', () => {
                         msg.analytics = {
                             time: _.times(opCount, () => _.random(0, 2000)),
                             size: _.times(opCount, () => _.random(0, 100)),
-                            memory: _.times(opCount, () => _.random(0, 10000)),
+                            memory: _.times(opCount, () => _.random(0, 10000))
                         };
                     }
 
                     // add a natural delay for completing a slice
-                    await Promise.delay(100);
+                    await pDelay(100);
 
                     await stateStore.updateState(slice, 'completed');
 
                     async function completeSlice() {
-                        await Promise.delay(0);
+                        await pDelay(0);
                         await workerClient.sendSliceComplete(msg);
 
                         await shutdownEarlyFn.shutdown();
                     }
 
-                    await Promise.all([
-                        waitForReconnect(),
-                        completeSlice(),
-                    ]);
+                    await Promise.all([waitForReconnect(), completeSlice()]);
 
                     await processWork();
                 }
@@ -365,11 +352,7 @@ describe('ExecutionController Special Tests', () => {
 
             testContext.attachCleanup(() => clearTimeout(requestAnayltics));
 
-            await Promise.all([
-                shutdownEarlyFn.wait(),
-                startWorkers(),
-                exController.run(),
-            ]);
+            await Promise.all([shutdownEarlyFn.wait(), startWorkers(), exController.run()]);
 
             clearTimeout(requestAnayltics);
         });
@@ -395,7 +378,10 @@ describe('ExecutionController Special Tests', () => {
             expect(exStatus).toHaveProperty('_slicer_stats');
 
             if (shutdownEarly) {
-                expect(exStatus).toHaveProperty('_failureReason', `execution ${exId} received shutdown before the slicer could complete, setting status to "terminated"`);
+                expect(exStatus).toHaveProperty(
+                    '_failureReason',
+                    `execution ${exId} received shutdown before the slicer could complete, setting status to "terminated"`
+                );
                 expect(exStatus._slicer_stats.failed).toEqual(0);
 
                 expect(exStatus).toHaveProperty('_has_errors', true);
