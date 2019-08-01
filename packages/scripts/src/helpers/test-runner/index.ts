@@ -1,4 +1,5 @@
 import path from 'path';
+import isCI from 'is-ci';
 import { debugLogger, chunk, TSError, getFullErrorStack } from '@terascope/utils';
 import { writePkgHeader, writeHeader, formatList, getRootDir } from '../misc';
 import { ensureServices, stopAllServices } from './services';
@@ -96,7 +97,7 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
         const timeLabel = `test suite "${suite}"`;
         signale.time(timeLabel);
         const env = utils.getEnv(options);
-        if (options.debug) {
+        if (options.debug || isCI) {
             signale.debug(`setting env for test suite "${suite}"`, env);
         }
 
@@ -171,7 +172,7 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         startedTest = true;
 
         const env = utils.getEnv(options);
-        if (options.debug) {
+        if (options.debug || isCI) {
             signale.debug(`setting env for test suite "${suite}"`, env);
         }
 

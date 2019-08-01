@@ -48,7 +48,7 @@ jobs:
   - script:
     name: "ES Test Suite (elasticsearch 5) (node 10)"
     if: branch = master AND type IN (pull_request, cron) AND fork = false
-    script: yarn test --suite elasticsearch --elasticsearch-version 5.6
+    script: yarn test --suite elasticsearch --elasticsearch-version 5.6 --elasticsearch-api-version 6.5
     after_success:
         - bash <(curl -s https://codecov.io/bash)
 
@@ -56,7 +56,7 @@ jobs:
     name: "ES Test Suite (elasticsearch 6) (node 10)"
     if: branch = master AND type IN (pull_request, cron) AND fork = false
     script:
-        - yarn test --suite elasticsearch --elasticsearch-version 6.8
+        - yarn test --suite elasticsearch --elasticsearch-version 6.8 --elasticsearch-api-version 6.5
     after_success:
         - bash <(curl -s https://codecov.io/bash)
 
@@ -66,7 +66,7 @@ jobs:
     # allow failures for now
     allow_failures: true
     script:
-        - yarn test --suite elasticsearch --elasticsearch-version 7.2
+        - yarn test --suite elasticsearch --elasticsearch-version 7.2 --elasticsearch-api-version 7.0
     after_success:
         - bash <(curl -s https://codecov.io/bash)
 
@@ -74,7 +74,7 @@ jobs:
   - script:
     name: "End-to-End Test Suite"
     if: branch = master AND type IN (pull_request, cron) AND fork = false
-    script: yarn test --suite e2e --elasticsearch-version 6.8 --kafka-version 2.1
+    script: yarn test --suite e2e --elasticsearch-version 6.8 --elasticsearch-api-version 6.5 --kafka-version 2.1
     after_success:
         - bash <(curl -s https://codecov.io/bash)
 

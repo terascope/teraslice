@@ -178,7 +178,6 @@ export function fixMappingRequest(client: Client, _params: any) {
 
     const esVersion = getESVersion(client);
     if (esVersion >= 6) {
-        defaultParams.includeTypeName = true;
         if (params.body.template) {
             params.body.index_patterns = ts.castArray(params.body.template).slice();
             delete params.body.template;
@@ -190,6 +189,7 @@ export function fixMappingRequest(client: Client, _params: any) {
         if (typeMappings.properties) {
             defaultParams.includeTypeName = false;
         } else {
+            defaultParams.includeTypeName = true;
             Object.values(typeMappings).forEach((typeMapping: any) => {
                 if (typeMapping && typeMapping._all) {
                     delete typeMapping._all;

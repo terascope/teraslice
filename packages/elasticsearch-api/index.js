@@ -730,7 +730,6 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
         const esVersion = getESVersion();
         if (esVersion >= 6) {
-            defaultParams.includeTypeName = true;
             if (params.body.template) {
                 params.body.index_patterns = _.castArray(params.body.template).slice();
                 delete params.body.template;
@@ -742,6 +741,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             if (typeMappings.properties) {
                 defaultParams.includeTypeName = false;
             } else {
+                defaultParams.includeTypeName = true;
                 Object.values(typeMappings).forEach((typeMapping) => {
                     if (typeMapping && typeMapping._all) {
                         delete typeMapping._all;
