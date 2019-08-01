@@ -95,6 +95,10 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
         const chunked = chunk(pkgInfos, options.debug ? 1 : 5);
         const timeLabel = `test suite "${suite}"`;
         signale.time(timeLabel);
+        const env = utils.getEnv(options);
+        if (options.debug) {
+            signale.debug(`setting env for test suite "${suite}"`, env);
+        }
 
         for (const pkgs of chunked) {
             if (pkgs.length > 1) {
@@ -107,7 +111,7 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
             args.projects = pkgs.map(pkgInfo => path.join('packages', pkgInfo.folderName));
 
             try {
-                await runJest(getRootDir(), args, utils.getEnv(options), options.jestArgs);
+                await runJest(getRootDir(), args, env, options.jestArgs);
             } catch (err) {
                 if (pkgs.length > 1) {
                     const error = new TSError(err, {
@@ -166,8 +170,13 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         signale.time(timeLabel);
         startedTest = true;
 
+        const env = utils.getEnv(options);
+        if (options.debug) {
+            signale.debug(`setting env for test suite "${suite}"`, env);
+        }
+
         try {
-            await runJest(e2eDir, utils.getArgs(options), utils.getEnv(options), options.jestArgs);
+            await runJest(e2eDir, utils.getArgs(options), env, options.jestArgs);
         } catch (err) {
             const error = new TSError(err, {
                 message: `Test suite "${suite}" failed`,

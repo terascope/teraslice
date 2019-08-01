@@ -333,11 +333,11 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         if (esVersion >= 7) {
             const p: any = params;
             if (p._sourceExclude) {
-                p._source_excludes = p._sourceExclude.slice();
+                p._sourceExcludes = p._sourceExclude.slice();
                 delete p._sourceExclude;
             }
             if (p._sourceInclude) {
-                p._source_includes = p._sourceInclude.slice();
+                p._sourceIncludes = p._sourceInclude.slice();
                 delete p._sourceInclude;
             }
         }

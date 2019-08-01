@@ -134,11 +134,11 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
         if (esVersion >= 7) {
             if (searchParams._sourceExclude) {
-                searchParams._source_excludes = searchParams._sourceExclude.slice();
+                searchParams._sourceExcludes = searchParams._sourceExclude.slice();
                 delete searchParams._sourceExclude;
             }
             if (searchParams._sourceInclude) {
-                searchParams._source_includes = searchParams._sourceInclude.slice();
+                searchParams._sourceIncludes = searchParams._sourceInclude.slice();
                 delete searchParams._sourceInclude;
             }
         }

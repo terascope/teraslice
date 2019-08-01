@@ -42,11 +42,11 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         const esVersion = getESVersion();
         if (esVersion >= 7) {
             if (query._sourceExclude) {
-                query._source_excludes = query._sourceExclude.slice();
+                query._sourceExcludes = query._sourceExclude.slice();
                 delete query._sourceExclude;
             }
             if (query._sourceInclude) {
-                query._source_includes = query._sourceInclude.slice();
+                query._sourceIncludes = query._sourceInclude.slice();
                 delete query._sourceInclude;
             }
         }
@@ -114,8 +114,8 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function indexCreate(query) {
-        const indexSettings = _getESIndexParams();
-        return _clientIndicesRequest('create', Object.assign(query, indexSettings));
+        const params = _fixMappingRequest(query);
+        return _clientIndicesRequest('create', params);
     }
 
     function indexRefresh(query) {
@@ -210,8 +210,8 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function putTemplate(template, name) {
-        const indexSettings = _getESIndexParams();
-        return _clientIndicesRequest('putTemplate', Object.assign({ body: template, name }, indexSettings)).then(
+        const params = _fixMappingRequest(Object.assign({ body: template, name }));
+        return _clientIndicesRequest('putTemplate', params).then(
             results => results
         );
     }
@@ -721,9 +721,38 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         return 6;
     }
 
-    function _getESIndexParams() {
-        return getESVersion() >= 6 ? { include_type_name: true } : {};
+    function _fixMappingRequest(_params) {
+        if (!_params || !_params.body) {
+            throw new Error('Invalid mapping request');
+        }
+        const params = _.cloneDeep(_params);
+        const defaultParams = {};
+
+        const esVersion = getESVersion();
+        if (esVersion >= 6) {
+            defaultParams.includeTypeName = true;
+            if (params.body.template) {
+                params.body.index_patterns = _.castArray(params.body.template).slice();
+                delete params.body.template;
+            }
+        }
+
+        if (esVersion >= 7) {
+            const typeMappings = _.get(params.body, 'mappings', {});
+            if (typeMappings.properties) {
+                defaultParams.includeTypeName = false;
+            } else {
+                Object.values(typeMappings).forEach((typeMapping) => {
+                    if (typeMapping && typeMapping._all) {
+                        delete typeMapping._all;
+                    }
+                    return '';
+                });
+            }
+        }
+        return Object.assign({}, defaultParams, params);
     }
+
 
     function _migrate(index, migrantIndexName, mapping, recordType, clusterName) {
         const reindexQuery = {
@@ -781,12 +810,6 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
         return indexExists(existQuery).then((exists) => {
             if (!exists) {
-                const esVersion = getESVersion();
-                const hasAll = _.has(mapping, ['mappings', recordType, '_all']);
-                if (esVersion >= 7 && hasAll) {
-                    delete mapping.mappings[recordType]._all;
-                }
-
                 // Make sure the index exists before we do anything else.
                 const createQuery = {
                     index,

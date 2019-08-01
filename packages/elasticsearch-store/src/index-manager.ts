@@ -81,7 +81,6 @@ export default class IndexManager {
         logger.debug(`Using elasticsearch version ${esVersion}`);
 
         const mapping: any = utils.getIndexMapping(config);
-        utils.removeAllFromMapping(this.client, mapping);
 
         const body: any = {
             settings,
@@ -109,11 +108,12 @@ export default class IndexManager {
 
         logger.debug(`Creating "${indexName}"...`, body);
 
-        await this.client.indices.create({
-            index: indexName,
-            body,
-            ...utils.getESIndexParams(this.client),
-        });
+        await this.client.indices.create(
+            utils.fixMappingRequest(this.client, {
+                index: indexName,
+                body,
+            })
+        );
 
         logger.trace(`Checking index availability for "${indexName}"...`);
 
@@ -218,11 +218,12 @@ export default class IndexManager {
             }
         }
 
-        await this.client.indices.putTemplate({
-            body: template,
-            name,
-            ...utils.getESIndexParams(this.client),
-        });
+        await this.client.indices.putTemplate(
+            utils.fixMappingRequest(this.client, {
+                body: template,
+                name,
+            })
+        );
     }
 
     protected async waitForIndexAvailability(index: string) {

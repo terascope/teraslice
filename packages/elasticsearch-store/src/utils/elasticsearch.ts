@@ -1,9 +1,9 @@
 import * as R from 'rambda';
 import { Client } from 'elasticsearch';
 import { TypeConfig, FieldType } from 'xlucene-evaluator';
-import { TSError, isPlainObject, isEmpty, isString, toNumber, get } from '@terascope/utils';
 import { getFirstKey, getFirstValue, buildNestPath } from './misc';
 import { getErrorType } from './errors';
+import * as ts from '@terascope/utils';
 import * as i from '../interfaces';
 
 export function getTimeByField(field = ''): (input: any) => number {
@@ -66,7 +66,7 @@ export function filterBulkRetries<T>(records: T[], result: i.BulkResponse): T[] 
                     retry.push(records[index]);
                 }
             } else if (errorTypes.includes(type)) {
-                const error = new TSError(`${type}--${item.error.reason}`);
+                const error = new ts.TSError(`${type}--${item.error.reason}`);
                 Error.captureStackTrace(error, filterBulkRetries);
                 throw error;
             }
@@ -113,7 +113,7 @@ export function getBulkResponseItem(input: any = {}): BulkResponseItemResult {
 }
 
 export function getXLuceneTypesFromMapping(mapping: any): TypeConfig | undefined {
-    if (!isPlainObject(mapping) || isEmpty(mapping)) return;
+    if (!ts.isPlainObject(mapping) || ts.isEmpty(mapping)) return;
 
     const result: TypeConfig = {};
 
@@ -134,7 +134,7 @@ type MappingProperty = { type?: string; properties: MappingProperties };
 export function getTypesFromProperties(properties: MappingProperties, basePath = ''): TypeMappingPair[] {
     const result: TypeMappingPair[] = [];
     for (const [key, value] of Object.entries(properties)) {
-        if (isPlainObject(value) && key) {
+        if (ts.isPlainObject(value) && key) {
             const path = buildNestPath([basePath, key]);
 
             if (value.properties) {
@@ -161,20 +161,42 @@ export function getXluceneTypeFromESType(type?: string): FieldType | undefined {
 }
 
 export function getESVersion(client: Client): number {
-    const version = process.env.ELASTICSEARCH_VERSION || get(client, 'transport._config.apiVersion');
-    if (version && isString(version)) {
+    const version = process.env.ELASTICSEARCH_VERSION || ts.get(client, 'transport._config.apiVersion');
+    if (version && ts.isString(version)) {
         const [majorVersion] = version.split('.');
-        return toNumber(majorVersion);
+        return ts.toNumber(majorVersion);
     }
     return 6;
 }
 
-export function getESIndexParams(client: Client) {
-    return getESVersion(client) >= 7 ? { include_type_name: true } : {};
-}
-
-export function removeAllFromMapping(client: Client, mapping: any) {
-    if (getESVersion(client) >= 7 && mapping._all) {
-        delete mapping._all;
+export function fixMappingRequest(client: Client, _params: any) {
+    if (!_params || !_params.body) {
+        throw new Error('Invalid mapping request');
     }
+    const params = ts.cloneDeep(_params);
+    const defaultParams: any = {};
+
+    const esVersion = getESVersion(client);
+    if (esVersion >= 6) {
+        defaultParams.includeTypeName = true;
+        if (params.body.template) {
+            params.body.index_patterns = ts.castArray(params.body.template).slice();
+            delete params.body.template;
+        }
+    }
+
+    if (esVersion >= 7) {
+        const typeMappings = ts.get(params.body, 'mappings', {});
+        if (typeMappings.properties) {
+            defaultParams.includeTypeName = false;
+        } else {
+            Object.values(typeMappings).forEach((typeMapping: any) => {
+                if (typeMapping && typeMapping._all) {
+                    delete typeMapping._all;
+                }
+                return '';
+            });
+        }
+    }
+    return Object.assign({}, defaultParams, params);
 }

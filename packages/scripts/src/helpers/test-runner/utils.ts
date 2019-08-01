@@ -39,7 +39,7 @@ export function getArgs(options: TestOptions): ArgsMap {
 }
 
 export function getEnv(options: TestOptions): ExecEnv {
-    const defaults: ExecEnv = {
+    const env: ExecEnv = {
         ELASTICSEARCH_HOST: options.elasticsearchHost,
         ELASTICSEARCH_VERSION: options.elasticsearchVersion,
         ELASTICSEARCH_API_VERSION: options.elasticsearchAPIVersion,
@@ -49,16 +49,15 @@ export function getEnv(options: TestOptions): ExecEnv {
         FORCE_COLOR: '1',
     };
 
-    if (!options.debug) return defaults;
-
-    let DEBUG = process.env.DEBUG || '';
-    if (!DEBUG.includes('*teraslice*')) {
-        DEBUG += ',*teraslice*';
+    if (options.debug) {
+        let DEBUG = process.env.DEBUG || '';
+        if (!DEBUG.includes('*teraslice*')) {
+            DEBUG += ',*teraslice*';
+        }
+        Object.assign(env, { DEBUG });
     }
-    return {
-        ...defaults,
-        DEBUG,
-    };
+
+    return env;
 }
 
 export function setEnv(options: TestOptions) {
