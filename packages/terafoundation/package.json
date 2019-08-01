@@ -24,7 +24,7 @@
     },
     "dependencies": {
         "@terascope/elasticsearch-api": "^2.1.0",
-        "@terascope/utils": "^0.13.0",
+        "@terascope/utils": "^0.14.0",
         "agentkeepalive": "^4.0.2",
         "aws-sdk": "^2.496.0",
         "bluebird": "^3.5.5",
