@@ -1,5 +1,5 @@
-import { debugLogger } from './logger';
 import { isEmpty } from './utils';
+import { debugLogger } from './logger';
 import { toHumanTime, trackTimeout } from './dates';
 import { isRetryableError, TSError, parseError, isFatalError } from './errors';
 
@@ -254,4 +254,44 @@ export function waterfall(input: any, fns: PromiseFn[], addBreak = false): Promi
         if (i++ === 0 && addBreak) await pImmediate();
         return fn(await last);
     }, input);
+}
+
+/**
+ * Run multiple promises at once, and resolve/reject when the first completes
+ */
+export function pRace(promises: Promise<any>[], logError?: (err: any) => void): Promise<any> {
+    if (!promises || !Array.isArray(promises)) {
+        throw new Error('Invalid promises argument, must be an array');
+    }
+    return new Promise((resolve, reject) => {
+        let done = false;
+        promises.forEach(async promise => {
+            try {
+                const result = await promise;
+                resolve(result);
+                done = true;
+            } catch (err) {
+                if (done) {
+                    if (logError) logError(err);
+                    else logger.error(err, 'pRace reject with an error after complete');
+                }
+                reject(err);
+            }
+        });
+    });
+}
+
+/**
+ * Similar to pRace but with
+ */
+export function pRaceWithTimeout(promises: Promise<any>[] | Promise<any>, timeout: number, logError?: (err: any) => void): Promise<any> {
+    if (!timeout || typeof timeout !== 'number') {
+        throw new Error('Invalid timeout argument, must be a number');
+    }
+    const pTimeout = new Promise(resolve => {
+        // add unref to avoid keeping the process open
+        setTimeout(resolve, timeout).unref();
+    });
+    const _promises = Array.isArray(promises) ? promises : [promises];
+    return pRace([..._promises, pTimeout], logError);
 }
