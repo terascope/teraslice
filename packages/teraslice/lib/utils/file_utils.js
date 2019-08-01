@@ -1,13 +1,11 @@
 'use strict';
 
-const _ = require('lodash');
 const fs = require('fs');
 const _ = require('lodash');
 const path = require('path');
 const fse = require('fs-extra');
 const shortid = require('shortid');
 const Promise = require('bluebird');
-const { pDelay } = require('@terascope/utils');
 const decompress = require('decompress');
 
 function existsSync(filename) {
@@ -85,11 +83,12 @@ function normalizeZipFile(id, newPath, logger) {
 
 function moveContents(rootPath, subDirPath) {
     const children = fs.readdirSync(subDirPath);
-    return Promise.map(children, (child) => {
+    const promises = children.map((child) => {
         const src = path.join(subDirPath, child);
         const dest = path.join(rootPath, child);
         return fse.move(src, dest);
-    }).then(() => fse.remove(subDirPath));
+    });
+    return Promise.all(promises).then(() => fse.remove(subDirPath));
 }
 
 async function saveAsset(logger, assetsPath, id, binaryData, metaCheck) {
