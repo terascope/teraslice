@@ -1,12 +1,12 @@
 'use strict';
 
 const fs = require('fs');
+const _ = require('lodash');
 const path = require('path');
-const Promise = require('bluebird');
 const fse = require('fs-extra');
 const shortid = require('shortid');
+const Promise = require('bluebird');
 const decompress = require('decompress');
-const _ = require('lodash');
 
 function existsSync(filename) {
     try {
@@ -25,14 +25,18 @@ function normalizeZipFile(id, newPath, logger) {
     const metaData = { id };
     const packagePath = path.join(newPath, 'asset.json');
 
-    return fse.open(packagePath, 'r')
-        .then(() => fse.readJson(packagePath)
+    return fse
+        .open(packagePath, 'r')
+        .then(() => fse
+            .readJson(packagePath)
             .then((packageData) => {
                 _.assign(metaData, packageData);
                 return metaData;
             })
             .catch(() => {
-                const error = new Error("Failure parsing asset.json, please ensure that's it formatted correctly");
+                const error = new Error(
+                    "Failure parsing asset.json, please ensure that's it formatted correctly"
+                );
                 error.code = 422;
                 error.parseError = true;
                 logger.error(error);
@@ -45,24 +49,31 @@ function normalizeZipFile(id, newPath, logger) {
             }
 
             // check one subdir down for asset.sjon
-            const assetJSON = fs.readdirSync(newPath)
+            const assetJSON = fs
+                .readdirSync(newPath)
                 .filter(filename => existsSync(path.join(newPath, filename, 'asset.json')));
 
             if (assetJSON.length === 0) {
-                const error = new Error('asset.json was not found in root directory of asset bundle nor any immediate sub directory');
+                const error = new Error(
+                    'asset.json was not found in root directory of asset bundle nor any immediate sub directory'
+                );
                 error.code = 422;
                 return Promise.reject(error);
             }
 
-            return fse.readJson(path.join(newPath, assetJSON[0], 'asset.json'))
+            return fse
+                .readJson(path.join(newPath, assetJSON[0], 'asset.json'))
                 .then((packageData) => {
                     _.assign(metaData, packageData);
 
-                    return Promise.resolve(moveContents(newPath, path.join(newPath, assetJSON[0])))
-                        .then(() => metaData);
+                    return Promise.resolve(
+                        moveContents(newPath, path.join(newPath, assetJSON[0]))
+                    ).then(() => metaData);
                 })
                 .catch(() => {
-                    const error = new Error("Failure parsing asset.json, please ensure that's it formatted correctly");
+                    const error = new Error(
+                        "Failure parsing asset.json, please ensure that's it formatted correctly"
+                    );
                     error.parseError = true;
                     error.code = 422;
                     return Promise.reject(error);
@@ -72,34 +83,39 @@ function normalizeZipFile(id, newPath, logger) {
 
 function moveContents(rootPath, subDirPath) {
     const children = fs.readdirSync(subDirPath);
-    const promises = children.map((child) => {
+    return Promise.map(children, (child) => {
         const src = path.join(subDirPath, child);
         const dest = path.join(rootPath, child);
         return fse.move(src, dest);
-    });
-    return Promise.all(promises).then(() => fse.remove(subDirPath));
+    }).then(() => fse.remove(subDirPath));
 }
 
-function saveAsset(logger, assetsPath, id, binaryData, metaCheck) {
+async function saveAsset(logger, assetsPath, id, binaryData, metaCheck) {
     const newPath = path.join(assetsPath, id);
     const tempFileName = path.join(newPath, `${shortid.generate()}.zip`);
 
-    return fse.mkdir(newPath)
-        .then(() => fse.writeFile(tempFileName, binaryData))
-        .then(() => decompress(tempFileName, newPath))
-        .then(() => fse.unlink(tempFileName))
-        .then(() => normalizeZipFile(id, newPath, logger)
-            .then((metaData) => {
-                // storage/assets save fn needs to check the return metadata for uniqueness
-                if (metaCheck) {
-                    return metaCheck(metaData);
-                }
-                return metaData;
-            }))
-        .catch(err => deleteDir(newPath)
-            .then(() => Promise.reject(err)));
-}
+    try {
+        if (fse.existsSync(newPath)) {
+            await fse.emptyDir(newPath);
+        } else {
+            await fse.mkdir(newPath);
+        }
 
+        await fse.writeFile(tempFileName, binaryData);
+
+        await decompress(tempFileName, newPath);
+        await fse.unlink(tempFileName);
+        const metaData = await normalizeZipFile(id, newPath, logger);
+        // storage/assets save fn needs to check the return metadata for uniqueness
+        if (metaCheck) {
+            return Promise.resolve(metaCheck(metaData));
+        }
+        return Promise.resolve(metaData);
+    } catch (err) {
+        await deleteDir(newPath);
+        return Promise.reject(err);
+    }
+}
 
 module.exports = {
     existsSync,

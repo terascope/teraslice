@@ -5,7 +5,7 @@ const path = require('path');
 const fse = require('fs-extra');
 const crypto = require('crypto');
 const Promise = require('bluebird');
-const { TSError } = require('@terascope/utils');
+const { TSError, pDelay } = require('@terascope/utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const { saveAsset } = require('../../utils/file_utils');
@@ -220,6 +220,9 @@ module.exports = async function assetsStore(context) {
         const assets = await findAssetsToAutoload(autoloadDir);
 
         const promises = assets.map(async (asset) => {
+            if (assets.length > 1) {
+                await pDelay(_.random(0, 1000));
+            }
             logger.info(`autoloading asset ${asset}...`);
             const assetPath = path.join(autoloadDir, asset);
             try {
