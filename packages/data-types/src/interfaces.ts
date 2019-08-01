@@ -34,48 +34,51 @@ export type ElasticSearchTypes =
 
 export type AvailableType =
     | 'Boolean'
-    | 'Date'
-    | 'Geo'
-    | 'IP'
-    | 'IPRange'
+    | 'Boundary'
     | 'Byte'
+    | 'Date'
+    | 'Domain'
     | 'Double'
     | 'Float'
-    | 'Integer'
-    | 'Keyword'
-    | 'Long'
-    | 'Short'
-    | 'Text'
-    | 'KeywordTokens'
+    | 'Geo'
     | 'Hostname'
-    | 'Domain'
+    | 'Integer'
+    | 'IPRange'
+    | 'IP'
     | 'KeywordCaseInsensitive'
     | 'KeywordTokensCaseInsensitive'
     | 'KeywordPathAnalyzer'
+    | 'KeywordTokens'
+    | 'Keyword'
+    | 'Long'
     | 'NgramTokens'
-    | 'Boundary'
-    | 'Object';
+    | 'Object'
+    | 'Short'
+    | 'Text';
 
 export const AvailableTypes: AvailableType[] = [
     'Boolean',
-    'Date',
-    'Geo',
-    'IP',
+    'Boundary',
     'Byte',
+    'Date',
+    'Domain',
     'Double',
     'Float',
-    'Integer',
-    'Keyword',
-    'Long',
-    'Short',
-    'Text',
-    'KeywordTokens',
+    'Geo',
     'Hostname',
+    'Integer',
+    'IPRange',
+    'IP',
     'KeywordCaseInsensitive',
     'KeywordTokensCaseInsensitive',
+    'KeywordPathAnalyzer',
+    'KeywordTokens',
+    'Keyword',
+    'Long',
     'NgramTokens',
-    'Boundary',
     'Object',
+    'Short',
+    'Text',
 ];
 
 export type AvailableVersion = 1;
