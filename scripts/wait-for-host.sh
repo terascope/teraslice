@@ -13,7 +13,7 @@ main () {
         exit 1;
     fi
 
-    for i in {1..5}; do
+    for i in {1..10}; do
         echoerr "* attempt ${i} waiting for host $host..."
         if curl -fSs "$host" 2> /dev/null; then
             echoerr "* $host is ready!"
