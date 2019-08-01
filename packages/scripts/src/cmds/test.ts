@@ -63,7 +63,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .option('elasticsearch-api-version', {
                 description: 'The elasticsearch client API version to use',
                 type: 'string',
-                default: process.env.ELASTICSEARCH_API_VERSION || '6.6',
+                default: process.env.ELASTICSEARCH_API_VERSION || '6.5',
             })
             .option('kafka-broker', {
                 description: 'The kafka brokers to use when needed (usually for --suite kafka or e2e)',
