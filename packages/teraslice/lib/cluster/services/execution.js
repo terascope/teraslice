@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
-const { TSError, parseError } = require('@terascope/utils');
+const { TSError, parseError, getFullErrorStack } = require('@terascope/utils');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const makeExStore = require('../storage/execution');
 
@@ -45,27 +45,31 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         const status = _status || 'stopped';
 
         return new Promise((resolve) => {
-            function checkCluster() {
+            async function checkCluster() {
                 const state = getClusterState();
                 const dict = {};
+
                 _.each(
                     state,
                     node => _.each(node.active, (worker) => {
                         dict[worker.ex_id] = true;
                     }),
                 );
+
                 // if found, do not resolve
                 if (dict[exId]) {
                     setTimeout(checkCluster, 3000);
                     return;
                 }
-                Promise.resolve()
-                    .then(() => exStore.verifyStatusUpdate(exId, status))
-                    .then(() => setExecutionStatus(exId, status))
-                    .catch((err) => {
-                        logger.error(err);
-                    })
-                    .finally(() => resolve(true));
+
+                try {
+                    await exStore.verifyStatusUpdate(exId, status);
+                    await setExecutionStatus(exId, status);
+                } catch (err) {
+                    logger.error(err);
+                } finally {
+                    resolve(true);
+                }
             }
             checkCluster();
         });
@@ -409,38 +413,47 @@ module.exports = function executionService(context, { clusterMasterServer }) {
     function _executionAllocator() {
         let allocatingExecution = false;
         const { readyForAllocation } = clusterService;
-        return function allocator() {
-            const pendingQueueSize = pendingExecutionQueue.size();
-            if (!allocatingExecution && pendingQueueSize > 0 && readyForAllocation()) {
-                allocatingExecution = true;
-                const execution = pendingExecutionQueue.dequeue();
+        return async function allocator() {
+            const canAllocate = !allocatingExecution
+                && pendingExecutionQueue.size() > 0
+                && readyForAllocation();
+            if (!canAllocate) return;
 
-                logger.info(`Scheduling execution: ${execution.ex_id}`);
+            allocatingExecution = true;
+            const execution = pendingExecutionQueue.dequeue();
 
-                setExecutionStatus(execution.ex_id, 'scheduling')
-                    .then(() => allocateSlicer(execution)
-                        .then(() => setExecutionStatus(execution.ex_id, 'initializing', {
-                            slicer_port: execution.slicer_port,
-                            slicer_hostname: execution.slicer_hostname
-                        }))
-                        .then(() => allocateWorkers(execution, execution.workers)
-                            .catch((err) => {
-                                const error = new TSError(err, {
-                                    reason: `Failure to allocateWorkers ${execution.ex_id}`
-                                });
-                                return Promise.reject(error);
-                            })))
-                    .catch((err) => {
-                        const error = new TSError(err, {
-                            reason: `Failured to provision execution ${execution.ex_id}`
-                        });
-                        const errMetaData = executionMetaData(null, error.stack);
-                        return setExecutionStatus(execution.ex_id, 'failed', errMetaData);
-                    })
-                    .finally(() => {
-                        allocatingExecution = false;
-                        allocator();
+            logger.info(`Scheduling execution: ${execution.ex_id}`);
+
+            try {
+                await setExecutionStatus(execution.ex_id, 'scheduling');
+                await allocateSlicer(execution);
+                await setExecutionStatus(execution.ex_id, 'initializing', {
+                    slicer_port: execution.slicer_port,
+                    slicer_hostname: execution.slicer_hostname
+                });
+                try {
+                    await allocateWorkers(execution, execution.workers);
+                } catch (err) {
+                    throw new TSError(err, {
+                        reason: `Failure to allocateWorkers ${execution.ex_id}`
                     });
+                }
+            } catch (err) {
+                const error = new TSError(err, {
+                    reason: `Failured to provision execution ${execution.ex_id}`
+                });
+
+                try {
+                    const errMetaData = executionMetaData(null, getFullErrorStack(error));
+                    await setExecutionStatus(execution.ex_id, 'failed', errMetaData);
+                } catch (failedErr) {
+                    logger.error(new TSError(err, {
+                        reason: 'Failure to set execution status to failed after provision failed'
+                    }));
+                }
+            } finally {
+                allocatingExecution = false;
+                allocator();
             }
         };
     }

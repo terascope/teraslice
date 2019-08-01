@@ -4,6 +4,7 @@ const _ = require('lodash');
 const shortid = require('shortid');
 const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
+const { pDelay } = require('@terascope/utils');
 
 // messages send to cluster_master
 const clusterMasterMessages = {
@@ -538,7 +539,7 @@ module.exports = function messaging(context, logger) {
     function shutdown() {
         if (io && _.isFunction(io.close)) {
             io.close();
-            return Promise.delay(100);
+            return pDelay(100);
         }
         return Promise.resolve();
     }
