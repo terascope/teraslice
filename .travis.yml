@@ -38,29 +38,16 @@ jobs:
         - yarn lint:docs
         - yarn sync --verify
 
-  - stage: Test Suites
-    name: "Unit Test Suite (node 8)"
-    if: branch = master
-    node_js:
-        - '8.16'
-    script: yarn test --suite unit
-    after_success:
-        - bash <(curl -s https://codecov.io/bash)
-
   - script:
     name: "Unit Test Suite (node 10)"
     if: branch = master
-    node_js:
-        - '10.16'
     script: yarn test --suite unit
     after_success:
         - bash <(curl -s https://codecov.io/bash)
 
   - script:
-    name: "ES Test Suite (elasticsearch 5) (node 8)"
+    name: "ES Test Suite (elasticsearch 5) (node 10)"
     if: branch = master AND type IN (pull_request, cron) AND fork = false
-    node_js:
-        - '8.16'
     script: yarn test --suite elasticsearch --elasticsearch-version 5.6
     after_success:
         - bash <(curl -s https://codecov.io/bash)
@@ -68,8 +55,6 @@ jobs:
   - script:
     name: "ES Test Suite (elasticsearch 6) (node 10)"
     if: branch = master AND type IN (pull_request, cron) AND fork = false
-    node_js:
-        - '10.16'
     script:
         - yarn test --suite elasticsearch --elasticsearch-version 6.8
     after_success:
@@ -80,8 +65,6 @@ jobs:
     if: branch = master AND type IN (pull_request, cron) AND fork = false
     # allow failures for now
     allow_failures: true
-    node_js:
-        - '10.16'
     script:
         - yarn test --suite elasticsearch --elasticsearch-version 7.2
     after_success:
