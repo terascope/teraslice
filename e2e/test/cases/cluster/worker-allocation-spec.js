@@ -2,11 +2,9 @@
 
 const misc = require('../../misc');
 const wait = require('../../wait');
-const { resetState } = require('../../helpers');
+const { resetState, submitAndStart } = require('../../helpers');
 
 const { waitForJobStatus } = wait;
-
-const teraslice = misc.teraslice();
 
 async function workersTest(workers, workersExpected, records) {
     const jobSpec = misc.newJob('reindex');
@@ -19,8 +17,7 @@ async function workersTest(workers, workersExpected, records) {
 
     misc.injectDelay(jobSpec);
 
-    const job = await teraslice.jobs.submit(jobSpec);
-    waitForJobStatus(job, 'running');
+    const job = await submitAndStart(jobSpec);
     const runningWorkers = await job.workers();
     expect(runningWorkers).toBeArrayOfSize(workersExpected);
 
