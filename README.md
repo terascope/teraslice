@@ -10,18 +10,18 @@ This monorepo contains sub-packages for various Terascope projects.
 
 ## Notable Projects
 
-- Teraslice - Scalable distributed data processing pipelines in JavaScript.
+- Teraslice - Scalable data processing pipelines in JavaScript.
   - [Source Code](https://github.com/terascope/teraslice/tree/master/packages/teraslice)
   - [Documentation](https://terascope.github.io/teraslice/docs/overview)
-- Teraslice CLI - Command line tools to manage Teraslice 
+- Teraslice CLI - Command line tools to manage Teraslice
   - [Source Code](https://github.com/terascope/teraslice/tree/master/packages/teraslice-cli)
   - [Documentation](https://terascope.github.io/teraslice/docs/packages/teraslice-cli/overview)
 - Teraslice Test Harness - Unit testing harness for Teraslice Processors
   - [Source Code](https://github.com/terascope/teraslice/tree/master/packages/teraslice-test-harness)
   - [Documentation](https://terascope.github.io/teraslice/docs/packages/teraslice-test-harness/overview)
-- Teraslice JS - Teraslice Node.js client library
-  - [Source Code](https://github.com/terascope/teraslice/tree/master/packages/teraslice-js)
-  - [Documentation](https://terascope.github.io/teraslice/docs/packages/teraslice-js/overview)
+- Teraslice Javascript Client - Node.js client library
+  - [Source Code](https://github.com/terascope/teraslice/tree/master/packages/teraslice-client-js)
+  - [Documentation](https://terascope.github.io/teraslice/docs/packages/teraslice-client-js/overview)
 - Terafoundation - Multiprocess runtime for Node.js
   - [Source Code](https://github.com/terascope/teraslice/tree/master/packages/terafoundation)
   - [Documentation](https://terascope.github.io/teraslice/docs/packages/terafoundation/overview)
