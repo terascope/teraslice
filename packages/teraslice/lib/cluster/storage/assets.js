@@ -129,7 +129,7 @@ module.exports = async function assetsStore(context) {
     }
 
     function parseAssetsArray(assetsArray) {
-        return Promise.all(assetsArray, _getAssetId);
+        return Promise.all(assetsArray.map(_getAssetId));
     }
 
     function _compareVersions(prev, curr, wildcardPlacement, versionSlice, versionWithWildcard) {
@@ -177,7 +177,7 @@ module.exports = async function assetsStore(context) {
 
     async function remove(assetId) {
         try {
-            backend.get(assetId, null, ['name']);
+            await backend.get(assetId, null, ['name']);
         } catch (err) {
             if (_.toString(err).indexOf('Not Found')) {
                 const error = new TSError(`Unable to find asset ${assetId}`, {
@@ -188,8 +188,8 @@ module.exports = async function assetsStore(context) {
             }
             throw err;
         }
-        backend.remove(assetId);
-        return fse.remove(path.join(assetsPath, assetId));
+        await backend.remove(assetId);
+        await fse.remove(path.join(assetsPath, assetId));
     }
 
     async function ensureAssetDir() {
@@ -215,7 +215,7 @@ module.exports = async function assetsStore(context) {
 
     async function autoload() {
         const autoloadDir = context.sysconfig.teraslice.autoload_directory;
-        if (!autoloadDir || !fse.pathExistsSync(autoloadDir)) return;
+        if (!autoloadDir || !fse.existsSync(autoloadDir)) return;
 
         const assets = await findAssetsToAutoload(autoloadDir);
 
