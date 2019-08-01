@@ -12,6 +12,7 @@ type Options = {
     suite?: TestSuite;
     'elasticsearch-host': string;
     'elasticsearch-version': string;
+    'elasticsearch-api-version': string;
     'kafka-broker': string;
     'kafka-version': string;
     packages?: PackageInfo[];
@@ -59,6 +60,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'string',
                 default: process.env.ELASTICSEARCH_VERSION || '6.8',
             })
+            .option('elasticsearch-api-version', {
+                description: 'The elasticsearch client API version to use',
+                type: 'string',
+                default: process.env.ELASTICSEARCH_API_VERSION || '6.6',
+            })
             .option('kafka-broker', {
                 description: 'The kafka brokers to use when needed (usually for --suite kafka or e2e)',
                 type: 'string',
@@ -89,6 +95,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             suite: argv.suite,
             elasticsearchHost: argv['elasticsearch-host'],
             elasticsearchVersion: argv['elasticsearch-version'],
+            elasticsearchAPIVersion: argv['elasticsearch-api-version'],
             kafkaBroker: argv['kafka-broker'],
             kafkaVersion: argv['kafka-version'],
             all: !argv.packages || !argv.packages.length,

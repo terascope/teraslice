@@ -11,7 +11,9 @@ const ElasticsearchClient = require('elasticsearch').Client;
 const {
     ELASTICSEARCH_HOST = 'http://locahost:9200',
     KAFKA_BROKER = 'locahost:9092',
-    LOCAL_IP = '127.0.0.1'
+    LOCAL_IP = '127.0.0.1',
+    ELASTICSEARCH_VERSION = '6.8',
+    ELASTICSEARCH_API_VERSION = '6.5'
 } = process.env;
 
 const TEST_INDEX_PREFIX = 'teratest_';
@@ -35,7 +37,8 @@ const signale = require('./signale');
 const es = _.memoize(
     () => new ElasticsearchClient({
         host: ELASTICSEARCH_HOST,
-        log: 'error'
+        log: 'error',
+        apiVersion: ELASTICSEARCH_API_VERSION
     })
 );
 
@@ -170,6 +173,8 @@ module.exports = {
     EXAMPLE_INDEX_PREFIX,
     SPEC_INDEX_PREFIX,
     ELASTICSEARCH_HOST,
+    ELASTICSEARCH_VERSION,
+    ELASTICSEARCH_API_VERSION,
     LOCAL_IP,
     KAFKA_BROKER,
     CLUSTER_NAME,

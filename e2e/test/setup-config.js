@@ -8,6 +8,7 @@ const {
     WORKERS_PER_NODE,
     KAFKA_BROKER,
     ELASTICSEARCH_HOST,
+    ELASTICSEARCH_API_VERSION,
     CLUSTER_NAME,
     LOCAL_IP
 } = require('./misc');
@@ -21,6 +22,7 @@ module.exports = async function setupTerasliceConfig() {
                 elasticsearch: {
                     default: {
                         host: [ELASTICSEARCH_HOST],
+                        apiVersion: ELASTICSEARCH_API_VERSION,
                         requestTimeout: 60000,
                         deadTimeout: 45000,
                         sniffOnStart: false,

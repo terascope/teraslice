@@ -42,6 +42,7 @@ export function getEnv(options: TestOptions): ExecEnv {
     const defaults: ExecEnv = {
         ELASTICSEARCH_HOST: options.elasticsearchHost,
         ELASTICSEARCH_VERSION: options.elasticsearchVersion,
+        ELASTICSEARCH_API_VERSION: options.elasticsearchAPIVersion,
         KAFKA_BROKER: options.kafkaBroker,
         KAFKA_VERSION: options.kafkaVersion,
         LOCAL_IP,

@@ -44,8 +44,8 @@ export class SearchAccess {
     /**
      * Converts a restricted xlucene query to an elasticsearch search query
      */
-    restrictSearchQuery(query?: string, params?: es.SearchParams): es.SearchParams {
-        return this._queryAccess.restrictSearchQuery(query || '', params);
+    restrictSearchQuery(query?: string, params?: es.SearchParams, esVersion: number = 6): es.SearchParams {
+        return this._queryAccess.restrictSearchQuery(query || '', params, esVersion);
     }
 
     /**
@@ -56,7 +56,7 @@ export class SearchAccess {
 
         let esQuery: es.SearchParams;
         try {
-            esQuery = this.restrictSearchQuery(q, params);
+            esQuery = this.restrictSearchQuery(q, params, getESVersion(client));
         } catch (err) {
             throw new ts.TSError(err, {
                 reason: 'Query restricted',
@@ -69,19 +69,6 @@ export class SearchAccess {
         }
 
         this._logger.trace(esQuery, 'searching....');
-
-        const esVersion = getESVersion(client);
-        if (esVersion >= 7) {
-            const p: any = params;
-            if (p._sourceExclude) {
-                p._source_excludes = p._sourceExclude;
-                delete p._sourceExclude;
-            }
-            if (p._sourceInclude) {
-                p._source_includes = p._sourceInclude;
-                delete p._sourceInclude;
-            }
-        }
 
         let response: any = {};
         try {

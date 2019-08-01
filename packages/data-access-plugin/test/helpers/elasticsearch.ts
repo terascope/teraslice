@@ -2,7 +2,7 @@ import * as es from 'elasticsearch';
 import { getESVersion, getESIndexParams } from 'elasticsearch-store';
 import { ACLManager } from '@terascope/data-access';
 import { DataType, LATEST_VERSION } from '@terascope/data-types';
-import { ELASTICSEARCH_HOST } from './config';
+import { ELASTICSEARCH_HOST, ELASTICSEARCH_API_VERSION } from './config';
 
 // automatically set the timeout to 10s when using elasticsearch
 jest.setTimeout(10000);
@@ -11,7 +11,7 @@ export function makeClient(): es.Client {
     return new es.Client({
         host: ELASTICSEARCH_HOST,
         log: 'error',
-        apiVersion: '6.5',
+        apiVersion: ELASTICSEARCH_API_VERSION,
     });
 }
 

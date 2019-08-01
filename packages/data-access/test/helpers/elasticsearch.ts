@@ -1,5 +1,5 @@
 import * as es from 'elasticsearch';
-import { ELASTICSEARCH_HOST } from './config';
+import { ELASTICSEARCH_HOST, ELASTICSEARCH_API_VERSION } from './config';
 import { ACLManager } from '../../src';
 
 // automatically set the timeout to 10s when using elasticsearch
@@ -9,7 +9,7 @@ export function makeClient(): es.Client {
     return new es.Client({
         host: ELASTICSEARCH_HOST,
         log: 'error',
-        apiVersion: '6.5',
+        apiVersion: ELASTICSEARCH_API_VERSION,
     });
 }
 

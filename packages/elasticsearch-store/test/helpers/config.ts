@@ -1,3 +1,3 @@
-const { ELASTICSEARCH_HOST = 'http://localhost:9200' } = process.env;
+const { ELASTICSEARCH_HOST = 'http://localhost:9200', ELASTICSEARCH_API_VERSION = '6.5' } = process.env;
 
-export { ELASTICSEARCH_HOST };
+export { ELASTICSEARCH_HOST, ELASTICSEARCH_API_VERSION };

@@ -4,6 +4,7 @@ import { QueryAccess } from 'xlucene-evaluator';
 import IndexStore from './index-store';
 import * as utils from './utils';
 import * as i from './interfaces';
+import { getESVersion } from './utils';
 
 /**
  * An high-level, opionionated, abstract class
@@ -289,7 +290,8 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
 
         let records: T[];
         if (queryAccess) {
-            const query = queryAccess.restrictSearchQuery(q, params);
+            const esVersion = getESVersion(this.store.client);
+            const query = queryAccess.restrictSearchQuery(q, params, esVersion);
             records = await this.store._search(query);
         } else {
             records = await this.store.search(q, params);

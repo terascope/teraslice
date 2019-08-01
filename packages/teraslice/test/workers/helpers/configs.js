@@ -5,9 +5,9 @@ const Chance = require('chance');
 const pickBy = require('lodash/pickBy');
 const { newId } = require('../../../lib/utils/id_utils');
 
-const opsPath = path.join(__dirname, '..', 'fixtures', 'ops');
+const { ELASTICSEARCH_HOST, ELASTICSEARCH_API_VERSION } = process.env;
 
-const { ELASTICSEARCH_HOST } = process.env;
+const opsPath = path.join(__dirname, '..', 'fixtures', 'ops');
 
 const chance = new Chance();
 
@@ -100,6 +100,7 @@ const newSysConfig = (options = {}) => {
                 elasticsearch: {
                     default: {
                         host: [ELASTICSEARCH_HOST],
+                        apiVersion: ELASTICSEARCH_API_VERSION,
                         requestTimeout: timeout,
                         deadTimeout: timeout
                     }
