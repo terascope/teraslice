@@ -6,13 +6,13 @@ Operations within [Teraslice Job](./overview.md) are designed to read, transform
 
 ## Readers
 
-A `Reader` is the first operation specificed on the job and has two main components, a a [Slicer](#slicers) and a [Fetcher](#fetchers). The purpose of a Reader to distribute and read partitions of data across one or more [Workers](../nodes/worker.md).
+A `Reader` is the first operation specificed on the job and has two main components, a [Slicer](#slicers) and a [Fetcher](#fetchers). The purpose of a Reader to distribute and read partitions of data across one or more Workers.
 
 To develop a reader, see the [docs](./development.md#reader).
 
 ## Slicers
 
-A `Slicer` runs on the [Execution Controller](../nodes/execution-controller.md) and its primary function to create [Slices](./slices.md).
+A `Slicer` runs on the Execution Controller and its primary function to create [Slices](./slices.md).
 
 ### Slicer
 
@@ -80,7 +80,7 @@ Check out the [API docs](../packages/job-components/api/classes/parallelslicer.m
 
 ## Fetchers
 
-A `Fetcher` runs on a [Worker](../nodes/worker.md) and its primary process [Slices](../packages/job-components/api/interfaces/slice.md). When processing a `Slice` the worker will use [Slice Request](../packages/job-components/api/interfaces/slicerequest.md) to read a set of data from its data source. The fetcher will then return the data through the pipeline.
+A `Fetcher` runs on a Worker and its primary process [Slices](../packages/job-components/api/interfaces/slice.md). When processing a `Slice` the worker will use [Slice Request](../packages/job-components/api/interfaces/slicerequest.md) to read a set of data from its data source. The fetcher will then return the data through the pipeline.
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--TypeScript-->
@@ -221,7 +221,7 @@ Check out the [API docs](../packages/job-components/api/classes/filterprocessor.
 
 ## APIs
 
-A Job can specify an Operation API which can expose an utility API, a [Dead Letter Queue](./dead-letter-queue.md) or can be used to monitor/track data going through the pipeline. APIs are [configured](./configuration.md#apis) separately and are attached to the [Operation Lifecycle](./slices.md#worker-lifecycle-events) on startup. APIs are only available to the [Worker](../nodes/worker.md).
+A Job can specify an Operation API which can expose an utility API, a [Dead Letter Queue](./dead-letter-queue.md) or can be used to monitor/track data going through the pipeline. APIs are [configured](./configuration.md#apis) separately and are attached to the [Operation Lifecycle](./slices.md#worker-lifecycle-events) on startup. APIs are only available to the Worker.
 
 To develop a processor, see the [docs](./development.md#api).
 
@@ -259,7 +259,7 @@ Check out the [API docs](../packages/job-components/api/classes/operationapi.md)
 
 ### Observer
 
-This type of API only monitors/tracks data and processors, checkout the [Worker Lifecycle]((./slices.md#worker-lifecycle-events)) for all of the events that can be subscribed to.
+This type of API only monitors/tracks data and processors, checkout the [Worker Lifecycle](./slices.md#worker-lifecycle-events)) for all of the events that can be subscribed to.
 
 **Example:**
 
