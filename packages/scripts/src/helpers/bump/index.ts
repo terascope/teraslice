@@ -30,11 +30,12 @@ export async function bumpPackage(mainPkgInfo: PackageInfo, options: BumpPackage
 }
 
 async function updateMainPkg(mainPkgInfo: PackageInfo, options: BumpPackageOptions) {
+    const prevVersion = mainPkgInfo.version;
     const newVersion = bumpVersion(mainPkgInfo, options.release, options.preId);
     mainPkgInfo.version = newVersion;
     await updatePkgJSON(mainPkgInfo, false);
 
-    signale.log(`=> Updated ${mainPkgInfo.name} to version ${mainPkgInfo.version} to ${newVersion}`);
+    signale.log(`=> Updated ${mainPkgInfo.name} to version ${prevVersion} to ${newVersion}`);
     return newVersion;
 }
 
