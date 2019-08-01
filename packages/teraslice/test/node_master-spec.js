@@ -40,7 +40,7 @@ describe('Node master', () => {
     };
 
     const fakeClusterMaster = require('socket.io')({
-        path: '/native-clustering',
+        path: '/native-clustering'
     });
 
     fakeClusterMaster.on('connection', (socket) => {
@@ -119,7 +119,7 @@ describe('Node master', () => {
                     id: 'worker1',
                     ex_id: '1234',
                     job_id: '5678',
-                    assignment: 'worker',
+                    assignment: 'worker'
                 }),
                 worker2: makeWorker({
                     id: 'worker2',
@@ -131,14 +131,14 @@ describe('Node master', () => {
                     id: 'worker3',
                     ex_id: '1234',
                     job_id: '5678',
-                    assignment: 'worker',
+                    assignment: 'worker'
                 }),
                 worker4: makeWorker({
                     id: 'worker4',
                     ex_id: '1212',
                     job_id: '2323',
                     assets: [{ id: 1234567890 }],
-                    assignment: 'worker',
+                    assignment: 'worker'
                 })
             }
         };
@@ -170,7 +170,7 @@ describe('Node master', () => {
         expect(() => setUpNodeMaster()).not.toThrowError();
     });
 
-    it('can remove workers', (done) => {
+    it('can remove workers', async () => {
         setUpNodeMaster();
 
         const networkMsg = {
@@ -183,14 +183,9 @@ describe('Node master', () => {
         };
         delayRemoval = true;
 
-        Promise.resolve()
-            .then(() => waitForEvent('node:online'))
-            .then(() => Promise.all([sendMsg(networkMsg), waitFor(700)]))
-            .then(() => {
-                const processesAlive = Object.keys(context.cluster.workers).length;
-                expect(processesAlive).toEqual(3);
-            })
-            .catch(fail)
-            .finally(() => { done(); });
+        await waitForEvent('node:online');
+        await Promise.all([sendMsg(networkMsg), waitFor(700)]);
+        const processesAlive = Object.keys(context.cluster.workers).length;
+        expect(processesAlive).toEqual(3);
     });
 });

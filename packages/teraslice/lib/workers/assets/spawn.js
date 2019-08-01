@@ -9,10 +9,10 @@ const { safeEncode } = require('../../utils/encoding_utils');
 
 const loaderPath = path.join(__dirname, 'loader.js');
 
-function spawnAssetLoader(assets, context) {
+async function spawnAssetLoader(assets, context) {
     // if assets is empty return early
     if (_.isEmpty(assets)) {
-        return Promise.resolve([]);
+        return [];
     }
 
     // if the assets are ids and are already loaded, return early
@@ -26,7 +26,7 @@ function spawnAssetLoader(assets, context) {
         if (alreadyExists) {
             const logger = context.apis.foundation.makeLogger({ module: 'assets_loader' });
             logger.debug('assets already loaded...');
-            return Promise.resolve(assets);
+            return assets;
         }
     }
 
@@ -38,7 +38,7 @@ function spawnAssetLoader(assets, context) {
             env: Object.assign({}, process.env, {
                 NODE_TYPE: 'asset_loader',
                 assignment: 'asset_loader',
-                ASSETS: safeEncode(assets),
+                ASSETS: safeEncode(assets)
             })
         });
 
@@ -63,13 +63,17 @@ function spawnAssetLoader(assets, context) {
 
 /* istanbul ignore if */
 if (require.main === module) {
-    spawnAssetLoader(process.argv.slice(2))
-        .then((assetIds) => {
+    (async () => {
+        try {
+            const assetIds = await spawnAssetLoader(process.argv.slice(2));
             console.log(JSON.stringify(assetIds, null, 2)); // eslint-disable-line
-        })
-        .catch((err) => {
+        } catch (err) {
             console.error(err); // eslint-disable-line
-        });
+            process.exitCode = 1;
+        } finally {
+            process.exit();
+        }
+    })();
 } else {
     module.exports = spawnAssetLoader;
 }

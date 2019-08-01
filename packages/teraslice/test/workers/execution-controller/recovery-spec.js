@@ -1,8 +1,9 @@
 'use strict';
 
-const eventsModule = require('events');
 const Promise = require('bluebird');
 const pWhilst = require('p-whilst');
+const eventsModule = require('events');
+const { pDelay } = require('@terascope/utils');
 const { debugLogger } = require('@terascope/job-components');
 const recoveryCode = require('../../../lib/workers/execution-controller/recovery');
 
@@ -45,14 +46,10 @@ describe('execution recovery', () => {
             recovered_execution: '9999'
         },
         ex_id: '1234',
-        job_id: '5678',
+        job_id: '5678'
     };
 
-    let recoveryModule = recoveryCode(
-        context,
-        stateStore,
-        executionContext
-    );
+    let recoveryModule = recoveryCode(context, stateStore, executionContext);
 
     let recovery = recoveryModule.__test_context();
 
@@ -98,16 +95,12 @@ describe('execution recovery', () => {
     });
 
     it('initializes and sets up listeners', () => {
-        recoveryModule = recoveryCode(
-            context,
-            stateStore,
-            executionContext
-        );
+        recoveryModule = recoveryCode(context, stateStore, executionContext);
 
         recovery = recoveryModule.__test_context();
         recoveryModule.initialize();
 
-        expect(recovery._retryState()).toEqual({ });
+        expect(recovery._retryState()).toEqual({});
         expect(recovery._recoveryBatchCompleted()).toEqual(true);
 
         recovery._setId({ slice_id: 1 });
@@ -120,24 +113,19 @@ describe('execution recovery', () => {
             recovery._waitForRecoveryBatchCompletion(),
             waitFor(sendSucess, 100),
             waitFor(sendSucess2, 250)
-        ])
-            .then(() => {
-                expect(recovery._retryState()).toEqual({
-                    1: false,
-                    2: false,
-                });
-                expect(recovery._recoveryBatchCompleted()).toEqual(true);
-                return recovery._setId({ slice_id: 2 });
+        ]).then(() => {
+            expect(recovery._retryState()).toEqual({
+                1: false,
+                2: false
             });
+            expect(recovery._recoveryBatchCompleted()).toEqual(true);
+            return recovery._setId({ slice_id: 2 });
+        });
     });
 
     it('can recover slices', () => {
         context.apis.foundation.getSystemEvents = () => eventEmitter2;
-        recoveryModule = recoveryCode(
-            context,
-            stateStore,
-            executionContext
-        );
+        recoveryModule = recoveryCode(context, stateStore, executionContext);
 
         recovery = recoveryModule.__test_context();
 
@@ -151,24 +139,29 @@ describe('execution recovery', () => {
         const sendSucess2 = sendEvent('slice:success', { slice: data2 }, eventEmitter2);
         let allDoneEventFired = false;
 
-        eventEmitter2.on('execution:recovery:complete', () => { allDoneEventFired = true; });
+        eventEmitter2.on('execution:recovery:complete', () => {
+            allDoneEventFired = true;
+        });
 
         expect(recoveryModule.recoveryComplete()).toEqual(false);
 
         let finished = false;
-        const createSlices = pWhilst(() => !finished, async () => {
-            finished = await recoveryModule.handle();
-        });
+        const createSlices = pWhilst(
+            () => !finished,
+            async () => {
+                finished = await recoveryModule.handle();
+            }
+        );
 
         const shouldWait = () => !recoveryModule.sliceCount() && !recoveryModule.recoveryComplete();
 
         const slicer = async () => {
-            await pWhilst(shouldWait, () => Promise.delay(10));
+            await pWhilst(shouldWait, () => pDelay(10));
             return recoveryModule.getSlice();
         };
 
         return Promise.all([waitFor(sendSucess1, 100)])
-            .spread(() => {
+            .then(() => {
                 expect(recoveryModule.recoveryComplete()).toEqual(false);
                 return slicer();
             })
@@ -183,7 +176,7 @@ describe('execution recovery', () => {
                 expect(recoveryModule.recoveryComplete()).toEqual(false);
                 return Promise.all([slicer(), waitFor(() => {}, 150)]);
             })
-            .spread((slice) => {
+            .then(([slice]) => {
                 expect(slice).toEqual(null);
                 expect(allDoneEventFired).toEqual(true);
                 expect(recoveryModule.recoveryComplete()).toEqual(true);

@@ -1,7 +1,8 @@
 'use strict';
 
-const Promise = require('bluebird');
-const { get, pDelay, isError } = require('@terascope/utils');
+const {
+    get, pDelay, pRaceWithTimeout, isError
+} = require('@terascope/utils');
 const { makeLogger } = require('./terafoundation');
 
 function waitForWorkerShutdown(context, eventName) {
@@ -76,12 +77,16 @@ function shutdownHandler(context, shutdownFn) {
         return `already shutting down, remaining ${shutdownTimeout - elapsed}ms`;
     }
 
-    function callShutdownFn(event, err) {
-        return Promise.resolve().then(() => shutdownFn(event, err));
+    async function callShutdownFn(event, err) {
+        await shutdownFn(event, err);
     }
 
-    function shutdownWithTimeout(event, err) {
-        return Promise.race([callShutdownFn(event, err), pDelay(shutdownTimeout - 2000)]);
+    async function shutdownWithTimeout(event, err) {
+        const logError = (_err) => {
+            logger.error(_err, 'shutdown error after timeout');
+        };
+        const timeout = shutdownTimeout - 2000;
+        await pRaceWithTimeout(callShutdownFn(event, err), timeout, logError);
     }
 
     async function exit(event, err) {

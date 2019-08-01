@@ -1,14 +1,14 @@
 'use strict';
 
-const fs = require('fs-extra');
-const path = require('path');
 const _ = require('lodash');
+const path = require('path');
+const fs = require('fs-extra');
 const Promise = require('bluebird');
-const { parseError, TSError } = require('@terascope/utils');
-const { saveAsset } = require('../../utils/file_utils');
+const { getFullErrorStack, TSError, pDelay } = require('@terascope/utils');
 const makeTerafoundationContext = require('../context/terafoundation-context');
-const { safeDecode } = require('../../utils/encoding_utils');
 const makeAssetStore = require('../../cluster/storage/assets');
+const { safeDecode } = require('../../utils/encoding_utils');
+const { saveAsset } = require('../../utils/file_utils');
 
 class AssetLoader {
     constructor(context, assets = []) {
@@ -20,11 +20,7 @@ class AssetLoader {
     }
 
     async load() {
-        const {
-            context,
-            assets,
-            assetsDirectory
-        } = this;
+        const { context, assets, assetsDirectory } = this;
         const { logger } = context;
 
         // no need to load assets
@@ -42,16 +38,18 @@ class AssetLoader {
             throw new TSError(err);
         }
 
-        await Promise.map(idArray, async (assetIdentifier) => {
-            const downloaded = await fs.pathExists(path.join(assetsDirectory, assetIdentifier));
-            // need to return the id to the assets array sent back
-            if (downloaded) return { id: assetIdentifier };
+        await Promise.all(
+            idArray.map(async (assetIdentifier) => {
+                const downloaded = await fs.pathExists(path.join(assetsDirectory, assetIdentifier));
+                // need to return the id to the assets array sent back
+                if (downloaded) return { id: assetIdentifier };
 
-            const assetRecord = await this.assetStore.get(assetIdentifier);
-            logger.info(`loading assets: ${assetIdentifier}`);
-            const buff = Buffer.from(assetRecord.blob, 'base64');
-            return saveAsset(logger, assetsDirectory, assetIdentifier, buff);
-        });
+                const assetRecord = await this.assetStore.get(assetIdentifier);
+                logger.info(`loading assets: ${assetIdentifier}`);
+                const buff = Buffer.from(assetRecord.blob, 'base64');
+                return saveAsset(logger, assetsDirectory, assetIdentifier, buff);
+            })
+        );
 
         try {
             await this.shutdown();
@@ -91,25 +89,24 @@ if (require.main === module) {
     const context = makeTerafoundationContext();
     const assets = safeDecode(process.env.ASSETS);
 
-    Promise.resolve(loadAssets(context, assets))
-        .then((assetIds = []) => {
+    (async () => {
+        try {
+            const assetIds = await loadAssets(context, assets);
             process.send({
-                assetIds,
-                success: true,
+                assetIds: assetIds || [],
+                success: true
             });
-        })
-        .catch((err) => {
+        } catch (err) {
             process.send({
-                error: parseError(err, true),
-                success: false,
+                error: getFullErrorStack(err),
+                success: false
             });
             process.exitCode = 1;
-        })
-        .finally(() => {
-            setTimeout(() => {
-                process.exit();
-            }, 500);
-        });
+        } finally {
+            await pDelay(500);
+            process.exit();
+        }
+    })();
 } else {
     module.exports = loadAssets;
 }

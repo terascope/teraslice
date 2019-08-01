@@ -1,7 +1,8 @@
 'use strict';
 
-const Promise = require('bluebird');
 const _ = require('lodash');
+const Promise = require('bluebird');
+const { pDelay } = require('@terascope/utils');
 const Messaging = require('@terascope/teraslice-messaging');
 const { TestContext } = require('../helpers');
 const { getTestCases } = require('../helpers/execution-controller-helper');
@@ -10,7 +11,6 @@ const { findPort } = require('../../../lib/utils/port_utils');
 const { newId } = require('../../../lib/utils/id_utils');
 
 const ExecutionControllerClient = Messaging.ExecutionController.Client;
-process.env.BLUEBIRD_LONG_STACK_TRACES = '1';
 
 describe('ExecutionController Test Cases', () => {
     // [ message, config ]
@@ -18,13 +18,10 @@ describe('ExecutionController Test Cases', () => {
         [
             'processing one slice',
             {
-                slicerResults: [
-                    { example: 'single-slice' },
-                    null
-                ],
+                slicerResults: [{ example: 'single-slice' }, null],
                 body: { example: 'single-slice' },
                 count: 1,
-                analytics: _.sample([true, false]),
+                analytics: _.sample([true, false])
             }
         ],
         [
@@ -37,24 +34,20 @@ describe('ExecutionController Test Cases', () => {
                 workerIds: ['specific-worker-1'],
                 body: { request_worker: 'specific-worker-1', example: 'specific-worker' },
                 count: 1,
-                analytics: _.sample([true, false]),
+                analytics: _.sample([true, false])
             }
         ],
         [
             'processing sub-slices',
             {
                 slicerResults: [
-                    [
-                        { example: 'subslice' },
-                        { example: 'subslice' },
-                        { example: 'subslice' },
-                    ],
-                    null,
+                    [{ example: 'subslice' }, { example: 'subslice' }, { example: 'subslice' }],
+                    null
                 ],
                 emitSlicerRecursion: true,
                 count: 3,
                 body: { example: 'subslice' },
-                analytics: _.sample([true, false]),
+                analytics: _.sample([true, false])
             }
         ],
         [
@@ -70,7 +63,7 @@ describe('ExecutionController Test Cases', () => {
                 reconnect: true,
                 body: { example: 'slice-disconnect' },
                 count: 4,
-                analytics: _.sample([true, false]),
+                analytics: _.sample([true, false])
             }
         ],
         [
@@ -88,43 +81,33 @@ describe('ExecutionController Test Cases', () => {
                 body: { example: 'slice-dynamic' },
                 count: 4,
                 workers: 2,
-                analytics: _.sample([true, false]),
+                analytics: _.sample([true, false])
             }
         ],
         [
             'processing a slice and the slicer throws an error',
             {
-                slicerResults: [
-                    { example: 'slice-failure' },
-                    new Error('Slice failure'),
-                    null
-                ],
+                slicerResults: [{ example: 'slice-failure' }, new Error('Slice failure'), null],
                 slicerFails: true,
                 body: { example: 'slice-failure' },
                 count: 1,
-                analytics: _.sample([true, false]),
+                analytics: _.sample([true, false])
             }
         ],
         [
             'processing a slice fails',
             {
-                slicerResults: [
-                    { example: 'slice-fail' },
-                    null
-                ],
+                slicerResults: [{ example: 'slice-fail' }, null],
                 sliceFails: true,
                 body: { example: 'slice-fail' },
                 count: 1,
-                analytics: _.sample([true, false]),
+                analytics: _.sample([true, false])
             }
         ],
         [
             'processing a slicer that emits slicer events',
             {
-                slicerResults: [
-                    { example: 'slicer-slice-range-expansion' },
-                    null
-                ],
+                slicerResults: [{ example: 'slicer-slice-range-expansion' }, null],
                 emitsExecutionUpdate: [
                     {
                         _op: 'some-example',
@@ -134,22 +117,19 @@ describe('ExecutionController Test Cases', () => {
                 emitSlicerRangeExpansion: true,
                 body: { example: 'slicer-slice-range-expansion' },
                 count: 1,
-                analytics: _.sample([true, false]),
+                analytics: _.sample([true, false])
             }
         ],
         [
             'processing a slice and the execution is paused and resumed',
             {
-                slicerResults: [
-                    { example: 'slice-pause-and-resume' },
-                    null
-                ],
+                slicerResults: [{ example: 'slice-pause-and-resume' }, null],
                 pauseAndResume: true,
                 body: { example: 'slice-pause-and-resume' },
                 count: 1,
-                analytics: _.sample([true, false]),
+                analytics: _.sample([true, false])
             }
-        ],
+        ]
     ];
 
     // for testing add a "only" property to the test cases you want
@@ -170,7 +150,7 @@ describe('ExecutionController Test Cases', () => {
             emitsExecutionUpdate,
             emitSlicerRecursion = false,
             emitSlicerRangeExpansion = false,
-            workerIds = [],
+            workerIds = []
         } = options;
 
         let exController;
@@ -192,7 +172,7 @@ describe('ExecutionController Test Cases', () => {
                 timeout: reconnect ? 5000 : 3000,
                 lifecycle,
                 workers,
-                analytics,
+                analytics
             });
 
             await testContext.addClusterMaster();
@@ -206,12 +186,12 @@ describe('ExecutionController Test Cases', () => {
 
             exController = new ExecutionController(
                 testContext.context,
-                testContext.executionContext,
+                testContext.executionContext
             );
 
             const {
                 network_latency_buffer: networkLatencyBuffer,
-                action_timeout: actionTimeout,
+                action_timeout: actionTimeout
             } = testContext.context.sysconfig.teraslice;
 
             testContext.attachCleanup(() => exController.shutdown());
@@ -220,14 +200,16 @@ describe('ExecutionController Test Cases', () => {
 
             await exController.initialize();
 
-            const socketOptions = reconnect ? {
-                reconnection: true,
-                reconnectionAttempts: 10,
-                reconnectionDelay: 500,
-                reconnectionDelayMax: 500
-            } : {
-                reconnection: false
-            };
+            const socketOptions = reconnect
+                ? {
+                    reconnection: true,
+                    reconnectionAttempts: 10,
+                    reconnectionDelay: 500,
+                    reconnectionDelayMax: 500
+                }
+                : {
+                    reconnection: false
+                };
 
             let firedReconnect = false;
 
@@ -263,7 +245,7 @@ describe('ExecutionController Test Cases', () => {
                     firedReconnect = true;
                     await Promise.all([
                         workerClient.forceReconnect(),
-                        exController.server.waitForClientReady(workerId),
+                        exController.server.waitForClientReady(workerId)
                     ]);
                 }
 
@@ -284,12 +266,12 @@ describe('ExecutionController Test Cases', () => {
                         msg.analytics = {
                             time: _.times(opCount, () => _.random(0, 2000)),
                             size: _.times(opCount, () => _.random(0, 100)),
-                            memory: _.times(opCount, () => _.random(0, 10000)),
+                            memory: _.times(opCount, () => _.random(0, 10000))
                         };
                     }
 
                     // add a natural delay for completing a slice
-                    await Promise.delay(100);
+                    await pDelay(100);
 
                     if (sliceFails) {
                         msg.error = 'Oh no, slice failure';
@@ -301,21 +283,19 @@ describe('ExecutionController Test Cases', () => {
                     async function completeSlice() {
                         if (pauseAndResume) {
                             await Promise.all([
-                                clusterMaster.sendExecutionPause(exId)
+                                clusterMaster
+                                    .sendExecutionPause(exId)
                                     .then(() => clusterMaster.sendExecutionResume(exId)),
-                                workerClient.sendSliceComplete(msg),
+                                workerClient.sendSliceComplete(msg)
                             ]);
                             return;
                         }
 
-                        await Promise.delay(0);
+                        await pDelay(0);
                         await workerClient.sendSliceComplete(msg);
                     }
 
-                    await Promise.all([
-                        waitForReconnect(),
-                        completeSlice(),
-                    ]);
+                    await Promise.all([waitForReconnect(), completeSlice()]);
 
                     await processWork();
                 }
@@ -353,10 +333,7 @@ describe('ExecutionController Test Cases', () => {
 
             testContext.attachCleanup(() => clearTimeout(requestAnayltics));
 
-            await Promise.all([
-                startWorkers(),
-                exController.run(),
-            ]);
+            await Promise.all([startWorkers(), exController.run()]);
 
             clearTimeout(requestAnayltics);
         });
@@ -379,7 +356,10 @@ describe('ExecutionController Test Cases', () => {
 
             if (sliceFails || slicerFails) {
                 if (sliceFails) {
-                    expect(exStatus).toHaveProperty('_failureReason', `execution: ${exId} had 1 slice failure during processing`);
+                    expect(exStatus).toHaveProperty(
+                        '_failureReason',
+                        `execution: ${exId} had 1 slice failure during processing`
+                    );
                     expect(exStatus._slicer_stats.failed).toEqual(count);
                     const query = `ex_id:${exId} AND state:error`;
                     const actualCount = await stateStore.count(query, 0);
@@ -390,7 +370,9 @@ describe('ExecutionController Test Cases', () => {
                 }
 
                 if (slicerFails) {
-                    expect(exStatus._failureReason).toStartWith(`TSError: slicer for ex ${exId} had an error, shutting down execution, caused by Error: Slice failure`);
+                    expect(exStatus._failureReason).toStartWith(
+                        `TSError: slicer for ex ${exId} had an error, shutting down execution, caused by Error: Slice failure`
+                    );
                     expect(exStatus._slicer_stats.failed).toEqual(0);
 
                     expect(exStatus).toHaveProperty('_has_errors', true);

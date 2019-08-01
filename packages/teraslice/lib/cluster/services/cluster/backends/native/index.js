@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
-const { TSError, parseError } = require('@terascope/utils');
+const { TSError, getFullErrorStack, pDelay } = require('@terascope/utils');
 const { makeLogger } = require('../../../../../workers/helpers/terafoundation');
 const stateUtils = require('../state-utils');
 const Messaging = require('./messaging');
@@ -369,10 +369,12 @@ module.exports = function nativeClustering(context, clusterMasterServer, executi
                     response: true
                 })
                     .catch((err) => {
-                        const errMsg = parseError(err, true);
-                        logger.error(err, `failed to allocate execution_controller to ${slicerNodeID}`);
-                        errorNodes[slicerNodeID] = errMsg;
-                        return Promise.reject(errMsg);
+                        const error = new TSError(err, {
+                            reason: `failed to allocate execution_controller to ${slicerNodeID}`
+                        });
+                        logger.error(error);
+                        errorNodes[slicerNodeID] = getFullErrorStack(error);
+                        return Promise.reject(error);
                     });
             });
     }
@@ -424,7 +426,7 @@ module.exports = function nativeClustering(context, clusterMasterServer, executi
         if (messaging) {
             return messaging.shutdown();
         }
-        return Promise.delay(100);
+        return pDelay(100);
     }
 
     function addWorkers(execution, workerNum) {
@@ -531,7 +533,7 @@ module.exports = function nativeClustering(context, clusterMasterServer, executi
                 return;
             }
 
-            Promise.map(nodes, (node) => {
+            const promises = nodes.map((node) => {
                 const sendingMsg = Object.assign({}, messageData, {
                     to: 'node_master',
                     address: node.node_id,
@@ -542,7 +544,9 @@ module.exports = function nativeClustering(context, clusterMasterServer, executi
                 logger.trace(`notifying node ${node.node_id} to stop execution ${exId}`, sendingMsg);
 
                 return messaging.send(sendingMsg);
-            })
+            });
+
+            Promise.all(promises)
                 .then(() => {
                     resolve(true);
                 })

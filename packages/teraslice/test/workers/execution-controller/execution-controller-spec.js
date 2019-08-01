@@ -1,11 +1,10 @@
 'use strict';
 
 const Promise = require('bluebird');
+const { pDelay } = require('@terascope/utils');
 const { TestContext } = require('../helpers');
 const { findPort } = require('../../../lib/utils/port_utils');
 const ExecutionController = require('../../../lib/workers/execution-controller');
-
-process.env.BLUEBIRD_LONG_STACK_TRACES = '1';
 
 describe('ExecutionController', () => {
     describe('when the execution context is invalid', () => {
@@ -18,7 +17,7 @@ describe('ExecutionController', () => {
 
             testContext = new TestContext({
                 assignment: 'execution_controller',
-                slicerPort: port,
+                slicerPort: port
             });
 
             await testContext.initialize(true);
@@ -26,7 +25,7 @@ describe('ExecutionController', () => {
 
             exController = new ExecutionController(
                 testContext.context,
-                testContext.executionContext,
+                testContext.executionContext
             );
 
             exController.isExecutionFinished = true;
@@ -34,8 +33,9 @@ describe('ExecutionController', () => {
             await testContext.addExStore();
             ({ exStore } = testContext.stores);
 
-            testContext.attachCleanup(() => exController.shutdown()
-                .catch(() => { /* ignore-error */ }));
+            testContext.attachCleanup(() => exController.shutdown().catch(() => {
+                /* ignore-error */
+            }));
         });
 
         afterEach(() => testContext.cleanup());
@@ -50,7 +50,9 @@ describe('ExecutionController', () => {
                 try {
                     await exController.initialize();
                 } catch (err) {
-                    expect(err.message).toStartWith(`Cannot get execution status ${testContext.exId}`);
+                    expect(err.message).toStartWith(
+                        `Cannot get execution status ${testContext.exId}`
+                    );
                     expect(err.message).toInclude('Not Found');
                 }
             });
@@ -103,7 +105,7 @@ describe('ExecutionController', () => {
 
             exController = new ExecutionController(
                 testContext.context,
-                testContext.executionContext,
+                testContext.executionContext
             );
 
             await exController.initialize();
@@ -111,8 +113,9 @@ describe('ExecutionController', () => {
             await testContext.addExStore();
             ({ exStore } = testContext.stores);
 
-            testContext.attachCleanup(() => exController.shutdown()
-                .catch(() => { /* ignore-error */ }));
+            testContext.attachCleanup(() => exController.shutdown().catch(() => {
+                /* ignore-error */
+            }));
         });
 
         afterEach(() => testContext.cleanup());
@@ -132,18 +135,16 @@ describe('ExecutionController', () => {
             await exController._startSliceFailureWatchDog();
             expect(exController.sliceFailureInterval).toBe(sliceFailureInterval);
 
-            await expect(exStore.getStatus(testContext.exId))
-                .resolves.toEqual('failing');
+            await expect(exStore.getStatus(testContext.exId)).resolves.toEqual('failing');
 
-            await Promise.delay(probationWindow + 100);
+            await pDelay(probationWindow + 100);
 
             // should be able to setr the status back to running if more slices are processed
             exController.executionAnalytics.increment('processed');
 
-            await Promise.delay(probationWindow + 100);
+            await pDelay(probationWindow + 100);
 
-            await expect(exStore.getStatus(testContext.exId))
-                .resolves.toEqual('running');
+            await expect(exStore.getStatus(testContext.exId)).resolves.toEqual('running');
 
             expect(exController.sliceFailureInterval).toBeNil();
 
@@ -158,14 +159,14 @@ describe('ExecutionController', () => {
 
         beforeEach(async () => {
             testContext = new TestContext({
-                assignment: 'execution_controller',
+                assignment: 'execution_controller'
             });
 
             await testContext.initialize();
 
             exController = new ExecutionController(
                 testContext.context,
-                testContext.executionContext,
+                testContext.executionContext
             );
         });
 
@@ -181,7 +182,7 @@ describe('ExecutionController', () => {
                 exController.stores = {
                     exStore: {
                         setStatus,
-                        executionMetaData,
+                        executionMetaData
                     }
                 };
                 exController.logger.error = logErr;
@@ -190,7 +191,10 @@ describe('ExecutionController', () => {
                 await exController.setFailingStatus();
 
                 expect(setStatus).toHaveBeenCalledWith(testContext.exId, 'failing', errMeta);
-                expect(executionMetaData).toHaveBeenCalledWith(stats, `execution ${testContext.exId} has encountered a processing error`);
+                expect(executionMetaData).toHaveBeenCalledWith(
+                    stats,
+                    `execution ${testContext.exId} has encountered a processing error`
+                );
                 expect(logErr).toHaveBeenCalledTimes(2);
             });
         });
@@ -202,14 +206,14 @@ describe('ExecutionController', () => {
 
         beforeEach(async () => {
             testContext = new TestContext({
-                assignment: 'execution_controller',
+                assignment: 'execution_controller'
             });
 
             await testContext.initialize();
 
             exController = new ExecutionController(
                 testContext.context,
-                testContext.executionContext,
+                testContext.executionContext
             );
         });
 
@@ -226,7 +230,7 @@ describe('ExecutionController', () => {
                 exController.stores = {
                     exStore: {
                         setStatus,
-                        executionMetaData,
+                        executionMetaData
                     }
                 };
                 exController.logger.error = logErr;
@@ -237,12 +241,16 @@ describe('ExecutionController', () => {
                 expect(exController.slicerFailed).toBeTrue();
 
                 expect(setStatus).toHaveBeenCalledWith(testContext.exId, 'failed', errMeta);
-                const errMsg = `TSError: slicer for ex ${testContext.exId} had an error, shutting down execution, caused by Uh oh`;
+                const errMsg = `TSError: slicer for ex ${
+                    testContext.exId
+                } had an error, shutting down execution, caused by Uh oh`;
                 expect(executionMetaData.mock.calls[0][0]).toEqual(stats);
                 expect(executionMetaData.mock.calls[0][1]).toStartWith(errMsg);
 
                 expect(logErr).toHaveBeenCalledTimes(2);
-                expect(logFatal).toHaveBeenCalledWith(`execution ${testContext.exId} is ended because of slice failure`);
+                expect(logFatal).toHaveBeenCalledWith(
+                    `execution ${testContext.exId} is ended because of slice failure`
+                );
             });
         });
 
@@ -278,8 +286,9 @@ describe('ExecutionController', () => {
                 testContext.executionContext
             );
 
-            testContext.attachCleanup(() => exController.shutdown()
-                .catch(() => { /* ignore-error */ }));
+            testContext.attachCleanup(() => exController.shutdown().catch(() => {
+                /* ignore-error */
+            }));
         });
 
         afterEach(() => testContext.cleanup());
