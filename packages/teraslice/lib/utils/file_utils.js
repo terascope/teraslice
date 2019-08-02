@@ -21,6 +21,7 @@ function deleteDir(dirPath) {
     return fse.remove(dirPath);
 }
 
+// to do refactor me, this function is barely readable
 function normalizeZipFile(id, newPath, logger) {
     const metaData = { id };
     const packagePath = path.join(newPath, 'asset.json');
@@ -48,7 +49,7 @@ function normalizeZipFile(id, newPath, logger) {
                 return Promise.reject(err);
             }
 
-            // check one subdir down for asset.sjon
+            // check one subdir down for asset.json
             const assetJSON = fs
                 .readdirSync(newPath)
                 .filter(filename => existsSync(path.join(newPath, filename, 'asset.json')));
@@ -81,14 +82,15 @@ function normalizeZipFile(id, newPath, logger) {
         });
 }
 
-function moveContents(rootPath, subDirPath) {
+async function moveContents(rootPath, subDirPath) {
     const children = fs.readdirSync(subDirPath);
     const promises = children.map((child) => {
         const src = path.join(subDirPath, child);
         const dest = path.join(rootPath, child);
         return fse.move(src, dest);
     });
-    return Promise.all(promises).then(() => fse.remove(subDirPath));
+    await Promise.all(promises);
+    await fse.remove(subDirPath);
 }
 
 async function saveAsset(logger, assetsPath, id, binaryData, metaCheck) {
@@ -103,18 +105,18 @@ async function saveAsset(logger, assetsPath, id, binaryData, metaCheck) {
         }
 
         await fse.writeFile(tempFileName, binaryData);
-
         await decompress(tempFileName, newPath);
         await fse.unlink(tempFileName);
+
         const metaData = await normalizeZipFile(id, newPath, logger);
         // storage/assets save fn needs to check the return metadata for uniqueness
         if (metaCheck) {
-            return Promise.resolve(metaCheck(metaData));
+            return metaCheck(metaData);
         }
-        return Promise.resolve(metaData);
+        return metaData;
     } catch (err) {
         await deleteDir(newPath);
-        return Promise.reject(err);
+        throw err;
     }
 }
 

@@ -56,7 +56,12 @@ module.exports = function elasticsearchStorage(backendConfig) {
         };
 
         if (fields) {
-            query._source = fields;
+            const esVersion = elasticsearch.getESVersion();
+            if (esVersion > 6) {
+                query._sourceIncludes = fields;
+            } else {
+                query._sourceInclude = fields;
+            }
         }
         return elasticsearch.get(query);
     }
@@ -75,8 +80,14 @@ module.exports = function elasticsearchStorage(backendConfig) {
             esQuery.body = query;
         }
 
+
         if (fields) {
-            esQuery._source = fields;
+            const esVersion = elasticsearch.getESVersion();
+            if (esVersion > 6) {
+                esQuery._sourceIncludes = fields;
+            } else {
+                esQuery._sourceInclude = fields;
+            }
         }
 
         return elasticsearch.search(esQuery);

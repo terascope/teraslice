@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const Promise = require('bluebird');
 const { fork } = require('child_process');
+const { makeLogger } = require('../helpers/terafoundation');
 const { safeEncode } = require('../../utils/encoding_utils');
 
 const loaderPath = path.join(__dirname, 'loader.js');
@@ -24,7 +25,7 @@ async function spawnAssetLoader(assets, context) {
         });
 
         if (alreadyExists) {
-            const logger = context.apis.foundation.makeLogger({ module: 'assets_loader' });
+            const logger = makeLogger(context, 'assets_loader');
             logger.debug('assets already loaded...');
             return assets;
         }
