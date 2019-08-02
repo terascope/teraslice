@@ -30,7 +30,7 @@ jobs:
     if: branch = master AND type = pull_request
     script: yarn lint
 
-  - script:
+  - stage:
     name: "Unit Test Suite (node 10)"
     # run on pull-request, tag, cron or push to master
     if: branch = master
