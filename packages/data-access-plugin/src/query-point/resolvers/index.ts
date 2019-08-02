@@ -1,11 +1,12 @@
 import crypto from 'crypto';
-import { IResolvers, UserInputError } from 'apollo-server-express';
 import { GraphQLResolveInfo } from 'graphql';
+import { IResolvers, UserInputError } from 'apollo-server-express';
 import { DataAccessConfig, SpaceSearchConfig } from '@terascope/data-access';
-import { DataType } from '@terascope/data-types';
 import elasticsearchApi from '@terascope/elasticsearch-api';
-import { Logger, get } from '@terascope/utils';
+import { getESVersion } from 'elasticsearch-store';
 import { Context } from '@terascope/job-components';
+import { DataType } from '@terascope/data-types';
+import { Logger, get } from '@terascope/utils';
 import { QueryAccess } from 'xlucene-evaluator';
 import { getESClient } from '../../utils';
 import { SpacesContext } from '../interfaces';
@@ -101,7 +102,9 @@ function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger:
                     }
                 });
             }
-            const query = queryAccess.restrictSearchQuery(q, queryParams);
+
+            const esVersion = getESVersion(esClient);
+            const query = queryAccess.restrictSearchQuery(q, queryParams, esVersion);
             return dedup(await client.search(query));
         };
     });

@@ -1,11 +1,14 @@
-import { CommandModule } from 'yargs';
 import { ReleaseType } from 'semver';
-import { validatePkgName } from '../helpers/args';
-import { bumpPackage } from '../helpers/bump';
+import { CommandModule } from 'yargs';
+import { coercePkgArg } from '../helpers/args';
+import { bumpPackages } from '../helpers/bump';
 import { PackageInfo } from '../helpers/interfaces';
+import { castArray } from '@terascope/utils';
+
+const releaseChoices = ['major', 'minor', 'patch', 'prerelease', 'premajor', 'preminor', 'prepatch'];
 
 const cmd: CommandModule = {
-    command: 'bump <package> <release>',
+    command: 'bump [packages..]',
     describe: 'Update a package to specific version and its dependencies. This should be run in the root of the workspace.',
     builder(yargs) {
         return yargs
@@ -21,24 +24,38 @@ const cmd: CommandModule = {
                 description: 'Specify the prerelease identifier, defaults to RC',
             })
             .option('recursive', {
+                alias: 'deps',
+                description: 'Bump all of the child dependencies to change, (if the child depedency is teraslice it will skip it)',
                 default: false,
                 type: 'boolean',
-                description: 'Bump all of the child dependencies to change, (if the child depedency is teraslice it will skip it)',
             })
-            .positional('package', {
-                description: 'Run scripts for particular package',
+            .option('release', {
+                alias: 'r',
+                description: 'Specify the release change for the version, see https://www.npmjs.com/package/semver',
+                type: 'string',
+                default: 'patch',
+                requiresArg: true,
+                choices: releaseChoices,
+            })
+            .positional('packages', {
+                description: 'Run scripts for one or more package (if specifying more than one make sure they are ordered by dependants)',
+                type: 'string',
+                default: '.',
                 coerce(arg) {
-                    return validatePkgName(arg, true);
+                    castArray(arg).forEach(a => {
+                        if (releaseChoices.includes(a)) {
+                            yargs.showHelp();
+                            console.error(`\n ERROR: bump CLI has changed, use --release ${a} or -r ${a} instead`);
+                            process.exit(1);
+                        }
+                    });
+                    return coercePkgArg(arg);
                 },
             })
-            .positional('release', {
-                description: 'Specify the release change for the version, see https://www.npmjs.com/package/semver',
-                choices: ['major', 'minor', 'patch', 'prerelease', 'premajor', 'preminor', 'prepatch'],
-            })
-            .requiresArg(['package', 'release']);
+            .demandOption(['packages'], 'Please provide a package to bump');
     },
     handler(argv) {
-        return bumpPackage(argv.package as PackageInfo, {
+        return bumpPackages(argv.packages as PackageInfo[], {
             preId: argv['prelease-id'] as string | undefined,
             release: argv.release as ReleaseType,
             recursive: Boolean(argv.recursive),

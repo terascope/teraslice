@@ -1,13 +1,14 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
 import { CreateRecordInput } from 'elasticsearch-store';
-import { Spaces, Space } from '../../src/models/spaces';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
+import { Spaces, Space } from '../../src/models/spaces';
+import { TEST_INDEX_PREFIX } from '../helpers/config';
 
 describe('Spaces', () => {
     const client = makeClient();
     const spaces = new Spaces(client, {
-        namespace: 'test',
+        namespace: `${TEST_INDEX_PREFIX}da`,
     });
 
     beforeAll(async () => {

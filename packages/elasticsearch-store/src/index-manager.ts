@@ -77,10 +77,15 @@ export default class IndexManager {
             await ts.pDelay(ts.random(0, 5000));
         }
 
+        const esVersion = utils.getESVersion(this.client);
+        logger.debug(`Using elasticsearch version ${esVersion}`);
+
+        const mapping: any = utils.getIndexMapping(config);
+
         const body: any = {
             settings,
             mappings: {
-                [config.name]: utils.getIndexMapping(config),
+                [config.name]: mapping,
             },
         };
 
@@ -89,10 +94,14 @@ export default class IndexManager {
             const schemaVersion = utils.getSchemaVersion(config);
 
             body.template = templateName;
-            body.version = schemaVersion;
 
-            logger.debug(`Upserting template "${templateName}"...`, body);
-            await this.upsertTemplate(body);
+            await this.upsertTemplate(
+                {
+                    ...body,
+                    version: schemaVersion,
+                },
+                logger
+            );
         }
 
         if (await this.exists(indexName)) {
@@ -103,10 +112,16 @@ export default class IndexManager {
 
         logger.debug(`Creating "${indexName}"...`, body);
 
-        await this.client.indices.create({
-            index: indexName,
-            body,
-        });
+        await this.client.indices.create(
+            utils.fixMappingRequest(
+                this.client,
+                {
+                    index: indexName,
+                    body,
+                },
+                false
+            )
+        );
 
         logger.trace(`Checking index availability for "${indexName}"...`);
 
@@ -142,14 +157,37 @@ export default class IndexManager {
         return;
     }
 
+    async getMapping(index: string) {
+        const params: any = { index };
+        const esVersion = utils.getESVersion(this.client);
+        if (esVersion > 6) {
+            params.includeTypeName = true;
+        }
+        return this.client.indices.getMapping(params);
+    }
+
+    async putMapping(index: string, type: string, properties: any) {
+        const params: any = {
+            index,
+            type,
+            body: {
+                properties,
+            },
+        };
+        const esVersion = utils.getESVersion(this.client);
+        if (esVersion > 6) {
+            params.includeTypeName = true;
+        }
+        return this.client.indices.putMapping(params);
+    }
+
     /**
      * Safely update a mapping
      *
      * **WARNING:** This only updates the mapping if it exists
      */
     async updateMapping(index: string, type: string, mapping: any, logger: ts.Logger) {
-        const result = await this.client.indices.getMapping({ index });
-
+        const result = await this.getMapping(index);
         const existing = ts.get(result, [index, 'mappings', type, 'properties'], {});
         const current = ts.get(mapping, ['mappings', type, 'properties'], {});
 
@@ -182,27 +220,26 @@ export default class IndexManager {
 
         if (safeChange) {
             logger.info(`Detected a new field for ${index} (${type})`);
-
-            await this.client.indices.putMapping({
-                index,
-                type,
-                body: {
-                    properties: current,
-                },
-            });
+            await this.putMapping(index, type, current);
         }
+    }
+
+    async getTemplate(name: string, flatSettings: boolean) {
+        const params: any = { name, flatSettings };
+        const esVersion = utils.getESVersion(this.client);
+        if (esVersion > 6) {
+            params.includeTypeName = true;
+        }
+        return this.client.indices.getTemplate(params);
     }
 
     /**
      * Safely create or update a template
      */
-    async upsertTemplate(template: any) {
+    async upsertTemplate(template: any, logger?: ts.Logger) {
         const { template: name, version } = template;
         try {
-            const templates = await this.client.indices.getTemplate({
-                name,
-                flatSettings: true,
-            });
+            const templates = await this.getTemplate(name, true);
             const latestVersion = templates[name].version;
             if (version === latestVersion) return;
         } catch (err) {
@@ -211,10 +248,18 @@ export default class IndexManager {
             }
         }
 
-        await this.client.indices.putTemplate({
-            body: template,
-            name,
-        });
+        const params = utils.fixMappingRequest(
+            this.client,
+            {
+                body: template,
+                name,
+            },
+            true
+        );
+        if (logger) {
+            logger.debug(`Upserting template "${name}"...`, params);
+        }
+        await this.client.indices.putTemplate(params);
     }
 
     protected async waitForIndexAvailability(index: string) {

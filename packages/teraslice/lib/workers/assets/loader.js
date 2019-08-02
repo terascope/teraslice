@@ -8,12 +8,13 @@ const { getFullErrorStack, TSError, pDelay } = require('@terascope/utils');
 const makeTerafoundationContext = require('../context/terafoundation-context');
 const makeAssetStore = require('../../cluster/storage/assets');
 const { safeDecode } = require('../../utils/encoding_utils');
+const { makeLogger } = require('../helpers/terafoundation');
 const { saveAsset } = require('../../utils/file_utils');
 
 class AssetLoader {
     constructor(context, assets = []) {
         this.context = context;
-        this.logger = context.apis.foundation.makeLogger({ module: 'assets_loader' });
+        this.logger = makeLogger(context, 'asset_loader');
         this.assets = assets;
         this.assetsDirectory = _.get(context, 'sysconfig.teraslice.assets_directory');
         this.isShuttingDown = false;
@@ -21,7 +22,6 @@ class AssetLoader {
 
     async load() {
         const { context, assets, assetsDirectory } = this;
-        const { logger } = context;
 
         // no need to load assets
         if (_.isEmpty(assets)) return [];
@@ -45,16 +45,16 @@ class AssetLoader {
                 if (downloaded) return { id: assetIdentifier };
 
                 const assetRecord = await this.assetStore.get(assetIdentifier);
-                logger.info(`loading assets: ${assetIdentifier}`);
+                this.logger.info(`loading assets: ${assetIdentifier}`);
                 const buff = Buffer.from(assetRecord.blob, 'base64');
-                return saveAsset(logger, assetsDirectory, assetIdentifier, buff);
+                return saveAsset(this.logger, assetsDirectory, assetIdentifier, buff);
             })
         );
 
         try {
             await this.shutdown();
         } catch (err) {
-            logger.error(err, 'assets loading shutdown error');
+            this.logger.error(err, 'assets loading shutdown error');
         }
 
         return idArray;

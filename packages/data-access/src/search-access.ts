@@ -1,9 +1,10 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import * as x from 'xlucene-evaluator';
+import * as t from '@terascope/data-types';
+import { getESVersion } from 'elasticsearch-store';
 import { SpaceSearchConfig } from './models';
 import * as i from './interfaces';
-import * as t from '@terascope/data-types';
 
 const _logger = ts.debugLogger('search-access');
 
@@ -43,8 +44,8 @@ export class SearchAccess {
     /**
      * Converts a restricted xlucene query to an elasticsearch search query
      */
-    restrictSearchQuery(query?: string, params?: es.SearchParams): es.SearchParams {
-        return this._queryAccess.restrictSearchQuery(query || '', params);
+    restrictSearchQuery(query?: string, params?: es.SearchParams, esVersion: number = 6): es.SearchParams {
+        return this._queryAccess.restrictSearchQuery(query || '', params, esVersion);
     }
 
     /**
@@ -55,7 +56,7 @@ export class SearchAccess {
 
         let esQuery: es.SearchParams;
         try {
-            esQuery = this.restrictSearchQuery(q, params);
+            esQuery = this.restrictSearchQuery(q, params, getESVersion(client));
         } catch (err) {
             throw new ts.TSError(err, {
                 reason: 'Query restricted',
@@ -207,7 +208,7 @@ export class SearchAccess {
         }
 
         let results;
-        const total = response.hits.total;
+        const total = ts.get(response, 'hits.total.value', ts.get(response, 'hits.total'));
         let returning = total;
 
         if (this.spaceConfig.preserve_index_name) {
@@ -220,8 +221,8 @@ export class SearchAccess {
             results = response.hits.hits.map(data => data._source);
         }
 
-        let info = `${response.hits.total} results found.`;
-        if (response.hits.total > params.size!) {
+        let info = `${total} results found.`;
+        if (total > params.size!) {
             returning = params.size!;
             info += ` Returning ${returning}.`;
         }

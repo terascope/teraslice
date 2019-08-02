@@ -1,6 +1,6 @@
 {
     "name": "@terascope/data-access",
-    "version": "0.12.5",
+    "version": "0.12.6",
     "description": "A tool designed to limit access to reading and querying data",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-access#readme",
     "bugs": {
@@ -21,15 +21,15 @@
         "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
-        "test": "jest --forceExit",
-        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/data-types": "^0.5.1",
-        "@terascope/utils": "^0.14.0",
-        "elasticsearch-store": "^0.10.2",
-        "xlucene-evaluator": "^0.9.5"
+        "@terascope/data-types": "^0.5.2",
+        "@terascope/utils": "^0.14.1",
+        "elasticsearch-store": "^0.10.3",
+        "xlucene-evaluator": "^0.9.6"
     },
     "devDependencies": {
         "elasticsearch": "^15.4.1"
@@ -40,6 +40,7 @@
     "displayName": "Data Access",
     "srcMain": "src/index.ts",
     "terascope": {
-        "enableTypedoc": true
+        "enableTypedoc": true,
+        "testSuite": "elasticsearch"
     }
 }

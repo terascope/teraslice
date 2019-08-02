@@ -16,15 +16,13 @@
     ],
     "main": "./index.js",
     "scripts": {
-        "lint": "eslint *.js lib/**/*.js test/**/*.js",
-        "lint:fix": "yarn lint --fix",
-        "test": "jest --forceExit",
-        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/elasticsearch-api": "^2.1.0",
-        "@terascope/utils": "^0.14.0",
+        "@terascope/elasticsearch-api": "^2.1.1",
+        "@terascope/utils": "^0.14.1",
         "agentkeepalive": "^4.0.2",
         "aws-sdk": "^2.496.0",
         "bluebird": "^3.5.5",
@@ -46,5 +44,7 @@
         "access": "public"
     },
     "displayName": "Terafoundation",
-    "terascope": {}
+    "terascope": {
+        "testSuite": "unit"
+    }
 }

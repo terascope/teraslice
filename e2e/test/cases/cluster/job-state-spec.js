@@ -1,9 +1,9 @@
 'use strict';
 
 const Promise = require('bluebird');
-const misc = require('../../misc');
 const { waitForJobStatus } = require('../../wait');
 const { resetState } = require('../../helpers');
+const misc = require('../../misc');
 
 describe('job state', () => {
     beforeAll(() => resetState());
@@ -17,7 +17,7 @@ describe('job state', () => {
 
         const [job1, job2] = await Promise.all([
             teraslice.jobs.submit(jobSpec1),
-            teraslice.jobs.submit(jobSpec2),
+            teraslice.jobs.submit(jobSpec2)
         ]);
 
         await waitForJobStatus(job1, 'running');

@@ -1,13 +1,24 @@
 import semver from 'semver';
-import { keys, get } from 'lodash';
+import { get } from '@terascope/utils';
 import { PackageInfo } from '../interfaces';
 import { listPackages, updatePkgJSON, readPackageInfo } from '../packages';
+import signale from '../signale';
+import { writePkgHeader } from '../misc';
 
 export type BumpPackageOptions = {
     release: semver.ReleaseType;
     recursive: boolean;
     preId?: string;
 };
+
+export async function bumpPackages(pkgInfos: PackageInfo[], options: BumpPackageOptions) {
+    let runOnce = false;
+    for (const pkgInfo of pkgInfos) {
+        writePkgHeader('Bumping', [pkgInfo], runOnce);
+        await bumpPackage(pkgInfo, { ...options });
+        runOnce = true;
+    }
+}
 
 export async function bumpPackage(mainPkgInfo: PackageInfo, options: BumpPackageOptions) {
     await updateMainPkg(mainPkgInfo, options);
@@ -19,12 +30,12 @@ export async function bumpPackage(mainPkgInfo: PackageInfo, options: BumpPackage
 }
 
 async function updateMainPkg(mainPkgInfo: PackageInfo, options: BumpPackageOptions) {
+    const prevVersion = mainPkgInfo.version;
     const newVersion = bumpVersion(mainPkgInfo, options.release, options.preId);
     mainPkgInfo.version = newVersion;
     await updatePkgJSON(mainPkgInfo, false);
 
-    // tslint:disable-next-line: no-console
-    console.error(`=> Updated ${mainPkgInfo.name} to version ${mainPkgInfo.version} to ${newVersion}`);
+    signale.log(`=> Updated ${mainPkgInfo.name} to version ${prevVersion} to ${newVersion}`);
     return newVersion;
 }
 
@@ -53,8 +64,7 @@ async function updateDependent(mainPkgInfo: PackageInfo, pkgInfo: PackageInfo, o
     }
 
     await updatePkgJSON(pkgInfo, false);
-    // tslint:disable-next-line: no-console
-    console.error(`---> Updated dependency ${pkgInfo.name}'s version of ${name} to ${newVersion}`);
+    signale.log(`---> Updated dependency ${pkgInfo.name}'s version of ${name} to ${newVersion}`);
 
     if (options.recursive && isProdDep && pkgInfo.name !== 'teraslice') {
         await bumpPackage(pkgInfo, {
@@ -70,9 +80,9 @@ function formatVersion(version: string): string {
 
 function isDependent(mainPkgInfo: PackageInfo, pkgInfo: PackageInfo): boolean {
     if (pkgInfo.name === mainPkgInfo.name) return false;
-    const devDeps = keys(get(pkgInfo, 'devDependencies'));
-    const peerDeps = keys(get(pkgInfo, 'peerDependencies'));
-    const deps = keys(get(pkgInfo, 'dependencies'));
+    const devDeps = Object.keys(get(pkgInfo, 'devDependencies', {}));
+    const peerDeps = Object.keys(get(pkgInfo, 'peerDependencies', {}));
+    const deps = Object.keys(get(pkgInfo, 'dependencies', {}));
     const allDeps: string[] = [...devDeps, ...peerDeps, ...deps];
     return allDeps.includes(mainPkgInfo.name);
 }

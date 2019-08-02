@@ -46,7 +46,9 @@ module.exports = function compose(composeFile) {
             // Some commands support an additional parameter
             if (param1) args.push(param1);
             debug('docker-compose', args);
-            const cmd = spawn('docker-compose', args);
+            const cmd = spawn('docker-compose', args, {
+                env: process.env
+            });
 
             cmd.stdout.on('data', (data) => {
                 debug('stdout', data.toString());
@@ -93,7 +95,7 @@ module.exports = function compose(composeFile) {
         // logs is going to require special handling since it attaches to containers
         // logs: (services, options) => { return run('logs', options, services); },
         port: (service, privatePort, options) => run('port', options, service, privatePort),
-        run,
+        run
         /*
             Currently unimplemented
                 events

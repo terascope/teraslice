@@ -4,8 +4,7 @@ const misc = require('../../misc');
 const { resetState, testJobLifeCycle, runEsJob } = require('../../helpers');
 
 /**
- * This test is disabled due the ID slicer not working in
- * elasticsearch 6.x
+ * The id reader don't work in 6.x and greater
  *
  * See:
  *  - https://github.com/terascope/teraslice/issues/68
@@ -16,46 +15,54 @@ xdescribe('id reader', () => {
 
     it('should support reindexing', async () => {
         const jobSpec = misc.newJob('id');
-        jobSpec.name = 'reindex by id';
-        jobSpec.operations[1].index = 'test-id_reindex-1000';
+        const specIndex = misc.newSpecIndex('id-reader');
 
-        const count = await runEsJob(jobSpec, 'test-id_reindex-1000');
+        jobSpec.name = 'reindex by id';
+        jobSpec.operations[0].index = misc.getExampleIndex(1000);
+        jobSpec.operations[1].index = specIndex;
+
+        const count = await runEsJob(jobSpec, specIndex);
         expect(count).toBe(1000);
     });
 
     it('should support reindexing by hex id', async () => {
         const jobSpec = misc.newJob('id');
+        const specIndex = misc.newSpecIndex('id-reader');
         jobSpec.name = 'reindex by hex id';
         jobSpec.operations[0].key_type = 'hexadecimal';
-        jobSpec.operations[0].index = 'example-logs-1000-hex';
-        jobSpec.operations[1].index = 'test-hexadecimal-logs';
+        jobSpec.operations[0].index = misc.getExampleIndex(1000); // add hex
+        jobSpec.operations[1].index = specIndex;
 
-        const count = await runEsJob(jobSpec, 'test-hexadecimal-logs');
+        const count = await runEsJob(jobSpec, specIndex);
         expect(count).toBe(1000);
     });
 
     it('should support reindexing by hex id + key_range', async () => {
         const jobSpec = misc.newJob('id');
+        const specIndex = misc.newSpecIndex('id-reader');
+
         jobSpec.name = 'reindex by hex id (range=a..e)';
         jobSpec.operations[0].key_type = 'hexadecimal';
         jobSpec.operations[0].key_range = ['a', 'b', 'c', 'd', 'e'];
+        jobSpec.operations[0].index = misc.getExampleIndex(1000); // add hex
 
-        jobSpec.operations[0].index = 'example-logs-1000-hex';
-        jobSpec.operations[1].index = 'test-keyrange-logs';
+        jobSpec.operations[1].index = specIndex;
 
-        const count = await runEsJob(jobSpec, 'test-keyrange-logs');
+        const count = await runEsJob(jobSpec, specIndex);
         expect(count).toBe(500);
     });
 
     it('should complete after lifecycle changes', async () => {
         const jobSpec = misc.newJob('id');
+        const specIndex = misc.newSpecIndex('id_reader');
         // Job needs to be able to run long enough to cycle
         jobSpec.name = 'reindex by id (with restart)';
-        jobSpec.operations[1].index = 'test-id_reindex-lifecycle-1000';
+        jobSpec.operations[0].index = misc.getExampleIndex(1000);
+        jobSpec.operations[1].index = specIndex;
 
         await testJobLifeCycle(jobSpec);
 
-        const stats = await misc.indexStats('test-id_reindex-lifecycle-1000');
+        const stats = await misc.indexStats(specIndex);
         expect(stats.count).toBe(1000);
     });
 });

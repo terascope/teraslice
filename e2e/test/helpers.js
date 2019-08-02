@@ -1,8 +1,9 @@
 'use strict';
 
+const ms = require('ms');
 const _ = require('lodash');
-const signale = require('signale');
 const Promise = require('bluebird');
+const signale = require('./signale');
 const misc = require('./misc');
 const wait = require('./wait');
 
@@ -13,9 +14,8 @@ async function resetState() {
     const state = await cluster.state();
 
     await Promise.all([
-        async () => {
-            await misc.cleanupIndex('test*');
-        },
+        Promise.delay(800),
+        misc.cleanupIndex(`${misc.SPEC_INDEX_PREFIX}*`),
         (async () => {
             const cleanupJobs = [];
             _.forEach(state, (node) => {
@@ -27,14 +27,16 @@ async function resetState() {
                 }
             });
 
-            await Promise.map(_.uniq(cleanupJobs), async (jobId) => {
-                signale.warn(`resetting job ${jobId}`);
-                try {
-                    await jobs.wrap(jobId).stop({ blocking: true });
-                } catch (err) {
-                    // ignore error;
-                }
-            });
+            await Promise.all(
+                _.uniq(cleanupJobs).map(async (jobId) => {
+                    signale.warn(`resetting job ${jobId}`);
+                    try {
+                        await jobs.wrap(jobId).stop({ blocking: true });
+                    } catch (err) {
+                        // ignore error;
+                    }
+                })
+            );
         })(),
         (async () => {
             const count = _.keys(state).length;
@@ -43,12 +45,12 @@ async function resetState() {
                 await misc.scaleWorkers();
                 await wait.forWorkers();
             }
-        })(),
+        })()
     ]);
 
     const elapsed = Date.now() - startTime;
     if (elapsed > 1000) {
-        signale.warn(`resetting took ${elapsed}ms`);
+        signale.warn(`resetting took ${ms(elapsed)}`);
     }
 }
 
@@ -118,5 +120,5 @@ module.exports = {
     resetState,
     submitAndStart,
     runEsJob,
-    testJobLifeCycle,
+    testJobLifeCycle
 };

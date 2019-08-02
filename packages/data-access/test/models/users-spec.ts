@@ -3,11 +3,12 @@ import { TSError } from '@terascope/utils';
 import { QueryAccess } from 'xlucene-evaluator';
 import { Users, User } from '../../src/models/users';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
+import { TEST_INDEX_PREFIX } from '../helpers/config';
 
 describe('Users', () => {
     const client = makeClient();
     const users = new Users(client, {
-        namespace: 'test',
+        namespace: `${TEST_INDEX_PREFIX}da`,
     });
 
     beforeAll(async () => {

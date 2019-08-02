@@ -1,6 +1,6 @@
 {
     "name": "@terascope/teraslice-op-test-harness",
-    "version": "1.7.0",
+    "version": "1.7.1",
     "description": "A testing harness to simplify testing Teraslice processors and operations.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-op-test-harness#readme",
     "bugs": {
@@ -12,14 +12,12 @@
     "main": "index.js",
     "typings": "types/index.d.ts",
     "scripts": {
-        "lint": "eslint *.js lib/**/*.js test/**/*.js",
-        "lint:fix": "yarn lint --fix",
-        "test": "jest --forceExit",
-        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.20.5",
+        "@terascope/job-components": "^0.20.7",
         "bluebird": "^3.5.5",
         "lodash": "^4.17.11"
     },
@@ -28,5 +26,7 @@
         "access": "public"
     },
     "displayName": "Teraslice Op Test Harness",
-    "terascope": {}
+    "terascope": {
+        "testSuite": "unit"
+    }
 }

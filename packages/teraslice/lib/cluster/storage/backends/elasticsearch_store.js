@@ -56,7 +56,12 @@ module.exports = function elasticsearchStorage(backendConfig) {
         };
 
         if (fields) {
-            query._source = fields;
+            const esVersion = elasticsearch.getESVersion();
+            if (esVersion > 6) {
+                query._sourceIncludes = fields;
+            } else {
+                query._sourceInclude = fields;
+            }
         }
         return elasticsearch.get(query);
     }
@@ -75,8 +80,14 @@ module.exports = function elasticsearchStorage(backendConfig) {
             esQuery.body = query;
         }
 
+
         if (fields) {
-            esQuery._source = fields;
+            const esVersion = elasticsearch.getESVersion();
+            if (esVersion > 6) {
+                esQuery._sourceIncludes = fields;
+            } else {
+                esQuery._sourceInclude = fields;
+            }
         }
 
         return elasticsearch.search(esQuery);
@@ -435,6 +446,11 @@ module.exports = function elasticsearchStorage(backendConfig) {
                 const error = new TSError(err, {
                     reason: `Failure initializing ${recordType} index: ${indexName}`,
                 });
+                if (error.statusCode >= 400 && error.statusCode < 500) {
+                    reject(err);
+                    return;
+                }
+
                 logger.error(error);
                 logger.info(`Attempting to connect to elasticsearch: ${clientName}`);
                 let running = false;

@@ -1,11 +1,12 @@
 import 'jest-extended';
 import { TestContext } from '@terascope/job-components';
 import { makeClient } from './helpers/elasticsearch';
+import { TEST_INDEX_PREFIX } from './helpers/config';
+import QueryPointPlugin from '../src/query-point';
+import { PluginConfig } from '../src/interfaces';
 import ManagerPlugin from '../src/manager';
 import SearchPlugin from '../src/search';
-import { PluginConfig } from '../src/interfaces';
 import index from '../src';
-import QueryPointPlugin from '../src/query-point';
 
 describe('TeraserverAdapterPlugin', () => {
     const client = makeClient();
@@ -55,7 +56,7 @@ describe('TeraserverAdapterPlugin', () => {
             logger: context.logger,
             server_config: {
                 data_access: {
-                    namespace: 'test_da_adapter',
+                    namespace: `${TEST_INDEX_PREFIX}da_adapter`,
                 },
                 teraserver: {
                     shutdown_timeout: 1,

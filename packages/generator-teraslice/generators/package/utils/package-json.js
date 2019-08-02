@@ -30,12 +30,7 @@ module.exports = (options) => {
     }
 
     const {
-        pkgName,
-        pkgDirName,
-        pkgVersion,
-        typescript,
-        description,
-        license
+        pkgName, pkgDirName, pkgVersion, typescript, description, license
     } = options;
 
     const common = {
@@ -58,26 +53,17 @@ module.exports = (options) => {
     if (!typescript) {
         return _.defaultsDeep(common, {
             main: 'index.js',
-            files: [
-                '*.js',
-                'lib/**/*'
-            ],
+            files: ['*.js', 'lib/**/*'],
             scripts: {
-                lint: 'eslint *.js lib/**/*.js test/**/*.js',
-                'lint:fix': 'yarn lint --fix',
                 test: 'jest',
-                'test:watch': 'jest --coverage=false --notify --watch --onlyChanged',
-                // eslint-disable-next-line
-                'test:debug': 'env DEBUG=\\"${DEBUG:*teraslice*}\\" jest --detectOpenHandles --coverage=false --runInBand'
+                'test:watch': 'jest --coverage=false --notify --watch --onlyChanged'
             },
             devDependencies: getPkgValues({})
         });
     }
 
     return _.defaultsDeep(common, {
-        files: [
-            'dist/src/**/*'
-        ],
+        files: ['dist/src/**/*'],
         srcMain: 'src/index.ts',
         main: 'dist/src/index.js',
         typings: 'dist/src/index.d.ts',
@@ -89,8 +75,9 @@ module.exports = (options) => {
             'build:watch': 'yarn build --watch',
             test: 'jest',
             'test:watch': 'jest --coverage=false --notify --watch --onlyChanged',
-            'test:debug': "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
+            'test:debug':
+                "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
         },
-        devDependencies: getPkgValues({}),
+        devDependencies: getPkgValues({})
     });
 };

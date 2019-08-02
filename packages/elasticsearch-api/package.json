@@ -1,6 +1,6 @@
 {
     "name": "@terascope/elasticsearch-api",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "description": "Elasticsearch client api used across multiple services, handles retries and exponential backoff",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/elasticsearch-api#readme",
     "bugs": {
@@ -12,14 +12,12 @@
     "main": "index.js",
     "typings": "types/index.d.ts",
     "scripts": {
-        "lint": "eslint *.js test/**/*.js",
-        "lint:fix": "yarn lint --fix",
-        "test": "jest --forceExit",
-        "test:debug": "env DEBUG=\"${DEBUG:-*elasticsearch-api*}\" jest --detectOpenHandles --coverage=false --runInBand",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/utils": "^0.14.0",
+        "@terascope/utils": "^0.14.1",
         "bluebird": "^3.5.5",
         "lodash": "^4.17.11"
     },
@@ -27,6 +25,8 @@
     "publishConfig": {
         "access": "public"
     },
-    "displayName": "Elasticsearch Api",
-    "terascope": {}
+    "displayName": "Elasticsearch API",
+    "terascope": {
+        "testSuite": "unit"
+    }
 }

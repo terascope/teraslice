@@ -20,13 +20,13 @@
         "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
-        "test": "jest",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/elasticsearch-api": "^2.1.0",
-        "@terascope/job-components": "^0.20.5",
+        "@terascope/elasticsearch-api": "^2.1.1",
+        "@terascope/job-components": "^0.20.7",
         "bluebird": "^3.5.5",
         "mnemonist": "^0.30.0"
     },
@@ -36,6 +36,7 @@
     "displayName": "Teraslice State Storage",
     "srcMain": "src/index.ts",
     "terascope": {
-        "enableTypedoc": true
+        "enableTypedoc": true,
+        "testSuite": "elasticsearch"
     }
 }

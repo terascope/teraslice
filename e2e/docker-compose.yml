@@ -1,106 +1,34 @@
 version: '2.4'
 services:
     teraslice-master:
-        image: e2e_teraslice
-        command: [
-            "./scripts/wait-for-it.sh",
-            "elasticsearch:49200",
-            "--timeout=60",
-            "--",
-            "node",
-            "service.js"
-        ]
+        image: ts_test_teraslice
         ports:
             - '45678:45678'
         scale: 1
         restart: 'on-failure'
         stop_grace_period: 30s
         environment:
-            - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.yaml
+            - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.json
             - NODE_OPTIONS=--max-old-space-size=256
-        networks:
-            - cluster
         volumes:
             - teraslice-assets:/app/assets
-            - ./autoload:/app/autoload:delegated
-            - ./config:/app/config:delegated
+            - ./autoload:/app/autoload:ro
+            - ./.config:/app/config:ro
     teraslice-worker:
-        image: e2e_teraslice
-        command: [
-            "./scripts/wait-for-it.sh",
-            "elasticsearch:49200",
-            "--timeout=75",
-            "--",
-            "node",
-            "service.js"
-        ]
+        image: ts_test_teraslice
         scale: 2
         restart: 'on-failure'
         stop_grace_period: 30s
         environment:
-            - TERAFOUNDATION_CONFIG=/app/config/teraslice-worker.yaml
+            - TERAFOUNDATION_CONFIG=/app/config/teraslice-worker.json
             - NODE_OPTIONS=--max-old-space-size=256
-        networks:
-            - cluster
         volumes:
             - teraslice-assets:/app/assets
-            - ./autoload:/app/autoload:delegated
-            - ./config:/app/config:delegated
-    elasticsearch:
-        image: blacktop/elasticsearch:6.7.2
-        ports:
-            - '49200:49200'
-            - '49300:49300'
-        environment:
-            - 'ES_JAVA_OPTS=-Xms256m -Xmx256m'
-            - 'network.host=0.0.0.0'
-            - 'http.port=49200'
-            - 'discovery.type=single-node'
-        volumes:
-            - elasticsearch-data:/usr/share/elasticsearch/data
-        networks:
-            - cluster
-        ulimits:
-            memlock:
-                soft: -1
-                hard: -1
-            nofile:
-                soft: 65536
-                hard: 65536
-        cap_add:
-            - IPC_LOCK
-    kafka:
-        image: terascope/kafka-zookeeper:v1.1.1
-        scale: 0
-        ports:
-            - '42181:42181'
-            - '49092:49092'
-        networks:
-            - cluster
-        environment:
-            - 'KAFKA_HEAP_OPTS=-Xms256m -Xmx256m'
-            - 'ADVERTISED_HOST=kafka'
-            - 'ADVERTISED_PORT=49092'
-            - 'ZOOKEEPER_PORT=42181'
-        volumes:
-            - kafka-data:/kafka
-            - zookeeper-data:/zookeeper
+            - ./autoload:/app/autoload:ro
+            - ./.config:/app/config:ro
+
 volumes:
     teraslice-assets:
         driver_opts:
             type: tmpfs
             device: tmpfs
-    elasticsearch-data:
-        driver_opts:
-            type: tmpfs
-            device: tmpfs
-    kafka-data:
-        driver_opts:
-            type: tmpfs
-            device: tmpfs
-    zookeeper-data:
-        driver_opts:
-            type: tmpfs
-            device: tmpfs
-networks:
-    cluster:

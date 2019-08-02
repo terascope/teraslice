@@ -31,6 +31,11 @@ yargs
                     return JSON.parse(fs.readFileSync(arg, 'utf8'));
                 },
             },
+            'es-version': {
+                number: true,
+                describe: 'Specify the major version of elasticsearch needed for the mapping',
+                default: 6,
+            },
             shards: {
                 number: true,
                 describe: 'Specify the number of shards for the index',
@@ -111,7 +116,7 @@ function getESMapping(dataType: DataType, argv: yargs.Arguments<any>) {
     if (argv.replicas != null) {
         set(overrides, ['settings', 'index.number_of_replicas'], argv.replicas);
     }
-    return dataType.toESMapping({ overrides });
+    return dataType.toESMapping({ overrides, version: argv['es-version'] });
 }
 
 function getGraphQlSchema(dataType: DataType) {

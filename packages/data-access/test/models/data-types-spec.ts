@@ -1,12 +1,13 @@
 import 'jest-extended';
 import { LATEST_VERSION } from '@terascope/data-types';
-import { DataTypes, DataType } from '../../src/models/data-types';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
+import { DataTypes, DataType } from '../../src/models/data-types';
+import { TEST_INDEX_PREFIX } from '../helpers/config';
 
 describe('DataTypes', () => {
     const client = makeClient();
     const dataTypes = new DataTypes(client, {
-        namespace: 'test',
+        namespace: `${TEST_INDEX_PREFIX}da`,
     });
 
     beforeAll(async () => {

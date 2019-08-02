@@ -11,11 +11,9 @@
     "author": "Terascope, LLC <info@terascope.io>",
     "main": "index.js",
     "scripts": {
-        "lint": "eslint *.js test/**/*.js",
-        "lint:fix": "yarn lint --fix",
-        "test": "jest --forceExit",
-        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
         "lodash.get": "^4.4.2"
@@ -25,5 +23,7 @@
         "access": "public"
     },
     "displayName": "Error Parser",
-    "terascope": {}
+    "terascope": {
+        "testSuite": "unit"
+    }
 }

@@ -23,8 +23,8 @@
         "test": "echo '* tests not supported yet'"
     },
     "dependencies": {
-        "@terascope/data-access": "^0.12.5",
-        "@terascope/utils": "^0.14.0",
+        "@terascope/data-access": "^0.12.6",
+        "@terascope/utils": "^0.14.1",
         "apollo-boost": "^0.4.3",
         "apollo-client": "^2.6.3",
         "date-fns": "^1.30.1",
@@ -50,6 +50,7 @@
     },
     "displayName": "Ui Components",
     "terascope": {
-        "enableTypedoc": true
+        "enableTypedoc": true,
+        "testSuite": "disabled"
     }
 }

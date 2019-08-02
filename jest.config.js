@@ -3,7 +3,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const excluded = ['ui-core', 'ui-components'];
 const packagesPath = path.join(__dirname, 'packages');
 const projects = fs
     .readdirSync(packagesPath)
@@ -11,8 +10,17 @@ const projects = fs
         const pkgDir = path.join(packagesPath, pkgName);
 
         if (!fs.statSync(pkgDir).isDirectory()) return false;
-        if (excluded.includes(pkgName)) return false;
-        return fs.existsSync(path.join(pkgDir, 'package.json'));
+        const pkgPath = path.join(pkgDir, 'package.json');
+        const hasPkg = fs.existsSync(pkgPath);
+        if (hasPkg) {
+            const { terascope = {} } = JSON.parse(fs.readFileSync(pkgPath));
+            const { testSuite = 'disabled' } = terascope;
+            if (testSuite === 'disabled') {
+                return false;
+            }
+            return true;
+        }
+        return false;
     })
     .map(pkgName => `<rootDir>/packages/${pkgName}`);
 
@@ -21,9 +29,12 @@ module.exports = {
     verbose: true,
     projects,
     globals: {
-        availableExtensions: ['.js', '.ts'],
+        availableExtensions: ['.js', '.ts']
     },
-    testMatch: ['<rootDir>/packages/*/test/**/*-spec.{ts,js}', '<rootDir>/packages/*/test/*-spec.{ts,js}'],
+    testMatch: [
+        '<rootDir>/packages/*/test/**/*-spec.{ts,js}',
+        '<rootDir>/packages/*/test/*-spec.{ts,js}'
+    ],
     testPathIgnorePatterns: [
         '/coverage/',
         '/docs/',
@@ -31,7 +42,7 @@ module.exports = {
         '/examples/',
         '<rootDir>/e2e/',
         '<rootDir>/packages/*/dist',
-        '<rootDir>/packages/teraslice-cli/test/fixtures/',
+        '<rootDir>/packages/teraslice-cli/test/fixtures/'
     ],
     collectCoverage: true,
     collectCoverageFrom: [
@@ -45,9 +56,9 @@ module.exports = {
         '!<rootDir>/packages/**/*.json',
         '!<rootDir>/packages/**/*.d.ts',
         '!<rootDir>/packages/**/dist/**',
-        '!<rootDir>/packages/**/coverage/**',
+        '!<rootDir>/packages/**/coverage/**'
     ],
     coverageReporters: ['lcov', 'text-summary', 'html'],
     coverageDirectory: '<rootDir>/coverage',
-    preset: 'ts-jest',
+    preset: 'ts-jest'
 };

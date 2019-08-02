@@ -8,10 +8,12 @@ describe('elasticsearch bulk', () => {
 
     it('should support multisend', async () => {
         const jobSpec = misc.newJob('multisend');
+        const specIndex = misc.newSpecIndex('elasticsearch-bulk');
         jobSpec.name = 'multisend';
-        jobSpec.operations[1].index = 'test-multisend-1000';
+        jobSpec.operations[0].index = misc.getExampleIndex(1000);
+        jobSpec.operations[1].index = specIndex;
 
-        const count = await runEsJob(jobSpec, 'test-multisend-1000');
+        const count = await runEsJob(jobSpec, specIndex);
         expect(count).toBe(1000);
     });
 });

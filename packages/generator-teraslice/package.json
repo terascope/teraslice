@@ -1,6 +1,6 @@
 {
     "name": "generator-teraslice",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "description": "Generate teraslice related packages and code",
     "keywords": [
         "teraslice",
@@ -18,11 +18,9 @@
     ],
     "main": "generators/index.js",
     "scripts": {
-        "lint": "eslint *.js test/**/*.js",
-        "lint:fix": "yarn lint --fix",
-        "test": "jest --forceExit",
-        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
         "chalk": "^2.4.2",
@@ -38,5 +36,7 @@
         "access": "public"
     },
     "displayName": "Generator Teraslice",
-    "terascope": {}
+    "terascope": {
+        "testSuite": "unit"
+    }
 }

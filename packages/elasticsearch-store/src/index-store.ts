@@ -323,13 +323,25 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     /** Search with a given Lucene Query */
     async search(query: string, params?: PartialParam<SearchParams<T>>): Promise<T[]> {
         const p = Object.assign({}, params, this._translateQuery(query));
-
         return this._search(p);
     }
 
     /** Search an Elasticsearch Query DSL */
     // tslint:disable-next-line
     async _search(params: PartialParam<SearchParams<T>>): Promise<T[]> {
+        const esVersion = utils.getESVersion(this.client);
+        if (esVersion >= 7) {
+            const p: any = params;
+            if (p._sourceExclude) {
+                p._sourceExcludes = p._sourceExclude.slice();
+                delete p._sourceExclude;
+            }
+            if (p._sourceInclude) {
+                p._sourceIncludes = p._sourceInclude.slice();
+                delete p._sourceInclude;
+            }
+        }
+
         const results = await ts.pRetry(async () => {
             return this.client.search<T>(
                 this.getDefaultParams(

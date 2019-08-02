@@ -85,7 +85,7 @@ module.exports = function _clusterMaster(context) {
 
                 // give the assets service a bit to come up
                 const fiveMinutes = 5 * 60 * 1000;
-                waitForAssetsService(Date.now() + fiveMinutes);
+                await waitForAssetsService(Date.now() + fiveMinutes);
 
                 const apiService = await APIService(context, app, {
                     assetsUrl,

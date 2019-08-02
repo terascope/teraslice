@@ -1,21 +1,31 @@
 import fse from 'fs-extra';
 import path from 'path';
 import pkgUp from 'pkg-up';
-import { words, isPlainObject } from 'lodash';
+import { isPlainObject } from '@terascope/utils';
+import { PackageInfo } from './interfaces';
+import signale from './signale';
 
 export let rootDir: string | undefined;
-export function getRootDir() {
+export function getRootDir(cwd: string = process.cwd()): string {
     if (rootDir) return rootDir;
-    const rootPkgJSON = pkgUp.sync();
+    const rootPkgJSON = pkgUp.sync({ cwd });
     if (!rootPkgJSON) {
         throw new Error('Unable to find root directory, run in the root of the repo');
     }
-    rootDir = path.dirname(rootPkgJSON);
-    return rootDir;
+
+    const pkg = fse.readJSONSync(rootPkgJSON);
+    if (pkg && pkg.root) {
+        rootDir = path.dirname(rootPkgJSON);
+        return rootDir;
+    }
+    return getRootDir(path.join(path.dirname(rootPkgJSON), '..'));
 }
 
 export function getName(input: string): string {
-    return words(input)
+    return input
+        .split(/\W/g)
+        .map(str => str.trim())
+        .filter(str => str.length > 0)
         .map((str: string) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
         .join(' ');
 }
@@ -65,8 +75,7 @@ export async function writeIfChanged(filePath: string, contents: any, options: W
             }
         }
         if (options.log !== false) {
-            // tslint:disable-next-line: no-console
-            console.error(`* wrote ${path.relative(getRootDir(), filePath)} file`);
+            signale.debug(`wrote ${path.relative(getRootDir(), filePath)} file`);
         }
         await fse.writeFile(filePath, _contents, 'utf8');
         return true;
@@ -80,8 +89,7 @@ export async function writeIfChanged(filePath: string, contents: any, options: W
         }
 
         if (options.log !== false) {
-            // tslint:disable-next-line: no-console
-            console.error(`* wrote ${path.relative(getRootDir(), filePath)} JSON file`);
+            signale.debug(`wrote ${path.relative(getRootDir(), filePath)} JSON file`);
         }
         await fse.writeJSON(filePath, contents, {
             spaces: 4,
@@ -97,6 +105,17 @@ export function formatList(list: string[]) {
 }
 
 export function cliError<T>(prefix: string, error: string, ...args: any[]): never {
-    console.error(`${prefix}: ${error}`, ...args);
-    return process.exit(1);
+    signale.error(`\n${prefix}: ${error}`, ...args);
+    const exitCode = (process.exitCode || 0) > 0 ? process.exitCode : 1;
+    return process.exit(exitCode);
+}
+
+export function writeHeader(msg: string, prefixNewline?: boolean): void {
+    if (prefixNewline) process.stderr.write('\n');
+    signale.star(`${msg}`);
+}
+
+export function writePkgHeader(prefix: string, pkgInfos: PackageInfo[], prefixNewline?: boolean): void {
+    const names = pkgInfos.map(({ name }) => name).join(', ');
+    writeHeader(`${prefix} for ${names}`, prefixNewline);
 }
