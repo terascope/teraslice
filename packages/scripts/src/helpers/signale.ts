@@ -8,6 +8,9 @@ export default new Signale({
         log: {
             stream: [process.stdout],
         },
+        debug: {
+            color: 'cyan',
+        },
         pending: {
             badge: '*',
         },
