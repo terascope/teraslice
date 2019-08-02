@@ -1,6 +1,6 @@
 {
     "name": "teraslice-test-harness",
-    "version": "0.8.1",
+    "version": "0.8.2",
     "description": "A helpful library for testing teraslice jobs, operations, and other components.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-test-harness#readme",
     "bugs": {
@@ -32,8 +32,8 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.20.6",
-        "@terascope/teraslice-op-test-harness": "^1.6.0",
+        "@terascope/job-components": "^0.20.7",
+        "@terascope/teraslice-op-test-harness": "^1.7.1",
         "lodash": "^4.17.11"
     },
     "devDependencies": {},

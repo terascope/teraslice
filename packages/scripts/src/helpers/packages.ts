@@ -55,11 +55,7 @@ export function getPkgInfo(name: string): i.PackageInfo {
 }
 
 export function getPkgNames(packages: i.PackageInfo[]): string[] {
-    const names: string[] = [];
-    packages.forEach(pkgInfo => {
-        names.push(pkgInfo.name, pkgInfo.folderName);
-    });
-    return uniq(names).sort();
+    return uniq(packages.map(pkgInfo => pkgInfo.folderName)).sort();
 }
 
 export function updatePkgInfo(pkgInfo: i.PackageInfo): void {

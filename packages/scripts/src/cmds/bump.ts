@@ -3,6 +3,9 @@ import { CommandModule } from 'yargs';
 import { coercePkgArg } from '../helpers/args';
 import { bumpPackages } from '../helpers/bump';
 import { PackageInfo } from '../helpers/interfaces';
+import { castArray } from '@terascope/utils';
+
+const releaseChoices = ['major', 'minor', 'patch', 'prerelease', 'premajor', 'preminor', 'prepatch'];
 
 const cmd: CommandModule = {
     command: 'bump [packages..]',
@@ -32,12 +35,20 @@ const cmd: CommandModule = {
                 type: 'string',
                 default: 'patch',
                 requiresArg: true,
-                choices: ['major', 'minor', 'patch', 'prerelease', 'premajor', 'preminor', 'prepatch'],
+                choices: releaseChoices,
             })
             .positional('packages', {
                 description: 'Run scripts for one or more package (if specifying more than one make sure they are ordered by dependants)',
                 type: 'string',
+                default: '.',
                 coerce(arg) {
+                    castArray(arg).forEach(a => {
+                        if (releaseChoices.includes(a)) {
+                            yargs.showHelp();
+                            console.error(`\n ERROR: bump CLI has changed, use --release ${a} or -r ${a} instead`);
+                            process.exit(1);
+                        }
+                    });
                     return coercePkgArg(arg);
                 },
             })
