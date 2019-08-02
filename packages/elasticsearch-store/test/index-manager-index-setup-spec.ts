@@ -13,7 +13,7 @@ describe('IndexManager->indexSetup()', () => {
         const client = makeClient();
 
         const config: IndexConfig = {
-            name: 'test__simple',
+            name: 'teratest__simple',
             index_schema: {
                 version: 1,
                 mapping: simple.mapping,
@@ -54,9 +54,7 @@ describe('IndexManager->indexSetup()', () => {
         });
 
         it('should create the mapping', async () => {
-            const mapping = await client.indices.getMapping({
-                index,
-            });
+            const mapping = await indexManager.getMapping(index);
 
             expect(mapping).toHaveProperty(index);
             expect(mapping[index].mappings).toHaveProperty(config.name);
@@ -72,7 +70,7 @@ describe('IndexManager->indexSetup()', () => {
         const client = makeClient();
 
         const config: IndexConfig = {
-            name: 'test__template',
+            name: 'teratest__template',
             index_schema: {
                 version: 1,
                 mapping: template.mapping,
@@ -120,18 +118,14 @@ describe('IndexManager->indexSetup()', () => {
         });
 
         it('should create the mapping', async () => {
-            const mapping = await client.indices.getMapping({
-                index,
-            });
+            const mapping = await indexManager.getMapping(index);
 
             expect(mapping).toHaveProperty(index);
             expect(mapping[index].mappings).toHaveProperty(config.name);
         });
 
         it('should create the template', async () => {
-            const temp = await client.indices.getTemplate({
-                name: templateName,
-            });
+            const temp = await indexManager.getTemplate(templateName, false);
 
             expect(temp).toHaveProperty(templateName);
             expect(temp[templateName].mappings).toHaveProperty(config.name);
@@ -154,9 +148,7 @@ describe('IndexManager->indexSetup()', () => {
                 version,
             });
 
-            const temp = await client.indices.getTemplate({
-                name: templateName,
-            });
+            const temp = await indexManager.getTemplate(templateName, false);
 
             expect(temp).toHaveProperty(templateName);
             expect(temp[templateName]).toHaveProperty('version', version);
@@ -177,9 +169,7 @@ describe('IndexManager->indexSetup()', () => {
                 version: newVersion,
             });
 
-            const temp = await client.indices.getTemplate({
-                name: templateName,
-            });
+            const temp = await indexManager.getTemplate(templateName, false);
 
             expect(temp).toHaveProperty(templateName);
             expect(temp[templateName]).toHaveProperty('version', newVersion);
@@ -195,7 +185,7 @@ describe('IndexManager->indexSetup()', () => {
         const client = makeClient();
 
         const config: IndexConfig = {
-            name: 'test__timeseries',
+            name: 'teratest__timeseries',
             index_schema: {
                 version: 1,
                 mapping: template.mapping,
@@ -241,17 +231,13 @@ describe('IndexManager->indexSetup()', () => {
         });
 
         it('should create the mapping', async () => {
-            const mapping = await client.indices.getMapping({
-                index,
-            });
+            const mapping = await indexManager.getMapping(index);
 
             expect(mapping[currentIndexName].mappings).toHaveProperty(config.name);
         });
 
         it('should create the template', async () => {
-            const temp = await client.indices.getTemplate({
-                name: templateName,
-            });
+            const temp = await indexManager.getTemplate(templateName, false);
 
             expect(temp).toHaveProperty(templateName);
             expect(temp[templateName].mappings).toHaveProperty(config.name);

@@ -27,9 +27,9 @@ describe('IndexStore', () => {
         });
     });
 
-    const index = 'test__store-v1-s1';
+    const index = 'teratest__store-v1-s1';
     const config: IndexConfig = {
-        name: 'test__store',
+        name: 'teratest__store',
         index_schema: {
             version: 1,
             mapping,
@@ -190,7 +190,7 @@ describe('IndexStore', () => {
                 expect(metadata).toMatchObject({
                     _index: index,
                     _key: record.test_id,
-                    _type: 'test__store',
+                    _type: 'teratest__store',
                 });
 
                 expect(metadata._processTime).toBeNumber();
@@ -603,7 +603,7 @@ describe('IndexStore', () => {
                         if (inputType === 'output') {
                             return _client.index({
                                 index,
-                                type: 'test__store',
+                                type: 'teratest__store',
                                 id: record.test_id,
                                 body: record,
                                 refresh: false,

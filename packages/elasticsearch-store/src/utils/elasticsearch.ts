@@ -200,5 +200,6 @@ export function fixMappingRequest(client: Client, _params: any, isTemplate: bool
             });
         }
     }
+
     return Object.assign({}, defaultParams, params);
 }

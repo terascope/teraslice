@@ -849,11 +849,18 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function _verifyMapping(query, configMapping, recordType) {
-        return _clientIndicesRequest('getMapping', query)
+        const params = Object.assign({}, query);
+        const esVersion = getESVersion();
+        if (esVersion > 6) {
+            if (recordType) {
+                params.includeTypeName = true;
+            }
+        }
+        return _clientIndicesRequest('getMapping', params)
             .then(mapping => _areSameMappings(configMapping, mapping, recordType))
             .catch((err) => {
                 const error = new TSError(err, {
-                    reason: `could not get mapping for query ${JSON.stringify(query)}`,
+                    reason: `could not get mapping for query ${JSON.stringify(params)}`,
                 });
                 return Promise.reject(error);
             });
