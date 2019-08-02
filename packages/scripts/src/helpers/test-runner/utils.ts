@@ -30,6 +30,12 @@ export function getArgs(options: TestOptions): ArgsMap {
         args.silent = '';
     }
 
+    if (options.watch) {
+        args.watch = '';
+        args.coverage = 'false';
+        args.onlyChanged = '';
+    }
+
     if (options.suite === TestSuite.E2E) {
         args.runInBand = '';
         args.coverage = 'false';

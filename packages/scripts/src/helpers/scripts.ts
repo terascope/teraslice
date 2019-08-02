@@ -1,7 +1,7 @@
 import path from 'path';
 import execa from 'execa';
 import fse from 'fs-extra';
-import { debugLogger, pDelay, uniq } from '@terascope/utils';
+import { debugLogger, pDelay } from '@terascope/utils';
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
 import signale from './signale';
@@ -110,13 +110,22 @@ export async function yarnRun(script: string, args: string[] = [], cwd?: string)
     return fork({ cmd: 'yarn', args: ['run', script, ...args], cwd });
 }
 
-export async function runJest(pkgDir: string, args: ArgsMap, env?: ExecEnv, extraArgs?: string[]): Promise<void> {
-    const allArgs = uniq([...mapToArgs(args), ...(extraArgs || [])]);
-    signale.debug(`executing: jest ${allArgs.join(' ')}`);
+export async function runJest(cwd: string, argsMap: ArgsMap, env?: ExecEnv, extraArgs?: string[]): Promise<void> {
+    const args = mapToArgs(argsMap);
+    if (extraArgs) {
+        extraArgs.forEach(extraArg => {
+            if (extraArg.startsWith('-') && args.includes(extraArg)) {
+                logger.debug(`* skipping duplicate jest arg ${extraArg}`);
+                return;
+            }
+            args.push(extraArg);
+        });
+    }
+    signale.debug(`executing: jest ${args.join(' ')}`);
     await fork({
         cmd: 'jest',
-        args: allArgs,
-        cwd: pkgDir,
+        cwd,
+        args,
         env,
     });
 }

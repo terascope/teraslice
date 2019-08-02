@@ -162,12 +162,16 @@ export async function pWhile(fn: PromiseFn, options: PWhileOptions = {}): Promis
     const timeoutMs = options.timeoutMs != null ? options.timeoutMs : -1;
     const minJitter = timeoutMs > 100 ? timeoutMs : 100;
     const name = options.name || 'Request';
+    const startTime = Date.now();
 
     const checkTimeout = trackTimeout(timeoutMs);
     let running = false;
-    await new Promise((resolve, reject) => {
-        const interval = setInterval(async () => {
+    let interval: any;
+
+    const promise = new Promise((resolve, reject) => {
+        interval = setInterval(async () => {
             if (running) return;
+            running = true;
 
             const timeout = checkTimeout();
             if (timeout !== false) {
@@ -179,12 +183,9 @@ export async function pWhile(fn: PromiseFn, options: PWhileOptions = {}): Promis
                 return;
             }
 
-            running = true;
-
             try {
                 const result = await fn();
                 if (result) {
-                    clearInterval(interval);
                     resolve();
                     return;
                 }
@@ -193,14 +194,25 @@ export async function pWhile(fn: PromiseFn, options: PWhileOptions = {}): Promis
                     const delay = getBackoffDelay(minJitter, 3, timeoutMs / 2, minJitter);
                     await pDelay(delay);
                 }
-            } catch (err) {
-                clearInterval(interval);
-                reject(err);
-            } finally {
+
                 running = false;
+            } catch (err) {
+                reject(
+                    new TSError(err, {
+                        context: {
+                            elapsed: Date.now() - startTime,
+                        },
+                    })
+                );
             }
         }, 1);
     });
+
+    try {
+        await promise;
+    } finally {
+        clearInterval(interval);
+    }
 }
 
 /**

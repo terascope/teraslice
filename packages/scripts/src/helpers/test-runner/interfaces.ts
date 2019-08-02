@@ -3,6 +3,7 @@ import { TestSuite, PackageInfo } from '../interfaces';
 export type TestOptions = {
     bail: boolean;
     debug: boolean;
+    watch: boolean;
     all: boolean;
     suite?: TestSuite;
     elasticsearchHost: string;

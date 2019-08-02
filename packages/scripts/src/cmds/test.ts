@@ -1,13 +1,15 @@
 import isCI from 'is-ci';
 import { CommandModule } from 'yargs';
-import { runTests } from '../helpers/test-runner';
+import { toBoolean } from '@terascope/utils';
 import { TestSuite, PackageInfo, GlobalCMDOptions } from '../helpers/interfaces';
-import { coercePkgArg } from '../helpers/args';
-import { listPackages } from '../helpers/packages';
 import { KAFKA_BROKER, ELASTICSEARCH_HOST } from '../helpers/config';
+import { listPackages } from '../helpers/packages';
+import { runTests } from '../helpers/test-runner';
+import { coercePkgArg } from '../helpers/args';
 
 type Options = {
     debug: boolean;
+    watch: boolean;
     bail: boolean;
     suite?: TestSuite;
     'elasticsearch-host': string;
@@ -34,14 +36,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 description: 'This will cause the tests to stop at the first failed test.',
                 type: 'boolean',
                 default: isCI,
-                coerce(arg) {
-                    const index = jestArgs.indexOf('--bail');
-                    if (index > -1) {
-                        jestArgs.splice(index, 1);
-                        return true;
-                    }
-                    return arg;
-                },
+            })
+            .option('watch', {
+                description: 'Run tests in an interactive watch mode, this will test only the changed files',
+                type: 'boolean',
+                default: false,
             })
             .option('suite', {
                 description: 'Run a test given a particular suite. Defaults to running all',
@@ -89,9 +88,14 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             });
     },
     handler(argv) {
+        const debug = hoistJestArg(argv, 'debug');
+        const watch = hoistJestArg(argv, 'watch');
+        const bail = hoistJestArg(argv, 'bail');
+
         return runTests(getPkgInfos(argv.packages), {
-            debug: argv.debug,
-            bail: argv.bail,
+            debug,
+            watch,
+            bail,
             suite: argv.suite,
             elasticsearchHost: argv['elasticsearch-host'],
             elasticsearchVersion: argv['elasticsearch-version'],
@@ -103,6 +107,24 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         });
     },
 };
+
+// this only works with booleans for now
+function hoistJestArg(argv: any, key: string): boolean {
+    let val = argv[key];
+
+    const index = jestArgs.indexOf(`--${key}`);
+    if (index > -1) {
+        const nextVal = jestArgs[index + 1];
+        jestArgs.splice(index, 1);
+        if (nextVal && ['true', true, 'false', false].includes(nextVal)) {
+            val = toBoolean(nextVal);
+        } else {
+            val = true;
+        }
+    }
+
+    return toBoolean(val);
+}
 
 function getExtraArgs(): string[] {
     const args: string[] = [];
