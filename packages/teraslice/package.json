@@ -29,7 +29,7 @@
         "start": "node service.js",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
         "@terascope/elasticsearch-api": "^2.1.0",

@@ -28,7 +28,7 @@
         "prepublishOnly": "yarn build",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
         "@lerna/query-graph": "^3.14.0",
