@@ -35,7 +35,6 @@ jobs:
         - yarn lint:js
         # FIXME - this should be enabled before merging
         # - yarn lint:ts --parallel
-        - yarn lint:docs
         - yarn sync --verify
 
   - script:
