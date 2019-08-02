@@ -66,8 +66,13 @@ describe('cluster state', () => {
             expect(node.available).toBeWithin(0, misc.WORKERS_PER_NODE + 1);
 
             const expectActiveLength = node.total - node.available;
-            if (node.active !== expectActiveLength) {
-                signale.warn('Expected node.active to equal node.total - node.available');
+            const actualLength = node.active.length;
+            if (actualLength !== expectActiveLength) {
+                signale.warn(
+                    `Expected node.active "${
+                        node.active.length
+                    }" to equal "${expectActiveLength}" node.total - node.available`
+                );
             }
         });
 
