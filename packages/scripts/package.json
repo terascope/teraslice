@@ -19,7 +19,6 @@
         "ts-scripts": "./bin/ts-scripts.js"
     },
     "scripts": {
-        "prebuild": "./scripts/build-typedoc.js",
         "build": "tsc --build --pretty",
         "build:watch": "yarn build --watch",
         "postinstall": "./scripts/build-typedoc.js",
