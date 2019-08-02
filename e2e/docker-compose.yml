@@ -18,7 +18,7 @@ services:
         image: ts_test_teraslice
         command: [
             "./scripts/wait-for-host.sh",
-            "${LOCAL_IP}:45678",
+            "${HOST_IP}:45678",
             "node",
             "service.js"
         ]

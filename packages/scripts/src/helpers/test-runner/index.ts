@@ -19,13 +19,9 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
         errors = await _runTests(pkgInfos, options);
     } catch (err) {
         errors = [getFullErrorStack(err)];
-    } finally {
-        if (options.suite === TestSuite.E2E || !utils.onlyUnitTests(pkgInfos)) {
-            await stopAllServices().catch(err => {
-                signale.error(new TSError(err, { reason: 'Failure stopping services' }));
-            });
-        }
     }
+
+    await cleanUpIfNeeded(pkgInfos, options);
 
     let errorMsg: string = '';
     if (errors.length > 1) {
@@ -37,8 +33,22 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
     if (errors.length) {
         process.stderr.write('\n\n');
         signale.error(`${errorMsg}`);
+
         const exitCode = (process.exitCode || 0) > 0 ? process.exitCode : 1;
         process.exit(exitCode);
+        return;
+    }
+
+    process.exit(0);
+}
+
+async function cleanUpIfNeeded(pkgInfos: PackageInfo[], options: TestOptions) {
+    if (options.suite === TestSuite.E2E || !utils.onlyUnitTests(pkgInfos)) {
+        try {
+            await stopAllServices();
+        } catch (err) {
+            signale.error(new TSError(err, { reason: 'Failure stopping services' }));
+        }
     }
 }
 

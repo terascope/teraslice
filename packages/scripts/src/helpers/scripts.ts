@@ -14,6 +14,7 @@ type ExecOpts = {
     args?: string[];
     cwd?: string;
     env?: ExecEnv;
+    stdio?: 'inherit';
     detached?: boolean;
 };
 
@@ -24,6 +25,7 @@ function _exec(opts: ExecOpts) {
         env: opts.env,
         preferLocal: true,
         detached: opts.detached,
+        stdio: opts.stdio,
     };
 
     logger.debug('executing command', opts);
@@ -33,11 +35,16 @@ function _exec(opts: ExecOpts) {
     } else {
         subprocess = execa(opts.cmd, options);
     }
-    if (!subprocess || !subprocess.stderr || !subprocess.stdout) {
+    if (!subprocess) {
         throw new Error(`Failed to execution ${opts.cmd}`);
     }
 
-    subprocess.stderr.pipe(process.stderr);
+    if (!opts.stdio) {
+        if (!subprocess.stderr || !subprocess.stdout) {
+            throw new Error(`Command ${opts.cmd} failed, stderr or stdout is not available`);
+        }
+        subprocess.stderr.pipe(process.stderr);
+    }
     return subprocess;
 }
 
@@ -63,11 +70,9 @@ export async function exec(opts: ExecOpts, log: boolean = true): Promise<string>
 export async function fork(opts: ExecOpts): Promise<void> {
     try {
         const env: ExecEnv = { FORCE_COLOR: '1', ...opts.env };
-        const _opts = { ...opts };
+        const _opts: ExecOpts = { stdio: 'inherit', ...opts };
         _opts.env = env;
-        const subprocess = _exec(_opts);
-        subprocess.stdout!.pipe(process.stdout);
-        await subprocess;
+        await _exec(_opts);
     } catch (err) {
         if (!err.command) {
             throw err;

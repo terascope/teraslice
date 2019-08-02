@@ -50,11 +50,15 @@ export async function populateIndex(client: es.Client, index: string, _propertie
     const mapping = dataType.toESMapping({ typeName: 'events', overrides, version });
 
     await client.indices.create(
-        fixMappingRequest(client, {
-            index,
-            waitForActiveShards: 'all',
-            body: mapping,
-        })
+        fixMappingRequest(
+            client,
+            {
+                index,
+                waitForActiveShards: 'all',
+                body: mapping,
+            },
+            false
+        )
     );
 
     return client.bulk({ index, type: 'events', body: format(data, index), refresh: true });

@@ -114,7 +114,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function indexCreate(query) {
-        const params = _fixMappingRequest(query);
+        const params = _fixMappingRequest(query, false);
         return _clientIndicesRequest('create', params);
     }
 
@@ -210,7 +210,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function putTemplate(template, name) {
-        const params = _fixMappingRequest(Object.assign({ body: template, name }));
+        const params = _fixMappingRequest(Object.assign({ body: template, name }), true);
         return _clientIndicesRequest('putTemplate', params).then(
             results => results
         );
@@ -721,7 +721,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         return 6;
     }
 
-    function _fixMappingRequest(_params) {
+    function _fixMappingRequest(_params, isTemplate) {
         if (!_params || !_params.body) {
             throw new Error('Invalid mapping request');
         }
@@ -731,7 +731,9 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         const esVersion = getESVersion();
         if (esVersion >= 6) {
             if (params.body.template) {
-                params.body.index_patterns = _.castArray(params.body.template).slice();
+                if (isTemplate) {
+                    params.body.index_patterns = _.castArray(params.body.template).slice();
+                }
                 delete params.body.template;
             }
         }

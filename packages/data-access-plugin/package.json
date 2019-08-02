@@ -25,7 +25,7 @@
         "prepublishOnly": "yarn build",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged --forceExit"
+        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
     },
     "dependencies": {
         "@terascope/data-access": "^0.12.5",

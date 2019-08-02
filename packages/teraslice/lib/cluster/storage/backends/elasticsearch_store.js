@@ -435,6 +435,11 @@ module.exports = function elasticsearchStorage(backendConfig) {
                 const error = new TSError(err, {
                     reason: `Failure initializing ${recordType} index: ${indexName}`,
                 });
+                if (error.statusCode >= 400 && error.statusCode < 500) {
+                    reject(err);
+                    return;
+                }
+
                 logger.error(error);
                 logger.info(`Attempting to connect to elasticsearch: ${clientName}`);
                 let running = false;

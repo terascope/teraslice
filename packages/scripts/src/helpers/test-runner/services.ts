@@ -6,7 +6,7 @@ import { debugLogger, pRetry, TSError } from '@terascope/utils';
 import { dockerRun, DockerRunOptions, getContainerInfo, dockerStop, pgrep } from '../scripts';
 import { TestOptions } from './interfaces';
 import { TestSuite } from '../interfaces';
-import { LOCAL_IP } from '../config';
+import { HOST_IP } from '../config';
 import signale from '../signale';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -32,7 +32,7 @@ const services: { [service in Service]: DockerRunOptions } = {
         env: {
             KAFKA_HEAP_OPTS: '-Xms256m -Xmx256m',
             KAKFA_AUTO_CREATE_TOPICS_ENABLE: 'true',
-            KAFKA_ADVERTISED_HOST_NAME: LOCAL_IP,
+            KAFKA_ADVERTISED_HOST_NAME: HOST_IP,
             KAFKA_NUM_PARTITIONS: '2',
         },
     },

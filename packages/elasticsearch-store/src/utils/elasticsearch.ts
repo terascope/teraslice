@@ -169,7 +169,7 @@ export function getESVersion(client: Client): number {
     return 6;
 }
 
-export function fixMappingRequest(client: Client, _params: any) {
+export function fixMappingRequest(client: Client, _params: any, isTemplate: boolean) {
     if (!_params || !_params.body) {
         throw new Error('Invalid mapping request');
     }
@@ -179,7 +179,9 @@ export function fixMappingRequest(client: Client, _params: any) {
     const esVersion = getESVersion(client);
     if (esVersion >= 6) {
         if (params.body.template) {
-            params.body.index_patterns = ts.castArray(params.body.template).slice();
+            if (isTemplate) {
+                params.body.index_patterns = ts.castArray(params.body.template).slice();
+            }
             delete params.body.template;
         }
     }

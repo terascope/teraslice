@@ -109,10 +109,14 @@ export default class IndexManager {
         logger.debug(`Creating "${indexName}"...`, body);
 
         await this.client.indices.create(
-            utils.fixMappingRequest(this.client, {
-                index: indexName,
-                body,
-            })
+            utils.fixMappingRequest(
+                this.client,
+                {
+                    index: indexName,
+                    body,
+                },
+                false
+            )
         );
 
         logger.trace(`Checking index availability for "${indexName}"...`);
@@ -219,10 +223,14 @@ export default class IndexManager {
         }
 
         await this.client.indices.putTemplate(
-            utils.fixMappingRequest(this.client, {
-                body: template,
-                name,
-            })
+            utils.fixMappingRequest(
+                this.client,
+                {
+                    body: template,
+                    name,
+                },
+                true
+            )
         );
     }
 

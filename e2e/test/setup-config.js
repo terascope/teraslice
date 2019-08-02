@@ -10,7 +10,7 @@ const {
     ELASTICSEARCH_HOST,
     ELASTICSEARCH_API_VERSION,
     CLUSTER_NAME,
-    LOCAL_IP
+    HOST_IP
 } = require('./misc');
 
 module.exports = async function setupTerasliceConfig() {
@@ -88,7 +88,7 @@ module.exports = async function setupTerasliceConfig() {
 async function writeMasterConfig(configPath, baseConfig) {
     const masterConfig = _.cloneDeep(baseConfig);
     masterConfig.teraslice.master = true;
-    masterConfig.teraslice.master_hostname = LOCAL_IP;
+    masterConfig.teraslice.master_hostname = HOST_IP;
 
     const masterConfigPath = path.join(configPath, 'teraslice-master.json');
     await fse.writeJSON(masterConfigPath, masterConfig, {
@@ -99,7 +99,7 @@ async function writeMasterConfig(configPath, baseConfig) {
 async function writeWorkerConfig(configPath, baseConfig) {
     const workerConfig = _.cloneDeep(baseConfig);
     workerConfig.teraslice.master = false;
-    workerConfig.teraslice.master_hostname = LOCAL_IP;
+    workerConfig.teraslice.master_hostname = HOST_IP;
 
     const workerConfigPath = path.join(configPath, 'teraslice-worker.json');
     await fse.writeJSON(workerConfigPath, workerConfig, {

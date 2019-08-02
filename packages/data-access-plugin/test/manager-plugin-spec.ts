@@ -616,19 +616,23 @@ describe('Data Access Management', () => {
             };
 
             await client.indices.create(
-                fixMappingRequest(client, {
-                    index,
-                    waitForActiveShards: 'all',
-                    body: {
-                        settings: {
-                            'index.number_of_shards': 1,
-                            'index.number_of_replicas': 0,
-                        },
-                        mappings: {
-                            hello: mapping,
+                fixMappingRequest(
+                    client,
+                    {
+                        index,
+                        waitForActiveShards: 'all',
+                        body: {
+                            settings: {
+                                'index.number_of_shards': 1,
+                                'index.number_of_replicas': 0,
+                            },
+                            mappings: {
+                                hello: mapping,
+                            },
                         },
                     },
-                })
+                    false
+                )
             );
 
             await client.create({

@@ -11,7 +11,7 @@ const ElasticsearchClient = require('elasticsearch').Client;
 const {
     ELASTICSEARCH_HOST = 'http://locahost:9200',
     KAFKA_BROKER = 'locahost:9092',
-    LOCAL_IP = '127.0.0.1',
+    HOST_IP = '127.0.0.1',
     ELASTICSEARCH_VERSION = '6.8',
     ELASTICSEARCH_API_VERSION = '6.5'
 } = process.env;
@@ -43,7 +43,7 @@ const es = _.memoize(
 );
 
 const teraslice = _.memoize(() => TerasliceClient({
-    host: `http://${LOCAL_IP}:45678`,
+    host: `http://${HOST_IP}:45678`,
     timeout: 2 * 60 * 1000
 }));
 
@@ -175,7 +175,7 @@ module.exports = {
     ELASTICSEARCH_HOST,
     ELASTICSEARCH_VERSION,
     ELASTICSEARCH_API_VERSION,
-    LOCAL_IP,
+    HOST_IP,
     KAFKA_BROKER,
     CLUSTER_NAME,
     TEST_INDEX_PREFIX,

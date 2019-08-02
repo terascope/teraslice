@@ -6,7 +6,7 @@ import { debugLogger, get, TSError, isFunction } from '@terascope/utils';
 import { ArgsMap, ExecEnv, dockerBuild, dockerPull, exec } from '../scripts';
 import { TestOptions, GroupedPackages } from './interfaces';
 import { PackageInfo, TestSuite } from '../interfaces';
-import { LOCAL_IP } from '../config';
+import { HOST_IP } from '../config';
 import signale from '../signale';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -16,6 +16,7 @@ export function getArgs(options: TestOptions): ArgsMap {
     args.forceExit = '';
     args.passWithNoTests = '';
     args.coverage = 'true';
+    args.color = '';
 
     if (options.bail) {
         args.bail = '';
@@ -45,14 +46,15 @@ export function getEnv(options: TestOptions): ExecEnv {
         ELASTICSEARCH_API_VERSION: options.elasticsearchAPIVersion,
         KAFKA_BROKER: options.kafkaBroker,
         KAFKA_VERSION: options.kafkaVersion,
-        LOCAL_IP,
+        HOST_IP,
         FORCE_COLOR: '1',
     };
 
     if (options.debug) {
         let DEBUG = process.env.DEBUG || '';
         if (!DEBUG.includes('*teraslice*')) {
-            DEBUG += ',*teraslice*';
+            if (DEBUG) DEBUG += ',';
+            DEBUG += '*teraslice*';
         }
         Object.assign(env, { DEBUG });
     }
