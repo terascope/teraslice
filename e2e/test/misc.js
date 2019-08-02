@@ -132,6 +132,7 @@ function newId(prefix, lowerCase = false, length = 15) {
 }
 
 async function globalTeardown(shouldThrow) {
+    process.stdout.write('\n');
     signale.time('tear down');
     const errors = [];
 

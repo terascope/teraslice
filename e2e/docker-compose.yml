@@ -12,16 +12,10 @@ services:
             - NODE_OPTIONS=--max-old-space-size=256
         volumes:
             - teraslice-assets:/app/assets
-            - ./autoload:/app/autoload:delegated
+            - ./autoload:/app/autoload:ro
             - ./.config:/app/config:ro
     teraslice-worker:
         image: ts_test_teraslice
-        command: [
-            "./scripts/wait-for-host.sh",
-            "${HOST_IP}:45678",
-            "node",
-            "service.js"
-        ]
         scale: 2
         restart: 'on-failure'
         stop_grace_period: 30s
@@ -30,7 +24,7 @@ services:
             - NODE_OPTIONS=--max-old-space-size=256
         volumes:
             - teraslice-assets:/app/assets
-            - ./autoload:/app/autoload:delegated
+            - ./autoload:/app/autoload:ro
             - ./.config:/app/config:ro
 
 volumes:

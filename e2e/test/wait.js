@@ -110,7 +110,6 @@ function forWorkersJoined(jobId, workerCount, iterations) {
 function waitForClusterState(timeoutMs = 120000) {
     const endAt = Date.now() + timeoutMs;
     const { cluster } = misc.teraslice();
-    const requiredNodes = misc.DEFAULT_NODES - 2;
 
     async function _waitForClusterState() {
         if (Date.now() > endAt) {
@@ -128,7 +127,7 @@ function waitForClusterState(timeoutMs = 120000) {
             return _waitForClusterState();
         }
 
-        if (nodes >= requiredNodes) return nodes;
+        if (nodes >= misc.DEFAULT_NODES) return nodes;
         return _waitForClusterState();
     }
 
