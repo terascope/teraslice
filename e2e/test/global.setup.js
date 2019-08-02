@@ -8,6 +8,7 @@ const signale = require('./signale');
 const { waitForClusterState, waitForJobStatus } = require('./wait');
 const setupTerasliceConfig = require('./setup-config');
 const downloadAssets = require('./download-assets');
+const { resetState } = require('./helpers');
 const misc = require('./misc');
 
 const jobList = [];
@@ -141,6 +142,7 @@ async function generateTestData() {
         if (hex) {
             indexName += '-hex';
         }
+
         signale.info(`Generating ${indexName} example data`);
         const jobSpec = {
             name: `Generate: ${indexName}`,
@@ -165,7 +167,6 @@ async function generateTestData() {
         };
 
         try {
-            await Promise.resolve();
             if (hex) {
                 jobSpec.operations[0].size = count / hex.length;
                 jobSpec.operations[0].set_id = 'hexadecimal';
@@ -212,6 +213,7 @@ module.exports = async () => {
     await dockerUp();
     await waitForTeraslice();
     await Promise.delay(2000);
+    await resetState();
 
     try {
         await generateTestData();
