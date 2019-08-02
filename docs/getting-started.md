@@ -87,6 +87,7 @@ Buy groceries,false,2019-09-03
 Wash car,true,2019-09-04
 Book airfare for vacation,false, 2019-09-03
 Book hotel for vacation,false, 2019-09-03
+Reserve rental car for vacation,false, 2019-09-03
 ```
 
 It's tiny and insignificant but the basic technique used here to load this 5 line file is the same as that used in Teraslice to load a 50 Billion line file or a directory containing 10,000 1 Million line files.
