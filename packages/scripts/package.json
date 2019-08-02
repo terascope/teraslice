@@ -1,6 +1,6 @@
 {
     "name": "@terascope/scripts",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "A collection of terascope monorepo scripts",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/scripts#readme",
     "bugs": {
@@ -19,10 +19,10 @@
         "ts-scripts": "./bin/ts-scripts.js"
     },
     "scripts": {
-        "postinstall": "./scripts/build-typedoc.js",
         "prebuild": "./scripts/build-typedoc.js",
         "build": "tsc --build --pretty",
         "build:watch": "yarn build --watch",
+        "postinstall": "./scripts/build-typedoc.js",
         "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
@@ -32,7 +32,7 @@
     },
     "dependencies": {
         "@lerna/query-graph": "^3.14.0",
-        "@terascope/utils": "^0.14.0",
+        "@terascope/utils": "^0.14.1",
         "@types/is-ci": "^2.0.0",
         "execa": "^2.0.3",
         "fs-extra": "^8.1.0",

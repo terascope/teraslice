@@ -1,6 +1,6 @@
 {
     "name": "@terascope/data-access-plugin",
-    "version": "0.11.4",
+    "version": "0.11.5",
     "description": "A teraserver plugin for managing data access and searching spaces",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-access-plugin#readme",
     "bugs": {
@@ -28,21 +28,21 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/data-access": "^0.12.5",
-        "@terascope/data-types": "^0.5.1",
-        "@terascope/elasticsearch-api": "^2.1.0",
-        "@terascope/utils": "^0.14.0",
+        "@terascope/data-access": "^0.12.6",
+        "@terascope/data-types": "^0.5.2",
+        "@terascope/elasticsearch-api": "^2.1.1",
+        "@terascope/utils": "^0.14.1",
         "apollo-server-express": "^2.6.5",
-        "elasticsearch-store": "^0.10.2",
+        "elasticsearch-store": "^0.10.3",
         "graphql": "^14.3.1",
         "graphql-iso-date": "^3.6.1",
         "graphql-tag": "^2.10.1",
         "graphql-type-json": "^0.3.0",
         "terafoundation": "^0.11.2",
-        "xlucene-evaluator": "^0.9.5"
+        "xlucene-evaluator": "^0.9.6"
     },
     "devDependencies": {
-        "@terascope/job-components": "^0.20.5",
+        "@terascope/job-components": "^0.20.6",
         "@types/express": "^4.17.0",
         "@types/got": "^9.6.4",
         "@types/graphql-iso-date": "^3.3.1",

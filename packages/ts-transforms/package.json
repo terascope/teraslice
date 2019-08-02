@@ -37,7 +37,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/utils": "^0.14.0",
+        "@terascope/utils": "^0.14.1",
         "@types/graphlib": "^2.1.5",
         "@types/shortid": "^0.0.29",
         "awesome-phonenumber": "^2.12.0",
@@ -46,7 +46,7 @@
         "shortid": "^2.2.14",
         "valid-url": "^1.0.9",
         "validator": "^11.0.0",
-        "xlucene-evaluator": "^0.9.5",
+        "xlucene-evaluator": "^0.9.6",
         "yargs": "^13.2.4"
     },
     "devDependencies": {

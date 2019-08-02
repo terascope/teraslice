@@ -1,31 +1,31 @@
 {
     "name": "teraslice-e2e",
-    "private": true,
     "version": "0.1.0",
+    "private": true,
     "description": "Teraslice integration test suite",
-    "scripts": {
-        "test": "ts-scripts test --suite e2e",
-        "logs": "./scripts/logs.sh",
-        "logs-follow": "./scripts/logs.sh --follow",
-        "clean": "docker-compose down --volumes --remove-orphans --timeout=5"
+    "keywords": [
+        "docker-compose",
+        "elasticsearch",
+        "teraslice"
+    ],
+    "homepage": "https://github.com/terascope/teraslice/tree/master/e2e/#readme",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
     },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/terascope/teraslice.git"
     },
-    "keywords": [
-        "teraslice",
-        "elasticsearch",
-        "docker-compose"
-    ],
-    "author": "Terascope, LLC <info@terascope.io>",
     "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/terascope/teraslice/issues"
+    "author": "Terascope, LLC <info@terascope.io>",
+    "scripts": {
+        "clean": "docker-compose down --volumes --remove-orphans --timeout=5",
+        "logs": "./scripts/logs.sh",
+        "logs-follow": "./scripts/logs.sh --follow",
+        "test": "ts-scripts test --suite e2e"
     },
-    "homepage": "https://github.com/terascope/teraslice/tree/master/e2e/#readme",
     "devDependencies": {
-        "@terascope/docker-compose-js": "^1.1.2",
+        "@terascope/docker-compose-js": "^1.1.3",
         "@terascope/fetch-github-release": "^0.6.0",
         "bluebird": "^3.5.5",
         "bunyan": "^1.8.12",
@@ -41,5 +41,7 @@
         "signale": "^1.4.0",
         "teraslice-client-js": "^0.7.1",
         "uuid": "^3.3.2"
-    }
+    },
+    "displayName": "E2e",
+    "terascope": {}
 }

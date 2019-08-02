@@ -20,7 +20,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/utils": "^0.14.0",
+        "@terascope/utils": "^0.14.1",
         "bluebird": "^3.5.5",
         "csvtojson": "^2.0.8",
         "lodash": "^4.17.11"

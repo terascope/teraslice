@@ -32,7 +32,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.20.5",
+        "@terascope/job-components": "^0.20.6",
         "@terascope/teraslice-op-test-harness": "^1.6.0",
         "lodash": "^4.17.11"
     },
