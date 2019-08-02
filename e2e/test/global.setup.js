@@ -211,6 +211,7 @@ module.exports = async () => {
 
     await dockerUp();
     await waitForTeraslice();
+    await Promise.delay(2000);
 
     try {
         await generateTestData();

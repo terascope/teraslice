@@ -5,6 +5,7 @@ import * as simple from './helpers/simple-index';
 import * as template from './helpers/template-index';
 import { IndexManager, timeseriesIndex, IndexConfig } from '../src';
 import { makeClient, cleanupIndex } from './helpers/elasticsearch';
+import { TEST_INDEX_PREFIX } from './helpers/config';
 
 describe('IndexManager->indexSetup()', () => {
     const logger = debugLogger('index-manager-setup');
@@ -13,7 +14,7 @@ describe('IndexManager->indexSetup()', () => {
         const client = makeClient();
 
         const config: IndexConfig = {
-            name: 'teratest__simple',
+            name: `${TEST_INDEX_PREFIX}simple`,
             index_schema: {
                 version: 1,
                 mapping: simple.mapping,
@@ -70,7 +71,7 @@ describe('IndexManager->indexSetup()', () => {
         const client = makeClient();
 
         const config: IndexConfig = {
-            name: 'teratest__template',
+            name: `${TEST_INDEX_PREFIX}template`,
             index_schema: {
                 version: 1,
                 mapping: template.mapping,
@@ -185,7 +186,7 @@ describe('IndexManager->indexSetup()', () => {
         const client = makeClient();
 
         const config: IndexConfig = {
-            name: 'teratest__timeseries',
+            name: `${TEST_INDEX_PREFIX}timeseries`,
             index_schema: {
                 version: 1,
                 mapping: template.mapping,

@@ -1,8 +1,9 @@
 import 'jest-extended';
 import { times, pDelay, DataEntity, Omit, TSError, debugLogger } from '@terascope/utils';
 import { SimpleRecord, SimpleRecordInput, mapping, schema } from './helpers/simple-index';
-import { IndexStore, IndexConfig } from '../src';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
+import { TEST_INDEX_PREFIX } from './helpers/config';
+import { IndexStore, IndexConfig } from '../src';
 import { Translator } from 'xlucene-evaluator';
 
 describe('IndexStore', () => {
@@ -27,9 +28,9 @@ describe('IndexStore', () => {
         });
     });
 
-    const index = 'teratest__store-v1-s1';
+    const index = `${TEST_INDEX_PREFIX}store-v1-s1`;
     const config: IndexConfig = {
-        name: 'teratest__store',
+        name: `${TEST_INDEX_PREFIX}store`,
         index_schema: {
             version: 1,
             mapping,
@@ -190,7 +191,7 @@ describe('IndexStore', () => {
                 expect(metadata).toMatchObject({
                     _index: index,
                     _key: record.test_id,
-                    _type: 'teratest__store',
+                    _type: `${TEST_INDEX_PREFIX}store`,
                 });
 
                 expect(metadata._processTime).toBeNumber();
@@ -603,7 +604,7 @@ describe('IndexStore', () => {
                         if (inputType === 'output') {
                             return _client.index({
                                 index,
-                                type: 'teratest__store',
+                                type: `${TEST_INDEX_PREFIX}store`,
                                 id: record.test_id,
                                 body: record,
                                 refresh: false,

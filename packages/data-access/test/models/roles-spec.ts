@@ -1,11 +1,12 @@
 import 'jest-extended';
-import { Roles } from '../../src/models/roles';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
+import { TEST_INDEX_PREFIX } from '../helpers/config';
+import { Roles } from '../../src/models/roles';
 
 describe('Roles', () => {
     const client = makeClient();
     const roles = new Roles(client, {
-        namespace: 'test',
+        namespace: `${TEST_INDEX_PREFIX}da`,
     });
 
     beforeAll(async () => {

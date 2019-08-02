@@ -2,9 +2,8 @@
 
 const { newId } = require('../lib/utils/id_utils');
 
-const TEST_INDEX_PREFIX = 'teratest_';
-
 const {
+    TEST_INDEX_PREFIX = 'teratest_',
     ELASTICSEARCH_HOST = 'http://localhost:9200',
     TERASLICE_CLUSTER_NAME = newId(`${TEST_INDEX_PREFIX}teraslice`, true, 2),
     ELASTICSEARCH_VERSION = '6.8',

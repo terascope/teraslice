@@ -1,12 +1,13 @@
 import 'jest-extended';
-import { Views, View } from '../../src/models/views';
 import { makeClient, cleanupIndex } from '../helpers/elasticsearch';
+import { TEST_INDEX_PREFIX } from '../helpers/config';
+import { Views, View } from '../../src/models/views';
 import { Space, Role } from '../../src';
 
 describe('Views', () => {
     const client = makeClient();
     const views = new Views(client, {
-        namespace: 'test',
+        namespace: `${TEST_INDEX_PREFIX}da`,
     });
 
     beforeAll(async () => {

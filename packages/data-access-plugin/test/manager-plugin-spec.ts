@@ -7,6 +7,7 @@ import { LATEST_VERSION } from '@terascope/data-types';
 import { TestContext } from '@terascope/job-components';
 import { fixMappingRequest } from 'elasticsearch-store';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
+import { TEST_INDEX_PREFIX } from './helpers/config';
 import { PluginConfig } from '../src/interfaces';
 import ManagerPlugin from '../src/manager';
 import SearchPlugin from '../src/search';
@@ -44,7 +45,7 @@ describe('Data Access Management', () => {
         logger: context.logger,
         server_config: {
             data_access: {
-                namespace: 'test_da_plugin',
+                namespace: `${TEST_INDEX_PREFIX}da_manager`,
             },
             teraserver: {
                 shutdown_timeout: 1,

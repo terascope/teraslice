@@ -9,6 +9,7 @@ const TerasliceClient = require('teraslice-client-js');
 const ElasticsearchClient = require('elasticsearch').Client;
 
 const {
+    TEST_INDEX_PREFIX = 'teratest_',
     ELASTICSEARCH_HOST = 'http://locahost:9200',
     KAFKA_BROKER = 'locahost:9092',
     HOST_IP = '127.0.0.1',
@@ -16,7 +17,6 @@ const {
     ELASTICSEARCH_API_VERSION = '6.5'
 } = process.env;
 
-const TEST_INDEX_PREFIX = 'teratest_';
 const SPEC_INDEX_PREFIX = `${TEST_INDEX_PREFIX}spec`;
 const EXAMPLE_INDEX_PREFIX = `${TEST_INDEX_PREFIX}example`;
 const EXAMLPE_INDEX_SIZES = [100, 1000];

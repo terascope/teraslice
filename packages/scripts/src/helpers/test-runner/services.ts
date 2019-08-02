@@ -17,7 +17,7 @@ const services: { [service in Service]: DockerRunOptions } = {
         image: 'blacktop/elasticsearch',
         name: 'ts_test_elasticsearch',
         tmpfs: ['/usr/share/elasticsearch/data'],
-        ports: [9200],
+        ports: ['49200:9200', '49300:9300'],
         env: {
             ES_JAVA_OPTS: '-Xms256m -Xmx256m',
             'network.host': '0.0.0.0',
@@ -28,7 +28,7 @@ const services: { [service in Service]: DockerRunOptions } = {
         image: 'blacktop/kafka',
         name: 'ts_test_kafka',
         tmpfs: ['/tmp/kafka-logs'],
-        ports: [2181, 9092],
+        ports: ['42181:2181', '49092:9092'],
         env: {
             KAFKA_HEAP_OPTS: '-Xms256m -Xmx256m',
             KAKFA_AUTO_CREATE_TOPICS_ENABLE: 'true',

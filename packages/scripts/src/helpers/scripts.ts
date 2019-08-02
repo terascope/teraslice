@@ -1,7 +1,7 @@
 import path from 'path';
 import execa from 'execa';
 import fse from 'fs-extra';
-import { debugLogger, pDelay } from '@terascope/utils';
+import { debugLogger, pDelay, isString } from '@terascope/utils';
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
 import signale from './signale';
@@ -157,7 +157,7 @@ export async function getContainerInfo(name: string): Promise<any> {
 export type DockerRunOptions = {
     name: string;
     image: string;
-    ports?: number[];
+    ports?: (number | string)[];
     tmpfs?: string[];
     env?: ExecEnv;
 };
@@ -174,7 +174,11 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
 
     if (opt.ports && opt.ports.length) {
         opt.ports.forEach(port => {
-            args.push('--publish', `${port}:${port}`);
+            if (isString(port)) {
+                args.push('--publish', port);
+            } else {
+                args.push('--publish', `${port}:${port}`);
+            }
         });
     }
 

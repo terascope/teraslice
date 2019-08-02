@@ -52,6 +52,7 @@ export function getEnv(options: TestOptions): ExecEnv {
         ELASTICSEARCH_API_VERSION: options.elasticsearchAPIVersion,
         KAFKA_BROKER: options.kafkaBroker,
         KAFKA_VERSION: options.kafkaVersion,
+        TEST_INDEX_PREFIX: 'teratest_',
         HOST_IP,
         FORCE_COLOR: '1',
     };
