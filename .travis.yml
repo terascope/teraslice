@@ -26,60 +26,53 @@ jobs:
   include:
   - stage: Verify
     name: "Verify Build (node 10)"
+    # run on any pull_request
     if: branch = master AND type = pull_request
-    # FIXME - this should be enabled before merging
-    # before_script:
-    #     - yarn --cwd=./packages/ui-core build
-    #     - yarn --cwd=./packages/ui-data-access build
-    script:
-        - yarn lint:js
-        # FIXME - this should be enabled before merging
-        # - yarn lint:ts --parallel
-        - yarn sync --verify
+    script: yarn lint
 
   - script:
     name: "Unit Test Suite (node 10)"
+    # run on pull-request, tag, cron or push to master
     if: branch = master
     script: yarn test --suite unit
     after_success:
-        - bash <(curl -s https://codecov.io/bash)
+        - bash <(curl -s https://codecov.io/bash) -cF unit
+        # verify the ui packages can build
+        - yarn --cwd=./packages/ui-core build
+        - yarn --cwd=./packages/ui-data-access build
 
   - script:
     name: "ES Test Suite (elasticsearch 5) (node 10)"
-    if: branch = master AND type IN (pull_request, cron) AND fork = false
+    # run only on pull-requests
+    if: branch = master AND type IN (pull_request) AND fork = false
     script: yarn test --suite elasticsearch --elasticsearch-version 5.6 --elasticsearch-api-version 6.5
-    after_success:
-        - bash <(curl -s https://codecov.io/bash)
 
   - script:
     name: "ES Test Suite (elasticsearch 6) (node 10)"
+    # run only on pull-requests and cron
     if: branch = master AND type IN (pull_request, cron) AND fork = false
     script:
         - yarn test --suite elasticsearch --elasticsearch-version 6.8 --elasticsearch-api-version 6.5
     after_success:
-        - bash <(curl -s https://codecov.io/bash)
+        # only report coverage on elasticsearch@6
+        - bash <(curl -s https://codecov.io/bash) -cF elasticsearch
 
   - script:
     name: "ES Test Suite (elasticsearch 7) (node 10)"
-    if: branch = master AND type IN (pull_request, cron) AND fork = false
-    # allow failures for now
-    allow_failures: true
+    # run only on pull-requests
+    if: branch = master AND type IN (pull_request) AND fork = false
     script:
         - yarn test --suite elasticsearch --elasticsearch-version 7.2 --elasticsearch-api-version 7.0
-    after_success:
-        - bash <(curl -s https://codecov.io/bash)
 
-  # test end-to-end tests, only on pull-requests
   - script:
     name: "End-to-End Test Suite"
+    # run only on pull-requests and cron
     if: branch = master AND type IN (pull_request, cron) AND fork = false
     script: yarn test --suite e2e --elasticsearch-version 6.8 --elasticsearch-api-version 6.5 --kafka-version 2.1
-    after_success:
-        - bash <(curl -s https://codecov.io/bash)
 
-  # if not a tagged build and is on master
   - stage: Publish
     name: NPM Publish & Publish Documentation
+    # run a push to master
     if: tag IS blank AND branch = master AND type NOT IN (pull_request, cron)
     addons:
       apt:
@@ -97,7 +90,8 @@ jobs:
   # Experimental docker release
   - script: Experimental
     name: Update Experimental Docker Image
-    if: branch = master AND type NOT IN (pull_request, cron)
+    # run a push to master
+    if: tag IS blank AND branch = master AND type NOT IN (pull_request, cron)
     addons:
       apt:
         packages:

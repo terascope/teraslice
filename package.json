@@ -16,7 +16,7 @@
         "docs": "ts-scripts docs",
         "bump": "ts-scripts bump",
         "test": "ts-scripts test",
-        "lint": "yarn lint:js && yarn lint:ts && yarn sync --verify",
+        "lint": "yarn lint:js && yarn lint:ts --parallel && yarn sync --verify",
         "lint:js": "eslint *.js packages/*/*.js packages/*/lib/**/*.js packages/*/test/**/*.js packages/*/cmds/**/*.js",
         "lint:ts": "env FORCE_COLOR=1 lerna run lint --no-bail",
         "lint:fix": "yarn lint:js:fix && yarn lint:ts:fix",
