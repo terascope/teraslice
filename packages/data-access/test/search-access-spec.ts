@@ -202,9 +202,8 @@ describe('SearchAccess', () => {
 
                 const params = searchAccess.getSearchParams(query);
 
-                expect(params).toEqual({
+                expect(params).toMatchObject({
                     body: {},
-                    ignoreUnavailable: true,
                     index: 'woot',
                     q: 'hello',
                     sort: 'example:asc',
@@ -259,9 +258,8 @@ describe('SearchAccess', () => {
 
                 const params = searchAccess.getSearchParams(query);
 
-                expect(params).toEqual({
+                expect(params).toMatchObject({
                     body: {},
-                    ignoreUnavailable: true,
                     index: 'woot',
                     q: 'example:hello',
                     sort: 'created:desc',
@@ -292,7 +290,7 @@ describe('SearchAccess', () => {
 
                 const params = searchAccess.getSearchParams(query);
 
-                expect(params).toEqual({
+                expect(params).toMatchObject({
                     body: {
                         sort: {
                             _geo_distance: {
@@ -305,7 +303,6 @@ describe('SearchAccess', () => {
                             },
                         },
                     },
-                    ignoreUnavailable: true,
                     index: 'woot',
                     from: 0,
                     q: 'example:hello',

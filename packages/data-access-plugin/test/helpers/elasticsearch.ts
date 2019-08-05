@@ -24,7 +24,6 @@ export function cleanupIndex(model: Model) {
         .delete({
             index: indexQuery,
             requestTimeout: 3000,
-            ignoreUnavailable: true,
         })
         .catch(() => {});
 }
@@ -65,7 +64,7 @@ export async function populateIndex(client: es.Client, index: string, _propertie
 }
 
 export function deleteIndices(client: es.Client, list: string[]) {
-    return Promise.all(list.map(index => client.indices.delete({ index, requestTimeout: 1000, ignoreUnavailable: true })));
+    return Promise.all(list.map(index => client.indices.delete({ index, requestTimeout: 1000 }).catch(() => {})));
 }
 
 export function cleanupIndexes(manager: ACLManager) {

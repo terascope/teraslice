@@ -586,11 +586,12 @@ describe('Data Access Management', () => {
         const index = 'hello-space';
 
         beforeAll(async () => {
-            await client.indices.delete({
-                index,
-                requestTimeout: 1000,
-                ignoreUnavailable: true,
-            });
+            await client.indices
+                .delete({
+                    index,
+                    requestTimeout: 1000,
+                })
+                .catch(() => {});
 
             const mapping = {
                 _all: {
@@ -694,11 +695,12 @@ describe('Data Access Management', () => {
         });
 
         afterAll(async () => {
-            await client.indices.delete({
-                index,
-                requestTimeout: 3000,
-                ignoreUnavailable: true,
-            });
+            await client.indices
+                .delete({
+                    index,
+                    requestTimeout: 3000,
+                })
+                .catch(() => {});
         });
 
         it('should be able to search a space', async () => {

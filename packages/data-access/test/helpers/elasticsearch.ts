@@ -22,7 +22,6 @@ export function cleanupIndex(model: Model) {
         .delete({
             index: indexQuery,
             requestTimeout: 3000,
-            ignoreUnavailable: true,
         })
         .catch(() => {});
 }

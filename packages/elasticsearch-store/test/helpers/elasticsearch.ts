@@ -18,7 +18,6 @@ export async function cleanupIndex(client: Client, index: string, template?: str
         .delete({
             index,
             requestTimeout: 3000,
-            ignoreUnavailable: true,
         })
         .catch(() => {});
 
