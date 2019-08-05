@@ -65,6 +65,7 @@ export interface ValidatedJobConfig {
     apis: APIConfig[];
     operations: OpConfig[];
     probation_window: number;
+    performance_metrics?: boolean;
     slicers: number;
     workers: number;
     /** This will only be available in the context of k8s */
