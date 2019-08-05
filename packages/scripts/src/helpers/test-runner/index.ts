@@ -103,10 +103,8 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
     }
 
     if (!errors.length) {
-        // unit tests don't have as much as a memory leak so we can run more at a time
-        // elasticsearch we should limit the number packages at time
-        const chunkSize = suite === TestSuite.Unit ? 9 : 3;
-        const chunked = chunk(pkgInfos, options.debug ? 1 : chunkSize);
+        // jest or our tests have a memory leak, limiting this to 5 seems to help
+        const chunked = chunk(pkgInfos, options.debug ? 1 : 5);
         const timeLabel = `test suite "${suite}"`;
         signale.time(timeLabel);
 
@@ -115,7 +113,10 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
             signale.debug(`setting env for test suite "${suite}"`, env);
         }
 
+        let chunkIndex = -1;
         for (const pkgs of chunked) {
+            chunkIndex++;
+
             if (!pkgs.length) continue;
             if (pkgs.length === 1) {
                 writePkgHeader('Running test', pkgs, true);
@@ -145,6 +146,10 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
 
                 if (options.bail) {
                     break;
+                }
+            } finally {
+                if (options.reportCoverage) {
+                    await utils.reportCoverage(suite, chunkIndex);
                 }
             }
         }

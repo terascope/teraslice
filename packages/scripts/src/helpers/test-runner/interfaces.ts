@@ -5,6 +5,7 @@ export type TestOptions = {
     debug: boolean;
     watch: boolean;
     all: boolean;
+    reportCoverage: boolean;
     suite?: TestSuite;
     elasticsearchHost: string;
     elasticsearchVersion: string;

@@ -36,7 +36,6 @@ jobs:
       if: branch = master
       script: yarn test --suite unit
       after_success:
-        - bash <(curl -s https://codecov.io/bash) -cF unit
         # verify the ui packages can build
         - yarn --cwd=./packages/ui-core build
         - yarn --cwd=./packages/ui-data-access build
@@ -45,21 +44,19 @@ jobs:
       name: 'ES Test Suite (elasticsearch 5) (node 10)'
       # run only on pull-requests
       if: branch = master AND type IN (pull_request) AND fork = false
-      script: yarn test --suite elasticsearch --elasticsearch-version 5.6 --elasticsearch-api-version 6.5
+      script: yarn test --suite elasticsearch --elasticsearch-version 5.6 --elasticsearch-api-version 6.5 --report-coverage false
 
     - script:
       name: 'ES Test Suite (elasticsearch 6) (node 10)'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron) AND fork = false
       script: yarn test --suite elasticsearch --elasticsearch-version 6.8 --elasticsearch-api-version 6.5
-      # only report coverage on elasticsearch@6
-      after_success: bash <(curl -s https://codecov.io/bash) -cF elasticsearch
 
     - script:
       name: 'ES Test Suite (elasticsearch 7) (node 10)'
       # run only on pull-requests
       if: branch = master AND type IN (pull_request) AND fork = false
-      script: yarn test --suite elasticsearch --elasticsearch-version 7.2 --elasticsearch-api-version 7.0
+      script: yarn test --suite elasticsearch --elasticsearch-version 7.2 --elasticsearch-api-version 7.0 --report-coverage false
 
     - script:
       name: 'End-to-End Test Suite (elasticsearch 6) (node 10)'
