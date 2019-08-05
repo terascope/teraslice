@@ -161,7 +161,7 @@ export function getXluceneTypeFromESType(type?: string): FieldType | undefined {
 }
 
 export function getESVersion(client: Client): number {
-    const version = process.env.ELASTICSEARCH_VERSION || ts.get(client, 'transport._config.apiVersion');
+    const version = ts.get(client, 'transport._config.apiVersion', '6.5');
     if (version && ts.isString(version)) {
         const [majorVersion] = version.split('.');
         return ts.toNumber(majorVersion);

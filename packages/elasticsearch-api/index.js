@@ -713,7 +713,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function getESVersion() {
-        const esVersion = process.env.ELASTICSEARCH_VERSION || _.get(client, 'transport._config.apiVersion');
+        const esVersion = _.get(client, 'transport._config.apiVersion', '6.5');
         if (esVersion && _.isString(esVersion)) {
             const [majorVersion] = esVersion.split('.');
             return _.toNumber(majorVersion);
