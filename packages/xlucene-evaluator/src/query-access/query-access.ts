@@ -143,12 +143,6 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             }
         }
 
-        if (esVersion < 6) {
-            if (searchParams.ignoreUnavailable != null) {
-                delete searchParams.ignoreUnavailable;
-            }
-        }
-
         return searchParams;
     }
 
