@@ -74,8 +74,6 @@ class Worker {
         const { context } = this;
         this.isInitialized = true;
 
-        await this.executionContext.initialize();
-
         const stateStore = makeStateStore(context);
         const analyticsStore = makeAnalyticsStore(context);
         this.stores.stateStore = await stateStore;
@@ -87,6 +85,9 @@ class Worker {
         });
 
         await this.client.start();
+
+        // initialize the execution context next
+        await this.executionContext.initialize();
 
         try {
             if (this.metrics != null) {

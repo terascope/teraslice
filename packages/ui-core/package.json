@@ -53,6 +53,7 @@
         "apollo-boost": "^0.4.3",
         "apollo-client": "^2.6.3",
         "graphql": "^14.3.1",
+        "graphql-tag": "^2.10.1",
         "history": "^4.9.0",
         "npm-watch": "^0.6.0",
         "prop-types": "^15.7.2",
