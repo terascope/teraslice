@@ -96,12 +96,13 @@ jobs:
       script: yarn docs
       deploy:
         - provider: script
-          script: ./scripts/docker-release.sh tag
+          skip_cleanup: true
+          script: ./scripts/publish-packages.sh
           on:
             all_branches: true
             tags: true
         - provider: script
-          script: ./scripts/publish-packages.sh
+          script: ./scripts/docker-release.sh tag
           on:
             all_branches: true
             tags: true
