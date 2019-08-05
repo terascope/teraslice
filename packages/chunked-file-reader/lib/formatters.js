@@ -53,14 +53,14 @@ function raw(incomingData, logger, opConfig, metadata, slice) {
 }
 
 function csv(incomingData, logger, opConfig, metadata, slice) {
-    const csvParams = {
+    const csvParams = Object.assign({
         delimiter: opConfig.field_delimiter,
         headers: opConfig.fields,
         trim: true,
         noheader: true,
-        ignoreEmpty: true,
+        ignoreEmpty: opConfig.ignore_empty || false,
         output: 'json'
-    };
+    }, opConfig.extra_args);
     let foundHeader = false;
     const data = _toRecords(incomingData, opConfig.line_delimiter, slice);
     return Promise.map(data, async (record) => {
