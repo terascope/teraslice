@@ -103,9 +103,13 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
     }
 
     if (!errors.length) {
-        const chunked = chunk(pkgInfos, options.debug ? 1 : 10);
+        // unit tests don't have the memory leak so we can run 20 at a time
+        // elasticsearch we should limit the number packages at time
+        const chunkSize = suite === TestSuite.Unit ? 20 : 3;
+        const chunked = chunk(pkgInfos, options.debug ? 1 : chunkSize);
         const timeLabel = `test suite "${suite}"`;
         signale.time(timeLabel);
+
         const env = utils.getEnv(options);
         if (options.debug || isCI) {
             signale.debug(`setting env for test suite "${suite}"`, env);
@@ -115,6 +119,8 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
             if (!pkgs.length) continue;
             if (pkgs.length === 1) {
                 writePkgHeader('Running test', pkgs, true);
+            } else {
+                writeHeader(`Running batch of ${pkgs.length} tests`, true);
             }
 
             const args = utils.getArgs(options);
