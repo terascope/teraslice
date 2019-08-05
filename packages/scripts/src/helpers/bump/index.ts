@@ -66,7 +66,7 @@ async function updateDependent(mainPkgInfo: PackageInfo, pkgInfo: PackageInfo, o
     await updatePkgJSON(pkgInfo, false);
     signale.log(`---> Updated dependency ${pkgInfo.name}'s version of ${name} to ${newVersion}`);
 
-    if (options.recursive && isProdDep && pkgInfo.name !== 'teraslice') {
+    if (options.recursive && isProdDep && !pkgInfo.terascope.mainPackage) {
         await bumpPackage(pkgInfo, {
             release: 'patch',
             recursive: false,

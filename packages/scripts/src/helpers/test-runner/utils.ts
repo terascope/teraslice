@@ -193,7 +193,7 @@ export async function logE2E(dir: string, failed: boolean): Promise<void> {
         RAW_LOGS: 'true',
     });
 
-    const logFilePath = path.join(dir, 'teraslice-test.log');
+    const logFilePath = path.join(dir, 'e2e-test.log');
     if (!rawLogs) {
         await fse.remove(logFilePath);
         return;

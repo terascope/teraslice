@@ -1,7 +1,7 @@
 import path from 'path';
 import execa from 'execa';
 import fse from 'fs-extra';
-import { debugLogger, pDelay, isString } from '@terascope/utils';
+import { debugLogger, pDelay, isString, get } from '@terascope/utils';
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
 import signale from './signale';
@@ -106,8 +106,13 @@ export async function setup(): Promise<void> {
     await yarnRun('setup');
 }
 
-export async function yarnRun(script: string, args: string[] = [], cwd?: string): Promise<any> {
-    return fork({ cmd: 'yarn', args: ['run', script, ...args], cwd });
+export async function yarnRun(script: string, args: string[] = [], cwd?: string) {
+    const dir = cwd || getRootDir();
+    const pkgJSON = await fse.readJSON(path.join(dir, 'package.json'));
+    const hasScript = Boolean(get(pkgJSON, ['scripts', script]));
+    if (!hasScript) return;
+
+    await fork({ cmd: 'yarn', args: ['run', script, ...args], cwd: dir });
 }
 
 export async function runJest(cwd: string, argsMap: ArgsMap, env?: ExecEnv, extraArgs?: string[]): Promise<void> {
@@ -315,4 +320,21 @@ export function mapToArgs(input: ArgsMap): string[] {
         }
     }
     return args.filter(str => str != null && str !== '');
+}
+
+export async function getLatestNPMVersion(name: string): Promise<string> {
+    const subprocess = await execa('npm', ['info', name, 'version'], {
+        reject: false,
+    });
+    if (subprocess.exitCode > 0) return '0.0.0';
+
+    return subprocess.stdout;
+}
+
+export async function yarnPublish(pkgInfo: PackageInfo) {
+    await fork({
+        cmd: 'yarn',
+        args: ['publish', '--non-interactive', '--new-version', pkgInfo.version, '--no-git-tag-version'],
+        cwd: pkgInfo.dir,
+    });
 }
