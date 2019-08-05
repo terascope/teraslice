@@ -1,30 +1,32 @@
+import isCI from 'is-ci';
 import { CommandModule } from 'yargs';
-import { syncAll, syncPackage } from '../helpers/sync';
+import { syncAll, syncPackages } from '../helpers/sync';
 import { PackageInfo } from '../helpers/interfaces';
-import { validatePkgName } from '../helpers/args';
+import { coercePkgArg } from '../helpers/args';
 
 const cmd: CommandModule = {
-    command: 'sync [package]',
+    command: 'sync [packages..]',
     describe: 'Sync packages to make sure they are up-to-date',
     builder(yargs) {
         return yargs
             .option('verify', {
                 description: 'This will verify that all the files are synced. Defaults to true in CI',
                 type: 'boolean',
-                default: process.env.CI === 'true',
+                default: isCI,
             })
-            .positional('package', {
-                description: 'Run scripts for particular package',
+            .positional('packages', {
+                description: 'Run scripts for one or more a package',
+                type: 'string',
                 coerce(arg) {
-                    return validatePkgName(arg, false);
+                    return coercePkgArg(arg);
                 },
             });
     },
     handler(argv) {
-        const pkgInfo = argv.package as PackageInfo;
+        const pkgInfos = argv.packages as PackageInfo[];
         const verify = Boolean(argv.verify);
-        if (pkgInfo) {
-            return syncPackage(pkgInfo, { verify });
+        if (pkgInfos) {
+            return syncPackages(pkgInfos, { verify });
         }
         return syncAll({ verify });
     },

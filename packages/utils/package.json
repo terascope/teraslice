@@ -1,6 +1,6 @@
 {
     "name": "@terascope/utils",
-    "version": "0.14.0",
+    "version": "0.14.1",
     "description": "A collection of Teraslice Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/utils#readme",
     "bugs": {
@@ -21,9 +21,9 @@
         "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
-        "test": "jest --forceExit",
-        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
         "debug": "^4.1.1",
@@ -43,6 +43,7 @@
     },
     "displayName": "Utils",
     "terascope": {
-        "enableTypedoc": true
+        "enableTypedoc": true,
+        "testSuite": "unit"
     }
 }

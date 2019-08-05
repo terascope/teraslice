@@ -97,6 +97,11 @@ export interface TSErrorConfig {
     reason?: string;
 
     /**
+     * Override the message when given an error
+     */
+    message?: string;
+
+    /**
      * Attach any context metadata to the error
      */
     context?: AnyObject;
@@ -152,7 +157,7 @@ export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInf
         if (esErrorInfo) {
             const updatedContext = Object.assign({}, esErrorInfo.context, config.context);
             return {
-                message: prefixErrorMsg(esErrorInfo.message, config.reason, defaultErrorMsg),
+                message: config.message || prefixErrorMsg(esErrorInfo.message, config.reason, defaultErrorMsg),
                 context: createErrorContext(input, { ...config, context: updatedContext }),
                 statusCode,
                 code: esErrorInfo.code,
@@ -163,7 +168,7 @@ export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInf
     const context = createErrorContext(input, config);
 
     let stack: string | undefined;
-    const message = prefixErrorMsg(input, config.reason, defaultErrorMsg);
+    const message = config.message || prefixErrorMsg(input, config.reason, defaultErrorMsg);
 
     if (input && input.stack) {
         stack = input.stack;

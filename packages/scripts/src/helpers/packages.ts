@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import fse from 'fs-extra';
-import { uniq } from 'lodash';
+import { uniq } from '@terascope/utils';
 // @ts-ignore
 import QueryGraph from '@lerna/query-graph';
 import sortPackageJson from 'sort-package-json';
@@ -55,11 +55,7 @@ export function getPkgInfo(name: string): i.PackageInfo {
 }
 
 export function getPkgNames(packages: i.PackageInfo[]): string[] {
-    const names: string[] = [];
-    packages.forEach(pkgInfo => {
-        names.push(pkgInfo.name, pkgInfo.folderName);
-    });
-    return uniq(names).sort();
+    return uniq(packages.map(pkgInfo => pkgInfo.folderName)).sort();
 }
 
 export function updatePkgInfo(pkgInfo: i.PackageInfo): void {

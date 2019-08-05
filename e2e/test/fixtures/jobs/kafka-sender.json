@@ -8,7 +8,7 @@
     "operations": [
         {
             "_op": "elasticsearch_reader",
-            "index": "example-logs-1000",
+            "index": "replace-me-1000",
             "type": "events",
             "size": 500,
             "date_field_name": "created",
@@ -17,7 +17,7 @@
         {
             "_op": "kafka_sender",
             "connection": "default",
-            "topic": "example-logs-1000",
+            "topic": "replace-me-1000",
             "size": 100,
             "timestamp_field": "created",
             "_encoding": "json"

@@ -30,6 +30,7 @@ builds/*
 
 # cache directory
 .cache
+.travis-cache
 .yarn-cache/*
 !.yarn-cache/.gitkeep
 
@@ -45,11 +46,14 @@ node_modules
 assets/*
 !assets/README.md
 packages/*/assets/*
+
 autoload/*
-e2e/autoload/*
-packages/*/assets/*
 !autoload/.gitkeep
+
+# e2e files
+e2e/autoload/*
 !e2e/autoload/.gitkeep
+e2e/.config
 
 # package dist directory
 packages/**/dist

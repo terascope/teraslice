@@ -157,6 +157,12 @@ export interface ESMappingOptions {
      * uses a deep assignment so nested fields can be overwritten.
      */
     overrides?: Partial<ESMapping>;
+
+    /**
+     * The version of the elasticsearch cluster
+     * @default 6
+     */
+    version?: number;
 }
 
 export interface ESTypeMappings extends AnyObject {

@@ -9,7 +9,7 @@
         {
             "_op": "kafka_reader",
             "connection": "default",
-            "topic": "example-logs-1000",
+            "topic": "replace-me-1000",
             "group": "example-kafka-group",
             "size": 300,
             "wait": 500,
@@ -18,7 +18,7 @@
         {
             "_op": "elasticsearch_index_selector",
             "type": "events",
-            "index": "test-kafka-logs-1000",
+            "index": "replace-me-1000",
             "preserve_id": true
         },
         {

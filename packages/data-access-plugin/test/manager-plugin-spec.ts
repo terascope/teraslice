@@ -3,12 +3,14 @@ import got from 'got';
 import express from 'express';
 import { Server } from 'http';
 import { GraphQLClient } from 'graphql-request';
+import { LATEST_VERSION } from '@terascope/data-types';
 import { TestContext } from '@terascope/job-components';
+import { fixMappingRequest } from 'elasticsearch-store';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
+import { TEST_INDEX_PREFIX } from './helpers/config';
 import { PluginConfig } from '../src/interfaces';
 import ManagerPlugin from '../src/manager';
 import SearchPlugin from '../src/search';
-import { LATEST_VERSION } from '@terascope/data-types';
 
 describe('Data Access Management', () => {
     const client = makeClient();
@@ -43,7 +45,7 @@ describe('Data Access Management', () => {
         logger: context.logger,
         server_config: {
             data_access: {
-                namespace: 'test_da_plugin',
+                namespace: `${TEST_INDEX_PREFIX}da_manager`,
             },
             teraserver: {
                 shutdown_timeout: 1,
@@ -590,49 +592,57 @@ describe('Data Access Management', () => {
                 ignoreUnavailable: true,
             });
 
-            await client.indices.create({
-                index,
-                waitForActiveShards: 'all',
-                body: {
-                    settings: {
-                        'index.number_of_shards': 1,
-                        'index.number_of_replicas': 0,
+            const mapping = {
+                _all: {
+                    enabled: false,
+                },
+                dynamic: false,
+                properties: {
+                    id: {
+                        type: 'keyword',
                     },
-                    mappings: {
-                        hello: {
-                            _all: {
-                                enabled: false,
+                    foo: {
+                        type: 'keyword',
+                    },
+                    group: {
+                        type: 'keyword',
+                    },
+                    created: {
+                        type: 'date',
+                    },
+                    updated: {
+                        type: 'date',
+                    },
+                },
+            };
+
+            await client.indices.create(
+                fixMappingRequest(
+                    client,
+                    {
+                        index,
+                        waitForActiveShards: 'all',
+                        body: {
+                            settings: {
+                                'index.number_of_shards': 1,
+                                'index.number_of_replicas': 0,
                             },
-                            dynamic: false,
-                            properties: {
-                                id: {
-                                    type: 'keyword',
-                                },
-                                foo: {
-                                    type: 'keyword',
-                                },
-                                group: {
-                                    type: 'keyword',
-                                },
-                                created: {
-                                    type: 'date',
-                                },
-                                updated: {
-                                    type: 'date',
-                                },
+                            mappings: {
+                                hello: mapping,
                             },
                         },
                     },
-                },
-            });
+                    false
+                )
+            );
 
             await client.create({
                 index,
                 type: 'hello',
-                id: '1',
+                id: 'hello-1',
                 refresh: true,
                 body: {
-                    id: 1,
+                    id: 'hello-1',
                     foo: 'bar',
                     group: 'a',
                     updated: new Date().toISOString(),
@@ -643,10 +653,10 @@ describe('Data Access Management', () => {
             await client.create({
                 index,
                 type: 'hello',
-                id: '2',
+                id: 'hello-2',
                 refresh: true,
                 body: {
-                    id: 2,
+                    id: 'hello-2',
                     foo: 'bar',
                     group: 'a',
                     updated: new Date().toISOString(),
@@ -657,10 +667,10 @@ describe('Data Access Management', () => {
             await client.create({
                 index,
                 type: 'hello',
-                id: '3',
+                id: 'hello-3',
                 refresh: true,
                 body: {
-                    id: 3,
+                    id: 'hello-3',
                     foo: 'baz',
                     group: 'a',
                     updated: new Date().toISOString(),
@@ -671,10 +681,10 @@ describe('Data Access Management', () => {
             await client.create({
                 index,
                 type: 'hello',
-                id: '4',
+                id: 'hello-4',
                 refresh: true,
                 body: {
-                    id: 4,
+                    id: 'hello-4',
                     foo: 'hidden-group',
                     group: 'b',
                     updated: new Date().toISOString(),
@@ -700,7 +710,7 @@ describe('Data Access Management', () => {
                 query: {
                     token: apiToken,
                     q: 'foo:bar',
-                    sort: '_id:asc',
+                    sort: 'id:asc',
                     pretty: false,
                 },
                 json: true,
@@ -714,12 +724,12 @@ describe('Data Access Management', () => {
                     returning: 2,
                     results: [
                         {
-                            id: 1,
+                            id: 'hello-1',
                             foo: 'bar',
                             group: 'a',
                         },
                         {
-                            id: 2,
+                            id: 'hello-2',
                             foo: 'bar',
                             group: 'a',
                         },
@@ -738,7 +748,7 @@ describe('Data Access Management', () => {
                 query: {
                     token: apiToken,
                     q: '',
-                    sort: '_id:asc',
+                    sort: 'id:asc',
                     pretty: false,
                 },
                 json: true,
@@ -764,7 +774,7 @@ describe('Data Access Management', () => {
                     token: apiToken,
                     q: '',
                     size: 'a',
-                    sort: '_id:asc',
+                    sort: 'id:asc',
                     pretty: false,
                 },
                 json: true,
@@ -834,7 +844,7 @@ describe('Data Access Management', () => {
                         results: [
                             {
                                 foo: 'baz',
-                                id: 3,
+                                id: 'hello-3',
                                 group: 'a',
                                 _index: index,
                             },

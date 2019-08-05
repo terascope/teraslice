@@ -6,10 +6,11 @@ import { GraphQLClient } from 'graphql-request';
 import { TestContext } from '@terascope/job-components';
 import { LATEST_VERSION, TypeConfigFields } from '@terascope/data-types';
 import { makeClient, cleanupIndexes, deleteIndices, populateIndex } from './helpers/elasticsearch';
+import { TEST_INDEX_PREFIX } from './helpers/config';
+import QueryPointPlugin from '../src/query-point';
 import { PluginConfig } from '../src/interfaces';
 import ManagerPlugin from '../src/manager';
 import SearchPlugin from '../src/search';
-import QueryPointPlugin from '../src/query-point';
 
 describe('Query Point API', () => {
     const client = makeClient();
@@ -37,7 +38,7 @@ describe('Query Point API', () => {
         logger: context.logger,
         server_config: {
             data_access: {
-                namespace: 'test_da_space_pl',
+                namespace: `${TEST_INDEX_PREFIX}da_qp`,
             },
             teraserver: {
                 shutdown_timeout: 1,

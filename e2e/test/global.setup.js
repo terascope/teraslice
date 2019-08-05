@@ -1,12 +1,15 @@
 'use strict';
 
+const ms = require('ms');
 const _ = require('lodash');
-const signale = require('signale');
 const Promise = require('bluebird');
 const uuid = require('uuid/v4');
+const signale = require('./signale');
 const { waitForClusterState, waitForJobStatus } = require('./wait');
-const misc = require('./misc');
+const setupTerasliceConfig = require('./setup-config');
 const downloadAssets = require('./download-assets');
+const { resetState } = require('./helpers');
+const misc = require('./misc');
 
 const jobList = [];
 
@@ -15,21 +18,17 @@ const generateOnly = GENERATE_ONLY ? parseInt(GENERATE_ONLY, 100) : null;
 
 function getElapsed(time) {
     const elapsed = Date.now() - time;
-    if (elapsed < 1000) {
-        return `took ${elapsed}ms`;
-    }
-    return `took ${_.round(elapsed / 1000, 2)}s`;
+    return `took ${ms(elapsed)}`;
 }
 
-function dockerUp() {
+async function dockerUp() {
     const startTime = Date.now();
     signale.pending('Bringing Docker environment up...');
 
-    return misc.compose
-        .up({}, ['elasticsearch', 'teraslice-master', 'teraslice-worker'])
-        .then(() => {
-            signale.success('Docker environment is good to go', getElapsed(startTime));
-        });
+    await misc.compose.up({
+        'force-recreate': ''
+    });
+    signale.success('Docker environment is good to go', getElapsed(startTime));
 }
 
 function waitForTeraslice() {
@@ -41,7 +40,7 @@ function waitForTeraslice() {
     });
 }
 
-function generateTestData() {
+async function generateTestData() {
     const startTime = Date.now();
     signale.pending('Generating example data...');
 
@@ -62,7 +61,7 @@ function generateTestData() {
                 exConfig.ex_id = textExId;
                 const date = new Date();
                 const iso = date.toISOString();
-                const index = `teracluster__state-${iso
+                const index = `${misc.CLUSTER_NAME}__state-${iso
                     .split('-')
                     .slice(0, 2)
                     .join('.')}`;
@@ -110,7 +109,7 @@ function generateTestData() {
                         body: notCompleted
                     }),
                     client.index({
-                        index: 'teracluster__ex',
+                        index: `${misc.CLUSTER_NAME}__ex`,
                         type: 'ex',
                         id: exConfig.ex_id,
                         body: exConfig
@@ -135,14 +134,15 @@ function generateTestData() {
             }));
     }
 
-    function generate(count, hex) {
-        if (generateOnly && generateOnly !== count) return Promise.resolve();
+    async function generate(count, hex) {
+        if (generateOnly && generateOnly !== count) return;
 
         const genStartTime = Date.now();
-        let indexName = `example-logs-${count}`;
+        let indexName = misc.getExampleIndex(count);
         if (hex) {
             indexName += '-hex';
         }
+
         signale.info(`Generating ${indexName} example data`);
         const jobSpec = {
             name: `Generate: ${indexName}`,
@@ -166,59 +166,54 @@ function generateTestData() {
             ]
         };
 
-        return Promise.resolve()
-            .then(() => {
-                if (!hex) return postJob(jobSpec);
+        try {
+            if (hex) {
                 jobSpec.operations[0].size = count / hex.length;
                 jobSpec.operations[0].set_id = 'hexadecimal';
                 jobSpec.operations[1].id_field = 'id';
-                return Promise.map(hex, (letter) => {
+                const result = await Promise.map(hex, (letter) => {
                     jobSpec.name = `Generate: ${indexName}[${letter}]`;
                     jobSpec.operations[0].id_start_key = letter;
                     return postJob(jobSpec);
                 });
-            })
-            .then(result => _.castArray(result))
-            .then(jobs => Promise.map(jobs, job => waitForJobStatus(job, 'completed')))
-            .then(() => {
-                signale.info(`Generated ${indexName} example data`, getElapsed(genStartTime));
-            })
-            .catch((err) => {
-                signale.error(`Failure to generate example data ${indexName}`, err);
-                return Promise.reject(err);
-            });
+                const jobs = _.castArray(result);
+                await Promise.map(jobs, job => waitForJobStatus(job, 'completed'));
+            } else {
+                await postJob(jobSpec);
+            }
+
+            signale.info(`Generated ${indexName} example data`, getElapsed(genStartTime));
+        } catch (err) {
+            signale.error(`Failure to generate example data ${indexName}`, err);
+            throw err;
+        }
     }
 
-    return (
-        Promise.all([
-            generate(100),
-            generate(1000)
-            // no need for id slicing in elasticsearch 6.x, see id-reader-spec.js
-            // generate(1000, ['d', '3'])
-        ])
-            // we need fully active jobs so we can get proper meta data for recovery state tests
-            .then(() => Promise.all([
-                populateStateForRecoveryTests('testex-errors', 'test-recovery-100'),
-                populateStateForRecoveryTests('testex-all', 'test-recovery-200')
-            ]))
-            .then(() => {
-                signale.success('Data generation is done', getElapsed(startTime));
-            })
-            .catch((err) => {
-                signale.error('Data generation failed', getElapsed(startTime));
-                return Promise.reject(err);
-            })
-    );
+    try {
+        await Promise.all(misc.EXAMLPE_INDEX_SIZES.map(size => generate(size)));
+        // we need fully active jobs so we can get proper meta data for recovery state tests
+        await Promise.all([
+            populateStateForRecoveryTests('testex-errors', 'test-recovery-100'),
+            populateStateForRecoveryTests('testex-all', 'test-recovery-200')
+        ]);
+        signale.success('Data generation is done', getElapsed(startTime));
+    } catch (err) {
+        signale.error('Data generation failed', getElapsed(startTime));
+        throw err;
+    }
 }
 
 module.exports = async () => {
-    process.stdout.write('\n');
+    await misc.globalTeardown(false);
 
     signale.time('global setup');
 
-    await Promise.all([downloadAssets(), dockerUp()]);
+    await Promise.all([setupTerasliceConfig(), downloadAssets()]);
 
+    await dockerUp();
     await waitForTeraslice();
+    await Promise.delay(2000);
+    await resetState();
 
     try {
         await generateTestData();

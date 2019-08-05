@@ -23,10 +23,10 @@
     },
     "dependencies": {},
     "devDependencies": {
-        "@terascope/data-access": "^0.12.5",
-        "@terascope/data-types": "^0.5.1",
+        "@terascope/data-access": "^0.12.6",
+        "@terascope/data-types": "^0.5.2",
         "@terascope/ui-components": "^0.3.6",
-        "@terascope/utils": "^0.14.0",
+        "@terascope/utils": "^0.14.1",
         "@types/jest": "24.0.15",
         "@types/node": "12.6.8",
         "@types/react": "16.8.23",
@@ -48,13 +48,14 @@
         "ts-loader": "^6.0.3",
         "webpack": "^4.34.0",
         "webpack-cli": "^3.3.4",
-        "xlucene-evaluator": "^0.9.5"
+        "xlucene-evaluator": "^0.9.6"
     },
     "publishConfig": {
         "access": "public"
     },
-    "displayName": "Ui Data Access",
+    "displayName": "UI Data Access",
     "terascope": {
-        "enableTypedoc": false
+        "enableTypedoc": false,
+        "testSuite": "disabled"
     }
 }

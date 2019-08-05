@@ -7,7 +7,7 @@
     "operations": [
         {
             "_op": "elasticsearch_reader",
-            "index": "example-logs-100",
+            "index": "replace-me-100",
             "type": "change",
             "size": 100,
             "date_field_name": "created",
@@ -16,7 +16,7 @@
         {
             "_op": "elasticsearch_index_selector",
             "type": "change",
-            "index": "example-logs-new",
+            "index": "replace-me-1000",
             "preserve_id": true
         },
         {

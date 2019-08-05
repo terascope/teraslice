@@ -15,14 +15,12 @@
     ],
     "main": "lib/index.js",
     "scripts": {
-        "lint": "eslint *.js lib/**/*.js test/**/*.js",
-        "lint:fix": "yarn lint --fix",
-        "test": "jest --forceExit",
-        "test:debug": "env DEBUG=\"${DEBUG:*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/utils": "^0.14.0",
+        "@terascope/utils": "^0.14.1",
         "bluebird": "^3.5.5",
         "csvtojson": "^2.0.8",
         "lodash": "^4.17.11"
@@ -32,5 +30,7 @@
         "access": "public"
     },
     "displayName": "Chunked File Reader",
-    "terascope": {}
+    "terascope": {
+        "testSuite": "unit"
+    }
 }

@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const Promise = require('bluebird');
-const signale = require('signale');
+const signale = require('./signale');
 const misc = require('./misc');
 
 /*
@@ -77,12 +77,15 @@ function forWorkers(workerCount = misc.DEFAULT_WORKERS) {
 
 async function scaleWorkersAndWait(workersToAdd = 0) {
     const workerCount = misc.DEFAULT_WORKERS + workersToAdd;
+    await Promise.delay(500);
+
     const state = await misc.teraslice().cluster.state();
     if (Object.keys(state) === workerCount) return state;
 
     return misc
         .scaleWorkers(workersToAdd)
         .then(() => forWorkers(workerCount))
+        .then(() => Promise.delay(500))
         .then(() => misc.teraslice().cluster.state());
 }
 
@@ -107,7 +110,6 @@ function forWorkersJoined(jobId, workerCount, iterations) {
 function waitForClusterState(timeoutMs = 120000) {
     const endAt = Date.now() + timeoutMs;
     const { cluster } = misc.teraslice();
-    const requiredNodes = misc.DEFAULT_NODES - 2;
 
     async function _waitForClusterState() {
         if (Date.now() > endAt) {
@@ -125,7 +127,7 @@ function waitForClusterState(timeoutMs = 120000) {
             return _waitForClusterState();
         }
 
-        if (nodes >= requiredNodes) return nodes;
+        if (nodes >= misc.DEFAULT_NODES) return nodes;
         return _waitForClusterState();
     }
 

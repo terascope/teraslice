@@ -1,9 +1,9 @@
-import _ from 'lodash';
 import path from 'path';
 import fse from 'fs-extra';
 import { Application } from 'typedoc';
 import { PackageInfo } from '../interfaces';
 import { listMdFiles, getName, writeIfChanged } from '../misc';
+import signale from '../signale';
 
 function isOverview(filePath: string): boolean {
     return path.basename(filePath, '.md') === 'overview';
@@ -49,7 +49,7 @@ function getAPIName(overview: string, outputDir: string, filePath: string) {
 async function fixDocs(outputDir: string, { displayName }: PackageInfo) {
     const overviewFilePath = listMdFiles(outputDir).find(filePath => path.basename(filePath, '.md') === 'README');
     if (!overviewFilePath) {
-        console.error(
+        signale.error(
             'Error: Package documentation was not generated correctly',
             ", this means the package my not work with the typedoc's version of TypeScript."
         );
@@ -79,8 +79,8 @@ async function fixDocs(outputDir: string, { displayName }: PackageInfo) {
 }
 
 export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string) {
-    // tslint:disable-next-line: no-console
-    console.error(`* building typedocs for package ${pkgInfo.name}`);
+    signale.await(`building typedocs for package ${pkgInfo.name}`);
+
     const cwd = process.cwd();
     try {
         process.chdir(pkgInfo.dir);
@@ -114,6 +114,7 @@ export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string) {
 
         await fixDocs(outputDir, pkgInfo);
     } finally {
+        signale.success(`generated docs for package ${pkgInfo.name}`);
         process.chdir(cwd);
     }
 }

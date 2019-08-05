@@ -14,7 +14,9 @@
 **/dist
 **/build
 **/.cache
+**/.travis-cache
 .cache
+.travis-cache
 .vscode
 assets
 autoload

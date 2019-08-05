@@ -11,6 +11,7 @@ RUN apk --no-cache add \
     musl-dev \
     openssl-dev \
     make \
+    curl \
     python
 
 ENV NPM_CONFIG_LOGLEVEL error

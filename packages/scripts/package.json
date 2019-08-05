@@ -1,6 +1,6 @@
 {
     "name": "@terascope/scripts",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "A collection of terascope monorepo scripts",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/scripts#readme",
     "bugs": {
@@ -19,32 +19,41 @@
         "ts-scripts": "./bin/ts-scripts.js"
     },
     "scripts": {
-        "prebuild": "./scripts/build-typedoc.js",
         "build": "tsc --build --pretty",
         "build:watch": "yarn build --watch",
+        "postinstall": "./scripts/build-typedoc.js",
         "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
-        "test": "jest",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
         "@lerna/query-graph": "^3.14.0",
-        "execa": "^2.0.2",
-        "fs-extra": "^8.0.1",
-        "lodash": "^4.17.11",
+        "@terascope/utils": "^0.14.1",
+        "@types/is-ci": "^2.0.0",
+        "execa": "^2.0.3",
+        "fs-extra": "^8.1.0",
+        "got": "^9.6.0",
+        "ip": "^1.1.5",
+        "is-ci": "^2.0.0",
         "markdown-table": "^1.1.3",
+        "ms": "^2.1.2",
         "pkg-up": "^3.1.0",
         "semver": "^6.1.1",
+        "signale": "^1.4.0",
         "sort-package-json": "^1.22.1",
         "typedoc": "TypeStrong/typedoc#07afa11",
         "typedoc-plugin-markdown": "^2.0.7",
         "yargs": "^13.2.4"
     },
     "devDependencies": {
-        "@types/lodash": "^4.14.135",
-        "@types/semver": "^6.0.1"
+        "@types/got": "^9.6.4",
+        "@types/ip": "^1.1.0",
+        "@types/ms": "^0.7.30",
+        "@types/semver": "^6.0.1",
+        "@types/signale": "^1.2.1"
     },
     "publishConfig": {
         "access": "public"
@@ -52,6 +61,7 @@
     "displayName": "Scripts",
     "srcMain": "src/index.ts",
     "terascope": {
-        "enableTypedoc": false
+        "enableTypedoc": false,
+        "testSuite": "unit"
     }
 }

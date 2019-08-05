@@ -8,9 +8,9 @@ Teraslice is written in Node.js and has been tested on Linux and Mac OS X.
 
 ### Dependencies
 
-- Node.js 8 or above
-- Yarn (development only)
-- At least one Elasticsearch 5.x or above cluster
+- Node.js (10.16 or above)
+- Yarn (1.16 or abose)
+- At least one elasticsearch 5.x, 6.x, or 7.x
 
 ### Installation
 

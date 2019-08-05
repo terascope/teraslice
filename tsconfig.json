@@ -27,8 +27,8 @@
         }
     },
     "include": [],
+    // these project references should be ordered by dependants first
     "references": [
-        // Make sure to list this in order of depedencies
         {
             "path": "packages/utils"
         },

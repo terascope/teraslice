@@ -1,60 +1,318 @@
 import path from 'path';
 import execa from 'execa';
 import fse from 'fs-extra';
+import { debugLogger, pDelay, isString } from '@terascope/utils';
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
+import signale from './signale';
 
-process.env.FORCE_COLOR = '1';
+const logger = debugLogger('ts-scripts:cmd');
 
-export async function exec(cmd: string, args: string[] = [], cwd = getRootDir()): Promise<string> {
+export type ExecEnv = { [name: string]: string };
+type ExecOpts = {
+    cmd: string;
+    args?: string[];
+    cwd?: string;
+    env?: ExecEnv;
+    stdio?: 'inherit';
+    detached?: boolean;
+};
+
+function _exec(opts: ExecOpts) {
     let subprocess;
     const options: execa.Options = {
-        cwd,
+        cwd: opts.cwd || getRootDir(),
+        env: opts.env,
+        preferLocal: true,
+        detached: opts.detached,
+        stdio: opts.stdio,
     };
 
-    if (args && args.length) {
-        subprocess = execa(cmd, args, options);
+    logger.debug('executing command', opts);
+
+    if (opts.args && opts.args.length) {
+        subprocess = execa(opts.cmd, opts.args, options);
     } else {
-        subprocess = execa(cmd, options);
+        subprocess = execa(opts.cmd, options);
+    }
+    if (!subprocess) {
+        throw new Error(`Failed to execution ${opts.cmd}`);
     }
 
-    if (!subprocess || !subprocess.stderr) {
-        throw new Error(`Failed to execution ${cmd}`);
+    if (!opts.stdio) {
+        if (!subprocess.stderr || !subprocess.stdout) {
+            throw new Error(`Command ${opts.cmd} failed, stderr or stdout is not available`);
+        }
+        subprocess.stderr.pipe(process.stderr);
     }
-
-    subprocess.stderr.pipe(process.stderr);
-    const { stdout } = await subprocess;
-    return stdout;
+    return subprocess;
 }
 
-export async function runTSScript(cmd: TSCommands, args: string[]) {
+export async function exec(opts: ExecOpts, log: boolean = true): Promise<string> {
+    try {
+        const env: ExecEnv = { FORCE_COLOR: '0', ...opts.env };
+        const _opts = { ...opts };
+        _opts.env = env;
+        const subprocess = _exec(_opts);
+        const { stdout } = await subprocess;
+        const result = stdout.trim();
+        logger.debug(`exec result: ${opts.cmd} ${(opts.args || []).join(' ')}`, log && result);
+        return result;
+    } catch (err) {
+        if (!err.command) {
+            throw err;
+        }
+        process.exitCode = err.exitCode || 1;
+        throw new Error(err.message);
+    }
+}
+
+export async function fork(opts: ExecOpts): Promise<void> {
+    try {
+        const env: ExecEnv = { FORCE_COLOR: '1', ...opts.env };
+        const _opts: ExecOpts = { stdio: 'inherit', ...opts };
+        _opts.env = env;
+        await _exec(_opts);
+    } catch (err) {
+        if (!err.command) {
+            throw err;
+        }
+        process.exitCode = err.exitCode || 1;
+        throw new Error(err.message);
+    }
+}
+
+export async function runTSScript(cmd: TSCommands, args: string[]): Promise<void> {
     const scriptName = process.argv[1];
-    return exec(scriptName, [cmd, ...args]);
+    return fork({
+        cmd: scriptName,
+        args: [cmd, ...args],
+    });
 }
 
-export async function build(pkgInfo?: PackageInfo) {
+export async function build(pkgInfo?: PackageInfo): Promise<void> {
     if (pkgInfo) {
         const distDir = path.join(pkgInfo.dir, 'dist');
         if (fse.existsSync(distDir)) {
             await fse.emptyDir(distDir);
         }
-        return exec('yarn', ['run', 'build'], pkgInfo.dir);
+        await yarnRun('build', [], pkgInfo.dir);
+        return;
     }
-    return exec('yarn', ['run', 'build']);
+    await yarnRun('build');
 }
 
-export async function setup() {
-    return await exec('yarn', ['run', 'setup']);
+export async function setup(): Promise<void> {
+    await yarnRun('setup');
 }
 
-export async function getCommitHash() {
-    return exec('git', ['rev-parse', 'HEAD']);
+export async function yarnRun(script: string, args: string[] = [], cwd?: string): Promise<any> {
+    return fork({ cmd: 'yarn', args: ['run', script, ...args], cwd });
+}
+
+export async function runJest(cwd: string, argsMap: ArgsMap, env?: ExecEnv, extraArgs?: string[]): Promise<void> {
+    const args = mapToArgs(argsMap);
+    if (extraArgs) {
+        extraArgs.forEach(extraArg => {
+            if (extraArg.startsWith('-') && args.includes(extraArg)) {
+                logger.debug(`* skipping duplicate jest arg ${extraArg}`);
+                return;
+            }
+            args.push(extraArg);
+        });
+    }
+    signale.debug(`executing: jest ${args.join(' ')}`);
+    await fork({
+        cmd: 'jest',
+        cwd,
+        args,
+        env,
+    });
+}
+
+export async function dockerPull(image: string): Promise<void> {
+    await exec({
+        cmd: 'docker',
+        args: ['pull', image],
+    });
+}
+
+export async function dockerStop(name: string): Promise<void> {
+    await exec({
+        cmd: 'docker',
+        args: ['stop', name],
+    });
+}
+
+export async function getContainerInfo(name: string): Promise<any> {
+    const result = await exec({
+        cmd: 'docker',
+        args: ['ps', '--format={{json .}}', `--filter=name=${name}`],
+    });
+
+    if (!result) return null;
+    return JSON.parse(result);
+}
+
+export type DockerRunOptions = {
+    name: string;
+    image: string;
+    ports?: (number | string)[];
+    tmpfs?: string[];
+    env?: ExecEnv;
+};
+
+export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): Promise<() => void> {
+    const args: string[] = ['--rm'];
+    if (!opt.image) {
+        throw new Error('Missing required image option');
+    }
+
+    if (!opt.name) {
+        throw new Error('Missing required name option');
+    }
+
+    if (opt.ports && opt.ports.length) {
+        opt.ports.forEach(port => {
+            if (isString(port)) {
+                args.push('--publish', port);
+            } else {
+                args.push('--publish', `${port}:${port}`);
+            }
+        });
+    }
+
+    if (opt.env) {
+        Object.entries(opt.env).forEach(([key, val]) => {
+            args.push('--env', `${key}=${val}`);
+        });
+    }
+
+    if (opt.tmpfs && opt.tmpfs.length) {
+        args.push('--tmpfs', opt.tmpfs.join(','));
+    }
+
+    args.push('--name', opt.name);
+    args.push(`${opt.image}:${tag}`);
+
+    let error: any;
+    let stderr: any;
+    let done: boolean = true;
+
+    const subprocess = execa('docker', ['run', ...args]);
+    if (!subprocess || !subprocess.stderr) {
+        throw new Error('Failed to execute docker run');
+    }
+
+    (async () => {
+        done = false;
+        try {
+            const result = await subprocess;
+            if (result.exitCode > 0) {
+                stderr = result.all;
+                error = new Error(`${result.command} failed`);
+            }
+        } catch (err) {
+            error = err.stack;
+            stderr = err.all;
+        } finally {
+            done = true;
+        }
+    })();
+
+    await pDelay(2000);
+
+    if (error) {
+        if (stderr) {
+            process.stderr.write(stderr);
+        }
+        throw error;
+    }
+
+    if (done) {
+        throw new Error('Service ended early');
+    }
+
+    return () => {
+        if (error) {
+            if (stderr) {
+                process.stderr.write(stderr);
+            }
+            signale.error(error);
+        }
+
+        if (done && !subprocess.killed) return;
+
+        signale.debug(`killing "${opt.name}" docker container`);
+        subprocess.kill();
+    };
+}
+
+export async function dockerBuild(target: string, cacheFrom: string[] = []): Promise<void> {
+    const cacheFromArgs: string[] = [];
+
+    cacheFrom.forEach(image => {
+        cacheFromArgs.push('--cache-from', image);
+    });
+
+    await fork({
+        cmd: 'docker',
+        args: ['build', ...cacheFromArgs, '-t', target, '.'],
+    });
+}
+
+export async function ensureDockerNetwork(name: string) {
+    const existsResult = await execa.command(`docker network ls --filter=name=${name} -q`);
+    const exists = existsResult.stdout && existsResult.exitCode === 0;
+    if (exists) {
+        logger.debug(`network ${name} exists`, existsResult);
+        return;
+    }
+
+    await fork({
+        cmd: 'docker',
+        args: ['network', 'create', '--attachable', name],
+    });
+}
+
+export async function pgrep(name: string): Promise<string> {
+    const result = await exec({ cmd: 'ps', args: ['aux'] }, false);
+    if (!result) {
+        throw new Error('Invalid result from ps aux');
+    }
+    const found = result.split('\n').find(line => {
+        if (!line) return false;
+        return line.toLowerCase().includes(name.toLowerCase());
+    });
+    if (found) {
+        logger.trace('found process', found);
+        return found;
+    }
+    return '';
+}
+
+export async function getCommitHash(): Promise<string> {
+    return exec({ cmd: 'git', args: ['rev-parse', 'HEAD'] });
 }
 
 export async function getChangedFiles(...files: string[]) {
-    const result = await exec('git', ['diff', '--name-only', ...files]);
+    const result = await exec({ cmd: 'git', args: ['diff', '--name-only', ...files] });
     return result
         .split('\n')
         .map(str => str.trim())
         .filter(str => !!str);
+}
+
+export type ArgsMap = { [key: string]: string | string[] };
+export function mapToArgs(input: ArgsMap): string[] {
+    const args: string[] = [];
+    for (const [key, value] of Object.entries(input)) {
+        const vals = Array.isArray(value) ? value : [value];
+        if (key.length > 1) {
+            args.push(`--${key}`, ...vals);
+        } else {
+            args.push(`-${key}`, ...vals);
+        }
+    }
+    return args.filter(str => str != null && str !== '');
 }

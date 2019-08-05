@@ -79,6 +79,9 @@ main() {
         ;;
     esac
 
+    export FORCE_COLOR=1
+    echoerr "* set FORCE_COLOR=1"
+
     only_ci
     setup_npm
     setup_github

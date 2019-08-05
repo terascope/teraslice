@@ -4,6 +4,7 @@ import { QueryAccess } from 'xlucene-evaluator';
 import { times, TSError, AnyObject } from '@terascope/utils';
 import { IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions } from '../src';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
+import { TEST_INDEX_PREFIX } from './helpers/config';
 
 describe('IndexModel', () => {
     interface ExampleRecord extends IndexModelRecord {
@@ -54,7 +55,7 @@ describe('IndexModel', () => {
     }
 
     const indexModel = new ExampleIndexModel(client, {
-        namespace: 'test',
+        namespace: `${TEST_INDEX_PREFIX}indexmodel`,
     });
 
     beforeAll(async () => {
@@ -385,9 +386,9 @@ describe('IndexModel', () => {
 
                 result.reverse().forEach((record, index) => {
                     if (index < 5) {
-                        expect(record.name).toEqual(`Bob ${index}`);
+                        expect(record).toHaveProperty('name', `Bob ${index}`);
                     } else {
-                        expect(record.name).toEqual(`Joe ${index - 5}`);
+                        expect(record).toHaveProperty('name', `Joe ${index - 5}`);
                     }
                 });
             });

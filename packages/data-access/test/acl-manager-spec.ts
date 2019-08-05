@@ -1,12 +1,13 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
-import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
-import { ACLManager, User, Role } from '../src';
 import { LATEST_VERSION } from '@terascope/data-types';
+import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
+import { TEST_INDEX_PREFIX } from './helpers/config';
+import { ACLManager, User, Role } from '../src';
 
 describe('ACLManager', () => {
     const client = makeClient();
-    const manager = new ACLManager(client, { namespace: 'test_manager' });
+    const manager = new ACLManager(client, { namespace: `${TEST_INDEX_PREFIX}acl` });
     let superAdminUser: User;
     let normalUser: User;
     let normalRole: Role;

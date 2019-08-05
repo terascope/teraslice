@@ -2,7 +2,7 @@ import path from 'path';
 import { updateReadme, ensureOverview } from '../docs/overview';
 import { listPackages, updatePkgJSON } from '../packages';
 import { updateSidebarJSON } from '../docs/sidebar';
-import { cliError, formatList } from '../misc';
+import { cliError, formatList, writePkgHeader } from '../misc';
 import { getChangedFiles } from '../scripts';
 import { PackageInfo } from '../interfaces';
 
@@ -12,19 +12,29 @@ export type SyncOptions = {
 
 export async function syncAll(options: SyncOptions = {}) {
     for (const pkgInfo of listPackages()) {
-        await syncPackage(pkgInfo, { ...options, verify: false });
+        await syncPackages([pkgInfo], { ...options, verify: false });
     }
 
     await updateSidebarJSON();
     await verify(getFiles(), options);
 }
 
-export async function syncPackage(pkgInfo: PackageInfo, options: SyncOptions = {}) {
-    await updateReadme(pkgInfo);
-    await ensureOverview(pkgInfo);
-    await updatePkgJSON(pkgInfo);
+export async function syncPackages(pkgInfos: PackageInfo[], options: SyncOptions = {}) {
+    const files: string[] = [];
 
-    await verify(getFiles(pkgInfo), options);
+    writePkgHeader('Syncing files', pkgInfos);
+
+    await Promise.all(
+        pkgInfos.map(async pkgInfo => {
+            await updateReadme(pkgInfo);
+            await ensureOverview(pkgInfo);
+            await updatePkgJSON(pkgInfo);
+
+            files.push(...getFiles(pkgInfo));
+        })
+    );
+
+    await verify(files, options);
 }
 
 export async function verify(files: string[], options: SyncOptions) {

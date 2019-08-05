@@ -1,6 +1,6 @@
 {
     "name": "ts-transforms",
-    "version": "0.21.0",
+    "version": "0.21.1",
     "description": "An ETL framework built upon xlucene-evaluator",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/ts-transforms#readme",
     "bugs": {
@@ -32,12 +32,12 @@
         "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
         "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
-        "test": "jest --forceExit",
-        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged"
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/utils": "^0.14.0",
+        "@terascope/utils": "^0.14.1",
         "@types/graphlib": "^2.1.5",
         "@types/shortid": "^0.0.29",
         "awesome-phonenumber": "^2.12.0",
@@ -46,7 +46,7 @@
         "shortid": "^2.2.14",
         "valid-url": "^1.0.9",
         "validator": "^11.0.0",
-        "xlucene-evaluator": "^0.9.5",
+        "xlucene-evaluator": "^0.9.6",
         "yargs": "^13.2.4"
     },
     "devDependencies": {
@@ -63,6 +63,7 @@
     "displayName": "Ts Transforms",
     "srcMain": "src/index.ts",
     "terascope": {
-        "enableTypedoc": true
+        "enableTypedoc": true,
+        "testSuite": "unit"
     }
 }

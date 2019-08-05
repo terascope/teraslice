@@ -1,5 +1,6 @@
 {
     "extends": "airbnb-base",
+    "root": true,
     "parserOptions": {
         "ecmaVersion": 8,
         "sourceType": "script"

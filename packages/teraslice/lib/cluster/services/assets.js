@@ -159,36 +159,31 @@ module.exports = function assetsService(context) {
     }
 
 
+    const { port } = process.env;
     return {
-        initialize() {
-            return Promise.resolve(makeAssetsStore(context))
-                .then((store) => {
-                    assetsStore = store;
-                    return assetsStore.autoload();
-                })
-                .then(() => {
-                    const { port } = process.env;
-                    return new Promise((resolve, reject) => {
-                        app.listen(port, (err) => {
-                            if (err) {
-                                reject(err);
-                                return;
-                            }
-                            logger.info(`assets_service is listening on port ${port}`);
-                            resolve();
-                        });
+        async initialize() {
+            try {
+                assetsStore = await makeAssetsStore(context);
+
+                await new Promise((resolve, reject) => {
+                    app.listen(port, (err) => {
+                        if (err) {
+                            reject(err);
+                            return;
+                        }
+                        logger.info(`assets_service is listening on port ${port}`);
+                        resolve();
                     });
-                })
-                .then(() => {
-                    running = true;
-                })
-                .catch((err) => {
-                    const error = new TSError(err, {
-                        reason: 'Error while creating assets_service'
-                    });
-                    running = false;
-                    return Promise.reject(error);
                 });
+
+                await assetsStore.autoload();
+                running = true;
+            } catch (err) {
+                running = false;
+                throw new TSError(err, {
+                    reason: 'Failure while creating assets_service'
+                });
+            }
         },
         run() {
             return new Promise((resolve) => {
@@ -204,10 +199,10 @@ module.exports = function assetsService(context) {
                 }, 1000);
             });
         },
-        shutdown() {
+        async shutdown() {
             running = false;
-            if (!assetsStore) return Promise.resolve();
-            return assetsStore.shutdown(true);
+            if (!assetsStore) return;
+            await assetsStore.shutdown(true);
         }
     };
 };

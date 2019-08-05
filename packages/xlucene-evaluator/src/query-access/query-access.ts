@@ -107,7 +107,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      *
      * @returns a restricted elasticsearch search query
      */
-    restrictSearchQuery(query: string, params: Partial<es.SearchParams> = {}): es.SearchParams {
+    restrictSearchQuery(query: string, params: Partial<es.SearchParams> = {}, esVersion: number = 6): es.SearchParams {
         if (params._source) {
             throw new ts.TSError('Cannot include _source in params, use _sourceInclude or _sourceExclude');
         }
@@ -130,6 +130,17 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
         if (searchParams != null) {
             delete searchParams.q;
+        }
+
+        if (esVersion >= 7) {
+            if (searchParams._sourceExclude) {
+                searchParams._sourceExcludes = searchParams._sourceExclude.slice();
+                delete searchParams._sourceExclude;
+            }
+            if (searchParams._sourceInclude) {
+                searchParams._sourceIncludes = searchParams._sourceInclude.slice();
+                delete searchParams._sourceInclude;
+            }
         }
 
         return searchParams;

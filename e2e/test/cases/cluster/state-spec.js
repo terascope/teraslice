@@ -1,8 +1,10 @@
 'use strict';
 
 const _ = require('lodash');
+const Promise = require('bluebird');
 const misc = require('../../misc');
 const wait = require('../../wait');
+const signale = require('../../signale');
 const { resetState, submitAndStart } = require('../../helpers');
 
 const { waitForJobStatus, scaleWorkersAndWait } = wait;
@@ -64,7 +66,14 @@ describe('cluster state', () => {
             expect(node.available).toBeWithin(0, misc.WORKERS_PER_NODE + 1);
 
             const expectActiveLength = node.total - node.available;
-            expect(node.active).toBeArrayOfSize(expectActiveLength);
+            const actualLength = node.active.length;
+            if (actualLength !== expectActiveLength) {
+                signale.warn(
+                    `Expected node.active "${
+                        node.active.length
+                    }" to equal "${expectActiveLength}" node.total - node.available`
+                );
+            }
         });
 
         // verify cluster master
@@ -83,12 +92,14 @@ describe('cluster state', () => {
 
     it('should be correct for running job with 1 worker', async () => {
         const jobSpec = misc.newJob('reindex');
+        const specIndex = misc.newSpecIndex('state');
         jobSpec.name = 'cluster state with 1 worker';
-        jobSpec.operations[0].index = 'example-logs-1000';
+        jobSpec.operations[0].index = misc.getExampleIndex(1000);
         jobSpec.operations[0].size = 100;
-        jobSpec.operations[1].index = 'test-clusterstate-job-1-1000';
+        jobSpec.operations[1].index = specIndex;
 
-        const job = await submitAndStart(jobSpec);
+        const job = await submitAndStart(jobSpec, 1000);
+        await Promise.delay(1000);
         const jobId = job.id();
         const state = await teraslice.cluster.state();
 
@@ -103,25 +114,28 @@ describe('cluster state', () => {
             // The node with more than one worker should have the actual worker
             // and there should only be one.
             if (state[node].active.length > 2) {
-                expect(findWorkers(state[node].active, 'worker', jobId).length).toBe(1);
+                expect(findWorkers(state[node].active, 'worker', jobId)).toBeArrayOfSize(1);
             }
             expect(checkState(state, null, jobId)).toBe(2);
         });
 
         await complete;
-        const stats = await misc.indexStats('test-clusterstate-job-1-1000');
+        const stats = await misc.indexStats(specIndex);
         expect(stats.count).toBe(1000);
     });
 
     it('should be correct for running job with 4 workers', async () => {
         const jobSpec = misc.newJob('reindex');
+        const specIndex = misc.newSpecIndex('state');
+
         jobSpec.name = 'cluster state with 2 workers';
         jobSpec.workers = 4;
-        jobSpec.operations[0].index = 'example-logs-1000';
+        jobSpec.operations[0].index = misc.getExampleIndex(1000);
         jobSpec.operations[0].size = 20;
-        jobSpec.operations[1].index = 'test-clusterstate-job-4-1000';
+        jobSpec.operations[1].index = specIndex;
 
         const job = await submitAndStart(jobSpec, 5000);
+        await Promise.delay(1000);
         const jobId = job.id();
 
         const state = await teraslice.cluster.state();
@@ -141,7 +155,7 @@ describe('cluster state', () => {
         });
 
         await complete;
-        const { count } = await misc.indexStats('test-clusterstate-job-4-1000');
+        const { count } = await misc.indexStats(specIndex);
         expect(count).toBe(1000);
     });
 });

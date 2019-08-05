@@ -289,7 +289,8 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
 
         let records: T[];
         if (queryAccess) {
-            const query = queryAccess.restrictSearchQuery(q, params);
+            const esVersion = utils.getESVersion(this.store.client);
+            const query = queryAccess.restrictSearchQuery(q, params, esVersion);
             records = await this.store._search(query);
         } else {
             records = await this.store.search(q, params);

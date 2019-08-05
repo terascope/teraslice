@@ -484,7 +484,7 @@ describe('elasticsearch-api', () => {
     });
 
     it('can call indexCreate', async () => {
-        const query = { index: 'someIndex' };
+        const query = { index: 'someIndex', body: { mappings: {} } };
         const api = esApi(client, logger);
 
         const results = await api.indexCreate(query);

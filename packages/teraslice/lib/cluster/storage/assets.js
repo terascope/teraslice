@@ -22,49 +22,65 @@ module.exports = async function assetsStore(context) {
 
     let backend;
 
-    function save(data) {
-        let metaData;
-        const esData = data.toString('base64');
-        const id = crypto.createHash('sha1').update(esData).digest('hex');
-        return fse.open(path.join(assetsPath, id), 'r')
-            .then(() => {
-                // directory exists, need to check if the index has it, if not then save it
-                logger.debug(`asset ${id} exists, verifying that it exists in backend`);
-                return backend.get(id, null, ['name'])
-                    // it exists, just return the id
-                    .then(() => ({
-                        assetId: id,
-                        created: false,
-                    }))
-                    .catch((err) => {
-                        const error = new TSError(err, {
-                            reason: `Failure checking asset index, could not get asset with id: ${id}`
-                        });
-                        return Promise.reject(error);
-                    });
-            })
-            .catch((fileError) => {
-                if (fileError.code === 'ENOENT') {
-                    return saveAsset(logger, assetsPath, id, data, _metaIsUnqiue)
-                        .then((_metaData) => {
-                            metaData = _metaData;
-                            const file = Object.assign({
-                                blob: esData,
-                                _created: new Date()
-                            }, metaData);
-                            return backend.indexWithId(id, file);
-                        })
-                        .then(() => {
-                            logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
-                            return {
-                                assetId: id,
-                                created: true,
-                            };
-                        });
-                }
+    async function _assetExistsInFS(id) {
+        try {
+            // eslint-disable-next-line no-bitwise
+            const access = fse.constants.F_OK | fse.constants.R_OK | fse.constants.W_OK;
+            await fse.access(path.join(assetsPath, id), access);
+            return true;
+        } catch (err) {
+            return false;
+        }
+    }
 
-                return Promise.reject(fileError);
+    async function _assetExistsInES(id) {
+        try {
+            const result = await backend.get(id, null, ['id', 'name']);
+            return result != null;
+        } catch (err) {
+            if (err.statusCode === 404) {
+                return false;
+            }
+            throw new TSError(err, {
+                reason: `Failure checking asset index, could not get asset with id: ${id}`
             });
+        }
+    }
+
+    async function _assetExists(id) {
+        const readable = await _assetExistsInFS(id);
+        const exists = await _assetExistsInES(id);
+        return readable && exists;
+    }
+
+    async function save(data) {
+        try {
+            const esData = data.toString('base64');
+            const id = crypto.createHash('sha1').update(esData).digest('hex');
+
+            const exists = await _assetExists(id);
+            if (exists) {
+                logger.info(`asset id: ${id} already exists`);
+            } else {
+                const metaData = await saveAsset(logger, assetsPath, id, data, _metaIsUnqiue);
+
+                const assetRecord = Object.assign({
+                    blob: esData,
+                    _created: new Date().toISOString()
+                }, metaData);
+
+                await backend.indexWithId(id, assetRecord);
+
+                logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
+            }
+
+            return {
+                assetId: id,
+                created: !exists,
+            };
+        } catch (err) {
+            return err;
+        }
     }
 
     function search(query, from, size, sort, fields) {
@@ -218,15 +234,20 @@ module.exports = async function assetsStore(context) {
         if (!autoloadDir || !fse.existsSync(autoloadDir)) return;
 
         const assets = await findAssetsToAutoload(autoloadDir);
+        if (!assets || !assets.length) return;
 
-        const promises = assets.map(async (asset) => {
-            if (assets.length > 1) {
-                await pDelay(_.random(0, 1000));
-            }
+        const promises = assets.map(async (asset, i) => {
+            await pDelay(i * 100);
+
             logger.info(`autoloading asset ${asset}...`);
             const assetPath = path.join(autoloadDir, asset);
             try {
-                await save(await fse.readFile(assetPath));
+                const result = await save(await fse.readFile(assetPath));
+                if (result.created) {
+                    logger.debug(`autoloaded asset ${asset}`);
+                } else {
+                    logger.debug(`autoloaded asset ${asset} already exists`);
+                }
             } catch (err) {
                 if (err.alreadyExists) {
                     logger.debug(`autoloaded asset ${asset} already exists`);
@@ -237,6 +258,8 @@ module.exports = async function assetsStore(context) {
         });
 
         await Promise.all(promises);
+
+        logger.info('done autoloading assets');
     }
 
     function verifyClient() {
@@ -270,8 +293,8 @@ module.exports = async function assetsStore(context) {
     };
 
     await ensureAssetDir();
-    const elasticsearch = await elasticsearchBackend(backendConfig);
-    backend = elasticsearch;
+    backend = await elasticsearchBackend(backendConfig);
+
     logger.info('assets storage initialized');
     return api;
 };
