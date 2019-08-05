@@ -62,7 +62,7 @@ jobs:
       script: yarn test --suite elasticsearch --elasticsearch-version 7.2 --elasticsearch-api-version 7.0
 
     - script:
-      name: 'E2E Test Suite (elasticsearch 6) (node 10)'
+      name: 'End-to-End Test Suite (elasticsearch 6) (node 10)'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron) AND fork = false
       script: yarn test --suite e2e --elasticsearch-version 6.8 --elasticsearch-api-version 6.5 --kafka-version 2.1
