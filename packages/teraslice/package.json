@@ -32,6 +32,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
+        "@newrelic/native-metrics": "^4.1.0",
         "@terascope/elasticsearch-api": "^2.1.1",
         "@terascope/error-parser": "^1.0.2",
         "@terascope/job-components": "^0.20.7",

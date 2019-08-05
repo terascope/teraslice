@@ -1,10 +1,13 @@
 'use strict';
 
-const { get, getFullErrorStack, isFatalError } = require('@terascope/utils');
 const { ExecutionController, formatURL } = require('@terascope/teraslice-messaging');
+const {
+    get, getFullErrorStack, isFatalError, TSError, isTest
+} = require('@terascope/utils');
 const { makeStateStore, makeAnalyticsStore } = require('../../cluster/storage');
-const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
 const { generateWorkerId, makeLogger } = require('../helpers/terafoundation');
+const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
+const Metrics = require('../metrics');
 const Slice = require('./slice');
 
 class Worker {
@@ -15,7 +18,8 @@ class Worker {
 
         const {
             slicer_port: slicerPort,
-            slicer_hostname: slicerHostname
+            slicer_hostname: slicerHostname,
+            performance_metrics: performanceMetrics
         } = executionContext.config;
 
         const config = context.sysconfig.teraslice;
@@ -34,6 +38,21 @@ class Worker {
         });
 
         this.slice = new Slice(context, executionContext);
+
+        try {
+            this.metrics = new Metrics({
+                enabled: performanceMetrics,
+                logger,
+                statsInterval: isTest ? 500 : 5000
+            });
+        } catch (err) {
+            // this is a non-fatal error
+            logger.error(
+                new TSError(err, {
+                    reason: 'Failure constructing metrics'
+                })
+            );
+        }
 
         this.stores = {};
         this.executionContext = executionContext;
@@ -68,6 +87,19 @@ class Worker {
         });
 
         await this.client.start();
+
+        try {
+            if (this.metrics != null) {
+                await this.metrics.initialize();
+            }
+        } catch (err) {
+            // this is a non-fatal error
+            this.logger.error(
+                new TSError(err, {
+                    reason: 'Failure initializing metrics'
+                })
+            );
+        }
     }
 
     async run() {
@@ -211,6 +243,10 @@ class Worker {
             })(),
             (async () => {
                 await this.client.shutdown().catch(pushError);
+            })(),
+            (async () => {
+                if (this.metrics == null) return;
+                await this.metrics.shutdown().catch(pushError);
             })()
         ]);
 
