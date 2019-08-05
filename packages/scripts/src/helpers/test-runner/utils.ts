@@ -17,6 +17,7 @@ export function getArgs(options: TestOptions): ArgsMap {
     args.passWithNoTests = '';
     args.coverage = 'true';
     args.color = '';
+    args.maxWorkers = '2';
 
     if (options.bail) {
         args.bail = '';

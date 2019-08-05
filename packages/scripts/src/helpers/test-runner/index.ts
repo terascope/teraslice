@@ -103,7 +103,7 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
     }
 
     if (!errors.length) {
-        const chunked = chunk(pkgInfos, options.debug ? 1 : 5);
+        const chunked = chunk(pkgInfos, options.debug ? 1 : 10);
         const timeLabel = `test suite "${suite}"`;
         signale.time(timeLabel);
         const env = utils.getEnv(options);
@@ -112,9 +112,8 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
         }
 
         for (const pkgs of chunked) {
-            if (pkgs.length > 1) {
-                writePkgHeader('Running batch of tests', pkgs, true);
-            } else {
+            if (!pkgs.length) continue;
+            if (pkgs.length === 1) {
                 writePkgHeader('Running test', pkgs, true);
             }
 
