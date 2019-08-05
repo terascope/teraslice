@@ -58,8 +58,9 @@ function csv(incomingData, logger, opConfig, metadata, slice) {
         headers: opConfig.fields,
         trim: true,
         noheader: true,
-        ignoreEmpty: true,
-        output: 'json'
+        ignoreEmpty: opConfig.ignore_empty || false,
+        output: 'json',
+        ...opConfig.extra_args
     };
     let foundHeader = false;
     const data = _toRecords(incomingData, opConfig.line_delimiter, slice);
