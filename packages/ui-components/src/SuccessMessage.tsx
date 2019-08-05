@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Redirect } from 'react-router';
+import { Redirect } from 'react-router-dom';
 import { Message, Icon } from 'semantic-ui-react';
 
 const SuccessMessage: React.FC<Props> = ({

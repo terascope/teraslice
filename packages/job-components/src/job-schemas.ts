@@ -15,6 +15,11 @@ export function jobSchema(context: Context): convict.Schema<any> {
             doc: 'logs the time it took in milliseconds for each action, ' + 'as well as the number of docs it receives',
             format: Boolean,
         },
+        performance_metrics: {
+            default: false,
+            doc: 'logs performance metrics, including gc, loop and usage metrics for nodejs',
+            format: Boolean,
+        },
         assets: {
             default: null,
             doc:

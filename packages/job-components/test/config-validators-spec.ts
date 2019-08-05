@@ -27,12 +27,13 @@ describe('when using native clustering', () => {
                 apis: [],
                 operations: [{ _op: 'noop' }, { _op: 'noop' }],
                 probation_window: 300000,
+                performance_metrics: false,
                 slicers: 1,
             };
 
             const jobConfig = validateJobConfig(schema, job);
             delete jobConfig.workers;
-            expect(jobConfig as object).toEqual(validJob);
+            expect(jobConfig).toEqual(validJob);
         });
     });
 
@@ -296,7 +297,7 @@ describe('when using native clustering', () => {
             };
 
             const config = validateOpConfig(schema, op);
-            expect(config as object).toEqual({
+            expect(config).toEqual({
                 _op: 'some-op',
                 _encoding: 'json',
                 _dead_letter_action: 'none',
@@ -315,7 +316,7 @@ describe('when using native clustering', () => {
             };
 
             const config = validateOpConfig(schema, op);
-            expect(config as object).toEqual({
+            expect(config).toEqual({
                 _op: 'some-op',
                 _encoding: 'json',
                 _dead_letter_action: 'none',
@@ -361,7 +362,7 @@ describe('when using native clustering', () => {
             };
 
             const config = validateOpConfig(schema, op);
-            expect(config as object).toEqual({
+            expect(config).toEqual({
                 _op: 'some-op',
                 _encoding: 'json',
                 _dead_letter_action: 'log',
@@ -433,7 +434,7 @@ describe('when using native clustering', () => {
             };
 
             const config = validateAPIConfig(schema, api);
-            expect(config as object).toEqual({
+            expect(config).toEqual({
                 _name: 'some-api',
                 example: 'example',
                 formatted_value: 'hi',
@@ -510,6 +511,7 @@ describe('when validating k8s clustering', () => {
                 apis: [],
                 operations: [{ _op: 'noop' }, { _op: 'noop' }],
                 probation_window: 300000,
+                performance_metrics: false,
                 slicers: 1,
                 targets: [
                     {
@@ -522,7 +524,7 @@ describe('when validating k8s clustering', () => {
 
             const jobConfig = validateJobConfig(schema, job);
             delete jobConfig.workers;
-            expect(jobConfig as object).toEqual(validJob);
+            expect(jobConfig).toEqual(validJob);
         });
     });
 
@@ -554,6 +556,7 @@ describe('when validating k8s clustering', () => {
                 apis: [],
                 operations: [{ _op: 'noop' }, { _op: 'noop' }],
                 probation_window: 300000,
+                performance_metrics: false,
                 targets: [],
                 volumes: [
                     {
@@ -566,7 +569,7 @@ describe('when validating k8s clustering', () => {
 
             const jobConfig = validateJobConfig(schema, job);
             delete jobConfig.workers;
-            expect(jobConfig as object).toEqual(validJob);
+            expect(jobConfig).toEqual(validJob);
         });
     });
 });

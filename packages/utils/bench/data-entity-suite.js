@@ -2,10 +2,9 @@
 
 /* eslint-disable no-unused-expressions */
 
-const { times } = require('@terascope/utils');
 const { Suite } = require('./helpers');
 const FakeDataEntity = require('./fixtures/fake-data-entity');
-const { DataEntity } = require('../dist/src');
+const { DataEntity, times } = require('../dist/src');
 
 const data = {};
 

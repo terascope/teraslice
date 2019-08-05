@@ -3,7 +3,7 @@ import path from 'path';
 import isCI from 'is-ci';
 import fse from 'fs-extra';
 import { debugLogger, get, TSError, isFunction } from '@terascope/utils';
-import { ArgsMap, ExecEnv, dockerBuild, dockerPull, exec } from '../scripts';
+import { ArgsMap, ExecEnv, dockerBuild, dockerPull, exec, fork } from '../scripts';
 import { TestOptions, GroupedPackages } from './interfaces';
 import { PackageInfo, TestSuite } from '../interfaces';
 import { HOST_IP } from '../config';
@@ -193,7 +193,7 @@ export async function logE2E(dir: string, failed: boolean): Promise<void> {
         RAW_LOGS: 'true',
     });
 
-    const logFilePath = path.join(dir, './teraslice-test.log');
+    const logFilePath = path.join(dir, 'teraslice-test.log');
     if (!rawLogs) {
         await fse.remove(logFilePath);
         return;
@@ -201,4 +201,20 @@ export async function logE2E(dir: string, failed: boolean): Promise<void> {
 
     await fse.writeFile(logFilePath, rawLogs);
     signale.debug(`Wrote e2e log files to ${path.relative(process.cwd(), logFilePath)}`);
+}
+
+const abc = 'abcdefghijklmnopqrstuvwxyz';
+
+export async function reportCoverage(suite: TestSuite, chunkIndex: number) {
+    const id = abc[chunkIndex] || 'any';
+
+    signale.info('* reporting coverage');
+    try {
+        await fork({
+            cmd: 'codecov',
+            args: ['--clear', '--flags', `${suite}-${id}`],
+        });
+    } catch (err) {
+        signale.error(err);
+    }
 }

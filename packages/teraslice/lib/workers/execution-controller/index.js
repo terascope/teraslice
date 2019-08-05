@@ -4,15 +4,15 @@ const _ = require('lodash');
 const pWhilst = require('p-whilst');
 const Messaging = require('@terascope/teraslice-messaging');
 const {
-    TSError, get, pDelay, getFullErrorStack
+    TSError, get, pDelay, getFullErrorStack, isTest
 } = require('@terascope/utils');
-
-const Scheduler = require('./scheduler');
-const ExecutionAnalytics = require('./execution-analytics');
-const makeSliceAnalytics = require('./slice-analytics');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
 const { makeStateStore, makeExStore } = require('../../cluster/storage');
 const { makeLogger, generateWorkerId } = require('../helpers/terafoundation');
+const ExecutionAnalytics = require('./execution-analytics');
+const makeSliceAnalytics = require('./slice-analytics');
+const Scheduler = require('./scheduler');
+const Metrics = require('../metrics');
 
 const ExecutionControllerServer = Messaging.ExecutionController.Server;
 const ClusterMasterClient = Messaging.ClusterMaster.Client;
@@ -24,6 +24,7 @@ class ExecutionController {
         const logger = makeLogger(context, 'execution_controller');
         const events = context.apis.foundation.getSystemEvents();
         const slicerPort = executionContext.config.slicer_port;
+        const performanceMetrics = executionContext.config.performance_metrics;
         const config = context.sysconfig.teraslice;
         const networkLatencyBuffer = get(config, 'network_latency_buffer');
         const actionTimeout = get(config, 'action_timeout');
@@ -55,6 +56,20 @@ class ExecutionController {
         this.executionAnalytics = new ExecutionAnalytics(context, executionContext, this.client);
 
         this.scheduler = new Scheduler(context, executionContext);
+        try {
+            this.metrics = new Metrics({
+                enabled: performanceMetrics,
+                logger,
+                statsInterval: isTest ? 500 : 5000
+            });
+        } catch (err) {
+            // this is a non-fatal error
+            logger.error(
+                new TSError(err, {
+                    reason: 'Failure constructing metrics'
+                })
+            );
+        }
 
         this.exId = executionContext.exId;
         this.workerId = workerId;
@@ -126,6 +141,19 @@ class ExecutionController {
         this.scheduler.stateStore = stateStore;
 
         await this.server.start();
+
+        try {
+            if (this.metrics != null) {
+                await this.metrics.initialize();
+            }
+        } catch (err) {
+            // this is a non-fatal error
+            this.logger.error(
+                new TSError(err, {
+                    reason: 'Failure initializing metrics'
+                })
+            );
+        }
 
         this.isInitialized = true;
 
@@ -407,6 +435,10 @@ class ExecutionController {
             (async () => {
                 const stores = Object.values(this.stores);
                 await Promise.all(stores.map(store => store.shutdown(true).catch(pushError)));
+            })(),
+            (async () => {
+                if (this.metrics == null) return;
+                await this.metrics.shutdown().catch(pushError);
             })()
         ]);
 

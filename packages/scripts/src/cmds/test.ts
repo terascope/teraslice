@@ -12,6 +12,7 @@ type Options = {
     watch: boolean;
     bail: boolean;
     suite?: TestSuite;
+    'report-coverage': boolean;
     'elasticsearch-host': string;
     'elasticsearch-version': string;
     'elasticsearch-api-version': string;
@@ -34,6 +35,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             })
             .option('bail', {
                 description: 'This will cause the tests to stop at the first failed test.',
+                type: 'boolean',
+                default: isCI,
+            })
+            .option('report-coverage', {
+                description: 'Report the coverage for CI',
                 type: 'boolean',
                 default: isCI,
             })
@@ -103,6 +109,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             kafkaBroker: argv['kafka-broker'],
             kafkaVersion: argv['kafka-version'],
             all: !argv.packages || !argv.packages.length,
+            reportCoverage: argv['report-coverage'],
             jestArgs,
         });
     },

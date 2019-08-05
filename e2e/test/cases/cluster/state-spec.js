@@ -99,8 +99,8 @@ describe('cluster state', () => {
         jobSpec.operations[1].index = specIndex;
 
         const job = await submitAndStart(jobSpec, 1000);
-        await Promise.delay(1000);
         const jobId = job.id();
+
         const state = await teraslice.cluster.state();
 
         const complete = waitForJobStatus(job, 'completed');

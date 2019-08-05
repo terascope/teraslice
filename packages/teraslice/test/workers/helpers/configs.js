@@ -72,6 +72,7 @@ const newConfig = (options = {}) => {
         lifecycle,
         max_retries: maxRetries,
         operations,
+        performance_metrics: false,
         recovered_execution: recoveredExecution,
         recovered_slice_type: recoveredSliceType,
         ex_id: newId('ex-id', true),

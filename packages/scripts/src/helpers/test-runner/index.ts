@@ -103,19 +103,25 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
     }
 
     if (!errors.length) {
+        // jest or our tests have a memory leak, limiting this to 5 seems to help
         const chunked = chunk(pkgInfos, options.debug ? 1 : 5);
         const timeLabel = `test suite "${suite}"`;
         signale.time(timeLabel);
+
         const env = utils.getEnv(options);
         if (options.debug || isCI) {
             signale.debug(`setting env for test suite "${suite}"`, env);
         }
 
+        let chunkIndex = -1;
         for (const pkgs of chunked) {
-            if (pkgs.length > 1) {
-                writePkgHeader('Running batch of tests', pkgs, true);
-            } else {
+            chunkIndex++;
+
+            if (!pkgs.length) continue;
+            if (pkgs.length === 1) {
                 writePkgHeader('Running test', pkgs, true);
+            } else {
+                writeHeader(`Running batch of ${pkgs.length} tests`, true);
             }
 
             const args = utils.getArgs(options);
@@ -140,6 +146,10 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
 
                 if (options.bail) {
                     break;
+                }
+            } finally {
+                if (options.reportCoverage) {
+                    await utils.reportCoverage(suite, chunkIndex);
                 }
             }
         }

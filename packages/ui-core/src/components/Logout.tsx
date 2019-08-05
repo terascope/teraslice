@@ -1,7 +1,7 @@
 import React from 'react';
 import gql from 'graphql-tag';
 import { Query, ApolloConsumer } from 'react-apollo';
-import { Redirect } from 'react-router';
+import { Redirect } from 'react-router-dom';
 import { parseErrorInfo } from '@terascope/utils';
 import {
     LoadingPage,

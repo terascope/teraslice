@@ -10,7 +10,6 @@ module.exports = (projectDir) => {
     const rootDir = name === 'e2e' ? '../' : '../../';
     const packageRoot = name === 'e2e' ? '<rootDir>/e2e' : `<rootDir>/${workspaceName}/${name}`;
     const isTypescript = fs.pathExistsSync(path.join(projectDir, 'tsconfig.json'));
-    const runInPackage = projectDir === process.cwd();
 
     const config = {
         rootDir,
@@ -55,19 +54,11 @@ module.exports = (projectDir) => {
     };
 
     if (isTypescript) {
-        if (runInPackage) {
-            config.globals['ts-jest'] = {
-                tsConfig: './tsconfig.json',
-                diagnostics: true,
-                pretty: true
-            };
-        } else {
-            config.globals['ts-jest'] = {
-                tsConfig: `./${workspaceName}/${name}/tsconfig.json`,
-                diagnostics: true,
-                pretty: true
-            };
-        }
+        config.globals['ts-jest'] = {
+            tsConfig: `./${workspaceName}/${name}/tsconfig.json`,
+            diagnostics: true,
+            pretty: true
+        };
     } else {
         config.globals['ts-jest'] = {
             diagnostics: true,
