@@ -100,7 +100,7 @@ function indexStats(indexName) {
 }
 
 async function cleanupIndex(indexName) {
-    await es().indices.delete({ index: indexName, ignoreUnavailable: true });
+    await es().indices.delete({ index: indexName });
 }
 
 // Adds teraslice-workers to the environment

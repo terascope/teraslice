@@ -589,7 +589,6 @@ describe('Data Access Management', () => {
             await client.indices.delete({
                 index,
                 requestTimeout: 1000,
-                ignoreUnavailable: true,
             });
 
             const mapping = {
@@ -697,7 +696,6 @@ describe('Data Access Management', () => {
             await client.indices.delete({
                 index,
                 requestTimeout: 3000,
-                ignoreUnavailable: true,
             });
         });
 
