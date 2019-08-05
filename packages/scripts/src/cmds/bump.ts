@@ -34,7 +34,7 @@ const cmd: CommandModule = {
                 description: 'Specify the release change for the version, see https://www.npmjs.com/package/semver',
                 type: 'string',
                 default: 'patch',
-                requiresArg: true,
+                demandOption: true,
                 choices: releaseChoices,
             })
             .positional('packages', {
