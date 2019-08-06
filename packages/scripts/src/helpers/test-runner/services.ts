@@ -1,6 +1,5 @@
 import ms from 'ms';
 import got from 'got';
-import isCI from 'is-ci';
 import semver from 'semver';
 import { debugLogger, pRetry, TSError } from '@terascope/utils';
 import { dockerRun, DockerRunOptions, getContainerInfo, dockerStop, pgrep } from '../scripts';
@@ -75,22 +74,8 @@ export async function ensureKafka(options: TestOptions): Promise<() => void> {
 
 export async function ensureElasticsearch(options: TestOptions, ensureNetwork?: boolean): Promise<() => void> {
     let fn = () => {};
-    let shouldStart = false;
-
-    try {
-        if (!isCI) {
-            await checkElasticsearch(options, 2);
-        } else {
-            shouldStart = true;
-        }
-    } catch (err) {
-        shouldStart = true;
-    }
-
-    if (shouldStart) {
-        fn = await startService(options, TestSuite.Elasticsearch);
-        await checkElasticsearch(options, 10);
-    }
+    fn = await startService(options, TestSuite.Elasticsearch);
+    await checkElasticsearch(options, 10);
     return fn;
 }
 

@@ -31,6 +31,10 @@ export function listPackages(): i.PackageInfo[] {
     return _packages;
 }
 
+export function getMainPackageInfo(): i.PackageInfo | undefined {
+    return listPackages().find(pkgInfo => pkgInfo.terascope.main);
+}
+
 export function addPackageConfig(pkgInfo: i.PackageInfo): void {
     for (const _key of Object.keys(pkgInfo.terascope)) {
         const key = _key as (keyof i.PackageConfig);

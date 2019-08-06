@@ -27,7 +27,7 @@ export enum TestSuite {
 }
 
 export type PackageConfig = {
-    mainPackage?: boolean;
+    main?: boolean;
     enableTypedoc?: boolean;
     testSuite?: TestSuite;
 };
@@ -42,7 +42,7 @@ export type RootPackageInfo = {
     };
 };
 
-export const AvailablePackageConfigKeys: ReadonlyArray<keyof PackageConfig> = ['enableTypedoc', 'testSuite', 'mainPackage'];
+export const AvailablePackageConfigKeys: ReadonlyArray<keyof PackageConfig> = ['enableTypedoc', 'testSuite', 'main'];
 
 export type TSCommands = 'docs';
 

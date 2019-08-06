@@ -138,7 +138,7 @@ export async function runJest(cwd: string, argsMap: ArgsMap, env?: ExecEnv, extr
 export async function dockerPull(image: string): Promise<void> {
     await exec({
         cmd: 'docker',
-        args: ['pull', image],
+        args: ['pull', '-q', image],
     });
 }
 
@@ -157,6 +157,11 @@ export async function getContainerInfo(name: string): Promise<any> {
 
     if (!result) return null;
     return JSON.parse(result);
+}
+
+export async function remoteDockerImageExists(image: string): Promise<boolean> {
+    const result = await execa.command(`docker pull -q ${image}`, { reject: false });
+    return Boolean(result.stdout && result.exitCode === 0);
 }
 
 export type DockerRunOptions = {
@@ -253,30 +258,25 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
     };
 }
 
-export async function dockerBuild(target: string, cacheFrom: string[] = []): Promise<void> {
+export async function dockerBuild(tag: string, cacheFrom: string[] = [], target?: string): Promise<void> {
     const cacheFromArgs: string[] = [];
 
     cacheFrom.forEach(image => {
         cacheFromArgs.push('--cache-from', image);
     });
 
+    const targetArgs: string[] = target ? ['--target', target] : [];
+
     await fork({
         cmd: 'docker',
-        args: ['build', ...cacheFromArgs, '-t', target, '.'],
+        args: ['build', ...cacheFromArgs, ...targetArgs, '--tag', tag, '.'],
     });
 }
 
-export async function ensureDockerNetwork(name: string) {
-    const existsResult = await execa.command(`docker network ls --filter=name=${name} -q`);
-    const exists = existsResult.stdout && existsResult.exitCode === 0;
-    if (exists) {
-        logger.debug(`network ${name} exists`, existsResult);
-        return;
-    }
-
+export async function dockerPush(image: string): Promise<void> {
     await fork({
         cmd: 'docker',
-        args: ['network', 'create', '--attachable', name],
+        args: ['push', image],
     });
 }
 
@@ -297,7 +297,7 @@ export async function pgrep(name: string): Promise<string> {
 }
 
 export async function getCommitHash(): Promise<string> {
-    return exec({ cmd: 'git', args: ['rev-parse', 'HEAD'] });
+    return exec({ cmd: 'git', args: ['rev-parse', '--short', 'HEAD'] });
 }
 
 export async function getChangedFiles(...files: string[]) {

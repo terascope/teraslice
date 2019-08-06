@@ -106,7 +106,7 @@ jobs:
 
     # Build nightly releases
     - script:
-      name: 'Nightly Builds'
+      name: 'Daily Docker Builds'
       if: type = cron
       addons:
         apt:
