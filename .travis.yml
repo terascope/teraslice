@@ -68,38 +68,32 @@ jobs:
       name: 'Publish packages, docs and expiremental docker image'
       # run a push to master
       if: tag IS blank AND branch = master AND type NOT IN (pull_request, cron)
-      addons:
-        apt:
-          packages:
-            - jq
       script: yarn docs
       deploy:
           - provider: script
             skip_cleanup: true
-            script: ./scripts/publish-packages.sh
+            script: yarn ts-scripts publish npm
           - provider: script
             skip_cleanup: true
             script: ./scripts/publish-documentation.sh
           - provider: script
-            script: ./scripts/docker-release.sh dev
+            skip_cleanup: true
+            script: yarn ts-scripts publish -t tag docker
 
     - script:
       name: 'Create Tag Release'
       if: tag IS present AND type NOT IN (pull_request, cron)
-      addons:
-        apt:
-          packages:
-            - jq
       script: yarn docs
       deploy:
         - provider: script
           skip_cleanup: true
-          script: ./scripts/publish-packages.sh
+          script: yarn ts-scripts publish npm
           on:
             all_branches: true
             tags: true
         - provider: script
-          script: ./scripts/docker-release.sh tag
+          skip_cleanup: true
+          script: yarn ts-scripts publish -t tag docker
           on:
             all_branches: true
             tags: true
@@ -108,11 +102,8 @@ jobs:
     - script:
       name: 'Daily Docker Builds'
       if: type = cron
-      addons:
-        apt:
-          packages:
-              - jq
       script: true
       deploy:
         - provider: script
-          script: ./scripts/docker-release.sh daily
+          skip_cleanup: true
+          script: yarn ts-scripts publish -t daily docker

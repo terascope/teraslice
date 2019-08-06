@@ -1,18 +1,18 @@
 import isCI from 'is-ci';
 import { CommandModule } from 'yargs';
 import { GlobalCMDOptions } from '../helpers/interfaces';
-import { PublishType } from '../helpers/publish/interfaces';
+import { PublishAction } from '../helpers/publish/interfaces';
 import { publish } from '../helpers/publish';
 
 type Options = {
-    type: PublishType;
-    tag?: string;
+    'release-type'?: string;
+    action: PublishAction;
     'dry-run': boolean;
 };
 
 const cmd: CommandModule<GlobalCMDOptions, Options> = {
-    command: 'publish',
-    describe: 'Publish npm, docker and documentation releases',
+    command: 'publish <action>',
+    describe: 'Publish npm or docker releases',
     builder(yargs) {
         return yargs
             .option('dry-run', {
@@ -20,23 +20,23 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'boolean',
                 default: !isCI,
             })
-            .option('type', {
-                description: 'The release type',
-                demandOption: true,
-                choices: Object.values(PublishType),
-                coerce(arg): PublishType {
+            .option('release-type', {
+                alias: 't',
+                description: 'Depending on the publish action this can be used to define what type of action to take',
+                type: 'string',
+            })
+            .positional('action', {
+                description: 'The publish action to take',
+                choices: Object.values(PublishAction),
+                coerce(arg): PublishAction {
                     return arg;
                 },
             })
-            .option('tag', {
-                description: 'The release tag',
-                type: 'string',
-            });
+            .requiresArg('action');
     },
     handler(argv) {
-        return publish({
-            type: argv.type,
-            tag: argv.tag,
+        return publish(argv.action, {
+            releaseType: argv['release-type'],
             dryRun: argv['dry-run'],
         });
     },
