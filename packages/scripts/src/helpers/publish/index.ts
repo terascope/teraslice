@@ -1,16 +1,22 @@
 import { PackageInfo } from '../interfaces';
 import { listPackages } from '../packages';
 import { PublishType, PublishOptions } from './interfaces';
-import { yarnPublish, yarnRun } from '../scripts';
+import { yarnPublish, yarnRun, verifyNPMAuth } from '../scripts';
 import { shouldNPMPublish } from './utils';
 import signale from '../signale';
 
 export async function publish(options: PublishOptions) {
-    signale.debug(`publishing to ${options.type}`);
+    signale.info(`publishing to ${options.type}`);
+    if (options.type === PublishType.NPM) {
+        return publishToNPM(options);
+    }
+}
+
+async function publishToNPM(options: PublishOptions) {
+    await verifyNPMAuth();
+
     for (const pkgInfo of listPackages()) {
-        if (options.type === PublishType.NPM) {
-            await npmPublish(pkgInfo, options);
-        }
+        await npmPublish(pkgInfo, options);
     }
 }
 

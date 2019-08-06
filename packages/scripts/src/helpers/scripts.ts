@@ -338,3 +338,13 @@ export async function yarnPublish(pkgInfo: PackageInfo) {
         cwd: pkgInfo.dir,
     });
 }
+
+export async function verifyNPMAuth() {
+    const subprocess = await execa('npm', ['whoami'], {
+        reject: false,
+    });
+
+    if (subprocess.exitCode > 0 || !Boolean(subprocess.stdout)) {
+        throw new Error('NPM is unauthenticated, run npm login');
+    }
+}
