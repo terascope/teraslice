@@ -1,7 +1,7 @@
 import path from 'path';
 import isCI from 'is-ci';
 import { debugLogger, chunk, TSError, getFullErrorStack } from '@terascope/utils';
-import { writePkgHeader, writeHeader, formatList, getRootDir } from '../misc';
+import { writePkgHeader, writeHeader, formatList, getRootDir, getRootInfo } from '../misc';
 import { ensureServices, stopAllServices } from './services';
 import { PackageInfo, TestSuite } from '../interfaces';
 import { TestOptions } from './interfaces';
@@ -174,7 +174,8 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         errors.push(getFullErrorStack(err));
     }
 
-    const image = 'ts_test_teraslice';
+    const rootInfo = getRootInfo();
+    const image = `${rootInfo.docker.image}:e2e`;
     if (!errors.length) {
         try {
             await utils.buildDockerImage(image);

@@ -32,6 +32,16 @@ export type PackageConfig = {
     testSuite?: TestSuite;
 };
 
+export type RootPackageInfo = {
+    root: boolean;
+    // TODO support more than monorepo
+    type: 'monorepo';
+    docker: {
+        image: string;
+        cache_layers: ({ from: string; name: string })[];
+    };
+};
+
 export const AvailablePackageConfigKeys: ReadonlyArray<keyof PackageConfig> = ['enableTypedoc', 'testSuite', 'mainPackage'];
 
 export type TSCommands = 'docs';

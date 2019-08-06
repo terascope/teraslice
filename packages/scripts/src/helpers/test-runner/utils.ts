@@ -8,6 +8,7 @@ import { TestOptions, GroupedPackages } from './interfaces';
 import { PackageInfo, TestSuite } from '../interfaces';
 import { HOST_IP } from '../config';
 import signale from '../signale';
+import { getRootInfo } from '../misc';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -122,10 +123,26 @@ export function groupBySuite(pkgInfos: PackageInfo[]): GroupedPackages {
     return groups;
 }
 
+function getCacheFrom(): string[] {
+    if (isCI) return [];
+    const rootInfo = getRootInfo();
+    const layers = rootInfo.docker.cache_layers || [];
+    if (!layers.length) return [];
+    const cacheFrom: { [name: string]: string } = {};
+    layers.forEach(({ from, name }) => {
+        if (cacheFrom[from] == null) {
+            cacheFrom[from] = from;
+        }
+        cacheFrom[name] = `${rootInfo.docker.image}:dev-${cacheFrom.name}`;
+    });
+    return Object.values(cacheFrom);
+}
+
 export async function buildDockerImage(target: string): Promise<void> {
     const startTime = Date.now();
     signale.pending(`building docker image ${target}`);
-    const cacheFrom = isCI ? ['node:10.16.0-alpine', 'terascope/teraslice:dev-base', 'terascope/teraslice:dev-connectors'] : [];
+
+    const cacheFrom = getCacheFrom();
     if (cacheFrom.length) {
         logger.debug(`pulling images ${cacheFrom}`);
         await Promise.all(cacheFrom.map(dockerPull));

@@ -14,6 +14,9 @@ export function listPackages(): i.PackageInfo[] {
     if (_packages && _packages.length) return _packages.slice();
 
     const packagesPath = path.join(getRootDir(), 'packages');
+    if (!fs.existsSync(packagesPath)) {
+        return [];
+    }
     const packages = fs
         .readdirSync(packagesPath)
         .filter((fileName: string) => {

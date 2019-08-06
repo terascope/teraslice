@@ -60,11 +60,27 @@
         "tslint-config-airbnb": "^5.11.1",
         "typescript": "^3.5.2"
     },
-    "root": true,
     "workspaces": [
         "packages/*",
         "e2e"
     ],
+    "terascope": {
+        "root": true,
+        "type": "monorepo",
+        "docker": {
+            "registry": "terascope/teraslice",
+            "cache_layers": [
+                {
+                    "from": "node:10.16.1-alpine",
+                    "name": "base"
+                },
+                {
+                    "from": "base",
+                    "name": "connectors"
+                }
+            ]
+        }
+    },
     "engines" : {
         "node" : ">=8.16.0",
         "yarn" : ">=1.16.0"

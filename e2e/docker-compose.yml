@@ -1,7 +1,7 @@
 version: '2.4'
 services:
     teraslice-master:
-        image: ts_test_teraslice
+        image: terascope/teraslice:e2e
         ports:
             - '45678:45678'
         scale: 1
@@ -15,7 +15,7 @@ services:
             - ./autoload:/app/autoload:ro
             - ./.config:/app/config:ro
     teraslice-worker:
-        image: ts_test_teraslice
+        image: terascope/teraslice:e2e
         scale: 2
         restart: 'on-failure'
         stop_grace_period: 30s
