@@ -6,6 +6,7 @@ const {
     isTest,
     TSError,
     isFatalError,
+    parseError,
     getBackoffDelay,
     isRetryableError
 } = require('@terascope/utils');
@@ -823,7 +824,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                     .then(results => results)
                     .catch((err) => {
                         // It's not really an error if it's just that the index is already there
-                        if (err.match(/index_already_exists_exception/) === null) {
+                        if (parseError(err).match(/index_already_exists_exception/) === null) {
                             const error = new TSError(err, {
                                 reason: `Could not create index: ${index}`,
                             });
