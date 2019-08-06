@@ -54,6 +54,7 @@ export function getEnv(options: TestOptions): ExecEnv {
         KAFKA_VERSION: options.kafkaVersion,
         TEST_INDEX_PREFIX: 'teratest_',
         HOST_IP,
+        NODE_ENV: 'test',
         FORCE_COLOR: '1',
     };
 
