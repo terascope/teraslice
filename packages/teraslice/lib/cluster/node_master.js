@@ -1,9 +1,9 @@
 'use strict';
 
-const Promise = require('bluebird');
 const _ = require('lodash');
-const parseError = require('@terascope/error-parser');
+const Promise = require('bluebird');
 const { Mutex } = require('async-mutex');
+const { getFullErrorStack } = require('@terascope/utils');
 const { makeLogger } = require('../workers/helpers/terafoundation');
 const messageModule = require('./services/cluster/backends/native/messaging');
 const spawnAssetLoader = require('../workers/assets/spawn');
@@ -129,7 +129,7 @@ module.exports = async function nodeMaster(context) {
                 .then(() => messaging.respond(createSlicerRequest))
                 .catch((error) => {
                     messaging.respond(createSlicerRequest, {
-                        error: parseError(error),
+                        error: getFullErrorStack(error),
                     });
                 });
         }
