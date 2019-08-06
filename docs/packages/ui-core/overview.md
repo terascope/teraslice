@@ -1,5 +1,5 @@
 ---
-title: Ui Core
+title: UI Core
 sidebar_label: Overview
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: Ui Components
+title: UI Components
 sidebar_label: Overview
 ---
 
