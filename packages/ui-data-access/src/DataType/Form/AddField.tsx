@@ -52,7 +52,12 @@ const AddField: React.FC<Props> = ({ addField, fields }) => {
                     icon: 'add',
                     color: 'blue',
                     onClick: () => {
-                        if (state.fieldError || state.typeError) return;
+                        // make sure to validate before checking for error
+                        validate(state);
+                        if (state.fieldError || state.typeError) {
+                            updateState({});
+                            return;
+                        }
 
                         addField(state.field, {
                             type: state.type as AvailableType,
