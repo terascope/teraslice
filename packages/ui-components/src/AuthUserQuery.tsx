@@ -9,6 +9,28 @@ import LoadingPage from './LoadingPage';
 import { tsWithRouter } from './utils';
 import ErrorPage from './ErrorPage';
 
+// Query
+export const AUTH_QUERY = gql`
+    query AuthQuery {
+        authenticate {
+            id
+            client_id
+            firstname
+            lastname
+            username
+            email
+            type
+            api_token
+            role {
+                id
+                name
+            }
+            updated
+            created
+        }
+    }
+`;
+
 const AuthUserQuery = tsWithRouter(({ children, history }) => {
     const { updateState, authUser, authenticated } = useCoreContext();
     const [otherError, setOtherError] = useState<any>(null);
@@ -59,28 +81,6 @@ function isAuthError(error: ApolloError) {
 }
 
 export default AuthUserQuery;
-
-// Query
-export const AUTH_QUERY = gql`
-    query AuthQuery {
-        authenticate {
-            id
-            client_id
-            firstname
-            lastname
-            username
-            email
-            type
-            api_token
-            role {
-                id
-                name
-            }
-            updated
-            created
-        }
-    }
-`;
 
 interface Response {
     authenticate: ResolvedUser;
