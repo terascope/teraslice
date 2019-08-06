@@ -19,7 +19,7 @@
         "lint": "yarn lint:js && yarn lint:ts --parallel && yarn sync --verify",
         "lint:js": "eslint *.js packages/*/*.js packages/*/lib/**/*.js packages/*/test/**/*.js packages/*/cmds/**/*.js",
         "lint:ts": "env FORCE_COLOR=1 lerna run lint --no-bail",
-        "lint:fix": "yarn lint:js:fix && yarn lint:ts:fix",
+        "lint:fix": "yarn lint:js:fix && yarn lint:ts:fix && yarn sync",
         "lint:js:fix": "yarn lint:js --fix",
         "lint:ts:fix": "env FORCE_COLOR=1 lerna run lint:fix --no-bail"
     },

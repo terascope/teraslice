@@ -42,7 +42,7 @@ export async function verify(files: string[], options: SyncOptions) {
 
     const changed = await getChangedFiles(...files);
     if (changed.length) {
-        cliError('Error', `Files out-of-sync, run 'yarn sync' and push up the changes:${formatList(changed)}`);
+        cliError('Error', `Files have either changes or are out-of-sync, run 'yarn sync' and push up the changes:${formatList(changed)}`);
     }
 }
 
