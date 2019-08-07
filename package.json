@@ -68,7 +68,7 @@
             "registry": "terascope/teraslice",
             "cache_layers": [
                 {
-                    "from": "node:10.16.2-alpine",
+                    "from": "node:10.16.1-alpine",
                     "name": "base"
                 },
                 {
