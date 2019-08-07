@@ -23,7 +23,7 @@ class Metrics extends EventEmitter {
 
         // never cause an unwanted error
         try {
-            this.gc = require('gc-stats')();
+            this.gcStats = require('gc-stats')();
         } catch (err) {
             this._logger.error(err, 'Failure to construct gc-stats');
         }
@@ -31,12 +31,12 @@ class Metrics extends EventEmitter {
         try {
             this.eventLoopStats = require('event-loop-stats');
         } catch (err) {
-            this._logger.error(err, 'Failure to construct gc-stats');
+            this._logger.error(err, 'Failure to construct event-loop-stats');
         }
     }
 
     async initialize() {
-        const gcEnabled = this.gc != null;
+        const gcEnabled = this.gcStats != null;
         const loopEnabled = this.eventLoopStats != null;
 
         this._logger.info('initializing performance metrics', {
@@ -54,7 +54,7 @@ class Metrics extends EventEmitter {
                 15: 'All'
             };
 
-            this.gc.on('stats', (metrics) => {
+            this.gcStats.on('stats', (metrics) => {
                 // never cause an unwanted error
                 if (!metrics) {
                     this._logger.warn('invalid metrics received for gc stats', metrics);
