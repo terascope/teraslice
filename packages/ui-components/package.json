@@ -37,7 +37,7 @@
         "semantic-ui-react": "^0.87.2"
     },
     "devDependencies": {
-        "@terascope/data-access": "^0.12.7",
+        "@terascope/data-access": "^0.13.0",
         "@types/react": "16.8.23",
         "@types/react-dom": "16.8.5",
         "@types/react-router-dom": "^4.3.4",
