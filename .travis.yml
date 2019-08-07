@@ -84,7 +84,6 @@ jobs:
       name: 'Create Tag Release'
       # run on tagged releases
       if: tag IS present AND type NOT IN (pull_request, cron)
-      script: yarn docs
       deploy:
         - provider: script
           skip_cleanup: true
