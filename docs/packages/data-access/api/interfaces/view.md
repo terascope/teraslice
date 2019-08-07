@@ -13,11 +13,11 @@ The definition of a View model
 
   * **View**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
-* [client_id](view.md#optional-client_id)
+* [client_id](view.md#client_id)
 * [constraint](view.md#optional-constraint)
 * [created](view.md#created)
 * [data_type](view.md#data_type)
@@ -32,11 +32,13 @@ The definition of a View model
 
 ## Properties
 
-### `Optional` client_id
+###  client_id
 
-• **client_id**? : *undefined | number*
+• **client_id**: *number*
 
-*Defined in [models/config/views.ts:107](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/config/views.ts#L107)*
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:163
 
 The mutli-tenant ID representing the client
 
@@ -46,7 +48,7 @@ ___
 
 • **constraint**? : *undefined | string*
 
-*Defined in [models/config/views.ts:142](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/config/views.ts#L142)*
+*Defined in [models/config/views.ts:129](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/views.ts#L129)*
 
 Constraint for queries and filtering
 
@@ -58,7 +60,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:163
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:171
 
 Creation date
 
@@ -68,7 +70,7 @@ ___
 
 • **data_type**: *string*
 
-*Defined in [models/config/views.ts:122](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/config/views.ts#L122)*
+*Defined in [models/config/views.ts:109](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/views.ts#L109)*
 
 The associated data type
 
@@ -78,7 +80,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [models/config/views.ts:117](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/config/views.ts#L117)*
+*Defined in [models/config/views.ts:104](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/views.ts#L104)*
 
 Description of the view usage
 
@@ -88,7 +90,7 @@ ___
 
 • **excludes**? : *string[]*
 
-*Defined in [models/config/views.ts:132](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/config/views.ts#L132)*
+*Defined in [models/config/views.ts:119](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/views.ts#L119)*
 
 Fields to exclude
 
@@ -102,7 +104,7 @@ ___
 
 Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:159
 
-ID of the view - nanoid 12 digit
+A unique ID for the record - nanoid 12 digit
 
 ___
 
@@ -110,7 +112,7 @@ ___
 
 • **includes**? : *string[]*
 
-*Defined in [models/config/views.ts:137](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/config/views.ts#L137)*
+*Defined in [models/config/views.ts:124](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/views.ts#L124)*
 
 Fields to include
 
@@ -120,7 +122,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [models/config/views.ts:112](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/config/views.ts#L112)*
+*Defined in [models/config/views.ts:99](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/views.ts#L99)*
 
 Name of the view
 
@@ -130,7 +132,7 @@ ___
 
 • **prevent_prefix_wildcard**? : *undefined | false | true*
 
-*Defined in [models/config/views.ts:149](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/config/views.ts#L149)*
+*Defined in [models/config/views.ts:136](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/views.ts#L136)*
 
 Restrict prefix wildcards in search values
 
@@ -142,7 +144,7 @@ ___
 
 • **roles**: *string[]*
 
-*Defined in [models/config/views.ts:127](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/config/views.ts#L127)*
+*Defined in [models/config/views.ts:114](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/views.ts#L114)*
 
 A list of roles this view applys to
 
@@ -154,6 +156,6 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:161
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:167
 
 Updated date

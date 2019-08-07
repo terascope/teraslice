@@ -11,9 +11,9 @@ sidebar_label: AnyDataType
 
   * [Term](term.md)
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [data_type](anydatatype.md#data_type)
 * [value](anydatatype.md#value)
@@ -24,7 +24,7 @@ sidebar_label: AnyDataType
 
 • **data_type**: *[DataType](../overview.md#datatype)*
 
-*Defined in [parser/interfaces.ts:51](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L51)*
+*Defined in [parser/interfaces.ts:51](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L51)*
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **value**: *string | number | boolean*
 
-*Defined in [parser/interfaces.ts:52](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L52)*
+*Defined in [parser/interfaces.ts:52](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L52)*

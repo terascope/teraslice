@@ -9,9 +9,9 @@ sidebar_label: ContextClusterConfig
 
 * **ContextClusterConfig**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [worker](contextclusterconfig.md#worker)
 
@@ -21,6 +21,6 @@ sidebar_label: ContextClusterConfig
 
 • **worker**: *object*
 
-*Defined in [interfaces/context.ts:153](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/interfaces/context.ts#L153)*
+*Defined in [interfaces/context.ts:153](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L153)*
 
 #### Type declaration:

@@ -13,13 +13,13 @@ Manager for Users
 
   * **Users**
 
-### Index
+## Index
 
-#### Constructors
+### Constructors
 
 * [constructor](users.md#constructor)
 
-#### Properties
+### Properties
 
 * [logger](users.md#logger)
 * [name](users.md#name)
@@ -27,7 +27,7 @@ Manager for Users
 * [IndexModelConfig](users.md#static-indexmodelconfig)
 * [PrivateFields](users.md#static-privatefields)
 
-#### Methods
+### Methods
 
 * [_appendToArray](users.md#protected-_appendtoarray)
 * [_createJoinQuery](users.md#protected-_createjoinquery)
@@ -69,7 +69,7 @@ Manager for Users
 
 *Overrides void*
 
-*Defined in [models/users.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L12)*
+*Defined in [models/users.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L12)*
 
 **Parameters:**
 
@@ -88,7 +88,7 @@ Name | Type |
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:12
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:13
 
 ___
 
@@ -98,7 +98,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:11
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:12
 
 ___
 
@@ -108,7 +108,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:10
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:11
 
 ___
 
@@ -116,7 +116,7 @@ ___
 
 ▪ **IndexModelConfig**: *`IndexModelConfig<User>`* =  usersConfig
 
-*Defined in [models/users.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L12)*
+*Defined in [models/users.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L12)*
 
 ___
 
@@ -124,7 +124,7 @@ ___
 
 ▪ **PrivateFields**: *string[]* =  ['api_token', 'salt', 'hash']
 
-*Defined in [models/users.ts:11](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L11)*
+*Defined in [models/users.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L11)*
 
 ## Methods
 
@@ -170,7 +170,7 @@ ___
 
 ### `Protected` _ensureUnique
 
-▸ **_ensureUnique**(`record`: `AnyInput<User>`): *`Promise<void>`*
+▸ **_ensureUnique**(`record`: [User](../interfaces/user.md), `existing?`: [T]()): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -180,7 +180,8 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`record` | `AnyInput<User>` |
+`record` | [User](../interfaces/user.md) |
+`existing?` | [T]() |
 
 **Returns:** *`Promise<void>`*
 
@@ -303,7 +304,7 @@ ___
 
 ▸ **authenticate**(`username`: string, `password`: string): *`Promise<User>`*
 
-*Defined in [models/users.ts:49](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L49)*
+*Defined in [models/users.ts:49](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L49)*
 
 Authenticate the user
 
@@ -322,7 +323,7 @@ ___
 
 ▸ **authenticateWithToken**(`apiToken?`: undefined | string): *`Promise<User>`*
 
-*Defined in [models/users.ts:93](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L93)*
+*Defined in [models/users.ts:93](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L93)*
 
 Authenticate user by api token, returns private fields
 
@@ -397,7 +398,7 @@ ___
 
 ▸ **createWithPassword**(`record`: [CreateUserInput](../overview.md#createuserinput), `password`: string): *`Promise<User>`*
 
-*Defined in [models/users.ts:21](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L21)*
+*Defined in [models/users.ts:21](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L21)*
 
 Create user with password, returns private fields
 
@@ -603,7 +604,7 @@ ___
 
 ▸ **isPrivateUser**(`user`: `Partial<User>`): *boolean*
 
-*Defined in [models/users.ts:119](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L119)*
+*Defined in [models/users.ts:119](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L119)*
 
 **Parameters:**
 
@@ -619,7 +620,7 @@ ___
 
 ▸ **removeRoleFromUsers**(`roleId`: string): *`Promise<void>`*
 
-*Defined in [models/users.ts:128](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L128)*
+*Defined in [models/users.ts:128](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L128)*
 
 **Parameters:**
 
@@ -665,7 +666,7 @@ ___
 
 ▸ **updatePassword**(`id`: string, `password`: string): *`Promise<void>`*
 
-*Defined in [models/users.ts:34](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L34)*
+*Defined in [models/users.ts:34](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L34)*
 
 **Parameters:**
 
@@ -682,7 +683,7 @@ ___
 
 ▸ **updateToken**(`id`: string): *`Promise<string>`*
 
-*Defined in [models/users.ts:78](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/users.ts#L78)*
+*Defined in [models/users.ts:78](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L78)*
 
 Update the API Token for a user
 

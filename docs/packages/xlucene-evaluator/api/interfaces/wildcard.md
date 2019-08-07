@@ -13,9 +13,9 @@ sidebar_label: Wildcard
 
   * **Wildcard**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [data_type](wildcard.md#data_type)
 * [field](wildcard.md#field)
@@ -30,7 +30,7 @@ sidebar_label: Wildcard
 
 *Inherited from [StringDataType](stringdatatype.md).[data_type](stringdatatype.md#data_type)*
 
-*Defined in [parser/interfaces.ts:61](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L61)*
+*Defined in [parser/interfaces.ts:61](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L61)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [parser/interfaces.ts:25](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L25)*
+*Defined in [parser/interfaces.ts:25](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L25)*
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [parser/interfaces.ts:127](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L127)*
+*Defined in [parser/interfaces.ts:127](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L127)*
 
 ___
 
@@ -60,4 +60,4 @@ ___
 
 *Inherited from [StringDataType](stringdatatype.md).[value](stringdatatype.md#value)*
 
-*Defined in [parser/interfaces.ts:62](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L62)*
+*Defined in [parser/interfaces.ts:62](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L62)*

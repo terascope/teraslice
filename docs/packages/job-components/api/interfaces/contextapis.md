@@ -15,13 +15,13 @@ sidebar_label: ContextAPIs
 
 ● \[▪ **namespace**: *string*\]: any
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [foundation](contextapis.md#foundation)
 
-#### Methods
+### Methods
 
 * [registerAPI](contextapis.md#registerapi)
 
@@ -31,7 +31,7 @@ sidebar_label: ContextAPIs
 
 • **foundation**: *[FoundationApis](foundationapis.md)*
 
-*Defined in [interfaces/context.ts:82](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/interfaces/context.ts#L82)*
+*Defined in [interfaces/context.ts:82](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L82)*
 
 ## Methods
 
@@ -39,7 +39,7 @@ sidebar_label: ContextAPIs
 
 ▸ **registerAPI**(`namespace`: string, `apis`: any): *void*
 
-*Defined in [interfaces/context.ts:83](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/interfaces/context.ts#L83)*
+*Defined in [interfaces/context.ts:83](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L83)*
 
 **Parameters:**
 

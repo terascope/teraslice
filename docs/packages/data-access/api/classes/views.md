@@ -13,20 +13,20 @@ Manager for Views
 
   * **Views**
 
-### Index
+## Index
 
-#### Constructors
+### Constructors
 
 * [constructor](views.md#constructor)
 
-#### Properties
+### Properties
 
 * [logger](views.md#logger)
 * [name](views.md#name)
 * [store](views.md#store)
 * [IndexModelConfig](views.md#static-indexmodelconfig)
 
-#### Methods
+### Methods
 
 * [_appendToArray](views.md#protected-_appendtoarray)
 * [_createJoinQuery](views.md#protected-_createjoinquery)
@@ -64,7 +64,7 @@ Manager for Views
 
 *Overrides void*
 
-*Defined in [models/views.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/views.ts#L12)*
+*Defined in [models/views.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/views.ts#L12)*
 
 **Parameters:**
 
@@ -83,7 +83,7 @@ Name | Type |
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:12
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:13
 
 ___
 
@@ -93,7 +93,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:11
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:12
 
 ___
 
@@ -103,7 +103,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:10
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:11
 
 ___
 
@@ -111,7 +111,7 @@ ___
 
 ▪ **IndexModelConfig**: *`IndexModelConfig<View>`* =  viewsConfig
 
-*Defined in [models/views.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/views.ts#L12)*
+*Defined in [models/views.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/views.ts#L12)*
 
 ## Methods
 
@@ -157,7 +157,7 @@ ___
 
 ### `Protected` _ensureUnique
 
-▸ **_ensureUnique**(`record`: `AnyInput<View>`): *`Promise<void>`*
+▸ **_ensureUnique**(`record`: [View](../interfaces/view.md), `existing?`: [T]()): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -167,7 +167,8 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`record` | `AnyInput<View>` |
+`record` | [View](../interfaces/view.md) |
+`existing?` | [T]() |
 
 **Returns:** *`Promise<void>`*
 
@@ -290,7 +291,7 @@ ___
 
 ▸ **checkForViewConflicts**(`space`: `Partial<Space>`): *`Promise<void>`*
 
-*Defined in [models/views.ts:18](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/views.ts#L18)*
+*Defined in [models/views.ts:18](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/views.ts#L18)*
 
 **Parameters:**
 
@@ -538,7 +539,7 @@ ___
 
 ▸ **getViewOfSpace**(`space`: [Space](../interfaces/space.md), `role`: [Role](../interfaces/role.md)): *`Promise<View>`*
 
-*Defined in [models/views.ts:53](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/views.ts#L53)*
+*Defined in [models/views.ts:53](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/views.ts#L53)*
 
 **Parameters:**
 
@@ -567,7 +568,7 @@ ___
 
 ▸ **removeRoleFromViews**(`roleId`: string): *`Promise<void>`*
 
-*Defined in [models/views.ts:70](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/views.ts#L70)*
+*Defined in [models/views.ts:70](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/views.ts#L70)*
 
 **Parameters:**
 

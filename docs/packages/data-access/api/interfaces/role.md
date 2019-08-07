@@ -11,9 +11,9 @@ sidebar_label: Role
 
   * **Role**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [client_id](role.md#client_id)
 * [created](role.md#created)
@@ -28,7 +28,9 @@ sidebar_label: Role
 
 • **client_id**: *number*
 
-*Defined in [models/config/roles.ts:45](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/config/roles.ts#L45)*
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:163
 
 The mutli-tenant ID representing the client
 
@@ -40,7 +42,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:163
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:171
 
 Creation date
 
@@ -50,7 +52,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [models/config/roles.ts:55](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/config/roles.ts#L55)*
+*Defined in [models/config/roles.ts:42](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/roles.ts#L42)*
 
 Description of the Role
 
@@ -64,7 +66,7 @@ ___
 
 Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:159
 
-ID of the view - nanoid 12 digit
+A unique ID for the record - nanoid 12 digit
 
 ___
 
@@ -72,7 +74,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [models/config/roles.ts:50](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/config/roles.ts#L50)*
+*Defined in [models/config/roles.ts:37](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/roles.ts#L37)*
 
 Name of the Role
 
@@ -84,6 +86,6 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:161
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:167
 
 Updated date

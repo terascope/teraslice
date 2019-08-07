@@ -9,9 +9,9 @@ sidebar_label: SpaceStreamingConfig
 
 * **SpaceStreamingConfig**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [connection](spacestreamingconfig.md#optional-connection)
 
@@ -21,4 +21,4 @@ sidebar_label: SpaceStreamingConfig
 
 • **connection**? : *undefined | string*
 
-*Defined in [models/config/spaces.ts:227](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/config/spaces.ts#L227)*
+*Defined in [models/config/spaces.ts:214](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/spaces.ts#L214)*

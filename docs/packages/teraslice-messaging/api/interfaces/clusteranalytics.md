@@ -9,9 +9,9 @@ sidebar_label: ClusterAnalytics
 
 * **ClusterAnalytics**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [controllers](clusteranalytics.md#controllers)
 
@@ -21,4 +21,4 @@ sidebar_label: ClusterAnalytics
 
 • **controllers**: *[ClusterExecutionAnalytics](clusterexecutionanalytics.md)*
 
-*Defined in [cluster-master/interfaces.ts:37](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L37)*
+*Defined in [cluster-master/interfaces.ts:37](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L37)*

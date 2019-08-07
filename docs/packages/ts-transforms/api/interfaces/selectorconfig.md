@@ -9,9 +9,9 @@ sidebar_label: SelectorConfig
 
 * **SelectorConfig**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [__id](selectorconfig.md#__id)
 * [selector](selectorconfig.md#selector)
@@ -22,7 +22,7 @@ sidebar_label: SelectorConfig
 
 • **__id**: *string*
 
-*Defined in [interfaces.ts:50](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/interfaces.ts#L50)*
+*Defined in [interfaces.ts:50](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/interfaces.ts#L50)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **selector**: *string*
 
-*Defined in [interfaces.ts:51](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/interfaces.ts#L51)*
+*Defined in [interfaces.ts:51](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/interfaces.ts#L51)*

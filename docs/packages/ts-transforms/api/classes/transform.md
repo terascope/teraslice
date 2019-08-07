@@ -11,18 +11,18 @@ sidebar_label: Transform
 
   * **Transform**
 
-### Index
+## Index
 
-#### Constructors
+### Constructors
 
 * [constructor](transform.md#constructor)
 
-#### Properties
+### Properties
 
 * [isMatcher](transform.md#ismatcher)
 * [sequence](transform.md#sequence)
 
-#### Methods
+### Methods
 
 * [init](transform.md#init)
 * [run](transform.md#run)
@@ -35,7 +35,7 @@ sidebar_label: Transform
 
 *Overrides [PhaseManager](phasemanager.md).[constructor](phasemanager.md#constructor)*
 
-*Defined in [transform.ts:7](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/transform.ts#L7)*
+*Defined in [transform.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/transform.ts#L7)*
 
 **Parameters:**
 
@@ -54,7 +54,7 @@ Name | Type | Default |
 
 *Inherited from [PhaseManager](phasemanager.md).[isMatcher](phasemanager.md#ismatcher)*
 
-*Defined in [phases/phase_manager.ts:19](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/phase_manager.ts#L19)*
+*Defined in [phases/phase-manager.ts:18](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/phase-manager.ts#L18)*
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 *Inherited from [PhaseManager](phasemanager.md).[sequence](phasemanager.md#sequence)*
 
-*Defined in [phases/phase_manager.ts:18](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/phase_manager.ts#L18)*
+*Defined in [phases/phase-manager.ts:17](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/phase-manager.ts#L17)*
 
 ## Methods
 
@@ -74,7 +74,7 @@ ___
 
 *Inherited from [PhaseManager](phasemanager.md).[init](phasemanager.md#init)*
 
-*Defined in [phases/phase_manager.ts:29](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/phase_manager.ts#L29)*
+*Defined in [phases/phase-manager.ts:28](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/phase-manager.ts#L28)*
 
 **Parameters:**
 
@@ -92,7 +92,7 @@ ___
 
 *Inherited from [PhaseManager](phasemanager.md).[run](phasemanager.md#run)*
 
-*Defined in [phases/phase_manager.ts:47](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/phase_manager.ts#L47)*
+*Defined in [phases/phase-manager.ts:44](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/phase-manager.ts#L44)*
 
 **Parameters:**
 

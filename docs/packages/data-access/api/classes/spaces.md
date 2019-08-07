@@ -13,13 +13,13 @@ Manager for Spaces
 
   * **Spaces**
 
-### Index
+## Index
 
-#### Constructors
+### Constructors
 
 * [constructor](spaces.md#constructor)
 
-#### Properties
+### Properties
 
 * [logger](spaces.md#logger)
 * [name](spaces.md#name)
@@ -27,7 +27,7 @@ Manager for Spaces
 * [IndexModelConfig](spaces.md#static-indexmodelconfig)
 * [ReservedEndpoints](spaces.md#static-reservedendpoints)
 
-#### Methods
+### Methods
 
 * [_appendToArray](spaces.md#protected-_appendtoarray)
 * [_createJoinQuery](spaces.md#protected-_createjoinquery)
@@ -65,7 +65,7 @@ Manager for Spaces
 
 *Overrides void*
 
-*Defined in [models/spaces.ts:11](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/spaces.ts#L11)*
+*Defined in [models/spaces.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/spaces.ts#L11)*
 
 **Parameters:**
 
@@ -84,7 +84,7 @@ Name | Type |
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:12
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:13
 
 ___
 
@@ -94,7 +94,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:11
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:12
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:10
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:11
 
 ___
 
@@ -112,15 +112,15 @@ ___
 
 ▪ **IndexModelConfig**: *`IndexModelConfig<Space>`* =  spacesConfig
 
-*Defined in [models/spaces.ts:10](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/spaces.ts#L10)*
+*Defined in [models/spaces.ts:10](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/spaces.ts#L10)*
 
 ___
 
 ### `Static` ReservedEndpoints
 
-▪ **ReservedEndpoints**: *string[]* =  ['data-access', 'spaces']
+▪ **ReservedEndpoints**: *string[]* =  ['data-access', 'qp']
 
-*Defined in [models/spaces.ts:11](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/spaces.ts#L11)*
+*Defined in [models/spaces.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/spaces.ts#L11)*
 
 ## Methods
 
@@ -166,7 +166,7 @@ ___
 
 ### `Protected` _ensureUnique
 
-▸ **_ensureUnique**(`record`: `AnyInput<Space>`): *`Promise<void>`*
+▸ **_ensureUnique**(`record`: [Space](../interfaces/space.md), `existing?`: [T]()): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -176,7 +176,8 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`record` | `AnyInput<Space>` |
+`record` | [Space](../interfaces/space.md) |
+`existing?` | [T]() |
 
 **Returns:** *`Promise<void>`*
 
@@ -299,7 +300,7 @@ ___
 
 ▸ **addViewsToSpace**(`spaceId`: string, `views`: string[] | string): *`Promise<void>`*
 
-*Defined in [models/spaces.ts:18](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/spaces.ts#L18)*
+*Defined in [models/spaces.ts:18](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/spaces.ts#L18)*
 
 Associate views to space
 
@@ -562,7 +563,7 @@ ___
 
 ▸ **removeViewFromSpaces**(`viewId`: string): *`Promise<void>`*
 
-*Defined in [models/spaces.ts:39](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/spaces.ts#L39)*
+*Defined in [models/spaces.ts:39](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/spaces.ts#L39)*
 
 **Parameters:**
 
@@ -578,7 +579,7 @@ ___
 
 ▸ **removeViewsFromSpace**(`spaceId`: string, `views`: string[] | string): *`Promise<void>`*
 
-*Defined in [models/spaces.ts:29](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/spaces.ts#L29)*
+*Defined in [models/spaces.ts:29](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/spaces.ts#L29)*
 
 Disassociate views to space
 

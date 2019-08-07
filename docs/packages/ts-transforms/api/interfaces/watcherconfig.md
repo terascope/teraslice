@@ -11,9 +11,9 @@ sidebar_label: WatcherConfig
 
   * [PhaseConfig](phaseconfig.md)
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [rules](watcherconfig.md#rules)
 * [types](watcherconfig.md#optional-types)
@@ -24,7 +24,7 @@ sidebar_label: WatcherConfig
 
 • **rules**: *string[]*
 
-*Defined in [interfaces.ts:96](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/interfaces.ts#L96)*
+*Defined in [interfaces.ts:96](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/interfaces.ts#L96)*
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **types**? : *`TypeConfig`*
 
-*Defined in [interfaces.ts:97](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/interfaces.ts#L97)*
+*Defined in [interfaces.ts:97](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/interfaces.ts#L97)*

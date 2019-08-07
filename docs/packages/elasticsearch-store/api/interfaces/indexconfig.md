@@ -15,19 +15,20 @@ A versioned Index Configuration
 
 * **IndexConfig**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
-* [bulkMaxSize](indexconfig.md#optional-bulkmaxsize)
-* [bulkMaxWait](indexconfig.md#optional-bulkmaxwait)
-* [dataSchema](indexconfig.md#optional-dataschema)
-* [defaultSort](indexconfig.md#optional-defaultsort)
-* [eventTimeField](indexconfig.md#optional-eventtimefield)
-* [idField](indexconfig.md#optional-idfield)
-* [indexSchema](indexconfig.md#optional-indexschema)
-* [indexSettings](indexconfig.md#optional-indexsettings)
-* [ingestTimeField](indexconfig.md#optional-ingesttimefield)
+* [bulk_max_size](indexconfig.md#optional-bulk_max_size)
+* [bulk_max_wait](indexconfig.md#optional-bulk_max_wait)
+* [data_schema](indexconfig.md#optional-data_schema)
+* [default_sort](indexconfig.md#optional-default_sort)
+* [event_time_field](indexconfig.md#optional-event_time_field)
+* [id_field](indexconfig.md#optional-id_field)
+* [index_schema](indexconfig.md#optional-index_schema)
+* [index_settings](indexconfig.md#optional-index_settings)
+* [ingest_time_field](indexconfig.md#optional-ingest_time_field)
+* [is_master](indexconfig.md#optional-is_master)
 * [logger](indexconfig.md#optional-logger)
 * [name](indexconfig.md#name)
 * [namespace](indexconfig.md#optional-namespace)
@@ -35,93 +36,103 @@ A versioned Index Configuration
 
 ## Properties
 
-### `Optional` bulkMaxSize
+### `Optional` bulk_max_size
 
-• **bulkMaxSize**? : *undefined | number*
+• **bulk_max_size**? : *undefined | number*
 
-*Defined in [interfaces.ts:44](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L44)*
+*Defined in [interfaces.ts:50](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L50)*
 
 The number of records to accumulate before sending the bulk request
 
 ___
 
-### `Optional` bulkMaxWait
+### `Optional` bulk_max_wait
 
-• **bulkMaxWait**? : *undefined | number*
+• **bulk_max_wait**? : *undefined | number*
 
-*Defined in [interfaces.ts:39](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L39)*
+*Defined in [interfaces.ts:45](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L45)*
 
 The maximum amount of time to wait for before send the bulk request
 
 ___
 
-### `Optional` dataSchema
+### `Optional` data_schema
 
-• **dataSchema**? : *[DataSchema](dataschema.md)*
+• **data_schema**? : *[DataSchema](dataschema.md)*
 
-*Defined in [interfaces.ts:34](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L34)*
+*Defined in [interfaces.ts:35](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L35)*
 
 The data schema format
 
 ___
 
-### `Optional` defaultSort
+### `Optional` default_sort
 
-• **defaultSort**? : *undefined | string*
+• **default_sort**? : *undefined | string*
 
-*Defined in [interfaces.ts:56](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L56)*
+*Defined in [interfaces.ts:62](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L62)*
 
 Default sort
 
 ___
 
-### `Optional` eventTimeField
+### `Optional` event_time_field
 
-• **eventTimeField**? : *keyof T*
+• **event_time_field**? : *keyof T*
 
-*Defined in [interfaces.ts:71](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L71)*
+*Defined in [interfaces.ts:77](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L77)*
 
 Event Time field from the source record
 
 ___
 
-### `Optional` idField
+### `Optional` id_field
 
-• **idField**? : *keyof T*
+• **id_field**? : *keyof T*
 
-*Defined in [interfaces.ts:61](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L61)*
+*Defined in [interfaces.ts:67](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L67)*
 
 ID field
 
 ___
 
-### `Optional` indexSchema
+### `Optional` index_schema
 
-• **indexSchema**? : *[IndexSchema](indexschema.md)*
+• **index_schema**? : *[IndexSchema](indexschema.md)*
 
-*Defined in [interfaces.ts:29](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L29)*
+*Defined in [interfaces.ts:30](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L30)*
 
 Schema Specification for the Data and ES
 
 ___
 
-### `Optional` indexSettings
+### `Optional` index_settings
 
-• **indexSettings**? : *[IndexSettings](indexsettings.md)*
+• **index_settings**? : *`ESIndexSettings`*
 
-*Defined in [interfaces.ts:24](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L24)*
+*Defined in [interfaces.ts:25](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L25)*
 
 Elasticsearch Index Settings
 
 ___
 
-### `Optional` ingestTimeField
+### `Optional` ingest_time_field
 
-• **ingestTimeField**? : *keyof T*
+• **ingest_time_field**? : *keyof T*
 
-*Defined in [interfaces.ts:66](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L66)*
+*Defined in [interfaces.ts:72](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L72)*
 
 Ingest Time field on the source record
+
+___
+
+### `Optional` is_master
+
+• **is_master**? : *undefined | false | true*
+
+*Defined in [interfaces.ts:40](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L40)*
+
+When false this will disable the ability to create or migrate an index
 
 ___
 
@@ -129,7 +140,7 @@ ___
 
 • **logger**? : *`Logger`*
 
-*Defined in [interfaces.ts:51](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L51)*
+*Defined in [interfaces.ts:57](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L57)*
 
 Logger to use for debugging and certian internal errors
 
@@ -141,7 +152,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [interfaces.ts:8](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L8)*
+*Defined in [interfaces.ts:9](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L9)*
 
 This is the data type and base name of the index
 
@@ -151,7 +162,7 @@ ___
 
 • **namespace**? : *undefined | string*
 
-*Defined in [interfaces.ts:14](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L14)*
+*Defined in [interfaces.ts:15](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L15)*
 
 The namespace that will be prefixed to the name value when generating
 the index name or anything else that needs to be namespaced.
@@ -162,6 +173,6 @@ ___
 
 • **version**? : *undefined | number*
 
-*Defined in [interfaces.ts:19](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L19)*
+*Defined in [interfaces.ts:20](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L20)*
 
 Data Version, this allows multiple versions of an index to exist with the same Schema

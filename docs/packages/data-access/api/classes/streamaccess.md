@@ -18,13 +18,13 @@ records and fields
 
 * **StreamAccess**
 
-### Index
+## Index
 
-#### Constructors
+### Constructors
 
 * [constructor](streamaccess.md#constructor)
 
-#### Methods
+### Methods
 
 * [filter](streamaccess.md#filter)
 
@@ -34,7 +34,7 @@ records and fields
 
 \+ **new StreamAccess**(`acl`: [DataAccessConfig](../interfaces/dataaccessconfig.md)): *[StreamAccess](streamaccess.md)*
 
-*Defined in [stream-access.ts:9](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/stream-access.ts#L9)*
+*Defined in [stream-access.ts:9](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/stream-access.ts#L9)*
 
 **Parameters:**
 
@@ -50,7 +50,7 @@ Name | Type |
 
 ▸ **filter**(`incoming`: `T`[]): *`T`[]*
 
-*Defined in [stream-access.ts:14](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/stream-access.ts#L14)*
+*Defined in [stream-access.ts:14](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/stream-access.ts#L14)*
 
 **Parameters:**
 

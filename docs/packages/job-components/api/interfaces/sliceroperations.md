@@ -11,15 +11,15 @@ sidebar_label: SlicerOperations
 
   * **SlicerOperations**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [Set](sliceroperations.md#set)
 * [__@toStringTag](sliceroperations.md#__@tostringtag)
 * [size](sliceroperations.md#size)
 
-#### Methods
+### Methods
 
 * [__@iterator](sliceroperations.md#__@iterator)
 * [add](sliceroperations.md#add)

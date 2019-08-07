@@ -9,9 +9,9 @@ sidebar_label: ESQUery
 
 * **ESQuery**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [index](esquery.md#index)
 
@@ -21,4 +21,4 @@ sidebar_label: ESQUery
 
 • **index**: *`ESMeta`*
 
-*Defined in [interfaces.ts:21](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/interfaces.ts#L21)*
+*Defined in [interfaces.ts:21](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/interfaces.ts#L21)*

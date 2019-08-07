@@ -11,24 +11,27 @@ Manage Elasticsearch Indicies
 
 * **IndexManager**
 
-### Index
+## Index
 
-#### Constructors
+### Constructors
 
 * [constructor](indexmanager.md#constructor)
 
-#### Properties
+### Properties
 
 * [client](indexmanager.md#client)
 
-#### Methods
+### Methods
 
 * [exists](indexmanager.md#exists)
 * [formatIndexName](indexmanager.md#formatindexname)
 * [formatTemplateName](indexmanager.md#formattemplatename)
+* [getMapping](indexmanager.md#getmapping)
+* [getTemplate](indexmanager.md#gettemplate)
 * [indexSetup](indexmanager.md#indexsetup)
 * [isIndexActive](indexmanager.md#isindexactive)
 * [migrateIndex](indexmanager.md#migrateindex)
+* [putMapping](indexmanager.md#putmapping)
 * [updateMapping](indexmanager.md#updatemapping)
 * [upsertTemplate](indexmanager.md#upserttemplate)
 * [waitForIndexAvailability](indexmanager.md#protected-waitforindexavailability)
@@ -39,7 +42,7 @@ Manage Elasticsearch Indicies
 
 \+ **new IndexManager**(`client`: `Client`): *[IndexManager](indexmanager.md)*
 
-*Defined in [index-manager.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/index-manager.ts#L12)*
+*Defined in [index-manager.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/index-manager.ts#L12)*
 
 **Parameters:**
 
@@ -55,7 +58,7 @@ Name | Type |
 
 • **client**: *`Client`*
 
-*Defined in [index-manager.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/index-manager.ts#L12)*
+*Defined in [index-manager.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/index-manager.ts#L12)*
 
 ## Methods
 
@@ -63,7 +66,7 @@ Name | Type |
 
 ▸ **exists**(`index`: string): *`Promise<boolean>`*
 
-*Defined in [index-manager.ts:25](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/index-manager.ts#L25)*
+*Defined in [index-manager.ts:25](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/index-manager.ts#L25)*
 
 Verify the index exists
 
@@ -81,7 +84,7 @@ ___
 
 ▸ **formatIndexName**(`config`: [IndexConfig](../interfaces/indexconfig.md), `useWildcard`: boolean): *string*
 
-*Defined in [index-manager.ts:31](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/index-manager.ts#L31)*
+*Defined in [index-manager.ts:31](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/index-manager.ts#L31)*
 
 **Parameters:**
 
@@ -98,7 +101,7 @@ ___
 
 ▸ **formatTemplateName**(`config`: [IndexConfig](../interfaces/indexconfig.md)): *string*
 
-*Defined in [index-manager.ts:52](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/index-manager.ts#L52)*
+*Defined in [index-manager.ts:52](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/index-manager.ts#L52)*
 
 **Parameters:**
 
@@ -110,11 +113,44 @@ Name | Type |
 
 ___
 
+###  getMapping
+
+▸ **getMapping**(`index`: string): *`Promise<any>`*
+
+*Defined in [index-manager.ts:160](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/index-manager.ts#L160)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`index` | string |
+
+**Returns:** *`Promise<any>`*
+
+___
+
+###  getTemplate
+
+▸ **getTemplate**(`name`: string, `flatSettings`: boolean): *`Promise<any>`*
+
+*Defined in [index-manager.ts:227](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/index-manager.ts#L227)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`name` | string |
+`flatSettings` | boolean |
+
+**Returns:** *`Promise<any>`*
+
+___
+
 ###  indexSetup
 
 ▸ **indexSetup**(`config`: [IndexConfig](../interfaces/indexconfig.md)): *`Promise<boolean>`*
 
-*Defined in [index-manager.ts:67](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/index-manager.ts#L67)*
+*Defined in [index-manager.ts:67](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/index-manager.ts#L67)*
 
 Safely setup a versioned Index, its template and any other required resouces
 
@@ -136,7 +172,7 @@ ___
 
 ▸ **isIndexActive**(`index`: string): *`Promise<boolean>`*
 
-*Defined in [index-manager.ts:125](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/index-manager.ts#L125)*
+*Defined in [index-manager.ts:140](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/index-manager.ts#L140)*
 
 **Parameters:**
 
@@ -152,7 +188,7 @@ ___
 
 ▸ **migrateIndex**(`config`: [MigrateIndexConfig](../interfaces/migrateindexconfig.md)): *`Promise<void>`*
 
-*Defined in [index-manager.ts:141](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/index-manager.ts#L141)*
+*Defined in [index-manager.ts:156](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/index-manager.ts#L156)*
 
 Perform an Index Migration
 
@@ -169,11 +205,29 @@ Name | Type |
 
 ___
 
+###  putMapping
+
+▸ **putMapping**(`index`: string, `type`: string, `properties`: any): *`Promise<any>`*
+
+*Defined in [index-manager.ts:169](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/index-manager.ts#L169)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`index` | string |
+`type` | string |
+`properties` | any |
+
+**Returns:** *`Promise<any>`*
+
+___
+
 ###  updateMapping
 
 ▸ **updateMapping**(`index`: string, `type`: string, `mapping`: any, `logger`: `Logger`): *`Promise<void>`*
 
-*Defined in [index-manager.ts:150](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/index-manager.ts#L150)*
+*Defined in [index-manager.ts:189](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/index-manager.ts#L189)*
 
 Safely update a mapping
 
@@ -194,9 +248,9 @@ ___
 
 ###  upsertTemplate
 
-▸ **upsertTemplate**(`template`: any): *`Promise<void>`*
+▸ **upsertTemplate**(`template`: any, `logger?`: `ts.Logger`): *`Promise<void>`*
 
-*Defined in [index-manager.ts:199](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/index-manager.ts#L199)*
+*Defined in [index-manager.ts:239](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/index-manager.ts#L239)*
 
 Safely create or update a template
 
@@ -205,6 +259,7 @@ Safely create or update a template
 Name | Type |
 ------ | ------ |
 `template` | any |
+`logger?` | `ts.Logger` |
 
 **Returns:** *`Promise<void>`*
 
@@ -214,7 +269,7 @@ ___
 
 ▸ **waitForIndexAvailability**(`index`: string): *`Promise<void>`*
 
-*Defined in [index-manager.ts:220](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/index-manager.ts#L220)*
+*Defined in [index-manager.ts:265](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/index-manager.ts#L265)*
 
 **Parameters:**
 

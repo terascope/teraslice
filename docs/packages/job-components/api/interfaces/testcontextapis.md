@@ -15,13 +15,13 @@ sidebar_label: TestContextAPIs
 
 ● \[▪ **namespace**: *string*\]: any
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [foundation](testcontextapis.md#foundation)
 
-#### Methods
+### Methods
 
 * [getTestClients](testcontextapis.md#gettestclients)
 * [registerAPI](testcontextapis.md#registerapi)
@@ -35,7 +35,7 @@ sidebar_label: TestContextAPIs
 
 *Inherited from [ContextApis](contextapis.md).[foundation](contextapis.md#foundation)*
 
-*Defined in [interfaces/context.ts:82](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/interfaces/context.ts#L82)*
+*Defined in [interfaces/context.ts:82](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L82)*
 
 ## Methods
 
@@ -43,7 +43,7 @@ sidebar_label: TestContextAPIs
 
 ▸ **getTestClients**(): *[TestClients](testclients.md)*
 
-*Defined in [test-helpers.ts:100](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/test-helpers.ts#L100)*
+*Defined in [test-helpers.ts:100](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/test-helpers.ts#L100)*
 
 **Returns:** *[TestClients](testclients.md)*
 
@@ -55,7 +55,7 @@ ___
 
 *Inherited from [ContextApis](contextapis.md).[registerAPI](contextapis.md#registerapi)*
 
-*Defined in [interfaces/context.ts:83](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/interfaces/context.ts#L83)*
+*Defined in [interfaces/context.ts:83](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L83)*
 
 **Parameters:**
 
@@ -72,7 +72,7 @@ ___
 
 ▸ **setTestClients**(`clients`: [TestClientConfig](testclientconfig.md)[]): *void*
 
-*Defined in [test-helpers.ts:99](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/test-helpers.ts#L99)*
+*Defined in [test-helpers.ts:99](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/test-helpers.ts#L99)*
 
 **Parameters:**
 

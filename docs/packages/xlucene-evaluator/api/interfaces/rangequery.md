@@ -9,9 +9,9 @@ sidebar_label: RangeQuery
 
 * **RangeQuery**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [range](rangequery.md#range)
 
@@ -21,7 +21,7 @@ sidebar_label: RangeQuery
 
 • **range**: *object*
 
-*Defined in [translator/interfaces.ts:53](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/interfaces.ts#L53)*
+*Defined in [translator/interfaces.ts:80](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/interfaces.ts#L80)*
 
 #### Type declaration:
 

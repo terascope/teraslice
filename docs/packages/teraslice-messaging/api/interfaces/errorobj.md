@@ -9,9 +9,9 @@ sidebar_label: ErrorObj
 
 * **ErrorObj**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [message](errorobj.md#message)
 * [stack](errorobj.md#optional-stack)
@@ -22,7 +22,7 @@ sidebar_label: ErrorObj
 
 • **message**: *string*
 
-*Defined in [messenger/interfaces.ts:39](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/interfaces.ts#L39)*
+*Defined in [messenger/interfaces.ts:39](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L39)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **stack**? : *undefined | string*
 
-*Defined in [messenger/interfaces.ts:40](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/interfaces.ts#L40)*
+*Defined in [messenger/interfaces.ts:40](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L40)*

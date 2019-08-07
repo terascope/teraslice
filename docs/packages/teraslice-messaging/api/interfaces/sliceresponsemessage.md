@@ -9,9 +9,9 @@ sidebar_label: SliceResponseMessage
 
 * **SliceResponseMessage**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [willProcess](sliceresponsemessage.md#optional-willprocess)
 
@@ -21,4 +21,4 @@ sidebar_label: SliceResponseMessage
 
 • **willProcess**? : *undefined | false | true*
 
-*Defined in [execution-controller/interfaces.ts:32](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L32)*
+*Defined in [execution-controller/interfaces.ts:32](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L32)*

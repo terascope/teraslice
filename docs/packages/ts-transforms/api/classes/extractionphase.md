@@ -11,19 +11,19 @@ sidebar_label: ExtractionPhase
 
   * **ExtractionPhase**
 
-### Index
+## Index
 
-#### Constructors
+### Constructors
 
 * [constructor](extractionphase.md#constructor)
 
-#### Properties
+### Properties
 
 * [hasProcessing](extractionphase.md#hasprocessing)
 * [opConfig](extractionphase.md#protected-opconfig)
 * [phase](extractionphase.md#phase)
 
-#### Methods
+### Methods
 
 * [run](extractionphase.md#run)
 
@@ -35,7 +35,7 @@ sidebar_label: ExtractionPhase
 
 *Overrides [PhaseBase](phasebase.md).[constructor](phasebase.md#constructor)*
 
-*Defined in [phases/extraction_phase.ts:9](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/extraction_phase.ts#L9)*
+*Defined in [phases/extraction-phase.ts:9](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/extraction-phase.ts#L9)*
 
 **Parameters:**
 
@@ -55,7 +55,7 @@ Name | Type |
 
 *Inherited from [PhaseBase](phasebase.md).[hasProcessing](phasebase.md#hasprocessing)*
 
-*Defined in [phases/base.ts:8](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/base.ts#L8)*
+*Defined in [phases/base.ts:8](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/base.ts#L8)*
 
 ___
 
@@ -65,7 +65,7 @@ ___
 
 *Inherited from [PhaseBase](phasebase.md).[opConfig](phasebase.md#protected-opconfig)*
 
-*Defined in [phases/base.ts:9](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/base.ts#L9)*
+*Defined in [phases/base.ts:9](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/base.ts#L9)*
 
 ___
 
@@ -75,7 +75,7 @@ ___
 
 *Inherited from [PhaseBase](phasebase.md).[phase](phasebase.md#phase)*
 
-*Defined in [phases/base.ts:7](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/base.ts#L7)*
+*Defined in [phases/base.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/base.ts#L7)*
 
 ## Methods
 
@@ -85,7 +85,7 @@ ___
 
 *Overrides [PhaseBase](phasebase.md).[run](phasebase.md#abstract-run)*
 
-*Defined in [phases/extraction_phase.ts:23](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/extraction_phase.ts#L23)*
+*Defined in [phases/extraction-phase.ts:23](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/extraction-phase.ts#L23)*
 
 **Parameters:**
 

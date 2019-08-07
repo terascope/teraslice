@@ -11,9 +11,9 @@ sidebar_label: GeoBoundingBox
 
   * **GeoBoundingBox**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [bottom_right](geoboundingbox.md#bottom_right)
 * [field](geoboundingbox.md#field)
@@ -26,7 +26,7 @@ sidebar_label: GeoBoundingBox
 
 • **bottom_right**: *[GeoPoint](geopoint.md)*
 
-*Defined in [parser/interfaces.ts:119](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L119)*
+*Defined in [parser/interfaces.ts:119](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L119)*
 
 ___
 
@@ -36,7 +36,7 @@ ___
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [parser/interfaces.ts:25](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L25)*
+*Defined in [parser/interfaces.ts:25](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L25)*
 
 ___
 
@@ -44,7 +44,7 @@ ___
 
 • **top_left**: *[GeoPoint](geopoint.md)*
 
-*Defined in [parser/interfaces.ts:118](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L118)*
+*Defined in [parser/interfaces.ts:118](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L118)*
 
 ___
 
@@ -54,4 +54,4 @@ ___
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [parser/interfaces.ts:117](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L117)*
+*Defined in [parser/interfaces.ts:117](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L117)*

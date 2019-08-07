@@ -9,13 +9,12 @@ sidebar_label: ManagerConfig
 
 * **ManagerConfig**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [logger](managerconfig.md#optional-logger)
 * [namespace](managerconfig.md#optional-namespace)
-* [storeOptions](managerconfig.md#optional-storeoptions)
 
 ## Properties
 
@@ -23,7 +22,7 @@ sidebar_label: ManagerConfig
 
 • **logger**? : *`Logger`*
 
-*Defined in [interfaces.ts:17](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/interfaces.ts#L17)*
+*Defined in [interfaces.ts:16](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/interfaces.ts#L16)*
 
 ___
 
@@ -31,12 +30,4 @@ ___
 
 • **namespace**? : *undefined | string*
 
-*Defined in [interfaces.ts:15](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/interfaces.ts#L15)*
-
-___
-
-### `Optional` storeOptions
-
-• **storeOptions**? : *`Partial<IndexConfig>`*
-
-*Defined in [interfaces.ts:16](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/interfaces.ts#L16)*
+*Defined in [interfaces.ts:15](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/interfaces.ts#L15)*

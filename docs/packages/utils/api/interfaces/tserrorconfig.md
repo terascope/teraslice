@@ -9,15 +9,16 @@ sidebar_label: TSErrorConfig
 
 * **TSErrorConfig**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [code](tserrorconfig.md#optional-code)
 * [context](tserrorconfig.md#optional-context)
 * [defaultErrorMsg](tserrorconfig.md#optional-defaulterrormsg)
 * [defaultStatusCode](tserrorconfig.md#optional-defaultstatuscode)
 * [fatalError](tserrorconfig.md#optional-fatalerror)
+* [message](tserrorconfig.md#optional-message)
 * [reason](tserrorconfig.md#optional-reason)
 * [retryable](tserrorconfig.md#optional-retryable)
 * [statusCode](tserrorconfig.md#optional-statuscode)
@@ -28,7 +29,7 @@ sidebar_label: TSErrorConfig
 
 • **code**? : *undefined | string*
 
-*Defined in [errors.ts:77](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L77)*
+*Defined in [errors.ts:77](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L77)*
 
 An descriptive error code that specifies the error type, this follows more
 node convention
@@ -39,7 +40,7 @@ ___
 
 • **context**? : *[AnyObject](anyobject.md)*
 
-*Defined in [errors.ts:102](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L102)*
+*Defined in [errors.ts:107](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L107)*
 
 Attach any context metadata to the error
 
@@ -49,7 +50,7 @@ ___
 
 • **defaultErrorMsg**? : *undefined | string*
 
-*Defined in [errors.ts:105](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L105)*
+*Defined in [errors.ts:110](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L110)*
 
 ___
 
@@ -57,7 +58,7 @@ ___
 
 • **defaultStatusCode**? : *undefined | number*
 
-*Defined in [errors.ts:104](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L104)*
+*Defined in [errors.ts:109](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L109)*
 
 ___
 
@@ -65,9 +66,19 @@ ___
 
 • **fatalError**? : *undefined | false | true*
 
-*Defined in [errors.ts:87](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L87)*
+*Defined in [errors.ts:87](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L87)*
 
 Used to indicate the an error is fatal
+
+___
+
+### `Optional` message
+
+• **message**? : *undefined | string*
+
+*Defined in [errors.ts:102](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L102)*
+
+Override the message when given an error
 
 ___
 
@@ -75,7 +86,7 @@ ___
 
 • **reason**? : *undefined | string*
 
-*Defined in [errors.ts:97](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L97)*
+*Defined in [errors.ts:97](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L97)*
 
 Prefix the error message with a reason
 
@@ -85,7 +96,7 @@ ___
 
 • **retryable**? : *undefined | false | true*
 
-*Defined in [errors.ts:92](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L92)*
+*Defined in [errors.ts:92](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L92)*
 
 Used sometimes to indicate whether an error is retryable
 
@@ -95,6 +106,6 @@ ___
 
 • **statusCode**? : *undefined | number*
 
-*Defined in [errors.ts:82](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L82)*
+*Defined in [errors.ts:82](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L82)*
 
 A HTTP status code for easy use

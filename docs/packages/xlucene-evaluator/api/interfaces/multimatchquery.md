@@ -9,9 +9,9 @@ sidebar_label: MultiMatchQuery
 
 * **MultiMatchQuery**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [multi_match](multimatchquery.md#multi_match)
 
@@ -21,6 +21,6 @@ sidebar_label: MultiMatchQuery
 
 • **multi_match**: *object*
 
-*Defined in [translator/interfaces.ts:59](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/interfaces.ts#L59)*
+*Defined in [translator/interfaces.ts:86](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/interfaces.ts#L86)*
 
 #### Type declaration:

@@ -9,9 +9,9 @@ sidebar_label: TermQuery
 
 * **TermQuery**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [term](termquery.md#term)
 
@@ -21,8 +21,8 @@ sidebar_label: TermQuery
 
 • **term**: *object*
 
-*Defined in [translator/interfaces.ts:41](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/interfaces.ts#L41)*
+*Defined in [translator/interfaces.ts:68](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/interfaces.ts#L68)*
 
 #### Type declaration:
 
-● \[▪ **field**: *string*\]: string | number | boolean
+● \[▪ **field**: *string*\]: number | boolean

@@ -11,15 +11,15 @@ sidebar_label: WorkerOperations
 
   * **WorkerOperations**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [Set](workeroperations.md#set)
 * [__@toStringTag](workeroperations.md#__@tostringtag)
 * [size](workeroperations.md#size)
 
-#### Methods
+### Methods
 
 * [__@iterator](workeroperations.md#__@iterator)
 * [add](workeroperations.md#add)

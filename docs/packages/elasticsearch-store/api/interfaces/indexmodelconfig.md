@@ -13,28 +13,38 @@ sidebar_label: IndexModelConfig
 
 * **IndexModelConfig**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
+* [default_sort](indexmodelconfig.md#optional-default_sort)
 * [mapping](indexmodelconfig.md#mapping)
 * [name](indexmodelconfig.md#name)
-* [sanitizeFields](indexmodelconfig.md#optional-sanitizefields)
+* [sanitize_fields](indexmodelconfig.md#optional-sanitize_fields)
 * [schema](indexmodelconfig.md#schema)
-* [storeOptions](indexmodelconfig.md#optional-storeoptions)
-* [strictMode](indexmodelconfig.md#optional-strictmode)
-* [uniqueFields](indexmodelconfig.md#optional-uniquefields)
+* [strict_mode](indexmodelconfig.md#optional-strict_mode)
+* [unique_fields](indexmodelconfig.md#optional-unique_fields)
 * [version](indexmodelconfig.md#version)
 
 ## Properties
 
+### `Optional` default_sort
+
+• **default_sort**? : *undefined | string*
+
+*Defined in [interfaces.ts:236](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L236)*
+
+The default sort field and direction
+
+___
+
 ###  mapping
 
-• **mapping**: *any*
+• **mapping**: *`ESTypeMappings`*
 
-*Defined in [interfaces.ts:208](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L208)*
+*Defined in [interfaces.ts:221](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L221)*
 
-ElasticSearch Mapping
+the elasticsearch type mappings
 
 ___
 
@@ -42,17 +52,17 @@ ___
 
 • **name**: *string*
 
-*Defined in [interfaces.ts:205](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L205)*
+*Defined in [interfaces.ts:218](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L218)*
 
 Name of the Model/Data Type
 
 ___
 
-### `Optional` sanitizeFields
+### `Optional` sanitize_fields
 
-• **sanitizeFields**? : *[SanitizeFields](../overview.md#sanitizefields)*
+• **sanitize_fields**? : *[SanitizeFields](../overview.md#sanitizefields)*
 
-*Defined in [interfaces.ts:220](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L220)*
+*Defined in [interfaces.ts:230](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L230)*
 
 Sanitize / cleanup fields mapping, like trim or trimAndToLower
 
@@ -62,37 +72,27 @@ ___
 
 • **schema**: *any*
 
-*Defined in [interfaces.ts:211](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L211)*
+*Defined in [interfaces.ts:224](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L224)*
 
 JSON Schema
 
 ___
 
-### `Optional` storeOptions
+### `Optional` strict_mode
 
-• **storeOptions**? : *`Partial<IndexConfig>`*
+• **strict_mode**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:214](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L214)*
-
-Additional IndexStore configuration
-
-___
-
-### `Optional` strictMode
-
-• **strictMode**? : *undefined | false | true*
-
-*Defined in [interfaces.ts:223](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L223)*
+*Defined in [interfaces.ts:233](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L233)*
 
 Specify whether the data should be strictly validated, defaults to true
 
 ___
 
-### `Optional` uniqueFields
+### `Optional` unique_fields
 
-• **uniqueFields**? : *`keyof T`[]*
+• **unique_fields**? : *`keyof T`[]*
 
-*Defined in [interfaces.ts:217](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L217)*
+*Defined in [interfaces.ts:227](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L227)*
 
 Unqiue fields across on Index
 
@@ -102,6 +102,6 @@ ___
 
 • **version**: *number*
 
-*Defined in [interfaces.ts:202](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/elasticsearch-store/src/interfaces.ts#L202)*
+*Defined in [interfaces.ts:215](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L215)*
 
 Schema Version

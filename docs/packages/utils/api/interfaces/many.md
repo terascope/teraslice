@@ -23,14 +23,14 @@ A simple definitions of array
 
 A simple definitions of array
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [Array](many.md#array)
 * [length](many.md#length)
 
-#### Methods
+### Methods
 
 * [__@iterator](many.md#__@iterator)
 * [__@unscopables](many.md#__@unscopables)

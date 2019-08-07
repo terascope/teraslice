@@ -9,19 +9,20 @@ sidebar_label: TypesManager
 
 * **TypesManager**
 
-### Index
+## Index
 
-#### Constructors
+### Constructors
 
 * [constructor](typesmanager.md#constructor)
 
-#### Properties
+### Properties
 
 * [version](typesmanager.md#version)
 
-#### Methods
+### Methods
 
 * [getType](typesmanager.md#gettype)
+* [getTypes](typesmanager.md#gettypes)
 
 ## Constructors
 
@@ -29,7 +30,7 @@ sidebar_label: TypesManager
 
 \+ **new TypesManager**(`version`: [AvailableVersion](../overview.md#availableversion)): *[TypesManager](typesmanager.md)*
 
-*Defined in [types/index.ts:6](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-types/src/types/index.ts#L6)*
+*Defined in [types/index.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/index.ts#L7)*
 
 **Parameters:**
 
@@ -45,21 +46,37 @@ Name | Type |
 
 • **version**: *[AvailableVersion](../overview.md#availableversion)*
 
-*Defined in [types/index.ts:6](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-types/src/types/index.ts#L6)*
+*Defined in [types/index.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/index.ts#L7)*
 
 ## Methods
 
 ###  getType
 
-▸ **getType**(`field`: string, `type`: [DataType](datatype.md)): *[BaseType](basetype.md)*
+▸ **getType**(`field`: string, `type`: [FieldTypeConfig](../overview.md#fieldtypeconfig)): *[BaseType](basetype.md)*
 
-*Defined in [types/index.ts:13](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-types/src/types/index.ts#L13)*
+*Defined in [types/index.ts:22](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/index.ts#L22)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `field` | string |
-`type` | [DataType](datatype.md) |
+`type` | [FieldTypeConfig](../overview.md#fieldtypeconfig) |
 
 **Returns:** *[BaseType](basetype.md)*
+
+___
+
+###  getTypes
+
+▸ **getTypes**(`fields`: [TypeConfigFields](../overview.md#typeconfigfields)): *[BaseType](basetype.md)[]*
+
+*Defined in [types/index.ts:14](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/index.ts#L14)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`fields` | [TypeConfigFields](../overview.md#typeconfigfields) |
+
+**Returns:** *[BaseType](basetype.md)[]*

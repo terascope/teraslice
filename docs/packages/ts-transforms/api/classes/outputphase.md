@@ -11,19 +11,19 @@ sidebar_label: OutputPhase
 
   * **OutputPhase**
 
-### Index
+## Index
 
-#### Constructors
+### Constructors
 
 * [constructor](outputphase.md#constructor)
 
-#### Properties
+### Properties
 
 * [hasProcessing](outputphase.md#hasprocessing)
 * [opConfig](outputphase.md#protected-opconfig)
 * [phase](outputphase.md#phase)
 
-#### Methods
+### Methods
 
 * [requiredExtractions](outputphase.md#requiredextractions)
 * [run](outputphase.md#run)
@@ -36,7 +36,7 @@ sidebar_label: OutputPhase
 
 *Overrides [PhaseBase](phasebase.md).[constructor](phasebase.md#constructor)*
 
-*Defined in [phases/output_phase.ts:13](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/output_phase.ts#L13)*
+*Defined in [phases/output-phase.ts:13](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/output-phase.ts#L13)*
 
 **Parameters:**
 
@@ -56,7 +56,7 @@ Name | Type |
 
 *Inherited from [PhaseBase](phasebase.md).[hasProcessing](phasebase.md#hasprocessing)*
 
-*Defined in [phases/base.ts:8](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/base.ts#L8)*
+*Defined in [phases/base.ts:8](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/base.ts#L8)*
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 *Inherited from [PhaseBase](phasebase.md).[opConfig](phasebase.md#protected-opconfig)*
 
-*Defined in [phases/base.ts:9](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/base.ts#L9)*
+*Defined in [phases/base.ts:9](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/base.ts#L9)*
 
 ___
 
@@ -76,7 +76,7 @@ ___
 
 *Inherited from [PhaseBase](phasebase.md).[phase](phasebase.md#phase)*
 
-*Defined in [phases/base.ts:7](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/base.ts#L7)*
+*Defined in [phases/base.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/base.ts#L7)*
 
 ## Methods
 
@@ -84,7 +84,7 @@ ___
 
 ▸ **requiredExtractions**(`data`: `DataEntity`[]): *`DataEntity<object>`[]*
 
-*Defined in [phases/output_phase.ts:23](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/output_phase.ts#L23)*
+*Defined in [phases/output-phase.ts:23](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/output-phase.ts#L23)*
 
 **Parameters:**
 
@@ -102,7 +102,7 @@ ___
 
 *Overrides [PhaseBase](phasebase.md).[run](phasebase.md#abstract-run)*
 
-*Defined in [phases/output_phase.ts:38](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/phases/output_phase.ts#L38)*
+*Defined in [phases/output-phase.ts:38](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/output-phase.ts#L38)*
 
 **Parameters:**
 

@@ -13,20 +13,20 @@ Manager for DataTypes
 
   * **DataTypes**
 
-### Index
+## Index
 
-#### Constructors
+### Constructors
 
 * [constructor](datatypes.md#constructor)
 
-#### Properties
+### Properties
 
 * [logger](datatypes.md#logger)
 * [name](datatypes.md#name)
 * [store](datatypes.md#store)
 * [IndexModelConfig](datatypes.md#static-indexmodelconfig)
 
-#### Methods
+### Methods
 
 * [_appendToArray](datatypes.md#protected-_appendtoarray)
 * [_createJoinQuery](datatypes.md#protected-_createjoinquery)
@@ -63,7 +63,7 @@ Manager for DataTypes
 
 *Overrides void*
 
-*Defined in [models/data-types.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/data-types.ts#L12)*
+*Defined in [models/data-types.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/data-types.ts#L12)*
 
 **Parameters:**
 
@@ -82,7 +82,7 @@ Name | Type |
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:12
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:13
 
 ___
 
@@ -92,7 +92,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:11
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:12
 
 ___
 
@@ -102,7 +102,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:10
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:11
 
 ___
 
@@ -110,7 +110,7 @@ ___
 
 ▪ **IndexModelConfig**: *`IndexModelConfig<DataType>`* =  dataTypesConfig
 
-*Defined in [models/data-types.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/data-types.ts#L12)*
+*Defined in [models/data-types.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/data-types.ts#L12)*
 
 ## Methods
 
@@ -156,7 +156,7 @@ ___
 
 ### `Protected` _ensureUnique
 
-▸ **_ensureUnique**(`record`: `AnyInput<DataType>`): *`Promise<void>`*
+▸ **_ensureUnique**(`record`: [DataType](../interfaces/datatype.md), `existing?`: [T]()): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -166,7 +166,8 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`record` | `AnyInput<DataType>` |
+`record` | [DataType](../interfaces/datatype.md) |
+`existing?` | [T]() |
 
 **Returns:** *`Promise<void>`*
 
@@ -198,7 +199,7 @@ ___
 
 *Overrides void*
 
-*Defined in [models/data-types.ts:164](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/data-types.ts#L164)*
+*Defined in [models/data-types.ts:164](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/data-types.ts#L164)*
 
 **Parameters:**
 
@@ -216,7 +217,7 @@ ___
 
 *Overrides void*
 
-*Defined in [models/data-types.ts:159](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/data-types.ts#L159)*
+*Defined in [models/data-types.ts:159](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/data-types.ts#L159)*
 
 **Parameters:**
 
@@ -533,7 +534,7 @@ ___
 
 ▸ **resolveDataType**(`id`: string, `options?`: `ResolveDataTypeOptions`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<DataType>`*
 
-*Defined in [models/data-types.ts:22](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/data-types.ts#L22)*
+*Defined in [models/data-types.ts:22](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/data-types.ts#L22)*
 
 Get the type configuration for a data type
 including any merged fields
@@ -554,7 +555,7 @@ ___
 
 ▸ **resolveTypeConfig**(`dataType`: [DataType](../interfaces/datatype.md), `options?`: `ResolveDataTypeOptions`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<DataTypeConfig>`*
 
-*Defined in [models/data-types.ts:30](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/data-types.ts#L30)*
+*Defined in [models/data-types.ts:30](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/data-types.ts#L30)*
 
 **Parameters:**
 

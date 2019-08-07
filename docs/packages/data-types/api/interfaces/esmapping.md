@@ -9,38 +9,65 @@ sidebar_label: ESMapping
 
 * **ESMapping**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
-* [analyzer](esmapping.md#optional-analyzer)
-* [mapping](esmapping.md#mapping)
-* [tokenizer](esmapping.md#optional-tokenizer)
+* [aliases](esmapping.md#optional-aliases)
+* [index_patterns](esmapping.md#optional-index_patterns)
+* [mappings](esmapping.md#mappings)
+* [order](esmapping.md#optional-order)
+* [settings](esmapping.md#settings)
+* [template](esmapping.md#optional-template)
 
 ## Properties
 
-### `Optional` analyzer
+### `Optional` aliases
 
-• **analyzer**? : *undefined | object*
+• **aliases**? : *`AnyObject`*
 
-*Defined in [interfaces.ts:131](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-types/src/interfaces.ts#L131)*
+*Defined in [interfaces.ts:185](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/interfaces.ts#L185)*
 
 ___
 
-###  mapping
+### `Optional` index_patterns
 
-• **mapping**: *object*
+• **index_patterns**? : *string[]*
 
-*Defined in [interfaces.ts:128](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-types/src/interfaces.ts#L128)*
+*Defined in [interfaces.ts:186](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/interfaces.ts#L186)*
+
+___
+
+###  mappings
+
+• **mappings**: *object*
+
+*Defined in [interfaces.ts:180](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/interfaces.ts#L180)*
 
 #### Type declaration:
 
-● \[▪ **key**: *string*\]: [ESTypeMapping](../overview.md#estypemapping)
+● \[▪ **typeName**: *string*\]: [ESTypeMappings](estypemappings.md)
 
 ___
 
-### `Optional` tokenizer
+### `Optional` order
 
-• **tokenizer**? : *undefined | object*
+• **order**? : *undefined | number*
 
-*Defined in [interfaces.ts:134](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-types/src/interfaces.ts#L134)*
+*Defined in [interfaces.ts:184](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/interfaces.ts#L184)*
+
+___
+
+###  settings
+
+• **settings**: *[ESIndexSettings](esindexsettings.md)*
+
+*Defined in [interfaces.ts:187](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/interfaces.ts#L187)*
+
+___
+
+### `Optional` template
+
+• **template**? : *undefined | string*
+
+*Defined in [interfaces.ts:183](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/interfaces.ts#L183)*

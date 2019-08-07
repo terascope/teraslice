@@ -21,9 +21,9 @@ The slice request can contain any metdata
 
 See [Slice](slice.md)
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [request_worker](slicerequest.md#optional-request_worker)
 
@@ -33,6 +33,6 @@ See [Slice](slice.md)
 
 • **request_worker**? : *undefined | string*
 
-*Defined in [interfaces/operations.ts:39](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/interfaces/operations.ts#L39)*
+*Defined in [interfaces/operations.ts:39](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L39)*
 
 A reserved key for sending work to a particular worker

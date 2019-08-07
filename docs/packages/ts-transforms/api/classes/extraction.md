@@ -9,17 +9,17 @@ sidebar_label: Extraction
 
 * **Extraction**
 
-### Index
+## Index
 
-#### Constructors
+### Constructors
 
 * [constructor](extraction.md#constructor)
 
-#### Properties
+### Properties
 
 * [cardinality](extraction.md#static-cardinality)
 
-#### Methods
+### Methods
 
 * [extractRun](extraction.md#extractrun)
 * [run](extraction.md#run)
@@ -30,7 +30,7 @@ sidebar_label: Extraction
 
 \+ **new Extraction**(`configArgs`: [ExtractionConfig](../interfaces/extractionconfig.md) | [ExtractionConfig](../interfaces/extractionconfig.md)[]): *[Extraction](extraction.md)*
 
-*Defined in [operations/lib/transforms/extraction.ts:104](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L104)*
+*Defined in [operations/lib/transforms/extraction.ts:109](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L109)*
 
 **Parameters:**
 
@@ -46,7 +46,7 @@ Name | Type |
 
 ▪ **cardinality**: *[InputOutputCardinality](../overview.md#inputoutputcardinality)* = "one-to-one"
 
-*Defined in [operations/lib/transforms/extraction.ts:104](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L104)*
+*Defined in [operations/lib/transforms/extraction.ts:109](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L109)*
 
 ## Methods
 
@@ -54,7 +54,7 @@ Name | Type |
 
 ▸ **extractRun**(`doc`: `DataEntity`, `results`: object): *void*
 
-*Defined in [operations/lib/transforms/extraction.ts:145](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L145)*
+*Defined in [operations/lib/transforms/extraction.ts:150](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L150)*
 
 **Parameters:**
 
@@ -71,7 +71,7 @@ ___
 
 ▸ **run**(`doc`: `DataEntity`): *`DataEntity` | null*
 
-*Defined in [operations/lib/transforms/extraction.ts:128](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L128)*
+*Defined in [operations/lib/transforms/extraction.ts:132](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L132)*
 
 **Parameters:**
 

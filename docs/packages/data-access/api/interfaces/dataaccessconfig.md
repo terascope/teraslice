@@ -14,9 +14,9 @@ like FilterAccess and SearchAccess
 
 * **DataAccessConfig**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [config](dataaccessconfig.md#optional-config)
 * [data_type](dataaccessconfig.md#data_type)
@@ -33,7 +33,7 @@ like FilterAccess and SearchAccess
 
 • **config**? : *[SpaceSearchConfig](spacesearchconfig.md) | [SpaceStreamingConfig](spacestreamingconfig.md)*
 
-*Defined in [interfaces.ts:91](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/interfaces.ts#L91)*
+*Defined in [interfaces.ts:90](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/interfaces.ts#L90)*
 
 The space's configuration
 
@@ -43,7 +43,7 @@ ___
 
 • **data_type**: *[DataType](datatype.md)*
 
-*Defined in [interfaces.ts:96](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/interfaces.ts#L96)*
+*Defined in [interfaces.ts:95](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/interfaces.ts#L95)*
 
 The data type associated with the view
 
@@ -53,7 +53,7 @@ ___
 
 • **role_id**: *string*
 
-*Defined in [interfaces.ts:71](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/interfaces.ts#L71)*
+*Defined in [interfaces.ts:70](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/interfaces.ts#L70)*
 
 The id of the Role used
 
@@ -63,7 +63,7 @@ ___
 
 • **space_endpoint**? : *undefined | string*
 
-*Defined in [interfaces.ts:86](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/interfaces.ts#L86)*
+*Defined in [interfaces.ts:85](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/interfaces.ts#L85)*
 
 The endpoint of the space
 
@@ -73,7 +73,7 @@ ___
 
 • **space_id**: *string*
 
-*Defined in [interfaces.ts:76](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/interfaces.ts#L76)*
+*Defined in [interfaces.ts:75](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/interfaces.ts#L75)*
 
 The id of the space
 
@@ -83,7 +83,7 @@ ___
 
 • **type**: *`models.SpaceConfigType`*
 
-*Defined in [interfaces.ts:81](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/interfaces.ts#L81)*
+*Defined in [interfaces.ts:80](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/interfaces.ts#L80)*
 
 The space configuration type
 
@@ -93,7 +93,7 @@ ___
 
 • **user_id**: *string*
 
-*Defined in [interfaces.ts:66](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/interfaces.ts#L66)*
+*Defined in [interfaces.ts:65](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/interfaces.ts#L65)*
 
 The id of the user authenticated
 
@@ -103,6 +103,6 @@ ___
 
 • **view**: *[View](view.md)*
 
-*Defined in [interfaces.ts:101](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/interfaces.ts#L101)*
+*Defined in [interfaces.ts:100](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/interfaces.ts#L100)*
 
 The authenticated user's view of the space

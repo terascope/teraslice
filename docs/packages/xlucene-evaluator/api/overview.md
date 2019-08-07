@@ -3,11 +3,11 @@ title: Xlucene Evaluator API Overview
 sidebar_label: API
 ---
 
-#### Enumerations
+### Enumerations
 
 * [ASTType](enums/asttype.md)
 
-#### Classes
+### Classes
 
 * [CachedParser](classes/cachedparser.md)
 * [CachedQueryAccess](classes/cachedqueryaccess.md)
@@ -17,7 +17,7 @@ sidebar_label: API
 * [QueryAccess](classes/queryaccess.md)
 * [Translator](classes/translator.md)
 
-#### Interfaces
+### Interfaces
 
 * [AnyDataType](interfaces/anydatatype.md)
 * [BooleanDataType](interfaces/booleandatatype.md)
@@ -33,6 +33,8 @@ sidebar_label: API
 * [GeoQuery](interfaces/geoquery.md)
 * [GroupLikeAST](interfaces/grouplikeast.md)
 * [LogicalGroup](interfaces/logicalgroup.md)
+* [MatchPhraseQuery](interfaces/matchphrasequery.md)
+* [MatchQuery](interfaces/matchquery.md)
 * [MultiMatchQuery](interfaces/multimatchquery.md)
 * [Negation](interfaces/negation.md)
 * [NumberDataType](interfaces/numberdatatype.md)
@@ -54,7 +56,7 @@ sidebar_label: API
 * [Wildcard](interfaces/wildcard.md)
 * [WildcardQuery](interfaces/wildcardquery.md)
 
-#### Type aliases
+### Type aliases
 
 * [AST](overview.md#ast)
 * [AnyAST](overview.md#anyast)
@@ -80,13 +82,13 @@ sidebar_label: API
 * [TermLike](overview.md#termlike)
 * [TermLikeType](overview.md#termliketype)
 
-#### Variables
+### Variables
 
 * [groupTypes](overview.md#const-grouptypes)
 * [numberDataTypes](overview.md#const-numberdatatypes)
 * [termTypes](overview.md#const-termtypes)
 
-#### Functions
+### Functions
 
 * [buildAnyQuery](overview.md#buildanyquery)
 * [buildBoolQuery](overview.md#buildboolquery)
@@ -146,7 +148,7 @@ sidebar_label: API
 * [regexp](overview.md#regexp)
 * [wildcard](overview.md#wildcard)
 
-#### Object literals
+### Object literals
 
 * [GEO_DISTANCE_UNITS](overview.md#const-geo_distance_units)
 
@@ -156,7 +158,7 @@ sidebar_label: API
 
 Ƭ **AST**: *[EmptyAST](interfaces/emptyast.md) & [LogicalGroup](interfaces/logicalgroup.md) & [Term](interfaces/term.md) & [Conjunction](interfaces/conjunction.md) & [Negation](interfaces/negation.md) & [FieldGroup](interfaces/fieldgroup.md) & [Exists](interfaces/exists.md) & [Range](interfaces/range.md) & [GeoDistance](interfaces/geodistance.md) & [GeoBoundingBox](interfaces/geoboundingbox.md) & [Regexp](interfaces/regexp.md) & [Wildcard](interfaces/wildcard.md)*
 
-*Defined in [parser/interfaces.ts:3](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L3)*
+*Defined in [parser/interfaces.ts:3](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L3)*
 
 ___
 
@@ -164,15 +166,15 @@ ___
 
 Ƭ **AnyAST**: *[EmptyAST](interfaces/emptyast.md) | [LogicalGroup](interfaces/logicalgroup.md) | [Term](interfaces/term.md) | [Conjunction](interfaces/conjunction.md) | [Negation](interfaces/negation.md) | [FieldGroup](interfaces/fieldgroup.md) | [Exists](interfaces/exists.md) | [Range](interfaces/range.md) | [GeoDistance](interfaces/geodistance.md) | [GeoBoundingBox](interfaces/geoboundingbox.md) | [Regexp](interfaces/regexp.md) | [Wildcard](interfaces/wildcard.md)*
 
-*Defined in [parser/interfaces.ts:8](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L8)*
+*Defined in [parser/interfaces.ts:8](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L8)*
 
 ___
 
 ###  AnyQuery
 
-Ƭ **AnyQuery**: *[BoolQuery](overview.md#boolquery) | [GeoQuery](interfaces/geoquery.md) | [TermQuery](interfaces/termquery.md) | [WildcardQuery](interfaces/wildcardquery.md) | [ExistsQuery](interfaces/existsquery.md) | [RegExprQuery](interfaces/regexprquery.md) | [RangeQuery](interfaces/rangequery.md) | [MultiMatchQuery](interfaces/multimatchquery.md)*
+Ƭ **AnyQuery**: *[BoolQuery](overview.md#boolquery) | [GeoQuery](interfaces/geoquery.md) | [TermQuery](interfaces/termquery.md) | [MatchQuery](interfaces/matchquery.md) | [MatchPhraseQuery](interfaces/matchphrasequery.md) | [WildcardQuery](interfaces/wildcardquery.md) | [ExistsQuery](interfaces/existsquery.md) | [RegExprQuery](interfaces/regexprquery.md) | [RangeQuery](interfaces/rangequery.md) | [MultiMatchQuery](interfaces/multimatchquery.md)*
 
-*Defined in [translator/interfaces.ts:13](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/interfaces.ts#L13)*
+*Defined in [translator/interfaces.ts:13](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/interfaces.ts#L13)*
 
 ___
 
@@ -180,7 +182,7 @@ ___
 
 Ƭ **BoolQuery**: *object*
 
-*Defined in [translator/interfaces.ts:3](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/interfaces.ts#L3)*
+*Defined in [translator/interfaces.ts:3](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/interfaces.ts#L3)*
 
 #### Type declaration:
 
@@ -190,7 +192,7 @@ ___
 
 Ƭ **BoolQueryTypes**: *"filter" | "should" | "must_not"*
 
-*Defined in [translator/interfaces.ts:11](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/interfaces.ts#L11)*
+*Defined in [translator/interfaces.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/interfaces.ts#L11)*
 
 ___
 
@@ -198,7 +200,7 @@ ___
 
 Ƭ **BooleanCB**: *function*
 
-*Defined in [interfaces.ts:8](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/interfaces.ts#L8)*
+*Defined in [interfaces.ts:8](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/interfaces.ts#L8)*
 
 #### Type declaration:
 
@@ -216,7 +218,7 @@ ___
 
 Ƭ **ConstantScoreQuery**: *object*
 
-*Defined in [translator/interfaces.ts:72](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/interfaces.ts#L72)*
+*Defined in [translator/interfaces.ts:99](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/interfaces.ts#L99)*
 
 #### Type declaration:
 
@@ -226,7 +228,7 @@ ___
 
 Ƭ **DataType**: *"string" | "number" | "integer" | "float" | "boolean"*
 
-*Defined in [parser/interfaces.ts:49](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L49)*
+*Defined in [parser/interfaces.ts:49](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L49)*
 
 ___
 
@@ -234,7 +236,7 @@ ___
 
 Ƭ **DateInput**: *string | number*
 
-*Defined in [interfaces.ts:15](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/interfaces.ts#L15)*
+*Defined in [interfaces.ts:15](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/interfaces.ts#L15)*
 
 ___
 
@@ -242,7 +244,7 @@ ___
 
 Ƭ **ElasticsearchDSLResult**: *object*
 
-*Defined in [translator/interfaces.ts:82](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/interfaces.ts#L82)*
+*Defined in [translator/interfaces.ts:109](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/interfaces.ts#L109)*
 
 #### Type declaration:
 
@@ -252,7 +254,7 @@ ___
 
 Ƭ **Field**: *string | null*
 
-*Defined in [parser/interfaces.ts:47](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L47)*
+*Defined in [parser/interfaces.ts:47](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L47)*
 
 ___
 
@@ -260,7 +262,7 @@ ___
 
 Ƭ **FieldType**: *"geo" | "date" | "ip" | "string" | "number" | "float" | "boolean" | "object"*
 
-*Defined in [interfaces.ts:3](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/interfaces.ts#L3)*
+*Defined in [interfaces.ts:3](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/interfaces.ts#L3)*
 
 ___
 
@@ -268,7 +270,7 @@ ___
 
 Ƭ **GeoObjLong**: *object*
 
-*Defined in [interfaces.ts:13](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/interfaces.ts#L13)*
+*Defined in [interfaces.ts:13](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/interfaces.ts#L13)*
 
 #### Type declaration:
 
@@ -278,7 +280,7 @@ ___
 
 Ƭ **GeoObjShort**: *object*
 
-*Defined in [interfaces.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/interfaces.ts#L12)*
+*Defined in [interfaces.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/interfaces.ts#L12)*
 
 #### Type declaration:
 
@@ -288,7 +290,7 @@ ___
 
 Ƭ **GeoPointArr**: *[number, number]*
 
-*Defined in [interfaces.ts:10](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/interfaces.ts#L10)*
+*Defined in [interfaces.ts:10](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/interfaces.ts#L10)*
 
 ___
 
@@ -296,7 +298,7 @@ ___
 
 Ƭ **GeoPointInput**: *[GeoPointArr](overview.md#geopointarr) | [GeoPointStr](overview.md#geopointstr) | [GeoObjShort](overview.md#geoobjshort) | [GeoObjLong](overview.md#geoobjlong)*
 
-*Defined in [interfaces.ts:14](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/interfaces.ts#L14)*
+*Defined in [interfaces.ts:14](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/interfaces.ts#L14)*
 
 ___
 
@@ -304,7 +306,7 @@ ___
 
 Ƭ **GeoPointStr**: *string*
 
-*Defined in [interfaces.ts:11](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/interfaces.ts#L11)*
+*Defined in [interfaces.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/interfaces.ts#L11)*
 
 ___
 
@@ -312,7 +314,7 @@ ___
 
 Ƭ **GroupLike**: *[FieldGroup](interfaces/fieldgroup.md) | [LogicalGroup](interfaces/logicalgroup.md)*
 
-*Defined in [parser/interfaces.ts:13](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L13)*
+*Defined in [parser/interfaces.ts:13](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L13)*
 
 ___
 
@@ -320,7 +322,7 @@ ___
 
 Ƭ **GroupLikeType**: *[LogicalGroup](enums/asttype.md#logicalgroup) | [FieldGroup](enums/asttype.md#fieldgroup)*
 
-*Defined in [parser/interfaces.ts:14](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L14)*
+*Defined in [parser/interfaces.ts:14](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L14)*
 
 ___
 
@@ -328,7 +330,7 @@ ___
 
 Ƭ **MatchAllQuery**: *object*
 
-*Defined in [translator/interfaces.ts:78](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/interfaces.ts#L78)*
+*Defined in [translator/interfaces.ts:105](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/interfaces.ts#L105)*
 
 #### Type declaration:
 
@@ -338,7 +340,7 @@ ___
 
 Ƭ **RangeOperator**: *"gte" | "gt" | "lt" | "lte"*
 
-*Defined in [parser/interfaces.ts:94](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L94)*
+*Defined in [parser/interfaces.ts:94](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L94)*
 
 ___
 
@@ -346,7 +348,7 @@ ___
 
 Ƭ **TermLike**: *[Term](interfaces/term.md) | [Regexp](interfaces/regexp.md) | [Range](interfaces/range.md) | [Wildcard](interfaces/wildcard.md) | [GeoBoundingBox](interfaces/geoboundingbox.md) | [GeoDistance](interfaces/geodistance.md)*
 
-*Defined in [parser/interfaces.ts:21](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L21)*
+*Defined in [parser/interfaces.ts:21](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L21)*
 
 ___
 
@@ -354,7 +356,7 @@ ___
 
 Ƭ **TermLikeType**: *[Term](enums/asttype.md#term) | [Regexp](enums/asttype.md#regexp) | [Range](enums/asttype.md#range) | [Wildcard](enums/asttype.md#wildcard) | [GeoBoundingBox](enums/asttype.md#geoboundingbox) | [GeoDistance](enums/asttype.md#geodistance)*
 
-*Defined in [parser/interfaces.ts:22](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L22)*
+*Defined in [parser/interfaces.ts:22](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L22)*
 
 ## Variables
 
@@ -362,7 +364,7 @@ ___
 
 • **groupTypes**: *[ASTType](enums/asttype.md)[]* =  [i.ASTType.LogicalGroup, i.ASTType.FieldGroup]
 
-*Defined in [parser/utils.ts:91](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L91)*
+*Defined in [parser/utils.ts:91](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L91)*
 
 logical group or field group with flow
 
@@ -372,7 +374,7 @@ ___
 
 • **numberDataTypes**: *`i.DataType`[]* =  ['number', 'integer', 'float']
 
-*Defined in [parser/utils.ts:56](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L56)*
+*Defined in [parser/utils.ts:56](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L56)*
 
 ___
 
@@ -387,7 +389,7 @@ ___
     i.ASTType.GeoDistance,
 ]
 
-*Defined in [parser/utils.ts:77](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L77)*
+*Defined in [parser/utils.ts:77](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L77)*
 
 term level queries with field (string|null)
 
@@ -397,7 +399,7 @@ term level queries with field (string|null)
 
 ▸ **buildAnyQuery**(`node`: `p.AST`, `parser`: [Parser](classes/parser.md)): *`i.AnyQuery` | undefined*
 
-*Defined in [translator/utils.ts:8](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/utils.ts#L8)*
+*Defined in [translator/utils.ts:8](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/utils.ts#L8)*
 
 **Parameters:**
 
@@ -414,7 +416,7 @@ ___
 
 ▸ **buildBoolQuery**(`node`: [GroupLikeAST](interfaces/grouplikeast.md), `parser`: [Parser](classes/parser.md)): *`i.BoolQuery` | undefined*
 
-*Defined in [translator/utils.ts:212](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/utils.ts#L212)*
+*Defined in [translator/utils.ts:240](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/utils.ts#L240)*
 
 **Parameters:**
 
@@ -431,7 +433,7 @@ ___
 
 ▸ **buildConjunctionQuery**(`conj`: [Conjunction](interfaces/conjunction.md), `parser`: [Parser](classes/parser.md)): *`i.BoolQuery`*
 
-*Defined in [translator/utils.ts:231](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/utils.ts#L231)*
+*Defined in [translator/utils.ts:259](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/utils.ts#L259)*
 
 **Parameters:**
 
@@ -448,7 +450,7 @@ ___
 
 ▸ **buildExistsQuery**(`node`: [Exists](interfaces/exists.md)): *[ExistsQuery](interfaces/existsquery.md)*
 
-*Defined in [translator/utils.ts:201](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/utils.ts#L201)*
+*Defined in [translator/utils.ts:229](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/utils.ts#L229)*
 
 **Parameters:**
 
@@ -464,7 +466,7 @@ ___
 
 ▸ **buildGeoBoundingBoxQuery**(`node`: [GeoBoundingBox](interfaces/geoboundingbox.md)): *[GeoQuery](interfaces/geoquery.md) | undefined*
 
-*Defined in [translator/utils.ts:92](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/utils.ts#L92)*
+*Defined in [translator/utils.ts:92](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/utils.ts#L92)*
 
 **Parameters:**
 
@@ -480,7 +482,7 @@ ___
 
 ▸ **buildGeoDistanceQuery**(`node`: [GeoDistance](interfaces/geodistance.md)): *[GeoQuery](interfaces/geoquery.md) | undefined*
 
-*Defined in [translator/utils.ts:108](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/utils.ts#L108)*
+*Defined in [translator/utils.ts:108](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/utils.ts#L108)*
 
 **Parameters:**
 
@@ -496,7 +498,7 @@ ___
 
 ▸ **buildLogicFn**(`parser`: [Parser](classes/parser.md), `typeConfig`: [TypeConfig](interfaces/typeconfig.md)): *function*
 
-*Defined in [document-matcher/logic-builder/index.ts:11](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/document-matcher/logic-builder/index.ts#L11)*
+*Defined in [document-matcher/logic-builder/index.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/document-matcher/logic-builder/index.ts#L11)*
 
 **Parameters:**
 
@@ -521,7 +523,7 @@ ___
 
 ▸ **buildMultiMatchQuery**(`node`: [TermLikeAST](interfaces/termlikeast.md), `query`: string): *[MultiMatchQuery](interfaces/multimatchquery.md)*
 
-*Defined in [translator/utils.ts:77](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/utils.ts#L77)*
+*Defined in [translator/utils.ts:77](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/utils.ts#L77)*
 
 **Parameters:**
 
@@ -538,7 +540,7 @@ ___
 
 ▸ **buildNegationQuery**(`node`: [Negation](interfaces/negation.md), `parser`: [Parser](classes/parser.md)): *`i.BoolQuery` | undefined*
 
-*Defined in [translator/utils.ts:260](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/utils.ts#L260)*
+*Defined in [translator/utils.ts:288](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/utils.ts#L288)*
 
 **Parameters:**
 
@@ -555,7 +557,7 @@ ___
 
 ▸ **buildRangeQuery**(`node`: [Range](interfaces/range.md)): *[RangeQuery](interfaces/rangequery.md) | [MultiMatchQuery](interfaces/multimatchquery.md) | undefined*
 
-*Defined in [translator/utils.ts:126](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/utils.ts#L126)*
+*Defined in [translator/utils.ts:126](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/utils.ts#L126)*
 
 **Parameters:**
 
@@ -571,7 +573,7 @@ ___
 
 ▸ **buildRegExprQuery**(`node`: [Regexp](interfaces/regexp.md)): *[RegExprQuery](interfaces/regexprquery.md) | [MultiMatchQuery](interfaces/multimatchquery.md)*
 
-*Defined in [translator/utils.ts:183](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/utils.ts#L183)*
+*Defined in [translator/utils.ts:211](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/utils.ts#L211)*
 
 **Parameters:**
 
@@ -587,7 +589,7 @@ ___
 
 ▸ **buildTermLevelQuery**(`node`: [TermLikeAST](interfaces/termlikeast.md)): *`i.AnyQuery` | undefined*
 
-*Defined in [translator/utils.ts:45](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/utils.ts#L45)*
+*Defined in [translator/utils.ts:45](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/utils.ts#L45)*
 
 **Parameters:**
 
@@ -601,9 +603,9 @@ ___
 
 ###  buildTermQuery
 
-▸ **buildTermQuery**(`node`: [Term](interfaces/term.md)): *[TermQuery](interfaces/termquery.md) | [MultiMatchQuery](interfaces/multimatchquery.md)*
+▸ **buildTermQuery**(`node`: [Term](interfaces/term.md)): *[TermQuery](interfaces/termquery.md) | [MatchQuery](interfaces/matchquery.md) | [MatchPhraseQuery](interfaces/matchphrasequery.md) | [MultiMatchQuery](interfaces/multimatchquery.md)*
 
-*Defined in [translator/utils.ts:147](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/utils.ts#L147)*
+*Defined in [translator/utils.ts:147](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/utils.ts#L147)*
 
 **Parameters:**
 
@@ -611,7 +613,7 @@ Name | Type |
 ------ | ------ |
 `node` | [Term](interfaces/term.md) |
 
-**Returns:** *[TermQuery](interfaces/termquery.md) | [MultiMatchQuery](interfaces/multimatchquery.md)*
+**Returns:** *[TermQuery](interfaces/termquery.md) | [MatchQuery](interfaces/matchquery.md) | [MatchPhraseQuery](interfaces/matchphrasequery.md) | [MultiMatchQuery](interfaces/multimatchquery.md)*
 
 ___
 
@@ -619,7 +621,7 @@ ___
 
 ▸ **buildWildcardQuery**(`node`: [Wildcard](interfaces/wildcard.md)): *[WildcardQuery](interfaces/wildcardquery.md) | [MultiMatchQuery](interfaces/multimatchquery.md)*
 
-*Defined in [translator/utils.ts:165](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/utils.ts#L165)*
+*Defined in [translator/utils.ts:193](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/utils.ts#L193)*
 
 **Parameters:**
 
@@ -635,7 +637,7 @@ ___
 
 ▸ **canFlattenBoolQuery**(`query`: `i.BoolQuery`, `flattenTo`: `i.BoolQueryTypes`): *boolean*
 
-*Defined in [translator/utils.ts:254](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/utils.ts#L254)*
+*Defined in [translator/utils.ts:282](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/utils.ts#L282)*
 
 This prevents double nested queries that do the same thing
 
@@ -654,7 +656,7 @@ ___
 
 ▸ **compactFinalQuery**(`query?`: `i.AnyQuery`): *`i.AnyQuery` | `i.AnyQuery`[]*
 
-*Defined in [translator/utils.ts:277](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/utils.ts#L277)*
+*Defined in [translator/utils.ts:305](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/utils.ts#L305)*
 
 **Parameters:**
 
@@ -670,7 +672,7 @@ ___
 
 ▸ **compareTermDates**(`node`: [Term](interfaces/term.md)): *`dateTerm`*
 
-*Defined in [document-matcher/logic-builder/dates.ts:10](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/document-matcher/logic-builder/dates.ts#L10)*
+*Defined in [document-matcher/logic-builder/dates.ts:10](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/document-matcher/logic-builder/dates.ts#L10)*
 
 **Parameters:**
 
@@ -686,7 +688,7 @@ ___
 
 ▸ **dateRange**(`node`: [Range](interfaces/range.md)): *`dateRangeTerm`*
 
-*Defined in [document-matcher/logic-builder/dates.ts:49](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/document-matcher/logic-builder/dates.ts#L49)*
+*Defined in [document-matcher/logic-builder/dates.ts:49](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/document-matcher/logic-builder/dates.ts#L49)*
 
 **Parameters:**
 
@@ -702,7 +704,7 @@ ___
 
 ▸ **findWildcardField**(`field`: string, `cb`: [BooleanCB](overview.md#booleancb)): *`WildcardField`*
 
-*Defined in [document-matcher/logic-builder/string.ts:28](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/document-matcher/logic-builder/string.ts#L28)*
+*Defined in [document-matcher/logic-builder/string.ts:28](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/document-matcher/logic-builder/string.ts#L28)*
 
 **Parameters:**
 
@@ -719,7 +721,7 @@ ___
 
 ▸ **flattenQuery**(`query`: `i.AnyQuery` | undefined, `flattenTo`: `i.BoolQueryTypes`): *`i.AnyQuery`[]*
 
-*Defined in [translator/utils.ts:245](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/utils.ts#L245)*
+*Defined in [translator/utils.ts:273](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/utils.ts#L273)*
 
 **Parameters:**
 
@@ -736,7 +738,7 @@ ___
 
 ▸ **geoBoundingBox**(`node`: [GeoBoundingBox](interfaces/geoboundingbox.md)): *`(Anonymous function)`*
 
-*Defined in [document-matcher/logic-builder/geo.ts:36](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/document-matcher/logic-builder/geo.ts#L36)*
+*Defined in [document-matcher/logic-builder/geo.ts:36](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/document-matcher/logic-builder/geo.ts#L36)*
 
 **Parameters:**
 
@@ -752,7 +754,7 @@ ___
 
 ▸ **geoDistance**(`node`: [GeoDistance](interfaces/geodistance.md)): *`(Anonymous function)`*
 
-*Defined in [document-matcher/logic-builder/geo.ts:17](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/document-matcher/logic-builder/geo.ts#L17)*
+*Defined in [document-matcher/logic-builder/geo.ts:17](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/document-matcher/logic-builder/geo.ts#L17)*
 
 **Parameters:**
 
@@ -768,7 +770,7 @@ ___
 
 ▸ **getAnyValue**(`node`: any): *any*
 
-*Defined in [parser/utils.ts:66](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L66)*
+*Defined in [parser/utils.ts:66](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L66)*
 
 **Parameters:**
 
@@ -784,7 +786,7 @@ ___
 
 ▸ **getField**(`node`: any): *string | undefined*
 
-*Defined in [parser/utils.ts:70](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L70)*
+*Defined in [parser/utils.ts:70](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L70)*
 
 **Parameters:**
 
@@ -800,7 +802,7 @@ ___
 
 ▸ **getLonAndLat**(`input`: any, `throwInvalid`: boolean): *[number, number]*
 
-*Defined in [utils.ts:59](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/utils.ts#L59)*
+*Defined in [utils.ts:59](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/utils.ts#L59)*
 
 **Parameters:**
 
@@ -817,7 +819,7 @@ ___
 
 ▸ **getRangeValues**(`node`: [Range](interfaces/range.md)): *object*
 
-*Defined in [document-matcher/logic-builder/dates.ts:18](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/document-matcher/logic-builder/dates.ts#L18)*
+*Defined in [document-matcher/logic-builder/dates.ts:18](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/document-matcher/logic-builder/dates.ts#L18)*
 
 **Parameters:**
 
@@ -833,7 +835,7 @@ ___
 
 ▸ **getTermField**(`node`: [TermLikeAST](interfaces/termlikeast.md)): *string*
 
-*Defined in [translator/utils.ts:88](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/utils.ts#L88)*
+*Defined in [translator/utils.ts:88](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/utils.ts#L88)*
 
 **Parameters:**
 
@@ -849,7 +851,7 @@ ___
 
 ▸ **ipRange**(`node`: [Range](interfaces/range.md)): *`checkIp`*
 
-*Defined in [document-matcher/logic-builder/ip.ts:72](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/document-matcher/logic-builder/ip.ts#L72)*
+*Defined in [document-matcher/logic-builder/ip.ts:72](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/document-matcher/logic-builder/ip.ts#L72)*
 
 **Parameters:**
 
@@ -865,7 +867,7 @@ ___
 
 ▸ **ipTerm**(`node`: [Term](interfaces/term.md)): *`checkIp`*
 
-*Defined in [document-matcher/logic-builder/ip.ts:14](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/document-matcher/logic-builder/ip.ts#L14)*
+*Defined in [document-matcher/logic-builder/ip.ts:14](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/document-matcher/logic-builder/ip.ts#L14)*
 
 **Parameters:**
 
@@ -881,7 +883,7 @@ ___
 
 ▸ **isBoolQuery**(`query`: any): *boolean*
 
-*Defined in [translator/utils.ts:273](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/utils.ts#L273)*
+*Defined in [translator/utils.ts:301](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/utils.ts#L301)*
 
 **Parameters:**
 
@@ -897,7 +899,7 @@ ___
 
 ▸ **isBooleanDataType**(`node`: any): *boolean*
 
-*Defined in [parser/utils.ts:62](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L62)*
+*Defined in [parser/utils.ts:62](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L62)*
 
 **Parameters:**
 
@@ -913,7 +915,7 @@ ___
 
 ▸ **isConjunction**(`node`: any): *boolean*
 
-*Defined in [parser/utils.ts:8](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L8)*
+*Defined in [parser/utils.ts:8](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L8)*
 
 **Parameters:**
 
@@ -929,7 +931,7 @@ ___
 
 ▸ **isEmptyAST**(`node`: any): *boolean*
 
-*Defined in [parser/utils.ts:48](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L48)*
+*Defined in [parser/utils.ts:48](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L48)*
 
 **Parameters:**
 
@@ -945,7 +947,7 @@ ___
 
 ▸ **isExists**(`node`: any): *boolean*
 
-*Defined in [parser/utils.ts:20](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L20)*
+*Defined in [parser/utils.ts:20](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L20)*
 
 **Parameters:**
 
@@ -961,7 +963,7 @@ ___
 
 ▸ **isFieldGroup**(`node`: any): *boolean*
 
-*Defined in [parser/utils.ts:16](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L16)*
+*Defined in [parser/utils.ts:16](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L16)*
 
 **Parameters:**
 
@@ -977,7 +979,7 @@ ___
 
 ▸ **isGeoBoundingBox**(`node`: any): *boolean*
 
-*Defined in [parser/utils.ts:32](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L32)*
+*Defined in [parser/utils.ts:32](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L32)*
 
 **Parameters:**
 
@@ -993,7 +995,7 @@ ___
 
 ▸ **isGeoDistance**(`node`: any): *boolean*
 
-*Defined in [parser/utils.ts:28](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L28)*
+*Defined in [parser/utils.ts:28](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L28)*
 
 **Parameters:**
 
@@ -1009,7 +1011,7 @@ ___
 
 ▸ **isGroupLike**(`node`: any): *boolean*
 
-*Defined in [parser/utils.ts:93](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L93)*
+*Defined in [parser/utils.ts:93](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L93)*
 
 **Parameters:**
 
@@ -1025,7 +1027,7 @@ ___
 
 ▸ **isInfiniteMax**(`max?`: number | string): *boolean*
 
-*Defined in [utils.ts:16](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/utils.ts#L16)*
+*Defined in [utils.ts:16](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/utils.ts#L16)*
 
 **Parameters:**
 
@@ -1041,7 +1043,7 @@ ___
 
 ▸ **isInfiniteMin**(`min?`: number | string): *boolean*
 
-*Defined in [utils.ts:11](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/utils.ts#L11)*
+*Defined in [utils.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/utils.ts#L11)*
 
 **Parameters:**
 
@@ -1057,7 +1059,7 @@ ___
 
 ▸ **isInfiniteValue**(`input?`: number | string): *boolean*
 
-*Defined in [utils.ts:7](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/utils.ts#L7)*
+*Defined in [utils.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/utils.ts#L7)*
 
 **Parameters:**
 
@@ -1073,7 +1075,7 @@ ___
 
 ▸ **isLogicalGroup**(`node`: any): *boolean*
 
-*Defined in [parser/utils.ts:4](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L4)*
+*Defined in [parser/utils.ts:4](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L4)*
 
 **Parameters:**
 
@@ -1089,7 +1091,7 @@ ___
 
 ▸ **isMultiMatch**(`node`: [TermLikeAST](interfaces/termlikeast.md)): *boolean*
 
-*Defined in [translator/utils.ts:73](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/utils.ts#L73)*
+*Defined in [translator/utils.ts:73](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/utils.ts#L73)*
 
 **Parameters:**
 
@@ -1105,7 +1107,7 @@ ___
 
 ▸ **isNegation**(`node`: any): *boolean*
 
-*Defined in [parser/utils.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L12)*
+*Defined in [parser/utils.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L12)*
 
 **Parameters:**
 
@@ -1121,7 +1123,7 @@ ___
 
 ▸ **isNumberDataType**(`node`: any): *boolean*
 
-*Defined in [parser/utils.ts:58](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L58)*
+*Defined in [parser/utils.ts:58](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L58)*
 
 **Parameters:**
 
@@ -1137,7 +1139,7 @@ ___
 
 ▸ **isRange**(`node`: any): *boolean*
 
-*Defined in [parser/utils.ts:24](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L24)*
+*Defined in [parser/utils.ts:24](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L24)*
 
 **Parameters:**
 
@@ -1153,7 +1155,7 @@ ___
 
 ▸ **isRegexp**(`node`: any): *boolean*
 
-*Defined in [parser/utils.ts:36](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L36)*
+*Defined in [parser/utils.ts:36](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L36)*
 
 **Parameters:**
 
@@ -1169,7 +1171,7 @@ ___
 
 ▸ **isStringDataType**(`node`: any): *boolean*
 
-*Defined in [parser/utils.ts:52](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L52)*
+*Defined in [parser/utils.ts:52](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L52)*
 
 **Parameters:**
 
@@ -1185,7 +1187,7 @@ ___
 
 ▸ **isTerm**(`node`: any): *boolean*
 
-*Defined in [parser/utils.ts:44](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L44)*
+*Defined in [parser/utils.ts:44](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L44)*
 
 **Parameters:**
 
@@ -1201,7 +1203,7 @@ ___
 
 ▸ **isTermType**(`node`: any): *boolean*
 
-*Defined in [parser/utils.ts:86](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L86)*
+*Defined in [parser/utils.ts:86](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L86)*
 
 **Parameters:**
 
@@ -1217,7 +1219,7 @@ ___
 
 ▸ **isWildCard**(`term`: string): *boolean*
 
-*Defined in [document-matcher/logic-builder/string.ts:20](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/document-matcher/logic-builder/string.ts#L20)*
+*Defined in [document-matcher/logic-builder/string.ts:20](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/document-matcher/logic-builder/string.ts#L20)*
 
 **Parameters:**
 
@@ -1233,7 +1235,7 @@ ___
 
 ▸ **isWildcard**(`node`: any): *boolean*
 
-*Defined in [parser/utils.ts:40](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/utils.ts#L40)*
+*Defined in [parser/utils.ts:40](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/utils.ts#L40)*
 
 **Parameters:**
 
@@ -1249,7 +1251,7 @@ ___
 
 ▸ **parseGeoDistance**(`str`: string): *[GeoDistanceObj](interfaces/geodistanceobj.md)*
 
-*Defined in [utils.ts:43](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/utils.ts#L43)*
+*Defined in [utils.ts:43](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/utils.ts#L43)*
 
 **Parameters:**
 
@@ -1265,7 +1267,7 @@ ___
 
 ▸ **parseGeoPoint**(`point`: [GeoPointInput](overview.md#geopointinput) | number[] | object): *number[]*
 
-*Defined in [utils.ts:70](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/utils.ts#L70)*
+*Defined in [utils.ts:70](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/utils.ts#L70)*
 
 **Parameters:**
 
@@ -1277,7 +1279,7 @@ Name | Type |
 
 ▸ **parseGeoPoint**(`point`: [GeoPointInput](overview.md#geopointinput) | number[] | object, `throwInvalid`: true): *number[]*
 
-*Defined in [utils.ts:71](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/utils.ts#L71)*
+*Defined in [utils.ts:71](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/utils.ts#L71)*
 
 **Parameters:**
 
@@ -1290,7 +1292,7 @@ Name | Type |
 
 ▸ **parseGeoPoint**(`point`: [GeoPointInput](overview.md#geopointinput) | number[] | object, `throwInvalid`: false): *number[] | null*
 
-*Defined in [utils.ts:72](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/utils.ts#L72)*
+*Defined in [utils.ts:72](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/utils.ts#L72)*
 
 **Parameters:**
 
@@ -1307,7 +1309,7 @@ ___
 
 ▸ **parseRange**(`node`: [Range](interfaces/range.md), `excludeInfinite`: boolean): *[ParsedRange](interfaces/parsedrange.md)*
 
-*Defined in [utils.ts:28](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/utils.ts#L28)*
+*Defined in [utils.ts:28](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/utils.ts#L28)*
 
 **Parameters:**
 
@@ -1324,7 +1326,7 @@ ___
 
 ▸ **regexp**(`term`: string): *`regexpTerm`*
 
-*Defined in [document-matcher/logic-builder/string.ts:5](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/document-matcher/logic-builder/string.ts#L5)*
+*Defined in [document-matcher/logic-builder/string.ts:5](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/document-matcher/logic-builder/string.ts#L5)*
 
 **Parameters:**
 
@@ -1340,7 +1342,7 @@ ___
 
 ▸ **wildcard**(`term`: string): *`wildcardTerm`*
 
-*Defined in [document-matcher/logic-builder/string.ts:12](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/document-matcher/logic-builder/string.ts#L12)*
+*Defined in [document-matcher/logic-builder/string.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/document-matcher/logic-builder/string.ts#L12)*
 
 **Parameters:**
 
@@ -1356,4 +1358,4 @@ Name | Type |
 
 ### ▪ **GEO_DISTANCE_UNITS**: *object*
 
-*Defined in [utils.ts:153](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/utils.ts#L153)*
+*Defined in [utils.ts:153](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/utils.ts#L153)*

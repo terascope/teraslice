@@ -37,9 +37,9 @@ sidebar_label: OperationLifeCycle
 * [TestFetcher](../classes/testfetcher.md)
 * [TestSlicer](../classes/testslicer.md)
 
-### Index
+## Index
 
-#### Methods
+### Methods
 
 * [initialize](operationlifecycle.md#initialize)
 * [shutdown](operationlifecycle.md#shutdown)
@@ -50,7 +50,7 @@ sidebar_label: OperationLifeCycle
 
 ▸ **initialize**(`initConfig?`: any): *`Promise<void>`*
 
-*Defined in [interfaces/operation-lifecycle.ts:9](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/interfaces/operation-lifecycle.ts#L9)*
+*Defined in [interfaces/operation-lifecycle.ts:9](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operation-lifecycle.ts#L9)*
 
 Called during execution initialization,
 when this is called perform any async setup.
@@ -69,7 +69,7 @@ ___
 
 ▸ **shutdown**(): *`Promise<void>`*
 
-*Defined in [interfaces/operation-lifecycle.ts:15](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/interfaces/operation-lifecycle.ts#L15)*
+*Defined in [interfaces/operation-lifecycle.ts:15](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operation-lifecycle.ts#L15)*
 
 Called during execution shutdown,
 when this is cleanup any open connections or destroy any in-memory state.

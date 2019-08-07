@@ -13,20 +13,20 @@ Manager for Roles
 
   * **Roles**
 
-### Index
+## Index
 
-#### Constructors
+### Constructors
 
 * [constructor](roles.md#constructor)
 
-#### Properties
+### Properties
 
 * [logger](roles.md#logger)
 * [name](roles.md#name)
 * [store](roles.md#store)
 * [IndexModelConfig](roles.md#static-indexmodelconfig)
 
-#### Methods
+### Methods
 
 * [_appendToArray](roles.md#protected-_appendtoarray)
 * [_createJoinQuery](roles.md#protected-_createjoinquery)
@@ -61,7 +61,7 @@ Manager for Roles
 
 *Overrides void*
 
-*Defined in [models/roles.ts:9](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/roles.ts#L9)*
+*Defined in [models/roles.ts:9](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/roles.ts#L9)*
 
 **Parameters:**
 
@@ -80,7 +80,7 @@ Name | Type |
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:12
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:13
 
 ___
 
@@ -90,7 +90,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:11
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:12
 
 ___
 
@@ -100,7 +100,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:10
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:11
 
 ___
 
@@ -108,7 +108,7 @@ ___
 
 ▪ **IndexModelConfig**: *`IndexModelConfig<Role>`* =  rolesConfig
 
-*Defined in [models/roles.ts:9](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/models/roles.ts#L9)*
+*Defined in [models/roles.ts:9](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/roles.ts#L9)*
 
 ## Methods
 
@@ -154,7 +154,7 @@ ___
 
 ### `Protected` _ensureUnique
 
-▸ **_ensureUnique**(`record`: `AnyInput<Role>`): *`Promise<void>`*
+▸ **_ensureUnique**(`record`: [Role](../interfaces/role.md), `existing?`: [T]()): *`Promise<void>`*
 
 *Inherited from void*
 
@@ -164,7 +164,8 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`record` | `AnyInput<Role>` |
+`record` | [Role](../interfaces/role.md) |
+`existing?` | [T]() |
 
 **Returns:** *`Promise<void>`*
 

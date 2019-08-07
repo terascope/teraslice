@@ -11,12 +11,11 @@ sidebar_label: CacheConfig
 
   * [ESStateStorageConfig](esstatestorageconfig.md)
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [cache_size](cacheconfig.md#cache_size)
-* [max_age](cacheconfig.md#max_age)
 
 ## Properties
 
@@ -24,12 +23,4 @@ sidebar_label: CacheConfig
 
 • **cache_size**: *number*
 
-*Defined in [interfaces.ts:35](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/interfaces.ts#L35)*
-
-___
-
-###  max_age
-
-• **max_age**: *number*
-
-*Defined in [interfaces.ts:36](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/interfaces.ts#L36)*
+*Defined in [interfaces.ts:35](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/interfaces.ts#L35)*

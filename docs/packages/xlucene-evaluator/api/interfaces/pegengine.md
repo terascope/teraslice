@@ -9,9 +9,9 @@ sidebar_label: PegEngine
 
 * **PegEngine**
 
-### Index
+## Index
 
-#### Methods
+### Methods
 
 * [parse](pegengine.md#parse)
 
@@ -21,7 +21,7 @@ sidebar_label: PegEngine
 
 ▸ **parse**(`input`: string, `options?`: [PegEngineOptions](pegengineoptions.md)): *[AST](../overview.md#ast)*
 
-*Defined in [parser/engine.ts:7](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/engine.ts#L7)*
+*Defined in [parser/engine.ts:6](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/engine.ts#L6)*
 
 **Parameters:**
 

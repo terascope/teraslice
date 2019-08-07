@@ -11,9 +11,9 @@ sidebar_label: ElasticsearchError
 
   * **ElasticsearchError**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [Error](elasticsearcherror.md#error)
 * [body](elasticsearcherror.md#optional-body)
@@ -25,7 +25,7 @@ sidebar_label: ElasticsearchError
 * [status](elasticsearcherror.md#optional-status)
 * [type](elasticsearcherror.md#optional-type)
 
-#### Methods
+### Methods
 
 * [toJSON](elasticsearcherror.md#tojson)
 
@@ -43,7 +43,7 @@ ___
 
 • **body**? : *undefined | object*
 
-*Defined in [errors.ts:341](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L341)*
+*Defined in [errors.ts:346](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L346)*
 
 ___
 
@@ -51,7 +51,7 @@ ___
 
 • **index**? : *undefined | string*
 
-*Defined in [errors.ts:359](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L359)*
+*Defined in [errors.ts:364](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L364)*
 
 ___
 
@@ -79,7 +79,7 @@ ___
 
 • **reason**? : *undefined | string*
 
-*Defined in [errors.ts:358](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L358)*
+*Defined in [errors.ts:363](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L363)*
 
 ___
 
@@ -99,7 +99,7 @@ ___
 
 • **status**? : *undefined | number*
 
-*Defined in [errors.ts:356](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L356)*
+*Defined in [errors.ts:361](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L361)*
 
 ___
 
@@ -107,7 +107,7 @@ ___
 
 • **type**? : *undefined | string*
 
-*Defined in [errors.ts:357](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L357)*
+*Defined in [errors.ts:362](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L362)*
 
 ## Methods
 
@@ -115,6 +115,6 @@ ___
 
 ▸ **toJSON**(): *object*
 
-*Defined in [errors.ts:361](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/errors.ts#L361)*
+*Defined in [errors.ts:366](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L366)*
 
 **Returns:** *object*

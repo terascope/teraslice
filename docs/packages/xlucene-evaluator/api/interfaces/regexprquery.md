@@ -9,9 +9,9 @@ sidebar_label: RegExprQuery
 
 * **RegExprQuery**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [regexp](regexprquery.md#regexp)
 
@@ -21,7 +21,7 @@ sidebar_label: RegExprQuery
 
 • **regexp**: *object*
 
-*Defined in [translator/interfaces.ts:35](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/interfaces.ts#L35)*
+*Defined in [translator/interfaces.ts:45](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/interfaces.ts#L45)*
 
 #### Type declaration:
 

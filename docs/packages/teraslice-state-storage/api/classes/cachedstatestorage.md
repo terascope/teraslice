@@ -3,35 +3,56 @@ title: Teraslice State Storage: `CachedStateStorage`
 sidebar_label: CachedStateStorage
 ---
 
-# Class: CachedStateStorage
+# Class: CachedStateStorage <**T**>
+
+## Type parameters
+
+▪ **T**
 
 ## Hierarchy
 
-* **CachedStateStorage**
+* `EventEmitter`
 
-### Index
+  * **CachedStateStorage**
 
-#### Constructors
+## Index
+
+### Constructors
 
 * [constructor](cachedstatestorage.md#constructor)
 
-#### Properties
+### Properties
 
 * [IDField](cachedstatestorage.md#protected-idfield)
+* [defaultMaxListeners](cachedstatestorage.md#static-defaultmaxlisteners)
 
-#### Methods
+### Methods
 
+* [addListener](cachedstatestorage.md#addlistener)
+* [clear](cachedstatestorage.md#clear)
 * [count](cachedstatestorage.md#count)
-* [delete](cachedstatestorage.md#delete)
+* [emit](cachedstatestorage.md#emit)
+* [eventNames](cachedstatestorage.md#eventnames)
 * [get](cachedstatestorage.md#get)
+* [getMaxListeners](cachedstatestorage.md#getmaxlisteners)
 * [has](cachedstatestorage.md#has)
 * [initialize](cachedstatestorage.md#initialize)
-* [mdelete](cachedstatestorage.md#mdelete)
+* [listenerCount](cachedstatestorage.md#listenercount)
+* [listeners](cachedstatestorage.md#listeners)
 * [mget](cachedstatestorage.md#mget)
 * [mset](cachedstatestorage.md#mset)
+* [off](cachedstatestorage.md#off)
+* [on](cachedstatestorage.md#on)
+* [once](cachedstatestorage.md#once)
+* [prependListener](cachedstatestorage.md#prependlistener)
+* [prependOnceListener](cachedstatestorage.md#prependoncelistener)
+* [rawListeners](cachedstatestorage.md#rawlisteners)
+* [removeAllListeners](cachedstatestorage.md#removealllisteners)
+* [removeListener](cachedstatestorage.md#removelistener)
 * [set](cachedstatestorage.md#set)
-* [shutdown](cachedstatestorage.md#shutdown)
+* [setMaxListeners](cachedstatestorage.md#setmaxlisteners)
 * [values](cachedstatestorage.md#values)
+* [listenerCount](cachedstatestorage.md#static-listenercount)
 
 ## Constructors
 
@@ -39,7 +60,7 @@ sidebar_label: CachedStateStorage
 
 \+ **new CachedStateStorage**(`config`: [CacheConfig](../interfaces/cacheconfig.md)): *[CachedStateStorage](cachedstatestorage.md)*
 
-*Defined in [cached-state-storage/index.ts:8](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L8)*
+*Defined in [cached-state-storage/index.ts:18](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L18)*
 
 **Parameters:**
 
@@ -55,63 +76,144 @@ Name | Type |
 
 • **IDField**: *string*
 
-*Defined in [cached-state-storage/index.ts:7](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L7)*
-
-## Methods
-
-###  count
-
-▸ **count**(): *number*
-
-*Defined in [cached-state-storage/index.ts:58](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L58)*
-
-**Returns:** *number*
+*Defined in [cached-state-storage/index.ts:17](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L17)*
 
 ___
 
-###  delete
+### `Static` defaultMaxListeners
 
-▸ **delete**(`doc`: `DataEntity`): *void*
+▪ **defaultMaxListeners**: *number*
 
-*Defined in [cached-state-storage/index.ts:49](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L49)*
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:9
+
+## Methods
+
+###  addListener
+
+▸ **addListener**(`event`: string | symbol, `listener`: function): *this*
+
+*Inherited from void*
+
+*Overrides void*
+
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:11
+
+**Parameters:**
+
+▪ **event**: *string | symbol*
+
+▪ **listener**: *function*
+
+▸ (...`args`: any[]): *void*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`doc` | `DataEntity` |
+`...args` | any[] |
+
+**Returns:** *this*
+
+___
+
+###  clear
+
+▸ **clear**(): *void*
+
+*Defined in [cached-state-storage/index.ts:68](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L68)*
 
 **Returns:** *void*
 
 ___
 
-###  get
+###  count
 
-▸ **get**(`doc`: `DataEntity`): *`DataEntity<object>` | undefined*
+▸ **count**(): *number*
 
-*Defined in [cached-state-storage/index.ts:26](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L26)*
+*Defined in [cached-state-storage/index.ts:47](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L47)*
+
+**Returns:** *number*
+
+___
+
+###  emit
+
+▸ **emit**(`event`: string | symbol, ...`args`: any[]): *boolean*
+
+*Inherited from void*
+
+*Overrides void*
+
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:23
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`doc` | `DataEntity` |
+`event` | string \| symbol |
+`...args` | any[] |
 
-**Returns:** *`DataEntity<object>` | undefined*
+**Returns:** *boolean*
+
+___
+
+###  eventNames
+
+▸ **eventNames**(): *`Array<string | symbol>`*
+
+*Inherited from void*
+
+*Overrides void*
+
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:24
+
+**Returns:** *`Array<string | symbol>`*
+
+___
+
+###  get
+
+▸ **get**(`key`: string): *`T` | undefined*
+
+*Defined in [cached-state-storage/index.ts:26](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L26)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`key` | string |
+
+**Returns:** *`T` | undefined*
+
+___
+
+###  getMaxListeners
+
+▸ **getMaxListeners**(): *number*
+
+*Inherited from void*
+
+*Overrides void*
+
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:20
+
+**Returns:** *number*
 
 ___
 
 ###  has
 
-▸ **has**(`doc`: `DataEntity`): *boolean*
+▸ **has**(`key`: string): *boolean*
 
-*Defined in [cached-state-storage/index.ts:66](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L66)*
+*Defined in [cached-state-storage/index.ts:62](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L62)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`doc` | `DataEntity` |
+`key` | string |
 
 **Returns:** *boolean*
 
@@ -121,39 +223,63 @@ ___
 
 ▸ **initialize**(): *void*
 
-*Defined in [cached-state-storage/index.ts:71](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L71)*
+*Defined in [cached-state-storage/index.ts:66](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L66)*
 
 **Returns:** *void*
 
 ___
 
-###  mdelete
+###  listenerCount
 
-▸ **mdelete**(`docArray`: `DataEntity`[]): *void*
+▸ **listenerCount**(`type`: string | symbol): *number*
 
-*Defined in [cached-state-storage/index.ts:54](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L54)*
+*Inherited from void*
+
+*Overrides void*
+
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:25
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`docArray` | `DataEntity`[] |
+`type` | string \| symbol |
 
-**Returns:** *void*
+**Returns:** *number*
+
+___
+
+###  listeners
+
+▸ **listeners**(`event`: string | symbol): *`Function`[]*
+
+*Inherited from void*
+
+*Overrides void*
+
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:21
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`event` | string \| symbol |
+
+**Returns:** *`Function`[]*
 
 ___
 
 ###  mget
 
-▸ **mget**(`docArray`: `DataEntity`[]): *[MGetCacheResponse](../interfaces/mgetcacheresponse.md)*
+▸ **mget**(`keyArray`: string[]): *[MGetCacheResponse](../interfaces/mgetcacheresponse.md)*
 
-*Defined in [cached-state-storage/index.ts:31](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L31)*
+*Defined in [cached-state-storage/index.ts:30](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L30)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`docArray` | `DataEntity`[] |
+`keyArray` | string[] |
 
 **Returns:** *[MGetCacheResponse](../interfaces/mgetcacheresponse.md)*
 
@@ -161,50 +287,296 @@ ___
 
 ###  mset
 
-▸ **mset**(`docArray`: `DataEntity`[]): *void*
+▸ **mset**(`docArray`: [SetTuple](../interfaces/settuple.md)‹*`T`*›[]): *void*
 
-*Defined in [cached-state-storage/index.ts:45](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L45)*
+*Defined in [cached-state-storage/index.ts:43](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L43)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`docArray` | `DataEntity`[] |
+`docArray` | [SetTuple](../interfaces/settuple.md)‹*`T`*›[] |
 
 **Returns:** *void*
+
+___
+
+###  off
+
+▸ **off**(`event`: string | symbol, `listener`: function): *this*
+
+*Inherited from void*
+
+*Overrides void*
+
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:17
+
+**Parameters:**
+
+▪ **event**: *string | symbol*
+
+▪ **listener**: *function*
+
+▸ (...`args`: any[]): *void*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`...args` | any[] |
+
+**Returns:** *this*
+
+___
+
+###  on
+
+▸ **on**(`event`: string | symbol, `listener`: function): *this*
+
+*Inherited from void*
+
+*Overrides void*
+
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:12
+
+**Parameters:**
+
+▪ **event**: *string | symbol*
+
+▪ **listener**: *function*
+
+▸ (...`args`: any[]): *void*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`...args` | any[] |
+
+**Returns:** *this*
+
+___
+
+###  once
+
+▸ **once**(`event`: string | symbol, `listener`: function): *this*
+
+*Inherited from void*
+
+*Overrides void*
+
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:13
+
+**Parameters:**
+
+▪ **event**: *string | symbol*
+
+▪ **listener**: *function*
+
+▸ (...`args`: any[]): *void*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`...args` | any[] |
+
+**Returns:** *this*
+
+___
+
+###  prependListener
+
+▸ **prependListener**(`event`: string | symbol, `listener`: function): *this*
+
+*Inherited from void*
+
+*Overrides void*
+
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:14
+
+**Parameters:**
+
+▪ **event**: *string | symbol*
+
+▪ **listener**: *function*
+
+▸ (...`args`: any[]): *void*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`...args` | any[] |
+
+**Returns:** *this*
+
+___
+
+###  prependOnceListener
+
+▸ **prependOnceListener**(`event`: string | symbol, `listener`: function): *this*
+
+*Inherited from void*
+
+*Overrides void*
+
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:15
+
+**Parameters:**
+
+▪ **event**: *string | symbol*
+
+▪ **listener**: *function*
+
+▸ (...`args`: any[]): *void*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`...args` | any[] |
+
+**Returns:** *this*
+
+___
+
+###  rawListeners
+
+▸ **rawListeners**(`event`: string | symbol): *`Function`[]*
+
+*Inherited from void*
+
+*Overrides void*
+
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:22
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`event` | string \| symbol |
+
+**Returns:** *`Function`[]*
+
+___
+
+###  removeAllListeners
+
+▸ **removeAllListeners**(`event?`: string | symbol): *this*
+
+*Inherited from void*
+
+*Overrides void*
+
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:18
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`event?` | string \| symbol |
+
+**Returns:** *this*
+
+___
+
+###  removeListener
+
+▸ **removeListener**(`event`: string | symbol, `listener`: function): *this*
+
+*Inherited from void*
+
+*Overrides void*
+
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:16
+
+**Parameters:**
+
+▪ **event**: *string | symbol*
+
+▪ **listener**: *function*
+
+▸ (...`args`: any[]): *void*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`...args` | any[] |
+
+**Returns:** *this*
 
 ___
 
 ###  set
 
-▸ **set**(`doc`: `DataEntity`): *void*
+▸ **set**(`key`: string, `value`: `T`): *void*
 
-*Defined in [cached-state-storage/index.ts:40](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L40)*
+*Defined in [cached-state-storage/index.ts:38](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L38)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`doc` | `DataEntity` |
+`key` | string |
+`value` | `T` |
 
 **Returns:** *void*
 
 ___
 
-###  shutdown
+###  setMaxListeners
 
-▸ **shutdown**(): *void*
+▸ **setMaxListeners**(`n`: number): *this*
 
-*Defined in [cached-state-storage/index.ts:73](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L73)*
+*Inherited from void*
 
-**Returns:** *void*
+*Overrides void*
+
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:19
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`n` | number |
+
+**Returns:** *this*
 
 ___
 
 ###  values
 
-▸ **values**(): *`DataEntity<object>`[]*
+▸ **values**(`fn`: [ValuesFn](../overview.md#valuesfn)‹*`T`*›): *`Promise<void>`*
 
-*Defined in [cached-state-storage/index.ts:62](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L62)*
+*Defined in [cached-state-storage/index.ts:51](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L51)*
 
-**Returns:** *`DataEntity<object>`[]*
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`fn` | [ValuesFn](../overview.md#valuesfn)‹*`T`*› |
+
+**Returns:** *`Promise<void>`*
+
+___
+
+### `Static` listenerCount
+
+▸ **listenerCount**(`emitter`: `EventEmitter`, `event`: string | symbol): *number*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:8
+
+**`deprecated`** since v4.0.0
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`emitter` | `EventEmitter` |
+`event` | string \| symbol |
+
+**Returns:** *number*

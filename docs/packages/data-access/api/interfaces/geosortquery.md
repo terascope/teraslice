@@ -9,9 +9,9 @@ sidebar_label: GeoSortQuery
 
 * **GeoSortQuery**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [_geo_distance](geosortquery.md#_geo_distance)
 
@@ -21,7 +21,7 @@ sidebar_label: GeoSortQuery
 
 • **_geo_distance**: *object*
 
-*Defined in [interfaces.ts:36](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-access/src/interfaces.ts#L36)*
+*Defined in [interfaces.ts:35](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/interfaces.ts#L35)*
 
 #### Type declaration:
 

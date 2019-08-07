@@ -11,9 +11,9 @@ an encoding focused interfaces
 
 * **EncodingConfig**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [_encoding](encodingconfig.md#optional-_encoding)
 * [_op](encodingconfig.md#optional-_op)
@@ -24,7 +24,7 @@ an encoding focused interfaces
 
 • **_encoding**? : *[DataEncoding](../overview.md#dataencoding)*
 
-*Defined in [data-entity.ts:225](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/data-entity.ts#L225)*
+*Defined in [data-entity.ts:225](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/data-entity.ts#L225)*
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **_op**? : *undefined | string*
 
-*Defined in [data-entity.ts:224](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/utils/src/data-entity.ts#L224)*
+*Defined in [data-entity.ts:224](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/data-entity.ts#L224)*

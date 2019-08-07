@@ -9,9 +9,9 @@ sidebar_label: WildcardQuery
 
 * **WildcardQuery**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [wildcard](wildcardquery.md#wildcard)
 
@@ -21,7 +21,7 @@ sidebar_label: WildcardQuery
 
 • **wildcard**: *object*
 
-*Defined in [translator/interfaces.ts:47](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/interfaces.ts#L47)*
+*Defined in [translator/interfaces.ts:74](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/interfaces.ts#L74)*
 
 #### Type declaration:
 

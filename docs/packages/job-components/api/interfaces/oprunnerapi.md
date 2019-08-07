@@ -9,9 +9,9 @@ sidebar_label: OpRunnerAPI
 
 * **OpRunnerAPI**
 
-### Index
+## Index
 
-#### Methods
+### Methods
 
 * [getClient](oprunnerapi.md#getclient)
 
@@ -21,7 +21,7 @@ sidebar_label: OpRunnerAPI
 
 ▸ **getClient**(`config`: [GetClientConfig](getclientconfig.md), `type`: string): *any*
 
-*Defined in [interfaces/context.ts:102](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/interfaces/context.ts#L102)*
+*Defined in [interfaces/context.ts:102](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L102)*
 
 **Parameters:**
 

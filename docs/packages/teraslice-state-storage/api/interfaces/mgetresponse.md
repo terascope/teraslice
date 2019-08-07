@@ -9,9 +9,9 @@ sidebar_label: MGetResponse
 
 * **MGetResponse**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [docs](mgetresponse.md#docs)
 
@@ -21,4 +21,4 @@ sidebar_label: MGetResponse
 
 • **docs**: *[MGetDoc](mgetdoc.md)[]*
 
-*Defined in [interfaces.ts:44](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-state-storage/src/interfaces.ts#L44)*
+*Defined in [interfaces.ts:43](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/interfaces.ts#L43)*

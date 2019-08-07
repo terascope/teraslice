@@ -9,9 +9,9 @@ sidebar_label: TerafoundationConfig
 
 * **TerafoundationConfig**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [connectors](terafoundationconfig.md#connectors)
 
@@ -21,4 +21,4 @@ sidebar_label: TerafoundationConfig
 
 • **connectors**: *object*
 
-*Defined in [interfaces/context.ts:52](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/interfaces/context.ts#L52)*
+*Defined in [interfaces/context.ts:52](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L52)*

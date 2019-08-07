@@ -21,9 +21,9 @@ sidebar_label: TermLikeAST
 
   * [Term](term.md)
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [field](termlikeast.md#field)
 * [type](termlikeast.md#type)
@@ -34,7 +34,7 @@ sidebar_label: TermLikeAST
 
 • **field**: *[Field](../overview.md#field)*
 
-*Defined in [parser/interfaces.ts:25](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L25)*
+*Defined in [parser/interfaces.ts:25](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L25)*
 
 ___
 
@@ -42,4 +42,4 @@ ___
 
 • **type**: *[TermLikeType](../overview.md#termliketype)*
 
-*Defined in [parser/interfaces.ts:24](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/parser/interfaces.ts#L24)*
+*Defined in [parser/interfaces.ts:24](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L24)*

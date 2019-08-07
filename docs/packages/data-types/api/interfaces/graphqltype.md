@@ -9,9 +9,9 @@ sidebar_label: GraphQLType
 
 * **GraphQLType**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [custom_type](graphqltype.md#optional-custom_type)
 * [type](graphqltype.md#type)
@@ -22,7 +22,7 @@ sidebar_label: GraphQLType
 
 • **custom_type**? : *undefined | string*
 
-*Defined in [interfaces.ts:141](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-types/src/interfaces.ts#L141)*
+*Defined in [interfaces.ts:111](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/interfaces.ts#L111)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **type**: *string*
 
-*Defined in [interfaces.ts:140](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-types/src/interfaces.ts#L140)*
+*Defined in [interfaces.ts:110](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/interfaces.ts#L110)*

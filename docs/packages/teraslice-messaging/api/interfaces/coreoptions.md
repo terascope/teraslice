@@ -13,9 +13,9 @@ sidebar_label: CoreOptions
 
   * [ServerOptions](serveroptions.md)
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [actionTimeout](coreoptions.md#actiontimeout)
 * [logger](coreoptions.md#optional-logger)
@@ -27,7 +27,7 @@ sidebar_label: CoreOptions
 
 • **actionTimeout**: *number*
 
-*Defined in [messenger/interfaces.ts:7](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/interfaces.ts#L7)*
+*Defined in [messenger/interfaces.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L7)*
 
 ___
 
@@ -35,7 +35,7 @@ ___
 
 • **logger**? : *`Logger`*
 
-*Defined in [messenger/interfaces.ts:8](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/interfaces.ts#L8)*
+*Defined in [messenger/interfaces.ts:8](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L8)*
 
 ___
 
@@ -43,4 +43,4 @@ ___
 
 • **networkLatencyBuffer**? : *undefined | number*
 
-*Defined in [messenger/interfaces.ts:6](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/messenger/interfaces.ts#L6)*
+*Defined in [messenger/interfaces.ts:6](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L6)*

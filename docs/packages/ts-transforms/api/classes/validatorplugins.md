@@ -13,9 +13,9 @@ sidebar_label: ValidatorPlugins
 
 * [PluginClassType](../interfaces/pluginclasstype.md)
 
-### Index
+## Index
 
-#### Methods
+### Methods
 
 * [init](validatorplugins.md#init)
 
@@ -25,6 +25,6 @@ sidebar_label: ValidatorPlugins
 
 ▸ **init**(): *object*
 
-*Defined in [operations/lib/validations/validator.ts:36](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/operations/lib/validations/validator.ts#L36)*
+*Defined in [operations/lib/validations/validator.ts:36](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/operations/lib/validations/validator.ts#L36)*
 
 **Returns:** *object*

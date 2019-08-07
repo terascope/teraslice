@@ -9,9 +9,9 @@ sidebar_label: GeoQuery
 
 * **GeoQuery**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [geo_bounding_box](geoquery.md#optional-geo_bounding_box)
 * [geo_distance](geoquery.md#optional-geo_distance)
@@ -22,7 +22,7 @@ sidebar_label: GeoQuery
 
 • **geo_bounding_box**? : *undefined | object*
 
-*Defined in [translator/interfaces.ts:22](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/interfaces.ts#L22)*
+*Defined in [translator/interfaces.ts:32](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/interfaces.ts#L32)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **geo_distance**? : *undefined | object*
 
-*Defined in [translator/interfaces.ts:28](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/interfaces.ts#L28)*
+*Defined in [translator/interfaces.ts:38](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/interfaces.ts#L38)*

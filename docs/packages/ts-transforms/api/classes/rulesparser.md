@@ -9,13 +9,13 @@ sidebar_label: RulesParser
 
 * **RulesParser**
 
-### Index
+## Index
 
-#### Constructors
+### Constructors
 
 * [constructor](rulesparser.md#constructor)
 
-#### Methods
+### Methods
 
 * [parse](rulesparser.md#parse)
 
@@ -25,7 +25,7 @@ sidebar_label: RulesParser
 
 \+ **new RulesParser**(`configList`: [OperationConfigInput](../overview.md#operationconfiginput)[], `logger`: `Logger`): *[RulesParser](rulesparser.md)*
 
-*Defined in [loader/rules-parser.ts:10](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/loader/rules-parser.ts#L10)*
+*Defined in [loader/rules-parser.ts:10](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/loader/rules-parser.ts#L10)*
 
 **Parameters:**
 
@@ -42,6 +42,6 @@ Name | Type |
 
 ▸ **parse**(): *[OperationConfig](../overview.md#operationconfig)[]*
 
-*Defined in [loader/rules-parser.ts:16](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/ts-transforms/src/loader/rules-parser.ts#L16)*
+*Defined in [loader/rules-parser.ts:16](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/loader/rules-parser.ts#L16)*
 
 **Returns:** *[OperationConfig](../overview.md#operationconfig)[]*

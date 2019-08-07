@@ -9,9 +9,9 @@ sidebar_label: ExistsQuery
 
 * **ExistsQuery**
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [exists](existsquery.md#exists)
 
@@ -21,6 +21,6 @@ sidebar_label: ExistsQuery
 
 • **exists**: *object*
 
-*Defined in [translator/interfaces.ts:16](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/xlucene-evaluator/src/translator/interfaces.ts#L16)*
+*Defined in [translator/interfaces.ts:26](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/interfaces.ts#L26)*
 
 #### Type declaration:

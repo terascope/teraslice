@@ -11,18 +11,18 @@ sidebar_label: KeywordCaseInsensitive
 
   * **KeywordCaseInsensitive**
 
-### Index
+## Index
 
-#### Constructors
+### Constructors
 
 * [constructor](keywordcaseinsensitive.md#constructor)
 
-#### Properties
+### Properties
 
 * [config](keywordcaseinsensitive.md#protected-config)
 * [field](keywordcaseinsensitive.md#protected-field)
 
-#### Methods
+### Methods
 
 * [_formatGql](keywordcaseinsensitive.md#protected-_formatgql)
 * [toESMapping](keywordcaseinsensitive.md#toesmapping)
@@ -33,18 +33,18 @@ sidebar_label: KeywordCaseInsensitive
 
 ###  constructor
 
-\+ **new KeywordCaseInsensitive**(`field`: string, `config`: [Type](../overview.md#type)): *[KeywordCaseInsensitive](keywordcaseinsensitive.md)*
+\+ **new KeywordCaseInsensitive**(`field`: string, `config`: [FieldTypeConfig](../overview.md#fieldtypeconfig)): *[KeywordCaseInsensitive](keywordcaseinsensitive.md)*
 
 *Inherited from [BaseType](basetype.md).[constructor](basetype.md#constructor)*
 
-*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-types/src/types/versions/base-type.ts#L7)*
+*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/base-type.ts#L7)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `field` | string |
-`config` | [Type](../overview.md#type) |
+`config` | [FieldTypeConfig](../overview.md#fieldtypeconfig) |
 
 **Returns:** *[KeywordCaseInsensitive](keywordcaseinsensitive.md)*
 
@@ -52,11 +52,11 @@ Name | Type |
 
 ### `Protected` config
 
-• **config**: *[Type](../overview.md#type)*
+• **config**: *[FieldTypeConfig](../overview.md#fieldtypeconfig)*
 
 *Inherited from [BaseType](basetype.md).[config](basetype.md#protected-config)*
 
-*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-types/src/types/versions/base-type.ts#L7)*
+*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/base-type.ts#L7)*
 
 ___
 
@@ -66,25 +66,26 @@ ___
 
 *Inherited from [BaseType](basetype.md).[field](basetype.md#protected-field)*
 
-*Defined in [types/versions/base-type.ts:6](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-types/src/types/versions/base-type.ts#L6)*
+*Defined in [types/versions/base-type.ts:6](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/base-type.ts#L6)*
 
 ## Methods
 
 ### `Protected` _formatGql
 
-▸ **_formatGql**(`type`: string): *string*
+▸ **_formatGql**(`type`: string, `customType?`: undefined | string): *object*
 
 *Inherited from [BaseType](basetype.md).[_formatGql](basetype.md#protected-_formatgql)*
 
-*Defined in [types/versions/base-type.ts:19](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-types/src/types/versions/base-type.ts#L19)*
+*Defined in [types/versions/base-type.ts:19](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/base-type.ts#L19)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `type` | string |
+`customType?` | undefined \| string |
 
-**Returns:** *string*
+**Returns:** *object*
 
 ___
 
@@ -94,7 +95,7 @@ ___
 
 *Overrides [BaseType](basetype.md).[toESMapping](basetype.md#abstract-toesmapping)*
 
-*Defined in [types/versions/v1/keyword-case-insensitive.ts:6](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-types/src/types/versions/v1/keyword-case-insensitive.ts#L6)*
+*Defined in [types/versions/v1/keyword-case-insensitive.ts:6](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/v1/keyword-case-insensitive.ts#L6)*
 
 **Parameters:**
 
@@ -112,7 +113,7 @@ ___
 
 *Overrides [BaseType](basetype.md).[toGraphQL](basetype.md#abstract-tographql)*
 
-*Defined in [types/versions/v1/keyword-case-insensitive.ts:24](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-types/src/types/versions/v1/keyword-case-insensitive.ts#L24)*
+*Defined in [types/versions/v1/keyword-case-insensitive.ts:24](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/v1/keyword-case-insensitive.ts#L24)*
 
 **Returns:** *object*
 
@@ -124,6 +125,6 @@ ___
 
 *Overrides [BaseType](basetype.md).[toXlucene](basetype.md#abstract-toxlucene)*
 
-*Defined in [types/versions/v1/keyword-case-insensitive.ts:28](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/data-types/src/types/versions/v1/keyword-case-insensitive.ts#L28)*
+*Defined in [types/versions/v1/keyword-case-insensitive.ts:28](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/v1/keyword-case-insensitive.ts#L28)*
 
 **Returns:** *object*

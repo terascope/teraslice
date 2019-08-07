@@ -13,9 +13,9 @@ sidebar_label: SliceRequest
 
 ● \[▪ **prop**: *string*\]: any
 
-### Index
+## Index
 
-#### Properties
+### Properties
 
 * [request_worker](slicerequest.md#optional-request_worker)
 
@@ -25,4 +25,4 @@ sidebar_label: SliceRequest
 
 • **request_worker**? : *undefined | string*
 
-*Defined in [execution-controller/interfaces.ts:54](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L54)*
+*Defined in [execution-controller/interfaces.ts:54](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L54)*

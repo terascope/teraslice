@@ -9,9 +9,9 @@ sidebar_label: AssetsAPI
 
 * **AssetsAPI**
 
-### Index
+## Index
 
-#### Methods
+### Methods
 
 * [getPath](assetsapi.md#getpath)
 
@@ -21,7 +21,7 @@ sidebar_label: AssetsAPI
 
 ▸ **getPath**(`name`: string): *`Promise<string>`*
 
-*Defined in [interfaces/context.ts:112](https://github.com/terascope/teraslice/blob/6aab1cd2/packages/job-components/src/interfaces/context.ts#L112)*
+*Defined in [interfaces/context.ts:112](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L112)*
 
 **Parameters:**
 
