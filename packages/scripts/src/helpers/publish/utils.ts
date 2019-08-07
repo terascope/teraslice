@@ -8,9 +8,9 @@ export async function shouldNPMPublish(pkgInfo: PackageInfo, tag?: string): Prom
     const remote = await getLatestNPMVersion(pkgInfo.name);
     const local = pkgInfo.version;
     if (semver.gt(local, remote)) {
-        if (tag) {
+        if (tag === 'tag') {
             if (pkgInfo.terascope.main) {
-                signale.info(`* publishing main package ${pkgInfo.name}@v${remote}->v${local}`);
+                signale.info(`* publishing main package ${pkgInfo.name}@${remote}->${local}`);
                 return true;
             }
 
@@ -18,7 +18,12 @@ export async function shouldNPMPublish(pkgInfo: PackageInfo, tag?: string): Prom
             return false;
         }
 
-        signale.info(`* publishing package ${pkgInfo.name}@v${remote}->v${local}`);
+        if (pkgInfo.terascope.main) {
+            signale.info(`* skipping main package ${pkgInfo.name}@${remote}->${local} until tag release`);
+            return false;
+        }
+
+        signale.info(`* publishing package ${pkgInfo.name}@${remote}->${local}`);
         return true;
     }
 

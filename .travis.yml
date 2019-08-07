@@ -87,7 +87,7 @@ jobs:
       deploy:
         - provider: script
           skip_cleanup: true
-          script: yarn ts-scripts publish npm
+          script: yarn ts-scripts publish -t tag npm
           on:
             all_branches: true
             tags: true
