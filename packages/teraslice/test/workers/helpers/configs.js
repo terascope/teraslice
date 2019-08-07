@@ -72,7 +72,8 @@ const newConfig = (options = {}) => {
         lifecycle,
         max_retries: maxRetries,
         operations,
-        performance_metrics: false,
+        // this will give it a 20% it will be enabled
+        performance_metrics: Math.random() < 0.2,
         recovered_execution: recoveredExecution,
         recovered_slice_type: recoveredSliceType,
         ex_id: newId('ex-id', true),

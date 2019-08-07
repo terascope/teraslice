@@ -3,107 +3,114 @@
 'use strict';
 
 const { EventEmitter } = require('events');
-const { makeISODate, pDelay, debugLogger } = require('@terascope/utils');
+const { pDelay, debugLogger, isTest } = require('@terascope/utils');
 
 const _logger = debugLogger('metrics');
 
 class Metrics extends EventEmitter {
-    constructor({ enabled = true, logger, statsInterval = 5000 }) {
+    constructor({ logger } = {}) {
         super();
-        this.enabled = enabled;
-        this.logger = logger
+
+        this._logger = logger
             ? logger.child({
                 module: 'performance:metrics'
             })
             : _logger;
-        this.statsInterval = statsInterval;
-        this.intervals = [];
-        if (this.enabled) {
-            this.emitter = require('@newrelic/native-metrics')({
-                timeout: statsInterval
-            });
-            this.logger.info('performance metrics are enabled');
-        } else {
-            this.logger.info('performance metrics are disabled');
+
+        this.eventLoopInterval = isTest ? 100 : 5000;
+        this._intervals = [];
+        this._typesCollectedAt = {};
+
+        // never cause an unwanted error
+        try {
+            this.gc = require('gc-stats')();
+        } catch (err) {
+            this._logger.error(err, 'Failure to construct gc-stats');
+        }
+
+        try {
+            this.eventLoopStats = require('event-loop-stats');
+        } catch (err) {
+            this._logger.error(err, 'Failure to construct gc-stats');
         }
     }
 
     async initialize() {
-        if (!this.enabled) return;
+        const gcEnabled = this.gc != null;
+        const loopEnabled = this.eventLoopStats != null;
 
-        const { gcEnabled, loopEnabled, usageEnabled } = this.emitter;
-        this.logger.info('starting performance metrics', {
+        this._logger.info('initializing performance metrics', {
             gcEnabled,
-            loopEnabled,
-            usageEnabled
+            loopEnabled
         });
 
         if (gcEnabled) {
-            this.intervals.push(
-                setInterval(() => {
-                    this._emitGCMetrics();
-                }, this.statsInterval)
-            );
-        }
+            // https://github.com/dainis/node-gcstats#property-insights
+            const typesToName = {
+                1: 'Scavenge',
+                2: 'MarkSweepCompact',
+                4: 'IncrementalMarking',
+                8: 'WeakPhantomCallbackProcessing',
+                15: 'All'
+            };
 
-        if (usageEnabled) {
-            this.emitter.on('usage', (usage) => {
-                this._emitUsageMetrics(usage);
+            this.gc.on('stats', (metrics) => {
+                // never cause an unwanted error
+                if (!metrics) {
+                    this._logger.warn('invalid metrics received for gc stats', metrics);
+                    return;
+                }
+
+                const typeName = typesToName[metrics.gctype];
+                this._emitMetric('gc-stats', Object.assign({ typeName }, metrics));
             });
         }
 
         if (loopEnabled) {
-            this.intervals.push(
+            // https://github.com/bripkens/event-loop-stats#property-insights
+            this._intervals.push(
                 setInterval(() => {
-                    this._emitLoopMetrics();
-                }, this.statsInterval)
+                    // never cause an unwanted error
+                    let metrics;
+                    try {
+                        metrics = this.eventLoopStats.sense();
+                    } catch (err) {
+                        this._logger.error(err, 'failure getting for event-loop-stats');
+                        return;
+                    }
+
+                    if (!metrics) {
+                        this._logger.warn('invalid metrics received for event-loop-stats', metrics);
+                        return;
+                    }
+
+                    this._emitMetric('event-loop-stats', metrics);
+                }, this.eventLoopInterval)
             );
         }
     }
 
     async shutdown() {
-        this.intervals.forEach(clearInterval);
-        this.intervals = [];
-        if (this.emitter != null) {
-            this.emitter.unbind();
-        }
-        this.removeAllListeners();
-    }
-
-    _emitUsageMetrics(usage) {
-        this._emitMetric('usage', usage);
-    }
-
-    _emitGCMetrics() {
-        const gcMetrics = this.emitter.getGCMetrics();
-        for (const [type, metric] of Object.entries(gcMetrics)) {
-            this._emitMetric('gc', {
-                type_id: metric.type_name,
-                type_name: type,
-                metrics: metric.metrics
-            });
+        try {
+            this._intervals.forEach(clearInterval);
+            this._intervals = [];
+            this.removeAllListeners();
+            this._typesCollectedAt = {};
+        } catch (err) {
+            this.logger.debug(err, 'failure shutting down metrics');
         }
     }
 
-    _emitLoopMetrics() {
-        const loopMetrics = this.emitter.getLoopMetrics();
-        this._emitMetric('loop', {
-            total_time: loopMetrics.usage.total,
-            min_time: loopMetrics.usage.min,
-            max_time: loopMetrics.usage.max,
-            sum_of_squares: loopMetrics.usage.sumOfSquares,
-            count: loopMetrics.usage.count
-        });
-    }
-
-    _emitMetric(type, data) {
+    _emitMetric(type, metrics) {
+        const lastCollectedAt = this._typesCollectedAt[type] || Date.now();
         const msg = {
             type,
-            timestamp: makeISODate(),
-            data
+            timeSinceLast: Date.now() - lastCollectedAt,
+            metrics
         };
+        this._typesCollectedAt[type] = Date.now();
         this.emit('metric', msg);
-        this.logger.info(msg, `performance metrics for type ${type}`);
+        this._logger.info(msg, `${type} performance metrics`);
     }
 }
 
