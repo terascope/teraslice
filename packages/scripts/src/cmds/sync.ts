@@ -25,7 +25,7 @@ const cmd: CommandModule = {
     handler(argv) {
         const pkgInfos = argv.packages as PackageInfo[];
         const verify = Boolean(argv.verify);
-        if (pkgInfos) {
+        if (pkgInfos && pkgInfos.length) {
             return syncPackages(pkgInfos, { verify });
         }
         return syncAll({ verify });

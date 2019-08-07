@@ -1,6 +1,6 @@
 <!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/ui-data-access/overview.md -->
 
-# Ui Data Access
+# UI Data Access
 
 > A teraserver ui plugin for data-access
 
