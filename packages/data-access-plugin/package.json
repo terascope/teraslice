@@ -15,7 +15,8 @@
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "bin": {
-        "create-superadmin": "./bin/create-superadmin.js"
+        "create-superadmin": "./bin/create-superadmin.js",
+        "simple-migrate": "./bin/simple-migrate.js"
     },
     "scripts": {
         "build": "tsc --build --pretty",

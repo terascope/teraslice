@@ -1,7 +1,7 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import * as utils from './utils';
-import { IndexConfig } from './interfaces';
+import { IndexConfig, MigrateIndexOptions } from './interfaces';
 
 const _loggers = new WeakMap<IndexConfig, ts.Logger>();
 
@@ -160,17 +160,19 @@ export default class IndexManager {
         const { timeout, config, previousVersion, previousName, previousNamespace } = options;
         utils.validateIndexConfig(config);
 
-        const previousConfig = ts.cloneDeep(config);
+        const logger = this._logger(config);
+        let previousConfig = ts.cloneDeep(config);
 
         if (!config.index_schema || !previousConfig.index_schema) {
-            console.error('Missing index_schema on config, skipping migration');
-            return;
+            logger.warn('Missing index_schema on config, skipping migration');
+            return false;
         }
 
         if (config.index_schema.timeseries || config.index_schema.template) {
-            console.error('Migrating timeseries or template indexes are currently not supported');
-            return;
+            logger.warn('Migrating timeseries or template indexes are currently not supported');
+            return false;
         }
+        const newIndexName = this.formatIndexName(config);
 
         if (previousName) {
             previousConfig.name = previousName;
@@ -180,21 +182,34 @@ export default class IndexManager {
         }
         if (previousVersion) {
             previousConfig.index_schema.version = previousVersion;
+        } else {
+            // try and decrement the to last version
+            const _previousConfig = ts.cloneDeep(previousConfig);
+            _previousConfig.index_schema!.version!--;
+            if (_previousConfig.index_schema!.version! > 0) {
+                const _indexName = this.formatIndexName(_previousConfig);
+                const previousExists = await this.exists(_indexName);
+                const newExists = await this.exists(newIndexName);
+
+                if (previousExists && !newExists) {
+                    previousConfig = _previousConfig;
+                }
+            }
         }
 
-        const newIndexName = this.formatIndexName(config);
         const previousIndexName = this.formatIndexName(previousConfig);
 
         await this.indexSetup(config);
 
         if (newIndexName === previousIndexName) {
-            console.error(
+            logger.warn(
                 `No changes detected for index ${newIndexName},`,
                 'if there are mapping changes make sure to bump index_schema.version'
             );
-            return;
+            return false;
         }
 
+        logger.warn(`Reindexing the index ${previousIndexName} to ${newIndexName}`);
         return this.client.reindex({
             timeout,
             waitForActiveShards: 'all',
@@ -338,12 +353,4 @@ export default class IndexManager {
         _loggers.set(config, newLogger);
         return newLogger;
     }
-}
-
-export interface MigrateIndexOptions {
-    config: IndexConfig;
-    timeout?: string;
-    previousNamespace?: string;
-    previousName?: string;
-    previousVersion?: number;
 }

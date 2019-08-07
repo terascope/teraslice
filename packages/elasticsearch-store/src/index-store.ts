@@ -270,6 +270,11 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         return docs.map(this._toRecord);
     }
 
+    /** @see IndexManager#migrateIndex */
+    migrateIndex(options: i.MigrateIndexStoreOptions) {
+        return this.manager.migrateIndex({ ...options, config: this.config });
+    }
+
     /**
      * Refreshes the current index
      */

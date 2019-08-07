@@ -1,8 +1,8 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { DataTypeConfig, LATEST_VERSION } from '@terascope/data-types';
-import { CreateRecordInput, UpdateRecordInput } from 'elasticsearch-store';
 import { CachedQueryAccess } from 'xlucene-evaluator';
+import { DataTypeConfig, LATEST_VERSION } from '@terascope/data-types';
+import { CreateRecordInput, UpdateRecordInput, MigrateIndexStoreOptions } from 'elasticsearch-store';
 import * as models from './models';
 import * as i from './interfaces';
 
@@ -55,6 +55,20 @@ export class ACLManager {
             this._views.shutdown(),
             this._dataTypes.shutdown(),
         ]);
+    }
+
+    async simpleMigrate() {
+        const results: ts.AnyObject = {};
+        results['dataTypes'] = await this._dataTypes.store.migrateIndex({});
+        results['roles'] = await this._roles.store.migrateIndex({});
+        results['users'] = await this._users.store.migrateIndex({});
+        results['spaces'] = await this._spaces.store.migrateIndex({});
+        results['views'] = await this._views.store.migrateIndex({});
+        return results;
+    }
+
+    async migrateIndex(model: i.ModelName, options: MigrateIndexStoreOptions) {
+        return this[`_${model}`].store.migrateIndex(options);
     }
 
     /**

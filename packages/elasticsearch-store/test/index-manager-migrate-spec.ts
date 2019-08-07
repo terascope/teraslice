@@ -90,7 +90,6 @@ describe('IndexManager->migrateIndex()', () => {
             await expect(
                 indexManager.migrateIndex({
                     config: newConfig,
-                    previousVersion: previousConfig.version,
                 })
             ).resolves.toMatchObject({
                 total: 10,
@@ -98,6 +97,12 @@ describe('IndexManager->migrateIndex()', () => {
             });
 
             await expect(indexManager.exists(newIndex)).resolves.toBeTrue();
+
+            await expect(
+                indexManager.migrateIndex({
+                    config: newConfig,
+                })
+            ).resolves.toBeNil();
         });
     });
 });
