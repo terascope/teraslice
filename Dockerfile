@@ -1,5 +1,5 @@
 # All images inherit from this
-FROM node:10.16.1-alpine AS base
+FROM node:10.16.2-alpine AS base
 
 # dependencies that exist in all layers
 RUN apk --no-cache add \
