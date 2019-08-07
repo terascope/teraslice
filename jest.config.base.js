@@ -1,7 +1,7 @@
 'use strict';
 
+const fs = require('fs');
 const path = require('path');
-const fs = require('fs-extra');
 const { jest: lernaAliases } = require('lerna-alias');
 
 module.exports = (projectDir) => {
@@ -9,7 +9,7 @@ module.exports = (projectDir) => {
     const workspaceName = name === 'e2e' ? 'e2e' : 'packages';
     const rootDir = name === 'e2e' ? '../' : '../../';
     const packageRoot = name === 'e2e' ? '<rootDir>/e2e' : `<rootDir>/${workspaceName}/${name}`;
-    const isTypescript = fs.pathExistsSync(path.join(projectDir, 'tsconfig.json'));
+    const isTypescript = fs.existsSync(path.join(projectDir, 'tsconfig.json'));
 
     const config = {
         rootDir,
@@ -17,7 +17,7 @@ module.exports = (projectDir) => {
         displayName: name,
         verbose: true,
         testEnvironment: 'node',
-        setupFilesAfterEnv: ['jest-extended', '<rootDir>/scripts/add-test-env.js'],
+        setupFilesAfterEnv: ['jest-extended'],
         testMatch: [`${packageRoot}/test/**/*-spec.{ts,js}`, `${packageRoot}/test/*-spec.{ts,js}`],
         testPathIgnorePatterns: [
             '<rootDir>/assets',
@@ -37,15 +37,15 @@ module.exports = (projectDir) => {
         watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname']
     };
 
-    if (fs.pathExistsSync(path.join(projectDir, 'test/global.setup.js'))) {
+    if (fs.existsSync(path.join(projectDir, 'test/global.setup.js'))) {
         config.globalSetup = `${packageRoot}/test/global.setup.js`;
     }
 
-    if (fs.pathExistsSync(path.join(projectDir, 'test/global.teardown.js'))) {
+    if (fs.existsSync(path.join(projectDir, 'test/global.teardown.js'))) {
         config.globalTeardown = `${packageRoot}/test/global.teardown.js`;
     }
 
-    if (fs.pathExistsSync(path.join(projectDir, 'test/test.setup.js'))) {
+    if (fs.existsSync(path.join(projectDir, 'test/test.setup.js'))) {
         config.setupFilesAfterEnv.push(`${packageRoot}/test/test.setup.js`);
     }
 
@@ -68,17 +68,17 @@ module.exports = (projectDir) => {
 
     config.roots = [`${packageRoot}/test`];
 
-    if (fs.pathExistsSync(path.join(projectDir, 'lib'))) {
+    if (fs.existsSync(path.join(projectDir, 'lib'))) {
         config.roots.push(`${packageRoot}/lib`);
-    } else if (fs.pathExistsSync(path.join(projectDir, 'index.js'))) {
+    } else if (fs.existsSync(path.join(projectDir, 'index.js'))) {
         config.roots.push(`${packageRoot}`);
     }
 
-    if (fs.pathExistsSync(path.join(projectDir, 'src'))) {
+    if (fs.existsSync(path.join(projectDir, 'src'))) {
         config.roots.push(`${packageRoot}/src`);
     }
 
-    if (fs.pathExistsSync(path.join(projectDir, 'peg'))) {
+    if (fs.existsSync(path.join(projectDir, 'peg'))) {
         config.watchPathIgnorePatterns.push(`${packageRoot}/peg/*engine*.js`);
         config.roots.push(`${packageRoot}/peg`);
     }

@@ -1,7 +1,7 @@
 import path from 'path';
 import execa from 'execa';
 import fse from 'fs-extra';
-import { debugLogger, pDelay, isString } from '@terascope/utils';
+import { debugLogger, pDelay, isString, get } from '@terascope/utils';
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
 import signale from './signale';
@@ -106,8 +106,13 @@ export async function setup(): Promise<void> {
     await yarnRun('setup');
 }
 
-export async function yarnRun(script: string, args: string[] = [], cwd?: string): Promise<any> {
-    return fork({ cmd: 'yarn', args: ['run', script, ...args], cwd });
+export async function yarnRun(script: string, args: string[] = [], cwd?: string) {
+    const dir = cwd || getRootDir();
+    const pkgJSON = await fse.readJSON(path.join(dir, 'package.json'));
+    const hasScript = Boolean(get(pkgJSON, ['scripts', script]));
+    if (!hasScript) return;
+
+    await fork({ cmd: 'yarn', args: ['run', script, ...args], cwd: dir });
 }
 
 export async function runJest(cwd: string, argsMap: ArgsMap, env?: ExecEnv, extraArgs?: string[]): Promise<void> {
@@ -133,7 +138,7 @@ export async function runJest(cwd: string, argsMap: ArgsMap, env?: ExecEnv, extr
 export async function dockerPull(image: string): Promise<void> {
     await exec({
         cmd: 'docker',
-        args: ['pull', image],
+        args: ['pull', '-q', image],
     });
 }
 
@@ -152,6 +157,11 @@ export async function getContainerInfo(name: string): Promise<any> {
 
     if (!result) return null;
     return JSON.parse(result);
+}
+
+export async function remoteDockerImageExists(image: string): Promise<boolean> {
+    const result = await execa.command(`docker pull -q ${image}`, { reject: false });
+    return Boolean(result.stdout && result.exitCode === 0);
 }
 
 export type DockerRunOptions = {
@@ -248,30 +258,25 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
     };
 }
 
-export async function dockerBuild(target: string, cacheFrom: string[] = []): Promise<void> {
+export async function dockerBuild(tag: string, cacheFrom: string[] = [], target?: string): Promise<void> {
     const cacheFromArgs: string[] = [];
 
     cacheFrom.forEach(image => {
         cacheFromArgs.push('--cache-from', image);
     });
 
+    const targetArgs: string[] = target ? ['--target', target] : [];
+
     await fork({
         cmd: 'docker',
-        args: ['build', ...cacheFromArgs, '-t', target, '.'],
+        args: ['build', ...cacheFromArgs, ...targetArgs, '--tag', tag, '.'],
     });
 }
 
-export async function ensureDockerNetwork(name: string) {
-    const existsResult = await execa.command(`docker network ls --filter=name=${name} -q`);
-    const exists = existsResult.stdout && existsResult.exitCode === 0;
-    if (exists) {
-        logger.debug(`network ${name} exists`, existsResult);
-        return;
-    }
-
+export async function dockerPush(image: string): Promise<void> {
     await fork({
         cmd: 'docker',
-        args: ['network', 'create', '--attachable', name],
+        args: ['push', image],
     });
 }
 
@@ -292,7 +297,7 @@ export async function pgrep(name: string): Promise<string> {
 }
 
 export async function getCommitHash(): Promise<string> {
-    return exec({ cmd: 'git', args: ['rev-parse', 'HEAD'] });
+    return exec({ cmd: 'git', args: ['rev-parse', '--short', 'HEAD'] });
 }
 
 export async function getChangedFiles(...files: string[]) {
@@ -315,4 +320,31 @@ export function mapToArgs(input: ArgsMap): string[] {
         }
     }
     return args.filter(str => str != null && str !== '');
+}
+
+export async function getLatestNPMVersion(name: string): Promise<string> {
+    const subprocess = await execa('npm', ['info', name, 'version'], {
+        reject: false,
+    });
+    if (subprocess.exitCode > 0) return '0.0.0';
+
+    return subprocess.stdout;
+}
+
+export async function yarnPublish(pkgInfo: PackageInfo) {
+    await fork({
+        cmd: 'yarn',
+        args: ['publish', '--non-interactive', '--new-version', pkgInfo.version, '--no-git-tag-version'],
+        cwd: pkgInfo.dir,
+    });
+}
+
+export async function verifyNPMAuth() {
+    const subprocess = await execa('npm', ['whoami'], {
+        reject: false,
+    });
+
+    if (subprocess.exitCode > 0 || !Boolean(subprocess.stdout)) {
+        throw new Error('NPM is unauthenticated, run npm login');
+    }
 }

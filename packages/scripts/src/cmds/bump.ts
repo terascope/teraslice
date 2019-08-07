@@ -25,7 +25,7 @@ const cmd: CommandModule = {
             })
             .option('recursive', {
                 alias: 'deps',
-                description: 'Bump all of the child dependencies to change, (if the child depedency is teraslice it will skip it)',
+                description: "Bump all of the child dependencies to change, (ignores the monorepo's main package)",
                 default: false,
                 type: 'boolean',
             })
@@ -34,7 +34,7 @@ const cmd: CommandModule = {
                 description: 'Specify the release change for the version, see https://www.npmjs.com/package/semver',
                 type: 'string',
                 default: 'patch',
-                requiresArg: true,
+                demandOption: true,
                 choices: releaseChoices,
             })
             .positional('packages', {

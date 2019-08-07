@@ -1,6 +1,6 @@
 <!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/teraslice-cli/overview.md -->
 
-# Teraslice Cli
+# Teraslice CLI
 
 > Command line manager for teraslice jobs, assets, and cluster references.
 

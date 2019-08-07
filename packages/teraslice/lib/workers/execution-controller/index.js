@@ -4,7 +4,7 @@ const _ = require('lodash');
 const pWhilst = require('p-whilst');
 const Messaging = require('@terascope/teraslice-messaging');
 const {
-    TSError, get, pDelay, getFullErrorStack, isTest
+    TSError, get, pDelay, getFullErrorStack
 } = require('@terascope/utils');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
 const { makeStateStore, makeExStore } = require('../../cluster/storage');
@@ -56,20 +56,11 @@ class ExecutionController {
         this.executionAnalytics = new ExecutionAnalytics(context, executionContext, this.client);
 
         this.scheduler = new Scheduler(context, executionContext);
-        try {
-            this.metrics = new Metrics({
-                enabled: performanceMetrics,
-                logger,
-                statsInterval: isTest ? 500 : 5000
-            });
-        } catch (err) {
-            // this is a non-fatal error
-            logger.error(
-                new TSError(err, {
-                    reason: 'Failure constructing metrics'
-                })
-            );
-        }
+        this.metrics = performanceMetrics
+            ? new Metrics({
+                logger
+            })
+            : null;
 
         this.exId = executionContext.exId;
         this.workerId = workerId;
@@ -142,17 +133,8 @@ class ExecutionController {
 
         await this.server.start();
 
-        try {
-            if (this.metrics != null) {
-                await this.metrics.initialize();
-            }
-        } catch (err) {
-            // this is a non-fatal error
-            this.logger.error(
-                new TSError(err, {
-                    reason: 'Failure initializing metrics'
-                })
-            );
+        if (this.metrics != null) {
+            await this.metrics.initialize();
         }
 
         this.isInitialized = true;

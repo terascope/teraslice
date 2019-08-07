@@ -1,6 +1,6 @@
 <!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/ui-core/overview.md -->
 
-# Ui Core
+# UI Core
 
 > A teraserver ui framework
 

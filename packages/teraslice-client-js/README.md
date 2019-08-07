@@ -1,6 +1,6 @@
 <!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/teraslice-client-js/overview.md -->
 
-# Teraslice Client Js
+# Teraslice Client (JavaScript)
 
 > A Node.js client for teraslice jobs, assets, and cluster references.
 

@@ -1,5 +1,5 @@
 {
-    "name": "teraslice-e2e",
+    "name": "e2e",
     "version": "0.1.0",
     "private": true,
     "description": "Teraslice integration test suite",
@@ -33,7 +33,7 @@
         "fs-extra": "^8.1.0",
         "is-ci": "^2.0.0",
         "jest": "^24.8.0",
-        "jest-extended": "^0.11.1",
+        "jest-extended": "^0.11.2",
         "lodash": "^4.17.11",
         "ms": "^2.1.2",
         "nanoid": "^2.0.3",

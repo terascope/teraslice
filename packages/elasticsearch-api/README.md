@@ -1,6 +1,6 @@
 <!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/elasticsearch-api/overview.md -->
 
-# Elasticsearch Api
+# Elasticsearch API
 
 > Elasticsearch client api used across multiple services, handles retries and exponential backoff
 

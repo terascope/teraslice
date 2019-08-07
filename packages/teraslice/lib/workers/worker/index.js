@@ -1,9 +1,7 @@
 'use strict';
 
 const { ExecutionController, formatURL } = require('@terascope/teraslice-messaging');
-const {
-    get, getFullErrorStack, isFatalError, TSError, isTest
-} = require('@terascope/utils');
+const { get, getFullErrorStack, isFatalError } = require('@terascope/utils');
 const { makeStateStore, makeAnalyticsStore } = require('../../cluster/storage');
 const { generateWorkerId, makeLogger } = require('../helpers/terafoundation');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
@@ -39,20 +37,11 @@ class Worker {
 
         this.slice = new Slice(context, executionContext);
 
-        try {
-            this.metrics = new Metrics({
-                enabled: performanceMetrics,
-                logger,
-                statsInterval: isTest ? 500 : 5000
-            });
-        } catch (err) {
-            // this is a non-fatal error
-            logger.error(
-                new TSError(err, {
-                    reason: 'Failure constructing metrics'
-                })
-            );
-        }
+        this.metrics = performanceMetrics
+            ? new Metrics({
+                logger
+            })
+            : null;
 
         this.stores = {};
         this.executionContext = executionContext;
@@ -89,17 +78,8 @@ class Worker {
         // initialize the execution context next
         await this.executionContext.initialize();
 
-        try {
-            if (this.metrics != null) {
-                await this.metrics.initialize();
-            }
-        } catch (err) {
-            // this is a non-fatal error
-            this.logger.error(
-                new TSError(err, {
-                    reason: 'Failure initializing metrics'
-                })
-            );
+        if (this.metrics != null) {
+            await this.metrics.initialize();
         }
     }
 

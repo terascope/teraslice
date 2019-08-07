@@ -36,6 +36,9 @@ async function updateMainPkg(mainPkgInfo: PackageInfo, options: BumpPackageOptio
     await updatePkgJSON(mainPkgInfo, false);
 
     signale.log(`=> Updated ${mainPkgInfo.name} to version ${prevVersion} to ${newVersion}`);
+    if (mainPkgInfo.terascope.main) {
+        signale.note(`IMPORTANT: make sure create release of v${newVersion} after your PR gets merged`);
+    }
     return newVersion;
 }
 
@@ -66,7 +69,7 @@ async function updateDependent(mainPkgInfo: PackageInfo, pkgInfo: PackageInfo, o
     await updatePkgJSON(pkgInfo, false);
     signale.log(`---> Updated dependency ${pkgInfo.name}'s version of ${name} to ${newVersion}`);
 
-    if (options.recursive && isProdDep && pkgInfo.name !== 'teraslice') {
+    if (options.recursive && isProdDep && !pkgInfo.terascope.main) {
         await bumpPackage(pkgInfo, {
             release: 'patch',
             recursive: false,

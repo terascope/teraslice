@@ -1,8 +1,8 @@
 import fse from 'fs-extra';
 import path from 'path';
 import pkgUp from 'pkg-up';
-import { isPlainObject } from '@terascope/utils';
-import { PackageInfo } from './interfaces';
+import { isPlainObject, get } from '@terascope/utils';
+import { PackageInfo, RootPackageInfo } from './interfaces';
 import signale from './signale';
 
 export let rootDir: string | undefined;
@@ -13,12 +13,30 @@ export function getRootDir(cwd: string = process.cwd()): string {
         throw new Error('Unable to find root directory, run in the root of the repo');
     }
 
-    const pkg = fse.readJSONSync(rootPkgJSON);
-    if (pkg && pkg.root) {
+    if (_getRootInfo(rootPkgJSON) != null) {
         rootDir = path.dirname(rootPkgJSON);
         return rootDir;
     }
+
     return getRootDir(path.join(path.dirname(rootPkgJSON), '..'));
+}
+
+function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
+    const pkg = fse.readJSONSync(pkgJSONPath);
+    const isRoot = get(pkg, 'terascope.root', false);
+    if (!isRoot) return undefined;
+    return {
+        root: isRoot,
+        type: get(pkg, 'terascope.type', 'monorepo'),
+        docker: {
+            image: get(pkg, 'terascope.docker.registry', 'terascope/teraslice'),
+            cache_layers: get(pkg, 'terascope.docker.cache_layers', []),
+        },
+    };
+}
+
+export function getRootInfo() {
+    return _getRootInfo(path.join(getRootDir(), 'package.json'))!;
 }
 
 export function getName(input: string): string {

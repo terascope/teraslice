@@ -9,7 +9,7 @@
             "npmClient": "npm"
         },
         "run": {
-            "ignore": "teraslice-e2e"
+            "ignore": "e2e"
         }
     },
     "sort": true,
