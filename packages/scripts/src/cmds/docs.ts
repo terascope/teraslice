@@ -17,7 +17,7 @@ const cmd: CommandModule = {
     },
     handler(argv) {
         const pkgInfos = argv.packages as PackageInfo[];
-        if (pkgInfos) {
+        if (pkgInfos && pkgInfos.length) {
             return buildPackages(pkgInfos);
         }
         return buildAll();

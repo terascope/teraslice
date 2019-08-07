@@ -2,7 +2,7 @@ import ms from 'ms';
 import { PackageInfo } from '../interfaces';
 import { listPackages, getMainPackageInfo } from '../packages';
 import { PublishAction, PublishOptions } from './interfaces';
-import { yarnPublish, yarnRun, verifyNPMAuth, remoteDockerImageExists, dockerBuild, dockerPush } from '../scripts';
+import { yarnPublish, yarnRun, remoteDockerImageExists, dockerBuild, dockerPush } from '../scripts';
 import { shouldNPMPublish, formatDailyTag, buildCacheLayers } from './utils';
 import { getRootInfo, cliError } from '../misc';
 import signale from '../signale';
@@ -18,8 +18,6 @@ export async function publish(action: PublishAction, options: PublishOptions) {
 }
 
 async function publishToNPM(options: PublishOptions) {
-    await verifyNPMAuth();
-
     for (const pkgInfo of listPackages()) {
         await npmPublish(pkgInfo, options);
     }

@@ -338,16 +338,3 @@ export async function yarnPublish(pkgInfo: PackageInfo) {
         cwd: pkgInfo.dir,
     });
 }
-
-export async function verifyNPMAuth() {
-    const subprocess = await execa('npm', ['whoami'], {
-        reject: false,
-    });
-
-    if (subprocess.exitCode > 0 || !Boolean(subprocess.stdout)) {
-        signale.error(subprocess.command, { exitCode: subprocess.exitCode }, subprocess.all);
-
-        // log for now
-        console.error(new Error('NPM is unauthenticated, run npm login'));
-    }
-}
