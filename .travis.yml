@@ -78,7 +78,7 @@ jobs:
             script: ./scripts/publish-documentation.sh
           - provider: script
             skip_cleanup: true
-            script: yarn ts-scripts publish -t tag docker
+            script: yarn ts-scripts publish -t dev docker
 
     - script:
       name: 'Create Tag Release'
