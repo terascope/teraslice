@@ -25,6 +25,7 @@ const config: IndexModelConfig<DataType> = {
                     },
                     fields: {
                         type: 'object',
+                        enabled: false,
                     },
                 },
             },

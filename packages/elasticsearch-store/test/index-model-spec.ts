@@ -28,6 +28,7 @@ describe('IndexModel', () => {
                 },
                 config: {
                     type: 'object',
+                    enabled: false,
                 },
             },
         },

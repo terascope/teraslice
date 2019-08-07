@@ -40,6 +40,7 @@ const config: IndexModelConfig<Space> = {
             },
             config: {
                 type: 'object',
+                enabled: false,
             },
         },
     },

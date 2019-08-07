@@ -153,7 +153,58 @@ export default class IndexManager {
      * **IMPORTANT** This is a potentionally dangerous operation
      * and should only when the cluster is properly shutdown.
      */
-    async migrateIndex(config: MigrateIndexConfig): Promise<void> {
+    async migrateIndex(options: MigrateIndexOptions): Promise<any> {
+        const { timeout, config, previousVersion, previousName, previousNamespace } = options;
+        utils.validateIndexConfig(config);
+
+        const previousConfig = ts.cloneDeep(config);
+
+        if (!config.index_schema || !previousConfig.index_schema) {
+            console.error('Missing index_schema on config, skipping migration');
+            return;
+        }
+
+        if (config.index_schema.timeseries || config.index_schema.template) {
+            console.error('Migrating timeseries or template indexes are currently not supported');
+            return;
+        }
+
+        if (previousName) {
+            previousConfig.name = previousName;
+        }
+        if (previousNamespace) {
+            previousConfig.namespace = previousNamespace;
+        }
+        if (previousVersion) {
+            previousConfig.index_schema.version = previousVersion;
+        }
+
+        const newIndexName = this.formatIndexName(config);
+        const previousIndexName = this.formatIndexName(previousConfig);
+
+        if (newIndexName === previousIndexName) {
+            console.error(
+                `No changes detected for index ${newIndexName},`,
+                'if there are mapping changes make sure to bump index_schema.version'
+            );
+            return;
+        }
+
+        await this.indexSetup(config);
+        await this.client.reindex({
+            timeout,
+            waitForActiveShards: 'all',
+            waitForCompletion: true,
+            body: {
+                source: {
+                    index: previousIndexName,
+                },
+                dest: {
+                    index: newIndexName,
+                },
+            },
+        });
+
         return;
     }
 
@@ -287,11 +338,10 @@ export default class IndexManager {
     }
 }
 
-export interface MigrateIndexConfig {
-    to: IndexConfig;
-    from: IndexConfig;
-    /**
-     * @default Infinity
-     */
-    timeout: number;
+export interface MigrateIndexOptions {
+    config: IndexConfig;
+    timeout?: string;
+    previousNamespace?: string;
+    previousName?: string;
+    previousVersion?: number;
 }

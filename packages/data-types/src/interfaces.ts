@@ -115,6 +115,7 @@ export type ESTypeMapping = PropertyESTypeMapping | FieldsESTypeMapping | BasicE
 
 type BasicESTypeMapping = {
     type: ElasticSearchTypes;
+    [prop: string]: any;
 };
 
 type FieldsESTypeMapping = {
@@ -129,7 +130,7 @@ type FieldsESTypeMapping = {
 };
 
 type PropertyESTypeMapping = {
-    type?: 'nested';
+    type?: 'nested' | 'object';
     properties: {
         [key: string]: FieldsESTypeMapping | BasicESTypeMapping;
     };
