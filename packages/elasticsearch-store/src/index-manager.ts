@@ -152,6 +152,9 @@ export default class IndexManager {
      *
      * **IMPORTANT** This is a potentionally dangerous operation
      * and should only when the cluster is properly shutdown.
+     *
+     * @todo add support for timeseries and templated indexes
+     * @todo add support for complicated reindexing behaviors
      */
     async migrateIndex(options: MigrateIndexOptions): Promise<any> {
         const { timeout, config, previousVersion, previousName, previousNamespace } = options;
@@ -182,6 +185,8 @@ export default class IndexManager {
         const newIndexName = this.formatIndexName(config);
         const previousIndexName = this.formatIndexName(previousConfig);
 
+        await this.indexSetup(config);
+
         if (newIndexName === previousIndexName) {
             console.error(
                 `No changes detected for index ${newIndexName},`,
@@ -190,8 +195,7 @@ export default class IndexManager {
             return;
         }
 
-        await this.indexSetup(config);
-        await this.client.reindex({
+        return this.client.reindex({
             timeout,
             waitForActiveShards: 'all',
             waitForCompletion: true,
@@ -204,8 +208,6 @@ export default class IndexManager {
                 },
             },
         });
-
-        return;
     }
 
     async getMapping(index: string) {
