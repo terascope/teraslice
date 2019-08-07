@@ -94,11 +94,13 @@ describe('cluster state', () => {
         const jobSpec = misc.newJob('reindex');
         const specIndex = misc.newSpecIndex('state');
         jobSpec.name = 'cluster state with 1 worker';
+        jobSpec.workers = 1;
         jobSpec.operations[0].index = misc.getExampleIndex(1000);
         jobSpec.operations[0].size = 100;
         jobSpec.operations[1].index = specIndex;
 
-        const job = await submitAndStart(jobSpec, 1000);
+        const job = await submitAndStart(jobSpec, 5000);
+        await Promise.delay(1000);
         const jobId = job.id();
 
         const state = await teraslice.cluster.state();
@@ -128,7 +130,7 @@ describe('cluster state', () => {
         const jobSpec = misc.newJob('reindex');
         const specIndex = misc.newSpecIndex('state');
 
-        jobSpec.name = 'cluster state with 2 workers';
+        jobSpec.name = 'cluster state with 4 workers';
         jobSpec.workers = 4;
         jobSpec.operations[0].index = misc.getExampleIndex(1000);
         jobSpec.operations[0].size = 20;
