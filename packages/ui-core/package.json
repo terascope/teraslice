@@ -57,7 +57,7 @@
         "history": "^4.9.0",
         "npm-watch": "^0.6.0",
         "prop-types": "^15.7.2",
-        "query-string": "^6.8.1",
+        "query-string": "^6.8.2",
         "react": "^16.8.6",
         "react-apollo": "^2.5.7",
         "react-dom": "^16.8.6",
