@@ -345,6 +345,9 @@ export async function verifyNPMAuth() {
     });
 
     if (subprocess.exitCode > 0 || !Boolean(subprocess.stdout)) {
-        throw new Error('NPM is unauthenticated, run npm login');
+        signale.error(subprocess.command, { exitCode: subprocess.exitCode }, subprocess.all);
+
+        // log for now
+        console.error(new Error('NPM is unauthenticated, run npm login'));
     }
 }
