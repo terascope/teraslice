@@ -35,6 +35,7 @@ export function getArgs(options: TestOptions): ArgsMap {
         args.watch = '';
         args.coverage = 'false';
         args.onlyChanged = '';
+        args.notify = '';
     }
 
     if (options.suite === TestSuite.E2E) {
@@ -101,7 +102,7 @@ export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): Pa
 }
 
 export function onlyUnitTests(pkgInfos: PackageInfo[]): boolean {
-    return pkgInfos.some(pkgInfo => {
+    return pkgInfos.every(pkgInfo => {
         return pkgInfo.terascope.testSuite === TestSuite.Unit;
     });
 }
