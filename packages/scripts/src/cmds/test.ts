@@ -1,3 +1,4 @@
+import fs from 'fs';
 import isCI from 'is-ci';
 import { CommandModule } from 'yargs';
 import { toBoolean } from '@terascope/utils';
@@ -137,10 +138,19 @@ function getExtraArgs(): string[] {
     const args: string[] = [];
     let extra = false;
     process.argv.forEach(arg => {
-        if (extra) args.push(arg);
+        if (extra) {
+            args.push(...resolveJestArg(arg));
+        }
         if (arg === '--') extra = true;
     });
     return args;
+}
+
+function resolveJestArg(arg: string): string[] {
+    if (fs.existsSync(arg)) {
+        return ['--testPathPattern', arg];
+    }
+    return [arg];
 }
 
 function getPkgInfos(packages?: PackageInfo[]): PackageInfo[] {

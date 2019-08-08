@@ -1,8 +1,9 @@
 import fs from 'fs';
 import readline from 'readline';
+import { Readable } from 'stream';
 import { WatcherConfig, OperationConfigInput } from '../interfaces';
 import _ from 'lodash';
-import { Logger } from '@terascope/utils';
+import { Logger, TSError } from '@terascope/utils';
 
 export default class RulesLoader {
     private opConfig: WatcherConfig;
@@ -15,8 +16,18 @@ export default class RulesLoader {
     }
 
     public async load(): Promise<OperationConfigInput[]> {
-        const results = await Promise.all<OperationConfigInput[]>(this.opConfig.rules.map((ruleFile) => this.fileLoader(ruleFile)));
-        return _.flatten(results);
+        const { notification_rules, rules } = this.opConfig;
+
+        if (notification_rules) {
+            return this.notificationLoader(notification_rules);
+        }
+
+        if (rules) {
+            const results = await Promise.all<OperationConfigInput[]>(rules.map((ruleFile) => this.fileLoader(ruleFile)));
+            return _.flatten(results);
+        }
+
+        throw new TSError('rules or notifications must be provided');
     }
 
     private parseConfig(strConfig: string): OperationConfigInput {
@@ -27,13 +38,33 @@ export default class RulesLoader {
     }
 
     private async fileLoader(ruleFile: string): Promise<OperationConfigInput[]> {
-        const parseConfig = this.parseConfig.bind(this);
+        const inputStream = fs.createReadStream(ruleFile);
+        return this.dataLoader(inputStream);
+    }
+
+    private async notificationLoader(notifications: string): Promise<OperationConfigInput[]> {
+        const notificationsRules = [notifications];
+
+        const inputStream = new Readable({
+            read() {
+                const rule = notificationsRules.pop();
+                if (!rule) {
+                    this.push(null);
+                    return;
+                }
+                this.push(rule);
+            },
+        });
+        return this.dataLoader(inputStream);
+    }
+
+    private async dataLoader(inputStream: Readable): Promise<OperationConfigInput[]> {
         const results: OperationConfigInput[] = [];
         const errorResults: string[] = [];
         let hasError = false;
 
         const rl = readline.createInterface({
-            input: fs.createReadStream(ruleFile),
+            input: inputStream,
             crlfDelay: Infinity
         });
 
@@ -44,7 +75,7 @@ export default class RulesLoader {
                     const isComment = configStr[0] === '#';
                     if (!isComment && configStr.length > 0) {
                         try {
-                            results.push(parseConfig(configStr));
+                            results.push(this.parseConfig(configStr));
                         } catch (err) {
                             hasError = true;
                             errorResults.push(configStr);

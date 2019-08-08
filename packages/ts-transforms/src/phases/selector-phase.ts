@@ -20,6 +20,7 @@ export default class SelectionPhase extends PhaseBase {
             const results = [];
             for (let i = 0; i < data.length; i += 1) {
                 const record = data[i];
+                record.setMetadata('selectors', null);
                 for (let j = 0; j < this.selectionPhase.length; j += 1) {
                     this.selectionPhase[j].run(record);
                 }

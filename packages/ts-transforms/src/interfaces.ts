@@ -93,8 +93,9 @@ export interface OperationsMapping {
 }
 
 export interface WatcherConfig {
-    rules: string[];
+    rules?: string[];
     types?: TypeConfig;
+    notification_rules?: string;
 }
 
 export interface PhaseConfig extends WatcherConfig {
