@@ -1,6 +1,6 @@
 {
     "name": "@terascope/data-access",
-    "version": "0.12.7",
+    "version": "0.13.0",
     "description": "A tool designed to limit access to reading and querying data",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-access#readme",
     "bugs": {
@@ -28,7 +28,7 @@
     "dependencies": {
         "@terascope/data-types": "^0.5.2",
         "@terascope/utils": "^0.14.1",
-        "elasticsearch-store": "^0.10.4",
+        "elasticsearch-store": "^0.11.0",
         "xlucene-evaluator": "^0.9.7"
     },
     "devDependencies": {

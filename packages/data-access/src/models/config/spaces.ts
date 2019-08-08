@@ -4,7 +4,7 @@ export type SpaceConfigType = 'SEARCH' | 'STREAMING';
 export const SpaceConfigTypes: ReadonlyArray<SpaceConfigType> = ['SEARCH', 'STREAMING'];
 
 const config: IndexModelConfig<Space> = {
-    version: 1,
+    version: 2,
     name: 'spaces',
     mapping: {
         properties: {
@@ -40,6 +40,7 @@ const config: IndexModelConfig<Space> = {
             },
             config: {
                 type: 'object',
+                enabled: false,
             },
         },
     },

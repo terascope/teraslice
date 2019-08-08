@@ -67,6 +67,7 @@ export const mapping: ESTypeMappings = {
         },
         test_object: {
             type: 'object',
+            enabled: false,
         },
         test_boolean: {
             type: 'boolean',

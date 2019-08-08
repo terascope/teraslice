@@ -2,7 +2,7 @@ import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
 import { DataTypeConfig, LATEST_VERSION } from '@terascope/data-types';
 
 const config: IndexModelConfig<DataType> = {
-    version: 1,
+    version: 2,
     name: 'data_types',
     mapping: {
         properties: {
@@ -25,6 +25,7 @@ const config: IndexModelConfig<DataType> = {
                     },
                     fields: {
                         type: 'object',
+                        enabled: false,
                     },
                 },
             },
