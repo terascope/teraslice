@@ -17,7 +17,7 @@ function makeTemplate(folder, fileName) {
 
 // Convert bytes to MB and reduce by 10%
 function getMaxOldSpace(memory) {
-    return Math.round(0.9 * memory);
+    return Math.round(0.9 * (memory / 1024 / 1024));
 }
 
 module.exports = { makeTemplate, getMaxOldSpace };

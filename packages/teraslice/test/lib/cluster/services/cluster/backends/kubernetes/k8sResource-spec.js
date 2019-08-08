@@ -201,7 +201,7 @@ describe('k8sResource', () => {
 
             const envArray = kr.resource.spec.template.spec.containers[0].env;
             expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
-                .toEqual('--max-old-space-size=1932735283');
+                .toEqual('--max-old-space-size=1843');
         });
 
         it('execution resources override terasliceConfig resources', () => {
@@ -225,7 +225,7 @@ describe('k8sResource', () => {
 
             const envArray = kr.resource.spec.template.spec.containers[0].env;
             expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
-                .toEqual('--max-old-space-size=966367642');
+                .toEqual('--max-old-space-size=922');
         });
 
         it('execution cpu overrides terasliceConfig cpu while terasliceConfig memory gets applied', () => {
@@ -248,7 +248,7 @@ describe('k8sResource', () => {
 
             const envArray = kr.resource.spec.template.spec.containers[0].env;
             expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
-                .toEqual('--max-old-space-size=1932735283');
+                .toEqual('--max-old-space-size=1843');
         });
 
         it('has memory and cpu limits and requests when set on execution', () => {
@@ -270,7 +270,7 @@ describe('k8sResource', () => {
 
             const envArray = kr.resource.spec.template.spec.containers[0].env;
             expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
-                .toEqual('--max-old-space-size=1932735283');
+                .toEqual('--max-old-space-size=1843');
         });
 
         it('has memory limits and requests when set on execution', () => {
@@ -289,7 +289,7 @@ describe('k8sResource', () => {
 
             const envArray = kr.resource.spec.template.spec.containers[0].env;
             expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
-                .toEqual('--max-old-space-size=1932735283');
+                .toEqual('--max-old-space-size=1843');
         });
 
         it('has cpu limits and requests when set on execution', () => {
