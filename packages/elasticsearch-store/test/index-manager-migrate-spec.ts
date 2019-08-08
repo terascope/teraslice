@@ -85,6 +85,7 @@ describe('IndexManager->migrateIndex()', () => {
         });
 
         it('should be able to migrate to the new index', async () => {
+            // make sure it doesn't exist first
             await expect(indexManager.exists(newIndex)).resolves.toBeFalse();
 
             await expect(
