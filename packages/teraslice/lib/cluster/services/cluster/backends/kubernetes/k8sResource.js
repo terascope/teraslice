@@ -7,6 +7,7 @@ const barbe = require('barbe');
 const _ = require('lodash');
 
 const { safeEncode } = require('../../../../../../lib/utils/encoding_utils');
+const { getMaxOldSpace } = require('./utils');
 
 class K8sResource {
     /**
@@ -21,7 +22,6 @@ class K8sResource {
      */
     constructor(resourceType, resourceName, terasliceConfig, execution) {
         this.execution = execution;
-        this.maxHeapMemoryFactor = 0.9;
         this.nodeType = resourceName;
         this.terasliceConfig = terasliceConfig;
 
@@ -61,7 +61,8 @@ class K8sResource {
             'kubernetes_config_map_name',
             `${this.terasliceConfig.name}-worker`
         );
-        const dockerImage = this.execution.kubernetes_image || this.terasliceConfig.kubernetes_image;
+        const dockerImage = this.execution.kubernetes_image
+            || this.terasliceConfig.kubernetes_image;
         // name needs to be a valid DNS name since it is used in the svc name,
         // so we can only permit alphanumeric and - characters.  _ is forbidden.
         const jobNameLabel = this.execution.name.replace(/[^a-zA-Z0-9\-.]/g, '-').substring(0, 63);
@@ -156,7 +157,7 @@ class K8sResource {
                 'resources.limits.memory', memory);
 
             // Set NODE_OPTIONS to override max-old-space-size
-            const maxOldSpace = Math.round(this.maxHeapMemoryFactor * memory);
+            const maxOldSpace = getMaxOldSpace(memory);
             this.resource.spec.template.spec.containers[0].env.push(
                 {
                     name: 'NODE_OPTIONS',
