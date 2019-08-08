@@ -102,7 +102,7 @@ describe('IndexManager->migrateIndex()', () => {
                 indexManager.migrateIndex({
                     config: newConfig,
                 })
-            ).resolves.toBeNil();
+            ).resolves.toBeFalse();
         });
     });
 });
