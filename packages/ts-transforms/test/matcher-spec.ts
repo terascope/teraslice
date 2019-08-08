@@ -1,5 +1,5 @@
 
-import { DataEntity, startsWith } from '@terascope/utils';
+import { DataEntity } from '@terascope/utils';
 import path from 'path';
 import _ from 'lodash';
 import TestHarness from './test-harness';
@@ -111,11 +111,6 @@ describe('matcher', () => {
             notification_rules: rules1.join('\n')
         };
 
-        try {
-            await opTest.init(config1);
-        } catch (err) {
-            expect(startsWith(err.message, 'Failure to parse xlucene query')).toEqual(true);
-        }
-
+        await expect(opTest.init(config1)).toReject();
     });
 });

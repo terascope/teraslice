@@ -19,11 +19,11 @@ export default class RulesLoader {
         const { notification_rules, rules } = this.opConfig;
 
         if (notification_rules) {
-            return this.dataLoader(false, this.opConfig.notification_rules);
+            return this.notificationLoader(notification_rules);
         }
 
         if (rules) {
-            const results = await Promise.all<OperationConfigInput[]>(rules.map((ruleFile) => this.dataLoader(ruleFile)));
+            const results = await Promise.all<OperationConfigInput[]>(rules.map((ruleFile) => this.fileLoader(ruleFile)));
             return _.flatten(results);
         }
 
@@ -37,31 +37,31 @@ export default class RulesLoader {
         return JSON.parse(strConfig);
     }
 
-    private async dataLoader(ruleFile: string|false, notifications?: string): Promise<OperationConfigInput[]> {
-        const parseConfig = this.parseConfig.bind(this);
+    private async fileLoader(ruleFile: string): Promise<OperationConfigInput[]> {
+        const inputStream = fs.createReadStream(ruleFile);
+        return this.dataLoader(inputStream);
+    }
+
+    private async notificationLoader(notifications: string): Promise<OperationConfigInput[]> {
+        const notificationsRules = [notifications];
+
+        const inputStream = new Readable({
+            read() {
+                const rule = notificationsRules.pop();
+                if (!rule) {
+                    this.push(null);
+                    return;
+                }
+                this.push(rule);
+            },
+        });
+        return this.dataLoader(inputStream);
+    }
+
+    private async dataLoader(inputStream: Readable): Promise<OperationConfigInput[]> {
         const results: OperationConfigInput[] = [];
         const errorResults: string[] = [];
         let hasError = false;
-
-        let inputStream;
-
-        if (ruleFile) {
-            inputStream = fs.createReadStream(ruleFile);
-        } else if (notifications != null && notifications.length > 0) {
-            const notificationsRules = [notifications];
-
-            inputStream = new Readable({
-                read() {
-                    const rule = notificationsRules.pop();
-                    if (!rule) {
-                        this.push(null);
-                    }
-                    this.push(rule);
-                },
-            });
-        } else {
-            throw new TSError('rules or notifications must be provided');
-        }
 
         const rl = readline.createInterface({
             input: inputStream,
@@ -75,7 +75,7 @@ export default class RulesLoader {
                     const isComment = configStr[0] === '#';
                     if (!isComment && configStr.length > 0) {
                         try {
-                            results.push(parseConfig(configStr));
+                            results.push(this.parseConfig(configStr));
                         } catch (err) {
                             hasError = true;
                             errorResults.push(configStr);
