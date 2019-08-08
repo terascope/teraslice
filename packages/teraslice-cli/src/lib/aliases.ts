@@ -1,11 +1,11 @@
-'use strict';
 
-const fs = require('fs');
+import fs from 'fs';
+import _ from 'lodash';
+// @ts-ignore TODO: deal with this type
+import yaml from 'node-yaml';
+import displayModule from '../cmds/lib/display';
 
-const _ = require('lodash');
-const yaml = require('node-yaml');
-
-const display = require('../cmds/lib/display')();
+const display = displayModule();
 
 const defaultConfigData = {
     clusters: {
@@ -13,7 +13,7 @@ const defaultConfigData = {
     }
 };
 
-class Aliases {
+export default class Aliases {
     constructor(aliasesFile) {
         this.aliasesFile = aliasesFile;
         this.config = this._getConfig();
@@ -81,5 +81,3 @@ class Aliases {
         }
     }
 }
-
-module.exports = Aliases;

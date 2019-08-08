@@ -1,23 +1,20 @@
-'use strict';
 
-const _ = require('lodash');
+import { startsWith, TSError } from '@terascope/utils';
 
-class Url {
-    constructor() {
-        this.defaultPort = 5678;
-    }
+export default class Url {
+    private defaultPort = 5678;
 
-    check(inUrl) {
+    check(inUrl:string) {
         // check that url starts with http:// but allow for https://
-        return (_.startsWith(inUrl, 'http://' || 'https://') || _.startsWith(inUrl, 'https://'));
+        return (startsWith(inUrl, 'http://' || 'https://') || startsWith(inUrl, 'https://'));
     }
 
-    build(inUrl) {
+    build(inUrl:string) {
         let outUrl = '';
         if (inUrl === '') {
-            throw new Error('empty url');
+            throw new TSError('empty url', { statusCode: 400 });
         }
-        if (_.includes(inUrl, ':')) {
+        if (inUrl.includes(':')) {
             outUrl = this.check(inUrl) ? inUrl : `http://${inUrl}`;
         } else {
             outUrl = this.check(inUrl) ? `${inUrl}:${this.defaultPort}` : `http://${inUrl}:${this.defaultPort}`;
@@ -26,5 +23,3 @@ class Url {
         return outUrl;
     }
 }
-
-module.exports = Url;

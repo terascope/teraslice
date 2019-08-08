@@ -1,12 +1,16 @@
-'use strict';
 
-const homeDir = require('os').homedir();
+import os from 'os';
+import Url from '../lib/url';
 
-const Url = require('../lib/url');
+const homeDir = os.homedir();
 
 const url = new Url();
+// TODO: fixme
+export default class Options {
+    options: any;
+    positionals: any;
+    coerce: any;
 
-class Options {
     constructor() {
         this.options = {
             arch: () => ({
@@ -192,23 +196,20 @@ class Options {
         };
 
         this.coerce = {
-            'cluster-url': newUrl => url.build(newUrl),
-            'new-cluster-url': newUrl => url.build(newUrl)
+            'cluster-url': (newUrl: string) => url.build(newUrl),
+            'new-cluster-url': (newUrl: string) => url.build(newUrl)
         };
     }
 
-    buildOption(key, ...args) {
+    buildOption(key: string, ...args: any[]) {
         return this.options[key](...args);
     }
 
-    buildPositional(key, ...args) {
+    buildPositional(key: string, ...args: any[]) {
         return this.positionals[key](...args);
     }
 
-    buildCoerce(key) {
+    buildCoerce(key: string) {
         return this.coerce[key];
     }
 }
-
-
-module.exports = Options;

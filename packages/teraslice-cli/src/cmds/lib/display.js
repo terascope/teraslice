@@ -1,5 +1,4 @@
 'use strict';
-'use console';
 
 /* eslint-disable no-console */
 

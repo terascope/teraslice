@@ -31,3 +31,18 @@ exports.handler = async (argv) => {
         reply.fatal(`Error building asset: ${err}`);
     }
 };
+
+async  function handleWrapper(fn) {
+    return (argv) => {
+        try {
+            await fn(argv);
+        } catch (err) {
+            const { statusCode } = parseErrorInfo(err);
+            if (statusCode < 500 && statusCode >= 400) {
+                siganle.error(err.message);
+            } else {
+                siganle.fatal(err);
+            }
+        }
+    }
+}

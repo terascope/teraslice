@@ -1,10 +1,8 @@
-'use strict';
 
-const fs = require('fs');
-
-const _ = require('lodash');
-
-const Aliases = require('./aliases');
+import fs from 'fs';
+import _ from 'lodash';
+import { has } from '@terascope/utils';
+import Aliases from './aliases';
 
 /**
  * This is the top level config object, it manages the config directory and
@@ -15,19 +13,28 @@ const Aliases = require('./aliases');
  *
  * NOTE: All properties on this.args are mapped to camelCase
  */
-class Config {
-    constructor(cliArgs) {
+export default class Config {
+    private configDir: string;
+
+    constructor(cliArgs:any) {
         // We do this so that the command line options can be like 'cluster-url'
         // but the js properties are camelCase
+        // @ts-ignore
         this.args = _.mapKeys(cliArgs, (value, key) => _.camelCase(key));
+        // @ts-ignore
+
         this.configDir = this.args.configDir;
+        // @ts-ignore
+
         this._setupConfigDir();
+        // @ts-ignore
+
         this.aliases = new Aliases(this.aliasesFile);
 
         // If clusterAlias is a valid argument, then it must be present in the
         // config file.
         // TODO: This should probably be expressed with yargs somehow.
-        if (_.has(this.args, 'clusterAlias')) {
+        if (has(this.args, 'clusterAlias')) {
             if (!this.aliases.present(this.args.clusterAlias)) {
                 throw new Error(
                     `Alias, ${this.args.clusterAlias}, not found in config file: ${this.aliasesFile}`
@@ -82,7 +89,7 @@ class Config {
         ];
     }
 
-    _setupConfigDir() {
+    private _setupConfigDir() {
         if (!fs.existsSync(this.configDir)) {
             fs.mkdirSync(this.configDir);
         }
@@ -94,5 +101,3 @@ class Config {
         });
     }
 }
-
-module.exports = Config;
