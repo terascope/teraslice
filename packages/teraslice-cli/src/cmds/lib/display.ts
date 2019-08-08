@@ -1,21 +1,26 @@
-'use strict';
-
-/* eslint-disable no-console */
-
-const ttyTable = require('tty-table');
-const CliTable = require('cli-table3');
-const easyTable = require('easy-table');
-const _ = require('lodash');
-const prompts = require('prompts');
-
+/* tslint:disable */
+// @ts-ignore
+import ttyTable from 'tty-table';
+// @ts-ignore
+import CliTable from 'cli-table3';
+// @ts-ignore
+import easyTable from 'easy-table';
+import _ from 'lodash';
+// @ts-ignore
+import prompts from 'prompts';
+// @ts-ignore
 async function pretty(headerValues, rows) {
+    // @ts-ignore
     const header = [];
     _.each(headerValues, (item) => {
+        // @ts-ignore
         const col = [];
+        // @ts-ignore
         col.value = item;
+        // @ts-ignore
         header.push(col);
     });
-
+// @ts-ignore
     const table = ttyTable(header, rows, {
         borderStyle: 1,
         paddingTop: 0,
@@ -26,6 +31,7 @@ async function pretty(headerValues, rows) {
     });
     console.log(table.render());
 }
+// @ts-ignore
 async function horizontal(rows, opts) {
     const table = new CliTable(opts);
 
@@ -35,7 +41,7 @@ async function horizontal(rows, opts) {
 
     console.log(await table.toString());
 }
-
+// @ts-ignore
 async function vertical(header, rows, style) {
     _.each(rows, (keys) => {
         const table = new CliTable(style);
@@ -43,13 +49,15 @@ async function vertical(header, rows, style) {
         _.each(keys, (value, key) => {
             const val = {};
             val[key] = value;
+            // @ts-ignore
             table.push(val);
         });
         console.log(table.toString());
     });
 }
-
+// @ts-ignore
 async function text(headerValues, items) {
+    // @ts-ignore
     const rows = [];
     _.each(items, (item) => {
         const row = {};
@@ -58,6 +66,7 @@ async function text(headerValues, items) {
         });
         rows.push(row);
     });
+    // @ts-ignore
     console.log(easyTable.print(rows));
 }
 
@@ -72,9 +81,12 @@ async function text(headerValues, items) {
      @returns {Array} rows - Table content is an array of arrays with
      *                       each row an element in the array.
 */
+// @ts-ignore
 async function parseResponse(header, response, active = false, id) {
+    // @ts-ignore
     const rows = [];
     _.each(response, (value, key) => {
+        // @ts-ignore
         let row = [];
         if (active) {
             _.each(response[key].active, (activeValue) => {
@@ -94,6 +106,7 @@ async function parseResponse(header, response, active = false, id) {
                             row.push(activeValue[item]);
                         }
                     });
+                    // @ts-ignore
                     rows.push(row);
                 }
             });
@@ -105,14 +118,15 @@ async function parseResponse(header, response, active = false, id) {
                     row.push(response[key][item]);
                 }
             });
+            // @ts-ignore
             rows.push(row);
         }
     });
+    // @ts-ignore
     return rows;
 }
 
-
-module.exports = () => {
+export default function module() {
     /**
      * Display teraslice responses in a table
      *
@@ -123,6 +137,7 @@ module.exports = () => {
      @param {Boolean} parse - Set to true to parse response
      @param {String} id - id value used to filter results by job_id or ex_id
      */
+    // @ts-ignore
     async function display(header, items, type, active = false, parse = false, id) {
         let rows;
         if (type === 'txt') {
@@ -211,7 +226,7 @@ module.exports = () => {
             await pretty(header, items);
         }
     }
-
+    // @ts-ignore
     async function showPrompt(action, message = '') {
         const response = await prompts({
             type: 'confirm',
@@ -223,7 +238,7 @@ module.exports = () => {
 
         return response.continue;
     }
-
+// @ts-ignore
     async function setAction(action, tense) {
         if (action === 'stop' && tense === 'past') {
             return 'stopped';
@@ -265,4 +280,4 @@ module.exports = () => {
         showPrompt,
         setAction
     };
-};
+}

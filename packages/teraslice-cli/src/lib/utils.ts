@@ -8,13 +8,15 @@ import tsClient from 'teraslice-client-js';
 export function getTerasliceClient(cliConfig:any) {
     return tsClient({ host: cliConfig.clusterUrl });
 }
-
+// @ts-ignore
 export async function getTerasliceClusterType(terasliceClient) {
     let clusterInfo = {};
     let clusteringType = 'native';
     try {
         clusterInfo = await terasliceClient.cluster.info();
         if (has(clusterInfo, 'clustering_type')) {
+            // @ts-ignore
+
             clusteringType = clusterInfo.clustering_type;
         } else {
             clusteringType = 'native';
@@ -26,8 +28,11 @@ export async function getTerasliceClusterType(terasliceClient) {
     }
     return clusteringType;
 }
+// @ts-ignore
 
 export async function handleWrapper(fn) {
+    // @ts-ignore
+
     return (argv) => {
         try {
             await fn(argv);
