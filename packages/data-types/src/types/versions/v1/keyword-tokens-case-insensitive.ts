@@ -13,7 +13,7 @@ export default class KeywordTokensCaseInsensitive extends BaseType {
                     fields: {
                         tokens: {
                             type: 'text' as ElasticSearchTypes,
-                            analyzer: 'simple',
+                            analyzer: 'standard',
                         },
                     },
                 },

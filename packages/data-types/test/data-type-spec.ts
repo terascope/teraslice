@@ -466,7 +466,7 @@ describe('DataType', () => {
                                 analyzer: 'lowercase_keyword_analyzer',
                                 fields: {
                                     tokens: {
-                                        analyzer: 'simple',
+                                        analyzer: 'standard',
                                         type: 'text',
                                     },
                                 },
