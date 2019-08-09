@@ -1,10 +1,8 @@
-
 import 'jest-extended';
-import { DataEntity, debugLogger } from '@terascope/job-components';
+import { DataEntity, debugLogger } from '@terascope/utils';
 import { ESCachedStateStorage, ESBulkQuery, ESStateStorageConfig } from '../src';
 
 describe('elasticsearch cached state storage', () => {
-
     interface Doc {
         _index: string;
         _type: string;
@@ -56,39 +54,39 @@ describe('elasticsearch cached state storage', () => {
     const idField = '_key';
 
     const doc = DataEntity.make({ data: 'thisIsSomeData' }, { [idField]: 1 });
- // @ts-ignore
+    // @ts-ignore
     const docArray = [
         {
-            data: 'thisIsFirstData'
+            data: 'thisIsFirstData',
         },
         {
-            data: 'thisIsSecondData'
+            data: 'thisIsSecondData',
         },
         {
-            data: 'thisIsThirdData'
-        }
+            data: 'thisIsThirdData',
+        },
     ].map((obj, index) => DataEntity.make(obj, { [idField]: index + 1 }));
 
     const otherDocArray = [
         {
-            data: 'thisIsFirstData'
+            data: 'thisIsFirstData',
         },
         {
-            data: 'thisIsSecondData'
+            data: 'thisIsSecondData',
         },
         {
-            data: 'thisIsThirdData'
-        }
+            data: 'thisIsThirdData',
+        },
     ].map((obj, index) => DataEntity.make(obj, { [idField]: index + 1, otherField: `other${index + 1}` }));
 
     function createMgetData(dataArray: DataEntity[], found = true) {
-        return dataArray.map((item) => {
+        return dataArray.map(item => {
             const response: Doc = {
                 _index: 'index',
                 _type: 'type',
                 _version: 1,
                 _id: item.getMetadata(idField),
-                found
+                found,
             };
 
             if (found) {
@@ -108,7 +106,7 @@ describe('elasticsearch cached state storage', () => {
         chunk_size: 10,
         cache_size: 100000,
         persist: false,
-        persist_field: idField
+        persist_field: idField,
     };
 
     let stateStorage: ESCachedStateStorage;
@@ -161,7 +159,6 @@ describe('elasticsearch cached state storage', () => {
         expect(stateDoc).toEqual(myDoc);
         expect(DataEntity.isDataEntity(stateDoc)).toEqual(true);
         expect(stateStorage.isCached(myDoc)).toEqual(true);
-
     });
 
     it('should save many docs to cache and retrieve', async () => {
@@ -214,7 +211,7 @@ describe('elasticsearch cached state storage', () => {
             _version: 1,
             _id: doc.getMetadata(idField),
             found: true,
-            _source: cloneDoc
+            _source: cloneDoc,
         });
         const getResult = await stateStorage.get(doc);
 
@@ -234,7 +231,7 @@ describe('elasticsearch cached state storage', () => {
         const keys = Object.keys(stateResponse);
         expect(keys.length).toBe(3);
 
-        keys.forEach((idStr:string) => {
+        keys.forEach((idStr: string) => {
             const id = Number(idStr);
             expect(stateResponse[id]).toEqual(docArray[id - 1]);
             expect(DataEntity.isDataEntity(stateResponse[id])).toEqual(true);

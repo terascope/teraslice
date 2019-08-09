@@ -1,26 +1,19 @@
-
-import LRU from 'mnemonist/lru-map';
-import { promisify } from 'util';
 import { EventEmitter } from 'events';
+import LRUMap from 'mnemonist/lru-map';
+import { pImmediate, BigMap } from '@terascope/utils';
 
-import {
-    CacheConfig,
-    MGetCacheResponse,
-    SetTuple,
-    ValuesFn,
-    EvictedEvent
-} from '../interfaces';
-
-const immediate = promisify(setImmediate);
+import { CacheConfig, MGetCacheResponse, SetTuple, ValuesFn, EvictedEvent } from '../interfaces';
 
 export default class CachedStateStorage<T> extends EventEmitter {
     protected IDField: string;
-    private _cache: LRU<string, T>;
+    private _cache: LRUMap<string, T>;
 
     constructor(config: CacheConfig) {
         super();
         this.IDField = '_key';
-        this._cache = new LRU(config.cache_size);
+        this._cache = new LRUMap(config.cache_size);
+        // @ts-ignore
+        this._cache.items = new BigMap();
     }
 
     get(key: string): T | undefined {
@@ -53,7 +46,7 @@ export default class CachedStateStorage<T> extends EventEmitter {
         for (const [, value] of this._cache) {
             fn(value);
             if (i % 100000 === 0) {
-                await immediate();
+                await pImmediate();
             }
             i++;
         }
