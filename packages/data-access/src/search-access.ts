@@ -106,9 +106,16 @@ export class SearchAccess {
             throw new ts.TSError(...validationErr('size', 'must be a valid number', query));
         }
 
-        const maxQuerySize: number = ts.toInteger(this.spaceConfig.max_query_size) || 100000;
-        if (size > maxQuerySize) {
-            throw new ts.TSError(...validationErr('size', `must be less than ${maxQuerySize}`, query));
+        let maxQuerySize: number = 100000;
+        const _maxQuerySize = ts.toInteger(this.spaceConfig.max_query_size);
+        if (_maxQuerySize < 0) {
+            maxQuerySize = 0;
+        } else if (_maxQuerySize !== false) {
+            maxQuerySize = _maxQuerySize;
+        }
+
+        if (size >= maxQuerySize) {
+            throw new ts.TSError(...validationErr('size', `must be less than or equal to ${maxQuerySize}`, query));
         }
 
         const start = ts.toInteger(ts.get(query, 'start', 0));
