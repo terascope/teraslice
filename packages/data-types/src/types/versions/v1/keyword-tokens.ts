@@ -10,8 +10,7 @@ export default class KeywordTokens extends BaseType {
                     fields: {
                         tokens: {
                             type: 'text',
-                            index: 'true',
-                            analyzer: 'simple',
+                            analyzer: 'standard',
                         },
                     },
                 },

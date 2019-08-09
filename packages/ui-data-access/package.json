@@ -24,7 +24,7 @@
     "dependencies": {},
     "devDependencies": {
         "@terascope/data-access": "^0.13.0",
-        "@terascope/data-types": "^0.5.2",
+        "@terascope/data-types": "^0.5.3",
         "@terascope/ui-components": "^0.3.6",
         "@terascope/utils": "^0.14.1",
         "@types/convict": "^4.2.1",
