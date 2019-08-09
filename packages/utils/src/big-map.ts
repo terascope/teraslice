@@ -1,31 +1,46 @@
-export class BigMap<K, V> {
-    _maps: Map<K, V>[] = [new Map()];
-    readonly maxMapSize: number;
+const defaultMaxSize = 2 ** 24;
 
-    constructor(maxMapSize = 2 ** 24) {
+export class BigMap<K, V> {
+    readonly maxMapSize: number;
+    private _maps: Map<K, V>[];
+    private _current: Map<K, V>;
+    private _simpleMode: boolean;
+
+    constructor(maxMapSize = defaultMaxSize) {
         this.maxMapSize = maxMapSize;
+        this._current = new Map();
+        this._simpleMode = true;
+        this._maps = [this._current];
     }
 
     set(key: K, value: V): Map<K, V> {
-        const map = this._maps[this._maps.length - 1];
-
-        if (map.size === this.maxMapSize) {
-            this._maps.push(new Map());
-            return this.set(key, value);
+        if (this._current.size >= this.maxMapSize) {
+            this._current = new Map();
+            this._maps.push(this._current);
+            this._simpleMode = false;
         }
 
-        return map.set(key, value);
+        return this._current.set(key, value);
     }
 
     has(key: K) {
+        if (this._simpleMode) {
+            return this._current.has(key);
+        }
         return _mapForKey(this._maps, key) !== undefined;
     }
 
     get(key: K) {
+        if (this._simpleMode) {
+            return this._current.get(key);
+        }
         return _valueForKey(this._maps, key);
     }
 
     delete(key: K) {
+        if (this._simpleMode) {
+            return this._current.delete(key);
+        }
         const map = _mapForKey(this._maps, key);
 
         if (map !== undefined) {
@@ -36,15 +51,23 @@ export class BigMap<K, V> {
     }
 
     clear() {
+        if (this._simpleMode) {
+            return this._current.clear();
+        }
+
         for (const map of this._maps) {
             map.clear();
         }
 
-        const first = this._maps[0];
-        this._maps = [first];
+        this._maps = [this._current];
+        this._simpleMode = true;
     }
 
     get size() {
+        if (this._simpleMode) {
+            return this._current.size;
+        }
+
         let size = 0;
 
         for (const map of this._maps) {
@@ -67,25 +90,38 @@ export class BigMap<K, V> {
     }
 
     entries() {
+        if (this._simpleMode) {
+            return this._current.entries();
+        }
         return _iterator<[K, V]>(this._maps, 'entries');
     }
 
     keys() {
+        if (this._simpleMode) {
+            return this._current.keys();
+        }
         return _iterator<K>(this._maps, 'keys');
     }
 
     values() {
+        if (this._simpleMode) {
+            return this._current.values();
+        }
         return _iterator<V>(this._maps, 'values');
     }
 
     // tslint:disable-next-line: function-name
-    [Symbol.iterator]() {
+    [Symbol.iterator](): IterableIterator<[K, V]> {
+        if (this._simpleMode) {
+            return this._current[Symbol.iterator]();
+        }
         return _iterator<[K, V]>(this._maps, Symbol.iterator);
     }
 }
 
 function _mapForKey<K, V, M extends Map<K, V>>(maps: M[], key: K): M | undefined {
-    for (let index = maps.length - 1; index >= 0; index--) {
+    const start = maps.length - 1;
+    for (let index = start; index >= 0; index--) {
         const map = maps[index];
 
         if (map.has(key)) {
@@ -96,7 +132,8 @@ function _mapForKey<K, V, M extends Map<K, V>>(maps: M[], key: K): M | undefined
 }
 
 function _valueForKey<K, V, M extends Map<K, V>>(maps: M[], key: K): V | undefined {
-    for (let index = maps.length - 1; index >= 0; index--) {
+    const start = maps.length - 1;
+    for (let index = start; index >= 0; index--) {
         const map = maps[index];
         const value = map.get(key);
 
