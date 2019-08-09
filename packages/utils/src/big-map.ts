@@ -1,17 +1,16 @@
-const maxMapSize = Math.pow(2, 24);
-
 export class BigMap<K, V> {
-    maps: Map<K, V>[] = [];
+    _maps: Map<K, V>[] = [new Map()];
+    readonly maxMapSize: number;
 
-    constructor() {
-        this.maps.push(new Map());
+    constructor(maxMapSize = 2 ** 24) {
+        this.maxMapSize = maxMapSize;
     }
 
     set(key: K, value: V): Map<K, V> {
-        const map = this.maps[this.maps.length - 1];
+        const map = this._maps[this._maps.length - 1];
 
-        if (map.size === maxMapSize) {
-            this.maps.push(new Map());
+        if (map.size === this.maxMapSize) {
+            this._maps.push(new Map());
             return this.set(key, value);
         }
 
@@ -19,15 +18,15 @@ export class BigMap<K, V> {
     }
 
     has(key: K) {
-        return _mapForKey(this.maps, key) !== undefined;
+        return _mapForKey(this._maps, key) !== undefined;
     }
 
     get(key: K) {
-        return _valueForKey(this.maps, key);
+        return _valueForKey(this._maps, key);
     }
 
     delete(key: K) {
-        const map = _mapForKey(this.maps, key);
+        const map = _mapForKey(this._maps, key);
 
         if (map !== undefined) {
             return map.delete(key);
@@ -37,48 +36,51 @@ export class BigMap<K, V> {
     }
 
     clear() {
-        for (const map of this.maps) {
+        for (const map of this._maps) {
             map.clear();
         }
+
+        const first = this._maps[0];
+        this._maps = [first];
     }
 
     get size() {
         let size = 0;
 
-        for (const map of this.maps) {
+        for (const map of this._maps) {
             size += map.size;
         }
 
         return size;
     }
 
-    forEach(callbackFn: (value: V, key: K) => void, thisArg?: any) {
+    forEach(callbackFn: (value: V, key: K, map: BigMap<K, V>) => void, thisArg?: any) {
         if (thisArg) {
             for (const [key, value] of this.entries()) {
-                callbackFn.call(thisArg, value, key);
+                callbackFn.call(thisArg, value, key, this);
             }
         } else {
             for (const [key, value] of this.entries()) {
-                callbackFn(value, key);
+                callbackFn(value, key, this);
             }
         }
     }
 
     entries() {
-        return _iterator<[K, V]>(this.maps, 'entries');
+        return _iterator<[K, V]>(this._maps, 'entries');
     }
 
     keys() {
-        return _iterator<K>(this.maps, 'keys');
+        return _iterator<K>(this._maps, 'keys');
     }
 
     values() {
-        return _iterator<V>(this.maps, 'values');
+        return _iterator<V>(this._maps, 'values');
     }
 
     // tslint:disable-next-line: function-name
     [Symbol.iterator]() {
-        return _iterator<[K, V]>(this.maps, Symbol.iterator);
+        return _iterator<[K, V]>(this._maps, Symbol.iterator);
     }
 }
 
