@@ -1,5 +1,9 @@
 const defaultMaxSize = 2 ** 24;
 
+/**
+ * Avoid v8 maximum size for Map by spreading the cache across multiple Maps.
+ * This class has the same API as Map but minus more differences in ->set and ->forEach
+ */
 export class BigMap<K, V> {
     readonly maxMapSize: number;
     private _maps: Map<K, V>[];
