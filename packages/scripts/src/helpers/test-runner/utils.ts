@@ -210,7 +210,8 @@ export async function reportCoverage(suite: TestSuite, chunkIndex: number) {
 }
 
 function getCacheFrom(): string[] {
-    if (isCI) return [];
+    if (!isCI) return [];
+
     const rootInfo = getRootInfo();
     const layers = rootInfo.docker.cache_layers || [];
     if (!layers.length) return [];
