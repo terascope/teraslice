@@ -1,5 +1,4 @@
-
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 
 export interface ESStateStorageConfig extends CacheConfig {
     index: string;

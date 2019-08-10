@@ -1,11 +1,10 @@
-
-import { DataEntity, Logger, TSError, chunk } from '@terascope/job-components';
+import { DataEntity, Logger, TSError, chunk } from '@terascope/utils';
 import esApi, { Client } from '@terascope/elasticsearch-api';
 import { Promise as bPromise } from 'bluebird';
 import { ESStateStorageConfig, ESBulkQuery, ESQUery, MGetResponse } from '../interfaces';
 import CachedStateStorage from '../cached-state-storage';
 
-type CB = (key: string, doc: DataEntity) => void;
+type ForEachCB = (key: string, doc: DataEntity) => void;
 
 export default class ESCachedStateStorage {
     private index: string;
@@ -35,7 +34,7 @@ export default class ESCachedStateStorage {
     }
 
     private getIdentifier(doc: DataEntity) {
-        const id =  doc.getMetadata(this.IDField);
+        const id = doc.getMetadata(this.IDField);
         if (id === '' || id == null) {
             throw new TSError(`There is no field "${this.IDField}" set in the metadata`, { context: { doc } });
         }
@@ -45,14 +44,14 @@ export default class ESCachedStateStorage {
     private _esBulkUpdatePrep(dataArray: DataEntity[]) {
         const bulkRequest: ESBulkQuery[] = [];
 
-        dataArray.forEach((item) => {
+        dataArray.forEach(item => {
             const id = item.getMetadata(this.persistField);
             bulkRequest.push({
                 index: {
                     _index: this.index,
                     _type: this.type,
-                    _id: id
-                }
+                    _id: id,
+                },
             });
             bulkRequest.push(item);
         });
@@ -71,7 +70,7 @@ export default class ESCachedStateStorage {
         const request = {
             index: this.index,
             type: this.type,
-            id
+            id,
         };
 
         const results = await this.es.get(request);
@@ -83,16 +82,13 @@ export default class ESCachedStateStorage {
             index: this.index,
             type: this.type,
             body: {
-                ids: query
-            }
+                ids: query,
+            },
         };
         if (this.sourceFields.length > 0) request._source = this.sourceFields;
         const response: MGetResponse = await this.es.mget(request);
 
-        return response.docs
-            .filter(doc => doc.found)
-            .map(doc => DataEntity.make(doc._source, { [this.IDField]: doc._id }));
-
+        return response.docs.filter(doc => doc.found).map(doc => DataEntity.make(doc._source, { [this.IDField]: doc._id }));
     }
 
     getFromCache(doc: DataEntity) {
@@ -113,7 +109,7 @@ export default class ESCachedStateStorage {
         return results;
     }
 
-    private _checkCache(docArray: DataEntity[], fn?:CB): Set<string> {
+    private _checkCache(docArray: DataEntity[], fn?: ForEachCB): Set<string> {
         const cachedDocsDict = {};
         const unCachedDocKeys = new Set<string>();
         let cachedHits = 0;
@@ -142,14 +138,10 @@ export default class ESCachedStateStorage {
     private async _fetchRecords(unCachedDocKeys: Set<string>) {
         const chunkedArray = chunk<string>([...unCachedDocKeys], this.chunkSize);
         // es search for keys not in cache
-        return bPromise.map<string[], DataEntity[]>(
-            chunkedArray,
-            chunked => this._esMget(chunked),
-            { concurrency: this.concurrency }
-        );
+        return bPromise.map<string[], DataEntity[]>(chunkedArray, chunked => this._esMget(chunked), { concurrency: this.concurrency });
     }
 
-    private _cacheFetchedRecords(recordLists: DataEntity<object>[][], fn?: CB) {
+    private _cacheFetchedRecords(recordLists: DataEntity<object>[][], fn?: ForEachCB) {
         for (const list of recordLists) {
             for (const doc of list) {
                 this.set(doc);
@@ -158,7 +150,7 @@ export default class ESCachedStateStorage {
         }
     }
 
-    async sync(docArray: DataEntity[], fn?: CB) {
+    async sync(docArray: DataEntity[], fn?: ForEachCB) {
         const unCachedDocKeys = this._checkCache(docArray, fn);
         if (unCachedDocKeys.size > 1) {
             const results = await this._fetchRecords(unCachedDocKeys);
@@ -168,7 +160,7 @@ export default class ESCachedStateStorage {
 
     async mget(docArray: DataEntity[]) {
         const savedDocs = {};
-        const setDocs: CB = (key, doc) => savedDocs[key] = doc;
+        const setDocs: ForEachCB = (key, doc) => (savedDocs[key] = doc);
         await this.sync(docArray, setDocs);
         return savedDocs;
     }
@@ -180,9 +172,9 @@ export default class ESCachedStateStorage {
     }
 
     async mset(docArray: DataEntity[]) {
-        const formattedDocs = docArray.map((doc) => ({ data: doc, key: this.getIdentifier(doc) }));
+        const formattedDocs = docArray.map(doc => ({ data: doc, key: this.getIdentifier(doc) }));
         if (this.persist) {
-            const [results] = await bPromise.all([this.cache.mset(formattedDocs), this._esBulkUpdate(docArray)]);
+            const [results] = await Promise.all([this.cache.mset(formattedDocs), this._esBulkUpdate(docArray)]);
             return results;
         }
         return this.cache.mset(formattedDocs);
@@ -199,5 +191,4 @@ export default class ESCachedStateStorage {
     async shutdown() {
         this.cache.clear();
     }
-
 }

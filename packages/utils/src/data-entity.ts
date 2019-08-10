@@ -191,6 +191,10 @@ function makeEntity<T extends object>(input: T): DataEntity<T> {
 }
 
 const dataEntityProperties = {
+    constructor: {
+        value: DataEntity,
+        enumerable: false,
+    },
     __isDataEntity: {
         value: true,
         enumerable: false,

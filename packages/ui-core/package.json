@@ -44,7 +44,7 @@
     "devDependencies": {
         "@craco/craco": "^5.2.3",
         "@terascope/ui-components": "^0.3.6",
-        "@terascope/utils": "^0.14.1",
+        "@terascope/utils": "^0.15.0",
         "@types/react": "16.8.23",
         "@types/react-dom": "16.8.5",
         "@types/react-router-dom": "^4.3.4",
