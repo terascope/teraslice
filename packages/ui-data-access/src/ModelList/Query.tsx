@@ -1,7 +1,7 @@
 import React from 'react';
 import { toNumber } from '@terascope/utils';
 import { stringify, parse } from 'query-string';
-import { Query as ApolloQuery } from 'react-apollo';
+import { useQuery } from 'react-apollo';
 import { ModelName } from '@terascope/data-access';
 import {
     ErrorPage,
@@ -39,32 +39,27 @@ const ListQuery = tsWithRouter<Props>(
             query: formatRegexQuery(state.query || '', searchFields),
         };
 
+        const { loading, error, data } = useQuery<Response>(listQuery, {
+            variables,
+            fetchPolicy: 'cache-and-network',
+        });
+
+        if (error) return <ErrorPage error={error} />;
+        if (!data && !loading) {
+            return <ErrorPage error="Unexpected Error" />;
+        }
+
+        const records = (data && data.records) || [];
+        const total = (data && data.total) || 0;
+
         return (
-            <Query
-                query={listQuery}
-                variables={variables}
-                fetchPolicy="cache-and-network"
-            >
-                {({ loading, error, data }) => {
-                    if (error) return <ErrorPage error={error} />;
-                    if (!data && !loading) {
-                        return <ErrorPage error="Unexpected Error" />;
-                    }
-
-                    const records = (data && data.records) || [];
-                    const total = (data && data.total) || 0;
-
-                    return (
-                        <Component
-                            queryState={state}
-                            total={total}
-                            loading={loading}
-                            records={records}
-                            updateQueryState={updateQueryState}
-                        />
-                    );
-                }}
-            </Query>
+            <Component
+                queryState={state}
+                total={total}
+                loading={loading}
+                records={records}
+                updateQueryState={updateQueryState}
+            />
         );
     }
 );
@@ -92,5 +87,3 @@ interface Response {
     records: any[];
     total: number;
 }
-
-class Query extends ApolloQuery<Response, QueryState> {}

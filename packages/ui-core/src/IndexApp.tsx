@@ -15,6 +15,10 @@ const IndexApp: React.FC = () => {
         credentials: 'include',
     });
 
+    // Enable dev tools for apollo client
+    // @ts-ignore
+    window.__APOLLO_CLIENT__ = client;
+
     return (
         <ApolloProvider client={client}>
             <CoreContextProvider>

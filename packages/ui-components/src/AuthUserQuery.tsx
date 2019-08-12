@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import gql from 'graphql-tag';
-import { Query } from 'react-apollo';
+import { useQuery } from 'react-apollo';
 import { get } from '@terascope/utils';
 import { ApolloError } from 'apollo-boost';
 import { useCoreContext } from './CoreContext';
-import { ResolvedUser } from './interfaces';
 import LoadingPage from './LoadingPage';
 import { tsWithRouter } from './utils';
 import ErrorPage from './ErrorPage';
@@ -34,35 +33,29 @@ export const AUTH_QUERY = gql`
 const AuthUserQuery = tsWithRouter(({ children, history }) => {
     const { updateState, authUser, authenticated } = useCoreContext();
     const [otherError, setOtherError] = useState<any>(null);
+    const { loading } = useQuery(AUTH_QUERY, {
+        skip: otherError == null && authUser != null && authenticated,
+        onCompleted: (data) => {
+            updateState({
+                authUser: data.authenticate,
+                authenticated: true,
+            });
+        },
+        onError: (error) => {
+            if (error && isAuthError(error)) {
+                history.replace('/logout');
+            } else {
+                setOtherError(otherError);
+            }
+        },
+        fetchPolicy: 'network-only',
+        notifyOnNetworkStatusChange: true,
+    });
+
     if (otherError) return <ErrorPage error={otherError} />;
+    if (loading) return <LoadingPage />;
 
-    return (
-        <AuthQuery
-            query={AUTH_QUERY}
-            skip={authUser != null && authenticated}
-            onCompleted={(data) => {
-                updateState({
-                    authUser: data.authenticate,
-                    authenticated: true,
-                });
-            }}
-            onError={(error) => {
-                if (error && isAuthError(error)) {
-                    history.replace('/logout');
-                } else {
-                    setOtherError(otherError);
-                }
-            }}
-            fetchPolicy="network-only"
-            notifyOnNetworkStatusChange
-        >
-            {({ loading }) => {
-                if (loading) return <LoadingPage />;
-
-                return children;
-            }}
-        </AuthQuery>
-    );
+    return <React.Fragment>{children}</React.Fragment>;
 });
 
 function isAuthError(error: ApolloError) {
@@ -81,9 +74,3 @@ function isAuthError(error: ApolloError) {
 }
 
 export default AuthUserQuery;
-
-interface Response {
-    authenticate: ResolvedUser;
-}
-
-class AuthQuery extends Query<Response> {}

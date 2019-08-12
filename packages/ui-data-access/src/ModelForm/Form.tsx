@@ -9,7 +9,7 @@ import {
     ComponentInputProps,
     AnyModel,
 } from './interfaces';
-import Mutation from './FormMutation';
+import { useFormMutation } from './hooks';
 import {
     validateClientId,
     prepareForMutation,
@@ -39,6 +39,11 @@ function Form<T extends AnyModel>({
     const [errors, setErrors] = useState<ErrorsState<T>>({
         fields: [],
         messages: [],
+    });
+
+    const [submit, { data, loading, error }] = useFormMutation({
+        modelName,
+        id,
     });
 
     const required = [...config.requiredFields];
@@ -111,65 +116,57 @@ function Form<T extends AnyModel>({
         },
     };
 
-    return (
-        <Mutation id={id} modelName={modelName}>
-            {(submit, { data, loading, error }: any) => {
-                const onSubmit = (e: FormEvent) => {
-                    e.preventDefault();
-                    if (validate(model, true)) {
-                        const input = prepareForMutation(model);
-                        if (create) {
-                            delete input.id;
-                        }
-                        const variables = isFunction(beforeSubmit)
-                            ? beforeSubmit(input, create)
-                            : { input };
-                        submit({
-                            variables,
-                        });
-                    }
-                };
+    const onSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        if (validate(model, true)) {
+            const input = prepareForMutation(model);
+            if (create) {
+                delete input.id;
+            }
+            const variables = isFunction(beforeSubmit)
+                ? beforeSubmit(input, create)
+                : { input };
+            submit({
+                variables,
+            });
+        }
+    };
 
-                return (
-                    <RecordForm
-                        onSubmit={onSubmit}
-                        loading={loading}
-                        requestError={error}
-                        validationErrors={errors.messages}
-                        recordType={config.singularLabel}
-                        isCreate={create}
-                        created={data && create}
-                        updated={data && update}
-                        redirectPath={`/${config.pathname}`}
-                        deletable={
-                            update && (canDelete ? canDelete(model) : true)
-                        }
-                        deleteRecord={async () => {
-                            await client.mutate({
-                                mutation: config.removeMutation,
-                                variables: {
-                                    id: model.id,
-                                },
-                                refetchQueries: [
-                                    {
-                                        query: config.listQuery,
-                                    },
-                                ],
-                            });
-                        }}
-                    >
-                        {children({
-                            ...props,
-                            client,
-                            model,
-                            defaultInputProps,
-                            updateModel,
-                            update,
-                        })}
-                    </RecordForm>
-                );
+    return (
+        <RecordForm
+            onSubmit={onSubmit}
+            loading={loading}
+            requestError={error}
+            validationErrors={errors.messages}
+            recordType={config.singularLabel}
+            isCreate={create}
+            created={data && create}
+            updated={data && update}
+            redirectPath={`/${config.pathname}`}
+            deletable={update && (canDelete ? canDelete(model) : true)}
+            deleteRecord={async () => {
+                await client.mutate({
+                    mutation: config.removeMutation,
+                    variables: {
+                        id: model.id,
+                    },
+                    refetchQueries: [
+                        {
+                            query: config.listQuery,
+                        },
+                    ],
+                });
             }}
-        </Mutation>
+        >
+            {children({
+                ...props,
+                client,
+                model,
+                defaultInputProps,
+                updateModel,
+                update,
+            })}
+        </RecordForm>
     );
 }
 
