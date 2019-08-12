@@ -33,6 +33,7 @@
         "no-restricted-syntax": "off",
         "no-await-in-loop": "off",
         "no-plusplus": "off",
-        "no-continue": "off"
+        "no-continue": "off",
+        "prefer-object-spread": "off"
     }
 }

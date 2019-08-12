@@ -133,14 +133,14 @@ class TestHarness {
     runAsync(data, extraOpConfig, extraContext) {
         const { processFn, getProcessor } = this;
         return Promise.resolve(getProcessor(extraOpConfig, extraContext))
-            .then(proc => processFn(proc, data));
+            .then((proc) => processFn(proc, data));
     }
 
     runSlices(slices, extraOpConfig, extraContext) {
         const { processFn, getProcessor, emulateShutdown } = this;
         const newProcessor = getProcessor(extraOpConfig, extraContext);
         return Promise.resolve(slices)
-            .mapSeries(slice => processFn(newProcessor, slice))
+            .mapSeries((slice) => processFn(newProcessor, slice))
             .then((results) => {
                 // Not yet clear if this is general enough. Trying it out to
                 // help keep callers simple.
@@ -224,4 +224,4 @@ class TestHarness {
     }
 }
 
-module.exports = op => new TestHarness(op);
+module.exports = (op) => new TestHarness(op);

@@ -51,7 +51,7 @@ class Aliases {
     list(output = 'txt') {
         const header = ['cluster', 'host'];
         const clusters = _.map(
-            _.mapValues(this.config.clusters, o => o.host),
+            _.mapValues(this.config.clusters, (o) => o.host),
             (value, key) => ({ cluster: key, host: value })
         );
         display.display(header, clusters, output);

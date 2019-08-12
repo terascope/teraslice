@@ -11,7 +11,7 @@ function schema() {
 }
 
 function newReader() {
-    return data => data;
+    return (data) => data;
 }
 
 module.exports = {

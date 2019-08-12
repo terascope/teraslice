@@ -192,8 +192,8 @@ class Options {
         };
 
         this.coerce = {
-            'cluster-url': newUrl => url.build(newUrl),
-            'new-cluster-url': newUrl => url.build(newUrl)
+            'cluster-url': (newUrl) => url.build(newUrl),
+            'new-cluster-url': (newUrl) => url.build(newUrl)
         };
     }
 

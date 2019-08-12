@@ -217,7 +217,7 @@ class Worker {
         await Promise.all([
             (async () => {
                 const stores = Object.values(this.stores);
-                await Promise.all(stores.map(store => store.shutdown(true).catch(pushError)));
+                await Promise.all(stores.map((store) => store.shutdown(true).catch(pushError)));
             })(),
             (async () => {
                 await this.slice.shutdown().catch(pushError);
@@ -238,7 +238,7 @@ class Worker {
         this.isShutdown = true;
 
         if (shutdownErrs.length) {
-            const errMsg = shutdownErrs.map(e => e.stack).join(', and');
+            const errMsg = shutdownErrs.map((e) => e.stack).join(', and');
             const shutdownErr = new Error(`Failed to shutdown correctly: ${errMsg}`);
             this.events.emit(this.context, 'worker:shutdown:complete', shutdownErr);
             throw shutdownErr;

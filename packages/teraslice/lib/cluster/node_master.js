@@ -103,7 +103,7 @@ module.exports = async function nodeMaster(context) {
 
     messaging.register({
         event: 'network:error',
-        callback: err => logger.warn(err, `Attempting to connect to cluster_master: ${host}`)
+        callback: (err) => logger.warn(err, `Attempting to connect to cluster_master: ${host}`)
     });
 
     messaging.register({
@@ -178,7 +178,7 @@ module.exports = async function nodeMaster(context) {
 
                 return workers;
             })
-                .then(createdWorkers => messaging.respond(createWorkerRequest, {
+                .then((createdWorkers) => messaging.respond(createWorkerRequest, {
                     payload: {
                         createdWorkers,
                     }
@@ -210,11 +210,11 @@ module.exports = async function nodeMaster(context) {
 
             const filterFn = () => _.filter(
                 context.cluster.workers,
-                worker => worker.ex_id === exId
+                (worker) => worker.ex_id === exId
             );
             function actionCompleteFn() {
                 const children = getNodeState().active;
-                const workers = _.filter(children, worker => worker.ex_id === exId);
+                const workers = _.filter(children, (worker) => worker.ex_id === exId);
                 logger.debug(`waiting for ${workers.length} to stop for ex: ${exId}`);
                 return workers.length === 0;
             }
@@ -228,15 +228,15 @@ module.exports = async function nodeMaster(context) {
         callback: (networkMsg) => {
             const numberToRemove = networkMsg.payload.workers;
             const children = getNodeState().active;
-            const startingWorkerCount = _.filter(children, worker => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker').length;
+            const startingWorkerCount = _.filter(children, (worker) => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker').length;
             const filterFn = () => _.filter(
                 children,
-                worker => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker'
+                (worker) => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker'
             ).slice(0, numberToRemove);
 
             function actionCompleteFn() {
                 const childWorkers = getNodeState().active;
-                const currentWorkersForJob = _.filter(childWorkers, worker => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker').length;
+                const currentWorkersForJob = _.filter(childWorkers, (worker) => worker.ex_id === networkMsg.ex_id && worker.assignment === 'worker').length;
                 return currentWorkersForJob + numberToRemove <= startingWorkerCount;
             }
 
@@ -355,7 +355,7 @@ module.exports = async function nodeMaster(context) {
             }
 
             if (worker.assets) {
-                child.assets = worker.assets.map(asset => asset.id);
+                child.assets = worker.assets.map((asset) => asset.id);
             }
 
             active.push(child);

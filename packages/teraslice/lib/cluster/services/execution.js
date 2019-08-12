@@ -51,7 +51,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
 
                 _.each(
                     state,
-                    node => _.each(node.active, (worker) => {
+                    (node) => _.each(node.active, (worker) => {
                         dict[worker.ex_id] = true;
                     }),
                 );
@@ -77,7 +77,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
 
     function shutdown() {
         logger.info('shutting down');
-        const query = exStore.getLivingStatuses().map(str => `_status:${str}`).join(' OR ');
+        const query = exStore.getLivingStatuses().map((str) => `_status:${str}`).join(' OR ');
         return searchExecutionContexts(query)
             .map((execution) => {
                 if (isNative) {
@@ -108,7 +108,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
 
     function _iterateState(cb) {
         return _.chain(getClusterState())
-            .filter(node => node.state === 'connected')
+            .filter((node) => node.state === 'connected')
             .map((node) => {
                 const workers = node.active.filter(cb);
 
@@ -128,12 +128,12 @@ module.exports = function executionService(context, { clusterMasterServer }) {
 
     function addWorkers(exId, workerNum) {
         return getActiveExecution(exId)
-            .then(execution => clusterService.addWorkers(execution, workerNum));
+            .then((execution) => clusterService.addWorkers(execution, workerNum));
     }
 
     function setWorkers(exId, workerNum) {
         return getActiveExecution(exId)
-            .then(execution => clusterService.setWorkers(execution, workerNum));
+            .then((execution) => clusterService.setWorkers(execution, workerNum));
     }
 
     function removeWorkers(exId, workerNum) {
@@ -142,7 +142,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
 
     function _isTerminalStatus(execution) {
         const terminalList = terminalStatusList();
-        return terminalList.find(tStat => tStat === execution._status) != null;
+        return terminalList.find((tStat) => tStat === execution._status) != null;
     }
 
     // safely stop the execution without setting the ex status to stopping or stopped
@@ -269,7 +269,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
 
     function createExecutionContext(job) {
         return exStore.create(job, 'ex')
-            .then(ex => setExecutionStatus(ex.ex_id, 'pending')
+            .then((ex) => setExecutionStatus(ex.ex_id, 'pending')
                 .then(() => {
                     logger.debug('enqueueing execution to be processed', ex);
                     pendingExecutionQueue.enqueue(ex);
@@ -291,19 +291,19 @@ module.exports = function executionService(context, { clusterMasterServer }) {
 
     function getExecutionContext(exId) {
         return exStore.get(exId)
-            .catch(err => logger.error(err, `error getting execution context for ex: ${exId}`));
+            .catch((err) => logger.error(err, `error getting execution context for ex: ${exId}`));
     }
 
     function getRunningExecutions(exId) {
-        let query = exStore.getRunningStatuses().map(state => ` _status:${state} `).join('OR');
+        let query = exStore.getRunningStatuses().map((state) => ` _status:${state} `).join('OR');
         if (exId) query = `ex_id: ${exId} AND (${query.trim()})`;
         return searchExecutionContexts(query, null, null, '_created:desc')
-            .then(exs => exs.map(ex => ex.ex_id));
+            .then((exs) => exs.map((ex) => ex.ex_id));
     }
 
     // encompasses all executions in either initialization or running statuses
     function getActiveExecution(exId) {
-        const str = terminalStatusList().map(state => ` _status:${state} `).join('OR');
+        const str = terminalStatusList().map((state) => ` _status:${state} `).join('OR');
         const query = `ex_id: ${exId} NOT (${str.trim()})`;
         return searchExecutionContexts(query, null, 1, '_created:desc')
             .then((ex) => {
@@ -376,8 +376,8 @@ module.exports = function executionService(context, { clusterMasterServer }) {
 
     function recoverExecution(exId, cleanup) {
         return getExecutionContext(exId)
-            .then(execution => _canRecover(execution))
-            .then(execution => _removeMetaData(execution))
+            .then((execution) => _canRecover(execution))
+            .then((execution) => _removeMetaData(execution))
             .then((execution) => {
                 execution.recovered_execution = exId;
                 if (cleanup) execution.recovered_slice_type = cleanup;

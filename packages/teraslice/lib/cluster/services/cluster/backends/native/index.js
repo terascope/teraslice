@@ -62,7 +62,7 @@ module.exports = function nativeClustering(context, clusterMasterServer, executi
 
     messaging.register({
         event: 'network:error',
-        callback: err => logger.error(err, 'cluster_master had an error with one of its connections')
+        callback: (err) => logger.error(err, 'cluster_master had an error with one of its connections')
     });
 
     messaging.register({
@@ -114,9 +114,9 @@ module.exports = function nativeClustering(context, clusterMasterServer, executi
             // looking for unique ex_id's not in slicerJobID
             if (!node.slicerExecutions[exId]) {
                 const activeWorkers = clusterState[nodeId].active;
-                const numOfWorkers = activeWorkers.filter(worker => worker.ex_id === exId).length;
+                const numOfWorkers = activeWorkers.filter((worker) => worker.ex_id === exId).length;
                 executionService.getActiveExecution(exId)
-                    .then(execution => addWorkers(execution, numOfWorkers));
+                    .then((execution) => addWorkers(execution, numOfWorkers));
             }
         });
 
@@ -522,7 +522,7 @@ module.exports = function nativeClustering(context, clusterMasterServer, executi
         return new Promise(((resolve, reject) => {
             let nodes = _findNodesForExecution(exId);
             if (excludeNode) {
-                nodes = nodes.filter(node => node.hostname !== excludeNode);
+                nodes = nodes.filter((node) => node.hostname !== excludeNode);
             } else if (messageData.message !== 'cluster:execution:stop' && nodes.length === 0) {
                 // exclude node is only in regards to a shutdown on the cluster_master, which
                 // already receives the shutdown notice so it can be empty, in all other
@@ -534,7 +534,7 @@ module.exports = function nativeClustering(context, clusterMasterServer, executi
             }
 
             const promises = nodes.map((node) => {
-                const sendingMsg = Object.assign({}, messageData, {
+                const sendingMsg = Object.assign(messageData, {
                     to: 'node_master',
                     address: node.node_id,
                     ex_id: exId,

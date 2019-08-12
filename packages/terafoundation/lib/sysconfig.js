@@ -53,7 +53,7 @@ function getArgs(scriptName, defaultConfigFile) {
             default: getDefaultConfigFile(),
             describe: `Terafoundation configuration file to load.
                         Defaults to env TERAFOUNDATION_CONFIG.`,
-            coerce: arg => parseConfigFile(arg || defaultConfigFile),
+            coerce: (arg) => parseConfigFile(arg || defaultConfigFile),
         })
         .option('b', {
             alias: 'bootstrap',

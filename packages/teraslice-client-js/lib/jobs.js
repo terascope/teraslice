@@ -24,7 +24,7 @@ class Jobs extends Client {
         };
 
         return this.post('/jobs', options)
-            .then(result => this.wrap(result.job_id));
+            .then((result) => this.wrap(result.job_id));
     }
 
     list(options) {

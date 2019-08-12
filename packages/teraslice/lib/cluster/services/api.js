@@ -231,7 +231,7 @@ module.exports = async function makeAPI(context, app, options) {
             let query = 'ex_id:*';
 
             if (statuses.length) {
-                const statusTerms = statuses.map(s => `_status:${s}`).join(' OR ');
+                const statusTerms = statuses.map((s) => `_status:${s}`).join(' OR ');
                 query += ` AND (${statusTerms})`;
             }
 
@@ -461,10 +461,11 @@ module.exports = async function makeAPI(context, app, options) {
             function checkExecution() {
                 executionService.getExecutionContext(exId)
                     .then((execution) => {
+                        const status = execution._status;
                         const terminalList = executionService.terminalStatusList();
-                        const isTerminal = terminalList.find(tStat => tStat === execution._status);
+                        const isTerminal = terminalList.find((tStat) => tStat === status);
                         if (isTerminal || !(blocking === true || blocking === 'true')) {
-                            resolve({ status: execution._status });
+                            resolve({ status });
                         } else {
                             setTimeout(checkExecution, 3000);
                         }

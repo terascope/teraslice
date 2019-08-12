@@ -24,7 +24,7 @@ module.exports = class extends Generator {
                         }
                         return true;
                     },
-                    filter: value => _.snakeCase(value)
+                    filter: (value) => _.snakeCase(value)
                 },
                 {
                     type: 'list',

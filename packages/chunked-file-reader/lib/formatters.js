@@ -66,7 +66,7 @@ function csv(incomingData, logger, opConfig, metadata, slice) {
     return Promise.map(data, async (record) => {
         try {
             let parsedLine = await csvToJson(csvParams)
-                .fromString(record).then(parsedData => parsedData[0]);
+                .fromString(record).then((parsedData) => parsedData[0]);
             // csvToJson trim applied inconsistently so implemented this function
             _.keys(parsedLine).forEach((key) => {
                 parsedLine[key] = parsedLine[key].trim();

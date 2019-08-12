@@ -18,7 +18,7 @@ class Assets extends Client {
         }
 
         return super.post('/assets', stream)
-            .then(response => JSON.parse(response));
+            .then((response) => JSON.parse(response));
     }
 
     delete(id) {

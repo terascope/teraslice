@@ -57,14 +57,14 @@ const run = async () => {
             fn(deferred) {
                 fetcher
                     .fetch({ addMetadata: true })
-                    .then(result => result.map(data => map.map(data)))
+                    .then((result) => result.map((data) => map.map(data)))
                     .then((result) => {
-                        result.forEach(data => each.forEach(data));
+                        result.forEach((data) => each.forEach(data));
                         return result;
                     })
-                    .then(result => result.filter(data => filter.filter(data)))
+                    .then((result) => result.filter((data) => filter.filter(data)))
                     .then((result) => {
-                        result.forEach(data => each.forEach(data));
+                        result.forEach((data) => each.forEach(data));
                         return result;
                     })
                     .then(() => deferred.resolve());
@@ -75,14 +75,14 @@ const run = async () => {
             fn(deferred) {
                 fetcher
                     .fetch({ precreate: true })
-                    .then(result => result.map(data => map.map(data)))
+                    .then((result) => result.map((data) => map.map(data)))
                     .then((result) => {
-                        result.forEach(data => each.forEach(data));
+                        result.forEach((data) => each.forEach(data));
                         return result;
                     })
-                    .then(result => result.filter(data => filter.filter(data)))
+                    .then((result) => result.filter((data) => filter.filter(data)))
                     .then((result) => {
-                        result.forEach(data => each.forEach(data));
+                        result.forEach((data) => each.forEach(data));
                         return result;
                     })
                     .then(() => deferred.resolve());
@@ -93,10 +93,10 @@ const run = async () => {
             fn(deferred) {
                 fetcher
                     .handle({ precreate: true })
-                    .then(result => map.handle(result))
-                    .then(result => each.handle(result))
-                    .then(result => filter.handle(result))
-                    .then(result => each.handle(result))
+                    .then((result) => map.handle(result))
+                    .then((result) => each.handle(result))
+                    .then((result) => filter.handle(result))
+                    .then((result) => each.handle(result))
                     .then(() => deferred.resolve());
             },
         })
@@ -105,10 +105,10 @@ const run = async () => {
             fn(deferred) {
                 fetcher
                     .handle()
-                    .then(result => map.handle(result))
-                    .then(result => each.handle(result))
-                    .then(result => filter.handle(result))
-                    .then(result => each.handle(result))
+                    .then((result) => map.handle(result))
+                    .then((result) => each.handle(result))
+                    .then((result) => filter.handle(result))
+                    .then((result) => each.handle(result))
                     .then(() => deferred.resolve());
             },
         })

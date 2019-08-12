@@ -22,7 +22,7 @@ const projects = fs
         }
         return false;
     })
-    .map(pkgName => `<rootDir>/packages/${pkgName}`);
+    .map((pkgName) => `<rootDir>/packages/${pkgName}`);
 
 module.exports = {
     rootDir: '.',

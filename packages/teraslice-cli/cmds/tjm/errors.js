@@ -28,7 +28,7 @@ exports.handler = async (argv) => {
             reply.green(`No errors for ${job.name} on ${job.clusterUrl}`);
         } else {
             reply.yellow(`Errors for ${job.name} on ${job.clusterUrl}:\n`);
-            response.forEach(error => reply.yellow(JSON.stringify(error, null, 4)));
+            response.forEach((error) => reply.yellow(JSON.stringify(error, null, 4)));
         }
     } catch (e) {
         reply.fatal(e.message);

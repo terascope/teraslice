@@ -54,7 +54,7 @@ describe('elasticsearch-api', () => {
     }
 
     function waitFor(time, fn) {
-        return new Promise(resolve => setTimeout(() => {
+        return new Promise((resolve) => setTimeout(() => {
             if (fn) fn();
             resolve(true);
         }, time));
@@ -218,10 +218,10 @@ describe('elasticsearch-api', () => {
         mget: () => Promise.resolve(getData()),
         get: () => Promise.resolve(recordsReturned[0]),
         index: () => Promise.resolve(postedData('created')),
-        create: obj => Promise.resolve(postedData('created', obj.id)),
+        create: (obj) => Promise.resolve(postedData('created', obj.id)),
         update: () => Promise.resolve(postedData('updated')),
         delete: () => Promise.resolve(postedData('deleted')),
-        bulk: data => Promise.resolve(createBulkResponse(data)),
+        bulk: (data) => Promise.resolve(createBulkResponse(data)),
         search: (_query) => {
             searchQuery = _query;
             if (searchError) return Promise.reject(searchError);
@@ -238,7 +238,7 @@ describe('elasticsearch-api', () => {
             },
             create: () => Promise.resolve({ acknowledged: true, shards_acknowledged: true }),
             refresh: () => Promise.resolve({ _shards: { total: 10, successful: 5, failed: 0 } }),
-            recovery: query => Promise.resolve(getRecoveryData(query.index)),
+            recovery: (query) => Promise.resolve(getRecoveryData(query.index)),
             getSettings: () => {
                 const obj = {};
                 obj.some_index = { settings: { index: { max_result_window: 1000000 } } };

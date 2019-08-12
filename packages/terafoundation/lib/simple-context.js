@@ -74,7 +74,7 @@ function getHostname(context) {
     return _.chain(networkInterfaces())
         .values()
         .flatten()
-        .filter(val => (val.family === 'IPv4' && val.internal === false))
+        .filter((val) => (val.family === 'IPv4' && val.internal === false))
         .map('address')
         .head()
         .value();

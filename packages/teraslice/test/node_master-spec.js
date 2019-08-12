@@ -144,7 +144,7 @@ describe('Node master', () => {
         };
         context.apis.foundation.getSystemEvents = () => newEmitter;
         context.cluster = Object.assign(Object.create(newEmitter), startingWorkers);
-        eventEmitter.on('deleteWorker', id => delete context.cluster.workers[id]);
+        eventEmitter.on('deleteWorker', (id) => delete context.cluster.workers[id]);
         return nodeModule(context);
     }
 

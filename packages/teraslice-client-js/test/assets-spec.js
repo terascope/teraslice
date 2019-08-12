@@ -64,7 +64,7 @@ describe('Teraslice Assets', () => {
             beforeEach((done) => {
                 const testFilePath = path.join(__dirname, 'fixtures', 'test.txt');
                 const contents = fs.readFileSync(testFilePath, 'utf-8');
-                scope.post('/assets', body => contents === body)
+                scope.post('/assets', (body) => contents === body)
                     .reply(200, { _id: 'some-asset-id' });
 
                 assets.post(fs.createReadStream(testFilePath))

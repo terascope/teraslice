@@ -67,12 +67,12 @@ class Job extends Client {
 
     exId() {
         return this.get(`/jobs/${this._jobId}/ex`)
-            .then(jobSpec => jobSpec.ex_id);
+            .then((jobSpec) => jobSpec.ex_id);
     }
 
     status() {
         return this.get(`/jobs/${this._jobId}/ex`)
-            .then(jobSpec => jobSpec._status);
+            .then((jobSpec) => jobSpec._status);
     }
 
     waitForStatus(target, intervalMs = 1000, timeoutMs = 0) {
@@ -140,7 +140,7 @@ class Job extends Client {
     }
 
     workers() {
-        return this.get('/cluster/state').then(state => this._filterProcesses(state, 'worker'));
+        return this.get('/cluster/state').then((state) => this._filterProcesses(state, 'worker'));
     }
 
     changeWorkers(action, workerNum) {
