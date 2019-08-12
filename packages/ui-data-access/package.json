@@ -1,6 +1,6 @@
 {
     "name": "@terascope/ui-data-access",
-    "version": "0.4.4",
+    "version": "0.4.5",
     "description": "A teraserver ui plugin for data-access",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/ui-data-access#readme",
     "bugs": {
@@ -23,9 +23,9 @@
     },
     "dependencies": {},
     "devDependencies": {
-        "@terascope/data-access": "^0.13.1",
+        "@terascope/data-access": "^0.13.2",
         "@terascope/data-types": "^0.5.3",
-        "@terascope/ui-components": "^0.3.6",
+        "@terascope/ui-components": "^0.3.7",
         "@terascope/utils": "^0.15.0",
         "@types/convict": "^4.2.1",
         "@types/react": "16.9.1",
@@ -41,7 +41,7 @@
         "prop-types": "^15.7.2",
         "query-string": "^6.8.2",
         "react": "^16.9.0",
-        "react-apollo": "^2.5.7",
+        "react-apollo": "^3.0.0",
         "react-dom": "^16.9.0",
         "react-router-dom": "^5.0.1",
         "semantic-ui-react": "^0.87.2",

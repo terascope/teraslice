@@ -1,6 +1,6 @@
 {
     "name": "@terascope/ui-core",
-    "version": "0.4.7",
+    "version": "0.4.8",
     "description": "A teraserver ui framework",
     "homepage": "/v2/ui",
     "bugs": {
@@ -38,12 +38,12 @@
         ]
     },
     "dependencies": {
-        "@terascope/ui-data-access": "^0.4.4",
+        "@terascope/ui-data-access": "^0.4.5",
         "pkg-up": "^3.1.0"
     },
     "devDependencies": {
-        "@craco/craco": "^5.2.3",
-        "@terascope/ui-components": "^0.3.6",
+        "@craco/craco": "^5.3.0",
+        "@terascope/ui-components": "^0.3.7",
         "@terascope/utils": "^0.15.0",
         "@types/react": "16.9.1",
         "@types/react-dom": "16.8.5",
@@ -57,7 +57,7 @@
         "prop-types": "^15.7.2",
         "query-string": "^6.8.2",
         "react": "^16.9.0",
-        "react-apollo": "^2.5.7",
+        "react-apollo": "^3.0.0",
         "react-dom": "^16.9.0",
         "react-router-dom": "^5.0.1",
         "react-scripts": "3.1.0",

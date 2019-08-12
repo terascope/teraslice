@@ -313,7 +313,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             const count = await this.countBy({
                 [field]: record[field],
                 ...(record.client_id && {
-                    client_id: record.client_id,
+                    client_id: [record.client_id, 0],
                 }),
             } as AnyInput<T>);
 

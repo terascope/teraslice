@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import PropTypes from 'prop-types';
-import { Query } from 'react-apollo';
+import { useQuery } from 'react-apollo';
 import { Segment } from 'semantic-ui-react';
 import {
     ErrorPage,
@@ -34,30 +34,28 @@ function ModelForm<T extends i.AnyModel>({
     }
 
     const authUser = useCoreContext().authUser!;
+    const { loading, error, data, client } = useQuery<any, Vars>(query, {
+        variables,
+        skip,
+    });
+
+    if (loading) return <LoadingPage />;
+    if (error) return <ErrorPage error={error} />;
+
+    const props = config.handleFormProps(authUser, data || {});
 
     return (
-        <Query<any, Vars> query={query} variables={variables} skip={skip}>
-            {({ loading, error, data, client }) => {
-                if (loading) return <LoadingPage />;
-                if (error) return <ErrorPage error={error} />;
-
-                const props = config.handleFormProps(authUser, data || {});
-
-                return (
-                    <Segment basic>
-                        <Form<T>
-                            client={client}
-                            {...passThroughProps}
-                            {...props}
-                            modelName={modelName}
-                            id={id}
-                        >
-                            {children}
-                        </Form>
-                    </Segment>
-                );
-            }}
-        </Query>
+        <Segment basic>
+            <Form<T>
+                client={client}
+                {...passThroughProps}
+                {...props}
+                modelName={modelName}
+                id={id}
+            >
+                {children}
+            </Form>
+        </Segment>
     );
 }
 

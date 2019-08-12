@@ -1,56 +1,13 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { Query, ApolloConsumer } from 'react-apollo';
 import { Redirect } from 'react-router-dom';
 import { parseErrorInfo } from '@terascope/utils';
+import { useQuery, useApolloClient } from 'react-apollo';
 import {
     LoadingPage,
     ErrorPage,
     useCoreContext,
 } from '@terascope/ui-components';
-
-const Logout: React.FC = () => {
-    const { authenticated, updateState } = useCoreContext();
-    if (!authenticated) return <Redirect to="/login" />;
-
-    return (
-        <ApolloConsumer>
-            {(client) => {
-                return (
-                    <LogoutQuery
-                        query={LOGOUT}
-                        onCompleted={(data) => {
-                            updateState({
-                                authUser: undefined,
-                                authenticated: !(data && data.logout),
-                            });
-                            client.resetStore();
-                        }}
-                        fetchPolicy="no-cache"
-                        notifyOnNetworkStatusChange
-                    >
-                        {({ loading, error, data }) => {
-                            if (loading) return <LoadingPage />;
-
-                            const errMsg = parseErrorInfo(error).message;
-                            if (error && !errMsg.includes('400')) {
-                                return <ErrorPage error={error} />;
-                            }
-
-                            if (!data || !data.logout) {
-                                return <ErrorPage error="Unable to logout" />;
-                            }
-
-                            return <Redirect to="/login" />;
-                        }}
-                    </LogoutQuery>
-                );
-            }}
-        </ApolloConsumer>
-    );
-};
-
-export default Logout;
 
 // Query...
 const LOGOUT = gql`
@@ -59,8 +16,36 @@ const LOGOUT = gql`
     }
 `;
 
-interface LogoutResponse {
-    logout: boolean;
-}
+const Logout: React.FC = () => {
+    const { authenticated, updateState } = useCoreContext();
 
-class LogoutQuery extends Query<LogoutResponse, {}> {}
+    const client = useApolloClient();
+    const { loading, error, data } = useQuery(LOGOUT, {
+        skip: !authenticated,
+        onCompleted: (result) => {
+            updateState({
+                authUser: undefined,
+                authenticated: !(result && result.logout),
+            });
+            client.resetStore();
+        },
+        fetchPolicy: 'no-cache',
+        notifyOnNetworkStatusChange: true,
+    });
+
+    if (!authenticated) return <Redirect to="/login" />;
+    if (loading) return <LoadingPage />;
+
+    const errMsg = parseErrorInfo(error).message;
+    if (error && !errMsg.includes('400')) {
+        return <ErrorPage error={error} />;
+    }
+
+    if (!data || !data.logout) {
+        return <ErrorPage error="Unable to logout" />;
+    }
+
+    return <Redirect to="/login" />;
+};
+
+export default Logout;
