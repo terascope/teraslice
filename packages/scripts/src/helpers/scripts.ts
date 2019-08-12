@@ -118,7 +118,7 @@ export async function yarnRun(script: string, args: string[] = [], cwd?: string)
 export async function runJest(cwd: string, argsMap: ArgsMap, env?: ExecEnv, extraArgs?: string[]): Promise<void> {
     const args = mapToArgs(argsMap);
     if (extraArgs) {
-        extraArgs.forEach(extraArg => {
+        extraArgs.forEach((extraArg) => {
             if (extraArg.startsWith('-') && args.includes(extraArg)) {
                 logger.debug(`* skipping duplicate jest arg ${extraArg}`);
                 return;
@@ -138,7 +138,7 @@ export async function runJest(cwd: string, argsMap: ArgsMap, env?: ExecEnv, extr
 export async function dockerPull(image: string): Promise<void> {
     await exec({
         cmd: 'docker',
-        args: ['pull', '-q', image],
+        args: ['pull', image],
     });
 }
 
@@ -160,8 +160,8 @@ export async function getContainerInfo(name: string): Promise<any> {
 }
 
 export async function remoteDockerImageExists(image: string): Promise<boolean> {
-    const result = await execa.command(`docker pull -q ${image}`, { reject: false });
-    return Boolean(result.stdout && result.exitCode === 0);
+    const result = await execa.command(`docker pull ${image}`, { reject: false });
+    return result.exitCode === 0;
 }
 
 export type DockerRunOptions = {
@@ -173,7 +173,7 @@ export type DockerRunOptions = {
 };
 
 export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): Promise<() => void> {
-    const args: string[] = ['--rm'];
+    const args: string[] = ['run', '--rm'];
     if (!opt.image) {
         throw new Error('Missing required image option');
     }
@@ -183,7 +183,7 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
     }
 
     if (opt.ports && opt.ports.length) {
-        opt.ports.forEach(port => {
+        opt.ports.forEach((port) => {
             if (isString(port)) {
                 args.push('--publish', port);
             } else {
@@ -209,7 +209,8 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
     let stderr: any;
     let done: boolean = true;
 
-    const subprocess = execa('docker', ['run', ...args]);
+    signale.debug(`executing: docker ${args.join(' ')}`);
+    const subprocess = execa('docker', args);
     if (!subprocess || !subprocess.stderr) {
         throw new Error('Failed to execute docker run');
     }
@@ -261,7 +262,7 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
 export async function dockerBuild(tag: string, cacheFrom: string[] = [], target?: string): Promise<void> {
     const cacheFromArgs: string[] = [];
 
-    cacheFrom.forEach(image => {
+    cacheFrom.forEach((image) => {
         cacheFromArgs.push('--cache-from', image);
     });
 
@@ -285,7 +286,7 @@ export async function pgrep(name: string): Promise<string> {
     if (!result) {
         throw new Error('Invalid result from ps aux');
     }
-    const found = result.split('\n').find(line => {
+    const found = result.split('\n').find((line) => {
         if (!line) return false;
         return line.toLowerCase().includes(name.toLowerCase());
     });
@@ -304,8 +305,8 @@ export async function getChangedFiles(...files: string[]) {
     const result = await exec({ cmd: 'git', args: ['diff', '--name-only', ...files] });
     return result
         .split('\n')
-        .map(str => str.trim())
-        .filter(str => !!str);
+        .map((str) => str.trim())
+        .filter((str) => !!str);
 }
 
 export type ArgsMap = { [key: string]: string | string[] };
@@ -319,7 +320,7 @@ export function mapToArgs(input: ArgsMap): string[] {
             args.push(`-${key}`, ...vals);
         }
     }
-    return args.filter(str => str != null && str !== '');
+    return args.filter((str) => str != null && str !== '');
 }
 
 export async function getLatestNPMVersion(name: string): Promise<string> {

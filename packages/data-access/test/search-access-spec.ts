@@ -335,7 +335,7 @@ describe('SearchAccess', () => {
                         total: 2,
                     },
                     hits: {
-                        hits: ts.times(total, n => ({
+                        hits: ts.times(total, (n) => ({
                             _index: 'example',
                             _source: {
                                 example: n,
@@ -363,7 +363,7 @@ describe('SearchAccess', () => {
                     total,
                     info: '5 results found. Returning 2.',
                     returning: 2,
-                    results: ts.times(total, n => ({
+                    results: ts.times(total, (n) => ({
                         example: n,
                     })),
                 });
@@ -376,7 +376,7 @@ describe('SearchAccess', () => {
                         total: 2,
                     },
                     hits: {
-                        hits: ts.times(total, n => ({
+                        hits: ts.times(total, (n) => ({
                             _index: 'example',
                             _source: {
                                 example: n,
@@ -403,7 +403,7 @@ describe('SearchAccess', () => {
                     total,
                     info: '150 results found. Returning 100.',
                     returning: 100,
-                    results: ts.times(total, n => ({
+                    results: ts.times(total, (n) => ({
                         example: n,
                     })),
                 });
@@ -416,7 +416,7 @@ describe('SearchAccess', () => {
                         total: 2,
                     },
                     hits: {
-                        hits: ts.times(total, n => ({
+                        hits: ts.times(total, (n) => ({
                             _index: 'example',
                             _source: {
                                 example: n,
@@ -444,7 +444,7 @@ describe('SearchAccess', () => {
                     total,
                     info: '5 results found. Returning 2.',
                     returning: 2,
-                    results: ts.times(total, n => ({
+                    results: ts.times(total, (n) => ({
                         example: n,
                     })),
                 });
@@ -457,7 +457,7 @@ describe('SearchAccess', () => {
                         total: 1,
                     },
                     hits: {
-                        hits: ts.times(total, n => ({
+                        hits: ts.times(total, (n) => ({
                             _index: 'example',
                             _source: {
                                 example: n,
@@ -486,7 +486,7 @@ describe('SearchAccess', () => {
                     total,
                     info: '5 results found. Returning 2. No sorting available.',
                     returning: 2,
-                    results: ts.times(total, n => ({
+                    results: ts.times(total, (n) => ({
                         _index: 'example',
                         example: n,
                     })),

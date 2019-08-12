@@ -87,7 +87,7 @@ export class Client extends core.Client {
             return true;
         };
 
-        const slice = await new Promise(resolve => {
+        const slice = await new Promise((resolve) => {
             this.once('execution:slice:new', onMessage);
 
             const intervalId = setInterval(() => {

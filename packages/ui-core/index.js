@@ -165,7 +165,7 @@ async function checkFilesChanged() {
 
     for (const { fileName, name } of files) {
         const modified = await getLastTouched(fileName);
-        const last = lastChanged.find(t => t.name === name);
+        const last = lastChanged.find((t) => t.name === name);
         if (!modified) {
             continue;
         }
@@ -268,7 +268,7 @@ async function updateAssetManifest(assets) {
     for (const assetPath of Object.keys(contents.files)) {
         if (assetPath.startsWith(staticBasePath)) {
             const filePath = path.join(buildPath, assetPath);
-            const found = assets.find(asset => asset.assetPath === assetPath);
+            const found = assets.find((asset) => asset.assetPath === assetPath);
             if (!found && fs.existsSync(filePath)) {
                 if (!removeOnChange.includes(filePath)) {
                     removeOnChange.push(filePath);

@@ -5,7 +5,7 @@ import { User, ACLManager, ModelName, AnyModel } from '@terascope/data-access';
 
 export function forEachModel(fn: (model: ModelName) => void) {
     const models: ModelName[] = ['User', 'Role', 'DataType', 'Space', 'View'];
-    return models.forEach(model => fn(model));
+    return models.forEach((model) => fn(model));
 }
 
 export function formatError(err: any) {
@@ -124,7 +124,7 @@ export function getCredentialsFromReq(req: Request): Creds {
 }
 
 export async function findAll<T extends AnyModel>(ids: string[] | undefined, fn: (query: string) => Promise<T[]>): Promise<T[]> {
-    const _ids = ts.castArray(ids || []).filter(id => !!id);
+    const _ids = ts.castArray(ids || []).filter((id) => !!id);
     if (!_ids.length) return [];
 
     const query = `id: (${_ids.join(' OR ')})`;

@@ -29,7 +29,7 @@ describe('cluster state', () => {
     }
 
     function checkState(state, type, jobId) {
-        return _.flatten(_.map(state, node => findWorkers(node.active, type, jobId))).length;
+        return _.flatten(_.map(state, (node) => findWorkers(node.active, type, jobId))).length;
     }
 
     function verifyClusterMaster(state) {

@@ -42,14 +42,14 @@ describe('validator lib', () => {
     let data: DataEntity[] = [];
 
     beforeEach(() => {
-        data = dataArray.map(obj => new DataEntity(obj));
+        data = dataArray.map((obj) => new DataEntity(obj));
     });
 
     it('can call the contains method', () => {
         const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', value: 'w', __id: 'someId' };
         const test = getValidator(opConfig, 'contains');
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
 
         expect(results[0]).toEqual(data[0]);
         expect(results[1]).toEqual({});
@@ -73,7 +73,7 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'equals');
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
 
         expect(results[0]).toEqual({});
         expect(results[1]).toEqual({});
@@ -98,7 +98,7 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'after');
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
 
         expect(results[0]).toEqual({});
         expect(results[1]).toEqual({});
@@ -117,7 +117,7 @@ describe('validator lib', () => {
         const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
         const test = getValidator(opConfig, 'alpha');
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
 
         expect(results[0]).toEqual(data[0]);
         expect(results[1]).toEqual(data[1]);
@@ -137,7 +137,7 @@ describe('validator lib', () => {
         const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
         const test = getValidator(opConfig, 'alphanumeric');
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
 
         expect(results[0]).toEqual(data[0]);
         expect(results[1]).toEqual(data[1]);
@@ -195,7 +195,7 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'before');
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
 
         expect(results[0]).toEqual({});
         expect(results[1]).toEqual({});
@@ -221,7 +221,7 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'bytelength');
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
 
         expect(results[0]).toEqual({});
         expect(results[1]).toEqual({});
@@ -241,9 +241,9 @@ describe('validator lib', () => {
         const test = getValidator(opConfig, 'creditcard');
 
         const cardData = new DataEntity({ field: '4945271443377285' });
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
 
-        results.forEach(result => expect(result).toEqual({}));
+        results.forEach((result) => expect(result).toEqual({}));
         expect(test.run(cardData)).toEqual(cardData);
     });
 
@@ -263,9 +263,9 @@ describe('validator lib', () => {
         const money2 = new DataEntity({ field: '$ 120.12' });
         const money3 = new DataEntity({ field: '$1,220.12' });
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
 
-        results.forEach(result => expect(result).toEqual({}));
+        results.forEach((result) => expect(result).toEqual({}));
         expect(test.run(money1)).toEqual(money1);
         expect(test.run(money2)).toEqual(money2);
         expect(test.run(money3)).toEqual(money3);
@@ -275,7 +275,7 @@ describe('validator lib', () => {
         const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
         const test = getValidator(opConfig, 'decimal');
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
 
         expect(results[0]).toEqual({});
         expect(results[1]).toEqual({});
@@ -294,7 +294,7 @@ describe('validator lib', () => {
         const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', value: 2, __id: 'someId' };
         const test = getValidator(opConfig, 'divisibleby');
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
 
         expect(results[0]).toEqual({});
         expect(results[1]).toEqual({});
@@ -322,13 +322,13 @@ describe('validator lib', () => {
         const noStr3 = new DataEntity({ other: 'things' });
         const noStr4 = new DataEntity(data3);
 
-        const resultsArray = data.map(obj => test.run(obj));
+        const resultsArray = data.map((obj) => test.run(obj));
         const results1 = test.run(noStr1);
         const results2 = test.run(noStr2);
         const results3 = test.run(noStr3);
         const results4 = test.run(noStr4);
 
-        resultsArray.forEach(result => expect(result).toEqual({}));
+        resultsArray.forEach((result) => expect(result).toEqual({}));
         expect(results1).toEqual(noStr3);
         expect(results2).toEqual(data2);
         expect(results3).toEqual(noStr3);
@@ -345,14 +345,14 @@ describe('validator lib', () => {
         const url4 = new DataEntity({ field: 'http://google.com?hello=world' });
         const url5 = new DataEntity({ field: 'http://google' });
 
-        const resultsArray = data.map(obj => test.run(obj));
+        const resultsArray = data.map((obj) => test.run(obj));
         const results1 = test.run(url1);
         const results2 = test.run(url2);
         const results3 = test.run(url3);
         const results4 = test.run(url4);
         const results5 = test.run(url5);
 
-        resultsArray.forEach(result => expect(result).toEqual({}));
+        resultsArray.forEach((result) => expect(result).toEqual({}));
         expect(results1).toEqual(url1);
         expect(results2).toEqual(url2);
         expect(results3).toEqual(url3);
@@ -364,7 +364,7 @@ describe('validator lib', () => {
         const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
         const test = getValidator(opConfig, 'float');
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
 
         expect(results[0]).toEqual({});
         expect(results[1]).toEqual({});
@@ -401,9 +401,9 @@ describe('validator lib', () => {
         const results1 = new DataEntity({ field: data1 });
         const results2 = new DataEntity({ field: data256 });
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
 
-        results.forEach(result => expect(result).toEqual({}));
+        results.forEach((result) => expect(result).toEqual({}));
         expect(test.run(results1)).toEqual({});
         expect(test.run(results2)).toEqual(results2);
     });
@@ -414,8 +414,8 @@ describe('validator lib', () => {
 
         const results1 = new DataEntity({ field: makeHexidecimalNumber(1234234) });
 
-        const results = data.map(obj => test.run(obj));
-        results.forEach(result => expect(result).toEqual({}));
+        const results = data.map((obj) => test.run(obj));
+        results.forEach((result) => expect(result).toEqual({}));
         expect(test.run(results1)).toEqual(results1);
     });
 
@@ -426,8 +426,8 @@ describe('validator lib', () => {
         const results1 = new DataEntity({ field: '9781234567897' });
         const results2 = new DataEntity({ field: 9781234567897 });
 
-        const results = data.map(obj => test.run(obj));
-        results.forEach(result => expect(result).toEqual({}));
+        const results = data.map((obj) => test.run(obj));
+        results.forEach((result) => expect(result).toEqual({}));
         expect(test.run(results1)).toEqual(results1);
         expect(test.run(results2)).toEqual({});
     });
@@ -438,8 +438,8 @@ describe('validator lib', () => {
 
         const results1 = new DataEntity({ field: '0317-8471' });
 
-        const results = data.map(obj => test.run(obj));
-        results.forEach(result => expect(result).toEqual({}));
+        const results = data.map((obj) => test.run(obj));
+        results.forEach((result) => expect(result).toEqual({}));
         expect(test.run(results1)).toEqual(results1);
     });
 
@@ -447,7 +447,7 @@ describe('validator lib', () => {
         const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
         const test = getValidator(opConfig, 'iso8601');
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
         results.forEach((result, ind) => {
             if (ind === 9) {
                 expect(result).toEqual(dataArray[ind]);
@@ -465,7 +465,7 @@ describe('validator lib', () => {
         const results2 = new DataEntity({ field: new Date().toUTCString() });
         const results3 = new DataEntity({ field: new Date().toTimeString() });
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
         results.forEach((result, ind) => {
             if (ind === 9) {
                 expect(result).toEqual(dataArray[ind]);
@@ -485,8 +485,8 @@ describe('validator lib', () => {
         const results1 = new DataEntity({ field: 'US' });
         const results2 = new DataEntity({ field: 'us' });
 
-        const results = data.map(obj => test.run(obj));
-        results.forEach(result => expect(result).toEqual({}));
+        const results = data.map((obj) => test.run(obj));
+        results.forEach((result) => expect(result).toEqual({}));
 
         expect(test.run(results1)).toEqual(results1);
         expect(test.run(results2)).toEqual(results2);
@@ -499,8 +499,8 @@ describe('validator lib', () => {
         const results1 = new DataEntity({ field: 'USA' });
         const results2 = new DataEntity({ field: 'usa' });
 
-        const results = data.map(obj => test.run(obj));
-        results.forEach(result => expect(result).toEqual({}));
+        const results = data.map((obj) => test.run(obj));
+        results.forEach((result) => expect(result).toEqual({}));
 
         expect(test.run(results1)).toEqual(results1);
         expect(test.run(results2)).toEqual(results2);
@@ -516,7 +516,7 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'in');
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
 
         results.forEach((result, ind) => {
             if (ind === 0) {
@@ -535,8 +535,8 @@ describe('validator lib', () => {
         const data1 = new DataEntity(obj);
         const results1 = test.run(data1);
 
-        const results = data.map(d => test.run(d));
-        results.forEach(result => expect(result).toEqual({}));
+        const results = data.map((d) => test.run(d));
+        results.forEach((result) => expect(result).toEqual({}));
         expect(results1).toEqual(obj);
     });
 
@@ -544,7 +544,7 @@ describe('validator lib', () => {
         const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
         const test = getValidator(opConfig, 'latlong');
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
         results.forEach((result, ind) => {
             if (ind === 3) {
                 expect(result).toEqual(dataArray[ind]);
@@ -565,7 +565,7 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'length');
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
         results.forEach((result, ind) => {
             if (ind === 2 || ind === 5) {
                 expect(result).toEqual(dataArray[ind]);
@@ -587,8 +587,8 @@ describe('validator lib', () => {
         const data1 = new DataEntity(obj);
         const results1 = test.run(data1);
 
-        const results = data.map(o => test.run(o));
-        results.forEach(result => expect(result).toEqual({}));
+        const results = data.map((o) => test.run(o));
+        results.forEach((result) => expect(result).toEqual({}));
         expect(results1).toEqual(obj);
     });
 
@@ -600,8 +600,8 @@ describe('validator lib', () => {
         const data1 = new DataEntity(obj);
         const results1 = test.run(data1);
 
-        const results = data.map(o => test.run(o));
-        results.forEach(result => expect(result).toEqual({}));
+        const results = data.map((o) => test.run(o));
+        results.forEach((result) => expect(result).toEqual({}));
         expect(results1).toEqual(obj);
     });
 
@@ -609,7 +609,7 @@ describe('validator lib', () => {
         const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
         const test = getValidator(opConfig, 'numeric');
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
 
         results.forEach((result, ind) => {
             if (ind === 5) {
@@ -633,8 +633,8 @@ describe('validator lib', () => {
         const results1 = test.run(data1);
         const results2 = test.run(data2);
 
-        const results = data.map(o => test.run(o));
-        results.forEach(result => expect(result).toEqual({}));
+        const results = data.map((o) => test.run(o));
+        results.forEach((result) => expect(result).toEqual({}));
 
         expect(results1).toEqual(obj);
         expect(results2).toEqual({});
@@ -653,8 +653,8 @@ describe('validator lib', () => {
         const results1 = test.run(data1);
         const results2 = test.run(data2);
 
-        const results = data.map(o => test.run(o));
-        results.forEach(result => expect(result).toEqual({}));
+        const results = data.map((o) => test.run(o));
+        results.forEach((result) => expect(result).toEqual({}));
 
         expect(results1).toEqual(obj);
         expect(results2).toEqual(obj2);
@@ -670,7 +670,7 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'matches');
 
-        const results = data.map(obj => test.run(obj));
+        const results = data.map((obj) => test.run(obj));
 
         results.forEach((result, ind) => {
             if (ind === 0 || ind === 2) {

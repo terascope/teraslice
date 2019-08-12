@@ -29,7 +29,7 @@ class Ex extends Client {
     status(exId) {
         _checkID(exId);
         return this.get(`/ex/${exId}`)
-            .then(exSpec => exSpec._status);
+            .then((exSpec) => exSpec._status);
     }
 
     list(options) {

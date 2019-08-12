@@ -47,7 +47,7 @@ const Login: React.FC = (props: any) => {
             query={LOGIN}
             variables={variables}
             skip={!ready}
-            onCompleted={data => {
+            onCompleted={(data) => {
                 const authenticated = Boolean(get(data, 'authenticate.id'));
                 const authUser = get(data, 'authenticate');
                 updateState({ authenticated, authUser });

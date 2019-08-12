@@ -228,7 +228,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         const ms = Math.round(this._bulkMaxWait / 2);
 
         this._interval = setInterval(() => {
-            this.flush().catch(err => {
+            this.flush().catch((err) => {
                 this._logger.error(err, 'Failure flushing in the background');
             });
         }, ms);

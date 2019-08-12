@@ -34,7 +34,7 @@ export default class CachedStateStorage<T> extends EventEmitter {
     }
 
     mset(docArray: SetTuple<T>[]) {
-        docArray.forEach(doc => this.set(doc.key, doc.data));
+        docArray.forEach((doc) => this.set(doc.key, doc.data));
     }
 
     count() {

@@ -6,7 +6,7 @@ function _iterateState(clusterState, cb) {
     // I clone here, because the code below accidentally modifies clusterState.
     // Not sure if this is the best chouice.
     return _.chain(_.cloneDeep(clusterState))
-        .filter(node => node.state === 'connected')
+        .filter((node) => node.state === 'connected')
         .map((node) => {
             const workers = node.active.filter(cb);
 
@@ -23,21 +23,21 @@ function _iterateState(clusterState, cb) {
 function findAllSlicers(clusterState) {
     return _iterateState(
         clusterState,
-        worker => worker.assignment === 'execution_controller'
+        (worker) => worker.assignment === 'execution_controller'
     );
 }
 
 function findWorkersByExecutionID(clusterState, exId) {
     return _iterateState(
         clusterState,
-        worker => worker.assignment === 'worker' && worker.ex_id === exId
+        (worker) => worker.assignment === 'worker' && worker.ex_id === exId
     );
 }
 
 function findSlicersByExecutionID(clusterState, exIdDict) {
     return _iterateState(
         clusterState,
-        worker => worker.assignment === 'execution_controller' && exIdDict[worker.ex_id]
+        (worker) => worker.assignment === 'execution_controller' && exIdDict[worker.ex_id]
     );
 }
 

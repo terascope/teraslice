@@ -47,7 +47,7 @@ describe('options', () => {
     describe('-> buildCoerce', () => {
         test('should build a coerce function', () => {
             options.coerce = {
-                testc: newValue => _.toUpper(newValue),
+                testc: (newValue) => _.toUpper(newValue),
             };
             expect(options.buildCoerce('testc')).toBeDefined();
         });

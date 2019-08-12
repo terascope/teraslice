@@ -40,20 +40,17 @@ function getChunk(readerClient, slice, opConfig, logger, metadata) {
 
     async function getMargin(offset, length) {
         let margin = '';
-        return new Promise(async (resolve) => {
-            while (margin.indexOf(delimiter) === -1) {
-                // reader clients must return false-y when nothing more to read.
-                const chunk = await readerClient(offset, length); // eslint-disable-line no-await-in-loop, max-len
-                if (!chunk) {
-                    resolve(margin.split(delimiter)[0]);
-                    return;
-                }
-                margin += chunk;
-                offset += length; // eslint-disable-line no-param-reassign, max-len
+        while (margin.indexOf(delimiter) === -1) {
+            // reader clients must return false-y when nothing more to read.
+            const chunk = await readerClient(offset, length); // eslint-disable-line no-await-in-loop, max-len
+            if (!chunk) {
+                return margin.split(delimiter)[0];
             }
-            // Don't read too far - next slice will get it.
-            resolve(margin.split(delimiter)[0]);
-        });
+            margin += chunk;
+            offset += length; // eslint-disable-line no-param-reassign, max-len
+        }
+        // Don't read too far - next slice will get it.
+        return margin.split(delimiter)[0];
     }
 
     let needMargin = false;
@@ -79,7 +76,7 @@ function getChunk(readerClient, slice, opConfig, logger, metadata) {
             }
             return data;
         })
-        .then(data => chunkFormatter[opConfig.format](data, logger, opConfig, metadata, slice));
+        .then((data) => chunkFormatter[opConfig.format](data, logger, opConfig, metadata, slice));
 }
 
 module.exports = {

@@ -121,7 +121,7 @@ describe('ExecutionController', () => {
         });
 
         describe('when the client is ready', () => {
-            beforeAll(done => {
+            beforeAll((done) => {
                 server.onClientAvailable(() => {
                     done();
                 });
@@ -218,7 +218,7 @@ describe('ExecutionController', () => {
             });
 
             describe('when receiving finished', () => {
-                beforeAll(done => {
+                beforeAll((done) => {
                     client.onExecutionFinished(() => {
                         done();
                     });

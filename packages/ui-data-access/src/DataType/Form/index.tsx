@@ -91,7 +91,7 @@ const DataTypeForm: React.FC<Props> = ({ id }) => {
                         <TypeConfig
                             resolvedConfig={resolvedConfig}
                             inherits={model.inherit_from.length > 0}
-                            updateTypeConfig={typeConfig => {
+                            updateTypeConfig={(typeConfig) => {
                                 updateModel({
                                     config: { ...typeConfig },
                                 });

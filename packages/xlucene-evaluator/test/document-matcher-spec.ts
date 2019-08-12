@@ -13,7 +13,7 @@ describe('Document-Matcher', () => {
                     // @ts-ignore
                     const documentMatcher = new DocumentMatcher(query, typeConfig);
                      // @ts-ignore
-                    const results = data.map(obj => documentMatcher.match(obj));
+                    const results = data.map((obj) => documentMatcher.match(obj));
                     expect(results).toEqual(testResults);
                 });
             });

@@ -6,7 +6,7 @@ const path = require('path');
 const ip = _.chain(require('os').networkInterfaces())
     .values()
     .flatten()
-    .filter(val => val.family === 'IPv4' && val.internal === false)
+    .filter((val) => val.family === 'IPv4' && val.internal === false)
     .map('address')
     .head()
     .value();

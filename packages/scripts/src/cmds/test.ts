@@ -51,7 +51,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             })
             .option('suite', {
                 description: 'Run a test given a particular suite. Defaults to running all',
-                choices: Object.values(TestSuite).filter(suite => suite !== TestSuite.Disabled),
+                choices: Object.values(TestSuite).filter((suite) => suite !== TestSuite.Disabled),
                 coerce(arg): TestSuite {
                     return arg;
                 },
@@ -137,7 +137,7 @@ function hoistJestArg(argv: any, key: string): boolean {
 function getExtraArgs(): string[] {
     const args: string[] = [];
     let extra = false;
-    process.argv.forEach(arg => {
+    process.argv.forEach((arg) => {
         if (extra) {
             args.push(...resolveJestArg(arg));
         }

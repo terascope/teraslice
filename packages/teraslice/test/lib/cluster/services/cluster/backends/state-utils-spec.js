@@ -18,7 +18,7 @@ describe('stateUtils', () => {
         it('can filter worker list and return cluster master node', () => {
             const workerList = stateUtils._iterateState(
                 clusterState,
-                worker => worker.assignment === 'cluster_master'
+                (worker) => worker.assignment === 'cluster_master'
             );
             expect(workerList[0].node_id).toEqual('node1.lan');
         });

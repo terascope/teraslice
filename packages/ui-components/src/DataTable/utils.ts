@@ -27,8 +27,8 @@ export function getSortDirection(field: string, sortBy: ParsedSort): 'ascending'
 }
 
 export function formatRegexQuery(query: string, searchFields: string[]) {
-    const fields = searchFields.map(field => `${field}.text`);
-    const fieldList = fields.map(val => `${val}:/.*${query}.*/`);
+    const fields = searchFields.map((field) => `${field}.text`);
+    const fieldList = fields.map((val) => `${val}:/.*${query}.*/`);
     return fieldList.join(' OR ');
 }
 

@@ -128,7 +128,7 @@ async function generateTestData() {
         return misc
             .teraslice()
             .jobs.submit(jobSpec)
-            .then(job => job.exId().then((exId) => {
+            .then((job) => job.exId().then((exId) => {
                 jobList.push(exId);
                 return job;
             }));
@@ -177,7 +177,7 @@ async function generateTestData() {
                     return postJob(jobSpec);
                 });
                 const jobs = _.castArray(result);
-                await Promise.map(jobs, job => waitForJobStatus(job, 'completed'));
+                await Promise.map(jobs, (job) => waitForJobStatus(job, 'completed'));
             } else {
                 await postJob(jobSpec);
             }
@@ -190,7 +190,7 @@ async function generateTestData() {
     }
 
     try {
-        await Promise.all(misc.EXAMLPE_INDEX_SIZES.map(size => generate(size)));
+        await Promise.all(misc.EXAMLPE_INDEX_SIZES.map((size) => generate(size)));
         // we need fully active jobs so we can get proper meta data for recovery state tests
         await Promise.all([
             populateStateForRecoveryTests('testex-errors', 'test-recovery-100'),

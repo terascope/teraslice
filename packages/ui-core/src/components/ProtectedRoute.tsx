@@ -12,7 +12,7 @@ const ProtectedRoute: React.FC<any> = ({ component: Component, ...rest }) => {
     return (
         <Route
             {...rest}
-            render={props => {
+            render={(props) => {
                 const result = findPluginRoute(props.location.pathname);
 
                 if (authenticated) {

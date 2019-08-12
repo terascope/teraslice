@@ -40,7 +40,7 @@ describe('can transform matches', () => {
         const results = await test.run(data);
 
         expect(results.length).toEqual(1);
-        _.each(results, d => {
+        _.each(results, (d) => {
             expect(DataEntity.isDataEntity(d)).toEqual(true);
             expect(_.get(d, 'topfield.value1')).toEqual('hello');
             expect(d.getMetadata('selectors')).toBeDefined();
@@ -73,7 +73,7 @@ describe('can transform matches', () => {
         };
 
         const data = DataEntity.makeArray([{ data: 'someData' }, { data: 'otherData' }, {}]);
-        const resultSet = data.map(obj => obj.data);
+        const resultSet = data.map((obj) => obj.data);
         const test = await opTest.init(config);
         const results = await test.run(data);
 
@@ -325,7 +325,7 @@ describe('can transform matches', () => {
             { hello: 'world' },
         ];
 
-        const transformedData = data.map(doc => {
+        const transformedData = data.map((doc) => {
             if (doc.txt) {
                 const txt = Buffer.from(doc.txt).toString('hex');
                 return Object.assign({}, doc, { txt });
@@ -333,7 +333,7 @@ describe('can transform matches', () => {
             return doc;
         });
 
-        const resultsData1 = data.map(doc => ({ hex: doc.txt }));
+        const resultsData1 = data.map((doc) => ({ hex: doc.txt }));
 
         const data1 = DataEntity.makeArray(_.cloneDeep(transformedData));
         const data2 = DataEntity.makeArray(_.cloneDeep(transformedData));

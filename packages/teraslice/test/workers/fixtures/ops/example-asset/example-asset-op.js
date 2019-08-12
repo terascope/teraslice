@@ -1,7 +1,7 @@
 'use strict';
 
 function newProcessor() {
-    return data => data.map(() => 'hello');
+    return (data) => data.map(() => 'hello');
 }
 
 function schema() {

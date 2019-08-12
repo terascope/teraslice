@@ -108,7 +108,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     async deleteAll(ids: string[]): Promise<void> {
         if (!ids || !ids.length) return;
 
-        await Promise.all(ts.uniq(ids).map(id => this.deleteById(id)));
+        await Promise.all(ts.uniq(ids).map((id) => this.deleteById(id)));
     }
 
     async exists(id: string[] | string): Promise<boolean> {
@@ -189,15 +189,15 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         );
 
         if (result.length !== ids.length) {
-            const foundIds = result.map(doc => doc.id);
-            const notFoundIds = ids.filter(id => !foundIds.includes(id));
+            const foundIds = result.map((doc) => doc.id);
+            const notFoundIds = ids.filter((id) => !foundIds.includes(id));
             throw new ts.TSError(`Unable to find ${this.name}'s ${notFoundIds.join(', ')}`, {
                 statusCode: 404,
             });
         }
 
         // maintain sort order
-        return ids.map(id => result.find(doc => doc.id === id)!);
+        return ids.map((id) => result.find((doc) => doc.id === id)!);
     }
 
     async find(q: string = '', options: i.FindOptions<T> = {}, queryAccess?: QueryAccess<T>): Promise<T[]> {
@@ -212,7 +212,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             });
         }
 
-        return this.store.updatePartial(id, async existing => {
+        return this.store.updatePartial(id, async (existing) => {
             const doc = this._sanitizeRecord({
                 ...existing,
                 ...record,
@@ -229,7 +229,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     }
 
     protected async _appendToArray(id: string, field: keyof T, values: string[] | string): Promise<void> {
-        const valueArray = values && ts.uniq(ts.castArray(values)).filter(v => !!v);
+        const valueArray = values && ts.uniq(ts.castArray(values)).filter((v) => !!v);
         if (!valueArray || !valueArray.length) return;
 
         await this._updateWith(id, {
@@ -250,7 +250,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     }
 
     protected async _removeFromArray(id: string, field: keyof T, values: string[] | string): Promise<void> {
-        const valueArray = values && ts.uniq(ts.castArray(values)).filter(v => !!v);
+        const valueArray = values && ts.uniq(ts.castArray(values)).filter((v) => !!v);
         if (!valueArray || !valueArray.length) return;
 
         try {
@@ -296,7 +296,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             records = await this.store.search(q, params);
         }
 
-        return records.map(record => this._postProcess(record));
+        return records.map((record) => this._postProcess(record));
     }
 
     protected async _ensureUnique(record: T, existing?: T) {

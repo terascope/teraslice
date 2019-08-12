@@ -310,13 +310,13 @@ describe('transform operator', () => {
             { otherField: 'data' },
         ]);
 
-        const finalArray = dataArray.map(doc => {
+        const finalArray = dataArray.map((doc) => {
             if (doc.someField !== undefined) {
                 doc['otherField'] = doc.someField;
             }
             return doc;
         });
-        const resultsArray = dataArray.map(data => test.run(data));
+        const resultsArray = dataArray.map((data) => test.run(data));
 
         resultsArray.forEach((result, ind) => {
             if (result) expect(DataEntity.isDataEntity(result)).toEqual(true);

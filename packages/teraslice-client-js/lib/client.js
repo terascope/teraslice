@@ -112,7 +112,7 @@ function handleResponse(req) {
     };
 
     return req.promise()
-        .catch(reason => Promise.reject(reason.error))
+        .catch((reason) => Promise.reject(reason.error))
         .then((response) => {
             const { body, statusCode } = response;
 

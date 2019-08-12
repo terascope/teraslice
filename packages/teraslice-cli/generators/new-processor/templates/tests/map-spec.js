@@ -36,6 +36,6 @@ describe('<%= name %> should', () => {
 
     it('add type string to all the docs', async () => {
         const results = await testHarness.run(testData);
-        results.forEach(doc => expect(doc.type === 'string').toBe(true));
+        results.forEach((doc) => expect(doc.type === 'string').toBe(true));
     });
 });

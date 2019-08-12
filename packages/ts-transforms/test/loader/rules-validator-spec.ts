@@ -374,7 +374,7 @@ describe('rules-validator', () => {
             const validator = constructValidator(chainedRules1);
             const { postProcessing } = validator.validate();
 
-            const resultsOrder = postProcessing['*'].map(obj => obj.post_process);
+            const resultsOrder = postProcessing['*'].map((obj) => obj.post_process);
 
             expect(postProcessing['*']).toBeArrayOfSize(3);
             expect(resultsOrder).toEqual(['base64decode', 'urldecode', 'jsonparse']);
@@ -410,7 +410,7 @@ describe('rules-validator', () => {
             const { postProcessing } = validator.validate();
             let prev: OperationConfig | undefined;
 
-            results.forEach(config => {
+            results.forEach((config) => {
                 if (config.post_process) {
                     if (prev) {
                         config.source_field = prev.target_field;
@@ -420,8 +420,8 @@ describe('rules-validator', () => {
                 prev = config;
             });
 
-            postProcessing['*'].forEach(config => {
-                const testConfig = Object.assign({}, results.find(obj => obj.__id === config.__id), { __pipeline: '*' });
+            postProcessing['*'].forEach((config) => {
+                const testConfig = Object.assign({}, results.find((obj) => obj.__id === config.__id), { __pipeline: '*' });
                 expect(config).toEqual(testConfig);
             });
         });

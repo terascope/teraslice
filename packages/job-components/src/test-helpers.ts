@@ -243,7 +243,7 @@ export class TestContext implements i.Context {
                 this[namespace] = apis;
             },
             setTestClients(clients: TestClientConfig[] = []) {
-                clients.forEach(clientConfig => {
+                clients.forEach((clientConfig) => {
                     const { create, config = {} } = clientConfig;
 
                     const clientFns = _createClientFns.get(ctx) || {};
@@ -270,7 +270,7 @@ export class TestContext implements i.Context {
                 const cachedClients = _cachedClients.get(ctx) || {};
                 const clients = {};
 
-                Object.keys(cachedClients).forEach(key => {
+                Object.keys(cachedClients).forEach((key) => {
                     const [type, endpoint] = key.split(':') as [string, string];
                     if (clients[type] == null) {
                         clients[type] = {};

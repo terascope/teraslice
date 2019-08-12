@@ -108,7 +108,7 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
         const timeLabel = `test suite "${suite}"`;
         signale.time(timeLabel);
 
-        const env = utils.getEnv(options);
+        const env = utils.getEnv(options, suite);
         if (options.debug || isCI) {
             signale.debug(`setting env for test suite "${suite}"`, env);
         }
@@ -125,19 +125,19 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
             }
 
             const args = utils.getArgs(options);
-            args.projects = pkgs.map(pkgInfo => path.join('packages', pkgInfo.folderName));
+            args.projects = pkgs.map((pkgInfo) => path.join('packages', pkgInfo.folderName));
 
             try {
                 await runJest(getRootDir(), args, env, options.jestArgs);
             } catch (err) {
                 if (pkgs.length > 1) {
                     const error = new TSError(err, {
-                        message: `At least one of these tests failed ${pkgs.map(pkgInfo => pkgInfo.name).join(', ')} failed`,
+                        message: `At least one of these tests failed ${pkgs.map((pkgInfo) => pkgInfo.name).join(', ')} failed`,
                     });
                     errors.push(getFullErrorStack(error));
                 } else {
                     const error = new TSError(err, {
-                        message: `Test ${pkgs.map(pkgInfo => pkgInfo.name).join(', ')} failed`,
+                        message: `Test ${pkgs.map((pkgInfo) => pkgInfo.name).join(', ')} failed`,
                     });
                     errors.push(getFullErrorStack(error));
                 }
@@ -192,7 +192,7 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         signale.time(timeLabel);
         startedTest = true;
 
-        const env = utils.getEnv(options);
+        const env = utils.getEnv(options, suite);
         if (options.debug || isCI) {
             signale.debug(`setting env for test suite "${suite}"`, env);
         }

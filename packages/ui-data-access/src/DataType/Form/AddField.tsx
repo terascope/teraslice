@@ -115,7 +115,7 @@ const AddField: React.FC<Props> = ({ addField, fields }) => {
                 </Form.Field>
                 <ArrayCheckbox
                     array={state.array}
-                    onChange={checked => {
+                    onChange={(checked) => {
                         updateState({ array: checked });
                     }}
                 />

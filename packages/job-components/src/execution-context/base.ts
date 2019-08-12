@@ -74,7 +74,7 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
 
         await Promise.all(promises);
 
-        Object.keys(this._handlers).forEach(event => {
+        Object.keys(this._handlers).forEach((event) => {
             const listener = this._handlers[event];
             this.events.removeListener(event, listener);
         });

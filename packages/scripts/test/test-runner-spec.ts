@@ -9,12 +9,12 @@ describe('Test Runner Helpers', () => {
     describe('->onlyUnitTest', () => {
         it('should return false any of the packages are not unit tests', () => {
             const suites = [TestSuite.Unit, TestSuite.Elasticsearch];
-            const filtered = packages.filter(pkgInfo => suites.includes(pkgInfo.terascope.testSuite!));
+            const filtered = packages.filter((pkgInfo) => suites.includes(pkgInfo.terascope.testSuite!));
             expect(onlyUnitTests(filtered)).toBeFalse();
         });
         it('should return true if all of the packages are unit tests', () => {
             const suites = [TestSuite.Unit];
-            const filtered = packages.filter(pkgInfo => suites.includes(pkgInfo.terascope.testSuite!));
+            const filtered = packages.filter((pkgInfo) => suites.includes(pkgInfo.terascope.testSuite!));
             expect(onlyUnitTests(filtered)).toBeTrue();
         });
     });
@@ -26,7 +26,7 @@ describe('Test Runner Helpers', () => {
                 suite: TestSuite.Unit,
             };
             const filtered = filterBySuite(packages, options);
-            const suites = filtered.map(pkgInfo => pkgInfo.terascope.testSuite);
+            const suites = filtered.map((pkgInfo) => pkgInfo.terascope.testSuite);
             expect(suites).not.toContain(TestSuite.E2E);
             expect(suites).not.toContain(TestSuite.Elasticsearch);
             expect(suites).not.toContain(TestSuite.Disabled);

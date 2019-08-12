@@ -39,7 +39,7 @@ const ViewForm: React.FC<Props> = ({ id }) => {
     const validate: ValidateFn<Input> = (errs, model) => {
         console.table(model);
         if (model.excludes) {
-            model.excludes.forEach(field => {
+            model.excludes.forEach((field) => {
                 if (!validateFieldName(field)) {
                     errs.messages.push(
                         `Invalid field "${field}" to be excluded`
@@ -48,7 +48,7 @@ const ViewForm: React.FC<Props> = ({ id }) => {
             });
         }
         if (model.includes) {
-            model.includes.forEach(field => {
+            model.includes.forEach((field) => {
                 if (!validateFieldName(field)) {
                     errs.messages.push(
                         `Invalid field "${field}" to be included`
@@ -64,7 +64,7 @@ const ViewForm: React.FC<Props> = ({ id }) => {
             id={id}
             validate={validate}
             afterChange={afterChange}
-            beforeSubmit={input => {
+            beforeSubmit={(input) => {
                 input.prevent_prefix_wildcard = Boolean(
                     input.prevent_prefix_wildcard
                 );
@@ -212,7 +212,7 @@ function getAvailableFields(
 ): string[] {
     return parseTypeConfig(resolvedConfig)
         .map(({ field }) => field)
-        .filter(field => !existing.includes(field))
+        .filter((field) => !existing.includes(field))
         .concat(existing);
 }
 

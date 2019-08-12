@@ -42,7 +42,7 @@ const cmd: CommandModule = {
                 type: 'string',
                 default: '.',
                 coerce(arg) {
-                    castArray(arg).forEach(a => {
+                    castArray(arg).forEach((a) => {
                         if (releaseChoices.includes(a)) {
                             yargs.showHelp();
                             console.error(`\n ERROR: bump CLI has changed, use --release ${a} or -r ${a} instead`);

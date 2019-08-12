@@ -516,7 +516,7 @@ export class ACLManager {
         ]);
 
         const clientIds = [role.client_id, space.client_id, dataType.client_id, view.client_id];
-        if (!clientIds.every(id => id === user.client_id)) {
+        if (!clientIds.every((id) => id === user.client_id)) {
             const msg = `User "${user.username}" does not have permission to access space "${space.endpoint}"`;
             throw new ts.TSError(msg, { statusCode: 403 });
         }

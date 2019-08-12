@@ -12,7 +12,7 @@ export default class SelectionPhase extends PhaseBase {
         super(opConfig);
         this.opConfig = opConfig;
         const Selector = opsManager.getTransform('selector');
-        this.selectionPhase = selectorList.map(config => new Selector(config, this.opConfig.types));
+        this.selectionPhase = selectorList.map((config) => new Selector(config, this.opConfig.types));
     }
 
     public run(data: DataEntity[]): DataEntity[] {

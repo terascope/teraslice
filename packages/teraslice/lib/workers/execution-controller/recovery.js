@@ -60,7 +60,7 @@ function recovery(context, stateStore, executionContext) {
     }
 
     function _recoveryBatchCompleted() {
-        return _.every(retryState, v => v === false);
+        return _.every(retryState, (v) => v === false);
     }
 
     function _retryState() {

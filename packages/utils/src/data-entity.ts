@@ -75,7 +75,7 @@ export class DataEntity<T extends object = object> {
             return input;
         }
 
-        return fastMap(input, d => DataEntity.make(d));
+        return fastMap(input, (d) => DataEntity.make(d));
     }
 
     /**

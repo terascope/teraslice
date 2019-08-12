@@ -402,6 +402,8 @@ class Jobs {
                             });
                     });
             }
+
+            return null;
         });
         return Promise.all(response);
     }

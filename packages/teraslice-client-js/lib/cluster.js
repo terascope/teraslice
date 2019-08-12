@@ -40,7 +40,7 @@ class Cluster extends Client {
 
     txt(type) {
         const validTypes = ['assets', 'slicers', 'ex', 'jobs', 'nodes', 'workers'];
-        const isValid = _.some(validTypes, validType => _.startsWith(type, validType));
+        const isValid = _.some(validTypes, (validType) => _.startsWith(type, validType));
         if (!isValid) {
             const error = new Error(`"${type}" is not a valid type. Must be one of ${JSON.stringify(validTypes)}`);
             return Promise.reject(error);

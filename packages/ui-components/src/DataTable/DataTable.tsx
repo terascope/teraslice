@@ -11,7 +11,7 @@ import Header from './Header';
 import Footer from './Footer';
 import Body from './Body';
 
-const DataTable: React.FC<Props> = props => {
+const DataTable: React.FC<Props> = (props) => {
     const {
         records,
         total,
@@ -69,7 +69,7 @@ const DataTable: React.FC<Props> = props => {
                     query={queryState.query}
                     numCols={numCols}
                     updateQueryState={updateQueryState}
-                    onAction={async action => {
+                    onAction={async (action) => {
                         if (actionState.loading) return;
 
                         setActionState({
@@ -77,8 +77,8 @@ const DataTable: React.FC<Props> = props => {
                         });
                         try {
                             if (action === 'EXPORT') {
-                                const docs = selected.map(id =>
-                                    records.find(record => {
+                                const docs = selected.map((id) =>
+                                    records.find((record) => {
                                         return rowMapping.getId(record) === id;
                                     })
                                 );

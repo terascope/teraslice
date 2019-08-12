@@ -179,12 +179,12 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
     private _isFieldExcluded(field: string): boolean {
         if (!this.excludes.length) return false;
-        return this.excludes.some(str => ts.startsWith(field, str as string));
+        return this.excludes.some((str) => ts.startsWith(field, str as string));
     }
 
     private _isFieldIncluded(field: string): boolean {
         if (!this.includes.length) return false;
-        return !this.includes.some(str => ts.startsWith(field, str as string));
+        return !this.includes.some((str) => ts.startsWith(field, str as string));
     }
 }
 

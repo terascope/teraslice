@@ -29,7 +29,7 @@ function FormSelect<T extends AnyModel>({
             multiple={multiple}
             selection={multiple}
             onChange={(e, arg) => {
-                const result = options.filter(opt => {
+                const result = options.filter((opt) => {
                     const id = getSelectId(opt);
                     const val = arg.value as string[] | string;
                     return castArray(val).includes(id);

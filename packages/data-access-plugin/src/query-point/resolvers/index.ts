@@ -21,7 +21,7 @@ export { defaultResolvers, createResolvers };
 
 function dedup<T>(records: T[]): T[] {
     const deduped: { [hash: string]: T } = {};
-    records.forEach(record => {
+    records.forEach((record) => {
         const shasum = crypto.createHash('md5').update(JSON.stringify(record));
         const hash = shasum.digest().toString('utf8');
         deduped[hash] = record;
@@ -59,7 +59,7 @@ function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger:
         return filteredResults;
     }
 
-    viewList.forEach(view => {
+    viewList.forEach((view) => {
         const esClient = getESClient(context, get(view, 'config.connection', 'default'));
         const client = elasticsearchApi(esClient, logger);
         const {
@@ -91,7 +91,7 @@ function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger:
 
             if (join) {
                 if (!Array.isArray(join)) throw new UserInputError('Invalid join, must be an array of values');
-                join.forEach(field => {
+                join.forEach((field) => {
                     const [orig, target] = field.split(':') || [field, field];
                     const selector = target || orig; // In case there's no colon in field.
                     if (root && root[orig] !== null) {

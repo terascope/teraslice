@@ -88,8 +88,8 @@ describe('Uuid validation', () => {
 
         const data = ['1c7ce488-f4ad-4aae-a6f4-76f9cd5c8635', '1c7ce488-f4ad-4aae-a6f4-76f9cd5c8635'];
 
-        const dataLowerCase = data.map(uuid => new DataEntity({ field: uuid }));
-        const dataUpperCase = data.map(uuid => new DataEntity({ field: uuid.toUpperCase() }));
+        const dataLowerCase = data.map((uuid) => new DataEntity({ field: uuid }));
+        const dataUpperCase = data.map((uuid) => new DataEntity({ field: uuid.toUpperCase() }));
 
         const results1 = test.run(dataLowerCase[0]);
         const results2 = test.run(dataLowerCase[1]);

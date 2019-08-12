@@ -71,7 +71,7 @@ function count(arr, fn) {
 
 function deleteOlderAssets() {
     const duplicateAssets = listAssets().filter(({ name }, i, all) => {
-        const c = count(all, a => a.name === name);
+        const c = count(all, (a) => a.name === name);
         return c > 1;
     });
 

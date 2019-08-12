@@ -80,4 +80,4 @@ Promise.resolve()
     .then(() => cmd.initialize())
     .then(() => cmd.run())
     .then(() => cmd.shutdown())
-    .catch(err => cmd.shutdown(err));
+    .catch((err) => cmd.shutdown(err));

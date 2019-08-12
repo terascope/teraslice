@@ -80,7 +80,7 @@ describe('elasticsearch cached state storage', () => {
     ].map((obj, index) => DataEntity.make(obj, { [idField]: index + 1, otherField: `other${index + 1}` }));
 
     function createMgetData(dataArray: DataEntity[], found = true) {
-        return dataArray.map(item => {
+        return dataArray.map((item) => {
             const response: Doc = {
                 _index: 'index',
                 _type: 'type',
@@ -271,7 +271,7 @@ describe('elasticsearch cached state storage', () => {
 
         // not found by es
         const notFoundDocs = createMgetData(mgetDocArray.slice(2000, 3000), false);
-        notFoundDocs.forEach(item => mgetDocs.push(item));
+        notFoundDocs.forEach((item) => mgetDocs.push(item));
 
         client.setMGetData({ docs: mgetDocs });
 

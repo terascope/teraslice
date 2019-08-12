@@ -22,7 +22,7 @@ module.exports = class extends Generator {
                     }
                     return true;
                 },
-                filter: value => _.kebabCase(value)
+                filter: (value) => _.kebabCase(value)
             },
             {
                 type: 'input',

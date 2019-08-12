@@ -416,7 +416,7 @@ class ExecutionController {
             })(),
             (async () => {
                 const stores = Object.values(this.stores);
-                await Promise.all(stores.map(store => store.shutdown(true).catch(pushError)));
+                await Promise.all(stores.map((store) => store.shutdown(true).catch(pushError)));
             })(),
             (async () => {
                 if (this.metrics == null) return;
@@ -428,7 +428,7 @@ class ExecutionController {
         this.isShutdown = true;
 
         if (shutdownErrs.length) {
-            const errMsg = shutdownErrs.map(e => e.stack).join(', and');
+            const errMsg = shutdownErrs.map((e) => e.stack).join(', and');
             const shutdownErr = new Error(`Failed to shutdown correctly: ${errMsg}`);
             this.events.emit(this.context, 'worker:shutdown:complete', shutdownErr);
             await pDelay(0);
@@ -517,7 +517,7 @@ class ExecutionController {
                     });
                     dispatch.length = 0;
 
-                    Promise.all(promises).catch(err => this.logger.error(err, 'failure to dispatch slices'));
+                    Promise.all(promises).catch((err) => this.logger.error(err, 'failure to dispatch slices'));
                 });
             }
 

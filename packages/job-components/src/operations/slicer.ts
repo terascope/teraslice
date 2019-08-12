@@ -40,7 +40,7 @@ export default abstract class Slicer<T = OpConfig> extends SlicerCore<T> {
 
         if (Array.isArray(result)) {
             this.events.emit('slicer:subslice');
-            result.forEach(item => {
+            result.forEach((item) => {
                 this.order += 1;
                 this.createSlice(item, this.order);
             });

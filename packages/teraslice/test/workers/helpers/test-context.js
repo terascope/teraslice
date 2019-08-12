@@ -175,7 +175,7 @@ class TestContext {
     async cleanup() {
         if (this.clean) return;
 
-        await Promise.all(this._cleanupFns.map(fn => fn()));
+        await Promise.all(this._cleanupFns.map((fn) => fn()));
         this._cleanupFns.length = 0;
 
         this.events.removeAllListeners();
@@ -210,7 +210,7 @@ async function cleanupAll(withEs) {
 
     if (withEs && Object.keys(stores).length) {
         try {
-            await Promise.all(Object.values(stores).map(store => store.shutdown(true)));
+            await Promise.all(Object.values(stores).map((store) => store.shutdown(true)));
         } catch (err) {
             console.error(err);
         }

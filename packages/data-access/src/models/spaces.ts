@@ -38,7 +38,7 @@ export class Spaces extends IndexModel<Space> {
 
     async removeViewFromSpaces(viewId: string) {
         const views = await this.find(`views: ${viewId}`);
-        const promises = views.map(view => {
+        const promises = views.map((view) => {
             return this._removeFromArray(view.id, 'views', viewId);
         });
         await Promise.all(promises);

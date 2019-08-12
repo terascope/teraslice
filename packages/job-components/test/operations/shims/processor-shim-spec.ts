@@ -17,7 +17,7 @@ describe('Processor Shim', () => {
     const mod = processorShim<ExampleOpConfig>({
         async newProcessor(_context, _opConfig, executionConfig) {
             _context.logger.debug(_opConfig, executionConfig);
-            return async input => {
+            return async (input) => {
                 return input.map((d: DataEntity) => {
                     d.say = 'hello';
                     return d;

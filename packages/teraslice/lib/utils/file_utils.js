@@ -52,7 +52,7 @@ function normalizeZipFile(id, newPath, logger) {
             // check one subdir down for asset.json
             const assetJSON = fs
                 .readdirSync(newPath)
-                .filter(filename => existsSync(path.join(newPath, filename, 'asset.json')));
+                .filter((filename) => existsSync(path.join(newPath, filename, 'asset.json')));
 
             if (assetJSON.length === 0) {
                 const error = new Error(

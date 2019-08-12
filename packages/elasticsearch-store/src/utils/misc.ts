@@ -2,19 +2,12 @@ import * as R from 'rambda';
 
 export const isNotNil = (input: any) => input != null;
 
-type getFirstFn = <T>(input: object) => T;
-
-export const getFirstValue: getFirstFn = R.pipe(
-    // @ts-ignore
-    R.values,
-    R.head
-);
-
-export const getFirstKey: getFirstFn = R.pipe(
-    // @ts-ignore
-    R.keys,
-    R.head
-);
+export function getFirstValue<T>(input: { [key: string]: T }): T | undefined {
+    return Object.values(input)[0];
+}
+export function getFirstKey<T>(input: T): (keyof T) | undefined {
+    return Object.keys(input)[0] as keyof T;
+}
 
 export const getIndexMapping = R.path(['index_schema', 'mapping']);
 

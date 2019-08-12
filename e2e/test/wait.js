@@ -99,7 +99,7 @@ async function scaleWorkersAndWait(workersToAdd = 0) {
 function forWorkersJoined(jobId, workerCount, iterations) {
     async function _forWorkersJoined() {
         const controllers = await misc.teraslice().cluster.controllers();
-        const controller = _.find(controllers, s => s.job_id === jobId);
+        const controller = _.find(controllers, (s) => s.job_id === jobId);
         if (!controller) return 0;
         return controller.workers_joined;
     }

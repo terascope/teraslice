@@ -27,7 +27,7 @@ module.exports = function module(context, moduleConfig) {
 
         logger.info('Notifying workers to stop.');
         logger.info(`Waiting for ${ids.length} workers to stop.`);
-        const workers = ids.map(id => cluster.workers[id]).filter(v => v);
+        const workers = ids.map((id) => cluster.workers[id]).filter((v) => v);
 
         let workersAlive = 0;
         let funcRun = 0;

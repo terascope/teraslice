@@ -62,7 +62,7 @@ function Form<T extends AnyModel>({
         if (isSubmit) {
             let missingRequired = false;
 
-            required.forEach(_field => {
+            required.forEach((_field) => {
                 const field = _field as keyof T;
                 const val = get(model, field);
                 if (!val && !['0', 0].includes(val as any)) {
@@ -84,7 +84,7 @@ function Form<T extends AnyModel>({
     };
 
     const updateModel = (updates: AnyObject) => {
-        setModel(latestModel => {
+        setModel((latestModel) => {
             Object.assign(latestModel, updates);
             fixClientId(latestModel);
             isFunction(afterChange) && afterChange(latestModel);
@@ -101,7 +101,7 @@ function Form<T extends AnyModel>({
             return required.includes(field as any);
         },
         onChange(e, { name, value }) {
-            setModel(latestModel => {
+            setModel((latestModel) => {
                 Object.assign(latestModel, { [name]: value });
                 fixClientId(latestModel);
                 isFunction(afterChange) && afterChange(latestModel);

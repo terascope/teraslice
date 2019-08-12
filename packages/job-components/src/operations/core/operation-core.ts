@@ -69,7 +69,7 @@ export default class OperationCore<T = OpConfig> extends Core<WorkerContext> imp
      * @returns a curried a function that will be called with the data and handle the dead letter action
      */
     tryRecord<I, R>(fn: (input: I) => R): (input: I) => R | null {
-        return input => {
+        return (input) => {
             try {
                 return fn(input);
             } catch (err) {
