@@ -138,7 +138,7 @@ export async function runJest(cwd: string, argsMap: ArgsMap, env?: ExecEnv, extr
 export async function dockerPull(image: string): Promise<void> {
     await exec({
         cmd: 'docker',
-        args: ['pull', '-q', image],
+        args: ['pull', '--quiet', image],
     });
 }
 
@@ -160,7 +160,7 @@ export async function getContainerInfo(name: string): Promise<any> {
 }
 
 export async function remoteDockerImageExists(image: string): Promise<boolean> {
-    const result = await execa.command(`docker pull -q ${image}`, { reject: false });
+    const result = await execa.command(`docker pull --quiet ${image}`, { reject: false });
     return Boolean(result.stdout && result.exitCode === 0);
 }
 
