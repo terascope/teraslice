@@ -37,7 +37,6 @@ const ViewForm: React.FC<Props> = ({ id }) => {
         }
     };
     const validate: ValidateFn<Input> = (errs, model) => {
-        console.table(model);
         if (model.excludes) {
             model.excludes.forEach((field) => {
                 if (!validateFieldName(field)) {
