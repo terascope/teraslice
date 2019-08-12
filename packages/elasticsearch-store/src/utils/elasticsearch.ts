@@ -107,8 +107,8 @@ type BulkResponseItemResult = {
  */
 export function getBulkResponseItem(input: any = {}): BulkResponseItemResult {
     return {
-        item: getFirstValue(input),
-        action: getFirstKey(input),
+        item: getFirstValue(input) as i.BulkResponseItem,
+        action: getFirstKey(input) as i.BulkAction,
     };
 }
 
