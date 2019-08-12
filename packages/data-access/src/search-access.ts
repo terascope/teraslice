@@ -114,8 +114,8 @@ export class SearchAccess {
             maxQuerySize = _maxQuerySize;
         }
 
-        if (size >= maxQuerySize) {
-            throw new ts.TSError(...validationErr('size', `must be less than or equal to ${maxQuerySize}`, query));
+        if (size > maxQuerySize) {
+            throw new ts.TSError(...validationErr('size', `must be less than ${maxQuerySize}`, query));
         }
 
         const start = ts.toInteger(ts.get(query, 'start', 0));

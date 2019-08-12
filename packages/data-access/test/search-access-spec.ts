@@ -212,6 +212,27 @@ describe('SearchAccess', () => {
                 });
             });
 
+            it('should be able to handle a max query size of 0', () => {
+                const searchAccess = makeWith({
+                    sort_enabled: true,
+                    max_query_size: 0,
+                    index: 'woot',
+                });
+
+                const query: InputQuery = {
+                    q: 'hello',
+                    size: 0,
+                };
+
+                const params = searchAccess.getSearchParams(query);
+
+                expect(params).toMatchObject({
+                    index: 'woot',
+                    q: 'hello',
+                    size: 0,
+                });
+            });
+
             it('should be able to handle stringified values', () => {
                 const searchAccess = makeWith({
                     sort_default: 'default:asc',
