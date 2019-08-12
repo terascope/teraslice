@@ -47,18 +47,30 @@ export function getArgs(options: TestOptions): ArgsMap {
     return args;
 }
 
-export function getEnv(options: TestOptions): ExecEnv {
+export function getEnv(options: TestOptions, suite?: TestSuite): ExecEnv {
     const env: ExecEnv = {
-        ELASTICSEARCH_HOST: options.elasticsearchHost,
-        ELASTICSEARCH_VERSION: options.elasticsearchVersion,
-        ELASTICSEARCH_API_VERSION: options.elasticsearchAPIVersion,
-        KAFKA_BROKER: options.kafkaBroker,
-        KAFKA_VERSION: options.kafkaVersion,
-        TEST_INDEX_PREFIX: 'teratest_',
         HOST_IP,
         NODE_ENV: 'test',
         FORCE_COLOR: '1',
     };
+
+    const isE2E = suite === TestSuite.E2E;
+
+    if (!suite || suite === TestSuite.Elasticsearch || isE2E) {
+        Object.assign(env, {
+            TEST_INDEX_PREFIX: 'teratest_',
+            ELASTICSEARCH_HOST: options.elasticsearchHost,
+            ELASTICSEARCH_VERSION: options.elasticsearchVersion,
+            ELASTICSEARCH_API_VERSION: options.elasticsearchAPIVersion,
+        });
+    }
+
+    if (!suite || suite === TestSuite.Kafka || isE2E) {
+        Object.assign(env, {
+            KAFKA_BROKER: options.kafkaBroker,
+            KAFKA_VERSION: options.kafkaVersion,
+        });
+    }
 
     if (options.debug) {
         let DEBUG = process.env.DEBUG || '';

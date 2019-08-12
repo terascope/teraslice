@@ -108,7 +108,7 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
         const timeLabel = `test suite "${suite}"`;
         signale.time(timeLabel);
 
-        const env = utils.getEnv(options);
+        const env = utils.getEnv(options, suite);
         if (options.debug || isCI) {
             signale.debug(`setting env for test suite "${suite}"`, env);
         }
@@ -192,7 +192,7 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         signale.time(timeLabel);
         startedTest = true;
 
-        const env = utils.getEnv(options);
+        const env = utils.getEnv(options, suite);
         if (options.debug || isCI) {
             signale.debug(`setting env for test suite "${suite}"`, env);
         }
