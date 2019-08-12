@@ -15,11 +15,11 @@ const Logout: React.FC = () => {
 
     return (
         <ApolloConsumer>
-            {client => {
+            {(client) => {
                 return (
                     <LogoutQuery
                         query={LOGOUT}
-                        onCompleted={data => {
+                        onCompleted={(data) => {
                             updateState({
                                 authUser: undefined,
                                 authenticated: !(data && data.logout),

@@ -236,7 +236,7 @@ function _parseESErrorInfo(input: ElasticsearchError): { message: string; contex
     let reason: string | undefined;
     let index: string | undefined;
 
-    [input, bodyError, rootCause].forEach(obj => {
+    [input, bodyError, rootCause].forEach((obj) => {
         if (obj == null) return;
         if (!utils.isPlainObject(obj)) return;
         if (obj.type) type = obj.type;

@@ -42,8 +42,8 @@ export function getRootInfo() {
 export function getName(input: string): string {
     return input
         .split(/\W/g)
-        .map(str => str.trim())
-        .filter(str => str.length > 0)
+        .map((str) => str.trim())
+        .filter((str) => str.length > 0)
         .map((str: string) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
         .join(' ');
 }

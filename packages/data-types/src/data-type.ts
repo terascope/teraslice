@@ -24,7 +24,7 @@ export class DataType {
         const customTypesList: string[] = [];
         const baseTypeList: string[] = [];
 
-        types.forEach(type => {
+        types.forEach((type) => {
             const global = typeReferences.__all || [];
             const typeSpecific = typeReferences[type.name] || [];
             const references: string[] = [...global, ...typeSpecific];
@@ -115,7 +115,7 @@ export class DataType {
         const customTypes = new Set<string>();
         const baseProperties = new Set<string>();
 
-        this._types.forEach(typeClass => {
+        this._types.forEach((typeClass) => {
             const { type, custom_type: customType } = typeClass.toGraphQL();
             baseProperties.add(type.trim());
             if (customType) {
@@ -125,7 +125,7 @@ export class DataType {
 
         if (references.length) {
             baseProperties.add('# references and virtual fields');
-            references.forEach(prop => {
+            references.forEach((prop) => {
                 baseProperties.add(prop.trim());
             });
         }

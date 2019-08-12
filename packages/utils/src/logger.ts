@@ -46,7 +46,7 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
         parts.push(otherName);
     }
     parts = parts.map(toString).map(trimAndToLower);
-    parts = uniq(parts.filter(str => !!str));
+    parts = uniq(parts.filter((str) => !!str));
 
     const name = parts.join(':');
 

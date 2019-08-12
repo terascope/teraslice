@@ -5,7 +5,7 @@ import { getRootDir, listMdFiles, writeIfChanged } from '../misc';
 function getSubcategories(pkgDocFolder: string): string[] {
     const docsFolder = path.join(getRootDir(), 'docs');
     return listMdFiles(pkgDocFolder, 2)
-        .map(filePath => {
+        .map((filePath) => {
             const relativePath = path.relative(docsFolder, filePath).replace(/^[./]/, '');
             return path.join(path.dirname(relativePath), path.basename(relativePath, '.md'));
         })
@@ -39,12 +39,12 @@ export async function updateSidebarJSON() {
                     return pkg;
                 }
             )
-            .filter(pkg => {
+            .filter((pkg) => {
                 if (!pkg) return false;
                 const filePath = path.join(docsFilePath, pkg.label);
                 return fse.existsSync(filePath);
             })
-            .map(pkg => {
+            .map((pkg) => {
                 pkg.ids = getSubcategories(path.join(docsFilePath, pkg.label));
                 return pkg;
             });

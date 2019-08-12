@@ -109,7 +109,7 @@ export function parseList(input: any): string[] {
     if (isString(input)) {
         strings = input.split(',');
     } else if (Array.isArray(input)) {
-        strings = input.map(val => {
+        strings = input.map((val) => {
             if (!val) return '';
             return toString(val);
         });
@@ -117,7 +117,7 @@ export function parseList(input: any): string[] {
         return [];
     }
 
-    return strings.map(s => s.trim()).filter(s => !!s);
+    return strings.map((s) => s.trim()).filter((s) => !!s);
 }
 
 export function noop(...args: any[]): any {}

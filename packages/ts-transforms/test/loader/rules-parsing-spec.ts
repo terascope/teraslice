@@ -41,7 +41,7 @@ describe('Loader', () => {
 
     it('can adds __id to every config', async() => {
         const results = await getConfigList('transformRules2.txt');
-        const hasIds = _.every(results, obj => obj.__id != null);
+        const hasIds = _.every(results, (obj) => obj.__id != null);
 
         expect(hasIds).toBeTrue();
     });
@@ -72,7 +72,7 @@ describe('Loader', () => {
         expect(_.has(config2, '__id')).toBeTrue();
 
         const tags = config1.tags as string[];
-        expect(tags.find(tag => tag === config2.follow) !== undefined).toBeTrue();
+        expect(tags.find((tag) => tag === config2.follow) !== undefined).toBeTrue();
         expect(config2.post_process).toEqual('base64decode');
     });
 

@@ -30,7 +30,7 @@ export function cleanupIndex(model: Model) {
 
 function format(arr: any[], index: string) {
     const results: any[] = [];
-    arr.forEach(data => {
+    arr.forEach((data) => {
         results.push({ index: { _index: index, _type: 'events' } }, data);
     });
     return results;
@@ -64,7 +64,7 @@ export async function populateIndex(client: es.Client, index: string, _propertie
 }
 
 export function deleteIndices(client: es.Client, list: string[]) {
-    return Promise.all(list.map(index => client.indices.delete({ index, requestTimeout: 1000 }).catch(() => {})));
+    return Promise.all(list.map((index) => client.indices.delete({ index, requestTimeout: 1000 }).catch(() => {})));
 }
 
 export function cleanupIndexes(manager: ACLManager) {

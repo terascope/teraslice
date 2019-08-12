@@ -52,7 +52,7 @@ describe('matcher', () => {
         const results: DataEntity[] = await test.run(data);
 
         expect(results.length).toEqual(3);
-        results.forEach(doc => expect(doc.getMetadata('selectors')).toBeDefined());
+        results.forEach((doc) => expect(doc.getMetadata('selectors')).toBeDefined());
     });
 
     it('should match multiple rules', async () => {

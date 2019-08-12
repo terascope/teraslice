@@ -164,7 +164,7 @@ async function getData(dataFilePath?: string) {
 async function initCommand() {
     try {
         const opConfig: PhaseConfig = {
-            rules: parseList(filePath).map(pathing => path.resolve(pathing)),
+            rules: parseList(filePath).map((pathing) => path.resolve(pathing)),
             types: typesConfig,
             type,
         };
@@ -172,7 +172,7 @@ async function initCommand() {
         if (command.p) {
             try {
                 const pluginList = parseList(command.p as string);
-                plugins = pluginList.map(pluginPath => {
+                plugins = pluginList.map((pluginPath) => {
                     const mod = require(path.resolve(pluginPath));
                     return mod.default || mod;
                 });

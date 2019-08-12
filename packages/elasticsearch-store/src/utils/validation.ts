@@ -59,7 +59,7 @@ export function isValidClient(input: any): input is es.Client {
 
     const reqKeys = ['indices', 'index', 'get', 'search'];
 
-    return reqKeys.every(key => input[key] != null);
+    return reqKeys.every((key) => input[key] != null);
 }
 
 type indexFn = (config?: IndexSchema) => boolean;

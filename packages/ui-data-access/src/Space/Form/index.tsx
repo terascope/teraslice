@@ -113,7 +113,7 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
                         {canSeeConfig && (
                             <SearchConfig
                                 config={model.config}
-                                updateConfig={searchConfig => {
+                                updateConfig={(searchConfig) => {
                                     updateModel({ config: searchConfig });
                                 }}
                             />

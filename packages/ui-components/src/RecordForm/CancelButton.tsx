@@ -7,7 +7,7 @@ const CancelButton = tsWithRouter(({ history }) => (
         basic
         className="cancel"
         type="button"
-        onClick={e => {
+        onClick={(e) => {
             e.preventDefault();
             history.goBack();
         }}

@@ -808,16 +808,16 @@ describe('Query Point API', () => {
         }
 
         const finalResults1 = space1Data
-            .filter(data => data.ipv6 === 'ab88:805e:55db:0750:b143:61ce:e07a:7180')
-            .map(obj => ({ bytes: obj.bytes, url: obj.url }));
+            .filter((data) => data.ipv6 === 'ab88:805e:55db:0750:b143:61ce:e07a:7180')
+            .map((obj) => ({ bytes: obj.bytes, url: obj.url }));
 
         const finalResults2 = space2Data
-            .filter(data => getDateTime(data.created) >= getDateTime('2019-04-26T08:00:00.000-07:00'))
-            .map(obj => ({ bytes: obj.bytes, bool: obj.bool }));
+            .filter((data) => getDateTime(data.created) >= getDateTime('2019-04-26T08:00:00.000-07:00'))
+            .map((obj) => ({ bytes: obj.bytes, bool: obj.bool }));
 
         const finalResults3 = space2Data
-            .filter(data => data.location.lat === '81.90873')
-            .map(obj => ({ bytes: obj.bytes, location: obj.location }));
+            .filter((data) => data.location.lat === '81.90873')
+            .map((obj) => ({ bytes: obj.bytes, location: obj.location }));
 
         const [
             // @ts-ignore

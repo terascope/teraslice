@@ -25,7 +25,7 @@ export async function syncPackages(pkgInfos: PackageInfo[], options: SyncOptions
     writePkgHeader('Syncing files', pkgInfos);
 
     await Promise.all(
-        pkgInfos.map(async pkgInfo => {
+        pkgInfos.map(async (pkgInfo) => {
             await updateReadme(pkgInfo);
             await ensureOverview(pkgInfo);
             await updatePkgJSON(pkgInfo);

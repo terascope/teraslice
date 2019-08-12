@@ -18,9 +18,9 @@ describe('Parser', () => {
     describe('when testing edge cases', () => {
         describe('given a gigantic query', () => {
             it('should be able to parse it', () => {
-                const partOne = times(300, n => `a:${n}`).join(' OR ');
-                const partTwo = times(200, n => `b:${n}`).join(' OR ');
-                const partThree = times(500, n => `c:${n}`).join(') OR (');
+                const partOne = times(300, (n) => `a:${n}`).join(' OR ');
+                const partTwo = times(200, (n) => `b:${n}`).join(' OR ');
+                const partThree = times(500, (n) => `c:${n}`).join(') OR (');
                 const parser = new Parser(`(${partOne}) AND ${partTwo} OR (${partThree})`);
                 expect(parser.ast).toMatchObject({
                     type: ASTType.LogicalGroup,

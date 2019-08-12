@@ -53,7 +53,7 @@ export async function ensureServices(suite: TestSuite, options: TestOptions): Pr
         if (suite === TestSuite.E2E) {
             const fns = await Promise.all([ensureElasticsearch(options), ensureKafka(options)]);
             return () => {
-                fns.forEach(fn => fn());
+                fns.forEach((fn) => fn());
             };
         }
     } catch (err) {
@@ -80,7 +80,7 @@ export async function ensureElasticsearch(options: TestOptions, ensureNetwork?: 
 }
 
 export async function stopAllServices(): Promise<void> {
-    const promises = Object.keys(services).map(service => stopService(service as Service));
+    const promises = Object.keys(services).map((service) => stopService(service as Service));
 
     await Promise.all(promises);
 }

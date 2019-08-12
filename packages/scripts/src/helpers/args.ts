@@ -22,7 +22,7 @@ export function coercePkgArg(input: CoercePkgInput, required = false): PackageIn
             folderName = path.basename(path.resolve(name));
         }
 
-        const found = packages.find(info => {
+        const found = packages.find((info) => {
             if (folderName === info.folderName) return true;
             return [info.name, info.folderName].includes(name);
         });

@@ -25,14 +25,14 @@ export function listPackages(): i.PackageInfo[] {
             if (!fs.statSync(filePath).isDirectory()) return false;
             return fs.existsSync(path.join(filePath, 'package.json'));
         })
-        .map(fileName => readPackageInfo(path.join(packagesPath, fileName)));
+        .map((fileName) => readPackageInfo(path.join(packagesPath, fileName)));
 
     _packages = QueryGraph.toposort(packages);
     return _packages;
 }
 
 export function getMainPackageInfo(): i.PackageInfo | undefined {
-    return listPackages().find(pkgInfo => pkgInfo.terascope.main);
+    return listPackages().find((pkgInfo) => pkgInfo.terascope.main);
 }
 
 export function addPackageConfig(pkgInfo: i.PackageInfo): void {
@@ -54,7 +54,7 @@ export function readPackageInfo(folderPath: string): i.PackageInfo {
 }
 
 export function getPkgInfo(name: string): i.PackageInfo {
-    const found = listPackages().find(info => [info.name, info.folderName].includes(name));
+    const found = listPackages().find((info) => [info.name, info.folderName].includes(name));
     if (!found) {
         throw new Error(`Unable to find package ${name}`);
     }
@@ -62,7 +62,7 @@ export function getPkgInfo(name: string): i.PackageInfo {
 }
 
 export function getPkgNames(packages: i.PackageInfo[]): string[] {
-    return uniq(packages.map(pkgInfo => pkgInfo.folderName)).sort();
+    return uniq(packages.map((pkgInfo) => pkgInfo.folderName)).sort();
 }
 
 export function updatePkgInfo(pkgInfo: i.PackageInfo): void {

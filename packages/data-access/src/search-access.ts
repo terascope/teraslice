@@ -150,7 +150,7 @@ export class SearchAccess {
 
         const fields = ts.get(query, 'fields');
         if (fields) {
-            params._sourceInclude = ts.uniq(ts.parseList(fields).map(s => s.toLowerCase()));
+            params._sourceInclude = ts.uniq(ts.parseList(fields).map((s) => s.toLowerCase()));
         }
 
         const geoField = this.spaceConfig.default_geo_field;
@@ -212,13 +212,13 @@ export class SearchAccess {
         let returning = total;
 
         if (this.spaceConfig.preserve_index_name) {
-            results = response.hits.hits.map(data => {
+            results = response.hits.hits.map((data) => {
                 const doc = data._source;
                 doc._index = data._index;
                 return doc;
             });
         } else {
-            results = response.hits.hits.map(data => data._source);
+            results = response.hits.hits.map((data) => data._source);
         }
 
         let info = `${total} results found.`;

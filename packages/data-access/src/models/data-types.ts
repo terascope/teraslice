@@ -62,7 +62,7 @@ export class DataTypes extends IndexModel<DataType> {
         const validate = getField(options, 'validate', true);
 
         for (const id of inheritFrom) {
-            const existing = _resolved.find(dt => dt.id === id);
+            const existing = _resolved.find((dt) => dt.id === id);
             const dataType = await this.findById(id, options, queryAccess);
 
             if (existing) {

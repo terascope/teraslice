@@ -44,7 +44,7 @@ export default class ESCachedStateStorage {
     private _esBulkUpdatePrep(dataArray: DataEntity[]) {
         const bulkRequest: ESBulkQuery[] = [];
 
-        dataArray.forEach(item => {
+        dataArray.forEach((item) => {
             const id = item.getMetadata(this.persistField);
             bulkRequest.push({
                 index: {
@@ -62,7 +62,7 @@ export default class ESCachedStateStorage {
     private _esBulkUpdate(docArray: DataEntity[]) {
         const bulkRequest = this._esBulkUpdatePrep(docArray);
         const chunkedArray = chunk<ESBulkQuery>(bulkRequest, this.chunkSize);
-        return bPromise.map<ESBulkQuery[], ESBulkQuery[]>(chunkedArray, chunkedData => this.es.bulkSend(chunkedData));
+        return bPromise.map<ESBulkQuery[], ESBulkQuery[]>(chunkedArray, (chunkedData) => this.es.bulkSend(chunkedData));
     }
 
     private async _esGet(doc: DataEntity) {
@@ -88,7 +88,7 @@ export default class ESCachedStateStorage {
         if (this.sourceFields.length > 0) request._source = this.sourceFields;
         const response: MGetResponse = await this.es.mget(request);
 
-        return response.docs.filter(doc => doc.found).map(doc => DataEntity.make(doc._source, { [this.IDField]: doc._id }));
+        return response.docs.filter((doc) => doc.found).map((doc) => DataEntity.make(doc._source, { [this.IDField]: doc._id }));
     }
 
     getFromCache(doc: DataEntity) {
@@ -138,7 +138,7 @@ export default class ESCachedStateStorage {
     private async _fetchRecords(unCachedDocKeys: Set<string>) {
         const chunkedArray = chunk<string>([...unCachedDocKeys], this.chunkSize);
         // es search for keys not in cache
-        return bPromise.map<string[], DataEntity[]>(chunkedArray, chunked => this._esMget(chunked), { concurrency: this.concurrency });
+        return bPromise.map<string[], DataEntity[]>(chunkedArray, (chunked) => this._esMget(chunked), { concurrency: this.concurrency });
     }
 
     private _cacheFetchedRecords(recordLists: DataEntity<object>[][], fn?: ForEachCB) {
@@ -172,7 +172,7 @@ export default class ESCachedStateStorage {
     }
 
     async mset(docArray: DataEntity[]) {
-        const formattedDocs = docArray.map(doc => ({ data: doc, key: this.getIdentifier(doc) }));
+        const formattedDocs = docArray.map((doc) => ({ data: doc, key: this.getIdentifier(doc) }));
         if (this.persist) {
             const [results] = await Promise.all([this.cache.mset(formattedDocs), this._esBulkUpdate(docArray)]);
             return results;

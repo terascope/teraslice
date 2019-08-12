@@ -19,8 +19,8 @@ describe('Cache Storage State', () => {
         },
     ].map((obj, index) => DataEntity.make(obj, { [idField]: index + 1 }));
 
-    const formattedMSet: SetTuple<DataEntity>[] = docArray.map(obj => ({ data: obj, key: obj.getMetadata(idField) }));
-    const formattedMGet = docArray.map(data => data.getMetadata(idField));
+    const formattedMSet: SetTuple<DataEntity>[] = docArray.map((obj) => ({ data: obj, key: obj.getMetadata(idField) }));
+    const formattedMGet = docArray.map((data) => data.getMetadata(idField));
 
     const config = {
         id_field: idField,

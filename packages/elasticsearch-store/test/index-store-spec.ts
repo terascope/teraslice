@@ -272,7 +272,7 @@ describe('IndexStore', () => {
 
             beforeAll(async () => {
                 await Promise.all(
-                    records.map(record => {
+                    records.map((record) => {
                         return indexStore.createWithId(record, record.test_id, {
                             refresh: false,
                         });
@@ -283,7 +283,7 @@ describe('IndexStore', () => {
             });
 
             it('should be able to mget all of the records', async () => {
-                const docs = records.map(r => ({
+                const docs = records.map((r) => ({
                     _id: r.test_id,
                 }));
 
@@ -306,7 +306,7 @@ describe('IndexStore', () => {
         describe('when bulk sending records', () => {
             const keyword = 'bulk-record';
 
-            const records: SimpleRecordInput[] = times(100, n => ({
+            const records: SimpleRecordInput[] = times(100, (n) => ({
                 test_id: `bulk-${n + 1}`,
                 test_keyword: keyword,
                 test_object: { bulk: true },
@@ -549,7 +549,7 @@ describe('IndexStore', () => {
         type InputType = 'input' | 'output';
         const cases: [InputType][] = [['input'], ['output']];
 
-        describe.each(cases)('when relying on data schema to transform the %s', inputType => {
+        describe.each(cases)('when relying on data schema to transform the %s', (inputType) => {
             const keyword = `data-schema-${inputType}-record`;
             const input: SimpleRecordInput[] = [
                 {
@@ -580,7 +580,7 @@ describe('IndexStore', () => {
             ];
 
             type ExpectedRecord = Omit<SimpleRecord, '_created' | '_updated'>;
-            const expected: ExpectedRecord[] = input.map(record => {
+            const expected: ExpectedRecord[] = input.map((record) => {
                 return Object.assign(
                     {
                         test_boolean: true,
@@ -631,7 +631,7 @@ describe('IndexStore', () => {
                 expect(record).toEqual(expected[0]);
 
                 const records = await indexStore.mget({
-                    docs: expected.map(r => ({
+                    docs: expected.map((r) => ({
                         _id: r.test_id,
                     })),
                 });

@@ -239,19 +239,19 @@ export class OperationLoader {
     }
 
     private fileExists(dir: string, name: string): boolean {
-        const filePaths = this.availableExtensions.map(ext => {
+        const filePaths = this.availableExtensions.map((ext) => {
             return path.format({
                 dir,
                 name,
                 ext,
             });
         });
-        return filePaths.some(filePath => fs.existsSync(filePath));
+        return filePaths.some((filePath) => fs.existsSync(filePath));
     }
 
     private require<T>(dir: string, name?: string): T {
         const filePaths = name
-            ? this.availableExtensions.map(ext =>
+            ? this.availableExtensions.map((ext) =>
                   path.format({
                       dir,
                       name,
@@ -311,7 +311,7 @@ export class OperationLoader {
     private findCode(name: string) {
         let filePath: string | null = null;
 
-        const codeNames = this.availableExtensions.map(ext => {
+        const codeNames = this.availableExtensions.map((ext) => {
             return path.format({
                 name,
                 ext,

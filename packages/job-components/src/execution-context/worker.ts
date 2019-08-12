@@ -135,7 +135,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
     getOperation<T extends OperationCore = OperationCore>(findBy: string | number): T {
         let index = -1;
         if (ts.isString(findBy)) {
-            index = this.config.operations.findIndex(op => {
+            index = this.config.operations.findIndex((op) => {
                 return op._op === findBy;
             });
         } else if (ts.isInteger(findBy) && findBy >= 0) {
@@ -230,7 +230,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
             const workerShutdown = ts.get(this.context, 'sysconfig.teraslice.shutdown_timeout', 60000);
             const timeoutMs = Math.round(workerShutdown * 0.8);
 
-            await new Promise(resolve => {
+            await new Promise((resolve) => {
                 const startTime = Date.now();
                 const interval = setInterval(() => {
                     if (!this.processingSlice) {

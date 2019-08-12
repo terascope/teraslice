@@ -47,12 +47,12 @@ export function mapForeignRef(input: any): any {
     if (!input) return;
     if (Array.isArray(input)) {
         return input
-            .map(val => {
+            .map((val) => {
                 if (!val) return '';
                 if (ts.isString(val)) return val;
                 return val.id;
             })
-            .filter(val => !!val);
+            .filter((val) => !!val);
     }
 
     if (ts.isString(input)) return input;
@@ -90,7 +90,7 @@ function _prepareForMutation<T extends any>(obj: T, isNested = false): T {
 export function getSelectValue(value?: SelectOption | SelectOption[], multiple?: boolean): string | string[] | undefined {
     if (multiple || Array.isArray(value)) {
         const arr = (value || []) as SelectOption[];
-        return arr.map(getSelectId).filter(val => !!val);
+        return arr.map(getSelectId).filter((val) => !!val);
     }
     return getSelectId(value);
 }
@@ -104,11 +104,11 @@ export function getSelectId(val?: SelectOption): string {
 
 export function getSelectOptions(options?: SelectOption[]): SelectOption[] {
     if (!options) return [];
-    return ts.castArray(options).filter(opt => !!opt);
+    return ts.castArray(options).filter((opt) => !!opt);
 }
 
 export function mapFormOptions(options?: SelectOption[], sorted?: boolean) {
-    const mapped = getSelectOptions(options).map(opt => {
+    const mapped = getSelectOptions(options).map((opt) => {
         if (ts.isString(opt)) return { key: opt, text: opt, value: opt };
 
         return {

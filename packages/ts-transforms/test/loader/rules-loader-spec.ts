@@ -34,7 +34,7 @@ describe('rules-loader', () => {
 
     it('can load notifications', async() => {
         const notificationRules = 'some:thing AND other:thing \n last:thing OR really:lastThing';
-        const notificationResults = notificationRules.split('\n').map(str => ({ selector: str.trim() }));
+        const notificationResults = notificationRules.split('\n').map((str) => ({ selector: str.trim() }));
         const dataLoader = new RulesLoader({ notification_rules: notificationRules }, logger);
         const results = await dataLoader.load();
 

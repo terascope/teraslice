@@ -40,13 +40,13 @@ const AuthUserQuery = tsWithRouter(({ children, history }) => {
         <AuthQuery
             query={AUTH_QUERY}
             skip={authUser != null && authenticated}
-            onCompleted={data => {
+            onCompleted={(data) => {
                 updateState({
                     authUser: data.authenticate,
                     authenticated: true,
                 });
             }}
-            onError={error => {
+            onError={(error) => {
                 if (error && isAuthError(error)) {
                     history.replace('/logout');
                 } else {
@@ -68,7 +68,7 @@ const AuthUserQuery = tsWithRouter(({ children, history }) => {
 function isAuthError(error: ApolloError) {
     const graphQLErrors = get(error, 'graphQLErrors');
     if (graphQLErrors && graphQLErrors.length) {
-        const authErr = graphQLErrors.find(err => {
+        const authErr = graphQLErrors.find((err) => {
             if (!err || !err.path) return false;
             if (!err.path.includes('authenticate')) return false;
             return true;

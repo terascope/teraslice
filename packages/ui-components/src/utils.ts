@@ -9,7 +9,7 @@ import PluginService from './plugin-service';
 export function formatPath(...paths: (string | undefined)[]) {
     return `/${paths
         .map(trimSlashes)
-        .filter(s => !!s)
+        .filter((s) => !!s)
         .join('/')}`;
 }
 
@@ -72,10 +72,10 @@ export function hasAccessToRoute(authUser?: ResolvedUser, result?: FindPluginRou
     if (!result) return false;
 
     const routeAccess = getAccessLevels(result.route.access);
-    if (routeAccess) return routeAccess.some(type => hasAccessTo(authUser, type));
+    if (routeAccess) return routeAccess.some((type) => hasAccessTo(authUser, type));
 
     const pluginAccess = getAccessLevels(result.plugin.access);
-    if (pluginAccess) return pluginAccess.some(type => hasAccessTo(authUser, type));
+    if (pluginAccess) return pluginAccess.some((type) => hasAccessTo(authUser, type));
 
     // default access
     return hasAccessTo(authUser);
@@ -85,5 +85,5 @@ export function hasAccessTo(authUser?: ResolvedUser, _access: AccessLevel = 'ADM
     const accessTo: UserType[] = getAccessLevels(_access) || ['ADMIN'];
     const authType = (authUser && authUser.type) || 'USER';
     const permissions = UserPermissionMap[authType];
-    return permissions && accessTo.some(type => permissions.includes(type));
+    return permissions && accessTo.some((type) => permissions.includes(type));
 }

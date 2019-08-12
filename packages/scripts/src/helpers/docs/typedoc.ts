@@ -47,7 +47,7 @@ function getAPIName(overview: string, outputDir: string, filePath: string) {
 }
 
 async function fixDocs(outputDir: string, { displayName }: PackageInfo) {
-    const overviewFilePath = listMdFiles(outputDir).find(filePath => path.basename(filePath, '.md') === 'README');
+    const overviewFilePath = listMdFiles(outputDir).find((filePath) => path.basename(filePath, '.md') === 'README');
     if (!overviewFilePath) {
         signale.error(
             'Error: Package documentation was not generated correctly',
@@ -59,7 +59,7 @@ async function fixDocs(outputDir: string, { displayName }: PackageInfo) {
     await fse.rename(overviewFilePath, targetPath);
     const overview = await fse.readFile(targetPath, 'utf8');
 
-    const promises = listMdFiles(outputDir).map(async filePath => {
+    const promises = listMdFiles(outputDir).map(async (filePath) => {
         const fileName = path.basename(filePath, '.md');
         if (fileName === 'overview') {
             await writeDocFile(filePath, {

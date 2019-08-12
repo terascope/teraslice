@@ -13,7 +13,7 @@ const Page = tsWithRouter<Props>(
                         <Menu.Header as="h2" className="pageTitle">
                             {title}
                         </Menu.Header>
-                        {actions.map(action => {
+                        {actions.map((action) => {
                             const onClick = action.onClick
                                 ? action.onClick
                                 : () => {

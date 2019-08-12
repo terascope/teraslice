@@ -52,7 +52,7 @@ describe('IndexManager->migrateIndex()', () => {
 
             await indexManager.indexSetup(previousConfig);
             const body: any[] = [];
-            times(10, n => {
+            times(10, (n) => {
                 body.push(
                     {
                         index: {

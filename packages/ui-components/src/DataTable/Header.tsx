@@ -14,7 +14,7 @@ import {
     isSortable,
 } from './utils';
 
-const Header: React.FC<Props> = props => {
+const Header: React.FC<Props> = (props) => {
     const {
         toggleSelectAll,
         sort,

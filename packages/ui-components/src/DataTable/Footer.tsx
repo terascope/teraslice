@@ -28,7 +28,7 @@ const Footer: React.FC<Props> = ({
     const currentPage = Math.floor(from / size) + 1;
 
     const rowsPerPageOptions = uniqIntArray([10, 25, 50, 100, 500, size]).map(
-        num => ({
+        (num) => ({
             key: num,
             text: num,
             value: num,

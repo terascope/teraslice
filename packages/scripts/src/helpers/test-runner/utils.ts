@@ -82,7 +82,7 @@ export function setEnv(options: TestOptions) {
 export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): PackageInfo[] {
     if (!options.suite) return pkgInfos.slice();
 
-    return pkgInfos.filter(pkgInfo => {
+    return pkgInfos.filter((pkgInfo) => {
         const suite = pkgInfo.terascope.testSuite;
         if (!suite) {
             throw new Error(`Package ${pkgInfo.name} missing required "terascope.testSuite" configuration`);
@@ -102,7 +102,7 @@ export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): Pa
 }
 
 export function onlyUnitTests(pkgInfos: PackageInfo[]): boolean {
-    return pkgInfos.every(pkgInfo => {
+    return pkgInfos.every((pkgInfo) => {
         return pkgInfo.terascope.testSuite === TestSuite.Unit;
     });
 }

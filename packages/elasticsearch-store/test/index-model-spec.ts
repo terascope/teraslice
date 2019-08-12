@@ -108,23 +108,23 @@ describe('IndexModel', () => {
             const valueTestCases = ['a" OR id:* OR id:"a'];
             const oneOfTestCases = ['a") OR id:* OR id:("a'];
 
-            test.each([valueTestCases])('should be able to query findById with %s', async query => {
+            test.each([valueTestCases])('should be able to query findById with %s', async (query) => {
                 await expect(indexModel.findById(query)).rejects.toThrow(/Unable to find/);
             });
 
-            test.each([valueTestCases])('should be able to query countBy with %s', async query => {
+            test.each([valueTestCases])('should be able to query countBy with %s', async (query) => {
                 await expect(indexModel.countBy({ id: query })).resolves.toBe(0);
             });
 
-            test.each([valueTestCases])('should be able to query findByAnyId with %s', async query => {
+            test.each([valueTestCases])('should be able to query findByAnyId with %s', async (query) => {
                 await expect(indexModel.findByAnyId(query)).rejects.toThrow(/Unable to find/);
             });
 
-            test.each([oneOfTestCases])('should be able to query findAll with %s', async query => {
+            test.each([oneOfTestCases])('should be able to query findAll with %s', async (query) => {
                 await expect(indexModel.findAll(query)).rejects.toThrow();
             });
 
-            test.each([oneOfTestCases])('should be able to query exists with %s', async query => {
+            test.each([oneOfTestCases])('should be able to query exists with %s', async (query) => {
                 await expect(indexModel.exists(query)).resolves.toBeFalse();
             });
         });
@@ -313,7 +313,7 @@ describe('IndexModel', () => {
     describe('when creating mulitple records', () => {
         beforeAll(async () => {
             await Promise.all(
-                times(5, n => {
+                times(5, (n) => {
                     return indexModel.create({
                         client_id: 1,
                         name: `Joe ${n}`,
@@ -323,7 +323,7 @@ describe('IndexModel', () => {
             );
 
             await Promise.all(
-                times(5, n => {
+                times(5, (n) => {
                     return indexModel.create({
                         client_id: 1,
                         name: `Bob ${n}`,
@@ -439,7 +439,7 @@ describe('IndexModel', () => {
                     includes: ['id'],
                 });
 
-                const ids = findResult.map(doc => doc.id);
+                const ids = findResult.map((doc) => doc.id);
 
                 const result = await indexModel.findAll(ids, queryAccess);
 

@@ -31,7 +31,7 @@ export default class MakeArray extends TransformOpBase {
 
     run(doc: DataEntity): DataEntity | null {
         const results: any[] = [];
-        this.fields.forEach(field => {
+        this.fields.forEach((field) => {
             const data = _.get(doc, field);
             if (data !== undefined) {
                 if (Array.isArray(data)) {

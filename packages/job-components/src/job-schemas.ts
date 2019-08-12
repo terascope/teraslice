@@ -30,7 +30,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
                     if (!Array.isArray(arr)) {
                         throw new Error('assets need to be of type array');
                     }
-                    if (!arr.every(val => typeof val === 'string')) {
+                    if (!arr.every((val) => typeof val === 'string')) {
                         throw new Error('assets needs to be an array of strings');
                     }
                 }
@@ -77,7 +77,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
                 const connectorsObject = (context.sysconfig.terafoundation && context.sysconfig.terafoundation.connectors) || {};
                 const connectors = Object.values(connectorsObject);
 
-                const connections = flatten(connectors.map(conn => Object.keys(conn)));
+                const connections = flatten(connectors.map((conn) => Object.keys(conn)));
                 for (const op of arr) {
                     if (!op || !isPlainObject(op)) {
                         throw new Error(`Invalid Operation config in operations, got ${getTypeOf(op)}`);
@@ -103,7 +103,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
                 const connectorsObject = (context.sysconfig.terafoundation && context.sysconfig.terafoundation.connectors) || {};
                 const connectors = Object.values(connectorsObject);
 
-                const connections = flatten(connectors.map(conn => Object.keys(conn)));
+                const connections = flatten(connectors.map((conn) => Object.keys(conn)));
                 const names: string[] = [];
 
                 for (const api of arr) {
@@ -171,7 +171,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
             default: [],
             doc: 'array of key/value labels used for targetting teraslice jobs to nodes',
             format(arr: any[]) {
-                arr.forEach(label => {
+                arr.forEach((label) => {
                     if (label['key'] == null) {
                         throw new Error(`targets need to have a key: ${label}`);
                     }
@@ -199,7 +199,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
             default: [],
             doc: 'array of volumes to be mounted by job workers',
             format(arr: any[]) {
-                arr.forEach(volume => {
+                arr.forEach((volume) => {
                     if (volume['name'] == null) {
                         throw new Error(`volumes need to have a name: ${volume}`);
                     }

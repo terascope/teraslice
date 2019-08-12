@@ -35,10 +35,10 @@ export class Views extends IndexModel<View> {
             }
 
             if (view.roles && view.roles.length) {
-                const hasConflict = views.some(v => {
+                const hasConflict = views.some((v) => {
                     if (!v.roles) return false;
                     if (v.id === view.id) return false;
-                    return v.roles.some(roleId => view.roles.includes(roleId));
+                    return v.roles.some((roleId) => view.roles.includes(roleId));
                 });
 
                 if (hasConflict) {
@@ -52,7 +52,7 @@ export class Views extends IndexModel<View> {
 
     async getViewOfSpace(space: Space, role: Role): Promise<View> {
         const views = await this.findAll(space.views);
-        const view = views.find(v => v.roles.includes(role.id));
+        const view = views.find((v) => v.roles.includes(role.id));
         if (view) return view;
 
         // if the view doesn't exist create a non-restrictive default view
