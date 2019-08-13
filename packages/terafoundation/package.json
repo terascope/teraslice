@@ -1,6 +1,6 @@
 {
     "name": "terafoundation",
-    "version": "0.11.2",
+    "version": "0.12.0",
     "description": "A Clustering and Foundation tool for Terascope Tools",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/terafoundation#readme",
     "bugs": {
