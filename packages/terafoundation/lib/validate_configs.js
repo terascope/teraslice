@@ -13,10 +13,9 @@ function getConnectorSchema(name) {
     return getConnectorModule(name, reason).config_schema();
 }
 
-function validateConfig(cluster, _schema, configFile) {
-    const schema = _schema || {};
+function validateConfig(cluster, schema, configFile) {
     try {
-        const config = convict(schema);
+        const config = convict(schema || {});
         config.load(configFile);
 
         if (cluster.isMaster) {
@@ -46,9 +45,14 @@ function extractSchema(fn, configFile) {
     return {};
 }
 
+/**
+ * @param cluster the nodejs cluster metadata
+ * @param config the config object passed to the library terafoundation
+ * @param configFile the parsed config from the config file
+*/
 module.exports = function validateConfigs(cluster, config, configFile) {
     const schema = extractSchema(config.config_schema, configFile);
-    const validatedConfig = {};
+    const result = {};
 
     if (config.schema_formats) {
         config.schema_formats.forEach((format) => {
@@ -56,36 +60,41 @@ module.exports = function validateConfigs(cluster, config, configFile) {
         });
     }
 
-    // iterate over top level config components
-    _.forOwn(configFile, (value, key) => {
+    for (const [namespace, namespaceConfig] of Object.entries(configFile)) {
         // terafoundation
-        if (key === 'terafoundation') {
-            validatedConfig[key] = validateConfig(cluster, sysSchema, configFile[key]);
-            validatedConfig[key].connectors = {};
+        if (namespace === 'terafoundation') {
+            result[namespace] = validateConfig(cluster, sysSchema, namespaceConfig);
+            result[namespace].connectors = {};
 
-            // iterate over different connectors
-            _.forOwn(configFile[key].connectors, (innerConfig, connector) => {
+            const connectors = configFile[namespace].connectors || {};
+            for (const [connector, connectorConfig] of Object.entries(connectors)) {
                 const innerSchema = getConnectorSchema(connector, config);
-                validatedConfig[key].connectors[connector] = {};
+                result[namespace].connectors[connector] = {};
 
-                // iterate over endpoints in connectors
-                _.forOwn(configFile[key].connectors[connector], (name, endpoint) => {
-                    const validated = validateConfig(cluster, innerSchema, name);
-                    validatedConfig[key].connectors[connector][endpoint] = validated;
-                });
-            });
+                for (const [endpoint, endpointConfig] of Object.entries(connectorConfig)) {
+                    result[namespace].connectors[connector][endpoint] = validateConfig(
+                        cluster,
+                        innerSchema,
+                        endpointConfig
+                    );
+                }
+            }
         } else {
-            validatedConfig[key] = validateConfig(cluster, schema[key], configFile[key]);
+            result[namespace] = validateConfig(
+                cluster,
+                schema[namespace],
+                namespaceConfig
+            );
         }
-    });
+    }
 
     // Annotate the config with some information about this instance.
     const hostname = os.hostname();
     if (cluster.worker) {
-        validatedConfig._nodeName = `${hostname}.${cluster.worker.id}`;
+        result._nodeName = `${hostname}.${cluster.worker.id}`;
     } else {
-        validatedConfig._nodeName = hostname;
+        result._nodeName = hostname;
     }
 
-    return validatedConfig;
+    return result;
 };
