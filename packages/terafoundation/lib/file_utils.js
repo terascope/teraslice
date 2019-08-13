@@ -1,40 +1,62 @@
 'use strict';
 
-const fs = require('fs');
-const { TSError, parseError } = require('@terascope/utils');
+const path = require('path');
+const { TSError, parseError, isEmpty } = require('@terascope/utils');
 
-function guardedRequire(fileName, errors) {
+function requireConnector(filePath, errors) {
+    let mod = require(filePath);
+    if (mod && mod.default) {
+        mod = mod.default;
+    }
+    let valid = true;
+    if (isEmpty(mod)) {
+        valid = false;
+    }
+
+    if (mod && typeof mod.config_schema !== 'function') {
+        errors.push({
+            filePath,
+            message: `Connector ${filePath} missing required config_schema function`,
+        });
+        valid = false;
+    }
+
+    if (mod && typeof mod.create !== 'function') {
+        errors.push({
+            filePath,
+            message: `Connector ${filePath} missing required create function`
+        });
+        valid = false;
+    }
+
+    if (valid) return mod;
+    return null;
+}
+
+function guardedRequire(filePath, errors) {
     try {
-        const mod = require(fileName);
-        if (mod && mod.default) return mod.default;
-        return mod;
+        return requireConnector(filePath, errors);
     } catch (error) {
         if (error.code === 'MODULE_NOT_FOUND') {
             return false;
         }
 
-        if (Array.isArray(errors)) {
-            errors.push({
-                fileName,
-                error,
-            });
-        }
-        return false;
+        errors.push({
+            filePath,
+            message: parseError(error, true),
+        });
+        return null;
     }
 }
 
-function getModule(name, obj, reason) {
+function getConnectorModule(context, name, reason) {
     let mod;
 
     // collect the errors
     const errors = [];
 
-    for (const path in obj) {
-        if (fs.existsSync(path)) {
-            mod = guardedRequire(path, errors);
-            if (!mod) continue;
-        }
-    }
+    const localPath = path.join(__dirname, 'connectors', name);
+    mod = guardedRequire(localPath);
 
     // check if its a node module
     if (!mod) {
@@ -59,12 +81,12 @@ function getModule(name, obj, reason) {
     if (mod) return mod;
 
     if (errors.length) {
-        const fileNames = errors.map(({ fileName }) => fileName);
-        const messages = errors.map(({ error }) => parseError(error, false));
-        throw new TSError(messages.join(', caused by'), {
+        const filePaths = errors.map(({ filePath }) => filePath);
+        const messages = errors.map(({ message }) => message);
+        throw new TSError(messages.join(', caused by '), {
             reason,
             context: {
-                fileNames,
+                filePaths,
             }
         });
     }
@@ -73,5 +95,5 @@ function getModule(name, obj, reason) {
 }
 
 module.exports = {
-    getModule
+    getConnectorModule
 };

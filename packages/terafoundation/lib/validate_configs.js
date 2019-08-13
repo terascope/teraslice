@@ -3,23 +3,13 @@
 const _ = require('lodash');
 const os = require('os');
 const convict = require('convict');
-const { getModule } = require('./file_utils');
+const { getConnectorModule } = require('./file_utils');
 const sysSchema = require('../system_schema');
 
-function getConnectorSchema(name, context) {
-    const paths = {};
-    const err = `Could not retrieve schema code for: ${name}\n`;
+function getConnectorSchema(name, config) {
+    const reason = `Could not retrieve schema code for: ${name}\n`;
 
-    const localPath = `${__dirname}/connectors/${name}.js`;
-    paths[localPath] = true;
-
-    if (context.ops_directory) {
-        const opsPath = `${context.ops_directory}/connectors/${name}.js`;
-        paths[opsPath] = true;
-    }
-
-    // getModule has a fallback to check node modules for connector schema
-    return getModule(name, paths, err).config_schema();
+    return getConnectorModule(config, name, reason).config_schema();
 }
 
 function validateConfig(cluster, _schema, configFile) {
@@ -55,12 +45,12 @@ function extractSchema(fn, configFile) {
     return {};
 }
 
-module.exports = function module(cluster, context, configFile) {
-    const schema = extractSchema(context.config_schema, configFile);
-    const config = {};
+module.exports = function validateConfigs(cluster, config, configFile) {
+    const schema = extractSchema(config.config_schema, configFile);
+    const validatedConfig = {};
 
-    if (context.schema_formats) {
-        context.schema_formats.forEach((format) => {
+    if (config.schema_formats) {
+        config.schema_formats.forEach((format) => {
             convict.addFormat(format);
         });
     }
@@ -69,32 +59,32 @@ module.exports = function module(cluster, context, configFile) {
     _.forOwn(configFile, (value, key) => {
         // terafoundation
         if (key === 'terafoundation') {
-            config[key] = validateConfig(cluster, sysSchema, configFile[key]);
-            config[key].connectors = {};
+            validatedConfig[key] = validateConfig(cluster, sysSchema, configFile[key]);
+            validatedConfig[key].connectors = {};
 
             // iterate over different connectors
             _.forOwn(configFile[key].connectors, (innerConfig, connector) => {
-                const innerSchema = getConnectorSchema(connector, context);
-                config[key].connectors[connector] = {};
+                const innerSchema = getConnectorSchema(connector, config);
+                validatedConfig[key].connectors[connector] = {};
 
                 // iterate over endpoints in connectors
                 _.forOwn(configFile[key].connectors[connector], (name, endpoint) => {
                     const validated = validateConfig(cluster, innerSchema, name);
-                    config[key].connectors[connector][endpoint] = validated;
+                    validatedConfig[key].connectors[connector][endpoint] = validated;
                 });
             });
         } else {
-            config[key] = validateConfig(cluster, schema[key], configFile[key]);
+            validatedConfig[key] = validateConfig(cluster, schema[key], configFile[key]);
         }
     });
 
     // Annotate the config with some information about this instance.
     const hostname = os.hostname();
     if (cluster.worker) {
-        config._nodeName = `${hostname}.${cluster.worker.id}`;
+        validatedConfig._nodeName = `${hostname}.${cluster.worker.id}`;
     } else {
-        config._nodeName = hostname;
+        validatedConfig._nodeName = hostname;
     }
 
-    return config;
+    return validatedConfig;
 };

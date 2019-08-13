@@ -6,9 +6,9 @@
  connected
  reconnected
  */
-const { getModule } = require('../file_utils');
+const { getConnectorModule } = require('../file_utils');
 
-module.exports = function module(context) {
+module.exports = function getConnectionModule(context) {
     const { sysconfig } = context;
     const connections = {};
 
@@ -16,15 +16,10 @@ module.exports = function module(context) {
      * Connectors can either be JavaScript file in a directory or can be packaged
      * as a npm module.
      */
-    function loadConnector(type) {
-        const localPath = `${__dirname}/../connectors/${type}.js`;
-        const paths = {};
-        paths[localPath] = true;
-        paths[type] = true;
+    function loadConnector(name) {
+        const reason = `Could not find connector implementation for: ${name}\n`;
 
-        const err = `Could not find connector implementation for: ${type}\n`;
-
-        return getModule(type, paths, err);
+        return getConnectorModule(context, name, reason);
     }
 
     /*
