@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 
-module.exports = function module(context, moduleConfig) {
+module.exports = function masterModule(context, moduleConfig) {
     const { cluster, logger } = context;
     const configWorkers = context.sysconfig.terafoundation.workers;
     let startWorkers = true;

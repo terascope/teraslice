@@ -8,7 +8,7 @@ const _startWorkers = require('./startWorkers');
 /*
  * This module controls the API endpoints that are exposed under context.apis.
  */
-module.exports = function module(context) {
+module.exports = function apisModule(context) {
     const makeLogger = _makeLogger(context);
     const getConnection = _getConnection(context);
     const getSystemEvents = _getSystemEvents(context);

@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 
-module.exports = function module(context) {
+module.exports = function startWorkersModule(context) {
     return function startWorkers(num, envOptions) {
         const { logger, cluster } = context;
         // default assignment is set to worker

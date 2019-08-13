@@ -19,7 +19,7 @@ function getLogLevel(level) {
     }, {});
 }
 
-module.exports = function module(context) {
+module.exports = function makeLoggerModule(context) {
     const loggingConfig = context.sysconfig.terafoundation;
     const logLevel = getLogLevel(loggingConfig.log_level);
 
