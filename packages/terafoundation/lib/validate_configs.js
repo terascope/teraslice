@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const os = require('os');
 const convict = require('convict');
-const { getConnectorModule } = require('./file_utils');
+const { getConnectorModule } = require('./connector_utils');
 const sysSchema = require('../system_schema');
 
 function getConnectorSchema(name, config) {

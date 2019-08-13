@@ -6,7 +6,7 @@
  connected
  reconnected
  */
-const { getConnectorModule } = require('../file_utils');
+const { getConnectorModule } = require('../connector_utils');
 
 module.exports = function getConnectionModule(context) {
     const { sysconfig } = context;
