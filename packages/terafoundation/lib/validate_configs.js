@@ -3,14 +3,8 @@
 const os = require('os');
 const convict = require('convict');
 const { TSError, isFunction, isPlainObject } = require('@terascope/utils');
-const { getConnectorModule } = require('./connector_utils');
+const { getConnectorSchema } = require('./connector_utils');
 const sysSchema = require('../system_schema');
-
-function getConnectorSchema(name) {
-    const reason = `Could not retrieve schema code for: ${name}\n`;
-
-    return getConnectorModule(name, reason).config_schema();
-}
 
 function validateConfig(cluster, schema, configFile) {
     try {
@@ -67,7 +61,7 @@ module.exports = function validateConfigs(cluster, config, configFile) {
 
             const connectors = configFile[namespace].connectors || {};
             for (const [connector, connectorConfig] of Object.entries(connectors)) {
-                const innerSchema = getConnectorSchema(connector, config);
+                const innerSchema = getConnectorSchema(connector);
                 result[namespace].connectors[connector] = {};
 
                 for (const [endpoint, endpointConfig] of Object.entries(connectorConfig)) {

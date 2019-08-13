@@ -90,10 +90,34 @@ function getConnectorModule(name, reason) {
             }
         });
     }
+    return null;
+}
 
-    throw new TSError(reason);
+function getConnectorSchema(name) {
+    const reason = `Could not retrieve schema code for: ${name}\n`;
+
+    const mod = getConnectorModule(name, reason);
+    if (!mod) {
+        // eslint-disable-next-line no-console
+        console.warn(new Error(reason));
+        return {};
+    }
+    return mod.config_schema();
+}
+
+function createConnection(name, moduleConfig, logger, options) {
+    const reason = `Could not find connector implementation for: ${name}\n`;
+
+    const mod = getConnectorModule(name, reason);
+    if (!mod) {
+        throw new Error(reason);
+    }
+
+    return mod.create(moduleConfig, logger, options);
 }
 
 module.exports = {
+    createConnection,
+    getConnectorSchema,
     getConnectorModule
 };

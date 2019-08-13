@@ -173,6 +173,33 @@ describe('Validate Configs', () => {
         });
     });
 
+
+    describe("when using using a connector that doesn't exist", () => {
+        const configFile = {
+            terafoundation: {
+                connectors: {
+                    elasticsearch: {
+                        default: {}
+                    },
+                    missing_connector: {},
+                }
+            }
+        };
+
+        it('should return a valid config', () => {
+            const validatedConfig = validateConfigs({}, {}, configFile);
+            expect(validatedConfig).toMatchObject({
+                terafoundation: {
+                    connectors: {
+                        elasticsearch: {},
+                        missing_connector: {}
+                    },
+                },
+                _nodeName: os.hostname()
+            });
+        });
+    });
+
     describe('when given an logging config', () => {
         const configFile = {
             terafoundation: {
