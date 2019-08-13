@@ -4,7 +4,9 @@ const fs = require('fs');
 
 function guardedRequire(fileName) {
     try {
-        return require(fileName);
+        const mod = require(fileName);
+        if (mod && mod.default) return mod.default;
+        return mod;
     } catch (e) {
         if (e.code === 'MODULE_NOT_FOUND') {
             return false;
