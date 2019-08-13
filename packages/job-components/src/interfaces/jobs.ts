@@ -107,5 +107,4 @@ export interface LegacyExecutionContext {
     dynamicQueueLength: boolean;
     queue: Function[];
     reader: Function | null;
-    reporter: null;
 }

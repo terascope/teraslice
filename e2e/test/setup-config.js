@@ -43,6 +43,7 @@ module.exports = async function setupTerasliceConfig() {
             slicer_timeout: 180000,
             shutdown_timeout: 30000,
             action_timeout: 30000,
+            slicer_allocation_attempts: 0,
             assets_directory: '/app/assets',
             autoload_directory: '/app/autoload',
             workers: WORKERS_PER_NODE,

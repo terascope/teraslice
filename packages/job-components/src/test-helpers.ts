@@ -57,7 +57,6 @@ export function newTestExecutionContext(type: i.Assignment, config: i.ExecutionC
             slicer: () => {},
             dynamicQueueLength: false,
             queueLength: 10000,
-            reporter: null,
         };
     }
 
@@ -68,7 +67,6 @@ export function newTestExecutionContext(type: i.Assignment, config: i.ExecutionC
         slicer: () => {},
         dynamicQueueLength: false,
         queueLength: 10000,
-        reporter: null,
     };
 }
 

@@ -34,7 +34,7 @@ teraslice:
 
 |              Field               |                Type                |     Default     |                                                              Description                                                              |
 | :------------------------------: | :--------------------------------: | :-------------: | :-----------------------------------------------------------------------------------------------------------------------------------: |
-|         **environment**          |              `String`              | `"development"` |   If set to `production`, console logging will be disabled and logs will be sent to a file                        |
+|         **environment**          |              `String`              | `"development"` |                       If set to `production`, console logging will be disabled and logs will be sent to a file                        |
 |     **log_buffer_interval**      |              `Number`              |     `60000`     |                                 How often the log buffer will flush the logs (number in milliseconds)                                 |
 |       **log_buffer_limit**       |              `Number`              |      `30`       | Number of log lines to buffer before sending to elasticsearch, logging must have elasticsearch set as a value for this to take effect |
 |        **log_connection**        |              `String`              |   `"default"`   |                                   logging connection endpoint if logging is saved to elasticsearch                                    |
@@ -49,8 +49,8 @@ teraslice:
 
 |                      Field                      |                Type                |          Default           |                                                                 Description                                                                  |
 | :---------------------------------------------: | :--------------------------------: | :------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------: |
-|               **action_timeout**                |              `Number`              |          `300000`          |                  time in milliseconds for waiting for a action ( pause/stop job, etc) to complete before throwing an error                   |
-|               **analytics_rate**                |              `Number`              |          `60000`           |                                           Rate in ms in which to push analytics to cluster master                                            |
+|               **action_timeout**                |             `duration`             |          `300000`          |                  time in milliseconds for waiting for a action ( pause/stop job, etc) to complete before throwing an error                   |
+|               **analytics_rate**                |             `duration`             |          `60000`           |                                           Rate in ms in which to push analytics to cluster master                                            |
 |              **assets_directory**               |              `String`              |      `"$PWD/assets"`       |                                                         directory to look for assets                                                         |
 |                **assets_volume**                |              `String`              |             -              |                                                      name of shared asset volume (k8s)                                                       |
 |             **autoload_directory**              |              `String`              |     `"$PWD/autoload"`      |                                     directory to look for assets to auto deploy when teraslice boots up                                      |
@@ -77,17 +77,16 @@ teraslice:
 |               **master_hostname**               |              `String`              |       `"localhost"`        |                         hostname where the cluster_master resides, used to notify all node_masters where to connect                          |
 |                   **memory**                    |              `Number`              |             -              |                                       memory, in bytes, to reserve per teraslice worker in kubernetes                                        |
 |                    **name**                     |        `elasticsearch_Name`        |      `"teracluster"`       |                                      Name for the cluster itself, its used for naming log files/indices                                      |
-|           **network_latency_buffer**            |              `Number`              |          `15000`           | time in milliseconds buffer which is combined with action_timeout to determine how long the cluster master will wait till it throws an error |
-|           **node_disconnect_timeout**           |              `Number`              |          `300000`          |       time in milliseconds that the cluster  will wait untill it drops that node from state and attempts to provision the lost workers       |
-|             **node_state_interval**             |              `Number`              |           `5000`           |                         time in milliseconds that indicates when the cluster master will ping nodes for their state                          |
+|           **network_latency_buffer**            |             `duration`             |          `15000`           | time in milliseconds buffer which is combined with action_timeout to determine how long the cluster master will wait till it throws an error |
+|           **node_disconnect_timeout**           |             `duration`             |          `300000`          |       time in milliseconds that the cluster  will wait untill it drops that node from state and attempts to provision the lost workers       |
+|             **node_state_interval**             |             `duration`             |           `5000`           |                         time in milliseconds that indicates when the cluster master will ping nodes for their state                          |
 |                    **port**                     |               `port`               |           `5678`           |                                                   port for the cluster_master to listen on                                                   |
-|                  **reporter**                   |              `String`              |             -              |                                                          not currently operational                                                           |
-|              **shutdown_timeout**               |              `Number`              |          `60000`           |                   time in milliseconds, to allow workers and slicers to finish operations before forcefully shutting down                    |
+|              **shutdown_timeout**               |             `duration`             |          `60000`           |                   time in milliseconds, to allow workers and slicers to finish operations before forcefully shutting down                    |
 |         **slicer_allocation_attempts**          |              `Number`              |            `3`             |                                     The number of times a slicer will try to be allocated before failing                                     |
 |              **slicer_port_range**              |              `String`              |      `"45679:46678"`       |                                                range of ports that slicers will use per node                                                 |
-|               **slicer_timeout**                |              `Number`              |          `180000`          |                       time in milliseconds that the slicer will wait for worker connection before terminating the job                        |
+|               **slicer_timeout**                |             `duration`             |          `180000`          |                       time in milliseconds that the slicer will wait for worker connection before terminating the job                        |
 |                    **state**                    |              `Object`              | `{"connection":"default"}` |                                     Elasticsearch cluster where job state, analytics and logs are stored                                     |
-|          **worker_disconnect_timeout**          |              `Number`              |          `300000`          |                time in milliseconds that the slicer will wait after all workers have disconnected before terminating the job                 |
+|          **worker_disconnect_timeout**          |             `duration`             |          `300000`          |                time in milliseconds that the slicer will wait after all workers have disconnected before terminating the job                 |
 |                   **workers**                   |              `Number`              |            `4`             |                                                         Number of workers per server                                                         |
 
 
@@ -116,15 +115,15 @@ terafoundation:
                 maxRetries: 0
         kafka:
             default:
-                brokers: "localhost:9092"            
+                brokers: "localhost:9092"
 # ...
 ```
 
-In this example we specify two different connector types: `elasticsearch` and `kafka`. Under each connector type you may then create custom endpoint configurations that will be validated against the defaults specified in node_modules/terafoundation/lib/connectors. In the elasticsearch example there is the `default` endpoint and the `secondary` endpoint which connects to a different elasticsearch cluster. Each endpoint has independent configuration options. 
+In this example we specify two different connector types: `elasticsearch` and `kafka`. Under each connector type you may then create custom endpoint configurations that will be validated against the defaults specified in node_modules/terafoundation/lib/connectors. In the elasticsearch example there is the `default` endpoint and the `secondary` endpoint which connects to a different elasticsearch cluster. Each endpoint has independent configuration options.
 
 These different endpoints can be retrieved through terafoundations's connector API. As it's name implies, the `default` connector is what will be provided if a connection is requested without providing a specific name. In general we don't recommend doing that if you have multiple clusters, but it's convenient if you only have one.
 
-## Configuration Single Node / Native Clustering - Cluster Master 
+## Configuration Single Node / Native Clustering - Cluster Master
 
 If you're running a single Teraslice node or using the simple native clustering you'll need a master node configuration.
 

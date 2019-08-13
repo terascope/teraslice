@@ -35,10 +35,6 @@ const schema = {
             }
         }
     },
-    reporter: {
-        doc: 'not currently operational ',
-        default: ''
-    },
     hostname: {
         doc: 'IP or hostname for server',
         default: ip.address(),
@@ -146,98 +142,42 @@ const schema = {
         doc:
             'time in milliseconds for waiting for a action ( pause/stop job, etc) to complete before throwing an error',
         default: 300000,
-        format(val) {
-            if (isNaN(val)) {
-                throw new Error('action_timeout parameter for teraslice must be a number');
-            } else if (val <= 0) {
-                throw new Error('action_timeout parameter for teraslice must be greater than zero');
-            }
-        }
+        format: 'duration'
     },
     network_latency_buffer: {
         doc:
             'time in milliseconds buffer which is combined with action_timeout to determine how long the cluster master will wait till it throws an error',
         default: 15000,
-        format(val) {
-            if (isNaN(val)) {
-                throw new Error('network_latency_buffer parameter for teraslice must be a number');
-            } else if (val <= 0) {
-                throw new Error(
-                    'network_latency_buffer parameter for teraslice must be greater than zero'
-                );
-            }
-        }
+        format: 'duration'
     },
     slicer_timeout: {
         doc:
             'time in milliseconds that the slicer will wait for worker connection before terminating the job',
         default: 180000,
-        format(val) {
-            if (isNaN(val)) {
-                throw new Error('timeout parameter for teraslice must be a number');
-            } else if (val <= 0) {
-                throw new Error('timeout parameter for teraslice must be greater than zero');
-            }
-        }
+        format: 'duration'
     },
     slicer_allocation_attempts: {
         doc: 'The number of times a slicer will try to be allocated before failing',
         default: 3,
-        format(val) {
-            if (isNaN(val)) {
-                throw new Error(
-                    'slicer_allocation_attempts parameter for teraslice must be a number'
-                );
-            } else if (val <= 0) {
-                throw new Error(
-                    'slicer_allocation_attempts parameter for teraslice must be greater than zero'
-                );
-            }
-        }
+        format: 'nat', // positive integer (natural number)
     },
     node_state_interval: {
         doc:
             'time in milliseconds that indicates when the cluster master will ping nodes for their state',
         default: 5000,
-        format(val) {
-            if (isNaN(val)) {
-                throw new Error('node_state_interval parameter for teraslice must be a number');
-            } else if (val <= 0) {
-                throw new Error(
-                    'node_state_interval parameter for teraslice must be greater than zero'
-                );
-            }
-        }
+        format: 'duration'
     },
     node_disconnect_timeout: {
         doc:
             'time in milliseconds that the cluster  will wait untill it drops that node from state and attempts to provision the lost workers',
         default: 300000,
-        format(val) {
-            if (isNaN(val)) {
-                throw new Error('node_disconnect_timeout parameter for teraslice must be a number');
-            } else if (val <= 0) {
-                throw new Error(
-                    'node_disconnect_timeout parameter for teraslice must be greater than zero'
-                );
-            }
-        }
+        format: 'duration'
     },
     worker_disconnect_timeout: {
         doc:
             'time in milliseconds that the slicer will wait after all workers have disconnected before terminating the job',
         default: 300000,
-        format(val) {
-            if (isNaN(val)) {
-                throw new Error(
-                    'worker_disconnect_timeout parameter for teraslice must be a number'
-                );
-            } else if (val <= 0) {
-                throw new Error(
-                    'worker_disconnect_timeout parameter for teraslice must be greater than zero'
-                );
-            }
-        }
+        format: 'duration'
     },
     slicer_port_range: {
         doc: 'range of ports that slicers will use per node',
@@ -259,7 +199,7 @@ const schema = {
     analytics_rate: {
         doc: 'Rate in ms in which to push analytics to cluster master',
         default: 60000,
-        format: Number
+        format: 'duration'
     },
     index_rollover_frequency: {
         state: {
