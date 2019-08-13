@@ -1,6 +1,7 @@
 import 'jest-extended';
 import {
     withoutNil,
+    includes,
 } from '../src';
 
 describe('Array Utils', () => {
@@ -40,6 +41,25 @@ describe('Array Utils', () => {
                 example: true,
                 other: null,
             });
+        });
+    });
+
+    describe('includes', () => {
+        test.each([
+            [['hello'], 'hello', true],
+            [['foo'], 'bar', false],
+            [new Set<string>().add('hello'), 'hello', true],
+            [new Set<string>().add('foo'), 'bar', false],
+            [{ hello: true }, 'hello', true],
+            [{ foo: true }, 'bar', false],
+            [new Map<string, boolean>().set('hello', true), 'hello', true],
+            [new Map<string, boolean>().set('foo', true), 'bar', false],
+            [null, 'uhoh', false],
+            ['hello', 'hello', true],
+            ['foo', 'bar', false],
+        // @ts-ignore
+        ])('should convert %j to be %j', (input: any, key: string, expected: boolean) => {
+            expect(includes(input, key)).toEqual(expected);
         });
     });
 });

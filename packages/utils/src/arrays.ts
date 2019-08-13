@@ -90,7 +90,7 @@ export function chunk<T>(dataArray: T[]|Set<T>, size: number): T[][] {
 /** Safely check if an array, object, map, set has a key */
 export function includes(input: any, key: string): boolean {
     if (!input) return false;
-    if (Array.isArray(input)) return input.includes(key);
+    if (Array.isArray(input) || typeof input === 'string') return input.includes(key);
     if (typeof input.has === 'function') return input.has(key);
     if (isPlainObject(input)) {
         return Object.keys(input).includes(key);
