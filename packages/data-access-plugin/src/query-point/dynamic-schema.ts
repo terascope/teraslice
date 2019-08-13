@@ -1,17 +1,19 @@
-import { makeExecutableSchema } from 'apollo-server-express';
+
+import { makeExecutableSchema} from 'apollo-server-express';
 import { ACLManager, User, DataAccessConfig } from '@terascope/data-access';
-import { Context } from '@terascope/job-components';
+import { Context, TSError } from '@terascope/job-components';
 import * as ts from '@terascope/utils';
 import * as dt from '@terascope/data-types';
 import Usertype from './types/user';
 import { createResolvers } from './resolvers';
 
-// TODO: elasticsearch search error should not leak to much
 // TODO: history capabilities??
 
 export default async function getSchemaByRole(aclManager: ACLManager, user: User, logger: ts.Logger, context: Context) {
     const query = `roles: ${user.role} AND type:SEARCH AND _exists_:endpoint`;
     const spaces = await aclManager.findSpaces({ query, size: 10000 }, false);
+
+    if (spaces.length === 0) throw new TSError('no spaces are available to query with this user', { statusCode: 422, context: { user }, });
 
     const promises = spaces.map((space) => aclManager.getViewForSpace({ space: space.id }, user));
     const dataAccessConfigs = await Promise.all(promises);

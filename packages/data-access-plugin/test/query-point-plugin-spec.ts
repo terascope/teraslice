@@ -39,6 +39,7 @@ describe('Query Point API', () => {
         server_config: {
             data_access: {
                 namespace: `${TEST_INDEX_PREFIX}da_qp`,
+                complexity_limit: 10000,
             },
             teraserver: {
                 shutdown_timeout: 1,
@@ -1152,5 +1153,25 @@ describe('Query Point API', () => {
 
         const queryResults = await fullRoleClient.request(query1);
         expect(queryResults).toEqual(results);
+    });
+
+    it('can throw if complexity of query is large', async () => {
+        const query = `
+                query {
+                    ${space1}(query: "bytes:>=1000", size: 1000){
+                        bytes,
+                        ip,
+                        ${space2}(join:["bytes"], size: 1000) {
+                            bool
+                            ${space3}(join:["bool:wasFound"], size: 1000){
+                                wasFound,
+                                date
+                            }
+                        }
+                    }
+                }
+            `;
+
+        await expect(fullRoleClient.request(query)).toReject();
     });
 });

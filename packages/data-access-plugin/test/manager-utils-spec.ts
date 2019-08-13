@@ -3,21 +3,34 @@ import { TSError } from '@terascope/utils';
 import * as apollo from 'apollo-server-express';
 import { formatError } from '../src/manager/utils';
 
+// TODO: add tests for no stack traces
+
 describe('Manager Utils', () => {
     describe('formatError', () => {
         it('should handle a regular error', () => {
             const input = new Error('Uh oh');
-            const err = formatError(input);
+            const err = formatError(false)(input);
 
             expect(err).toHaveProperty('extensions');
-            expect(err.message).toEqual(input.message);
+            expect(err.stack).toBeDefined();
+            expect(err.message).toEqual(input.stack);
         });
 
         it('should handle a TSError error', () => {
             const input = new TSError('Uh oh');
-            const err = formatError(input);
+            const err = formatError(false)(input);
 
             expect(err).toHaveProperty('extensions');
+            expect(err.stack).toBeDefined();
+            expect(err.message).toEqual(input.message);
+        });
+
+        it('stack should be undefined it set to true', () => {
+            const input = new TSError('Uh oh');
+            const err = formatError(true)(input);
+
+            expect(err).toHaveProperty('extensions');
+            expect(err.stack).not.toBeDefined();
             expect(err.message).toEqual(input.message);
         });
 
@@ -26,7 +39,7 @@ describe('Manager Utils', () => {
                 statusCode: 422,
             });
 
-            const err = formatError(input);
+            const err = formatError(false)(input);
 
             expect(err).toBeInstanceOf(apollo.ValidationError);
             expect(err.message).toEqual(input.message);
@@ -37,7 +50,7 @@ describe('Manager Utils', () => {
                 statusCode: 401,
             });
 
-            const err = formatError(input);
+            const err = formatError(false)(input);
 
             expect(err).toBeInstanceOf(apollo.AuthenticationError);
             expect(err.message).toEqual(input.message);
@@ -48,7 +61,7 @@ describe('Manager Utils', () => {
                 statusCode: 403,
             });
 
-            const err = formatError(input);
+            const err = formatError(false)(input);
 
             expect(err).toBeInstanceOf(apollo.ForbiddenError);
             expect(err.message).toEqual(input.message);
@@ -59,7 +72,7 @@ describe('Manager Utils', () => {
                 statusCode: 411,
             });
 
-            const err = formatError(input);
+            const err = formatError(false)(input);
 
             expect(err).toBeInstanceOf(apollo.UserInputError);
             expect(err.message).toEqual(input.message);
@@ -68,7 +81,7 @@ describe('Manager Utils', () => {
         it('should handle an apollo error', () => {
             const input = new apollo.ApolloError('Uh oh');
 
-            const err = formatError(input);
+            const err = formatError(false)(input);
 
             expect(err).toBe(input);
         });
@@ -76,7 +89,7 @@ describe('Manager Utils', () => {
         it('should handle an apollo user input error', () => {
             const input = new apollo.UserInputError('Uh oh');
 
-            const err = formatError(input);
+            const err = formatError(false)(input);
 
             expect(err).toBe(input);
         });
@@ -84,7 +97,7 @@ describe('Manager Utils', () => {
         it('should handle an apollo validation error', () => {
             const input = new apollo.ValidationError('Uh oh');
 
-            const err = formatError(input);
+            const err = formatError(false)(input);
 
             expect(err).toBe(input);
         });
@@ -92,7 +105,7 @@ describe('Manager Utils', () => {
         it('should handle an apollo authentication error', () => {
             const input = new apollo.AuthenticationError('Uh oh');
 
-            const err = formatError(input);
+            const err = formatError(false)(input);
 
             expect(err).toBe(input);
         });
@@ -100,7 +113,7 @@ describe('Manager Utils', () => {
         it('should handle an apollo forbidden error', () => {
             const input = new apollo.ForbiddenError('Uh oh');
 
-            const err = formatError(input);
+            const err = formatError(false)(input);
 
             expect(err).toBe(input);
         });

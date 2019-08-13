@@ -8,30 +8,40 @@ export function forEachModel(fn: (model: ModelName) => void) {
     return models.forEach((model) => fn(model));
 }
 
-export function formatError(err: any) {
-    if (err && err.extensions != null) return err;
-
-    const { statusCode, message, code } = ts.parseErrorInfo(err);
-
-    let error: any;
-
-    if (statusCode >= 400 && statusCode < 500) {
-        if (statusCode === 422) {
-            error = new apollo.ValidationError(message);
-        } else if (statusCode === 401) {
-            error = new apollo.AuthenticationError(message);
-        } else if (statusCode === 403) {
-            error = new apollo.ForbiddenError(message);
-        } else {
-            error = new apollo.UserInputError(message);
+export function formatError(removeUserStack: boolean = false) {
+    return (err: any) => {
+        if (err && err.extensions != null) {
+            if (removeUserStack && err.extensions.exception) err.extensions.exception = undefined;
+            return err;
         }
 
-        if (err && err.stack) error.stack = err.stack;
-    } else {
-        error = apollo.toApolloError(err, code);
-    }
+        const { statusCode, message, code } = ts.parseErrorInfo(err);
+        let error: any;
 
-    return error;
+        if (statusCode >= 400 && statusCode < 500) {
+            if (statusCode === 422) {
+                error = new apollo.ValidationError(message);
+            } else if (statusCode === 401) {
+                error = new apollo.AuthenticationError(message);
+            } else if (statusCode === 403) {
+                error = new apollo.ForbiddenError(message);
+            } else {
+                error = new apollo.UserInputError(message);
+            }
+
+            if (err && err.stack) {
+                if (removeUserStack) {
+                    error.stack = undefined;
+                } else {
+                    error.stack = err.stack;
+                }
+            }
+        } else {
+            error = apollo.toApolloError(err, code);
+        }
+
+        return error;
+    };
 }
 
 export function setLoggedInUser(req: Request, user: User, storeInSession = true): void {

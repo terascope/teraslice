@@ -23,6 +23,7 @@ export interface TeraserverConfig {
     data_access?: {
         namespace?: string;
         connection?: string;
+        complexity_limit?: number;
     };
     teraserver: {
         shutdown_timeout: number;

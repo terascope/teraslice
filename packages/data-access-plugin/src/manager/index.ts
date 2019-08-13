@@ -99,7 +99,7 @@ export default class ManagerPlugin {
 
                 return ctx;
             },
-            formatError: utils.formatError,
+            formatError: utils.formatError(false),
             playground: {
                 settings: {
                     'request.credentials': 'include',
