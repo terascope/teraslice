@@ -140,6 +140,15 @@ describe('getConnection foundation API', () => {
         expect(aws.S3).toHaveBeenCalledTimes(1);
     });
 
+    it('should return the default redis connection', () => {
+        const { foundation } = context.apis;
+        const config = { type: 'redis' };
+        const { client } = foundation.getConnection(config);
+
+        expect(client).toEqual(redisClient);
+        expect(redis.createClient).toHaveBeenCalledTimes(1);
+    });
+
     it('should return the default statsd connection', () => {
         const { foundation } = context.apis;
         const config = { type: 'statsd' };

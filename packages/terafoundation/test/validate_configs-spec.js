@@ -67,6 +67,9 @@ describe('Validate Configs', () => {
     describe('when using using connectors that exist', () => {
         const configFile = {
             terafoundation: {
+                log_level: [
+                    { console: 'warn' }
+                ],
                 connectors: {
                     elasticsearch: {
                         default: {}
@@ -97,6 +100,9 @@ describe('Validate Configs', () => {
             const validatedConfig = validateConfigs({}, {}, configFile);
             expect(validatedConfig).toMatchObject({
                 terafoundation: {
+                    log_level: [
+                        { console: 'warn' }
+                    ],
                     connectors: {
                         elasticsearch: {
                             default: {
@@ -167,10 +173,31 @@ describe('Validate Configs', () => {
         });
     });
 
-    describe('when given invalid config', () => {
+    describe('when given an logging config', () => {
         const configFile = {
             terafoundation: {
-                log_level: 'uhoh'
+                log_level: 'uhoh',
+            },
+            other: {}
+        };
+        const cluster = {
+            isMaster: true,
+        };
+        const config = {
+            config_schema() {
+                return {};
+            }
+        };
+
+        it('should throw an error', () => {
+            expect(() => validateConfigs(cluster, config, configFile)).toThrowError('Error validating configuration');
+        });
+    });
+
+    describe('when given an invalid log_level', () => {
+        const configFile = {
+            terafoundation: {
+                logging: 'hello'
             },
             other: {}
         };
