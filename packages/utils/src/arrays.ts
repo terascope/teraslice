@@ -1,4 +1,5 @@
 import { Many, WithoutNil } from './interfaces';
+import { isPlainObject } from './utils';
 
 /** A native implemation of lodash flatten */
 export function flatten<T>(val: Many<T[]>): T[] {
@@ -68,6 +69,7 @@ export function fastMap<T, U>(arr: T[], fn: (val: T, index: number) => U): U[] {
     return result;
 }
 
+/** Chunk an array into specific sizes */
 export function chunk<T>(dataArray: T[]|Set<T>, size: number): T[][] {
     if (size < 1) return Array.isArray(dataArray) ? [dataArray] : [[...dataArray]];
     const results: T[][] = [];
@@ -85,13 +87,21 @@ export function chunk<T>(dataArray: T[]|Set<T>, size: number): T[][] {
     return results;
 }
 
-export function has(data: object, key: any) {
-    return key in data;
-}
-
+/** Safely check if an array, object, map, set has a key */
 export function includes(input: any, key: string): boolean {
     if (!input) return false;
     if (Array.isArray(input)) return input.includes(key);
     if (typeof input.has === 'function') return input.has(key);
-    return has(input, key);
+    if (isPlainObject(input)) {
+        return Object.keys(input).includes(key);
+    }
+    return false;
+}
+
+/**
+ * If the input is an array it will return the first item
+ * else if it will return the input
+ */
+export function getFirst<T>(input: T | T[]): T {
+    return Array.isArray(input) ? input[0] : input;
 }

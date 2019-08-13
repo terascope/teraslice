@@ -1,7 +1,4 @@
-import isPlainObject from 'is-plain-object';
-import cloneDeep from 'lodash.clonedeep';
 import get from 'lodash.get';
-import set from 'lodash.set';
 import kindOf from 'kind-of';
 import { isString, toString, firstToUpper, trimAndToLower } from './strings';
 
@@ -56,33 +53,9 @@ export function getTypeOf(val: any): string {
     return firstToUpper(kind);
 }
 
-// export a few dependencies
-export { isPlainObject, cloneDeep, get, set };
-
 /** Verify an input is a function */
 export function isFunction(input: any): input is Function {
     return input && typeof input === 'function' ? true : false;
-}
-
-/**
- * If the input is an array it will return the first item
- * else if it will return the input
- */
-export function getFirst<T>(input: T | T[]): T {
-    return Array.isArray(input) ? input[0] : input;
-}
-
-/** Perform a shallow clone of an object to another, in the fastest way possible */
-export function fastAssign<T, U>(target: T, source: U) {
-    if (!isPlainObject(source)) {
-        return target;
-    }
-
-    for (const key of Object.keys(source)) {
-        target[key] = source[key];
-    }
-
-    return target;
 }
 
 /** Convert any input into a boolean, this will work with stringified boolean */
