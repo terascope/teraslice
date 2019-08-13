@@ -49,14 +49,14 @@ function guardedRequire(filePath, errors) {
     }
 }
 
-function getConnectorModule(context, name, reason) {
+function getConnectorModule(name, reason) {
     let mod;
 
     // collect the errors
     const errors = [];
 
     const localPath = path.join(__dirname, 'connectors', name);
-    mod = guardedRequire(localPath);
+    mod = guardedRequire(localPath, errors);
 
     // check if its a node module
     if (!mod) {

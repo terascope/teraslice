@@ -1,8 +1,8 @@
 'use strict';
 
-const redis = require('redis');
-
 function create(customConfig, logger) {
+    const redis = require('redis');
+
     logger.info(`Using redis host: ${customConfig.host}`);
 
     const client = redis.createClient(customConfig.port, customConfig.host);

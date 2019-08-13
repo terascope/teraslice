@@ -3,6 +3,8 @@
 const _ = require('lodash');
 const SimpleContext = require('./lib/simple-context');
 
+// this module is not really testable
+/* istanbul ignore next */
 module.exports = function clusterContext(config) {
     const domain = require('domain');
     const primary = domain.create();

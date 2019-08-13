@@ -19,7 +19,7 @@ module.exports = function getConnectionModule(context) {
     function loadConnector(name) {
         const reason = `Could not find connector implementation for: ${name}\n`;
 
-        return getConnectorModule(context, name, reason);
+        return getConnectorModule(name, reason);
     }
 
     /*

@@ -3,13 +3,14 @@
 const _ = require('lodash');
 const os = require('os');
 const convict = require('convict');
+const { TSError } = require('@terascope/utils');
 const { getConnectorModule } = require('./connector_utils');
 const sysSchema = require('../system_schema');
 
-function getConnectorSchema(name, config) {
+function getConnectorSchema(name) {
     const reason = `Could not retrieve schema code for: ${name}\n`;
 
-    return getConnectorModule(config, name, reason).config_schema();
+    return getConnectorModule(name, reason).config_schema();
 }
 
 function validateConfig(cluster, _schema, configFile) {
@@ -30,15 +31,15 @@ function validateConfig(cluster, _schema, configFile) {
 
         return config.getProperties();
     } catch (err) {
-        throw new Error(`Error validating configuration, error: ${err.stack}`);
+        throw new TSError(err, { reason: 'Error validating configuration' });
     }
 }
 
 function extractSchema(fn, configFile) {
-    if (fn && typeof fn === 'function') {
+    if (_.isFunction(fn)) {
         return fn(configFile);
     }
-    if (fn && typeof fn === 'object') {
+    if (_.isPlainObject(fn)) {
         return fn;
     }
 

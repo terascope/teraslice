@@ -43,6 +43,7 @@
         "access": "public"
     },
     "displayName": "Utils",
+    "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,
         "testSuite": "unit"

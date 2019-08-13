@@ -7,7 +7,8 @@ const dirPath = process.cwd();
 module.exports = {
     environment: {
         doc: 'If set to `production`, console logging will be disabled and logs will be sent to a file',
-        default: 'development'
+        default: 'development',
+        env: 'NODE_ENV'
     },
     log_path: {
         doc: 'Directory where the logs will be stored if logging is set to `file`',
