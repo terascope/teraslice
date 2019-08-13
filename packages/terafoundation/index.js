@@ -17,12 +17,6 @@ module.exports = function clusterContext(config) {
 
     const { configFile, bootstrap } = getArgs(config.name, config.default_config_file);
 
-    // allows top level function to declare ops_directory, so not hard baked in
-    // TODO verify why we need this
-    if (typeof config.ops_directory === 'function') {
-        config.ops_directory = config.ops_directory(configFile);
-    }
-
     let logger;
 
     const sysconfig = validateConfigs(cluster, config, configFile);

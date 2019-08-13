@@ -38,7 +38,6 @@ var logger = context.logger
 |   Configuration   |                                                                                             Description                                                                                             |        Type        |                                              Notes                                              |
 | :---------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :----------------: | :---------------------------------------------------------------------------------------------: |
 |       name        |                                                                                         name of application                                                                                         |       String       |                              optional, defaults to terafoundation                               |
-|   ops_directory   |              'path/to/directory', to look for more custom connectors. Usually this is where you place your custom code not part of core, unless you want to leave your code in place.               |       String       |                                            optional                                             |
 |    descriptors    |                                   Object listing all the different modules that a child process could run, used when child process will have different behaviors                                    |       Object       |          optional, default to creation of children running the worker module passed in          |
 |   cluster_name    |                                                                                         name of application                                                                                         | String or Function |                              optional, defaults to terafoundation                               |
 |      script       |                                                                                    javascript execution of code                                                                                     |      Function      |                                            optional                                             |
@@ -73,7 +72,6 @@ const foundation = require('terafoundation')({
     start_workers: false,
     config_schema: config_schema,
     schema_formats: schema_formats,
-    ops_directory: ops_directory,
     cluster_name: cluster_name
   });
 ```
