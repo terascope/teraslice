@@ -29,9 +29,19 @@ function getModule(name, obj, err) {
         mod = guardedRequire(name);
     }
 
-    // Still not found check for a connector.
+    // Still not found check for a connector with underscores
     if (!mod) {
         mod = guardedRequire(`terafoundation_${name}_connector`);
+    }
+
+    // Still not found check for a connector with dashes
+    if (!mod) {
+        mod = guardedRequire(`terafoundation-${name}-connector`);
+    }
+
+    // Stil not found check for the @terascope namespace
+    if (!mod) {
+        mod = guardedRequire(`@terascope/${name}`);
     }
 
     if (!mod) {
