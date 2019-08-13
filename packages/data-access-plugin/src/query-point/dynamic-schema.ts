@@ -1,5 +1,5 @@
 
-import { makeExecutableSchema} from 'apollo-server-express';
+import { makeExecutableSchema } from 'apollo-server-express';
 import { ACLManager, User, DataAccessConfig } from '@terascope/data-access';
 import { Context, TSError } from '@terascope/job-components';
 import * as ts from '@terascope/utils';
