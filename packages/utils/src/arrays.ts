@@ -88,3 +88,10 @@ export function chunk<T>(dataArray: T[]|Set<T>, size: number): T[][] {
 export function has(data: object, key: any) {
     return key in data;
 }
+
+export function includes(input: any, key: string): boolean {
+    if (!input) return false;
+    if (Array.isArray(input)) return input.includes(key);
+    if (typeof input.has === 'function') return input.has(key);
+    return has(input, key);
+}

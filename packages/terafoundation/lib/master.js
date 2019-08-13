@@ -1,7 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
-
 module.exports = function masterModule(context, moduleConfig) {
     const { cluster, logger } = context;
     const configWorkers = context.sysconfig.terafoundation.workers;
@@ -33,10 +31,13 @@ module.exports = function masterModule(context, moduleConfig) {
         let funcRun = 0;
         let shutdownInterval;
 
-        const emitShutdown = _.once(() => {
+        let emittedShutdown = false;
+        const emitShutdown = () => {
+            if (emittedShutdown) return;
+            emittedShutdown = true;
             // optional hook for shutdown sequences
             events.emit('terafoundation:shutdown');
-        });
+        };
 
         function shutdownWorkers() {
             workersAlive = 0;
@@ -95,7 +96,7 @@ module.exports = function masterModule(context, moduleConfig) {
 
         if (worker.service_context) {
             const envConfig = JSON.parse(worker.service_context);
-            _.assign(options, envConfig);
+            Object.assign(options, envConfig);
             options.__process_restart = true;
             options.service_context = worker.service_context;
         }
@@ -128,7 +129,7 @@ module.exports = function masterModule(context, moduleConfig) {
             logger.info(`launching a new ${type}, id: ${newWorker.id}`);
             logger.debug('new worker configuration:', envConfig);
 
-            _.assign(cluster.workers[newWorker.id], envConfig);
+            Object.assign(cluster.workers[newWorker.id], envConfig);
         }
     });
 

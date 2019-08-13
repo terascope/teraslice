@@ -1,10 +1,9 @@
 'use strict';
 
-const bunyan = require('bunyan');
 const fs = require('fs');
-const _ = require('lodash');
-const Promise = require('bluebird');
-const { RingBuffer } = require('../logger_utils');
+const path = require('path');
+const bunyan = require('bunyan');
+const { includes } = require('@terascope/utils');
 
 function getLogLevel(level) {
     // Set the same level for all logging types.
@@ -14,7 +13,7 @@ function getLogLevel(level) {
 
     // Otherwise there may be a list of separate settins for each type.
     return level.reduce((prev, curr) => {
-        _.assign(prev, curr);
+        Object.assign(prev, curr);
         return prev;
     }, {});
 }
@@ -48,12 +47,11 @@ module.exports = function makeLoggerModule(context) {
         }
 
         const streamConfig = [];
-        let ringBuffer = false;
         const { environment } = loggingConfig;
 
         // Setup console logging. Always turned on for development but off by
         // default for production.
-        if (environment === undefined || environment === 'development' || _.includes(loggingConfig.logging, 'console')) {
+        if (!environment || environment === 'development' || includes(loggingConfig.logging, 'console')) {
             const level = logLevel.console ? logLevel.console : 'info';
             streamConfig.push({ stream: process.stdout, level });
         }
@@ -61,8 +59,8 @@ module.exports = function makeLoggerModule(context) {
         // Setup logging to files.
         // FIXME: this currently sends logs to files anytime environment is
         // production. There are scenarios where this may not be desireable.
-        if (environment === 'production' || _.includes(loggingConfig.logging, 'file')) {
-            const configPath = loggingConfig.log_path ? loggingConfig.log_path : './logs';
+        if (environment === 'production' || includes(loggingConfig.logging, 'file')) {
+            const configPath = loggingConfig.log_path || './logs';
 
             // remove whitespace
             const logfile = filename.trim();
@@ -72,27 +70,14 @@ module.exports = function makeLoggerModule(context) {
                 const pathCheck = fs.lstatSync(fs.realpathSync(configPath));
                 if (pathCheck.isDirectory()) {
                     const level = logLevel.file ? logLevel.file : 'info';
-                    streamConfig.push({ path: `${configPath}/${logfile}.log`, level });
+                    streamConfig.push({ path: path.join(configPath, `${logfile}.log`), level });
                 } else {
                     // This is error is just caught by the catch block below.
-                    throw new Error('is not a directory');
+                    throw new Error(`${configPath} is not a directory`);
                 }
             } catch (e) {
                 throw new Error(`Could not write to log_path: ${configPath}`);
             }
-        }
-
-        if (_.includes(loggingConfig.logging, 'elasticsearch')) {
-            const {
-                log_buffer_interval: delay,
-                log_buffer_limit: limit,
-                log_index_rollover_frequency: timeseriesFormat
-            } = loggingConfig;
-            const name = context.cluster_name;
-
-            const level = logLevel.elasticsearch ? logLevel.elasticsearch : 'info';
-            ringBuffer = new RingBuffer(name, limit, delay, null, timeseriesFormat);
-            streamConfig.push({ stream: ringBuffer, type: 'raw', level });
         }
 
         const loggerConfig = {
@@ -102,12 +87,7 @@ module.exports = function makeLoggerModule(context) {
         };
 
         logger = bunyan.createLogger(loggerConfig);
-
-        if (ringBuffer) {
-            logger.flush = ringBuffer.flush.bind(ringBuffer);
-        } else {
-            logger.flush = () => Promise.resolve(true);
-        }
+        logger.flush = async () => true;
 
         return logger;
     };

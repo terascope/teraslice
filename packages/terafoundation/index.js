@@ -1,6 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
 const SimpleContext = require('./lib/simple-context');
 
 // this module is not really testable
@@ -12,7 +11,6 @@ module.exports = function clusterContext(config) {
 
     const { getArgs } = require('./lib/sysconfig');
     const validateConfigs = require('./lib/validate_configs');
-    const { loggerClient } = require('./lib/logger_utils');
     const api = require('./lib/api');
 
     const name = config.name ? config.name : 'terafoundation';
@@ -53,7 +51,7 @@ module.exports = function clusterContext(config) {
     function findWorkerCode(context) {
         let keyFound = false;
         if (config.descriptors) {
-            _.forOwn(config.descriptors, (value, key) => {
+            Object.keys(config.descriptors).forEach((key) => {
                 if (process.env.assignment === key) {
                     keyFound = true;
                     config[key](context);
@@ -107,10 +105,6 @@ module.exports = function clusterContext(config) {
         // Bootstrap the top level logger
         logger = context.apis.foundation.makeLogger(context.name, context.name);
         context.logger = logger;
-
-        // FIXME: this should probably be refactored to actually create the
-        // logger as it stands this function is very confusing
-        loggerClient(context);
 
         if (config.script) {
             config.script(context);

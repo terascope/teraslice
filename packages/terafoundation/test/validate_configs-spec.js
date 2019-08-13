@@ -170,7 +170,7 @@ describe('Validate Configs', () => {
     describe('when given invalid config', () => {
         const configFile = {
             terafoundation: {
-                log_index_rollover_frequency: 'hello'
+                log_level: 'uhoh'
             },
             other: {}
         };

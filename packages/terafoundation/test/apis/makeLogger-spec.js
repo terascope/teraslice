@@ -7,6 +7,7 @@ describe('makeLogger foundation API', () => {
         const context = {
             sysconfig: {
                 terafoundation: {
+                    environment: 'development',
                     log_level: 'debug',
                     logging: ['file', 'console'],
                     log_path: '/tmp'
@@ -19,43 +20,12 @@ describe('makeLogger foundation API', () => {
 
         const logger = foundation.makeLogger(context.name, context.name);
 
-        expect(logger.debug).toBeDefined();
+        expect(logger.debug).toBeFunction();
         expect(logger.fields.name).toBe('terafoundation');
         // We expect a console and file logger.
-        expect(logger.streams.length).toBe(2);
+        expect(logger.streams).toHaveLength(2);
 
-        await logger.flush();
-    });
-
-    it('should create an elasticsearch logger', async () => {
-        const context = {
-            sysconfig: {
-                terafoundation: {
-                    log_level: 'debug',
-                    logging: ['elasticsearch'],
-                    connectors: {
-                        elasticsearch: {
-                            default: {
-                            }
-                        }
-                    }
-                }
-            },
-            name: 'eslogging'
-        };
-
-        api(context);
-        const { foundation } = context.apis;
-
-        const logger = foundation.makeLogger(context.name, context.name);
-
-        expect(logger.debug).toBeDefined();
-        expect(logger.fields.name).toBe('eslogging');
-        // We expect a console and file logger.
-        expect(logger.streams.length).toBe(2);
-        expect(logger.streams[1].type).toBe('raw');
-
-        await logger.flush();
+        await expect(logger.flush()).toResolve();
     });
 
     it('setting production with no log_path should fail', () => {

@@ -1,9 +1,8 @@
 'use strict';
 
-const _ = require('lodash');
 const os = require('os');
 const convict = require('convict');
-const { TSError } = require('@terascope/utils');
+const { TSError, isFunction, isPlainObject } = require('@terascope/utils');
 const { getConnectorModule } = require('./connector_utils');
 const sysSchema = require('../system_schema');
 
@@ -35,10 +34,10 @@ function validateConfig(cluster, schema, configFile) {
 }
 
 function extractSchema(fn, configFile) {
-    if (_.isFunction(fn)) {
+    if (isFunction(fn)) {
         return fn(configFile);
     }
-    if (_.isPlainObject(fn)) {
+    if (isPlainObject(fn)) {
         return fn;
     }
 

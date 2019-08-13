@@ -1,12 +1,16 @@
 'use strict';
 
-const _ = require('lodash');
+const ip = require('ip');
 const shortid = require('shortid');
 const { EventEmitter } = require('events');
-const { networkInterfaces } = require('os');
-const { debugLogger, toBoolean } = require('@terascope/utils');
+const {
+    debugLogger,
+    toBoolean,
+    get,
+    isEmpty,
+    isPlainObject,
+} = require('@terascope/utils');
 const validateConfigs = require('./validate_configs');
-const { loggerClient } = require('./logger_utils');
 const { getArgs } = require('./sysconfig');
 const registerApis = require('./api');
 
@@ -49,10 +53,6 @@ function makeContext(cluster, config, sysconfig) {
     // Bootstrap the top level logger
     context.logger = context.apis.foundation.makeLogger(assignment, context.name);
 
-    // FIXME: this should probably be refactored to actually create the
-    // logger as it stands this function is very confusing
-    loggerClient(context);
-
     return context;
 }
 
@@ -63,30 +63,24 @@ function getSysConfig(name, defaultConfigFile) {
 
 function generateWorkerId(context) {
     const hostname = getHostname(context);
-    const workerId = _.get(context, 'cluster.worker.id');
+    const workerId = get(context, 'cluster.worker.id');
     return `${hostname}__${workerId}`;
 }
 
 function getHostname(context) {
-    const hostname = _.get(context, ['sysconfig', context.name, 'hostname']);
+    const hostname = get(context, ['sysconfig', context.name, 'hostname']);
     if (hostname) return hostname;
 
-    return _.chain(networkInterfaces())
-        .values()
-        .flatten()
-        .filter((val) => (val.family === 'IPv4' && val.internal === false))
-        .map('address')
-        .head()
-        .value();
+    return ip.address();
 }
 
 module.exports = function SimpleContext(config, { sysconfig: _sysconfig } = {}) {
-    if (!_.isPlainObject(config) || _.isEmpty(config)) {
+    if (!isPlainObject(config) || isEmpty(config)) {
         throw new Error('Terafoundation requires a valid application configuration');
     }
 
     const sysconfig = _sysconfig || getSysConfig(config.name, config.default_config_file);
-    if (!_.isPlainObject(sysconfig) || _.isEmpty(sysconfig)) {
+    if (!isPlainObject(sysconfig) || isEmpty(sysconfig)) {
         throw new Error('Terafoundation requires a valid system configuration');
     }
 

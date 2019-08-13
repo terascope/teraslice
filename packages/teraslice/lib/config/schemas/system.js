@@ -1,15 +1,7 @@
 'use strict';
 
-const _ = require('lodash');
+const ip = require('ip');
 const path = require('path');
-
-const ip = _.chain(require('os').networkInterfaces())
-    .values()
-    .flatten()
-    .filter((val) => val.family === 'IPv4' && val.internal === false)
-    .map('address')
-    .head()
-    .value();
 
 const workerCount = require('os').cpus().length;
 
@@ -49,7 +41,7 @@ const schema = {
     },
     hostname: {
         doc: 'IP or hostname for server',
-        default: ip,
+        default: ip.address(),
         format: 'required_String'
     },
     workers: {

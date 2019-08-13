@@ -18,7 +18,7 @@ describe('startWorkers foundation API', () => {
         api(context);
         context.cluster = {
             isMaster: true,
-            fork: jasmine.createSpy('cluster-fork')
+            fork: jest.fn(() => ({}))
         };
         context.logger = debugLogger('terafondation-tests');
     });
@@ -53,7 +53,7 @@ describe('startWorkers foundation API', () => {
 
         foundation.startWorkers(1, { myoption: 'myoption' });
 
-        expect(fork.calls.count()).toBe(0);
+        expect(fork).not.toHaveBeenCalled();
     });
 
     it('should call fork 10 times to create 10 workers', () => {
@@ -61,6 +61,6 @@ describe('startWorkers foundation API', () => {
         const { fork } = context.cluster;
         foundation.startWorkers(10);
 
-        expect(fork.calls.count()).toBe(10);
+        expect(fork).toHaveBeenCalledTimes(10);
     });
 });

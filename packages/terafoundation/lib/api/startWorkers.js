@@ -1,7 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
-
 module.exports = function startWorkersModule(context) {
     return function startWorkers(num, envOptions) {
         const { logger, cluster } = context;
@@ -14,7 +12,7 @@ module.exports = function startWorkersModule(context) {
         };
 
         if (envOptions) {
-            _.assign(env, envOptions);
+            Object.assign(env, envOptions);
             env.service_context = JSON.stringify(envOptions);
         }
 
@@ -26,7 +24,7 @@ module.exports = function startWorkersModule(context) {
 
                 // for cluster master reference, when a worker dies, you
                 // don't have access to its env at master level
-                _.assign(worker, env);
+                Object.assign(worker, env);
 
                 workers.push(worker);
             }

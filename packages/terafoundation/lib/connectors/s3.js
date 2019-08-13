@@ -4,7 +4,6 @@ const Promise = require('bluebird');
 const fs = require('fs');
 const https = require('https');
 
-
 function create(customConfig, logger) {
     const AWS = require('aws-sdk');
 
