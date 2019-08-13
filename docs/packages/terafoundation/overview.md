@@ -196,12 +196,6 @@ The values are once again objects with keys set to different endpoints within ea
 
 Each endpoint will have its own configuration which will then be used by the actual client of the library
 
-### terafoundation configuration settings
+### Configuration Settings
 
-| Configuration |                                          Description                                           |      Type       |                                                                                              Notes                                                                                               |
-| :-----------: | :--------------------------------------------------------------------------------------------: | :-------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-| `environment` |         Set for legacy purposes, if set to production, it will also write logs to file         |    `String`     |                                                                               optional, defaults to `development`                                                                                |
-|  `log_path`   |               directory where the logs will be stored if logging is set to file                |    `String`     |                                                                              optional, defaults to root of project                                                                               |
-|   `logging`   |     a list to where logs will be written to, settings available are `['console', 'file']`      |   `String[]`    |                                                                                optional, defaults to ['console']                                                                                 |
-|  `log_level`  | this determines what level of logs are shown, options: trace, debug, info, warn , error, fatal | String or Array | optional, defaults to info, if a string is set then all log destinations in logging will use this, you may also customize log levels for each destination: `[{console: 'debug'}, {file: 'warn}]` |
-| `connectors`  |                An object containing database client information for you service                |    `Object`     |                                                                                             required                                                                                             |
+See the [configuration docs](../../configuration/overview.md#terafoundation-configuration-reference)

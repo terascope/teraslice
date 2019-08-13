@@ -1,5 +1,5 @@
+import isPlainObject from 'is-plain-object';
 import { Many, WithoutNil } from './interfaces';
-import { isPlainObject } from './utils';
 
 /** A native implemation of lodash flatten */
 export function flatten<T>(val: Many<T[]>): T[] {

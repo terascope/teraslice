@@ -28,12 +28,12 @@ describe('makeLogger foundation API', () => {
         await expect(logger.flush()).toResolve();
     });
 
-    it('setting production with no log_path should fail', () => {
+    it('setting logging to file with no log_path should fail', () => {
         const context = {
             sysconfig: {
                 terafoundation: {
-                    environment: 'production',
-                    log_level: 'debug'
+                    logging: ['file'],
+                    log_level: 'debug',
                 }
             },
             name: 'terafoundation'
@@ -47,11 +47,11 @@ describe('makeLogger foundation API', () => {
             .toThrowError('Could not write to log_path: ./logs');
     });
 
-    it('setting production with log_path set to a file should fail', () => {
+    it('setting logging to file with log_path set to a file should fail', () => {
         const context = {
             sysconfig: {
                 terafoundation: {
-                    environment: 'production',
+                    logging: ['file'],
                     log_level: 'debug',
                     log_path: 'README.md'
                 }

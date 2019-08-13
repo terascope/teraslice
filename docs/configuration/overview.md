@@ -32,18 +32,13 @@ teraslice:
 
 ## Terafoundation Configuration Reference
 
-|              Field               |                Type                |     Default     |                                                              Description                                                              |
-| :------------------------------: | :--------------------------------: | :-------------: | :-----------------------------------------------------------------------------------------------------------------------------------: |
-|         **environment**          |              `String`              | `"development"` |                       If set to `production`, console logging will be disabled and logs will be sent to a file                        |
-|     **log_buffer_interval**      |              `Number`              |     `60000`     |                                 How often the log buffer will flush the logs (number in milliseconds)                                 |
-|       **log_buffer_limit**       |              `Number`              |      `30`       | Number of log lines to buffer before sending to elasticsearch, logging must have elasticsearch set as a value for this to take effect |
-|        **log_connection**        |              `String`              |   `"default"`   |                                   logging connection endpoint if logging is saved to elasticsearch                                    |
-| **log_index_rollover_frequency** | `"daily"`, `"monthly"`, `"yearly"` |   `"monthly"`   |                                              How frequently the log indices are created                                               |
-|          **log_level**           |              `String`              |    `"info"`     |                                                        Default logging levels                                                         |
-|           **log_path**           |              `String`              |    `"$PWD"`     |                                  Directory where the logs will be stored if logging is set to `file`                                  |
-|           **logging**            |              `Array`               |   `"console"`   |                   Logging destinations. Expects an array of logging targets. options: console, file, elasticsearch                    |
-|           **workers**            |              `Number`              |       `4`       |                                                     Number of workers per server                                                      |
-
+|      Field      |    Type    |     Default     |                                      Description                                      |
+| :-------------: | :--------: | :-------------: | :-----------------------------------------------------------------------------------: |
+| **environment** |  `String`  | `"development"` |       If set to `development` console logging will automatically be turned on.        |
+|  **log_level**  |  `String`  |    `"info"`     |                                Default logging levels                                 |
+|  **log_path**   |  `String`  |    `"$PWD"`     |          Directory where the logs will be stored if logging is set to `file`          |
+|   **logging**   | `String[]` |  `["console"]`  | Logging destinations. Expects an array of logging targets. options: `console`, `file` |
+|   **workers**   |  `Number`  |       `4`       |                             Number of workers per server                              |
 
 ## Teraslice Configuration Reference
 

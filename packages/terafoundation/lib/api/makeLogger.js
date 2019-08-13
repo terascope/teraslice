@@ -47,19 +47,17 @@ module.exports = function makeLoggerModule(context) {
         }
 
         const streamConfig = [];
-        const { environment } = loggingConfig;
+        const { environment = 'development' } = loggingConfig;
 
         // Setup console logging. Always turned on for development but off by
         // default for production.
-        if (!environment || environment === 'development' || includes(loggingConfig.logging, 'console')) {
+        if (environment === 'development' || includes(loggingConfig.logging, 'console')) {
             const level = logLevel.console ? logLevel.console : 'info';
             streamConfig.push({ stream: process.stdout, level });
         }
 
         // Setup logging to files.
-        // FIXME: this currently sends logs to files anytime environment is
-        // production. There are scenarios where this may not be desireable.
-        if (environment === 'production' || includes(loggingConfig.logging, 'file')) {
+        if (includes(loggingConfig.logging, 'file')) {
             const configPath = loggingConfig.log_path || './logs';
 
             // remove whitespace
