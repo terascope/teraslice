@@ -1,9 +1,9 @@
 import Stream from 'stream';
 import debugFn from 'debug';
+import isPlainObject from 'is-plain-object';
+import { toString, isString, trimAndToLower } from './strings';
 import { EventEmitter } from 'events';
 import { uniq } from './arrays';
-import { toString, isString, trimAndToLower } from './strings';
-import { isPlainObject } from './utils';
 import { isTest } from './misc';
 
 interface DebugParamObj {
@@ -66,7 +66,7 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
         }
         return debugLogger(name, opts);
     };
-    logger.flush = () => Promise.resolve();
+    logger.flush = async () => true;
     logger.reopenFileStreams = () => {};
     logger.src = false;
 
@@ -310,7 +310,7 @@ declare class Logger extends EventEmitter {
     /**
      * Terafoundation specific, flush the logs
      */
-    flush(): Promise<void>;
+    flush(): Promise<boolean>;
 }
 
 declare namespace Logger {
