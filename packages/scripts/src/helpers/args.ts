@@ -6,11 +6,10 @@ import { PackageInfo } from './interfaces';
 
 export type CoercePkgInput = string | string[] | undefined;
 
-export function coercePkgArg(input: CoercePkgInput, required = false): PackageInfo[] {
+export function coercePkgArg(input: CoercePkgInput): PackageInfo[] {
     const names = makeArray(input);
     if (!names.length) {
-        if (!required) return [];
-        throw new Error('Missing package name argument');
+        return [];
     }
 
     const result: PackageInfo[] = [];

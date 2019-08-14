@@ -4,10 +4,8 @@ import { castArray } from '@terascope/utils';
 import { coercePkgArg } from '../helpers/args';
 import { bumpPackages } from '../helpers/bump';
 import { PackageInfo } from '../helpers/interfaces';
-import { getRootDir } from '../helpers/misc';
 
 const releaseChoices = ['major', 'minor', 'patch', 'prerelease', 'premajor', 'preminor', 'prepatch'];
-const isRootDir = process.cwd() === getRootDir();
 
 const cmd: CommandModule = {
     command: 'bump [packages..]',
@@ -41,14 +39,14 @@ const cmd: CommandModule = {
             .positional('packages', {
                 description: 'Run scripts for one or more package (if specifying more than one make sure they are ordered by dependants)',
                 type: 'string',
-                ...(!isRootDir && { default: '.' }),
+                default: '.',
                 coerce(arg) {
                     castArray(arg).forEach((a) => {
                         if (releaseChoices.includes(a)) {
                             throw new Error(`bump CLI has changed, use --release ${a} or -r ${a} instead`);
                         }
                     });
-                    return coercePkgArg(arg, true);
+                    return coercePkgArg(arg);
                 },
             })
             .requiresArg('packages');
