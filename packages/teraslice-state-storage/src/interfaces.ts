@@ -22,12 +22,19 @@ export interface ESQuery {
 
 export type ESBulkQuery = ESQuery | DataEntity;
 
-export interface ESQUery {
+export interface ESMGetParams {
     index: string;
     type: string;
     id?: string;
     body?: any;
-    _source?: string[];
+    _sourceIncludes?: string[];
+}
+
+export interface ESGetParams {
+    index: string;
+    type: string;
+    id: string;
+    _sourceIncludes?: string[];
 }
 
 export interface CacheConfig {
@@ -38,11 +45,11 @@ export interface MGetCacheResponse {
     [key: string]: DataEntity;
 }
 
-export interface MGetResponse {
-    docs: MGetDoc[];
+export interface ESMGetResponse {
+    docs: ESGetResponse[];
 }
 
-export interface MGetDoc {
+export interface ESGetResponse {
     _index: string;
     _type: string;
     _version: number;
