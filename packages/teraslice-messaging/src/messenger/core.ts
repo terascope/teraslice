@@ -84,10 +84,14 @@ export class Core extends EventEmitter {
 
             if (!msg.volatile && !this.isClientReady(message.to)) {
                 const remaining = msg.respondBy - Date.now();
-                await this.waitForClientReady(message.to, remaining);
+                try {
+                    await this.waitForClientReady(message.to, remaining);
+                } catch (err) {
+                    // don't throw an unhandledRejection because the client isn't ready
+                    this.logger.error(err);
+                }
             }
 
-            // @ts-ignore
             socket.emit('message:response', message);
         });
     }

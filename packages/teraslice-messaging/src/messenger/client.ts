@@ -74,9 +74,13 @@ export class Client extends Core {
     }
 
     onServerShutdown(fn: () => void) {
-        this.on('server:shutdown', async () => {
+        this.on('server:shutdown', () => {
             this.serverShutdown = true;
-            fn();
+            try {
+                fn();
+            } catch (err) {
+                this.logger.error(err);
+            }
             setImmediate(() => {
                 this.socket.close();
             });
