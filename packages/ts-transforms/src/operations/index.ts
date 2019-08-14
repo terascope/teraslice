@@ -15,6 +15,7 @@ import Lowercase from './lib/transforms/lowercase';
 import Uppercase from './lib/transforms/uppercase';
 import MakeArray from './lib/transforms/array';
 import Dedup from './lib/transforms/dedup';
+import Trim from './lib/transforms/trim';
 
 import Geolocation from './lib/validations/geolocation';
 import StringValidation from './lib/validations/string';
@@ -54,6 +55,7 @@ class CorePlugins implements PluginClassType {
             uppercase: Uppercase,
             array: MakeArray,
             dedup: Dedup,
+            trim: Trim
         };
     }
 }
@@ -110,4 +112,5 @@ export {
     Uppercase,
     MakeArray,
     Dedup,
+    Trim
 };

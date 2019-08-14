@@ -469,6 +469,12 @@ This will make sure the field is a string and uppercase it, otherwise it will re
 
 - no additional parameters
 
+### trim
+
+This will make sure the field is a string and trim it, otherwise it will remove the field it
+
+- no additional parameters
+
 ## Validations
 
 this provides a list of validation operations. If the field failed a validation check then that field is removed from the final output
