@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { listPackages, getPkgNames } from './packages';
-import { cliError, formatList } from './misc';
+import { formatList } from './misc';
 import { PackageInfo } from './interfaces';
 
 export type CoercePkgInput = string | string[] | undefined;
@@ -10,7 +10,7 @@ export function coercePkgArg(input: CoercePkgInput, required = false): PackageIn
     const names = makeArray(input);
     if (!names.length) {
         if (!required) return [];
-        return cliError('ValidationError', 'Missing package name argument');
+        throw new Error('Missing package name argument');
     }
 
     const result: PackageInfo[] = [];
@@ -28,7 +28,8 @@ export function coercePkgArg(input: CoercePkgInput, required = false): PackageIn
         });
 
         if (!found) {
-            return cliError('ValidationError', `Package name "${name}" must be one of:${formatList(getPkgNames(packages))}`);
+            const list = formatList(getPkgNames(packages));
+            throw new Error(`Package name "${name}" must be one of:${list}`);
         }
         result.push(found);
     }

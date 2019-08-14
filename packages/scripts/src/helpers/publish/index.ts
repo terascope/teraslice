@@ -4,10 +4,12 @@ import { listPackages, getMainPackageInfo } from '../packages';
 import { PublishAction, PublishOptions } from './interfaces';
 import { yarnPublish, yarnRun, remoteDockerImageExists, dockerBuild, dockerPush } from '../scripts';
 import { shouldNPMPublish, formatDailyTag, buildCacheLayers } from './utils';
-import { getRootInfo, cliError } from '../misc';
+import { getRootInfo } from '../misc';
 import signale from '../signale';
 
 export async function publish(action: PublishAction, options: PublishOptions) {
+    signale.info(`publishing to ${action}`);
+
     if (action === PublishAction.NPM) {
         return publishToNPM(options);
     }
@@ -17,12 +19,6 @@ export async function publish(action: PublishAction, options: PublishOptions) {
 }
 
 async function publishToNPM(options: PublishOptions) {
-    if (options.releaseType && !['tag', 'latest'].includes(options.releaseType)) {
-        cliError('Error', 'Unknown value for --release-type, expected latest or tag');
-        return;
-    }
-
-    signale.info('publishing to npm');
     for (const pkgInfo of listPackages()) {
         await npmPublish(pkgInfo, options);
     }
@@ -41,13 +37,6 @@ async function npmPublish(pkgInfo: PackageInfo, options: PublishOptions) {
 }
 
 async function publishToDocker(options: PublishOptions) {
-    if (!options.releaseType || !['tag', 'latest', 'dev'].includes(options.releaseType)) {
-        cliError('Error', 'Unknown value for --release-type, expected latest, dev or tag');
-        return;
-    }
-
-    signale.info('publishing to docker');
-
     const imagesToPush = [];
     let imageToBuild: string = '';
     const rootInfo = getRootInfo();

@@ -45,12 +45,10 @@ const cmd: CommandModule = {
                 coerce(arg) {
                     castArray(arg).forEach((a) => {
                         if (releaseChoices.includes(a)) {
-                            yargs.showHelp();
-                            console.error(`\n ERROR: bump CLI has changed, use --release ${a} or -r ${a} instead`);
-                            process.exit(1);
+                            throw new Error(`bump CLI has changed, use --release ${a} or -r ${a} instead`);
                         }
                     });
-                    return coercePkgArg(arg);
+                    return coercePkgArg(arg, true);
                 },
             })
             .requiresArg('packages');
