@@ -1,17 +1,18 @@
 'use strict';
 
 const SimpleContext = require('./lib/simple-context');
+const { getArgs } = require('./lib/sysconfig');
+const validateConfigs = require('./lib/validate-configs');
+const master = require('./lib/master');
+const api = require('./lib/api');
 
 // this module is not really testable
 /* istanbul ignore next */
 module.exports = function clusterContext(config) {
     const domain = require('domain');
-    const primary = domain.create();
     const cluster = require('cluster');
 
-    const { getArgs } = require('./lib/sysconfig');
-    const validateConfigs = require('./lib/validate_configs');
-    const api = require('./lib/api');
+    const primary = domain.create();
 
     const name = config.name ? config.name : 'terafoundation';
 
@@ -128,7 +129,7 @@ module.exports = function clusterContext(config) {
                 }
             }
 
-            require('./lib/master')(context, config);
+            master(context, config);
 
             // If there's a master plugin defined, pass it on.
             if (config.master) {
