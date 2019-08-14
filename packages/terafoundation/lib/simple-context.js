@@ -10,7 +10,7 @@ const {
     isEmpty,
     isPlainObject,
 } = require('@terascope/utils');
-const validateConfigs = require('./validate_configs');
+const validateConfigs = require('./validate-configs');
 const { getArgs } = require('./sysconfig');
 const registerApis = require('./api');
 

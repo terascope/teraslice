@@ -9,7 +9,7 @@ jest.mock('redis');
 jest.mock('aws-sdk');
 jest.mock('node-statsd');
 
-const validateConfigs = require('../lib/validate_configs');
+const validateConfigs = require('../lib/validate-configs');
 
 describe('Validate Configs', () => {
     describe('when using mainly defaults', () => {

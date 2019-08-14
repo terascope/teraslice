@@ -3,7 +3,7 @@
 const os = require('os');
 const convict = require('convict');
 const { TSError, isFunction, isPlainObject } = require('@terascope/utils');
-const { getConnectorSchema } = require('./connector_utils');
+const { getConnectorSchema } = require('./connector-utils');
 const sysSchema = require('../system_schema');
 
 function validateConfig(cluster, schema, configFile) {
