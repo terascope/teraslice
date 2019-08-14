@@ -52,7 +52,7 @@ function formatShortDate() {
 export async function formatDailyTag() {
     const hash = await getCommitHash();
     const date = formatShortDate();
-    return `${date}-${hash}`;
+    return `daily-${date}-${hash}`;
 }
 
 export async function buildCacheLayers(): Promise<string[]> {
