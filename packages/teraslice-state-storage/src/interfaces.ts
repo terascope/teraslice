@@ -39,6 +39,7 @@ export interface ESGetParams {
 
 export interface CacheConfig {
     cache_size: number;
+    max_big_map_size?: number;
 }
 
 export interface MGetCacheResponse {

@@ -21,6 +21,7 @@ describe('elasticsearch-state-storage', () => {
         source_fields: [],
         chunk_size: 10,
         cache_size: 100000,
+        max_big_map_size: 5,
         persist: false,
     };
 
