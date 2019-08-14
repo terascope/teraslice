@@ -1,6 +1,7 @@
-import { toString, isInteger, debugLogger, Logger } from '@terascope/utils';
-import { EventEmitter } from 'events';
+import ms from 'ms';
 import pEvent from 'p-event';
+import { EventEmitter } from 'events';
+import { toString, isInteger, debugLogger, Logger } from '@terascope/utils';
 import * as i from './interfaces';
 
 const _logger = debugLogger('teraslice-messaging:core');
@@ -49,7 +50,7 @@ export class Core extends EventEmitter {
             if (sent.volatile || this.closed) {
                 return null;
             }
-            throw new Error(`Timed out after ${remaining}ms, waiting for message "${sent.eventName}"`);
+            throw new Error(`Timed out after ${ms(remaining)}, waiting for message "${sent.eventName}"`);
         }
 
         if (response.error) {
