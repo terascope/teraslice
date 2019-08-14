@@ -10,230 +10,313 @@ describe('Convict Formats', () => {
     }
 
     it('returns an array with objects used for validations', () => {
-        expect(Array.isArray(formats)).toBe(true);
-        expect(formats.length >= 2).toBe(true);
+        expect(formats).toBeArray();
     });
 
     it('required_String will throw if not given a string', () => {
-        const required = getSchema('required_String');
-        if (!required) {
-            expect(required).not.toBeUndefined();
+        const format = getSchema('required_String');
+        if (!format) {
+            expect(format).not.toBeNil();
             return;
         }
 
-        expect(required.name).toBeDefined();
-        expect(typeof required.validate).toEqual('function');
-        expect(typeof required.coerce).toEqual('function');
+        expect(format.name).toBeString();
+        expect(format.validate).toBeFunction();
+        expect(format.coerce).toBeFunction();
         expect(() => {
-            // @ts-ignore
-            required.validate('someString');
+            format.validate!('someString');
         }).not.toThrowError();
         expect(() => {
-            // @ts-ignore
-            required.validate(253);
+            format.validate!(253);
         }).toThrowError('This field is required and must by of type string');
         expect(() => {
-            // @ts-ignore
-            required.validate(undefined);
+            format.validate!(undefined);
         }).toThrowError('This field is required and must by of type string');
     });
 
     it('optional_String if not given a string it will not throw if its undefined', () => {
-        const optional = getSchema('optional_String');
-        if (!optional) {
-            expect(optional).not.toBeUndefined();
+        const format = getSchema('optional_String');
+        if (!format) {
+            expect(format).not.toBeNil();
             return;
         }
 
-        expect(optional.name).toBeDefined();
-        expect(typeof optional.validate).toEqual('function');
-        expect(typeof optional.coerce).toEqual('function');
+        expect(format.name).toBeString();
+        expect(format.validate).toBeFunction();
+        expect(format.coerce).toBeFunction();
         expect(() => {
             // @ts-ignore
-            optional.validate('someString');
+            format.validate!('someString');
         }).not.toThrowError();
         expect(() => {
             // @ts-ignore
-            optional.validate(253);
+            format.validate!(253);
         }).toThrowError('This field is optional but if specified it must be of type string');
         expect(() => {
             // @ts-ignore
-            optional.validate(undefined);
+            format.validate!(undefined);
         }).not.toThrowError();
     });
 
-    it('optional_Date if not given a date it will not throw if its undefined', () => {
-        const optional = getSchema('optional_Date');
-        if (!optional) {
-            expect(optional).not.toBeUndefined();
+    it('positive_int if given a float it not fail', () => {
+        const format = getSchema('positive_int');
+        if (!format) {
+            expect(format).not.toBeNil();
             return;
         }
 
-        expect(optional.name).toBeDefined();
-        expect(typeof optional.validate).toEqual('function');
-        expect(typeof optional.coerce).toEqual('function');
+        expect(format.name).toBeString();
+        expect(format.validate).toBeFunction();
+        expect(format.coerce).toBeFunction();
         expect(() => {
-            // @ts-ignore
-            optional.validate(Date.now());
+            format.validate!(12.6);
+        }).not.toThrow();
+    });
+
+    it('positive_int if given a negative int it should fail', () => {
+        const format = getSchema('positive_int');
+        if (!format) {
+            expect(format).not.toBeNil();
+            return;
+        }
+
+        expect(format.name).toBeString();
+        expect(format.validate).toBeFunction();
+        expect(format.coerce).toBeFunction();
+        expect(() => {
+            format.validate!(-1);
+        }).toThrowError('must be valid integer greater than zero');
+    });
+
+    it('positive_int if given a zero it should fail', () => {
+        const format = getSchema('positive_int');
+        if (!format) {
+            expect(format).not.toBeNil();
+            return;
+        }
+
+        expect(format.name).toBeString();
+        expect(format.validate).toBeFunction();
+        expect(format.coerce).toBeFunction();
+        expect(() => {
+            format.validate!(0);
+        }).toThrowError('must be valid integer greater than zero');
+    });
+
+    it('positive_int if given a undefined it should fail', () => {
+        const format = getSchema('positive_int');
+        if (!format) {
+            expect(format).not.toBeNil();
+            return;
+        }
+
+        expect(format.name).toBeString();
+        expect(format.validate).toBeFunction();
+        expect(format.coerce).toBeFunction();
+        expect(() => {
+            format.validate!(undefined);
+        }).toThrowError('must be valid integer greater than zero');
+    });
+
+    it('positive_int if given a string it should fail', () => {
+        const format = getSchema('positive_int');
+        if (!format) {
+            expect(format).not.toBeNil();
+            return;
+        }
+
+        expect(format.name).toBeString();
+        expect(format.validate).toBeFunction();
+        expect(format.coerce).toBeFunction();
+        expect(() => {
+            format.validate!('hello');
+        }).toThrowError('must be valid integer greater than zero');
+    });
+
+    it('positive_int if given a stringified int it should pass', () => {
+        const format = getSchema('positive_int');
+        if (!format) {
+            expect(format).not.toBeNil();
+            return;
+        }
+
+        expect(format.name).toBeString();
+        expect(format.validate).toBeFunction();
+        expect(format.coerce).toBeFunction();
+        expect(() => {
+            format.validate!('1');
+        }).not.toThrow();
+    });
+
+    it('optional_Date if not given a date it will not throw if its undefined', () => {
+        const format = getSchema('optional_Date');
+        if (!format) {
+            expect(format).not.toBeNil();
+            return;
+        }
+
+        expect(format.name).toBeString();
+        expect(format.validate).toBeFunction();
+        expect(format.coerce).toBeFunction();
+        expect(() => {
+            format.validate!(Date.now());
         }).not.toThrowError();
         expect(() => {
-            // @ts-ignore
-            optional.validate('now+1h');
+            format.validate!('now+1h');
         }).not.toThrowError();
         expect(() => {
-            // @ts-ignore
-            optional.validate({ hi: 'there' });
+            format.validate!({ hi: 'there' });
         }).toThrowError('parameter must be a string or number IF specified');
         expect(() => {
-            // @ts-ignore
-            optional.validate('idk');
+            format.validate!('idk');
         }).toThrowError(/^value: \"idk"\ cannot be coerced into a proper date/);
         expect(() => {
-            // @ts-ignore
-            optional.validate(undefined);
+            format.validate!(undefined);
         }).not.toThrowError();
     });
 
     describe('elasticsearch_Name', () => {
         it('should be defined', () => {
-            const esName = getSchema('elasticsearch_Name');
-            if (!esName) {
-                expect(esName).not.toBeUndefined();
+            const format = getSchema('elasticsearch_Name');
+            if (!format) {
+                expect(format).not.toBeNil();
                 return;
             }
 
-            expect(esName.name).toBeDefined();
-            expect(typeof esName.validate).toEqual('function');
+            expect(format.name).toBeString();
+            expect(format.validate).toBeFunction();
         });
 
         it('should work for common index names', () => {
-            const esName = getSchema('elasticsearch_Name');
+            const format = getSchema('elasticsearch_Name');
+            if (!format) {
+                expect(format).not.toBeNil();
+                return;
+            }
             expect(() => {
-                // @ts-ignore
-                esName.validate('data-2018-01-01');
+                format.validate!('data-2018-01-01');
             }).not.toThrowError();
             expect(() => {
-                // @ts-ignore
-                esName.validate('data-2018-01-01.01');
+                format.validate!('data-2018-01-01.01');
             }).not.toThrowError();
-
         });
 
         it('should not exceed 255 characters', () => {
-            const esName = getSchema('elasticsearch_Name');
+            const format = getSchema('elasticsearch_Name');
+            if (!format) {
+                expect(format).not.toBeNil();
+                return;
+            }
+
             expect(() => {
-                // @ts-ignore
-                esName.validate('a'.repeat(256));
+                format.validate!('a'.repeat(256));
             }).toThrow(/^value: .* should not exceed 255 characters/);
             expect(() => {
                 // @ts-ignore
-                esName.validate('a'.repeat(255));
+                format.validate!('a'.repeat(255));
             }).not.toThrowError();
         });
 
         it('should not contain any of: #\\\/*?"<>|', () => {
-            const esName = getSchema('elasticsearch_Name');
+            const format = getSchema('elasticsearch_Name');
+            if (!format) {
+                expect(format).not.toBeNil();
+                return;
+            }
+
             expect(() => {
-                // @ts-ignore
-                esName.validate('a#a');
+                format.validate!('a#a');
             }).toThrow(/^value: .* should not contain any invalid characters/);
             expect(() => {
-                // @ts-ignore
-                esName.validate('a\\a');
+                format.validate!('a\\a');
             }).toThrow(/^value: .* should not contain any invalid characters/);
             expect(() => {
-                // @ts-ignore
-                esName.validate('a/a');
+                format.validate!('a/a');
             }).toThrow(/^value: .* should not contain any invalid characters/);
             expect(() => {
-                // @ts-ignore
-                esName.validate('a*a');
+                format.validate!('a*a');
             }).toThrow(/^value: .* should not contain any invalid characters/);
             expect(() => {
-                // @ts-ignore
-                esName.validate('a?a');
+                format.validate!('a?a');
             }).toThrow(/^value: .* should not contain any invalid characters/);
             expect(() => {
-                // @ts-ignore
-                esName.validate('a"a');
+                format.validate!('a"a');
             }).toThrow(/^value: .* should not contain any invalid characters/);
             expect(() => {
-                // @ts-ignore
-                esName.validate('a<a');
+                format.validate!('a<a');
             }).toThrow(/^value: .* should not contain any invalid characters/);
             expect(() => {
-                // @ts-ignore
-                esName.validate('a>a');
+                format.validate!('a>a');
             }).toThrow(/^value: .* should not contain any invalid characters/);
             expect(() => {
-                // @ts-ignore
-                esName.validate('a|a');
+                format.validate!('a|a');
             }).toThrow(/^value: .* should not contain any invalid characters/);
 
             expect(() => {
-                // @ts-ignore
-                esName.validate('|aa');
+                format.validate!('|aa');
             }).toThrow(/^value: .* should not contain any invalid characters/);
         });
 
         it('should not start with _, -, or +', () => {
-            const esName = getSchema('elasticsearch_Name');
+            const format = getSchema('elasticsearch_Name');
+            if (!format) {
+                expect(format).not.toBeNil();
+                return;
+            }
 
             expect(() => {
-                // @ts-ignore
-                esName.validate('_foo');
+                format.validate!('_foo');
             }).toThrow(/^value: .* should not start with _, -, or +/);
 
             expect(() => {
-                // @ts-ignore
-                esName.validate('-foo');
+                format.validate!('-foo');
             }).toThrow(/^value: .* should not start with _, -, or +/);
 
             expect(() => {
-                // @ts-ignore
-                esName.validate('+foo');
+                format.validate!('+foo');
             }).toThrow(/^value: .* should not start with _, -, or +/);
 
             expect(() => {
-                // @ts-ignore
-                esName.validate('a_foo');
+                format.validate!('a_foo');
             }).not.toThrowError();
-
         });
 
         it('should not equal . or ..', () => {
-            const esName = getSchema('elasticsearch_Name');
+            const format = getSchema('elasticsearch_Name');
+            if (!format) {
+                expect(format).not.toBeNil();
+                return;
+            }
+
             expect(() => {
-                // @ts-ignore
-                esName.validate('.');
+                format.validate!('.');
             }).toThrow(/^value: .* should not equal . or ../);
             expect(() => {
-                // @ts-ignore
-                esName.validate('..');
+                format.validate!('..');
             }).toThrow(/^value: .* should not equal . or ../);
             expect(() => {
-                // @ts-ignore
-                esName.validate('.foo');
+                format.validate!('.foo');
             }).not.toThrowError();
             expect(() => {
-                // @ts-ignore
-                esName.validate('..foo');
+                format.validate!('..foo');
             }).not.toThrowError();
         });
 
-        it('should be lower case', () => {
-            const esName = getSchema('elasticsearch_Name');
+        it('should be lowercase', () => {
+            const format = getSchema('elasticsearch_Name');
+            if (!format) {
+                expect(format).not.toBeNil();
+                return;
+            }
+
             expect(() => {
-                // @ts-ignore
-                esName.validate('ASDF');
+                format.validate!('ASDF');
             }).toThrow(/^value: .* should be lower case/);
             expect(() => {
-                // @ts-ignore
-                esName.validate('asdF');
+                format.validate!('asdF');
             }).toThrow(/^value: .* should be lower case/);
             expect(() => {
-                // @ts-ignore
-                esName.validate('asdf');
+                format.validate!('asdf');
             }).not.toThrowError();
         });
     });

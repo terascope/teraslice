@@ -159,7 +159,7 @@ const schema = {
     slicer_allocation_attempts: {
         doc: 'The number of times a slicer will try to be allocated before failing',
         default: 3,
-        format: 'nat', // positive integer (natural number)
+        format: 'nat', // integer >=0 (natural number)
     },
     node_state_interval: {
         doc:

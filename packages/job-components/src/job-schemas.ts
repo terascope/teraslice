@@ -44,7 +44,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
         max_retries: {
             default: 3,
             doc: 'the number of times a worker will attempt to process ' + 'the same slice after a error has occurred',
-            format: 'nat', // positive integer (natural number)
+            format: 'nat', // integer >=0 (natural number)
         },
         name: {
             default: 'Custom Job',
@@ -125,12 +125,12 @@ export function jobSchema(context: Context): convict.Schema<any> {
         slicers: {
             default: 1,
             doc: 'how many parallel slicer contexts that will run within the slicer',
-            format: 'nat', // positive integer (natural number)
+            format: 'positive_int'
         },
         workers: {
             default: workers,
             doc: 'the number of workers dedicated for the job',
-            format: 'nat', // positive integer (natural number)
+            format: 'positive_int'
         },
     };
 
