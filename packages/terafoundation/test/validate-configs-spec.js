@@ -54,7 +54,6 @@ describe('Validate Configs', () => {
                 terafoundation: {
                     connectors: {},
                     environment: 'test',
-                    workers: 4,
                 },
                 other: {
                     test: 'custom'
@@ -166,7 +165,6 @@ describe('Validate Configs', () => {
                         },
                     },
                     environment: 'test',
-                    workers: 4,
                 },
                 _nodeName: os.hostname()
             });
