@@ -39,7 +39,10 @@ export function coercePkgArg(input: CoercePkgInput, required = false): PackageIn
 export function makeArray(input: string | string[] | undefined): string[] {
     if (!input) return [];
     if (Array.isArray(input)) {
-        const arr = input.map((str: string) => str.trim()).filter(Boolean);
+        const arr = input
+            .filter(Boolean)
+            .map((str: string) => str.trim())
+            .filter(Boolean);
         return [...new Set(arr)];
     }
     if (typeof input !== 'string') return [];
