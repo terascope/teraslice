@@ -1,5 +1,6 @@
 'use strict';
 
+const ms = require('ms');
 const _ = require('lodash');
 const Promise = require('bluebird');
 const { Mutex } = require('async-mutex');
@@ -62,9 +63,9 @@ module.exports = async function nodeMaster(context) {
                 const workers = await fn();
                 const elapsed = Date.now() - startTime;
                 if (workers.length === count) {
-                    logger.info(`allocated ${workers.length} workers, took ${elapsed}ms`);
+                    logger.info(`allocated ${workers.length} workers, took ${ms(elapsed)}`);
                 } else {
-                    logger.info(`allocated ${workers.length} out of the requested ${count} workers, took ${elapsed}ms`);
+                    logger.info(`allocated ${workers.length} out of the requested ${count} workers, took ${ms(elapsed)}`);
                 }
                 return workers.length;
             } catch (err) {

@@ -3,6 +3,7 @@
 const {
     get, pDelay, pRaceWithTimeout, isError
 } = require('@terascope/utils');
+const ms = require('ms');
 const { makeLogger } = require('./terafoundation');
 
 function waitForWorkerShutdown(context, eventName) {
@@ -70,11 +71,11 @@ function shutdownHandler(context, shutdownFn) {
 
     function exitingIn() {
         if (!api.exiting) {
-            return `exiting in ${shutdownTimeout}ms...`;
+            return `exiting in ${ms(shutdownTimeout)}...`;
         }
 
         const elapsed = Date.now() - startTime;
-        return `already shutting down, remaining ${shutdownTimeout - elapsed}ms`;
+        return `already shutting down, remaining ${ms(shutdownTimeout - elapsed)}`;
     }
 
     async function callShutdownFn(event, err) {
@@ -97,7 +98,7 @@ function shutdownHandler(context, shutdownFn) {
 
         try {
             await shutdownWithTimeout(event, err);
-            logger.info(`${assignment} shutdown took ${Date.now() - startTime}ms`);
+            logger.info(`${assignment} shutdown took ${ms(Date.now() - startTime)}`);
         } catch (error) {
             logger.error(error, `${assignment} while shutting down`);
         } finally {
