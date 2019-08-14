@@ -1,7 +1,7 @@
 'use strict';
 
 const path = require('path');
-const { TSError, parseError, isEmpty } = require('@terascope/utils');
+const { TSError, parseError } = require('@terascope/utils');
 
 function requireConnector(filePath, errors) {
     let mod = require(filePath);
@@ -9,7 +9,7 @@ function requireConnector(filePath, errors) {
         mod = mod.default;
     }
     let valid = true;
-    if (isEmpty(mod)) {
+    if (typeof mod !== 'object') {
         valid = false;
     }
 
@@ -99,7 +99,7 @@ function getConnectorSchema(name) {
     const mod = getConnectorModule(name, reason);
     if (!mod) {
         // eslint-disable-next-line no-console
-        console.warn(new Error(reason));
+        console.warn(`[WARNING] ${reason}`);
         return {};
     }
     return mod.config_schema();
