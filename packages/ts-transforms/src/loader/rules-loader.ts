@@ -77,6 +77,7 @@ export default class RulesLoader {
                         try {
                             results.push(this.parseConfig(configStr));
                         } catch (err) {
+                            console.log('what is the error', err)
                             hasError = true;
                             errorResults.push(configStr);
                         }

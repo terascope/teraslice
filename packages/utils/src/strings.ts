@@ -1,4 +1,3 @@
-import { MatchAllOptions } from './interfaces';
 
 /** A simplified implemation of lodash isString */
 export function isString(val: any): val is string {
@@ -115,20 +114,43 @@ export function getFirstChar(input: string): string {
     return trim(input).charAt(0);
 }
 
-export function matchAll(reg:string, str:string, { options = 'g', multivalue = true }: MatchAllOptions = {}) {
-    const regex = new RegExp(reg, options);
-    const matches = [];
-    let match = regex.exec(str);
+export type FormatRegexResult = [string, string|undefined];
 
-    while (match != null && match[0]) {
-        if (match.length > 1) {
-            matches.push(...match.slice(1));
+export function formatRegex(str: string): FormatRegexResult {
+    const isRegex = /^\/(.*)\/([igsmx]{1,})?$/.exec(str);
+    if (isRegex) {
+        return [isRegex[1], isRegex[2]];
+    }
+    return [str, undefined];
+}
+
+export function match(regexp:string, value: string) {
+    const [reg, options] = formatRegex(regexp);
+    const regex = new RegExp(reg, options);
+    const results = regex.exec(value);
+    if (results) return results[0];
+    return results;
+}
+
+export function matchAll(regexp:string, str:string):string[]|null {
+    const [reg, formatOptions] = formatRegex(regexp);
+    let options = formatOptions || 'g';
+
+    if (!options.includes('g')) options = `g${options}`;
+
+    const regex = new RegExp(reg, options);
+    const matches:string[] = [];
+    let matchedData = regex.exec(str);
+
+    while (matchedData != null && matchedData[0]) {
+        if (matchedData && matchedData.length > 1) {
+            matches.push(...matchedData.slice(1));
         } else {
-            matches.push(match[0]);
+            matches.push(matchedData[0]);
         }
-        match = regex.exec(str);
+        matchedData = regex.exec(str);
     }
 
     if (matches.length === 0) return null;
-    return multivalue ? matches : matches[0];
+    return matches;
 }

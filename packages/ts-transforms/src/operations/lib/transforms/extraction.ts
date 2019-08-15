@@ -1,18 +1,10 @@
 
 import _ from 'lodash';
-import { DataEntity, matchAll, MatchAllOptions } from '@terascope/utils';
+import { DataEntity, matchAll } from '@terascope/utils';
 import { ExtractionConfig, InputOutputCardinality } from '../../../interfaces';
 
 function isMutation(configs: ExtractionConfig[]): boolean {
     return _.some(configs, 'mutate');
-}
-
-function formatRegex(str: string): [string, string|false]  {
-    const isRegex = /\/(.*)\/([igmuy])*$/.exec(str);
-    if (isRegex) {
-        return [isRegex[1], isRegex[2]];
-    }
-    return [str, false];
 }
 
 function getSubslice(start:string, end: string) {
@@ -32,12 +24,14 @@ function getSubslice(start:string, end: string) {
 type Cb = (data:any) => string|string[]|null;
 
 function extractField(data: any, fn: Cb, isMultiValue = true) {
+
     if (typeof data === 'string') {
         return fn(data);
     }
 
     if (Array.isArray(data)) {
         const results: string[] = [];
+
         data.forEach((subData:any) => {
             if (typeof subData === 'string') {
                 const extractedSlice = fn(subData);
@@ -56,20 +50,16 @@ function extractField(data: any, fn: Cb, isMultiValue = true) {
             return results[0];
         }
     }
+
     return null;
 }
 
 function matchRegex(config: ExtractionConfig) {
-    console.log('im in matchRegex', config.regex)
-    const [regexp, options] = formatRegex(config.regex as string);
-    console.log('im in matchRegex after formatting', regexp, options)
-
-    const matchAllConfig: MatchAllOptions = { multivalue: false };
-
-    if (config.multivalue) matchAllConfig.multivalue = true;
-    if (options) matchAllConfig.options = options;
-
-    return (data:string) => matchAll(regexp, data, matchAllConfig);
+    return (data:string) => {
+        const results = matchAll(config.regex as string, data);
+        if (config.multivalue) return results;
+        return results ? results[0] : results;
+    };
 }
 
 function extractAndTransferFields(data: any, dest: DataEntity, config: ExtractionConfig) {
