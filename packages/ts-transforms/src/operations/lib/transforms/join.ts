@@ -1,3 +1,4 @@
+
 import _ from 'lodash';
 import { DataEntity } from '@terascope/utils';
 import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces';

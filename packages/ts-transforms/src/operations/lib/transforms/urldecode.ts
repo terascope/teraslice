@@ -1,7 +1,5 @@
 
 import { DataEntity } from '@terascope/utils';
-import _ from 'lodash';
-import querystring from 'querystring';
 import TransformOpBase from './base';
 import { PostProcessConfig } from '../../../interfaces';
 
@@ -10,11 +8,11 @@ export default class UrlDecode extends TransformOpBase {
         super(config);
     }
 
-    decoderFn(data:string) {
-        return querystring.unescape(data);
+    decode(data:string) {
+        return decodeURI(data);
     }
 
     run(record: DataEntity): DataEntity | null {
-        return this.decode(record, this.decoderFn);
+        return this.execute(record, this.decode);
     }
 }

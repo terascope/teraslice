@@ -3,16 +3,16 @@ import { DataEntity } from '@terascope/utils';
 import { PostProcessConfig } from '../../../interfaces';
 import TransformOpBase from './base';
 
-export default class HexDecode extends TransformOpBase {
+export default class Base64Encode extends TransformOpBase {
     constructor(config: PostProcessConfig) {
         super(config);
     }
 
-    decode(data:string) {
-        return Buffer.from(data, 'hex').toString('utf8');
+    encode(data:string) {
+        return Buffer.from(data).toString('base64');
     }
 
     run(record: DataEntity): DataEntity | null {
-        return this.execute(record, this.decode);
+        return this.execute(record, this.encode);
     }
 }

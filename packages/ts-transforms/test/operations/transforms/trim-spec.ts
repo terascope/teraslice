@@ -55,6 +55,5 @@ describe('transform operator', () => {
         expect(results6).toEqual({ someField: 'other' });
         expect(results7).toEqual({ sideField: 'data' });
         expect(results8).toEqual({ someField: ['other', 'data'] });
-
     });
 });

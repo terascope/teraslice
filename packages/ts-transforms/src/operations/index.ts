@@ -16,6 +16,12 @@ import Uppercase from './lib/transforms/uppercase';
 import MakeArray from './lib/transforms/array';
 import Dedup from './lib/transforms/dedup';
 import Trim from './lib/transforms/trim';
+import Base64Encode from './lib/transforms/base64encode';
+import UrlEncode from './lib/transforms/urlencode';
+import HexEncode from './lib/transforms/hexencode';
+import Md5Encode from './lib/transforms/md5encode';
+import Sha1Encode from './lib/transforms/sha1encode';
+import Sha2Encode from './lib/transforms/sha2encode';
 
 import Geolocation from './lib/validations/geolocation';
 import StringValidation from './lib/validations/string';
@@ -55,7 +61,13 @@ class CorePlugins implements PluginClassType {
             uppercase: Uppercase,
             array: MakeArray,
             dedup: Dedup,
-            trim: Trim
+            trim: Trim,
+            base64encode: Base64Encode,
+            urlencode: UrlEncode,
+            hexencode: HexEncode,
+            md5encode: Md5Encode,
+            sha1encode: Sha1Encode,
+            sha2encode: Sha2Encode,
         };
     }
 }
@@ -112,5 +124,11 @@ export {
     Uppercase,
     MakeArray,
     Dedup,
-    Trim
+    Trim,
+    Base64Encode,
+    UrlEncode,
+    HexEncode,
+    Md5Encode,
+    Sha1Encode,
+    Sha2Encode
 };

@@ -1,16 +1,17 @@
-
-import { Base64Decode } from '../../../src/operations';
+import { Sha2Encode } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
+import crypto from 'crypto';
 
-describe('Base64Decode operator', () => {
+describe('Sha2Encode operator', () => {
 
     function encode(str: string) {
-        return Buffer.from(str).toString('base64');
+        // @ts-ignore
+        return crypto.createHash('sha256').update(str).digest('utf8');
     }
 
     it('can instantiate', () => {
         const opConfig = { target_field: 'final', source_field: 'source', __id: 'someId', follow: 'otherId' };
-        expect(() => new Base64Decode(opConfig)).not.toThrow();
+        expect(() => new Sha2Encode(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
@@ -23,24 +24,24 @@ describe('Base64Decode operator', () => {
         const badConfig7 = { source_field: null, __id: 'someId', follow: 'otherId' };
         const badConfig8 = { source_field: '', target_field: '', __id: 'someId', follow: 'otherId' };
         // @ts-ignore
-        expect(() => new Base64Decode(badConfig1)).toThrow();
-        expect(() => new Base64Decode(badConfig2)).toThrow();
+        expect(() => new Sha2Encode(badConfig1)).toThrow();
+        expect(() => new Sha2Encode(badConfig2)).toThrow();
         // @ts-ignore
-        expect(() => new Base64Decode(badConfig3)).toThrow();
+        expect(() => new Sha2Encode(badConfig3)).toThrow();
         // @ts-ignore
-        expect(() => new Base64Decode(badConfig4)).toThrow();
+        expect(() => new Sha2Encode(badConfig4)).toThrow();
         // @ts-ignore
-        expect(() => new Base64Decode(badConfig5)).toThrow();
+        expect(() => new Sha2Encode(badConfig5)).toThrow();
         // @ts-ignore
-        expect(() => new Base64Decode(badConfig6)).toThrow();
+        expect(() => new Sha2Encode(badConfig6)).toThrow();
         // @ts-ignore
-        expect(() => new Base64Decode(badConfig7)).toThrow();
-        expect(() => new Base64Decode(badConfig8)).toThrow();
+        expect(() => new Sha2Encode(badConfig7)).toThrow();
+        expect(() => new Sha2Encode(badConfig8)).toThrow();
     });
 
     it('can base64 decode fields', () => {
         const opConfig = { source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId' };
-        const test =  new Base64Decode(opConfig);
+        const test =  new Sha2Encode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
         const data1 = new DataEntity({ source: 123423 }, metaData);
@@ -49,12 +50,12 @@ describe('Base64Decode operator', () => {
         const data4 = new DataEntity({ source: { some: 'data' } });
         const data5 = new DataEntity({ source: true }, metaData);
         const data6 = new DataEntity({});
-        const data7 = new DataEntity({ source: encode('http:// google.com') });
-        const data8 = new DataEntity({ source: encode('ha3ke5@pawnage.com') }, metaData);
-        const data9 = new DataEntity({ source: encode('::') });
-        const data10 = new DataEntity({ source: encode('193.0.0.23') }, metaData);
-        const data11 = new DataEntity({ source: encode('hello world') }, metaData);
-        const data12 = new DataEntity({ source: [encode('hello world'),  encode('other things')] }, metaData);
+        const data7 = new DataEntity({ source: 'http:// google.com' });
+        const data8 = new DataEntity({ source: 'ha3ke5@pawnage.com' }, metaData);
+        const data9 = new DataEntity({ source: '::' });
+        const data10 = new DataEntity({ source: '193.0.0.23' }, metaData);
+        const data11 = new DataEntity({ source: ('hello world') }, metaData);
+        const data12 = new DataEntity({ source: ['hello world', 'other things'] }, metaData);
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -78,25 +79,24 @@ describe('Base64Decode operator', () => {
         expect(results4).toEqual({});
         expect(results5).toEqual({});
         expect(results6).toEqual({});
-        expect(results7).toEqual({ source: 'http:// google.com' });
-        expect(results8).toEqual({ source: 'ha3ke5@pawnage.com' });
-        expect(results9).toEqual({ source: '::' });
-        expect(results10).toEqual({ source: '193.0.0.23' });
+        expect(results7).toEqual({ source: encode('http:// google.com') });
+        expect(results8).toEqual({ source: encode('ha3ke5@pawnage.com') });
+        expect(results9).toEqual({ source: encode('::') });
+        expect(results10).toEqual({ source: encode('193.0.0.23') });
         expect(DataEntity.getMetadata(results11 as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results11).toEqual({ source: 'hello world' });
-        expect(results12).toEqual({ source: ['hello world', 'other things'] });
+        expect(results11).toEqual({ source: encode('hello world') });
+        expect(results12).toEqual({ source: [encode('hello world'), encode('other things')] });
     });
 
     it('can base64 decode nested fields', () => {
         const opConfig = { source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId' };
-        const test =  new Base64Decode(opConfig);
+        const test =  new Sha2Encode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
 
-        const data = new DataEntity({ source: { field: encode('hello world') } }, metaData);
+        const data = new DataEntity({ source: { field: 'hello world' } }, metaData);
 
         const results = test.run(data);
-
         expect(DataEntity.getMetadata(results as DataEntity, 'selectors')).toEqual(metaData.selectors);
-        expect(results).toEqual({ source: { field: 'hello world' } });
+        expect(results).toEqual({ source: { field: encode('hello world') } });
     });
 });
