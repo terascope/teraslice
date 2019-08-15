@@ -147,7 +147,7 @@ export default class Extraction {
         return null;
     }
 
-    extractRun(doc: DataEntity, results: { entity: DataEntity, metadata: any }) {
+    extractionPhaseRun(doc: DataEntity, results: { entity: DataEntity, metadata: any }) {
         for (let i = 0; i < this.configs.length; i += 1) {
             const data = getData(this.configs[i], doc);
             extractAndTransferFields(data, results.entity, this.configs[i]);

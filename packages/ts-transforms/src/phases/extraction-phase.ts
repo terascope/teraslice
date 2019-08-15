@@ -26,12 +26,11 @@ export default class ExtractionPhase extends PhaseBase {
 
         for (let i = 0; i < dataArray.length; i += 1) {
             const results = createTargetResults(dataArray[i]);
-            runSelectors(this.phase, dataArray[i], results);
+            runExtractions(this.phase, dataArray[i], results);
             if (results.metadata.hasExtractions) {
                 resultsList.push(results.entity);
             }
         }
-
         return resultsList;
     }
 }
@@ -44,16 +43,16 @@ function createTargetResults(input: DataEntity) {
     };
 }
 
-function runSelectors(phase: OperationsPipline, doc: DataEntity, results: { entity: DataEntity, metadata: any }) {
+function runExtractions(phase: OperationsPipline, doc: DataEntity, results: { entity: DataEntity, metadata: any }) {
     for (let i = 0; i < results.metadata.selectors.length; i++) {
-        runSelector(phase[results.metadata.selectors[i]], doc, results);
+        runSelectorExtraction(phase[results.metadata.selectors[i]], doc, results);
     }
     return results;
 }
 
-function runSelector(selectorPhase: Operation[], doc: DataEntity, results: { entity: DataEntity, metadata: any }) {
+function runSelectorExtraction(selectorPhase: Operation[], doc: DataEntity, results: { entity: DataEntity, metadata: any }) {
     for (let i = 0; i < selectorPhase.length; i++) {
         // @ts-ignore
-        selectorPhase[i].extractRun(doc, results);
+        selectorPhase[i].extractionPhaseRun(doc, results);
     }
 }
