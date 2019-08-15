@@ -38,7 +38,7 @@ describe('UrlEncode operator', () => {
         expect(() => new UrlEncode(badConfig8)).toThrow();
     });
 
-    it('can base64 decode fields', () => {
+    it('can url encode fields', () => {
         const opConfig = { source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId' };
         const test =  new UrlEncode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
@@ -87,7 +87,7 @@ describe('UrlEncode operator', () => {
         expect(results12).toEqual({ source: [encode('hello world'), encode('other things')] });
     });
 
-    it('can base64 decode nested fields', () => {
+    it('can url encode nested fields', () => {
         const opConfig = { source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId' };
         const test =  new UrlEncode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };

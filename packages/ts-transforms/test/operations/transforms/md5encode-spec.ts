@@ -40,7 +40,7 @@ describe('Md5Encode operator', () => {
         expect(() => new Md5Encode(badConfig8)).toThrow();
     });
 
-    it('can base64 decode fields', () => {
+    it('can md5 encode fields', () => {
         const opConfig = { source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId' };
         const test =  new Md5Encode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
@@ -89,7 +89,7 @@ describe('Md5Encode operator', () => {
         expect(results12).toEqual({ source: [encode('hello world'), encode('other things')] });
     });
 
-    it('can base64 decode nested fields', () => {
+    it('can md5 encode nested fields', () => {
         const opConfig = { source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId' };
         const test =  new Md5Encode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };

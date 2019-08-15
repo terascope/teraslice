@@ -38,7 +38,7 @@ describe('HexEncode operator', () => {
         expect(() => new HexEncode(badConfig8)).toThrow();
     });
 
-    it('can base64 decode fields', () => {
+    it('can hex encode fields', () => {
         const opConfig = { source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId' };
         const test =  new HexEncode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
@@ -87,7 +87,7 @@ describe('HexEncode operator', () => {
         expect(results12).toEqual({ source: [encode('hello world'), encode('other things')] });
     });
 
-    it('can base64 decode nested fields', () => {
+    it('can hex encode nested fields', () => {
         const opConfig = { source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId' };
         const test =  new HexEncode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };

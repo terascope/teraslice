@@ -38,7 +38,7 @@ describe('Base64Encode operator', () => {
         expect(() => new Base64Encode(badConfig8)).toThrow();
     });
 
-    it('can base64 decode fields', () => {
+    it('can base64 encode fields', () => {
         const opConfig = { source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId' };
         const test =  new Base64Encode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
@@ -87,7 +87,7 @@ describe('Base64Encode operator', () => {
         expect(results12).toEqual({ source: [encode('hello world'), encode('other things')] });
     });
 
-    it('can base64 decode nested fields', () => {
+    it('can base64 encode nested fields', () => {
         const opConfig = { source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId' };
         const test =  new Base64Encode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };

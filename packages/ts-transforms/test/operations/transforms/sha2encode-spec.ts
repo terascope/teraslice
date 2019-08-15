@@ -4,9 +4,9 @@ import crypto from 'crypto';
 
 describe('Sha2Encode operator', () => {
 
-    function encode(str: string) {
+    function encode(str: string, algo = 'sha256') {
         // @ts-ignore
-        return crypto.createHash('sha256').update(str).digest('utf8');
+        return crypto.createHash(algo).update(str).digest('utf8');
     }
 
     it('can instantiate', () => {
@@ -39,7 +39,7 @@ describe('Sha2Encode operator', () => {
         expect(() => new Sha2Encode(badConfig8)).toThrow();
     });
 
-    it('can base64 decode fields', () => {
+    it('can sha256 encode fields', () => {
         const opConfig = { source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId' };
         const test =  new Sha2Encode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
@@ -88,7 +88,7 @@ describe('Sha2Encode operator', () => {
         expect(results12).toEqual({ source: [encode('hello world'), encode('other things')] });
     });
 
-    it('can base64 decode nested fields', () => {
+    it('can sh256 encode nested fields', () => {
         const opConfig = { source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId' };
         const test =  new Sha2Encode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
@@ -98,5 +98,23 @@ describe('Sha2Encode operator', () => {
         const results = test.run(data);
         expect(DataEntity.getMetadata(results as DataEntity, 'selectors')).toEqual(metaData.selectors);
         expect(results).toEqual({ source: { field: encode('hello world') } });
+    });
+
+    it('can specify which sha2 family algorithm to use', () => {
+        const opConfig = {
+            source_field: 'source.field',
+            target_field: 'source.field',
+            __id: 'someId',
+            follow: 'otherId',
+            hash: 'SHA224'
+        };
+        const test =  new Sha2Encode(opConfig);
+        const metaData = { selectors: { 'some:query' : true } };
+
+        const data = new DataEntity({ source: { field: 'hello world' } }, metaData);
+
+        const results = test.run(data);
+        expect(DataEntity.getMetadata(results as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results).toEqual({ source: { field: encode('hello world', 'SHA224') } });
     });
 });

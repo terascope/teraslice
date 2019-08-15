@@ -40,7 +40,7 @@ describe('Sha1Encode operator', () => {
         expect(() => new Sha1Encode(badConfig8)).toThrow();
     });
 
-    it('can base64 decode fields', () => {
+    it('can sha1 encode fields', () => {
         const opConfig = { source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId' };
         const test =  new Sha1Encode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
@@ -89,7 +89,7 @@ describe('Sha1Encode operator', () => {
         expect(results12).toEqual({ source: [encode('hello world'), encode('other things')] });
     });
 
-    it('can base64 decode nested fields', () => {
+    it('can sha1 encode nested fields', () => {
         const opConfig = { source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId' };
         const test =  new Sha1Encode(opConfig);
         const metaData = { selectors: { 'some:query' : true } };
