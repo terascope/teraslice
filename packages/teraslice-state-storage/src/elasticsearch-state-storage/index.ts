@@ -1,4 +1,4 @@
-import { DataEntity, Logger, TSError, chunk } from '@terascope/utils';
+import { DataEntity, Logger, TSError, chunk, isFunction } from '@terascope/utils';
 import esApi, { Client } from '@terascope/elasticsearch-api';
 import { Promise as bPromise } from 'bluebird';
 import { ESStateStorageConfig, MGetCacheResponse } from '../interfaces';
@@ -111,6 +111,14 @@ export default class ESCachedStateStorage {
     }
 
     async sync(docArray: DataEntity[], fn: UpdateCacheFn) {
+        if (!docArray || !Array.isArray(docArray)) {
+            throw new Error('Invalid docs given to sync, expected Array');
+        }
+
+        if (!fn || !isFunction(fn)) {
+            throw new Error('Invalid function given to sync');
+        }
+
         const uncachedDocs = this._updateCache(docArray, fn);
         if (uncachedDocs.length) {
             // es search for keys not in cache
