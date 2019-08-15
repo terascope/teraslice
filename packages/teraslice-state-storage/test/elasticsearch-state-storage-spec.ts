@@ -19,11 +19,11 @@ describe('elasticsearch-state-storage', () => {
         const config: ESStateStorageConfig = Object.assign({
             index: 'some_index',
             type: 'sometype',
-            concurrency: 10,
+            concurrency: 3,
             source_fields: [],
-            chunk_size: 10,
+            chunk_size: 7,
             cache_size: 100000,
-            max_big_map_size: 8,
+            max_big_map_size: 9,
             persist: false,
         }, overrides);
 
@@ -331,23 +331,27 @@ describe('elasticsearch-state-storage', () => {
     });
 
     describe('->sync', () => {
-        const docArray = makeTestDocs(4);
+        const docArray = makeTestDocs(5);
+
         const inCacheCurrent = docArray[0];
         const prevInCacheUpdated = docArray[1];
         const inCacheUpdated = copyDataEntity(prevInCacheUpdated);
         const inESCurrent = docArray[2];
         const prevInESUpdated = docArray[3];
         const inESUpdated = copyDataEntity(prevInESUpdated);
-        const inputDocArray: DataEntity[] = [];
+        const notFoundInES = docArray[4];
 
+        const inputDocArray: DataEntity[] = [];
         inputDocArray[0] = inCacheCurrent;
         inputDocArray[1] = inCacheUpdated;
         inputDocArray[2] = inESCurrent;
         inputDocArray[3] = inESUpdated;
+        inputDocArray[4] = notFoundInES;
 
         const results: DataEntity[] = [];
         const setResults = (data: DataEntity) => results.push(data);
-        const updateFnResults: { [key: string]: { current: DataEntity; prev: DataEntity; } } = {};
+
+        const updateFnResults: { [key: string]: { current: DataEntity; prev?: DataEntity; } } = {};
         const fn: UpdateCacheFn = (key, current, prev) => {
             updateFnResults[key] = { current, prev };
             if (key === inCacheUpdated.getMetadata('_key')) return false;
@@ -361,7 +365,10 @@ describe('elasticsearch-state-storage', () => {
             stateStorage.set(inCacheCurrent);
             stateStorage.set(prevInCacheUpdated);
             // create bulk response
-            client.setMGetResponse(client.createMGetResponse([inESCurrent, prevInESUpdated]));
+            const mgetResponse = client.createMGetResponse([inESCurrent, prevInESUpdated]);
+            mgetResponse.docs.push(client.createGetResponse(notFoundInES, false));
+            client.setMGetResponse(mgetResponse);
+
             response = await stateStorage.sync(inputDocArray, fn);
         });
 
@@ -380,6 +387,7 @@ describe('elasticsearch-state-storage', () => {
                 prevInCacheUpdated,
                 inESCurrent,
                 inESUpdated,
+                notFoundInES,
             ]);
         });
 
@@ -448,9 +456,23 @@ describe('elasticsearch-state-storage', () => {
             expect(cached).not.toBe(prevInESUpdated);
             expect(cached).toBe(inESUpdated);
         });
+
+        it('should handle the NOT found in es record correctly', () => {
+            const key = notFoundInES.getMetadata('_key');
+            const { current, prev } = updateFnResults[key];
+
+            expect(prev).toBeUndefined();
+            expect(current).toBe(notFoundInES);
+            expect(current).toStrictEqual(notFoundInES);
+
+            const cached = stateStorage.getFromCacheByKey(key);
+            expect(cached).toBe(notFoundInES);
+        });
     });
 
     describe('when testing a large data set', () => {
+        jest.setTimeout(10000);
+
         beforeEach(() => setup());
         afterEach(() => teardown());
 

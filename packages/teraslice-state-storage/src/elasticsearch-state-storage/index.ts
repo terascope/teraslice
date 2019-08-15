@@ -102,7 +102,7 @@ export default class ESCachedStateStorage {
     async mget(docArray: DataEntity[]): Promise<MGetCacheResponse> {
         const savedDocs = {};
         const setDocs: UpdateCacheFn = (key, current, prev) => {
-            savedDocs[key] = prev;
+            if (prev) savedDocs[key] = prev;
             return true;
         };
 
@@ -192,14 +192,15 @@ export default class ESCachedStateStorage {
 
         const results: DataEntity[] = [];
         for (const result of response.docs) {
+            const key = result._id;
+            let prev: DataEntity|undefined;
             if (result.found) {
-                const key = result._id;
-                const prev = makeDataEntity(result);
-                const current = docs[key];
-                const updateCache = fn(key, current, prev);
-                if (updateCache) {
-                    this.setCacheByKey(key, current);
-                }
+                prev = makeDataEntity(result);
+            }
+            const current = docs[key];
+            const updateCache = fn(key, current, prev);
+            if (updateCache) {
+                this.setCacheByKey(key, current);
             }
         }
         return results;
@@ -280,7 +281,7 @@ export interface ESGetResponse {
     _source?: any;
 }
 
-export type UpdateCacheFn = (key: string, current: DataEntity, prev: DataEntity) => boolean;
+export type UpdateCacheFn = (key: string, current: DataEntity, prev?: DataEntity) => boolean;
 
 type UncachedChunk = { [key: string]: DataEntity; };
 type UncachedChunks = { [key: string]: DataEntity; }[];
