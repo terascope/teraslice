@@ -28,7 +28,7 @@ const command = yargs
     .describe('i', 'ignore data records that cannot be parsed')
     .describe('t', 'specify type configs ie field:value, otherfield:value')
     .describe('T', 'specify type configs from file')
-    .describe('p', 'output the time it took to run the data')
+    .describe('p', 'path to plugins that should be added into ts-transforms')
     .demandOption(['r'])
     .version(version).argv;
 
