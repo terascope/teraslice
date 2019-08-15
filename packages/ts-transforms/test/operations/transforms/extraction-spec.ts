@@ -187,6 +187,25 @@ describe('transform operator', () => {
             expect(results).toEqual({ otherField: ['tag1', '1234'] });
         });
 
+        it('regex regression test', () => {
+            const opConfig = {
+                regex: '.*',
+                source_field: 'field',
+                target_field: 'otherField',
+                __id: 'someId',
+                multivalue: true,
+                mutate: false
+            };
+            const test = new Extraction(opConfig);
+            const field = 'value';
+
+            const data = new DataEntity({ field });
+
+            const results = test.run(data);
+
+            expect(results).toEqual({ otherField: ['value'] });
+        });
+
         it('can match extended values', () => {
             const opConfig = {
                 regex: '<(\\w+)>\\s\\w+\\s+<(\\d+)>',

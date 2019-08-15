@@ -60,7 +60,10 @@ function extractField(data: any, fn: Cb, isMultiValue = true) {
 }
 
 function matchRegex(config: ExtractionConfig) {
+    console.log('im in matchRegex', config.regex)
     const [regexp, options] = formatRegex(config.regex as string);
+    console.log('im in matchRegex after formatting', regexp, options)
+
     const matchAllConfig: MatchAllOptions = { multivalue: false };
 
     if (config.multivalue) matchAllConfig.multivalue = true;

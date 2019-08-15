@@ -120,7 +120,7 @@ export function matchAll(reg:string, str:string, { options = 'g', multivalue = t
     const matches = [];
     let match = regex.exec(str);
 
-    while (match != null) {
+    while (match != null && match[0]) {
         if (match.length > 1) {
             matches.push(...match.slice(1));
         } else {
