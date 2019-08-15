@@ -259,6 +259,14 @@ describe('rules-validator', () => {
         },
     ]);
 
+    const multipleSources = parseData([
+        { source_field: 'field1', target_field: 'fields', tag: 'fields' },
+        { source_field: 'field2', target_field: 'fields', tag: 'fields' },
+        { source_field: 'field3', target_field: 'fields', tag: 'fields' },
+        { source_field: 'field4', target_field: 'fields', tag: 'fields' },
+        { follow: 'fields', post_process: 'array', target_field: 'fields' }
+    ]);
+
     const multiOutput = parseData([
         { selector: 'some:value', source_field: 'other', target_field: 'field', tag: 'hello', output: false },
         { post_process: 'extraction', target_field: 'first_copy', follow: 'hello', mutate: true },
@@ -462,6 +470,17 @@ describe('rules-validator', () => {
             expect(results).toBeArrayOfSize(1);
             expect(results[0].post_process).toEqual('join');
             expect(results[0].source_fields).toEqual(results[0].fields);
+        });
+
+        it('if op cardinality is many-to-one then source_fields will only have unique fields', () => {
+            const validator = constructValidator(multipleSources);
+            const {
+                postProcessing: { '*': results },
+            } = validator.validate();
+
+            expect(results).toBeArrayOfSize(1);
+            expect(results[0].post_process).toEqual('array');
+            expect(results[0].source_fields).toEqual(['fields']);
         });
     });
 

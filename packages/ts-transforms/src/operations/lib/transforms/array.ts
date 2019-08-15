@@ -42,6 +42,7 @@ export default class MakeArray extends TransformOpBase {
                 }
             }
         });
+
         if (results.length > 0) _.set(doc, this.target, results);
         return doc;
     }
