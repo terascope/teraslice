@@ -11,7 +11,7 @@ import {
 } from '../src';
 
 describe('elasticsearch-state-storage', () => {
-    const logger = debugLogger('ESCachedStateStorage');
+    const logger = debugLogger('elasticsearch-state-storage');
     let client: TestClient;
 
     const config: ESStateStorageConfig = {

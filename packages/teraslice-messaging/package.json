@@ -41,7 +41,11 @@
         "socket.io": "^1.7.4",
         "socket.io-client": "^1.7.4"
     },
-    "devDependencies": {},
+    "devDependencies": {
+        "@types/ms": "^0.7.30",
+        "@types/socket.io": "^2.1.2",
+        "@types/socket.io-client": "^1.4.32"
+    },
     "engines": {
         "node": ">=8.0.0"
     },
