@@ -1,7 +1,7 @@
 import fs from 'fs';
 import isCI from 'is-ci';
 import { CommandModule } from 'yargs';
-import { toBoolean } from '@terascope/utils';
+import { toBoolean, castArray } from '@terascope/utils';
 import { TestSuite, PackageInfo, GlobalCMDOptions } from '../helpers/interfaces';
 import { KAFKA_BROKER, ELASTICSEARCH_HOST } from '../helpers/config';
 import { listPackages } from '../helpers/packages';
@@ -89,13 +89,12 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .positional('packages', {
                 description: 'Runs the test for one or more package, if none specified it will run all of the tests',
                 coerce(arg) {
-                    if (Array.isArray(arg)) {
-                        arg.forEach((a, i) => {
-                            if (!jestArgs.includes(a)) return;
-                            arg.splice(i, 1);
-                        });
-                    }
-                    return coercePkgArg(arg);
+                    let args = castArray(arg);
+                    args = args.filter((a) => {
+                        if (!jestArgs.includes(a)) return true;
+                        return false;
+                    });
+                    return coercePkgArg(args);
                 },
             });
     },
