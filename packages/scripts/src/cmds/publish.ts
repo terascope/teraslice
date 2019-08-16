@@ -1,11 +1,11 @@
 import isCI from 'is-ci';
 import { CommandModule } from 'yargs';
 import { GlobalCMDOptions } from '../helpers/interfaces';
-import { PublishAction } from '../helpers/publish/interfaces';
+import { PublishAction, PublishType } from '../helpers/publish/interfaces';
 import { publish } from '../helpers/publish';
 
 type Options = {
-    'release-type'?: string;
+    type: PublishType;
     action: PublishAction;
     'dry-run': boolean;
 };
@@ -27,12 +27,12 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'boolean',
                 default: !isCI,
             })
-            .option('release-type', {
+            .option('type', {
                 alias: 't',
                 description: 'Depending on the publish action this can be used to define what type of action to take',
                 type: 'string',
-                default: 'latest',
-                choices: ['latest', 'dev', 'tag']
+                default: PublishType.Latest,
+                choices: Object.values(PublishType),
             })
             .positional('action', {
                 description: 'The publish action to take',
@@ -45,7 +45,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
     },
     handler(argv) {
         return publish(argv.action, {
-            releaseType: argv['release-type'],
+            type: argv['type'],
             dryRun: argv['dry-run'],
         });
     },

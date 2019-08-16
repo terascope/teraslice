@@ -1,6 +1,6 @@
 {
     "name": "@terascope/data-access-plugin",
-    "version": "0.12.3",
+    "version": "0.12.4",
     "description": "A teraserver plugin for managing data access and searching spaces",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-access-plugin#readme",
     "bugs": {
@@ -10,7 +10,8 @@
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
     "files": [
-        "dist/src/**/*"
+        "dist/src/**/*",
+        "bin/*"
     ],
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
@@ -30,8 +31,8 @@
     },
     "dependencies": {
         "@apollographql/graphql-playground-html": "^1.6.24",
-        "@terascope/data-access": "^0.13.2",
-        "@terascope/data-types": "^0.5.3",
+        "@terascope/data-access": "^0.13.3",
+        "@terascope/data-types": "^0.5.4",
         "@terascope/elasticsearch-api": "^2.1.4",
         "@terascope/utils": "^0.16.0",
         "accepts": "^1.3.7",

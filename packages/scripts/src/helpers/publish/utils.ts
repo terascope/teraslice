@@ -1,14 +1,15 @@
 import semver from 'semver';
 import { getLatestNPMVersion, getCommitHash, dockerPull, dockerBuild } from '../scripts';
+import { PublishType } from './interfaces';
 import { PackageInfo } from '../interfaces';
 import { getRootInfo } from '../misc';
 import signale from '../signale';
 
-export async function shouldNPMPublish(pkgInfo: PackageInfo, tag?: string): Promise<boolean> {
+export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType): Promise<boolean> {
     const remote = await getLatestNPMVersion(pkgInfo.name);
     const local = pkgInfo.version;
     if (semver.gt(local, remote)) {
-        if (tag === 'tag') {
+        if (type === PublishType.Tag) {
             if (pkgInfo.terascope.main) {
                 signale.info(`* publishing main package ${pkgInfo.name}@${remote}->${local}`);
                 return true;

@@ -783,7 +783,7 @@ describe('ACLManager', () => {
                         superAdminUser
                     );
                 } catch (err) {
-                    expect(err.message).toEqual('Unable to remove Data Type, please remove it from any associated View or Space');
+                    expect(err.message).toEqual('Unable to remove Data Type, please remove it from any associated Space');
                     expect(err).toBeInstanceOf(TSError);
                     expect(err.statusCode).toEqual(412);
                 }

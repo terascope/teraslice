@@ -1,7 +1,7 @@
 import ms from 'ms';
 import { PackageInfo } from '../interfaces';
 import { listPackages, getMainPackageInfo } from '../packages';
-import { PublishAction, PublishOptions } from './interfaces';
+import { PublishAction, PublishOptions, PublishType } from './interfaces';
 import { yarnPublish, yarnRun, remoteDockerImageExists, dockerBuild, dockerPush } from '../scripts';
 import { shouldNPMPublish, formatDailyTag, buildCacheLayers } from './utils';
 import { getRootInfo } from '../misc';
@@ -19,13 +19,16 @@ export async function publish(action: PublishAction, options: PublishOptions) {
 }
 
 async function publishToNPM(options: PublishOptions) {
+    if (![PublishType.Latest, PublishType.Tag].includes(options.type)) {
+        throw new Error(`NPM publish does NOT support publish type "${options.type}"`);
+    }
     for (const pkgInfo of listPackages()) {
         await npmPublish(pkgInfo, options);
     }
 }
 
 async function npmPublish(pkgInfo: PackageInfo, options: PublishOptions) {
-    const shouldPublish = await shouldNPMPublish(pkgInfo, options.releaseType);
+    const shouldPublish = await shouldNPMPublish(pkgInfo, options.type);
     if (!shouldPublish) return;
 
     if (options.dryRun) {
@@ -41,9 +44,9 @@ async function publishToDocker(options: PublishOptions) {
     let imageToBuild: string = '';
     const rootInfo = getRootInfo();
 
-    if (options.releaseType === 'latest') {
+    if (options.type === PublishType.Latest) {
         imageToBuild = `${rootInfo.docker.image}:latest`;
-    } else if (options.releaseType === 'tag') {
+    } else if (options.type === PublishType.Tag) {
         const mainPkgInfo = getMainPackageInfo();
         if (!mainPkgInfo) {
             throw new Error('At least one package must be specified with `terascope.main`');
@@ -54,15 +57,15 @@ async function publishToDocker(options: PublishOptions) {
             throw new Error(`Docker Image ${image} already exists`);
         }
         imageToBuild = image;
-    } else if (options.releaseType === 'dev') {
+    } else if (options.type === PublishType.Dev) {
         imageToBuild = `${rootInfo.docker.image}:dev`;
-    } else if (options.releaseType === 'daily') {
+    } else if (options.type === PublishType.Daily) {
         const tag = await formatDailyTag();
         imageToBuild = `${rootInfo.docker.image}:${tag}`;
     }
 
     const startTime = Date.now();
-    signale.pending(`building docker for ${options.releaseType} release`);
+    signale.pending(`building docker for ${options.type} release`);
 
     const cacheLayersToPush = await buildCacheLayers();
     imagesToPush.push(...cacheLayersToPush);

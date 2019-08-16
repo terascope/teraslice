@@ -13,8 +13,8 @@
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
     "files": [
-        "bin/**/*",
-        "dist/src/**/*"
+        "dist/src/**/*",
+        "bin/*"
     ],
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
