@@ -6,7 +6,7 @@ describe('Sha2Encode operator', () => {
 
     function encode(str: string, algo = 'sha256') {
         // @ts-ignore
-        return crypto.createHash(algo).update(str).digest('utf8');
+        return crypto.createHash(algo).update(str).digest('hex');
     }
 
     it('can instantiate', () => {

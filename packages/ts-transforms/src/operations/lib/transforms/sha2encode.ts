@@ -12,7 +12,7 @@ export default class Sha2Encode extends TransformOpBase {
         this.hash = config.hash || 'sha256';
         this.encode = (data:string) => {
                     // @ts-ignore
-            return crypto.createHash(this.hash).update(data).digest('utf8');
+            return crypto.createHash(this.hash).update(data).digest('hex');
         };
     }
 

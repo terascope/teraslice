@@ -7,7 +7,7 @@ describe('Sha1Encode operator', () => {
 
     function encode(str: string) {
         // @ts-ignore
-        return crypto.createHash('sha1').update(str).digest('utf8');
+        return crypto.createHash('sha1').update(str).digest('hex');
     }
 
     it('can instantiate', () => {
