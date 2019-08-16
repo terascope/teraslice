@@ -7,7 +7,7 @@ describe('Md5Encode operator', () => {
 
     function encode(str: string) {
         // @ts-ignore
-        return crypto.createHash('md5').update(str).digest('utf8');
+        return crypto.createHash('md5').update(str).digest('hex');
     }
 
     it('can instantiate', () => {
