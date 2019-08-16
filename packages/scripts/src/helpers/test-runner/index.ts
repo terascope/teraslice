@@ -110,7 +110,7 @@ async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: 
 
         const env = utils.getEnv(options, suite);
         if (options.debug || isCI) {
-            signale.debug(`setting env for test suite "${suite}"`, env);
+            signale.debug(env, `setting env for test suite "${suite}"`);
         }
 
         let chunkIndex = -1;
@@ -194,7 +194,7 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
 
         const env = utils.getEnv(options, suite);
         if (options.debug || isCI) {
-            signale.debug(`setting env for test suite "${suite}"`, env);
+            signale.debug(env, `setting env for test suite "${suite}"`);
         }
 
         try {
