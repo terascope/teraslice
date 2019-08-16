@@ -105,7 +105,7 @@ function normalizeConfig(configList: OperationConfig[], opsManager: OperationsMa
                 list.push(...createMatchingConfig(fieldsConfigs, config, tagMapping));
             } else {
                 config.__pipeline = fieldsConfigs.map((obj) => obj.pipeline)[0];
-                config.source_fields = fieldsConfigs.map((obj) => obj.source);
+                config.source_fields = [...new Set(fieldsConfigs.map((obj) => obj.source))];
                 if (targetField && !Array.isArray(targetField)) {
                     config.target_field = targetField;
                 } else {

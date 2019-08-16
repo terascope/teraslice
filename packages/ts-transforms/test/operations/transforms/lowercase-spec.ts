@@ -2,7 +2,7 @@
 import { Lowercase } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
 
-describe('transform operator', () => {
+describe('Lowercase operator', () => {
 
     it('can instantiate', () => {
         const opConfig = { target_field: 'someField', source_field: 'someField', __id: 'someId', follow: 'otherId' };

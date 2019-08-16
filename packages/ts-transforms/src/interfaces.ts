@@ -41,6 +41,8 @@ export interface PostProcessConfig {
     value?: any;
     output?: boolean;
 
+    hash?: string;
+
     __pipeline?: string;
 }
 

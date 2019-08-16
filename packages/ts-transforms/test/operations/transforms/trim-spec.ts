@@ -1,12 +1,12 @@
 
-import { JsonParse } from '../../../src/operations';
+import { Trim } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
 
-describe('JsonParse operator', () => {
+describe('transform operator', () => {
 
     it('can instantiate', () => {
         const opConfig = { target_field: 'someField', source_field: 'someField', __id: 'someId', follow: 'otherId' };
-        expect(() => new JsonParse(opConfig)).not.toThrow();
+        expect(() => new Trim(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
@@ -15,27 +15,27 @@ describe('JsonParse operator', () => {
         const badConfig3 = { source_field: false, target_field: 'someField' };
         const badConfig4 = {};
         // @ts-ignore
-        expect(() => new JsonParse(badConfig1)).toThrow();
+        expect(() => new Trim(badConfig1)).toThrow();
         // @ts-ignore
-        expect(() => new JsonParse(badConfig2)).toThrow();
+        expect(() => new Trim(badConfig2)).toThrow();
         // @ts-ignore
-        expect(() => new JsonParse(badConfig3)).toThrow();
+        expect(() => new Trim(badConfig3)).toThrow();
         // @ts-ignore
-        expect(() => new JsonParse(badConfig4)).toThrow();
+        expect(() => new Trim(badConfig4)).toThrow();
     });
 
-    it('can parse json data', () => {
+    it('can transform strings to Trim', () => {
         const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId' };
-        const test = new JsonParse(opConfig);
+        const test = new Trim(opConfig);
 
-        const data1 = new DataEntity({ someField: JSON.stringify('56.234,95.234') });
+        const data1 = new DataEntity({ someField: ' 56.234,95.234 ' });
         const data2 = new DataEntity({});
-        const data3 = new DataEntity({ someField: JSON.stringify('data') });
-        const data4 = new DataEntity({ someField: JSON.stringify({ some: 'data' }) });
-        const data5 = new DataEntity({ someField: JSON.stringify(false) });
-        const data6 = new DataEntity({ someField: JSON.stringify('other') });
+        const data3 = new DataEntity({ someField: '    data' });
+        const data4 = new DataEntity({ someField: { some: 'data' } });
+        const data5 = new DataEntity({ someField: false });
+        const data6 = new DataEntity({ someField: 'other      ' });
         const data7 = new DataEntity({ sideField: 'data' });
-        const data8 = new DataEntity({ someField: [JSON.stringify('other'), JSON.stringify('data')] });
+        const data8 = new DataEntity({ someField: ['     other     ', 'data'] });
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -50,11 +50,10 @@ describe('JsonParse operator', () => {
         expect(results1).toEqual({ someField: '56.234,95.234' });
         expect(results2).toEqual({});
         expect(results3).toEqual({ someField: 'data' });
-        expect(results4).toEqual({ someField: { some: 'data' } });
-        expect(results5).toEqual({ someField: false });
+        expect(results4).toEqual({ });
+        expect(results5).toEqual({});
         expect(results6).toEqual({ someField: 'other' });
         expect(results7).toEqual({ sideField: 'data' });
         expect(results8).toEqual({ someField: ['other', 'data'] });
     });
-
 });

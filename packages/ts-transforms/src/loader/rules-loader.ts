@@ -77,8 +77,10 @@ export default class RulesLoader {
                         try {
                             results.push(this.parseConfig(configStr));
                         } catch (err) {
+                            const errMsg = err.message;
                             hasError = true;
-                            errorResults.push(configStr);
+                            errorResults.push(errMsg, ' => ', configStr, '\n');
+
                         }
                     }
                 }
@@ -86,8 +88,10 @@ export default class RulesLoader {
 
             rl.on('close', () => {
                 if (hasError) {
-                    reject(new Error(`could not load and parse the following configs: ${errorResults.join(' ')}`));
-                    return;
+                    const errors =  errorResults.join('');
+                    const err = new Error(`could not load and parse the following configs: \n ${errors}`);
+                    err.stack = undefined;
+                    return reject(err);
                 }
                 resolve(results);
             });

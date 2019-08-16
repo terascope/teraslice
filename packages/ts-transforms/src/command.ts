@@ -28,12 +28,13 @@ const command = yargs
     .describe('i', 'ignore data records that cannot be parsed')
     .describe('t', 'specify type configs ie field:value, otherfield:value')
     .describe('T', 'specify type configs from file')
-    .describe('p', 'output the time it took to run the data')
+    .describe('p', 'path to plugins that should be added into ts-transforms')
     .demandOption(['r'])
     .version(version).argv;
 
 const filePath = command.rules as string;
 const dataPath = command.data;
+
 const ignoreErrors = command.i || false;
 let typesConfig = {};
 const type = command.m ? 'matcher' : 'transform';
@@ -102,18 +103,9 @@ function parseData(data: string): object[] | null {
         }
     }
 
-    // handle elasticsearch and teraserver data
-    // if error continue on because that means it is probably ldjson
-    if (data) {
-        try {
-            return JSON.parse(data);
-        } catch (err) {}
-    }
-
     // handle ldjson
     const results: object[] = [];
     const lines = _.split(data, '\n');
-
     for (let i = 0; i < lines.length; i++) {
         const line = _.trim(lines[i]);
         // if its not an empty space or a comment then parse it
@@ -135,25 +127,25 @@ function parseData(data: string): object[] | null {
 }
 
 function handleParsedData(data: object[] | object): DataEntity<object>[] {
-    if (Array.isArray(data)) return DataEntity.makeArray(data);
     // input from elasticsearch
-    const elasticSearchResults = _.get(data, 'hits.hits', null);
+    const elasticSearchResults = _.get(data[0], 'hits.hits', null);
     if (elasticSearchResults) {
         return elasticSearchResults.map((doc: ESData) => DataEntity.make(doc._source));
     }
     // input from teraserver
-    const teraserverResults = _.get(data, 'results', null);
+    const teraserverResults = _.get(data[0], 'results', null);
     if (teraserverResults) {
         return DataEntity.makeArray(teraserverResults);
     }
 
-    throw new Error('could not get parse data');
+    if (Array.isArray(data)) return DataEntity.makeArray(data);
+
+    throw new Error('no data was received to parse');
 }
 
 async function getData(dataFilePath?: string) {
     const rawData = dataFilePath ? await dataFileLoader(dataFilePath) : await getPipedData();
     const parsedData = parseData(rawData);
-
     if (!parsedData) {
         throw new Error('could not get data, please provide a data file or pipe an elasticsearch request');
     }
@@ -193,7 +185,7 @@ async function initCommand() {
             // tslint:disable-next-line
             console.time('execution-time');
         }
-        // @ts-ignore
+
         const results = manager.run(data);
         // tslint:disable-next-line
         if (command.perf) console.timeEnd('execution-time');

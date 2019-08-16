@@ -951,4 +951,25 @@ describe('can transform matches', () => {
         expect(results[0]).toEqual({ email: ['email1@gmail.com'] });
         expect(results[1]).toEqual({ email: ['email2@gmail.com'] });
     });
+
+    it('properly extract multiple fields, regression test', async () => {
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules33.txt')],
+        };
+
+        const data = [
+            new DataEntity({ field1: 'value' })
+        ];
+
+        const test = await opTest.init(config, [Plugins]);
+        const results = await test.run(data);
+
+        expect(results).toEqual([
+            {
+                fields: [
+                    'value',
+                ]
+            }
+        ]);
+    });
 });
