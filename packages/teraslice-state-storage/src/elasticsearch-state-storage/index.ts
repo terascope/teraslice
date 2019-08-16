@@ -110,7 +110,7 @@ export default class ESCachedStateStorage {
         return savedDocs;
     }
 
-    async sync(docArray: DataEntity[], fn: UpdateCacheFn) {
+    async sync(docArray: DataEntity[], fn: UpdateCacheFn): Promise<void> {
         if (!docArray || !Array.isArray(docArray)) {
             throw new Error('Invalid docs given to sync, expected Array');
         }
@@ -118,25 +118,40 @@ export default class ESCachedStateStorage {
         if (!fn || !isFunction(fn)) {
             throw new Error('Invalid function given to sync');
         }
+        if (!docArray.length) return;
 
-        const uncachedDocs = this._updateCache(docArray, fn);
-        if (uncachedDocs.length) {
+        const { uncached, duplicates } = this._updateCache(docArray, fn);
+        if (uncached.length) {
             // es search for keys not in cache
-            await bPromise.map(uncachedDocs, (chunked) => this._esMGet(chunked, fn), {
+            await bPromise.map(uncached, (chunked) => this._esMGet(chunked, fn), {
                 concurrency: this.concurrency
             });
         }
+
+        if (duplicates.length) {
+            this.logger.info(`syncing the remaining ${duplicates.length} duplicate records`);
+            return this.sync(duplicates, fn);
+        }
     }
 
-    private _updateCache(docArray: DataEntity[], fn: UpdateCacheFn): UncachedChunks {
+    private _updateCache(docArray: DataEntity[], fn: UpdateCacheFn): { uncached: UncachedChunks, duplicates: DataEntity[] } {
+        const duplicates: DataEntity[] = [];
+        const found: { [key: string]: true } = {};
         const uncachedChunks: UncachedChunks = [];
         let hits = 0;
         const missesPerChunk: number[] = [];
         let uncachedIndex = 0;
 
         for (const current of docArray) {
+            if (current == null) continue;
+
             const key = this.getIdentifier(current);
             const prev = this.getFromCacheByKey(key);
+            if (found[key]) {
+                duplicates.push(current);
+                continue;
+            }
+            found[key] = true;
 
             if (prev) {
                 hits++;
@@ -159,9 +174,12 @@ export default class ESCachedStateStorage {
         }
 
         const misses = missesPerChunk.reduce((total, current) => total + current, 0);
-        this.logger.info(`elasticsearch-state-storage hit ${hits} cached records and is fetching ${misses}`);
+        this.logger.info(`elasticsearch-state-storage cache hit: ${hits}, cache misses: ${misses}, duplicates: ${duplicates.length}`);
 
-        return uncachedChunks;
+        return {
+            uncached: uncachedChunks,
+            duplicates,
+        };
     }
 
     private async _esGet(key: string): Promise<DataEntity|undefined> {
@@ -183,12 +201,13 @@ export default class ESCachedStateStorage {
         return updated;
     }
 
-    private async _esMGet(docs: UncachedChunk, fn: UpdateCacheFn) {
+    private async _esMGet(docs: DataEntityObj, fn: UpdateCacheFn): Promise<DataEntity[]> {
+        const ids = Object.keys(docs);
         const request: ESMGetParams = {
             index: this.index,
             type: this.type,
             body: {
-                ids: Object.keys(docs),
+                ids,
             },
         };
         if (this.sourceFields.length > 0) {
@@ -202,9 +221,12 @@ export default class ESCachedStateStorage {
             let prev: DataEntity|undefined;
             if (result.found) {
                 prev = makeDataEntity(result);
+                results.push(prev);
             }
             const current = docs[key];
-            this._updateCacheWith(fn, key, current, prev);
+            if (current) {
+                this._updateCacheWith(fn, key, current, prev);
+            }
         }
         return results;
     }
@@ -299,8 +321,8 @@ export interface ESGetResponse {
     _source?: any;
 }
 
-type UncachedChunk = { [key: string]: DataEntity; };
-type UncachedChunks = { [key: string]: DataEntity; }[];
+type DataEntityObj = { [key: string]: DataEntity; };
+type UncachedChunks = DataEntityObj[];
 
 function makeDataEntity(result: ESGetResponse): DataEntity {
     const key = result._id;

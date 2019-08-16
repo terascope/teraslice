@@ -331,30 +331,42 @@ describe('elasticsearch-state-storage', () => {
     });
 
     describe('->sync', () => {
-        const docArray = makeTestDocs(5);
+        const docArray = makeTestDocs(6);
 
         const inCacheCurrent = docArray[0];
         const prevInCacheUpdated = docArray[1];
         const inCacheUpdated = copyDataEntity(prevInCacheUpdated);
-        const inESCurrent = docArray[2];
-        const prevInESUpdated = docArray[3];
+        const inCacheChanged = docArray[2];
+        const newInCacheChanged = copyDataEntity(inCacheChanged);
+        const inESCurrent = docArray[3];
+        const prevInESUpdated = docArray[4];
         const inESUpdated = copyDataEntity(prevInESUpdated);
-        const notFoundInES = docArray[4];
+        const notFoundInES = docArray[5];
 
         const inputDocArray: DataEntity[] = [];
         inputDocArray[0] = inCacheCurrent;
         inputDocArray[1] = inCacheUpdated;
-        inputDocArray[2] = inESCurrent;
-        inputDocArray[3] = inESUpdated;
-        inputDocArray[4] = notFoundInES;
+        inputDocArray[2] = inCacheChanged;
+        inputDocArray[3] = inESCurrent;
+        inputDocArray[4] = inESUpdated;
+        // add a duplicate inESCurrent
+        inputDocArray[5] = inESCurrent;
+        inputDocArray[6] = notFoundInES;
 
-        const results: DataEntity[] = [];
-        const setResults = (data: DataEntity) => results.push(data);
+        const cacheResults: DataEntity[] = [];
+        const setCacheResults = (data: DataEntity) => cacheResults.push(data);
 
-        const updateFnResults: { [key: string]: { current: DataEntity; prev?: DataEntity; } } = {};
+        const updateFnResults: { key: string, current: DataEntity; prev?: DataEntity; }[] = [];
         const fn: UpdateCacheFn = (key, current, prev) => {
-            updateFnResults[key] = { current, prev };
+            updateFnResults.push({ key, current, prev });
+            if (key === inCacheCurrent.getMetadata('_key')) {
+                inCacheCurrent.seen = true;
+                return current;
+            }
             if (key === inCacheUpdated.getMetadata('_key')) return false;
+            if (key === inCacheChanged.getMetadata('_key')) {
+                return newInCacheChanged;
+            }
             return true;
         };
 
@@ -364,6 +376,7 @@ describe('elasticsearch-state-storage', () => {
             await setup();
             stateStorage.set(inCacheCurrent);
             stateStorage.set(prevInCacheUpdated);
+            stateStorage.set(inCacheChanged);
             // create bulk response
             const mgetResponse = client.createMGetResponse([inESCurrent, prevInESUpdated]);
             mgetResponse.docs.push(client.createGetResponse(notFoundInES, false));
@@ -379,25 +392,28 @@ describe('elasticsearch-state-storage', () => {
         });
 
         it('should store all of the correct values in the cache', async () => {
-            await stateStorage.cache.values(setResults);
+            await stateStorage.cache.values(setCacheResults);
 
-            expect(results.reverse()).toStrictEqual([
+            expect(cacheResults.reverse()).toStrictEqual([
                 inCacheCurrent,
                 // the cache wasn't updated for this
                 prevInCacheUpdated,
-                inESCurrent,
+                newInCacheChanged,
                 inESUpdated,
                 notFoundInES,
+                inESCurrent,
             ]);
         });
 
-        it(`should have called ${inputDocArray.length} times`, () => {
-            expect(Object.keys(updateFnResults)).toBeArrayOfSize(inputDocArray.length);
+        it(`should have called ${inputDocArray.length} times (one of those is a duplicate)`, () => {
+            expect(updateFnResults).toBeArrayOfSize(inputDocArray.length);
         });
 
         it('should handle the current cache record correctly', () => {
             const key = inCacheCurrent.getMetadata('_key');
-            const { current, prev } = updateFnResults[key];
+            const results = updateFnResults.filter((result) => result.key === key);
+            expect(results).toBeArrayOfSize(1);
+            const { current, prev } = results[0];
 
             expect(current).toBe(inCacheCurrent);
             expect(prev).toBe(inCacheCurrent);
@@ -406,13 +422,17 @@ describe('elasticsearch-state-storage', () => {
 
             const cached = stateStorage.getFromCacheByKey(key);
             expect(cached).toBe(inCacheCurrent);
+            expect(cached).toHaveProperty('seen', true);
         });
 
         it('should handle the updated cache record correctly', () => {
             expect(inCacheUpdated).not.toBe(prevInCacheUpdated);
 
             const key = inCacheUpdated.getMetadata('_key');
-            const { current, prev } = updateFnResults[key];
+
+            const results = updateFnResults.filter((result) => result.key === key);
+            expect(results).toBeArrayOfSize(1);
+            const { current, prev } = results[0];
 
             expect(current).toBe(inCacheUpdated);
             expect(prev).toBe(prevInCacheUpdated);
@@ -424,27 +444,62 @@ describe('elasticsearch-state-storage', () => {
             expect(cached).toBe(prevInCacheUpdated);
         });
 
-        it('should handle the current es record correctly', () => {
-            const key = inESCurrent.getMetadata('_key');
-            const { current, prev } = updateFnResults[key];
+        it('should handle the new cache record correctly', () => {
+            expect(inCacheChanged).not.toBe(newInCacheChanged);
 
-            expect(current).toBe(inESCurrent);
-            expect(prev).not.toBe(inESCurrent);
-            expect(prev).toEqual(inESCurrent);
-            expect(current).toStrictEqual(inESCurrent);
-            expect(prev).toStrictEqual(inESCurrent);
+            const key = inCacheChanged.getMetadata('_key');
+            const results = updateFnResults.filter((result) => result.key === key);
+            expect(results).toBeArrayOfSize(1);
+            const { current, prev } = results[0];
+
+            expect(current).toBe(inCacheChanged);
+            expect(prev).toBe(inCacheChanged);
+            expect(current).toStrictEqual(inCacheChanged);
+            expect(prev).toStrictEqual(inCacheChanged);
 
             const cached = stateStorage.getFromCacheByKey(key);
-            expect(cached).not.toBe(prev);
-            expect(cached).toEqual(prev);
-            expect(cached).toBe(inESCurrent);
+            expect(cached).toBe(newInCacheChanged);
+            expect(cached).not.toBe(inCacheChanged);
+        });
+
+        it('should handle the current es record correctly (which was a duplicate)', () => {
+            const key = inESCurrent.getMetadata('_key');
+
+            const results = updateFnResults.filter((result) => result.key === key);
+            expect(results).toBeArrayOfSize(2);
+            let call = 0;
+            for (const result of results) {
+                call++;
+                const { current, prev } = result;
+
+                expect(current).toBe(inESCurrent);
+                if (call === 1) {
+                    expect(prev).not.toBe(inESCurrent);
+                } else {
+                    expect(prev).toBe(inESCurrent);
+                }
+                expect(prev).toEqual(inESCurrent);
+                expect(current).toStrictEqual(inESCurrent);
+                expect(prev).toStrictEqual(inESCurrent);
+
+                const cached = stateStorage.getFromCacheByKey(key);
+                if (call === 1) {
+                    expect(cached).not.toBe(prev);
+                } else {
+                    expect(cached).toBe(prev);
+                }
+                expect(cached).toEqual(prev);
+                expect(cached).toBe(inESCurrent);
+            }
         });
 
         it('should handle the updated es record correctly', () => {
             expect(inESUpdated).not.toBe(prevInESUpdated);
 
             const key = inESUpdated.getMetadata('_key');
-            const { current, prev } = updateFnResults[key];
+            const results = updateFnResults.filter((result) => result.key === key);
+            expect(results).toBeArrayOfSize(1);
+            const { current, prev } = results[0];
 
             expect(current).toBe(inESUpdated);
             expect(prev).not.toBe(prevInESUpdated);
@@ -459,7 +514,10 @@ describe('elasticsearch-state-storage', () => {
 
         it('should handle the NOT found in es record correctly', () => {
             const key = notFoundInES.getMetadata('_key');
-            const { current, prev } = updateFnResults[key];
+
+            const results = updateFnResults.filter((result) => result.key === key);
+            expect(results).toBeArrayOfSize(1);
+            const { current, prev } = results[0];
 
             expect(prev).toBeUndefined();
             expect(current).toBe(notFoundInES);
@@ -481,13 +539,11 @@ describe('elasticsearch-state-storage', () => {
             const docObj = docsToObject(docArray);
 
             // found by es
-            const mgetDocs = client.createMGetResponse(docArray.slice(0, 2000));
+            const mgetDocs = client.createMGetResponse(docArray.slice(0, 2000), true);
 
             // not found by es
             const notFoundDocs = client.createMGetResponse(docArray.slice(2000, 3000), false);
             notFoundDocs.docs.forEach((item) => mgetDocs.docs.push(item));
-
-            client.setMGetResponse(mgetDocs);
 
             // some docs already saved in cache
             await stateStorage.mset(docArray.slice(3000, 5000));
@@ -500,6 +556,7 @@ describe('elasticsearch-state-storage', () => {
 
             expect(getCheck).toEqual(docObj['key-3483']);
 
+            client.setMGetResponse(mgetDocs);
             // retrieve all the docs
             const mgetResult = await stateStorage.mget(docArray);
             // should not be any unfound docs
@@ -565,11 +622,15 @@ class TestClient {
 
     createMGetResponse(dataArray: DataEntity[], found = true): ESMGetResponse {
         const docs = dataArray.map((item) => {
+            const id = item.getMetadata('_key');
+            if (!id) throw new Error('Missing _key on test record');
+            if (typeof id !== 'string') throw new Error('Invalid _key on test record');
+
             const response: ESGetResponse = {
                 _index: this._config.index,
                 _type: this._config.type,
                 _version: 1,
-                _id: `${item.getMetadata('_key')}`,
+                _id: id,
                 found,
             };
 
@@ -605,28 +666,39 @@ class TestClient {
         if (params.type !== this._config.type) {
             throw new Error(`Invalid type ${params.type} on fake get`);
         }
-        if (!params.id) {
-            throw new Error('Invalid ids to get');
+        if (!params.id || typeof params.id !== 'string') {
+            throw new Error('Invalid id to get');
         }
         return this._getResponse;
     }
 
     async mget(params: ESMGetParams) {
-        if (!params.body.ids || !Array.isArray(params.body.ids)) {
-            throw new Error('Invalid ids to mget');
+        const ids = params.body && params.body.ids;
+        const invalidMsg = 'Invalid test data for mget';
+
+        if (!ids || !Array.isArray(ids)) {
+            throw new Error(`${invalidMsg}, expected ids to be an array`);
         }
         if (params.index !== this._config.index) {
-            throw new Error(`Invalid index ${params.index} on fake get`);
+            throw new Error(`${invalidMsg}, expected type in request ${params.index}`);
         }
         if (params.type !== this._config.type) {
-            throw new Error(`Invalid type ${params.type} on fake get`);
+            throw new Error(`${invalidMsg}, expected type in request ${params.type}`);
         }
+        if (!this._mgetResponse || !Array.isArray(this._mgetResponse.docs)) {
+            throw new Error(`${invalidMsg}, expected response.docs to be an array`);
+        }
+        if (ids.length > this._mgetResponse.docs.length) {
+            const responseIds = this._mgetResponse.docs.map((result) => result._id);
+            throw new Error(`${invalidMsg}, expected ${JSON.stringify(responseIds, null, 2)} === ${JSON.stringify(ids, null, 2)}`);
+        }
+
         for (const doc of this._mgetResponse.docs) {
             if (doc._index !== this._config.index) {
-                throw new Error(`Invalid index ${doc._index} on fake mget`);
+                throw new Error(`${invalidMsg}, expected index on record ${JSON.stringify(doc, null, 2)}`);
             }
             if (doc.found && doc._type !== this._config.type) {
-                throw new Error(`Invalid type ${doc._type} on fake mget`);
+                throw new Error(`${invalidMsg}, expected type on record ${JSON.stringify(doc, null, 2)}`);
             }
         }
         return this._mgetResponse;
