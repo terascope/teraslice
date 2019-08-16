@@ -18,7 +18,7 @@ declare namespace elasticsearchAPI {
     export interface Client {
         search: (query: es.SearchParams) => Promise<es.SearchResponse | any[]>;
         count: (query: es.CountParams) => Promise<number>;
-        get: (query: es.GetParams) => Promise<any>;
+        get: (query: es.GetParams, fullResponse?: boolean) => Promise<any>;
         mget: (query: es.MGetParams) => Promise<any>;
         index: (query: es.IndexDocumentParams) => Promise<any>;
         indexWithId: (query: es.IndexDocumentParams) => Promise<any>;

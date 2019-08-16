@@ -1,5 +1,6 @@
 'use strict';
 
+const ms = require('ms');
 const _ = require('lodash');
 const pWhilst = require('p-whilst');
 const Messaging = require('@terascope/teraslice-messaging');
@@ -800,7 +801,7 @@ class ExecutionController {
             const now = Date.now();
             if (now > shutdownAt) {
                 this.logger.error(
-                    `Shutdown timeout of ${timeout}ms waiting for execution ${
+                    `Shutdown timeout of ${ms(timeout)} waiting for execution ${
                         this.exId
                     } to finish...`
                 );

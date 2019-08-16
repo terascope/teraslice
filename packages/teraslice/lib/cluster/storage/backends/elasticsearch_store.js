@@ -1,5 +1,6 @@
 'use strict';
 
+const ms = require('ms');
 const fs = require('fs');
 const _ = require('lodash');
 const path = require('path');
@@ -233,7 +234,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
             const timeout = setTimeout(_destroy, config.shutdown_timeout).unref();
 
             function _destroy(err) {
-                logger.trace(`shutdown store, took ${Date.now() - startTime}ms`);
+                logger.trace(`shutdown store, took ${ms(Date.now() - startTime)}`);
 
                 bulkQueue.length = [];
                 isShutdown = true;

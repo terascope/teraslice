@@ -4,11 +4,12 @@ import { listPackages, getMainPackageInfo } from '../packages';
 import { PublishAction, PublishOptions } from './interfaces';
 import { yarnPublish, yarnRun, remoteDockerImageExists, dockerBuild, dockerPush } from '../scripts';
 import { shouldNPMPublish, formatDailyTag, buildCacheLayers } from './utils';
-import { getRootInfo, cliError } from '../misc';
+import { getRootInfo } from '../misc';
 import signale from '../signale';
 
 export async function publish(action: PublishAction, options: PublishOptions) {
     signale.info(`publishing to ${action}`);
+
     if (action === PublishAction.NPM) {
         return publishToNPM(options);
     }
@@ -39,6 +40,7 @@ async function publishToDocker(options: PublishOptions) {
     const imagesToPush = [];
     let imageToBuild: string = '';
     const rootInfo = getRootInfo();
+
     if (options.releaseType === 'latest') {
         imageToBuild = `${rootInfo.docker.image}:latest`;
     } else if (options.releaseType === 'tag') {
@@ -57,8 +59,6 @@ async function publishToDocker(options: PublishOptions) {
     } else if (options.releaseType === 'daily') {
         const tag = await formatDailyTag();
         imageToBuild = `${rootInfo.docker.image}:${tag}`;
-    } else {
-        cliError('Error', 'Unknown value for --type, expected latest, dev, daily, or tag');
     }
 
     const startTime = Date.now();

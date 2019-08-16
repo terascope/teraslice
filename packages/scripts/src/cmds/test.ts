@@ -29,7 +29,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
     describe: 'Run monorepo tests',
     builder(yargs) {
         return yargs
+            .example('$0 test', 'example --watch -- --testPathPattern worker-spec')
+            .example('$0 test', 'example --debug --bail')
+            .example('$0 test', '. --debug --bail')
             .option('debug', {
+                alias: 'd',
                 description: 'This will run all of the tests in-band and output any debug info',
                 type: 'boolean',
                 default: false,
@@ -50,6 +54,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 default: false,
             })
             .option('suite', {
+                alias: 's',
                 description: 'Run a test given a particular suite. Defaults to running all',
                 choices: Object.values(TestSuite).filter((suite) => suite !== TestSuite.Disabled),
                 coerce(arg): TestSuite {

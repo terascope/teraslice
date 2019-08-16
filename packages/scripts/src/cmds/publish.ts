@@ -15,6 +15,13 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
     describe: 'Publish npm or docker releases',
     builder(yargs) {
         return yargs
+            .example('$0 publish', '-t tag docker')
+            .example('$0 publish', '-t dev docker')
+            .example('$0 publish', '-t latest docker')
+            .example('$0 publish', '--dry-run docker')
+            .example('$0 publish', '-t tag npm')
+            .example('$0 publish', '-t latest npm')
+            .example('$0 publish', '--dry-run npm')
             .option('dry-run', {
                 description: "For testing purposes, don't pushing or publishing",
                 type: 'boolean',
@@ -24,6 +31,8 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 alias: 't',
                 description: 'Depending on the publish action this can be used to define what type of action to take',
                 type: 'string',
+                default: 'latest',
+                choices: ['latest', 'dev', 'tag']
             })
             .positional('action', {
                 description: 'The publish action to take',
