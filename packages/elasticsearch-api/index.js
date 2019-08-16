@@ -86,7 +86,10 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         return _clientRequest('mget', query);
     }
 
-    function get(query) {
+    function get(query, fullResponse = false) {
+        if (fullResponse) {
+            return _clientRequest('get', query);
+        }
         return _clientRequest('get', query).then((result) => result._source);
     }
 

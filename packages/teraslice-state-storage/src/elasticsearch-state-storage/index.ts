@@ -1,20 +1,17 @@
-import { DataEntity, Logger, TSError, chunk } from '@terascope/utils';
+import { DataEntity, Logger, TSError, chunk, isFunction } from '@terascope/utils';
 import esApi, { Client } from '@terascope/elasticsearch-api';
 import { Promise as bPromise } from 'bluebird';
-import { ESStateStorageConfig, ESBulkQuery, ESQUery, MGetResponse } from '../interfaces';
+import { ESStateStorageConfig, MGetCacheResponse } from '../interfaces';
 import CachedStateStorage from '../cached-state-storage';
-
-type ForEachCB = (key: string, doc: DataEntity) => void;
 
 export default class ESCachedStateStorage {
     private index: string;
     private type: string;
-    private IDField: string;
     private concurrency: number;
     private sourceFields: string[];
     private chunkSize: number;
     private persist: boolean;
-    private persistField: string;
+    private persistField?: string;
     private es: Client;
     private logger: Logger;
     public cache: CachedStateStorage<DataEntity>;
@@ -22,173 +19,319 @@ export default class ESCachedStateStorage {
     constructor(client: Client, logger: Logger, config: ESStateStorageConfig) {
         this.index = config.index;
         this.type = config.type;
-        this.IDField = '_key';
         this.concurrency = config.concurrency;
         this.sourceFields = config.source_fields || [];
         this.chunkSize = config.chunk_size;
         this.persist = config.persist;
-        this.persistField = config.persist_field || this.IDField;
+        if (config.persist_field && config.persist_field !== '_key') {
+            this.persistField = config.persist_field;
+        }
         this.cache = new CachedStateStorage(config);
         this.logger = logger;
         this.es = esApi(client, logger);
     }
 
-    private getIdentifier(doc: DataEntity) {
-        const id = doc.getMetadata(this.IDField);
-        if (id === '' || id == null) {
-            throw new TSError(`There is no field "${this.IDField}" set in the metadata`, { context: { doc } });
-        }
-        return id;
+    async initialize() {}
+
+    async shutdown() {
+        this.cache.clear();
     }
 
-    private _esBulkUpdatePrep(dataArray: DataEntity[]) {
-        const bulkRequest: ESBulkQuery[] = [];
+    count(): number {
+        return this.cache.count();
+    }
 
-        dataArray.forEach((item) => {
-            const id = item.getMetadata(this.persistField);
-            bulkRequest.push({
-                index: {
-                    _index: this.index,
-                    _type: this.type,
-                    _id: id,
-                },
+    getIdentifier(doc: DataEntity, metaKey: string = '_key'): string {
+        const key = doc.getMetadata(metaKey);
+        if (key === '' || key == null) {
+            throw new TSError(`There is no field "${metaKey}" set in the metadata`, {
+                context: { doc }
             });
-            bulkRequest.push(item);
-        });
-
-        return bulkRequest;
-    }
-
-    private _esBulkUpdate(docArray: DataEntity[]) {
-        const bulkRequest = this._esBulkUpdatePrep(docArray);
-        const chunkedArray = chunk<ESBulkQuery>(bulkRequest, this.chunkSize);
-        return bPromise.map<ESBulkQuery[], ESBulkQuery[]>(chunkedArray, (chunkedData) => this.es.bulkSend(chunkedData));
-    }
-
-    private async _esGet(doc: DataEntity) {
-        const id = this.getIdentifier(doc);
-        const request = {
-            index: this.index,
-            type: this.type,
-            id,
-        };
-
-        const results = await this.es.get(request);
-        return DataEntity.make(results, { [this.IDField]: id });
-    }
-
-    private async _esMget(query: string[]) {
-        const request: ESQUery = {
-            index: this.index,
-            type: this.type,
-            body: {
-                ids: query,
-            },
-        };
-        if (this.sourceFields.length > 0) request._source = this.sourceFields;
-        const response: MGetResponse = await this.es.mget(request);
-
-        return response.docs.filter((doc) => doc.found).map((doc) => DataEntity.make(doc._source, { [this.IDField]: doc._id }));
-    }
-
-    getFromCache(doc: DataEntity) {
-        const indentifier = this.getIdentifier(doc);
-        return this.cache.get(indentifier);
-    }
-
-    isCached(doc: DataEntity) {
-        const indentifier = this.getIdentifier(doc);
-        return this.cache.has(indentifier);
-    }
-
-    async get(doc: DataEntity) {
-        const cached = this.getFromCache(doc);
-        if (cached) return cached;
-        const results = await this._esGet(doc);
-        this.set(results);
-        return results;
-    }
-
-    private _checkCache(docArray: DataEntity[], fn?: ForEachCB): Set<string> {
-        const cachedDocsDict = {};
-        const unCachedDocKeys = new Set<string>();
-        let cachedHits = 0;
-
-        for (const doc of docArray) {
-            const key = this.getIdentifier(doc);
-            const cachedDoc = this.cache.get(key);
-
-            if (cachedDoc) {
-                if (!cachedDocsDict[key]) {
-                    cachedDocsDict[key] = true;
-                    cachedHits++;
-                    if (fn) fn(key, cachedDoc);
-                }
-            } else {
-                unCachedDocKeys.add(key);
-            }
         }
-
-        const logMsg = `elasticsearch-state-storage hit ${cachedHits} cached records and is fetching ${unCachedDocKeys.size}`;
-        this.logger.info(logMsg);
-
-        return unCachedDocKeys;
-    }
-
-    private async _fetchRecords(unCachedDocKeys: Set<string>) {
-        const chunkedArray = chunk<string>([...unCachedDocKeys], this.chunkSize);
-        // es search for keys not in cache
-        return bPromise.map<string[], DataEntity[]>(chunkedArray, (chunked) => this._esMget(chunked), { concurrency: this.concurrency });
-    }
-
-    private _cacheFetchedRecords(recordLists: DataEntity<object>[][], fn?: ForEachCB) {
-        for (const list of recordLists) {
-            for (const doc of list) {
-                this.set(doc);
-                if (fn) fn(this.getIdentifier(doc), doc);
-            }
-        }
-    }
-
-    async sync(docArray: DataEntity[], fn?: ForEachCB) {
-        const unCachedDocKeys = this._checkCache(docArray, fn);
-        if (unCachedDocKeys.size > 1) {
-            const results = await this._fetchRecords(unCachedDocKeys);
-            this._cacheFetchedRecords(results, fn);
-        }
-    }
-
-    async mget(docArray: DataEntity[]) {
-        const savedDocs = {};
-        const setDocs: ForEachCB = (key, doc) => (savedDocs[key] = doc);
-        await this.sync(docArray, setDocs);
-        return savedDocs;
-    }
-
-    set(doc: DataEntity) {
-        // update cache, if persistance is needed use mset
-        const identifier = this.getIdentifier(doc);
-        return this.cache.set(identifier, doc);
+        return key;
     }
 
     async mset(docArray: DataEntity[]) {
         const formattedDocs = docArray.map((doc) => ({ data: doc, key: this.getIdentifier(doc) }));
         if (this.persist) {
-            const [results] = await Promise.all([this.cache.mset(formattedDocs), this._esBulkUpdate(docArray)]);
+            const [results] = await Promise.all([
+                this.cache.mset(formattedDocs),
+                this._esBulkUpdate(docArray)
+            ]);
             return results;
         }
         return this.cache.mset(formattedDocs);
     }
 
-    count() {
-        return this.cache.count();
+    set(doc: DataEntity): void {
+        // update cache, if persistance is needed use mset
+        const key = this.getIdentifier(doc);
+        return this.setCacheByKey(key, doc);
     }
 
-    async initialize() {
-        this.cache.initialize();
+    setCacheByKey(key: string, doc: DataEntity): void {
+        return this.cache.set(key, doc);
     }
 
-    async shutdown() {
-        this.cache.clear();
+    getFromCache(doc: DataEntity) {
+        const key = this.getIdentifier(doc);
+        return this.getFromCacheByKey(key);
     }
+
+    getFromCacheByKey(key: string) {
+        return this.cache.get(key);
+    }
+
+    isCached(doc: DataEntity) {
+        const key = this.getIdentifier(doc);
+        return this.isKeyCached(key);
+    }
+
+    isKeyCached(key: string) {
+        return this.cache.has(key);
+    }
+
+    async get(doc: DataEntity): Promise<DataEntity|undefined> {
+        const key = this.getIdentifier(doc);
+        const cached = this.getFromCacheByKey(key);
+        if (cached) return cached;
+
+        return this._esGet(key);
+    }
+
+    async mget(docArray: DataEntity[]): Promise<MGetCacheResponse> {
+        const savedDocs = {};
+        const setDocs: UpdateCacheFn = (key, current, prev) => {
+            if (prev) savedDocs[key] = prev;
+            return prev || current;
+        };
+
+        await this.sync(docArray, setDocs);
+        return savedDocs;
+    }
+
+    async sync(docArray: DataEntity[], fn: UpdateCacheFn): Promise<void> {
+        if (!docArray || !Array.isArray(docArray)) {
+            throw new Error('Invalid docs given to sync, expected Array');
+        }
+
+        if (!fn || !isFunction(fn)) {
+            throw new Error('Invalid function given to sync');
+        }
+        if (!docArray.length) return;
+
+        const { uncached, duplicates } = this._updateCache(docArray, fn);
+        if (uncached.length) {
+            // es search for keys not in cache
+            await bPromise.map(uncached, (chunked) => this._esMGet(chunked, fn), {
+                concurrency: this.concurrency
+            });
+        }
+
+        if (duplicates.length) {
+            this.logger.info(`syncing the remaining ${duplicates.length} duplicate records`);
+            return this.sync(duplicates, fn);
+        }
+    }
+
+    private _updateCache(docArray: DataEntity[], fn: UpdateCacheFn): { uncached: UncachedChunks, duplicates: DataEntity[] } {
+        const duplicates: DataEntity[] = [];
+        const found: { [key: string]: true } = {};
+        const uncachedChunks: UncachedChunks = [];
+        let hits = 0;
+        const missesPerChunk: number[] = [];
+        let uncachedIndex = 0;
+
+        for (const current of docArray) {
+            if (current == null) continue;
+
+            const key = this.getIdentifier(current);
+            const prev = this.getFromCacheByKey(key);
+            if (found[key]) {
+                duplicates.push(current);
+                continue;
+            }
+            found[key] = true;
+
+            if (prev) {
+                hits++;
+                this._updateCacheWith(fn, key, current, prev);
+            } else {
+                if (missesPerChunk[uncachedIndex] != null &&
+                    missesPerChunk[uncachedIndex] >= this.chunkSize) {
+                    uncachedIndex++;
+                }
+                if (missesPerChunk[uncachedIndex] == null) {
+                    missesPerChunk.push(0);
+                }
+                if (uncachedChunks[uncachedIndex] == null) {
+                    uncachedChunks.push({});
+                }
+
+                uncachedChunks[uncachedIndex][key] = current;
+                missesPerChunk[uncachedIndex]++;
+            }
+        }
+
+        const misses = missesPerChunk.reduce((total, current) => total + current, 0);
+        this.logger.info(`elasticsearch-state-storage cache hit: ${hits}, cache misses: ${misses}, duplicates: ${duplicates.length}`);
+
+        return {
+            uncached: uncachedChunks,
+            duplicates,
+        };
+    }
+
+    private async _esGet(key: string): Promise<DataEntity|undefined> {
+        const request: ESGetParams = {
+            index: this.index,
+            type: this.type,
+            id: key
+        };
+
+        if (this.sourceFields.length > 0) {
+            request._sourceIncludes = this.sourceFields;
+        }
+
+        const response = await this.es.get(request, true);
+        if (!response || !response.found) return undefined;
+
+        const updated = makeDataEntity(response);
+        this.setCacheByKey(key, updated);
+        return updated;
+    }
+
+    private async _esMGet(docs: DataEntityObj, fn: UpdateCacheFn): Promise<DataEntity[]> {
+        const ids = Object.keys(docs);
+        const request: ESMGetParams = {
+            index: this.index,
+            type: this.type,
+            body: {
+                ids,
+            },
+        };
+        if (this.sourceFields.length > 0) {
+            request._sourceIncludes = this.sourceFields;
+        }
+        const response: ESMGetResponse = await this.es.mget(request);
+
+        const results: DataEntity[] = [];
+        for (const result of response.docs) {
+            const key = result._id;
+            let prev: DataEntity|undefined;
+            if (result.found) {
+                prev = makeDataEntity(result);
+                results.push(prev);
+            }
+            const current = docs[key];
+            if (current) {
+                this._updateCacheWith(fn, key, current, prev);
+            }
+        }
+        return results;
+    }
+
+    private _esBulkUpdatePrep(dataArray: DataEntity[]) {
+        const bulkRequest: ESBulkQuery[] = [];
+
+        for (const doc of dataArray) {
+            let key: string;
+            if (this.persistField) {
+                key = this.getIdentifier(doc, this.persistField);
+            } else {
+                key = this.getIdentifier(doc);
+            }
+            bulkRequest.push({
+                index: {
+                    _index: this.index,
+                    _type: this.type,
+                    _id: key,
+                },
+            }, doc);
+        }
+
+        return bulkRequest;
+    }
+
+    private _updateCacheWith(fn: UpdateCacheFn, key: string, current: DataEntity, prev?: DataEntity) {
+        const result = fn(key, current, prev);
+        if (result === false) return;
+        if (result == null || result === true) {
+            this.setCacheByKey(key, current);
+            return;
+        }
+        if (result) {
+            this.setCacheByKey(key, result);
+            return;
+        }
+    }
+
+    private async _esBulkUpdate(docArray: DataEntity[]): Promise<void> {
+        const chunked = chunk(docArray, this.chunkSize);
+
+        await bPromise.map(chunked, (chunkedData) => {
+            const bulkRequest = this._esBulkUpdatePrep(chunkedData);
+            return this.es.bulkSend(bulkRequest);
+        }, {
+            concurrency: this.concurrency
+        });
+    }
+
+}
+
+export type UpdateCacheFn = (key: string, current: DataEntity, prev?: DataEntity) => DataEntity|boolean;
+
+interface ESMeta {
+    _index: string;
+    _type: string;
+    _id: string;
+}
+
+export interface ESQuery {
+    index: ESMeta;
+}
+
+export type ESBulkQuery = ESQuery | DataEntity;
+
+export interface ESMGetParams {
+    index: string;
+    type: string;
+    id?: string;
+    body?: any;
+    _sourceIncludes?: string[];
+}
+
+export interface ESGetParams {
+    index: string;
+    type: string;
+    id: string;
+    _sourceIncludes?: string[];
+}
+
+export interface ESMGetResponse {
+    docs: ESGetResponse[];
+}
+
+export interface ESGetResponse {
+    _index: string;
+    _type: string;
+    _version: number;
+    _id: string;
+    found: boolean;
+    _source?: any;
+}
+
+type DataEntityObj = { [key: string]: DataEntity; };
+type UncachedChunks = DataEntityObj[];
+
+function makeDataEntity(result: ESGetResponse): DataEntity {
+    const key = result._id;
+    return DataEntity.make(result._source, {
+        _key: key,
+        _processTime: Date.now(),
+        // TODO Add event and ingest time
+        _index: result._index,
+        _type: result._type,
+        _version: result._version,
+    });
 }

@@ -1,5 +1,6 @@
-import { isString, isInteger, debugLogger, toString } from '@terascope/utils';
+import ms from 'ms';
 import SocketIOClient from 'socket.io-client';
+import { isString, isInteger, debugLogger, toString } from '@terascope/utils';
 import * as i from './interfaces';
 import { Core } from './core';
 import { newMsgId } from '../utils';
@@ -74,9 +75,13 @@ export class Client extends Core {
     }
 
     onServerShutdown(fn: () => void) {
-        this.on('server:shutdown', async () => {
+        this.on('server:shutdown', () => {
             this.serverShutdown = true;
-            fn();
+            try {
+                fn();
+            } catch (err) {
+                this.logger.error(err);
+            }
             setImmediate(() => {
                 this.socket.close();
             });
@@ -118,10 +123,10 @@ export class Client extends Core {
 
             connectTimeout = setTimeout(() => {
                 cleanup();
-                reject(new Error(`Unable to connect to ${this.serverName} at ${this.hostUrl} after ${this.connectTimeout}ms`));
+                reject(new Error(`Unable to connect to ${this.serverName} at ${this.hostUrl} after ${ms(this.connectTimeout)}`));
             }, this.connectTimeout);
 
-            this.logger.debug(`attempting to ${this.serverName} at ${this.hostUrl}, timeout after ${this.connectTimeout}ms`);
+            this.logger.debug(`attempting to ${this.serverName} at ${this.hostUrl}, timeout after ${ms(this.connectTimeout)}`);
         });
 
         this.socket.on('reconnecting', () => {

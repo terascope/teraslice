@@ -1,314 +1,711 @@
 import 'jest-extended';
-import { DataEntity, debugLogger } from '@terascope/utils';
-import { ESCachedStateStorage, ESBulkQuery, ESStateStorageConfig } from '../src';
+import { DataEntity, debugLogger, times } from '@terascope/utils';
+import { ESCachedStateStorage, ESStateStorageConfig } from '../src';
+import {
+    ESBulkQuery,
+    ESMGetResponse,
+    ESGetResponse,
+    ESGetParams,
+    ESMGetParams,
+    UpdateCacheFn
+} from '../src/elasticsearch-state-storage';
 
-describe('elasticsearch cached state storage', () => {
-    interface Doc {
-        _index: string;
-        _type: string;
-        _version: number;
-        _id: string;
-        found: boolean;
-        _source?: any;
+describe('elasticsearch-state-storage', () => {
+    const logger = debugLogger('elasticsearch-state-storage');
+    let client: TestClient;
+    let stateStorage: ESCachedStateStorage;
+
+    async function setup(overrides?: Partial<ESStateStorageConfig>) {
+        const config: ESStateStorageConfig = Object.assign({
+            index: 'some_index',
+            type: 'sometype',
+            concurrency: 3,
+            source_fields: [],
+            chunk_size: 7,
+            cache_size: 100000,
+            max_big_map_size: 9,
+            persist: false,
+        }, overrides);
+
+        client = new TestClient(config);
+        stateStorage = new ESCachedStateStorage(client as any, logger, config);
+        await stateStorage.initialize();
     }
 
-    interface MGetData {
-        docs: Doc[];
-    }
-
-    interface BulkRequest {
-        body: ESBulkQuery[];
-    }
-
-    class TestClient {
-        public getData!: Doc;
-        public mgetData!: MGetData;
-        public mgetSearch!: any;
-        public bulkRequest!: ESBulkQuery[];
-
-        setGetData(data: Doc) {
-            this.getData = data;
+    async function teardown() {
+        if (stateStorage) {
+            await stateStorage.shutdown();
+            // @ts-ignore
+            stateStorage = undefined;
         }
-
-        setMGetData(data: MGetData) {
-            this.mgetData = data;
-        }
-
-        async get(_doc: Doc) {
-            return this.getData;
-        }
-
-        async mget(mgetSearch: any) {
-            return this.mgetData;
-        }
-
-        async bulk(request: BulkRequest) {
-            this.bulkRequest = request.body;
-            return request;
+        if (client) {
+            // @ts-ignore
+            client = undefined;
         }
     }
 
-    const logger = debugLogger('ESCachedStateStorage');
-    const client = new TestClient();
+    describe('when given invalid data', () => {
+        beforeEach(() => setup());
+        afterEach(() => teardown());
 
-    const idField = '_key';
+        describe('->get', () => {
+            it('should not create get requests with undefined keys', async () => {
+                const testDocs = [DataEntity.make({ data: 'someValue' })];
+                await expect(stateStorage.get(testDocs[0])).rejects.toThrowError(/There is no field "_key" set in the metadata/);
+            });
+        });
+    });
 
-    const doc = DataEntity.make({ data: 'thisIsSomeData' }, { [idField]: 1 });
-    // @ts-ignore
-    const docArray = [
-        {
-            data: 'thisIsFirstData',
-        },
-        {
-            data: 'thisIsSecondData',
-        },
-        {
-            data: 'thisIsThirdData',
-        },
-    ].map((obj, index) => DataEntity.make(obj, { [idField]: index + 1 }));
+    describe('->get', () => {
+        describe('when the found in cache', () => {
+            const doc = makeTestDoc();
+            let result: DataEntity|undefined;
 
-    const otherDocArray = [
-        {
-            data: 'thisIsFirstData',
-        },
-        {
-            data: 'thisIsSecondData',
-        },
-        {
-            data: 'thisIsThirdData',
-        },
-    ].map((obj, index) => DataEntity.make(obj, { [idField]: index + 1, otherField: `other${index + 1}` }));
+            beforeAll(async () => {
+                await setup();
+                stateStorage.set(doc);
+                result = await stateStorage.get(doc);
+            });
 
-    function createMgetData(dataArray: DataEntity[], found = true) {
-        return dataArray.map((item) => {
-            const response: Doc = {
-                _index: 'index',
-                _type: 'type',
+            afterAll(() => teardown());
+
+            it('should pull the same reference', async () => {
+                expect(result).not.toBeUndefined();
+                expect(result).toEqual(doc);
+                expect(result).toBe(doc);
+            });
+        });
+
+        describe('when the NOT found in cache but in es', () => {
+            const doc = makeTestDoc();
+            const esDoc = copyDataEntity(doc);
+            let result: DataEntity|undefined;
+
+            beforeAll(async () => {
+                await setup();
+                client.setGetResponse(client.createGetResponse(esDoc));
+                result = await stateStorage.get(doc);
+            });
+
+            afterAll(() => teardown());
+
+            it('should pull the es reference from the cache', async () => {
+                expect(result).not.toBeUndefined();
+                expect(result).toEqual(esDoc);
+                expect(result).not.toBe(doc);
+                expect(result).not.toEqual(doc);
+            });
+        });
+
+        describe('when the NOT found in cache and NOT in es', () => {
+            const doc = makeTestDoc();
+            const esDoc = copyDataEntity(doc);
+            let result: DataEntity|undefined;
+
+            beforeAll(async () => {
+                await setup();
+                client.setGetResponse(client.createGetResponse(esDoc, false));
+                result = await stateStorage.get(doc);
+            });
+
+            afterAll(() => teardown());
+
+            it('should return undefined', async () => {
+                expect(result).toBeUndefined();
+            });
+        });
+
+        describe('when using an unknown doc', () => {
+            const doc = makeTestDoc();
+            let result: DataEntity|undefined;
+
+            beforeAll(async () => {
+                await setup();
+                result = await stateStorage.get(doc);
+            });
+
+            afterAll(() => teardown());
+
+            it('should return undefined', async () => {
+                expect(result).toBeUndefined();
+            });
+        });
+    });
+
+    describe('->isKeyCached', () => {
+        beforeEach(() => setup());
+        afterEach(() => teardown());
+
+        describe('when the record is in the cache', () => {
+            const doc = makeTestDoc();
+            const key = doc.getMetadata('_key');
+            beforeEach(() => {
+                stateStorage.set(doc);
+            });
+
+            it('should return true', async () => {
+                expect(stateStorage.isKeyCached(key)).toBeTrue();
+            });
+        });
+
+        describe('when the record is NOT in the cache', () => {
+            it('should return false', async () => {
+                expect(stateStorage.isKeyCached('uhoh')).toBeFalse();
+            });
+        });
+    });
+
+    describe('->isCached', () => {
+        const doc = makeTestDoc();
+        const key = doc.getMetadata('_key');
+
+        beforeAll(async () => {
+            await setup();
+            stateStorage.set(doc);
+        });
+        afterAll(() => teardown());
+
+        describe('when the record is in the cache', () => {
+            it('should return true using the original doc', async () => {
+                expect(stateStorage.isCached(doc)).toBeTrue();
+            });
+
+            it('should return true after getting it from the cache', async () => {
+                const cached = stateStorage.getFromCacheByKey(key);
+                if (!cached) {
+                    expect(cached).not.toBeNil();
+                    return;
+                }
+                expect(stateStorage.isCached(cached)).toBeTrue();
+            });
+        });
+
+        describe('when the record is NOT in the cache', () => {
+            it('should return true using the original doc', async () => {
+                expect(stateStorage.isCached(doc)).toBeTrue();
+            });
+
+            it('should return true after getting it from the cache', async () => {
+                const cached = stateStorage.getFromCacheByKey(key);
+                if (!cached) {
+                    expect(cached).not.toBeNil();
+                    return;
+                }
+                expect(stateStorage.isCached(cached)).toBeTrue();
+            });
+        });
+    });
+
+    describe('->getFromCache', () => {
+        describe('when the record is found', () => {
+            const doc = makeTestDoc();
+            beforeAll(async () => {
+                await setup();
+                stateStorage.set(doc);
+            });
+            afterAll(() => teardown());
+
+            it('should return the same reference to the doc', () => {
+                const cached = stateStorage.getFromCache(doc);
+                expect(cached).toBe(doc);
+                expect(cached).toEqual(doc);
+            });
+        });
+
+        describe('when the record has been updated in the cache', () => {
+            const doc = makeTestDoc();
+            const newDoc = copyDataEntity(doc);
+
+            beforeAll(async () => {
+                await setup();
+                stateStorage.set(doc);
+                stateStorage.set(newDoc);
+            });
+            afterAll(() => teardown());
+
+            it('should return the new reference to the doc', () => {
+                const cached = stateStorage.getFromCache(doc);
+                expect(cached).toBe(newDoc);
+            });
+        });
+
+        describe('when the record is NOT found in es and the cache', () => {
+            const doc = makeTestDoc();
+            beforeAll(() => setup());
+            afterAll(() => teardown());
+
+            it('should return undefined', () => {
+                expect(stateStorage.getFromCache(doc)).toBeUndefined();
+            });
+        });
+    });
+
+    describe('->mset', () => {
+        describe('when presist is false', () => {
+            beforeEach(() => setup());
+            afterEach(() => teardown());
+
+            it('should save many docs to cache and retrieve', async () => {
+                const docArray = makeTestDocs();
+                await stateStorage.mset(docArray);
+
+                const saved = [];
+                for (const doc of docArray) {
+                    const savedDoc = await stateStorage.get(doc);
+                    saved.push(savedDoc);
+                    expect(DataEntity.isDataEntity(savedDoc)).toEqual(true);
+                }
+
+                expect(saved).toEqual(docArray);
+            });
+        });
+
+        describe('when presist is true', () => {
+            beforeEach(() => setup({
+                persist: true,
+                persist_field: '_key'
+            }));
+            afterEach(() => teardown());
+
+            it('should make an es bulk request', async () => {
+                const docArray = makeTestDocs();
+                await stateStorage.mset(docArray);
+
+                expect(client._bulkRequest).toBeArrayOfSize(6);
+                expect(client._bulkRequest[0].index._id).toBe('key-0');
+                expect(client._bulkRequest[1]).toEqual(docArray[0]);
+                expect(client._bulkRequest[2].index._id).toBe('key-1');
+                expect(client._bulkRequest[3]).toEqual(docArray[1]);
+                expect(client._bulkRequest[4].index._id).toBe('key-2');
+                expect(client._bulkRequest[5]).toEqual(docArray[2]);
+            });
+        });
+
+        describe('when presist is true and field is specified', () => {
+            beforeEach(() => setup({
+                persist: true,
+                persist_field: 'otherField'
+            }));
+            afterEach(() => teardown());
+
+            it('should allow mset to use a persist field', async () => {
+                const otherDocArray = makeTestDocs();
+                await stateStorage.mset(otherDocArray);
+
+                expect(client._bulkRequest).toBeArrayOfSize(6);
+                expect(client._bulkRequest[0].index._id).toBe('other-0');
+                expect(client._bulkRequest[1]).toEqual(otherDocArray[0]);
+                expect(client._bulkRequest[2].index._id).toBe('other-1');
+                expect(client._bulkRequest[3]).toEqual(otherDocArray[1]);
+                expect(client._bulkRequest[4].index._id).toBe('other-2');
+                expect(client._bulkRequest[5]).toEqual(otherDocArray[2]);
+            });
+        });
+    });
+
+    describe('->mget', () => {
+        beforeEach(() => setup());
+        afterEach(() => teardown());
+
+        it('should return object with all docs in cache and in es request', async () => {
+            const docArray = makeTestDocs();
+            const docObj = docsToObject(docArray);
+            const [inCache, ...inES] = docArray;
+            stateStorage.set(inCache);
+
+            // create bulk response
+            client.setMGetResponse(client.createMGetResponse(inES));
+
+            // state response
+            const stateResponse = await stateStorage.mget(docArray);
+            const keys = Object.keys(stateResponse);
+            expect(keys).toBeArrayOfSize(3);
+
+            keys.forEach((id: string) => {
+                expect(stateResponse[id]).toEqual(docObj[id]);
+                expect(DataEntity.isDataEntity(stateResponse[id])).toEqual(true);
+                const metaId = stateResponse[id].getMetadata('_key');
+                expect(metaId).toEqual(id);
+            });
+        });
+    });
+
+    describe('->sync', () => {
+        const docArray = makeTestDocs(6);
+
+        const inCacheCurrent = docArray[0];
+        const prevInCacheUpdated = docArray[1];
+        const inCacheUpdated = copyDataEntity(prevInCacheUpdated);
+        const inCacheChanged = docArray[2];
+        const newInCacheChanged = copyDataEntity(inCacheChanged);
+        const inESCurrent = docArray[3];
+        const prevInESUpdated = docArray[4];
+        const inESUpdated = copyDataEntity(prevInESUpdated);
+        const notFoundInES = docArray[5];
+
+        const inputDocArray: DataEntity[] = [];
+        inputDocArray[0] = inCacheCurrent;
+        inputDocArray[1] = inCacheUpdated;
+        inputDocArray[2] = inCacheChanged;
+        inputDocArray[3] = inESCurrent;
+        inputDocArray[4] = inESUpdated;
+        // add a duplicate inESCurrent
+        inputDocArray[5] = inESCurrent;
+        inputDocArray[6] = notFoundInES;
+
+        const cacheResults: DataEntity[] = [];
+        const setCacheResults = (data: DataEntity) => cacheResults.push(data);
+
+        const updateFnResults: { key: string, current: DataEntity; prev?: DataEntity; }[] = [];
+        const fn: UpdateCacheFn = (key, current, prev) => {
+            updateFnResults.push({ key, current, prev });
+            if (key === inCacheCurrent.getMetadata('_key')) {
+                inCacheCurrent.seen = true;
+                return current;
+            }
+            if (key === inCacheUpdated.getMetadata('_key')) return false;
+            if (key === inCacheChanged.getMetadata('_key')) {
+                return newInCacheChanged;
+            }
+            return true;
+        };
+
+        let response: any;
+
+        beforeAll(async () => {
+            await setup();
+            stateStorage.set(inCacheCurrent);
+            stateStorage.set(prevInCacheUpdated);
+            stateStorage.set(inCacheChanged);
+            // create bulk response
+            const mgetResponse = client.createMGetResponse([inESCurrent, prevInESUpdated]);
+            mgetResponse.docs.push(client.createGetResponse(notFoundInES, false));
+            client.setMGetResponse(mgetResponse);
+
+            response = await stateStorage.sync(inputDocArray, fn);
+        });
+
+        afterAll(() => teardown());
+
+        it('should return undefined', () => {
+            expect(response).toBeUndefined();
+        });
+
+        it('should store all of the correct values in the cache', async () => {
+            await stateStorage.cache.values(setCacheResults);
+
+            expect(cacheResults.reverse()).toStrictEqual([
+                inCacheCurrent,
+                // the cache wasn't updated for this
+                prevInCacheUpdated,
+                newInCacheChanged,
+                inESUpdated,
+                notFoundInES,
+                inESCurrent,
+            ]);
+        });
+
+        it(`should have called ${inputDocArray.length} times (one of those is a duplicate)`, () => {
+            expect(updateFnResults).toBeArrayOfSize(inputDocArray.length);
+        });
+
+        it('should handle the current cache record correctly', () => {
+            const key = inCacheCurrent.getMetadata('_key');
+            const results = updateFnResults.filter((result) => result.key === key);
+            expect(results).toBeArrayOfSize(1);
+            const { current, prev } = results[0];
+
+            expect(current).toBe(inCacheCurrent);
+            expect(prev).toBe(inCacheCurrent);
+            expect(current).toStrictEqual(inCacheCurrent);
+            expect(prev).toStrictEqual(inCacheCurrent);
+
+            const cached = stateStorage.getFromCacheByKey(key);
+            expect(cached).toBe(inCacheCurrent);
+            expect(cached).toHaveProperty('seen', true);
+        });
+
+        it('should handle the updated cache record correctly', () => {
+            expect(inCacheUpdated).not.toBe(prevInCacheUpdated);
+
+            const key = inCacheUpdated.getMetadata('_key');
+
+            const results = updateFnResults.filter((result) => result.key === key);
+            expect(results).toBeArrayOfSize(1);
+            const { current, prev } = results[0];
+
+            expect(current).toBe(inCacheUpdated);
+            expect(prev).toBe(prevInCacheUpdated);
+            expect(prev).toStrictEqual(prevInCacheUpdated);
+            expect(current).toStrictEqual(inCacheUpdated);
+            expect(current).not.toBe(prev);
+
+            const cached = stateStorage.getFromCacheByKey(key);
+            expect(cached).toBe(prevInCacheUpdated);
+        });
+
+        it('should handle the new cache record correctly', () => {
+            expect(inCacheChanged).not.toBe(newInCacheChanged);
+
+            const key = inCacheChanged.getMetadata('_key');
+            const results = updateFnResults.filter((result) => result.key === key);
+            expect(results).toBeArrayOfSize(1);
+            const { current, prev } = results[0];
+
+            expect(current).toBe(inCacheChanged);
+            expect(prev).toBe(inCacheChanged);
+            expect(current).toStrictEqual(inCacheChanged);
+            expect(prev).toStrictEqual(inCacheChanged);
+
+            const cached = stateStorage.getFromCacheByKey(key);
+            expect(cached).toBe(newInCacheChanged);
+            expect(cached).not.toBe(inCacheChanged);
+        });
+
+        it('should handle the current es record correctly (which was a duplicate)', () => {
+            const key = inESCurrent.getMetadata('_key');
+
+            const results = updateFnResults.filter((result) => result.key === key);
+            expect(results).toBeArrayOfSize(2);
+            let call = 0;
+            for (const result of results) {
+                call++;
+                const { current, prev } = result;
+
+                expect(current).toBe(inESCurrent);
+                if (call === 1) {
+                    expect(prev).not.toBe(inESCurrent);
+                } else {
+                    expect(prev).toBe(inESCurrent);
+                }
+                expect(prev).toEqual(inESCurrent);
+                expect(current).toStrictEqual(inESCurrent);
+                expect(prev).toStrictEqual(inESCurrent);
+
+                const cached = stateStorage.getFromCacheByKey(key);
+                if (call === 1) {
+                    expect(cached).not.toBe(prev);
+                } else {
+                    expect(cached).toBe(prev);
+                }
+                expect(cached).toEqual(prev);
+                expect(cached).toBe(inESCurrent);
+            }
+        });
+
+        it('should handle the updated es record correctly', () => {
+            expect(inESUpdated).not.toBe(prevInESUpdated);
+
+            const key = inESUpdated.getMetadata('_key');
+            const results = updateFnResults.filter((result) => result.key === key);
+            expect(results).toBeArrayOfSize(1);
+            const { current, prev } = results[0];
+
+            expect(current).toBe(inESUpdated);
+            expect(prev).not.toBe(prevInESUpdated);
+            expect(prev).toEqual(prevInESUpdated);
+            expect(current).toStrictEqual(inESUpdated);
+            expect(current).not.toBe(prev);
+
+            const cached = stateStorage.getFromCacheByKey(key);
+            expect(cached).not.toBe(prevInESUpdated);
+            expect(cached).toBe(inESUpdated);
+        });
+
+        it('should handle the NOT found in es record correctly', () => {
+            const key = notFoundInES.getMetadata('_key');
+
+            const results = updateFnResults.filter((result) => result.key === key);
+            expect(results).toBeArrayOfSize(1);
+            const { current, prev } = results[0];
+
+            expect(prev).toBeUndefined();
+            expect(current).toBe(notFoundInES);
+            expect(current).toStrictEqual(notFoundInES);
+
+            const cached = stateStorage.getFromCacheByKey(key);
+            expect(cached).toBe(notFoundInES);
+        });
+    });
+
+    describe('when testing a large data set', () => {
+        jest.setTimeout(10000);
+
+        beforeEach(() => setup());
+        afterEach(() => teardown());
+
+        it('should return all the found and cached docs', async () => {
+            const docArray = makeTestDocs(5000);
+            const docObj = docsToObject(docArray);
+
+            // found by es
+            const mgetDocs = client.createMGetResponse(docArray.slice(0, 2000), true);
+
+            // not found by es
+            const notFoundDocs = client.createMGetResponse(docArray.slice(2000, 3000), false);
+            notFoundDocs.docs.forEach((item) => mgetDocs.docs.push(item));
+
+            // some docs already saved in cache
+            await stateStorage.mset(docArray.slice(3000, 5000));
+
+            // check that docs are in cache
+            expect(stateStorage.count()).toBe(2000);
+
+            // check on a doc
+            const getCheck = await stateStorage.get(docObj['key-3483']);
+
+            expect(getCheck).toEqual(docObj['key-3483']);
+
+            client.setMGetResponse(mgetDocs);
+            // retrieve all the docs
+            const mgetResult = await stateStorage.mget(docArray);
+            // should not be any unfound docs
+            expect(Object.keys(mgetResult).length).toBe(4000);
+
+            // check a found es mget doc
+            expect(mgetResult['key-1283']).toEqual(docObj['key-1283']);
+
+            // check a found cached doc
+            expect(mgetResult['key-4483']).toEqual(docObj['key-4483']);
+
+            // check an unfound doc
+            expect(mgetResult['key-2381']).toBeUndefined();
+        });
+    });
+});
+
+function makeTestDocs(records: number = 3): DataEntity[] {
+    return times(records, (n) => DataEntity.make({
+        data: `data-${n}`
+    }, {
+        _key: `key-${n}`,
+        otherField: `other-${n}`
+    }));
+}
+
+function makeTestDoc() {
+    return makeTestDocs()[0];
+}
+
+function docsToObject(docs: DataEntity[]): { [key: string]: DataEntity } {
+    const obj: { [key: string]: DataEntity } = {};
+    for (const doc of docs) {
+        const key = doc.getMetadata('_key');
+        obj[key] = doc;
+    }
+    return obj;
+}
+
+function copyDataEntity(doc: DataEntity): DataEntity {
+    const key = doc.getMetadata('_key');
+    const updated = Object.assign({}, doc, { copy: `copy-${key}` });
+    return DataEntity.make(updated, doc.getMetadata());
+}
+
+interface BulkRequest {
+    body: ESBulkQuery[];
+}
+
+class TestClient {
+    private _getResponse!: ESGetResponse;
+    private _mgetResponse!: ESMGetResponse;
+    _bulkRequest!: ESBulkQuery[];
+    private _config: ESStateStorageConfig;
+
+    constructor(config: ESStateStorageConfig) {
+        this._config = config;
+    }
+
+    createGetResponse(doc: DataEntity, found = true): ESGetResponse {
+        return this.createMGetResponse([doc], found).docs[0];
+    }
+
+    createMGetResponse(dataArray: DataEntity[], found = true): ESMGetResponse {
+        const docs = dataArray.map((item) => {
+            const id = item.getMetadata('_key');
+            if (!id) throw new Error('Missing _key on test record');
+            if (typeof id !== 'string') throw new Error('Invalid _key on test record');
+
+            const response: ESGetResponse = {
+                _index: this._config.index,
+                _type: this._config.type,
                 _version: 1,
-                _id: item.getMetadata(idField),
+                _id: id,
                 found,
             };
 
             if (found) {
                 // convert to reg obj to simulate ES response
                 response._source = Object.assign({}, item);
+            } else {
+                // @ts-ignore
+                response._type = null;
+                delete response._version;
             }
 
             return response;
         });
+
+        return {
+            docs,
+        };
     }
 
-    const config: ESStateStorageConfig = {
-        index: 'some_index',
-        type: 'sometype',
-        concurrency: 10,
-        source_fields: [],
-        chunk_size: 10,
-        cache_size: 100000,
-        persist: false,
-        persist_field: idField,
-    };
+    setGetResponse(response: ESGetResponse) {
+        this._getResponse = response;
+    }
 
-    let stateStorage: ESCachedStateStorage;
+    setMGetResponse(response: ESMGetResponse) {
+        this._mgetResponse = response;
+    }
 
-    beforeEach(() => {
-        // @ts-ignore
-        stateStorage = new ESCachedStateStorage(client, logger, config);
-    });
+    async get(params: ESGetParams) {
+        if (params.index !== this._config.index) {
+            throw new Error(`Invalid index ${params.index} on fake get`);
+        }
+        if (params.type !== this._config.type) {
+            throw new Error(`Invalid type ${params.type} on fake get`);
+        }
+        if (!params.id || typeof params.id !== 'string') {
+            throw new Error('Invalid id to get');
+        }
+        return this._getResponse;
+    }
 
-    afterEach(() => {
-        stateStorage.shutdown();
-    });
+    async mget(params: ESMGetParams) {
+        const ids = params.body && params.body.ids;
+        const invalidMsg = 'Invalid test data for mget';
 
-    it('get can pull record from cache', async () => {
-        stateStorage.set(doc);
-        const stateDoc = await stateStorage.get(doc);
-
-        expect(stateDoc).toEqual(doc);
-        expect(DataEntity.isDataEntity(stateDoc)).toEqual(true);
-    });
-
-    it('get can pull record from elasticsearch if not in cache', async () => {
-        const myDoc = docArray.slice(0, 1)[0];
-        const getData = createMgetData([myDoc])[0];
-        client.setGetData(getData);
-
-        const stateDoc = await stateStorage.get(myDoc);
-
-        expect(stateDoc).toEqual(myDoc);
-        expect(DataEntity.isDataEntity(stateDoc)).toEqual(true);
-    });
-
-    it('getFromCache/isCached checks cache, not elasticsearch for doc', async () => {
-        const myDoc = docArray.slice(0, 1)[0];
-        // @ts-ignore
-        const notFoundData = createMgetData([myDoc], false)[0];
-        const foundData = createMgetData([myDoc])[0];
-
-        client.setGetData(notFoundData);
-
-        const empty = stateStorage.getFromCache(myDoc);
-
-        expect(empty).toBeUndefined();
-        expect(stateStorage.isCached(myDoc)).toEqual(false);
-
-        client.setGetData(foundData);
-
-        const stateDoc = await stateStorage.get(myDoc);
-
-        expect(stateDoc).toEqual(myDoc);
-        expect(DataEntity.isDataEntity(stateDoc)).toEqual(true);
-        expect(stateStorage.isCached(myDoc)).toEqual(true);
-    });
-
-    it('should save many docs to cache and retrieve', async () => {
-        await stateStorage.mset(docArray);
-
-        const saved1 = await stateStorage.get(docArray[0]);
-        const saved2 = await stateStorage.get(docArray[1]);
-        const saved3 = await stateStorage.get(docArray[2]);
-
-        expect(saved1).toEqual(docArray[0]);
-        expect(saved2).toEqual(docArray[1]);
-        expect(saved3).toEqual(docArray[2]);
-
-        expect(DataEntity.isDataEntity(saved1)).toEqual(true);
-        expect(DataEntity.isDataEntity(saved2)).toEqual(true);
-        expect(DataEntity.isDataEntity(saved3)).toEqual(true);
-    });
-
-    it('should make an es bulk request if persist is true', async () => {
-        const testConfig = Object.assign({}, config, { persist: true, persist_field: '_key' });
-        // @ts-ignore
-        const testStateStorage = new ESCachedStateStorage(client, logger, testConfig);
-
-        await testStateStorage.mset(docArray, '_key');
-        const data = client.bulkRequest;
-
-        expect(data.length).toBe(6);
-        expect(data[1]).toEqual(docArray[0]);
-    });
-
-    it('should allow mset to use a persist field', async () => {
-        const testConfig = Object.assign({}, config, { persist: true, persist_field: 'otherField' });
-        // @ts-ignore
-        const testStateStorage = new ESCachedStateStorage(client, logger, testConfig);
-
-        await testStateStorage.mset(otherDocArray);
-        const data = client.bulkRequest;
-
-        expect(data[0].index._id).toBe('other1');
-        expect(data[2].index._id).toBe('other2');
-        expect(data[4].index._id).toBe('other3');
-    });
-
-    it('should ake an es request if doc not in cache', async () => {
-        // metadata props are not transfered, we are returning a regular obj at _source
-        const cloneDoc = Object.assign({}, doc);
-        client.setGetData({
-            _index: config.index,
-            _type: config.type,
-            _version: 1,
-            _id: doc.getMetadata(idField),
-            found: true,
-            _source: cloneDoc,
-        });
-        const getResult = await stateStorage.get(doc);
-
-        expect(getResult).toEqual(doc);
-        expect(DataEntity.isDataEntity(getResult)).toEqual(true);
-    });
-
-    it('should return object with all docs in cache and in es request', async () => {
-        // set doc in cache
-        await stateStorage.mset(docArray.slice(0, 1));
-
-        // create bulk response
-        client.setMGetData({ docs: createMgetData(docArray.slice(1, 3)) });
-
-        // state response
-        const stateResponse = await stateStorage.mget(docArray);
-        const keys = Object.keys(stateResponse);
-        expect(keys.length).toBe(3);
-
-        keys.forEach((idStr: string) => {
-            const id = Number(idStr);
-            expect(stateResponse[id]).toEqual(docArray[id - 1]);
-            expect(DataEntity.isDataEntity(stateResponse[id])).toEqual(true);
-            const metaId = stateResponse[id].getMetadata(idField);
-            expect(metaId).toEqual(id);
-        });
-    });
-
-    it('sync should chech cache/fetch data but not return anything', async () => {
-        const results: DataEntity[] = [];
-        const setResults = (data: DataEntity) => results.push(data);
-        // set doc in cache
-        await stateStorage.mset(docArray.slice(0, 1));
-
-        // create bulk response
-        client.setMGetData({ docs: createMgetData(docArray.slice(1, 3)) });
-
-        // state response
-        const response = await stateStorage.sync(docArray);
-
-        expect(response).toBeUndefined();
-
-        await stateStorage.cache.values(setResults);
-
-        expect(results.length).toBe(3);
-        expect(results.reverse()).toEqual(docArray);
-    });
-
-    it('should return all the found and cached docs', async () => {
-        const mgetDocArray: DataEntity[] = [];
-        for (let i = 0; i < 5000; i += 1) {
-            mgetDocArray.push(DataEntity.make({ data: `dataFor${i}` }, { [idField]: i }));
+        if (!ids || !Array.isArray(ids)) {
+            throw new Error(`${invalidMsg}, expected ids to be an array`);
+        }
+        if (params.index !== this._config.index) {
+            throw new Error(`${invalidMsg}, expected type in request ${params.index}`);
+        }
+        if (params.type !== this._config.type) {
+            throw new Error(`${invalidMsg}, expected type in request ${params.type}`);
+        }
+        if (!this._mgetResponse || !Array.isArray(this._mgetResponse.docs)) {
+            throw new Error(`${invalidMsg}, expected response.docs to be an array`);
+        }
+        if (ids.length > this._mgetResponse.docs.length) {
+            const responseIds = this._mgetResponse.docs.map((result) => result._id);
+            throw new Error(`${invalidMsg}, expected ${JSON.stringify(responseIds, null, 2)} === ${JSON.stringify(ids, null, 2)}`);
         }
 
-        // found by es
-        const mgetDocs = createMgetData(mgetDocArray.slice(0, 2000));
-
-        // not found by es
-        const notFoundDocs = createMgetData(mgetDocArray.slice(2000, 3000), false);
-        notFoundDocs.forEach((item) => mgetDocs.push(item));
-
-        client.setMGetData({ docs: mgetDocs });
-
-        // some docs already saved in cache
-        await stateStorage.mset(mgetDocArray.slice(3000, 5000));
-
-        // check that docs are in cache
-        expect(stateStorage.count()).toBe(2000);
-
-        // check on a doc
-        const getCheck = await stateStorage.get(mgetDocArray['3484']);
-
-        expect(getCheck).toEqual(mgetDocArray['3484']);
-
-        // retrieve all the docs
-        const mgetResult = await stateStorage.mget(mgetDocArray);
-        // should not be any unfound docs
-        expect(Object.keys(mgetResult).length).toBe(4000);
-
-        // check a found mget doc
-        expect(mgetResult['1283']).toEqual(mgetDocArray['1283']);
-
-        // check a found cached doc
-        expect(mgetResult['4483']).toEqual(mgetDocArray['4483']);
-
-        // check an unfound doc
-        expect(mgetResult['2381']).toBeUndefined();
-    });
-
-    it('should not create get or mget requests with undefined keys', async () => {
-        expect.hasAssertions();
-        const testDocs = [DataEntity.make({ data: 'someValue' })];
-        try {
-            // @ts-ignore
-            await stateStorage.get(testDocs[0]);
-        } catch (err) {
-            expect(err.message.includes('There is no field "_key" set in the metadata')).toEqual(true);
+        for (const doc of this._mgetResponse.docs) {
+            if (doc._index !== this._config.index) {
+                throw new Error(`${invalidMsg}, expected index on record ${JSON.stringify(doc, null, 2)}`);
+            }
+            if (doc.found && doc._type !== this._config.type) {
+                throw new Error(`${invalidMsg}, expected type on record ${JSON.stringify(doc, null, 2)}`);
+            }
         }
-    });
-});
+        return this._mgetResponse;
+    }
+
+    async bulk(request: BulkRequest) {
+        this._bulkRequest = request.body;
+        return request;
+    }
+}

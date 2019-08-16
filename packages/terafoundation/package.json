@@ -21,7 +21,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/elasticsearch-api": "^2.1.3",
+        "@terascope/elasticsearch-api": "^2.1.4",
         "@terascope/utils": "^0.15.0",
         "agentkeepalive": "^4.0.2",
         "aws-sdk": "^2.507.0",
