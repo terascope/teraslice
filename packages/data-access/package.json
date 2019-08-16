@@ -1,6 +1,6 @@
 {
     "name": "@terascope/data-access",
-    "version": "0.13.2",
+    "version": "0.13.3",
     "description": "A tool designed to limit access to reading and querying data",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-access#readme",
     "bugs": {
