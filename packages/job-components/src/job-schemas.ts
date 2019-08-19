@@ -132,9 +132,9 @@ export function jobSchema(context: Context): convict.Schema<any> {
             doc: 'the number of workers dedicated for the job',
             format: 'positive_int'
         },
-        environment: {
+        env_vars: {
             default: {},
-            doc: 'object of environment variables to sent on the worker and execution_controller, in the format, { "EXAMPLE": "test" }',
+            doc: 'environment variables to set on each the teraslice worker, in the format, { "EXAMPLE": "test" }',
             format(obj: any[]) {
                 if (!isPlainObject(obj)) {
                     throw new Error('must be object');

@@ -54,7 +54,6 @@ export type LifeCycle = 'once' | 'persistent';
  * for a Job
  */
 export type JobConfig = Partial<ValidatedJobConfig>;
-export type JobEnvironment = { [key: string]: string; };
 
 export interface ValidatedJobConfig {
     analytics: boolean;
@@ -68,7 +67,7 @@ export interface ValidatedJobConfig {
     operations: OpConfig[];
     probation_window: number;
     performance_metrics?: boolean;
-    environment: JobEnvironment;
+    env_vars: { [key: string]: string; };
     slicers: number;
     workers: number;
     /** This will only be available in the context of k8s */

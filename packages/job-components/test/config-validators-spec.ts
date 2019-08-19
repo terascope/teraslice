@@ -457,7 +457,7 @@ describe('when using native clustering', () => {
     describe('when passed a jobConfig', () => {
         const context = new TestContext('teraslice-operations');
 
-        describe('when testing environment with a valid config', () => {
+        describe('when testing env_vars with a valid config', () => {
             it('should return a completed and valid jobConfig', () => {
                 const schema = jobSchema(context);
                 const job = {
@@ -479,7 +479,7 @@ describe('when using native clustering', () => {
                     max_retries: 3,
                     name: 'Custom Job',
                     apis: [],
-                    environment: {
+                    env_vars: {
                         FOO: 'bar',
                     },
                     operations: [{ _op: 'noop' }, { _op: 'noop' }],
@@ -492,7 +492,7 @@ describe('when using native clustering', () => {
             });
         });
 
-        describe('when testing environment with a invalid config', () => {
+        describe('when testing env_vars with a invalid config', () => {
             it('should throw an error when given an non-object', () => {
                 const schema = jobSchema(context);
                 const job = {
@@ -512,7 +512,7 @@ describe('when using native clustering', () => {
             it('should throw an error when given an empty key', () => {
                 const schema = jobSchema(context);
                 const job = {
-                    environment: {
+                    env_vars: {
                         '': 'bar'
                     },
                     operations: [
@@ -530,7 +530,7 @@ describe('when using native clustering', () => {
             it('should throw an error when given an empty value', () => {
                 const schema = jobSchema(context);
                 const job = {
-                    environment: {
+                    env_vars: {
                         foo: ''
                     },
                     operations: [

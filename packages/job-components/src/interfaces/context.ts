@@ -44,6 +44,7 @@ export interface TerasliceConfig {
     slicer_port_range: string|'45679:46678';
     slicer_timeout: number|180000;
     state: ClusterStateConfig;
+    env_vars: { [key: string]: string; };
     worker_disconnect_timeout: number|300000;
     workers: number|4;
 }

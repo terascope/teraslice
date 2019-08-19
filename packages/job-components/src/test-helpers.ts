@@ -30,6 +30,7 @@ export function newTestJobConfig(defaults: Partial<i.JobConfig> = {}) {
             probation_window: 30000,
             slicers: 1,
             workers: 1,
+            env_vars: {}
         },
         defaults
     ) as i.ValidatedJobConfig;
@@ -185,6 +186,7 @@ export class TestContext implements i.Context {
                 slicer_allocation_attempts: 1,
                 slicer_port_range: '55679:56678',
                 slicer_timeout: 10000,
+                env_vars: {},
                 state: {
                     connection: 'default',
                 },
