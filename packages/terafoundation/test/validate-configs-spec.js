@@ -2,13 +2,6 @@
 
 const os = require('os');
 
-jest.mock('elasticsearch');
-jest.mock('node-webhdfs');
-jest.mock('mongoose');
-jest.mock('redis');
-jest.mock('aws-sdk');
-jest.mock('node-statsd');
-
 const validateConfigs = require('../lib/validate-configs');
 
 describe('Validate Configs', () => {

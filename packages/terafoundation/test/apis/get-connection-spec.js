@@ -9,14 +9,14 @@ jest.mock('mongoose');
 jest.mock('redis', () => ({
     createClient: jest.fn(),
 }));
-jest.mock('aws-sdk');
+// jest.mock('aws-sdk');
 jest.mock('node-statsd');
 
 const elasticsearch = require('elasticsearch');
 const hdfs = require('node-webhdfs');
 const mongodb = require('mongoose');
 const redis = require('redis');
-const aws = require('aws-sdk');
+// const aws = require('aws-sdk');
 const statsd = require('node-statsd');
 
 const esClient = { es: true };
@@ -30,8 +30,8 @@ mongodb.connect = jest.fn();
 const redisClient = { redis: true };
 redis.createClient.mockImplementation(() => Object.assign({}, redisClient));
 
-const awsClient = { aws: true };
-aws.S3.mockImplementation(() => Object.assign({}, awsClient));
+// const awsClient = { aws: true };
+// aws.S3.mockImplementation(() => Object.assign({}, awsClient));
 
 const statsdClient = { statsd: true };
 statsd.StatsD.mockImplementation(() => Object.assign({}, statsdClient));
@@ -131,7 +131,7 @@ describe('getConnection foundation API', () => {
         expect(mongodb.connect).toHaveBeenCalledTimes(1);
     });
 
-    it('should return the default s3 connection', () => {
+    xit('should return the default s3 connection', () => {
         const { foundation } = context.apis;
         const config = { type: 's3' };
         const { client } = foundation.getConnection(config);
