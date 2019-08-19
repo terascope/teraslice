@@ -132,6 +132,24 @@ export function jobSchema(context: Context): convict.Schema<any> {
             doc: 'the number of workers dedicated for the job',
             format: 'positive_int'
         },
+        environment: {
+            default: {},
+            doc: 'object of environment variables to sent on the worker and execution_controller, in the format, { "EXAMPLE": "test" }',
+            format(obj: any[]) {
+                if (!isPlainObject(obj)) {
+                    throw new Error('must be object');
+                }
+                Object.entries(obj).forEach(([key, val]) => {
+                    if (key == null || key === '') {
+                        throw new Error('key must be not empty');
+                    }
+
+                    if (val == null || val === '') {
+                        throw new Error(`value for key "${key}" must be not empty`);
+                    }
+                });
+            },
+        }
     };
 
     const clusteringType = context.sysconfig.teraslice.cluster_manager_type;
@@ -141,13 +159,16 @@ export function jobSchema(context: Context): convict.Schema<any> {
             default: [],
             doc: 'array of key/value labels used for targetting teraslice jobs to nodes',
             format(arr: any[]) {
+                if (!Array.isArray(arr)) {
+                    throw new Error('must be array');
+                }
                 arr.forEach((label) => {
                     if (label['key'] == null) {
-                        throw new Error(`targets need to have a key: ${label}`);
+                        throw new Error(`needs to have a key: ${label}`);
                     }
 
                     if (label['value'] == null) {
-                        throw new Error(`targets need to have a value: ${label}`);
+                        throw new Error(`needs to have a value: ${label}`);
                     }
                 });
             },
@@ -169,13 +190,16 @@ export function jobSchema(context: Context): convict.Schema<any> {
             default: [],
             doc: 'array of volumes to be mounted by job workers',
             format(arr: any[]) {
+                if (!Array.isArray(arr)) {
+                    throw new Error('must be array');
+                }
                 arr.forEach((volume) => {
                     if (volume['name'] == null) {
-                        throw new Error(`volumes need to have a name: ${volume}`);
+                        throw new Error(`needs to have a name: ${volume}`);
                     }
 
                     if (volume['path'] == null) {
-                        throw new Error(`volumes need to have a path: ${volume}`);
+                        throw new Error(`needs to have a path: ${volume}`);
                     }
                 });
             },
