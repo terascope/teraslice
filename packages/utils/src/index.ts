@@ -9,6 +9,7 @@ export * from './interfaces';
 export * from './logger';
 export * from './misc';
 export * from './numbers';
+export * from './objects';
 export * from './promises';
 export * from './errors';
 export * from './strings';

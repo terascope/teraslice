@@ -1,27 +1,22 @@
 'use strict';
 
-const _ = require('lodash');
 const SimpleContext = require('./lib/simple-context');
+const { getArgs } = require('./lib/sysconfig');
+const validateConfigs = require('./lib/validate-configs');
+const master = require('./lib/master');
+const api = require('./lib/api');
 
+// this module is not really testable
+/* istanbul ignore next */
 module.exports = function clusterContext(config) {
     const domain = require('domain');
-    const primary = domain.create();
     const cluster = require('cluster');
 
-    const { getArgs } = require('./lib/sysconfig');
-    const validateConfigs = require('./lib/validate_configs');
-    const { loggerClient } = require('./lib/logger_utils');
-    const api = require('./lib/api');
+    const primary = domain.create();
 
     const name = config.name ? config.name : 'terafoundation';
 
     const { configFile, bootstrap } = getArgs(config.name, config.default_config_file);
-
-    // allows top level function to declare ops_directory, so not hard baked in
-    // TODO verify why we need this
-    if (typeof config.ops_directory === 'function') {
-        config.ops_directory = config.ops_directory(configFile);
-    }
 
     let logger;
 
@@ -57,7 +52,7 @@ module.exports = function clusterContext(config) {
     function findWorkerCode(context) {
         let keyFound = false;
         if (config.descriptors) {
-            _.forOwn(config.descriptors, (value, key) => {
+            Object.keys(config.descriptors).forEach((key) => {
                 if (process.env.assignment === key) {
                     keyFound = true;
                     config[key](context);
@@ -112,10 +107,6 @@ module.exports = function clusterContext(config) {
         logger = context.apis.foundation.makeLogger(context.name, context.name);
         context.logger = logger;
 
-        // FIXME: this should probably be refactored to actually create the
-        // logger as it stands this function is very confusing
-        loggerClient(context);
-
         if (config.script) {
             config.script(context);
         /**
@@ -138,7 +129,7 @@ module.exports = function clusterContext(config) {
                 }
             }
 
-            require('./lib/master')(context, config);
+            master(context, config);
 
             // If there's a master plugin defined, pass it on.
             if (config.master) {

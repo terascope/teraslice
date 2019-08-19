@@ -6,33 +6,19 @@
  connected
  reconnected
  */
-const { getModule } = require('../file_utils');
+const { createConnection } = require('../connector-utils');
 
-module.exports = function module(context) {
+module.exports = function getConnectionModule(context) {
     const { sysconfig } = context;
     const connections = {};
 
     /*
-     * Connectors can either be JavaScript file in a directory or can be packaged
-     * as a npm module.
-     */
-    function loadConnector(type) {
-        const localPath = `${__dirname}/../connectors/${type}.js`;
-        const paths = {};
-        paths[localPath] = true;
-        paths[type] = true;
-
-        const err = `Could not find connector implementation for: ${type}\n`;
-
-        return getModule(type, paths, err);
-    }
-
-    /*
      * Creates a new connection to a remote service.
      *
-     * options.type
-     * options.endpoint
-     * options.cached
+     * @param options
+     * @param options.type
+     * @param options.endpoint
+     * @param options.cached
      */
     return function getConnection(options) {
         const { logger } = context;
@@ -65,9 +51,7 @@ module.exports = function module(context) {
                 throw new Error(`No ${type} endpoint configuration found for ${endpoint}`);
             }
 
-            const connector = loadConnector(type);
-
-            const connection = connector.create(moduleConfig, logger, options);
+            const connection = createConnection(type, moduleConfig, logger, options);
 
             if (cached) {
                 connections[key] = connection;

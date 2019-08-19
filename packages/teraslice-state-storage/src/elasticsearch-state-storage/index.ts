@@ -174,7 +174,7 @@ export default class ESCachedStateStorage {
         }
 
         const misses = missesPerChunk.reduce((total, current) => total + current, 0);
-        this.logger.info(`elasticsearch-state-storage cache hit: ${hits}, cache misses: ${misses}, duplicates: ${duplicates.length}`);
+        this.logger.info(`elasticsearch-state-storage cache hits: ${hits}, cache misses: ${misses}, duplicates: ${duplicates.length}`);
 
         return {
             uncached: uncachedChunks,

@@ -1,7 +1,5 @@
 'use strict';
 
-const moment = require('moment');
-
 function dateOptions(value) {
     const options = {
         year: 'y',
@@ -46,12 +44,6 @@ function dateOptions(value) {
 }
 
 
-// "2016-01-19T13:33:09.356-07:00"
-const dateFormat = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
-
-// 2016-06-29T12:44:57-07:00
-const dateFormatSeconds = 'YYYY-MM-DDTHH:mm:ssZ';
-
 function timeseriesIndex(timeseriesFormat, index, dateStr) {
     const timestamp = new Date().toISOString();
     const formatter = { daily: 10, monthly: 7, yearly: 4 };
@@ -59,14 +51,7 @@ function timeseriesIndex(timeseriesFormat, index, dateStr) {
     return { index: `${index}-${dateString.slice(0, formatter[timeseriesFormat]).replace(/-/g, '.')}`, timestamp };
 }
 
-function newFormattedDate() {
-    return moment().format(dateFormat);
-}
-
 module.exports = {
-    newFormattedDate,
     dateOptions,
-    dateFormat,
-    dateFormatSeconds,
     timeseriesIndex
 };

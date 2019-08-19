@@ -37,7 +37,7 @@
         "request-promise": "^4.2.4",
         "teraslice-client-js": "^0.7.2",
         "tmp": "^0.1.0",
-        "tty-table": "^2.7.0",
+        "tty-table": "^2.7.4",
         "yargs": "^13.2.4",
         "yeoman-environment": "^2.3.4",
         "yeoman-generator": "^4.0.1",

@@ -572,4 +572,40 @@ describe('when validating k8s clustering', () => {
             expect(jobConfig).toEqual(validJob);
         });
     });
+
+    describe('when passed a jobConfig with invalid slicers', () => {
+        it('should throw an error', () => {
+            const schema = jobSchema(context);
+            const job = {
+                slicers: 0,
+                operations: [
+                    {
+                        _op: 'test-reader',
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            };
+            expect(() => validateJobConfig(schema, job)).toThrowError('must be valid integer greater than zero');
+        });
+    });
+
+    describe('when passed a jobConfig with invalid workers', () => {
+        it('should throw an error', () => {
+            const schema = jobSchema(context);
+            const job = {
+                workers: 0,
+                operations: [
+                    {
+                        _op: 'test-reader',
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            };
+            expect(() => validateJobConfig(schema, job)).toThrowError('must be valid integer greater than zero');
+        });
+    });
 });

@@ -1,14 +1,14 @@
 'use strict';
 
-const _makeLogger = require('./makeLogger');
-const _getConnection = require('./getConnection');
-const _getSystemEvents = require('./getSystemEvents');
-const _startWorkers = require('./startWorkers');
+const _makeLogger = require('./make-logger');
+const _getConnection = require('./get-connection');
+const _getSystemEvents = require('./get-system-events');
+const _startWorkers = require('./start-workers');
 
 /*
  * This module controls the API endpoints that are exposed under context.apis.
  */
-module.exports = function module(context) {
+module.exports = function apisModule(context) {
     const makeLogger = _makeLogger(context);
     const getConnection = _getConnection(context);
     const getSystemEvents = _getSystemEvents(context);

@@ -1,5 +1,7 @@
+import isPlainObject from 'is-plain-object';
 import { fastMap } from './arrays';
-import { fastAssign, isFunction, isPlainObject, parseJSON, getTypeOf } from './utils';
+import { fastAssign } from './objects';
+import { isFunction, parseJSON, getTypeOf } from './utils';
 
 // WeakMaps are used as a memory efficient reference to private data
 const _metadata = new WeakMap();
