@@ -5,6 +5,7 @@ import {
     WorkerContext,
     APIConfig
 } from '../../interfaces';
+import { makeExContextLogger } from '../../utils';
 
 /**
  * A base class for supporting APIs that run within an Execution Context.
@@ -13,12 +14,8 @@ export default abstract class APICore<T = APIConfig> extends Core<WorkerContext>
     readonly apiConfig: Readonly<APIConfig & T>;
 
     constructor(context: WorkerContext, apiConfig: APIConfig & T, executionConfig: ExecutionConfig) {
-        const logger = context.apis.foundation.makeLogger({
-            module: 'operation-api',
+        const logger = makeExContextLogger(context, executionConfig, 'operation-api', {
             apiName: apiConfig._name,
-            jobName: executionConfig.name,
-            jobId: executionConfig.job_id,
-            exId: executionConfig.ex_id,
         });
 
         super(context, executionConfig, logger);
