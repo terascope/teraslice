@@ -1,4 +1,4 @@
-import { DataEntity, Logger, TSError, chunk, isFunction } from '@terascope/utils';
+import { DataEntity, Logger, TSError, chunk, isFunction, pImmediate } from '@terascope/utils';
 import esApi, { Client } from '@terascope/elasticsearch-api';
 import { Promise as bPromise } from 'bluebird';
 import { ESStateStorageConfig, MGetCacheResponse } from '../interfaces';
@@ -129,6 +129,7 @@ export default class ESCachedStateStorage {
         }
 
         if (duplicates.length) {
+            await pImmediate();
             this.logger.info(`syncing the remaining ${duplicates.length} duplicate records`);
             return this.sync(duplicates, fn);
         }
