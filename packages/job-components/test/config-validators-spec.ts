@@ -461,7 +461,7 @@ describe('when using native clustering', () => {
             it('should return a completed and valid jobConfig', () => {
                 const schema = jobSchema(context);
                 const job = {
-                    environment: {
+                    env_vars: {
                         FOO: 'bar'
                     },
                     operations: [
@@ -496,7 +496,7 @@ describe('when using native clustering', () => {
             it('should throw an error when given an non-object', () => {
                 const schema = jobSchema(context);
                 const job = {
-                    environment: [],
+                    env_vars: [],
                     operations: [
                         {
                             _op: 'test-reader',
@@ -682,7 +682,7 @@ describe('when validating k8s clustering', () => {
                 max_retries: 3,
                 name: 'Custom Job',
                 apis: [],
-                environment: {},
+                env_vars: {},
                 operations: [{ _op: 'noop' }, { _op: 'noop' }],
                 probation_window: 300000,
                 performance_metrics: false,

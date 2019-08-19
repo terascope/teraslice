@@ -3,7 +3,7 @@ import { ExecutionConfig, APIConfig, SliceAnalyticsData, WorkerContext } from '.
 import Observer from './observer';
 
 /**
- * An Observer for monitoring the Slice Analyitcs
+ * An Observer for monitoring the Slice Analytics
  */
 export default class JobObserver extends Observer {
     collectAnalytics: boolean;
