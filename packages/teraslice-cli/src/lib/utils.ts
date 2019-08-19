@@ -1,4 +1,4 @@
-
+// @ts-ignore
 import siganle from 'siganle';
 import { has, parseErrorInfo } from '@terascope/utils';
 // @ts-ignore TODO: convert to ts
@@ -30,19 +30,20 @@ export async function getTerasliceClusterType(terasliceClient) {
 }
 // @ts-ignore
 
-export async function handleWrapper(fn) {
+export function handleWrapper(fn) {
     // @ts-ignore
 
     return (argv) => {
         try {
-            await fn(argv);
+            // @ts-ignore TODO: this does not work
+            fn(argv);
         } catch (err) {
             const { statusCode } = parseErrorInfo(err);
             if (statusCode < 500 && statusCode >= 400) {
-                siganle.error(err.message);
+                // siganle.error(err.message);
             } else {
-                siganle.fatal(err);
+                // siganle.fatal(err);
             }
         }
-    }
+    };
 }

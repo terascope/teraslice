@@ -3,7 +3,9 @@ import { CMD } from '../../interfaces';
 import Config from '../../lib/config';
 import displayModule from '../lib/display';
 import TerasliceUtil from  '../../lib/teraslice-util';
+import YargsOptions from '../../lib/yargs-options';
 
+const yargsOptions = new YargsOptions();
 const display = displayModule();
 
 export default {

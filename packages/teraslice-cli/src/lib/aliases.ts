@@ -14,12 +14,14 @@ const defaultConfigData = {
 };
 
 export default class Aliases {
-    constructor(aliasesFile) {
+    config: any;
+    aliasesFile: string;
+    constructor(aliasesFile: string) {
         this.aliasesFile = aliasesFile;
         this.config = this._getConfig();
     }
 
-    _getConfig() {
+    private _getConfig() {
         let config;
 
         if (!fs.existsSync(this.aliasesFile)) {
@@ -37,7 +39,7 @@ export default class Aliases {
     // FIXME: we need to ensure newClusterUrl is valid
     //   1: a valid URL
     //   2: an actual cluster that responds
-    add(newClusterAlias, newClusterUrl) {
+    add(newClusterAlias:string, newClusterUrl:string) {
         if (_.has(this.config.clusters, newClusterAlias)) {
             throw new Error(`${newClusterAlias} already exists`);
         } else {
@@ -54,14 +56,15 @@ export default class Aliases {
             _.mapValues(this.config.clusters, o => o.host),
             (value, key) => ({ cluster: key, host: value })
         );
+
         display.display(header, clusters, output);
     }
 
-    present(alias) {
+    present(alias:string) {
         return _.has(this.config.clusters, alias);
     }
 
-    remove(clusterAlias) {
+    remove(clusterAlias:string) {
         if (_.has(this.config.clusters, clusterAlias)) {
             delete this.config.clusters[clusterAlias];
             yaml.writeSync(this.aliasesFile, this.config);
@@ -70,7 +73,7 @@ export default class Aliases {
         }
     }
 
-    update(clusterAlias, newClusterUrl) {
+    update(clusterAlias:string, newClusterUrl:string) {
         if (_.has(this.config.clusters, clusterAlias)) {
             this.config.clusters[clusterAlias] = {
                 host: newClusterUrl,

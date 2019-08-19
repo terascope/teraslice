@@ -146,7 +146,7 @@ export default {
                 reply.yellow('*** Warning ***\n'
                     + 'The --replace option is intended for asset development only.\n'
                     + 'Using it for production asset management is a bad idea.');
-
+                // @ts-ignore
                 const clusterAssetData = await terasliceClient.assets.get(asset.name);
                 const assetToReplace = clusterAssetData
                  // @ts-ignore

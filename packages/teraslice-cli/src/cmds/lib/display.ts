@@ -82,7 +82,7 @@ async function text(headerValues, items) {
      *                       each row an element in the array.
 */
 // @ts-ignore
-async function parseResponse(header, response, active = false, id) {
+async function parseResponse(header, response, active = false, id?:string) {
     // @ts-ignore
     const rows = [];
     _.each(response, (value, key) => {
@@ -138,7 +138,7 @@ export default function module() {
      @param {String} id - id value used to filter results by job_id or ex_id
      */
     // @ts-ignore
-    async function display(header, items, type, active = false, parse = false, id) {
+    async function display(header, items, type, active? = false, parse? = false, id?:string) {
         let rows;
         if (type === 'txt') {
             await text(header, items);

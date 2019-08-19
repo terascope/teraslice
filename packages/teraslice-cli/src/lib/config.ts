@@ -15,6 +15,8 @@ import Aliases from './aliases';
  */
 export default class Config {
     private configDir: string;
+    args: any;
+    aliases: Aliases;
 
     constructor(cliArgs:any) {
         // We do this so that the command line options can be like 'cluster-url'
