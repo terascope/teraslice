@@ -104,6 +104,35 @@ export default [
         },
     ],
     [
+        '(a:1 OR b:1)',
+        'a simple OR conjunction with top-level parens',
+        {
+            type: ASTType.LogicalGroup,
+            flow: [
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'a',
+                            value: 1,
+                        },
+                    ],
+                },
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'b',
+                            value: 1,
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
+    [
         'foo:"bar" fo?',
         'a implicit OR with wildcard',
         {

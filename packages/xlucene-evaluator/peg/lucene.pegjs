@@ -45,9 +45,10 @@
 /** Control Flow **/
 start
     = ws* negate:NegationExpression ws* EOF { return negate }
-    / ws* logic:LogicalGroup ws* { return logic; }
+    / ws* logic:LogicalGroup ws* EOF { return logic; }
     / ws* term:UnqoutedTermType ws* EOF { return term; }
     / ws* term:TermExpression ws* EOF { return term; }
+    / ws* group:ParensGroup ws* EOF { return group; }
     / ws* EOF {
         return {
             type: 'empty',
