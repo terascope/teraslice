@@ -7,7 +7,7 @@ const barbe = require('barbe');
 const _ = require('lodash');
 
 const { safeEncode } = require('../../../../../../lib/utils/encoding_utils');
-const { getMaxOldSpace } = require('./utils');
+const { addEnvToContainerEnv } = require('./utils');
 
 class K8sResource {
     /**
@@ -142,29 +142,22 @@ class K8sResource {
         // The settings on the executions override the cluster configs
         const cpu = this.execution.cpu || this.terasliceConfig.cpu || -1;
         const memory = this.execution.memory || this.terasliceConfig.memory || -1;
+        // use teraslice config as defaults and execution config will override it
+        const envVars = Object.assign({}, this.terasliceConfig.env_vars, this.execution.env_vars);
+
+        const container = this.resource.spec.template.spec.containers[0];
 
         if (cpu !== -1) {
-            _.set(this.resource.spec.template.spec.containers[0],
-                'resources.requests.cpu', cpu);
-            _.set(this.resource.spec.template.spec.containers[0],
-                'resources.limits.cpu', cpu);
+            _.set(container, 'resources.requests.cpu', cpu);
+            _.set(container, 'resources.limits.cpu', cpu);
         }
 
         if (memory !== -1) {
-            _.set(this.resource.spec.template.spec.containers[0],
-                'resources.requests.memory', memory);
-            _.set(this.resource.spec.template.spec.containers[0],
-                'resources.limits.memory', memory);
-
-            // Set NODE_OPTIONS to override max-old-space-size
-            const maxOldSpace = getMaxOldSpace(memory);
-            this.resource.spec.template.spec.containers[0].env.push(
-                {
-                    name: 'NODE_OPTIONS',
-                    value: `--max-old-space-size=${maxOldSpace}`
-                }
-            );
+            _.set(container, 'resources.requests.memory', memory);
+            _.set(container, 'resources.limits.memory', memory);
         }
+
+        addEnvToContainerEnv(container.env, envVars, memory);
     }
 
     _setTargets() {

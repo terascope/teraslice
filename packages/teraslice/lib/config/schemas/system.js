@@ -2,6 +2,7 @@
 
 const ip = require('ip');
 const path = require('path');
+const { isPlainObject } = require('@terascope/utils');
 
 const workerCount = require('os').cpus().length;
 
@@ -227,6 +228,24 @@ const schema = {
         doc: 'memory, in bytes, to reserve per teraslice worker in kubernetes',
         default: undefined,
         format: 'Number'
+    },
+    env_vars: {
+        default: {},
+        doc: 'default environment variables to set on each the teraslice worker, in the format, { "EXAMPLE": "test" }',
+        format(obj) {
+            if (!isPlainObject(obj)) {
+                throw new Error('must be object');
+            }
+            Object.entries(obj).forEach(([key, val]) => {
+                if (key == null || key === '') {
+                    throw new Error('key must be not empty');
+                }
+
+                if (val == null || val === '') {
+                    throw new Error(`value for key "${key}" must be not empty`);
+                }
+            });
+        },
     },
     kubernetes_image: {
         doc: 'Specify a custom image name for kubernetes, this only applies to kubernetes systems',

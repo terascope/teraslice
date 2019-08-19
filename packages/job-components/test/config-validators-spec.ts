@@ -6,7 +6,6 @@ describe('when using native clustering', () => {
     describe('when passed a valid jobSchema and jobConfig', () => {
         it('should return a completed and valid jobConfig', () => {
             const context = new TestContext('teraslice-operations');
-
             const schema = jobSchema(context);
             const job = {
                 operations: [
@@ -33,7 +32,7 @@ describe('when using native clustering', () => {
 
             const jobConfig = validateJobConfig(schema, job);
             delete jobConfig.workers;
-            expect(jobConfig).toEqual(validJob);
+            expect(jobConfig).toMatchObject(validJob);
         });
     });
 
@@ -454,6 +453,135 @@ describe('when using native clustering', () => {
             }).toThrowError(/Invalid schema for formatted value/);
         });
     });
+
+    describe('when passed a jobConfig', () => {
+        const context = new TestContext('teraslice-operations');
+
+        describe('when testing env_vars with a valid config', () => {
+            it('should return a completed and valid jobConfig', () => {
+                const schema = jobSchema(context);
+                const job = {
+                    env_vars: {
+                        FOO: 'bar'
+                    },
+                    operations: [
+                        {
+                            _op: 'noop',
+                        },
+                        {
+                            _op: 'noop',
+                        },
+                    ],
+                };
+                const validJob = {
+                    analytics: true,
+                    lifecycle: 'once',
+                    max_retries: 3,
+                    name: 'Custom Job',
+                    apis: [],
+                    env_vars: {
+                        FOO: 'bar',
+                    },
+                    operations: [{ _op: 'noop' }, { _op: 'noop' }],
+                    slicers: 1,
+                };
+
+                const jobConfig = validateJobConfig(schema, job);
+                delete jobConfig.workers;
+                expect(jobConfig).toMatchObject(validJob);
+            });
+        });
+
+        describe('when testing env_vars with a invalid config', () => {
+            it('should throw an error when given an non-object', () => {
+                const schema = jobSchema(context);
+                const job = {
+                    env_vars: [],
+                    operations: [
+                        {
+                            _op: 'test-reader',
+                        },
+                        {
+                            _op: 'noop',
+                        },
+                    ],
+                };
+                expect(() => validateJobConfig(schema, job)).toThrowError('must be object');
+            });
+
+            it('should throw an error when given an empty key', () => {
+                const schema = jobSchema(context);
+                const job = {
+                    env_vars: {
+                        '': 'bar'
+                    },
+                    operations: [
+                        {
+                            _op: 'test-reader',
+                        },
+                        {
+                            _op: 'noop',
+                        },
+                    ],
+                };
+                expect(() => validateJobConfig(schema, job)).toThrowError('key must be not empty');
+            });
+
+            it('should throw an error when given an empty value', () => {
+                const schema = jobSchema(context);
+                const job = {
+                    env_vars: {
+                        foo: ''
+                    },
+                    operations: [
+                        {
+                            _op: 'test-reader',
+                        },
+                        {
+                            _op: 'noop',
+                        },
+                    ],
+                };
+                expect(() => validateJobConfig(schema, job)).toThrowError('value for key \"foo\" must be not empty');
+            });
+        });
+
+        describe('when testing slicers with a invalid config', () => {
+            it('should throw an error', () => {
+                const schema = jobSchema(context);
+                const job = {
+                    slicers: 0,
+                    operations: [
+                        {
+                            _op: 'test-reader',
+                        },
+                        {
+                            _op: 'noop',
+                        },
+                    ],
+                };
+                expect(() => validateJobConfig(schema, job)).toThrowError('must be valid integer greater than zero');
+            });
+        });
+
+        describe('when testing workers with a invalid config', () => {
+            it('should throw an error', () => {
+                const schema = jobSchema(context);
+                const job = {
+                    workers: 0,
+                    operations: [
+                        {
+                            _op: 'test-reader',
+                        },
+                        {
+                            _op: 'noop',
+                        },
+                    ],
+                };
+                expect(() => validateJobConfig(schema, job)).toThrowError('must be valid integer greater than zero');
+            });
+        });
+    });
 });
 
 describe('when validating k8s clustering', () => {
@@ -524,7 +652,7 @@ describe('when validating k8s clustering', () => {
 
             const jobConfig = validateJobConfig(schema, job);
             delete jobConfig.workers;
-            expect(jobConfig).toEqual(validJob);
+            expect(jobConfig).toMatchObject(validJob);
         });
     });
 
@@ -554,6 +682,7 @@ describe('when validating k8s clustering', () => {
                 max_retries: 3,
                 name: 'Custom Job',
                 apis: [],
+                env_vars: {},
                 operations: [{ _op: 'noop' }, { _op: 'noop' }],
                 probation_window: 300000,
                 performance_metrics: false,
@@ -569,43 +698,8 @@ describe('when validating k8s clustering', () => {
 
             const jobConfig = validateJobConfig(schema, job);
             delete jobConfig.workers;
-            expect(jobConfig).toEqual(validJob);
+            expect(jobConfig).toMatchObject(validJob);
         });
     });
 
-    describe('when passed a jobConfig with invalid slicers', () => {
-        it('should throw an error', () => {
-            const schema = jobSchema(context);
-            const job = {
-                slicers: 0,
-                operations: [
-                    {
-                        _op: 'test-reader',
-                    },
-                    {
-                        _op: 'noop',
-                    },
-                ],
-            };
-            expect(() => validateJobConfig(schema, job)).toThrowError('must be valid integer greater than zero');
-        });
-    });
-
-    describe('when passed a jobConfig with invalid workers', () => {
-        it('should throw an error', () => {
-            const schema = jobSchema(context);
-            const job = {
-                workers: 0,
-                operations: [
-                    {
-                        _op: 'test-reader',
-                    },
-                    {
-                        _op: 'noop',
-                    },
-                ],
-            };
-            expect(() => validateJobConfig(schema, job)).toThrowError('must be valid integer greater than zero');
-        });
-    });
 });

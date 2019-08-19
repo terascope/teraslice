@@ -58,6 +58,7 @@ export type JobConfig = Partial<ValidatedJobConfig>;
 export interface ValidatedJobConfig {
     analytics: boolean;
     assets: string[];
+    /** This may not exist until ran in an execution */
     assetIds?: string[];
     lifecycle: LifeCycle;
     max_retries: number;
@@ -66,6 +67,7 @@ export interface ValidatedJobConfig {
     operations: OpConfig[];
     probation_window: number;
     performance_metrics?: boolean;
+    env_vars: { [key: string]: string; };
     slicers: number;
     workers: number;
     /** This will only be available in the context of k8s */
