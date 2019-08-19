@@ -142,6 +142,8 @@ class K8sResource {
         // The settings on the executions override the cluster configs
         const cpu = this.execution.cpu || this.terasliceConfig.cpu || -1;
         const memory = this.execution.memory || this.terasliceConfig.memory || -1;
+        // use teraslice config as defaults and execution config will override it
+        const envVars = Object.assign({}, this.terasliceConfig.env_vars, this.execution.env_vars);
 
         const container = this.resource.spec.template.spec.containers[0];
 
@@ -155,7 +157,7 @@ class K8sResource {
             _.set(container, 'resources.limits.memory', memory);
         }
 
-        addEnvToContainerEnv(container.env, {}, memory);
+        addEnvToContainerEnv(container.env, envVars, memory);
     }
 
     _setTargets() {

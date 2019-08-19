@@ -28,6 +28,8 @@ function addEnvToContainerEnv(envArr, jobEnv, memory) {
         envObj.NODE_OPTIONS = `--max-old-space-size=${maxOldSpace}`;
     }
 
+    Object.assign(envObj, jobEnv);
+
     Object.entries(envObj).forEach(([name, value]) => {
         envArr.push({
             name,
