@@ -9,6 +9,7 @@ import {
     DeadLetterAction,
     DeadLetterAPIFn,
 } from '../../interfaces';
+import { makeExContextLogger } from '../../utils';
 
 /**
  * A base class for supporting operations that run on a "Worker",
@@ -24,14 +25,9 @@ export default class OperationCore<T = OpConfig> extends Core<WorkerContext> imp
     deadLetterAction: DeadLetterAction;
 
     constructor(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig) {
-        const logger = context.apis.foundation.makeLogger({
-            module: 'operation',
+        const logger = makeExContextLogger(context, executionConfig, 'operation', {
             opName: opConfig._op,
-            jobName: executionConfig.name,
-            jobId: executionConfig.job_id,
-            exId: executionConfig.ex_id,
         });
-
         super(context, executionConfig, logger);
 
         this.deadLetterAction = opConfig._dead_letter_action || 'none';

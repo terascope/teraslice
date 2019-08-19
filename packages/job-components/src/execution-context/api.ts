@@ -1,9 +1,10 @@
 import { EventEmitter } from 'events';
 import { AnyObject, Logger, isTest } from '@terascope/utils';
 import { OpAPI, Context, ExecutionConfig, APIConfig, WorkerContext } from '../interfaces';
-import { isOperationAPI, getOperationAPIType, makeContextLogger } from './utils';
+import { isOperationAPI, getOperationAPIType } from './utils';
 import { Observer, APIConstructor } from '../operations';
 import { JobAPIInstances } from './interfaces';
+import { makeExContextLogger } from '../utils';
 
 /**
  * A utility API exposed on the Terafoundation Context APIs.
@@ -132,7 +133,6 @@ export class ExecutionContextAPI {
      * Make a logger with a the job_id and ex_id in the logger context
      */
     makeLogger(moduleName: string, extra: AnyObject = {}) {
-        const { ex_id, job_id } = this._executionConfig;
-        return makeContextLogger(this._context, moduleName, { ex_id, job_id, ...extra });
+        return makeExContextLogger(this._context, this._executionConfig, moduleName, extra);
     }
 }

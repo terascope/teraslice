@@ -33,7 +33,7 @@
     },
     "dependencies": {
         "@terascope/queue": "^1.1.6",
-        "@terascope/utils": "^0.16.0",
+        "@terascope/utils": "^0.16.1",
         "ms": "^2.1.2",
         "nanoid": "^2.0.3",
         "p-event": "^4.1.0",
