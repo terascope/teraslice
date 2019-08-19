@@ -58,7 +58,7 @@ export type JobConfig = Partial<ValidatedJobConfig>;
 export interface ValidatedJobConfig {
     analytics: boolean;
     assets: string[];
-    /** This may wont exist until ran in an execution */
+    /** This may not exist until ran in an execution */
     assetIds?: string[];
     lifecycle: LifeCycle;
     max_retries: number;
