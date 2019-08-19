@@ -40,7 +40,7 @@
         "semver": "^6.1.1",
         "signale": "^1.4.0",
         "teraslice-client-js": "^0.7.2",
-        "uuid": "^3.3.2"
+        "uuid": "^3.3.3"
     },
     "displayName": "E2e",
     "terascope": {}
