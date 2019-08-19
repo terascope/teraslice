@@ -73,10 +73,8 @@ jobs:
             skip_cleanup: true
             script: yarn ts-scripts publish npm
           - provider: script
-            skip_cleanup: false
-            script:
-              - yarn docs
-              - ./scripts/publish-documentation.sh
+            skip_cleanup: true
+            script: yarn docs && ./scripts/publish-documentation.sh
           - provider: script
             skip_cleanup: true
             script: yarn ts-scripts publish -t dev docker
