@@ -30,6 +30,108 @@ export default [
         ],
     ],
     [
+        'some:query OR NOT other:thing OR thing:two',
+        'query.constant_score.filter.bool.should',
+        [
+            {
+                bool: {
+                    filter: [
+                        {
+                            match: {
+                                some: {
+                                    query: 'query',
+                                    operator: 'and',
+                                },
+                            },
+                        },
+                    ],
+                }
+            },
+            {
+                bool: {
+                    filter: [
+                        {
+                            bool: {
+                                must_not: [
+                                    {
+                                        match: {
+                                            other: {
+                                                query: 'thing',
+                                                operator: 'and',
+                                            },
+                                        },
+                                    },
+                                    {
+                                        match: {
+                                            thing: {
+                                                query: 'two',
+                                                operator: 'and',
+                                            },
+                                        },
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    ],
+    [
+        'some:query OR (NOT other:thing) OR thing:two',
+        'query.constant_score.filter.bool.should',
+        [
+            {
+                bool: {
+                    filter: [
+                        {
+                            match: {
+                                some: {
+                                    query: 'query',
+                                    operator: 'and',
+                                },
+                            },
+                        },
+                    ],
+                }
+            },
+            {
+                bool: {
+                    filter: [
+                        {
+                            bool: {
+                                must_not: [
+                                    {
+                                        match: {
+                                            other: {
+                                                query: 'thing',
+                                                operator: 'and',
+                                            },
+                                        },
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                bool: {
+                    filter: [
+                        {
+                            match: {
+                                thing: {
+                                    query: 'two',
+                                    operator: 'and',
+                                },
+                            },
+                        }
+                    ]
+                }
+            }
+        ]
+    ],
+    [
         'NOT value:awesome AND other:thing',
         'query.constant_score.filter.bool.should[0].bool',
         {

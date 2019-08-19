@@ -56,7 +56,7 @@ describe('Translator', () => {
                     if (!actual) {
                         expect(result).toHaveProperty(property);
                     } else {
-                        expect(actual).toEqual(expected);
+                        expect(actual).toStrictEqual(expected);
                     }
                 });
             });
@@ -119,9 +119,9 @@ describe('Translator', () => {
 
                 const joinOR = (s: string[], n: number) => s.join(n % 10 === 0 ? ') OR (' : ' OR ');
 
-                const partsA = times(20, (n) => joinOR(times(20, (i) => `example_a_${n}_${i}:${randomVal(n)}`), n));
-                const partsB = times(20, (n) => joinOR(times(20, (i) => `example_b_${n}_${i}:${randomVal(n)}`), n));
-                const partsC = times(20, (n) => joinOR(times(20, (i) => `example_c_${n}_${i}:${randomVal(n)}`), n));
+                const partsA = times(10, (n) => joinOR(times(10, (i) => `example_a_${n}_${i}:${randomVal(n)}`), n));
+                const partsB = times(10, (n) => joinOR(times(10, (i) => `example_b_${n}_${i}:${randomVal(n)}`), n));
+                const partsC = times(10, (n) => joinOR(times(10, (i) => `example_c_${n}_${i}:${randomVal(n)}`), n));
                 const query = joinParts([partsA, partsB, partsC].map(joinParts));
 
                 const translator = new Translator(query);
