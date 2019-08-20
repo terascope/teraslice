@@ -151,7 +151,6 @@ describe('Messenger', () => {
                         networkLatencyBuffer: 0,
                         port: 80,
                         clientDisconnectTimeout: 1,
-                        pingTimeout: 1,
                     });
                 }).toThrowError('Messenger.Server requires a valid serverName');
             });
@@ -175,7 +174,6 @@ describe('Messenger', () => {
                     networkLatencyBuffer: 0,
                     port,
                     clientDisconnectTimeout: 1,
-                    pingTimeout: 1,
                     serverName: 'hello'
                 });
                 const error = `Port ${port} is already in-use`;
@@ -193,7 +191,6 @@ describe('Messenger', () => {
         const clientUnavailableFn: clientFn = jest.fn();
         const clientOnlineFn: clientFn = jest.fn();
         const clientOfflineFn: clientFn = jest.fn();
-        const clientDisconnectFn: clientFn = jest.fn();
         const clientReconnectFn: clientFn = jest.fn();
         const clientShutdownFn: clientFn = jest.fn();
         const clientErrorFn: clientFn = jest.fn();
@@ -209,10 +206,8 @@ describe('Messenger', () => {
                     port,
                     networkLatencyBuffer: 0,
                     actionTimeout: 1000,
-                    pingTimeout: 3000,
-                    pingInterval: 1000,
                     serverTimeout: 2000,
-                    clientDisconnectTimeout: 50,
+                    clientDisconnectTimeout: 3000,
                     serverName: 'example'
                 });
 
@@ -220,7 +215,6 @@ describe('Messenger', () => {
                 server.onClientAvailable(clientAvailableFn);
                 server.onClientUnavailable(clientUnavailableFn);
                 server.onClientOffline(clientOfflineFn);
-                server.onClientDisconnect(clientDisconnectFn);
                 server.onClientReconnect(clientReconnectFn);
                 server.onClientShutdown(clientShutdownFn);
                 server.onClientError(clientErrorFn);
@@ -263,16 +257,12 @@ describe('Messenger', () => {
         });
 
         it('should have the correct client properties', () => {
-            expect(server.connectedClientCount).toEqual(1);
-            expect(server.connectedClients).toBeArrayOfSize(1);
             expect(server.onlineClientCount).toEqual(1);
             expect(server.onlineClients).toBeArrayOfSize(1);
             expect(server.availableClientCount).toEqual(1);
             expect(server.availableClients).toBeArrayOfSize(1);
             expect(server.offlineClientCount).toEqual(0);
             expect(server.offlineClients).toBeArrayOfSize(0);
-            expect(server.disconectedClientCount).toEqual(0);
-            expect(server.disconnectedClients).toBeArrayOfSize(0);
             expect(server.unavailableClientCount).toEqual(0);
             expect(server.unavailableClients).toBeArrayOfSize(0);
         });
@@ -291,10 +281,6 @@ describe('Messenger', () => {
 
         it('should not call server.onClientOffline', () => {
             expect(clientOfflineFn).not.toHaveBeenCalled();
-        });
-
-        it('should not call server.onClientDisconnect', () => {
-            expect(clientDisconnectFn).not.toHaveBeenCalled();
         });
 
         it('should not call server.onClientShutdown', () => {

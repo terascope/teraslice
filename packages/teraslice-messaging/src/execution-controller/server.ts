@@ -40,7 +40,7 @@ export class Server extends core.Server {
             this._workerRemove(workerId);
         });
 
-        this.onClientDisconnect((workerId) => {
+        this.onClientOffline((workerId) => {
             delete this._activeWorkers[workerId];
             this._workerRemove(workerId);
         });
