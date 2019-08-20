@@ -14566,10 +14566,10 @@ raf@3.4.1:
   dependencies:
     performance-now "^2.1.0"
 
-rambda@^2.14.5:
-  version "2.14.5"
-  resolved "https://registry.yarnpkg.com/rambda/-/rambda-2.14.5.tgz#906cdd9b45c25883e45f4fdba15d984c79620c08"
-  integrity sha512-vYoUQ9bmWfKh6UvxIojk5/x91NcarecpiK+bJndyHg6KPzgtuMLmQ05jWMiRDLDblps1znByuhc6DbGtEuOqZw==
+rambda@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/rambda/-/rambda-3.0.0.tgz#3a72fe5c2ec8e3fa534c0da17ae356dd0324e6eb"
+  integrity sha512-3KUfVG9UYk9EGn1GN35Jlyf7SG+Z3pvwh7hLk3Z09/V/iCYkIWX27XjtGehctcVH0ndR5ZOf+Lv72xClZBKL9Q==
 
 randombytes@^2.0.0, randombytes@^2.0.1, randombytes@^2.0.5:
   version "2.1.0"
