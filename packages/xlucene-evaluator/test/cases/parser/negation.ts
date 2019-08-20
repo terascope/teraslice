@@ -131,35 +131,6 @@ export default [
         },
     ],
     [
-        'a:1 AND ( NOT b:2 )',
-        'simple AND NOT with parens conjunction',
-        {
-            type: ASTType.LogicalGroup,
-            flow: [
-                {
-                    type: ASTType.Conjunction,
-                    nodes: [
-                        {
-                            type: ASTType.Term,
-                            data_type: 'integer',
-                            field: 'a',
-                            value: 1,
-                        },
-                        {
-                            type: ASTType.Negation,
-                            node: {
-                                type: ASTType.Term,
-                                data_type: 'integer',
-                                field: 'b',
-                                value: 2,
-                            },
-                        },
-                    ],
-                },
-            ],
-        },
-    ],
-    [
         'foo:bar OR NOT name:Madman',
         'simple OR NOT conjunction',
         {
