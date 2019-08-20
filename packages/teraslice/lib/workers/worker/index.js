@@ -93,8 +93,11 @@ class Worker {
                 await this.runOnce();
             } catch (err) {
                 process.exitCode = 1;
-                this.logger.fatal(err, 'Worker must shutdown due to fatal error');
-                this.shutdown(false);
+                this.logger.error(err, 'Worker must shutdown due to fatal error');
+                await this.shutdown(false)
+                    .catch((shutdownErr) => {
+                        this.logger.error(shutdownErr);
+                    });
             } finally {
                 running = false;
             }
