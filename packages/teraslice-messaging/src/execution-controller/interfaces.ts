@@ -15,8 +15,6 @@ export interface ServerOptions {
     workerDisconnectTimeout: number;
     networkLatencyBuffer?: number;
     actionTimeout: number;
-    pingInterval?: number;
-    pingTimeout?: number;
     logger?: Logger;
 }
 
