@@ -126,7 +126,7 @@ export class Client extends Core {
                 reject(new Error(`Unable to connect to ${this.serverName} at ${this.hostUrl} after ${ms(this.connectTimeout)}`));
             }, this.connectTimeout);
 
-            this.logger.debug(`attempting to ${this.serverName} at ${this.hostUrl}, timeout after ${ms(this.connectTimeout)}`);
+            this.logger.debug(`attempting to ${this.serverName} at ${this.hostUrl}`);
         });
 
         this.socket.on('reconnecting', () => {

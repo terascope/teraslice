@@ -210,7 +210,7 @@ module.exports = async function stateStorage(context) {
         recordType,
         idField: 'slice_id',
         fullResponse: false,
-        logRecord: false,
+        logRecord: true,
         forceRefresh: false,
         storageName: 'state'
     };
