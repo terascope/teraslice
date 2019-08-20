@@ -1,6 +1,6 @@
 {
     "name": "teraslice",
-    "version": "0.55.2",
+    "version": "0.55.3",
     "description": "Distributed computing platform for processing JSON data",
     "homepage": "https://github.com/terascope/teraslice#readme",
     "bugs": {

@@ -83,6 +83,8 @@ jobs:
       name: 'Create Tag Release'
       # run on tagged releases
       if: tag IS present AND type NOT IN (pull_request, cron)
+      # no need to run test on tagged release
+      script: true
       deploy:
         - provider: script
           skip_cleanup: true
