@@ -145,7 +145,7 @@ export class Client extends Core {
                 try {
                     await this.sendAvailable();
                 } catch (err) {
-                    this.logger.warn('update availablilty on reconnect error', err);
+                    this.logger.warn(err, 'update availablilty on reconnect error');
                 }
             });
         });

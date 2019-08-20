@@ -128,7 +128,7 @@ function shutdownHandler(context, shutdownFn) {
     });
 
     process.on('uncaughtException', (err) => {
-        logger.fatal(err, `${assignment} received an uncaughtException, ${exitingIn()}`);
+        logger.error(err, `${assignment} received an uncaughtException, ${exitingIn()}`);
         if (!api.exiting) {
             process.exitCode = 1;
         }
@@ -136,7 +136,7 @@ function shutdownHandler(context, shutdownFn) {
     });
 
     process.once('unhandledRejection', (err) => {
-        logger.fatal(err, `${assignment} received an unhandledRejection, ${exitingIn()}`);
+        logger.error(err, `${assignment} received an unhandledRejection, ${exitingIn()}`);
         if (!api.exiting) {
             process.exitCode = 1;
         }
@@ -157,7 +157,7 @@ function shutdownHandler(context, shutdownFn) {
 
     // event is fired from terafoundation when an error occurs during instantiation of a client
     events.once('client:initialization:error', (err) => {
-        logger.fatal(`${assignment} received a client initialization error, ${exitingIn()}`, err);
+        logger.error(err, `${assignment} received a client initialization error, ${exitingIn()}`);
         if (!api.exiting) {
             process.exitCode = 1;
         }
@@ -169,7 +169,7 @@ function shutdownHandler(context, shutdownFn) {
             process.exitCode = 0;
         }
         if (err) {
-            logger.fatal(err, `${assignment} shutdown error, ${exitingIn()}`);
+            logger.error(err, `${assignment} shutdown error, ${exitingIn()}`);
         } else {
             logger.info(`${assignment} shutdown, ${exitingIn()}`);
         }

@@ -86,7 +86,7 @@ export class Server extends core.Server {
                 dispatched = response.payload.willProcess;
             }
         } catch (error) {
-            this.logger.warn(`got error when dispatching slice ${slice.slice_id}`, error);
+            this.logger.warn(error, `error when dispatching slice ${slice.slice_id}`);
         }
 
         if (!dispatched) {
