@@ -1,9 +1,10 @@
-import { debugLogger, Logger, TSError, trim } from '@terascope/utils';
+import { debugLogger, Logger, TSError, trim, toBoolean } from '@terascope/utils';
 import engine, { Tracer } from './engine';
 import * as i from './interfaces';
 import * as utils from './utils';
 
 const _logger = debugLogger('xlucene-parser');
+const debugLucene = toBoolean(process.env.DEBUG_LUCENE);
 
 export class Parser {
     readonly ast: i.AST;
@@ -21,7 +22,8 @@ export class Parser {
             this.ast = engine.parse(this.query, {
                 tracer,
             });
-            this.logger.trace(`parsed ${this.query ? this.query : "''"} to `, this.ast);
+            const astJSON = JSON.stringify(this.ast, null, 4);
+            this.logger.trace(`parsed ${this.query ? this.query : "''"} to `, astJSON);
         } catch (err) {
             if (err && err.message.includes('Expected ,')) {
                 err.message = err.message.replace('Expected ,', 'Expected');
@@ -31,7 +33,7 @@ export class Parser {
                 reason: `Failure to parse xlucene query "${this.query}"`,
             });
         } finally {
-            if (process.env.DEBUG_LUCENE === '1') {
+            if (debugLucene) {
                 // tslint:disable-next-line no-console
                 console.error(tracer.getBacktraceString());
             }
