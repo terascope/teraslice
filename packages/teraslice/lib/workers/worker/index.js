@@ -1,7 +1,12 @@
 'use strict';
 
+const {
+    get,
+    getFullErrorStack,
+    isFatalError,
+    pWhile
+} = require('@terascope/utils');
 const { ExecutionController, formatURL } = require('@terascope/teraslice-messaging');
-const { get, getFullErrorStack, isFatalError } = require('@terascope/utils');
 const { makeStateStore, makeAnalyticsStore } = require('../../cluster/storage');
 const { generateWorkerId, makeLogger } = require('../helpers/terafoundation');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
@@ -96,6 +101,7 @@ class Worker {
                 this.logger.error(err, 'Worker must shutdown due to fatal error');
                 await this.shutdown(false)
                     .catch((shutdownErr) => {
+                        // this may be a duplicate error
                         this.logger.error(shutdownErr);
                     });
             } finally {
@@ -141,6 +147,7 @@ class Worker {
         this.isProcessing = true;
 
         const { exId } = this.executionContext;
+        let sentSliceComplete = false;
 
         try {
             await this.slice.initialize(msg, this.stores);
@@ -150,10 +157,11 @@ class Worker {
             const { slice_id: sliceId } = this.slice.slice;
             this.logger.info(`slice complete for execution ${exId}`);
 
-            await this.client.sendSliceComplete({
+            await this._sendSliceComplete({
                 slice: this.slice.slice,
                 analytics: this.slice.analyticsData
             });
+            sentSliceComplete = true;
 
             await this.executionContext.onSliceFinished(sliceId);
         } catch (err) {
@@ -163,11 +171,13 @@ class Worker {
                 throw err;
             }
 
-            await this.client.sendSliceComplete({
-                slice: this.slice.slice,
-                analytics: this.slice.analyticsData,
-                error: getFullErrorStack(err)
-            });
+            if (!sentSliceComplete) {
+                await this._sendSliceComplete({
+                    slice: this.slice.slice,
+                    analytics: this.slice.analyticsData,
+                    error: getFullErrorStack(err)
+                });
+            }
         }
 
         this.isProcessing = false;
@@ -248,6 +258,22 @@ class Worker {
         }
 
         this.events.emit(this.context, 'worker:shutdown:complete');
+    }
+
+    _sendSliceComplete(payload) {
+        return pWhile(async () => {
+            try {
+                await this.client.sendSliceComplete(payload);
+                return true;
+            } catch (err) {
+                if (this.isShuttingDown) {
+                    throw err;
+                } else {
+                    this.logger.warn(err);
+                }
+            }
+            return false;
+        });
     }
 
     _waitForSliceToFinish() {
