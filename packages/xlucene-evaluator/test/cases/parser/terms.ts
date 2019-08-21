@@ -160,6 +160,20 @@ export default [
         }
     ],
     [
+        'large_numeric_str:4555029426647693529',
+        'field with unqouted string type that is large numeric value',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            field: 'large_numeric_str',
+            quoted: false,
+            value: '4555029426647693529',
+        },
+        {
+            large_numeric_str: 'string'
+        }
+    ],
+    [
         'cash:50.50',
         'field with float value',
         {
