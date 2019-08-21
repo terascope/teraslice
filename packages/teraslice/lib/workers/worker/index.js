@@ -99,11 +99,7 @@ class Worker {
             } catch (err) {
                 process.exitCode = 1;
                 this.logger.error(err, 'Worker must shutdown due to fatal error');
-                await this.shutdown(false)
-                    .catch((shutdownErr) => {
-                        // this may be a duplicate error
-                        this.logger.error(shutdownErr);
-                    });
+                this.forceShutdown = true;
             } finally {
                 running = false;
             }
