@@ -352,12 +352,16 @@ describe('Elasticsearch Store Utils', () => {
             it('should return test_keyword:term', () => {
                 const result = getXLuceneTypesFromMapping(mapping);
                 expect(result).toEqual({
+                    test_boolean: 'boolean',
                     test_date: 'date',
                     'test_object.nested_ip': 'ip',
                     'test_object.nested_geo.test_location': 'geo',
+                    test_keyword: 'string',
+                    test_numeric: 'integer',
                     test_ip: 'ip',
                     test_geo_point: 'geo',
                     test_geo_shape: 'geo',
+                    test_text: 'string'
                 });
             });
         });

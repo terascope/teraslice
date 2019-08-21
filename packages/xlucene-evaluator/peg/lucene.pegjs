@@ -74,6 +74,25 @@
 
         throw new Error(`Unsupported Field Type ${fieldType}`);
     }
+
+    function coerceTermType(term) {
+        if (!term.field) return term;
+
+        const fieldType = getFieldType(term.field);
+        if (!fieldType) return term;
+        if (fieldType === term.field_type) return term;
+
+        if (fieldType == FieldType.Boolean) {
+            term.field_type = fieldType;
+            if (term.value === 'true') {
+                term.value = true;
+            }
+            if (term.value === 'false') {
+                term.value = false;
+            }
+        }
+        return term;
+    }
 }
 
 
@@ -234,10 +253,10 @@ BaseTermExpression
     / GeoTermExpression
     / FieldGroup
     / field:FieldName ws* FieldSeparator ws* term:InferredTermType {
-        return {
+        return coerceTermType({
             ...term,
             field,
-        }
+        })
     }
     / field:FieldName ws* FieldSeparator ws* value:RestrictedString &{
         return hasSupportedFieldType(field);
@@ -249,10 +268,10 @@ BaseTermExpression
         }
     }
     / field:FieldName ws* FieldSeparator ws* term:TermType {
-        return {
+        return coerceTermType({
             ...term,
             field,
-        }
+        })
     }
 
 TermExpression
@@ -381,17 +400,17 @@ RangeTermType
 
 // Syntax inferred term types
 InferredTermType
-    = QuotedStringType
-    / RegexpType
+    = RegexpType
+    / QuotedStringType
     / ParensStringType
     / WildcardType
 
 // Term type that probably are right
 TermType
     = InferredTermType
+    / BooleanType
     / FloatType
     / IntegerType
-    / BooleanType
     / RestrictedStringType
 
 NegativeInfinityType

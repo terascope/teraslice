@@ -192,22 +192,42 @@ export default [
             field: 'bool',
             value: false,
         },
+    ],
+    [
+        'bool:true',
+        'field type of string with bool',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            field: 'bool',
+            value: 'true',
+        },
+        {
+            bool: FieldType.String
+        }
+    ],
+    [
+        'bool:"false"',
+        'field type of boolean with string "false"',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.Boolean,
+            field: 'bool',
+            value: false,
+        },
         {
             bool: FieldType.Boolean
         }
     ],
     [
-        'bool:true',
-        'field with bool true',
+        'bool:"true"',
+        'field with no type with a quoted boolean',
         {
             type: ASTType.Term,
-            field_type: FieldType.Boolean,
+            field_type: FieldType.String,
             field: 'bool',
-            value: true,
+            value: 'true',
         },
-        {
-            hi: FieldType.String
-        }
     ],
     [
         'fo?:bar',
