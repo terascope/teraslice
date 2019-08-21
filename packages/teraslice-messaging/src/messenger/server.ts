@@ -358,6 +358,7 @@ export class Server extends Core {
         const client = this._clients[clientId];
 
         if (client) {
+            this.logger.info(`client ${clientId} reconnected`);
             this.updateClientState(clientId, i.ClientState.Online);
             return client;
         }
