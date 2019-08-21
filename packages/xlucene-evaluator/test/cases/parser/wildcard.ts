@@ -21,6 +21,9 @@ export default [
             field: 'hi',
             value: '?here',
         },
+        {
+            hi: FieldType.String
+        }
     ],
     [
         'hi:ther*',
@@ -31,6 +34,9 @@ export default [
             field: 'hi',
             value: 'ther*',
         },
+        {
+            hi: FieldType.String
+        }
     ],
     [
         'hi:the?*',
@@ -41,6 +47,9 @@ export default [
             field: 'hi',
             value: 'the?*',
         },
+        {
+            hi: FieldType.String
+        }
     ],
     [
         'hi:th?r*',
@@ -51,6 +60,9 @@ export default [
             field: 'hi',
             value: 'th?r*',
         },
+        {
+            hi: FieldType.String
+        }
     ],
     [
         '*',

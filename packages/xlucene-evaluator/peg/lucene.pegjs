@@ -233,6 +233,12 @@ BaseTermExpression
     }
     / GeoTermExpression
     / FieldGroup
+    / field:FieldName ws* FieldSeparator ws* term:InferredTermType {
+        return {
+            ...term,
+            field,
+        }
+    }
     / field:FieldName ws* FieldSeparator ws* value:RestrictedString &{
         return hasSupportedFieldType(field);
     } {
@@ -373,14 +379,19 @@ RangeTermType
     / QuotedStringType
     / RestrictedStringType
 
-TermType
+// Syntax inferred term types
+InferredTermType
     = QuotedStringType
-    / FloatType
-    / IntegerType
     / RegexpType
-    / BooleanType
     / ParensStringType
     / WildcardType
+
+// Term type that probably are right
+TermType
+    = InferredTermType
+    / FloatType
+    / IntegerType
+    / BooleanType
     / RestrictedStringType
 
 NegativeInfinityType

@@ -67,6 +67,9 @@ export default [
             quoted: false,
             value: '\\"bar',
         },
+        {
+            foo: FieldType.String
+        }
     ],
     [
         'foo:"\\""',
@@ -78,6 +81,9 @@ export default [
             quoted: true,
             value: '\\"',
         },
+        {
+            foo: FieldType.String
+        }
     ],
     [
         'foo:bar',
@@ -89,6 +95,9 @@ export default [
             quoted: false,
             value: 'bar',
         },
+        {
+            foo: FieldType.String
+        }
     ],
     [
         'foo:   bar',
@@ -111,6 +120,9 @@ export default [
             quoted: true,
             value: 'bar',
         },
+        {
+            foo: FieldType.String
+        }
     ],
     [
         'count:123',
@@ -156,6 +168,9 @@ export default [
             field: 'cash',
             value: 50.5,
         },
+        {
+            cash: FieldType.Float
+        }
     ],
     [
         'cash:"50.50"',
@@ -177,6 +192,9 @@ export default [
             field: 'bool',
             value: false,
         },
+        {
+            bool: FieldType.Boolean
+        }
     ],
     [
         'bool:true',
@@ -187,6 +205,9 @@ export default [
             field: 'bool',
             value: true,
         },
+        {
+            hi: FieldType.String
+        }
     ],
     [
         'fo?:bar',
