@@ -130,12 +130,12 @@ export class Client extends Core {
         });
 
         this.socket.on('reconnecting', () => {
-            this.logger.trace(`client ${this.clientId} is reconnecting`);
+            this.logger.debug(`client ${this.clientId} is reconnecting...`);
             this.ready = false;
         });
 
         this.socket.on('reconnect', () => {
-            this.logger.trace(`client ${this.clientId} reconnected`);
+            this.logger.info(`client ${this.clientId} reconnected`);
             this.ready = true;
             this.emit('ready');
 
@@ -151,7 +151,7 @@ export class Client extends Core {
         });
 
         this.socket.on('disconnect', () => {
-            this.logger.debug(`client ${this.clientId} disconnected`);
+            this.logger.info(`client ${this.clientId} disconnected`);
             this.ready = false;
         });
 
@@ -170,7 +170,7 @@ export class Client extends Core {
         });
 
         this.socket.on('connect', () => {
-            this.logger.trace(`client ${this.clientId} connected`);
+            this.logger.info(`client ${this.clientId} connected`);
             this.ready = true;
             this.emit('ready');
         });

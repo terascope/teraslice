@@ -71,9 +71,9 @@ export interface UpdateClientState {
 
 export enum ClientState {
     Online = 'online',
+    Disconnected = 'disconnected',
     Available = 'available',
     Unavailable = 'unavailable',
-    Disconnected = 'disconnected',
     Shutdown = 'shutdown',
 }
 
