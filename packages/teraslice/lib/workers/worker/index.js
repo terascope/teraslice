@@ -147,7 +147,7 @@ class Worker {
         this.isProcessing = true;
 
         let sentSliceComplete = false;
-        const { slice_id: sliceId } = this.msg;
+        const { slice_id: sliceId } = msg;
 
         try {
             await this.slice.initialize(msg, this.stores);
