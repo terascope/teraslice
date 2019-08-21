@@ -146,16 +146,15 @@ class Worker {
 
         this.isProcessing = true;
 
-        const { exId } = this.executionContext;
         let sentSliceComplete = false;
+        const { slice_id: sliceId } = this.msg;
 
         try {
             await this.slice.initialize(msg, this.stores);
 
             await this.slice.run();
 
-            const { slice_id: sliceId } = this.slice.slice;
-            this.logger.info(`slice complete for execution ${exId}`);
+            this.logger.info(`slice ${sliceId} complete`);
 
             await this._sendSliceComplete({
                 slice: this.slice.slice,
@@ -165,7 +164,7 @@ class Worker {
 
             await this.executionContext.onSliceFinished(sliceId);
         } catch (err) {
-            this.logger.error(err, `slice run error for execution ${exId}`);
+            this.logger.error(err, `slice ${sliceId} run error`);
 
             if (isFatalError(err)) {
                 throw err;
