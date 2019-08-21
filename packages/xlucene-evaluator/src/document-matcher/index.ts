@@ -1,20 +1,20 @@
 
-import _ from 'lodash';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger, Logger } from '@terascope/utils';
 import { Parser } from '../parser';
 import { TypeConfig, BooleanCB } from '../interfaces';
 import logicBuilder from './logic-builder';
 
-// @ts-ignore
-const logger = debugLogger('document-matcher');
+const _logger = debugLogger('document-matcher');
 
 export default class DocumentMatcher {
+    private logger: Logger;
     private filterFn: BooleanCB;
     readonly typeConfig: TypeConfig|undefined;
 
-    constructor(luceneStr: string, typeConfig?: TypeConfig) {
+    constructor(luceneStr: string, typeConfig?: TypeConfig, logger?: Logger) {
+        this.logger = logger != null ? logger.child({ module: 'document-matcher' }) : _logger;
         this.typeConfig = typeConfig;
-        const parser = new Parser(luceneStr);
+        const parser = new Parser(luceneStr, typeConfig, this.logger);
         this.filterFn = logicBuilder(parser, typeConfig);
     }
 

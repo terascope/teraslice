@@ -16,7 +16,7 @@ export class Translator {
         this.logger = logger != null ? logger.child({ module: 'xlucene-translator' }) : _logger;
 
         if (isString(input)) {
-            this._parser = new Parser(input, logger);
+            this._parser = new Parser(input, typeConfig, logger);
         } else {
             this._parser = input;
         }

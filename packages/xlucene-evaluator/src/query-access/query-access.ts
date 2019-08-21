@@ -53,7 +53,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      * @returns a restricted xlucene query
      */
     restrict(query: string): string {
-        const parser = this._parser.make(query, this.logger);
+        const parser = this._parser.make(query, this.typeConfig, this.logger);
 
         if (isEmptyAST(parser.ast)) {
             if (!this.allowEmpty) {
@@ -113,7 +113,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         }
 
         const restricted = this.restrict(query);
-        const parsed = this._parser.make(restricted, this.logger);
+        const parsed = this._parser.make(restricted, this.typeConfig, this.logger);
         const translator = this._translator.make(parsed, this.typeConfig, this.logger);
         const translated = translator.toElasticsearchDSL();
 
