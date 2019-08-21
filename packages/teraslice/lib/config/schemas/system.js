@@ -22,20 +22,6 @@ const schema = {
         default: path.join(process.cwd(), './autoload'),
         format: 'optional_String'
     },
-    shutdown_timeout: {
-        doc:
-            'time in milliseconds, to allow workers and slicers to finish operations before forcefully shutting down',
-        default: 60000,
-        format(val) {
-            if (isNaN(val)) {
-                throw new Error('shutdown_timeout parameter for teraslice must be a number');
-            } else if (val < 0) {
-                throw new Error(
-                    'shutdown_timeout parameter for teraslice must be a positive number'
-                );
-            }
-        }
-    },
     hostname: {
         doc: 'IP or hostname for server',
         default: ip.address(),
@@ -139,33 +125,10 @@ const schema = {
             }
         }
     },
-    action_timeout: {
+    shutdown_timeout: {
         doc:
-            'time in milliseconds for waiting for a action ( pause/stop job, etc) to complete before throwing an error',
-        default: 300000,
-        format: 'duration'
-    },
-    network_latency_buffer: {
-        doc:
-            'time in milliseconds buffer which is combined with action_timeout to determine how long the cluster master will wait till it throws an error',
-        default: 15000,
-        format: 'duration'
-    },
-    slicer_timeout: {
-        doc:
-            'time in milliseconds that the slicer will wait for worker connection before terminating the job',
-        default: 180000,
-        format: 'duration'
-    },
-    slicer_allocation_attempts: {
-        doc: 'The number of times a slicer will try to be allocated before failing',
-        default: 3,
-        format: 'nat', // integer >=0 (natural number)
-    },
-    node_state_interval: {
-        doc:
-            'time in milliseconds that indicates when the cluster master will ping nodes for their state',
-        default: 5000,
+            'time in milliseconds for workers and slicers to finish operations before forcefully shutting down',
+        default: 60000,
         format: 'duration'
     },
     node_disconnect_timeout: {
@@ -179,6 +142,40 @@ const schema = {
             'time in milliseconds that the slicer will wait after all workers have disconnected before terminating the job',
         default: 300000,
         format: 'duration'
+    },
+    slicer_timeout: {
+        doc:
+            'time in milliseconds that the slicer will wait for worker connection before terminating the job',
+        default: 180000,
+        format: 'duration'
+    },
+    action_timeout: {
+        doc:
+            'time in milliseconds for waiting for a network message (pause/stop job, etc) to complete before throwing an error',
+        default: 300000,
+        format: 'duration'
+    },
+    network_latency_buffer: {
+        doc:
+            'time in milliseconds buffer which is combined with action_timeout to determine how long a network message will wait till it throws an error',
+        default: 15000,
+        format: 'duration'
+    },
+    node_state_interval: {
+        doc:
+            'time in milliseconds that indicates when the cluster master will ping nodes for their state',
+        default: 5000,
+        format: 'duration'
+    },
+    analytics_rate: {
+        doc: 'time in milliseconds in which to push analytics to cluster master',
+        default: 60000,
+        format: 'duration'
+    },
+    slicer_allocation_attempts: {
+        doc: 'The number of times a slicer will try to be allocated before failing',
+        default: 3,
+        format: 'nat', // integer >=0 (natural number)
     },
     slicer_port_range: {
         doc: 'range of ports that slicers will use per node',
@@ -196,11 +193,6 @@ const schema = {
                 }
             });
         }
-    },
-    analytics_rate: {
-        doc: 'Rate in ms in which to push analytics to cluster master',
-        default: 60000,
-        format: 'duration'
     },
     index_rollover_frequency: {
         state: {
