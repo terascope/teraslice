@@ -322,18 +322,18 @@ export class Server extends Core {
 
     protected updateClientState(clientId: string, state: i.ClientState): boolean {
         if (this._clients[clientId] == null) {
-            this.logger.debug(`${clientId} does not exist and cannot be updated`);
+            this.logger.debug(`client ${clientId} does not exist and cannot be updated to ${state}`);
             return false;
         }
 
         const currentState = this._clients[clientId].state;
         if (currentState === state) {
-            this.logger.debug(`${clientId} state of ${currentState} is the same, skipping update`);
+            this.logger.debug(`client ${clientId} state of ${currentState} is the same, skipping update`);
             return false;
         }
 
-        if (currentState === i.ClientState.Shutdown && state !== i.ClientState.Offline) {
-            this.logger.debug(`${clientId} state of ${currentState} can only be updated to offline`);
+        if (currentState === i.ClientState.Shutdown && state !== i.ClientState.Disconnected) {
+            this.logger.warn(`client ${clientId} is ${currentState} cannot be updated to ${state}`);
             return false;
         }
 
