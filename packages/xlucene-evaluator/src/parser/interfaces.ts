@@ -1,4 +1,5 @@
 import { Units } from '@turf/helpers';
+import { FieldType } from '../interfaces';
 
 export type AST = EmptyAST & LogicalGroup & Term
     & Conjunction & Negation & FieldGroup
@@ -46,24 +47,23 @@ export interface EmptyAST {
 
 export type Field = string|null;
 
-export type DataType = 'string'|'number'|'integer'|'float'|'boolean';
 export interface AnyDataType {
-    data_type: DataType;
+    field_type: FieldType;
     value: string|number|boolean;
 }
 
 export interface NumberDataType {
-    data_type: 'number'|'integer'|'float';
+    field_type: 'number'|'float';
     value: number;
 }
 
 export interface StringDataType {
-    data_type: 'string';
+    field_type: 'string';
     value: string;
 }
 
 export interface BooleanDataType {
-    data_type: 'boolean';
+    field_type: 'boolean';
     value: boolean;
 }
 

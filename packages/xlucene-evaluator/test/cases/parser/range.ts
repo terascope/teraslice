@@ -7,7 +7,7 @@ export default [
         field: 'count',
         left: {
             operator: 'gte',
-            data_type: 'integer',
+            field_type: 'integer',
             value: 10
         }
     }],
@@ -16,7 +16,7 @@ export default [
         field: 'count',
         left: {
             operator: 'gt',
-            data_type: 'integer',
+            field_type: 'integer',
             value: 10,
         }
     }],
@@ -25,7 +25,7 @@ export default [
         field: 'count',
         left: {
             operator: 'lte',
-            data_type: 'float',
+            field_type: 'float',
             value: 20.10
         }
     }],
@@ -34,7 +34,7 @@ export default [
         field: 'count',
         left: {
             operator: 'lt',
-            data_type: 'integer',
+            field_type: 'integer',
             value: 20
         }
     }],
@@ -43,12 +43,12 @@ export default [
         field: 'count',
         left: {
             operator: 'gte',
-            data_type: 'integer',
+            field_type: 'integer',
             value: 1,
         },
         right: {
             operator: 'lte',
-            data_type: 'integer',
+            field_type: 'integer',
             value: 5,
         }
     }],
@@ -57,12 +57,12 @@ export default [
         field: 'count',
         left: {
             operator: 'gte',
-            data_type: 'float',
+            field_type: 'float',
             value: 1.5,
         },
         right: {
             operator: 'lte',
-            data_type: 'float',
+            field_type: 'float',
             value: 5.3,
         }
     }],
@@ -71,12 +71,12 @@ export default [
         field: 'count',
         left: {
             operator: 'gt',
-            data_type: 'integer',
+            field_type: 'integer',
             value: 2,
         },
         right: {
             operator: 'lte',
-            data_type: 'integer',
+            field_type: 'integer',
             value: 6
         }
     }],
@@ -85,12 +85,12 @@ export default [
         field: 'count',
         left: {
             operator: 'gt',
-            data_type: 'float',
+            field_type: 'float',
             value: 1.5,
         },
         right: {
             operator: 'lt',
-            data_type: 'float',
+            field_type: 'float',
             value: 5.3,
         }
     }],
@@ -99,13 +99,13 @@ export default [
         field: 'val',
         left: {
             operator: 'gte',
-            data_type: 'string',
+            field_type: 'string',
             restricted: true,
             value: 'alpha',
         },
         right: {
             operator: 'lte',
-            data_type: 'string',
+            field_type: 'string',
             restricted: true,
             value: 'omega',
         }
@@ -115,13 +115,13 @@ export default [
         field: 'val',
         left: {
             operator: 'gt',
-            data_type: 'string',
+            field_type: 'string',
             quoted: true,
             value: 'alpha',
         },
         right: {
             operator: 'lt',
-            data_type: 'string',
+            field_type: 'string',
             quoted: true,
             value: 'omega',
         }
@@ -131,13 +131,13 @@ export default [
         field: 'val',
         left: {
             operator: 'gte',
-            data_type: 'string',
+            field_type: 'string',
             restricted: true,
             value: '2012-01-01',
         },
         right: {
             operator: 'lte',
-            data_type: 'string',
+            field_type: 'string',
             restricted: true,
             value: '2012-12-31',
         }
@@ -147,13 +147,13 @@ export default [
         field: 'val',
         left: {
             operator: 'gte',
-            data_type: 'string',
+            field_type: 'string',
             restricted: true,
             value: '2012-01-01',
         },
         right: {
             operator: 'lte',
-            data_type: 'number',
+            field_type: 'number',
             value: Number.POSITIVE_INFINITY,
         }
     }],
@@ -162,12 +162,12 @@ export default [
         field: 'val',
         left: {
             operator: 'gte',
-            data_type: 'number',
+            field_type: 'number',
             value: Number.NEGATIVE_INFINITY,
         },
         right: {
             operator: 'lt',
-            data_type: 'integer',
+            field_type: 'integer',
             value: 10,
         }
     }],

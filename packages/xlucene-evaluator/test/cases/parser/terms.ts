@@ -7,7 +7,7 @@ export default [
         'an unquoted string',
         {
             type: ASTType.Term,
-            data_type: 'string',
+            field_type: 'string',
             quoted: false,
             field: null,
             value: 'bar',
@@ -18,7 +18,7 @@ export default [
         'an unquoted string',
         {
             type: ASTType.Term,
-            data_type: 'string',
+            field_type: 'string',
             quoted: false,
             field: null,
             value: 'foo bar',
@@ -29,7 +29,7 @@ export default [
         'a quoted string',
         {
             type: ASTType.Term,
-            data_type: 'string',
+            field_type: 'string',
             field: null,
             quoted: true,
             value: 'foo',
@@ -40,7 +40,7 @@ export default [
         'an escaped quoted string',
         {
             type: ASTType.Term,
-            data_type: 'string',
+            field_type: 'string',
             field: null,
             quoted: false,
             value: '\\"foo\\"',
@@ -48,10 +48,10 @@ export default [
     ],
     [
         'foo:\\"bar\\"',
-        'field and escaped quoted string',
+        'field with escaped quoted string',
         {
             type: ASTType.Term,
-            data_type: 'string',
+            field_type: 'string',
             field: 'foo',
             quoted: false,
             value: '\\"bar\\"',
@@ -59,10 +59,10 @@ export default [
     ],
     [
         'foo:\\"bar',
-        'field and one escaped quoted string',
+        'field with one escaped quoted string',
         {
             type: ASTType.Term,
-            data_type: 'string',
+            field_type: 'string',
             field: 'foo',
             quoted: false,
             value: '\\"bar',
@@ -70,10 +70,10 @@ export default [
     ],
     [
         'foo:"\\""',
-        'field and using a quoted escaped quote',
+        'field with using a quoted escaped quote',
         {
             type: ASTType.Term,
-            data_type: 'string',
+            field_type: 'string',
             field: 'foo',
             quoted: true,
             value: '\\"',
@@ -81,10 +81,10 @@ export default [
     ],
     [
         'foo:bar',
-        'field and string value',
+        'field with string value',
         {
             type: ASTType.Term,
-            data_type: 'string',
+            field_type: 'string',
             field: 'foo',
             quoted: false,
             value: 'bar',
@@ -92,10 +92,10 @@ export default [
     ],
     [
         'foo:   bar',
-        'field and space between string value',
+        'field with space between string value',
         {
             type: ASTType.Term,
-            data_type: 'string',
+            field_type: 'string',
             field: 'foo',
             quoted: false,
             value: 'bar',
@@ -103,10 +103,10 @@ export default [
     ],
     [
         'foo:"bar"',
-        'field and quoted string value',
+        'field with quoted string value',
         {
             type: ASTType.Term,
-            data_type: 'string',
+            field_type: 'string',
             field: 'foo',
             quoted: true,
             value: 'bar',
@@ -114,41 +114,55 @@ export default [
     ],
     [
         'count:123',
-        'field and integer value',
+        'field with quoted integer value',
         {
             type: ASTType.Term,
-            data_type: 'integer',
+            field_type: 'integer',
             field: 'count',
             value: 123,
         },
     ],
     [
         'count:"123"',
-        'field and integer value',
+        'field with quoted integer value',
         {
             type: ASTType.Term,
-            data_type: 'string',
+            field_type: 'string',
             field: 'count',
             quoted: true,
             value: '123',
         },
     ],
     [
-        'cash:50.50',
-        'field and float value',
+        'count_str:123',
+        'field with unqouted string type that is numeric',
         {
             type: ASTType.Term,
-            data_type: 'float',
+            field_type: 'string',
+            field: 'count_str',
+            quoted: false,
+            value: '123',
+        },
+        {
+            count_str: 'string'
+        }
+    ],
+    [
+        'cash:50.50',
+        'field with float value',
+        {
+            type: ASTType.Term,
+            field_type: 'float',
             field: 'cash',
             value: 50.5,
         },
     ],
     [
         'cash:"50.50"',
-        'field and float value',
+        'field with float value',
         {
             type: ASTType.Term,
-            data_type: 'string',
+            field_type: 'string',
             field: 'cash',
             quoted: true,
             value: '50.50',
@@ -156,20 +170,20 @@ export default [
     ],
     [
         'bool:false',
-        'field and bool false',
+        'field with bool false',
         {
             type: ASTType.Term,
-            data_type: 'boolean',
+            field_type: 'boolean',
             field: 'bool',
             value: false,
         },
     ],
     [
         'bool:true',
-        'field and bool true',
+        'field with bool true',
         {
             type: ASTType.Term,
-            data_type: 'boolean',
+            field_type: 'boolean',
             field: 'bool',
             value: true,
         },
@@ -179,7 +193,7 @@ export default [
         'field name with wildcard',
         {
             type: ASTType.Term,
-            data_type: 'string',
+            field_type: 'string',
             field: 'fo?',
             value: 'bar',
         },
@@ -189,7 +203,7 @@ export default [
         'field with q quoted wildcard',
         {
             type: ASTType.Term,
-            data_type: 'string',
+            field_type: 'string',
             field: 'foo',
             quoted: true,
             value: 'ba?',
@@ -200,7 +214,7 @@ export default [
         'a field with parens unqouted string',
         {
             type: ASTType.Term,
-            data_type: 'string',
+            field_type: 'string',
             field: 'val',
             quoted: false,
             value: '155 223',
@@ -211,7 +225,7 @@ export default [
         'a parens unqouted string',
         {
             type: ASTType.Term,
-            data_type: 'string',
+            field_type: 'string',
             field: null,
             quoted: false,
             value: '155 223',
@@ -222,7 +236,7 @@ export default [
         'a field value with parens',
         {
             type: ASTType.Term,
-            data_type: 'string',
+            field_type: 'string',
             field: 'foo',
             quoted: false,
             value: 'bar',

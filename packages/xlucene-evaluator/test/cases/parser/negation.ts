@@ -9,7 +9,7 @@ export default [
             type: ASTType.Negation,
             node: {
                 type: ASTType.Term,
-                data_type: 'string',
+                field_type: 'string',
                 field: 'name',
                 value: 'Madman',
             },
@@ -22,7 +22,7 @@ export default [
             type: ASTType.Negation,
             node: {
                 type: ASTType.Term,
-                data_type: 'string',
+                field_type: 'string',
                 field: 'name',
                 value: 'Madman',
             },
@@ -35,7 +35,7 @@ export default [
             type: ASTType.Negation,
             node: {
                 type: ASTType.Term,
-                data_type: 'string',
+                field_type: 'string',
                 field: 'name',
                 value: 'Madman',
             },
@@ -59,7 +59,7 @@ export default [
                             type: ASTType.Negation,
                             node: {
                                 type: ASTType.Term,
-                                data_type: 'string',
+                                field_type: 'string',
                                 field: 'name',
                                 value: 'Madman',
                             },
@@ -92,7 +92,7 @@ export default [
                             type: ASTType.Negation,
                             node: {
                                 type: ASTType.Term,
-                                data_type: 'string',
+                                field_type: 'string',
                                 field: 'name',
                                 value: 'Madman',
                             },
@@ -120,7 +120,7 @@ export default [
                             type: ASTType.Negation,
                             node: {
                                 type: ASTType.Term,
-                                data_type: 'string',
+                                field_type: 'string',
                                 field: 'name',
                                 value: 'Madman',
                             },
@@ -153,7 +153,7 @@ export default [
                             type: ASTType.Negation,
                             node: {
                                 type: ASTType.Term,
-                                data_type: 'string',
+                                field_type: 'string',
                                 field: 'name',
                                 value: 'Madman',
                             },
@@ -186,7 +186,7 @@ export default [
                             type: ASTType.Negation,
                             node: {
                                 type: ASTType.Term,
-                                data_type: 'string',
+                                field_type: 'string',
                                 field: 'name',
                                 value: 'Madman',
                             },

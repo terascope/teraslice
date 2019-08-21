@@ -14,7 +14,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'gte',
-                            data_type: 'integer',
+                            field_type: 'integer',
                             value: 10,
                         }
                     },
@@ -23,7 +23,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'lte',
-                            data_type: 'integer',
+                            field_type: 'integer',
                             value: 20,
                         }
                     },
@@ -32,7 +32,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'gte',
-                            data_type: 'integer',
+                            field_type: 'integer',
                             value: 100,
                         }
                     }
@@ -52,7 +52,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'gte',
-                            data_type: 'integer',
+                            field_type: 'integer',
                             value: 10,
                         }
                     },
@@ -66,7 +66,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'lte',
-                            data_type: 'integer',
+                            field_type: 'integer',
                             value: 20,
                         }
                     },
@@ -80,7 +80,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'gte',
-                            data_type: 'integer',
+                            field_type: 'integer',
                             value: 100,
                         }
                     }
@@ -97,7 +97,7 @@ export default [
                 nodes: [
                     {
                         type: ASTType.Term,
-                        data_type: 'string',
+                        field_type: 'string',
                         value: 'AqMvPMCS76u0',
                     }
                 ]
@@ -107,7 +107,7 @@ export default [
                 nodes: [
                     {
                         type: ASTType.Term,
-                        data_type: 'string',
+                        field_type: 'string',
                         value: '497qIZuha9_u',
                     }
                 ]
@@ -117,7 +117,7 @@ export default [
                 nodes: [
                     {
                         type: ASTType.Term,
-                        data_type: 'string',
+                        field_type: 'string',
                         value: 'Oc2DG0O2gbcY',
                     }
                 ]
@@ -158,7 +158,7 @@ export default [
                     {
                         type: ASTType.Term,
                         field: 'count',
-                        data_type: 'integer',
+                        field_type: 'integer',
                         value: 155
                     },
                 ]
@@ -169,7 +169,7 @@ export default [
                     {
                         type: ASTType.Term,
                         field: 'count',
-                        data_type: 'string',
+                        field_type: 'string',
                         quoted: true,
                         value: '223'
                     }
@@ -187,7 +187,7 @@ export default [
                     {
                         type: ASTType.Term,
                         field: 'example',
-                        data_type: 'string',
+                        field_type: 'string',
                         value: 'foo'
                     },
                     {
@@ -199,7 +199,7 @@ export default [
                                     {
                                         type: ASTType.Term,
                                         field: 'example',
-                                        data_type: 'string',
+                                        field_type: 'string',
                                         value: 'bar'
                                     },
                                 ]
@@ -210,7 +210,7 @@ export default [
                                     {
                                         type: ASTType.Term,
                                         field: 'example',
-                                        data_type: 'string',
+                                        field_type: 'string',
                                         value: 'baz'
                                     },
                                 ]
@@ -230,14 +230,14 @@ export default [
                 nodes: [
                     {
                         type: ASTType.Term,
-                        data_type: 'string',
+                        field_type: 'string',
                         field: 'example',
                         value: 'foo'
                     },
                     {
                         type: ASTType.Term,
                         field: 'other',
-                        data_type: 'string',
+                        field_type: 'string',
                         value: 'bar'
                     },
                 ]
@@ -256,14 +256,14 @@ export default [
                         node: {
                             type: ASTType.Term,
                             field: 'val',
-                            data_type: 'integer',
+                            field_type: 'integer',
                             value: 1,
                         }
                     },
                     {
                         type: ASTType.Term,
                         field: 'val',
-                        data_type: 'integer',
+                        field_type: 'integer',
                         value: 2
                     }
                 ]

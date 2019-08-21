@@ -39,6 +39,32 @@
         const [lon, lat] = x.parseGeoPoint(str);
         return { lat, lon };
     }
+
+    const supportedFieldTypes = ['string'];
+
+    function getFieldType(field) {
+        const typeConfig = options.typeConfig || {};
+        const fieldType = typeConfig[field];
+        if (!fieldType) return;
+        return fieldType;
+    }
+
+    function hasSupportedFieldType(field) {
+        return supportedFieldTypes.includes(getFieldType(field));
+    }
+
+    function parseTermForFieldType(field, value) {
+        const fieldType = getFieldType(field);
+        const term = {
+            type: 'term',
+            field_type: fieldType,
+        };
+        if (fieldType === 'string') {
+            term.quoted = false;
+            term.value = `${value}`;
+        }
+        return term;
+    }
 }
 
 
@@ -198,6 +224,15 @@ BaseTermExpression
     }
     / GeoTermExpression
     / FieldGroup
+    / field:FieldName ws* FieldSeparator ws* value:RestrictedString &{
+        return hasSupportedFieldType(field);
+    } {
+        const term = parseTermForFieldType(field, value);
+        return {
+            ...term,
+            field,
+        }
+    }
     / field:FieldName ws* FieldSeparator ws* term:TermType {
         return {
             ...term,
@@ -343,7 +378,7 @@ NegativeInfinityType
     = '*' {
         return {
             type: 'term',
-            data_type: 'number',
+            field_type: 'number',
             value: Number.NEGATIVE_INFINITY
         }
     }
@@ -352,7 +387,7 @@ PostiveInfinityType
     = '*' {
         return {
             type: 'term',
-            data_type: 'number',
+            field_type: 'number',
             value: Number.POSITIVE_INFINITY
         }
     }
@@ -361,7 +396,7 @@ FloatType
     = value:Float {
         return {
             type: 'term',
-            data_type: 'float',
+            field_type: 'float',
             value
         }
     }
@@ -370,7 +405,7 @@ IntegerType
     = value:Integer {
         return {
             type: 'term',
-            data_type: 'integer',
+            field_type: 'integer',
             value
         }
     }
@@ -379,7 +414,7 @@ BooleanType
   = value:Boolean {
       return {
         type: 'term',
-        data_type: 'boolean',
+        field_type: 'boolean',
         value
       }
   }
@@ -388,7 +423,7 @@ RegexpType
     = value:Regex {
         return {
             type: 'regexp',
-            data_type: 'string',
+            field_type: 'string',
             value
         }
     }
@@ -397,7 +432,7 @@ WildcardType
   = value:Wildcard {
        return {
            type: 'wildcard',
-           data_type: 'string',
+           field_type: 'string',
            value
        };
     }
@@ -406,7 +441,7 @@ QuotedStringType
     = value:QuotedTerm {
         return {
             type: 'term',
-            data_type: 'string',
+            field_type: 'string',
             quoted: true,
             value
         };
@@ -416,7 +451,7 @@ UnqoutedStringType
     = value:UnquotedTerm {
        return {
            type: 'term',
-           data_type: 'string',
+           field_type: 'string',
            quoted: false,
            value
        };
@@ -426,7 +461,7 @@ RestrictedStringType
     = value:RestrictedString {
        return {
            type: 'term',
-           data_type: 'string',
+           field_type: 'string',
            restricted: true,
            quoted: false,
            value

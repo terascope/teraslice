@@ -269,7 +269,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: 'string',
                             value: 'AqMvPMCS76u0',
                         },
                     ],
@@ -279,7 +279,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: 'string',
                             value: 'foo',
                         },
                     ],
@@ -347,7 +347,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: 'string',
                             restricted: true,
                             field: null,
                             value: 'foo',
@@ -359,7 +359,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: 'string',
                             field: null,
                             quoted: true,
                             value: 'bar',
@@ -380,7 +380,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: 'string',
                             field: null,
                             quoted: true,
                             value: 'foo',
@@ -392,7 +392,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: 'string',
                             field: 'bar',
                             value: 'baz',
                         },
@@ -412,7 +412,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: 'string',
                             field: 'hi',
                             quoted: true,
                             value: 'foo',
@@ -424,7 +424,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: 'string',
                             field: 'hello',
                             quoted: true,
                             value: 'bar',
@@ -445,7 +445,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: 'string',
                             field: 'foo',
                             quoted: false,
                             value: 'bar',
@@ -457,7 +457,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: 'string',
                             field: null,
                             quoted: false,
                             value: 'baz',
@@ -532,7 +532,7 @@ export default [
                                     type: ASTType.Conjunction,
                                     nodes: [
                                         {
-                                            data_type: 'integer',
+                                            field_type: 'integer',
                                             field: 'a',
                                             value: 1,
                                         },
@@ -542,7 +542,7 @@ export default [
                                     type: ASTType.Conjunction,
                                     nodes: [
                                         {
-                                            data_type: 'integer',
+                                            field_type: 'integer',
                                             field: 'b',
                                             value: 1,
                                         },
@@ -557,7 +557,7 @@ export default [
                                     type: ASTType.Conjunction,
                                     nodes: [
                                         {
-                                            data_type: 'integer',
+                                            field_type: 'integer',
                                             field: 'c',
                                             value: 1,
                                         },
@@ -567,7 +567,7 @@ export default [
                                     type: ASTType.Conjunction,
                                     nodes: [
                                         {
-                                            data_type: 'integer',
+                                            field_type: 'integer',
                                             field: 'd',
                                             value: 1,
                                         },
