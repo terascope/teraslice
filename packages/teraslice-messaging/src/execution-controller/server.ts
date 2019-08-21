@@ -10,7 +10,7 @@ export class Server extends core.Server {
     queue: Queue<i.EnqueuedWorker>;
 
     constructor(opts: i.ServerOptions) {
-        const { port, actionTimeout, pingInterval, pingTimeout, networkLatencyBuffer, workerDisconnectTimeout, logger } = opts;
+        const { port, actionTimeout, networkLatencyBuffer, workerDisconnectTimeout, logger } = opts;
 
         if (!isNumber(workerDisconnectTimeout)) {
             throw new Error('ExecutionController.Server requires a valid workerDisconnectTimeout');
@@ -19,8 +19,6 @@ export class Server extends core.Server {
         super({
             port,
             actionTimeout,
-            pingInterval,
-            pingTimeout,
             networkLatencyBuffer,
             clientDisconnectTimeout: workerDisconnectTimeout,
             serverName: 'ExecutionController',
@@ -86,7 +84,7 @@ export class Server extends core.Server {
                 dispatched = response.payload.willProcess;
             }
         } catch (error) {
-            this.logger.warn(`got error when dispatching slice ${slice.slice_id}`, error);
+            this.logger.warn(error, `error when dispatching slice ${slice.slice_id}`);
         }
 
         if (!dispatched) {

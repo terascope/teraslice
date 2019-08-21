@@ -99,7 +99,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
      * ID creation
      */
     function index(record, indexArg = indexName) {
-        logger.trace('indexing record', logRecord ? record : null);
+        logger.trace('indexing record', logRecord ? record : undefined);
         const query = {
             index: indexArg,
             type: recordType,

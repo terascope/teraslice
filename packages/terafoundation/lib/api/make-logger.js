@@ -8,7 +8,7 @@ const { includes } = require('@terascope/utils');
 function getLogLevel(level) {
     // Set the same level for all logging types.
     if (typeof level === 'string') {
-        return { console: level, file: level, elasticsearch: level };
+        return { console: level, file: level };
     }
 
     // Otherwise there may be a list of separate settins for each type.

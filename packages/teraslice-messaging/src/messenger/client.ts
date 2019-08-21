@@ -126,16 +126,16 @@ export class Client extends Core {
                 reject(new Error(`Unable to connect to ${this.serverName} at ${this.hostUrl} after ${ms(this.connectTimeout)}`));
             }, this.connectTimeout);
 
-            this.logger.debug(`attempting to ${this.serverName} at ${this.hostUrl}, timeout after ${ms(this.connectTimeout)}`);
+            this.logger.debug(`attempting to ${this.serverName} at ${this.hostUrl}`);
         });
 
         this.socket.on('reconnecting', () => {
-            this.logger.trace(`client ${this.clientId} is reconnecting`);
+            this.logger.debug(`client ${this.clientId} is reconnecting...`);
             this.ready = false;
         });
 
         this.socket.on('reconnect', () => {
-            this.logger.trace(`client ${this.clientId} reconnected`);
+            this.logger.info(`client ${this.clientId} reconnected`);
             this.ready = true;
             this.emit('ready');
 
@@ -145,13 +145,13 @@ export class Client extends Core {
                 try {
                     await this.sendAvailable();
                 } catch (err) {
-                    this.logger.warn('update availablilty on reconnect error', err);
+                    this.logger.warn(err, 'update availablilty on reconnect error');
                 }
             });
         });
 
         this.socket.on('disconnect', () => {
-            this.logger.debug(`client ${this.clientId} disconnected`);
+            this.logger.info(`client ${this.clientId} disconnected`);
             this.ready = false;
         });
 
@@ -170,7 +170,7 @@ export class Client extends Core {
         });
 
         this.socket.on('connect', () => {
-            this.logger.trace(`client ${this.clientId} connected`);
+            this.logger.info(`client ${this.clientId} connected`);
             this.ready = true;
             this.emit('ready');
         });

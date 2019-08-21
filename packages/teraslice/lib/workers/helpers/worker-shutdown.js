@@ -111,35 +111,34 @@ function shutdownHandler(context, shutdownFn) {
         }
     }
 
+    function setStatusCode(code) {
+        if (api.exiting) return;
+        if (process.exitCode == null) {
+            process.exitCode = code;
+        }
+    }
+
     process.on('SIGINT', () => {
         logger.info(`${assignment} received process:SIGINT, ${exitingIn()}`);
-        if (!api.exiting) {
-            process.exitCode = 0;
-        }
+        setStatusCode(0);
         exit('SIGINT');
     });
 
     process.on('SIGTERM', () => {
         logger.info(`${assignment} received process:SIGTERM, ${exitingIn()}`);
-        if (!api.exiting) {
-            process.exitCode = 0;
-        }
+        setStatusCode(0);
         exit('SIGTERM');
     });
 
     process.on('uncaughtException', (err) => {
-        logger.fatal(err, `${assignment} received an uncaughtException, ${exitingIn()}`);
-        if (!api.exiting) {
-            process.exitCode = 1;
-        }
+        logger.error(err, `${assignment} received an uncaughtException, ${exitingIn()}`);
+        setStatusCode(1);
         exit('uncaughtException', err);
     });
 
     process.once('unhandledRejection', (err) => {
-        logger.fatal(err, `${assignment} received an unhandledRejection, ${exitingIn()}`);
-        if (!api.exiting) {
-            process.exitCode = 1;
-        }
+        logger.error(err, `${assignment} received an unhandledRejection, ${exitingIn()}`);
+        setStatusCode(1);
         exit('unhandledRejection', err);
     });
 
@@ -157,19 +156,15 @@ function shutdownHandler(context, shutdownFn) {
 
     // event is fired from terafoundation when an error occurs during instantiation of a client
     events.once('client:initialization:error', (err) => {
-        logger.fatal(`${assignment} received a client initialization error, ${exitingIn()}`, err);
-        if (!api.exiting) {
-            process.exitCode = 1;
-        }
+        logger.error(err, `${assignment} received a client initialization error, ${exitingIn()}`);
+        setStatusCode(1);
         exit('client:initialization:error', err);
     });
 
     events.once('worker:shutdown:complete', (err) => {
-        if (!api.exiting) {
-            process.exitCode = 0;
-        }
+        setStatusCode(0);
         if (err) {
-            logger.fatal(err, `${assignment} shutdown error, ${exitingIn()}`);
+            logger.error(err, `${assignment} shutdown error, ${exitingIn()}`);
         } else {
             logger.info(`${assignment} shutdown, ${exitingIn()}`);
         }

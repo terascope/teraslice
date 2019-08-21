@@ -165,15 +165,11 @@ class ExecutionController {
         });
 
         this.server.onClientDisconnect((workerId) => {
-            this.logger.trace(`worker ${workerId} is disconnected but it may reconnect`);
+            this.logger.trace(`worker ${workerId} disconnected but it may reconnect`);
             this.executionAnalytics.increment('workers_disconnected');
             this.executionAnalytics.set('workers_active', this.server.activeWorkerCount);
 
             this._startWorkerDisconnectWatchDog();
-        });
-
-        this.server.onClientOffline((workerId) => {
-            this.logger.trace(`worker ${workerId} is offline`);
             this._updateExecutionStats();
         });
 

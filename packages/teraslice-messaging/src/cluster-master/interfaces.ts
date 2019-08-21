@@ -18,8 +18,6 @@ export interface ServerOptions {
     serverTimeout?: number;
     networkLatencyBuffer?: number;
     requestListener?: RequestListener;
-    pingTimeout?: number;
-    pingInterval?: number;
     logger?: Logger;
 }
 

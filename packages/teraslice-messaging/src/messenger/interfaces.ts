@@ -22,8 +22,6 @@ export interface ServerOptions extends CoreOptions {
     serverName: string;
     clientDisconnectTimeout: number;
     serverTimeout?: number;
-    pingTimeout?: number;
-    pingInterval?: number;
     requestListener?: RequestListener;
 }
 
@@ -63,7 +61,6 @@ export interface SendOptions {
 export interface ConnectedClient {
     readonly clientId: string;
     state: ClientState;
-    offlineAt: number | null;
 }
 
 export interface UpdateClientState {
@@ -73,7 +70,6 @@ export interface UpdateClientState {
 }
 
 export enum ClientState {
-    Offline = 'offline',
     Online = 'online',
     Disconnected = 'disconnected',
     Available = 'available',

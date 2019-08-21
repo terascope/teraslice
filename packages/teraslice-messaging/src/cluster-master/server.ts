@@ -13,8 +13,6 @@ export class Server extends core.Server {
             nodeDisconnectTimeout,
             requestListener,
             serverTimeout,
-            pingInterval,
-            pingTimeout,
             logger,
         } = opts;
 
@@ -25,8 +23,6 @@ export class Server extends core.Server {
         super({
             port,
             actionTimeout,
-            pingInterval,
-            pingTimeout,
             networkLatencyBuffer,
             clientDisconnectTimeout: nodeDisconnectTimeout,
             requestListener,

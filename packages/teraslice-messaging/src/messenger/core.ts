@@ -40,7 +40,6 @@ export class Core extends EventEmitter {
 
     protected async handleSendResponse(sent: i.Message): Promise<i.Message | null> {
         if (!sent.response) return null;
-        this.logger.trace('waiting for response from message', sent);
 
         const remaining = sent.respondBy - Date.now();
         const response = await this.onceWithTimeout(sent.id, remaining);
