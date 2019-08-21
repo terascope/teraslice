@@ -1,5 +1,5 @@
 import { AnyObject } from '@terascope/utils';
-import { TypeConfig } from '../interfaces';
+import { TypeConfig } from '../parser';
 
 export interface QueryAccessConfig<T extends AnyObject = AnyObject> {
     excludes?: (keyof T)[];
