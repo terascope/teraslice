@@ -32,7 +32,6 @@ export class Server extends Core {
             serverName,
             serverTimeout,
             clientDisconnectTimeout,
-            networkLatencyBuffer,
             requestListener = defaultRequestListener,
             logger = _logger,
             ...coreOpts
@@ -62,9 +61,8 @@ export class Server extends Core {
         this.port = port;
         this.serverName = serverName;
         this.clientDisconnectTimeout = clientDisconnectTimeout;
-        const timeout = clientDisconnectTimeout + (networkLatencyBuffer || 0);
-        const pingTimeout = Math.ceil(timeout / 2);
-        const pingInterval = Math.floor(timeout / 2);
+        const pingTimeout = this.actionTimeout;
+        const pingInterval = this.actionTimeout + this.networkLatencyBuffer;
 
         // @ts-ignore
         this.server = new SocketIOServer({
