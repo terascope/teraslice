@@ -190,7 +190,7 @@ describe('Messenger', () => {
         let clientAvailableFn: clientFn;
         const clientUnavailableFn: clientFn = jest.fn();
         const clientOnlineFn: clientFn = jest.fn();
-        const clientOfflineFn: clientFn = jest.fn();
+        const clientDisconnectFn: clientFn = jest.fn();
         const clientReconnectFn: clientFn = jest.fn();
         const clientShutdownFn: clientFn = jest.fn();
         const clientErrorFn: clientFn = jest.fn();
@@ -214,7 +214,7 @@ describe('Messenger', () => {
                 server.onClientOnline(clientOnlineFn);
                 server.onClientAvailable(clientAvailableFn);
                 server.onClientUnavailable(clientUnavailableFn);
-                server.onClientOffline(clientOfflineFn);
+                server.onClientDisconnect(clientDisconnectFn);
                 server.onClientReconnect(clientReconnectFn);
                 server.onClientShutdown(clientShutdownFn);
                 server.onClientError(clientErrorFn);
@@ -261,8 +261,8 @@ describe('Messenger', () => {
             expect(server.onlineClients).toBeArrayOfSize(1);
             expect(server.availableClientCount).toEqual(1);
             expect(server.availableClients).toBeArrayOfSize(1);
-            expect(server.offlineClientCount).toEqual(0);
-            expect(server.offlineClients).toBeArrayOfSize(0);
+            expect(server.disconnectedClientCount).toEqual(0);
+            expect(server.disconnectedClients).toBeArrayOfSize(0);
             expect(server.unavailableClientCount).toEqual(0);
             expect(server.unavailableClients).toBeArrayOfSize(0);
         });
@@ -279,8 +279,8 @@ describe('Messenger', () => {
             expect(clientUnavailableFn).not.toHaveBeenCalled();
         });
 
-        it('should not call server.onClientOffline', () => {
-            expect(clientOfflineFn).not.toHaveBeenCalled();
+        it('should not call server.onClientDisconnect', () => {
+            expect(clientDisconnectFn).not.toHaveBeenCalled();
         });
 
         it('should not call server.onClientShutdown', () => {

@@ -10,7 +10,7 @@ import { Core } from './core';
 
 const _logger = debugLogger('teraslice-messaging:server');
 
-const disconnectedStates = [i.ClientState.Offline, i.ClientState.Shutdown];
+const disconnectedStates = [i.ClientState.Disconnected, i.ClientState.Shutdown];
 
 const unavailableStates = [i.ClientState.Unavailable, ...disconnectedStates];
 
@@ -126,7 +126,7 @@ export class Server extends Core {
             () => {
                 for (const { clientId, state } of Object.values(this._clients)) {
                     if (state === i.ClientState.Shutdown) {
-                        this.updateClientState(clientId, i.ClientState.Offline);
+                        this.updateClientState(clientId, i.ClientState.Disconnected);
                     }
                 }
             },
@@ -174,11 +174,11 @@ export class Server extends Core {
         return this.countClientsByState(onlineStates);
     }
 
-    get offlineClients(): i.ConnectedClient[] {
+    get disconnectedClients(): i.ConnectedClient[] {
         return this.filterClientsByState(disconnectedStates).slice();
     }
 
-    get offlineClientCount(): number {
+    get disconnectedClientCount(): number {
         return this.countClientsByState(disconnectedStates);
     }
 
@@ -216,8 +216,8 @@ export class Server extends Core {
         });
     }
 
-    onClientOffline(fn: (clientId: string) => void) {
-        return this.on(`client:${i.ClientState.Offline}`, (msg) => {
+    onClientDisconnect(fn: (clientId: string) => void) {
+        return this.on(`client:${i.ClientState.Disconnected}`, (msg) => {
             fn(msg.scope);
         });
     }
@@ -398,7 +398,7 @@ export class Server extends Core {
             if (this.isShuttingDown) {
                 this.updateClientState(clientId, i.ClientState.Shutdown);
             } else {
-                this.updateClientState(clientId, i.ClientState.Offline);
+                this.updateClientState(clientId, i.ClientState.Disconnected);
             }
         });
 

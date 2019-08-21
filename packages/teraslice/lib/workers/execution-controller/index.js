@@ -164,8 +164,8 @@ class ExecutionController {
             this.executionAnalytics.set('workers_available', this.server.availableClientCount);
         });
 
-        this.server.onClientOffline((workerId) => {
-            this.logger.trace(`worker ${workerId} went offline but it may reconnect`);
+        this.server.onClientDisconnect((workerId) => {
+            this.logger.trace(`worker ${workerId} disconnected but it may reconnect`);
             this.executionAnalytics.increment('workers_disconnected');
             this.executionAnalytics.set('workers_active', this.server.activeWorkerCount);
 
