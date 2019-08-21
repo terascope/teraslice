@@ -128,48 +128,48 @@ const schema = {
     shutdown_timeout: {
         doc:
             'time in milliseconds for workers and slicers to finish operations before forcefully shutting down',
-        default: 60000,
+        default: '1 minute',
         format: 'duration'
     },
     node_disconnect_timeout: {
         doc:
             'time in milliseconds that the cluster  will wait untill it drops that node from state and attempts to provision the lost workers',
-        default: 300000,
+        default: '5 minutes',
         format: 'duration'
     },
     worker_disconnect_timeout: {
         doc:
             'time in milliseconds that the slicer will wait after all workers have disconnected before terminating the job',
-        default: 300000,
+        default: '5 minutes',
         format: 'duration'
     },
     slicer_timeout: {
         doc:
             'time in milliseconds that the slicer will wait for worker connection before terminating the job',
-        default: 180000,
+        default: '3 minutes',
         format: 'duration'
     },
     action_timeout: {
         doc:
             'time in milliseconds for waiting for a network message (pause/stop job, etc) to complete before throwing an error',
-        default: 300000,
+        default: '2 minutes',
         format: 'duration'
     },
     network_latency_buffer: {
         doc:
             'time in milliseconds buffer which is combined with action_timeout to determine how long a network message will wait till it throws an error',
-        default: 15000,
+        default: '15 seconds',
         format: 'duration'
     },
     node_state_interval: {
         doc:
             'time in milliseconds that indicates when the cluster master will ping nodes for their state',
-        default: 5000,
+        default: '5 seconds',
         format: 'duration'
     },
     analytics_rate: {
         doc: 'time in milliseconds in which to push analytics to cluster master',
-        default: 60000,
+        default: '1 minute',
         format: 'duration'
     },
     slicer_allocation_attempts: {
