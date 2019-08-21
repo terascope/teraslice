@@ -1,10 +1,5 @@
 import { Units } from '@turf/helpers';
 
-export type FieldType = 'geo'|'date'|'ip'|'string'|'integer'|'float'|'boolean'|'object';
-export interface TypeConfig {
-    [field: string]: FieldType;
-}
-
 export type BooleanCB = (data: any) => boolean;
 
 export type GeoPointArr = [number, number];

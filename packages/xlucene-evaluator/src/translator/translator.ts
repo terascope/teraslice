@@ -1,6 +1,5 @@
 import { debugLogger, isString, Logger } from '@terascope/utils';
-import { TypeConfig } from '../interfaces';
-import { Parser, isEmptyAST } from '../parser';
+import { TypeConfig, Parser, isEmptyAST } from '../parser';
 import * as i from './interfaces';
 import * as utils from './utils';
 

@@ -12,6 +12,6 @@ export default class BooleanType extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: 'boolean' as FieldType };
+        return { [this.field]: FieldType.Boolean };
     }
 }

@@ -1,10 +1,9 @@
 import _ from 'lodash';
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { TermLikeAST, isWildcard, CachedParser, isEmptyAST } from '../parser';
+import { TypeConfig, TermLikeAST, isWildcard, CachedParser, isEmptyAST } from '../parser';
 import { CachedTranslator } from '../translator';
 import { QueryAccessConfig } from './interfaces';
-import { TypeConfig } from '../interfaces';
 
 const _logger = ts.debugLogger('xlucene-query-access');
 

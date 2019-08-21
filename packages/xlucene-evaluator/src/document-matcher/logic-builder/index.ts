@@ -3,12 +3,12 @@ import _ from 'lodash';
 import fp from 'lodash/fp';
 import { geoDistance,  geoBoundingBox } from './geo';
 import { compareTermDates, dateRange } from './dates';
-import { ipTerm, ipRange } from './ip';
 import { regexp, wildcard, isWildCard, findWildcardField } from './string';
+import { BooleanCB } from '../../interfaces';
+import { ipTerm, ipRange } from './ip';
 import * as p from '../../parser';
-import { TypeConfig, BooleanCB } from '../../interfaces';
 
-export default function buildLogicFn(parser: p.Parser, typeConfig: TypeConfig = {}) {
+export default function buildLogicFn(parser: p.Parser, typeConfig: p.TypeConfig = {}) {
     return walkAst(parser.ast, typeConfig);
 }
 
@@ -79,7 +79,7 @@ function isFalse() {
     return false;
 }
 
-function walkAst(node: p.AnyAST, typeConfig: TypeConfig): BooleanCB {
+function walkAst(node: p.AnyAST, typeConfig: p.TypeConfig): BooleanCB {
     if (p.isEmptyAST(node)) {
         return isFalse;
     }
@@ -128,18 +128,18 @@ function walkAst(node: p.AnyAST, typeConfig: TypeConfig): BooleanCB {
     return isFalse;
 }
 
-function typeFunctions(node:p.Term|p.Range, typeConfig: TypeConfig, defaultCb: BooleanCB) {
+function typeFunctions(node:p.Term|p.Range, typeConfig: p.TypeConfig, defaultCb: BooleanCB) {
     if (node.field == null) return defaultCb;
 
-    const type = typeConfig[node.field];
-    if (type === 'date') {
+    const type: p.FieldType = typeConfig[node.field];
+    if (type === p.FieldType.Date) {
         if (p.isRange(node)) {
             return dateRange(node);
         }
         return compareTermDates(node);
     }
 
-    if (type === 'ip') {
+    if (type === p.FieldType.IP) {
         if (p.isRange(node)) {
             return ipRange(node);
         }
@@ -155,12 +155,12 @@ function makeIsValue(value: any) {
     };
 }
 
-function makeConjunctionFn(conjunction: p.Conjunction, typeConfig: TypeConfig) {
+function makeConjunctionFn(conjunction: p.Conjunction, typeConfig: p.TypeConfig) {
     const fns = conjunction.nodes.map((node) => walkAst(node, typeConfig));
     return makeAllPassFn(fns);
 }
 
-function makeGroupFn(node: p.GroupLikeAST, typeConfig: TypeConfig) {
+function makeGroupFn(node: p.GroupLikeAST, typeConfig: p.TypeConfig) {
     const fns = node.flow.map((conjunction) => makeConjunctionFn(conjunction, typeConfig));
     return makeAnyPassFn(fns);
 }

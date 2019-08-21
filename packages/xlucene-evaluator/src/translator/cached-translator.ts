@@ -1,7 +1,6 @@
-import { Translator } from './translator';
-import { TypeConfig } from '../interfaces';
-import { Parser } from '../parser';
 import { isString, Logger } from '@terascope/utils';
+import { Parser, TypeConfig } from '../parser';
+import { Translator } from './translator';
 
 type Cached = { [query: string]: Translator };
 const _cache = new WeakMap<CachedTranslator, Cached>();

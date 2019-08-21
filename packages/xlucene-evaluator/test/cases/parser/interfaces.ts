@@ -1,5 +1,4 @@
-import { AST } from '../../../src/parser';
-import { TypeConfig } from '../../../src';
+import { AST, TypeConfig } from '../../../src';
 
 export type TestCase = [
     // when give query %s

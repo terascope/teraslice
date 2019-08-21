@@ -1,8 +1,7 @@
 import 'jest-extended';
 import { debugLogger, get, times } from '@terascope/utils';
 import { buildAnyQuery } from '../src/translator/utils';
-import { Translator, TypeConfig } from '../src';
-import { AST, Parser } from '../src/parser';
+import { Translator, TypeConfig, FieldType, AST, Parser } from '../src';
 import allTestCases from './cases/translator';
 
 const logger = debugLogger('translator-spec');
@@ -23,7 +22,7 @@ describe('Translator', () => {
     it('should have a types property', () => {
         const query = 'foo:bar';
         const typeConfig: TypeConfig = {
-            location: 'geo',
+            location: FieldType.Geo,
         };
 
         const translator = new Translator(query, typeConfig);

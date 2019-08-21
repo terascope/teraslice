@@ -12,6 +12,6 @@ export default class Short extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: 'number' as FieldType };
+        return { [this.field]: FieldType.Integer };
     }
 }

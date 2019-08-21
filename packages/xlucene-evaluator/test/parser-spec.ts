@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { TSError, times } from '@terascope/utils';
 import allTestCases from './cases/parser';
-import { Parser, ASTType } from '../src/parser';
+import { Parser, ASTType } from '../src';
 
 describe('Parser', () => {
     for (const [key, testCases] of Object.entries(allTestCases)) {

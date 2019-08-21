@@ -2,7 +2,7 @@ import { toNumber } from 'lodash';
 import { trimAndToLower, isPlainObject, parseNumberList } from '@terascope/utils';
 import geoHash from 'latlon-geohash';
 import { GeoDistanceObj, GeoPointInput } from './interfaces';
-import { Range } from './parser';
+import { Range } from './parser/interfaces';
 
 export function isInfiniteValue(input?: number|string) {
     return input === '*' || input === Number.NEGATIVE_INFINITY || input === Number.POSITIVE_INFINITY;
@@ -67,10 +67,10 @@ export function getLonAndLat(input: any, throwInvalid = true): [number, number] 
     return [toNumber(lat), toNumber(lon)];
 }
 
-export function parseGeoPoint(point: GeoPointInput | number[] | object): number[];
-export function parseGeoPoint(point: GeoPointInput | number[] | object, throwInvalid: true): number[];
-export function parseGeoPoint(point: GeoPointInput | number[] | object, throwInvalid: false): number[] | null;
-export function parseGeoPoint(point: GeoPointInput | number[] | object, throwInvalid = true): number[] | null {
+export function parseGeoPoint(point: GeoPointInput | number[] | object): { lat: number, lon: number };
+export function parseGeoPoint(point: GeoPointInput | number[] | object, throwInvalid: true): { lat: number, lon: number };
+export function parseGeoPoint(point: GeoPointInput | number[] | object, throwInvalid: false): { lat: number, lon: number } | null;
+export function parseGeoPoint(point: GeoPointInput | number[] | object, throwInvalid = true): { lat: number, lon: number } | null {
     let results = null;
 
     if (typeof point === 'string') {
@@ -92,8 +92,13 @@ export function parseGeoPoint(point: GeoPointInput | number[] | object, throwInv
     }
 
     // data incoming is lat,lon and we must return lon,lat
-    if (results) return results.reverse();
-    return results;
+    if (results) {
+        return {
+            lat: results[0],
+            lon: results[1],
+        };
+    }
+    return null;
 }
 
 const mileUnits = {

@@ -12,6 +12,6 @@ export default class Float extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: 'float' as FieldType };
+        return { [this.field]: FieldType.Float };
     }
 }

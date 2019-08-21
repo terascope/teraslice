@@ -12,6 +12,6 @@ export default class IpRangeType extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: 'ip' as FieldType };
+        return { [this.field]: FieldType.IP };
     }
 }

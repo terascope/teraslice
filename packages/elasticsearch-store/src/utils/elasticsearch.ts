@@ -1,9 +1,9 @@
 import * as R from 'rambda';
 import { Client } from 'elasticsearch';
+import * as ts from '@terascope/utils';
 import { TypeConfig, FieldType } from 'xlucene-evaluator';
 import { getFirstKey, getFirstValue, buildNestPath } from './misc';
 import { getErrorType } from './errors';
-import * as ts from '@terascope/utils';
 import * as i from '../interfaces';
 
 export function getTimeByField(field = ''): (input: any) => number {
@@ -153,9 +153,14 @@ export function getTypesFromProperties(properties: MappingProperties, basePath =
 export function getXluceneTypeFromESType(type?: string): FieldType | undefined {
     if (!type) return;
 
-    if (['geo_point', 'geo_shape'].includes(type)) return 'geo';
-    if (type === 'ip') return 'ip';
-    if (type === 'date') return 'date';
+    if (['geo_point', 'geo_shape'].includes(type)) return FieldType.Geo;
+    if (type === 'ip') return FieldType.IP;
+    if (type === 'date') return FieldType.Date;
+    if (['byte', 'short', 'integer', 'long'].includes(type)) return FieldType.Integer;
+    if (['double', 'float'].includes(type)) return FieldType.Float;
+    if (['keyword', 'text'].includes(type)) return FieldType.String;
+    if (type === 'object') return FieldType.Object;
+    if (type === 'boolean') return FieldType.Boolean;
 
     return;
 }

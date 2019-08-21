@@ -1,5 +1,6 @@
-import Interger from '../../../src/types/versions/v1/integer';
 import { TSError } from '@terascope/utils';
+import { FieldType } from 'xlucene-evaluator';
+import Interger from '../../../src/types/versions/v1/integer';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Integer V1', () => {
@@ -39,7 +40,7 @@ describe('Integer V1', () => {
 
     it('can get proper xlucene properties', () => {
         const xlucene = new Interger(field, typeConfig).toXlucene();
-        const results = { [field]: 'number' };
+        const results = { [field]: FieldType.Integer };
 
         expect(xlucene).toEqual(results);
     });

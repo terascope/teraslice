@@ -1,3 +1,4 @@
+import { FieldType } from '../../../src';
 
 const ipRange = [
     { ipfield: '192.198.0.0' },
@@ -88,7 +89,7 @@ export default [
             false,
             false,
         ],
-        { ipfield: 'ip' }
+        { ipfield: FieldType.IP }
     ],
     [
         'can do ipv6 cidr range matches with type anotations',
@@ -105,7 +106,7 @@ export default [
             false,
             true,
         ],
-        { ipfield: 'ip' }
+        { ipfield: FieldType.IP }
     ],
     [
         'can do ipv6 matches with type anotations',
@@ -122,7 +123,7 @@ export default [
             true,
             false,
         ],
-        { ipfield: 'ip' }
+        { ipfield: FieldType.IP }
     ],
     [
         'can do ip type anotations with crazy data',
@@ -143,7 +144,7 @@ export default [
             false,
             false,
         ],
-        { ipfield: 'ip' }
+        { ipfield: FieldType.IP }
     ],
     [
         'can support ip range modifiers []',
@@ -156,7 +157,7 @@ export default [
             true,
             true,
         ],
-        { ipfield: 'ip' }
+        { ipfield: FieldType.IP }
     ],
     [
         'can support ip range modifiers {}',
@@ -169,7 +170,7 @@ export default [
             false,
             true,
         ],
-        { ipfield: 'ip' }
+        { ipfield: FieldType.IP }
     ],
     [
         'can support ip range modifiers [}',
@@ -182,7 +183,7 @@ export default [
             false,
             true,
         ],
-        { ipfield: 'ip' }
+        { ipfield: FieldType.IP }
     ],
     [
         'can support ip range modifiers {]',
@@ -195,7 +196,7 @@ export default [
             true,
             true,
         ],
-        { ipfield: 'ip' }
+        { ipfield: FieldType.IP }
     ],
     [
         'can do compund logic AND with ip matches',
@@ -211,7 +212,7 @@ export default [
             false,
             false,
         ],
-        { ipfield: 'ip' }
+        { ipfield: FieldType.IP }
     ],
     [
         'can do compund logic OR with ip matches',
@@ -227,7 +228,7 @@ export default [
             false,
             false,
         ],
-        { ipfield: 'ip' }
+        { ipfield: FieldType.IP }
     ],
     [
         'can do compund logic _exists_ with ip matches',
@@ -243,7 +244,7 @@ export default [
             false,
             false,
         ],
-        { ipfield: 'ip' }
+        { ipfield: FieldType.IP }
     ],
     [
         'can do compund logic range with ip matches',
@@ -259,7 +260,7 @@ export default [
             false,
             true,
         ],
-        { ipfield: 'ip' }
+        { ipfield: FieldType.IP }
     ],
     [
         'can do complex ip queries',
@@ -276,7 +277,7 @@ export default [
             true,
             false,
         ],
-        { ipfield: 'ip' }
+        { ipfield: FieldType.IP }
     ],
     [
         'can do complex ip queries',
@@ -293,6 +294,6 @@ export default [
             true,
             false,
         ],
-        { ipfield: 'ip' }
+        { ipfield: FieldType.IP }
     ],
 ];

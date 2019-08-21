@@ -106,16 +106,14 @@ describe('DataType', () => {
                 },
             };
 
-            const results = {
+            const xluceneConfig = new DataType(typeConfig).toXlucene();
+            expect(xluceneConfig).toEqual({
                 hello: 'string',
                 location: 'geo',
                 date: 'date',
                 ip: 'ip',
-                someNum: 'number',
-            };
-
-            const xluceneConfig = new DataType(typeConfig).toXlucene();
-            expect(xluceneConfig).toEqual(results);
+                someNum: 'integer',
+            });
         });
     });
 

@@ -306,7 +306,7 @@ function validationErr(param: keyof i.InputQuery, msg: string, query: i.InputQue
 }
 
 function getGeoSort(field: string, point: string, order: i.SortOrder, unit: string): i.GeoSortQuery {
-    const [lon, lat] = x.parseGeoPoint(point);
+    const { lat, lon } = x.parseGeoPoint(point);
 
     const sort = { _geo_distance: {} } as i.GeoSortQuery;
     sort._geo_distance[field] = { lat, lon };

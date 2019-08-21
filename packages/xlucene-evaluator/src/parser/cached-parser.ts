@@ -1,5 +1,5 @@
 import { Logger } from '@terascope/utils';
-import { TypeConfig } from '../interfaces';
+import { TypeConfig } from './interfaces';
 import { Parser } from './parser';
 
 type Cached = { [query: string]: Parser };

@@ -1,6 +1,6 @@
 import { debugLogger, Logger, TSError, trim, toBoolean } from '@terascope/utils';
-import { TypeConfig } from '../interfaces';
 import engine, { Tracer } from './engine';
+import { parseGeoPoint, parseGeoDistance } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
 
@@ -12,20 +12,30 @@ export class Parser {
     readonly query: string;
     logger: Logger;
 
-    constructor(query: string, typeConfig: TypeConfig = {}, logger?: Logger) {
+    constructor(query: string, typeConfig: i.TypeConfig = {}, logger?: Logger) {
         this.logger = logger != null ? logger.child({ module: 'xlucene-parser' }) : _logger;
         this.query = trim(query || '');
 
         const tracer = new Tracer(this.query, {
             showTrace: false,
         });
+
+        const context = {
+            typeConfig,
+            ASTType: i.ASTType,
+            FieldType: i.FieldType,
+            parseGeoPoint,
+            parseGeoDistance,
+        };
+
         try {
             this.ast = engine.parse(this.query, {
                 tracer,
-                // pass in the type config so it is available
+                // pass in a context the certian variables
+                // and functions can be passed in
                 // in the parser as options.typeConfig
                 // @ts-ignore
-                typeConfig,
+                context,
             });
             const astJSON = JSON.stringify(this.ast, null, 4);
             this.logger.trace(`parsed ${this.query ? this.query : "''"} to `, astJSON);

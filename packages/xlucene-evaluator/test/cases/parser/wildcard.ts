@@ -1,4 +1,4 @@
-import { ASTType } from '../../../src/parser';
+import { FieldType, ASTType } from '../../../src';
 import { TestCase } from './interfaces';
 
 export default [
@@ -7,7 +7,7 @@ export default [
         'value with ? wildcard',
         {
             type: ASTType.Wildcard,
-            field_type: 'string',
+            field_type: FieldType.String,
             field: 'hi',
             value: 'the?e',
         },
@@ -17,7 +17,7 @@ export default [
         'value with a prefix wildcard',
         {
             type: ASTType.Wildcard,
-            field_type: 'string',
+            field_type: FieldType.String,
             field: 'hi',
             value: '?here',
         },
@@ -27,7 +27,7 @@ export default [
         'value with a * wildcard',
         {
             type: ASTType.Wildcard,
-            field_type: 'string',
+            field_type: FieldType.String,
             field: 'hi',
             value: 'ther*',
         },
@@ -37,7 +37,7 @@ export default [
         'value with a * and ? wildcard',
         {
             type: ASTType.Wildcard,
-            field_type: 'string',
+            field_type: FieldType.String,
             field: 'hi',
             value: 'the?*',
         },
@@ -47,7 +47,7 @@ export default [
         'value with a * and ? wildcard',
         {
             type: ASTType.Wildcard,
-            field_type: 'string',
+            field_type: FieldType.String,
             field: 'hi',
             value: 'th?r*',
         },

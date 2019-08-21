@@ -1,7 +1,8 @@
 import 'jest-extended';
-import { DataEntity } from '@terascope/utils';
-import path from 'path';
 import _ from 'lodash';
+import path from 'path';
+import { DataEntity } from '@terascope/utils';
+import { FieldType } from 'xlucene-evaluator';
 import TestHarness from './test-harness';
 import { WatcherConfig } from '../src';
 import Plugins from './fixtures/plugins';
@@ -25,7 +26,7 @@ describe('can transform matches', () => {
     it('should transform matching data', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules1.txt')],
-            types: { _created: 'date' },
+            types: { _created: FieldType.Date },
         };
 
         const data = DataEntity.makeArray([
@@ -50,7 +51,7 @@ describe('can transform matches', () => {
     it('can uses typeConifg', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules1.txt')],
-            types: { location: 'geo' },
+            types: { location: FieldType.Geo },
         };
 
         const data = DataEntity.makeArray([

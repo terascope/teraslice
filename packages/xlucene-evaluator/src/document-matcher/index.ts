@@ -1,7 +1,7 @@
 
 import { debugLogger, Logger } from '@terascope/utils';
-import { Parser } from '../parser';
-import { TypeConfig, BooleanCB } from '../interfaces';
+import { Parser, TypeConfig } from '../parser';
+import { BooleanCB } from '../interfaces';
 import logicBuilder from './logic-builder';
 
 const _logger = debugLogger('document-matcher');

@@ -1,5 +1,19 @@
 import { Units } from '@turf/helpers';
-import { FieldType } from '../interfaces';
+
+export enum FieldType {
+    Geo = 'geo',
+    Date = 'date',
+    IP = 'ip',
+    String = 'string',
+    Integer = 'integer',
+    Float = 'float',
+    Boolean = 'boolean',
+    Object = 'object'
+}
+
+export interface TypeConfig {
+    [field: string]: FieldType;
+}
 
 export type AST = EmptyAST & LogicalGroup & Term
     & Conjunction & Negation & FieldGroup
@@ -53,17 +67,17 @@ export interface AnyDataType {
 }
 
 export interface NumberDataType {
-    field_type: 'number'|'float';
+    field_type: FieldType.Integer|FieldType.Float;
     value: number;
 }
 
 export interface StringDataType {
-    field_type: 'string';
+    field_type: FieldType.String;
     value: string;
 }
 
 export interface BooleanDataType {
-    field_type: 'boolean';
+    field_type: FieldType.Boolean;
     value: boolean;
 }
 
