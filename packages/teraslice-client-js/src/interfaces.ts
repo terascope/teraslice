@@ -1,0 +1,307 @@
+
+import {
+    ClusterManagerType,
+    Assignment,
+    ValidatedJobConfig,
+    ExecutionConfig,
+    SliceRequest
+} from '@terascope/job-components';
+
+import got from 'got';
+
+export interface ClientConfig {
+    host?: string;
+    baseUrl?: string;
+    apiVersion?: string;
+    timeout?: number;
+}
+// TODO: lockdown query parameter types
+export type SearchParams = Record<string, any> | URLSearchParams | string;
+
+export interface QueryOptions extends got.GotOptions<'utf8'> {
+    qs?: string;
+    body?: any;
+    headers?: any;
+    json?: boolean;
+    query?: SearchParams;
+}
+
+export type PostData = string | NodeJS.ReadableStream;
+
+export type TxtType = 'assets' | 'slicers' | 'ex' | 'jobs' | 'nodes' | 'workers';
+
+export interface RootResponse {
+    arch: string;
+    clustering_type: ClusterManagerType;
+    name: string;
+    node_version: string;
+    platform: string;
+    teraslice_version: string;
+}
+
+export interface ErrorResponse {
+    error: number;
+    message: string;
+}
+
+export interface JobNativeProcess extends NativeProcess {
+    node_id: string;
+}
+
+export interface JobKubernetesProcess extends KubernetesProcess {
+    node_id: string;
+}
+
+export type JobProcesses = JobNativeProcess | JobKubernetesProcess;
+
+/*
+    ASSETS
+*/
+
+export interface Asset {
+    _created: string;
+    version: string;
+    id: string;
+    name: string;
+    description?: string;
+    blob?: string;
+}
+
+export interface AssetStatusResponse {
+    available: 'running';
+}
+
+export interface AssetIDResponse {
+    _id: string;
+}
+
+export interface AssetsPostResponse extends AssetIDResponse {}
+export interface AssetsDeleteResponse extends AssetIDResponse {}
+export type AssetsTxtResponse = string;
+export type AssetsGetResponse = Asset[];
+export type AssetsPutResponse = Asset;
+
+/*
+    Cluster State Native
+*/
+
+export interface NativeProcess {
+    worker_id: number;
+    assignment: Assignment;
+    pid: number;
+    ex_id?: string;
+    job_id?: string;
+}
+
+export interface ClusterStateNodeNative {
+    node_id: string;
+    hostname: string;
+    pid: number;
+    node_version: string;
+    teraslice_version: string;
+    total: number;
+    state: string;
+    available: number;
+    active: NativeProcess[];
+}
+
+export interface ClusterStateNative{
+    [key: string]: ClusterStateNodeNative;
+}
+
+/*
+    Cluster State Kubernetes
+*/
+
+export interface KubernetesProcess {
+    worker_id: string;
+    assignment: Assignment;
+    pod_name: string;
+    ex_id: string;
+    job_id: string;
+    pod_ip: string;
+    assets: string[];
+    image: string;
+}
+
+export interface ClusterStateNodeKubernetes {
+    node_id: string;
+    hostname: string;
+    pid: 'N/A';
+    node_version: 'N/A';
+    teraslice_version: 'N/A';
+    total: 'N/A';
+    state: 'connected';
+    available: 'N/A';
+    active: KubernetesProcess[];
+}
+
+export interface ClusterStateKubernetes {
+    [key: string]: ClusterStateNodeKubernetes;
+}
+
+export type ClusterState = ClusterStateNative | ClusterStateKubernetes;
+export type ClusterProcess = NativeProcess | KubernetesProcess;
+
+/*
+    Jobs
+*/
+
+export interface Job extends ValidatedJobConfig {
+    _context: 'job';
+    _created: string;
+    _updated: string;
+}
+
+export interface JobIDResponse {
+    job_id: string;
+}
+
+export interface JobsPostResponse extends JobIDResponse {}
+export interface JobsDeleteResponse extends JobIDResponse {}
+export type JobsTxtResponse = string;
+export type JobsGetResponse = Job[];
+export type JobsPutResponse = Job;
+
+/*
+    Cluster Stats
+*/
+
+export interface SliceAccumulationStats {
+    processed: number;
+    failed: number;
+    queued: number;
+    job_duration: number;
+    workers_joined: number;
+    workers_disconnected: number;
+    workers_reconnected: number;
+}
+
+export interface ClusterStats {
+    controllers: SliceAccumulationStats;
+    slicer: SliceAccumulationStats;
+}
+
+/*
+    Execution Context
+*/
+
+export type ExecutionInitStatus = 'pending' | 'scheduling' | 'initializing';
+export type ExecutionRunningStatus = 'running' | 'failing' | 'paused' |'stopping';
+export type ExecutionTerminalStatus = 'completed' | 'stopped' | 'rejected' | 'failed' | 'terminated';
+
+export enum ExecutionStatus {
+    pending = 'pending',
+    scheduling = 'scheduling',
+    initializing = 'initializing',
+
+    running = 'running',
+    failing = 'failing',
+    paused = 'paused',
+    stopping = 'stopping',
+
+    completed = 'completed',
+    stopped = 'stopped',
+    rejected = 'rejected',
+    failed = 'failed',
+    terminated = 'terminated'
+}
+
+export interface SlicerAnalytics extends SliceAccumulationStats {
+    workers_available: number;
+    workers_active: number;
+    subslices: number;
+    slice_range_expansion: number;
+    slicers: number;
+    subslice_by_key: number;
+    started?: string;
+    queuing_complete?: string;
+}
+
+export interface Execution extends ExecutionConfig {
+    _context: 'ex';
+    _created: string;
+    _updated: string;
+    _status: ExecutionStatus;
+    _has_errors?: boolean;
+    _failureReason?: string;
+    _slicer_stats?: SlicerAnalytics;
+}
+
+// Native Cluster => terminated, stats null
+// failing, hasErrors, failureReason, slice stats
+// failed, hasErrors, failureReason, slice stats
+// teraminated, hasErrors, failureReason, slice stats
+// completed, slice stats
+// stopping/stopped, slice stats
+
+export interface ExecutionIDResponse {
+    ex_id: string;
+}
+
+export interface ExecutionPostResponse extends ExecutionIDResponse {}
+export interface ExecutionDeleteResponse extends ExecutionIDResponse {}
+export type ExecutionTxtResponse = string;
+export type ExecutionGetResponse = Execution[];
+export type ExecutionPutResponse = Execution;
+
+/*
+    Lifecyle Response
+*/
+
+export interface Recover extends JobIDResponse {}
+
+export interface Paused {
+    status: ExecutionStatus.paused;
+}
+
+export type PausedResponse = Paused;
+
+export interface Resume {
+    status: ExecutionStatus.running;
+}
+
+export type ResumeResponse = Resume;
+
+export interface Stopped {
+    status: ExecutionStatus.stopped | ExecutionStatus.stopping;
+}
+
+/*
+    Worker changes Response
+*/
+
+export type ChangeWorkerQueryParams = 'add' | 'remove' | 'total';
+
+export interface ChangeWorkerResponse {
+    message: string;
+}
+
+/*
+    Slicer/Controller Response
+*/
+
+export interface SlicerStats extends SliceAccumulationStats {
+    ex_id: string;
+    job_id: string;
+}
+
+export type ControllerState = SlicerStats[];
+
+/*
+    Error Response
+*/
+
+export interface ErrorStateRecord {
+    ex_id: string;
+    slice_id: string;
+    slicer_id: string;
+    slicer_order: number;
+    request: SliceRequest;
+    state: 'error';
+    error: string;
+    _created: string;
+    _updated: string;
+}
+
+export type StateErrors = ErrorStateRecord[];

@@ -15,20 +15,34 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
-    "main": "index.js",
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
+    "srcMain": "src/index.ts",
     "scripts": {
+        "build": "tsc --build --pretty",
+        "build:watch": "yarn build --watch",
+        "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
+        "lint:fix": "yarn lint --fix",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
     },
+    "directories": {
+        "lib": "dist/src",
+        "test": "test"
+    },
     "dependencies": {
+        "@terascope/job-components": "^0.21.0",
         "auto-bind": "^2.1.0",
         "bluebird": "^3.5.5",
+        "got": "^9.6.0",
         "lodash": "^4.17.11",
         "request": "^2.88.0",
         "request-promise": "^4.2.4"
     },
     "devDependencies": {
+        "@types/got": "^9.6.7",
+        "@types/nock": "^10.0.3",
         "nock": "^10.0.6"
     },
     "publishConfig": {

@@ -1,56 +1,48 @@
-'use strict';
 
-const _ = require('lodash');
-const autoBind = require('auto-bind');
-const Promise = require('bluebird');
-const util = require('util');
-const Client = require('./client');
+import { startsWith } from '@terascope/job-components';
+import util from 'util';
+import Client from './client';
+import { TxtType } from '../interfaces';
 
-function _deprecateSlicerName(fn) {
+// TODO: fix this
+function _deprecateSlicerName(fn: () => Promise<any>) {
     const msg = 'api endpoints with /slicers are being deprecated in favor of the semantically correct term of /controllers';
     return util.deprecate(fn, msg);
 }
 
-class Cluster extends Client {
-    constructor(config) {
+export default class Cluster extends Client {
+    constructor(config:any) {
         super(config);
         this.slicers = _deprecateSlicerName(this.slicers);
-        autoBind(this);
     }
 
-    info() {
+    async info() {
         return this.get('/');
     }
 
-    state() {
+    async state() {
         return this.get('/cluster/state');
     }
 
-    stats() {
+    async stats() {
         return this.get('/cluster/stats');
     }
 
-    slicers() {
+    async slicers() {
         return this.get('/cluster/slicers');
     }
 
-    controllers() {
+    async controllers() {
         return this.get('/cluster/controllers');
     }
 
-    txt(type) {
+    async txt(type: TxtType) {
         const validTypes = ['assets', 'slicers', 'ex', 'jobs', 'nodes', 'workers'];
-        const isValid = _.some(validTypes, validType => _.startsWith(type, validType));
+        const isValid = validTypes.some((validType) => startsWith(type, validType));
         if (!isValid) {
             const error = new Error(`"${type}" is not a valid type. Must be one of ${JSON.stringify(validTypes)}`);
             return Promise.reject(error);
         }
         return this.get(`/txt/${type}`, { json: false });
     }
-
-    nodes() { // eslint-disable-line
-        // not sure why this empty?
-    }
 }
-
-module.exports = Cluster;
