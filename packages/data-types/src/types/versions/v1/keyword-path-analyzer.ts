@@ -17,9 +17,9 @@ export default class KeywordPathAnalyzer extends BaseType {
                 },
             },
             analyzer: {
-                path_tokenizer: {
+                path_analyzer: {
                     type: 'custom',
-                    pattern: 'path_tokenizer'
+                    tokenizer: 'path_tokenizer'
                 }
             },
             tokenizer: {

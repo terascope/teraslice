@@ -28,7 +28,7 @@ describe('Hostname V1', () => {
         const results = {
             mapping: {
                 [field]: {
-                    type: 'keyword' as ElasticSearchTypes,
+                    type: 'text' as ElasticSearchTypes,
                     analyzer: 'lowercase_keyword_analyzer',
                     fields: {
                         tokens: {
@@ -42,6 +42,10 @@ describe('Hostname V1', () => {
                 hostname_analyzer: {
                     type: 'custom',
                     tokenizer: 'hostname_tokenizer'
+                },
+                lowercase_keyword_analyzer: {
+                    tokenizer: 'keyword',
+                    filter: 'lowercase',
                 }
             },
             tokenizer: {
