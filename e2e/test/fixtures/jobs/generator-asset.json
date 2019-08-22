@@ -9,8 +9,7 @@
     "operations": [
         {
             "_op": "elasticsearch_data_generator",
-            "size": 1000,
-            "stress_test": true
+            "size": 1000
         },
         {
             "_op": "drop_property",
