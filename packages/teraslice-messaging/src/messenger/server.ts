@@ -383,12 +383,8 @@ export class Server extends Core {
             });
         });
 
-        socket.on('disconnect', (error?: Error | string) => {
-            if (error) {
-                this.logger.info(`client ${clientId} disconnected`, { error });
-            } else {
-                this.logger.info(`client ${clientId} disconnected`);
-            }
+        socket.on('disconnect', (reason: string) => {
+            this.logger.info(`client ${clientId} disconnected`, { reason });
 
             socket.removeAllListeners();
             socket.disconnect(true);

@@ -168,8 +168,8 @@ export class Client extends Core {
             });
         });
 
-        this.socket.on('disconnect', () => {
-            this.logger.info(`client ${this.clientId} disconnected`);
+        this.socket.on('disconnect', (reason: string) => {
+            this.logger.info(`client ${this.clientId} disconnected`, { reason });
             this.ready = false;
         });
 
