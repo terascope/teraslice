@@ -25,7 +25,7 @@ export default class KeywordPathAnalyzer extends BaseType {
             tokenizer: {
                 path_tokenizer: {
                     type: 'pattern',
-                    pattern: `\/`
+                    pattern: '\/'
                 }
             },
         };
