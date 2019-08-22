@@ -12,6 +12,7 @@ services:
             - NODE_OPTIONS=--max-old-space-size=256
         volumes:
             - teraslice-assets:/app/assets
+            - ./logs:/app/logs:cached
             - ./autoload:/app/autoload:ro
             - ./.config:/app/config:ro
     teraslice-worker:
@@ -24,6 +25,7 @@ services:
             - NODE_OPTIONS=--max-old-space-size=256
         volumes:
             - teraslice-assets:/app/assets
+            - ./logs:/app/logs:cached
             - ./autoload:/app/autoload:ro
             - ./.config:/app/config:ro
 

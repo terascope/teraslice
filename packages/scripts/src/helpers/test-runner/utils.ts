@@ -170,7 +170,7 @@ async function getE2ELogs(dir: string, env: ExecEnv): Promise<string> {
         const result = await exec(
             {
                 cmd: 'yarn',
-                args: ['run', 'logs'],
+                args: ['run', 'logs', '-n', '2000'],
                 cwd: dir,
                 env,
             },
@@ -190,19 +190,6 @@ export async function logE2E(dir: string, failed: boolean): Promise<void> {
         });
         process.stderr.write(`${errLogs}\n`);
     }
-
-    const rawLogs = await getE2ELogs(dir, {
-        RAW_LOGS: 'true',
-    });
-
-    const logFilePath = path.join(dir, 'e2e-test.log');
-    if (!rawLogs) {
-        await fse.remove(logFilePath);
-        return;
-    }
-
-    await fse.writeFile(logFilePath, rawLogs);
-    signale.debug(`Wrote e2e log files to ${path.relative(process.cwd(), logFilePath)}`);
 }
 
 const abc = 'abcdefghijklmnopqrstuvwxyz';

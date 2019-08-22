@@ -53,6 +53,8 @@ autoload/*
 # e2e files
 e2e/autoload/*
 !e2e/autoload/.gitkeep
+e2e/logs/*
+!e2e/logs/.gitkeep
 e2e/.config
 
 # package dist directory
