@@ -1,4 +1,4 @@
-import { isString } from '@terascope/utils';
+import { isString, isNumber } from '@terascope/utils';
 import * as i from './interfaces';
 import * as core from '../messenger';
 
@@ -6,7 +6,16 @@ export class Client extends core.Client {
     public readonly exId: string;
 
     constructor(opts: i.ClientOptions) {
-        const { clusterMasterUrl, socketOptions, networkLatencyBuffer, actionTimeout, exId, connectTimeout, logger } = opts;
+        const {
+            clusterMasterUrl,
+            socketOptions,
+            nodeDisconnectTimeout,
+            networkLatencyBuffer,
+            actionTimeout,
+            exId,
+            connectTimeout,
+            logger
+        } = opts;
 
         if (!clusterMasterUrl || !isString(clusterMasterUrl)) {
             throw new Error('ClusterMaster.Client requires a valid clusterMasterUrl');
@@ -16,11 +25,16 @@ export class Client extends core.Client {
             throw new Error('ClusterMaster.Client requires a valid exId');
         }
 
+        if (!isNumber(nodeDisconnectTimeout)) {
+            throw new Error('ClusterMaster.Client requires a valid nodeDisconnectTimeout');
+        }
+
         super({
             socketOptions,
             networkLatencyBuffer,
             actionTimeout,
             connectTimeout,
+            clientDisconnectTimeout: nodeDisconnectTimeout,
             hostUrl: clusterMasterUrl,
             clientType: 'execution-controller',
             clientId: exId,

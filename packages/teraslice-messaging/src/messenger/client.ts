@@ -19,7 +19,17 @@ export class Client extends Core {
     protected serverShutdown: boolean;
 
     constructor(opts: i.ClientOptions) {
-        const { hostUrl, clientId, clientType, serverName, socketOptions = {}, connectTimeout, logger, ...coreOpts } = opts;
+        const {
+            hostUrl,
+            clientId,
+            clientType,
+            serverName,
+            socketOptions = {},
+            connectTimeout,
+            clientDisconnectTimeout,
+            logger,
+            ...coreOpts
+        } = opts;
 
         super({
             logger: logger
@@ -50,16 +60,24 @@ export class Client extends Core {
             throw new Error('Messenger.Client requires a valid connectTimeout');
         }
 
+        // The pingTimeout should be the client disconnect timeout
+        // (which is greater than the pingTimeout on the server which uses actionTimeout)
+        // to avoid disconnecting from the server before the connection
+        // is considered
+        const pingTimeout = clientDisconnectTimeout;
+        const pingInterval = clientDisconnectTimeout + this.networkLatencyBuffer;
+
         const options: SocketIOClient.ConnectOpts = Object.assign({}, socketOptions, {
             autoConnect: false,
             forceNew: true,
+            pingTimeout,
+            pingInterval,
             perMessageDeflate: false,
             query: { clientId, clientType },
             timeout: connectTimeout,
         });
 
-        // @ts-ignore
-        this.socket = new SocketIOClient(hostUrl, options);
+        this.socket = SocketIOClient(hostUrl, options);
         this.socket.on('error', (err: any) => {
             this.logger.error(err, 'unhandled socket.io-client error');
         });
@@ -150,8 +168,8 @@ export class Client extends Core {
             });
         });
 
-        this.socket.on('disconnect', () => {
-            this.logger.info(`client ${this.clientId} disconnected`);
+        this.socket.on('disconnect', (reason: string) => {
+            this.logger.info(`client ${this.clientId} disconnected`, { reason });
             this.ready = false;
         });
 

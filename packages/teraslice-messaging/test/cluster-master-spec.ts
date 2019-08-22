@@ -25,6 +25,18 @@ describe('ClusterMaster', () => {
             });
         });
 
+        describe('when constructed without a nodeDisconnectTimeout', () => {
+            it('should throw an error', () => {
+                expect(() => {
+                    // @ts-ignore
+                    new ClusterMaster.Client({
+                        clusterMasterUrl: 'example.com',
+                        exId: 'test',
+                    });
+                }).toThrowError('ClusterMaster.Client requires a valid nodeDisconnectTimeout');
+            });
+        });
+
         describe('when constructed with an invalid clusterMasterUrl', () => {
             let client: ClusterMaster.Client;
 
@@ -32,6 +44,7 @@ describe('ClusterMaster', () => {
                 client = new ClusterMaster.Client({
                     clusterMasterUrl: 'http://idk.example.com',
                     exId: 'hello',
+                    nodeDisconnectTimeout: 1000,
                     actionTimeout: 1000,
                     connectTimeout: 1000,
                     socketOptions: {
@@ -83,6 +96,7 @@ describe('ClusterMaster', () => {
                 exId,
                 clusterMasterUrl,
                 networkLatencyBuffer: 0,
+                nodeDisconnectTimeout: 1000,
                 actionTimeout: 1000,
                 connectTimeout: 1000,
                 socketOptions: {
