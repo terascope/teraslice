@@ -64,8 +64,7 @@ export class Server extends Core {
         const pingTimeout = this.actionTimeout;
         const pingInterval = this.actionTimeout + this.networkLatencyBuffer;
 
-        // @ts-ignore
-        this.server = new SocketIOServer({
+        this.server = SocketIOServer({
             pingTimeout,
             pingInterval,
             perMessageDeflate: false,
