@@ -37,6 +37,8 @@ class Worker {
             workerId,
             networkLatencyBuffer,
             workerDisconnectTimeout,
+            // the connect timeout should be set to the same timeout that will
+            // cause the execution fail if no Workers connect
             connectTimeout: slicerTimeout,
             actionTimeout,
             logger
