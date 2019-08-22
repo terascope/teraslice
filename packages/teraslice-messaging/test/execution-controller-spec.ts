@@ -25,6 +25,18 @@ describe('ExecutionController', () => {
             });
         });
 
+        describe('when constructed without a workerDisconnectTimeout', () => {
+            it('should throw an error', () => {
+                expect(() => {
+                    // @ts-ignore
+                    new ExecutionController.Client({
+                        executionControllerUrl: 'example.com',
+                        workerId: 'test'
+                    });
+                }).toThrowError('ExecutionController.Client requires a valid workerDisconnectTimeout');
+            });
+        });
+
         describe('when constructed with an invalid executionControllerUrl', () => {
             let client: ExecutionController.Client;
 
@@ -32,6 +44,7 @@ describe('ExecutionController', () => {
                 client = new ExecutionController.Client({
                     executionControllerUrl: 'http://idk.example.com',
                     workerId: 'hello',
+                    workerDisconnectTimeout: 1000,
                     actionTimeout: 1000,
                     connectTimeout: 1000,
                     socketOptions: {
@@ -85,6 +98,7 @@ describe('ExecutionController', () => {
                 workerId,
                 executionControllerUrl,
                 networkLatencyBuffer: 0,
+                workerDisconnectTimeout: 1000,
                 actionTimeout: 1000,
                 connectTimeout: 1000,
                 socketOptions: {

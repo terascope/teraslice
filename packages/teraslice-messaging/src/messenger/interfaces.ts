@@ -13,6 +13,7 @@ export interface ClientOptions extends CoreOptions {
     clientId: string;
     clientType: string;
     serverName: string;
+    clientDisconnectTimeout: number;
     connectTimeout: number;
     socketOptions?: SocketIOClient.ConnectOpts;
 }
