@@ -38,7 +38,8 @@ describe('assets', () => {
         await waitForJobStatus(job, 'running');
         const r = await wait.forWorkersJoined(job.id(), workers, 25);
         expect(r).toEqual(workers);
-        return job.stop();
+
+        await job.stop({ blocking: true });
     }
 
     it('after uploading an asset, it can be deleted', async () => {
@@ -112,7 +113,7 @@ describe('assets', () => {
         const execution = await job.execution();
         expect(execution.assets[0]).toEqual(assetId);
 
-        await job.stop();
+        await job.stop({ blocking: true });
     });
 
     it('can directly ask for the new asset to be used', async () => {
@@ -132,6 +133,6 @@ describe('assets', () => {
         const execution = await job.execution();
         expect(execution.assets[0]).toEqual(assetId);
 
-        await job.stop();
+        await job.stop({ blocking: true });
     });
 });
