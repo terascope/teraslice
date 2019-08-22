@@ -226,6 +226,7 @@ describe('Messenger', () => {
                     clientId,
                     clientType: 'example',
                     hostUrl,
+                    clientDisconnectTimeout: 1000,
                     networkLatencyBuffer: 0,
                     actionTimeout: 1000,
                     connectTimeout: 2000,
