@@ -1,4 +1,13 @@
+import { Units } from '@turf/helpers';
+import { Logger } from '@terascope/utils';
 import * as parser from '../parser';
+
+export type TranslatorOptions = {
+    logger?: Logger;
+    type_config?: parser.TypeConfig,
+    default_geo_sort_order?: 'asc'|'desc';
+    default_geo_sort_unit?: Units|string;
+};
 
 export type BoolQuery = {
     bool: {

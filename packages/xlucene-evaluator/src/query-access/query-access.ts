@@ -113,7 +113,11 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
         const restricted = this.restrict(query);
         const parsed = this._parser.make(restricted, this.typeConfig, this.logger);
-        const translator = this._translator.make(parsed, this.typeConfig, this.logger);
+        const translator = this._translator.make(parsed, {
+            type_config: this.typeConfig,
+            logger: this.logger
+        });
+
         const translated = translator.toElasticsearchDSL();
 
         const { includes, excludes } = this.restrictSourceFields(

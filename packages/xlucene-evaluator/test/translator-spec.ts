@@ -19,22 +19,46 @@ describe('Translator', () => {
         expect(buildAnyQuery(node as AST, new Parser(''))).toBeUndefined();
     });
 
-    it('should have a types property', () => {
+    it('should have the typeConfig property', () => {
         const query = 'foo:bar';
         const typeConfig: TypeConfig = {
             location: FieldType.Geo,
         };
 
-        const translator = new Translator(query, typeConfig);
+        const translator = new Translator(query, {
+            type_config: typeConfig,
+        });
 
         expect(translator).toHaveProperty('typeConfig', typeConfig);
     });
 
+    it('should have the default geo sort properties', () => {
+        const query = 'foo:bar';
+
+        const translator = new Translator(query);
+
+        expect(translator).toHaveProperty('_defaultGeoSortOrder', 'asc');
+        expect(translator).toHaveProperty('_defaultGeoSortUnit', 'meters');
+    });
+
+
+    it('should have the geo sort properties', () => {
+        const query = 'foo:bar';
+
+        const translator = new Translator(query, {
+            default_geo_sort_order: 'desc',
+            default_geo_sort_unit: 'km'
+        });
+
+        expect(translator).toHaveProperty('_defaultGeoSortOrder', 'desc');
+        expect(translator).toHaveProperty('_defaultGeoSortUnit', 'kilometers');
+    });
+
     for (const [key, testCases] of Object.entries(allTestCases)) {
         describe(`when testing ${key.replace('_', ' ')} queries`, () => {
-            describe.each(testCases)('given query %s', (query, property, expected, types) => {
+            describe.each(testCases)('given query %s', (query, property, expected, options) => {
                 it('should translate the query correctly', () => {
-                    const translator = new Translator(query, types);
+                    const translator = new Translator(query, options);
                     const result = translator.toElasticsearchDSL();
 
                     const actual = get(result, property);

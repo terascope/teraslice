@@ -1,4 +1,4 @@
-import { TypeConfig } from '../../../src';
+import { TranslatorOptions } from '../../../src';
 import { AnyQuery } from '../../../src/translator/interfaces';
 
 export type TestCase = [
@@ -8,6 +8,6 @@ export type TestCase = [
     string,
     // toHaveProperty($property, %j)
     AnyQuery,
-    // optional types config
-    TypeConfig?
+    // optional translator options
+    TranslatorOptions?
 ];

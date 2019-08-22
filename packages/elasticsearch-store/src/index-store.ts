@@ -463,7 +463,10 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     private _translateQuery(query: string) {
-        const translator = this._translator.make(query, this._xluceneTypes, this._logger);
+        const translator = this._translator.make(query, {
+            type_config: this._xluceneTypes,
+            logger: this._logger
+        });
         return {
             q: null,
             body: translator.toElasticsearchDSL(),

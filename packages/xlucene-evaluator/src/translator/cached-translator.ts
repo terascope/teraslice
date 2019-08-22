@@ -1,6 +1,7 @@
-import { isString, Logger } from '@terascope/utils';
-import { Parser, TypeConfig } from '../parser';
+import { isString } from '@terascope/utils';
+import { TranslatorOptions } from './interfaces';
 import { Translator } from './translator';
+import { Parser } from '../parser';
 
 type Cached = { [query: string]: Translator };
 const _cache = new WeakMap<CachedTranslator, Cached>();
@@ -10,12 +11,12 @@ export class CachedTranslator {
         _cache.set(this, {});
     }
 
-    make(input: string|Parser, typeConfig?: TypeConfig, logger?: Logger): Translator {
+    make(input: string|Parser, options?: TranslatorOptions): Translator {
         const query = isString(input) ? input : input.query;
         const cached = _cache.get(this)!;
         if (cached[query] != null) return cached[query];
 
-        const translate = new Translator(query, typeConfig, logger);
+        const translate = new Translator(query, options);
 
         cached[query] = translate;
         _cache.set(this, cached);

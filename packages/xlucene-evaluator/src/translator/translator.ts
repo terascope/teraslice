@@ -1,5 +1,7 @@
+import { Units } from '@turf/helpers';
 import { debugLogger, isString, Logger } from '@terascope/utils';
 import { TypeConfig, Parser, isEmptyAST } from '../parser';
+import { parseGeoDistanceUnit } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
 
@@ -10,18 +12,25 @@ export class Translator {
     logger: Logger;
     readonly typeConfig?: TypeConfig;
     private readonly _parser: Parser;
+    private _defaultGeoSortOrder?: 'asc'|'desc' = 'asc';
+    private _defaultGeoSortUnit?: Units = 'meters';
 
-    constructor(input: string | Parser, typeConfig?: TypeConfig, logger?: Logger) {
-        this.logger = logger != null ? logger.child({ module: 'xlucene-translator' }) : _logger;
+    constructor(input: string | Parser, options: i.TranslatorOptions = {}) {
+        this.logger = options.logger != null ? options.logger.child({ module: 'xlucene-translator' }) : _logger;
 
         if (isString(input)) {
-            this._parser = new Parser(input, typeConfig, logger);
+            this._parser = new Parser(input, options.type_config, options.logger);
         } else {
             this._parser = input;
         }
-
+        if (options.default_geo_sort_order) {
+            this._defaultGeoSortOrder = options.default_geo_sort_order;
+        }
+        if (options.default_geo_sort_unit) {
+            this._defaultGeoSortUnit = parseGeoDistanceUnit(options.default_geo_sort_unit);
+        }
         this.query = this._parser.query;
-        this.typeConfig = typeConfig;
+        this.typeConfig = options.type_config;
     }
 
     toElasticsearchDSL(): i.ElasticsearchDSLResult {
@@ -38,7 +47,7 @@ export class Translator {
                 },
             };
         }
-
+        this.logger.trace({ defaultGeoSortOrder: this._defaultGeoSortOrder, defaultGeoSortUnit: this._defaultGeoSortUnit });
         this.logger.trace(`translated ${this.query ? this.query : "''"} query to`, JSON.stringify(query, null, 4));
 
         return { query };

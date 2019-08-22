@@ -1,8 +1,8 @@
-import { toNumber } from 'lodash';
-import { trimAndToLower, isPlainObject, parseNumberList } from '@terascope/utils';
 import geoHash from 'latlon-geohash';
+import { Units } from '@turf/helpers';
+import { toNumber, trimAndToLower, isPlainObject, parseNumberList, isNumber } from '@terascope/utils';
 import { GeoDistanceObj, GeoPointInput } from './interfaces';
-import { Range } from './parser/interfaces';
+import { Range, GeoPoint } from './parser/interfaces';
 
 export function isInfiniteValue(input?: number|string) {
     return input === '*' || input === Number.NEGATIVE_INFINITY || input === Number.POSITIVE_INFINITY;
@@ -48,29 +48,41 @@ export function parseGeoDistance(str: string): GeoDistanceObj {
     }
 
     const distance = Number(matches[1]);
-    const unit = GEO_DISTANCE_UNITS[matches[2]];
-    if (!unit) {
-        throw new Error(`Incorrect distance unit provided: ${matches[2]}`);
-    }
+    const unit = parseGeoDistanceUnit(matches[2]);
 
     return { distance, unit };
 }
 
+export function parseGeoDistanceUnit(input: string): Units {
+    const unit = GEO_DISTANCE_UNITS[input];
+    if (!unit) {
+        throw new Error(`Incorrect distance unit provided: ${input}`);
+    }
+    return unit;
+}
+
+/** @returns {[lat, lon]} */
 export function getLonAndLat(input: any, throwInvalid = true): [number, number] {
-    const lat = input.lat || input.latitude;
-    const lon = input.lon || input.longitude;
+    let lat = input.lat || input.latitude;
+    let lon = input.lon || input.longitude;
 
     if (throwInvalid && (!lat || !lon)) {
         throw new Error('geopoint must contain keys lat,lon or latitude/longitude');
     }
 
-    return [toNumber(lat), toNumber(lon)];
+    lat = toNumber(lat);
+    lon = toNumber(lon);
+    if (throwInvalid && (!isNumber(lat) || !isNumber(lon))) {
+        throw new Error('geopoint lat and lon must be numbers');
+    }
+
+    return [lat, lon];
 }
 
-export function parseGeoPoint(point: GeoPointInput | number[] | object): { lat: number, lon: number };
-export function parseGeoPoint(point: GeoPointInput | number[] | object, throwInvalid: true): { lat: number, lon: number };
-export function parseGeoPoint(point: GeoPointInput | number[] | object, throwInvalid: false): { lat: number, lon: number } | null;
-export function parseGeoPoint(point: GeoPointInput | number[] | object, throwInvalid = true): { lat: number, lon: number } | null {
+export function parseGeoPoint(point: GeoPointInput | number[] | object): GeoPoint;
+export function parseGeoPoint(point: GeoPointInput | number[] | object, throwInvalid: true): GeoPoint;
+export function parseGeoPoint(point: GeoPointInput | number[] | object, throwInvalid: false): GeoPoint | null;
+export function parseGeoPoint(point: GeoPointInput | number[] | object, throwInvalid = true): GeoPoint | null {
     let results = null;
 
     if (typeof point === 'string') {
