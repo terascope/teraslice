@@ -133,6 +133,11 @@ function newId(prefix, lowerCase = false, length = 15) {
     return id;
 }
 
+async function resetLogs() {
+    const logPath = path.join(__dirname, '..', 'logs', 'teraslice.log');
+    await fse.writeFile(logPath, '');
+}
+
 async function globalTeardown(shouldThrow) {
     process.stdout.write('\n');
     signale.time('tear down');
@@ -172,6 +177,7 @@ module.exports = {
     getExampleIndex,
     globalTeardown,
     newSpecIndex,
+    resetLogs,
     EXAMLPE_INDEX_SIZES,
     EXAMPLE_INDEX_PREFIX,
     SPEC_INDEX_PREFIX,

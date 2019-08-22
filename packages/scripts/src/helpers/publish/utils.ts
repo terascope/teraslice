@@ -44,9 +44,12 @@ function padNumber(n: number): string {
 
 function formatShortDate() {
     const date = new Date();
+    // get the full year
     const year = date.getFullYear();
-    const month = date.getMonth();
-    const day = date.getDay();
+    // zero based month
+    const month = date.getMonth() + 1;
+    // get the day of the month
+    const day = date.getDate();
     return `${year}.${padNumber(month)}.${padNumber(day)}`;
 }
 

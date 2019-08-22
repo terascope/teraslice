@@ -257,7 +257,7 @@ module.exports = function messaging(context, logger) {
             io = require('socket.io-client')(hostURL, {
                 forceNew: true,
                 path: '/native-clustering',
-                // transports: ['websocket'],
+                perMessageDeflate: false,
                 query,
             });
             _registerFns(io);
@@ -278,6 +278,9 @@ module.exports = function messaging(context, logger) {
             // cluster_master
             io = require('socket.io')(server, {
                 path: '/native-clustering',
+                pingTimeout: configTimeout,
+                pingInterval: configTimeout + networkLatencyBuffer,
+                perMessageDeflate: false,
                 serveClient: false,
             });
             _attachRoomsSocketIO();

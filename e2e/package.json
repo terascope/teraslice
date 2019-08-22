@@ -21,7 +21,7 @@
     "scripts": {
         "clean": "docker-compose down --volumes --remove-orphans --timeout=5",
         "logs": "./scripts/logs.sh",
-        "logs-follow": "./scripts/logs.sh --follow",
+        "logs-follow": "./scripts/logs.sh -f",
         "test": "ts-scripts test --suite e2e"
     },
     "devDependencies": {
