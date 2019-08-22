@@ -38,9 +38,9 @@ describe('KeywordPathAnalyzer V1', () => {
                 },
             },
             analyzer: {
-                path_tokenizer: {
+                path_analyzer: {
                     type: 'custom',
-                    pattern: 'path_tokenizer'
+                    tokenizer: 'path_tokenizer'
                 }
             },
             tokenizer: {
