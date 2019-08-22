@@ -29,13 +29,15 @@ class Worker {
         const networkLatencyBuffer = get(config, 'network_latency_buffer');
         const actionTimeout = get(config, 'action_timeout');
         const workerDisconnectTimeout = get(config, 'worker_disconnect_timeout');
+        const slicerTimeout = get(config, 'slicer_timeout');
         const shutdownTimeout = get(config, 'shutdown_timeout');
 
         this.client = new ExecutionController.Client({
             executionControllerUrl: formatURL(slicerHostname, slicerPort),
             workerId,
             networkLatencyBuffer,
-            connectTimeout: workerDisconnectTimeout,
+            workerDisconnectTimeout,
+            connectTimeout: slicerTimeout,
             actionTimeout,
             logger
         });
@@ -150,7 +152,7 @@ class Worker {
 
             await this.slice.run();
 
-            this.logger.info(`slice ${sliceId} complete`);
+            this.logger.info(`slice ${sliceId} completed`);
 
             await this._sendSliceComplete({
                 slice: this.slice.slice,

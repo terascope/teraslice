@@ -49,6 +49,7 @@ class ExecutionController {
             executionContext,
             networkLatencyBuffer,
             actionTimeout,
+            nodeDisconnectTimeout,
             connectTimeout: nodeDisconnectTimeout,
             exId: executionContext.exId,
             logger
@@ -944,7 +945,7 @@ class ExecutionController {
 
         const timeout = this.context.sysconfig.teraslice.slicer_timeout;
         const err = new Error(
-            `No workers have connected to slicer in the allotted time: ${timeout} ms`
+            `No workers have connected to slicer in the allotted time: ${ms(timeout)}`
         );
 
         this.workerConnectTimeoutId = setTimeout(() => {
