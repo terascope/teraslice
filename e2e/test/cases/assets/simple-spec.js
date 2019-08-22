@@ -3,7 +3,7 @@
 const fs = require('fs');
 const misc = require('../../misc');
 const wait = require('../../wait');
-const { resetState } = require('../../helpers');
+const { resetState, submitAndStart } = require('../../helpers');
 
 const { waitForJobStatus } = wait;
 
@@ -33,9 +33,8 @@ describe('assets', () => {
         // assigned by teraslice and not it's name.
         jobSpec.assets = [result._id, 'elasticsearch'];
 
-        const job = await teraslice.jobs.submit(jobSpec);
+        const job = await submitAndStart(jobSpec);
 
-        await waitForJobStatus(job, 'running');
         const r = await wait.forWorkersJoined(job.id(), workers, 25);
         expect(r).toEqual(workers);
 
@@ -104,8 +103,7 @@ describe('assets', () => {
         const assetResponse = await teraslice.assets.post(fileStream);
         const assetId = assetResponse._id;
 
-        const job = await teraslice.jobs.submit(jobSpec);
-        await waitForJobStatus(job, 'running');
+        const job = await submitAndStart(jobSpec);
 
         const waitResponse = await wait.forWorkersJoined(job.id(), workers, 25);
         expect(waitResponse).toEqual(workers);
@@ -124,8 +122,7 @@ describe('assets', () => {
         const assetResponse = await teraslice.assets.get('ex1/0.1.1');
         const assetId = assetResponse[0].id;
 
-        const job = await teraslice.jobs.submit(jobSpec);
-        await waitForJobStatus(job, 'running');
+        const job = await submitAndStart(jobSpec);
 
         const waitResponse = await wait.forWorkersJoined(job.id(), workers, 25);
         expect(waitResponse).toEqual(workers);

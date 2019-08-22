@@ -25,9 +25,10 @@ describe('job state', () => {
         await waitForJobStatus(job1, 'paused');
         await job1.resume();
         await waitForJobStatus(job1, 'running');
-        await job1.stop();
-        await waitForJobStatus(job1, 'stopped');
-        await job2.stop();
-        await waitForJobStatus(job2, 'stopped');
+
+        await Promise.all([
+            job1.stop({ blocking: true }),
+            job2.stop({ blocking: true }),
+        ]);
     });
 });
