@@ -404,9 +404,9 @@ describe('IndexStore', () => {
                 });
 
                 const translated = new Translator(q, {
-                    // @ts-ignore
-                    type_config: indexStore._xluceneTypes
+                    type_config: indexStore.xluceneTypeConfig
                 }).toElasticsearchDSL();
+
                 // tslint:disable-next-line
                 console.log(JSON.stringify({ q, translated }, null, 4));
 

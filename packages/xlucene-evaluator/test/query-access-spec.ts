@@ -276,7 +276,9 @@ describe('QueryAccess', () => {
                 _sourceExclude: ['baz'],
             };
 
-            const result = queryAccess.restrictSearchQuery('foo:bar', params);
+            const result = queryAccess.restrictSearchQuery('foo:bar', {
+                params
+            });
             expect(result).toMatchObject({
                 _sourceExclude: ['baz'],
                 _sourceInclude: ['moo'],

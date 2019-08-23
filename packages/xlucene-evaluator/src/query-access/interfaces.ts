@@ -1,7 +1,7 @@
 import { SearchParams } from 'elasticsearch';
-import { AnyObject, Logger } from '@terascope/utils';
+import { AnyObject } from '@terascope/utils';
 import { SortOrder, ElasticsearchDSLOptions } from '../translator/interfaces';
-import { TypeConfig, GeoDistanceUnit } from '../parser';
+import { TypeConfig, GeoDistanceUnit, ParserOptions } from '../parser';
 
 export interface RestrictSearchQueryOptions extends ElasticsearchDSLOptions {
     /**
@@ -30,6 +30,5 @@ export interface QueryAccessConfig<T extends AnyObject = AnyObject> {
     type_config?: TypeConfig;
 }
 
-export interface QueryAccessOptions {
-    logger?: Logger;
+export interface QueryAccessOptions extends ParserOptions {
 }

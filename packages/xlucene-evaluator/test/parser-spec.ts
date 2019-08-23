@@ -8,7 +8,9 @@ describe('Parser', () => {
         describe(`when testing ${key.replace('_', ' ')} queries`, () => {
             describe.each(testCases)('given query %s', (query, msg, ast, typeConfig) => {
                 it(`should be able to parse ${msg}`, () => {
-                    const parser = new Parser(query, typeConfig);
+                    const parser = new Parser(query, {
+                        type_config: typeConfig
+                    });
                     expect(parser.ast).toMatchObject(ast);
                 });
             });

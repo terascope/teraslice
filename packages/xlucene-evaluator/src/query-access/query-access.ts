@@ -30,7 +30,6 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             constraint,
             prevent_prefix_wildcard = false,
             allow_implicit_queries = false,
-            type_config = {},
             allow_empty_queries = true,
             default_geo_field,
             default_geo_sort_order,
@@ -50,7 +49,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         this.defaultGeoField = default_geo_field;
         this.defaultGeoSortOrder = default_geo_sort_order;
         this.defaultGeoSortUnit = default_geo_sort_unit;
-        this.typeConfig = type_config;
+        this.typeConfig = options.type_config || {};
     }
 
     clearCache() {

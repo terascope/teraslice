@@ -35,18 +35,20 @@ export class SearchAccess {
                 constraint: this.config.view.constraint,
                 prevent_prefix_wildcard: this.config.view.prevent_prefix_wildcard,
                 allow_empty_queries: true,
-                type_config: types.toXlucene(),
                 default_geo_field: this.spaceConfig.default_geo_field,
             },
-            this._logger
+            {
+                type_config: types.toXlucene(),
+                logger: this._logger,
+            }
         );
     }
 
     /**
      * Converts a restricted xlucene query to an elasticsearch search query
      */
-    restrictSearchQuery(query?: string, params?: es.SearchParams, esVersion: number = 6): es.SearchParams {
-        return this._queryAccess.restrictSearchQuery(query || '', params, esVersion);
+    restrictSearchQuery(query?: string, options?: x.RestrictSearchQueryOptions) {
+        return this._queryAccess.restrictSearchQuery(query || '', options);
     }
 
     /**
@@ -55,9 +57,23 @@ export class SearchAccess {
     async performSearch(client: es.Client, query: i.InputQuery) {
         const { q, ...params } = this.getSearchParams(query);
 
+        const geoSortUnit = query.geo_sort_unit
+            ? x.parseGeoDistanceUnit(query.geo_sort_unit)
+            : undefined;
+
+        const geoSortPoint = query.geo_sort_point
+            ? x.parseGeoPoint(query.geo_sort_point)
+            : undefined;
+
         let esQuery: es.SearchParams;
         try {
-            esQuery = this.restrictSearchQuery(q, params, getESVersion(client));
+            esQuery = this.restrictSearchQuery(q, {
+                params,
+                elasticsearch_version: getESVersion(client),
+                geo_sort_order: query.geo_sort_order,
+                geo_sort_unit: geoSortUnit,
+                geo_sort_point: geoSortPoint,
+            });
         } catch (err) {
             throw new ts.TSError(err, {
                 reason: 'Query restricted',
@@ -161,9 +177,14 @@ export class SearchAccess {
             params._sourceInclude = ts.uniq(ts.parseList(fields).map((s) => s.toLowerCase()));
         }
 
-        const geoSortUnit = ts.get(query, 'geo_sort_unit', 'm');
+        const geoSortUnit = ts.get(query, 'geo_sort_unit');
         if (geoSortUnit && !x.GEO_DISTANCE_UNITS[geoSortUnit]) {
             throw new ts.TSError(...validationErr('geo_sort_unit', 'must be one of "mi", "yd", "ft", "km" or "m"', query));
+        }
+
+        const geoSortOrder = ts.get(query, 'geo_sort_order');
+        if (geoSortOrder && !['asc', 'desc'].includes(geoSortOrder)) {
+            throw new ts.TSError(...validationErr('geo_sort_order', 'must "asc" or "desc"', query));
         }
 
         params.q = q;

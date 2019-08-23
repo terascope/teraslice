@@ -65,6 +65,10 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         this._sanitizeFields = modelConfig.sanitize_fields || {};
     }
 
+    get xluceneTypeConfig() {
+        return this.store.xluceneTypeConfig;
+    }
+
     async initialize() {
         return this.store.initialize();
     }
@@ -289,8 +293,10 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
 
         let records: T[];
         if (queryAccess) {
-            const esVersion = utils.getESVersion(this.store.client);
-            const query = queryAccess.restrictSearchQuery(q, params, esVersion);
+            const query = queryAccess.restrictSearchQuery(q, {
+                params,
+                elasticsearch_version: utils.getESVersion(this.store.client)
+            });
             records = await this.store._search(query);
         } else {
             records = await this.store.search(q, params);

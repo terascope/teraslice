@@ -15,6 +15,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     readonly indexQuery: string;
     readonly manager: IndexManager;
     refreshByDefault = true;
+    readonly xluceneTypeConfig: TypeConfig | undefined;
 
     validateRecord: ValidateFn<I | T>;
     private _interval: any;
@@ -25,7 +26,6 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     private readonly _bulkMaxSize: number = 500;
     private readonly _getEventTime: (input: T) => number;
     private readonly _getIngestTime: (input: T) => number;
-    private readonly _xluceneTypes: TypeConfig | undefined;
     private readonly _translator = new CachedTranslator();
 
     constructor(client: es.Client, config: i.IndexConfig<T>) {
@@ -60,7 +60,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         });
 
         if (config.index_schema != null) {
-            this._xluceneTypes = utils.getXLuceneTypesFromMapping(config.index_schema.mapping);
+            this.xluceneTypeConfig = utils.getXLuceneTypesFromMapping(config.index_schema.mapping);
         }
 
         if (config.data_schema != null) {
@@ -464,7 +464,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
     private _translateQuery(query: string) {
         const translator = this._translator.make(query, {
-            type_config: this._xluceneTypes,
+            type_config: this.xluceneTypeConfig,
             logger: this._logger
         });
         return {

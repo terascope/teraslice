@@ -601,7 +601,10 @@ export class ACLManager {
                 prevent_prefix_wildcard: true,
                 allow_implicit_queries: true,
             },
-            this.logger
+            {
+                logger: this.logger,
+                type_config: this._users.xluceneTypeConfig,
+            }
         );
     }
 
@@ -632,7 +635,10 @@ export class ACLManager {
                 includes,
                 allow_implicit_queries: true,
             },
-            this.logger
+            {
+                logger: this.logger,
+                type_config: this._roles.xluceneTypeConfig,
+            }
         );
     }
 
@@ -661,7 +667,10 @@ export class ACLManager {
                 includes,
                 allow_implicit_queries: true,
             },
-            this.logger
+            {
+                logger: this.logger,
+                type_config: this._dataTypes.xluceneTypeConfig,
+            }
         );
     }
 
@@ -695,7 +704,10 @@ export class ACLManager {
                 includes,
                 allow_implicit_queries: true,
             },
-            this.logger
+            {
+                logger: this.logger,
+                type_config: this._views.xluceneTypeConfig,
+            }
         );
     }
 
@@ -728,7 +740,10 @@ export class ACLManager {
                 includes,
                 allow_implicit_queries: true,
             },
-            this.logger
+            {
+                logger: this.logger,
+                type_config: this._spaces.xluceneTypeConfig,
+            }
         );
     }
 

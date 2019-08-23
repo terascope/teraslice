@@ -39,6 +39,36 @@ export function parseRange(node: Range, excludeInfinite = false): ParsedRange {
     return results;
 }
 
+export const GEO_DISTANCE_UNITS: { readonly [key: string]: GeoDistanceUnit } = {
+    mi: 'miles',
+    miles: 'miles',
+    mile: 'miles',
+    NM:'nauticalmiles',
+    nmi: 'nauticalmiles',
+    nauticalmile: 'nauticalmiles',
+    nauticalmiles: 'nauticalmiles',
+    in: 'inch',
+    inch: 'inch',
+    inches: 'inch',
+    yd: 'yards',
+    yard: 'yards',
+    yards: 'yards',
+    m: 'meters',
+    meter: 'meters',
+    meters: 'meters',
+    km: 'kilometers',
+    kilometer: 'kilometers',
+    kilometers: 'kilometers',
+    mm: 'millimeters',
+    millimeter: 'millimeters',
+    millimeters: 'millimeters',
+    cm: 'centimeters',
+    centimeter: 'centimeters',
+    centimeters: 'centimeters',
+    ft: 'feet',
+    feet: 'feet',
+};
+
 export function parseGeoDistance(str: string): GeoDistanceObj {
     const trimed = trimAndToLower(str);
     const matches = trimed.match(/(\d+)(.*)$/);
@@ -111,33 +141,3 @@ export function parseGeoPoint(point: GeoPointInput, throwInvalid = true): GeoPoi
     }
     return null;
 }
-
-export const GEO_DISTANCE_UNITS: { readonly [key: string]: GeoDistanceUnit } = {
-    mi: 'miles',
-    miles: 'miles',
-    mile: 'miles',
-    NM:'nauticalmiles',
-    nmi: 'nauticalmiles',
-    nauticalmile: 'nauticalmiles',
-    nauticalmiles: 'nauticalmiles',
-    in: 'inch',
-    inch: 'inch',
-    inches: 'inch',
-    yd: 'yards',
-    yard: 'yards',
-    yards: 'yards',
-    m: 'meters',
-    meter: 'meters',
-    meters: 'meters',
-    km: 'kilometers',
-    kilometer: 'kilometers',
-    kilometers: 'kilometers',
-    mm: 'millimeters',
-    millimeter: 'millimeters',
-    millimeters: 'millimeters',
-    cm: 'centimeters',
-    centimeter: 'centimeters',
-    centimeters: 'centimeters',
-    ft: 'feet',
-    feet: 'feet',
-};
