@@ -125,6 +125,20 @@ export default [
         }
     ],
     [
+        "foo:'bar'",
+        'field with single quoted string value',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            field: 'foo',
+            quoted: false,
+            value: "'bar'",
+        },
+        {
+            foo: FieldType.String
+        }
+    ],
+    [
         'count:123',
         'field with quoted integer value',
         {
