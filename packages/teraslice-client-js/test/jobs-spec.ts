@@ -1,8 +1,10 @@
 
 import 'jest-extended';
 import nock from 'nock';
+import { JobConfig } from '@terascope/job-components';
 import Job from '../src/lib/job';
 import Jobs from '../src/lib/jobs';
+import { JobsGetResponse, ExecutionStatus } from '../src/interfaces';
 
 describe('Teraslice Jobs', () => {
     let jobs:Jobs;
@@ -19,6 +21,29 @@ describe('Teraslice Jobs', () => {
     afterEach(() => {
         nock.cleanAll();
     });
+
+    const date = new Date().toISOString();
+
+    const list: JobsGetResponse = [
+        {
+            analytics: false,
+            assets: [],
+            assetIds:[],
+            lifecycle: 'once',
+            max_retries: 3,
+            name: 'some_name',
+            apis: [],
+            operations: [{ _op: 'someOp' }],
+            probation_window: 3,
+            performance_metrics: false,
+            env_vars: {},
+            slicers: 1,
+            workers: 1,
+            _created: date,
+            _updated: date,
+            _context: 'job'
+        },
+    ];
 
     describe('->wrap', () => {
         describe('when given a jobId', () => {
@@ -52,8 +77,7 @@ describe('Teraslice Jobs', () => {
         });
 
         describe('when submitting with a valid jobSpec', () => {
-            const jobSpec = {
-                some_job: true,
+            const jobSpec: JobConfig = {
                 operations: [{ _op: 'operation' }]
             };
 
@@ -75,8 +99,7 @@ describe('Teraslice Jobs', () => {
         });
 
         describe('when submitting with a valid and start is set false', () => {
-            const jobSpec = {
-                some_job: true,
+            const jobSpec: JobConfig = {
                 operations: [{ _op: 'operation' }]
             };
 
@@ -96,8 +119,7 @@ describe('Teraslice Jobs', () => {
         });
 
         describe('when submitting and the request fails', () => {
-            const jobSpec = {
-                some_job: true,
+            const jobSpec: JobConfig = {
                 operations: [{ _op: 'operation' }]
             };
 
@@ -142,7 +164,6 @@ describe('Teraslice Jobs', () => {
 
     describe('->list', () => {
         describe('when called with nothing', () => {
-            const list = [{ id: 'example' }, { id: 'example-other' }];
 
             beforeEach(() => {
                 scope.get('/jobs')
@@ -157,31 +178,31 @@ describe('Teraslice Jobs', () => {
         });
 
         describe('when called with a string', () => {
-            const list = [{ id: 'hello-example' }, { id: 'hello-example-2' }];
             beforeEach(() => {
                 scope.get('/jobs')
-                    .query({ status: 'hello' })
+                    .query({ status: ExecutionStatus.running })
                     .reply(200, list);
             });
 
             it('should resolve json result from Teraslice', async () => {
-                const results = await jobs.list('hello');
+                const results = await jobs.list(ExecutionStatus.running);
                 expect(results).toEqual(list);
             });
         });
 
         describe('when called with an object', () => {
-            const list = [{ id: 'object-example' }, { id: 'object-example-2' }];
-            const params = { anything: true };
+            const searchOptions = { headers: { 'Some-Header': 'yes' } };
+            const queryOptions = { status: ExecutionStatus.running, size: 10 };
 
             beforeEach(() => {
                 scope.get('/jobs')
-                    .query(params)
+                    .query(queryOptions)
+                    .matchHeader('Some-Header', 'yes')
                     .reply(200, list);
             });
 
             it('should resolve json result from Teraslice', async () => {
-                const results = await jobs.list(params);
+                const results = await jobs.list(queryOptions, searchOptions);
                 expect(results).toEqual(list);
             });
         });

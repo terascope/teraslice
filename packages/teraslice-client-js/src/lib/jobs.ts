@@ -2,7 +2,12 @@
 import { isString, JobConfig, TSError } from '@terascope/job-components';
 import Client from './client';
 import Job from './job';
-import { SearchParams } from '../interfaces';
+import {
+    JobsGetResponse,
+    SearchOptions,
+    JobSearchParams,
+    JobListStatusQuery
+} from '../interfaces';
 
 export default class Jobs extends Client {
 
@@ -12,9 +17,10 @@ export default class Jobs extends Client {
         return this.wrap(job.job_id);
     }
 
-    async list(options?:SearchParams) {
-        const query = _parseListOptions(options);
-        return this.get('/jobs', { query });
+    async list(status?: JobListStatusQuery, searchOptions: SearchOptions = {}):Promise<JobsGetResponse> {
+        const query = _parseListOptions(status);
+        const options = Object.assign({}, searchOptions, { query });
+        return this.get('/jobs', options);
     }
 
     // Wraps the job_id with convenience functions for accessing
@@ -24,9 +30,8 @@ export default class Jobs extends Client {
     }
 }
 
-function _parseListOptions(options:any): SearchParams {
+function _parseListOptions(options?:JobListStatusQuery): JobSearchParams {
     // support legacy
-    // TODO: tighten the options up
     if (!options) return { status: '*' };
     if (isString(options)) return { status: options };
     return options;
