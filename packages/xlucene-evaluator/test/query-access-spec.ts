@@ -265,6 +265,9 @@ describe('QueryAccess', () => {
     describe('when converting to an elasticsearch search query', () => {
         const queryAccess = new QueryAccess({
             allow_implicit_queries: true,
+            default_geo_field: 'moo',
+            default_geo_sort_order: 'desc',
+            default_geo_sort_unit: 'mm',
             excludes: ['bar', 'baz'],
             includes: ['foo', 'moo'],
         });
@@ -315,6 +318,53 @@ describe('QueryAccess', () => {
             });
 
             expect(result).not.toHaveProperty('q', 'idk');
+        });
+
+        it('should be able to return a restricted geo query and add the geo sort', () => {
+            const q = 'foo:(_geo_point_:"33.435518,-111.873616" _geo_distance_:5000yd)';
+            const result = queryAccess.restrictSearchQuery(q, {
+                geo_sort_order: 'asc'
+            });
+
+            expect(result).toMatchObject({
+                body: {
+                    sort: {
+                        _geo_distance: {
+                            order: 'asc',
+                            unit: 'yards',
+                            foo: {
+                                lat: 33.435518,
+                                lon: -111.873616,
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        it('should be able to return a query with a default sort when geo_sort_point is passed in', () => {
+            const q = 'foo:bar';
+            const result = queryAccess.restrictSearchQuery(q, {
+                geo_sort_point: {
+                    lat: 55.435518,
+                    lon: -101.873616,
+                }
+            });
+
+            expect(result).toMatchObject({
+                body: {
+                    sort: {
+                        _geo_distance: {
+                            order: 'desc',
+                            unit: 'millimeters',
+                            moo: {
+                                lat: 55.435518,
+                                lon: -101.873616,
+                            }
+                        }
+                    }
+                }
+            });
         });
     });
 });
