@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { debugLogger, get, times } from '@terascope/utils';
-import { buildAnyQuery } from '../src/translator/utils';
-import { Translator, TypeConfig, FieldType, AST, Parser } from '../src';
+import { translateQuery } from '../src/translator/utils';
+import { Translator, TypeConfig, FieldType, Parser } from '../src';
 import allTestCases from './cases/translator';
 
 const logger = debugLogger('translator-spec');
@@ -14,9 +14,21 @@ describe('Translator', () => {
         expect(translator).toHaveProperty('query', query);
     });
 
-    it('should return undefined when given an invalid query', () => {
-        const node: unknown = { type: 'idk', field: 'a', val: true };
-        expect(buildAnyQuery(node as AST, new Parser(''))).toBeUndefined();
+    it('should return a empty filter query when given an invalid query', () => {
+        const parser = new Parser('');
+        // @ts-ignore
+        parser.ast = { type: 'idk', field: 'a', val: true } as any;
+        expect(translateQuery(parser, {
+            logger,
+            default_geo_sort_order: 'asc',
+            default_geo_sort_unit: 'meters',
+        })).toEqual({
+            query: {
+                constant_score: {
+                    filter: []
+                }
+            }
+        });
     });
 
     it('should have the typeConfig property', () => {
@@ -41,7 +53,6 @@ describe('Translator', () => {
         expect(translator).toHaveProperty('_defaultGeoSortUnit', 'meters');
     });
 
-
     it('should have the geo sort properties', () => {
         const query = 'foo:bar';
 
@@ -61,7 +72,7 @@ describe('Translator', () => {
                     const translator = new Translator(query, options);
                     const result = translator.toElasticsearchDSL();
 
-                    const actual = get(result, property);
+                    const actual = property && property !== '.' ? get(result, property) : result;
                     logger.trace(
                         'test result',
                         JSON.stringify(

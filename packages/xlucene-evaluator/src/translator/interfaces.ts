@@ -2,11 +2,19 @@ import { Units } from '@turf/helpers';
 import { Logger } from '@terascope/utils';
 import * as parser from '../parser';
 
+export type SortOrder = 'asc'|'desc';
+
 export type TranslatorOptions = {
     logger?: Logger;
     type_config?: parser.TypeConfig,
-    default_geo_sort_order?: 'asc'|'desc';
+    default_geo_sort_order?: SortOrder;
     default_geo_sort_unit?: Units|string;
+};
+
+export type UtilsTranslateQueryOptions = {
+    logger: Logger;
+    default_geo_sort_order: SortOrder;
+    default_geo_sort_unit: Units;
 };
 
 export type BoolQuery = {
@@ -115,6 +123,21 @@ export type MatchAllQuery = {
     match_all: {};
 };
 
+export interface GeoSortQuery {
+    _geo_distance: {
+        // @ts-ignore
+        order: SortOrder;
+        // @ts-ignore
+        unit: Units;
+
+        [field: string]: {
+            lat: number;
+            lon: number;
+        };
+    };
+}
+
 export type ElasticsearchDSLResult = {
     query: ConstantScoreQuery | MatchAllQuery;
+    sort?: GeoSortQuery;
 };

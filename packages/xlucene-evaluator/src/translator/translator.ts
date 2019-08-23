@@ -1,6 +1,6 @@
 import { Units } from '@turf/helpers';
 import { debugLogger, isString, Logger } from '@terascope/utils';
-import { TypeConfig, Parser, isEmptyAST } from '../parser';
+import { TypeConfig, Parser } from '../parser';
 import { parseGeoDistanceUnit } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
@@ -12,8 +12,8 @@ export class Translator {
     logger: Logger;
     readonly typeConfig?: TypeConfig;
     private readonly _parser: Parser;
-    private _defaultGeoSortOrder?: 'asc'|'desc' = 'asc';
-    private _defaultGeoSortUnit?: Units = 'meters';
+    private _defaultGeoSortOrder: 'asc'|'desc' = 'asc';
+    private _defaultGeoSortUnit: Units = 'meters';
 
     constructor(input: string | Parser, options: i.TranslatorOptions = {}) {
         this.logger = options.logger != null ? options.logger.child({ module: 'xlucene-translator' }) : _logger;
@@ -34,22 +34,15 @@ export class Translator {
     }
 
     toElasticsearchDSL(): i.ElasticsearchDSLResult {
-        let query: i.MatchAllQuery | i.ConstantScoreQuery;
-        if (isEmptyAST(this._parser.ast)) {
-            query = {
-                match_all: {},
-            };
-        } else {
-            const anyQuery = utils.buildAnyQuery(this._parser.ast, this._parser);
-            query = {
-                constant_score: {
-                    filter: utils.compactFinalQuery(anyQuery),
-                },
-            };
-        }
-        this.logger.trace({ defaultGeoSortOrder: this._defaultGeoSortOrder, defaultGeoSortUnit: this._defaultGeoSortUnit });
-        this.logger.trace(`translated ${this.query ? this.query : "''"} query to`, JSON.stringify(query, null, 4));
+        const result = utils.translateQuery(this._parser, {
+            logger: this.logger,
+            default_geo_sort_order: this._defaultGeoSortOrder,
+            default_geo_sort_unit: this._defaultGeoSortUnit,
+        });
 
-        return { query };
+        const resultStr = JSON.stringify(result, null, 2);
+        this.logger.trace(`translated ${this.query ? this.query : "''"} query to`, resultStr);
+
+        return result;
     }
 }
