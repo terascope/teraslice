@@ -41,6 +41,16 @@ export default [
                         }
                     }
                 }
+            },
+            sort: {
+                _geo_distance: {
+                    order: 'asc',
+                    unit: 'meters',
+                    loc: {
+                        lat: 33.435518,
+                        lon: -111.873616,
+                    }
+                }
             }
         }
     ],

@@ -5,6 +5,7 @@ import { parseRange } from '../utils';
 
 export function translateQuery(parser: p.Parser, options: i.UtilsTranslateQueryOptions): i.ElasticsearchDSLResult {
     const { logger } = options;
+    let sort: i.AnyQuerySort|undefined;
 
     function buildAnyQuery(node: p.AST): i.AnyQuery | undefined {
         // if no field and is wildcard
@@ -39,6 +40,7 @@ export function translateQuery(parser: p.Parser, options: i.UtilsTranslateQueryO
                 ast: parser.ast,
             },
         });
+
         logger.error(error);
         return;
     }
@@ -71,10 +73,6 @@ export function translateQuery(parser: p.Parser, options: i.UtilsTranslateQueryO
         return;
     }
 
-    function isMultiMatch(node: p.TermLikeAST) {
-        return !node.field || node.field === '*';
-    }
-
     function buildMultiMatchQuery(node: p.TermLikeAST, query: string): i.MultiMatchQuery {
         const multiMatchQuery: i.MultiMatchQuery = {
             multi_match: {
@@ -84,10 +82,6 @@ export function translateQuery(parser: p.Parser, options: i.UtilsTranslateQueryO
 
         logger.trace('built mutli-match query', { node, multiMatchQuery });
         return multiMatchQuery;
-    }
-
-    function getTermField(node: p.TermLikeAST): string {
-        return node.field!;
     }
 
     function buildGeoBoundingBoxQuery(node: p.GeoBoundingBox): i.GeoQuery | undefined {
@@ -111,14 +105,30 @@ export function translateQuery(parser: p.Parser, options: i.UtilsTranslateQueryO
 
         const field = getTermField(node);
 
+        const unit = node.unit || options.default_geo_sort_unit;
+        const order = options.default_geo_sort_order;
+
         const geoQuery: i.GeoQuery = {};
         geoQuery['geo_distance'] = {
-            distance: `${node.distance}${node.unit}`,
+            distance: `${node.distance}${unit}`,
         };
         geoQuery['geo_distance'][field] = {
             lat: node.lat,
             lon: node.lon,
         };
+
+        if (!sort) {
+            sort = {
+                _geo_distance: {
+                    order,
+                    unit,
+                    [field]: {
+                        lat: node.lat,
+                        lon: node.lon
+                    }
+                }
+            };
+        }
 
         logger.trace('built geo distance query', { node, geoQuery });
         return geoQuery;
@@ -298,8 +308,18 @@ export function translateQuery(parser: p.Parser, options: i.UtilsTranslateQueryO
             constant_score: {
                 filter: compactFinalQuery(anyQuery),
             }
-        }
+        },
+        // avoid setting it to undefined
+        ...(sort && { sort })
     };
+}
+
+export function isMultiMatch(node: p.TermLikeAST) {
+    return !node.field || node.field === '*';
+}
+
+export function getTermField(node: p.TermLikeAST): string {
+    return node.field!;
 }
 
 export function flattenQuery(query: i.AnyQuery | undefined, flattenTo: i.BoolQueryTypes): i.AnyQuery[] {

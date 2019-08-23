@@ -123,21 +123,20 @@ export type MatchAllQuery = {
     match_all: {};
 };
 
-export interface GeoSortQuery {
-    _geo_distance: {
-        // @ts-ignore
-        order: SortOrder;
-        // @ts-ignore
-        unit: Units;
-
-        [field: string]: {
-            lat: number;
-            lon: number;
-        };
+export type GeoDistanceSort = {
+    [field: string]: SortOrder|Units|{
+        lat: number;
+        lon: number;
     };
-}
+};
+
+export type GeoSortQuery = {
+    _geo_distance: GeoDistanceSort;
+};
+
+export type AnyQuerySort = GeoSortQuery;
 
 export type ElasticsearchDSLResult = {
     query: ConstantScoreQuery | MatchAllQuery;
-    sort?: GeoSortQuery;
+    sort?: AnyQuerySort;
 };
