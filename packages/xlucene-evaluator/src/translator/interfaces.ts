@@ -149,5 +149,5 @@ export type AnyQuerySort = GeoSortQuery;
 
 export type ElasticsearchDSLResult = {
     query: ConstantScoreQuery | MatchAllQuery;
-    sort?: AnyQuerySort;
+    sort?: AnyQuerySort|AnyQuerySort[];
 };

@@ -48,6 +48,35 @@ export default [
         }
     ],
     [
+        'location:(_geo_box_top_left_:"10.5234,70.42345" _geo_box_bottom_right_:"50.5234,60.3456")',
+        '.',
+        {
+            query: {
+                constant_score: {
+                    filter: {
+                        geo_bounding_box: {
+                            location: {
+                                top_left: {
+                                    lat: 10.5234,
+                                    lon: 70.42345,
+                                },
+                                bottom_right: {
+                                    lat: 50.5234,
+                                    lon: 60.3456
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {},
+        {
+            geo_sort_order: 'desc',
+            geo_sort_unit: 'feet'
+        }
+    ],
+    [
         'loc:(_geo_point_:"33.435518,-111.873616" _geo_distance_:5000in)',
         '.',
         {
@@ -85,6 +114,69 @@ export default [
                 lon: -120.873616,
             },
             geo_sort_unit: 'nauticalmiles'
+        }
+    ],
+    [
+        // tslint:disable-next-line: max-line-length
+        'loc_a:(_geo_point_:"22.435518,-22.873616" _geo_distance_:22NM) AND loc_b:(_geo_point_:"11.435518,-11.873616" _geo_distance_:11cm)',
+        '.',
+        {
+            query: {
+                constant_score: {
+                    filter: {
+                        bool: {
+                            should: [
+                                {
+                                    bool: {
+                                        filter: [
+                                            {
+                                                geo_distance: {
+                                                    distance: '22nauticalmiles',
+                                                    loc_a: {
+                                                        lat: 22.435518,
+                                                        lon: -22.873616,
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                geo_distance: {
+                                                    distance: '11centimeters',
+                                                    loc_b: {
+                                                        lat: 11.435518,
+                                                        lon: -11.873616,
+                                                    }
+                                                }
+                                            },
+                                        ],
+                                    },
+                                },
+                            ]
+                        },
+                    }
+                }
+            },
+            sort: [
+                {
+                    _geo_distance: {
+                        order: 'asc',
+                        unit: 'nauticalmiles',
+                        loc_a: {
+                            lat: 22.435518,
+                            lon: -22.873616,
+                        }
+                    }
+                },
+                {
+                    _geo_distance: {
+                        order: 'asc',
+                        unit: 'centimeters',
+                        loc_b: {
+                            lat: 11.435518,
+                            lon: -11.873616,
+                        }
+                    }
+                },
+            ]
         }
     ],
 ] as TestCase[];

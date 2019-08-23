@@ -5,7 +5,7 @@ import { parseRange } from '../utils';
 
 export function translateQuery(parser: p.Parser, options: i.UtilsTranslateQueryOptions): i.ElasticsearchDSLResult {
     const { logger } = options;
-    let sort: i.AnyQuerySort|undefined;
+    let sort: i.AnyQuerySort|i.AnyQuerySort[]|undefined;
 
     function buildAnyQuery(node: p.AST): i.AnyQuery | undefined {
         // if no field and is wildcard
@@ -117,17 +117,23 @@ export function translateQuery(parser: p.Parser, options: i.UtilsTranslateQueryO
             lon: node.lon,
         };
 
-        if (!sort) {
-            sort = {
-                _geo_distance: {
-                    order,
-                    unit,
-                    [field]: {
-                        lat: node.lat,
-                        lon: node.lon
-                    }
+        const geoQuerySort = {
+            _geo_distance: {
+                order,
+                unit,
+                [field]: {
+                    lat: node.lat,
+                    lon: node.lon
                 }
-            };
+            }
+        };
+
+        if (!sort) {
+            sort = geoQuerySort;
+        } else if (Array.isArray(sort)) {
+            sort.push(geoQuerySort);
+        } else {
+            sort = [sort, geoQuerySort];
         }
 
         logger.trace('built geo distance query', { node, geoQuery });

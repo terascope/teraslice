@@ -85,7 +85,7 @@ describe('Translator', () => {
                                 actual,
                             },
                             null,
-                            4
+                            2
                         )
                     );
 
