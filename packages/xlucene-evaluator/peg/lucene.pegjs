@@ -5,8 +5,23 @@
         parseGeoPoint,
         parseGeoDistance,
         FieldType,
-        typeConfig = {}
+        typeConfig = {},
+        logger,
     } = options.context;
+
+    const termTypes = [
+        ASTType.Term,
+        ASTType.Regexp,
+        ASTType.Range,
+        ASTType.Wildcard,
+        ASTType.GeoDistance,
+        ASTType.GeoBoundingBox
+    ];
+
+    const groupTypes = [
+        ASTType.LogicalGroup,
+        ASTType.FieldGroup
+    ];
 
     /**
     * Propagate the default field on a field group expression
@@ -14,16 +29,9 @@
     function propagateDefaultField(node, field) {
        if (!node) return;
 
-       const termTypes = [
-           ASTType.Term,
-           ASTType.Regexp,
-           ASTType.Range,
-           ASTType.Wildcard,
-           ASTType.GeoDistance,
-           ASTType.GeoBoundingBox
-       ];
        if (termTypes.includes(node.type) && !node.field) {
            node.field = field;
+           coerceTermType(node);
            return;
        }
 
@@ -32,7 +40,6 @@
            return;
        }
 
-       const groupTypes = [ASTType.LogicalGroup, ASTType.FieldGroup];
        if (groupTypes.includes(node.type)) {
            for (const conj of node.flow) {
                propagateDefaultField(conj, field);
@@ -48,50 +55,53 @@
        }
     }
 
-    const supportedFieldTypes = [FieldType.String];
 
     function getFieldType(field) {
-        const fieldType = typeConfig[field];
-        if (!fieldType) return;
-        return fieldType;
+        if (!field) return;
+        return typeConfig[field];
     }
 
-    function hasSupportedFieldType(field) {
-        return supportedFieldTypes.includes(getFieldType(field));
+    const inferredFieldTypes = [FieldType.String];
+    function isInferredTermType(field) {
+        const fieldType = getFieldType(field);
+        return inferredFieldTypes.includes(fieldType);
     }
 
-    function parseTermForFieldType(field, value) {
+    // parse an inferred field type
+    function parseInferredTermType(field, value) {
         const fieldType = getFieldType(field);
         const term = {
             type: ASTType.Term,
             field_type: fieldType,
         };
+
         if (fieldType === FieldType.String) {
             term.quoted = false;
             term.value = `${value}`;
             return term;
         }
 
-        throw new Error(`Unsupported Field Type ${fieldType}`);
+        logger.warn(`Unsupported field inferred field type ${fieldType} for field ${field}`);
+        term.value = value;
+        return term;
     }
 
-    function coerceTermType(term) {
-        if (!term.field) return term;
+    function coerceTermType(node) {
+        if (!node.field) return;
 
-        const fieldType = getFieldType(term.field);
-        if (!fieldType) return term;
-        if (fieldType === term.field_type) return term;
+        const fieldType = getFieldType(node.field);
+        logger.trace({ node, fieldType }, 'coercing term type for node');
+        if (fieldType === node.field_type) return;
 
-        if (fieldType == FieldType.Boolean) {
-            term.field_type = fieldType;
-            if (term.value === 'true') {
-                term.value = true;
+        if (fieldType === FieldType.Boolean) {
+            node.field_type = fieldType;
+            if (node.value === 'true') {
+                node.value = true;
             }
-            if (term.value === 'false') {
-                term.value = false;
+            if (node.value === 'false') {
+                node.value = false;
             }
         }
-        return term;
     }
 }
 
@@ -229,12 +239,13 @@ NegatedTermGroup
 
 FieldGroup
     = field:FieldName ws* FieldSeparator ws* group:ParensGroup {
-        propagateDefaultField(group, field);
-        return {
+        const node = {
             ...group,
             type: ASTType.FieldGroup,
             field,
-        }
+        };
+        propagateDefaultField(group, field);
+        return node;
     }
 
 BaseTermExpression
@@ -253,25 +264,23 @@ BaseTermExpression
     / GeoTermExpression
     / FieldGroup
     / field:FieldName ws* FieldSeparator ws* term:InferredTermType {
-        return coerceTermType({
-            ...term,
-            field,
-        })
+        const node = { ...term, field };
+        coerceTermType(node);
+        return node;
     }
     / field:FieldName ws* FieldSeparator ws* value:RestrictedString &{
-        return hasSupportedFieldType(field);
+        return isInferredTermType(field);
     } {
-        const term = parseTermForFieldType(field, value);
+        const term = parseInferredTermType(field, value);
         return {
             ...term,
             field,
-        }
+        };
     }
     / field:FieldName ws* FieldSeparator ws* term:TermType {
-        return coerceTermType({
-            ...term,
-            field,
-        })
+        const node = { ...term, field };
+        coerceTermType(node);
+        return node;
     }
 
 TermExpression

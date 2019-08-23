@@ -140,7 +140,7 @@ export default [
     ],
     [
         'count:123',
-        'field with quoted integer value',
+        'field without a type and with unquoted integer value',
         {
             type: ASTType.Term,
             field_type: FieldType.Integer,
@@ -280,7 +280,7 @@ export default [
     ],
     [
         'val:(155 223)',
-        'a field with parens unqouted string',
+        'a field with parens unqouted integers',
         {
             type: ASTType.Term,
             field_type: FieldType.String,

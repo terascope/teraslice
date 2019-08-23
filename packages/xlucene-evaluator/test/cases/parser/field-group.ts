@@ -148,7 +148,7 @@ export default [
             },
         ]
     }],
-    ['count:(155 "223")', 'implicit or grouping', {
+    ['count:(155 "223")', 'implicit OR grouping', {
         type: 'field-group',
         field: 'count',
         flow: [

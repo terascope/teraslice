@@ -26,6 +26,7 @@ export class Parser {
             FieldType: i.FieldType,
             parseGeoPoint,
             parseGeoDistance,
+            logger: this.logger,
         };
 
         try {
