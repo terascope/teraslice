@@ -20,6 +20,9 @@ export type UtilsTranslateQueryOptions = {
 };
 
 export type ElasticsearchDSLOptions = {
+    /**
+     * If a default_geo_field is set, this is required to enable sorting
+    */
     geo_sort_point?: p.GeoPoint;
     geo_sort_order?: SortOrder;
     geo_sort_unit?: p.GeoDistanceUnit;

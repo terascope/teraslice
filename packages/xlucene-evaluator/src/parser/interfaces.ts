@@ -1,3 +1,10 @@
+import { Logger } from '@terascope/utils';
+
+export interface ParserOptions {
+    type_config?: TypeConfig;
+    logger?: Logger;
+}
+
 export type GeoDistanceUnit = 'miles'|'yards'|'feet'|'inch'|'kilometers'|'meters'|'centimeters'|'millimeters'|'nauticalmiles';
 
 export enum FieldType {

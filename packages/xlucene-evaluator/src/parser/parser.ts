@@ -12,8 +12,11 @@ export class Parser {
     readonly query: string;
     logger: Logger;
 
-    constructor(query: string, typeConfig: i.TypeConfig = {}, logger?: Logger) {
-        this.logger = logger != null ? logger.child({ module: 'xlucene-parser' }) : _logger;
+    constructor(query: string, options: i.ParserOptions = {}) {
+        this.logger = options.logger != null
+            ? options.logger.child({ module: 'xlucene-parser' })
+            : _logger;
+
         this.query = trim(query || '');
 
         const tracer = new Tracer(this.query, {
@@ -21,7 +24,7 @@ export class Parser {
         });
 
         const context = {
-            typeConfig,
+            typeConfig: options.type_config,
             ASTType: i.ASTType,
             FieldType: i.FieldType,
             parseGeoPoint,

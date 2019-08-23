@@ -16,13 +16,20 @@ export class Translator {
     private _defaultGeoSortUnit: GeoDistanceUnit = 'meters';
 
     constructor(input: string | Parser, options: i.TranslatorOptions = {}) {
-        this.logger = options.logger != null ? options.logger.child({ module: 'xlucene-translator' }) : _logger;
+        this.logger = options.logger != null
+            ? options.logger.child({ module: 'xlucene-translator' })
+            : _logger;
 
+        this.typeConfig = options.type_config;
         if (isString(input)) {
-            this._parser = new Parser(input, options.type_config, options.logger);
+            this._parser = new Parser(input, {
+                type_config: this.typeConfig,
+                logger: this.logger,
+            });
         } else {
             this._parser = input;
         }
+
         if (options.default_geo_field) {
             this._defaultGeoField = options.default_geo_field;
         }
@@ -32,8 +39,8 @@ export class Translator {
         if (options.default_geo_sort_unit) {
             this._defaultGeoSortUnit = parseGeoDistanceUnit(options.default_geo_sort_unit);
         }
+
         this.query = this._parser.query;
-        this.typeConfig = options.type_config;
     }
 
     toElasticsearchDSL(opts: i.ElasticsearchDSLOptions = {}): i.ElasticsearchDSLResult {

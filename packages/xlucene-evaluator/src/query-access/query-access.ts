@@ -3,7 +3,7 @@ import * as p from '../parser';
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import { CachedTranslator, SortOrder } from '../translator';
-import { QueryAccessConfig } from './interfaces';
+import * as i from './interfaces';
 
 const _logger = ts.debugLogger('xlucene-query-access');
 
@@ -23,7 +23,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     private readonly _parser: p.CachedParser = new p.CachedParser();
     private readonly _translator: CachedTranslator = new CachedTranslator();
 
-    constructor(config: QueryAccessConfig<T> = {}, logger?: ts.Logger) {
+    constructor(config: i.QueryAccessConfig<T> = {}, options: i.QueryAccessOptions = {}) {
         const {
             excludes = [],
             includes = [],
@@ -37,7 +37,10 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             default_geo_sort_unit,
         } = config;
 
-        this.logger = logger != null ? logger.child({ module: 'xlucene-query-access' }) : _logger;
+        this.logger = options.logger != null
+            ? options.logger.child({ module: 'xlucene-query-access' })
+            : _logger;
+
         this.excludes = excludes;
         this.includes = includes;
         this.constraint = constraint;
@@ -61,7 +64,10 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      * @returns a restricted xlucene query
      */
     restrict(query: string): string {
-        const parser = this._parser.make(query, this.typeConfig, this.logger);
+        const parser = this._parser.make(query, {
+            logger: this.logger,
+            type_config: this.typeConfig,
+        });
 
         if (p.isEmptyAST(parser.ast)) {
             if (!this.allowEmpty) {
@@ -115,13 +121,24 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      *
      * @returns a restricted elasticsearch search query
      */
-    restrictSearchQuery(query: string, params: Partial<es.SearchParams> = {}, esVersion: number = 6): es.SearchParams {
+    restrictSearchQuery(query: string, opts: i.RestrictSearchQueryOptions = {}): es.SearchParams {
+        const {
+            params = {},
+            elasticsearch_version: esVersion = 6,
+            ...translateOptions
+        } = opts;
+
         if (params._source) {
             throw new ts.TSError('Cannot include _source in params, use _sourceInclude or _sourceExclude');
         }
 
         const restricted = this.restrict(query);
-        const parsed = this._parser.make(restricted, this.typeConfig, this.logger);
+
+        const parsed = this._parser.make(restricted, {
+            type_config: this.typeConfig,
+            logger: this.logger
+        });
+
         const translator = this._translator.make(parsed, {
             type_config: this.typeConfig,
             logger: this.logger,
@@ -130,7 +147,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             default_geo_sort_unit: this.defaultGeoSortUnit,
         });
 
-        const translated = translator.toElasticsearchDSL();
+        const translated = translator.toElasticsearchDSL(translateOptions);
 
         const { includes, excludes } = this.restrictSourceFields(
             params._sourceInclude as (keyof T)[],
