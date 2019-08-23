@@ -20,8 +20,8 @@ describe('Translator', () => {
         parser.ast = { type: 'idk', field: 'a', val: true } as any;
         expect(translateQuery(parser, {
             logger,
-            default_geo_sort_order: 'asc',
-            default_geo_sort_unit: 'meters',
+            geo_sort_order: 'asc',
+            geo_sort_unit: 'meters',
         })).toEqual({
             query: {
                 constant_score: {
@@ -57,20 +57,22 @@ describe('Translator', () => {
         const query = 'foo:bar';
 
         const translator = new Translator(query, {
+            default_geo_field: 'test_loc',
             default_geo_sort_order: 'desc',
             default_geo_sort_unit: 'km'
         });
 
+        expect(translator).toHaveProperty('_defaultGeoField', 'test_loc');
         expect(translator).toHaveProperty('_defaultGeoSortOrder', 'desc');
         expect(translator).toHaveProperty('_defaultGeoSortUnit', 'kilometers');
     });
 
     for (const [key, testCases] of Object.entries(allTestCases)) {
         describe(`when testing ${key.replace('_', ' ')} queries`, () => {
-            describe.each(testCases)('given query %s', (query, property, expected, options) => {
+            describe.each(testCases)('given query %s', (query, property, expected, options, toESOptions) => {
                 it('should translate the query correctly', () => {
                     const translator = new Translator(query, options);
-                    const result = translator.toElasticsearchDSL();
+                    const result = translator.toElasticsearchDSL(toESOptions);
 
                     const actual = property && property !== '.' ? get(result, property) : result;
                     logger.trace(

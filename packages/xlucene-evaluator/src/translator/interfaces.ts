@@ -1,20 +1,28 @@
-import { Units } from '@turf/helpers';
 import { Logger } from '@terascope/utils';
-import * as parser from '../parser';
+import * as p from '../parser';
 
 export type SortOrder = 'asc'|'desc';
 
 export type TranslatorOptions = {
     logger?: Logger;
-    type_config?: parser.TypeConfig,
+    type_config?: p.TypeConfig,
+    default_geo_field?: string;
     default_geo_sort_order?: SortOrder;
-    default_geo_sort_unit?: Units|string;
+    default_geo_sort_unit?: p.GeoDistanceUnit|string;
 };
 
 export type UtilsTranslateQueryOptions = {
     logger: Logger;
-    default_geo_sort_order: SortOrder;
-    default_geo_sort_unit: Units;
+    default_geo_field?: string;
+    geo_sort_point?: p.GeoPoint;
+    geo_sort_order: SortOrder;
+    geo_sort_unit: p.GeoDistanceUnit;
+};
+
+export type ElasticsearchDSLOptions = {
+    geo_sort_point?: p.GeoPoint;
+    geo_sort_order?: SortOrder;
+    geo_sort_unit?: p.GeoDistanceUnit;
 };
 
 export type BoolQuery = {
@@ -48,13 +56,13 @@ export interface ExistsQuery {
 export interface GeoQuery {
     geo_bounding_box?: {
         [field: string]: {
-            top_left: parser.GeoPoint | string;
-            bottom_right: parser.GeoPoint | string;
+            top_left: p.GeoPoint | string;
+            bottom_right: p.GeoPoint | string;
         };
     };
     geo_distance?: {
         distance: string;
-        [field: string]: parser.GeoPoint | string;
+        [field: string]: p.GeoPoint | string;
     };
 }
 
@@ -124,7 +132,7 @@ export type MatchAllQuery = {
 };
 
 export type GeoDistanceSort = {
-    [field: string]: SortOrder|Units|{
+    [field: string]: SortOrder|p.GeoDistanceUnit|{
         lat: number;
         lon: number;
     };

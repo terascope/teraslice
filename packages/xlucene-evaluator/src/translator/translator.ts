@@ -1,6 +1,5 @@
-import { Units } from '@turf/helpers';
 import { debugLogger, isString, Logger } from '@terascope/utils';
-import { TypeConfig, Parser } from '../parser';
+import { TypeConfig, Parser, GeoDistanceUnit } from '../parser';
 import { parseGeoDistanceUnit } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
@@ -12,8 +11,9 @@ export class Translator {
     logger: Logger;
     readonly typeConfig?: TypeConfig;
     private readonly _parser: Parser;
+    private _defaultGeoField?: string;
     private _defaultGeoSortOrder: 'asc'|'desc' = 'asc';
-    private _defaultGeoSortUnit: Units = 'meters';
+    private _defaultGeoSortUnit: GeoDistanceUnit = 'meters';
 
     constructor(input: string | Parser, options: i.TranslatorOptions = {}) {
         this.logger = options.logger != null ? options.logger.child({ module: 'xlucene-translator' }) : _logger;
@@ -22,6 +22,9 @@ export class Translator {
             this._parser = new Parser(input, options.type_config, options.logger);
         } else {
             this._parser = input;
+        }
+        if (options.default_geo_field) {
+            this._defaultGeoField = options.default_geo_field;
         }
         if (options.default_geo_sort_order) {
             this._defaultGeoSortOrder = options.default_geo_sort_order;
@@ -33,11 +36,13 @@ export class Translator {
         this.typeConfig = options.type_config;
     }
 
-    toElasticsearchDSL(): i.ElasticsearchDSLResult {
+    toElasticsearchDSL(opts: i.ElasticsearchDSLOptions = {}): i.ElasticsearchDSLResult {
         const result = utils.translateQuery(this._parser, {
             logger: this.logger,
-            default_geo_sort_order: this._defaultGeoSortOrder,
-            default_geo_sort_unit: this._defaultGeoSortUnit,
+            default_geo_field: this._defaultGeoField,
+            geo_sort_point: opts.geo_sort_point,
+            geo_sort_order: opts.geo_sort_order || this._defaultGeoSortOrder,
+            geo_sort_unit: opts.geo_sort_unit || this._defaultGeoSortUnit,
         });
 
         const resultStr = JSON.stringify(result, null, 2);

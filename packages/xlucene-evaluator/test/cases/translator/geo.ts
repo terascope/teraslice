@@ -22,18 +22,40 @@ export default [
                         }
                     }
                 }
+            },
+            sort: {
+                _geo_distance: {
+                    order: 'desc',
+                    unit: 'feet',
+                    default_loc: {
+                        lat: 32.335518,
+                        lon: -110.773616,
+                    }
+                }
             }
         },
+        {
+            default_geo_field: 'default_loc',
+            default_geo_sort_unit: 'km'
+        },
+        {
+            geo_sort_point: {
+                lat: 32.335518,
+                lon: -110.773616
+            },
+            geo_sort_order: 'desc',
+            geo_sort_unit: 'feet'
+        }
     ],
     [
-        'loc:(_geo_point_:"33.435518,-111.873616" _geo_distance_:5000m)',
+        'loc:(_geo_point_:"33.435518,-111.873616" _geo_distance_:5000in)',
         '.',
         {
             query: {
                 constant_score: {
                     filter: {
                         geo_distance: {
-                            distance: '5000meters',
+                            distance: '5000inch',
                             loc: {
                                 lat: 33.435518,
                                 lon: -111.873616,
@@ -45,13 +67,24 @@ export default [
             sort: {
                 _geo_distance: {
                     order: 'asc',
-                    unit: 'meters',
+                    unit: 'inch',
                     loc: {
                         lat: 33.435518,
                         lon: -111.873616,
                     }
                 }
             }
+        },
+        {
+            default_geo_field: 'some_other_loc',
+            default_geo_sort_unit: 'km'
+        },
+        {
+            geo_sort_point: {
+                lat: 35.435518,
+                lon: -120.873616,
+            },
+            geo_sort_unit: 'nauticalmiles'
         }
     ],
 ] as TestCase[];

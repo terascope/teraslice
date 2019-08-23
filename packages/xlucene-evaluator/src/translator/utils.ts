@@ -105,8 +105,8 @@ export function translateQuery(parser: p.Parser, options: i.UtilsTranslateQueryO
 
         const field = getTermField(node);
 
-        const unit = node.unit || options.default_geo_sort_unit;
-        const order = options.default_geo_sort_order;
+        const unit = node.unit || options.geo_sort_unit;
+        const order = options.geo_sort_order;
 
         const geoQuery: i.GeoQuery = {};
         geoQuery['geo_distance'] = {
@@ -294,21 +294,33 @@ export function translateQuery(parser: p.Parser, options: i.UtilsTranslateQueryO
         };
     }
 
+    let topLevelQuery: i.MatchAllQuery|i.ConstantScoreQuery;
     if (p.isEmptyAST(parser.ast)) {
-        return {
-            query: {
-                match_all: {},
+        topLevelQuery = {
+            match_all: {},
+        };
+    } else {
+        const anyQuery = buildAnyQuery(parser.ast);
+        const filter = compactFinalQuery(anyQuery);
+        topLevelQuery = {
+            constant_score: {
+                filter,
             }
         };
     }
 
-    const anyQuery = buildAnyQuery(parser.ast);
-    return {
-        query: {
-            constant_score: {
-                filter: compactFinalQuery(anyQuery),
+    if (!sort && options.default_geo_field && options.geo_sort_point) {
+        sort = {
+            _geo_distance: {
+                order: options.geo_sort_order,
+                unit: options.geo_sort_unit,
+                [options.default_geo_field]: options.geo_sort_point,
             }
-        },
+        };
+    }
+
+    return {
+        query: topLevelQuery,
         // avoid setting it to undefined
         ...(sort && { sort })
     };

@@ -36,6 +36,7 @@ export class SearchAccess {
                 prevent_prefix_wildcard: this.config.view.prevent_prefix_wildcard,
                 allow_empty_queries: true,
                 type_config: types.toXlucene(),
+                default_geo_field: this.spaceConfig.default_geo_field,
             },
             this._logger
         );
@@ -160,21 +161,9 @@ export class SearchAccess {
             params._sourceInclude = ts.uniq(ts.parseList(fields).map((s) => s.toLowerCase()));
         }
 
-        const geoField = this.spaceConfig.default_geo_field;
-
-        if (geoField) {
-            const geoSortPoint = ts.get(query, 'geo_sort_point');
-            const geoSortOrder = ts.get(query, 'geo_sort_order', 'asc');
-            const geoSortUnit = ts.get(query, 'geo_sort_unit', 'm');
-
-            // add geo sort query
-            if (geoSortOrder && geoSortUnit && geoSortPoint) {
-                if (!x.GEO_DISTANCE_UNITS[geoSortUnit]) {
-                    throw new ts.TSError(...validationErr('geo_sort_unit', 'must be one of "mi", "yd", "ft", "km" or "m"', query));
-                }
-
-                params.body.sort = getGeoSort(geoField, geoSortPoint, geoSortOrder, geoSortUnit);
-            }
+        const geoSortUnit = ts.get(query, 'geo_sort_unit', 'm');
+        if (geoSortUnit && !x.GEO_DISTANCE_UNITS[geoSortUnit]) {
+            throw new ts.TSError(...validationErr('geo_sort_unit', 'must be one of "mi", "yd", "ft", "km" or "m"', query));
         }
 
         params.q = q;
@@ -303,17 +292,6 @@ function validationErr(param: keyof i.InputQuery, msg: string, query: i.InputQue
             },
         },
     ];
-}
-
-function getGeoSort(field: string, point: string, order: i.SortOrder, unit: string): i.GeoSortQuery {
-    const { lat, lon } = x.parseGeoPoint(point);
-
-    const sort = { _geo_distance: {} } as i.GeoSortQuery;
-    sort._geo_distance[field] = { lat, lon };
-
-    sort._geo_distance.order = order;
-    sort._geo_distance.unit = unit;
-    return sort;
 }
 
 /*

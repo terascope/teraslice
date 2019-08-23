@@ -1,4 +1,4 @@
-import { Units } from '@turf/helpers';
+export type GeoDistanceUnit = 'miles'|'yards'|'feet'|'inch'|'kilometers'|'meters'|'centimeters'|'millimeters'|'nauticalmiles';
 
 export enum FieldType {
     Geo = 'geo',
@@ -62,6 +62,10 @@ export interface EmptyAST {
 export type Field = string|null;
 
 export interface AnyDataType {
+    /**
+     * The field type here may be the field type specified
+     * in the type_config
+    */
     field_type: FieldType;
     value: string|number|boolean;
 }
@@ -119,7 +123,7 @@ export interface RangeNode extends NumberDataType {
 export interface GeoDistance extends GeoPoint, TermLikeAST {
     type: ASTType.GeoDistance;
     distance: number;
-    unit: Units;
+    unit: GeoDistanceUnit;
 }
 
 export interface GeoPoint {

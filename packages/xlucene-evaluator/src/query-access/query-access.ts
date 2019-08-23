@@ -1,8 +1,8 @@
 import _ from 'lodash';
+import * as p from '../parser';
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { TypeConfig, TermLikeAST, isWildcard, CachedParser, isEmptyAST } from '../parser';
-import { CachedTranslator } from '../translator';
+import { CachedTranslator, SortOrder } from '../translator';
 import { QueryAccessConfig } from './interfaces';
 
 const _logger = ts.debugLogger('xlucene-query-access');
@@ -13,11 +13,14 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     readonly constraint?: string;
     readonly preventPrefixWildcard: boolean;
     readonly allowImplicitQueries: boolean;
+    readonly defaultGeoField?: string;
+    readonly defaultGeoSortOrder?: SortOrder;
+    readonly defaultGeoSortUnit?: p.GeoDistanceUnit|string;
     readonly allowEmpty: boolean;
-    readonly typeConfig: TypeConfig;
+    readonly typeConfig: p.TypeConfig;
     logger: ts.Logger;
 
-    private readonly _parser: CachedParser = new CachedParser();
+    private readonly _parser: p.CachedParser = new p.CachedParser();
     private readonly _translator: CachedTranslator = new CachedTranslator();
 
     constructor(config: QueryAccessConfig<T> = {}, logger?: ts.Logger) {
@@ -29,6 +32,9 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             allow_implicit_queries = false,
             type_config = {},
             allow_empty_queries = true,
+            default_geo_field,
+            default_geo_sort_order,
+            default_geo_sort_unit,
         } = config;
 
         this.logger = logger != null ? logger.child({ module: 'xlucene-query-access' }) : _logger;
@@ -38,6 +44,9 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         this.allowEmpty = Boolean(allow_empty_queries);
         this.preventPrefixWildcard = Boolean(prevent_prefix_wildcard);
         this.allowImplicitQueries = Boolean(allow_implicit_queries);
+        this.defaultGeoField = default_geo_field;
+        this.defaultGeoSortOrder = default_geo_sort_order;
+        this.defaultGeoSortUnit = default_geo_sort_unit;
         this.typeConfig = type_config;
     }
 
@@ -54,7 +63,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     restrict(query: string): string {
         const parser = this._parser.make(query, this.typeConfig, this.logger);
 
-        if (isEmptyAST(parser.ast)) {
+        if (p.isEmptyAST(parser.ast)) {
             if (!this.allowEmpty) {
                 throw new ts.TSError('Empty queries are restricted', {
                     statusCode: 403,
@@ -63,7 +72,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             return this.constraint || '';
         }
 
-        parser.forTermTypes((node: TermLikeAST) => {
+        parser.forTermTypes((node: p.TermLikeAST) => {
             // restrict when a term is specified without a field
             if (!node.field) {
                 if (this.allowImplicitQueries) return;
@@ -85,7 +94,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
                 });
             }
 
-            if (isWildcard(node)) {
+            if (p.isWildcard(node)) {
                 if (this.preventPrefixWildcard && startsWithWildcard(node.value)) {
                     throw new ts.TSError("Wildcard queries of the form 'fieldname:*value' or 'fieldname:?value' in query are restricted", {
                         statusCode: 403,
@@ -115,7 +124,10 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         const parsed = this._parser.make(restricted, this.typeConfig, this.logger);
         const translator = this._translator.make(parsed, {
             type_config: this.typeConfig,
-            logger: this.logger
+            logger: this.logger,
+            default_geo_field: this.defaultGeoField,
+            default_geo_sort_order: this.defaultGeoSortOrder,
+            default_geo_sort_unit: this.defaultGeoSortUnit,
         });
 
         const translated = translator.toElasticsearchDSL();

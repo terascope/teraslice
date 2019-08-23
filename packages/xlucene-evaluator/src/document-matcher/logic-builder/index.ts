@@ -4,7 +4,7 @@ import fp from 'lodash/fp';
 import { geoDistance,  geoBoundingBox } from './geo';
 import { compareTermDates, dateRange } from './dates';
 import { regexp, wildcard, isWildCard, findWildcardField } from './string';
-import { BooleanCB } from '../../interfaces';
+import { BooleanCB } from '../interfaces';
 import { ipTerm, ipRange } from './ip';
 import * as p from '../../parser';
 
