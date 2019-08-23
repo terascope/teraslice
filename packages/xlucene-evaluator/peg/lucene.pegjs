@@ -55,6 +55,9 @@
        }
     }
 
+    // The following functions are javascript functions and not
+    // peg grammar because this is based off configuration passed
+    // in and cannot be inferred by the syntax
 
     function getFieldType(field) {
         if (!field) return;
@@ -86,21 +89,51 @@
         return term;
     }
 
-    function coerceTermType(node) {
-        if (!node.field) return;
+    function coerceTermType(node, _field) {
+        if (!node) return;
+        const field = node.field || _field;
+        if (!field) return;
 
-        const fieldType = getFieldType(node.field);
-        logger.trace({ node, fieldType }, 'coercing term type for node');
+        const fieldType = getFieldType(field);
         if (fieldType === node.field_type) return;
+        logger.trace(
+            `coercing field "${field}":${node.value} type of ${node.field_type} to ${fieldType}`
+        );
 
         if (fieldType === FieldType.Boolean) {
             node.field_type = fieldType;
+            delete node.quoted;
+            delete node.restricted;
             if (node.value === 'true') {
                 node.value = true;
             }
             if (node.value === 'false') {
                 node.value = false;
             }
+            return;
+        }
+
+        if (fieldType === FieldType.Integer) {
+            node.field_type = fieldType;
+            delete node.quoted;
+            delete node.restricted;
+            node.value = parseInt(node.value, 10);
+            return;
+        }
+
+        if (fieldType === FieldType.Float) {
+            node.field_type = fieldType;
+            delete node.quoted;
+            delete node.restricted;
+            node.value = parseFloat(node.value);
+            return;
+        }
+
+        if (fieldType === FieldType.String) {
+            node.field_type = fieldType;
+            node.qouted = false;
+            node.value = `${node.value}`;
+            return;
         }
     }
 }
@@ -256,6 +289,8 @@ BaseTermExpression
         }
     }
     / field:FieldName ws* FieldSeparator ws* range:RangeExpression {
+        coerceTermType(range.left, field);
+        coerceTermType(range.right, field);
         return {
             ...range,
             field,

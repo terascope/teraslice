@@ -66,6 +66,48 @@ export default [
             value: 5.3,
         }
     }],
+    [
+        'count:[1.5 TO 5.3]',
+        'inclusive ranges with floats but with a type of integer',
+        {
+            type: ASTType.Range,
+            field: 'count',
+            left: {
+                operator: 'gte',
+                field_type: FieldType.Integer,
+                value: 1,
+            },
+            right: {
+                operator: 'lte',
+                field_type: FieldType.Integer,
+                value: 5,
+            }
+        },
+        {
+            count: FieldType.Integer
+        }
+    ],
+    [
+        'count:[1.5 TO 5.3]',
+        'inclusive ranges with floats but with a type of string',
+        {
+            type: ASTType.Range,
+            field: 'count',
+            left: {
+                operator: 'gte',
+                field_type: FieldType.String,
+                value: '1.5',
+            },
+            right: {
+                operator: 'lte',
+                field_type: FieldType.String,
+                value: '5.3',
+            }
+        },
+        {
+            count: FieldType.String
+        }
+    ],
     ['count:{2 TO 6]', 'exclusive and inclusive ranges with integers', {
         type: ASTType.Range,
         field: 'count',

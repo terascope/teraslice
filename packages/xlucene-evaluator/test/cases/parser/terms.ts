@@ -140,7 +140,7 @@ export default [
     ],
     [
         'count:123',
-        'field without a type and with unquoted integer value',
+        'field with no type and unquoted integer value',
         {
             type: ASTType.Term,
             field_type: FieldType.Integer,
@@ -150,7 +150,7 @@ export default [
     ],
     [
         'count:"123"',
-        'field with quoted integer value',
+        'field with no type and quoted integer value',
         {
             type: ASTType.Term,
             field_type: FieldType.String,
@@ -158,6 +158,45 @@ export default [
             quoted: true,
             value: '123',
         },
+    ],
+    [
+        'count:"123"',
+        'field with integer type and quoted integer value',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.Integer,
+            field: 'count',
+            value: 123,
+        },
+        {
+            count: FieldType.Integer
+        }
+    ],
+    [
+        'count:"22.5"',
+        'field with integer type and quoted float value',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.Integer,
+            field: 'count',
+            value: 22,
+        },
+        {
+            count: FieldType.Integer
+        }
+    ],
+    [
+        'count:22.5',
+        'field with integer type and unquoted float value',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.Integer,
+            field: 'count',
+            value: 22,
+        },
+        {
+            count: FieldType.Integer
+        }
     ],
     [
         'count_str:123',
@@ -202,7 +241,7 @@ export default [
     ],
     [
         'cash:"50.50"',
-        'field with float value',
+        'field no type and quoted float value',
         {
             type: ASTType.Term,
             field_type: FieldType.String,
@@ -210,6 +249,19 @@ export default [
             quoted: true,
             value: '50.50',
         },
+    ],
+    [
+        'cash:"50.50"',
+        'field with float type and quoted float value',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.Float,
+            field: 'cash',
+            value: 50.50,
+        },
+        {
+            cash: FieldType.Float
+        }
     ],
     [
         'bool:false',

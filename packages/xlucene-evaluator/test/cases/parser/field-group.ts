@@ -177,6 +177,76 @@ export default [
             }
         ]
     }],
+    [
+        'count:(155 OR "223")',
+        'OR grouping with quoted and unqouted integers',
+        {
+            type: 'field-group',
+            field: 'count',
+            flow: [
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'count',
+                            field_type: FieldType.Integer,
+                            value: 155
+                        },
+                    ]
+                },
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'count',
+                            field_type: FieldType.Integer,
+                            value: 223
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            count: FieldType.Integer
+        }
+    ],
+    [
+        'bool:(true OR "false")',
+        'OR grouping with quoted and unqouted booleans',
+        {
+            type: 'field-group',
+            field: 'bool',
+            flow: [
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'bool',
+                            field_type: FieldType.Boolean,
+                            value: true
+                        },
+                    ]
+                },
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'bool',
+                            field_type: FieldType.Boolean,
+                            value: false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            bool: FieldType.Boolean
+        }
+    ],
     ['example:("foo" AND ("bar" OR "baz"))', 'implicit or grouping', {
         type: 'field-group',
         field: 'example',
