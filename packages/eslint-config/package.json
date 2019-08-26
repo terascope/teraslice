@@ -1,0 +1,33 @@
+{
+    "name": "@terascope/eslint-config",
+    "version": "1.1.6",
+    "description": "A shared eslint config based on eslint-config-airbnb",
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/eslint-config#readme",
+    "bugs": {
+        "url": "https://github.com/terascope/teraslice/issues"
+    },
+    "repository": "git@github.com:terascope/teraslice.git",
+    "license": "MIT",
+    "author": "Terascope, LLC <info@terascope.io>",
+    "main": "index.js",
+    "scripts": {
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
+        "test:watch": "ts-scripts test --watch . --"
+    },
+    "dependencies": {
+        "eslint": "^6.2.2",
+        "eslint-config-airbnb": "^18.0.1",
+        "eslint-plugin-import": "^2.18.2",
+        "eslint-plugin-jsx-a11y": "^6.2.3"
+    },
+    "devDependencies": {},
+    "publishConfig": {
+        "access": "public"
+    },
+    "displayName": "Terascope ESLint Config",
+    "terascope": {
+        "enableTypedoc": false,
+        "testSuite": "unit"
+    }
+}
