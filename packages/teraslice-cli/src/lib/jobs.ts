@@ -428,6 +428,7 @@ export default class Jobs {
 
             return null;
         });
+        // @ts-ignore
         return Promise.all(response);
     }
 }

@@ -46,11 +46,7 @@ export default class Cluster extends Client {
 
     async txt(type: TxtType):Promise<string> {
         const validTypes = ['assets', 'slicers', 'ex', 'jobs', 'nodes', 'workers'];
-<<<<<<< HEAD:packages/teraslice-client-js/src/lib/cluster.ts
         const isValid = validTypes.some((validType) => startsWith(type, validType));
-=======
-        const isValid = _.some(validTypes, (validType) => _.startsWith(type, validType));
->>>>>>> master:packages/teraslice-client-js/lib/cluster.js
         if (!isValid) {
             const error = new Error(`"${type}" is not a valid type. Must be one of ${JSON.stringify(validTypes)}`);
             return Promise.reject(error);

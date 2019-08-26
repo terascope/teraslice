@@ -38,11 +38,7 @@ export default class extends Generator {
                         }
                         return true;
                     },
-<<<<<<< HEAD:packages/teraslice-cli/src/generators/new-processor/index.ts
                     filter: (value:string) => _.snakeCase(value)
-=======
-                    filter: (value) => _.snakeCase(value)
->>>>>>> master:packages/teraslice-cli/generators/new-processor/index.js
                 },
                 {
                     type: 'list',
