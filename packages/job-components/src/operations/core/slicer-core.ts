@@ -99,7 +99,8 @@ export default abstract class SlicerCore<T = OpConfig> extends Core<WorkerContex
      */
     getSlice(): Slice | null {
         if (!this.sliceCount()) return null;
-        return this.queue.dequeue();
+        const result = this.queue.dequeue();
+        return result != null ? result : null;
     }
 
     /**

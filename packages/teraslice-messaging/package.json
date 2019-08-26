@@ -32,7 +32,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/queue": "^1.1.6",
+        "@terascope/queue": "^1.1.7",
         "@terascope/utils": "^0.16.1",
         "ms": "^2.1.2",
         "nanoid": "^2.0.3",

@@ -33,7 +33,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/queue": "^1.1.6",
+        "@terascope/queue": "^1.1.7",
         "@terascope/utils": "^0.16.1",
         "convict": "^4.4.1",
         "datemath-parser": "^1.0.6",
