@@ -5,7 +5,7 @@ const path = require('path');
 const fse = require('fs-extra');
 const Promise = require('bluebird');
 const nanoid = require('nanoid/generate');
-const TerasliceClient = require('teraslice-client-js');
+const { TerasliceClient } = require('teraslice-client-js');
 const ElasticsearchClient = require('elasticsearch').Client;
 
 const {
