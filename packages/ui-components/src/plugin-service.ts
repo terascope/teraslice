@@ -1,3 +1,4 @@
+/* eslint-env browser */
 import { isString, isFunction, isPlainObject } from '@terascope/utils';
 import { RegisterPluginFn, PluginConfig } from './interfaces';
 
@@ -38,6 +39,7 @@ class PluginService {
                 location.reload();
             }, 2000);
         } else {
+            // eslint-disable-next-line no-console
             console.debug(`Registered plugin "${id}"`);
         }
     }

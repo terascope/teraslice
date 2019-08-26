@@ -13,7 +13,7 @@ const StateMessage = tsWithRouter<Props>(({ location, attached }) => {
                 title={title}
                 attached={attached}
                 message={message}
-          />
+            />
         );
     }
     return <ErrorMessage title={title} error={message} attached={attached} />;

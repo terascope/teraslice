@@ -11,14 +11,14 @@ function Description<T extends DescriptionModel>({
 }: Props & DefaultInputProps<T>): React.ReactElement {
     return (
         <Form.Group>
-        <FormTextArea<T>
+            <FormTextArea<T>
                 {...props}
                 name="description"
                 label="Description"
                 value={description}
                 width={8}
-          />
-      </Form.Group>
+            />
+        </Form.Group>
     );
 }
 

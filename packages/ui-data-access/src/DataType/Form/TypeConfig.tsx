@@ -43,46 +43,46 @@ const TypeConfig: React.FC<Props> = ({
     return (
         <Section
             title="Type Configuration"
-        description={(
-            <React.Fragment>
-            {inherits && (
-              <div>
-                          <Label
-                              basic
+            description={(
+                <>
+                    {inherits && (
+                        <div>
+                            <Label
+                                basic
                                 onClick={(e) => {
                                     e.preventDefault();
                                     setShowResolved((bool) => !bool);
                                 }}
                             >
                                 <Icon
-                              name={showResolved ? 'eye slash' : 'eye'}
-                            />
+                                    name={showResolved ? 'eye slash' : 'eye'}
+                                />
                                 {showResolved ? 'Hide' : 'Show'}
-                              {' '}
+                                {' '}
 Inherited
                                 Fields
                             </Label>
                         </div>
                     )}
-            <div style={{ flex: 1, textAlign: 'right' }}>
+                    <div style={{ flex: 1, textAlign: 'right' }}>
                         Data Types Version:&nbsp;
                         <strong>{typeConfig.version}</strong>
-              </div>
-          </React.Fragment>
+                    </div>
+                </>
             )}
             info={(
-            <span>
+                <span>
                     Use dot notation to specify nested properties, e.g. &nbsp;
                     <Code inline>example.field</Code>
                 </span>
             )}
-      >
-        {showResolved
+        >
+            {showResolved
                 && resolved.map((fieldConfig) => (
                     <ResolvedField
                         key={`resolved-${fieldConfig.field}`}
-                    {...fieldConfig}
-                  />
+                        {...fieldConfig}
+                    />
                 ))}
             {existing.length ? (
                 existing.map((fieldConfig) => (
@@ -90,12 +90,12 @@ Inherited
                         key={`existing-${fieldConfig.field}`}
                         updateField={updateField}
                         {...fieldConfig}
-                  />
+                    />
                 ))
             ) : (
                 <Segment textAlign="center" className="daFieldEmptyMessage">
                     Add field and type configuration below
-              </Segment>
+                </Segment>
             )}
             <AddField
                 addField={(field, type) => {
@@ -103,8 +103,8 @@ Inherited
                     updateField(field, type);
                 }}
                 fields={existingFields}
-          />
-      </Section>
+            />
+        </Section>
     );
 };
 

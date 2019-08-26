@@ -13,22 +13,22 @@ const ConfirmExport: React.FC<Props> = ({
     return (
         <Modal
             trigger={children}
-        onOpen={() => setOpen(true)}
-        onClose={() => setOpen(false)}
+            onOpen={() => setOpen(true)}
+            onClose={() => setOpen(false)}
             open={open}
             size="tiny"
-      >
-        <Header icon="download" content="Export records" />
-        <Modal.Content>
+        >
+            <Header icon="download" content="Export records" />
+            <Modal.Content>
                 <p>
 Are you sure you want to export
-            {numSelected}
+                    {numSelected}
                     {' '}
 records
-          </p>
-          </Modal.Content>
-        <Modal.Actions>
-              <Button basic onClick={() => setOpen(false)}>
+                </p>
+            </Modal.Content>
+            <Modal.Actions>
+                <Button basic onClick={() => setOpen(false)}>
                     Cancel
                 </Button>
                 <Button
@@ -37,13 +37,13 @@ records
                         setOpen(false);
                         onConfirm();
                     }}
-          >
+                >
                     <Icon name="check" />
                     {' '}
 Yes
-          </Button>
+                </Button>
             </Modal.Actions>
-      </Modal>
+        </Modal>
     );
 };
 

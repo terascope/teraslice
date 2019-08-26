@@ -28,7 +28,7 @@ const RecordForm: React.FC<Props> = ({
     const DeleteButton = deletable && deleteRecord && (
         <ConfirmDelete
             recordType={recordType}
-      onConfirm={async () => {
+            onConfirm={async () => {
                 if (actionState.loading) return;
 
                 setActionState({
@@ -50,93 +50,93 @@ const RecordForm: React.FC<Props> = ({
                     });
                 }
             }}
-    />
+        />
     );
 
     return (
-        <React.Fragment>
-        <Form
-            loading={loading || actionState.loading}
+        <>
+            <Form
+                loading={loading || actionState.loading}
                 onSubmit={onSubmit}
-            error={hasErrors || requestError || actionState.error}
-            success={!hasErrors && actionState.success}
-            widths="equal"
-          >
-            <Grid columns={2}>
+                error={hasErrors || requestError || actionState.error}
+                success={!hasErrors && actionState.success}
+                widths="equal"
+            >
+                <Grid columns={2}>
                     <Grid.Row columns={1} className="recordFormTopButtons">
-                  <ButtonRow>
+                        <ButtonRow>
                             <CancelButton />
                             <SubmitButton
-                    isCreate={isCreate}
-                    loading={loading}
+                                isCreate={isCreate}
+                                loading={loading}
                                 hasErrors={hasErrors}
-                  />
+                            />
                         </ButtonRow>
-                </Grid.Row>
+                    </Grid.Row>
                     {requestError && (
                         <Grid.Row columns={1}>
-                    <ErrorMessage
-                              title="Request Error"
-                              error={requestError}
+                            <ErrorMessage
+                                title="Request Error"
+                                error={requestError}
                             />
-                  </Grid.Row>
+                        </Grid.Row>
                     )}
-                  <Grid.Row>
-                  <Grid.Column
+                    <Grid.Row>
+                        <Grid.Column
                             mobile={16}
-                          tablet={16}
-                          computer={14}
-                          widescreen={10}
+                            tablet={16}
+                            computer={14}
+                            widescreen={10}
                         >
-                          {children}
+                            {children}
                         </Grid.Column>
-                </Grid.Row>
+                    </Grid.Row>
                     <Grid.Row columns={1}>
-                  <ButtonRow>
+                        <ButtonRow>
                             {DeleteButton}
-                          <CancelButton />
-                          <SubmitButton
-                              isCreate={isCreate}
-                              loading={loading}
+                            <CancelButton />
+                            <SubmitButton
+                                isCreate={isCreate}
+                                loading={loading}
                                 hasErrors={hasErrors}
                             />
                         </ButtonRow>
-                </Grid.Row>
+                    </Grid.Row>
                 </Grid>
-          </Form>
+            </Form>
             {updated && <SuccessMessage attached="bottom" />}
-        {created && (
-          <SuccessMessage
-                  attached="bottom"
-                  redirectTo={redirectPath}
+            {created && (
+                <SuccessMessage
+                    attached="bottom"
+                    redirectTo={redirectPath}
                     message={`Successfully created ${recordType}`}
                 />
             )}
             {actionState.success && (
                 <SuccessMessage
                     attached="bottom"
-              redirectTo={redirectPath}
-              message={`Successfully deleted ${recordType}`}
-            />
+                    redirectTo={redirectPath}
+                    message={`Successfully deleted ${recordType}`}
+                />
             )}
-        {actionState.error && (
-          <ErrorMessage attached="bottom" error={actionState.message} />
+            {actionState.error && (
+                <ErrorMessage attached="bottom" error={actionState.message} />
             )}
-        {requestError && (
+            {requestError && (
                 <ErrorMessage
                     title="Request Error"
                     error={requestError}
                     attached="bottom"
-        />
+                />
             )}
             {hasErrors && (
                 <ErrorMessage
                     title="Validation Error(s)"
                     error={validationErrors}
                     attached="bottom"
-            />
+                />
             )}
-      </React.Fragment>
+        </>
     );
 };
 

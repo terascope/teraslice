@@ -1,3 +1,5 @@
+/* eslint-env browser */
+/* eslint-disable no-console */
 // This optional code is used to register a service worker.
 // register() is not called by default.
 
@@ -26,7 +28,11 @@ type Config = {
 export function register(config?: Config) {
     if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
         // The URL constructor is available in all browsers that support SW.
-        const publicUrl = new URL((process as { env: { [key: string]: string } }).env.PUBLIC_URL, window.location.href);
+        const publicUrl = new URL((process as {
+            env: {
+                [key: string]: string;
+            };
+        }).env.PUBLIC_URL, window.location.href);
         if (publicUrl.origin !== window.location.origin) {
             // Our service worker won't work if PUBLIC_URL is on a different origin
             // from what our page is served on. This might happen if a CDN is used to
@@ -38,7 +44,8 @@ export function register(config?: Config) {
             const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
 
             if (isLocalhost) {
-                // This is running on localhost. Let's check if a service worker still exists or not.
+                // This is running on localhost.
+                // Let's check if a service worker still exists or not.
                 checkValidServiceWorker(swUrl, config);
 
                 // Add some additional logging to localhost, pointing developers to the

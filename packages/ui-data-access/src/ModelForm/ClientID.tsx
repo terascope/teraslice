@@ -23,7 +23,7 @@ function ClientID<T extends AnyModel>({
     }
 
     return (
-        <React.Fragment>
+        <>
             {authUser.type === 'SUPERADMIN' && (
                 <FormInput<T>
                     {...props}
@@ -31,9 +31,9 @@ function ClientID<T extends AnyModel>({
                     value={id != null ? `${id}` : ''}
                     name="client_id"
                     label="Client ID"
-            />
+                />
             )}
-      </React.Fragment>
+        </>
     );
 }
 

@@ -28,8 +28,8 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
 
     return (
         <ModelForm<Input>
-        id={id}
-        modelName={config.name}
+            id={id}
+            modelName={config.name}
             afterChange={afterChange}
             validate={(errs, model) => {
                 if (model.type === 'SEARCH') {
@@ -40,87 +40,87 @@ const SpaceForm: React.FC<Props> = ({ id }) => {
                     }
                 }
             }}
-      >
+        >
             {({
                 defaultInputProps, model, roles, dataTypes, updateModel
             }) => (
-                <React.Fragment>
-                <Form.Group>
-                      <FormInput<Input>
-                    {...defaultInputProps}
+                <>
+                    <Form.Group>
+                        <FormInput<Input>
+                            {...defaultInputProps}
                             value={model.name}
-                    name="name"
-                    label="Name"
-                  />
+                            name="name"
+                            label="Name"
+                        />
                         <ClientID<Input>
                             {...defaultInputProps}
                             id={model.client_id}
                             inherited={Boolean(model.data_type.client_id)}
-                  />
+                        />
                     </Form.Group>
                     <Form.Group>
-                    <FormInput<Input>
-                    {...defaultInputProps}
+                        <FormInput<Input>
+                            {...defaultInputProps}
                             value={model.endpoint}
                             name="endpoint"
                             label="API Endpoint"
-                  />
-                        <FormSelect<Input>
-                            {...defaultInputProps}
-                    name="type"
-                    sorted={false}
-                    label="Configuration Type"
-                    placeholder="Select Configuration Type"
-                            value={model.type}
-                            options={spaceConfigTypes as string[]}
-                  />
-                    </Form.Group>
-                <Description<Input>
-                      {...defaultInputProps}
-                      description={model.description}
-                    />
-                <Form.Group>
-                        <FormSelect<Input>
-                    {...defaultInputProps}
-                    name="data_type"
-                    label="Data Type"
-                    disabled={Boolean(id)}
-                    placeholder="Select Data Type"
-                    value={model.data_type}
-                    options={dataTypes}
-                  />
-                    </Form.Group>
-                <Form.Group>
-                    <FormSelect<Input>
-                            {...defaultInputProps}
-                          name="roles"
-                          label="Roles"
-                          placeholder="Select Roles"
-                          multiple
-                          value={model.roles}
-                          options={roles}
                         />
                         <FormSelect<Input>
+                            {...defaultInputProps}
+                            name="type"
+                            sorted={false}
+                            label="Configuration Type"
+                            placeholder="Select Configuration Type"
+                            value={model.type}
+                            options={spaceConfigTypes as string[]}
+                        />
+                    </Form.Group>
+                    <Description<Input>
                         {...defaultInputProps}
+                        description={model.description}
+                    />
+                    <Form.Group>
+                        <FormSelect<Input>
+                            {...defaultInputProps}
+                            name="data_type"
+                            label="Data Type"
+                            disabled={Boolean(id)}
+                            placeholder="Select Data Type"
+                            value={model.data_type}
+                            options={dataTypes}
+                        />
+                    </Form.Group>
+                    <Form.Group>
+                        <FormSelect<Input>
+                            {...defaultInputProps}
+                            name="roles"
+                            label="Roles"
+                            placeholder="Select Roles"
+                            multiple
+                            value={model.roles}
+                            options={roles}
+                        />
+                        <FormSelect<Input>
+                            {...defaultInputProps}
                             name="views"
                             label="Views"
-                        placeholder="Select Views"
-                        multiple
+                            placeholder="Select Views"
+                            multiple
                             value={model.views}
                             options={model.data_type.views}
-                      />
-                  </Form.Group>
+                        />
+                    </Form.Group>
                     {canSeeConfig && (
                         <SearchConfig
                             config={model.config}
                             updateConfig={(searchConfig) => {
                                 updateModel({ config: searchConfig });
                             }}
-                    />
+                        />
                     )}
-              </React.Fragment>
+                </>
             )}
-      </ModelForm>
+        </ModelForm>
     );
 };
 

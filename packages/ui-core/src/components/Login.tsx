@@ -78,13 +78,13 @@ const Login: React.FC = (props: any) => {
     return (
         <Page title="Login">
             <Form onSubmit={onSubmit} className="loginForm">
-            <Form.Input
-                label="Username"
+                <Form.Input
+                    label="Username"
                     name="username"
                     required
-                value={username}
-                onChange={onChange}
-              />
+                    value={username}
+                    onChange={onChange}
+                />
                 <Form.Input
                     label="Password"
                     name="password"
@@ -92,13 +92,13 @@ const Login: React.FC = (props: any) => {
                     required
                     value={password}
                     onChange={onChange}
-              />
+                />
                 <Button type="submit" primary loading={loading}>
                     Submit
-              </Button>
-          </Form>
+                </Button>
+            </Form>
             {error && <ErrorMessage error={error} attached="bottom" />}
-      </Page>
+        </Page>
     );
 };
 

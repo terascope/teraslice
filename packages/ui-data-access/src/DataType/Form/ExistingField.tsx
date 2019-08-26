@@ -27,12 +27,12 @@ const ExistingField: React.FC<Props> = ({
                 },
             },
         ]}
-  >
+    >
         <Form.Group>
-        <Form.Input value={field}>
+            <Form.Input value={field}>
                 <input readOnly />
             </Form.Input>
-        <Form.Select
+            <Form.Select
                 placeholder="Select Field Type"
                 value={type}
                 onChange={(e, { value }) => {
@@ -44,7 +44,7 @@ const ExistingField: React.FC<Props> = ({
                 }}
                 options={dataTypeOptions}
             />
-        <ArrayCheckbox
+            <ArrayCheckbox
                 array={array}
                 onChange={(checked) => {
                     updateField(field, {
@@ -53,8 +53,8 @@ const ExistingField: React.FC<Props> = ({
                     });
                 }}
             />
-      </Form.Group>
-  </ActionSegment>
+        </Form.Group>
+    </ActionSegment>
 );
 
 type Props = {

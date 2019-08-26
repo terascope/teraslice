@@ -28,12 +28,12 @@ const Header: React.FC<Props> = (props) => {
     return (
         <Table.Header fullWidth>
             <Table.Row>
-            <Table.HeaderCell width={1} textAlign="center">
-                <Checkbox
+                <Table.HeaderCell width={1} textAlign="center">
+                    <Checkbox
                         checked={selectedAll}
-                onChange={toggleSelectAll}
-              />
-              </Table.HeaderCell>
+                        onChange={toggleSelectAll}
+                    />
+                </Table.HeaderCell>
                 {Object.entries(columnMapping).map(([field, col]) => (
                     <Table.HeaderCell
                         key={field}
@@ -58,17 +58,16 @@ const Header: React.FC<Props> = (props) => {
                                 sort: formatSortBy({ field, direction }),
                             });
                         }}
-                  >
+                    >
                         {col.label}
-                  </Table.HeaderCell>
+                    </Table.HeaderCell>
                 ))}
-          </Table.Row>
-      </Table.Header>
+            </Table.Row>
+        </Table.Header>
     );
 };
 
 type Props = {
-    numSelected: number;
     updateQueryState: UpdateQueryState;
     toggleSelectAll: () => void;
     sort: string;
@@ -77,7 +76,6 @@ type Props = {
 };
 
 Header.propTypes = {
-    numSelected: PropTypes.number.isRequired,
     updateQueryState: PropTypes.func.isRequired,
     toggleSelectAll: PropTypes.func.isRequired,
     sort: PropTypes.string.isRequired,

@@ -64,12 +64,12 @@ const DataTable: React.FC<Props> = (props) => {
     return (
         <Segment loading={loading || actionState.loading} basic>
             <Table sortable celled compact definition>
-            <Toolbar
+                <Toolbar
                     numSelected={selected.length}
-                query={queryState.query}
-                numCols={numCols}
-                updateQueryState={updateQueryState}
-                onAction={async (action) => {
+                    query={queryState.query}
+                    numCols={numCols}
+                    updateQueryState={updateQueryState}
+                    onAction={async (action) => {
                         if (actionState.loading) return;
 
                         setActionState({
@@ -77,7 +77,10 @@ const DataTable: React.FC<Props> = (props) => {
                         });
                         try {
                             if (action === 'EXPORT') {
-                                const docs = selected.map((id) => records.find((record) => rowMapping.getId(record) === id));
+                                const docs = selected.map((id) => {
+                                    const hasId = (record: any) => rowMapping.getId(record) === id;
+                                    return records.find(hasId);
+                                });
 
                                 const message = await exportRecords(
                                     selectedAll || docs
@@ -102,10 +105,9 @@ const DataTable: React.FC<Props> = (props) => {
                             });
                         }
                     }}
-              />
-            <Header
-                    numSelected={selected.length}
-                  sort={queryState.sort}
+                />
+                <Header
+                    sort={queryState.sort}
                     toggleSelectAll={() => {
                         if (selectedAll) {
                             return setSelected({
@@ -121,38 +123,38 @@ const DataTable: React.FC<Props> = (props) => {
                             selectedAll: true,
                         });
                     }}
-                  updateQueryState={updateQueryState}
-                  selectedAll={selectedAll}
-                  columnMapping={rowMapping.columns}
+                    updateQueryState={updateQueryState}
+                    selectedAll={selectedAll}
+                    columnMapping={rowMapping.columns}
                 />
                 <Body
-                rowMapping={rowMapping}
-                records={records}
-                baseEditPath={baseEditPath}
+                    rowMapping={rowMapping}
+                    records={records}
+                    baseEditPath={baseEditPath}
                     selectRecord={selectRecord}
                     selected={selected}
                     selectedAll={selectedAll}
-                total={total}
-              />
-            <Footer
                     total={total}
-                numCols={numCols}
-                size={queryState.size}
+                />
+                <Footer
+                    total={total}
+                    numCols={numCols}
+                    size={queryState.size}
                     from={queryState.from}
                     updateQueryState={updateQueryState}
-              />
-          </Table>
+                />
+            </Table>
             {actionState.success && (
                 <SuccessMessage
                     attached="bottom"
                     message={actionState.message}
-            />
+                />
             )}
             {actionState.error && (
                 <ErrorMessage attached="bottom" error={actionState.message} />
             )}
             <StateMessage attached="bottom" />
-      </Segment>
+        </Segment>
     );
 };
 

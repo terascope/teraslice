@@ -137,10 +137,10 @@ function Form<T extends AnyModel>({
     return (
         <RecordForm
             onSubmit={onSubmit}
-        loading={loading}
-        requestError={error}
+            loading={loading}
+            requestError={error}
             validationErrors={errors.messages}
-        recordType={config.singularLabel}
+            recordType={config.singularLabel}
             isCreate={create}
             created={data && create}
             updated={data && update}
@@ -159,7 +159,7 @@ function Form<T extends AnyModel>({
                     ],
                 });
             }}
-      >
+        >
             {children({
                 ...props,
                 client,
@@ -168,7 +168,7 @@ function Form<T extends AnyModel>({
                 updateModel,
                 update,
             })}
-      </RecordForm>
+        </RecordForm>
     );
 }
 

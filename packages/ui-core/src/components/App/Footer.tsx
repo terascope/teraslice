@@ -4,7 +4,7 @@ import { Segment } from 'semantic-ui-react';
 const Footer: React.FC = () => (
     <Segment as="footer" textAlign="center" className="appFooter">
             Copyright &copy; 2019
-  </Segment>
+    </Segment>
 );
 
 export default Footer;

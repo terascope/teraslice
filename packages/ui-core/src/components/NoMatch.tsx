@@ -4,7 +4,7 @@ import { Page } from '@terascope/ui-components';
 const Welcome: React.FC = () => (
     <Page title="404 Not Found">
         <p>...</p>
-  </Page>
+    </Page>
 );
 
 export default Welcome;

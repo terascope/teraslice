@@ -7,13 +7,13 @@ import { UpdateQueryState } from './interfaces';
 import { uniqIntArray } from './utils';
 
 const TableFooter: React.FC<{ numCols: number }> = ({ numCols, children }) => (
-  <Table.Footer fullWidth>
+    <Table.Footer fullWidth>
         <Table.Row>
-      <Table.HeaderCell />
+            <Table.HeaderCell />
             <Table.HeaderCell colSpan={numCols - 1}>
-            {children}
-          </Table.HeaderCell>
-    </Table.Row>
+                {children}
+            </Table.HeaderCell>
+        </Table.Row>
     </Table.Footer>
 );
 
@@ -37,31 +37,31 @@ const Footer: React.FC<Props> = ({
 
     return (
         <TableFooter numCols={numCols}>
-        <div className="dtFooterCell">
+            <div className="dtFooterCell">
                 <div className="dtFooterResults">
 Found
                     {total}
                     {' '}
 results
-          </div>
-            <div className="dtFooterOptions">
+                </div>
+                <div className="dtFooterOptions">
                     <Label basic className="dtFooterPerPageLabel">
                         Per Page
-                  </Label>
-            <Dropdown
+                    </Label>
+                    <Dropdown
                         className="dtFooterPerPage"
                         placeholder="Per Page"
                         compact
                         selection
-                    value={size}
+                        value={size}
                         options={rowsPerPageOptions}
                         onChange={(e, { value }) => {
                             updateQueryState({ size: value as number });
                         }}
-                  />
-            <Pagination
-                    disabled={total < size}
-                    boundaryRange={0}
+                    />
+                    <Pagination
+                        disabled={total < size}
+                        boundaryRange={0}
                         defaultActivePage={currentPage}
                         ellipsisItem={null}
                         firstItem={null}
@@ -76,10 +76,10 @@ results
                         }}
                         totalPages={totalPages}
                         size="small"
-                  />
-          </div>
+                    />
+                </div>
             </div>
-      </TableFooter>
+        </TableFooter>
     );
 };
 

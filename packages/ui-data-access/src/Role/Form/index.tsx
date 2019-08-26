@@ -11,27 +11,27 @@ const RolesForm: React.FC<Props> = ({ id }) => {
     return (
         <ModelForm<Input> modelName={config.name} id={id}>
             {({ defaultInputProps, model }) => (
-                <React.Fragment>
+                <>
                     <Form.Group>
                         <FormInput<Input>
-                        {...defaultInputProps}
+                            {...defaultInputProps}
                             name="name"
                             label="Name"
                             value={model.name}
-                      />
+                        />
                         <ClientID<Input>
                             {...defaultInputProps}
                             id={model.client_id}
                             inherited={authUser.type !== 'SUPERADMIN'}
-                      />
-                  </Form.Group>
+                        />
+                    </Form.Group>
                     <Description<Input>
                         {...defaultInputProps}
                         description={model.description}
-                  />
-              </React.Fragment>
+                    />
+                </>
             )}
-      </ModelForm>
+        </ModelForm>
     );
 };
 

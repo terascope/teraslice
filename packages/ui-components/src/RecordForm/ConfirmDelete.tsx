@@ -9,50 +9,50 @@ const ConfirmDelete: React.FC<Props> = ({ recordType, onConfirm }) => {
     return (
         <Modal
             trigger={(
-            <Form.Button
-                basic
+                <Form.Button
+                    basic
                     className="delete"
                     color="red"
-                type="button"
-                onClick={(e) => {
+                    type="button"
+                    onClick={(e) => {
                         e.preventDefault();
                         setOpen(true);
                     }}
-              >
+                >
                     Delete
-              </Form.Button>
+                </Form.Button>
             )}
             onOpen={() => setOpen(true)}
-        onClose={() => setOpen(false)}
+            onClose={() => setOpen(false)}
             open={open}
-        size="tiny"
-      >
-        <Header icon="trash alternate" content="Delete record" />
-        <Modal.Content>
+            size="tiny"
+        >
+            <Header icon="trash alternate" content="Delete record" />
+            <Modal.Content>
                 <p>
 Are you sure you want to delete
-            {recordType}
+                    {recordType}
                     {' '}
 record
-          </p>
+                </p>
             </Modal.Content>
             <Modal.Actions>
                 <Button basic onClick={() => setOpen(false)}>
                     Cancel
-              </Button>
+                </Button>
                 <Button
                     color="red"
                     onClick={() => {
                         setOpen(false);
                         onConfirm();
                     }}
-              >
-                <Icon name="check" />
+                >
+                    <Icon name="check" />
                     {' '}
 Yes
-              </Button>
-          </Modal.Actions>
-      </Modal>
+                </Button>
+            </Modal.Actions>
+        </Modal>
     );
 };
 

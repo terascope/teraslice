@@ -22,10 +22,10 @@ function FormSelect<T extends AnyModel>({
     return (
         <Form.Select
             name={name}
-        label={label}
-        placeholder={placeholder || label}
+            label={label}
+            placeholder={placeholder || label}
             value={getSelectValue(value, multiple)}
-        search
+            search
             multiple={multiple}
             selection={multiple}
             onChange={(e, arg) => {
@@ -45,9 +45,9 @@ function FormSelect<T extends AnyModel>({
             error={hasError(name)}
             required={isRequired(name)}
             {...props}
-      >
+        >
             {children}
-      </Form.Select>
+        </Form.Select>
     );
 }
 

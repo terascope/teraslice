@@ -24,7 +24,7 @@ const ErrorMessage: React.FC<Props> = ({
                         },
                     },
                 }}
-          />
+            />
         );
     }
 
@@ -32,12 +32,12 @@ const ErrorMessage: React.FC<Props> = ({
     if (Array.isArray(error)) {
         content = (
             <Message.List>
-            {error.map((err, i) => (
-                  <Message.Item key={`${toString(err)}-${i}`}>
-                      {parseError(err)}
+                {error.map((err, i) => (
+                    <Message.Item key={`${toString(err)}-${i}`}>
+                        {parseError(err)}
                     </Message.Item>
                 ))}
-          </Message.List>
+            </Message.List>
         );
     } else {
         content = <div className="messageText">{parseError(error)}</div>;
@@ -49,8 +49,8 @@ const ErrorMessage: React.FC<Props> = ({
             <Message.Content>
                 <Message.Header>{title}</Message.Header>
                 {content}
-          </Message.Content>
-      </Message>
+            </Message.Content>
+        </Message>
     );
 };
 

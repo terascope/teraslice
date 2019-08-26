@@ -7,9 +7,9 @@ const Actions: React.FC<Props> = ({ actions }) => (
         {(actions || []).map(({
             name, icon, color, onClick
         }, i) => (
-          <Button
-              icon={icon as any}
-              key={`action-${name}-${i}`}
+            <Button
+                icon={icon as any}
+                key={`action-${name}-${i}`}
                 compact
                 className="actionButton"
                 color={color as any}
@@ -19,14 +19,14 @@ const Actions: React.FC<Props> = ({ actions }) => (
                 }}
             />
         ))}
-  </Button.Group>
+    </Button.Group>
 );
 
 const ActionSegment: React.FC<Props> = ({ children, actions }) => (
     <Segment className="actionSegment">
         {children}
         <Actions actions={actions} />
-  </Segment>
+    </Segment>
 );
 
 type Props = {

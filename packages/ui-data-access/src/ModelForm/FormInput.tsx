@@ -21,17 +21,17 @@ function FormInput<T extends AnyModel>({
 
     return (
         <Form.Input
-        name={name}
-        label={label}
+            name={name}
+            label={label}
             placeholder={placeholder || label}
             value={value != null ? value : ''}
             onChange={onChange}
             error={hasError(name)}
             required={isRequired(name)}
             {...props}
-      >
+        >
             {children}
-      </Form.Input>
+        </Form.Input>
     );
 }
 

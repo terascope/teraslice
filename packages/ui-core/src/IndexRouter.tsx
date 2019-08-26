@@ -13,18 +13,18 @@ import {
 const IndexRouter: React.FC = () => (
     <Router basename="/v2/ui">
         <ApolloWrapper>
-        <App>
+            <App>
                 <Switch>
-            <Route path="/logout" exact component={Logout} />
+                    <Route path="/logout" exact component={Logout} />
                     <Route path="/login" exact component={Login} />
                     <Authenticate>
                         <Routes />
-                  </Authenticate>
+                    </Authenticate>
                     <Route component={NoMatch} />
-          </Switch>
-          </App>
-      </ApolloWrapper>
-  </Router>
+                </Switch>
+            </App>
+        </ApolloWrapper>
+    </Router>
 );
 
 export default IndexRouter;

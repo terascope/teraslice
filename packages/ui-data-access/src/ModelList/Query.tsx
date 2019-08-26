@@ -56,12 +56,12 @@ const ListQuery = tsWithRouter<Props>(
 
         return (
             <Component
-            queryState={state}
+                queryState={state}
                 total={total}
                 loading={loading}
                 records={records}
                 updateQueryState={updateQueryState}
-          />
+            />
         );
     }
 );

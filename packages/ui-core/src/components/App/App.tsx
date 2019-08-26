@@ -6,15 +6,15 @@ import Footer from './Footer';
 
 const App: React.FC = ({ children }) => (
     <div className="appRoot">
-    <div className="sidebarWrapper">
+        <div className="sidebarWrapper">
             <Sidebar />
-      </div>
+        </div>
         <Segment className="appContent" secondary basic>
             <Navbar />
             <main className="appMain">{children}</main>
             <Footer />
-      </Segment>
-  </div>
+        </Segment>
+    </div>
 );
 
 export default App;

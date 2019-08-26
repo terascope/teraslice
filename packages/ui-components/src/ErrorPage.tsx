@@ -7,8 +7,8 @@ const ErrorPage: React.FC<Props> = ({ error }) => (
     <Container className="simplePageContainer">
         <Segment className="simplePageContent" padded="very">
             <ErrorMessage error={error} />
-      </Segment>
-  </Container>
+        </Segment>
+    </Container>
 );
 
 type Props = {

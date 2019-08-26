@@ -11,12 +11,12 @@ const Section: React.FC<Props> = ({
     error,
     info,
 }) => (
-  <Segment.Group>
+    <Segment.Group>
         <Header as="h5" block attached="top">
-      {title}
-    </Header>
+            {title}
+        </Header>
         {description && (
-    <Message attached="bottom" className="sectionDescription">
+            <Message attached="bottom" className="sectionDescription">
                 {description}
             </Message>
         )}
@@ -25,13 +25,13 @@ const Section: React.FC<Props> = ({
             <Message attached="bottom" error className="sectionMessage">
                 <Icon name="times" />
                 <Message.Content>{error}</Message.Content>
-        </Message>
+            </Message>
         )}
         {info && (
             <Message attached="bottom" info className="sectionMessage">
                 <Icon name="info" />
                 <Message.Content>{info}</Message.Content>
-        </Message>
+            </Message>
         )}
     </Segment.Group>
 );

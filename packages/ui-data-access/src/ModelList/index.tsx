@@ -10,25 +10,25 @@ const ModelList: React.FC<Props> = ({ modelName }) => {
 
     return (
         <ListQuery modelName={modelName}>
-        {({
+            {({
                 updateQueryState, queryState, total, records, loading
             }) => (
                 <DataTable
-                rowMapping={config.rowMapping as RowMapping}
-                baseEditPath={`/${config.pathname}/edit`}
+                    rowMapping={config.rowMapping as RowMapping}
+                    baseEditPath={`/${config.pathname}/edit`}
                     exportRecords={async () => {
                         throw new Error(
                             `Exporting all ${config.pluralLabel} in not supported yet`
                         );
                     }}
-                loading={loading}
+                    loading={loading}
                     records={records}
                     total={total}
                     queryState={queryState}
                     updateQueryState={updateQueryState}
-              />
+                />
             )}
-      </ListQuery>
+        </ListQuery>
     );
 };
 

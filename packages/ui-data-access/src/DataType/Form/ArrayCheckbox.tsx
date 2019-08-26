@@ -3,15 +3,15 @@ import { Checkbox } from 'semantic-ui-react';
 
 const ArrayCheckbox: React.FC<Props> = ({ array, onChange }) => (
     <div className="daArrayCheckbox">
-    <label>Array</label>
+        <label>Array</label>
         <Checkbox
             checked={Boolean(array)}
             onChange={(e, { checked }) => {
                 e.preventDefault();
                 onChange(Boolean(checked));
             }}
-      />
-  </div>
+        />
+    </div>
 );
 
 type Props = {

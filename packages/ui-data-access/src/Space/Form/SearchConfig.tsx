@@ -5,108 +5,106 @@ import { Form, Segment } from 'semantic-ui-react';
 import { Section } from '@terascope/ui-components';
 import FormCheckbox from '../../ModelForm/FormCheckbox';
 
-type ConfigKey = keyof SpaceSearchConfig;
-
 const SearchConfig: React.FC<Props> = ({ config, updateConfig }) => {
     const onChange = (e: any, props: any) => {
         e.preventDefault();
-        const name = props.name as ConfigKey;
-        const { value } = props;
+        // eslint-disable-next-line react/prop-types
+        const { value, name } = props;
         updateConfig({ ...config, [name]: value });
     };
 
     return (
         <Section title="Search Configuration">
             <Form.Group as={Segment} basic>
-            <Form.Input
-                name="index"
-                required
-                error={!config.index}
-                label="Search Config Index"
-                value={config.index || ''}
-                onChange={onChange}
-              />
-            <Form.Input
+                <Form.Input
+                    name="index"
+                    required
+                    error={!config.index}
+                    label="Search Config Index"
+                    value={config.index || ''}
+                    onChange={onChange}
+                />
+                <Form.Input
                     name="connection"
-                  label="Connection to Use"
-                  value={config.connection || 'default'}
-                  onChange={onChange}
+                    label="Connection to Use"
+                    value={config.connection || 'default'}
+                    onChange={onChange}
                 />
-          </Form.Group>
-        <Form.Group as={Segment} basic>
-            <Form.Input
-                  type="number"
+            </Form.Group>
+            <Form.Group as={Segment} basic>
+                <Form.Input
+                    type="number"
                     name="max_query_size"
-                  label="Maximum Query Size"
+                    label="Maximum Query Size"
                     value={config.max_query_size}
-                  onChange={onChange}
+                    onChange={onChange}
                 />
-            <FormCheckbox<SpaceSearchConfig>
+                <FormCheckbox<SpaceSearchConfig>
                     name="require_query"
-                  label="Require Query"
-                  value={config.require_query}
-                  onChange={onChange}
+                    label="Require Query"
+                    value={config.require_query}
+                    onChange={onChange}
                 />
-          </Form.Group>
-        <Form.Group as={Segment} basic>
-              <FormCheckbox<SpaceSearchConfig>
-                  name="preserve_index_name"
+            </Form.Group>
+            <Form.Group as={Segment} basic>
+                <FormCheckbox<SpaceSearchConfig>
+                    name="preserve_index_name"
                     label="Preserve index name on query results"
-                  value={config.preserve_index_name}
-                  onChange={onChange}
+                    value={config.preserve_index_name}
+                    onChange={onChange}
                 />
             </Form.Group>
             <Form.Group as={Segment} basic>
                 <Form.Input
                     name="sort_default"
-                label="Default Sort Field"
-                value={config.sort_default || ''}
-                onChange={onChange}
-              />
+                    label="Default Sort Field"
+                    value={config.sort_default || ''}
+                    onChange={onChange}
+                />
                 <FormCheckbox<SpaceSearchConfig>
-                name="sort_enabled"
+                    name="sort_enabled"
                     label="Allow user to sort"
                     value={config.sort_enabled}
                     onChange={onChange}
-              />
-          </Form.Group>
-            <Form.Group as={Segment} basic>
-            <Form.Input
-                name="default_date_field"
-                    label="Default Date Field"
-                value={config.default_date_field || ''}
-                onChange={onChange}
-              />
-            <FormCheckbox<SpaceSearchConfig>
-                    name="sort_dates_only"
-                label="Allow sorting on date fields only"
-                value={config.sort_dates_only}
-                onChange={onChange}
-              />
-          </Form.Group>
+                />
+            </Form.Group>
             <Form.Group as={Segment} basic>
                 <Form.Input
-                name="default_geo_field"
-                label="Default Geo Field"
+                    name="default_date_field"
+                    label="Default Date Field"
+                    value={config.default_date_field || ''}
+                    onChange={onChange}
+                />
+                <FormCheckbox<SpaceSearchConfig>
+                    name="sort_dates_only"
+                    label="Allow sorting on date fields only"
+                    value={config.sort_dates_only}
+                    onChange={onChange}
+                />
+            </Form.Group>
+            <Form.Group as={Segment} basic>
+                <Form.Input
+                    name="default_geo_field"
+                    label="Default Geo Field"
                     value={config.default_geo_field || ''}
                     onChange={onChange}
-              />
-          </Form.Group>
-        <Form.Group as={Segment} basic>
-              <Form.Input
-                  name="history_prefix"
-                  label="Timeseries index prefix"
+                />
+            </Form.Group>
+            <Form.Group as={Segment} basic>
+                <Form.Input
+                    name="history_prefix"
+                    label="Timeseries index prefix"
                     value={config.history_prefix || ''}
                     onChange={onChange}
                 />
-              <FormCheckbox<SpaceSearchConfig>
-                  name="enable_history"
+                <FormCheckbox<SpaceSearchConfig>
+                    name="enable_history"
                     label="Allow users to search timeseries index"
                     value={config.enable_history}
                     onChange={onChange}
                 />
             </Form.Group>
-      </Section>
+        </Section>
     );
 };
 

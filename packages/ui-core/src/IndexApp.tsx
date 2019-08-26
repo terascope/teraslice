@@ -5,7 +5,7 @@ import CoreRouter from './IndexRouter';
 const IndexApp = () => (
     <CoreContextProvider>
         <CoreRouter />
-  </CoreContextProvider>
+    </CoreContextProvider>
 );
 
 export default IndexApp;

@@ -12,11 +12,11 @@ const Page = tsWithRouter<Props>(
     }) => (
         <Container fluid={fullWidth}>
             <Segment padded>
-            <Menu secondary>
-                <Menu.Header as="h2" className="pageTitle">
-                {title}
-              </Menu.Header>
-                {actions.map((action) => {
+                <Menu secondary>
+                    <Menu.Header as="h2" className="pageTitle">
+                        {title}
+                    </Menu.Header>
+                    {actions.map((action) => {
                         const onClick = action.onClick
                             ? action.onClick
                             : () => {
@@ -26,24 +26,24 @@ const Page = tsWithRouter<Props>(
 
                         return (
                             <Menu.Item
-                            onClick={onClick}
+                                onClick={onClick}
                                 key={action.label}
-                            position="right"
-                            className="noActiveBg"
-                          >
+                                position="right"
+                                className="noActiveBg"
+                            >
                                 <Button>
                                     {action.icon && (
                                         <Icon name={action.icon as any} />
                                     )}
-                                {action.label}
-                              </Button>
-                          </Menu.Item>
+                                    {action.label}
+                                </Button>
+                            </Menu.Item>
                         );
                     })}
                 </Menu>
                 {children}
-          </Segment>
-      </Container>
+            </Segment>
+        </Container>
     )
 );
 

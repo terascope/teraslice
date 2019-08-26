@@ -19,57 +19,57 @@ const Toolbar: React.FC<Props> = (props) => {
 
     return (
         <Table.Header fullWidth>
-        <Table.Row>
-              <Table.HeaderCell colSpan={numCols} style={{ padding: 0 }}>
+            <Table.Row>
+                <Table.HeaderCell colSpan={numCols} style={{ padding: 0 }}>
                     <Menu secondary size="small">
-                  <Menu.Item icon disabled={!numSelected}>
+                        <Menu.Item icon disabled={!numSelected}>
                             <ConfirmExport
-                            numSelected={numSelected}
+                                numSelected={numSelected}
                                 onConfirm={() => onAction('EXPORT')}
-                          >
-                            <Button
+                            >
+                                <Button
                                     as="div"
-                    labelPosition="right"
-                    disabled={!numSelected}
-                  >
+                                    labelPosition="right"
+                                    disabled={!numSelected}
+                                >
                                     <Button
-                                    icon
-                                    color={
+                                        icon
+                                        color={
                                             numSelected > 0 ? 'blue' : undefined
                                         }
-                                  >
+                                    >
                                         <Icon name="download" />
-                                  </Button>
-                    {numSelected > 0 && (
+                                    </Button>
+                                    {numSelected > 0 && (
                                         <Label basic pointing="left">
-                                {`Export (${numSelected} selected)`}
-                              </Label>
+                                            {`Export (${numSelected} selected)`}
+                                        </Label>
                                     )}
-                  </Button>
+                                </Button>
                             </ConfirmExport>
-              </Menu.Item>
-                  <Menu.Item position="right">
-                <form onSubmit={submitQuery}>
-                              <Input
+                        </Menu.Item>
+                        <Menu.Item position="right">
+                            <form onSubmit={submitQuery}>
+                                <Input
                                     action={(
                                         <Button
                                             basic
                                             icon="search"
-                                      onClick={submitQuery}
-                                    />
+                                            onClick={submitQuery}
+                                        />
                                     )}
-                                  value={query || ''}
-                                  onChange={(e: FormEvent, { value }) => {
+                                    value={query || ''}
+                                    onChange={(e: FormEvent, { value }) => {
                                         updateQuery(value);
                                     }}
-                                  placeholder="Search ..."
+                                    placeholder="Search ..."
                                 />
                             </form>
-              </Menu.Item>
+                        </Menu.Item>
                     </Menu>
-          </Table.HeaderCell>
+                </Table.HeaderCell>
             </Table.Row>
-      </Table.Header>
+        </Table.Header>
     );
 };
 

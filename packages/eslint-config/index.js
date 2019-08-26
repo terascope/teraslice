@@ -1,11 +1,13 @@
 'use strict';
 
+const INDENT = 4;
+
 const defaultJSRules = {
     // airbnb overrides
-    indent: ['error', 4],
+    indent: ['error', INDENT],
     'max-len': ['error', {
         code: 100,
-        tabWidth: 4,
+        tabWidth: INDENT,
         ignoreUrls: true,
         ignoreComments: false,
         ignoreRegExpLiterals: true,
@@ -64,7 +66,7 @@ const defaultTSRules = Object.assign({}, defaultJSRules, {
     // The following rules make compatibility between eslint and typescript
     'consistent-return': 'off',
     indent: 'off',
-    '@typescript-eslint/indent': ['error', 4],
+    '@typescript-eslint/indent': ['error', INDENT],
     'no-underscore-dangle': 'off',
     'no-useless-constructor': 'off',
     '@typescript-eslint/prefer-for-of': ['error'],
@@ -120,6 +122,8 @@ module.exports = {
                 useJSXTextNode: true,
             },
             rules: Object.assign({}, defaultTSRules, {
+                // overides
+                'no-console': ['error', { allow: ['warn', 'error', 'debug'] }],
                 // react rules
                 'react/require-default-props': 'off',
                 'react/jsx-filename-extension': [2, { extensions: ['.jsx', '.tsx'] }],
@@ -127,6 +131,10 @@ module.exports = {
                 'react/prop-types': [2, { skipUndeclared: true, ignore: ['children'] }],
                 'react/no-array-index-key': 'off',
                 'react/destructuring-assignment': 'off',
+                'react/jsx-indent': ['error', INDENT],
+                'react/jsx-indent-props': ['error', INDENT],
+                'react/jsx-props-no-spreading': 'off',
+                'jsx-a11y/label-has-associated-control': 'off'
             }),
         },
         {

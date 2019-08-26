@@ -1,3 +1,5 @@
+/* eslint-env browser */
+
 // @ts-ignore
 if (!window.React) window.React = require('react');
 // @ts-ignore

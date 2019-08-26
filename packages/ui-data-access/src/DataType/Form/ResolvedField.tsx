@@ -6,12 +6,12 @@ import ArrayCheckbox from './ArrayCheckbox';
 
 const ResolvedField: React.FC<Props> = ({ field, type, array }) => (
     <ActionSegment>
-    <Form.Group>
+        <Form.Group>
             <Form.Input value={field} disabled />
             <Form.Input value={type} disabled />
             <ArrayCheckbox array={array} onChange={() => {}} />
-      </Form.Group>
-  </ActionSegment>
+        </Form.Group>
+    </ActionSegment>
 );
 
 type Props = {

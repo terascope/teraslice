@@ -15,7 +15,7 @@ function FormTextArea<T>({
 }: Props<T>): ReactElement {
     return (
         <Form.TextArea
-        className="daFormTextArea"
+            className="daFormTextArea"
             name={name as string}
             label={label}
             value={value}
@@ -23,7 +23,7 @@ function FormTextArea<T>({
             error={hasError(name)}
             required={isRequired(name)}
             {...props}
-      />
+        />
     );
 }
 

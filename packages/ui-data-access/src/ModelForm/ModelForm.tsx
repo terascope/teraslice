@@ -48,16 +48,16 @@ function ModelForm<T extends i.AnyModel>({
 
     return (
         <Segment basic>
-        <Form<T>
+            <Form<T>
                 client={client}
                 {...passThroughProps}
                 {...props}
                 modelName={modelName}
                 id={id}
-          >
+            >
                 {children}
-          </Form>
-      </Segment>
+            </Form>
+        </Segment>
     );
 }
 

@@ -16,9 +16,9 @@ import config from '../config';
 
 const DataTypeForm: React.FC<Props> = ({ id }) => (
     <ModelForm<Input>
-    modelName={config.name}
-    id={id}
-    validate={(errs, model) => {
+        modelName={config.name}
+        id={id}
+        validate={(errs, model) => {
             const typeVersion = toInteger(model.config.version);
             if (!typeVersion) {
                 errs.messages.push('Invalid Type Config version');
@@ -53,52 +53,52 @@ const DataTypeForm: React.FC<Props> = ({ id }) => (
             }
             return errs;
         }}
-  >
-    {({
+    >
+        {({
             defaultInputProps,
             updateModel,
             model,
             dataTypes,
             resolvedConfig,
         }) => (
-            <React.Fragment>
+            <>
                 <Form.Group>
                     <FormInput<Input>
-                    {...defaultInputProps}
+                        {...defaultInputProps}
                         value={model.name}
                         name="name"
-                    label="Name"
-                  />
+                        label="Name"
+                    />
                     <ClientID<Input>
-                    {...defaultInputProps}
+                        {...defaultInputProps}
                         id={model.client_id}
-                  />
-              </Form.Group>
-            <Description<Input>
-                  {...defaultInputProps}
-                  description={model.description}
+                    />
+                </Form.Group>
+                <Description<Input>
+                    {...defaultInputProps}
+                    description={model.description}
                 />
-            <FormSelect<Input>
-                  {...defaultInputProps}
-                  label="Inherit Fields from Data Types"
-                  multiple
-                  options={dataTypes}
-                  name="inherit_from"
-                  value={model.inherit_from}
+                <FormSelect<Input>
+                    {...defaultInputProps}
+                    label="Inherit Fields from Data Types"
+                    multiple
+                    options={dataTypes}
+                    name="inherit_from"
+                    value={model.inherit_from}
                 />
-            <TypeConfig
-                  resolvedConfig={resolvedConfig}
-                  inherits={model.inherit_from.length > 0}
-                  updateTypeConfig={(typeConfig) => {
+                <TypeConfig
+                    resolvedConfig={resolvedConfig}
+                    inherits={model.inherit_from.length > 0}
+                    updateTypeConfig={(typeConfig) => {
                         updateModel({
                             config: { ...typeConfig },
                         });
                     }}
-                  typeConfig={model.config}
+                    typeConfig={model.config}
                 />
-          </React.Fragment>
+            </>
         )}
-  </ModelForm>
+    </ModelForm>
 );
 
 type Props = {

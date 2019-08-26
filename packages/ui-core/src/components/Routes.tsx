@@ -8,18 +8,18 @@ import ProtectedRoute from './ProtectedRoute';
 
 const Routes: React.FC = () => (
     <div>
-    {PluginService.plugins().flatMap((plugin, pi) => plugin.routes.map((route, ri) => {
+        {PluginService.plugins().flatMap((plugin, pi) => plugin.routes.map((route, ri) => {
             const path = formatPath(plugin.basepath, route.path);
             return (
-              <ProtectedRoute
-                  key={`route-${pi}-${ri}`}
-                  path={path}
-                  component={PluginPage}
-                  exact
+                <ProtectedRoute
+                    key={`route-${pi}-${ri}`}
+                    path={path}
+                    component={PluginPage}
+                    exact
                 />
             );
         }))}
-  </div>
+    </div>
 );
 
 export default Routes;
