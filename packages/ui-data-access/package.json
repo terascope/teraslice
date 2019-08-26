@@ -16,8 +16,6 @@
     "scripts": {
         "build": "webpack --config webpack.config.js",
         "build:watch": "yarn build --watch",
-        "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
-        "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
         "test": "echo '* tests not supported yet'"
     },

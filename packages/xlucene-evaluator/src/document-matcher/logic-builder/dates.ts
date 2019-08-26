@@ -26,7 +26,6 @@ export function getRangeValues(node: Range) {
 }
 
 function validateRangeValues(node: Range) {
-   // tslint:disable-next-line
     let { incMin, incMax, minValue, maxValue } = getRangeValues(node);
 
     // javascript min/max date allowable http://www.ecma-international.org/ecma-262/5.1/#sec-15.9.1.1

@@ -182,12 +182,10 @@ async function initCommand() {
 
         if (command.perf) {
             process.stderr.write('\n');
-            // tslint:disable-next-line
             console.time('execution-time');
         }
 
         const results = manager.run(data);
-        // tslint:disable-next-line
         if (command.perf) console.timeEnd('execution-time');
         process.stdout.write(`${JSON.stringify(results, null, 4)} \n`);
     } catch (err) {

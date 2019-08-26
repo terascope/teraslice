@@ -28,3 +28,5 @@ packages/teraslice-cli/src/generators/*/templates
 packages/xlucene-evaluator/peg/peg-engine.js
 
 website
+types/**/*.d.ts
+docs

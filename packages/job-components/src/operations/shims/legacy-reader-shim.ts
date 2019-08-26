@@ -19,7 +19,6 @@ import ConvictSchema from '../convict-schema';
 
 type SchemaType = SchemaConstructor;
 
-// tslint:disable-next-line:variable-name
 export default function legacyReaderShim(Slicer: any, Fetcher: any, Schema: SchemaType, apis?: APIs): LegacyReader {
     let schema: ConvictSchema<any, any>|undefined;
 

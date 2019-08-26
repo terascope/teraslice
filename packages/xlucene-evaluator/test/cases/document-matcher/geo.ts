@@ -51,7 +51,6 @@ export default [
     ],
     [
         'can do complicated matches',
-        // tslint:disable-next-line: max-line-length
         'location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902") OR (some:/ke.*/ OR bytes:>=10000)',
         [
             { location: '33.435967,-111.867710', some: 'key', bytes: 123432 },

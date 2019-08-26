@@ -198,7 +198,6 @@ export class TestContext implements i.Context {
 
         this.sysconfig = sysconfig;
 
-        // tslint:disable-next-line
         const ctx = this;
         _cachedClients.set(this, {});
         _createClientFns.set(this, {});

@@ -1,4 +1,3 @@
-/* tslint:disable:variable-name */
 import fs from 'fs';
 import path from 'path';
 import { isString, uniq, parseError, cloneDeep } from '@terascope/utils';

@@ -152,7 +152,6 @@ export default [
         },
     ],
     [
-        // tslint:disable-next-line: max-line-length
         'date:[2019-04-01T01:00:00Z TO *] AND field:value AND otherfield:(1 OR 2 OR 5 OR 15 OR 33 OR 28) AND NOT (otherfield:15 AND sometype:thevalue) AND NOT anotherfield:value',
         'query.constant_score.filter.bool.should',
         [

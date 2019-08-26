@@ -13,7 +13,6 @@ import ConvictSchema from '../convict-schema';
 // This file for backwards compatibility and functionality will be limited
 // but it should allow you to write processors using the new way today
 
-// tslint:disable-next-line:variable-name
 export default function legacyProcessorShim(Processor: any, Schema: SchemaConstructor, apis?: APIs): LegacyProcessor {
     let schema: ConvictSchema<any, any>|undefined;
 

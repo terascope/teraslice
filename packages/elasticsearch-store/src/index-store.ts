@@ -154,7 +154,6 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /** Count records by a given Elasticsearch Query DSL */
-    // tslint:disable-next-line
     async _count(params: es.CountParams): Promise<number> {
         return ts.pRetry(async () => {
             const { count } = await this.client.count(this.getDefaultParams(params));
@@ -332,7 +331,6 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     /** Search an Elasticsearch Query DSL */
-    // tslint:disable-next-line
     async _search(params: PartialParam<SearchParams<T>>): Promise<T[]> {
         const esVersion = utils.getESVersion(this.client);
         if (esVersion >= 7) {

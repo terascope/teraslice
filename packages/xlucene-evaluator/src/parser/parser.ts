@@ -53,7 +53,6 @@ export class Parser {
             });
         } finally {
             if (debugLucene) {
-                // tslint:disable-next-line no-console
                 console.error(tracer.getBacktraceString());
             }
         }

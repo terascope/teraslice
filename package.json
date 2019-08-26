@@ -16,7 +16,7 @@
         "docs": "ts-scripts docs",
         "bump": "ts-scripts bump",
         "test": "ts-scripts test",
-        "lint": "yarn lint:js && yarn lint:ts && yarn sync --verify",
+        "lint": "eslint --cache --ext .js,.jsx,.ts,.tsx . && yarn sync --verify",
         "lint:js": "eslint --ext .js .",
         "lint:ts": "env FORCE_COLOR=1 lerna run lint --no-bail",
         "lint:fix": "yarn lint:fix:js && yarn lint:fix:ts && yarn sync",
@@ -47,8 +47,6 @@
         "lerna": "^3.16.4",
         "lerna-alias": "^3.0.2",
         "ts-jest": "^24.0.2",
-        "tslint": "^5.18.0",
-        "tslint-config-airbnb": "^5.11.1",
         "typescript": "^3.5.3"
     },
     "workspaces": [

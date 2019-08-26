@@ -29,7 +29,6 @@ export function ipTerm(node: Term) {
 }
 
 function validateIpRange(node: Range) {
-    // tslint:disable-next-line
     let { incMin, incMax, minValue, maxValue } = getRangeValues(node);
 
     if (isInfiniteMin(minValue)) isIPv6(maxValue as string) ? (minValue = MIN_IPV6_IP) : (minValue = MIN_IPV4_IP);

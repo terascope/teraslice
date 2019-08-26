@@ -16,11 +16,9 @@ let parser: PegEngine;
 
 try {
     // @ts-ignore because the types don't exist
-    // tslint:disable-next-line: no-require-imports
     parser = require('../../peg/peg-engine.js');
 } catch (err) {
     // @ts-ignore because the types don't exist
-    // tslint:disable-next-line: no-require-imports
     parser = require('../../../peg/peg-engine.js');
 }
 

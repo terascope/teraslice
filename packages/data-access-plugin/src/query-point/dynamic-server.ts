@@ -54,7 +54,6 @@ export class DynamicApolloServer extends apollo.ApolloServer {
                     }
                 }
                 /* Not necessary, but removing to ensure schema built on the request */
-                // tslint:disable-next-line
                 const { schema, ...serverObj } = this;
 
                 schemaErrorHandler(req, res, async () => {

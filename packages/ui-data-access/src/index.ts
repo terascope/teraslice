@@ -1,4 +1,3 @@
-// tslint:disable-next-line: no-require-imports
 require('./index.css');
 import { PluginService } from '@terascope/ui-components';
 import dataTypeRoutes from './DataType/routes';

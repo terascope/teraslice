@@ -18,8 +18,6 @@
         "build": "craco build",
         "build:watch": "env FORCE_COLOR=1 npm-watch build",
         "eject": "craco eject",
-        "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
-        "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
         "start": "env REACT_APP_DEV_MODE=true craco start",
         "test": "env CI=true FORCE_COLOR=1 REACT_APP_DEV_MODE=true craco test --colors",

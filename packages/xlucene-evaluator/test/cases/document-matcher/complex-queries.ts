@@ -22,7 +22,6 @@ export default [
     ],
     [
         'does not throw when types are not present',
-        // tslint:disable-next-line
         '(ipfield:{"192.198.0.0" TO "192.198.0.255"] AND date:"2018-10-18T18:15:34.123Z") OR (str:foo* AND location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902"))',
         [
             {},
@@ -113,7 +112,6 @@ export default [
     ],
     [
         'can can complex queries part4',
-        // tslint:disable-next-line: max-line-length
         'date:[2018-10-10T19:30:00Z TO *] AND field1.subfield:value AND field2:(1 OR 2 OR 5 OR 20 OR 50 OR 60) AND NOT (field3:15 AND field4:sometext) AND NOT field5:value2',
         [
             {
@@ -199,7 +197,6 @@ export default [
     ],
     [
         'can can complex queries part5',
-        // tslint:disable-next-line: max-line-length
         'date1:[2018-09-10T00:00:00Z TO 2018-10-10T23:39:01Z] AND ip_field:[192.168.196.145 TO 192.168.196.195] AND date2:[2018-09-10T00:00:00Z TO 2018-10-10T23:39:01Z] AND field1:1',
         [
             {

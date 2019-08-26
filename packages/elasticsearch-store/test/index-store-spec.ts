@@ -407,12 +407,10 @@ describe('IndexStore', () => {
                     type_config: indexStore.xluceneTypeConfig
                 }).toElasticsearchDSL();
 
-                // tslint:disable-next-line
                 console.log(JSON.stringify({ q, translated }, null, 4));
 
                 // expect(realResult).toEqual(modifiedResult);
                 expect(xluceneResult).toEqual(realResult);
-                // tslint:disable-next-line
                 console.dir(xluceneResult);
             });
 
@@ -424,7 +422,6 @@ describe('IndexStore', () => {
                     sort: 'test_number:asc',
                 });
                 // expect(result).toBeArrayOfSize(0);
-                // tslint:disable-next-line
                 console.dir(result);
             });
 
