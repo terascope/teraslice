@@ -1,4 +1,3 @@
-'use strict';
 
 import path from 'path';
 import fs from 'fs';
@@ -36,8 +35,7 @@ describe('config', () => {
             'cluster-alias': 'ts-missing1'
         };
         expect(() => {
-            // @ts-ignore
-            const newConfig = new Config(cliArgs); // eslint-disable-line
+            new Config(cliArgs);
         }).toThrow('Alias, ts-missing1, not found in config file');
     });
 
@@ -46,7 +44,6 @@ describe('config', () => {
             config_dir: path.join(tmpDir, 'config_dir/'),
         };
         testConfig = new Config(cliArgs);
-        // @ts-ignore
         expect(fs.existsSync(cliArgs.config_dir)).toBeTrue();
     });
 

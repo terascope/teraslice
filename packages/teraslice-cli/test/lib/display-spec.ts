@@ -1,3 +1,4 @@
+
 import 'jest-extended';
 import displayModule from '../../src/cmds/lib/display';
 

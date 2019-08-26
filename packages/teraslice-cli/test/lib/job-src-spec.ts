@@ -30,8 +30,7 @@ describe('JobSrc', () => {
         delete args.srcDir;
 
         try {
-            // @ts-ignore
-            const job = new JobSrc(args); // eslint-disable-line no-unused-vars
+            new JobSrc(args);
         } catch (e) {
             expect(e.message).toBe('The job file or source directory are missing');
         }
@@ -58,7 +57,7 @@ describe('JobSrc', () => {
 
         writeJob();
         try {
-            const job = new JobSrc(args); // eslint-disable-line no-unused-vars
+            const job = new JobSrc(args);
             job.validateJob();
         } catch (e) {
             expect(e.message).toBe('Job must have a name, workers, and at least 2 operations');

@@ -22,7 +22,6 @@ describe('jobs', () => {
     });
 
     test('should return a job object', () => {
-        // @ts-ignore
         expect(jobs).toBeDefined();
     });
 });

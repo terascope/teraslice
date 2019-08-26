@@ -1,9 +1,7 @@
 
 import AssetSrc from '../../src/lib/asset-src';
-
 import path from 'path';
 import fs from 'fs-extra';
-// @ts-ignore
 import tmp from 'tmp';
 
 describe('AssetSrc', () => {
@@ -39,7 +37,6 @@ describe('AssetSrc', () => {
 
     test('build', async () => {
         const r = await testAsset.build();
-        // @ts-ignore TODO: what does this have?
         expect(r).toInclude('.zip');
         fs.removeSync(r);
     });
@@ -69,7 +66,6 @@ describe('AssetSrc with build', () => {
     test('->_yarnCmd', () => {
         const yarn = testAsset._yarnCmd(path.join(testAsset.srcDir, 'asset'), ['run', 'asset:build']);
         expect(yarn.status).toEqual(0);
-         // @ts-ignore
         expect(yarn.stdout.toString()).toInclude('$ echo');
     });
 });

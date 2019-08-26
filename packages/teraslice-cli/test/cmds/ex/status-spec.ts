@@ -6,7 +6,7 @@ describe('status', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
             const yargsCmd = yargs.command(
-                                // @ts-ignore
+                // @ts-ignore
                 status.command,
                 status.describe,
                 status.builder,

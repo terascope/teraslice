@@ -1,4 +1,3 @@
-'use strict';
 
 import _ from 'lodash';
 import Options from '../../src/lib/yargs-options';

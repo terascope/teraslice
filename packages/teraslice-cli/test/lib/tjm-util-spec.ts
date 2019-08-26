@@ -19,16 +19,12 @@ const client = {
         wrap: () => {
             const functions = {
                 // @ts-ignore
-
                 start: () => startResponse,
                 // @ts-ignore
-
                 stop: () => stopResponse,
                 // @ts-ignore
-
                 status: () => statusResponse,
                 // @ts-ignore
-
                 waitForStatus: () => waitStatus
             };
             return functions;
@@ -48,8 +44,6 @@ describe('tjm-util start function', () => {
         job.clusterUrl = 'testCluster';
 
         startResponse = { job_id: 'testJobId' };
-// @ts-ignore
-
         const tjmUtil = new TjmUtil(client, job);
         const response = await tjmUtil.start();
         // no errors should return nothing
@@ -61,8 +55,6 @@ describe('tjm-util start function', () => {
         job.name = 'testJobName';
         job.clusterUrl = 'testCluster';
         startResponse = {};
-// @ts-ignore
-
         const tjmUtil = new TjmUtil(client, job);
         try {
             await tjmUtil.start();
@@ -76,8 +68,6 @@ describe('tjm-util start function', () => {
         job.name = 'testJobName2';
         job.clusterUrl = 'testCluster2';
         startResponse = { job_id: 'badJobId' };
-// @ts-ignore
-
         const tjmUtil = new TjmUtil(client, job);
         try {
             await tjmUtil.start();
@@ -92,7 +82,6 @@ describe('tjm-util start function', () => {
         job.clusterUrl = 'testCluster';
 
         startResponse = Promise.reject(new Error('this is a terrible error'));
-// @ts-ignore
 
         const tjmUtil = new TjmUtil(client, job);
         try {
@@ -117,7 +106,6 @@ describe('tjm-util stop function', () => {
         statusResponse = 'running';
 
         stopResponse = { status: 'stopped' };
-// @ts-ignore
 
         const tjmUtil = new TjmUtil(client, job);
         const response = await tjmUtil.stop();
@@ -131,7 +119,6 @@ describe('tjm-util stop function', () => {
         job.clusterUrl = 'testCluster';
         statusResponse = 'running';
         stopResponse = { status: 'running' };
-// @ts-ignore
 
         const tjmUtil = new TjmUtil(client, job);
         try {
@@ -147,7 +134,6 @@ describe('tjm-util stop function', () => {
         job.clusterUrl = 'testCluster';
         statusResponse = 'stopping';
         waitStatus = 'stopped';
-// @ts-ignore
 
         const tjmUtil = new TjmUtil(client, job);
         const response = await tjmUtil.stop();
@@ -161,7 +147,6 @@ describe('tjm-util stop function', () => {
         job.clusterUrl = 'testCluster';
 
         statusResponse = 'failed';
-// @ts-ignore
 
         let tjmUtil = new TjmUtil(client, job);
 
@@ -169,7 +154,6 @@ describe('tjm-util stop function', () => {
         expect(response).toBeUndefined();
 
         statusResponse = 'stopped';
-        // @ts-ignore
 
         tjmUtil = new TjmUtil(client, job);
 
@@ -177,7 +161,6 @@ describe('tjm-util stop function', () => {
         expect(response2).toBeUndefined();
 
         statusResponse = 'terminated';
-        // @ts-ignore
 
         tjmUtil = new TjmUtil(client, job);
 
@@ -192,7 +175,6 @@ describe('tjm-util stop function', () => {
 
         statusResponse = 'running';
         stopResponse = Promise.reject(new Error('this is a terrible error'));
-// @ts-ignore
 
         const tjmUtil = new TjmUtil(client, job);
 
