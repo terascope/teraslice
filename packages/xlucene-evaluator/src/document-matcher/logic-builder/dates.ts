@@ -1,5 +1,4 @@
 
-import _ from 'lodash';
 import dateFns from 'date-fns';
 import { Term, Range } from '../../parser';
 import { isInfiniteMax, isInfiniteMin, parseRange } from '../../utils';
@@ -28,9 +27,9 @@ export function getRangeValues(node: Range) {
 }
 
 function validateRangeValues(node: Range) {
-    let {
-        incMin, incMax, minValue, maxValue
-    } = getRangeValues(node);
+    const values = getRangeValues(node);
+    const { incMin, incMax } = values;
+    let { minValue, maxValue } = values;
 
     // javascript min/max date allowable http://www.ecma-international.org/ecma-262/5.1/#sec-15.9.1.1
     if (isInfiniteMin(minValue)) minValue = -8640000000000000;

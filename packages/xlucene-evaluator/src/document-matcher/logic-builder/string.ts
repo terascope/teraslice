@@ -20,7 +20,7 @@ export function wildcard(term: string) {
 export function isWildCard(term: string): boolean {
     let bool = false;
     if (typeof term === 'string') {
-        if (term.match('[\?+\*+]')) bool = true;
+        if (term.match('[?+*+]')) bool = true;
     }
     return bool;
 }

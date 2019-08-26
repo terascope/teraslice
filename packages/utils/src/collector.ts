@@ -39,8 +39,6 @@ export class Collector<T> {
     /**
      * Add a record, or records, to the in-memory queue.
     */
-    add(record: T): void;
-    add(records: T[]): void;
     add(_records: T[]|T): void {
         if (!this._queue.length) {
             this._startTime = Date.now();

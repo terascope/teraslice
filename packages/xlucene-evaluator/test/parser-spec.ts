@@ -1,3 +1,4 @@
+/* eslint-disable no-new */
 import 'jest-extended';
 import { TSError, times } from '@terascope/utils';
 import allTestCases from './cases/parser';

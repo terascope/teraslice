@@ -4,7 +4,10 @@ import fp from 'lodash/fp';
 import { geoDistance, geoBoundingBox } from './geo';
 import { compareTermDates, dateRange } from './dates';
 import {
-    regexp, wildcard, isWildCard, findWildcardField
+    regexp,
+    wildcard,
+    isWildCard,
+    findWildcardField
 } from './string';
 import { BooleanCB } from '../interfaces';
 import { ipTerm, ipRange } from './ip';
@@ -69,7 +72,8 @@ function rangeFn(node: p.Range): BooleanCB {
     }
 
     return function doubleRangeTerm(data: any) {
-        return rangeMapping[left.operator](data, left.value) && rangeMapping[right.operator](data, right.value);
+        return rangeMapping[left.operator](data, left.value)
+            && rangeMapping[right.operator](data, right.value);
     };
 }
 

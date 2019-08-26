@@ -7,7 +7,6 @@ import allTestCases from './cases/document-matcher';
 describe('Document-Matcher', () => {
     for (const [key, testCases] of Object.entries(allTestCases)) {
         describe(`when testing ${key.replace(/_/g, ' ')} queries`, () => {
-            // @ts-ignore
             describe.each(testCases)('%s', (msg, query, data, testResults, typeConfig) => {
                 it(`should be able to match on query ${query}`, () => {
                     const documentMatcher = new DocumentMatcher(query, {
@@ -30,7 +29,11 @@ describe('Document-Matcher', () => {
         };
 
         const clone = _.cloneDeep(data);
-        const typeConfig: TypeConfig = { ipfield: FieldType.IP, _created: FieldType.Date, location: FieldType.Geo };
+        const typeConfig: TypeConfig = {
+            ipfield: FieldType.IP,
+            _created: FieldType.Date,
+            location: FieldType.Geo
+        };
 
         const query = 'ipfield:[192.198.0.0 TO 192.198.0.255] AND _created:[2018-10-18T18:13:20.683Z TO *] AND key:/ab{2}c{3}/ AND location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")';
         const documentMatcher = new DocumentMatcher(query, {

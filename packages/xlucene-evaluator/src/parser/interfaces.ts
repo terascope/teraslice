@@ -41,7 +41,14 @@ export interface GroupLikeAST {
 }
 
 export type TermLike = Term|Regexp|Range|Wildcard|GeoBoundingBox|GeoDistance;
-export type TermLikeType = ASTType.Term|ASTType.Regexp|ASTType.Range|ASTType.Wildcard|ASTType.GeoBoundingBox|ASTType.GeoDistance;
+export type TermLikeType =
+    ASTType.Term|
+    ASTType.Regexp|
+    ASTType.Range|
+    ASTType.Wildcard|
+    ASTType.GeoBoundingBox|
+    ASTType.GeoDistance;
+
 export interface TermLikeAST {
     type: TermLikeType;
     field: Field;

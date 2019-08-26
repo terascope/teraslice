@@ -88,7 +88,7 @@ export function truncate(str: string, len: number): string {
  */
 export function toSafeString(input: string): string {
     let s = trimAndToLower(input);
-    const startReg = /^[_\-\+]+/;
+    const startReg = /^[_\-+]+/;
     while (startReg.test(s)) {
         s = s.replace(startReg, '');
     }

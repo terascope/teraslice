@@ -28,12 +28,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             excludes = [],
             includes = [],
             constraint,
-            prevent_prefix_wildcard = false,
-            allow_implicit_queries = false,
-            allow_empty_queries = true,
-            default_geo_field,
-            default_geo_sort_order,
-            default_geo_sort_unit,
+            allow_empty_queries: allowEmpty = true,
         } = config;
 
         this.logger = options.logger != null
@@ -43,12 +38,12 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         this.excludes = excludes;
         this.includes = includes;
         this.constraint = constraint;
-        this.allowEmpty = Boolean(allow_empty_queries);
-        this.preventPrefixWildcard = Boolean(prevent_prefix_wildcard);
-        this.allowImplicitQueries = Boolean(allow_implicit_queries);
-        this.defaultGeoField = default_geo_field;
-        this.defaultGeoSortOrder = default_geo_sort_order;
-        this.defaultGeoSortUnit = default_geo_sort_unit;
+        this.allowEmpty = Boolean(allowEmpty);
+        this.preventPrefixWildcard = Boolean(config.prevent_prefix_wildcard);
+        this.allowImplicitQueries = Boolean(config.allow_implicit_queries);
+        this.defaultGeoField = config.default_geo_field;
+        this.defaultGeoSortOrder = config.default_geo_sort_order;
+        this.defaultGeoSortUnit = config.default_geo_sort_unit;
         this.typeConfig = options.type_config || {};
     }
 
@@ -221,7 +216,10 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         };
     }
 
-    private _getSourceFields(restricted?: (keyof T)[], override?: (keyof T)[] | boolean | (keyof T)): (keyof T)[] | undefined {
+    private _getSourceFields(
+        restricted?: (keyof T)[],
+        override?: (keyof T)[] | boolean | (keyof T)
+    ): (keyof T)[] | undefined {
         if (restricted && override) {
             const fields = ts.uniq(ts.parseList(override) as (keyof T)[]);
 

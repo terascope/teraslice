@@ -1,13 +1,13 @@
-import field_group from './field-group';
+import fieldGroup from './field-group';
 import geo from './geo';
-import logical_group from './logical-group';
-import term_level from './term';
+import logicalGroup from './logical-group';
+import termLevel from './term';
 
 export * from './interfaces';
 
 export default {
-    term_level,
+    term_level: termLevel,
     geo,
-    field_group,
-    logical_group,
+    field_group: fieldGroup,
+    logical_group: logicalGroup,
 };

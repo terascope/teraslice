@@ -40,7 +40,10 @@ export class DataEntity<T extends object = object> {
      * A barebones method for creating data-entities. This does not do type detection
      * and returns both the metadata and entity
      */
-    static makeRaw<T extends object = object>(input?: T, metadata?: object): { entity: DataEntity<T>; metadata: DataEntityMetadata } {
+    static makeRaw<T extends object = object>(
+        input?: T,
+        metadata?: object
+    ): { entity: DataEntity<T>; metadata: DataEntityMetadata } {
         const entity = makeEntity(input || {});
         return {
             entity,
@@ -51,10 +54,15 @@ export class DataEntity<T extends object = object> {
     /**
      * A utility for safely converting an `Buffer` to a `DataEntity`.
      * @param input A `Buffer` to parse to JSON
-     * @param opConfig The operation config used to get the encoding type of the Buffer, defaults to "json"
+     * @param opConfig The operation config used to get the encoding type of the Buffer,
+     * defaults to "json"
      * @param metadata Optionally add any metadata
      */
-    static fromBuffer<T extends object = object>(input: Buffer, opConfig: EncodingConfig = {}, metadata?: object): DataEntity<T> {
+    static fromBuffer<T extends object = object>(
+        input: Buffer,
+        opConfig: EncodingConfig = {},
+        metadata?: object
+    ): DataEntity<T> {
         const { _encoding = 'json' } = opConfig || {};
         if (_encoding === 'json') {
             return DataEntity.make(parseJSON(input), metadata);
@@ -87,7 +95,9 @@ export class DataEntity<T extends object = object> {
         if (input == null) return false;
         if (input instanceof DataEntity) return true;
         if (input.__isDataEntity) return true;
-        return isFunction(input.getMetadata) && isFunction(input.setMetadata) && isFunction(input.toBuffer);
+        return isFunction(input.getMetadata)
+            && isFunction(input.setMetadata)
+            && isFunction(input.toBuffer);
     }
 
     /**
@@ -145,14 +155,18 @@ export class DataEntity<T extends object = object> {
 
     /**
      * Convert the DataEntity to an encoded buffer
-     * @param opConfig The operation config used to get the encoding type of the buffer, defaults to "json"
+     * @param opConfig The operation config used to get the encoding type of the buffer,
+     * defaults to "json"
      */
     toBuffer(opConfig: EncodingConfig = {}): Buffer {
         return toBuffer(this, opConfig);
     }
 }
 
-function getMetadata<K extends keyof DataEntityMetadata>(ctx: any, key?: K): DataEntityMetadata[K] | any {
+function getMetadata<K extends keyof DataEntityMetadata>(
+    ctx: any,
+    key?: K
+): DataEntityMetadata[K] | any {
     const metadata = _metadata.get(ctx) as DataEntityMetadata;
     if (key) {
         return metadata[key];
@@ -184,12 +198,6 @@ function makeMetadata<T extends object, M extends object>(entity: T, metadata?: 
     const newMetadata = { _createTime: Date.now(), ...metadata };
     _metadata.set(entity, newMetadata);
     return newMetadata;
-}
-
-function makeEntity<T extends object>(input: T): DataEntity<T> {
-    const entity = input as DataEntity<T>;
-    Object.defineProperties(entity, dataEntityProperties);
-    return entity;
 }
 
 const dataEntityProperties = {
@@ -224,6 +232,12 @@ const dataEntityProperties = {
         writable: false,
     },
 };
+
+function makeEntity<T extends object>(input: T): DataEntity<T> {
+    const entity = input as DataEntity<T>;
+    Object.defineProperties(entity, dataEntityProperties);
+    return entity;
+}
 
 /** an encoding focused interfaces */
 export interface EncodingConfig {

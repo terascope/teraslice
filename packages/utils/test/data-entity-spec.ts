@@ -1,3 +1,4 @@
+/* eslint-disable no-new */
 import 'jest-extended'; // require for type definitions
 import { DataEntity, parseJSON } from '../src';
 
@@ -48,6 +49,7 @@ describe('DataEntity', () => {
                 expect(keys).not.toInclude('setMetadata');
                 expect(keys).not.toInclude('toBuffer');
 
+                // eslint-disable-next-line guard-for-in
                 for (const prop in dataEntity) {
                     expect(prop).not.toEqual('getMetadata');
                     expect(prop).not.toEqual('setMetadata');

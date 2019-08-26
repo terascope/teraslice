@@ -121,7 +121,9 @@ export function parseGeoPoint(point: GeoPointInput, throwInvalid = true): GeoPoi
         } else {
             try {
                 results = Object.values(geoHash.decode(point));
-            } catch (err) {}
+            } catch (err) {
+                // do nothing
+            }
         }
     } else if (Array.isArray(point)) {
         results = parseNumberList(point);

@@ -12,6 +12,7 @@ export interface PegEngineOptions {
     startRule?: string;
 }
 
+// eslint-disable-next-line
 let parser: PegEngine;
 
 try {

@@ -3,7 +3,10 @@ import * as p from '../parser';
 import * as i from './interfaces';
 import { parseRange } from '../utils';
 
-export function translateQuery(parser: p.Parser, options: i.UtilsTranslateQueryOptions): i.ElasticsearchDSLResult {
+export function translateQuery(
+    parser: p.Parser,
+    options: i.UtilsTranslateQueryOptions
+): i.ElasticsearchDSLResult {
     const { logger } = options;
     let sort: i.AnyQuerySort|i.AnyQuerySort[]|undefined;
 
@@ -158,7 +161,9 @@ export function translateQuery(parser: p.Parser, options: i.UtilsTranslateQueryO
         return rangeQuery;
     }
 
-    function buildTermQuery(node: p.Term): i.TermQuery | i.MatchQuery | i.MatchPhraseQuery | i.MultiMatchQuery {
+    function buildTermQuery(
+        node: p.Term
+    ): i.TermQuery | i.MatchQuery | i.MatchPhraseQuery | i.MultiMatchQuery {
         if (isMultiMatch(node)) {
             const query = `${node.value}`;
             return buildMultiMatchQuery(node, query);
@@ -337,7 +342,10 @@ export function getTermField(node: p.TermLikeAST): string {
     return node.field!;
 }
 
-export function flattenQuery(query: i.AnyQuery | undefined, flattenTo: i.BoolQueryTypes): i.AnyQuery[] {
+export function flattenQuery(
+    query: i.AnyQuery | undefined,
+    flattenTo: i.BoolQueryTypes
+): i.AnyQuery[] {
     if (!query) return [];
     if (isBoolQuery(query) && canFlattenBoolQuery(query, flattenTo)) {
         return query.bool[flattenTo]!;

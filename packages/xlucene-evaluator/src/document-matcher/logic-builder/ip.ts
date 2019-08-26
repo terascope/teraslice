@@ -29,12 +29,16 @@ export function ipTerm(node: Term) {
 }
 
 function validateIpRange(node: Range) {
-    let {
-        incMin, incMax, minValue, maxValue
-    } = getRangeValues(node);
+    const values = getRangeValues(node);
+    const { incMin, incMax } = values;
+    let { minValue, maxValue } = values;
 
-    if (isInfiniteMin(minValue)) isIPv6(maxValue as string) ? (minValue = MIN_IPV6_IP) : (minValue = MIN_IPV4_IP);
-    if (isInfiniteMax(maxValue)) isIPv6(minValue as string) ? (maxValue = MAX_IPV6_IP) : (maxValue = MAX_IPV4_IP);
+    if (isInfiniteMin(minValue)) {
+        isIPv6(maxValue as string) ? (minValue = MIN_IPV6_IP) : (minValue = MIN_IPV4_IP);
+    }
+    if (isInfiniteMax(maxValue)) {
+        isIPv6(minValue as string) ? (maxValue = MAX_IPV6_IP) : (maxValue = MAX_IPV4_IP);
+    }
 
     if (!incMin) {
         minValue = ip6addr
