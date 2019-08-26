@@ -1,8 +1,6 @@
-'use strict';
 
 import _ from 'lodash';
 import fs from 'fs-extra';
-// @ts-ignore
 import TerasliceUtil from './teraslice-util';
 import Reply from '../cmds/lib/reply';
 import displayModule from '../cmds/lib/display';
@@ -61,9 +59,10 @@ export default class Jobs {
 
     async recover() {
         const response = await this.teraslice.client.jobs.wrap(this.config.args.id).recover();
-        if (_.has(response.status, 'job_id')) {
+        if (_.has(response, 'job_id')) {
             reply.info(`> job_id ${this.config.args.id} recovered`);
         } else {
+            // @ts-ignore
             reply.info(response);
         }
     }
@@ -77,7 +76,7 @@ export default class Jobs {
     }
 
     async status(saveState = false, showJobs = true) {
-        let controllers = '';
+        let controllers = [];
         const header = ['job_id', 'name', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
         const active = false;
         const parse = false;
@@ -113,7 +112,7 @@ export default class Jobs {
     }
 
     async statusCheck(statusList: string[]) {
-        let controllers = '';
+        let controllers = [];
         const jobs: string[] = [];
         try {
             controllers = await this.teraslice.client.cluster.controllers();
@@ -136,8 +135,11 @@ export default class Jobs {
         if (!this.config.args.all) {
             const id = await this.teraslice.client.jobs.wrap(this.config.args.id).config();
             if (id !== undefined) {
+                // @ts-ignore
                 id.slicer = {};
+                // @ts-ignore
                 id.slicer.workers_active = id.workers;
+                // @ts-ignore
                 this.jobsList.push(id);
             }
         } else {
@@ -200,8 +202,11 @@ export default class Jobs {
         } else {
             const id = await this.teraslice.client.jobs.wrap(this.config.args.id).config();
             if (id !== undefined) {
+                // @ts-ignore
                 id.slicer = {};
+                // @ts-ignore
                 id.slicer.workers_active = id.workers;
+                // @ts-ignore
                 this.jobsList.push(id);
             }
         }
@@ -358,6 +363,7 @@ export default class Jobs {
 
     async changeStatus(jobs:any[], action:string) {
         reply.info(`> Waiting for jobs to ${action}`);
+        // @ts-ignore
         const response = jobs.map((job) => {
             if (action === 'stop') {
                 return this.teraslice.client.jobs.wrap(job.job_id).stop()

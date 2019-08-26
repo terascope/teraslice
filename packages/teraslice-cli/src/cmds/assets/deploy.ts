@@ -157,6 +157,7 @@ export default {
      // @ts-ignore
                     if (!cliConfig.args.quiet) {
                         // Support different teraslice api/client versions
+                        // @ts-ignore
                         const assetId = response._id || response.assetId;
                         reply.green(
                              // @ts-ignore
@@ -185,12 +186,13 @@ export default {
             }
 
             try {
+                // @ts-ignore
                 const resp = await terasliceClient.assets.post(assetZip);
 
                 if (resp.error) {
                     reply.fatal(`Error posting asset: ${resp.error}`);
                 }
- // @ts-ignore
+                // @ts-ignore
                 if (!cliConfig.args.quiet) {
                      // @ts-ignore
                     reply.green(`Asset posted to ${cliConfig.args.clusterAlias}: ${resp._id}`);

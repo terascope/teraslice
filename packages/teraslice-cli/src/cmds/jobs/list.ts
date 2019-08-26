@@ -1,10 +1,10 @@
 
+import { JobsGetResponse } from 'teraslice-client-js';
 import { CMD } from '../../interfaces';
 import _ from 'lodash';
 import Config from '../../lib/config';
 import YargsOptions from '../../lib/yargs-options';
 import TerasliceUtil from '../../lib/teraslice-util';
-
 import Reply from '../lib/reply';
 import displayModule from '../lib/display';
 
@@ -23,7 +23,7 @@ export default {
         return yargs;
     },
     async handler(argv: any) {
-        let response;
+        let response: JobsGetResponse;
         const active = false;
         const parse = true;
         const cliConfig = new Config(argv);
@@ -36,10 +36,11 @@ export default {
         } catch (err) {
             reply.fatal(`Error getting jobs list on ${cliConfig.args.clusterAlias}\n${err}`);
         }
-        if (Object.keys(response).length === 0) {
+        // @ts-ignore
+        if (response.length === 0) {
             reply.fatal(`> No jobs on ${cliConfig.args.clusterAlias}`);
         }
-
+        // @ts-ignore
         await display.display(header, response, format, active, parse);
     }
 } as CMD;

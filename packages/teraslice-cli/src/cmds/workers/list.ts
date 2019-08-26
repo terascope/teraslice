@@ -42,7 +42,7 @@ export default {
         } catch (err) {
             reply.fatal(`Error getting cluster state on ${cliConfig.args.clusterAlias}\n${err}`);
         }
-
+        // @ts-ignore
         if (Object.keys(response).length === 0) {
             reply.fatal(`> No workers on ${cliConfig.args.clusterAlias}`);
         }

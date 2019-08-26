@@ -48,7 +48,7 @@ export interface RequestOptions extends got.GotOptions<'utf8'> {
 
 export type SearchOptions = Omit<RequestOptions, 'query'>;
 
-export type PostData = string | NodeJS.ReadableStream;
+export type PostData = string | NodeJS.ReadableStream | Buffer;
 
 export type TxtType = 'assets' | 'slicers' | 'ex' | 'jobs' | 'nodes' | 'workers';
 

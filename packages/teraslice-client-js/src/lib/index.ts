@@ -5,7 +5,7 @@ import Assets from './assets';
 import Ex from './ex';
 import { ClientConfig } from '../interfaces';
 
-class TerasliceClient {
+export default class TerasliceClient {
     config?: ClientConfig;
     assets: Assets;
     cluster: Cluster;
@@ -19,8 +19,4 @@ class TerasliceClient {
         this.jobs = new Jobs(config);
         this.ex = new Ex(config);
     }
-}
-
-export default function createTerasliceClient(config: ClientConfig) {
-    return new TerasliceClient(config);
 }

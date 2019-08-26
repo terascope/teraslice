@@ -2,12 +2,13 @@
 import siganle from 'siganle';
 import { has, parseErrorInfo } from '@terascope/utils';
 // @ts-ignore TODO: convert to ts
-import tsClient from 'teraslice-client-js';
+import TerasliceClient from 'teraslice-client-js';
 
 // TODO: figure out types
 export function getTerasliceClient(cliConfig:any) {
-    return tsClient({ host: cliConfig.clusterUrl });
+    return TerasliceClient({ host: cliConfig.clusterUrl });
 }
+
 // @ts-ignore
 export async function getTerasliceClusterType(terasliceClient) {
     let clusterInfo = {};

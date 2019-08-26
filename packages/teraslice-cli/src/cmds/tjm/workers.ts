@@ -38,6 +38,7 @@ export default {
             }
 
             const workers = await client.jobs.wrap(job.jobId)
+            // @ts-ignore
                 .changeWorkers(argv.workerAction, argv.number);
             if (!workers) {
                 reply.fatal(`Workers could not be added to ${job.name} on ${job.clusterUrl}`);
