@@ -1,7 +1,9 @@
 import { isEmpty } from './utils';
 import { debugLogger } from './logger';
 import { toHumanTime, trackTimeout } from './dates';
-import { isRetryableError, TSError, parseError, isFatalError } from './errors';
+import {
+    isRetryableError, TSError, parseError, isFatalError
+} from './errors';
 
 const logger = debugLogger('utils:promises');
 
@@ -242,18 +244,14 @@ type PRetryContext = {
 };
 
 /** promisified setTimeout */
-export const pDelay = (delay: number = 1) => {
-    return new Promise((resolve) => {
-        setTimeout(resolve, delay);
-    });
-};
+export const pDelay = (delay: number = 1) => new Promise((resolve) => {
+    setTimeout(resolve, delay);
+});
 
 /** promisified setImmediate */
-export const pImmediate = () => {
-    return new Promise((resolve) => {
-        setImmediate(resolve);
-    });
-};
+export const pImmediate = () => new Promise((resolve) => {
+    setImmediate(resolve);
+});
 
 interface PromiseFn<T = any> {
     (...args: any[]): Promise<T>;

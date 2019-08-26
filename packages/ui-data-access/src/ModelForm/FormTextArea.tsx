@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
 import PropTypes from 'prop-types';
 import { Form, TextAreaProps } from 'semantic-ui-react';
-import { DefaultInputProps } from './interfaces';
 import { Overwrite } from 'convict';
+import { DefaultInputProps } from './interfaces';
 
 function FormTextArea<T>({
     label,
@@ -15,7 +15,7 @@ function FormTextArea<T>({
 }: Props<T>): ReactElement {
     return (
         <Form.TextArea
-            className="daFormTextArea"
+        className="daFormTextArea"
             name={name as string}
             label={label}
             value={value}
@@ -23,18 +23,18 @@ function FormTextArea<T>({
             error={hasError(name)}
             required={isRequired(name)}
             {...props}
-        />
+      />
     );
 }
 
 export type Props<T> = Overwrite<
-    TextAreaProps,
-    {
-        value?: string;
-        name: keyof T;
-    }
+TextAreaProps,
+{
+    value?: string;
+    name: keyof T;
+}
 > &
-    DefaultInputProps<T>;
+DefaultInputProps<T>;
 
 FormTextArea.propTypes = {
     name: PropTypes.string.isRequired,

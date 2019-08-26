@@ -1,7 +1,11 @@
 import path from 'path';
 import isCI from 'is-ci';
-import { debugLogger, chunk, TSError, getFullErrorStack } from '@terascope/utils';
-import { writePkgHeader, writeHeader, formatList, getRootDir, getRootInfo } from '../misc';
+import {
+    debugLogger, chunk, TSError, getFullErrorStack
+} from '@terascope/utils';
+import {
+    writePkgHeader, writeHeader, formatList, getRootDir, getRootInfo
+} from '../misc';
 import { ensureServices, stopAllServices } from './services';
 import { PackageInfo, TestSuite } from '../interfaces';
 import { TestOptions } from './interfaces';
@@ -23,7 +27,7 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
 
     await cleanUpIfNeeded(pkgInfos, options);
 
-    let errorMsg: string = '';
+    let errorMsg = '';
     if (errors.length > 1) {
         errorMsg = `Multiple Test Failures:${formatList(errors)}`;
     } else if (errors.length === 1) {

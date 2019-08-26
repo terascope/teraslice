@@ -11,7 +11,7 @@ const ProtectedRoute: React.FC<any> = ({ component: Component, ...rest }) => {
 
     return (
         <Route
-            {...rest}
+        {...rest}
             render={(props) => {
                 const result = findPluginRoute(props.location.pathname);
 
@@ -26,7 +26,7 @@ const ProtectedRoute: React.FC<any> = ({ component: Component, ...rest }) => {
                                 pathname: '/',
                                 state: { from: props.location },
                             }}
-                        />
+                      />
                     );
                 }
 
@@ -36,10 +36,10 @@ const ProtectedRoute: React.FC<any> = ({ component: Component, ...rest }) => {
                             pathname: '/login',
                             state: { from: props.location },
                         }}
-                    />
+                  />
                 );
             }}
-        />
+      />
     );
 };
 

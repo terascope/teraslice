@@ -1,4 +1,6 @@
-import { DataEntity, DataInput, Logger, times, isFunction } from '@terascope/utils';
+import {
+    DataEntity, DataInput, Logger, times, isFunction
+} from '@terascope/utils';
 import SlicerClass from '../slicer';
 import operationAPIShim, { APIs } from './operation-api-shim';
 import legacySliceEventsShim from './legacy-slice-events-shim';
@@ -83,9 +85,7 @@ export default function legacyReaderShim(Slicer: any, Fetcher: any, Schema: Sche
                 ];
             }
 
-            const slicers = times(executionConfig.slicers, () => {
-                return slicer.newSlicer();
-            });
+            const slicers = times(executionConfig.slicers, () => slicer.newSlicer());
 
             return Promise.all(slicers);
         }

@@ -1,5 +1,7 @@
 import 'jest-extended'; // require for type definitions
-import { processorShim, DataEntity, TestContext, newTestExecutionConfig, WorkerContext, ValidatedJobConfig } from '../../../src';
+import {
+    processorShim, DataEntity, TestContext, newTestExecutionConfig, WorkerContext, ValidatedJobConfig
+} from '../../../src';
 
 describe('Processor Shim', () => {
     const context = new TestContext('teraslice-operations');
@@ -17,12 +19,10 @@ describe('Processor Shim', () => {
     const mod = processorShim<ExampleOpConfig>({
         async newProcessor(_context, _opConfig, executionConfig) {
             _context.logger.debug(_opConfig, executionConfig);
-            return async (input) => {
-                return input.map((d: DataEntity) => {
-                    d.say = 'hello';
-                    return d;
-                });
-            };
+            return async (input) => input.map((d: DataEntity) => {
+                d.say = 'hello';
+                return d;
+            });
         },
         crossValidation(job, sysconfig) {
             if (job.slicers !== exConfig.slicers) {

@@ -2,7 +2,9 @@ import 'jest-extended'; // require for type definitions
 import { createTempDirSync } from 'jest-fixtures';
 import fse from 'fs-extra';
 import path from 'path';
-import { OperationLoader, LegacyProcessor, LegacyReader, newTestExecutionConfig, debugLogger, TestContext, WorkerContext } from '../src';
+import {
+    OperationLoader, LegacyProcessor, LegacyReader, newTestExecutionConfig, debugLogger, TestContext, WorkerContext
+} from '../src';
 
 describe('OperationLoader', () => {
     const logger = debugLogger('operation-loader');

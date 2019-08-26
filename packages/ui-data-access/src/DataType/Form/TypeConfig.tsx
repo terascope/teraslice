@@ -43,44 +43,46 @@ const TypeConfig: React.FC<Props> = ({
     return (
         <Section
             title="Type Configuration"
-            description={
-                <React.Fragment>
-                    {inherits && (
-                        <div>
-                            <Label
-                                basic
+        description={(
+            <React.Fragment>
+            {inherits && (
+              <div>
+                          <Label
+                              basic
                                 onClick={(e) => {
                                     e.preventDefault();
                                     setShowResolved((bool) => !bool);
                                 }}
                             >
                                 <Icon
-                                    name={showResolved ? 'eye slash' : 'eye'}
-                                />
-                                {showResolved ? 'Hide' : 'Show'} Inherited
+                              name={showResolved ? 'eye slash' : 'eye'}
+                            />
+                              {showResolved ? 'Hide' : 'Show'}
+                              {' '}
+Inherited
                                 Fields
                             </Label>
                         </div>
                     )}
-                    <div style={{ flex: 1, textAlign: 'right' }}>
+            <div style={{ flex: 1, textAlign: 'right' }}>
                         Data Types Version:&nbsp;
-                        <strong>{typeConfig.version}</strong>
+                      <strong>{typeConfig.version}</strong>
                     </div>
-                </React.Fragment>
-            }
-            info={
+          </React.Fragment>
+            )}
+            info={(
                 <span>
                     Use dot notation to specify nested properties, e.g. &nbsp;
                     <Code inline>example.field</Code>
-                </span>
-            }
-        >
-            {showResolved &&
-                resolved.map((fieldConfig) => (
+              </span>
+            )}
+      >
+            {showResolved
+                && resolved.map((fieldConfig) => (
                     <ResolvedField
-                        key={`resolved-${fieldConfig.field}`}
-                        {...fieldConfig}
-                    />
+                    key={`resolved-${fieldConfig.field}`}
+                    {...fieldConfig}
+                  />
                 ))}
             {existing.length ? (
                 existing.map((fieldConfig) => (
@@ -88,12 +90,12 @@ const TypeConfig: React.FC<Props> = ({
                         key={`existing-${fieldConfig.field}`}
                         updateField={updateField}
                         {...fieldConfig}
-                    />
+                  />
                 ))
             ) : (
                 <Segment textAlign="center" className="daFieldEmptyMessage">
                     Add field and type configuration below
-                </Segment>
+              </Segment>
             )}
             <AddField
                 addField={(field, type) => {
@@ -101,8 +103,8 @@ const TypeConfig: React.FC<Props> = ({
                     updateField(field, type);
                 }}
                 fields={existingFields}
-            />
-        </Section>
+          />
+      </Section>
     );
 };
 

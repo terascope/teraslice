@@ -42,7 +42,9 @@ const config: ModelConfig<Input> = {
     pluralLabel: 'Views',
     searchFields: ['name'],
     requiredFields: ['name'],
-    handleFormProps(authUser, { result, roles, dataTypes: _dataTypes, ...extra }) {
+    handleFormProps(authUser, {
+        result, roles, dataTypes: _dataTypes, ...extra
+    }) {
         const input = {} as Input;
         for (const field of inputFields) {
             if (['includes', 'excludes'].includes(field)) {
@@ -73,7 +75,9 @@ const config: ModelConfig<Input> = {
         if (!input.client_id) {
             input.client_id = input.data_type.client_id || authUser.client_id;
         }
-        return { input, dataTypes, roles, ...extra };
+        return {
+            input, dataTypes, roles, ...extra
+        };
     },
     rowMapping: {
         getId(record) {

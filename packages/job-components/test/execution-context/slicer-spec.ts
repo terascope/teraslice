@@ -31,13 +31,9 @@ describe('SlicerExecutionContext', () => {
             terasliceOpPath,
         });
 
-        beforeAll(() => {
-            return executionContext.initialize();
-        });
+        beforeAll(() => executionContext.initialize());
 
-        afterAll(() => {
-            return executionContext.shutdown();
-        });
+        afterAll(() => executionContext.shutdown());
 
         it('should have correct properties', () => {
             expect(executionContext).toHaveProperty('config', executionConfig);

@@ -8,20 +8,18 @@ import ProtectedRoute from './ProtectedRoute';
 import Routes from './Routes';
 import Welcome from './Welcome';
 
-PluginService.register('framework', () => {
-    return {
-        name: '',
-        access: 'USER',
-        routes: [
-            {
-                name: 'Home',
-                path: '/',
-                icon: 'home',
-                component: Welcome,
-            },
-        ],
-    };
-});
+PluginService.register('framework', () => ({
+    name: '',
+    access: 'USER',
+    routes: [
+        {
+            name: 'Home',
+            path: '/',
+            icon: 'home',
+            component: Welcome,
+        },
+    ],
+}));
 
 export {
     App,

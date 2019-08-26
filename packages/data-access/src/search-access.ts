@@ -127,7 +127,7 @@ export class SearchAccess {
             throw new ts.TSError(...validationErr('size', 'must be a valid number', query));
         }
 
-        let maxQuerySize: number = 100000;
+        let maxQuerySize = 100000;
         const _maxQuerySize = ts.toInteger(this.spaceConfig.max_query_size);
         if (_maxQuerySize < 0) {
             maxQuerySize = 0;

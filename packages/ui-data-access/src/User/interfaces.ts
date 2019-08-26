@@ -2,12 +2,12 @@ import { User, Role } from '@terascope/data-access';
 import { OverwriteModelWith } from '../ModelForm';
 
 export type Input = OverwriteModelWith<
-    User,
-    {
-        password: string;
-        repeat_password: string;
-        role: Pick<Role, 'id' | 'client_id' | 'name'>;
-    }
+User,
+{
+    password: string;
+    repeat_password: string;
+    role: Pick<Role, 'id' | 'client_id' | 'name'>;
+}
 >;
 
 export const inputFields: (keyof Input)[] = [

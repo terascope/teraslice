@@ -1,4 +1,6 @@
-import { DataEntity, Logger, TSError, chunk, isFunction, pImmediate } from '@terascope/utils';
+import {
+    DataEntity, Logger, TSError, chunk, isFunction, pImmediate
+} from '@terascope/utils';
 import esApi, { Client } from '@terascope/elasticsearch-api';
 import { Promise as bPromise } from 'bluebird';
 import { ESStateStorageConfig, MGetCacheResponse } from '../interfaces';
@@ -135,7 +137,7 @@ export default class ESCachedStateStorage {
         }
     }
 
-    private _updateCache(docArray: DataEntity[], fn: UpdateCacheFn): { uncached: UncachedChunks, duplicates: DataEntity[] } {
+    private _updateCache(docArray: DataEntity[], fn: UpdateCacheFn): { uncached: UncachedChunks; duplicates: DataEntity[] } {
         const duplicates: DataEntity[] = [];
         const found: { [key: string]: true } = {};
         const uncachedChunks: UncachedChunks = [];
@@ -158,8 +160,8 @@ export default class ESCachedStateStorage {
                 hits++;
                 this._updateCacheWith(fn, key, current, prev);
             } else {
-                if (missesPerChunk[uncachedIndex] != null &&
-                    missesPerChunk[uncachedIndex] >= this.chunkSize) {
+                if (missesPerChunk[uncachedIndex] != null
+                    && missesPerChunk[uncachedIndex] >= this.chunkSize) {
                     uncachedIndex++;
                 }
                 if (missesPerChunk[uncachedIndex] == null) {
@@ -263,7 +265,6 @@ export default class ESCachedStateStorage {
         }
         if (result) {
             this.setCacheByKey(key, result);
-            return;
         }
     }
 
@@ -277,7 +278,6 @@ export default class ESCachedStateStorage {
             concurrency: this.concurrency
         });
     }
-
 }
 
 export type UpdateCacheFn = (key: string, current: DataEntity, prev?: DataEntity) => DataEntity|boolean;
@@ -322,7 +322,7 @@ export interface ESGetResponse {
     _source?: any;
 }
 
-type DataEntityObj = { [key: string]: DataEntity; };
+type DataEntityObj = { [key: string]: DataEntity };
 type UncachedChunks = DataEntityObj[];
 
 function makeDataEntity(result: ESGetResponse): DataEntity {

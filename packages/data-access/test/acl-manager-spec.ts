@@ -659,13 +659,11 @@ describe('ACLManager', () => {
             compositeDataTypeId = compositeDataType.id;
         });
 
-        afterAll(() => {
-            return Promise.all([
-                manager.removeUser({ id: normalUser.id }, superAdminUser),
-                manager.removeRole({ id: normalUser.id }, superAdminUser),
-                manager.removeDataType({ id: normalUser.id }, superAdminUser),
-            ]);
-        });
+        afterAll(() => Promise.all([
+            manager.removeUser({ id: normalUser.id }, superAdminUser),
+            manager.removeRole({ id: normalUser.id }, superAdminUser),
+            manager.removeDataType({ id: normalUser.id }, superAdminUser),
+        ]));
 
         describe('when no roles exists on the user', () => {
             let otherUser: User;
@@ -789,63 +787,59 @@ describe('ACLManager', () => {
                 }
             });
 
-            it('should be able to get config by space id', () => {
-                return expect(
-                    manager.getViewForSpace(
-                        {
-                            token: normalUser.api_token,
-                            space: spaceId,
-                        },
-                        normalUser
-                    )
-                ).resolves.toMatchObject({
-                    user_id: normalUser.id,
-                    role_id: normalRole.id,
-                    data_type: {
-                        id: compositeDataTypeId,
-                        config: {
-                            fields: {
-                                created: { type: 'Date' },
-                                updated: { type: 'Date' },
-                                location: { type: 'Geo' },
-                                other_location: { type: 'Geo' },
-                            },
-                            version: LATEST_VERSION,
-                        },
+            it('should be able to get config by space id', () => expect(
+                manager.getViewForSpace(
+                    {
+                        token: normalUser.api_token,
+                        space: spaceId,
                     },
-                    view: {
-                        name: 'Example View',
-                        roles: [normalRole.id],
-                        includes: ['foo'],
-                        excludes: [],
-                        constraint: 'hello:there',
-                    },
-                    space_id: spaceId,
+                    normalUser
+                )
+            ).resolves.toMatchObject({
+                user_id: normalUser.id,
+                role_id: normalRole.id,
+                data_type: {
+                    id: compositeDataTypeId,
                     config: {
-                        index: 'hello',
-                        require_query: true,
-                        sort_dates_only: true,
-                        default_date_field: 'updated',
-                        default_geo_field: 'other_location',
-                    },
-                });
-            });
-
-            it('should be able to get config by space endpoint', () => {
-                return expect(
-                    manager.getViewForSpace(
-                        {
-                            token: normalUser.api_token,
-                            space: 'example-space',
+                        fields: {
+                            created: { type: 'Date' },
+                            updated: { type: 'Date' },
+                            location: { type: 'Geo' },
+                            other_location: { type: 'Geo' },
                         },
-                        normalUser
-                    )
-                ).resolves.toMatchObject({
-                    space_id: spaceId,
-                    user_id: normalUser.id,
-                    role_id: normalRole.id,
-                });
-            });
+                        version: LATEST_VERSION,
+                    },
+                },
+                view: {
+                    name: 'Example View',
+                    roles: [normalRole.id],
+                    includes: ['foo'],
+                    excludes: [],
+                    constraint: 'hello:there',
+                },
+                space_id: spaceId,
+                config: {
+                    index: 'hello',
+                    require_query: true,
+                    sort_dates_only: true,
+                    default_date_field: 'updated',
+                    default_geo_field: 'other_location',
+                },
+            }));
+
+            it('should be able to get config by space endpoint', () => expect(
+                manager.getViewForSpace(
+                    {
+                        token: normalUser.api_token,
+                        space: 'example-space',
+                    },
+                    normalUser
+                )
+            ).resolves.toMatchObject({
+                space_id: spaceId,
+                user_id: normalUser.id,
+                role_id: normalRole.id,
+            }));
         });
 
         describe('when testing default view access', () => {
@@ -874,46 +868,42 @@ describe('ACLManager', () => {
                 spaceId = space.id;
             });
 
-            afterAll(() => {
-                return Promise.all([manager.removeSpace({ id: spaceId }, superAdminUser)]);
-            });
+            afterAll(() => Promise.all([manager.removeSpace({ id: spaceId }, superAdminUser)]));
 
-            it('should be able to get the default view', () => {
-                return expect(
-                    manager.getViewForSpace(
-                        {
-                            token: normalUser.api_token,
-                            space: spaceId,
-                        },
-                        normalUser
-                    )
-                ).resolves.toMatchObject({
-                    user_id: normalUser.id,
-                    role_id: normalRole.id,
-                    data_type: {
-                        id: compositeDataTypeId,
-                        config: {
-                            fields: {
-                                id: { type: 'Keyword' },
-                                updated: { type: 'Date' },
-                                created: { type: 'Date' },
-                                location: { type: 'Geo' },
-                            },
-                            version: LATEST_VERSION,
-                        },
+            it('should be able to get the default view', () => expect(
+                manager.getViewForSpace(
+                    {
+                        token: normalUser.api_token,
+                        space: spaceId,
                     },
-                    view: {
-                        name: `Default View for Role ${normalRole.id}`,
-                        roles: [normalRole.id],
-                    },
-                    space_id: spaceId,
+                    normalUser
+                )
+            ).resolves.toMatchObject({
+                user_id: normalUser.id,
+                role_id: normalRole.id,
+                data_type: {
+                    id: compositeDataTypeId,
                     config: {
-                        index: 'howdy',
-                        sort_default: 'created:asc',
-                        preserve_index_name: true,
+                        fields: {
+                            id: { type: 'Keyword' },
+                            updated: { type: 'Date' },
+                            created: { type: 'Date' },
+                            location: { type: 'Geo' },
+                        },
+                        version: LATEST_VERSION,
                     },
-                });
-            });
+                },
+                view: {
+                    name: `Default View for Role ${normalRole.id}`,
+                    roles: [normalRole.id],
+                },
+                space_id: spaceId,
+                config: {
+                    index: 'howdy',
+                    sort_default: 'created:asc',
+                    preserve_index_name: true,
+                },
+            }));
         });
     });
 });

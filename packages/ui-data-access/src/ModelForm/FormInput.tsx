@@ -21,29 +21,29 @@ function FormInput<T extends AnyModel>({
 
     return (
         <Form.Input
-            name={name}
-            label={label}
+        name={name}
+        label={label}
             placeholder={placeholder || label}
             value={value != null ? value : ''}
             onChange={onChange}
             error={hasError(name)}
             required={isRequired(name)}
             {...props}
-        >
+      >
             {children}
-        </Form.Input>
+      </Form.Input>
     );
 }
 
 export type Props<T> = Overwrite<
-    FormInputProps,
-    {
-        name: keyof T;
-        label: string;
-        placeholder?: string;
-    }
+FormInputProps,
+{
+    name: keyof T;
+    label: string;
+    placeholder?: string;
+}
 > &
-    DefaultInputProps<T>;
+DefaultInputProps<T>;
 
 FormInput.propTypes = {
     name: PropTypes.string.isRequired,

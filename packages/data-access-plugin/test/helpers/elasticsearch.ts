@@ -60,7 +60,9 @@ export async function populateIndex(client: es.Client, index: string, _propertie
         )
     );
 
-    return client.bulk({ index, type: 'events', body: format(data, index), refresh: true });
+    return client.bulk({
+        index, type: 'events', body: format(data, index), refresh: true
+    });
 }
 
 export function deleteIndices(client: es.Client, list: string[]) {

@@ -4,9 +4,7 @@ import { formats } from '../src/formats';
 
 describe('Convict Formats', () => {
     function getSchema(name: string): Format | undefined {
-        return formats.find((obj: Format) => {
-            return obj.name === name;
-        });
+        return formats.find((obj: Format) => obj.name === name);
     }
 
     it('returns an array with objects used for validations', () => {

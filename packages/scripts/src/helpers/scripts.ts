@@ -1,7 +1,9 @@
 import path from 'path';
 import execa from 'execa';
 import fse from 'fs-extra';
-import { debugLogger, pDelay, isString, get } from '@terascope/utils';
+import {
+    debugLogger, pDelay, isString, get
+} from '@terascope/utils';
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
 import signale from './signale';
@@ -207,7 +209,7 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
 
     let error: any;
     let stderr: any;
-    let done: boolean = true;
+    let done = true;
 
     signale.debug(`executing: docker ${args.join(' ')}`);
     const subprocess = execa('docker', args);

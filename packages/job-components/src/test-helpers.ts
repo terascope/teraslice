@@ -1,7 +1,9 @@
 import path from 'path';
 import { EventEmitter } from 'events';
+import {
+    random, isString, getTypeOf, isFunction, debugLogger, Logger
+} from '@terascope/utils';
 import * as i from './interfaces';
-import { random, isString, getTypeOf, isFunction, debugLogger, Logger } from '@terascope/utils';
 
 function newId(prefix: string): string {
     return `${prefix}-${random(10000, 99999)}`;
@@ -110,7 +112,7 @@ function getKey(opts: GetKeyOpts) {
     return `${type}:${endpoint}`;
 }
 
-function setConnectorConfig<T extends Object>(sysconfig: i.SysConfig, opts: GetKeyOpts, config: T, override = true): T {
+function setConnectorConfig<T extends Record<string, any>>(sysconfig: i.SysConfig, opts: GetKeyOpts, config: T, override = true): T {
     const { type, endpoint = 'default' } = opts;
     const { connectors } = sysconfig.terafoundation;
     if (connectors[type] == null) connectors[type] = {};

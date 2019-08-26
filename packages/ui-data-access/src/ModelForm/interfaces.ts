@@ -69,21 +69,21 @@ export type AnyModel = {
 };
 
 export type OverwriteModel<T> = Overwrite<
-    T,
-    {
-        id?: string;
-        client_id: number;
-    }
+T,
+{
+    id?: string;
+    client_id: number;
+}
 > &
-    AnyModel;
+AnyModel;
 
 export type OverwriteModelWith<T, P> = Overwrite<
-    T,
-    {
-        id?: string;
-        client_id: number;
-    } & P
+T,
+{
+    id?: string;
+    client_id: number;
+} & P
 > &
-    AnyModel;
+AnyModel;
 
 export type SelectOption = { id: string; name: string } | string;

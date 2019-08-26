@@ -2,7 +2,9 @@ import 'jest-extended';
 import { TSError } from '@terascope/utils';
 import { LATEST_VERSION } from '@terascope/data-types';
 import { makeClient, cleanupIndexes } from './helpers/elasticsearch';
-import { ACLManager, User, DataType, Role } from '../src';
+import {
+    ACLManager, User, DataType, Role
+} from '../src';
 import { TEST_INDEX_PREFIX } from './helpers/config';
 
 describe('ACLManager Permissions', () => {
@@ -559,12 +561,10 @@ describe('ACLManager Permissions', () => {
             }
         });
 
-        it('should be able to find itself', async () => {
-            return expect(manager.findUser({ id: dataAdminUser.id }, dataAdminUser)).resolves.toMatchObject({
-                id: dataAdminUser.id,
-                client_id: dataAdminUser.client_id,
-            });
-        });
+        it('should be able to find itself', async () => expect(manager.findUser({ id: dataAdminUser.id }, dataAdminUser)).resolves.toMatchObject({
+            id: dataAdminUser.id,
+            client_id: dataAdminUser.client_id,
+        }));
 
         it('should NOT be able to find other users of the same client', async () => {
             const result = await manager.findUsers({ query: `NOT id:"${dataAdminUser.id}"` }, dataAdminUser);
@@ -621,16 +621,14 @@ describe('ACLManager Permissions', () => {
             }
         });
 
-        it('should be allowed to update itself', async () => {
-            return expect(
-                manager.updateToken(
-                    {
-                        id: dataAdminUser.id,
-                    },
-                    dataAdminUser
-                )
-            ).resolves.toBeString();
-        });
+        it('should be allowed to update itself', async () => expect(
+            manager.updateToken(
+                {
+                    id: dataAdminUser.id,
+                },
+                dataAdminUser
+            )
+        ).resolves.toBeString());
 
         it('should NOT be allowed to update a user from another client', async () => {
             expect.hasAssertions();

@@ -21,8 +21,6 @@ export default class TestSlicer extends Slicer<SimpleReaderConfig> {
             return null;
         }
 
-        return times(slicesToCreate, () => {
-            return this.client.sliceRequest(recordsToFetch);
-        });
+        return times(slicesToCreate, () => this.client.sliceRequest(recordsToFetch));
     }
 }

@@ -1,4 +1,6 @@
-import { sortBy, map, groupBy, times } from 'lodash';
+import {
+    sortBy, map, groupBy, times
+} from 'lodash';
 import {
     SlicerExecutionContext,
     JobConfig,

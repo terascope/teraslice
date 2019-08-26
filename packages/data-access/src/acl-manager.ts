@@ -59,11 +59,11 @@ export class ACLManager {
 
     async simpleMigrate() {
         const results: ts.AnyObject = {};
-        results['dataTypes'] = await this._dataTypes.store.migrateIndex({});
-        results['roles'] = await this._roles.store.migrateIndex({});
-        results['users'] = await this._users.store.migrateIndex({});
-        results['spaces'] = await this._spaces.store.migrateIndex({});
-        results['views'] = await this._views.store.migrateIndex({});
+        results.dataTypes = await this._dataTypes.store.migrateIndex({});
+        results.roles = await this._roles.store.migrateIndex({});
+        results.users = await this._users.store.migrateIndex({});
+        results.spaces = await this._spaces.store.migrateIndex({});
+        results.views = await this._views.store.migrateIndex({});
         return results;
     }
 
@@ -928,6 +928,7 @@ export class ACLManager {
             await this._views.checkForViewConflicts(space);
         }
     }
+
     private async _validateRoleInput(_role: Partial<models.Role>, authUser: i.AuthUser) {
         const role = await this._roles.findAndApply(_role);
         this._validateAnyInput(role, authUser);
@@ -978,9 +979,9 @@ export class ACLManager {
         const dataAdminRestricted: i.ModelName[] = ['Role'];
 
         if (
-            type === 'USER' ||
-            (type === 'ADMIN' && adminRestricted.includes(model)) ||
-            (type === 'DATAADMIN' && dataAdminRestricted.includes(model))
+            type === 'USER'
+            || (type === 'ADMIN' && adminRestricted.includes(model))
+            || (type === 'DATAADMIN' && dataAdminRestricted.includes(model))
         ) {
             throw new ts.TSError(`User doesn't have permission to create ${model}`, {
                 statusCode: 403,
@@ -1014,9 +1015,9 @@ export class ACLManager {
         const dataAdminRestricted: i.ModelName[] = ['Role'];
 
         if (
-            type === 'USER' ||
-            (type === 'ADMIN' && adminRestricted.includes(model)) ||
-            (type === 'DATAADMIN' && dataAdminRestricted.includes(model))
+            type === 'USER'
+            || (type === 'ADMIN' && adminRestricted.includes(model))
+            || (type === 'DATAADMIN' && dataAdminRestricted.includes(model))
         ) {
             throw new ts.TSError(`User doesn't have permission to remove ${model}`, {
                 statusCode: 403,

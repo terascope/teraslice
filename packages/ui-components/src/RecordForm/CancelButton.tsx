@@ -4,16 +4,16 @@ import { tsWithRouter } from '../utils';
 
 const CancelButton = tsWithRouter(({ history }) => (
     <Form.Button
-        basic
+    basic
         className="cancel"
         type="button"
         onClick={(e) => {
             e.preventDefault();
             history.goBack();
         }}
-    >
+  >
         Cancel
-    </Form.Button>
+  </Form.Button>
 ));
 
 export default CancelButton;

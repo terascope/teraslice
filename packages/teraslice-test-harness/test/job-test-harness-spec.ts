@@ -40,9 +40,7 @@ describe('JobTestHarness', () => {
             clients,
         });
 
-        it('should be able to call initialize', () => {
-            return expect(jobHarness.initialize()).resolves.toBeNil();
-        });
+        it('should be able to call initialize', () => expect(jobHarness.initialize()).resolves.toBeNil());
 
         it('should have a slicer', () => {
             expect(jobHarness.slicer()).toBeInstanceOf(Slicer);
@@ -65,8 +63,6 @@ describe('JobTestHarness', () => {
             expect(DataEntity.isDataEntityArray(results[0])).toBeTrue();
         });
 
-        it('should be able to call shutdown', () => {
-            return expect(jobHarness.shutdown()).resolves.toBeNil();
-        });
+        it('should be able to call shutdown', () => expect(jobHarness.shutdown()).resolves.toBeNil());
     });
 });

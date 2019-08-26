@@ -1,5 +1,7 @@
 import { toString, DataEntity } from '@terascope/utils';
-import { Context, LegacyProcessor, SliceRequest, ProcessorFn, ValidatedJobConfig } from '../../interfaces';
+import {
+    Context, LegacyProcessor, SliceRequest, ProcessorFn, ValidatedJobConfig
+} from '../../interfaces';
 import ProcessorCore from '../core/processor-core';
 import ConvictSchema from '../convict-schema';
 import { ProcessorModule } from '../interfaces';

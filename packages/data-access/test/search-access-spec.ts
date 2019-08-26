@@ -3,7 +3,9 @@ import * as ts from '@terascope/utils';
 import { SearchParams, SearchResponse } from 'elasticsearch';
 import { DataTypeConfig, LATEST_VERSION } from '@terascope/data-types';
 
-import { SearchAccess, View, DataType, InputQuery, SpaceSearchConfig } from '../src';
+import {
+    SearchAccess, View, DataType, InputQuery, SpaceSearchConfig
+} from '../src';
 
 describe('SearchAccess', () => {
     it('should fail if given an invalid search config', () => {

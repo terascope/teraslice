@@ -11,14 +11,14 @@ function FormCheckbox<T>({
 }: Props<T>): ReactElement {
     return (
         <Form.Checkbox
-            className="daFormCheckbox"
+        className="daFormCheckbox"
             name={name as string}
             label={label}
             checked={Boolean(value)}
             onChange={(e, { checked }) => {
                 onChange(e, { name, value: checked });
             }}
-        />
+      />
     );
 }
 

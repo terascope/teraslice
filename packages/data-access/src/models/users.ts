@@ -1,7 +1,9 @@
 import * as es from 'elasticsearch';
 import * as store from 'elasticsearch-store';
 import { TSError } from '@terascope/utils';
-import usersConfig, { User, UserType, UserTypes, CreateUserInput, UpdateUserInput } from './config/users';
+import usersConfig, {
+    User, UserType, UserTypes, CreateUserInput, UpdateUserInput
+} from './config/users';
 import * as utils from '../utils';
 
 /**
@@ -120,9 +122,7 @@ export class Users extends store.IndexModel<User> {
         if (!user) return false;
 
         const fields = Object.keys(user);
-        return Users.PrivateFields.some((field) => {
-            return fields.includes(field);
-        });
+        return Users.PrivateFields.some((field) => fields.includes(field));
     }
 
     async removeRoleFromUsers(roleId: string) {
@@ -144,4 +144,6 @@ export class Users extends store.IndexModel<User> {
     }
 }
 
-export { User, UserType, UserTypes, CreateUserInput, UpdateUserInput };
+export {
+    User, UserType, UserTypes, CreateUserInput, UpdateUserInput
+};

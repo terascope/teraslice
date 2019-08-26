@@ -1,4 +1,6 @@
-import { DataEntity, DataInput, Logger, isFunction } from '@terascope/utils';
+import {
+    DataEntity, DataInput, Logger, isFunction
+} from '@terascope/utils';
 import operationAPIShim, { APIs } from './operation-api-shim';
 import legacySliceEventsShim from './legacy-slice-events-shim';
 import { SchemaConstructor } from '../interfaces';

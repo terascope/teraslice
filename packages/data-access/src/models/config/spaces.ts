@@ -1,7 +1,7 @@
 import { IndexModelConfig, IndexModelRecord } from 'elasticsearch-store';
 
 export type SpaceConfigType = 'SEARCH' | 'STREAMING';
-export const SpaceConfigTypes: ReadonlyArray<SpaceConfigType> = ['SEARCH', 'STREAMING'];
+export const SpaceConfigTypes: readonly SpaceConfigType[] = ['SEARCH', 'STREAMING'];
 
 const config: IndexModelConfig<Space> = {
     version: 2,

@@ -47,13 +47,13 @@ const TokenForm: React.FC<Props> = ({ token, id }) => {
     return (
         <Form.Group>
             <Form.Input
-                type={showToken || loading ? 'text' : 'password'}
-                label="API Token"
+            type={showToken || loading ? 'text' : 'password'}
+            label="API Token"
                 width={8}
                 loading={loading}
-                value={get(data, 'updateToken', token)}
-            >
-                <input readOnly />
+            value={get(data, 'updateToken', token)}
+          >
+            <input readOnly />
                 <Button
                     icon="eye"
                     basic
@@ -61,8 +61,8 @@ const TokenForm: React.FC<Props> = ({ token, id }) => {
                         e.preventDefault();
                         setShowToken(!showToken);
                     }}
-                />
-                <Button
+              />
+            <Button
                     icon="redo"
                     label="New Token"
                     labelPosition="left"
@@ -72,9 +72,9 @@ const TokenForm: React.FC<Props> = ({ token, id }) => {
                         submit();
                     }}
                 />
-            </Form.Input>
+          </Form.Input>
             {error && <ErrorMessage error={error} />}
-        </Form.Group>
+      </Form.Group>
     );
 };
 

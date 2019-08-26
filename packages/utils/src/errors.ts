@@ -41,7 +41,9 @@ export class TSError extends Error {
     constructor(input: any, config: TSErrorConfig = {}) {
         const { fatalError = false } = config;
 
-        const { message, statusCode, context, code } = parseErrorInfo(input, config);
+        const {
+            message, statusCode, context, code
+        } = parseErrorInfo(input, config);
 
         super(message);
 

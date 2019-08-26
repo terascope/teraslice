@@ -1,6 +1,8 @@
 import ms from 'ms';
 import SocketIOClient from 'socket.io-client';
-import { isString, isInteger, debugLogger, toString } from '@terascope/utils';
+import {
+    isString, isInteger, debugLogger, toString
+} from '@terascope/utils';
 import * as i from './interfaces';
 import { Core } from './core';
 import { newMsgId } from '../utils';

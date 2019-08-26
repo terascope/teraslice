@@ -1,4 +1,6 @@
-import { DataEntity, isInteger, isFunction, toString } from '@terascope/utils';
+import {
+    DataEntity, isInteger, isFunction, toString
+} from '@terascope/utils';
 import {
     Context,
     LegacyExecutionContext,

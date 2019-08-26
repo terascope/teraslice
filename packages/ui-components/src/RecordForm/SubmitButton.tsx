@@ -3,14 +3,14 @@ import { Form } from 'semantic-ui-react';
 
 const SubmitButton: React.FC<Props> = ({ isCreate, loading, hasErrors }) => (
     <Form.Button
-        className="submit"
+    className="submit"
         type="submit"
         loading={loading}
         disabled={hasErrors}
         primary
-    >
+  >
         {isCreate ? 'Create' : 'Save'}
-    </Form.Button>
+  </Form.Button>
 );
 
 type Props = {

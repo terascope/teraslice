@@ -1,6 +1,8 @@
 import { Schema } from 'convict';
 import { Logger } from '@terascope/utils';
-import { ValidatedJobConfig, OpConfig, ExecutionConfig, LegacyExecutionContext } from './jobs';
+import {
+    ValidatedJobConfig, OpConfig, ExecutionConfig, LegacyExecutionContext
+} from './jobs';
 import { Context, SysConfig } from './context';
 
 export type crossValidationFn = (job: ValidatedJobConfig, sysconfig: SysConfig) => void;
@@ -74,7 +76,7 @@ export interface SliceAnalyticsData {
     memory: number[];
 }
 
-export const sliceAnalyticsMetrics: ReadonlyArray<keyof SliceAnalyticsData> = ['memory', 'size', 'time'];
+export const sliceAnalyticsMetrics: readonly (keyof SliceAnalyticsData)[] = ['memory', 'size', 'time'];
 
 export type SlicerResult = Slice | SliceRequest | SliceRequest[] | null;
 

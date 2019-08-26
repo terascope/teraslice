@@ -1,5 +1,7 @@
 import React, { FormEvent, useState, ReactElement } from 'react';
-import { AnyObject, get, isFunction, uniq } from '@terascope/utils';
+import {
+    AnyObject, get, isFunction, uniq
+} from '@terascope/utils';
 import { RecordForm, useCoreContext } from '@terascope/ui-components';
 import { getModelConfig } from '../config';
 import {
@@ -135,10 +137,10 @@ function Form<T extends AnyModel>({
     return (
         <RecordForm
             onSubmit={onSubmit}
-            loading={loading}
-            requestError={error}
+        loading={loading}
+        requestError={error}
             validationErrors={errors.messages}
-            recordType={config.singularLabel}
+        recordType={config.singularLabel}
             isCreate={create}
             created={data && create}
             updated={data && update}
@@ -157,7 +159,7 @@ function Form<T extends AnyModel>({
                     ],
                 });
             }}
-        >
+      >
             {children({
                 ...props,
                 client,
@@ -166,7 +168,7 @@ function Form<T extends AnyModel>({
                 updateModel,
                 update,
             })}
-        </RecordForm>
+      </RecordForm>
     );
 }
 

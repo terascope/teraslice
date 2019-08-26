@@ -24,7 +24,7 @@ export type ParsedSort = { field: string; direction: SortDirection };
 export type ColumnMapping<T = AnyObject> = {
     /** the field label */
     label: string;
-    /** return a formatted value or react node*/
+    /** return a formatted value or react node */
     format?: (record: T) => any;
     /** @default true */
     sortable?: boolean;

@@ -1,7 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { parseJSON } from '@terascope/utils';
-import { ConnectionConfig, Context, ValidatedJobConfig, ExecutionConfig, OpConfig, GetClientConfig, WorkerContextAPIs } from './interfaces';
+import {
+    ConnectionConfig, Context, ValidatedJobConfig, ExecutionConfig, OpConfig, GetClientConfig, WorkerContextAPIs
+} from './interfaces';
 import { ExecutionContextAPI } from './execution-context';
 
 /** Get the first opConfig from an operation name */

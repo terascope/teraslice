@@ -15,49 +15,47 @@ const ExistingField: React.FC<Props> = ({
     field,
     type,
     array,
-}) => {
-    return (
-        <ActionSegment
-            actions={[
-                {
-                    name: '',
-                    icon: 'trash alternate',
-                    color: 'red',
-                    onClick() {
-                        updateField(field, false);
-                    },
+}) => (
+    <ActionSegment
+        actions={[
+            {
+                name: '',
+                icon: 'trash alternate',
+                color: 'red',
+                onClick() {
+                    updateField(field, false);
                 },
-            ]}
-        >
-            <Form.Group>
-                <Form.Input value={field}>
-                    <input readOnly />
-                </Form.Input>
-                <Form.Select
-                    placeholder="Select Field Type"
-                    value={type}
-                    onChange={(e, { value }) => {
-                        e.preventDefault();
-                        updateField(field, {
-                            array,
-                            type: value as AvailableType,
-                        });
-                    }}
-                    options={dataTypeOptions}
-                />
-                <ArrayCheckbox
-                    array={array}
-                    onChange={(checked) => {
-                        updateField(field, {
-                            type,
-                            array: checked,
-                        });
-                    }}
-                />
-            </Form.Group>
-        </ActionSegment>
-    );
-};
+            },
+        ]}
+  >
+        <Form.Group>
+        <Form.Input value={field}>
+                <input readOnly />
+            </Form.Input>
+        <Form.Select
+                placeholder="Select Field Type"
+                value={type}
+                onChange={(e, { value }) => {
+                    e.preventDefault();
+                    updateField(field, {
+                        array,
+                        type: value as AvailableType,
+                    });
+                }}
+                options={dataTypeOptions}
+            />
+        <ArrayCheckbox
+                array={array}
+                onChange={(checked) => {
+                    updateField(field, {
+                        type,
+                        array: checked,
+                    });
+                }}
+            />
+      </Form.Group>
+  </ActionSegment>
+);
 
 type Props = {
     updateField: (field: string, type: FieldTypeConfig | false) => void;

@@ -1,6 +1,8 @@
 import get from 'lodash.get';
 import kindOf from 'kind-of';
-import { isString, toString, firstToUpper, trimAndToLower } from './strings';
+import {
+    isString, toString, firstToUpper, trimAndToLower
+} from './strings';
 
 /** Check if an input is empty, similar to lodash.isEmpty */
 export function isEmpty(val?: any): boolean {
@@ -55,7 +57,7 @@ export function getTypeOf(val: any): string {
 
 /** Verify an input is a function */
 export function isFunction(input: any): input is Function {
-    return input && typeof input === 'function' ? true : false;
+    return !!(input && typeof input === 'function');
 }
 
 /** Convert any input into a boolean, this will work with stringified boolean */

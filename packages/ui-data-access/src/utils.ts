@@ -1,6 +1,8 @@
 import { UserType } from '@terascope/data-access';
 import { DataTypeConfig, AvailableType } from '@terascope/data-types';
-import { getField, AnyObject, get, trimAndToLower } from '@terascope/utils';
+import {
+    getField, AnyObject, get, trimAndToLower
+} from '@terascope/utils';
 
 export function copyField<T extends any, P extends keyof T, V extends T[P]>(to: T, from: T, field: P, defaultVal: V) {
     to[field] = getField(from, field, defaultVal);

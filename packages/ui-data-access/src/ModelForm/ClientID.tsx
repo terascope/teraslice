@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { toInteger } from '@terascope/utils';
 import { useCoreContext } from '@terascope/ui-components';
-import { AnyModel, DefaultInputProps } from './interfaces';
 import { FormInputProps } from 'semantic-ui-react';
+import { AnyModel, DefaultInputProps } from './interfaces';
 import FormInput from './FormInput';
 
 function ClientID<T extends AnyModel>({
@@ -31,9 +31,9 @@ function ClientID<T extends AnyModel>({
                     value={id != null ? `${id}` : ''}
                     name="client_id"
                     label="Client ID"
-                />
+            />
             )}
-        </React.Fragment>
+      </React.Fragment>
     );
 }
 

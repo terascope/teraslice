@@ -22,10 +22,8 @@ describe('Legacy Slice Events Shim', () => {
     class ExampleOp<T = object> extends EachProcessor<T> {
         forEach(data: DataEntity) {
             if (data) {
-                return;
-            }
 
-            return;
+            }
         }
 
         async shutdown() {

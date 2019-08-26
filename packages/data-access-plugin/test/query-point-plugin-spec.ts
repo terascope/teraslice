@@ -5,7 +5,9 @@ import { Server } from 'http';
 import { GraphQLClient } from 'graphql-request';
 import { TestContext } from '@terascope/job-components';
 import { LATEST_VERSION, TypeConfigFields } from '@terascope/data-types';
-import { makeClient, cleanupIndexes, deleteIndices, populateIndex } from './helpers/elasticsearch';
+import {
+    makeClient, cleanupIndexes, deleteIndices, populateIndex
+} from './helpers/elasticsearch';
 import { TEST_INDEX_PREFIX } from './helpers/config';
 import QueryPointPlugin from '../src/query-point';
 import { PluginConfig } from '../src/interfaces';
@@ -23,9 +25,7 @@ describe('Query Point API', () => {
             {
                 type: 'elasticsearch',
                 endpoint: 'default',
-                create: () => {
-                    return { client };
-                },
+                create: () => ({ client }),
             },
         ],
     });
@@ -54,7 +54,7 @@ describe('Query Point API', () => {
 
     function formatBaseUri(uri: string = ''): string {
         // @ts-ignore because the types aren't set right
-        const port = listener.address().port;
+        const { port } = listener.address();
 
         const _uri = uri.replace(/^\//, '');
         return `http://localhost:${port}/api/v2/${_uri}`;
@@ -233,17 +233,15 @@ describe('Query Point API', () => {
     beforeAll(async () => {
         await Promise.all([
             cleanupIndexes(manager.manager),
-            (() => {
-                return new Promise((resolve, reject) => {
-                    listener = app.listen((err: any) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve();
-                        }
-                    });
+            (() => new Promise((resolve, reject) => {
+                listener = app.listen((err: any) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
                 });
-            })(),
+            }))(),
         ]);
 
         await Promise.all([manager.initialize(), spaces.initialize(), search.initialize()]);

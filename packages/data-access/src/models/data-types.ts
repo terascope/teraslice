@@ -1,9 +1,11 @@
 import * as es from 'elasticsearch';
-import { escapeString, unescapeString, TSError, getField } from '@terascope/utils';
+import {
+    escapeString, unescapeString, TSError, getField
+} from '@terascope/utils';
 import { IndexModel, IndexModelOptions, FindOneOptions } from 'elasticsearch-store';
 import { DataTypeConfig, LATEST_VERSION, TypeConfigFields } from '@terascope/data-types';
-import dataTypesConfig, { DataType } from './config/data-types';
 import { QueryAccess } from 'xlucene-evaluator';
+import dataTypesConfig, { DataType } from './config/data-types';
 
 /**
  * Manager for DataTypes
@@ -49,12 +51,12 @@ export class DataTypes extends IndexModel<DataType> {
 
     private async _resolveDataTypes(
         initialDataType: DataType,
-        _resolved: ReadonlyArray<DataType>,
+        _resolved: readonly DataType[],
         options?: ResolveDataTypeOptions,
         queryAccess?: QueryAccess<DataType>
-    ): Promise<ReadonlyArray<DataType>> {
-        const version = initialDataType.config.version;
-        let resolved: ReadonlyArray<DataType> = [initialDataType];
+    ): Promise<readonly DataType[]> {
+        const { version } = initialDataType.config;
+        let resolved: readonly DataType[] = [initialDataType];
 
         const inheritFrom = initialDataType.inherit_from;
         if (!inheritFrom || !inheritFrom.length) return resolved;
@@ -107,7 +109,7 @@ export class DataTypes extends IndexModel<DataType> {
         return resolved;
     }
 
-    private _mergeTypeConfigFields(dataTypes: ReadonlyArray<DataType>): TypeConfigFields {
+    private _mergeTypeConfigFields(dataTypes: readonly DataType[]): TypeConfigFields {
         const allFields = dataTypes.map(({ config }) => config.fields).reverse();
         const fields = Object.assign({}, ...allFields);
         this.logger.trace('resolved data types', dataTypes, '\n -> to', fields);

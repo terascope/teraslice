@@ -2,8 +2,12 @@ import ms from 'ms';
 import path from 'path';
 import isCI from 'is-ci';
 import fse from 'fs-extra';
-import { debugLogger, get, TSError, isFunction } from '@terascope/utils';
-import { ArgsMap, ExecEnv, exec, fork, dockerPull, dockerBuild } from '../scripts';
+import {
+    debugLogger, get, TSError, isFunction
+} from '@terascope/utils';
+import {
+    ArgsMap, ExecEnv, exec, fork, dockerPull, dockerBuild
+} from '../scripts';
 import { TestOptions, GroupedPackages } from './interfaces';
 import { PackageInfo, TestSuite } from '../interfaces';
 import { getRootInfo } from '../misc';
@@ -114,9 +118,7 @@ export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): Pa
 }
 
 export function onlyUnitTests(pkgInfos: PackageInfo[]): boolean {
-    return pkgInfos.every((pkgInfo) => {
-        return pkgInfo.terascope.testSuite === TestSuite.Unit;
-    });
+    return pkgInfos.every((pkgInfo) => pkgInfo.terascope.testSuite === TestSuite.Unit);
 }
 
 export function groupBySuite(pkgInfos: PackageInfo[]): GroupedPackages {

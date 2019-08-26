@@ -1,4 +1,5 @@
 import uuidv4 from 'uuid/v4';
+import Queue from '@terascope/queue';
 import {
     OpConfig,
     ExecutionConfig,
@@ -9,7 +10,6 @@ import {
     WorkerContext,
     SlicerRecoveryData,
 } from '../../interfaces';
-import Queue from '@terascope/queue';
 import Core from './core';
 import { makeExContextLogger } from '../../utils';
 

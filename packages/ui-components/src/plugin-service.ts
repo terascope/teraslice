@@ -1,5 +1,5 @@
-import { RegisterPluginFn, PluginConfig } from './interfaces';
 import { isString, isFunction, isPlainObject } from '@terascope/utils';
+import { RegisterPluginFn, PluginConfig } from './interfaces';
 
 class PluginService {
     static make(): PluginService {

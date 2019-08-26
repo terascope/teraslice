@@ -31,6 +31,4 @@ export function convertResult(input: DataInput[]|Buffer[]|string[]): DataEntity[
     throw new Error('Invalid return type for processor');
 }
 
-const deprecateType = deprecate((result: any): DataEntity[] => {
-    return castArray<DataEntity>(result);
-}, 'Legacy processors should return an array of Objects or DataEntities');
+const deprecateType = deprecate((result: any): DataEntity[] => castArray<DataEntity>(result), 'Legacy processors should return an array of Objects or DataEntities');

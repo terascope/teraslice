@@ -39,15 +39,15 @@ const Body: React.FC<Props> = (props) => {
                             selectRecord(id);
                         }}
                         tabIndex={-1}
-                        key={`record-${id}`}
+                    key={`record-${id}`}
                         selected={isSelected}
-                    >
+                  >
                         <Table.Cell collapsing width={1} textAlign="center">
                             <Checkbox
                                 checked={isSelected}
                                 disabled={!canSelect}
-                            />
-                        </Table.Cell>
+                          />
+                      </Table.Cell>
                         {columns.map(([key, col], i) => {
                             const value = col.format
                                 ? col.format(record)
@@ -61,13 +61,13 @@ const Body: React.FC<Props> = (props) => {
                                     ) : (
                                         <Link to={editPath}>{value}</Link>
                                     )}
-                                </Table.Cell>
+                              </Table.Cell>
                             );
                         })}
-                    </Table.Row>
+                  </Table.Row>
                 );
             })}
-        </Table.Body>
+      </Table.Body>
     );
 };
 

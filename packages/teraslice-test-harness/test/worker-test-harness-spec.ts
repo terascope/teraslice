@@ -1,6 +1,8 @@
 import 'jest-extended';
 import path from 'path';
-import { newTestJobConfig, newTestSlice, DataEntity, Fetcher, BatchProcessor, NoopProcessor } from '@terascope/job-components';
+import {
+    newTestJobConfig, newTestSlice, DataEntity, Fetcher, BatchProcessor, NoopProcessor
+} from '@terascope/job-components';
 import { WorkerTestHarness } from '../src';
 
 describe('WorkerTestHarness', () => {
@@ -36,13 +38,9 @@ describe('WorkerTestHarness', () => {
             clients,
         });
 
-        workerHarness.processors[0].handle = jest.fn(async (data: DataEntity[]) => {
-            return data;
-        });
+        workerHarness.processors[0].handle = jest.fn(async (data: DataEntity[]) => data);
 
-        it('should be able to call initialize', () => {
-            return expect(workerHarness.initialize()).resolves.toBeNil();
-        });
+        it('should be able to call initialize', () => expect(workerHarness.initialize()).resolves.toBeNil());
 
         it('should have fetcher', () => {
             expect(workerHarness.fetcher()).toBeInstanceOf(Fetcher);
@@ -91,9 +89,7 @@ describe('WorkerTestHarness', () => {
             expect(result.results).toBeArray();
         });
 
-        it('should be able to call shutdown', () => {
-            return expect(workerHarness.shutdown()).resolves.toBeNil();
-        });
+        it('should be able to call shutdown', () => expect(workerHarness.shutdown()).resolves.toBeNil());
     });
 
     describe('when using static method testProcessor', () => {

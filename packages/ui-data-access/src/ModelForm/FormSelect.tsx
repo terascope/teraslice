@@ -22,10 +22,10 @@ function FormSelect<T extends AnyModel>({
     return (
         <Form.Select
             name={name}
-            label={label}
-            placeholder={placeholder || label}
+        label={label}
+        placeholder={placeholder || label}
             value={getSelectValue(value, multiple)}
-            search={true}
+        search
             multiple={multiple}
             selection={multiple}
             onChange={(e, arg) => {
@@ -45,25 +45,25 @@ function FormSelect<T extends AnyModel>({
             error={hasError(name)}
             required={isRequired(name)}
             {...props}
-        >
+      >
             {children}
-        </Form.Select>
+      </Form.Select>
     );
 }
 
 export type Props<T> = Overwrite<
-    FormSelectProps,
-    {
-        options: SelectOption[];
-        value?: SelectOption | SelectOption[];
-        name: keyof T;
-        label: string;
-        multiple?: boolean;
-        placeholder?: string;
-        sorted?: boolean;
-    }
+FormSelectProps,
+{
+    options: SelectOption[];
+    value?: SelectOption | SelectOption[];
+    name: keyof T;
+    label: string;
+    multiple?: boolean;
+    placeholder?: string;
+    sorted?: boolean;
+}
 > &
-    DefaultInputProps<T>;
+DefaultInputProps<T>;
 
 const ValueProp = PropTypes.oneOf([
     PropTypes.shape({

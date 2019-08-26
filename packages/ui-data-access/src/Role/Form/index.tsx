@@ -10,30 +10,28 @@ const RolesForm: React.FC<Props> = ({ id }) => {
     const authUser = useCoreContext().authUser!;
     return (
         <ModelForm<Input> modelName={config.name} id={id}>
-            {({ defaultInputProps, model }) => {
-                return (
-                    <React.Fragment>
-                        <Form.Group>
-                            <FormInput<Input>
-                                {...defaultInputProps}
-                                name="name"
-                                label="Name"
-                                value={model.name}
-                            />
-                            <ClientID<Input>
-                                {...defaultInputProps}
-                                id={model.client_id}
-                                inherited={authUser.type !== 'SUPERADMIN'}
-                            />
-                        </Form.Group>
-                        <Description<Input>
+            {({ defaultInputProps, model }) => (
+                <React.Fragment>
+                    <Form.Group>
+                        <FormInput<Input>
+                        {...defaultInputProps}
+                            name="name"
+                            label="Name"
+                            value={model.name}
+                      />
+                        <ClientID<Input>
                             {...defaultInputProps}
-                            description={model.description}
-                        />
-                    </React.Fragment>
-                );
-            }}
-        </ModelForm>
+                            id={model.client_id}
+                            inherited={authUser.type !== 'SUPERADMIN'}
+                      />
+                  </Form.Group>
+                    <Description<Input>
+                        {...defaultInputProps}
+                        description={model.description}
+                  />
+              </React.Fragment>
+            )}
+      </ModelForm>
     );
 };
 

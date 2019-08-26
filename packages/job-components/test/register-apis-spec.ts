@@ -1,6 +1,8 @@
 import 'jest-extended'; // require for type definitions
 import path from 'path';
-import { registerApis, OperationAPI, newTestJobConfig, TestContext, TestClientConfig } from '../src';
+import {
+    registerApis, OperationAPI, newTestJobConfig, TestContext, TestClientConfig
+} from '../src';
 
 describe('registerApis', () => {
     const context = new TestContext('teraslice-operations');
@@ -57,9 +59,7 @@ describe('registerApis', () => {
             return expect(getPath('fixtures')).resolves.toEqual(assetPath);
         });
 
-        it('should throw an error if asset is not found', () => {
-            return expect(getPath('unknown')).rejects.toThrowError('Unable to find asset "unknown"');
-        });
+        it('should throw an error if asset is not found', () => expect(getPath('unknown')).rejects.toThrowError('Unable to find asset "unknown"'));
     });
 
     describe('->getClient', () => {

@@ -1,5 +1,7 @@
 import { times, isFunction } from '@terascope/utils';
-import { SlicerFn, SlicerResult, OpConfig, SlicerRecoveryData } from '../interfaces';
+import {
+    SlicerFn, SlicerResult, OpConfig, SlicerRecoveryData
+} from '../interfaces';
 import SlicerCore from './core/slicer-core';
 
 /**

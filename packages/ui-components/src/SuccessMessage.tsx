@@ -18,7 +18,7 @@ const SuccessMessage: React.FC<Props> = ({
                         message: { title, success: true, message },
                     },
                 }}
-            />
+          />
         );
     }
 
@@ -27,9 +27,9 @@ const SuccessMessage: React.FC<Props> = ({
         content = (
             <Message.List>
                 {message.map((msg, i) => (
-                    <Message.Item key={`msg-${i}`}>{msg}</Message.Item>
+                <Message.Item key={`msg-${i}`}>{msg}</Message.Item>
                 ))}
-            </Message.List>
+          </Message.List>
         );
     } else {
         content = <div className="messageText">{message}</div>;
@@ -41,8 +41,8 @@ const SuccessMessage: React.FC<Props> = ({
             <Message.Content>
                 <Message.Header>{title}</Message.Header>
                 {content}
-            </Message.Content>
-        </Message>
+          </Message.Content>
+      </Message>
     );
 };
 

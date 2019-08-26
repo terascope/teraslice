@@ -1,11 +1,15 @@
 import React, { useState, FormEvent } from 'react';
 import PropTypes from 'prop-types';
-import { Menu, Input, Icon, Table, Button, Label } from 'semantic-ui-react';
+import {
+    Menu, Input, Icon, Table, Button, Label
+} from 'semantic-ui-react';
 import ConfirmExport from './ConfirmExport';
 import { UpdateQueryState } from './interfaces';
 
 const Toolbar: React.FC<Props> = (props) => {
-    const { numCols, numSelected, updateQueryState, onAction } = props;
+    const {
+        numCols, numSelected, updateQueryState, onAction
+    } = props;
     const [query, updateQuery] = useState(props.query || '');
 
     const submitQuery = (e: React.FormEvent) => {
@@ -15,57 +19,57 @@ const Toolbar: React.FC<Props> = (props) => {
 
     return (
         <Table.Header fullWidth>
-            <Table.Row>
-                <Table.HeaderCell colSpan={numCols} style={{ padding: 0 }}>
-                    <Menu secondary size="small">
+        <Table.Row>
+              <Table.HeaderCell colSpan={numCols} style={{ padding: 0 }}>
+            <Menu secondary size="small">
                         <Menu.Item icon disabled={!numSelected}>
-                            <ConfirmExport
-                                numSelected={numSelected}
+                <ConfirmExport
+                              numSelected={numSelected}
                                 onConfirm={() => onAction('EXPORT')}
                             >
                                 <Button
-                                    as="div"
+                              as="div"
                                     labelPosition="right"
                                     disabled={!numSelected}
-                                >
-                                    <Button
-                                        icon
-                                        color={
+                            >
+                              <Button
+                                    icon
+                                    color={
                                             numSelected > 0 ? 'blue' : undefined
                                         }
-                                    >
+                                  >
                                         <Icon name="download" />
                                     </Button>
                                     {numSelected > 0 && (
                                         <Label basic pointing="left">
-                                            {`Export (${numSelected} selected)`}
-                                        </Label>
+                                      {`Export (${numSelected} selected)`}
+                                    </Label>
                                     )}
-                                </Button>
+                            </Button>
                             </ConfirmExport>
                         </Menu.Item>
                         <Menu.Item position="right">
                             <form onSubmit={submitQuery}>
-                                <Input
-                                    action={
-                                        <Button
-                                            basic
+                      <Input
+                            action={(
+                                    <Button
+                                          basic
                                             icon="search"
-                                            onClick={submitQuery}
+                                          onClick={submitQuery}
                                         />
-                                    }
-                                    value={query || ''}
-                                    onChange={(e: FormEvent, { value }) => {
+                                    )}
+                            value={query || ''}
+                            onChange={(e: FormEvent, { value }) => {
                                         updateQuery(value);
                                     }}
                                     placeholder="Search ..."
-                                />
+                          />
                             </form>
-                        </Menu.Item>
+              </Menu.Item>
                     </Menu>
-                </Table.HeaderCell>
+          </Table.HeaderCell>
             </Table.Row>
-        </Table.Header>
+      </Table.Header>
     );
 };
 

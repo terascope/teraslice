@@ -17,7 +17,7 @@ export class Collector<T> {
     private _queue: T[] = [];
     private _startTime: number|null = null;
 
-    constructor(max: { wait: number, size: number }) {
+    constructor(max: { wait: number; size: number }) {
         this.wait = max.wait;
         this.size = max.size;
     }

@@ -23,16 +23,12 @@ describe('Data Access Management', () => {
             {
                 type: 'elasticsearch',
                 endpoint: 'default',
-                create: () => {
-                    return { client };
-                },
+                create: () => ({ client }),
             },
             {
                 type: 'elasticsearch',
                 endpoint: 'other',
-                create: () => {
-                    return { client };
-                },
+                create: () => ({ client }),
             },
         ],
     });
@@ -60,7 +56,7 @@ describe('Data Access Management', () => {
 
     function formatBaseUri(uri: string = ''): string {
         // @ts-ignore because the types aren't set right
-        const port = listener.address().port;
+        const { port } = listener.address();
 
         const _uri = uri.replace(/^\//, '');
         return `http://localhost:${port}/api/v2/${_uri}`;
@@ -72,17 +68,15 @@ describe('Data Access Management', () => {
     beforeAll(async () => {
         await Promise.all([
             cleanupIndexes(manager.manager),
-            (() => {
-                return new Promise((resolve, reject) => {
-                    listener = app.listen((err: any) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve();
-                        }
-                    });
+            (() => new Promise((resolve, reject) => {
+                listener = app.listen((err: any) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
                 });
-            })(),
+            }))(),
         ]);
 
         await Promise.all([manager.initialize(), search.initialize()]);

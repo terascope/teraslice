@@ -150,8 +150,6 @@ export default class Queue<T> {
                 currentNode = nextNode;
             }
         }
-
-        return;
     }
 
     /**

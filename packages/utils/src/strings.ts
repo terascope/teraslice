@@ -1,7 +1,7 @@
 
 /** A simplified implemation of lodash isString */
 export function isString(val: any): val is string {
-    return typeof val === 'string' ? true : false;
+    return typeof val === 'string';
 }
 
 /** Safely convert any input to a string */
@@ -124,7 +124,7 @@ export function formatRegex(str: string): FormatRegexResult {
     return [str, undefined];
 }
 
-export function match(regexp:string, value: string) {
+export function match(regexp: string, value: string) {
     const [reg, options] = formatRegex(regexp);
     const regex = new RegExp(reg, options);
     const results = regex.exec(value);
@@ -132,14 +132,14 @@ export function match(regexp:string, value: string) {
     return results;
 }
 
-export function matchAll(regexp:string, str:string):string[]|null {
+export function matchAll(regexp: string, str: string): string[]|null {
     const [reg, formatOptions] = formatRegex(regexp);
     let options = formatOptions || 'g';
 
     if (!options.includes('g')) options = `g${options}`;
 
     const regex = new RegExp(reg, options);
-    const matches:string[] = [];
+    const matches: string[] = [];
     let matchedData = regex.exec(str);
 
     while (matchedData != null && matchedData[0]) {

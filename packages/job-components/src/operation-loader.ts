@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { isString, uniq, parseError, cloneDeep } from '@terascope/utils';
+import {
+    isString, uniq, parseError, cloneDeep
+} from '@terascope/utils';
 import { LegacyOperation } from './interfaces';
 import {
     OperationAPIConstructor,
@@ -238,25 +240,21 @@ export class OperationLoader {
     }
 
     private fileExists(dir: string, name: string): boolean {
-        const filePaths = this.availableExtensions.map((ext) => {
-            return path.format({
-                dir,
-                name,
-                ext,
-            });
-        });
+        const filePaths = this.availableExtensions.map((ext) => path.format({
+            dir,
+            name,
+            ext,
+        }));
         return filePaths.some((filePath) => fs.existsSync(filePath));
     }
 
     private require<T>(dir: string, name?: string): T {
         const filePaths = name
-            ? this.availableExtensions.map((ext) =>
-                  path.format({
-                      dir,
-                      name,
-                      ext,
-                  })
-              )
+            ? this.availableExtensions.map((ext) => path.format({
+                dir,
+                name,
+                ext,
+            }))
             : [dir];
 
         let err: Error | undefined;
@@ -310,12 +308,10 @@ export class OperationLoader {
     private findCode(name: string) {
         let filePath: string | null = null;
 
-        const codeNames = this.availableExtensions.map((ext) => {
-            return path.format({
-                name,
-                ext,
-            });
-        });
+        const codeNames = this.availableExtensions.map((ext) => path.format({
+            name,
+            ext,
+        }));
 
         const allowedNames = uniq([name, ...codeNames]);
 

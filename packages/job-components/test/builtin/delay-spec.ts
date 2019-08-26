@@ -1,5 +1,7 @@
 import 'jest-extended';
-import { TestContext, newTestExecutionConfig, WorkerContext, DataEntity } from '../../src';
+import {
+    TestContext, newTestExecutionConfig, WorkerContext, DataEntity
+} from '../../src';
 import Delay from '../../src/builtin/delay/processor';
 import Schema from '../../src/builtin/delay/schema';
 

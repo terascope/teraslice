@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Code: React.FC<Props> = ({ children, inline }) => {
-    return <pre className={`code${inline ? ' inline' : ''}`}>{children}</pre>;
-};
+const Code: React.FC<Props> = ({ children, inline }) => <pre className={`code${inline ? ' inline' : ''}`}>{children}</pre>;
 
 type Props = {
     inline?: boolean;

@@ -64,7 +64,7 @@ export function prepareForMutation<T extends AnyModel>(model: T): T {
     return _prepareForMutation(input);
 }
 
-const unwanted: ReadonlyArray<string> = ['__typename'];
+const unwanted: readonly string[] = ['__typename'];
 function _prepareForMutation<T extends any>(obj: T, isNested = false): T {
     if (Array.isArray(obj)) {
         return obj.map((o: any) => _prepareForMutation(o, true));

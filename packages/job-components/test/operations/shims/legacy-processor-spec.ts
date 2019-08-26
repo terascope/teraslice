@@ -180,5 +180,4 @@ describe('Legacy Processor Shim', () => {
             }).toThrowError('Backwards compatibility only works for "convict" schemas');
         });
     });
-
 });

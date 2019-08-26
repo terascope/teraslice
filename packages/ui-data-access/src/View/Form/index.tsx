@@ -60,21 +60,23 @@ const ViewForm: React.FC<Props> = ({ id }) => {
     return (
         <ModelForm<Input>
             modelName={config.name}
-            id={id}
-            validate={validate}
-            afterChange={afterChange}
-            beforeSubmit={(input) => {
+        id={id}
+        validate={validate}
+        afterChange={afterChange}
+        beforeSubmit={(input) => {
                 input.prevent_prefix_wildcard = Boolean(
                     input.prevent_prefix_wildcard
                 );
                 delete input.spaces;
                 return { input };
             }}
-        >
-            {({ defaultInputProps, model, roles, dataTypes }) => {
+      >
+            {({
+                defaultInputProps, model, roles, dataTypes
+            }) => {
                 const { loading, error, data } = useQuery(DataTypeQuery, {
                     variables: { id: model.data_type.id },
-                    skip: !Boolean(model.data_type.id),
+                    skip: !model.data_type.id,
                 });
 
                 const resolvedConfig: DataTypeConfig = get(
@@ -89,75 +91,75 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                 );
                 return (
                     <React.Fragment>
-                        <Form.Group>
-                            <FormInput<Input>
+                    <Form.Group>
+                          <FormInput<Input>
                                 {...defaultInputProps}
-                                value={model.name}
-                                name="name"
-                                label="Name"
+                              value={model.name}
+                              name="name"
+                              label="Name"
                             />
                             <ClientID<Input>
-                                {...defaultInputProps}
+                        {...defaultInputProps}
                                 id={model.client_id}
                                 inherited={Boolean(model.data_type.client_id)}
-                            />
+                      />
                         </Form.Group>
-                        <Description<Input>
-                            {...defaultInputProps}
+                    <Description<Input>
+                          {...defaultInputProps}
                             description={model.description}
                         />
                         <Form.Group>
                             <FormSelect<Input>
-                                {...defaultInputProps}
+                        {...defaultInputProps}
                                 name="roles"
-                                label="Roles"
+                        label="Roles"
                                 placeholder="Select Roles"
                                 multiple
                                 value={model.roles}
                                 options={roles}
-                            />
+                      />
                             <FormSelect<Input>
                                 {...defaultInputProps}
-                                name="data_type"
-                                label="Data Type"
-                                disabled={Boolean(id)}
+                        name="data_type"
+                        label="Data Type"
+                        disabled={Boolean(id)}
                                 placeholder="Select Data Type"
                                 value={model.data_type}
                                 options={dataTypes}
-                            />
-                        </Form.Group>
-                        <Form.Group>
+                      />
+                      </Form.Group>
+                    <Form.Group>
                             <FormInput<Input>
                                 {...defaultInputProps}
                                 value={model.constraint}
                                 name="constraint"
-                                label="Search Query Constraint"
-                            />
-                            <FormCheckbox<Input>
+                        label="Search Query Constraint"
+                      />
+                          <FormCheckbox<Input>
                                 {...defaultInputProps}
-                                value={model.prevent_prefix_wildcard}
-                                name="prevent_prefix_wildcard"
-                                label="Prevent Prefix Wildcard"
-                            />
+                        value={model.prevent_prefix_wildcard}
+                        name="prevent_prefix_wildcard"
+                        label="Prevent Prefix Wildcard"
+                      />
                         </Form.Group>
                         {error ? (
                             <ErrorMessage error={error} />
                         ) : (
                             <Segment
                                 basic
-                                loading={loading}
+                            loading={loading}
                                 className="nopadding"
-                            >
-                                <Section
-                                    title="Allowed Fields"
+                          >
+                            <Section
+                                title="Allowed Fields"
                                     description={[
                                         'Fields that should be allowed in searches and returned results.',
                                         'If any fields are listed here then all other fields will be excluded automatically.',
                                     ].join(' ')}
                                     info={<RestrictedInfo />}
-                                >
-                                    <Form.Group as={Segment} basic>
-                                        <FormSelect<Input>
+                              >
+                                <Form.Group as={Segment} basic>
+                                      <FormSelect<Input>
                                             {...defaultInputProps}
                                             label="Select Fields"
                                             multiple
@@ -166,18 +168,18 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                                                 model.includes
                                             )}
                                             name="includes"
-                                            value={model.includes}
+                                          value={model.includes}
                                         />
                                     </Form.Group>
-                                </Section>
+                              </Section>
                                 <Section
-                                    title="Excluded Fields"
+                                title="Excluded Fields"
                                     description={[
                                         'Fields that should be excluded from searches and returned results.',
                                         'If fields are listed here then all other fields will be allowed automatically.',
                                     ].join(' ')}
-                                    info={<RestrictedInfo />}
-                                >
+                                info={<RestrictedInfo />}
+                              >
                                     <Form.Group as={Segment} basic>
                                         <FormSelect<Input>
                                             {...defaultInputProps}
@@ -189,15 +191,15 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                                             )}
                                             name="excludes"
                                             value={model.excludes}
-                                        />
-                                    </Form.Group>
-                                </Section>
-                            </Segment>
+                                      />
+                              </Form.Group>
+                              </Section>
+                          </Segment>
                         )}
-                    </React.Fragment>
+                  </React.Fragment>
                 );
             }}
-        </ModelForm>
+      </ModelForm>
     );
 };
 

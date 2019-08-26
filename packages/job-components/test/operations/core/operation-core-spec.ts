@@ -33,15 +33,11 @@ describe('OperationCore', () => {
     });
 
     describe('->initialize', () => {
-        it('should resolve undefined', () => {
-            return expect(operation.initialize()).resolves.toBeUndefined();
-        });
+        it('should resolve undefined', () => expect(operation.initialize()).resolves.toBeUndefined());
     });
 
     describe('->shutdown', () => {
-        it('should resolve undefined', () => {
-            return expect(operation.shutdown()).resolves.toBeUndefined();
-        });
+        it('should resolve undefined', () => expect(operation.shutdown()).resolves.toBeUndefined());
     });
 
     describe('->onSliceInitialized', () => {
@@ -181,7 +177,7 @@ describe('OperationCore', () => {
         const record = Buffer.from('hello');
         const err = new Error('Bad news bears');
 
-        let ogReject : any;
+        let ogReject: any;
         beforeEach(() => {
             ogReject = operation.rejectRecord;
             operation.rejectRecord = jest.fn();
@@ -205,9 +201,7 @@ describe('OperationCore', () => {
 
         describe('when the fn succceds', () => {
             it('should not call operation.rejectRecord', () => {
-                const fn = operation.tryRecord(() => {
-                    return { hello: true };
-                });
+                const fn = operation.tryRecord(() => ({ hello: true }));
 
                 const result = fn(record);
                 expect(operation.rejectRecord).not.toHaveBeenCalled();

@@ -356,7 +356,7 @@ describe('elasticsearch-state-storage', () => {
         const cacheResults: DataEntity[] = [];
         const setCacheResults = (data: DataEntity) => cacheResults.push(data);
 
-        const updateFnResults: { key: string, current: DataEntity; prev?: DataEntity; }[] = [];
+        const updateFnResults: { key: string; current: DataEntity; prev?: DataEntity }[] = [];
         const fn: UpdateCacheFn = (key, current, prev) => {
             updateFnResults.push({ key, current, prev });
             if (key === inCacheCurrent.getMetadata('_key')) {

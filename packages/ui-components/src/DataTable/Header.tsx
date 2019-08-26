@@ -28,12 +28,12 @@ const Header: React.FC<Props> = (props) => {
     return (
         <Table.Header fullWidth>
             <Table.Row>
-                <Table.HeaderCell width={1} textAlign="center">
-                    <Checkbox
+            <Table.HeaderCell width={1} textAlign="center">
+                <Checkbox
                         checked={selectedAll}
-                        onChange={toggleSelectAll}
-                    />
-                </Table.HeaderCell>
+                onChange={toggleSelectAll}
+              />
+              </Table.HeaderCell>
                 {Object.entries(columnMapping).map(([field, col]) => (
                     <Table.HeaderCell
                         key={field}
@@ -49,8 +49,8 @@ const Header: React.FC<Props> = (props) => {
                             const current = parseSortBy(sort);
                             let direction: SortDirection = 'asc';
                             if (
-                                current.field === field &&
-                                current.direction === 'asc'
+                                current.field === field
+                                && current.direction === 'asc'
                             ) {
                                 direction = 'desc';
                             }
@@ -58,12 +58,12 @@ const Header: React.FC<Props> = (props) => {
                                 sort: formatSortBy({ field, direction }),
                             });
                         }}
-                    >
+                  >
                         {col.label}
-                    </Table.HeaderCell>
+                  </Table.HeaderCell>
                 ))}
-            </Table.Row>
-        </Table.Header>
+          </Table.Row>
+      </Table.Header>
     );
 };
 

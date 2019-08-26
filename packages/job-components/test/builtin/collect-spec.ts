@@ -9,6 +9,7 @@ import {
 } from '../../src';
 import Collect from '../../src/builtin/collect/processor';
 import Schema from '../../src/builtin/collect/schema';
+
 const delay = promisify(setTimeout);
 
 describe('Collect Processor', () => {
@@ -22,11 +23,9 @@ describe('Collect Processor', () => {
     let context: WorkerContext;
     let collect: Collect;
 
-    const getQueue = (): DataEntity[] => {
+    const getQueue = (): DataEntity[] =>
         // @ts-ignore
-        return collect.collector._queue;
-    };
-
+        collect.collector._queue;
     beforeEach(() => {
         context = new TestContext('collect') as WorkerContext;
         collect = new Collect(context, opConfig, exConfig);
@@ -130,8 +129,6 @@ describe('Collect Processor', () => {
             return expect(collect.shutdown()).rejects.toThrowError(`Collect is shutdown with ${opConfig.size / 2} unprocessed records`);
         });
 
-        it('should resolve when there are no queued records', async () => {
-            return expect(collect.shutdown()).resolves.toBeNil();
-        });
+        it('should resolve when there are no queued records', async () => expect(collect.shutdown()).resolves.toBeNil());
     });
 });

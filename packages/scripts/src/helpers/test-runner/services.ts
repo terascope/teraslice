@@ -2,7 +2,9 @@ import ms from 'ms';
 import got from 'got';
 import semver from 'semver';
 import { debugLogger, pRetry, TSError } from '@terascope/utils';
-import { dockerRun, DockerRunOptions, getContainerInfo, dockerStop, pgrep } from '../scripts';
+import {
+    dockerRun, DockerRunOptions, getContainerInfo, dockerStop, pgrep
+} from '../scripts';
 import { TestOptions } from './interfaces';
 import { TestSuite } from '../interfaces';
 import { HOST_IP } from '../config';
@@ -175,5 +177,4 @@ async function checkKafka(options: TestOptions) {
     }
 
     signale.debug(`kafka should be running at ${options.kafkaBroker}`);
-    return;
 }

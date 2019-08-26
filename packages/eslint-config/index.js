@@ -1,6 +1,6 @@
 'use strict';
 
-const defaultRules = {
+const defaultJSRules = {
     // airbnb overrides
     indent: ['error', 4],
     'max-len': ['error', {
@@ -39,67 +39,94 @@ const defaultRules = {
     'import/prefer-default-export': 'off',
     'no-empty-function': 'off',
     'prefer-object-spread': 'off',
+    'consistent-return': ['error', { treatUndefinedAsUnspecified: true }],
     'lines-between-class-members': [
         'error',
         'always',
         { exceptAfterSingleLine: true },
     ],
-    // react rules
-    'react/require-default-props': 'off',
-    'react/jsx-filename-extension': [2, { extensions: ['.jsx', '.tsx'] }],
-    'react/forbid-prop-types': 'off',
-    'react/prop-types': [2, { skipUndeclared: true, ignore: ['children'] }],
-    'react/no-array-index-key': 'off',
-    'react/destructuring-assignment': 'off',
-    // jest rules
-    // 'jest/no-empty-title': 'warn',
-    // 'jest/prefer-to-have-length': 'warn',
-    // 'jest/valid-expect': 'error'
 };
 
+const defaultTSRules = Object.assign({}, defaultJSRules, {
+    // typescript preferences
+    '@typescript-eslint/prefer-interface': 'off',
+    '@typescript-eslint/no-object-literal-type-assertion': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
+    '@typescript-eslint/no-var-requires': 'off',
+    '@typescript-eslint/explicit-member-accessibility': 'off',
+    // The following rules make compatibility between eslint and typescript
+    indent: 'off',
+    '@typescript-eslint/indent': ['error', 4],
+    'no-underscore-dangle': 'off',
+    'no-useless-constructor': 'off',
+    '@typescript-eslint/prefer-for-of': ['error'],
+    camelcase: 'off',
+    '@typescript-eslint/camelcase': ['error', { properties: 'never' }],
+    'no-use-before-define': 'off',
+    '@typescript-eslint/no-use-before-define': ['error', { functions: false }],
+    'import/no-unresolved': 'off',
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+            vars: 'all',
+            args: 'after-used',
+            ignoreRestSiblings: true,
+            argsIgnorePattern: '^_',
+        },
+    ],
+});
+
 module.exports = {
-    extends: ['airbnb'],
-    // plugins: ['jest'],
+    extends: ['airbnb-base'],
     parserOptions: {
         ecmaVersion: 8,
         sourceType: 'script',
     },
     env: {
+        node: true,
+        jasmine: true,
         jest: true,
     },
-    rules: defaultRules,
+    rules: Object.assign({}, defaultJSRules),
     overrides: [
         {
-            // overrides just for node files
-            files: ['*.js', '*.ts'],
-            env: {
-                jest: true,
-                node: true,
-            },
-        },
-        {
             // overrides just for react files
-            files: ['*.jsx', '*.tsx'],
+            files: ['.jsx', '*.tsx'],
+            extends: ['plugin:@typescript-eslint/recommended', 'airbnb'],
+            plugins: ['@typescript-eslint'],
+            parser: '@typescript-eslint/parser',
             env: {
                 jest: true,
+                jasmine: false,
+                node: false,
                 browser: true,
             },
             parserOptions: {
-                parserOptions: {
-                    ecmaVersion: 8,
-                    sourceType: 'module',
-                    ecmaFeatures: {
-                        modules: true,
-                        jsx: true,
-                    },
-                    useJSXTextNode: true,
+                ecmaVersion: 8,
+                sourceType: 'module',
+                ecmaFeatures: {
+                    modules: true,
+                    jsx: true,
                 },
+                useJSXTextNode: true,
             },
+            rules: Object.assign({}, defaultTSRules, {
+                // react rules
+                'react/require-default-props': 'off',
+                'react/jsx-filename-extension': [2, { extensions: ['.jsx', '.tsx'] }],
+                'react/forbid-prop-types': 'off',
+                'react/prop-types': [2, { skipUndeclared: true, ignore: ['children'] }],
+                'react/no-array-index-key': 'off',
+                'react/destructuring-assignment': 'off',
+            }),
         },
         {
             // overrides just for typescript files
-            files: ['*.ts', '*.tsx'],
-            extends: ['plugin:@typescript-eslint/recommended', 'airbnb'],
+            files: ['*.ts'],
+            extends: ['plugin:@typescript-eslint/recommended', 'airbnb-base'],
             plugins: ['@typescript-eslint'],
             parser: '@typescript-eslint/parser',
             parserOptions: {
@@ -110,37 +137,7 @@ module.exports = {
                     jsx: false,
                 },
             },
-            rules: Object.assign({}, defaultRules, {
-                // typescript preferences
-                '@typescript-eslint/prefer-interface': 'off',
-                '@typescript-eslint/no-object-literal-type-assertion': 'off',
-                '@typescript-eslint/no-explicit-any': 'off',
-                '@typescript-eslint/explicit-function-return-type': 'off',
-                '@typescript-eslint/no-non-null-assertion': 'off',
-                '@typescript-eslint/no-var-requires': 'off',
-                '@typescript-eslint/explicit-member-accessibility': 'off',
-                // The following rules make compatibility between eslint and typescript
-                indent: 'off',
-                '@typescript-eslint/indent': ['error', 4],
-                'no-underscore-dangle': 'off',
-                'no-useless-constructor': 'off',
-                '@typescript-eslint/prefer-for-of': ['error'],
-                camelcase: 'off',
-                '@typescript-eslint/camelcase': ['error', { properties: 'never' }],
-                'no-use-before-define': 'off',
-                '@typescript-eslint/no-use-before-define': ['error', { functions: false }],
-                'import/no-unresolved': 'off',
-                'no-unused-vars': 'off',
-                '@typescript-eslint/no-unused-vars': [
-                    'error',
-                    {
-                        vars: 'all',
-                        args: 'after-used',
-                        ignoreRestSiblings: true,
-                        argsIgnorePattern: '^_',
-                    },
-                ],
-            }),
+            rules: Object.assign({}, defaultTSRules),
         },
     ],
 };

@@ -71,33 +71,33 @@ const AddField: React.FC<Props> = ({ addField, fields }) => {
                     },
                 },
             ]}
-        >
+      >
             <Form.Group>
                 <Form.Field>
                     <Form.Input
                         type="text"
                         placeholder="Field Name"
-                        value={state.field}
-                        error={Boolean(state.fieldError)}
-                        onChange={(e, { value }) => {
+                    value={state.field}
+                    error={Boolean(state.fieldError)}
+                    onChange={(e, { value }) => {
                             e.preventDefault();
 
                             updateState({
                                 field: trim(value),
                             });
                         }}
-                    />
-                    {state.fieldError && (
+                  />
+                {state.fieldError && (
                         <Label pointing color="red" basic>
-                            {state.fieldError}
-                        </Label>
+                  {state.fieldError}
+                </Label>
                     )}
-                </Form.Field>
+              </Form.Field>
                 <Form.Field>
                     <Form.Select
-                        placeholder="Select Field Type"
-                        value={state.type}
-                        error={Boolean(state.typeError)}
+                    placeholder="Select Field Type"
+                    value={state.type}
+                    error={Boolean(state.typeError)}
                         onChange={(e, { value }) => {
                             e.preventDefault();
 
@@ -106,21 +106,21 @@ const AddField: React.FC<Props> = ({ addField, fields }) => {
                             });
                         }}
                         options={dataTypeOptions}
-                    />
-                    {state.typeError && (
+                  />
+                {state.typeError && (
                         <Label pointing color="red" basic>
-                            {state.typeError}
-                        </Label>
+                  {state.typeError}
+                </Label>
                     )}
-                </Form.Field>
+              </Form.Field>
                 <ArrayCheckbox
                     array={state.array}
                     onChange={(checked) => {
                         updateState({ array: checked });
                     }}
-                />
-            </Form.Group>
-        </ActionSegment>
+              />
+          </Form.Group>
+      </ActionSegment>
     );
 };
 

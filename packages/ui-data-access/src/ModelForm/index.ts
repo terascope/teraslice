@@ -6,6 +6,8 @@ import FormInput from './FormInput';
 import FormSelect from './FormSelect';
 
 export * from './interfaces';
-export { ClientID, Description, FormCheckbox, FormInput, FormSelect };
+export {
+    ClientID, Description, FormCheckbox, FormInput, FormSelect
+};
 
 export default ModelForm;

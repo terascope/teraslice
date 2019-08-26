@@ -1,6 +1,10 @@
 import * as ts from '@terascope/utils';
-import { ExecutionContextConfig, RunSliceResult, WorkerSliceState, WorkerStatus, SliceStatus } from './interfaces';
-import { WorkerOperationLifeCycle, Slice, sliceAnalyticsMetrics, SliceAnalyticsData } from '../interfaces';
+import {
+    ExecutionContextConfig, RunSliceResult, WorkerSliceState, WorkerStatus, SliceStatus
+} from './interfaces';
+import {
+    WorkerOperationLifeCycle, Slice, sliceAnalyticsMetrics, SliceAnalyticsData
+} from '../interfaces';
 import { FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
 import JobObserver from '../operations/job-observer';
 import BaseExecutionContext from './base';
@@ -135,9 +139,7 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
     getOperation<T extends OperationCore = OperationCore>(findBy: string | number): T {
         let index = -1;
         if (ts.isString(findBy)) {
-            index = this.config.operations.findIndex((op) => {
-                return op._op === findBy;
-            });
+            index = this.config.operations.findIndex((op) => op._op === findBy);
         } else if (ts.isInteger(findBy) && findBy >= 0) {
             index = findBy as number;
         }
@@ -331,7 +333,6 @@ export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperation
 
         if (status === 'flushed') {
             this.sliceState.analytics = this._mergeAnalytics();
-            return;
         }
     }
 

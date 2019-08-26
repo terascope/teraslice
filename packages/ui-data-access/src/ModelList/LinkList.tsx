@@ -13,9 +13,9 @@ const LinkList: React.FC<Props> = ({ records, modelName }) => {
             {records.map((record) => (
                 <Link key={record.id} to={`/${pathname}/edit/${record.id}`}>
                     {record.name}
-                </Link>
+              </Link>
             ))}
-        </React.Fragment>
+      </React.Fragment>
     );
 };
 

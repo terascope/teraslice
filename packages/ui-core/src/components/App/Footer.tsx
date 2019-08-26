@@ -1,12 +1,10 @@
 import React from 'react';
 import { Segment } from 'semantic-ui-react';
 
-const Footer: React.FC = () => {
-    return (
-        <Segment as="footer" textAlign="center" className="appFooter">
+const Footer: React.FC = () => (
+    <Segment as="footer" textAlign="center" className="appFooter">
             Copyright &copy; 2019
-        </Segment>
-    );
-};
+  </Segment>
+);
 
 export default Footer;

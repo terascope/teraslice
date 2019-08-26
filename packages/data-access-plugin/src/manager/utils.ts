@@ -1,7 +1,9 @@
 import { Request } from 'express';
 import * as ts from '@terascope/utils';
 import * as apollo from 'apollo-server-express';
-import { User, ACLManager, ModelName, AnyModel } from '@terascope/data-access';
+import {
+    User, ACLManager, ModelName, AnyModel
+} from '@terascope/data-access';
 
 export function forEachModel(fn: (model: ModelName) => void) {
     const models: ModelName[] = ['User', 'Role', 'DataType', 'Space', 'View'];

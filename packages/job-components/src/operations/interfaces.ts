@@ -1,4 +1,6 @@
-import { ExecutionConfig, Context, OpConfig, APIConfig, WorkerContext } from '../interfaces';
+import {
+    ExecutionConfig, Context, OpConfig, APIConfig, WorkerContext
+} from '../interfaces';
 import FetcherCore from './core/fetcher-core';
 import SchemaCore, { OpType } from './core/schema-core';
 import SlicerCore from './core/slicer-core';

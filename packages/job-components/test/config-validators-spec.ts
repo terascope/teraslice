@@ -1,6 +1,8 @@
 import 'jest-extended'; // require for type definitions
 import { Schema } from 'convict';
-import { jobSchema, validateJobConfig, validateOpConfig, TestContext, validateAPIConfig } from '../src';
+import {
+    jobSchema, validateJobConfig, validateOpConfig, TestContext, validateAPIConfig
+} from '../src';
 
 describe('when using native clustering', () => {
     describe('when passed a valid jobSchema and jobConfig', () => {
@@ -701,5 +703,4 @@ describe('when validating k8s clustering', () => {
             expect(jobConfig).toMatchObject(validJob);
         });
     });
-
 });

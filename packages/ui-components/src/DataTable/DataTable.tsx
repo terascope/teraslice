@@ -64,12 +64,12 @@ const DataTable: React.FC<Props> = (props) => {
     return (
         <Segment loading={loading || actionState.loading} basic>
             <Table sortable celled compact definition>
-                <Toolbar
+            <Toolbar
                     numSelected={selected.length}
-                    query={queryState.query}
-                    numCols={numCols}
-                    updateQueryState={updateQueryState}
-                    onAction={async (action) => {
+                query={queryState.query}
+                numCols={numCols}
+                updateQueryState={updateQueryState}
+                onAction={async (action) => {
                         if (actionState.loading) return;
 
                         setActionState({
@@ -77,11 +77,7 @@ const DataTable: React.FC<Props> = (props) => {
                         });
                         try {
                             if (action === 'EXPORT') {
-                                const docs = selected.map((id) =>
-                                    records.find((record) => {
-                                        return rowMapping.getId(record) === id;
-                                    })
-                                );
+                                const docs = selected.map((id) => records.find((record) => rowMapping.getId(record) === id));
 
                                 const message = await exportRecords(
                                     selectedAll || docs
@@ -106,11 +102,11 @@ const DataTable: React.FC<Props> = (props) => {
                             });
                         }
                     }}
-                />
-                <Header
-                    numSelected={selected.length}
+              />
+            <Header
+                  numSelected={selected.length}
                     sort={queryState.sort}
-                    toggleSelectAll={() => {
+                  toggleSelectAll={() => {
                         if (selectedAll) {
                             return setSelected({
                                 selected: [],
@@ -125,38 +121,38 @@ const DataTable: React.FC<Props> = (props) => {
                             selectedAll: true,
                         });
                     }}
-                    updateQueryState={updateQueryState}
-                    selectedAll={selectedAll}
+                  updateQueryState={updateQueryState}
+                  selectedAll={selectedAll}
                     columnMapping={rowMapping.columns}
                 />
-                <Body
-                    rowMapping={rowMapping}
-                    records={records}
-                    baseEditPath={baseEditPath}
+            <Body
+                rowMapping={rowMapping}
+                records={records}
+                baseEditPath={baseEditPath}
                     selectRecord={selectRecord}
                     selected={selected}
                     selectedAll={selectedAll}
-                    total={total}
-                />
-                <Footer
-                    total={total}
+                total={total}
+              />
+            <Footer
+                  total={total}
                     numCols={numCols}
                     size={queryState.size}
                     from={queryState.from}
                     updateQueryState={updateQueryState}
                 />
-            </Table>
+          </Table>
             {actionState.success && (
                 <SuccessMessage
                     attached="bottom"
                     message={actionState.message}
-                />
+            />
             )}
             {actionState.error && (
                 <ErrorMessage attached="bottom" error={actionState.message} />
             )}
             <StateMessage attached="bottom" />
-        </Segment>
+      </Segment>
     );
 };
 
