@@ -17,11 +17,7 @@
         "bump": "ts-scripts bump",
         "test": "ts-scripts test",
         "lint": "eslint --cache --ext .js,.jsx,.ts,.tsx . && yarn sync --verify",
-        "lint:js": "eslint --ext .js .",
-        "lint:ts": "env FORCE_COLOR=1 lerna run lint --no-bail",
-        "lint:fix": "yarn lint:fix:js && yarn lint:fix:ts && yarn sync",
-        "lint:fix:js": "yarn lint:js --fix",
-        "lint:fix:ts": "env FORCE_COLOR=1 lerna run lint:fix --no-bail"
+        "lint:fix": "eslint --cache --ext .js,.jsx,.ts,.tsx --fix . && yarn sync"
     },
     "displayName": "Teraslice",
     "homepage": "https://github.com/terascope/teraslice",
