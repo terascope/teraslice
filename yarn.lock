@@ -2255,6 +2255,29 @@
     multi-progress "^2.0.0"
     superagent "^3.8.3"
 
+"@terascope/job-components@^0.21.0":
+  version "0.21.0"
+  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.21.0.tgz#ee2278ae0445bdc98c006199cb5250d64a6f1b29"
+  integrity sha512-VmeAtABszpNGueZE8eusPp8nlrz7qgD9c/i4uaU8dZPbgqnlXy8GGh9Y2PmcoXM3GFjs8ibFX6Y1ihaGUK91zg==
+  dependencies:
+    "@terascope/queue" "^1.1.6"
+    "@terascope/utils" "^0.16.0"
+    convict "^4.4.1"
+    datemath-parser "^1.0.6"
+    uuid "^3.3.3"
+
+"@terascope/utils@^0.16.0":
+  version "0.16.0"
+  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.16.0.tgz#0150a0229d207d8d639b0857b5956753b6a6d05d"
+  integrity sha512-C5L6AdjCNN0RZawfj6T4uPkqyvjF26NJerDmGwqB36og7zH8+cB9htWg5YGU4lXPSHIBQTvfwcOuHe3Rqm98Pw==
+  dependencies:
+    debug "^4.1.1"
+    is-plain-object "^3.0.0"
+    kind-of "^6.0.2"
+    lodash.clonedeep "^4.5.0"
+    lodash.get "^4.4.2"
+    lodash.set "^4.3.2"
+
 "@turf/bbox-polygon@^6.0.1":
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/@turf/bbox-polygon/-/bbox-polygon-6.0.1.tgz#ae0fbb14558831fb34538aae089a23d3336c6379"
@@ -2447,6 +2470,15 @@
     "@types/tough-cookie" "*"
     form-data "^2.5.0"
 
+"@types/got@^9.6.7":
+  version "9.6.7"
+  resolved "https://registry.yarnpkg.com/@types/got/-/got-9.6.7.tgz#33d84c60cba83e3c904634a1ea7ea81d1549bea6"
+  integrity sha512-LMc2ja42bQorKpBxf38ZBPdT3FhYL0lyAqnZBo5vAPCtobYa8AiHwSLH5zDvR19r2Pr5Ojar3hT/QLLb2SoPYA==
+  dependencies:
+    "@types/node" "*"
+    "@types/tough-cookie" "*"
+    form-data "^2.5.0"
+
 "@types/graphlib@^2.1.5":
   version "2.1.5"
   resolved "https://registry.yarnpkg.com/@types/graphlib/-/graphlib-2.1.5.tgz#ed0435f99c91531aaa93086529804bbe3cd42c3b"
@@ -2579,6 +2611,13 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@types/nanoid/-/nanoid-2.0.0.tgz#b59002c475e6dfcc26e67ba563ff61b512e5ebf8"
   integrity sha512-NtwPHfAyU3IDXdKAB2OMPpAauHBg9gUjpOYr3FAzI84D70nWdS8k5mryteLvT/s1ACeAFAkGg132/XJVN4qx/w==
+  dependencies:
+    "@types/node" "*"
+
+"@types/nock@^10.0.3":
+  version "10.0.3"
+  resolved "https://registry.yarnpkg.com/@types/nock/-/nock-10.0.3.tgz#dab1d18ffbccfbf2db811dab9584304eeb6e1c4c"
+  integrity sha512-OthuN+2FuzfZO3yONJ/QVjKmLEuRagS9TV9lEId+WHL9KhftYG+/2z+pxlr0UgVVXSpVD8woie/3fzQn8ft/Ow==
   dependencies:
     "@types/node" "*"
 
@@ -17186,6 +17225,11 @@ uuid@3.3.2, uuid@^3.0.0, uuid@^3.0.1, uuid@^3.1.0, uuid@^3.3.2:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
   integrity sha512-yXJmeNaw3DnnKAOKJE51sL/ZaYfWJRl1pK9dr19YFCu0ObS231AB1/LbqTKRAQ5kw8A90rA6fr4riOUpTZvQZA==
+
+uuid@^3.3.3:
+  version "3.3.3"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.3.tgz#4568f0216e78760ee1dbf3a4d2cf53e224112866"
+  integrity sha512-pW0No1RGHgzlpHJO1nsVrHKpOEIxkGg1xB+v0ZmdNH5OAeAwzAVrCnI2/6Mtx+Uys6iaylxa+D3g4j63IKKjSQ==
 
 v8-compile-cache@2.0.3:
   version "2.0.3"

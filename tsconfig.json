@@ -51,6 +51,9 @@
             "path": "packages/ts-transforms"
         },
         {
+            "path": "packages/teraslice-client-js"
+        },
+        {
             "path": "packages/elasticsearch-store"
         },
         {
