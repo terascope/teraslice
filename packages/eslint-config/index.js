@@ -52,11 +52,12 @@ const defaultTSRules = Object.assign({}, defaultJSRules, {
     '@typescript-eslint/prefer-interface': 'off',
     '@typescript-eslint/no-object-literal-type-assertion': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
-    '@typescript-eslint/explicit-function-return-type': ['warn', {
-        allowHigherOrderFunctions: true,
-        allowExpressions: true,
-        allowTypedFunctionExpressions: true,
-    }],
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    // '@typescript-eslint/explicit-function-return-type': ['warn', {
+    //     allowHigherOrderFunctions: true,
+    //     allowExpressions: true,
+    //     allowTypedFunctionExpressions: true,
+    // }],
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/explicit-member-accessibility': 'off',

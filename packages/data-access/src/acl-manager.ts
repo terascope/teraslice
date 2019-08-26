@@ -34,7 +34,7 @@ export class ACLManager {
     /**
      * Initialize all index stores
      */
-    async initialize() {
+    async initialize(): Promise<void> {
         await Promise.all([
             this._roles.initialize(),
             this._spaces.initialize(),
@@ -47,7 +47,7 @@ export class ACLManager {
     /**
      * Shutdown all index stores
      */
-    async shutdown() {
+    async shutdown(): Promise<void> {
         await Promise.all([
             this._roles.shutdown(),
             this._spaces.shutdown(),
@@ -57,7 +57,7 @@ export class ACLManager {
         ]);
     }
 
-    async simpleMigrate() {
+    async simpleMigrate(): Promise<ts.AnyObject> {
         const results: ts.AnyObject = {};
         results.dataTypes = await this._dataTypes.store.migrateIndex({});
         results.roles = await this._roles.store.migrateIndex({});
@@ -67,7 +67,7 @@ export class ACLManager {
         return results;
     }
 
-    async migrateIndex(model: i.ModelName, options: MigrateIndexStoreOptions) {
+    async migrateIndex(model: i.ModelName, options: MigrateIndexStoreOptions): Promise<any> {
         return this[`_${model}`].store.migrateIndex(options);
     }
 
