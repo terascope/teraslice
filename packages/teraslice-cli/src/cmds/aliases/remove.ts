@@ -25,14 +25,10 @@ export default {
         const cliConfig = new Config(argv);
 
         try {
-            // @ts-ignore
             cliConfig.aliases.remove(cliConfig.args.clusterAlias);
-            // @ts-ignore
             if (cliConfig.args.list) {
-                // @ts-ignore
                 cliConfig.aliases.list(cliConfig.args.output);
             }
-            // @ts-ignore
             reply.green(`> Removed alias ${cliConfig.args.clusterAlias}`);
         } catch (e) {
             reply.error(`error removing alias ${e}`);

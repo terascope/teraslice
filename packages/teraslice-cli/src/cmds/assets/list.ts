@@ -1,6 +1,4 @@
 
-// @ts-ignore
-import AssetSrc from '../../lib/asset-src';
 import { CMD } from '../../interfaces';
 import Reply from '../lib/reply';
 import Config from '../../lib/config';
@@ -33,10 +31,8 @@ export default {
         try {
             response = await terasliceClient.assets.list();
         } catch (err) {
-            // @ts-ignore
             reply.fatal(`Error listing assets on ${cliConfig.args.clusterAlias}`);
         }
-         // @ts-ignore
         display.display(header, response, cliConfig.args.output);
     }
 } as CMD;

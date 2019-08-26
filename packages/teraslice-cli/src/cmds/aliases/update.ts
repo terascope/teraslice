@@ -27,19 +27,13 @@ export default {
         const cliConfig = new Config(argv);
 
         try {
-            // @ts-ignore
             cliConfig.aliases.update(
-                // @ts-ignore
                 cliConfig.args.clusterAlias,
-                // @ts-ignore
                 cliConfig.args.newClusterUrl
             );
-            // @ts-ignore
             if (cliConfig.args.list) {
-                // @ts-ignore
                 cliConfig.aliases.list(cliConfig.args.output);
             }
-            // @ts-ignore
             reply.green(`> Updated alias ${cliConfig.args.clusterAlias} host: ${cliConfig.args.newClusterUrl}`);
         } catch (e) {
             reply.error(`error updating alias ${e}`);

@@ -61,8 +61,14 @@
         "yo": "^3.1.0"
     },
     "devDependencies": {
+        "@types/archiver": "^3.0.0",
+        "@types/easy-table": "^0.0.32",
+        "@types/prompts": "^2.0.1",
         "@types/signale": "^1.2.1",
+        "@types/tmp": "^0.1.0",
         "@types/yargs": "^13.0.0",
+        "@types/yeoman-environment": "^2.3.2",
+        "@types/yeoman-generator": "^3.1.4",
         "jest-fixtures": "^0.6.0",
         "yeoman-assert": "^3.1.1",
         "yeoman-test": "^2.0.0"

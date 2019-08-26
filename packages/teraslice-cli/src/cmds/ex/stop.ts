@@ -1,4 +1,3 @@
-'use strict';
 
 import { CMD } from '../../interfaces';
 import _ from 'lodash';
@@ -36,11 +35,9 @@ export default {
                 break;
             }
             try {
-                // @ts-ignore
                 response = await teraslice.client.ex.stop(cliConfig.args.id);
                 stopTimedOut = true;
                 if (response.status === 'stopped') {
-                    // @ts-ignore
                     reply.green(`> ex_id: ${cliConfig.args.id} stopped`);
                 }
             } catch (err) {

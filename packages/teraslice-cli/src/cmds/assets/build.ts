@@ -1,4 +1,3 @@
- // @ts-ignore
 import AssetSrc from '../../lib/asset-src';
 import { CMD } from '../../interfaces';
 import Reply from '../lib/reply';
@@ -26,7 +25,6 @@ export default {
     async handler (argv) {
         const cliConfig = new Config(argv);
         try {
-             // @ts-ignore
             const asset = new AssetSrc(cliConfig.args.srcDir);
             reply.green('Beginning asset build.');
             const buildResult = await asset.build();

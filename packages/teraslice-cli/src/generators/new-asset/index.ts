@@ -1,7 +1,6 @@
 
 import path from 'path';
 import _ from 'lodash';
-// @ts-ignore
 import Generator from 'yeoman-generator';
 import ProcessorGenerator from '../new-processor';
 
@@ -25,7 +24,6 @@ export default class extends Generator {
     constructor(args:any, opts:any) {
         super(args, opts);
         this.argument('new_asset_path', { type: String, required: true });
-        // @ts-ignore
         this.sourceRoot(`${__dirname}/templates`);
     }
 

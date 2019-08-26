@@ -3,11 +3,10 @@
 import ttyTable from 'tty-table';
 // @ts-ignore
 import CliTable from 'cli-table3';
-// @ts-ignore
 import easyTable from 'easy-table';
 import _ from 'lodash';
-// @ts-ignore
 import prompts from 'prompts';
+
 // @ts-ignore
 async function pretty(headerValues, rows) {
     // @ts-ignore

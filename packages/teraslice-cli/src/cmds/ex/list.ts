@@ -30,29 +30,19 @@ export default {
         const cliConfig = new Config(argv);
 
         const teraslice = new TerasliceUtil(cliConfig);
-        // @ts-ignore
         const format = `${cliConfig.args.output}Horizontal`;
         const header = ['name', 'lifecycle', 'slicers', 'workers', '_status', 'ex_id', 'job_id', '_created', '_updated'];
 
         try {
-                // @ts-ignore
-
             response = await teraslice.client.ex.list(cliConfig.args.status);
         } catch (err) {
-                    // @ts-ignore
-
             reply.fatal(`Error getting ex list on ${cliConfig.args.clusterAlias}\n${err}`);
         }
-        // @ts-ignore
 
         const rows = await display.parseResponse(header, response, active);
         if (rows.length > 0) {
-                    // @ts-ignore
-
             await display.display(header, rows, format, active, parse);
         } else {
-                    // @ts-ignore
-
             reply.fatal(`> No ex_ids match status ${cliConfig.args.status}`);
         }
     }

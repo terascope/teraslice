@@ -99,9 +99,7 @@ export default class Jobs {
 
         if (this.jobsList.length > 0) {
             if (showJobs) {
-                // @ts-ignore TODO:FIXME
                 const rows = await display.parseResponse(header, this.jobsList, active);
-                // @ts-ignore TODO:FIXME
                 await display.display(header, rows, format, active, parse);
             }
             if (saveState) {

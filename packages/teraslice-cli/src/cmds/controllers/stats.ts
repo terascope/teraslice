@@ -28,7 +28,6 @@ export default {
         const active = false;
         const cliConfig = new Config(argv);
         const teraslice = new TerasliceUtil(cliConfig);
-        // @ts-ignore
         const format = `${cliConfig.args.output}Vertical`;
         const header = 'job_id';
 
@@ -40,10 +39,9 @@ export default {
         }
 
         if (Object.keys(response).length === 0) {
-            // @ts-ignore
             reply.fatal(`> No controllers on ${cliConfig.args.clusterAlias}`);
         }
-// @ts-ignore
+
         await display.display(header, response, format, parse, active);
     }
 } as CMD;

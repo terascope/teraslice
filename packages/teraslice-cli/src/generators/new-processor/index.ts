@@ -2,7 +2,6 @@
 
 import path from 'path';
 import _ from 'lodash';
-// @ts-ignore
 import Generator from 'yeoman-generator';
 
 export default class extends Generator {
@@ -21,7 +20,6 @@ export default class extends Generator {
         this.argument('asset_path', { type: String, required: true });
         // @ts-ignore
         this.option('new');
-         // @ts-ignore
         this.sourceRoot(`${__dirname}/templates`);
     }
 
@@ -67,8 +65,8 @@ export default class extends Generator {
         let type = 'batch';
 
         if (this.options.new === true) {
-            name = this.answers.name; // eslint-disable-line
-            type = this.answers.type; // eslint-disable-line
+            name = this.answers.name;
+            type = this.answers.type;
         }
 
         this.fs.copyTpl(this.templatePath('base-op/schema.js'), this.destinationPath(`asset/${name}/schema.js`));

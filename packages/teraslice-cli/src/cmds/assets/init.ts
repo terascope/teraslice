@@ -2,7 +2,6 @@
 import { CMD } from '../../interfaces';
 import path from 'path';
 import fs from 'fs-extra';
-// @ts-ignore
 import yeoman from 'yeoman-environment';
 
 import Config from '../../lib/config';
@@ -15,10 +14,12 @@ const yargsOptions = new YargsOptions();
 const reply = new Reply();
 
 const env = yeoman.createEnv();
-
+// @ts-ignore
 env.registerStub(newProcessor, 'new-processor', path.join(
     __dirname, '../../generators/new-processor/index.js'
 ));
+// @ts-ignore
+
 env.registerStub(newAsset, 'new-asset', path.join(
     __dirname, '../../generators/new-asset/index.js'
 ));
@@ -33,13 +34,12 @@ export default {
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         // @ts-ignore
         yargs.example('$0 asset init');
-        // @ts-ignore
+         // @ts-ignore
         yargs.example('$0 asset init --processor');
         return yargs;
     },
     async handler(argv) {
         const cliConfig = new Config(argv);
-        // @ts-ignore
         const assetBaseDir = cliConfig.args.baseDir;
 
         // if just adding a new processor AssetBaseDir needs to have an asset dir
@@ -49,8 +49,10 @@ export default {
 
         try {
             if (argv.proc) {
+                 // @ts-ignore
                 await env.run(`new-processor ${assetBaseDir} --new`);
             } else {
+                 // @ts-ignore
                 await env.run(`new-asset ${assetBaseDir}`);
             }
             reply.green('All done!');

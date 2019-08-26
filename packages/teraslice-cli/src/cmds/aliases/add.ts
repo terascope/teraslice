@@ -23,19 +23,13 @@ export default {
     handler(argv) {
         const cliConfig = new Config(argv);
         try {
-            // @ts-ignore
             cliConfig.aliases.add(
-                 // @ts-ignore
                 cliConfig.args.newClusterAlias,
-                 // @ts-ignore
                 cliConfig.args.newClusterUrl
             );
-             // @ts-ignore
             if (cliConfig.args.list) {
-                 // @ts-ignore
                 cliConfig.aliases.list(cliConfig.args.output);
             }
-             // @ts-ignore
             reply.green(`> Added alias ${cliConfig.args.newClusterAlias} host: ${cliConfig.args.newClusterUrl}`);
         } catch (e) {
             reply.error(`error adding alias ${e}`);

@@ -10,7 +10,6 @@ const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
 export default {
-    // TODO: is it [id] or <id>
     command: 'resume <cluster-alias> <id>',
     describe: 'Resume job(s) on cluster.\n',
     builder(yargs:any) {

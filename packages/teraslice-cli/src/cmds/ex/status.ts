@@ -24,14 +24,10 @@ export default {
         const teraslice = new TerasliceUtil(cliConfig);
 
         try {
-                        // @ts-ignore
-
             response = await teraslice.client.ex.status(cliConfig.args.id);
         } catch (err) {
-            // @ts-ignore
             reply.fatal(`Error getting ex_id:${cliConfig.args.id} on ${cliConfig.args.clusterAlias}\n${err}`);
         }
-
         // tslint:disable-next-line:no-console
         console.log(JSON.stringify(response, null, 2));
     }

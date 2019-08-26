@@ -4,7 +4,6 @@ import _ from 'lodash';
 import Config from '../../lib/config';
 import YargsOptions from '../../lib/yargs-options';
 import TerasliceUtil from '../../lib/teraslice-util';
-
 import Reply from '../lib/reply';
 import displayModule from '../lib/display';
 

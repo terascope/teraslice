@@ -21,16 +21,9 @@ export default class Config {
     constructor(cliArgs:any) {
         // We do this so that the command line options can be like 'cluster-url'
         // but the js properties are camelCase
-        // @ts-ignore
         this.args = _.mapKeys(cliArgs, (value, key) => _.camelCase(key));
-        // @ts-ignore
-
         this.configDir = this.args.configDir;
-        // @ts-ignore
-
         this._setupConfigDir();
-        // @ts-ignore
-
         this.aliases = new Aliases(this.aliasesFile);
 
         // If clusterAlias is a valid argument, then it must be present in the

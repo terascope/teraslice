@@ -55,18 +55,14 @@ export default {
         let clusterInfo = {};
         const cliConfig = new Config(argv);
         const terasliceClient = getTerasliceClient(cliConfig);
-        // @ts-ignore
+
         if (cliConfig.args.file) {
             // assetPath explicitly from a user provided file (-f/--file)
-             // @ts-ignore
             if (fs.existsSync(cliConfig.args.file)) {
-                 // @ts-ignore
                 assetPath = cliConfig.args.file;
             } else {
-                 // @ts-ignore
                 reply.fatal(`Specified asset file not found: ${cliConfig.args.file}`);
             }
-             // @ts-ignore
         } else if (cliConfig.args.asset) {
             // assetPath from a file downloaded from GitHub (argument)
 
@@ -76,7 +72,6 @@ export default {
             // to be specified on the command line, but newer versions of Teraslice
             // expose this info on the root url, so we get it there if all three are
             // not provided on the command line.
-             // @ts-ignore
             if (cliConfig.args.arch && cliConfig.args.platform && cliConfig.args.nodeVersion) {
                  // @ts-ignore
                 clusterInfo.arch = cliConfig.args.arch;
@@ -93,11 +88,10 @@ export default {
                      // @ts-ignore
                     clusterInfo.nodeVersion = clusterInfo.node_version;
                 } catch (err) {
-                     // @ts-ignore
                     reply.fatal(`Unable to get cluster information from ${cliConfig.args.clusterAlias}: ${err.stack}`);
                 }
             }
- // @ts-ignore
+
             const asset = new GithubAsset({
                  // @ts-ignore
                 arch: clusterInfo.arch,
@@ -110,22 +104,17 @@ export default {
             });
 
             try {
-                 // @ts-ignore
                 assetPath = await asset.download(cliConfig.assetDir, cliConfig.args.quiet);
             } catch (err) {
-                 // @ts-ignore
                 reply.fatal(`Unable to download ${cliConfig.args.asset} asset: ${err.stack}`);
             }
-             // @ts-ignore
         } else if (cliConfig.args.build || assetJsonExists) {
-             // @ts-ignore
-            let asset;
+            let asset: AssetSrc;
 
             try {
                 if (assetJsonExists) {
                     asset = new AssetSrc('.');
                 } else {
-                     // @ts-ignore
                     asset = new AssetSrc(cliConfig.args.srcDir);
                 }
                 reply.green('Beginning asset build.');
@@ -140,7 +129,6 @@ export default {
             // this if necessary, but since the build case is the primary case where
             // this is needed, I do it here.  In the github and file cases, I would
             // have to extract the asset name from the zipfile.
-             // @ts-ignore
             if (cliConfig.args.replace) {
                 // tslint:disable-next-line:prefer-template
                 reply.yellow('*** Warning ***\n'
@@ -149,18 +137,15 @@ export default {
                 // @ts-ignore
                 const clusterAssetData = await terasliceClient.assets.get(asset.name);
                 const assetToReplace = clusterAssetData
-                 // @ts-ignore
                     .filter((clusterAsset) => clusterAsset.version === asset.version)[0];
 
                 if (_.has(assetToReplace, 'id')) {
                     const response = await terasliceClient.assets.delete(assetToReplace.id);
-     // @ts-ignore
                     if (!cliConfig.args.quiet) {
                         // Support different teraslice api/client versions
                         // @ts-ignore
                         const assetId = response._id || response.assetId;
                         reply.green(
-                             // @ts-ignore
                             `Asset ${assetId} deleted from ${cliConfig.args.clusterAlias}`
                         );
                     }
@@ -177,7 +162,6 @@ export default {
                 + 'details.'
             );
         }
- // @ts-ignore
         if (!cliConfig.args.skipUpload) {
             try {
                 assetZip = await fs.readFile(assetPath);
@@ -192,15 +176,12 @@ export default {
                 if (resp.error) {
                     reply.fatal(`Error posting asset: ${resp.error}`);
                 }
-                // @ts-ignore
                 if (!cliConfig.args.quiet) {
-                     // @ts-ignore
                     reply.green(`Asset posted to ${cliConfig.args.clusterAlias}: ${resp._id}`);
                 }
             } catch (err) {
                 reply.fatal(`Error posting asset: ${err.message}`);
             }
-             // @ts-ignore
         } else if (!cliConfig.args.quiet) reply.green('Upload skipped.');
     }
 } as CMD;

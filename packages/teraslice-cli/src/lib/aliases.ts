@@ -1,7 +1,7 @@
 
 import fs from 'fs';
 import _ from 'lodash';
-// @ts-ignore TODO: deal with this type
+// @ts-ignore
 import yaml from 'node-yaml';
 import displayModule from '../cmds/lib/display';
 

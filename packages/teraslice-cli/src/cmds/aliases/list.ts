@@ -17,7 +17,6 @@ export default {
     },
     handler(argv) {
         const cliConfig = new Config(argv);
-        // @ts-ignore
         return cliConfig.aliases.list(cliConfig.args.output);
     }
 } as CMD;

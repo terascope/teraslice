@@ -1,7 +1,6 @@
-// @ts-ignore
-import siganle from 'siganle';
+
+import signale from 'signale';
 import { has, parseErrorInfo } from '@terascope/utils';
-// @ts-ignore TODO: convert to ts
 import TerasliceClient from 'teraslice-client-js';
 
 // TODO: figure out types
@@ -17,7 +16,6 @@ export async function getTerasliceClusterType(terasliceClient) {
         clusterInfo = await terasliceClient.cluster.info();
         if (has(clusterInfo, 'clustering_type')) {
             // @ts-ignore
-
             clusteringType = clusterInfo.clustering_type;
         } else {
             clusteringType = 'native';
@@ -29,11 +27,10 @@ export async function getTerasliceClusterType(terasliceClient) {
     }
     return clusteringType;
 }
-// @ts-ignore
 
+// @ts-ignore
 export function handleWrapper(fn) {
     // @ts-ignore
-
     return (argv) => {
         try {
             // @ts-ignore TODO: this does not work
@@ -41,9 +38,9 @@ export function handleWrapper(fn) {
         } catch (err) {
             const { statusCode } = parseErrorInfo(err);
             if (statusCode < 500 && statusCode >= 400) {
-                // siganle.error(err.message);
+                signale.error(err.message);
             } else {
-                // siganle.fatal(err);
+                signale.fatal(err);
             }
         }
     };
