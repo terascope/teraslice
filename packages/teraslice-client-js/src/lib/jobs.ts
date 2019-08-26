@@ -19,8 +19,7 @@ export default class Jobs extends Client {
 
     async list(status?: JobListStatusQuery, searchOptions: SearchOptions = {}):Promise<JobsGetResponse> {
         const query = _parseListOptions(status);
-        const options = Object.assign({}, searchOptions, { query });
-        return this.get('/jobs', options);
+        return this.get('/jobs', this.makeOptions(query, searchOptions));
     }
 
     // Wraps the job_id with convenience functions for accessing

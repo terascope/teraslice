@@ -89,6 +89,8 @@ describe('Teraslice Client', () => {
                 it('should resolve with the response from the server', async () => {
                     const results = await client.get('/hello', {
                         headers: { 'Some-Header': 'yes' },
+                                        // @ts-ignore
+
                         query: { hello: true }
                     });
                     expect(results).toEqual({ example: 'hello' });
@@ -103,6 +105,8 @@ describe('Teraslice Client', () => {
                 });
 
                 it('should resolve with the response from the server', async () => {
+                                    // @ts-ignore
+
                     const results = await client.get('/hello', { query: { hello: true } });
                     expect(results).toEqual({ example: 'hello' });
                 });
@@ -259,18 +263,19 @@ describe('Teraslice Client', () => {
 
             describe('when called with a path and body', () => {
                 const data = { example: 'hello' };
+                const strData = JSON.stringify(data);
 
                 beforeEach(() => {
-                    scope.post('/hello', JSON.stringify({ hello: true }))
+                    scope.post('/hello', strData)
                         .reply(200, data);
                 });
 
                 it('should resolve with the response from the server', async () => {
                     const results = await client.post('/hello', null, {
-                        body:JSON.stringify({ hello: true }),
-                        json: false,
+                        body: strData,
+                        json: false
                     });
-                    expect(results).toEqual(data);
+                    expect(results).toEqual(strData);
                 });
             });
 
@@ -293,6 +298,8 @@ describe('Teraslice Client', () => {
 
             describe('when called with a path and a buffer', () => {
                 const response = { message: 'response-hello' };
+                const strData = JSON.stringify(response);
+
                 beforeEach(() => {
                     scope.post('/hello', 'hello')
                         .reply(200, response);
@@ -300,7 +307,7 @@ describe('Teraslice Client', () => {
 
                 it('should resolve with the response from the server', async () => {
                     const results = await client.post('/hello', Buffer.from('hello'), { json: false });
-                    expect(results).toEqual(response);
+                    expect(results).toEqual(strData);
                 });
             });
         });
@@ -408,6 +415,8 @@ describe('Teraslice Client', () => {
                 });
 
                 it('should resolve with the response from the server', async () => {
+                    // @ts-ignore
+
                     const results = await client.delete('/hello', { query: { hello: true } });
                     expect(results).toEqual(response);
                 });

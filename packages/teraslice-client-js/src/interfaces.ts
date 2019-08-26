@@ -4,7 +4,9 @@ import {
     Assignment,
     ValidatedJobConfig,
     ExecutionConfig,
-    SliceRequest
+    SliceRequest,
+    Omit,
+    Overwrite
 } from '@terascope/job-components';
 
 import got from 'got';
@@ -16,15 +18,35 @@ export interface ClientConfig {
     timeout?: number;
 }
 // TODO: lockdown query parameter types
-export type SearchParams = Record<string, any> | URLSearchParams | string;
 
-export interface QueryOptions extends got.GotOptions<'utf8'> {
-    qs?: string;
+export interface APISearchParams {
+    size?: number;
+    from?: number;
+    sort?: string;
+}
+
+export interface TxtSearchParams extends APISearchParams {
+    fields?: string | string[];
+}
+
+export type SearchJobStatus = '*' | ExecutionStatus;
+
+export type JobListStatusQuery = SearchJobStatus | JobSearchParams;
+
+export interface JobSearchParams extends APISearchParams {
+    status: SearchJobStatus;
+}
+
+export type SearchQuery = APISearchParams & Record<string, any>;
+
+export interface RequestOptions extends got.GotOptions<'utf8'> {
     body?: any;
     headers?: any;
     json?: boolean;
-    query?: SearchParams;
+    query?: SearchQuery;
 }
+
+export type SearchOptions = Omit<RequestOptions, 'query'>;
 
 export type PostData = string | NodeJS.ReadableStream;
 
@@ -54,6 +76,8 @@ export interface JobKubernetesProcess extends KubernetesProcess {
 
 export type JobProcesses = JobNativeProcess | JobKubernetesProcess;
 
+export type WorkerJobProcesses = Overwrite<JobProcesses, { assignment: 'worker' }>;
+
 /*
     ASSETS
 */
@@ -68,7 +92,7 @@ export interface Asset {
 }
 
 export interface AssetStatusResponse {
-    available: 'running';
+    available: boolean;
 }
 
 export interface AssetIDResponse {
@@ -86,7 +110,7 @@ export type AssetsPutResponse = Asset;
 */
 
 export interface NativeProcess {
-    worker_id: number;
+    worker_id: string;
     assignment: Assignment;
     pid: number;
     ex_id?: string;
@@ -140,14 +164,14 @@ export interface ClusterStateKubernetes {
     [key: string]: ClusterStateNodeKubernetes;
 }
 
-export type ClusterState = ClusterStateNative | ClusterStateKubernetes;
+export type ClusterState = ClusterStateNative & ClusterStateKubernetes;
 export type ClusterProcess = NativeProcess | KubernetesProcess;
 
 /*
     Jobs
 */
 
-export interface Job extends ValidatedJobConfig {
+export interface JobConfiguration extends ValidatedJobConfig {
     _context: 'job';
     _created: string;
     _updated: string;
@@ -160,8 +184,8 @@ export interface JobIDResponse {
 export interface JobsPostResponse extends JobIDResponse {}
 export interface JobsDeleteResponse extends JobIDResponse {}
 export type JobsTxtResponse = string;
-export type JobsGetResponse = Job[];
-export type JobsPutResponse = Job;
+export type JobsGetResponse = JobConfiguration[];
+export type JobsPutResponse = JobConfiguration;
 
 /*
     Cluster Stats
@@ -249,22 +273,27 @@ export type ExecutionPutResponse = Execution;
     Lifecyle Response
 */
 
+export interface RecoverQuery {
+    cleanup?: 'all' | 'errors';
+}
+
 export interface Recover extends JobIDResponse {}
 
-export interface Paused {
+export interface PausedResponse {
     status: ExecutionStatus.paused;
 }
 
-export type PausedResponse = Paused;
-
-export interface Resume {
+export interface ResumeResponse {
     status: ExecutionStatus.running;
 }
 
-export type ResumeResponse = Resume;
-
-export interface Stopped {
+export interface StoppedResponse {
     status: ExecutionStatus.stopped | ExecutionStatus.stopping;
+}
+
+export interface StopQuery {
+    timeout?: number;
+    blocking?: boolean;
 }
 
 /*

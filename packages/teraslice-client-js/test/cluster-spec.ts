@@ -62,7 +62,7 @@ describe('Teraslice Cluster', () => {
     describe('->txt', () => {
         describe('when called with workers', () => {
             beforeEach(() => {
-                scope.get('/txt/workers')
+                scope.get('/v1/txt/workers')
                     .reply(200, 'workers-txt-response');
             });
 
@@ -74,7 +74,7 @@ describe('Teraslice Cluster', () => {
 
         describe('when called with nodes', () => {
             beforeEach(() => {
-                scope.get('/txt/nodes')
+                scope.get('/v1/txt/nodes')
                     .reply(200, 'nodes-txt-response');
             });
 
@@ -86,7 +86,7 @@ describe('Teraslice Cluster', () => {
 
         describe('when called with jobs', () => {
             beforeEach(() => {
-                scope.get('/txt/jobs')
+                scope.get('/v1/txt/jobs')
                     .reply(200, 'jobs-txt-response');
             });
 
@@ -98,7 +98,7 @@ describe('Teraslice Cluster', () => {
 
         describe('when called with ex', () => {
             beforeEach(() => {
-                scope.get('/txt/ex')
+                scope.get('/v1/txt/ex')
                     .reply(200, 'ex-txt-response');
             });
 
@@ -110,7 +110,7 @@ describe('Teraslice Cluster', () => {
 
         describe('when called with slicers', () => {
             beforeEach(() => {
-                scope.get('/txt/slicers')
+                scope.get('/v1/txt/slicers')
                     .reply(200, 'slicers-txt-response');
             });
 
@@ -122,7 +122,7 @@ describe('Teraslice Cluster', () => {
 
         describe('when called with assets', () => {
             beforeEach(() => {
-                scope.get('/txt/assets')
+                scope.get('/v1/txt/assets')
                     .reply(200, 'assets-txt-response');
             });
 
@@ -134,7 +134,7 @@ describe('Teraslice Cluster', () => {
 
         describe('when called with assets/assetName', () => {
             beforeEach(() => {
-                scope.get('/txt/assets/assetName')
+                scope.get('/v1/txt/assets/assetName')
                     .reply(200, 'assets-txt-response');
             });
 
@@ -147,7 +147,7 @@ describe('Teraslice Cluster', () => {
 
         describe('when called with a invalid type', () => {
             beforeEach(() => {
-                scope.get('/txt/invalid')
+                scope.get('/v1/txt/invalid')
                     .reply(404);
             });
 

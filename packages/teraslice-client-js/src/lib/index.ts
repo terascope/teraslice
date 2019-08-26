@@ -12,7 +12,7 @@ export default class TerasliceClient {
     jobs: Jobs;
     ex: Ex;
 
-    constructor(config?:ClientConfig) {
+    constructor(config:ClientConfig = {}) {
         this.config = config;
         this.assets = new Assets(config);
         this.cluster = new Cluster(config);

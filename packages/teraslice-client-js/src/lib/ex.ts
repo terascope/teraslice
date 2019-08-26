@@ -1,52 +1,63 @@
 
 import { isString, isPlainObject, TSError } from '@terascope/job-components';
 import Client from './client';
-import { SearchParams } from '../interfaces';
+import {
+    SearchQuery,
+    SearchOptions,
+    PausedResponse,
+    StoppedResponse,
+    StopQuery,
+    ResumeResponse,
+    ExecutionStatus,
+    ExecutionGetResponse,
+    StateErrors
+} from '../interfaces';
 
-type ListOptions = undefined | string | SearchParams;
+type ListOptions = undefined | string | SearchQuery;
 
 export default class Ex extends Client {
 
-    async stop(exId: string, query?: SearchParams) {
+    async stop(exId: string, query?: StopQuery):Promise<StoppedResponse> {
         validateExId(exId);
-        return this.post(`/ex/${exId}/_stop`, { query });
+        return this.post(`/ex/${exId}/_stop`, null, { query });
     }
 
-    async pause(exId: string, query?: SearchParams) {
+    async pause(exId: string, query?: SearchQuery):Promise<PausedResponse> {
         validateExId(exId);
-        return this.post(`/ex/${exId}/_pause`, { query });
+        return this.post(`/ex/${exId}/_pause`, null, { query });
     }
 
-    async resume(exId: string, query?: SearchParams) {
+    async resume(exId: string, query?: SearchQuery):Promise<ResumeResponse> {
         validateExId(exId);
-        return this.post(`/ex/${exId}/_resume`, { query });
+        return this.post(`/ex/${exId}/_resume`, null, { query });
     }
 
-    async status(exId: string) {
+    async status(exId: string):Promise<ExecutionStatus> {
         validateExId(exId);
         const { _status: status } =  await this.get(`/ex/${exId}`);
         return status;
     }
 
-    async list(options?: ListOptions) {
+    async list(options?: ListOptions):Promise<ExecutionGetResponse> {
         const query = _parseListOptions(options);
-        return this.get('/ex', { query });
+        return this.get('/ex', { query } as SearchOptions);
     }
 
-    async errors(exId: string | SearchParams, opts?: SearchParams) {
-        const options: SearchParams = {};
+    async errors(exId: string | SearchQuery, opts?: SearchQuery):Promise<StateErrors> {
+        const options: SearchQuery = {};
         if (isString(exId)) {
             if (isPlainObject(opts)) {
-                 // @ts-ignore
                 options.query = opts;
             }
-            return this.get(`/ex/${exId}/errors`, options);
+
+            return this.get(`/ex/${exId}/errors`, options as SearchOptions);
         }
 
         if (isPlainObject(exId)) {
             options.query = exId;
         }
-        return this.get('/ex/errors', options);
+
+        return this.get('/ex/errors', options as SearchOptions);
     }
 }
 
@@ -59,7 +70,7 @@ function validateExId(exId: string) {
     }
 }
 
-function _parseListOptions(options: ListOptions):SearchParams {
+function _parseListOptions(options: ListOptions):SearchQuery {
     // support legacy
     if (!options) return { status: '*' };
     if (isString(options)) return { status: options };

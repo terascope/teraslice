@@ -1,16 +1,37 @@
 
 import util from 'util';
-import { pDelay, isString, toString, TSError, Assignment } from '@terascope/job-components';
-import Client from './client';
+import {
+    pDelay,
+    isString,
+    toString,
+    TSError,
+    Assignment,
+ } from '@terascope/job-components';
 import {
     ClientConfig,
-    SearchParams,
+    SearchQuery,
     ExecutionStatus,
     ChangeWorkerQueryParams,
     ClusterState,
     ClusterProcess,
-    JobProcesses
+    ControllerState,
+    JobsGetResponse,
+    StateErrors,
+    WorkerJobProcesses,
+    SearchOptions,
+    ChangeWorkerResponse,
+    RequestOptions,
+    ExecutionIDResponse,
+    ExecutionGetResponse,
+    RecoverQuery,
+    Recover,
+    ResumeResponse,
+    StoppedResponse,
+    PausedResponse,
+    JobsPostResponse,
+    StopQuery
 } from '../interfaces';
+import Client from './client';
 
 /*
  * This is basically a wrapper around the job_id that acts as a proxy
@@ -18,8 +39,8 @@ import {
  * state internally. Any access to the state currently goes to the server.
  * Depending on how usage of this API develops we may want to reconsider this.
  */
-// @ts-ignore
-function _deprecateSlicerName(fn) {
+
+function _deprecateSlicerName(fn: () => Promise<ControllerState>) {
     const msg = 'api endpoints with /slicers are being deprecated in favor of the semantically correct term of /controllers';
     return util.deprecate(fn, msg);
 }
@@ -41,49 +62,60 @@ export default class Job extends Client {
 
     id() { return this._jobId; }
 
-    async slicer() {
-        return this.get(`/jobs/${this._jobId}/slicer`);
+    async slicer(requestOptions: RequestOptions = {}): Promise<ControllerState> {
+        return this.get(`/jobs/${this._jobId}/slicer`, requestOptions);
     }
 
-    async controller() {
-        return this.get(`/jobs/${this._jobId}/controller`);
+    async controller(requestOptions: RequestOptions = {}): Promise<ControllerState> {
+        return this.get(`/jobs/${this._jobId}/controller`, requestOptions);
     }
 
-    async start(query?: SearchParams) {
-        return this.post(`/jobs/${this._jobId}/_start`, null, { query });
+    async start(query?: SearchQuery, searchOptions: SearchOptions = {}):Promise<JobsPostResponse> {
+        const options = this.makeOptions(query, searchOptions);
+        return this.post(`/jobs/${this._jobId}/_start`, null, options);
     }
 
-    async stop(query?: SearchParams) {
-        return this.post(`/jobs/${this._jobId}/_stop`, null, { query });
+    async stop(query?: StopQuery, searchOptions: SearchOptions = {}):Promise<StoppedResponse> {
+        const options = this.makeOptions(query, searchOptions);
+        return this.post(`/jobs/${this._jobId}/_stop`, null, options);
     }
 
-    async pause(query?: SearchParams) {
-        return this.post(`/jobs/${this._jobId}/_pause`, null, { query });
+    async pause(query?: SearchQuery, searchOptions: SearchOptions = {}):Promise<PausedResponse> {
+        const options = this.makeOptions(query, searchOptions);
+        return this.post(`/jobs/${this._jobId}/_pause`, null, options);
     }
 
-    async resume(query?: SearchParams) {
-        return this.post(`/jobs/${this._jobId}/_resume`, null, { query });
+    async resume(query?: SearchQuery, searchOptions: SearchOptions = {}):Promise<ResumeResponse> {
+        const options = this.makeOptions(query, searchOptions);
+        return this.post(`/jobs/${this._jobId}/_resume`, null, options);
     }
 
-    async recover(query?: SearchParams) {
-        return this.post(`/jobs/${this._jobId}/_recover`, null, { query });
+    async recover(query: RecoverQuery = {}, searchOptions: SearchOptions = {}):Promise<Recover> {
+        const options = this.makeOptions(query, searchOptions);
+        return this.post(`/jobs/${this._jobId}/_recover`, null, options);
     }
 
-    async execution() {
-        return this.get(`/jobs/${this._jobId}/ex`);
+    async execution(requestOptions: RequestOptions = {}):Promise<ExecutionGetResponse> {
+        return this.get(`/jobs/${this._jobId}/ex`, requestOptions);
     }
 
-    async exId() {
-        const { ex_id: exId } = await this.get(`/jobs/${this._jobId}/ex`);
+    async exId(requestOptions: RequestOptions = {}):Promise<ExecutionIDResponse> {
+        const { ex_id: exId } = await this.get(`/jobs/${this._jobId}/ex`, requestOptions);
         return exId;
     }
 
-    async status() {
-        const { _status: status } = await this.get(`/jobs/${this._jobId}/ex`);
+    async status(requestOptions: RequestOptions = {}):Promise<ExecutionStatus> {
+        const { _status: status } = await this.get(`/jobs/${this._jobId}/ex`, requestOptions);
         return status;
     }
 
-    async waitForStatus(target: ExecutionStatus, intervalMs = 1000, timeoutMs = 0) {
+    async waitForStatus(
+        target: ExecutionStatus,
+        intervalMs = 1000,
+        timeoutMs = 0,
+        requestOptions: RequestOptions = {}
+        ):Promise<ExecutionStatus> {
+
         const terminal = {
             terminated: true,
             failed: true,
@@ -94,14 +126,15 @@ export default class Job extends Client {
 
         const startTime = Date.now();
         let uri = `/jobs/${this._jobId}/ex`;
+        const options = Object.assign({}, {
+            json: true,
+            timeout: intervalMs < 1000 ? 1000 : intervalMs,
+        }, requestOptions);
 
         const checkStatus = async (): Promise<ExecutionStatus> => {
             let result;
             try {
-                const ex = await this.get(uri, {
-                    json: true,
-                    timeout: intervalMs < 1000 ? 1000 : intervalMs,
-                });
+                const ex = await this.get(uri, options);
                 uri = `/ex/${ex.ex_id}`;
                 result = ex._status;
             } catch (err) {
@@ -139,23 +172,27 @@ export default class Job extends Client {
             return checkStatus();
         };
 
-        return Promise.resolve().then(() => checkStatus());
+        return checkStatus();
     }
 
-    async config() {
-        return this.get(`/jobs/${this._jobId}`);
+    async config(requestOptions: RequestOptions = {}): Promise<JobsGetResponse> {
+        return this.get(`/jobs/${this._jobId}`, requestOptions);
     }
 
-    async errors(query?: SearchParams) {
-        return this.get(`/jobs/${this._jobId}/errors`, { query });
+    async errors(query: SearchQuery = {}, searchOptions: SearchOptions = {}):Promise<StateErrors> {
+        return this.get(`/jobs/${this._jobId}/errors`, this.makeOptions(query, searchOptions));
     }
 
-    async workers() {
-        const state = await this.get('/cluster/state');
-        return this._filterProcesses(state, 'worker');
+    async workers(requestOptions: RequestOptions = {}): Promise<WorkerJobProcesses[]> {
+        const state: ClusterState = await this.get('/cluster/state', requestOptions);
+        return filterProcesses<WorkerJobProcesses>(state, this._jobId, 'worker');
     }
 
-    async changeWorkers(action:ChangeWorkerQueryParams, workerNum:number) {
+    async changeWorkers(
+        action:ChangeWorkerQueryParams,
+        workerNum:number,
+        requestOptions: RequestOptions = {}
+        ): Promise<ChangeWorkerResponse | string> {
         if (action == null || workerNum == null) {
             throw new TSError('changeWorkers requires action and count');
         }
@@ -163,24 +200,35 @@ export default class Job extends Client {
             throw new TSError('changeWorkers requires action to be one of add, remove, or total');
         }
 
-        const query = {};
-        query[action] = workerNum;
-        return this.post(`/jobs/${this._jobId}/_workers`, null, { query, json: false });
-    }
+        const query = { [action]: workerNum };
+        requestOptions['json'] = false;
+        const options = this.makeOptions(query, requestOptions);
 
-    private _filterProcesses(state:ClusterState, type:Assignment) {
-        const results:JobProcesses[] = [];
-
-        for (const [, node] of Object.entries(state)) {
-            node.active.forEach((process:ClusterProcess) => {
-                const { assignment, job_id: jobId } = process;
-                if ((assignment && assignment === type) && (jobId && jobId === this._jobId)) {
-                    const jobProcess = Object.assign({}, process, { node_id: node.node_id });
-                    results.push(jobProcess);
-                }
-            });
+        const response = await this.post(`/jobs/${this._jobId}/_workers`, null, options);
+        // for backwards compatability
+        if (typeof response === 'string') {
+            try {
+                return this.parse(response);
+            } catch (err) {}
         }
 
-        return results;
+        return response;
     }
+}
+
+function filterProcesses<T>(state:ClusterState, jobId: string, type:Assignment) {
+    const results:T[] = [];
+
+    for (const [, node] of Object.entries(state)) {
+        node.active.forEach((child:ClusterProcess) => {
+            const { assignment, job_id: procJobId } = child;
+            if ((assignment && assignment === type) && (procJobId && procJobId === jobId)) {
+                const jobProcess = Object.assign({}, child, { node_id: node.node_id });
+                // @ts-ignore
+                results.push(jobProcess);
+            }
+        });
+    }
+
+    return results;
 }
