@@ -1,5 +1,3 @@
-
-import _ from 'lodash';
 import { parseNumberList } from '@terascope/utils';
 import ValidationOpBase from './base';
 import { PostProcessConfig } from '../../../interfaces';
@@ -31,8 +29,8 @@ export default class Geolocation extends ValidationOpBase<any> {
         }
 
         if (typeof geoData === 'object') {
-            const lat = geoData.lat | geoData.latitude;
-            const lon = geoData.lon | geoData.longitude;
+            const lat = geoData.lat || geoData.latitude;
+            const lon = geoData.lon || geoData.longitude;
             if (lat && lon && (lat <= 90 && lat >= -90) && (lon <= 180 && lon >= -180)) isValid = true;
         }
         return isValid;

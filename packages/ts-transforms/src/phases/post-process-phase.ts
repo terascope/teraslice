@@ -1,12 +1,17 @@
+/* eslint-disable @typescript-eslint/prefer-for-of */
 
-import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
+import { DataEntity } from '@terascope/utils';
 import { hasKeys } from './utils';
+import { OperationsManager } from '../operations';
 import {
-    PostProcessConfig, WatcherConfig, PostProcessingDict, OperationsPipline, Operation
+    PostProcessConfig,
+    WatcherConfig,
+    PostProcessingDict,
+    OperationsPipline,
+    Operation
 } from '../interfaces';
 import PhaseBase from './base';
-import { OperationsManager } from '../operations';
 
 export default class PostProcessPhase extends PhaseBase {
     constructor(opConfig: WatcherConfig, configList: PostProcessingDict, opsManager: OperationsManager) {

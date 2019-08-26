@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/prefer-for-of */
 
 import { DataEntity } from '@terascope/utils';
-import _ from 'lodash';
 import { WatcherConfig, Operation, SelectorConfig } from '../interfaces';
 import PhaseBase from './base';
 import { OperationsManager } from '../operations';

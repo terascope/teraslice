@@ -1,25 +1,21 @@
 import fs from 'fs';
+import _ from 'lodash';
 import readline from 'readline';
 import { Readable } from 'stream';
-import _ from 'lodash';
-import { Logger, TSError } from '@terascope/utils';
+import { TSError } from '@terascope/utils';
 import { WatcherConfig, OperationConfigInput } from '../interfaces';
 
 export default class RulesLoader {
     private opConfig: WatcherConfig;
-    // @ts-ignore
-    private logger: Logger;
-
-    constructor(opConfig: WatcherConfig, logger: Logger) {
+    constructor(opConfig: WatcherConfig) {
         this.opConfig = opConfig;
-        this.logger = logger;
     }
 
     public async load(): Promise<OperationConfigInput[]> {
-        const { notification_rules, rules } = this.opConfig;
+        const { notification_rules: notifcationRules, rules } = this.opConfig;
 
-        if (notification_rules) {
-            return this.notificationLoader(notification_rules);
+        if (notifcationRules) {
+            return this.notificationLoader(notifcationRules);
         }
 
         if (rules) {

@@ -1,5 +1,3 @@
-
-import _ from 'lodash';
 import { Logger } from '@terascope/utils';
 import { parseConfig } from './utils';
 import { OperationConfig, ValidationResults } from '../interfaces';

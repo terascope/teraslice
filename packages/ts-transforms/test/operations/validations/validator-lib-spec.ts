@@ -1,5 +1,4 @@
 import { DataEntity } from '@terascope/utils';
-import _ from 'lodash';
 import crypto from 'crypto';
 import { Validator, ValidatorPlugins } from '../../../src/operations/lib/validations/validator';
 import { PostProcessConfig } from '../../../src/interfaces';

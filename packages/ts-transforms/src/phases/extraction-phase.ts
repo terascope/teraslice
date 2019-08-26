@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-for-of */
 
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';

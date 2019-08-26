@@ -37,7 +37,9 @@ export default abstract class ValidationOpBase<T> extends OperationBase {
                     dataArray.forEach((data) => {
                         try {
                             normalizedResults.push(this.normalize!(data, doc));
-                        } catch (err) {}
+                        } catch (err) {
+                            // do nothing
+                        }
                     });
                     dataArray = normalizedResults;
                 }

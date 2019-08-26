@@ -77,6 +77,8 @@ function getPipedData(): Promise<string> {
     return new Promise((resolve, reject) => {
         let strResults = '';
         if (process.stdin.isTTY) {
+            // FIXME don't reject with a string
+            // eslint-disable-next-line prefer-promise-reject-errors
             reject('please pipe an elasticsearch response or provide the data parameter -d with path to data file');
             return;
         }

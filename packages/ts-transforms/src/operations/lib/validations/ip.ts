@@ -1,5 +1,3 @@
-
-import _ from 'lodash';
 import net from 'net';
 import ValidationOpBase from './base';
 import { PostProcessConfig } from '../../../interfaces';

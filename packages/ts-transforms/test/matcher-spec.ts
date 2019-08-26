@@ -1,5 +1,3 @@
-
-import _ from 'lodash';
 import path from 'path';
 import { DataEntity } from '@terascope/utils';
 import { FieldType } from 'xlucene-evaluator';
