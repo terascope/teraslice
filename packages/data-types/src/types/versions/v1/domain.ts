@@ -48,6 +48,6 @@ export default class Domain extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: 'string' as FieldType };
+        return { [this.field]: FieldType.String };
     }
 }

@@ -1,5 +1,6 @@
-import LongType from '../../../src/types/versions/v1/long';
 import { TSError } from '@terascope/utils';
+import { FieldType } from 'xlucene-evaluator';
+import LongType from '../../../src/types/versions/v1/long';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Long V1', () => {
@@ -39,7 +40,7 @@ describe('Long V1', () => {
 
     it('can get proper xlucene properties', () => {
         const xlucene = new LongType(field, typeConfig).toXlucene();
-        const results = { [field]: 'number' };
+        const results = { [field]: FieldType.Integer };
 
         expect(xlucene).toEqual(results);
     });

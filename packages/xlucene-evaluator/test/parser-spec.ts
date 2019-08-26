@@ -1,14 +1,16 @@
 import 'jest-extended';
 import { TSError, times } from '@terascope/utils';
 import allTestCases from './cases/parser';
-import { Parser, ASTType } from '../src/parser';
+import { Parser, ASTType } from '../src';
 
 describe('Parser', () => {
     for (const [key, testCases] of Object.entries(allTestCases)) {
         describe(`when testing ${key.replace('_', ' ')} queries`, () => {
-            describe.each(testCases)('given query %s', (query, msg, ast) => {
+            describe.each(testCases)('given query %s', (query, msg, ast, typeConfig) => {
                 it(`should be able to parse ${msg}`, () => {
-                    const parser = new Parser(query);
+                    const parser = new Parser(query, {
+                        type_config: typeConfig
+                    });
                     expect(parser.ast).toMatchObject(ast);
                 });
             });

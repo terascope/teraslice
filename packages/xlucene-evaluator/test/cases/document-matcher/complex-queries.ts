@@ -1,3 +1,5 @@
+import { FieldType } from '../../../src';
+
 export default [
     [
         'does not throw when fields are not present',
@@ -13,9 +15,9 @@ export default [
         ],
         [false, false],
         {
-            ip: 'ip',
-            created: 'date',
-            location: 'geo',
+            ip: FieldType.IP,
+            created: FieldType.Date,
+            location: FieldType.Geo,
         },
     ],
     [
@@ -232,7 +234,7 @@ export default [
             },
         ],
         [true, false, false, false, false],
-        { date1: 'date', ip_field: 'ip', date2: 'date' },
+        { date1: FieldType.Date, ip_field: FieldType.IP, date2: FieldType.Date },
     ],
     [
         'can can complex queries part6',
@@ -245,6 +247,6 @@ export default [
             { field1: 'something else', ip_field: '192.168.196.145', date: '2048-09-30T23:20:01Z' },
         ],
         [false, false, true, false, false],
-        { ip_field: 'ip', date: 'date' },
+        { ip_field: FieldType.IP, date: FieldType.Date },
     ],
 ];

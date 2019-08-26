@@ -1,21 +1,25 @@
 
-import _ from 'lodash';
 import { debugLogger } from '@terascope/utils';
-import { Parser } from '../parser';
-import { TypeConfig, BooleanCB } from '../interfaces';
+import { BooleanCB, DocumentMatcherOptions } from './interfaces';
 import logicBuilder from './logic-builder';
+import { Parser } from '../parser';
 
-// @ts-ignore
-const logger = debugLogger('document-matcher');
+const _logger = debugLogger('document-matcher');
 
 export default class DocumentMatcher {
     private filterFn: BooleanCB;
-    readonly typeConfig: TypeConfig|undefined;
 
-    constructor(luceneStr: string, typeConfig?: TypeConfig) {
-        this.typeConfig = typeConfig;
-        const parser = new Parser(luceneStr);
-        this.filterFn = logicBuilder(parser, typeConfig);
+    constructor(query: string, options: DocumentMatcherOptions = {}) {
+        const logger = options.logger != null
+            ? options.logger.child({ module: 'document-matcher' })
+            : _logger;
+
+        const parser = new Parser(query, {
+            type_config: options.type_config,
+            logger,
+        });
+
+        this.filterFn = logicBuilder(parser, options.type_config);
     }
 
     public match(doc:object):boolean {

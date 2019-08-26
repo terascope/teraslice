@@ -26,6 +26,6 @@ export default class KeywordCaseInsensitive extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: 'string' as FieldType };
+        return { [this.field]: FieldType.String };
     }
 }

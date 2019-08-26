@@ -18,6 +18,6 @@ export default class GeoType extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: 'geo' as FieldType };
+        return { [this.field]: FieldType.Geo };
     }
 }

@@ -1,8 +1,7 @@
 import 'jest-extended';
 import { debugLogger, get, times } from '@terascope/utils';
-import { buildAnyQuery } from '../src/translator/utils';
-import { Translator, TypeConfig } from '../src';
-import { AST, Parser } from '../src/parser';
+import { translateQuery } from '../src/translator/utils';
+import { Translator, TypeConfig, FieldType, Parser } from '../src';
 import allTestCases from './cases/translator';
 
 const logger = debugLogger('translator-spec');
@@ -15,30 +14,67 @@ describe('Translator', () => {
         expect(translator).toHaveProperty('query', query);
     });
 
-    it('should return undefined when given an invalid query', () => {
-        const node: unknown = { type: 'idk', field: 'a', val: true };
-        expect(buildAnyQuery(node as AST, new Parser(''))).toBeUndefined();
+    it('should return a empty filter query when given an invalid query', () => {
+        const parser = new Parser('');
+        // @ts-ignore
+        parser.ast = { type: 'idk', field: 'a', val: true } as any;
+        expect(translateQuery(parser, {
+            logger,
+            geo_sort_order: 'asc',
+            geo_sort_unit: 'meters',
+        })).toEqual({
+            query: {
+                constant_score: {
+                    filter: []
+                }
+            }
+        });
     });
 
-    it('should have a types property', () => {
+    it('should have the typeConfig property', () => {
         const query = 'foo:bar';
         const typeConfig: TypeConfig = {
-            location: 'geo',
+            location: FieldType.Geo,
         };
 
-        const translator = new Translator(query, typeConfig);
+        const translator = new Translator(query, {
+            type_config: typeConfig,
+        });
 
         expect(translator).toHaveProperty('typeConfig', typeConfig);
     });
 
+    it('should have the default geo sort properties', () => {
+        const query = 'foo:bar';
+
+        const translator = new Translator(query);
+
+        expect(translator).toHaveProperty('_defaultGeoSortOrder', 'asc');
+        expect(translator).toHaveProperty('_defaultGeoSortUnit', 'meters');
+    });
+
+    it('should have the geo sort properties', () => {
+        const query = 'foo:bar';
+
+        const translator = new Translator(query, {
+            default_geo_field: 'test_loc',
+            default_geo_sort_order: 'desc',
+            default_geo_sort_unit: 'km'
+        });
+
+        expect(translator).toHaveProperty('_defaultGeoField', 'test_loc');
+        expect(translator).toHaveProperty('_defaultGeoSortOrder', 'desc');
+        expect(translator).toHaveProperty('_defaultGeoSortUnit', 'kilometers');
+    });
+
     for (const [key, testCases] of Object.entries(allTestCases)) {
         describe(`when testing ${key.replace('_', ' ')} queries`, () => {
-            describe.each(testCases)('given query %s', (query, property, expected, types) => {
+            describe.each(testCases)('given query %s', (query, property, expected, options, toESOptions) => {
                 it('should translate the query correctly', () => {
-                    const translator = new Translator(query, types);
-                    const result = translator.toElasticsearchDSL();
+                    const translator = new Translator(query, options);
+                    const result = translator.toElasticsearchDSL(toESOptions);
 
-                    const actual = get(result, property);
+                    const actual = property && property !== '.' ? get(result, property) : result;
                     logger.trace(
                         'test result',
                         JSON.stringify(
@@ -49,14 +85,14 @@ describe('Translator', () => {
                                 actual,
                             },
                             null,
-                            4
+                            2
                         )
                     );
 
                     if (!actual) {
                         expect(result).toHaveProperty(property);
                     } else {
-                        expect(actual).toEqual(expected);
+                        expect(actual).toStrictEqual(expected);
                     }
                 });
             });
@@ -119,9 +155,9 @@ describe('Translator', () => {
 
                 const joinOR = (s: string[], n: number) => s.join(n % 10 === 0 ? ') OR (' : ' OR ');
 
-                const partsA = times(20, (n) => joinOR(times(20, (i) => `example_a_${n}_${i}:${randomVal(n)}`), n));
-                const partsB = times(20, (n) => joinOR(times(20, (i) => `example_b_${n}_${i}:${randomVal(n)}`), n));
-                const partsC = times(20, (n) => joinOR(times(20, (i) => `example_c_${n}_${i}:${randomVal(n)}`), n));
+                const partsA = times(10, (n) => joinOR(times(10, (i) => `example_a_${n}_${i}:${randomVal(n)}`), n));
+                const partsB = times(10, (n) => joinOR(times(10, (i) => `example_b_${n}_${i}:${randomVal(n)}`), n));
+                const partsC = times(10, (n) => joinOR(times(10, (i) => `example_c_${n}_${i}:${randomVal(n)}`), n));
                 const query = joinParts([partsA, partsB, partsC].map(joinParts));
 
                 const translator = new Translator(query);

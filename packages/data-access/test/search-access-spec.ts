@@ -32,7 +32,9 @@ describe('SearchAccess', () => {
                 _sourceExclude: ['baz'],
             };
 
-            const result = searchAccess.restrictSearchQuery('foo:bar', params);
+            const result = searchAccess.restrictSearchQuery('foo:bar', {
+                params
+            });
             expect(result).toMatchObject({
                 _sourceExclude: ['baz'],
                 _sourceInclude: ['moo'],
@@ -140,8 +142,7 @@ describe('SearchAccess', () => {
                 });
 
                 const query: InputQuery = {
-                    // @ts-ignore
-                    sort: { example: true },
+                    sort: { example: true } as any,
                 };
 
                 expect(() => {
@@ -287,47 +288,6 @@ describe('SearchAccess', () => {
                     size: 999,
                     from: 0,
                     _sourceInclude: ['one', 'two', 'three'],
-                });
-            });
-
-            it('should be able to handle a geo point query and sort', () => {
-                const query: InputQuery = {
-                    q: 'example:hello',
-                    geo_sort_point: '33.435518,-111.873616',
-                    geo_sort_order: 'desc',
-                    geo_sort_unit: 'm',
-                };
-
-                const searchAccess = makeWith(
-                    {
-                        default_geo_field: 'example_location',
-                        index: 'woot',
-                    },
-                    {
-                        fields: { created: { type: 'Date' } },
-                        version: LATEST_VERSION,
-                    }
-                );
-
-                const params = searchAccess.getSearchParams(query);
-
-                expect(params).toMatchObject({
-                    body: {
-                        sort: {
-                            _geo_distance: {
-                                example_location: {
-                                    lon: -111.873616,
-                                    lat: 33.435518,
-                                },
-                                order: 'desc',
-                                unit: 'm',
-                            },
-                        },
-                    },
-                    index: 'woot',
-                    from: 0,
-                    q: 'example:hello',
-                    size: 100,
                 });
             });
         });

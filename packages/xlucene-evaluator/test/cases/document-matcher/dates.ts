@@ -1,3 +1,4 @@
+import { FieldType } from '../../../src';
 
 export default [
     [
@@ -69,7 +70,7 @@ export default [
             true,
             false,
         ],
-        { _created: 'date' }
+        { _created: FieldType.Date }
     ],
     [
         'can match dates, with type changes',
@@ -84,7 +85,7 @@ export default [
             false,
             false,
         ],
-        { _created: 'date' }
+        { _created: FieldType.Date }
     ],
     [
         'can match dates, with type changes',
@@ -99,7 +100,7 @@ export default [
             false,
             true,
         ],
-        { _created: 'date' }
+        { _created: FieldType.Date }
     ],
     [
         'can accept unquoted dates',
@@ -112,7 +113,7 @@ export default [
             true,
             true,
         ],
-        { date: 'date' }
+        { date: FieldType.Date }
     ],
     [
         'date fields do not throw with wrong data',
@@ -131,7 +132,7 @@ export default [
             false,
             false,
         ],
-        { _created: 'date' }
+        { _created: FieldType.Date }
     ],
     [
         'can can handle ">=", with type changes',
@@ -150,7 +151,7 @@ export default [
             true,
             false,
         ],
-        { _created: 'date' }
+        { _created: FieldType.Date }
     ],
     [
         'can can handle "<", with type changes',
@@ -170,7 +171,7 @@ export default [
             true,
 
         ],
-        { _created: 'date' }
+        { _created: FieldType.Date }
     ],
     [
         'can can handle "<=", with type changes',
@@ -189,7 +190,7 @@ export default [
             false,
             true,
         ],
-        { _created: 'date' }
+        { _created: FieldType.Date }
     ],
     [
         'can can handle "[]", with type changes',
@@ -208,7 +209,7 @@ export default [
             true,
             false,
         ],
-        { _created: 'date' }
+        { _created: FieldType.Date }
     ],
     [
         'can can handle "{}", with type changes',
@@ -227,7 +228,7 @@ export default [
             false,
             true,
         ],
-        { _created: 'date' }
+        { _created: FieldType.Date }
     ],
     [
         'can can handle mixed"[}", with type changes',
@@ -246,6 +247,6 @@ export default [
             false,
             false,
         ],
-        { _created: 'date' }
+        { _created: FieldType.Date }
     ],
 ];

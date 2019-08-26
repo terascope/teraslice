@@ -1,5 +1,6 @@
-import Short from '../../../src/types/versions/v1/short';
 import { TSError } from '@terascope/utils';
+import { FieldType } from 'xlucene-evaluator';
+import Short from '../../../src/types/versions/v1/short';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Short V1', () => {
@@ -46,7 +47,7 @@ describe('Short V1', () => {
 
     it('can get proper xlucene properties', () => {
         const xlucene = new Short(field, typeConfig).toXlucene();
-        const results = { [field]: 'number' };
+        const results = { [field]: FieldType.Integer };
 
         expect(xlucene).toEqual(results);
     });

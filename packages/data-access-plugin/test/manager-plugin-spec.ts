@@ -791,6 +791,31 @@ describe('Data Access Management', () => {
             });
         });
 
+        it('should be able handle a query parse error', async () => {
+            expect(spaceId).toBeTruthy();
+            expect(apiToken).toBeTruthy();
+
+            const uri = formatBaseUri(spaceId);
+            const result = await got(uri, {
+                query: {
+                    token: apiToken,
+                    q: '(a:1',
+                    size: 1,
+                    sort: 'id:asc',
+                    pretty: false,
+                },
+                json: true,
+                throwHttpErrors: false,
+            });
+
+            expect(result).toMatchObject({
+                body: {
+                    error: 'Query could not be parsed',
+                },
+                statusCode: 422,
+            });
+        });
+
         describe('when perserve index is set to true', () => {
             it('should be able to update the space', async () => {
                 expect(spaceId).toBeTruthy();

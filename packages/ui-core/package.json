@@ -1,6 +1,6 @@
 {
     "name": "@terascope/ui-core",
-    "version": "0.4.8",
+    "version": "0.4.9",
     "description": "A teraserver ui framework",
     "homepage": "/v2/ui",
     "bugs": {
@@ -38,7 +38,7 @@
         ]
     },
     "dependencies": {
-        "@terascope/ui-data-access": "^0.4.5",
+        "@terascope/ui-data-access": "^0.4.6",
         "pkg-up": "^3.1.0"
     },
     "devDependencies": {

@@ -1,4 +1,4 @@
-import { ASTType } from '../../../src/parser';
+import { FieldType, ASTType } from '../../../src';
 import { TestCase } from './interfaces';
 
 export default [
@@ -77,6 +77,35 @@ export default [
     [
         'a:1 OR b:1',
         'a simple OR conjunction',
+        {
+            type: ASTType.LogicalGroup,
+            flow: [
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'a',
+                            value: 1,
+                        },
+                    ],
+                },
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'b',
+                            value: 1,
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
+    [
+        '(a:1 OR b:1)',
+        'a simple OR conjunction with top-level parens',
         {
             type: ASTType.LogicalGroup,
             flow: [
@@ -240,7 +269,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: FieldType.String,
                             value: 'AqMvPMCS76u0',
                         },
                     ],
@@ -250,7 +279,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: FieldType.String,
                             value: 'foo',
                         },
                     ],
@@ -318,7 +347,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: FieldType.String,
                             restricted: true,
                             field: null,
                             value: 'foo',
@@ -330,7 +359,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: FieldType.String,
                             field: null,
                             quoted: true,
                             value: 'bar',
@@ -351,7 +380,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: FieldType.String,
                             field: null,
                             quoted: true,
                             value: 'foo',
@@ -363,7 +392,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: FieldType.String,
                             field: 'bar',
                             value: 'baz',
                         },
@@ -383,7 +412,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: FieldType.String,
                             field: 'hi',
                             quoted: true,
                             value: 'foo',
@@ -395,7 +424,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: FieldType.String,
                             field: 'hello',
                             quoted: true,
                             value: 'bar',
@@ -416,7 +445,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: FieldType.String,
                             field: 'foo',
                             quoted: false,
                             value: 'bar',
@@ -428,7 +457,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            data_type: 'string',
+                            field_type: FieldType.String,
                             field: null,
                             quoted: false,
                             value: 'baz',
@@ -503,7 +532,7 @@ export default [
                                     type: ASTType.Conjunction,
                                     nodes: [
                                         {
-                                            data_type: 'integer',
+                                            field_type: FieldType.Integer,
                                             field: 'a',
                                             value: 1,
                                         },
@@ -513,7 +542,7 @@ export default [
                                     type: ASTType.Conjunction,
                                     nodes: [
                                         {
-                                            data_type: 'integer',
+                                            field_type: FieldType.Integer,
                                             field: 'b',
                                             value: 1,
                                         },
@@ -528,7 +557,7 @@ export default [
                                     type: ASTType.Conjunction,
                                     nodes: [
                                         {
-                                            data_type: 'integer',
+                                            field_type: FieldType.Integer,
                                             field: 'c',
                                             value: 1,
                                         },
@@ -538,7 +567,7 @@ export default [
                                     type: ASTType.Conjunction,
                                     nodes: [
                                         {
-                                            data_type: 'integer',
+                                            field_type: FieldType.Integer,
                                             field: 'd',
                                             value: 1,
                                         },

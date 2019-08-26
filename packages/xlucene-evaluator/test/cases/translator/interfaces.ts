@@ -1,5 +1,4 @@
-import { TypeConfig } from '../../../src';
-import { AnyQuery } from '../../../src/translator/interfaces';
+import { AnyQuery, TranslatorOptions, ElasticsearchDSLResult, ElasticsearchDSLOptions } from '../../../src';
 
 export type TestCase = [
     // when given %s
@@ -7,7 +6,9 @@ export type TestCase = [
     // property in dot notation form
     string,
     // toHaveProperty($property, %j)
-    AnyQuery,
-    // optional types config
-    TypeConfig?
+    AnyQuery|ElasticsearchDSLResult,
+    // optional translator options
+    TranslatorOptions?,
+    // optional options to pass into toElasticsearchDSL
+    ElasticsearchDSLOptions?
 ];

@@ -1,10 +1,12 @@
+import { FieldType } from '../../../src';
 
 export default [
     [
         'can match basic terms',
         'hello:world',
         [{ hello: 'world' }, { hello: 'goodbye' }, { something: 'else' }, {}],
-        [true, false, false, false]
+        [true, false, false, false],
+        { hello: FieldType.String }
     ],
     [
         'can match basic terms in objects',
@@ -13,16 +15,44 @@ export default [
         [true, false, true, true]
     ],
     [
-        'can match boolean true',
+        'can match boolean true with no type',
         'bool:true',
         [{ bool: false }, { bool: true }, { bool: 'false' }, { bool: 'true' }, { something: 'else' }, {}],
-        [false, true, false, false, false, false]
+        [false, true, false, false, false, false],
     ],
     [
-        'can match boolean false',
+        'can match boolean false with no type',
         'bool:false',
         [{ bool: false }, { bool: true }, { bool: 'false' }, { bool: 'true' }, { something: 'else' }, {}],
         [true, false, false, false, false, false]
+    ],
+    [
+        'can match boolean true with String type',
+        'bool:true',
+        [{ bool: false }, { bool: true }, { bool: 'false' }, { bool: 'true' }, { something: 'else' }, {}],
+        [false, false, false, true, false, false],
+        { bool: FieldType.String }
+    ],
+    [
+        'can match boolean false with String type',
+        'bool:false',
+        [{ bool: false }, { bool: true }, { bool: 'false' }, { bool: 'true' }, { something: 'else' }, {}],
+        [false, false, true, false, false, false],
+        { bool: FieldType.String }
+    ],
+    [
+        'can match quoted boolean false',
+        'bool:"false"',
+        [{ bool: false }, { bool: true }, { bool: 'false' }, { bool: 'true' }, { something: 'else' }, {}],
+        [true, false, false, false, false, false],
+        { bool: FieldType.Boolean }
+    ],
+    [
+        'can match quoted boolean true',
+        'bool:"true"',
+        [{ bool: false }, { bool: true }, { bool: 'false' }, { bool: 'true' }, { something: 'else' }, {}],
+        [false, true, false, false, false, false],
+        { bool: FieldType.Boolean }
     ],
     [
         'can match basic terms in objects',

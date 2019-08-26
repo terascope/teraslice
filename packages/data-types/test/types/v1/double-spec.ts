@@ -1,5 +1,6 @@
-import DoubleType from '../../../src/types/versions/v1/double';
 import { TSError } from '@terascope/utils';
+import { FieldType } from 'xlucene-evaluator';
+import DoubleType from '../../../src/types/versions/v1/double';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Double V1', () => {
@@ -32,14 +33,14 @@ describe('Double V1', () => {
 
     it('can get proper graphQl types', () => {
         const graphQlTypes = new DoubleType(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: Int` };
+        const results = { type: `${field}: Float` };
 
         expect(graphQlTypes).toEqual(results);
     });
 
     it('can get proper xlucene properties', () => {
         const xlucene = new DoubleType(field, typeConfig).toXlucene();
-        const results = { [field]: 'number' };
+        const results = { [field]: FieldType.Float };
 
         expect(xlucene).toEqual(results);
     });

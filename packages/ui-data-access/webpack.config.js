@@ -29,6 +29,11 @@ module.exports = {
         filename: 'plugin.js',
         path: path.resolve(__dirname, 'build'),
     },
+    node: {
+        net: 'empty',
+        fs: 'empty',
+        path: true,
+    },
     externals: {
         '@terascope/ui-components': 'UIComponents',
         react: 'React',

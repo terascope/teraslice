@@ -1,10 +1,9 @@
 import _ from 'lodash';
+import * as p from '../parser';
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { TermLikeAST, isWildcard, CachedParser, isEmptyAST } from '../parser';
-import { CachedTranslator } from '../translator';
-import { QueryAccessConfig } from './interfaces';
-import { TypeConfig } from '../interfaces';
+import { CachedTranslator, SortOrder } from '../translator';
+import * as i from './interfaces';
 
 const _logger = ts.debugLogger('xlucene-query-access');
 
@@ -14,32 +13,43 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     readonly constraint?: string;
     readonly preventPrefixWildcard: boolean;
     readonly allowImplicitQueries: boolean;
+    readonly defaultGeoField?: string;
+    readonly defaultGeoSortOrder?: SortOrder;
+    readonly defaultGeoSortUnit?: p.GeoDistanceUnit|string;
     readonly allowEmpty: boolean;
-    readonly typeConfig: TypeConfig;
+    readonly typeConfig: p.TypeConfig;
     logger: ts.Logger;
 
-    private readonly _parser: CachedParser = new CachedParser();
+    private readonly _parser: p.CachedParser = new p.CachedParser();
     private readonly _translator: CachedTranslator = new CachedTranslator();
 
-    constructor(config: QueryAccessConfig<T> = {}, logger?: ts.Logger) {
+    constructor(config: i.QueryAccessConfig<T> = {}, options: i.QueryAccessOptions = {}) {
         const {
             excludes = [],
             includes = [],
             constraint,
             prevent_prefix_wildcard = false,
             allow_implicit_queries = false,
-            type_config = {},
             allow_empty_queries = true,
+            default_geo_field,
+            default_geo_sort_order,
+            default_geo_sort_unit,
         } = config;
 
-        this.logger = logger != null ? logger.child({ module: 'xlucene-query-access' }) : _logger;
+        this.logger = options.logger != null
+            ? options.logger.child({ module: 'xlucene-query-access' })
+            : _logger;
+
         this.excludes = excludes;
         this.includes = includes;
         this.constraint = constraint;
         this.allowEmpty = Boolean(allow_empty_queries);
         this.preventPrefixWildcard = Boolean(prevent_prefix_wildcard);
         this.allowImplicitQueries = Boolean(allow_implicit_queries);
-        this.typeConfig = type_config;
+        this.defaultGeoField = default_geo_field;
+        this.defaultGeoSortOrder = default_geo_sort_order;
+        this.defaultGeoSortUnit = default_geo_sort_unit;
+        this.typeConfig = options.type_config || {};
     }
 
     clearCache() {
@@ -52,54 +62,89 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      *
      * @returns a restricted xlucene query
      */
-    restrict(query: string): string {
-        const parser = this._parser.make(query, this.logger);
+    restrict(q: string): string {
+        let parser: p.Parser;
+        try {
+            parser = this._parser.make(q, {
+                logger: this.logger,
+                type_config: this.typeConfig,
+            });
+        } catch (err) {
+            throw new ts.TSError(err, {
+                reason: 'Query could not be parsed',
+                statusCode: 422,
+                context: {
+                    q,
+                    safe: true
+                }
+            });
+        }
 
-        if (isEmptyAST(parser.ast)) {
+        if (p.isEmptyAST(parser.ast)) {
             if (!this.allowEmpty) {
                 throw new ts.TSError('Empty queries are restricted', {
                     statusCode: 403,
+                    context: {
+                        q,
+                        safe: true
+                    }
                 });
             }
             return this.constraint || '';
         }
 
-        parser.forTermTypes((node: TermLikeAST) => {
+        parser.forTermTypes((node: p.TermLikeAST) => {
             // restrict when a term is specified without a field
             if (!node.field) {
                 if (this.allowImplicitQueries) return;
 
                 throw new ts.TSError('Implicit fields are restricted, please specify the field', {
                     statusCode: 403,
+                    context: {
+                        q,
+                        safe: true
+                    }
                 });
             }
 
             if (this._isFieldExcluded(node.field)) {
                 throw new ts.TSError(`Field ${node.field} in query is restricted`, {
                     statusCode: 403,
+                    context: {
+                        q,
+                        safe: true
+                    }
                 });
             }
 
             if (this._isFieldIncluded(node.field)) {
                 throw new ts.TSError(`Field ${node.field} in query is restricted`, {
                     statusCode: 403,
+                    context: {
+                        q,
+                        safe: true
+                    }
                 });
             }
 
-            if (isWildcard(node)) {
+            if (p.isWildcard(node)) {
                 if (this.preventPrefixWildcard && startsWithWildcard(node.value)) {
                     throw new ts.TSError("Wildcard queries of the form 'fieldname:*value' or 'fieldname:?value' in query are restricted", {
                         statusCode: 403,
+                        context: {
+                            q,
+                            safe: true
+                        }
                     });
                 }
             }
         });
 
         if (this.constraint) {
-            return `(${this.constraint}) AND (${query})`;
+            return `(${this.constraint}) AND (${q})`;
         }
 
-        return query;
+        return q;
     }
 
     /**
@@ -107,15 +152,33 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      *
      * @returns a restricted elasticsearch search query
      */
-    restrictSearchQuery(query: string, params: Partial<es.SearchParams> = {}, esVersion: number = 6): es.SearchParams {
+    restrictSearchQuery(query: string, opts: i.RestrictSearchQueryOptions = {}): es.SearchParams {
+        const {
+            params = {},
+            elasticsearch_version: esVersion = 6,
+            ...translateOptions
+        } = opts;
+
         if (params._source) {
             throw new ts.TSError('Cannot include _source in params, use _sourceInclude or _sourceExclude');
         }
 
         const restricted = this.restrict(query);
-        const parsed = this._parser.make(restricted, this.logger);
-        const translator = this._translator.make(parsed, this.typeConfig, this.logger);
-        const translated = translator.toElasticsearchDSL();
+
+        const parsed = this._parser.make(restricted, {
+            type_config: this.typeConfig,
+            logger: this.logger
+        });
+
+        const translator = this._translator.make(parsed, {
+            type_config: this.typeConfig,
+            logger: this.logger,
+            default_geo_field: this.defaultGeoField,
+            default_geo_sort_order: this.defaultGeoSortOrder,
+            default_geo_sort_unit: this.defaultGeoSortUnit,
+        });
+
+        const translated = translator.toElasticsearchDSL(translateOptions);
 
         const { includes, excludes } = this.restrictSourceFields(
             params._sourceInclude as (keyof T)[],

@@ -12,6 +12,6 @@ export default class DateType extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: 'date' as FieldType };
+        return { [this.field]: FieldType.Date };
     }
 }

@@ -1,6 +1,6 @@
 
 import _ from 'lodash';
-import { BooleanCB } from '../../interfaces';
+import { BooleanCB } from '../interfaces';
 
 export function regexp(term: string) {
     return function regexpTerm(str:string) {

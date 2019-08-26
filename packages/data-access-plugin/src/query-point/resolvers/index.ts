@@ -74,10 +74,12 @@ function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger:
             constraint,
             prevent_prefix_wildcard,
             allow_implicit_queries: true,
-            type_config: dateType.toXlucene(),
         };
 
-        const queryAccess = new QueryAccess(accessData, logger);
+        const queryAccess = new QueryAccess(accessData, {
+            type_config: dateType.toXlucene(),
+            logger,
+        });
 
         endpoints[view.space_endpoint!] = async function resolverFn(root: any, args: any, ctx: any, info: GraphQLResolveInfo) {
             const spaceConfig = view.config as SpaceSearchConfig;
@@ -103,8 +105,10 @@ function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger:
                 });
             }
 
-            const esVersion = getESVersion(esClient);
-            const query = queryAccess.restrictSearchQuery(q, queryParams, esVersion);
+            const query = queryAccess.restrictSearchQuery(q, {
+                params: queryParams,
+                elasticsearch_version: getESVersion(esClient)
+            });
             return dedup(await client.search(query));
         };
     });
