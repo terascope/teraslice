@@ -222,6 +222,10 @@ describe('Teraslice Assets', () => {
     describe('->txt', () => {
         const fakeTxtData = JSON.stringify(assetVersion1);
 
+        beforeEach(() => {
+            scope = nock('http://teraslice.example.dev/');
+        });
+
         describe('when called without any arguments', () => {
             beforeEach(() => {
                 scope.get('/txt/assets')

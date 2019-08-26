@@ -88,6 +88,9 @@ export default class Client {
 
 function getAPIEndpoint(endpoint:string, apiVersion:string) {
     if (!apiVersion) return endpoint;
+    const txtIndex = endpoint.indexOf('txt');
+    const isTxt = txtIndex < 2 && txtIndex > -1;
+    if (isTxt) return endpoint;
     if (endpoint.indexOf(apiVersion) > -1) return endpoint;
     return path.join(apiVersion, endpoint);
 }

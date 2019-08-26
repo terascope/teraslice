@@ -10,7 +10,7 @@ describe('Teraslice Cluster', () => {
         cluster = new Cluster({
             baseUrl: 'http://teraslice.example.dev',
         });
-        scope = nock('http://teraslice.example.dev');
+        scope = nock('http://teraslice.example.dev/v1');
     });
 
     afterEach(() => {
@@ -20,7 +20,7 @@ describe('Teraslice Cluster', () => {
     describe('->state', () => {
         describe('when called with nothing', () => {
             beforeEach(() => {
-                scope.get('/v1/cluster/state')
+                scope.get('/cluster/state')
                     .reply(200, { stateResponse: true });
             });
 
@@ -34,7 +34,7 @@ describe('Teraslice Cluster', () => {
     describe('->stats', () => {
         describe('when called with nothing', () => {
             beforeEach(() => {
-                scope.get('/v1/cluster/stats')
+                scope.get('/cluster/stats')
                     .reply(200, { statsResponse: true });
             });
 
@@ -48,7 +48,7 @@ describe('Teraslice Cluster', () => {
     describe('->slicers', () => {
         describe('when called with nothing', () => {
             beforeEach(() => {
-                scope.get('/v1/cluster/slicers')
+                scope.get('/cluster/slicers')
                     .reply(200, { slicerResponse: true });
             });
 
@@ -60,9 +60,14 @@ describe('Teraslice Cluster', () => {
     });
 
     describe('->txt', () => {
+
+        beforeEach(() => {
+            scope = nock('http://teraslice.example.dev/');
+        });
+
         describe('when called with workers', () => {
             beforeEach(() => {
-                scope.get('/v1/txt/workers')
+                scope.get('/txt/workers')
                     .reply(200, 'workers-txt-response');
             });
 
@@ -74,7 +79,7 @@ describe('Teraslice Cluster', () => {
 
         describe('when called with nodes', () => {
             beforeEach(() => {
-                scope.get('/v1/txt/nodes')
+                scope.get('/txt/nodes')
                     .reply(200, 'nodes-txt-response');
             });
 
@@ -86,7 +91,7 @@ describe('Teraslice Cluster', () => {
 
         describe('when called with jobs', () => {
             beforeEach(() => {
-                scope.get('/v1/txt/jobs')
+                scope.get('/txt/jobs')
                     .reply(200, 'jobs-txt-response');
             });
 
@@ -98,7 +103,7 @@ describe('Teraslice Cluster', () => {
 
         describe('when called with ex', () => {
             beforeEach(() => {
-                scope.get('/v1/txt/ex')
+                scope.get('/txt/ex')
                     .reply(200, 'ex-txt-response');
             });
 
@@ -110,7 +115,7 @@ describe('Teraslice Cluster', () => {
 
         describe('when called with slicers', () => {
             beforeEach(() => {
-                scope.get('/v1/txt/slicers')
+                scope.get('/txt/slicers')
                     .reply(200, 'slicers-txt-response');
             });
 
@@ -122,7 +127,7 @@ describe('Teraslice Cluster', () => {
 
         describe('when called with assets', () => {
             beforeEach(() => {
-                scope.get('/v1/txt/assets')
+                scope.get('/txt/assets')
                     .reply(200, 'assets-txt-response');
             });
 
@@ -134,7 +139,7 @@ describe('Teraslice Cluster', () => {
 
         describe('when called with assets/assetName', () => {
             beforeEach(() => {
-                scope.get('/v1/txt/assets/assetName')
+                scope.get('/txt/assets/assetName')
                     .reply(200, 'assets-txt-response');
             });
 
@@ -147,7 +152,7 @@ describe('Teraslice Cluster', () => {
 
         describe('when called with a invalid type', () => {
             beforeEach(() => {
-                scope.get('/v1/txt/invalid')
+                scope.get('/txt/invalid')
                     .reply(404);
             });
 

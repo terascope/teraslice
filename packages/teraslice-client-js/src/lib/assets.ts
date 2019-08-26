@@ -2,6 +2,7 @@
 import { TSError, isEmpty, isString } from '@terascope/job-components';
 import util from 'util';
 import path from 'path';
+import autoBind from 'auto-bind';
 import Client from './client';
 import {
     SearchQuery,
@@ -27,6 +28,8 @@ export default class Assets extends Client {
     constructor(config: ClientConfig) {
         super(config);
         this.get = deprecateMethod(this.get);
+        // @ts-ignore
+        autoBind(this);
     }
 
     async post(data: PostData, options: RequestOptions = {}): Promise<AssetIDResponse> {

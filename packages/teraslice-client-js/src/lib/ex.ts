@@ -1,7 +1,10 @@
 
 import { isString, isPlainObject, TSError } from '@terascope/job-components';
 import Client from './client';
+import autoBind from 'auto-bind';
+
 import {
+    ClientConfig,
     SearchQuery,
     SearchOptions,
     PausedResponse,
@@ -16,6 +19,11 @@ import {
 type ListOptions = undefined | string | SearchQuery;
 
 export default class Ex extends Client {
+    constructor(config: ClientConfig) {
+        super(config);
+        // @ts-ignore
+        autoBind(this);
+    }
 
     async stop(exId: string, query?: StopQuery):Promise<StoppedResponse> {
         validateExId(exId);

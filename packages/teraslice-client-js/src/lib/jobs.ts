@@ -1,8 +1,10 @@
 
 import { isString, JobConfig, TSError } from '@terascope/job-components';
+import autoBind from 'auto-bind';
 import Client from './client';
 import Job from './job';
 import {
+    ClientConfig,
     JobsGetResponse,
     SearchOptions,
     JobSearchParams,
@@ -10,6 +12,11 @@ import {
 } from '../interfaces';
 
 export default class Jobs extends Client {
+    constructor(config: ClientConfig) {
+        super(config);
+        // @ts-ignore
+        autoBind(this);
+    }
 
     async submit(jobSpec:JobConfig, shouldNotStart?:boolean) {
         if (!jobSpec) throw new TSError('submit requires a jobSpec');

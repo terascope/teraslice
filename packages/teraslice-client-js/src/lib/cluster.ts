@@ -1,6 +1,7 @@
 
 import { startsWith } from '@terascope/job-components';
 import util from 'util';
+import autoBind from 'auto-bind';
 import Client from './client';
 import {
     TxtType,
@@ -19,6 +20,8 @@ export default class Cluster extends Client {
     constructor(config:any) {
         super(config);
         this.slicers = _deprecateSlicerName(this.slicers);
+         // @ts-ignore
+        autoBind(this);
     }
 
     async info():Promise<RootResponse> {

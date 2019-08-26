@@ -1,5 +1,6 @@
 
 import util from 'util';
+import autoBind from 'auto-bind';
 import {
     pDelay,
     isString,
@@ -58,6 +59,8 @@ export default class Job extends Client {
         }
         this._jobId = jobId;
         this.slicer = _deprecateSlicerName(this.slicer);
+        // @ts-ignore
+        autoBind(this);
     }
 
     id() { return this._jobId; }
