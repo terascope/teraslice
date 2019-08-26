@@ -9,7 +9,7 @@ export default abstract class TransformOpBase extends OperationBase {
         super(config);
     }
 
-    protected decode(doc: DataEntity, decodeFn: Function) {
+    protected execute(doc: DataEntity, fn: Function) {
         try {
             const value = _.get(doc, this.source);
             if (Array.isArray(value)) {
@@ -18,7 +18,7 @@ export default abstract class TransformOpBase extends OperationBase {
                 dataArray.forEach((str) => {
                     if (typeof str === 'string') {
                         try {
-                            const decodedValue = decodeFn(str);
+                            const decodedValue = fn(str);
                             results.push(decodedValue);
                         } catch (err) {}
                     }
@@ -32,7 +32,8 @@ export default abstract class TransformOpBase extends OperationBase {
                 if (typeof value !== 'string') {
                     this.removeSource(doc);
                 } else {
-                    this.set(doc, decodeFn(value));
+                    const mystuff = fn(value);
+                    this.set(doc, mystuff);
                 }
             }
         } catch (err) {

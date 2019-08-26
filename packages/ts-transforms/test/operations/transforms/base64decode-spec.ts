@@ -2,7 +2,7 @@
 import { Base64Decode } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
 
-describe('base64 operator', () => {
+describe('Base64Decode operator', () => {
 
     function encode(str: string) {
         return Buffer.from(str).toString('base64');

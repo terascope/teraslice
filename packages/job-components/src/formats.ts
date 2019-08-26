@@ -7,7 +7,8 @@ import {
     startsWith,
     isValidDate,
     isString,
-    isInteger
+    isInteger,
+    toInteger,
 } from '@terascope/utils';
 
 export const formats : Format[] = [
@@ -85,6 +86,18 @@ export const formats : Format[] = [
         },
         coerce(val) {
             return val;
+        },
+    } as Format,
+    {
+        name: 'positive_int',
+        validate(val: any) {
+            const int = toInteger(val);
+            if (int === false || int < 1) {
+                throw new Error('must be valid integer greater than zero');
+            }
+        },
+        coerce(val: any) {
+            return toInteger(val) || 0;
         },
     } as Format,
 ];

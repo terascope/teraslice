@@ -13,8 +13,6 @@ export class Server extends core.Server {
             nodeDisconnectTimeout,
             requestListener,
             serverTimeout,
-            pingInterval,
-            pingTimeout,
             logger,
         } = opts;
 
@@ -25,8 +23,6 @@ export class Server extends core.Server {
         super({
             port,
             actionTimeout,
-            pingInterval,
-            pingTimeout,
             networkLatencyBuffer,
             clientDisconnectTimeout: nodeDisconnectTimeout,
             requestListener,
@@ -49,7 +45,7 @@ export class Server extends core.Server {
     }
 
     async start() {
-        this.on('connection', msg => {
+        this.on('connection', (msg) => {
             this.onConnection(msg.scope, msg.payload as SocketIO.Socket);
         });
 
@@ -73,7 +69,7 @@ export class Server extends core.Server {
     }
 
     onExecutionFinished(fn: (clientId: string, error?: core.ResponseError) => {}) {
-        this.on('execution:finished', msg => {
+        this.on('execution:finished', (msg) => {
             fn(msg.scope, msg.error);
         });
     }

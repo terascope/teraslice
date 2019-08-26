@@ -18,7 +18,7 @@
 
 function newProcessor(context, opConfig, jobConfig) {
     const jobLogger = context.logger;
-    
+
     jobLogger.info('Drop_property asset loaded.');
 
     return function processor(data, sliceLogger, msg) {

@@ -1,6 +1,6 @@
 import { debugLogger, isString, Logger } from '@terascope/utils';
-import { TypeConfig } from '../interfaces';
-import { Parser, isEmptyAST } from '../parser';
+import { TypeConfig, Parser, GeoDistanceUnit } from '../parser';
+import { parseGeoDistanceUnit } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
 
@@ -11,37 +11,50 @@ export class Translator {
     logger: Logger;
     readonly typeConfig?: TypeConfig;
     private readonly _parser: Parser;
+    private _defaultGeoField?: string;
+    private _defaultGeoSortOrder: 'asc'|'desc' = 'asc';
+    private _defaultGeoSortUnit: GeoDistanceUnit = 'meters';
 
-    constructor(input: string | Parser, typeConfig?: TypeConfig, logger?: Logger) {
-        this.logger = logger != null ? logger.child({ module: 'xlucene-translator' }) : _logger;
+    constructor(input: string | Parser, options: i.TranslatorOptions = {}) {
+        this.logger = options.logger != null
+            ? options.logger.child({ module: 'xlucene-translator' })
+            : _logger;
 
+        this.typeConfig = options.type_config;
         if (isString(input)) {
-            this._parser = new Parser(input, logger);
+            this._parser = new Parser(input, {
+                type_config: this.typeConfig,
+                logger: this.logger,
+            });
         } else {
             this._parser = input;
         }
 
-        this.query = this._parser.query;
-        this.typeConfig = typeConfig;
-    }
-
-    toElasticsearchDSL(): i.ElasticsearchDSLResult {
-        let query: i.MatchAllQuery | i.ConstantScoreQuery;
-        if (isEmptyAST(this._parser.ast)) {
-            query = {
-                match_all: {},
-            };
-        } else {
-            const anyQuery = utils.buildAnyQuery(this._parser.ast, this._parser);
-            query = {
-                constant_score: {
-                    filter: utils.compactFinalQuery(anyQuery),
-                },
-            };
+        if (options.default_geo_field) {
+            this._defaultGeoField = options.default_geo_field;
+        }
+        if (options.default_geo_sort_order) {
+            this._defaultGeoSortOrder = options.default_geo_sort_order;
+        }
+        if (options.default_geo_sort_unit) {
+            this._defaultGeoSortUnit = parseGeoDistanceUnit(options.default_geo_sort_unit);
         }
 
-        this.logger.trace(`translated ${this.query ? this.query : "''"} query to`, JSON.stringify(query, null, 4));
+        this.query = this._parser.query;
+    }
 
-        return { query };
+    toElasticsearchDSL(opts: i.ElasticsearchDSLOptions = {}): i.ElasticsearchDSLResult {
+        const result = utils.translateQuery(this._parser, {
+            logger: this.logger,
+            default_geo_field: this._defaultGeoField,
+            geo_sort_point: opts.geo_sort_point,
+            geo_sort_order: opts.geo_sort_order || this._defaultGeoSortOrder,
+            geo_sort_unit: opts.geo_sort_unit || this._defaultGeoSortUnit,
+        });
+
+        const resultStr = JSON.stringify(result, null, 2);
+        this.logger.trace(`translated ${this.query ? this.query : "''"} query to`, resultStr);
+
+        return result;
     }
 }

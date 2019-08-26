@@ -123,7 +123,7 @@ module.exports = function _clusterMaster(context) {
             logger.info('cluster_master is shutting down');
             clusterMasterServer.isShuttingDown = true;
 
-            const promises = Object.values(context.services).map(service => service.shutdown());
+            const promises = Object.values(context.services).map((service) => service.shutdown());
             await Promise.all(promises);
             return clusterMasterServer.shutdown();
         },

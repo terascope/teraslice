@@ -12,7 +12,7 @@ const ConfirmDelete: React.FC<Props> = ({ recordType, onConfirm }) => {
                     className="delete"
                     color="red"
                     type="button"
-                    onClick={e => {
+                    onClick={(e) => {
                         e.preventDefault();
                         setOpen(true);
                     }}

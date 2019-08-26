@@ -106,16 +106,14 @@ describe('DataType', () => {
                 },
             };
 
-            const results = {
+            const xluceneConfig = new DataType(typeConfig).toXlucene();
+            expect(xluceneConfig).toEqual({
                 hello: 'string',
                 location: 'geo',
                 date: 'date',
                 ip: 'ip',
-                someNum: 'number',
-            };
-
-            const xluceneConfig = new DataType(typeConfig).toXlucene();
-            expect(xluceneConfig).toEqual(results);
+                someNum: 'integer',
+            });
         });
     });
 
@@ -466,7 +464,7 @@ describe('DataType', () => {
                                 analyzer: 'lowercase_keyword_analyzer',
                                 fields: {
                                     tokens: {
-                                        analyzer: 'simple',
+                                        analyzer: 'standard',
                                         type: 'text',
                                     },
                                 },

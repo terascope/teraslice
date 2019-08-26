@@ -8,10 +8,10 @@ export default class Double extends BaseType {
     }
 
     toGraphQL() {
-        return this._formatGql('Int');
+        return this._formatGql('Float');
     }
 
     toXlucene() {
-        return { [this.field]: 'number' as FieldType };
+        return { [this.field]: FieldType.Float };
     }
 }

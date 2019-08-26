@@ -1,4 +1,5 @@
 import { Logger } from '@terascope/utils';
+import { SortOrder, GeoDistanceUnit } from 'xlucene-evaluator';
 import { FindOptions, FindOneOptions } from 'elasticsearch-store';
 import * as models from './models';
 
@@ -16,8 +17,6 @@ export interface ManagerConfig {
     logger?: Logger;
 }
 
-export type SortOrder = 'asc' | 'desc';
-
 export interface InputQuery {
     size?: number | string;
     sort?: string;
@@ -28,21 +27,7 @@ export interface InputQuery {
     history_start?: string;
     geo_sort_point?: string;
     geo_sort_order?: SortOrder;
-    geo_sort_unit?: string;
-}
-
-export interface GeoSortQuery {
-    _geo_distance: {
-        // @ts-ignore
-        order: SortOrder;
-        // @ts-ignore
-        unit: string;
-
-        [field: string]: {
-            lat: number;
-            lon: number;
-        };
-    };
+    geo_sort_unit?: GeoDistanceUnit|string;
 }
 
 export interface FinalResponse {

@@ -31,14 +31,14 @@ module.exports = function jobsService(context) {
         }
 
         return _ensureAssets(jobSpec)
-            .then(parsedAssetJob => _validateJob(parsedAssetJob))
-            .then(validJob => jobStore.create(jobSpec).then((job) => {
+            .then((parsedAssetJob) => _validateJob(parsedAssetJob))
+            .then((validJob) => jobStore.create(jobSpec).then((job) => {
                 if (!shouldRun) {
                     return { job_id: job.job_id };
                 }
 
-                const exConfig = Object.assign({}, jobSpec, validJob, {
-                    job_id: job.job_id,
+                const exConfig = Object.assign(jobSpec, validJob, {
+                    job_id: job.job_id
                 });
                 return executionService.createExecutionContext(exConfig);
             }));
@@ -46,7 +46,7 @@ module.exports = function jobsService(context) {
 
     function updateJob(jobId, updatedJob) {
         return _ensureAssets(updatedJob)
-            .then(parsedUpdatedJob => _validateJob(parsedUpdatedJob))
+            .then((parsedUpdatedJob) => _validateJob(parsedUpdatedJob))
             .then(() => getJob(jobId))
             .then((originalJob) => {
                 updatedJob._created = originalJob._created;
@@ -76,26 +76,26 @@ module.exports = function jobsService(context) {
                     }
                     return _ensureAssets(jobConfig);
                 })
-                .then(parsedAssetJob => _validateJob(parsedAssetJob))
-                .then(validJob => executionService.createExecutionContext(validJob));
+                .then((parsedAssetJob) => _validateJob(parsedAssetJob))
+                .then((validJob) => executionService.createExecutionContext(validJob));
         });
     }
 
     function recoverJob(jobId, cleanup) {
         // we need to do validations since the job config could change between recovery
         return getJob(jobId)
-            .then(jobSpec => _ensureAssets(jobSpec))
-            .then(assetIdJob => _validateJob(assetIdJob))
+            .then((jobSpec) => _ensureAssets(jobSpec))
+            .then((assetIdJob) => _validateJob(assetIdJob))
             .then(() => getLatestExecutionId(jobId))
-            .then(exId => executionService.recoverExecution(exId, cleanup));
+            .then((exId) => executionService.recoverExecution(exId, cleanup));
     }
 
     function pauseJob(jobId) {
-        return getLatestExecutionId(jobId).then(exId => executionService.pauseExecution(exId));
+        return getLatestExecutionId(jobId).then((exId) => executionService.pauseExecution(exId));
     }
 
     function resumeJob(jobId) {
-        return getLatestExecutionId(jobId).then(exId => executionService.resumeExecution(exId));
+        return getLatestExecutionId(jobId).then((exId) => executionService.resumeExecution(exId));
     }
 
     function getJob(jobId) {
@@ -125,18 +125,18 @@ module.exports = function jobsService(context) {
     function _getActiveExecution(jobId, allowZeroResults) {
         const str = executionService
             .terminalStatusList()
-            .map(state => ` _status:${state} `)
+            .map((state) => ` _status:${state} `)
             .join('OR');
         const query = `job_id: ${jobId} AND _context:ex NOT (${str.trim()})`;
         return getLatestExecution(jobId, query, allowZeroResults);
     }
 
     function _getActiveExecutionId(jobId) {
-        return _getActiveExecution(jobId).then(ex => ex.ex_id);
+        return _getActiveExecution(jobId).then((ex) => ex.ex_id);
     }
 
     function getLatestExecutionId(jobId) {
-        return getLatestExecution(jobId).then(ex => ex.ex_id);
+        return getLatestExecution(jobId).then((ex) => ex.ex_id);
     }
 
     async function _validateJob(jobSpec) {
@@ -191,7 +191,7 @@ module.exports = function jobsService(context) {
                         parsedAssetJob.assets = assetIds;
                         resolve(parsedAssetJob);
                     })
-                    .catch(err => reject(err));
+                    .catch((err) => reject(err));
             }
         });
     }

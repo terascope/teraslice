@@ -34,7 +34,7 @@ describe('KeywordTokensCaseInsensitive V1', () => {
                     fields: {
                         tokens: {
                             type: 'text' as ElasticSearchTypes,
-                            analyzer: 'simple',
+                            analyzer: 'standard',
                         },
                     },
                 },

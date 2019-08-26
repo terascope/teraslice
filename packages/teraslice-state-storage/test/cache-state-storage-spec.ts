@@ -1,28 +1,26 @@
-
 import 'jest-extended';
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 import { CachedStateStorage, SetTuple, EvictedEvent } from '../src';
 
 describe('Cache Storage State', () => {
-
     const idField = '_key';
 
     const doc = DataEntity.make({ data: 'thisIsSomeData' }, { [idField]: 1 });
 
     const docArray = [
         {
-            data: 'thisIsFirstData'
+            data: 'thisIsFirstData',
         },
         {
-            data: 'thisIsSecondData'
+            data: 'thisIsSecondData',
         },
         {
-            data: 'thisIsThirdData'
-        }
+            data: 'thisIsThirdData',
+        },
     ].map((obj, index) => DataEntity.make(obj, { [idField]: index + 1 }));
 
     const formattedMSet: SetTuple<DataEntity>[] = docArray.map((obj) => ({ data: obj, key: obj.getMetadata(idField) }));
-    const formattedMGet = docArray.map(data => data.getMetadata(idField));
+    const formattedMGet = docArray.map((data) => data.getMetadata(idField));
 
     const config = {
         id_field: idField,
@@ -65,7 +63,7 @@ describe('Cache Storage State', () => {
         expect(cache.count()).toEqual(3);
     });
     // we are making this async becuase thats how the consumer will be using this
-    it('values returns an iterator to fetch all values from cache', async() => {
+    it('values returns an iterator to fetch all values from cache', async () => {
         const results: DataEntity[] = [];
         cache.mset(formattedMSet);
 
@@ -86,7 +84,7 @@ describe('Cache Storage State', () => {
         const keys = Object.keys(data);
         expect(keys.length).toBe(3);
 
-        keys.forEach((idStr:string) => {
+        keys.forEach((idStr: string) => {
             const id = Number(idStr);
             expect(data[id]).toEqual(docArray[id - 1]);
             expect(DataEntity.isDataEntity(data[id])).toEqual(true);
@@ -102,7 +100,7 @@ describe('Cache Storage State', () => {
         expect(cache.count()).toBe(0);
     });
 
-    it('when cache is to large using set emits an evicted event', async() => {
+    it('when cache is to large using set emits an evicted event', async () => {
         let key: string;
         let data: DataEntity;
 
@@ -133,7 +131,7 @@ describe('Cache Storage State', () => {
         expect(data!).toEqual(formattedMSet[0].data);
     });
 
-    it('when cache is to large using mset emits an evicted event', async() => {
+    it('when cache is to large using mset emits an evicted event', async () => {
         let key: string;
         let data: DataEntity;
 

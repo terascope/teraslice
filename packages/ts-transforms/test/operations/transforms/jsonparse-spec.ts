@@ -2,7 +2,7 @@
 import { JsonParse } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
 
-describe('transform operator', () => {
+describe('JsonParse operator', () => {
 
     it('can instantiate', () => {
         const opConfig = { target_field: 'someField', source_field: 'someField', __id: 'someId', follow: 'otherId' };

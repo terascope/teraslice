@@ -20,7 +20,7 @@ export default abstract class ParallelSlicer<T = OpConfig> extends SlicerCore<T>
         await super.initialize(recoveryData);
         const { slicers = 1 } = this.executionConfig;
 
-        const promises = times(slicers, async id => {
+        const promises = times(slicers, async (id) => {
             const fn = await this.newSlicer(id);
             if (!isFunction(fn)) return;
 
@@ -59,14 +59,14 @@ export default abstract class ParallelSlicer<T = OpConfig> extends SlicerCore<T>
     async handle(): Promise<boolean> {
         if (this.isFinished) return true;
 
-        const promises = this._slicers.filter(slicer => !slicer.processing).map(slicer => this.processSlicer(slicer));
+        const promises = this._slicers.filter((slicer) => !slicer.processing).map((slicer) => this.processSlicer(slicer));
 
         await Promise.race(promises);
         return this.isFinished;
     }
 
     get isFinished(): boolean {
-        return this._slicers.every(slicer => slicer.done);
+        return this._slicers.every((slicer) => slicer.done);
     }
 
     private async processSlicer(slicer: SlicerObj) {
@@ -89,7 +89,7 @@ export default abstract class ParallelSlicer<T = OpConfig> extends SlicerCore<T>
         } else if (result != null) {
             if (Array.isArray(result)) {
                 this.events.emit('slicer:subslice');
-                result.forEach(item => {
+                result.forEach((item) => {
                     slicer.order += 1;
                     this.createSlice(item, slicer.order, slicer.id);
                 });

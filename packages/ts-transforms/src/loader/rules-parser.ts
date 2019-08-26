@@ -15,7 +15,7 @@ export default class RulesParser {
 
     parse(): OperationConfig[] {
         const resultsArray: OperationConfig[] = [];
-        this.configList.forEach(config => {
+        this.configList.forEach((config) => {
             _.set(config, '__id', shortid.generate());
 
             // if its not set and its not a post process then set the selecter to *

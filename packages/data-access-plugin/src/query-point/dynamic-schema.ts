@@ -13,10 +13,10 @@ export default async function getSchemaByRole(aclManager: ACLManager, user: User
     const query = `roles: ${user.role} AND type:SEARCH AND _exists_:endpoint`;
     const spaces = await aclManager.findSpaces({ query, size: 10000 }, false);
 
-    const promises = spaces.map(space => aclManager.getViewForSpace({ space: space.id }, user));
+    const promises = spaces.map((space) => aclManager.getViewForSpace({ space: space.id }, user));
     const dataAccessConfigs = await Promise.all(promises);
 
-    const sanatizedList = dataAccessConfigs.map(dataAccessConfig => {
+    const sanatizedList = dataAccessConfigs.map((dataAccessConfig) => {
         const endpoint = sanitize(dataAccessConfig.space_endpoint!);
         return Object.assign({}, dataAccessConfig, { space_endpoint: endpoint });
     });
@@ -47,7 +47,7 @@ function makeEndpoint(endpoint: string) {
 
 function createTypes(dataAccessConfigs: DataAccessConfig[]) {
     const results: string[] = [Usertype];
-    const endpointList = dataAccessConfigs.map(config => makeEndpoint(config.space_endpoint!));
+    const endpointList = dataAccessConfigs.map((config) => makeEndpoint(config.space_endpoint!));
     const typeReferences: dt.GraphQLTypeReferences = {
         __all: endpointList,
     };
@@ -69,7 +69,7 @@ function createTypes(dataAccessConfigs: DataAccessConfig[]) {
 }
 
 function hasKey(values: string[], field: string) {
-    const results = values.filter(value => {
+    const results = values.filter((value) => {
         return value === field || value.match(new RegExp(`^${field}\\.`));
     });
 
@@ -80,7 +80,7 @@ function hasKey(values: string[], field: string) {
 type CB = (key: string) => void;
 
 function iterateList(srcList: string[], comparaterList: string[], cb: CB) {
-    srcList.forEach(key => {
+    srcList.forEach((key) => {
         const keyList = hasKey(comparaterList, key);
         if (keyList) {
             keyList.forEach(cb);
@@ -96,12 +96,12 @@ function restrict(fields: dt.TypeConfigFields, includes: string[], exludes: stri
         results = fields;
     } else {
         results = {};
-        const cb: CB = includedField => (results[includedField] = fields[includedField]);
+        const cb: CB = (includedField) => (results[includedField] = fields[includedField]);
         iterateList(includes, fieldsList, cb);
     }
 
     if (exludes.length > 0) {
-        const cb: CB = restrictedField => delete results[restrictedField];
+        const cb: CB = (restrictedField) => delete results[restrictedField];
         iterateList(exludes, fieldsList, cb);
     }
 

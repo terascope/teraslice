@@ -1,3 +1,4 @@
+
 import _ from 'lodash';
 import { DataEntity } from '@terascope/utils';
 import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces';
@@ -31,7 +32,7 @@ export default class MakeArray extends TransformOpBase {
 
     run(doc: DataEntity): DataEntity | null {
         const results: any[] = [];
-        this.fields.forEach(field => {
+        this.fields.forEach((field) => {
             const data = _.get(doc, field);
             if (data !== undefined) {
                 if (Array.isArray(data)) {
@@ -41,6 +42,7 @@ export default class MakeArray extends TransformOpBase {
                 }
             }
         });
+
         if (results.length > 0) _.set(doc, this.target, results);
         return doc;
     }

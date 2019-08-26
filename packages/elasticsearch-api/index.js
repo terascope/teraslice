@@ -36,7 +36,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
     function count(query) {
         query.size = 0;
-        return _searchES(query).then(data => _.get(data, 'hits.total.value', _.get(data, 'hits.total')));
+        return _searchES(query).then((data) => _.get(data, 'hits.total.value', _.get(data, 'hits.total')));
     }
 
     function search(query) {
@@ -55,7 +55,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             if (config.full_response) {
                 return data;
             }
-            return _.map(data.hits.hits, doc => doc._source);
+            return _.map(data.hits.hits, (doc) => doc._source);
         });
     }
 
@@ -66,7 +66,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
             function _runRequest() {
                 clientBase[endpoint](query)
-                    .then(result => resolve(result))
+                    .then((result) => resolve(result))
                     .catch(errHandler);
             }
 
@@ -86,8 +86,11 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         return _clientRequest('mget', query);
     }
 
-    function get(query) {
-        return _clientRequest('get', query).then(result => result._source);
+    function get(query, fullResponse = false) {
+        if (fullResponse) {
+            return _clientRequest('get', query);
+        }
+        return _clientRequest('get', query).then((result) => result._source);
     }
 
     function indexFn(query) {
@@ -107,7 +110,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function remove(query) {
-        return _clientRequest('delete', query).then(result => result.found);
+        return _clientRequest('delete', query).then((result) => result.found);
     }
 
     function indexExists(query) {
@@ -206,14 +209,14 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
                     return Promise.resolve();
                 })
-                .catch(err => Promise.reject(new TSError(err)));
+                .catch((err) => Promise.reject(new TSError(err)));
         });
     }
 
     function putTemplate(template, name) {
-        const params = _fixMappingRequest(Object.assign({ body: template, name }), true);
+        const params = _fixMappingRequest({ body: template, name }, true);
         return _clientIndicesRequest('putTemplate', params).then(
-            results => results
+            (results) => results
         );
     }
 
@@ -518,7 +521,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                             return;
                         }
 
-                        const reasons = _.uniq(_.flatMap(failures, shard => shard.reason.type));
+                        const reasons = _.uniq(_.flatMap(failures, (shard) => shard.reason.type));
 
                         if (
                             reasons.length > 1
@@ -781,7 +784,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                 docCount = _count;
                 return _clientRequest('reindex', reindexQuery);
             })
-            .catch(err => Promise.reject(
+            .catch((err) => Promise.reject(
                 new TSError(err, {
                     reason: `could not reindex for query ${JSON.stringify(reindexQuery)}`,
                     context: {
@@ -821,7 +824,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
                 return _sendTemplate(mapping, recordType, clusterName)
                     .then(() => indexCreate(createQuery))
-                    .then(results => results)
+                    .then((results) => results)
                     .catch((err) => {
                         // It's not really an error if it's just that the index is already there
                         if (parseError(err).match(/index_already_exists_exception/) === null) {
@@ -858,7 +861,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             }
         }
         return _clientIndicesRequest('getMapping', params)
-            .then(mapping => _areSameMappings(configMapping, mapping, recordType))
+            .then((mapping) => _areSameMappings(configMapping, mapping, recordType))
             .catch((err) => {
                 const error = new TSError(err, {
                     reason: `could not get mapping for query ${JSON.stringify(params)}`,
@@ -959,9 +962,9 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                                 if (Object.keys(results).length !== 0) {
                                     const isPrimary = _.filter(
                                         results[newIndex].shards,
-                                        shard => shard.primary === true
+                                        (shard) => shard.primary === true
                                     );
-                                    bool = _.every(isPrimary, shard => shard.stage === 'DONE');
+                                    bool = _.every(isPrimary, (shard) => shard.stage === 'DONE');
                                 }
                                 if (bool) {
                                     logger.info('connection to elasticsearch has been established');

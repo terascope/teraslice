@@ -47,7 +47,7 @@ const ExistingField: React.FC<Props> = ({
                 />
                 <ArrayCheckbox
                     array={array}
-                    onChange={checked => {
+                    onChange={(checked) => {
                         updateField(field, {
                             type,
                             array: checked,

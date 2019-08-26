@@ -20,7 +20,7 @@ export default class ExampleBatch extends BatchProcessor {
             return times(30, () => DataEntity.make({ flush: true }));
         }
 
-        return input.map(data => {
+        return input.map((data) => {
             return DataEntity.make({
                 ...data,
                 touchedAt: new Date().toISOString(),

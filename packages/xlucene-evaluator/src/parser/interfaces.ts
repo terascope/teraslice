@@ -1,4 +1,26 @@
-import { Units } from '@turf/helpers';
+import { Logger } from '@terascope/utils';
+
+export interface ParserOptions {
+    type_config?: TypeConfig;
+    logger?: Logger;
+}
+
+export type GeoDistanceUnit = 'miles'|'yards'|'feet'|'inch'|'kilometers'|'meters'|'centimeters'|'millimeters'|'nauticalmiles';
+
+export enum FieldType {
+    Geo = 'geo',
+    Date = 'date',
+    IP = 'ip',
+    String = 'string',
+    Integer = 'integer',
+    Float = 'float',
+    Boolean = 'boolean',
+    Object = 'object'
+}
+
+export interface TypeConfig {
+    [field: string]: FieldType;
+}
 
 export type AST = EmptyAST & LogicalGroup & Term
     & Conjunction & Negation & FieldGroup
@@ -46,24 +68,27 @@ export interface EmptyAST {
 
 export type Field = string|null;
 
-export type DataType = 'string'|'number'|'integer'|'float'|'boolean';
 export interface AnyDataType {
-    data_type: DataType;
+    /**
+     * The field type here may be the field type specified
+     * in the type_config
+    */
+    field_type: FieldType;
     value: string|number|boolean;
 }
 
 export interface NumberDataType {
-    data_type: 'number'|'integer'|'float';
+    field_type: FieldType.Integer|FieldType.Float;
     value: number;
 }
 
 export interface StringDataType {
-    data_type: 'string';
+    field_type: FieldType.String;
     value: string;
 }
 
 export interface BooleanDataType {
-    data_type: 'boolean';
+    field_type: FieldType.Boolean;
     value: boolean;
 }
 
@@ -105,7 +130,7 @@ export interface RangeNode extends NumberDataType {
 export interface GeoDistance extends GeoPoint, TermLikeAST {
     type: ASTType.GeoDistance;
     distance: number;
-    unit: Units;
+    unit: GeoDistanceUnit;
 }
 
 export interface GeoPoint {

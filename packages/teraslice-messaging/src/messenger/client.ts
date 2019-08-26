@@ -1,5 +1,6 @@
-import { isString, isInteger, debugLogger, toString } from '@terascope/utils';
+import ms from 'ms';
 import SocketIOClient from 'socket.io-client';
+import { isString, isInteger, debugLogger, toString } from '@terascope/utils';
 import * as i from './interfaces';
 import { Core } from './core';
 import { newMsgId } from '../utils';
@@ -18,7 +19,17 @@ export class Client extends Core {
     protected serverShutdown: boolean;
 
     constructor(opts: i.ClientOptions) {
-        const { hostUrl, clientId, clientType, serverName, socketOptions = {}, connectTimeout, logger, ...coreOpts } = opts;
+        const {
+            hostUrl,
+            clientId,
+            clientType,
+            serverName,
+            socketOptions = {},
+            connectTimeout,
+            clientDisconnectTimeout,
+            logger,
+            ...coreOpts
+        } = opts;
 
         super({
             logger: logger
@@ -49,16 +60,24 @@ export class Client extends Core {
             throw new Error('Messenger.Client requires a valid connectTimeout');
         }
 
+        // The pingTimeout should be the client disconnect timeout
+        // (which is greater than the pingTimeout on the server which uses actionTimeout)
+        // to avoid disconnecting from the server before the connection
+        // is considered
+        const pingTimeout = clientDisconnectTimeout;
+        const pingInterval = clientDisconnectTimeout + this.networkLatencyBuffer;
+
         const options: SocketIOClient.ConnectOpts = Object.assign({}, socketOptions, {
             autoConnect: false,
             forceNew: true,
+            pingTimeout,
+            pingInterval,
             perMessageDeflate: false,
             query: { clientId, clientType },
             timeout: connectTimeout,
         });
 
-        // @ts-ignore
-        this.socket = new SocketIOClient(hostUrl, options);
+        this.socket = SocketIOClient(hostUrl, options);
         this.socket.on('error', (err: any) => {
             this.logger.error(err, 'unhandled socket.io-client error');
         });
@@ -74,9 +93,13 @@ export class Client extends Core {
     }
 
     onServerShutdown(fn: () => void) {
-        this.on('server:shutdown', async () => {
+        this.on('server:shutdown', () => {
             this.serverShutdown = true;
-            fn();
+            try {
+                fn();
+            } catch (err) {
+                this.logger.error(err);
+            }
             setImmediate(() => {
                 this.socket.close();
             });
@@ -118,19 +141,19 @@ export class Client extends Core {
 
             connectTimeout = setTimeout(() => {
                 cleanup();
-                reject(new Error(`Unable to connect to ${this.serverName} at ${this.hostUrl} after ${this.connectTimeout}ms`));
+                reject(new Error(`Unable to connect to ${this.serverName} at ${this.hostUrl} after ${ms(this.connectTimeout)}`));
             }, this.connectTimeout);
 
-            this.logger.debug(`attempting to ${this.serverName} at ${this.hostUrl}, timeout after ${this.connectTimeout}ms`);
+            this.logger.debug(`attempting to ${this.serverName} at ${this.hostUrl}`);
         });
 
         this.socket.on('reconnecting', () => {
-            this.logger.trace(`client ${this.clientId} is reconnecting`);
+            this.logger.debug(`client ${this.clientId} is reconnecting...`);
             this.ready = false;
         });
 
         this.socket.on('reconnect', () => {
-            this.logger.trace(`client ${this.clientId} reconnected`);
+            this.logger.info(`client ${this.clientId} reconnected`);
             this.ready = true;
             this.emit('ready');
 
@@ -140,13 +163,13 @@ export class Client extends Core {
                 try {
                     await this.sendAvailable();
                 } catch (err) {
-                    this.logger.warn('update availablilty on reconnect error', err);
+                    this.logger.warn(err, 'update availablilty on reconnect error');
                 }
             });
         });
 
-        this.socket.on('disconnect', () => {
-            this.logger.debug(`client ${this.clientId} disconnected`);
+        this.socket.on('disconnect', (reason: string) => {
+            this.logger.info(`client ${this.clientId} disconnected`, { reason });
             this.ready = false;
         });
 
@@ -165,7 +188,7 @@ export class Client extends Core {
         });
 
         this.socket.on('connect', () => {
-            this.logger.trace(`client ${this.clientId} connected`);
+            this.logger.info(`client ${this.clientId} connected`);
             this.ready = true;
             this.emit('ready');
         });
@@ -263,7 +286,7 @@ export class Client extends Core {
 
     // For testing purposes
     forceReconnect() {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             this.socket.io.once('reconnect', () => {
                 resolve();
             });

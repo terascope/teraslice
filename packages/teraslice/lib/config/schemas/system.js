@@ -1,15 +1,8 @@
 'use strict';
 
-const _ = require('lodash');
+const ip = require('ip');
 const path = require('path');
-
-const ip = _.chain(require('os').networkInterfaces())
-    .values()
-    .flatten()
-    .filter(val => val.family === 'IPv4' && val.internal === false)
-    .map('address')
-    .head()
-    .value();
+const { isPlainObject } = require('@terascope/utils');
 
 const workerCount = require('os').cpus().length;
 
@@ -29,27 +22,9 @@ const schema = {
         default: path.join(process.cwd(), './autoload'),
         format: 'optional_String'
     },
-    shutdown_timeout: {
-        doc:
-            'time in milliseconds, to allow workers and slicers to finish operations before forcefully shutting down',
-        default: 60000,
-        format(val) {
-            if (isNaN(val)) {
-                throw new Error('shutdown_timeout parameter for teraslice must be a number');
-            } else if (val < 0) {
-                throw new Error(
-                    'shutdown_timeout parameter for teraslice must be a positive number'
-                );
-            }
-        }
-    },
-    reporter: {
-        doc: 'not currently operational ',
-        default: ''
-    },
     hostname: {
         doc: 'IP or hostname for server',
-        default: ip,
+        default: ip.address(),
         format: 'required_String'
     },
     workers: {
@@ -150,102 +125,57 @@ const schema = {
             }
         }
     },
-    action_timeout: {
+    shutdown_timeout: {
         doc:
-            'time in milliseconds for waiting for a action ( pause/stop job, etc) to complete before throwing an error',
-        default: 300000,
-        format(val) {
-            if (isNaN(val)) {
-                throw new Error('action_timeout parameter for teraslice must be a number');
-            } else if (val <= 0) {
-                throw new Error('action_timeout parameter for teraslice must be greater than zero');
-            }
-        }
-    },
-    network_latency_buffer: {
-        doc:
-            'time in milliseconds buffer which is combined with action_timeout to determine how long the cluster master will wait till it throws an error',
-        default: 15000,
-        format(val) {
-            if (isNaN(val)) {
-                throw new Error('network_latency_buffer parameter for teraslice must be a number');
-            } else if (val <= 0) {
-                throw new Error(
-                    'network_latency_buffer parameter for teraslice must be greater than zero'
-                );
-            }
-        }
-    },
-    slicer_timeout: {
-        doc:
-            'time in milliseconds that the slicer will wait for worker connection before terminating the job',
-        default: 180000,
-        format(val) {
-            if (isNaN(val)) {
-                throw new Error('timeout parameter for teraslice must be a number');
-            } else if (val <= 0) {
-                throw new Error('timeout parameter for teraslice must be greater than zero');
-            }
-        }
-    },
-    slicer_allocation_attempts: {
-        doc: 'The number of times a slicer will try to be allocated before failing',
-        default: 3,
-        format(val) {
-            if (isNaN(val)) {
-                throw new Error(
-                    'slicer_allocation_attempts parameter for teraslice must be a number'
-                );
-            } else if (val <= 0) {
-                throw new Error(
-                    'slicer_allocation_attempts parameter for teraslice must be greater than zero'
-                );
-            }
-        }
-    },
-    node_state_interval: {
-        doc:
-            'time in milliseconds that indicates when the cluster master will ping nodes for their state',
-        default: 5000,
-        format(val) {
-            if (isNaN(val)) {
-                throw new Error('node_state_interval parameter for teraslice must be a number');
-            } else if (val <= 0) {
-                throw new Error(
-                    'node_state_interval parameter for teraslice must be greater than zero'
-                );
-            }
-        }
+            'time in milliseconds for workers and slicers to finish operations before forcefully shutting down',
+        default: '1 minute',
+        format: 'duration'
     },
     node_disconnect_timeout: {
         doc:
             'time in milliseconds that the cluster  will wait untill it drops that node from state and attempts to provision the lost workers',
-        default: 300000,
-        format(val) {
-            if (isNaN(val)) {
-                throw new Error('node_disconnect_timeout parameter for teraslice must be a number');
-            } else if (val <= 0) {
-                throw new Error(
-                    'node_disconnect_timeout parameter for teraslice must be greater than zero'
-                );
-            }
-        }
+        default: '5 minutes',
+        format: 'duration'
     },
     worker_disconnect_timeout: {
         doc:
             'time in milliseconds that the slicer will wait after all workers have disconnected before terminating the job',
-        default: 300000,
-        format(val) {
-            if (isNaN(val)) {
-                throw new Error(
-                    'worker_disconnect_timeout parameter for teraslice must be a number'
-                );
-            } else if (val <= 0) {
-                throw new Error(
-                    'worker_disconnect_timeout parameter for teraslice must be greater than zero'
-                );
-            }
-        }
+        default: '5 minutes',
+        format: 'duration'
+    },
+    slicer_timeout: {
+        doc:
+            'time in milliseconds that the slicer will wait for worker connection before terminating the job',
+        default: '3 minutes',
+        format: 'duration'
+    },
+    action_timeout: {
+        doc:
+            'time in milliseconds for waiting for a network message (pause/stop job, etc) to complete before throwing an error',
+        default: '2 minutes',
+        format: 'duration'
+    },
+    network_latency_buffer: {
+        doc:
+            'time in milliseconds buffer which is combined with action_timeout to determine how long a network message will wait till it throws an error',
+        default: '15 seconds',
+        format: 'duration'
+    },
+    node_state_interval: {
+        doc:
+            'time in milliseconds that indicates when the cluster master will ping nodes for their state',
+        default: '5 seconds',
+        format: 'duration'
+    },
+    analytics_rate: {
+        doc: 'time in milliseconds in which to push analytics to cluster master',
+        default: '1 minute',
+        format: 'duration'
+    },
+    slicer_allocation_attempts: {
+        doc: 'The number of times a slicer will try to be allocated before failing',
+        default: 3,
+        format: 'nat', // integer >=0 (natural number)
     },
     slicer_port_range: {
         doc: 'range of ports that slicers will use per node',
@@ -263,11 +193,6 @@ const schema = {
                 }
             });
         }
-    },
-    analytics_rate: {
-        doc: 'Rate in ms in which to push analytics to cluster master',
-        default: 60000,
-        format: Number
     },
     index_rollover_frequency: {
         state: {
@@ -295,6 +220,24 @@ const schema = {
         doc: 'memory, in bytes, to reserve per teraslice worker in kubernetes',
         default: undefined,
         format: 'Number'
+    },
+    env_vars: {
+        default: {},
+        doc: 'default environment variables to set on each the teraslice worker, in the format, { "EXAMPLE": "test" }',
+        format(obj) {
+            if (!isPlainObject(obj)) {
+                throw new Error('must be object');
+            }
+            Object.entries(obj).forEach(([key, val]) => {
+                if (key == null || key === '') {
+                    throw new Error('key must be not empty');
+                }
+
+                if (val == null || val === '') {
+                    throw new Error(`value for key "${key}" must be not empty`);
+                }
+            });
+        },
     },
     kubernetes_image: {
         doc: 'Specify a custom image name for kubernetes, this only applies to kubernetes systems',

@@ -21,7 +21,7 @@
     "scripts": {
         "clean": "docker-compose down --volumes --remove-orphans --timeout=5",
         "logs": "./scripts/logs.sh",
-        "logs-follow": "./scripts/logs.sh --follow",
+        "logs-follow": "./scripts/logs.sh -f",
         "test": "ts-scripts test --suite e2e"
     },
     "devDependencies": {
@@ -32,7 +32,7 @@
         "elasticsearch": "^15.4.1",
         "fs-extra": "^8.1.0",
         "is-ci": "^2.0.0",
-        "jest": "^24.8.0",
+        "jest": "^24.9.0",
         "jest-extended": "^0.11.2",
         "lodash": "^4.17.11",
         "ms": "^2.1.2",
@@ -40,7 +40,7 @@
         "semver": "^6.1.1",
         "signale": "^1.4.0",
         "teraslice-client-js": "^0.7.2",
-        "uuid": "^3.3.2"
+        "uuid": "^3.3.3"
     },
     "displayName": "E2e",
     "terascope": {}

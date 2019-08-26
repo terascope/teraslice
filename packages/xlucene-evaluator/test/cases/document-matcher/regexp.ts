@@ -1,3 +1,4 @@
+import { FieldType } from '../../../src';
 
 export default [
     [
@@ -127,6 +128,6 @@ export default [
             true,
             true,
         ],
-        { _created: 'date' }
+        { _created: FieldType.Date }
     ],
 ];

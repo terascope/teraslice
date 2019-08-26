@@ -16,7 +16,9 @@ export default class Selector {
         this.selector = luceneQuery;
         this.isMatchAll = luceneQuery === '*';
         if (this.isMatchAll) luceneQuery = '';
-        this.documentMatcher = new DocumentMatcher(luceneQuery, types);
+        this.documentMatcher = new DocumentMatcher(luceneQuery, {
+            type_config: types
+        });
     }
 
     addMetaData(doc: DataEntity, selector: string) {

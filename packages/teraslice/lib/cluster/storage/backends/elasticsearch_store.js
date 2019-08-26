@@ -1,5 +1,6 @@
 'use strict';
 
+const ms = require('ms');
 const fs = require('fs');
 const _ = require('lodash');
 const path = require('path');
@@ -98,7 +99,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
      * ID creation
      */
     function index(record, indexArg = indexName) {
-        logger.trace('indexing record', logRecord ? record : null);
+        logger.trace('indexing record', logRecord ? record : undefined);
         const query = {
             index: indexArg,
             type: recordType,
@@ -233,7 +234,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
             const timeout = setTimeout(_destroy, config.shutdown_timeout).unref();
 
             function _destroy(err) {
-                logger.trace(`shutdown store, took ${Date.now() - startTime}ms`);
+                logger.trace(`shutdown store, took ${ms(Date.now() - startTime)}`);
 
                 bulkQueue.length = [];
                 isShutdown = true;
@@ -330,7 +331,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
                 return pDelay(isTest ? 0 : _.random(0, 5000))
                     .then(() => sendTemplate(mapping))
                     .then(() => elasticsearch.index_create(createQuery))
-                    .then(results => results)
+                    .then((results) => results)
                     .catch((err) => {
                         // It's not really an error if it's just that the index is already there
                         if (parseError(err).match(/already_exists_exception/)) {
@@ -473,10 +474,10 @@ module.exports = function elasticsearchStorage(backendConfig) {
                             if (Object.keys(results).length !== 0) {
                                 const isPrimary = _.filter(
                                     results[newIndex].shards,
-                                    shard => shard.primary === true
+                                    (shard) => shard.primary === true
                                 );
 
-                                bool = _.every(isPrimary, shard => shard.stage === 'DONE');
+                                bool = _.every(isPrimary, (shard) => shard.stage === 'DONE');
                             }
 
                             if (bool) {

@@ -189,7 +189,7 @@ describe('registerApis', () => {
             });
         });
 
-        it('getClient will error properly', done => {
+        it('getClient will error properly', (done) => {
             const failingContext = new TestContext('teraslice-operations');
             const failJobConfig = newTestJobConfig();
 
@@ -211,7 +211,7 @@ describe('registerApis', () => {
             const events = failingContext.apis.foundation.getSystemEvents();
             const errStr = 'No configuration for endpoint default ' + 'was found in the terafoundation connectors';
 
-            events.once('client:initialization:error', errMsg => {
+            events.once('client:initialization:error', (errMsg) => {
                 expect(errMsg.error.includes(errStr)).toEqual(true);
                 done();
             });

@@ -65,6 +65,10 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         this._sanitizeFields = modelConfig.sanitize_fields || {};
     }
 
+    get xluceneTypeConfig() {
+        return this.store.xluceneTypeConfig;
+    }
+
     async initialize() {
         return this.store.initialize();
     }
@@ -108,7 +112,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     async deleteAll(ids: string[]): Promise<void> {
         if (!ids || !ids.length) return;
 
-        await Promise.all(ts.uniq(ids).map(id => this.deleteById(id)));
+        await Promise.all(ts.uniq(ids).map((id) => this.deleteById(id)));
     }
 
     async exists(id: string[] | string): Promise<boolean> {
@@ -189,15 +193,15 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         );
 
         if (result.length !== ids.length) {
-            const foundIds = result.map(doc => doc.id);
-            const notFoundIds = ids.filter(id => !foundIds.includes(id));
+            const foundIds = result.map((doc) => doc.id);
+            const notFoundIds = ids.filter((id) => !foundIds.includes(id));
             throw new ts.TSError(`Unable to find ${this.name}'s ${notFoundIds.join(', ')}`, {
                 statusCode: 404,
             });
         }
 
         // maintain sort order
-        return ids.map(id => result.find(doc => doc.id === id)!);
+        return ids.map((id) => result.find((doc) => doc.id === id)!);
     }
 
     async find(q: string = '', options: i.FindOptions<T> = {}, queryAccess?: QueryAccess<T>): Promise<T[]> {
@@ -212,7 +216,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             });
         }
 
-        return this.store.updatePartial(id, async existing => {
+        return this.store.updatePartial(id, async (existing) => {
             const doc = this._sanitizeRecord({
                 ...existing,
                 ...record,
@@ -229,7 +233,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     }
 
     protected async _appendToArray(id: string, field: keyof T, values: string[] | string): Promise<void> {
-        const valueArray = values && ts.uniq(ts.castArray(values)).filter(v => !!v);
+        const valueArray = values && ts.uniq(ts.castArray(values)).filter((v) => !!v);
         if (!valueArray || !valueArray.length) return;
 
         await this._updateWith(id, {
@@ -250,7 +254,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     }
 
     protected async _removeFromArray(id: string, field: keyof T, values: string[] | string): Promise<void> {
-        const valueArray = values && ts.uniq(ts.castArray(values)).filter(v => !!v);
+        const valueArray = values && ts.uniq(ts.castArray(values)).filter((v) => !!v);
         if (!valueArray || !valueArray.length) return;
 
         try {
@@ -289,14 +293,16 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
 
         let records: T[];
         if (queryAccess) {
-            const esVersion = utils.getESVersion(this.store.client);
-            const query = queryAccess.restrictSearchQuery(q, params, esVersion);
+            const query = queryAccess.restrictSearchQuery(q, {
+                params,
+                elasticsearch_version: utils.getESVersion(this.store.client)
+            });
             records = await this.store._search(query);
         } else {
             records = await this.store.search(q, params);
         }
 
-        return records.map(record => this._postProcess(record));
+        return records.map((record) => this._postProcess(record));
     }
 
     protected async _ensureUnique(record: T, existing?: T) {
@@ -313,7 +319,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             const count = await this.countBy({
                 [field]: record[field],
                 ...(record.client_id && {
-                    client_id: record.client_id,
+                    client_id: [record.client_id, 0],
                 }),
             } as AnyInput<T>);
 

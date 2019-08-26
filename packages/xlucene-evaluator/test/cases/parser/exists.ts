@@ -1,4 +1,4 @@
-import { ASTType } from '../../../src/parser';
+import { ASTType } from '../../../src';
 import { TestCase } from './interfaces';
 
 export default [

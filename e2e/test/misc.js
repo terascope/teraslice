@@ -133,6 +133,11 @@ function newId(prefix, lowerCase = false, length = 15) {
     return id;
 }
 
+async function resetLogs() {
+    const logPath = path.join(__dirname, '..', 'logs', 'teraslice.log');
+    await fse.writeFile(logPath, '');
+}
+
 async function globalTeardown(shouldThrow) {
     process.stdout.write('\n');
     signale.time('tear down');
@@ -143,16 +148,16 @@ async function globalTeardown(shouldThrow) {
             'remove-orphans': '',
             volumes: ''
         })
-        .catch(err => errors.push(err));
+        .catch((err) => errors.push(err));
 
-    await cleanupIndex(`${TEST_INDEX_PREFIX}*`).catch(err => errors.push(err));
-    await fse.remove(path.join(__dirname, '../.config')).catch(err => errors.push(err));
+    await cleanupIndex(`${TEST_INDEX_PREFIX}*`).catch((err) => errors.push(err));
+    await fse.remove(path.join(__dirname, '../.config')).catch((err) => errors.push(err));
 
     signale.timeEnd('tear down');
     if (shouldThrow && errors.length === 1) {
         throw errors[0];
     } else if (errors.length) {
-        errors.forEach(err => signale.error(err));
+        errors.forEach((err) => signale.error(err));
         if (shouldThrow) {
             throw new Error('Multiple e2e teardown errors');
         }
@@ -172,6 +177,7 @@ module.exports = {
     getExampleIndex,
     globalTeardown,
     newSpecIndex,
+    resetLogs,
     EXAMLPE_INDEX_SIZES,
     EXAMPLE_INDEX_PREFIX,
     SPEC_INDEX_PREFIX,

@@ -26,7 +26,7 @@ export async function getAssetPath(assetDir: string, assets: string[], name: str
         if (fs.existsSync(assetDir)) return assetPath;
     }
 
-    const [assetName] = name.split(':').map(s => s.trim());
+    const [assetName] = name.split(':').map((s) => s.trim());
 
     for (const id of assetIds) {
         const rawAssetJSON = fs.readFileSync(path.join(assetDir, id, 'asset.json'));

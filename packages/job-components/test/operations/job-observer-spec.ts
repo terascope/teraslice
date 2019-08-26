@@ -23,7 +23,7 @@ describe('JobObserver', () => {
         size: times(opLength, () => -1),
     };
 
-    describe('when analyitcs is set to true', () => {
+    describe('when analytics is set to true', () => {
         beforeAll(() => {
             exConfig.analytics = true;
 
@@ -48,21 +48,21 @@ describe('JobObserver', () => {
                 observer.onOperationComplete(sliceId, index, index * 10);
             }
 
-            const analyitcs = observer.analyticsData as SliceAnalyticsData;
+            const analytics = observer.analyticsData as SliceAnalyticsData;
 
-            expect(analyitcs.time).toBeArrayOfSize(opLength);
-            expect(analyitcs.size).toBeArrayOfSize(opLength);
-            expect(analyitcs.memory).toBeArrayOfSize(opLength);
+            expect(analytics.time).toBeArrayOfSize(opLength);
+            expect(analytics.size).toBeArrayOfSize(opLength);
+            expect(analytics.memory).toBeArrayOfSize(opLength);
 
             for (let index = 0; index < opLength; index++) {
-                expect(analyitcs.size[index]).toEqual(index * 10);
-                expect(analyitcs.memory[index]).toBeNumber();
-                expect(analyitcs.time[index]).toBeGreaterThanOrEqual(0);
+                expect(analytics.size[index]).toEqual(index * 10);
+                expect(analytics.memory[index]).toBeNumber();
+                expect(analytics.time[index]).toBeGreaterThanOrEqual(0);
             }
         });
     });
 
-    describe('when analyitcs is set to false', () => {
+    describe('when analytics is set to false', () => {
         beforeAll(() => {
             exConfig.analytics = false;
 

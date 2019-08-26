@@ -137,11 +137,15 @@ module.exports = function messaging(context, logger) {
         const msgExId = msg.ex_id || _.get(msg, 'payload.ex_id');
         if (msgExId) {
             // all processes that have the same assignment and exId
-            const filterFn = process => process.assignment === msg.to && process.ex_id === msgExId;
+            const filterFn = (process) => {
+                if (process.assignment !== msg.to) return false;
+                if (process.ex_id !== msgExId) return false;
+                return true;
+            };
             _findAndSend(filterFn, msg);
         } else {
             // all processes that have the same assignment
-            const filterFn = process => process.assignment === msg.to;
+            const filterFn = (process) => process.assignment === msg.to;
             _findAndSend(filterFn, msg);
         }
     }
@@ -150,7 +154,7 @@ module.exports = function messaging(context, logger) {
         const eventName = eventConfig.event;
         const { callback, identifier } = eventConfig;
 
-        const selfHasEvent = _.some(selfMessages, type => type[eventName] != null);
+        const selfHasEvent = _.some(selfMessages, (type) => type[eventName] != null);
         if (!selfHasEvent) {
             throw new Error(`"${self}" cannot register for event, "${eventName}", in messaging module`);
         }
@@ -187,7 +191,7 @@ module.exports = function messaging(context, logger) {
                     // or retry event, join room
                     if (key === 'node:online') {
                         const rooms = Object.keys(socket.rooms);
-                        const hasRoom = _.some(rooms, r => r === id);
+                        const hasRoom = _.some(rooms, (r) => r === id);
                         if (!hasRoom) {
                             logger.info(`joining room ${id}`);
                             socket.join(id);
@@ -253,7 +257,7 @@ module.exports = function messaging(context, logger) {
             io = require('socket.io-client')(hostURL, {
                 forceNew: true,
                 path: '/native-clustering',
-                // transports: ['websocket'],
+                perMessageDeflate: false,
                 query,
             });
             _registerFns(io);
@@ -274,6 +278,9 @@ module.exports = function messaging(context, logger) {
             // cluster_master
             io = require('socket.io')(server, {
                 path: '/native-clustering',
+                pingTimeout: configTimeout,
+                pingInterval: configTimeout + networkLatencyBuffer,
+                perMessageDeflate: false,
                 serveClient: false,
             });
             _attachRoomsSocketIO();

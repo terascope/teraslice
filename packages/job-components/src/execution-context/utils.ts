@@ -1,6 +1,5 @@
-import { isFunction, get } from '@terascope/utils';
+import { isFunction } from '@terascope/utils';
 import { OperationAPI, OperationAPIType } from '../operations';
-import { Context } from '../interfaces';
 
 export function getMetric(input: number[], i: number): number {
     const val = input && input[i];
@@ -14,17 +13,4 @@ export function isOperationAPI(api: any): api is OperationAPI {
 
 export function getOperationAPIType(api: any): OperationAPIType {
     return isOperationAPI(api) ? 'api' : 'observer';
-}
-
-export function makeContextLogger(context: Context, moduleName: string, extra = {}) {
-    return context.apis.foundation.makeLogger(
-        Object.assign(
-            {
-                module: moduleName,
-                worker_id: get(context, 'cluster.worker.id'),
-                assignment: get(context, 'assignment'),
-            },
-            extra
-        )
-    );
 }

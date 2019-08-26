@@ -30,6 +30,7 @@ export function newTestJobConfig(defaults: Partial<i.JobConfig> = {}) {
             probation_window: 30000,
             slicers: 1,
             workers: 1,
+            env_vars: {}
         },
         defaults
     ) as i.ValidatedJobConfig;
@@ -57,7 +58,6 @@ export function newTestExecutionContext(type: i.Assignment, config: i.ExecutionC
             slicer: () => {},
             dynamicQueueLength: false,
             queueLength: 10000,
-            reporter: null,
         };
     }
 
@@ -68,7 +68,6 @@ export function newTestExecutionContext(type: i.Assignment, config: i.ExecutionC
         slicer: () => {},
         dynamicQueueLength: false,
         queueLength: 10000,
-        reporter: null,
     };
 }
 
@@ -187,6 +186,7 @@ export class TestContext implements i.Context {
                 slicer_allocation_attempts: 1,
                 slicer_port_range: '55679:56678',
                 slicer_timeout: 10000,
+                env_vars: {},
                 state: {
                     connection: 'default',
                 },
@@ -243,7 +243,7 @@ export class TestContext implements i.Context {
                 this[namespace] = apis;
             },
             setTestClients(clients: TestClientConfig[] = []) {
-                clients.forEach(clientConfig => {
+                clients.forEach((clientConfig) => {
                     const { create, config = {} } = clientConfig;
 
                     const clientFns = _createClientFns.get(ctx) || {};
@@ -270,7 +270,7 @@ export class TestContext implements i.Context {
                 const cachedClients = _cachedClients.get(ctx) || {};
                 const clients = {};
 
-                Object.keys(cachedClients).forEach(key => {
+                Object.keys(cachedClients).forEach((key) => {
                     const [type, endpoint] = key.split(':') as [string, string];
                     if (clients[type] == null) {
                         clients[type] = {};

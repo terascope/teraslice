@@ -3,7 +3,7 @@ import { forEachModel } from '../utils';
 
 const methods: string[] = [];
 
-forEachModel(model => {
+forEachModel((model) => {
     const createMethod = `create${model}`;
     const updateMethod = `update${model}`;
     const removeMethod = `remove${model}`;

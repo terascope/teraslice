@@ -3,7 +3,7 @@
 import os from 'os';
 import convict from 'convict';
 import { Context } from './interfaces';
-import { flatten, getTypeOf, isPlainObject, dataEncodings } from '@terascope/utils';
+import { flatten, getTypeOf, isPlainObject, dataEncodings, isString } from '@terascope/utils';
 
 const cpuCount = os.cpus().length;
 const workers = cpuCount < 5 ? cpuCount : 5;
@@ -30,7 +30,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
                     if (!Array.isArray(arr)) {
                         throw new Error('assets need to be of type array');
                     }
-                    if (!arr.every(val => typeof val === 'string')) {
+                    if (!arr.every(isString)) {
                         throw new Error('assets needs to be an array of strings');
                     }
                 }
@@ -44,24 +44,12 @@ export function jobSchema(context: Context): convict.Schema<any> {
         max_retries: {
             default: 3,
             doc: 'the number of times a worker will attempt to process ' + 'the same slice after a error has occurred',
-            format(val: any) {
-                if (isNaN(val)) {
-                    throw new Error('max_retries parameter for job must be a number');
-                } else if (val < 0) {
-                    throw new Error('max_retries for job must be >= zero');
-                }
-            },
+            format: 'nat', // integer >=0 (natural number)
         },
         name: {
             default: 'Custom Job',
             doc: 'Name for specific job',
-            format(val: any) {
-                if (!val) {
-                    throw new Error('name for job is required');
-                } else if (typeof val !== 'string') {
-                    throw new Error(' name for job must be a string');
-                }
-            },
+            format: 'required_String',
         },
         operations: {
             default: [],
@@ -77,7 +65,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
                 const connectorsObject = (context.sysconfig.terafoundation && context.sysconfig.terafoundation.connectors) || {};
                 const connectors = Object.values(connectorsObject);
 
-                const connections = flatten(connectors.map(conn => Object.keys(conn)));
+                const connections = flatten(connectors.map((conn) => Object.keys(conn)));
                 for (const op of arr) {
                     if (!op || !isPlainObject(op)) {
                         throw new Error(`Invalid Operation config in operations, got ${getTypeOf(op)}`);
@@ -103,7 +91,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
                 const connectorsObject = (context.sysconfig.terafoundation && context.sysconfig.terafoundation.connectors) || {};
                 const connectors = Object.values(connectorsObject);
 
-                const connections = flatten(connectors.map(conn => Object.keys(conn)));
+                const connections = flatten(connectors.map((conn) => Object.keys(conn)));
                 const names: string[] = [];
 
                 for (const api of arr) {
@@ -132,36 +120,36 @@ export function jobSchema(context: Context): convict.Schema<any> {
                 'time in ms that the execution controller checks for failed slices, ' +
                 'if there are none then it updates the state of the execution to running ' +
                 '(this is only when lifecycle is set to persistent)',
-            format(val: any) {
-                if (isNaN(val)) {
-                    throw new Error('probation_window parameter for job must be a number');
-                } else if (val < 1) {
-                    throw new Error('probation_window for job must be >= one');
-                }
-            },
+            format: 'duration',
         },
         slicers: {
             default: 1,
             doc: 'how many parallel slicer contexts that will run within the slicer',
-            format(val: any) {
-                if (isNaN(val)) {
-                    throw new Error('slicers parameter for job must be a number');
-                } else if (val < 1) {
-                    throw new Error('slicers for job must be >= one');
-                }
-            },
+            format: 'positive_int'
         },
         workers: {
             default: workers,
             doc: 'the number of workers dedicated for the job',
-            format(val: any) {
-                if (isNaN(val)) {
-                    throw new Error('workers parameter for job must be a number');
-                } else if (val < 1) {
-                    throw new Error('workers for job must be >= one');
-                }
-            },
+            format: 'positive_int'
         },
+        env_vars: {
+            default: {},
+            doc: 'environment variables to set on each the teraslice worker, in the format, { "EXAMPLE": "test" }',
+            format(obj: any[]) {
+                if (!isPlainObject(obj)) {
+                    throw new Error('must be object');
+                }
+                Object.entries(obj).forEach(([key, val]) => {
+                    if (key == null || key === '') {
+                        throw new Error('key must be not empty');
+                    }
+
+                    if (val == null || val === '') {
+                        throw new Error(`value for key "${key}" must be not empty`);
+                    }
+                });
+            },
+        }
     };
 
     const clusteringType = context.sysconfig.teraslice.cluster_manager_type;
@@ -171,13 +159,16 @@ export function jobSchema(context: Context): convict.Schema<any> {
             default: [],
             doc: 'array of key/value labels used for targetting teraslice jobs to nodes',
             format(arr: any[]) {
-                arr.forEach(label => {
+                if (!Array.isArray(arr)) {
+                    throw new Error('must be array');
+                }
+                arr.forEach((label) => {
                     if (label['key'] == null) {
-                        throw new Error(`targets need to have a key: ${label}`);
+                        throw new Error(`needs to have a key: ${label}`);
                     }
 
                     if (label['value'] == null) {
-                        throw new Error(`targets need to have a value: ${label}`);
+                        throw new Error(`needs to have a value: ${label}`);
                     }
                 });
             },
@@ -199,13 +190,16 @@ export function jobSchema(context: Context): convict.Schema<any> {
             default: [],
             doc: 'array of volumes to be mounted by job workers',
             format(arr: any[]) {
-                arr.forEach(volume => {
+                if (!Array.isArray(arr)) {
+                    throw new Error('must be array');
+                }
+                arr.forEach((volume) => {
                     if (volume['name'] == null) {
-                        throw new Error(`volumes need to have a name: ${volume}`);
+                        throw new Error(`needs to have a name: ${volume}`);
                     }
 
                     if (volume['path'] == null) {
-                        throw new Error(`volumes need to have a path: ${volume}`);
+                        throw new Error(`needs to have a path: ${volume}`);
                     }
                 });
             },

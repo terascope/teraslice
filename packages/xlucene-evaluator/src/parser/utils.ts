@@ -50,17 +50,17 @@ export function isEmptyAST(node: any): node is i.EmptyAST {
 }
 
 export function isStringDataType(node: any): node is i.StringDataType {
-    return node && node.data_type === 'string';
+    return node && node.field_type === 'string';
 }
 
-export const numberDataTypes: i.DataType[] = ['number', 'integer', 'float'];
+export const numberDataTypes: i.FieldType[] = [i.FieldType.Integer, i.FieldType.Float];
 
 export function isNumberDataType(node: any): node is i.NumberDataType {
-    return node && numberDataTypes.includes(node.data_type);
+    return node && numberDataTypes.includes(node.field_type);
 }
 
 export function isBooleanDataType(node: any): node is i.BooleanDataType {
-    return node && node.data_type === 'boolean';
+    return node && node.field_type === 'boolean';
 }
 
 export function getAnyValue(node: any): any {

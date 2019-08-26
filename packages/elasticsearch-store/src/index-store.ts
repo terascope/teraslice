@@ -15,6 +15,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     readonly indexQuery: string;
     readonly manager: IndexManager;
     refreshByDefault = true;
+    readonly xluceneTypeConfig: TypeConfig | undefined;
 
     validateRecord: ValidateFn<I | T>;
     private _interval: any;
@@ -25,7 +26,6 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     private readonly _bulkMaxSize: number = 500;
     private readonly _getEventTime: (input: T) => number;
     private readonly _getIngestTime: (input: T) => number;
-    private readonly _xluceneTypes: TypeConfig | undefined;
     private readonly _translator = new CachedTranslator();
 
     constructor(client: es.Client, config: i.IndexConfig<T>) {
@@ -60,7 +60,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         });
 
         if (config.index_schema != null) {
-            this._xluceneTypes = utils.getXLuceneTypesFromMapping(config.index_schema.mapping);
+            this.xluceneTypeConfig = utils.getXLuceneTypesFromMapping(config.index_schema.mapping);
         }
 
         if (config.data_schema != null) {
@@ -228,7 +228,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         const ms = Math.round(this._bulkMaxWait / 2);
 
         this._interval = setInterval(() => {
-            this.flush().catch(err => {
+            this.flush().catch((err) => {
                 this._logger.error(err, 'Failure flushing in the background');
             });
         }, ms);
@@ -268,6 +268,11 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             return result.docs || [];
         }, utils.getRetryConfig());
         return docs.map(this._toRecord);
+    }
+
+    /** @see IndexManager#migrateIndex */
+    migrateIndex(options: i.MigrateIndexStoreOptions) {
+        return this.manager.migrateIndex({ ...options, config: this.config });
     }
 
     /**
@@ -458,7 +463,10 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
     }
 
     private _translateQuery(query: string) {
-        const translator = this._translator.make(query, this._xluceneTypes, this._logger);
+        const translator = this._translator.make(query, {
+            type_config: this.xluceneTypeConfig,
+            logger: this._logger
+        });
         return {
             q: null,
             body: translator.toElasticsearchDSL(),

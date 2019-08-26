@@ -4,7 +4,7 @@ const fs = require('fs');
 const readline = require('readline');
 
 const filePath = process.argv[2];
-const { DocumentMatcher } = require('../dist/src/index');
+const { DocumentMatcher } = require('../dist/src');
 
 if (!filePath) throw new Error('a file path must be provided ie "node scripts/parse_file.js path/to/file.txt"');
 

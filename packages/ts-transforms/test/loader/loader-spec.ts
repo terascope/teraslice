@@ -24,7 +24,7 @@ describe('Loader', () => {
 
         const phaseConfig = await loader.load(opsManager);
         const { selectors } = phaseConfig;
-        const results = selectors.map(obj => ({ selector: obj.selector }));
+        const results = selectors.map((obj) => ({ selector: obj.selector }));
 
         expect(selectors).toBeArrayOfSize(2);
         expect(results[0]).toEqual({ selector: 'some:data AND bytes:>=1000' });
@@ -38,7 +38,7 @@ describe('Loader', () => {
         const phaseConfig = await loader.load(opsManager);
         const { selectors, extractions, postProcessing, output } = phaseConfig;
         const { matchRequirements, restrictOutput } = output;
-        const results = selectors.map(obj => ({ selector: obj.selector }));
+        const results = selectors.map((obj) => ({ selector: obj.selector }));
 
         expect(selectors).toBeArrayOfSize(2);
         expect(results[0]).toEqual({ selector: 'hello:world' });

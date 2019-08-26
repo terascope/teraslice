@@ -8,7 +8,7 @@ import { formatPath } from '../utils';
 import { canSelectFn } from './utils';
 import { useCoreContext } from '../CoreContext';
 
-const Body: React.FC<Props> = props => {
+const Body: React.FC<Props> = (props) => {
     const {
         records,
         selected,
@@ -25,7 +25,7 @@ const Body: React.FC<Props> = props => {
 
     return (
         <Table.Body>
-            {records.map(record => {
+            {records.map((record) => {
                 const canSelect = canSelectRecord(record);
                 const id = rowMapping.getId(record);
                 const isSelected = canSelect

@@ -1,6 +1,6 @@
-import fse from 'fs-extra';
 import path from 'path';
 import pkgUp from 'pkg-up';
+import fse from 'fs-extra';
 import { isPlainObject, get } from '@terascope/utils';
 import { PackageInfo, RootPackageInfo } from './interfaces';
 import signale from './signale';
@@ -42,8 +42,8 @@ export function getRootInfo() {
 export function getName(input: string): string {
     return input
         .split(/\W/g)
-        .map(str => str.trim())
-        .filter(str => str.length > 0)
+        .map((str) => str.trim())
+        .filter((str) => str.length > 0)
         .map((str: string) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
         .join(' ');
 }
@@ -120,12 +120,6 @@ export async function writeIfChanged(filePath: string, contents: any, options: W
 
 export function formatList(list: string[]) {
     return `\n\n - ${list.join('\n - ')}`;
-}
-
-export function cliError<T>(prefix: string, error: string, ...args: any[]): never {
-    signale.error(`\n${prefix}: ${error}`, ...args);
-    const exitCode = (process.exitCode || 0) > 0 ? process.exitCode : 1;
-    return process.exit(exitCode);
 }
 
 export function writeHeader(msg: string, prefixNewline?: boolean): void {

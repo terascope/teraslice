@@ -35,7 +35,7 @@ jobs:
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn test --suite unit
-      after_success:
+      after_script:
         # verify the ui packages can build
         - yarn --cwd=./packages/ui-core build
         - yarn --cwd=./packages/ui-data-access build
@@ -68,14 +68,13 @@ jobs:
       name: 'Publish packages, docs and expiremental docker image'
       # run a push to master
       if: tag IS blank AND branch = master AND type NOT IN (pull_request, cron)
-      script: yarn docs
       deploy:
           - provider: script
             skip_cleanup: true
             script: yarn ts-scripts publish npm
           - provider: script
             skip_cleanup: true
-            script: ./scripts/publish-documentation.sh
+            script: yarn docs && ./scripts/publish-documentation.sh
           - provider: script
             skip_cleanup: true
             script: yarn ts-scripts publish -t dev docker
@@ -84,6 +83,8 @@ jobs:
       name: 'Create Tag Release'
       # run on tagged releases
       if: tag IS present AND type NOT IN (pull_request, cron)
+      # no need to run test on tagged release
+      script: true
       deploy:
         - provider: script
           skip_cleanup: true

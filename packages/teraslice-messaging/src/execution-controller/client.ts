@@ -1,4 +1,4 @@
-import { isString, withoutNil } from '@terascope/utils';
+import { isString, withoutNil, isNumber } from '@terascope/utils';
 import * as core from '../messenger';
 import * as i from './interfaces';
 
@@ -8,7 +8,16 @@ export class Client extends core.Client {
     public workerId: string;
 
     constructor(opts: i.ClientOptions) {
-        const { executionControllerUrl, socketOptions, workerId, networkLatencyBuffer, actionTimeout, connectTimeout, logger } = opts;
+        const {
+            executionControllerUrl,
+            socketOptions,
+            workerId,
+            workerDisconnectTimeout,
+            networkLatencyBuffer,
+            actionTimeout,
+            connectTimeout,
+            logger
+        } = opts;
 
         if (!isString(executionControllerUrl)) {
             throw new Error('ExecutionController.Client requires a valid executionControllerUrl');
@@ -18,11 +27,16 @@ export class Client extends core.Client {
             throw new Error('ExecutionController.Client requires a valid workerId');
         }
 
+        if (!isNumber(workerDisconnectTimeout)) {
+            throw new Error('ExecutionController.Client requires a valid workerDisconnectTimeout');
+        }
+
         super({
             socketOptions,
             networkLatencyBuffer,
             actionTimeout,
             connectTimeout,
+            clientDisconnectTimeout: workerDisconnectTimeout,
             hostUrl: executionControllerUrl,
             clientId: workerId,
             clientType: 'worker',
@@ -87,7 +101,7 @@ export class Client extends core.Client {
             return true;
         };
 
-        const slice = await new Promise(resolve => {
+        const slice = await new Promise((resolve) => {
             this.once('execution:slice:new', onMessage);
 
             const intervalId = setInterval(() => {

@@ -17,9 +17,9 @@ export default class KeywordPathAnalyzer extends BaseType {
                 },
             },
             analyzer: {
-                path_tokenizer: {
+                path_analyzer: {
                     type: 'custom',
-                    pattern: 'path_tokenizer'
+                    tokenizer: 'path_tokenizer'
                 }
             },
             tokenizer: {
@@ -36,6 +36,6 @@ export default class KeywordPathAnalyzer extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: 'string' as FieldType };
+        return { [this.field]: FieldType.String };
     }
 }

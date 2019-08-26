@@ -7,7 +7,7 @@ export default class Hostname extends BaseType {
         return {
             mapping: {
                 [this.field]: {
-                    type: 'keyword' as ElasticSearchTypes,
+                    type: 'text' as ElasticSearchTypes,
                     analyzer: 'lowercase_keyword_analyzer',
                     fields: {
                         tokens: {
@@ -21,6 +21,10 @@ export default class Hostname extends BaseType {
                 hostname_analyzer: {
                     type: 'custom',
                     tokenizer: 'hostname_tokenizer'
+                },
+                lowercase_keyword_analyzer: {
+                    tokenizer: 'keyword',
+                    filter: 'lowercase',
                 }
             },
             tokenizer: {
@@ -37,6 +41,6 @@ export default class Hostname extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: 'string' as FieldType };
+        return { [this.field]: FieldType.String };
     }
 }

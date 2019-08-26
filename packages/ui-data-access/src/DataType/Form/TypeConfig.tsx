@@ -49,9 +49,9 @@ const TypeConfig: React.FC<Props> = ({
                         <div>
                             <Label
                                 basic
-                                onClick={e => {
+                                onClick={(e) => {
                                     e.preventDefault();
-                                    setShowResolved(bool => !bool);
+                                    setShowResolved((bool) => !bool);
                                 }}
                             >
                                 <Icon
@@ -76,14 +76,14 @@ const TypeConfig: React.FC<Props> = ({
             }
         >
             {showResolved &&
-                resolved.map(fieldConfig => (
+                resolved.map((fieldConfig) => (
                     <ResolvedField
                         key={`resolved-${fieldConfig.field}`}
                         {...fieldConfig}
                     />
                 ))}
             {existing.length ? (
-                existing.map(fieldConfig => (
+                existing.map((fieldConfig) => (
                     <ExistingField
                         key={`existing-${fieldConfig.field}`}
                         updateField={updateField}
@@ -97,7 +97,7 @@ const TypeConfig: React.FC<Props> = ({
             )}
             <AddField
                 addField={(field, type) => {
-                    addField(fields => fields.concat(field));
+                    addField((fields) => fields.concat(field));
                     updateField(field, type);
                 }}
                 fields={existingFields}

@@ -4,6 +4,7 @@ import { Logger } from '@terascope/utils';
 export interface ClientOptions {
     exId: string;
     clusterMasterUrl: string;
+    nodeDisconnectTimeout: number;
     socketOptions: SocketIOClient.ConnectOpts;
     networkLatencyBuffer?: number;
     actionTimeout: number;
@@ -18,8 +19,6 @@ export interface ServerOptions {
     serverTimeout?: number;
     networkLatencyBuffer?: number;
     requestListener?: RequestListener;
-    pingTimeout?: number;
-    pingInterval?: number;
     logger?: Logger;
 }
 

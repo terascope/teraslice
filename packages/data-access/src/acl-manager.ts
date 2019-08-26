@@ -1,8 +1,8 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { DataTypeConfig, LATEST_VERSION } from '@terascope/data-types';
-import { CreateRecordInput, UpdateRecordInput } from 'elasticsearch-store';
 import { CachedQueryAccess } from 'xlucene-evaluator';
+import { DataTypeConfig, LATEST_VERSION } from '@terascope/data-types';
+import { CreateRecordInput, UpdateRecordInput, MigrateIndexStoreOptions } from 'elasticsearch-store';
 import * as models from './models';
 import * as i from './interfaces';
 
@@ -55,6 +55,20 @@ export class ACLManager {
             this._views.shutdown(),
             this._dataTypes.shutdown(),
         ]);
+    }
+
+    async simpleMigrate() {
+        const results: ts.AnyObject = {};
+        results['dataTypes'] = await this._dataTypes.store.migrateIndex({});
+        results['roles'] = await this._roles.store.migrateIndex({});
+        results['users'] = await this._users.store.migrateIndex({});
+        results['spaces'] = await this._spaces.store.migrateIndex({});
+        results['views'] = await this._views.store.migrateIndex({});
+        return results;
+    }
+
+    async migrateIndex(model: i.ModelName, options: MigrateIndexStoreOptions) {
+        return this[`_${model}`].store.migrateIndex(options);
     }
 
     /**
@@ -218,14 +232,25 @@ export class ACLManager {
             this._views.countBy({ roles: args.id }),
         ]);
 
-        if (usersCount || spacesCount || viewCount) {
-            throw new ts.TSError('Unable to remove Role, please remove it from any associated Space, View or User', {
+        const throwErr = (reason: string) => {
+            throw new ts.TSError(`Unable to remove Role, please remove it from any ${reason}`, {
                 statusCode: 412,
                 context: {
                     dataTypeId: args.id,
                     spacesCount,
+                    viewCount,
                 },
             });
+        };
+
+        if (spacesCount) {
+            throwErr('associated Space');
+        }
+        if (viewCount) {
+            throwErr('associated View');
+        }
+        if (usersCount) {
+            throwErr('associated User');
         }
 
         await this._roles.deleteById(args.id);
@@ -293,20 +318,32 @@ export class ACLManager {
         const exists = await this._dataTypes.exists(args.id);
         if (!exists) return false;
 
-        const [spacesCount, viewCount] = await Promise.all([
+        const [spacesCount, viewCount, inheritedCount] = await Promise.all([
             this._spaces.countBy({ data_type: args.id }),
             this._views.countBy({ data_type: args.id }),
+            this._dataTypes.countBy({ inherit_from: args.id }),
         ]);
 
-        if (spacesCount || viewCount) {
-            throw new ts.TSError('Unable to remove Data Type, please remove it from any associated View or Space', {
+        const throwErr = (reason: string) => {
+            throw new ts.TSError(`Unable to remove Data Type, please remove it from any ${reason}`, {
                 statusCode: 412,
                 context: {
                     dataTypeId: args.id,
                     spacesCount,
                     viewCount,
+                    inheritedCount
                 },
             });
+        };
+
+        if (spacesCount) {
+            throwErr('associated Space');
+        }
+        if (viewCount) {
+            throwErr('associated View');
+        }
+        if (inheritedCount) {
+            throwErr('inherited Data Type');
         }
 
         await this._dataTypes.deleteById(args.id);
@@ -502,7 +539,7 @@ export class ACLManager {
         ]);
 
         const clientIds = [role.client_id, space.client_id, dataType.client_id, view.client_id];
-        if (!clientIds.every(id => id === user.client_id)) {
+        if (!clientIds.every((id) => id === user.client_id)) {
             const msg = `User "${user.username}" does not have permission to access space "${space.endpoint}"`;
             throw new ts.TSError(msg, { statusCode: 403 });
         }
@@ -564,7 +601,10 @@ export class ACLManager {
                 prevent_prefix_wildcard: true,
                 allow_implicit_queries: true,
             },
-            this.logger
+            {
+                logger: this.logger,
+                type_config: this._users.xluceneTypeConfig,
+            }
         );
     }
 
@@ -595,7 +635,10 @@ export class ACLManager {
                 includes,
                 allow_implicit_queries: true,
             },
-            this.logger
+            {
+                logger: this.logger,
+                type_config: this._roles.xluceneTypeConfig,
+            }
         );
     }
 
@@ -624,7 +667,10 @@ export class ACLManager {
                 includes,
                 allow_implicit_queries: true,
             },
-            this.logger
+            {
+                logger: this.logger,
+                type_config: this._dataTypes.xluceneTypeConfig,
+            }
         );
     }
 
@@ -658,7 +704,10 @@ export class ACLManager {
                 includes,
                 allow_implicit_queries: true,
             },
-            this.logger
+            {
+                logger: this.logger,
+                type_config: this._views.xluceneTypeConfig,
+            }
         );
     }
 
@@ -691,7 +740,10 @@ export class ACLManager {
                 includes,
                 allow_implicit_queries: true,
             },
-            this.logger
+            {
+                logger: this.logger,
+                type_config: this._spaces.xluceneTypeConfig,
+            }
         );
     }
 

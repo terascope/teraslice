@@ -10,7 +10,7 @@ export class Server extends core.Server {
     queue: Queue<i.EnqueuedWorker>;
 
     constructor(opts: i.ServerOptions) {
-        const { port, actionTimeout, pingInterval, pingTimeout, networkLatencyBuffer, workerDisconnectTimeout, logger } = opts;
+        const { port, actionTimeout, networkLatencyBuffer, workerDisconnectTimeout, logger } = opts;
 
         if (!isNumber(workerDisconnectTimeout)) {
             throw new Error('ExecutionController.Server requires a valid workerDisconnectTimeout');
@@ -19,8 +19,6 @@ export class Server extends core.Server {
         super({
             port,
             actionTimeout,
-            pingInterval,
-            pingTimeout,
             networkLatencyBuffer,
             clientDisconnectTimeout: workerDisconnectTimeout,
             serverName: 'ExecutionController',
@@ -32,20 +30,20 @@ export class Server extends core.Server {
     }
 
     async start() {
-        this.on('connection', msg => {
+        this.on('connection', (msg) => {
             this.onConnection(msg.scope, msg.payload as SocketIO.Socket);
         });
 
-        this.onClientUnavailable(workerId => {
+        this.onClientUnavailable((workerId) => {
             this._workerRemove(workerId);
         });
 
-        this.onClientDisconnect(workerId => {
+        this.onClientDisconnect((workerId) => {
             delete this._activeWorkers[workerId];
             this._workerRemove(workerId);
         });
 
-        this.onClientAvailable(workerId => {
+        this.onClientAvailable((workerId) => {
             this._activeWorkers[workerId] = false;
             this._workerEnqueue(workerId);
         });
@@ -86,7 +84,7 @@ export class Server extends core.Server {
                 dispatched = response.payload.willProcess;
             }
         } catch (error) {
-            this.logger.warn(`got error when dispatching slice ${slice.slice_id}`, error);
+            this.logger.warn(error, `error when dispatching slice ${slice.slice_id}`);
         }
 
         if (!dispatched) {
@@ -102,13 +100,13 @@ export class Server extends core.Server {
     }
 
     onSliceSuccess(fn: (workerId: string, payload: i.SliceCompletePayload) => {}) {
-        this.on('slice:success', msg => {
+        this.on('slice:success', (msg) => {
             fn(msg.scope, msg.payload);
         });
     }
 
     onSliceFailure(fn: (workerId: string, payload: i.SliceCompletePayload) => {}) {
-        this.on('slice:failure', msg => {
+        this.on('slice:failure', (msg) => {
             fn(msg.scope, msg.payload);
         });
     }
@@ -125,7 +123,7 @@ export class Server extends core.Server {
     }
 
     get activeWorkerCount(): number {
-        return Object.values(this._activeWorkers).filter(v => v).length;
+        return Object.values(this._activeWorkers).filter((v) => v).length;
     }
 
     get workerQueueSize(): number {
@@ -133,7 +131,7 @@ export class Server extends core.Server {
     }
 
     private onConnection(workerId: string, socket: SocketIO.Socket) {
-        this.handleResponse(socket, 'worker:slice:complete', async msg => {
+        this.handleResponse(socket, 'worker:slice:complete', async (msg) => {
             const { payload } = msg;
             const sliceId = get(payload, 'slice.slice_id');
 

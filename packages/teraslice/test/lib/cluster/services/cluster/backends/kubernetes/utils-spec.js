@@ -1,6 +1,9 @@
 'use strict';
 
-const { makeTemplate } = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/utils');
+const {
+    makeTemplate,
+    getMaxOldSpace
+} = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/utils');
 const { safeEncode } = require('../../../../../../../lib/utils/encoding_utils');
 
 describe('K8s Utils', () => {
@@ -154,6 +157,13 @@ describe('K8s Utils', () => {
                 }
             ]);
             expect(templateSpec.terminationGracePeriodSeconds).toEqual(config.shutdownTimeout);
+        });
+    });
+
+    describe('->getMaxOldSpace', () => {
+        it('should convert bytes to mb', () => {
+            const oneGBInBytes = 1024 * 1024 * 1024;
+            expect(getMaxOldSpace(oneGBInBytes)).toEqual(Math.round(0.9 * 1024));
         });
     });
 });

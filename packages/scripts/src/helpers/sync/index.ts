@@ -2,9 +2,10 @@ import path from 'path';
 import { updateReadme, ensureOverview } from '../docs/overview';
 import { listPackages, updatePkgJSON } from '../packages';
 import { updateSidebarJSON } from '../docs/sidebar';
-import { cliError, formatList, writePkgHeader } from '../misc';
+import { formatList, writePkgHeader } from '../misc';
 import { getChangedFiles } from '../scripts';
 import { PackageInfo } from '../interfaces';
+import signale from '../signale';
 
 export type SyncOptions = {
     verify?: boolean;
@@ -25,7 +26,7 @@ export async function syncPackages(pkgInfos: PackageInfo[], options: SyncOptions
     writePkgHeader('Syncing files', pkgInfos);
 
     await Promise.all(
-        pkgInfos.map(async pkgInfo => {
+        pkgInfos.map(async (pkgInfo) => {
             await updateReadme(pkgInfo);
             await ensureOverview(pkgInfo);
             await updatePkgJSON(pkgInfo);
@@ -42,7 +43,8 @@ export async function verify(files: string[], options: SyncOptions) {
 
     const changed = await getChangedFiles(...files);
     if (changed.length) {
-        cliError('Error', `Files have either changes or are out-of-sync, run 'yarn sync' and push up the changes:${formatList(changed)}`);
+        signale.error(`Files have either changes or are out-of-sync, run 'yarn sync' and push up the changes:${formatList(changed)}`);
+        process.exit(1);
     }
 }
 

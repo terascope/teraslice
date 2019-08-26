@@ -47,7 +47,7 @@ function makeShutdownEarlyFn({ exController, enabled = false }) {
 }
 
 function getTestCases(testCases) {
-    const onlyCases = _.filter(testCases, ts => ts[1].only);
+    const onlyCases = _.filter(testCases, (ts) => ts[1].only);
     if (onlyCases.length > 0) {
         // eslint-disable-next-line no-console
         console.warn(
@@ -56,7 +56,7 @@ function getTestCases(testCases) {
         return onlyCases;
     }
 
-    const cases = _.reject(testCases, ts => ts[1].skip);
+    const cases = _.reject(testCases, (ts) => ts[1].skip);
     if (cases.length !== testCases.length) {
         // eslint-disable-next-line no-console
         console.warn(

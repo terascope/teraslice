@@ -11,6 +11,7 @@ import {
 } from '../../interfaces';
 import Queue from '@terascope/queue';
 import Core from './core';
+import { makeExContextLogger } from '../../utils';
 
 /**
  * A base class for supporting "Slicers" that run on a "Execution Controller",
@@ -28,12 +29,8 @@ export default abstract class SlicerCore<T = OpConfig> extends Core<WorkerContex
     private readonly queue: Queue<Slice>;
 
     constructor(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig) {
-        const logger = context.apis.foundation.makeLogger({
-            module: 'slicer',
+        const logger = makeExContextLogger(context, executionConfig, 'slicer', {
             opName: opConfig._op,
-            jobName: executionConfig.name,
-            jobId: executionConfig.job_id,
-            exId: executionConfig.ex_id,
         });
 
         super(context, executionConfig, logger);
@@ -102,7 +99,8 @@ export default abstract class SlicerCore<T = OpConfig> extends Core<WorkerContex
      */
     getSlice(): Slice | null {
         if (!this.sliceCount()) return null;
-        return this.queue.dequeue();
+        const result = this.queue.dequeue();
+        return result != null ? result : null;
     }
 
     /**

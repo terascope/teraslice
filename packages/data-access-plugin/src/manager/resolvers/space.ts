@@ -5,10 +5,10 @@ import { findAll } from '../utils';
 export default {
     Space: {
         roles(space: Space, args: any, ctx: ManagerContext) {
-            return findAll(space.roles, query => ctx.manager.findRoles({ query }, ctx.user));
+            return findAll(space.roles, (query) => ctx.manager.findRoles({ query }, ctx.user));
         },
         views(space: Space, args: any, ctx: ManagerContext) {
-            return findAll(space.views, query => ctx.manager.findViews({ query }, ctx.user));
+            return findAll(space.views, (query) => ctx.manager.findViews({ query }, ctx.user));
         },
         data_type(space: Space, args: any, ctx: ManagerContext) {
             if (!space.data_type) return null;

@@ -12,7 +12,7 @@ export default class Schema extends ConvictSchema<CollectConfig> {
             wait: {
                 default: null,
                 doc: 'Maximum time to wait before resolving the currently queued records',
-                format: 'Number'
+                format: 'duration'
             },
         };
     }

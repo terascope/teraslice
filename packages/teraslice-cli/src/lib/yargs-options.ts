@@ -196,8 +196,13 @@ export default class Options {
         };
 
         this.coerce = {
+<<<<<<< HEAD:packages/teraslice-cli/src/lib/yargs-options.ts
             'cluster-url': (newUrl: string) => url.build(newUrl),
             'new-cluster-url': (newUrl: string) => url.build(newUrl)
+=======
+            'cluster-url': (newUrl) => url.build(newUrl),
+            'new-cluster-url': (newUrl) => url.build(newUrl)
+>>>>>>> master:packages/teraslice-cli/lib/yargs-options.js
         };
     }
 

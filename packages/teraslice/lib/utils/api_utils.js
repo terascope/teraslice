@@ -15,7 +15,7 @@ function makeTable(req, defaults, data, mappingFn) {
     }
 
     return Table.print(data, (item, cell) => {
-        const fn = mappingFn ? mappingFn(item) : field => _.get(item, field, emptyChar);
+        const fn = mappingFn ? mappingFn(item) : (field) => _.get(item, field, emptyChar);
         _.each(query, (field) => {
             cell(field, fn(field));
         });

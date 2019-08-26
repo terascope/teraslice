@@ -1,5 +1,6 @@
-import ByteType from '../../../src/types/versions/v1/byte';
 import { TSError } from '@terascope/utils';
+import { FieldType } from 'xlucene-evaluator';
+import ByteType from '../../../src/types/versions/v1/byte';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Byte V1', () => {
@@ -46,7 +47,7 @@ describe('Byte V1', () => {
 
     it('can get proper xlucene properties', () => {
         const xlucene = new ByteType(field, typeConfig).toXlucene();
-        const results = { [field]: 'number' };
+        const results = { [field]: FieldType.Integer };
 
         expect(xlucene).toEqual(results);
     });

@@ -1,16 +1,15 @@
 import fs from 'fs';
 import path from 'path';
 import { listPackages, getPkgNames } from './packages';
-import { cliError, formatList } from './misc';
+import { formatList } from './misc';
 import { PackageInfo } from './interfaces';
 
 export type CoercePkgInput = string | string[] | undefined;
 
-export function coercePkgArg(input: CoercePkgInput, required = false): PackageInfo[] {
+export function coercePkgArg(input: CoercePkgInput): PackageInfo[] {
     const names = makeArray(input);
     if (!names.length) {
-        if (!required) return [];
-        return cliError('ValidationError', 'Missing package name argument');
+        return [];
     }
 
     const result: PackageInfo[] = [];
@@ -22,13 +21,14 @@ export function coercePkgArg(input: CoercePkgInput, required = false): PackageIn
             folderName = path.basename(path.resolve(name));
         }
 
-        const found = packages.find(info => {
+        const found = packages.find((info) => {
             if (folderName === info.folderName) return true;
             return [info.name, info.folderName].includes(name);
         });
 
         if (!found) {
-            return cliError('ValidationError', `Package name "${name}" must be one of:${formatList(getPkgNames(packages))}`);
+            const list = formatList(getPkgNames(packages));
+            throw new Error(`Package name "${name}" must be one of:${list}`);
         }
         result.push(found);
     }
@@ -39,7 +39,10 @@ export function coercePkgArg(input: CoercePkgInput, required = false): PackageIn
 export function makeArray(input: string | string[] | undefined): string[] {
     if (!input) return [];
     if (Array.isArray(input)) {
-        const arr = input.map((str: string) => str.trim()).filter(Boolean);
+        const arr = input
+            .filter(Boolean)
+            .map((str: string) => str.trim())
+            .filter(Boolean);
         return [...new Set(arr)];
     }
     if (typeof input !== 'string') return [];

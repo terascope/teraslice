@@ -11,7 +11,7 @@ export type Input = OverwriteModelWith<
 
 export const inputFields: (keyof Input)[] = ['id', 'client_id', 'description', 'name', 'config', 'inherit_from'];
 
-export const dataTypeOptions = AvailableTypes.sort().map(t => ({
+export const dataTypeOptions = AvailableTypes.sort().map((t) => ({
     key: t,
     text: t,
     value: t,

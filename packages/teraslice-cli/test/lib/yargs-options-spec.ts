@@ -47,7 +47,11 @@ describe('options', () => {
     describe('-> buildCoerce', () => {
         test('should build a coerce function', () => {
             options.coerce = {
+<<<<<<< HEAD:packages/teraslice-cli/test/lib/yargs-options-spec.ts
                 testc: (newValue:string) => _.toUpper(newValue),
+=======
+                testc: (newValue) => _.toUpper(newValue),
+>>>>>>> master:packages/teraslice-cli/test/lib/yargs-options-spec.js
             };
             expect(options.buildCoerce('testc')).toBeDefined();
         });

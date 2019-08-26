@@ -32,7 +32,9 @@ describe('SearchAccess', () => {
                 _sourceExclude: ['baz'],
             };
 
-            const result = searchAccess.restrictSearchQuery('foo:bar', params);
+            const result = searchAccess.restrictSearchQuery('foo:bar', {
+                params
+            });
             expect(result).toMatchObject({
                 _sourceExclude: ['baz'],
                 _sourceInclude: ['moo'],
@@ -140,8 +142,7 @@ describe('SearchAccess', () => {
                 });
 
                 const query: InputQuery = {
-                    // @ts-ignore
-                    sort: { example: true },
+                    sort: { example: true } as any,
                 };
 
                 expect(() => {
@@ -212,6 +213,27 @@ describe('SearchAccess', () => {
                 });
             });
 
+            it('should be able to handle a max query size of 0', () => {
+                const searchAccess = makeWith({
+                    sort_enabled: true,
+                    max_query_size: 0,
+                    index: 'woot',
+                });
+
+                const query: InputQuery = {
+                    q: 'hello',
+                    size: 0,
+                };
+
+                const params = searchAccess.getSearchParams(query);
+
+                expect(params).toMatchObject({
+                    index: 'woot',
+                    q: 'hello',
+                    size: 0,
+                });
+            });
+
             it('should be able to handle stringified values', () => {
                 const searchAccess = makeWith({
                     sort_default: 'default:asc',
@@ -268,47 +290,6 @@ describe('SearchAccess', () => {
                     _sourceInclude: ['one', 'two', 'three'],
                 });
             });
-
-            it('should be able to handle a geo point query and sort', () => {
-                const query: InputQuery = {
-                    q: 'example:hello',
-                    geo_sort_point: '33.435518,-111.873616',
-                    geo_sort_order: 'desc',
-                    geo_sort_unit: 'm',
-                };
-
-                const searchAccess = makeWith(
-                    {
-                        default_geo_field: 'example_location',
-                        index: 'woot',
-                    },
-                    {
-                        fields: { created: { type: 'Date' } },
-                        version: LATEST_VERSION,
-                    }
-                );
-
-                const params = searchAccess.getSearchParams(query);
-
-                expect(params).toMatchObject({
-                    body: {
-                        sort: {
-                            _geo_distance: {
-                                example_location: {
-                                    lon: -111.873616,
-                                    lat: 33.435518,
-                                },
-                                order: 'desc',
-                                unit: 'm',
-                            },
-                        },
-                    },
-                    index: 'woot',
-                    from: 0,
-                    q: 'example:hello',
-                    size: 100,
-                });
-            });
         });
 
         describe('getSearchResponse', () => {
@@ -335,7 +316,7 @@ describe('SearchAccess', () => {
                         total: 2,
                     },
                     hits: {
-                        hits: ts.times(total, n => ({
+                        hits: ts.times(total, (n) => ({
                             _index: 'example',
                             _source: {
                                 example: n,
@@ -363,7 +344,7 @@ describe('SearchAccess', () => {
                     total,
                     info: '5 results found. Returning 2.',
                     returning: 2,
-                    results: ts.times(total, n => ({
+                    results: ts.times(total, (n) => ({
                         example: n,
                     })),
                 });
@@ -376,7 +357,7 @@ describe('SearchAccess', () => {
                         total: 2,
                     },
                     hits: {
-                        hits: ts.times(total, n => ({
+                        hits: ts.times(total, (n) => ({
                             _index: 'example',
                             _source: {
                                 example: n,
@@ -403,7 +384,7 @@ describe('SearchAccess', () => {
                     total,
                     info: '150 results found. Returning 100.',
                     returning: 100,
-                    results: ts.times(total, n => ({
+                    results: ts.times(total, (n) => ({
                         example: n,
                     })),
                 });
@@ -416,7 +397,7 @@ describe('SearchAccess', () => {
                         total: 2,
                     },
                     hits: {
-                        hits: ts.times(total, n => ({
+                        hits: ts.times(total, (n) => ({
                             _index: 'example',
                             _source: {
                                 example: n,
@@ -444,7 +425,7 @@ describe('SearchAccess', () => {
                     total,
                     info: '5 results found. Returning 2.',
                     returning: 2,
-                    results: ts.times(total, n => ({
+                    results: ts.times(total, (n) => ({
                         example: n,
                     })),
                 });
@@ -457,7 +438,7 @@ describe('SearchAccess', () => {
                         total: 1,
                     },
                     hits: {
-                        hits: ts.times(total, n => ({
+                        hits: ts.times(total, (n) => ({
                             _index: 'example',
                             _source: {
                                 example: n,
@@ -486,7 +467,7 @@ describe('SearchAccess', () => {
                     total,
                     info: '5 results found. Returning 2. No sorting available.',
                     returning: 2,
-                    results: ts.times(total, n => ({
+                    results: ts.times(total, (n) => ({
                         _index: 'example',
                         example: n,
                     })),

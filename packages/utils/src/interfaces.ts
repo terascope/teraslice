@@ -50,8 +50,3 @@ export interface Many<T> extends Array<T> {}
 export interface AnyObject {
     [prop: string]: any;
 }
-
-export interface MatchAllOptions {
-    options?: string;
-    multivalue?: boolean;
-}

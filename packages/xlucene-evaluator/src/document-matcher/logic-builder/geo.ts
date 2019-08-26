@@ -11,7 +11,7 @@ import { GeoDistance, GeoBoundingBox } from '../../parser';
 const testGeoPolygon = (polygon: any) => (fieldData: string) => {
     const point = parseGeoPoint(fieldData, false);
     if (!point) return false;
-    return pointInPolygon(point, polygon);
+    return pointInPolygon([point.lon, point.lat], polygon);
 };
 
 export function geoDistance(node:GeoDistance) {

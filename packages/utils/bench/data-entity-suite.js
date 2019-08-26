@@ -21,7 +21,7 @@ for (let i = 0; i < 50; i++) {
     };
 }
 
-data['big-array'] = times(50, n => `item-${n}`);
+data['big-array'] = times(50, (n) => `item-${n}`);
 
 function makeObj() {
     return Object.assign({}, data);

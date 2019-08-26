@@ -120,7 +120,7 @@ export class Users extends store.IndexModel<User> {
         if (!user) return false;
 
         const fields = Object.keys(user);
-        return Users.PrivateFields.some(field => {
+        return Users.PrivateFields.some((field) => {
             return fields.includes(field);
         });
     }

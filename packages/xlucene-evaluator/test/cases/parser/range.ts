@@ -1,4 +1,4 @@
-import { ASTType } from '../../../src/parser';
+import { FieldType, ASTType } from '../../../src';
 import { TestCase } from './interfaces';
 
 export default [
@@ -7,7 +7,7 @@ export default [
         field: 'count',
         left: {
             operator: 'gte',
-            data_type: 'integer',
+            field_type: FieldType.Integer,
             value: 10
         }
     }],
@@ -16,7 +16,7 @@ export default [
         field: 'count',
         left: {
             operator: 'gt',
-            data_type: 'integer',
+            field_type: FieldType.Integer,
             value: 10,
         }
     }],
@@ -25,7 +25,7 @@ export default [
         field: 'count',
         left: {
             operator: 'lte',
-            data_type: 'float',
+            field_type: FieldType.Float,
             value: 20.10
         }
     }],
@@ -34,7 +34,7 @@ export default [
         field: 'count',
         left: {
             operator: 'lt',
-            data_type: 'integer',
+            field_type: FieldType.Integer,
             value: 20
         }
     }],
@@ -43,12 +43,12 @@ export default [
         field: 'count',
         left: {
             operator: 'gte',
-            data_type: 'integer',
+            field_type: FieldType.Integer,
             value: 1,
         },
         right: {
             operator: 'lte',
-            data_type: 'integer',
+            field_type: FieldType.Integer,
             value: 5,
         }
     }],
@@ -57,26 +57,68 @@ export default [
         field: 'count',
         left: {
             operator: 'gte',
-            data_type: 'float',
+            field_type: FieldType.Float,
             value: 1.5,
         },
         right: {
             operator: 'lte',
-            data_type: 'float',
+            field_type: FieldType.Float,
             value: 5.3,
         }
     }],
+    [
+        'count:[1.5 TO 5.3]',
+        'inclusive ranges with floats but with a type of integer',
+        {
+            type: ASTType.Range,
+            field: 'count',
+            left: {
+                operator: 'gte',
+                field_type: FieldType.Integer,
+                value: 1,
+            },
+            right: {
+                operator: 'lte',
+                field_type: FieldType.Integer,
+                value: 5,
+            }
+        },
+        {
+            count: FieldType.Integer
+        }
+    ],
+    [
+        'count:[1.5 TO 5.3]',
+        'inclusive ranges with floats but with a type of string',
+        {
+            type: ASTType.Range,
+            field: 'count',
+            left: {
+                operator: 'gte',
+                field_type: FieldType.String,
+                value: '1.5',
+            },
+            right: {
+                operator: 'lte',
+                field_type: FieldType.String,
+                value: '5.3',
+            }
+        },
+        {
+            count: FieldType.String
+        }
+    ],
     ['count:{2 TO 6]', 'exclusive and inclusive ranges with integers', {
         type: ASTType.Range,
         field: 'count',
         left: {
             operator: 'gt',
-            data_type: 'integer',
+            field_type: FieldType.Integer,
             value: 2,
         },
         right: {
             operator: 'lte',
-            data_type: 'integer',
+            field_type: FieldType.Integer,
             value: 6
         }
     }],
@@ -85,12 +127,12 @@ export default [
         field: 'count',
         left: {
             operator: 'gt',
-            data_type: 'float',
+            field_type: FieldType.Float,
             value: 1.5,
         },
         right: {
             operator: 'lt',
-            data_type: 'float',
+            field_type: FieldType.Float,
             value: 5.3,
         }
     }],
@@ -99,13 +141,13 @@ export default [
         field: 'val',
         left: {
             operator: 'gte',
-            data_type: 'string',
+            field_type: FieldType.String,
             restricted: true,
             value: 'alpha',
         },
         right: {
             operator: 'lte',
-            data_type: 'string',
+            field_type: FieldType.String,
             restricted: true,
             value: 'omega',
         }
@@ -115,13 +157,13 @@ export default [
         field: 'val',
         left: {
             operator: 'gt',
-            data_type: 'string',
+            field_type: FieldType.String,
             quoted: true,
             value: 'alpha',
         },
         right: {
             operator: 'lt',
-            data_type: 'string',
+            field_type: FieldType.String,
             quoted: true,
             value: 'omega',
         }
@@ -131,13 +173,13 @@ export default [
         field: 'val',
         left: {
             operator: 'gte',
-            data_type: 'string',
+            field_type: FieldType.String,
             restricted: true,
             value: '2012-01-01',
         },
         right: {
             operator: 'lte',
-            data_type: 'string',
+            field_type: FieldType.String,
             restricted: true,
             value: '2012-12-31',
         }
@@ -147,13 +189,13 @@ export default [
         field: 'val',
         left: {
             operator: 'gte',
-            data_type: 'string',
+            field_type: FieldType.String,
             restricted: true,
             value: '2012-01-01',
         },
         right: {
             operator: 'lte',
-            data_type: 'number',
+            field_type: FieldType.Integer,
             value: Number.POSITIVE_INFINITY,
         }
     }],
@@ -162,12 +204,12 @@ export default [
         field: 'val',
         left: {
             operator: 'gte',
-            data_type: 'number',
+            field_type: FieldType.Integer,
             value: Number.NEGATIVE_INFINITY,
         },
         right: {
             operator: 'lt',
-            data_type: 'integer',
+            field_type: FieldType.Integer,
             value: 10,
         }
     }],

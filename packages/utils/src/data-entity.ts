@@ -1,5 +1,7 @@
+import isPlainObject from 'is-plain-object';
 import { fastMap } from './arrays';
-import { fastAssign, isFunction, isPlainObject, parseJSON, getTypeOf } from './utils';
+import { fastAssign } from './objects';
+import { isFunction, parseJSON, getTypeOf } from './utils';
 
 // WeakMaps are used as a memory efficient reference to private data
 const _metadata = new WeakMap();
@@ -75,7 +77,7 @@ export class DataEntity<T extends object = object> {
             return input;
         }
 
-        return fastMap(input, d => DataEntity.make(d));
+        return fastMap(input, (d) => DataEntity.make(d));
     }
 
     /**
@@ -191,6 +193,10 @@ function makeEntity<T extends object>(input: T): DataEntity<T> {
 }
 
 const dataEntityProperties = {
+    constructor: {
+        value: DataEntity,
+        enumerable: false,
+    },
     __isDataEntity: {
         value: true,
         enumerable: false,

@@ -70,7 +70,7 @@ describe('messaging module', () => {
             emitMsg = { message: msg, data: msgObj };
         },
         sockets: {
-            in: address => ({
+            in: (address) => ({
                 emit: (msg, msgObj) => {
                     socketMsg = { message: msg, data: msgObj, address };
                 }

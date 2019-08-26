@@ -41,7 +41,11 @@ export default class extends Generator {
                     }
                     return true;
                 },
+<<<<<<< HEAD:packages/teraslice-cli/src/generators/new-asset/index.ts
                 filter: (value:string) => _.kebabCase(value)
+=======
+                filter: (value) => _.kebabCase(value)
+>>>>>>> master:packages/teraslice-cli/generators/new-asset/index.js
             },
             {
                 type: 'input',

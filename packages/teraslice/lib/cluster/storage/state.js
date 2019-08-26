@@ -150,7 +150,7 @@ module.exports = async function stateStorage(context) {
             await backend.refresh(indexName);
 
             const results = await backend.search(retryQuery, 0, 5000);
-            return results.map(doc => ({
+            return results.map((doc) => ({
                 slice_id: doc.slice_id,
                 slicer_id: doc.slicer_id,
                 request: JSON.parse(doc.request),
@@ -210,7 +210,7 @@ module.exports = async function stateStorage(context) {
         recordType,
         idField: 'slice_id',
         fullResponse: false,
-        logRecord: false,
+        logRecord: true,
         forceRefresh: false,
         storageName: 'state'
     };

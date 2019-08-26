@@ -10,8 +10,7 @@ export default class KeywordTokens extends BaseType {
                     fields: {
                         tokens: {
                             type: 'text',
-                            index: 'true',
-                            analyzer: 'simple',
+                            analyzer: 'standard',
                         },
                     },
                 },
@@ -24,6 +23,6 @@ export default class KeywordTokens extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: 'string' as FieldType };
+        return { [this.field]: FieldType.String };
     }
 }

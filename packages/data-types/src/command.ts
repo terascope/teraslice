@@ -27,7 +27,7 @@ yargs
                 alias: 'c',
                 describe: 'Override the elasticsearch mapping configuration',
                 string: true,
-                coerce: arg => {
+                coerce: (arg) => {
                     return JSON.parse(fs.readFileSync(arg, 'utf8'));
                 },
             },

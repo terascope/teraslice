@@ -12,6 +12,6 @@ export default class ObjectType extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: 'object' as FieldType };
+        return { [this.field]: FieldType.Object };
     }
 }

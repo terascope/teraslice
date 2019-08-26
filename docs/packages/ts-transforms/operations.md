@@ -469,6 +469,48 @@ This will make sure the field is a string and uppercase it, otherwise it will re
 
 - no additional parameters
 
+### trim
+
+This will make sure the field is a string and trim it, otherwise it will remove the field it
+
+- no additional parameters
+
+### base64encode
+
+This will make sure the field is a string and base64 encode it, otherwise it will remove the field it
+
+- no additional parameters
+
+### urlencode
+
+This will make sure the field is a string and url encode it, otherwise it will remove the field it
+
+- no additional parameters
+
+### hexencode
+
+This will make sure the field is a string and hex encode it, otherwise it will remove the field it
+
+- no additional parameters
+
+### md5encode
+
+This will make sure the field is a string and md5 encode it, otherwise it will remove the field it
+
+- no additional parameters
+
+### sha1encode
+
+This will make sure the field is a string and sha1 encode it, otherwise it will remove the field it
+
+- no additional parameters
+
+### sha2encode
+
+This will make sure the field is a string and by default sha256 encode it, otherwise it will remove the field it
+
+- hash: `String`(optional) = defaults to `sha256` but you can specify an sha2 family thats available with the version of OpenSSL on the playtform you are using. Use `openssl list-message-digest-algorithms` to find which are available.
+
 ## Validations
 
 this provides a list of validation operations. If the field failed a validation check then that field is removed from the final output

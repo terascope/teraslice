@@ -9,6 +9,7 @@ import {
     DeadLetterAction,
     DeadLetterAPIFn,
 } from '../../interfaces';
+import { makeExContextLogger } from '../../utils';
 
 /**
  * A base class for supporting operations that run on a "Worker",
@@ -24,14 +25,9 @@ export default class OperationCore<T = OpConfig> extends Core<WorkerContext> imp
     deadLetterAction: DeadLetterAction;
 
     constructor(context: WorkerContext, opConfig: OpConfig & T, executionConfig: ExecutionConfig) {
-        const logger = context.apis.foundation.makeLogger({
-            module: 'operation',
+        const logger = makeExContextLogger(context, executionConfig, 'operation', {
             opName: opConfig._op,
-            jobName: executionConfig.name,
-            jobId: executionConfig.job_id,
-            exId: executionConfig.ex_id,
         });
-
         super(context, executionConfig, logger);
 
         this.deadLetterAction = opConfig._dead_letter_action || 'none';
@@ -69,7 +65,7 @@ export default class OperationCore<T = OpConfig> extends Core<WorkerContext> imp
      * @returns a curried a function that will be called with the data and handle the dead letter action
      */
     tryRecord<I, R>(fn: (input: I) => R): (input: I) => R | null {
-        return input => {
+        return (input) => {
             try {
                 return fn(input);
             } catch (err) {

@@ -12,8 +12,8 @@ import Section from './Section';
 import StateMessage from './StateMessage';
 import SuccessMessage from './SuccessMessage';
 
-export * from './DataTable';
 export * from './CoreContext';
+export * from './DataTable';
 export * from './interfaces';
 export * from './utils';
 

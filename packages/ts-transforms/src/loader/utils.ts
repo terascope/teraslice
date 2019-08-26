@@ -25,11 +25,11 @@ export function parseConfig(configList: OperationConfig[], opsManager: Operation
     const tagMapping: StateDict = {};
     const graphEdges: StateDict = {};
 
-    configList.forEach(config => {
+    configList.forEach((config) => {
         const configId = config.__id;
 
         if (config.tags) {
-            config.tags.forEach(tag => {
+            config.tags.forEach((tag) => {
                 if (!tagMapping[tag]) {
                     tagMapping[tag] = [];
                 }
@@ -63,12 +63,12 @@ export function parseConfig(configList: OperationConfig[], opsManager: Operation
 
     // config may be out of order so we build edges after the fact on post processors
     _.forOwn(graphEdges, (ids, key) => {
-        ids.forEach(id => {
+        ids.forEach((id) => {
             const matchingTags: string[] = tagMapping[key];
             if (matchingTags == null) {
                 throw new Error(`rule attempts to follow a tag that doesn't exist: ${JSON.stringify(graph.node(id))}`);
             }
-            matchingTags.forEach(tag => graph.setEdge(tag, id));
+            matchingTags.forEach((tag) => graph.setEdge(tag, id));
         });
     });
 
@@ -76,15 +76,15 @@ export function parseConfig(configList: OperationConfig[], opsManager: Operation
     if (cycles.length > 0) {
         const errMsg = 'A cyclic tag => follow sequence has been found, cycles: ';
         const errList: string[] = [];
-        cycles.forEach(cycleList => {
-            const list = cycleList.map(id => graph.node(id));
+        cycles.forEach((cycleList) => {
+            const list = cycleList.map((id) => graph.node(id));
             errList.push(JSON.stringify(list, null, 4));
         });
         throw new Error(`${errMsg}${errList.join(' \n cycle: ')}`);
     }
 
     const sortList = topsort(graph);
-    const configListOrder: OperationConfig[] = sortList.map(id => graph.node(id));
+    const configListOrder: OperationConfig[] = sortList.map((id) => graph.node(id));
     // we are mutating the config to make sure it has all the necessary fields
     const normalizedConfig = normalizeConfig(configListOrder, opsManager, tagMapping);
     const results = createResults(normalizedConfig);
@@ -104,8 +104,8 @@ function normalizeConfig(configList: OperationConfig[], opsManager: OperationsMa
             if (isOneToOne(opsManager, config)) {
                 list.push(...createMatchingConfig(fieldsConfigs, config, tagMapping));
             } else {
-                config.__pipeline = fieldsConfigs.map(obj => obj.pipeline)[0];
-                config.source_fields = fieldsConfigs.map(obj => obj.source);
+                config.__pipeline = fieldsConfigs.map((obj) => obj.pipeline)[0];
+                config.source_fields = [...new Set(fieldsConfigs.map((obj) => obj.source))];
                 if (targetField && !Array.isArray(targetField)) {
                     config.target_field = targetField;
                 } else {
@@ -132,8 +132,8 @@ function findConfigs(config: OperationConfig, configList: OperationConfig[], tag
     const results: FieldSourceConfigs[] = [];
 
     configList
-        .filter(obj => nodeIds.includes(obj.__id) && _.has(obj, 'target_field'))
-        .forEach(obj => {
+        .filter((obj) => nodeIds.includes(obj.__id) && _.has(obj, 'target_field'))
+        .forEach((obj) => {
             if (!mapping[obj.__id]) {
                 mapping[obj.__id] = true;
                 const pipeline = obj.__pipeline || obj.selector;
@@ -158,7 +158,7 @@ function createMatchingConfig(fieldsConfigs: FieldSourceConfigs[], config: Opera
         } else {
             resultsObj = Object.assign({}, config, { __id: shortid.generate() }, pipelineConfig);
             if (resultsObj.tags) {
-                resultsObj.tags.forEach(tag => {
+                resultsObj.tags.forEach((tag) => {
                     if (!tagMapping[tag]) {
                         tagMapping[tag] = [];
                     }
@@ -185,7 +185,7 @@ function createMatchingConfig(fieldsConfigs: FieldSourceConfigs[], config: Opera
 
 function validateOtherMatchRequired(configDict: ExtractionProcessingDict, logger: Logger) {
     _.forOwn(configDict, (opsList, selector) => {
-        const hasMatchRequired = opsList.find(op => !!op.other_match_required) != null;
+        const hasMatchRequired = opsList.find((op) => !!op.other_match_required) != null;
         if (hasMatchRequired && opsList.length === 1) {
             logger.warn(
                 `
@@ -288,7 +288,7 @@ function createResults(list: OperationConfig[]): ValidationResults {
     let currentSelector: undefined | string;
     const duplicateListing = {};
 
-    list.forEach(config => {
+    list.forEach((config) => {
         if (duplicateListing[config.__id]) {
             return;
         }

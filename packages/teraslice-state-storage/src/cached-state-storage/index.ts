@@ -1,26 +1,17 @@
-
-import LRU from 'mnemonist/lru-map';
-import { promisify } from 'util';
 import { EventEmitter } from 'events';
+import LRUMap from 'mnemonist/lru-map';
+import { pImmediate, BigMap } from '@terascope/utils';
 
-import {
-    CacheConfig,
-    MGetCacheResponse,
-    SetTuple,
-    ValuesFn,
-    EvictedEvent
-} from '../interfaces';
-
-const immediate = promisify(setImmediate);
+import { CacheConfig, MGetCacheResponse, SetTuple, ValuesFn, EvictedEvent } from '../interfaces';
 
 export default class CachedStateStorage<T> extends EventEmitter {
-    protected IDField: string;
-    private _cache: LRU<string, T>;
+    private _cache: LRUMap<string, T>;
 
     constructor(config: CacheConfig) {
         super();
-        this.IDField = '_key';
-        this._cache = new LRU(config.cache_size);
+        this._cache = new LRUMap(config.cache_size);
+        // @ts-ignore
+        this._cache.items = new BigMap(config.max_big_map_size);
     }
 
     get(key: string): T | undefined {
@@ -37,11 +28,15 @@ export default class CachedStateStorage<T> extends EventEmitter {
 
     set(key: string, value: T) {
         const results = this._cache.setpop(key, value);
-        if (results && results.evicted) this.emit('eviction', { key: results.key, data: results.value } as EvictedEvent<T>);
+        if (results && results.evicted) {
+            this.emit('eviction', { key: results.key, data: results.value } as EvictedEvent<T>);
+        }
     }
 
     mset(docArray: SetTuple<T>[]) {
-        docArray.forEach(doc => this.set(doc.key, doc.data));
+        for (const doc of docArray) {
+            this.set(doc.key, doc.data);
+        }
     }
 
     count() {
@@ -52,8 +47,8 @@ export default class CachedStateStorage<T> extends EventEmitter {
         let i = 0;
         for (const [, value] of this._cache) {
             fn(value);
-            if (i % 100000 === 0) {
-                await immediate();
+            if (i % 10000 === 0) {
+                await pImmediate();
             }
             i++;
         }
@@ -62,8 +57,6 @@ export default class CachedStateStorage<T> extends EventEmitter {
     has(key: string) {
         return this._cache.has(key);
     }
-
-    initialize() {}
 
     clear() {
         this.removeAllListeners();

@@ -5,6 +5,7 @@ import { isIPv6, isIP } from 'net';
 import { getRangeValues } from './dates';
 import { isInfiniteMin, isInfiniteMax } from '../../utils';
 import { Term, Range } from '../../parser';
+
 const MIN_IPV4_IP = '0.0.0.0';
 const MAX_IPV4_IP = '255.255.255.255';
 

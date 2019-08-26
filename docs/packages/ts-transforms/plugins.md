@@ -5,12 +5,12 @@ sidebar_label: Plugins
 
 > General Plugin Structure, generally the transform/validation operation would be in a seperate file
 
-`PluginFile.ts`
+`PluginFile.js`
 
-```ts
+```js
 
-import { DataEntity } from '@terascope/utils';
-import { OperationConfig, TransformOpBase } from 'ts-transforms';
+const { DataEntity } = require('@terascope/utils');
+const { OperationConfig, TransformOpBase } = require('ts-transforms');
 
 class Double extends TransformOpBase {
     constructor(config: OperationConfig) {
@@ -23,7 +23,7 @@ class Double extends TransformOpBase {
     }
 }
 
-export default class Plugin {
+class Plugin {
     init() {
         return {
             noop: NoOp,
@@ -31,9 +31,11 @@ export default class Plugin {
         };
     }
 }
+
+module.exports = Plugin;
 ```
 
-`NOTE`: it is important to know that the key of the object returned from init will be the name that must be used in the rules and the value is the actual class
+`NOTE`: it is constant to know that the key of the object returned  = require( init will be the name that must be used in the rules and the value is the actual class
 
 `pluginRules.txt`
 
@@ -45,8 +47,8 @@ export default class Plugin {
 You insert an array of plugin classes at init
 
 ```ts
-import Plugins from 'PluginFile';
-import { Transform } from 'ts-transforms'
+const Plugins = require('PluginFile');
+const { Transform } = require('ts-transforms');
 
 const config = {
     rules: ['/path/to/pluginRules.txt'],
@@ -63,9 +65,15 @@ const results = transform.run(data);
 console.log(results) // [{ height: 4 }]
 ```
 
+CLI Plugin Usage
+```bash
+./bin/ts-transforms -p plugin/path -d data/path -r rules/path
+```
+
+
 #### Transform Operations
 
-It is important to inherit from the TransformOpBase class if at all possible as it does some normailization and validation. You can of course do things as you would like. You can also override the validateConfig method if you have another specific way to do so.
+It is constant to inherit  = require( the TransformOpBase class if at all possible as it does some normailization and validation. You can of course do things as you would like. You can also override the validateConfig method if you have another specific way to do so.
 
 The returning class must have a `run` method which is called by the framework and is given an object (DataEntity, which is just an object with a way to set and manipulate metadata transparently)
 
@@ -75,17 +83,16 @@ The configuration `source_field` and `target_field` are set to `this.source` and
 
 **Example:**
 
-```ts
-import { DataEntity } from '@terascope/utils';
-import _ from 'lodash';
-import { TransformOpBase, OperationConfig } from 'ts-transforms';
+```js
+const _  = require('lodash');
+const { TransformOpBase } = require('ts-transforms');
 
-export default class JsonParse extends TransformOpBase {
-    constructor(config: OperationConfig) {
+class JsonParse extends TransformOpBase {
+    constructor(config) {
         super(config);
     }
 
-    run(doc: DataEntity): DataEntity {
+    run(doc) {
         const field = _.get(doc, this.source);
         try {
             const json = JSON.parse(field);
@@ -98,11 +105,13 @@ export default class JsonParse extends TransformOpBase {
     }
 }
 
+module.exports = JsonParse;
+
 ```
 
 #### Validation Operations
 
-It is important to inherit from the ValidationOpBase class if at all possible as it does some normailization, validation and other important framework behaviour especially in regards to how `output:false` works.
+It is constant to inherit  = require( the ValidationOpBase class if at all possible as it does some normailization, validation and other constant framework behaviour especially in regards to how `output:false` works.
 
 The returning class must have a `run` method (which is done through the ValidationOpBase class). If you are using the base class then you need to specify a `validate` method which takes in the value of the source key and must return a boolen if it is valid. You may also specify a `normalize` method which will alter the data before it hits the `validate` method. This will also normalize the output record itself
 
@@ -110,23 +119,19 @@ The configuration `source_field` and `target_field` are set to `this.source` and
 
 **Example:**
 
-```ts
-import { DataEntity } from '@terascope/utils';
-import _ from 'lodash';
-import validator from 'validator';
-import { ValidationOpBase, OperationConfig } from 'ts-transforms';
+```js
+const _  = require('lodash');
+const validator = require('validator');
+const { ValidationOpBase } = require('ts-transforms');
 
-export default class MacAddress extends ValidationOpBase<any> {
-    private case: 'lowercase' | 'uppercase';
-    private preserveColons: boolean;
-
-    constructor(config: OperationConfig) {
+class MacAddress extends ValidationOpBase {
+    constructor(config) {
         super(config);
         this.case = config.case || 'lowercase';
         this.preserveColons = config.preserve_colons || false;
     }
 
-    normalize(data: any, _doc: DataEntity) {
+    normalize(data, _doc) {
         let results = data;
         if (typeof data !== 'string') throw new Error('data must be a string');
         if (this.case === 'lowercase') results = results.toLowerCase();
@@ -135,40 +140,43 @@ export default class MacAddress extends ValidationOpBase<any> {
         return results;
     }
 
-    validate(data: string) {
+    validate(data) {
         const options = { no_colons: !this.preserveColons };
         if (!validator.isMACAddress(data, options)) return false;
         return true;
     }
 }
+
+module.exports = MacAddress;
 ```
 
 #### Operation Cardinality
 
-Each operation is designed for a specify task. These operations work either work on a single input, several inputs (like the join operator) and return a single output. To differentiate the operators and to determine at validation time if the operator can take in multiple outputs each class must have a static varialble labeling what it is meant to do. The options are either `one-to-one` or `many-to-one`. If by using the tag/follow rules a `one-to-one` has several inputs then it will be cloned as many times as there are inputs so that each operation will have a single input. A `many-to-one` will take multiple outputs and set it at `source_fields` (note that it is the plural form). If you inherit from the base clase then it will default to `one-to-one`.
+Each operation is designed for a specify task. These operations work either work on a single input, several inputs (like the join operator) and return a single output. To differentiate the operators and to determine at validation time if the operator can take in multiple outputs each class must have a static varialble labeling what it is meant to do. The options are either `one-to-one` or `many-to-one`. If by using the tag/follow rules a `one-to-one` has several inputs then it will be cloned as many times as there are inputs so that each operation will have a single input. A `many-to-one` will take multiple outputs and set it at `source_fields` (note that it is the plural form). If you inherit  = require( the base clase then it will default to `one-to-one`.
 
 ```js
 // the none inherited version of a plugin
-export default class Double {
-    static cardinality: InputOutputCardinality = 'one-to-one';
+class Double {
+    static cardinality = 'one-to-one';
 
     constructor(config) {
         this.config = config;
     }
 
-    run(doc: DataEntity) {
+    run(doc) {
         // @ts-ignore
         doc[this.config.source_field] = doc[this.config.source_field] * 2;
         return doc;
     }
 }
+
+module.exports = Double;
 ```
 
 ``` js
-import _ from 'lodash';
+const _ = require('lodash');
 
-export default class MakeArray {
-
+class MakeArray {
     static cardinality = 'many-to-one';
 
     constructor(config:) {
@@ -188,4 +196,6 @@ export default class MakeArray {
         return doc;
     }
 }
+
+module.exports = MakeArray;
 ```

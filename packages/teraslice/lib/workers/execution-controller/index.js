@@ -1,5 +1,6 @@
 'use strict';
 
+const ms = require('ms');
 const _ = require('lodash');
 const pWhilst = require('p-whilst');
 const Messaging = require('@terascope/teraslice-messaging');
@@ -48,6 +49,7 @@ class ExecutionController {
             executionContext,
             networkLatencyBuffer,
             actionTimeout,
+            nodeDisconnectTimeout,
             connectTimeout: nodeDisconnectTimeout,
             exId: executionContext.exId,
             logger
@@ -164,15 +166,11 @@ class ExecutionController {
         });
 
         this.server.onClientDisconnect((workerId) => {
-            this.logger.trace(`worker ${workerId} is disconnected but it may reconnect`);
+            this.logger.trace(`worker ${workerId} disconnected but it may reconnect`);
             this.executionAnalytics.increment('workers_disconnected');
             this.executionAnalytics.set('workers_active', this.server.activeWorkerCount);
 
             this._startWorkerDisconnectWatchDog();
-        });
-
-        this.server.onClientOffline((workerId) => {
-            this.logger.trace(`worker ${workerId} is offline`);
             this._updateExecutionStats();
         });
 
@@ -416,7 +414,7 @@ class ExecutionController {
             })(),
             (async () => {
                 const stores = Object.values(this.stores);
-                await Promise.all(stores.map(store => store.shutdown(true).catch(pushError)));
+                await Promise.all(stores.map((store) => store.shutdown(true).catch(pushError)));
             })(),
             (async () => {
                 if (this.metrics == null) return;
@@ -428,7 +426,7 @@ class ExecutionController {
         this.isShutdown = true;
 
         if (shutdownErrs.length) {
-            const errMsg = shutdownErrs.map(e => e.stack).join(', and');
+            const errMsg = shutdownErrs.map((e) => e.stack).join(', and');
             const shutdownErr = new Error(`Failed to shutdown correctly: ${errMsg}`);
             this.events.emit(this.context, 'worker:shutdown:complete', shutdownErr);
             await pDelay(0);
@@ -517,7 +515,7 @@ class ExecutionController {
                     });
                     dispatch.length = 0;
 
-                    Promise.all(promises).catch(err => this.logger.error(err, 'failure to dispatch slices'));
+                    Promise.all(promises).catch((err) => this.logger.error(err, 'failure to dispatch slices'));
                 });
             }
 
@@ -800,7 +798,7 @@ class ExecutionController {
             const now = Date.now();
             if (now > shutdownAt) {
                 this.logger.error(
-                    `Shutdown timeout of ${timeout}ms waiting for execution ${
+                    `Shutdown timeout of ${ms(timeout)} waiting for execution ${
                         this.exId
                     } to finish...`
                 );
@@ -947,7 +945,7 @@ class ExecutionController {
 
         const timeout = this.context.sysconfig.teraslice.slicer_timeout;
         const err = new Error(
-            `No workers have connected to slicer in the allotted time: ${timeout} ms`
+            `No workers have connected to slicer in the allotted time: ${ms(timeout)}`
         );
 
         this.workerConnectTimeoutId = setTimeout(() => {

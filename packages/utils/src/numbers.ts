@@ -47,7 +47,7 @@ export function parseNumberList(input: any): number[] {
 
     return items
         // filter out any empty string
-        .filter(item => {
+        .filter((item) => {
             if (item == null) return false;
             if (typeof item === 'string' && !item.trim().length) return false;
             return true;

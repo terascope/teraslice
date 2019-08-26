@@ -1,6 +1,7 @@
-import { toString, isInteger, debugLogger, Logger } from '@terascope/utils';
-import { EventEmitter } from 'events';
+import ms from 'ms';
 import pEvent from 'p-event';
+import { EventEmitter } from 'events';
+import { toString, isInteger, debugLogger, Logger } from '@terascope/utils';
 import * as i from './interfaces';
 
 const _logger = debugLogger('teraslice-messaging:core');
@@ -39,7 +40,6 @@ export class Core extends EventEmitter {
 
     protected async handleSendResponse(sent: i.Message): Promise<i.Message | null> {
         if (!sent.response) return null;
-        this.logger.trace('waiting for response from message', sent);
 
         const remaining = sent.respondBy - Date.now();
         const response = await this.onceWithTimeout(sent.id, remaining);
@@ -49,7 +49,7 @@ export class Core extends EventEmitter {
             if (sent.volatile || this.closed) {
                 return null;
             }
-            throw new Error(`Timed out after ${remaining}ms, waiting for message "${sent.eventName}"`);
+            throw new Error(`Timed out after ${ms(remaining)}, waiting for message "${sent.eventName}"`);
         }
 
         if (response.error) {
@@ -84,10 +84,14 @@ export class Core extends EventEmitter {
 
             if (!msg.volatile && !this.isClientReady(message.to)) {
                 const remaining = msg.respondBy - Date.now();
-                await this.waitForClientReady(message.to, remaining);
+                try {
+                    await this.waitForClientReady(message.to, remaining);
+                } catch (err) {
+                    // don't throw an unhandledRejection because the client isn't ready
+                    this.logger.error(err);
+                }
             }
 
-            // @ts-ignore
             socket.emit('message:response', message);
         });
     }

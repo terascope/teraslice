@@ -1,6 +1,6 @@
 {
     "name": "@terascope/utils",
-    "version": "0.14.1",
+    "version": "0.16.1",
     "description": "A collection of Teraslice Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/utils#readme",
     "bugs": {
@@ -34,6 +34,7 @@
         "lodash.set": "^4.3.2"
     },
     "devDependencies": {
+        "@types/debug": "^4.1.5",
         "@types/lodash.get": "^4.4.6",
         "@types/lodash.set": "^4.3.6",
         "benchmark": "^2.1.4"
@@ -42,6 +43,7 @@
         "access": "public"
     },
     "displayName": "Utils",
+    "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,
         "testSuite": "unit"

@@ -1,10 +1,10 @@
 'use strict';
 
-const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 const yargs = require('yargs');
 const yaml = require('js-yaml');
+const { cloneDeep } = require('@terascope/utils');
 
 function getDefaultConfigFile() {
     const cwd = process.cwd();
@@ -53,7 +53,7 @@ function getArgs(scriptName, defaultConfigFile) {
             default: getDefaultConfigFile(),
             describe: `Terafoundation configuration file to load.
                         Defaults to env TERAFOUNDATION_CONFIG.`,
-            coerce: arg => parseConfigFile(arg || defaultConfigFile),
+            coerce: (arg) => parseConfigFile(arg || defaultConfigFile),
         })
         .option('b', {
             alias: 'bootstrap',
@@ -77,7 +77,7 @@ function parseConfigFile(file) {
         return yaml.safeLoad(fs.readFileSync(configFile, 'utf8'));
     }
 
-    return _.cloneDeep(require(configFile));
+    return cloneDeep(require(configFile));
 }
 
 module.exports = {

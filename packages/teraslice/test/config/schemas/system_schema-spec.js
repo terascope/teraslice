@@ -22,7 +22,6 @@ describe('system_schema', () => {
 
     it('schema has defaults', () => {
         expect(schema.shutdown_timeout).toBeDefined();
-        expect(schema.reporter).toBeDefined();
         expect(schema.hostname).toBeDefined();
         expect(schema).toBeDefined();
         expect(schema.port.default).toEqual(5678);

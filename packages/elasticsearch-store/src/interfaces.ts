@@ -257,3 +257,13 @@ export type FindOneOptions<T> = {
     includes?: (keyof T)[];
     excludes?: (keyof T)[];
 };
+
+export interface MigrateIndexOptions {
+    config: IndexConfig;
+    timeout?: string;
+    previousNamespace?: string;
+    previousName?: string;
+    previousVersion?: number;
+}
+
+export type MigrateIndexStoreOptions = Omit<MigrateIndexOptions, 'config'>;

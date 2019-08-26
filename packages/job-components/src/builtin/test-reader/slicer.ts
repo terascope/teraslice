@@ -39,10 +39,10 @@ export default class TestSlicer extends Slicer<TestReaderConfig> {
             return request;
         }
 
-        if (this.position + 1 > this.requests.length) {
+        if (this.position + 1 >= this.requests.length) {
             this.position = 0;
         }
 
-        return this.requests[this.position++];
+        return this.requests[++this.position];
     }
 }

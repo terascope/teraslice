@@ -1,7 +1,12 @@
 'use strict';
 
+const {
+    get,
+    getFullErrorStack,
+    isFatalError,
+    pWhile
+} = require('@terascope/utils');
 const { ExecutionController, formatURL } = require('@terascope/teraslice-messaging');
-const { get, getFullErrorStack, isFatalError } = require('@terascope/utils');
 const { makeStateStore, makeAnalyticsStore } = require('../../cluster/storage');
 const { generateWorkerId, makeLogger } = require('../helpers/terafoundation');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
@@ -24,13 +29,17 @@ class Worker {
         const networkLatencyBuffer = get(config, 'network_latency_buffer');
         const actionTimeout = get(config, 'action_timeout');
         const workerDisconnectTimeout = get(config, 'worker_disconnect_timeout');
+        const slicerTimeout = get(config, 'slicer_timeout');
         const shutdownTimeout = get(config, 'shutdown_timeout');
 
         this.client = new ExecutionController.Client({
             executionControllerUrl: formatURL(slicerHostname, slicerPort),
             workerId,
             networkLatencyBuffer,
-            connectTimeout: workerDisconnectTimeout,
+            workerDisconnectTimeout,
+            // the connect timeout should be set to the same timeout that will
+            // cause the execution fail if no Workers connect
+            connectTimeout: slicerTimeout,
             actionTimeout,
             logger
         });
@@ -93,8 +102,8 @@ class Worker {
                 await this.runOnce();
             } catch (err) {
                 process.exitCode = 1;
-                this.logger.fatal(err, 'Worker must shutdown due to fatal error');
-                this.shutdown(false);
+                this.logger.error(err, 'Worker must shutdown due to fatal error');
+                this.forceShutdown = true;
             } finally {
                 running = false;
             }
@@ -137,34 +146,37 @@ class Worker {
 
         this.isProcessing = true;
 
-        const { exId } = this.executionContext;
+        let sentSliceComplete = false;
+        const { slice_id: sliceId } = msg;
 
         try {
             await this.slice.initialize(msg, this.stores);
 
             await this.slice.run();
 
-            const { slice_id: sliceId } = this.slice.slice;
-            this.logger.info(`slice complete for execution ${exId}`);
+            this.logger.info(`slice ${sliceId} completed`);
 
-            await this.client.sendSliceComplete({
+            await this._sendSliceComplete({
                 slice: this.slice.slice,
                 analytics: this.slice.analyticsData
             });
+            sentSliceComplete = true;
 
             await this.executionContext.onSliceFinished(sliceId);
         } catch (err) {
-            this.logger.error(err, `slice run error for execution ${exId}`);
+            this.logger.error(err, `slice ${sliceId} run error`);
 
             if (isFatalError(err)) {
                 throw err;
             }
 
-            await this.client.sendSliceComplete({
-                slice: this.slice.slice,
-                analytics: this.slice.analyticsData,
-                error: getFullErrorStack(err)
-            });
+            if (!sentSliceComplete) {
+                await this._sendSliceComplete({
+                    slice: this.slice.slice,
+                    analytics: this.slice.analyticsData,
+                    error: getFullErrorStack(err)
+                });
+            }
         }
 
         this.isProcessing = false;
@@ -217,7 +229,7 @@ class Worker {
         await Promise.all([
             (async () => {
                 const stores = Object.values(this.stores);
-                await Promise.all(stores.map(store => store.shutdown(true).catch(pushError)));
+                await Promise.all(stores.map((store) => store.shutdown(true).catch(pushError)));
             })(),
             (async () => {
                 await this.slice.shutdown().catch(pushError);
@@ -238,13 +250,29 @@ class Worker {
         this.isShutdown = true;
 
         if (shutdownErrs.length) {
-            const errMsg = shutdownErrs.map(e => e.stack).join(', and');
+            const errMsg = shutdownErrs.map((e) => e.stack).join(', and');
             const shutdownErr = new Error(`Failed to shutdown correctly: ${errMsg}`);
             this.events.emit(this.context, 'worker:shutdown:complete', shutdownErr);
             throw shutdownErr;
         }
 
         this.events.emit(this.context, 'worker:shutdown:complete');
+    }
+
+    _sendSliceComplete(payload) {
+        return pWhile(async () => {
+            try {
+                await this.client.sendSliceComplete(payload);
+                return true;
+            } catch (err) {
+                if (this.isShuttingDown) {
+                    throw err;
+                } else {
+                    this.logger.warn(err);
+                }
+            }
+            return false;
+        });
     }
 
     _waitForSliceToFinish() {

@@ -95,7 +95,7 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetry
 
         if (!isEmpty(config.matches)) {
             const rawErr = parseError(_err);
-            matches = config.matches.some(match => {
+            matches = config.matches.some((match) => {
                 const reg = new RegExp(match);
                 return reg.test(rawErr);
             });
@@ -243,14 +243,14 @@ type PRetryContext = {
 
 /** promisified setTimeout */
 export const pDelay = (delay: number = 1) => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
         setTimeout(resolve, delay);
     });
 };
 
 /** promisified setImmediate */
 export const pImmediate = () => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
         setImmediate(resolve);
     });
 };
@@ -277,7 +277,7 @@ export function pRace(promises: Promise<any>[], logError?: (err: any) => void): 
     }
     return new Promise((resolve, reject) => {
         let done = false;
-        promises.forEach(async promise => {
+        promises.forEach(async (promise) => {
             try {
                 const result = await promise;
                 resolve(result);
@@ -300,7 +300,7 @@ export function pRaceWithTimeout(promises: Promise<any>[] | Promise<any>, timeou
     if (!timeout || typeof timeout !== 'number') {
         throw new Error('Invalid timeout argument, must be a number');
     }
-    const pTimeout = new Promise(resolve => {
+    const pTimeout = new Promise((resolve) => {
         // add unref to avoid keeping the process open
         setTimeout(resolve, timeout).unref();
     });

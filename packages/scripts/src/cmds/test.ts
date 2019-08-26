@@ -1,6 +1,7 @@
+import fs from 'fs';
 import isCI from 'is-ci';
 import { CommandModule } from 'yargs';
-import { toBoolean } from '@terascope/utils';
+import { toBoolean, castArray } from '@terascope/utils';
 import { TestSuite, PackageInfo, GlobalCMDOptions } from '../helpers/interfaces';
 import { KAFKA_BROKER, ELASTICSEARCH_HOST } from '../helpers/config';
 import { listPackages } from '../helpers/packages';
@@ -28,7 +29,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
     describe: 'Run monorepo tests',
     builder(yargs) {
         return yargs
+            .example('$0 test', 'example --watch -- --testPathPattern worker-spec')
+            .example('$0 test', 'example --debug --bail')
+            .example('$0 test', '. --debug --bail')
             .option('debug', {
+                alias: 'd',
                 description: 'This will run all of the tests in-band and output any debug info',
                 type: 'boolean',
                 default: false,
@@ -49,8 +54,9 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 default: false,
             })
             .option('suite', {
+                alias: 's',
                 description: 'Run a test given a particular suite. Defaults to running all',
-                choices: Object.values(TestSuite).filter(suite => suite !== TestSuite.Disabled),
+                choices: Object.values(TestSuite).filter((suite) => suite !== TestSuite.Disabled),
                 coerce(arg): TestSuite {
                     return arg;
                 },
@@ -83,13 +89,12 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .positional('packages', {
                 description: 'Runs the test for one or more package, if none specified it will run all of the tests',
                 coerce(arg) {
-                    if (Array.isArray(arg)) {
-                        arg.forEach((a, i) => {
-                            if (!jestArgs.includes(a)) return;
-                            arg.splice(i, 1);
-                        });
-                    }
-                    return coercePkgArg(arg);
+                    let args = castArray(arg);
+                    args = args.filter((a) => {
+                        if (!jestArgs.includes(a)) return true;
+                        return false;
+                    });
+                    return coercePkgArg(args);
                 },
             });
     },
@@ -136,11 +141,20 @@ function hoistJestArg(argv: any, key: string): boolean {
 function getExtraArgs(): string[] {
     const args: string[] = [];
     let extra = false;
-    process.argv.forEach(arg => {
-        if (extra) args.push(arg);
+    process.argv.forEach((arg) => {
+        if (extra) {
+            args.push(...resolveJestArg(arg));
+        }
         if (arg === '--') extra = true;
     });
     return args;
+}
+
+function resolveJestArg(arg: string): string[] {
+    if (fs.existsSync(arg)) {
+        return ['--testPathPattern', arg];
+    }
+    return [arg];
 }
 
 function getPkgInfos(packages?: PackageInfo[]): PackageInfo[] {

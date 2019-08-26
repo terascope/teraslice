@@ -1,19 +1,11 @@
-import { Units } from '@turf/helpers';
+import { GeoDistanceUnit } from './parser';
 
-export type FieldType = 'geo'|'date'|'ip'|'string'|'number'|'float'|'boolean'|'object';
-export interface TypeConfig {
-    [field: string]: FieldType;
-}
-
-export type BooleanCB = (data: any) => boolean;
-
-export type GeoPointArr = [number, number];
-export type GeoPointStr = string;
-export type GeoObjShort = {lat: string | number, lon: string | number};
-export type GeoObjLong = {latitude: string | number, longitude: string | number};
-export type GeoPointInput = GeoPointArr | GeoPointStr | GeoObjShort | GeoObjLong;
-export type DateInput = string | number;
+type GeoPointArr = [number, number];
+type GeoPointStr = string;
+type GeoObjShort = {lat: string | number, lon: string | number};
+type GeoObjLong = {latitude: string | number, longitude: string | number};
+export type GeoPointInput = GeoPointArr | GeoPointStr | GeoObjShort | GeoObjLong | number[] | object;
 export interface GeoDistanceObj {
     distance: number;
-    unit: Units;
+    unit: GeoDistanceUnit;
 }

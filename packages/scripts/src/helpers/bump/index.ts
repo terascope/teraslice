@@ -7,7 +7,7 @@ import { writePkgHeader } from '../misc';
 
 export type BumpPackageOptions = {
     release: semver.ReleaseType;
-    recursive: boolean;
+    deps: boolean;
     preId?: string;
 };
 
@@ -69,10 +69,10 @@ async function updateDependent(mainPkgInfo: PackageInfo, pkgInfo: PackageInfo, o
     await updatePkgJSON(pkgInfo, false);
     signale.log(`---> Updated dependency ${pkgInfo.name}'s version of ${name} to ${newVersion}`);
 
-    if (options.recursive && isProdDep && !pkgInfo.terascope.main) {
+    if (options.deps && isProdDep && !pkgInfo.terascope.main) {
         await bumpPackage(pkgInfo, {
             release: 'patch',
-            recursive: false,
+            deps: false,
         });
     }
 }

@@ -106,9 +106,9 @@ There is no configuration for this processor.
 
 Wait a specific amount of time, and passes the data through.
 
-| Configuration | Description                                       | Type     | Notes                       |
-| ------------- | ------------------------------------------------- | -------- | --------------------------- |
-| `ms`          | Milliseconds to delay before passing data through | `Number` | optional, defaults to `100` |
+| Configuration | Description                                       | Type       | Notes                       |
+| ------------- | ------------------------------------------------- | ---------- | --------------------------- |
+| `ms`          | Milliseconds to delay before passing data through | `duration` | optional, defaults to `100` |
 
 Example configuration:
 

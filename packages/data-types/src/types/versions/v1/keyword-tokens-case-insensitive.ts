@@ -13,7 +13,7 @@ export default class KeywordTokensCaseInsensitive extends BaseType {
                     fields: {
                         tokens: {
                             type: 'text' as ElasticSearchTypes,
-                            analyzer: 'simple',
+                            analyzer: 'standard',
                         },
                     },
                 },
@@ -32,6 +32,6 @@ export default class KeywordTokensCaseInsensitive extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: 'string' as FieldType };
+        return { [this.field]: FieldType.String };
     }
 }

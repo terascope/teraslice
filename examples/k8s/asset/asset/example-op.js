@@ -1,7 +1,7 @@
 'use strict';
 
 function newProcessor() {
-    return data => data;
+    return (data) => data;
 }
 
 function schema() {

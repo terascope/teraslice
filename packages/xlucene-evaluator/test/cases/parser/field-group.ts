@@ -1,4 +1,4 @@
-import { ASTType } from '../../../src/parser';
+import { ASTType, FieldType } from '../../../src';
 import { TestCase } from './interfaces';
 
 export default [
@@ -14,7 +14,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'gte',
-                            data_type: 'integer',
+                            field_type: FieldType.Integer,
                             value: 10,
                         }
                     },
@@ -23,7 +23,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'lte',
-                            data_type: 'integer',
+                            field_type: FieldType.Integer,
                             value: 20,
                         }
                     },
@@ -32,7 +32,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'gte',
-                            data_type: 'integer',
+                            field_type: FieldType.Integer,
                             value: 100,
                         }
                     }
@@ -52,7 +52,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'gte',
-                            data_type: 'integer',
+                            field_type: FieldType.Integer,
                             value: 10,
                         }
                     },
@@ -66,7 +66,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'lte',
-                            data_type: 'integer',
+                            field_type: FieldType.Integer,
                             value: 20,
                         }
                     },
@@ -80,7 +80,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'gte',
-                            data_type: 'integer',
+                            field_type: FieldType.Integer,
                             value: 100,
                         }
                     }
@@ -97,7 +97,7 @@ export default [
                 nodes: [
                     {
                         type: ASTType.Term,
-                        data_type: 'string',
+                        field_type: FieldType.String,
                         value: 'AqMvPMCS76u0',
                     }
                 ]
@@ -107,7 +107,7 @@ export default [
                 nodes: [
                     {
                         type: ASTType.Term,
-                        data_type: 'string',
+                        field_type: FieldType.String,
                         value: '497qIZuha9_u',
                     }
                 ]
@@ -117,7 +117,7 @@ export default [
                 nodes: [
                     {
                         type: ASTType.Term,
-                        data_type: 'string',
+                        field_type: FieldType.String,
                         value: 'Oc2DG0O2gbcY',
                     }
                 ]
@@ -148,7 +148,7 @@ export default [
             },
         ]
     }],
-    ['count:(155 "223")', 'implicit or grouping', {
+    ['count:(155 "223")', 'implicit OR grouping', {
         type: 'field-group',
         field: 'count',
         flow: [
@@ -158,7 +158,7 @@ export default [
                     {
                         type: ASTType.Term,
                         field: 'count',
-                        data_type: 'integer',
+                        field_type: FieldType.Integer,
                         value: 155
                     },
                 ]
@@ -169,7 +169,7 @@ export default [
                     {
                         type: ASTType.Term,
                         field: 'count',
-                        data_type: 'string',
+                        field_type: FieldType.String,
                         quoted: true,
                         value: '223'
                     }
@@ -177,6 +177,76 @@ export default [
             }
         ]
     }],
+    [
+        'count:(155 OR "223")',
+        'OR grouping with quoted and unqouted integers',
+        {
+            type: 'field-group',
+            field: 'count',
+            flow: [
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'count',
+                            field_type: FieldType.Integer,
+                            value: 155
+                        },
+                    ]
+                },
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'count',
+                            field_type: FieldType.Integer,
+                            value: 223
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            count: FieldType.Integer
+        }
+    ],
+    [
+        'bool:(true OR "false")',
+        'OR grouping with quoted and unqouted booleans',
+        {
+            type: 'field-group',
+            field: 'bool',
+            flow: [
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'bool',
+                            field_type: FieldType.Boolean,
+                            value: true
+                        },
+                    ]
+                },
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'bool',
+                            field_type: FieldType.Boolean,
+                            value: false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            bool: FieldType.Boolean
+        }
+    ],
     ['example:("foo" AND ("bar" OR "baz"))', 'implicit or grouping', {
         type: 'field-group',
         field: 'example',
@@ -187,7 +257,7 @@ export default [
                     {
                         type: ASTType.Term,
                         field: 'example',
-                        data_type: 'string',
+                        field_type: FieldType.String,
                         value: 'foo'
                     },
                     {
@@ -199,7 +269,7 @@ export default [
                                     {
                                         type: ASTType.Term,
                                         field: 'example',
-                                        data_type: 'string',
+                                        field_type: FieldType.String,
                                         value: 'bar'
                                     },
                                 ]
@@ -210,7 +280,7 @@ export default [
                                     {
                                         type: ASTType.Term,
                                         field: 'example',
-                                        data_type: 'string',
+                                        field_type: FieldType.String,
                                         value: 'baz'
                                     },
                                 ]
@@ -230,14 +300,14 @@ export default [
                 nodes: [
                     {
                         type: ASTType.Term,
-                        data_type: 'string',
+                        field_type: FieldType.String,
                         field: 'example',
                         value: 'foo'
                     },
                     {
                         type: ASTType.Term,
                         field: 'other',
-                        data_type: 'string',
+                        field_type: FieldType.String,
                         value: 'bar'
                     },
                 ]
@@ -256,14 +326,14 @@ export default [
                         node: {
                             type: ASTType.Term,
                             field: 'val',
-                            data_type: 'integer',
+                            field_type: FieldType.Integer,
                             value: 1,
                         }
                     },
                     {
                         type: ASTType.Term,
                         field: 'val',
-                        data_type: 'integer',
+                        field_type: FieldType.Integer,
                         value: 2
                     }
                 ]

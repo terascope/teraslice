@@ -1,7 +1,9 @@
+import isPlainObject from 'is-plain-object';
 import STATUS_CODES from './status-codes';
 import { AnyObject } from './interfaces';
-import * as s from './strings';
+import { getFirst } from './arrays';
 import * as utils from './utils';
+import * as s from './strings';
 
 /**
  * A custom Error class with additional properties,
@@ -230,15 +232,15 @@ function _parseESErrorInfo(input: ElasticsearchError): { message: string; contex
     const bodyError = input && input.body && input.body.error;
     const name = (input && input.name) || 'ElasticSearchError';
 
-    const rootCause = bodyError && bodyError.root_cause && utils.getFirst(bodyError.root_cause);
+    const rootCause = bodyError && bodyError.root_cause && getFirst(bodyError.root_cause);
 
     let type: string | undefined;
     let reason: string | undefined;
     let index: string | undefined;
 
-    [input, bodyError, rootCause].forEach(obj => {
+    [input, bodyError, rootCause].forEach((obj) => {
         if (obj == null) return;
-        if (!utils.isPlainObject(obj)) return;
+        if (!isPlainObject(obj)) return;
         if (obj.type) type = obj.type;
         if (obj.reason) reason = obj.reason;
         if (obj.index) index = obj.index;
@@ -398,7 +400,7 @@ export function stripErrorMessage(error: any, reason: string = DEFAULT_ERR_MSG, 
     });
     const messages = utils.parseList(message.split('caused by'));
 
-    const firstErr = utils.getFirst(messages);
+    const firstErr = getFirst(messages);
     if (!firstErr) return reason;
 
     const msg = firstErr

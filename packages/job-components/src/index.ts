@@ -1,3 +1,5 @@
+export * from '@terascope/utils';
+export * from './utils';
 export * from './builtin';
 export * from './config-validators';
 export * from './execution-context';
@@ -9,4 +11,3 @@ export * from './job-schemas';
 export * from './interfaces';
 export * from './register-apis';
 export * from './test-helpers';
-export * from '@terascope/utils';

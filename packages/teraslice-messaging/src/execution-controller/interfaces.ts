@@ -4,6 +4,7 @@ export interface ClientOptions {
     executionControllerUrl: string;
     workerId: string;
     socketOptions: SocketIOClient.ConnectOpts;
+    workerDisconnectTimeout: number;
     networkLatencyBuffer?: number;
     actionTimeout: number;
     connectTimeout: number;
@@ -15,8 +16,6 @@ export interface ServerOptions {
     workerDisconnectTimeout: number;
     networkLatencyBuffer?: number;
     actionTimeout: number;
-    pingInterval?: number;
-    pingTimeout?: number;
     logger?: Logger;
 }
 

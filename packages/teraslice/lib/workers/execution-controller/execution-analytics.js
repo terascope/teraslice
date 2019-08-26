@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const { newFormattedDate } = require('../../utils/date_utils');
+const { makeISODate } = require('@terascope/utils');
 const { makeLogger } = require('../helpers/terafoundation');
 
 class ExecutionAnalytics {
@@ -52,7 +52,7 @@ class ExecutionAnalytics {
         const { exId, jobId } = this.executionContext;
         const { name } = this.executionContext.config;
 
-        this.set('started', newFormattedDate());
+        this.set('started', makeISODate());
 
         this.client.onExecutionAnalytics(() => ({
             name,
@@ -172,7 +172,7 @@ class ExecutionAnalytics {
         };
 
         this._handlers['slicers:finished'] = () => {
-            this.set('queuing_complete', newFormattedDate());
+            this.set('queuing_complete', makeISODate());
         };
 
         _.forEach(this._handlers, (handler, event) => {

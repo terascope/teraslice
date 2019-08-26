@@ -57,7 +57,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      */
     function _getClusterState() {
         return k8s.list('app=teraslice', 'pods')
-            .then(k8sPods => k8sState.gen(k8sPods, clusterState, clusterNameLabel))
+            .then((k8sPods) => k8sState.gen(k8sPods, clusterState, clusterNameLabel))
             .catch((err) => {
                 // TODO: We might need to do more here.  I think it's OK to just
                 // log though.  This only gets used to show slicer info through
@@ -109,7 +109,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
 
         // TODO: This should try slicerAllocationAttempts times??
         return k8s.post(exService, 'service')
-            .then(result => logger.debug(`k8s slicer service submitted: ${JSON.stringify(result)}`))
+            .then((result) => logger.debug(`k8s slicer service submitted: ${JSON.stringify(result)}`))
             .catch((err) => {
                 const error = new TSError(err, {
                     reason: 'Error submitting k8s slicer service'
@@ -117,7 +117,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
                 return Promise.reject(error);
             })
             .then(() => k8s.post(exJob, 'job'))
-            .then(result => logger.debug(`k8s slicer job submitted: ${JSON.stringify(result)}`))
+            .then((result) => logger.debug(`k8s slicer job submitted: ${JSON.stringify(result)}`))
             .catch((err) => {
                 const error = new TSError(err, {
                     reason: 'Error submitting k8s slicer job'
@@ -142,7 +142,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         logger.debug(`workerDeployment:\n\n${JSON.stringify(workerDeployment, null, 2)}`);
 
         return k8s.post(workerDeployment, 'deployment')
-            .then(result => logger.debug(`k8s worker deployment submitted: ${JSON.stringify(result)}`))
+            .then((result) => logger.debug(`k8s worker deployment submitted: ${JSON.stringify(result)}`))
             .catch((err) => {
                 const error = new TSError(err, {
                     reason: 'Error submitting k8s worker deployment'

@@ -118,7 +118,7 @@ module.exports = async function assetsStore(context) {
         // has wildcard in version
         return search(`name:${metaData[0]} AND version:${metaData[1]}`, null, 10000, sort, fields)
             .then((assetRecords) => {
-                const records = assetRecords.hits.hits.map(record => ({
+                const records = assetRecords.hits.hits.map((record) => ({
                     id: record._id,
                     version: record._source.version
                 }));
@@ -127,7 +127,7 @@ module.exports = async function assetsStore(context) {
                 const wildcardPlacement = versionID.indexOf('*') - 1;
                 const versionTransform = versionID.split('.');
                 const versionWithWildcard = versionTransform.indexOf('*');
-                const versionSlice = versionTransform.filter(chars => chars !== '*').join('.');
+                const versionSlice = versionTransform.filter((chars) => chars !== '*').join('.');
 
                 if (records.length === 0) {
                     const error = new Error(`No asset with the provided name and version could be located, asset: ${metaData.join(':')}`);

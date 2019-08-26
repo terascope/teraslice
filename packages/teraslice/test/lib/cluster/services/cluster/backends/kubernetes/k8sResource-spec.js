@@ -15,6 +15,10 @@ describe('k8sResource', () => {
             assets_directory: '',
             assets_volume: '',
             name: 'ts-dev1',
+            env_vars: {
+                FOO: 'bar',
+                EXAMPLE: 'test'
+            },
             kubernetes_image: 'teraslice:k8sdev',
             kubernetes_namespace: 'ts-dev1',
             kubernetes_image_pull_secret: ''
@@ -24,6 +28,9 @@ describe('k8sResource', () => {
             workers: 2,
             job_id: '7ba9afb0-417a-4936-adc5-b15e31d1edd1',
             ex_id: 'e76a0278-d9bc-4d78-bf14-431bcd97528c',
+            env_vars: {
+                FOO: 'baz'
+            }
             // slicer_port: 45680,
             // slicer_hostname: 'teraslice-execution-controller-e76a0278-d9bc-4d78-bf14-431bcd97'
         };
@@ -201,7 +208,20 @@ describe('k8sResource', () => {
 
             const envArray = kr.resource.spec.template.spec.containers[0].env;
             expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
-                .toEqual('--max-old-space-size=1932735283');
+                .toEqual('--max-old-space-size=1843');
+        });
+
+        it('has the ability to set custom env', () => {
+            const kr = new K8sResource(
+                'deployments', 'worker', terasliceConfig, execution
+            );
+
+            const envArray = kr.resource.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'FOO' }).value)
+                .toEqual('baz');
+
+            expect(_.find(envArray, { name: 'EXAMPLE' }).value)
+                .toEqual('test');
         });
 
         it('execution resources override terasliceConfig resources', () => {
@@ -225,7 +245,7 @@ describe('k8sResource', () => {
 
             const envArray = kr.resource.spec.template.spec.containers[0].env;
             expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
-                .toEqual('--max-old-space-size=966367642');
+                .toEqual('--max-old-space-size=922');
         });
 
         it('execution cpu overrides terasliceConfig cpu while terasliceConfig memory gets applied', () => {
@@ -248,7 +268,7 @@ describe('k8sResource', () => {
 
             const envArray = kr.resource.spec.template.spec.containers[0].env;
             expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
-                .toEqual('--max-old-space-size=1932735283');
+                .toEqual('--max-old-space-size=1843');
         });
 
         it('has memory and cpu limits and requests when set on execution', () => {
@@ -270,7 +290,7 @@ describe('k8sResource', () => {
 
             const envArray = kr.resource.spec.template.spec.containers[0].env;
             expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
-                .toEqual('--max-old-space-size=1932735283');
+                .toEqual('--max-old-space-size=1843');
         });
 
         it('has memory limits and requests when set on execution', () => {
@@ -289,7 +309,7 @@ describe('k8sResource', () => {
 
             const envArray = kr.resource.spec.template.spec.containers[0].env;
             expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
-                .toEqual('--max-old-space-size=1932735283');
+                .toEqual('--max-old-space-size=1843');
         });
 
         it('has cpu limits and requests when set on execution', () => {
