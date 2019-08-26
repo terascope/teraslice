@@ -1,10 +1,17 @@
 'use strict';
 
 module.exports = {
-    extends: ['airbnb'],
+    extends: ['plugin:@typescript-eslint/recommended', 'airbnb'],
+    plugins: ['@typescript-eslint'],
+    parser: '@typescript-eslint/parser',
     parserOptions: {
         ecmaVersion: 8,
-        sourceType: 'script'
+        sourceType: 'script',
+        ecmaFeatures: {
+            modules: true,
+            jsx: true,
+        },
+        useJSXTextNode: true,
     },
     env: {
         node: true,
@@ -16,7 +23,6 @@ module.exports = {
         indent: ['error', 4],
         'no-underscore-dangle': 'off',
         'no-param-reassign': ['error', { props: false }],
-        'no-use-before-define': ['error', { functions: false }],
         'import/no-dynamic-require': 'off',
         'global-require': 'off',
         strict: ['error', 'global'],
@@ -52,6 +58,30 @@ module.exports = {
         'react/forbid-prop-types': 'off',
         'react/prop-types': [2, { skipUndeclared: true, ignore: ['children'] }],
         'react/no-array-index-key': 'off',
-        'react/destructuring-assignment': 'off'
+        'react/destructuring-assignment': 'off',
+        // typescript preferences
+        '@typescript-eslint/prefer-interface': 'off',
+        '@typescript-eslint/no-object-literal-type-assertion': 'off',
+        '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/explicit-function-return-type': 'off',
+        '@typescript-eslint/no-non-null-assertion': 'off',
+        '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/explicit-member-accessibility': 'off',
+        // The following rules make compatibility between eslint and typescript
+        camelcase: 'off',
+        '@typescript-eslint/camelcase': ['error', { properties: 'never' }],
+        'no-use-before-define': 'off',
+        '@typescript-eslint/no-use-before-define': ['error', { functions: false }],
+        'import/no-unresolved': 'off',
+        'no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-vars': [
+            'error',
+            {
+                vars: 'all',
+                args: 'after-used',
+                ignoreRestSiblings: true,
+                argsIgnorePattern: '^_',
+            },
+        ],
     }
 };
