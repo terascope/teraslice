@@ -2,7 +2,7 @@
 
 /* eslint-disable no-console */
 
-const teraslice = require('../index')({
+const teraslice = require('../dist/src/index')({
     host: 'http://localhost:5678'
 });
 

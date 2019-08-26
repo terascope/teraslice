@@ -72,7 +72,7 @@ describe('Teraslice Assets', () => {
             const idResponse: AssetIDResponse = { _id: 'some-asset-id' };
 
             beforeEach(() => {
-                scope.post('/assets', body => contents === body)
+                scope.post('/assets', (body) => contents === body)
                     .reply(200, idResponse);
             });
 

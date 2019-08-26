@@ -150,7 +150,7 @@ export default {
                 const clusterAssetData = await terasliceClient.assets.get(asset.name);
                 const assetToReplace = clusterAssetData
                  // @ts-ignore
-                    .filter(clusterAsset => clusterAsset.version === asset.version)[0];
+                    .filter((clusterAsset) => clusterAsset.version === asset.version)[0];
 
                 if (_.has(assetToReplace, 'id')) {
                     const response = await terasliceClient.assets.delete(assetToReplace.id);
