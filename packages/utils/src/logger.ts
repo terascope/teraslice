@@ -1,6 +1,6 @@
 import debugFn from 'debug';
-import isPlainObject from 'is-plain-object';
 import { EventEmitter } from 'events';
+import isPlainObject from 'is-plain-object';
 import { toString, isString, trimAndToLower } from './strings';
 import { Logger } from './logger-interface';
 import { uniq } from './arrays';
@@ -52,11 +52,12 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
 
     logger.streams = [];
 
-    logger.addStream = function (stream) {
+    logger.addStream = (stream) => {
         // @ts-ignore
         this.streams.push(stream);
     };
 
+    // @ts-ignore
     logger.child = (opts: debugParam) => {
         if (isString(opts)) {
             return debugLogger(name, undefined, opts);
@@ -66,6 +67,7 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
         }
         return debugLogger(name, opts);
     };
+
     logger.flush = async () => true;
     logger.reopenFileStreams = () => {};
     logger.src = false;
@@ -81,6 +83,7 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
             }
             return undefined;
         }
+        // eslint-disable-next-line
         return levels[logLevel] || 20;
     };
     // @ts-ignore
