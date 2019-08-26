@@ -1,3 +1,4 @@
+/* eslint-disable no-self-compare */
 import 'jest-extended';
 import { debugLogger, get, times } from '@terascope/utils';
 import { translateQuery } from '../src/translator/utils';
