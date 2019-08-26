@@ -1,6 +1,6 @@
 {
     "name": "@terascope/queue",
-    "version": "1.1.6",
+    "version": "1.1.7",
     "description": "This is a typical FIFO queue implementation with a few extra helper methods",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/queue#readme",
     "bugs": {
