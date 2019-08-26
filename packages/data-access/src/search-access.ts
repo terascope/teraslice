@@ -75,9 +75,13 @@ export class SearchAccess {
                 geo_sort_point: geoSortPoint,
             });
         } catch (err) {
+            if (ts.get(err, 'context.safe')) {
+                throw err;
+            }
             throw new ts.TSError(err, {
                 reason: 'Query restricted',
                 context: {
+                    q,
                     config: this.spaceConfig,
                     query,
                     safe: true,

@@ -62,16 +62,32 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      *
      * @returns a restricted xlucene query
      */
-    restrict(query: string): string {
-        const parser = this._parser.make(query, {
-            logger: this.logger,
-            type_config: this.typeConfig,
-        });
+    restrict(q: string): string {
+        let parser: p.Parser;
+        try {
+            parser = this._parser.make(q, {
+                logger: this.logger,
+                type_config: this.typeConfig,
+            });
+        } catch (err) {
+            throw new ts.TSError(err, {
+                reason: 'Query could not be parsed',
+                statusCode: 422,
+                context: {
+                    q,
+                    safe: true
+                }
+            });
+        }
 
         if (p.isEmptyAST(parser.ast)) {
             if (!this.allowEmpty) {
                 throw new ts.TSError('Empty queries are restricted', {
                     statusCode: 403,
+                    context: {
+                        q,
+                        safe: true
+                    }
                 });
             }
             return this.constraint || '';
@@ -84,18 +100,30 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
                 throw new ts.TSError('Implicit fields are restricted, please specify the field', {
                     statusCode: 403,
+                    context: {
+                        q,
+                        safe: true
+                    }
                 });
             }
 
             if (this._isFieldExcluded(node.field)) {
                 throw new ts.TSError(`Field ${node.field} in query is restricted`, {
                     statusCode: 403,
+                    context: {
+                        q,
+                        safe: true
+                    }
                 });
             }
 
             if (this._isFieldIncluded(node.field)) {
                 throw new ts.TSError(`Field ${node.field} in query is restricted`, {
                     statusCode: 403,
+                    context: {
+                        q,
+                        safe: true
+                    }
                 });
             }
 
@@ -103,16 +131,20 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
                 if (this.preventPrefixWildcard && startsWithWildcard(node.value)) {
                     throw new ts.TSError("Wildcard queries of the form 'fieldname:*value' or 'fieldname:?value' in query are restricted", {
                         statusCode: 403,
+                        context: {
+                            q,
+                            safe: true
+                        }
                     });
                 }
             }
         });
 
         if (this.constraint) {
-            return `(${this.constraint}) AND (${query})`;
+            return `(${this.constraint}) AND (${q})`;
         }
 
-        return query;
+        return q;
     }
 
     /**
