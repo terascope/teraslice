@@ -95,7 +95,7 @@ describe('matcher', () => {
         ]);
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
         // each match will be inserted into the results
         expect(results.length).toEqual(1);
         expect(results[0].getMetadata('selectors')).toEqual(rules);

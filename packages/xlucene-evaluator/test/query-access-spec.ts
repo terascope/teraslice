@@ -145,11 +145,9 @@ describe('QueryAccess', () => {
         });
 
         it('should throw if passed an empty query', () => {
-            expect(() =>
-                new QueryAccess({
-                    allow_empty_queries: false,
-                }).restrict('')
-            ).toThrowWithMessage(TSError, 'Empty queries are restricted');
+            expect(() => new QueryAccess({
+                allow_empty_queries: false,
+            }).restrict('')).toThrowWithMessage(TSError, 'Empty queries are restricted');
         });
 
         it('should return an empty query when allowed', () => {

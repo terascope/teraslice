@@ -46,7 +46,9 @@ describe('validator lib', () => {
     });
 
     it('can call the contains method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', value: 'w', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', value: 'w', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'contains');
 
         const results = data.map((obj) => test.run(obj));
@@ -114,7 +116,9 @@ describe('validator lib', () => {
     });
 
     it('can call the alpha method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'alpha');
 
         const results = data.map((obj) => test.run(obj));
@@ -134,7 +138,9 @@ describe('validator lib', () => {
     });
 
     it('can call the alphanumeric method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'alphanumeric');
 
         const results = data.map((obj) => test.run(obj));
@@ -154,7 +160,9 @@ describe('validator lib', () => {
     });
 
     it('can call the ascii method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = new Validator(opConfig, 'ascii');
 
         const data1 = new DataEntity({ field: 'hello world' });
@@ -171,7 +179,9 @@ describe('validator lib', () => {
     });
 
     it('can call the base64 method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'base64');
 
         const data1 = new DataEntity({ field: 'hello world' });
@@ -237,7 +247,9 @@ describe('validator lib', () => {
     });
 
     it('can call the creditcard method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'creditcard');
 
         const cardData = new DataEntity({ field: '4945271443377285' });
@@ -272,7 +284,9 @@ describe('validator lib', () => {
     });
 
     it('can call the decimal method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'decimal');
 
         const results = data.map((obj) => test.run(obj));
@@ -291,7 +305,9 @@ describe('validator lib', () => {
     });
 
     it('can call the divisibleby method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', value: 2, __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', value: 2, __id: 'someId'
+        };
         const test = getValidator(opConfig, 'divisibleby');
 
         const results = data.map((obj) => test.run(obj));
@@ -310,7 +326,9 @@ describe('validator lib', () => {
     });
 
     it('can call the empty method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'empty');
 
         const data1 = { field: null, other: 'things' };
@@ -336,7 +354,9 @@ describe('validator lib', () => {
     });
 
     it('can call the fqdn method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'fqdn');
 
         const url1 = new DataEntity({ field: 'http://google.com' });
@@ -361,7 +381,9 @@ describe('validator lib', () => {
     });
 
     it('can call the float method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'float');
 
         const results = data.map((obj) => test.run(obj));
@@ -409,7 +431,9 @@ describe('validator lib', () => {
     });
 
     it('can call the hexadecimal method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'hexadecimal');
 
         const results1 = new DataEntity({ field: makeHexidecimalNumber(1234234) });
@@ -420,7 +444,9 @@ describe('validator lib', () => {
     });
 
     it('can call the isbn method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'isbn');
 
         const results1 = new DataEntity({ field: '9781234567897' });
@@ -433,7 +459,9 @@ describe('validator lib', () => {
     });
 
     it('can call the issn method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'issn');
 
         const results1 = new DataEntity({ field: '0317-8471' });
@@ -444,7 +472,9 @@ describe('validator lib', () => {
     });
 
     it('can call the iso8601 method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'iso8601');
 
         const results = data.map((obj) => test.run(obj));
@@ -458,7 +488,9 @@ describe('validator lib', () => {
     });
 
     it('can call the rfc3339 method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'rfc3339');
 
         const results1 = new DataEntity({ field: new Date().toString() });
@@ -479,7 +511,9 @@ describe('validator lib', () => {
     });
 
     it('can call the iso31661alpha2 method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'iso31661alpha2');
 
         const results1 = new DataEntity({ field: 'US' });
@@ -493,7 +527,9 @@ describe('validator lib', () => {
     });
 
     it('can call the iso31661alpha3 method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'iso31661alpha3');
 
         const results1 = new DataEntity({ field: 'USA' });
@@ -528,7 +564,9 @@ describe('validator lib', () => {
     });
 
     it('can call the int method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'int');
 
         const obj = { field: '1234234' };
@@ -541,7 +579,9 @@ describe('validator lib', () => {
     });
 
     it('can call the latlong method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'latlong');
 
         const results = data.map((obj) => test.run(obj));
@@ -576,7 +616,9 @@ describe('validator lib', () => {
     });
 
     it('can call the md5 method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'md5');
 
         const md5 = crypto.createHash('md5');
@@ -593,7 +635,9 @@ describe('validator lib', () => {
     });
 
     it('can call the mimetype method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'mimetype');
 
         const obj = { field: 'application/javascript' };
@@ -606,7 +650,9 @@ describe('validator lib', () => {
     });
 
     it('can call the numeric method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'numeric');
 
         const results = data.map((obj) => test.run(obj));
@@ -621,7 +667,9 @@ describe('validator lib', () => {
     });
 
     it('can call the port method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'port');
 
         const obj = { field: '1234' };
@@ -641,7 +689,9 @@ describe('validator lib', () => {
     });
 
     it('can call the postalcode method', () => {
-        const opConfig: PostProcessConfig = { follow: 'someId', source_field: 'field', target_field: 'field', value: 'US', __id: 'someId' };
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', value: 'US', __id: 'someId'
+        };
         const test = getValidator(opConfig, 'postalcode');
 
         const obj = { field: '12345' };

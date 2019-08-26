@@ -1,8 +1,8 @@
 
+import { Logger } from '@terascope/utils';
 import RulesLoader from './rules-loader';
 import RulesParser from './rules-parser';
 import RulesValidator from './rules-validator';
-import { Logger } from '@terascope/utils';
 import { ValidationResults, WatcherConfig } from '../interfaces';
 import { OperationsManager } from '../index';
 

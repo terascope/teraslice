@@ -29,7 +29,9 @@ export function ipTerm(node: Term) {
 }
 
 function validateIpRange(node: Range) {
-    let { incMin, incMax, minValue, maxValue } = getRangeValues(node);
+    let {
+        incMin, incMax, minValue, maxValue
+    } = getRangeValues(node);
 
     if (isInfiniteMin(minValue)) isIPv6(maxValue as string) ? (minValue = MIN_IPV6_IP) : (minValue = MIN_IPV4_IP);
     if (isInfiniteMax(maxValue)) isIPv6(minValue as string) ? (maxValue = MAX_IPV6_IP) : (maxValue = MAX_IPV4_IP);
@@ -52,10 +54,10 @@ function validateIpRange(node: Range) {
 function checkCidr(ip: string, range: any) {
     const argRange = ip6addr.createCIDR(ip);
     return (
-        range.contains(argRange.first().toString()) ||
-        range.contains(argRange.last().toString()) ||
-        argRange.contains(range.first().toString()) ||
-        argRange.contains(range.last().toString())
+        range.contains(argRange.first().toString())
+        || range.contains(argRange.last().toString())
+        || argRange.contains(range.first().toString())
+        || argRange.contains(range.last().toString())
     );
 }
 

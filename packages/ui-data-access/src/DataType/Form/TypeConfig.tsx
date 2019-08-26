@@ -57,7 +57,7 @@ const TypeConfig: React.FC<Props> = ({
                                 <Icon
                               name={showResolved ? 'eye slash' : 'eye'}
                             />
-                              {showResolved ? 'Hide' : 'Show'}
+                                {showResolved ? 'Hide' : 'Show'}
                               {' '}
 Inherited
                                 Fields
@@ -66,21 +66,21 @@ Inherited
                     )}
             <div style={{ flex: 1, textAlign: 'right' }}>
                         Data Types Version:&nbsp;
-                      <strong>{typeConfig.version}</strong>
-                    </div>
+                        <strong>{typeConfig.version}</strong>
+              </div>
           </React.Fragment>
             )}
             info={(
-                <span>
+            <span>
                     Use dot notation to specify nested properties, e.g. &nbsp;
                     <Code inline>example.field</Code>
-              </span>
+                </span>
             )}
       >
-            {showResolved
+        {showResolved
                 && resolved.map((fieldConfig) => (
                     <ResolvedField
-                    key={`resolved-${fieldConfig.field}`}
+                        key={`resolved-${fieldConfig.field}`}
                     {...fieldConfig}
                   />
                 ))}

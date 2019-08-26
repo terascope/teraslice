@@ -1,5 +1,5 @@
-import KeywordPathAnalyzer from '../../../src/types/versions/v1/keyword-path-analyzer';
 import { TSError } from '@terascope/utils';
+import KeywordPathAnalyzer from '../../../src/types/versions/v1/keyword-path-analyzer';
 import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('KeywordPathAnalyzer V1', () => {

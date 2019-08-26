@@ -4,7 +4,9 @@ import { PostProcessConfig } from '../../../src/interfaces';
 
 describe('Uuid validation', () => {
     it('can instantiate', () => {
-        const opConfig = { follow: 'someId', source_field: 'someField', target_field: 'someField', __id: 'someId' };
+        const opConfig = {
+            follow: 'someId', source_field: 'someField', target_field: 'someField', __id: 'someId'
+        };
         expect(() => new Uuid(opConfig)).not.toThrow();
     });
 
@@ -24,7 +26,9 @@ describe('Uuid validation', () => {
     });
 
     it('can validate Uuid fields', () => {
-        const opConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = new Uuid(opConfig);
 
         const metaData = { selectors: { 'some:query': true } };
@@ -74,7 +78,9 @@ describe('Uuid validation', () => {
     });
 
     it('can normailize the data', () => {
-        const opConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = new Uuid(opConfig);
 
         const opConfig2: PostProcessConfig = {

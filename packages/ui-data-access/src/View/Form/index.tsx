@@ -95,90 +95,90 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                           <FormInput<Input>
                                 {...defaultInputProps}
                               value={model.name}
-                              name="name"
+                                name="name"
                               label="Name"
                             />
-                            <ClientID<Input>
-                        {...defaultInputProps}
-                                id={model.client_id}
+                          <ClientID<Input>
+                                {...defaultInputProps}
+                              id={model.client_id}
                                 inherited={Boolean(model.data_type.client_id)}
-                      />
+                            />
                         </Form.Group>
-                    <Description<Input>
-                          {...defaultInputProps}
-                            description={model.description}
-                        />
-                        <Form.Group>
-                            <FormSelect<Input>
+                        <Description<Input>
                         {...defaultInputProps}
-                                name="roles"
-                        label="Roles"
-                                placeholder="Select Roles"
-                                multiple
-                                value={model.roles}
-                                options={roles}
+                            description={model.description}
                       />
+                        <Form.Group>
+                        <FormSelect<Input>
+                              {...defaultInputProps}
+                              name="roles"
+                              label="Roles"
+                                placeholder="Select Roles"
+                              multiple
+                              value={model.roles}
+                              options={roles}
+                            />
                             <FormSelect<Input>
                                 {...defaultInputProps}
-                        name="data_type"
-                        label="Data Type"
-                        disabled={Boolean(id)}
-                                placeholder="Select Data Type"
-                                value={model.data_type}
-                                options={dataTypes}
-                      />
+                                name="data_type"
+                                label="Data Type"
+                            disabled={Boolean(id)}
+                            placeholder="Select Data Type"
+                            value={model.data_type}
+                            options={dataTypes}
+                          />
                       </Form.Group>
-                    <Form.Group>
-                            <FormInput<Input>
-                                {...defaultInputProps}
+                        <Form.Group>
+                        <FormInput<Input>
+                              {...defaultInputProps}
                                 value={model.constraint}
                                 name="constraint"
-                        label="Search Query Constraint"
-                      />
-                          <FormCheckbox<Input>
-                                {...defaultInputProps}
-                        value={model.prevent_prefix_wildcard}
+                              label="Search Query Constraint"
+                            />
+                            <FormCheckbox<Input>
+                        {...defaultInputProps}
+                                value={model.prevent_prefix_wildcard}
                         name="prevent_prefix_wildcard"
-                        label="Prevent Prefix Wildcard"
+                                label="Prevent Prefix Wildcard"
                       />
-                        </Form.Group>
+                      </Form.Group>
                         {error ? (
                             <ErrorMessage error={error} />
                         ) : (
                             <Segment
-                                basic
-                            loading={loading}
+                            basic
+                                loading={loading}
                                 className="nopadding"
                           >
                             <Section
                                 title="Allowed Fields"
-                                    description={[
+                                description={[
                                         'Fields that should be allowed in searches and returned results.',
                                         'If any fields are listed here then all other fields will be excluded automatically.',
                                     ].join(' ')}
                                     info={<RestrictedInfo />}
                               >
-                                <Form.Group as={Segment} basic>
-                                      <FormSelect<Input>
-                                            {...defaultInputProps}
-                                            label="Select Fields"
-                                            multiple
+                                    <Form.Group as={Segment} basic>
+                                <FormSelect<Input>
+                                          {...defaultInputProps}
+                                          label="Select Fields"
+                                          multiple
                                             options={getAvailableFields(
                                                 resolvedConfig,
                                                 model.includes
                                             )}
                                             name="includes"
-                                          value={model.includes}
+                                            value={model.includes}
                                         />
-                                    </Form.Group>
+                              </Form.Group>
                               </Section>
                                 <Section
-                                title="Excluded Fields"
+                                    title="Excluded Fields"
                                     description={[
                                         'Fields that should be excluded from searches and returned results.',
                                         'If fields are listed here then all other fields will be allowed automatically.',
                                     ].join(' ')}
-                                info={<RestrictedInfo />}
+                                    info={<RestrictedInfo />}
                               >
                                     <Form.Group as={Segment} basic>
                                         <FormSelect<Input>
@@ -193,7 +193,7 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                                             value={model.excludes}
                                       />
                               </Form.Group>
-                              </Section>
+                                </Section>
                           </Segment>
                         )}
                   </React.Fragment>

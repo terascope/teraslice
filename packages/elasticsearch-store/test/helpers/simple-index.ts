@@ -12,13 +12,13 @@ export interface SimpleRecord {
 }
 
 export type SimpleRecordInput = Overwrite<
-    SimpleRecord,
-    {
-        test_number?: number;
-        test_boolean?: boolean;
-        _created?: Date | string;
-        _updated?: Date | string;
-    }
+SimpleRecord,
+{
+    test_number?: number;
+    test_boolean?: boolean;
+    _created?: Date | string;
+    _updated?: Date | string;
+}
 >;
 
 export const schema = {

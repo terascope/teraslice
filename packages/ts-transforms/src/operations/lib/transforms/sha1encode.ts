@@ -9,10 +9,9 @@ export default class SHA1Encode extends TransformOpBase {
         super(config);
     }
 
-    encode(data:string) {
+    encode(data: string) {
         // @ts-ignore
         return crypto.createHash('sha1').update(data).digest('hex');
-
     }
 
     run(record: DataEntity): DataEntity | null {

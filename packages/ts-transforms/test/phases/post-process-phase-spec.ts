@@ -1,6 +1,8 @@
 import path from 'path';
 import { DataEntity, debugLogger } from '@terascope/utils';
-import { OperationsManager, PostProcessPhase, Loader, PostProcessingDict } from '../../src';
+import {
+    OperationsManager, PostProcessPhase, Loader, PostProcessingDict
+} from '../../src';
 
 describe('post_process phase', () => {
     const logger = debugLogger('postProcessPhaseTest');

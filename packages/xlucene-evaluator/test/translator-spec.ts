@@ -2,7 +2,9 @@
 import 'jest-extended';
 import { debugLogger, get, times } from '@terascope/utils';
 import { translateQuery } from '../src/translator/utils';
-import { Translator, TypeConfig, FieldType, Parser } from '../src';
+import {
+    Translator, TypeConfig, FieldType, Parser
+} from '../src';
 import allTestCases from './cases/translator';
 
 const logger = debugLogger('translator-spec');
@@ -103,13 +105,9 @@ describe('Translator', () => {
     describe('when testing edge cases', () => {
         describe('given a gigantic query', () => {
             it('should be able to translate it', () => {
-                const randomFloat = (n: number) => {
-                    return Math.random() * n;
-                };
+                const randomFloat = (n: number) => Math.random() * n;
 
-                const randomInt = (n: number) => {
-                    return Math.round(randomFloat(n));
-                };
+                const randomInt = (n: number) => Math.round(randomFloat(n));
 
                 const randomVal = (n: number): string => {
                     if (Math.random() < Math.random()) {
@@ -142,17 +140,15 @@ describe('Translator', () => {
                     return '"some-random-string"';
                 };
 
-                const joinParts = (parts: string[]) => {
-                    return parts
-                        .map((part, i, arr) => {
-                            if (i + 1 === arr.length) return `${part}`;
-                            if (i % 2 === 0) return `(${part}) OR`;
-                            if (i % 5 === 0) return `${part} OR`;
-                            if (i % 7 === 0) return `${part} AND NOT`;
-                            return `(${part}) AND`;
-                        })
-                        .join(' ');
-                };
+                const joinParts = (parts: string[]) => parts
+                    .map((part, i, arr) => {
+                        if (i + 1 === arr.length) return `${part}`;
+                        if (i % 2 === 0) return `(${part}) OR`;
+                        if (i % 5 === 0) return `${part} OR`;
+                        if (i % 7 === 0) return `${part} AND NOT`;
+                        return `(${part}) AND`;
+                    })
+                    .join(' ');
 
                 const joinOR = (s: string[], n: number) => s.join(n % 10 === 0 ? ') OR (' : ' OR ');
 

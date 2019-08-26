@@ -8,9 +8,8 @@ export default class UrlEncode extends TransformOpBase {
         super(config);
     }
 
-    encode(data:string) {
+    encode(data: string) {
         return encodeURI(data);
-
     }
 
     run(record: DataEntity): DataEntity | null {

@@ -1,9 +1,9 @@
 import fs from 'fs';
 import readline from 'readline';
 import { Readable } from 'stream';
-import { WatcherConfig, OperationConfigInput } from '../interfaces';
 import _ from 'lodash';
 import { Logger, TSError } from '@terascope/utils';
+import { WatcherConfig, OperationConfigInput } from '../interfaces';
 
 export default class RulesLoader {
     private opConfig: WatcherConfig;
@@ -80,7 +80,6 @@ export default class RulesLoader {
                             const errMsg = err.message;
                             hasError = true;
                             errorResults.push(errMsg, ' => ', configStr, '\n');
-
                         }
                     }
                 }
@@ -88,7 +87,7 @@ export default class RulesLoader {
 
             rl.on('close', () => {
                 if (hasError) {
-                    const errors =  errorResults.join('');
+                    const errors = errorResults.join('');
                     const err = new Error(`could not load and parse the following configs: \n ${errors}`);
                     err.stack = undefined;
                     return reject(err);

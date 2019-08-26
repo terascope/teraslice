@@ -1,5 +1,5 @@
-import FloatType from '../../../src/types/versions/v1/float';
 import { TSError } from '@terascope/utils';
+import FloatType from '../../../src/types/versions/v1/float';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Float V1', () => {

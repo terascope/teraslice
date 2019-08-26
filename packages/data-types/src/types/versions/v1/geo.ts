@@ -6,6 +6,7 @@ export default class GeoType extends BaseType {
     toESMapping() {
         return { mapping: { [this.field]: { type: 'geo_point' as ElasticSearchTypes } } };
     }
+
     // TODO: need notion of injecting custom types, what about duplicates
     toGraphQL() {
         const customType = `

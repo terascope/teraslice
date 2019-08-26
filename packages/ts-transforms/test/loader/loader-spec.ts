@@ -36,7 +36,9 @@ describe('Loader', () => {
         const loader = new Loader(config, logger);
 
         const phaseConfig = await loader.load(opsManager);
-        const { selectors, extractions, postProcessing, output } = phaseConfig;
+        const {
+            selectors, extractions, postProcessing, output
+        } = phaseConfig;
         const { matchRequirements, restrictOutput } = output;
         const results = selectors.map((obj) => ({ selector: obj.selector }));
 

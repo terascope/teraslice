@@ -12,13 +12,14 @@ export default class MakeArray extends TransformOpBase {
     constructor(config: PostProcessConfig) {
         super(config);
     }
+
     // source work differently here so we do not use the inherited validate
     // @ts-ignore
     protected validateConfig(config: PostProcessConfig) {
         const { target_field: tField } = config;
         const fields = config.fields || config.source_fields;
         if (!tField || typeof tField !== 'string' || tField.length === 0) {
-            const name = this.constructor.name;
+            const { name } = this.constructor;
             throw new Error(
                 `could not find target_field for ${name} validation or it is improperly formatted, config: ${JSON.stringify(config)}`
             );

@@ -17,12 +17,10 @@ export default class StringValidation extends ValidationOpBase<any> {
         let data;
         if (typeof field === 'string') {
             data = field;
+        } else if (typeof field === 'object') {
+            data = JSON.stringify(field);
         } else {
-            if (typeof field === 'object') {
-                data = JSON.stringify(field);
-            } else {
-                data = field.toString();
-            }
+            data = field.toString();
         }
 
         if (this.length && data && data.length !== this.length) return null;
@@ -37,7 +35,7 @@ export default class StringValidation extends ValidationOpBase<any> {
     }
 
     validate(data: string) {
-        if (typeof  data === 'string') return true;
+        if (typeof data === 'string') return true;
         return false;
     }
 }

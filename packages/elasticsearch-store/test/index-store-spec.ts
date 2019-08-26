@@ -1,10 +1,14 @@
 import 'jest-extended';
-import { times, pDelay, DataEntity, Omit, TSError, debugLogger } from '@terascope/utils';
-import { SimpleRecord, SimpleRecordInput, mapping, schema } from './helpers/simple-index';
+import {
+    times, pDelay, DataEntity, Omit, TSError, debugLogger
+} from '@terascope/utils';
+import { Translator } from 'xlucene-evaluator';
+import {
+    SimpleRecord, SimpleRecordInput, mapping, schema
+} from './helpers/simple-index';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
 import { TEST_INDEX_PREFIX } from './helpers/config';
 import { IndexStore, IndexConfig } from '../src';
-import { Translator } from 'xlucene-evaluator';
 
 describe('IndexStore', () => {
     const client = makeClient();
@@ -87,9 +91,7 @@ describe('IndexStore', () => {
                 _updated: new Date().toISOString(),
             };
 
-            beforeAll(() => {
-                return indexStore.createWithId(record, record.test_id);
-            });
+            beforeAll(() => indexStore.createWithId(record, record.test_id));
 
             it('should not be able to create a record again', async () => {
                 expect.hasAssertions();
@@ -103,9 +105,7 @@ describe('IndexStore', () => {
                 }
             });
 
-            it('should be able to index the same record', () => {
-                return indexStore.indexWithId(record, record.test_id);
-            });
+            it('should be able to index the same record', () => indexStore.indexWithId(record, record.test_id));
 
             it('should be able to index the record without an id', async () => {
                 const lonelyRecord: SimpleRecordInput = {
@@ -137,13 +137,9 @@ describe('IndexStore', () => {
                 expect(count).toBe(1);
             });
 
-            it('should be able to get the count', () => {
-                return expect(indexStore.count(`test_id: ${record.test_id}`)).resolves.toBe(1);
-            });
+            it('should be able to get the count', () => expect(indexStore.count(`test_id: ${record.test_id}`)).resolves.toBe(1));
 
-            it('should get zero when the using the wrong id', () => {
-                return expect(indexStore.count('test_id: wrong-id')).resolves.toBe(0);
-            });
+            it('should get zero when the using the wrong id', () => expect(indexStore.count('test_id: wrong-id')).resolves.toBe(0));
 
             it('should be able to update the record', async () => {
                 await indexStore.update(
@@ -215,9 +211,7 @@ describe('IndexStore', () => {
                 }
             });
 
-            it('should be able to remove the record', () => {
-                return indexStore.remove(record.test_id);
-            });
+            it('should be able to remove the record', () => indexStore.remove(record.test_id));
 
             it('should throw when trying to remove a record that does not exist', async () => {
                 expect.hasAssertions();
@@ -272,11 +266,9 @@ describe('IndexStore', () => {
 
             beforeAll(async () => {
                 await Promise.all(
-                    records.map((record) => {
-                        return indexStore.createWithId(record, record.test_id, {
-                            refresh: false,
-                        });
-                    })
+                    records.map((record) => indexStore.createWithId(record, record.test_id, {
+                        refresh: false,
+                    }))
                 );
 
                 await indexStore.refresh();
@@ -579,15 +571,13 @@ describe('IndexStore', () => {
             ];
 
             type ExpectedRecord = Omit<SimpleRecord, '_created' | '_updated'>;
-            const expected: ExpectedRecord[] = input.map((record) => {
-                return Object.assign(
-                    {
-                        test_boolean: true,
-                        test_number: 676767,
-                    },
-                    record
-                );
-            });
+            const expected: ExpectedRecord[] = input.map((record) => Object.assign(
+                {
+                    test_boolean: true,
+                    test_number: 676767,
+                },
+                record
+            ));
 
             beforeAll(async () => {
                 await Promise.all(

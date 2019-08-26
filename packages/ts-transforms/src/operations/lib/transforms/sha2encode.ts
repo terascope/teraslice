@@ -10,10 +10,9 @@ export default class Sha2Encode extends TransformOpBase {
     constructor(config: PostProcessConfig) {
         super(config);
         this.hash = config.hash || 'sha256';
-        this.encode = (data:string) => {
-                    // @ts-ignore
-            return crypto.createHash(this.hash).update(data).digest('hex');
-        };
+        this.encode = (data: string) =>
+        // @ts-ignore
+            crypto.createHash(this.hash).update(data).digest('hex');
     }
 
     run(record: DataEntity): DataEntity | null {

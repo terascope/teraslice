@@ -8,7 +8,7 @@ export default abstract class ValidationOpBase<T> extends OperationBase {
     // @ts-ignore
     constructor(config) {
         super(config);
-        this.invert = this.config.output === false ? true : false;
+        this.invert = this.config.output === false;
     }
 
     abstract validate (data: T|null|undefined): boolean;
@@ -50,7 +50,6 @@ export default abstract class ValidationOpBase<T> extends OperationBase {
                 } else {
                     this.set(doc, results);
                 }
-
             } else {
                 if (this.normalize != null) value = this.normalize(value, doc);
                 isValid = this.validate(value);

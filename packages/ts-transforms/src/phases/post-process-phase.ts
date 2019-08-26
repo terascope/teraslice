@@ -2,7 +2,9 @@
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
 import { hasKeys } from './utils';
-import { PostProcessConfig, WatcherConfig, PostProcessingDict, OperationsPipline, Operation } from '../interfaces';
+import {
+    PostProcessConfig, WatcherConfig, PostProcessingDict, OperationsPipline, Operation
+} from '../interfaces';
 import PhaseBase from './base';
 import { OperationsManager } from '../operations';
 

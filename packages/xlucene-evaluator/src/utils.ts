@@ -1,5 +1,7 @@
 import geoHash from 'latlon-geohash';
-import { trim, toNumber, isPlainObject, parseNumberList, isNumber } from '@terascope/utils';
+import {
+    trim, toNumber, isPlainObject, parseNumberList, isNumber
+} from '@terascope/utils';
 import { Range, GeoPoint, GeoDistanceUnit } from './parser/interfaces';
 import { GeoDistanceObj, GeoPointInput } from './interfaces';
 
@@ -43,7 +45,7 @@ export const GEO_DISTANCE_UNITS: { readonly [key: string]: GeoDistanceUnit } = {
     mi: 'miles',
     miles: 'miles',
     mile: 'miles',
-    NM:'nauticalmiles',
+    NM: 'nauticalmiles',
     nmi: 'nauticalmiles',
     nauticalmile: 'nauticalmiles',
     nauticalmiles: 'nauticalmiles',

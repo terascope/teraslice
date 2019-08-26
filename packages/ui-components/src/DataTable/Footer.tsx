@@ -37,31 +37,31 @@ const Footer: React.FC<Props> = ({
 
     return (
         <TableFooter numCols={numCols}>
-            <div className="dtFooterCell">
-            <div className="dtFooterResults">
+        <div className="dtFooterCell">
+                <div className="dtFooterResults">
 Found
                     {total}
-            {' '}
+                    {' '}
 results
           </div>
-                <div className="dtFooterOptions">
-            <Label basic className="dtFooterPerPageLabel">
+            <div className="dtFooterOptions">
+                    <Label basic className="dtFooterPerPageLabel">
                         Per Page
                   </Label>
-                    <Dropdown
+            <Dropdown
                         className="dtFooterPerPage"
                         placeholder="Per Page"
                         compact
-                    selection
-                        value={size}
-                    options={rowsPerPageOptions}
-                    onChange={(e, { value }) => {
+                        selection
+                    value={size}
+                        options={rowsPerPageOptions}
+                        onChange={(e, { value }) => {
                             updateQueryState({ size: value as number });
                         }}
                   />
-                    <Pagination
-                        disabled={total < size}
-                        boundaryRange={0}
+            <Pagination
+                    disabled={total < size}
+                    boundaryRange={0}
                         defaultActivePage={currentPage}
                         ellipsisItem={null}
                         firstItem={null}
@@ -78,7 +78,7 @@ results
                         size="small"
                   />
           </div>
-          </div>
+            </div>
       </TableFooter>
     );
 };

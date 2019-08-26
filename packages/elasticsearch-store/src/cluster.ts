@@ -12,13 +12,13 @@ export default class Cluster {
      * Get the Cluster Nodes Info
     */
     async nodeInfo(params: es.NodesInfoParams) {
-        return;
+
     }
 
     /**
      * Get the Cluster Nodes Stats
     */
     async nodeStats(params: es.NodesStatsParams) {
-        return;
+
     }
 }

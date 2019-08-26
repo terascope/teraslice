@@ -28,13 +28,11 @@ export default abstract class TransformOpBase extends OperationBase {
                 } else {
                     this.set(doc, results);
                 }
+            } else if (typeof value !== 'string') {
+                this.removeSource(doc);
             } else {
-                if (typeof value !== 'string') {
-                    this.removeSource(doc);
-                } else {
-                    const mystuff = fn(value);
-                    this.set(doc, mystuff);
-                }
+                const mystuff = fn(value);
+                this.set(doc, mystuff);
             }
         } catch (err) {
             this.removeSource(doc);

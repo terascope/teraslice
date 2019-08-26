@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import * as p from '../parser';
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
+import * as p from '../parser';
 import { CachedTranslator, SortOrder } from '../translator';
 import * as i from './interfaces';
 

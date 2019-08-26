@@ -17,7 +17,7 @@ const Section: React.FC<Props> = ({
     </Header>
         {description && (
     <Message attached="bottom" className="sectionDescription">
-              {description}
+                {description}
             </Message>
         )}
         {children}

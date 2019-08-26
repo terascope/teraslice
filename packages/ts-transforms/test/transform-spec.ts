@@ -215,14 +215,24 @@ describe('can transform matches', () => {
         };
 
         const data = DataEntity.makeArray([
-            { hello: 'world', lat: 23.423, lon: 93.33, first: 'John', last: 'Doe' }, //  all good
-            { hello: 'world', lat: 123.423, lon: 93.33, first: 'John', last: 'Doe' }, //  bad geo
-            { hello: 'world', lat: 123.423, lon: 93.33, first: 'John', last: 'Doe' }, //  bad geo
-            { hello: 'world', lat: 23.423, lon: 93.33, full_name: 3243423 }, //  full_name is not string
+            {
+                hello: 'world', lat: 23.423, lon: 93.33, first: 'John', last: 'Doe'
+            }, //  all good
+            {
+                hello: 'world', lat: 123.423, lon: 93.33, first: 'John', last: 'Doe'
+            }, //  bad geo
+            {
+                hello: 'world', lat: 123.423, lon: 93.33, first: 'John', last: 'Doe'
+            }, //  bad geo
+            {
+                hello: 'world', lat: 23.423, lon: 93.33, full_name: 3243423
+            }, //  full_name is not string
         ]);
 
         const resultSet = [
-            { location: { lat: 23.423, lon: 93.33 }, first_name: 'John', last_name: 'Doe', full_name: 'John Doe' },
+            {
+                location: { lat: 23.423, lon: 93.33 }, first_name: 'John', last_name: 'Doe', full_name: 'John Doe'
+            },
             { first_name: 'John', last_name: 'Doe', full_name: 'John Doe' },
             { first_name: 'John', last_name: 'Doe', full_name: 'John Doe' },
             { location: { lat: 23.423, lon: 93.33 } },
@@ -451,11 +461,15 @@ describe('can transform matches', () => {
         const key = '123456789';
 
         const data = DataEntity.makeArray([
-            { domain: 'example.com', url: 'http:// www.example.com/path?value=blah&value2=moreblah&value3=evenmoreblah', date, key },
+            {
+                domain: 'example.com', url: 'http:// www.example.com/path?value=blah&value2=moreblah&value3=evenmoreblah', date, key
+            },
         ]);
 
         // should not expect anything back
-        const data2 = DataEntity.makeArray([{ domain: 'example.com', hello: 'world', data: 'otherData', date, key }, {}]);
+        const data2 = DataEntity.makeArray([{
+            domain: 'example.com', hello: 'world', data: 'otherData', date, key
+        }, {}]);
 
         // should not expect anything back
         const data3 = DataEntity.makeArray([
@@ -507,7 +521,9 @@ describe('can transform matches', () => {
                 key,
             },
             { host: 'fc2.com', key, date },
-            { host: 'fc2.com', field1: 'someRandomStr', key, date },
+            {
+                host: 'fc2.com', field1: 'someRandomStr', key, date
+            },
             {
                 host: 'fc2.com',
                 field1: [
@@ -520,7 +536,9 @@ describe('can transform matches', () => {
         ]);
 
         // should not expect anything back
-        const data2 = DataEntity.makeArray([{ domain: 'example.com', hello: 'world', data: 'otherData', date, key }, {}]);
+        const data2 = DataEntity.makeArray([{
+            domain: 'example.com', hello: 'world', data: 'otherData', date, key
+        }, {}]);
 
         // should not expect anything back
         const data3 = DataEntity.makeArray([
@@ -572,7 +590,9 @@ describe('can transform matches', () => {
                 key,
             },
             { host: 'fc2.com', key, date },
-            { host: 'fc2.com', field1: 'someRandomStr', key, date },
+            {
+                host: 'fc2.com', field1: 'someRandomStr', key, date
+            },
             {
                 host: 'fc2.com',
                 field1: [
@@ -586,7 +606,9 @@ describe('can transform matches', () => {
         ]);
 
         // should not expect anything back
-        const data2 = DataEntity.makeArray([{ domain: 'example.com', hello: 'world', data: 'otherData', date, key }, {}]);
+        const data2 = DataEntity.makeArray([{
+            domain: 'example.com', hello: 'world', data: 'otherData', date, key
+        }, {}]);
 
         // should not expect anything back
         const data3 = DataEntity.makeArray([
@@ -779,21 +801,25 @@ describe('can transform matches', () => {
             { some: 'value', input: 'stuff' },
             { some: 'value', date },
             { some: 'value', input: 'stuff', date },
-            { some: 'value', input: 'stuff', date, key },
+            {
+                some: 'value', input: 'stuff', date, key
+            },
         ]);
 
         const data2 = DataEntity.makeArray([
             { other: 'value', other_input: 'stuff' },
             { other: 'value', date },
             { other: 'value', other_input: 'stuff', date },
-            { other: 'value', other_input: 'stuff', date, key },
+            {
+                other: 'value', other_input: 'stuff', date, key
+            },
         ]);
 
         const data1Results = data1.reduce<object[]>((arr, obj) => {
             if (obj.input) {
                 const results = {};
-                results['output'] = obj.input;
-                if (obj.date) results['date'] = obj.date;
+                results.output = obj.input;
+                if (obj.date) results.date = obj.date;
                 arr.push(results);
             }
             return arr;
@@ -802,9 +828,9 @@ describe('can transform matches', () => {
         const data2Results = data2.reduce<object[]>((arr, obj) => {
             if (obj.other_input) {
                 const results = {};
-                results['other_output'] = obj.other_input;
-                if (obj.date) results['date'] = obj.date;
-                if (obj.key) results['output_key'] = obj.key;
+                results.other_output = obj.other_input;
+                if (obj.date) results.date = obj.date;
+                if (obj.key) results.output_key = obj.key;
                 arr.push(results);
             }
             return arr;
@@ -864,7 +890,9 @@ describe('can transform matches', () => {
         };
 
         const data = [
-            new DataEntity({ hello: 'world', field1: 'hello', field2: 'world', field3: 'world' }),
+            new DataEntity({
+                hello: 'world', field1: 'hello', field2: 'world', field3: 'world'
+            }),
             new DataEntity({ field: 'null' }),
         ];
 

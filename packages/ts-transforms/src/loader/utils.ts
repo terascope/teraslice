@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import graphlib from 'graphlib';
 import { Logger } from '@terascope/utils';
-import { OperationsManager } from '../index';
 import shortid from 'shortid';
+import { OperationsManager } from '../index';
 
 import {
     OperationConfig,
@@ -139,7 +139,6 @@ function findConfigs(config: OperationConfig, configList: OperationConfig[], tag
                 const pipeline = obj.__pipeline || obj.selector;
                 results.push({ pipeline: pipeline as string, source: obj.target_field as string });
             }
-            return;
         });
 
     if (!_.some(results, 'source')) throw new Error(`could not find source field for config ${JSON.stringify(config)}`);
@@ -167,13 +166,13 @@ function createMatchingConfig(fieldsConfigs: FieldSourceConfigs[], config: Opera
             }
         }
 
-        if (!resultsObj['source_field']) resultsObj['source_field'] = obj.source;
+        if (!resultsObj.source_field) resultsObj.source_field = obj.source;
         if (config.target_field === undefined) {
-            resultsObj['target_field'] = obj.source;
+            resultsObj.target_field = obj.source;
         } else if (Array.isArray(config.target_field)) {
-            resultsObj['target_field'] = config.target_field[index];
+            resultsObj.target_field = config.target_field[index];
         } else {
-            resultsObj['target_field'] = config.target_field;
+            resultsObj.target_field = config.target_field;
         }
 
         checkForSource(resultsObj as OperationConfig);
@@ -284,7 +283,7 @@ function createResults(list: OperationConfig[]): ValidationResults {
             matchRequirements: {},
         },
     };
-    const output = results.output;
+    const { output } = results;
     let currentSelector: undefined | string;
     const duplicateListing = {};
 

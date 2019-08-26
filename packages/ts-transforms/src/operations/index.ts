@@ -35,7 +35,9 @@ import Uuid from './lib/validations/uuid';
 import ISDN from './lib/validations/isdn';
 import { Validator, ValidatorPlugins } from './lib/validations/validator';
 
-import { OperationsDict, PluginClassType, BaseOperationClass, PluginList } from '../interfaces';
+import {
+    OperationsDict, PluginClassType, BaseOperationClass, PluginList
+} from '../interfaces';
 
 class CorePlugins implements PluginClassType {
     init(): OperationsDict {

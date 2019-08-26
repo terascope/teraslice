@@ -19,11 +19,9 @@ describe('IndexManager', () => {
         const indexManager = new IndexManager(client);
 
         describe('->_logger', () => {
-            const loggerFn = (config: Partial<IndexConfig>) => {
+            const loggerFn = (config: Partial<IndexConfig>) =>
                 // @ts-ignore
-                return indexManager._logger(config);
-            };
-
+                indexManager._logger(config);
             describe('when a logger is configured', () => {
                 const logger = debugLogger('hello');
                 const config = {

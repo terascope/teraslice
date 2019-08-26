@@ -28,7 +28,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             },
             data_schema: {
                 schema: utils.addDefaultSchema(modelConfig.schema),
-                strict: modelConfig.strict_mode === false ? false : true,
+                strict: modelConfig.strict_mode !== false,
                 log_level: modelConfig.strict_mode === false ? 'trace' : 'warn',
                 all_formatters: true,
             },
@@ -94,7 +94,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         } as T;
 
         const id = await utils.makeId();
-        docInput['id'] = id;
+        docInput.id = id;
 
         const doc = this._sanitizeRecord(docInput);
 
@@ -170,7 +170,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
             });
         }
 
-        const id: string | undefined = updates.id;
+        const { id } = updates;
         if (!id) return { ...updates };
 
         const current = await this.findById(id, options, queryAccess);
@@ -209,7 +209,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     }
 
     async update(record: i.UpdateRecordInput<T>) {
-        const id: unknown = record.id;
+        const { id } = record;
         if (!id || !ts.isString(id)) {
             throw new ts.TSError(`${this.name} update requires id`, {
                 statusCode: 422,
@@ -329,8 +329,6 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
                 });
             }
         }
-
-        return;
     }
 
     protected _sanitizeRecord(record: T): T {

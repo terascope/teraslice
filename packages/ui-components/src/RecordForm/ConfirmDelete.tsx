@@ -22,10 +22,10 @@ const ConfirmDelete: React.FC<Props> = ({ recordType, onConfirm }) => {
                     Delete
               </Form.Button>
             )}
-        onOpen={() => setOpen(true)}
+            onOpen={() => setOpen(true)}
         onClose={() => setOpen(false)}
-        open={open}
-            size="tiny"
+            open={open}
+        size="tiny"
       >
         <Header icon="trash alternate" content="Delete record" />
         <Modal.Content>
@@ -36,22 +36,22 @@ Are you sure you want to delete
 record
           </p>
             </Modal.Content>
-        <Modal.Actions>
+            <Modal.Actions>
                 <Button basic onClick={() => setOpen(false)}>
                     Cancel
-                </Button>
+              </Button>
                 <Button
                     color="red"
                     onClick={() => {
                         setOpen(false);
                         onConfirm();
                     }}
-          >
-            <Icon name="check" />
+              >
+                <Icon name="check" />
                     {' '}
 Yes
-          </Button>
-            </Modal.Actions>
+              </Button>
+          </Modal.Actions>
       </Modal>
     );
 };

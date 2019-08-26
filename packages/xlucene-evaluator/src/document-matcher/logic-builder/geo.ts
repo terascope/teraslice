@@ -14,8 +14,10 @@ const testGeoPolygon = (polygon: any) => (fieldData: string) => {
     return pointInPolygon([point.lon, point.lat], polygon);
 };
 
-export function geoDistance(node:GeoDistance) {
-    const { distance, unit, lat, lon } = node;
+export function geoDistance(node: GeoDistance) {
+    const {
+        distance, unit, lat, lon
+    } = node;
     const geoPoint = [lon, lat];
     const config = { units: unit };
     let polygon: createCircle;
@@ -33,7 +35,7 @@ export function geoDistance(node:GeoDistance) {
     return testGeoPolygon(polygon);
 }
 
-export function geoBoundingBox(node:GeoBoundingBox) {
+export function geoBoundingBox(node: GeoBoundingBox) {
     const topLeft = [node.top_left.lon, node.top_left.lat];
     const bottomRight = [node.bottom_right.lon, node.bottom_right.lat];
 

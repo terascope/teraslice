@@ -1,9 +1,11 @@
 
 import _ from 'lodash';
 import fp from 'lodash/fp';
-import { geoDistance,  geoBoundingBox } from './geo';
+import { geoDistance, geoBoundingBox } from './geo';
 import { compareTermDates, dateRange } from './dates';
-import { regexp, wildcard, isWildCard, findWildcardField } from './string';
+import {
+    regexp, wildcard, isWildCard, findWildcardField
+} from './string';
 import { BooleanCB } from '../interfaces';
 import { ipTerm, ipRange } from './ip';
 import * as p from '../../parser';
@@ -44,8 +46,8 @@ function makeSomeFn(cb: BooleanCB) {
     };
 }
 
-function makeNegate(fn:any) {
-    return function negate(data:any) {
+function makeNegate(fn: any) {
+    return function negate(data: any) {
         return !fn(data);
     };
 }
@@ -128,7 +130,7 @@ function walkAst(node: p.AnyAST, typeConfig: p.TypeConfig): BooleanCB {
     return isFalse;
 }
 
-function typeFunctions(node:p.Term|p.Range, typeConfig: p.TypeConfig, defaultCb: BooleanCB) {
+function typeFunctions(node: p.Term|p.Range, typeConfig: p.TypeConfig, defaultCb: BooleanCB) {
     if (node.field == null) return defaultCb;
 
     const type: p.FieldType = typeConfig[node.field];

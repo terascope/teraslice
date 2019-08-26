@@ -12,7 +12,7 @@ export default class OutputPhase extends PhaseBase {
     private hasRestrictedOutput: boolean;
     private hasRequirements: boolean;
 
-    constructor(opConfig: WatcherConfig, outputConfig:OutputValidation, _opsManager: OperationsManager) {
+    constructor(opConfig: WatcherConfig, outputConfig: OutputValidation, _opsManager: OperationsManager) {
         super(opConfig);
         this.restrictOutput = outputConfig.restrictOutput;
         this.matchRequirements = outputConfig.matchRequirements;
@@ -66,7 +66,7 @@ function restrictFields(data: DataEntity[], restrictOutput: any) {
     return restrictedData;
 }
 
-function isKeyMatchRequiredFn(matchRequirements:any) {
+function isKeyMatchRequiredFn(matchRequirements: any) {
     return function isKeyMatchRequired(key: string, docSelectorData: object) {
         let bool = false;
         const requiredKey = matchRequirements[key];
@@ -80,7 +80,7 @@ function isKeyMatchRequiredFn(matchRequirements:any) {
     };
 }
 
-function checkDoc(doc: DataEntity, fn:any) {
+function checkDoc(doc: DataEntity, fn: any) {
     const docSelectorData = doc.getMetadata('selectors');
     let otherExtractionsFound = false;
     let requireExtractionsFound = false;

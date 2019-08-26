@@ -104,9 +104,9 @@ const DataTable: React.FC<Props> = (props) => {
                     }}
               />
             <Header
-                  numSelected={selected.length}
-                    sort={queryState.sort}
-                  toggleSelectAll={() => {
+                    numSelected={selected.length}
+                  sort={queryState.sort}
+                    toggleSelectAll={() => {
                         if (selectedAll) {
                             return setSelected({
                                 selected: [],
@@ -123,9 +123,9 @@ const DataTable: React.FC<Props> = (props) => {
                     }}
                   updateQueryState={updateQueryState}
                   selectedAll={selectedAll}
-                    columnMapping={rowMapping.columns}
+                  columnMapping={rowMapping.columns}
                 />
-            <Body
+                <Body
                 rowMapping={rowMapping}
                 records={records}
                 baseEditPath={baseEditPath}
@@ -135,12 +135,12 @@ const DataTable: React.FC<Props> = (props) => {
                 total={total}
               />
             <Footer
-                  total={total}
-                    numCols={numCols}
-                    size={queryState.size}
+                    total={total}
+                numCols={numCols}
+                size={queryState.size}
                     from={queryState.from}
                     updateQueryState={updateQueryState}
-                />
+              />
           </Table>
             {actionState.success && (
                 <SuccessMessage

@@ -1,5 +1,5 @@
-import Boundary from '../../../src/types/versions/v1/boundary';
 import { TSError } from '@terascope/utils';
+import Boundary from '../../../src/types/versions/v1/boundary';
 import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('Boundary V1', () => {

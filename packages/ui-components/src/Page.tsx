@@ -14,9 +14,9 @@ const Page = tsWithRouter<Props>(
             <Segment padded>
             <Menu secondary>
                 <Menu.Header as="h2" className="pageTitle">
-                      {title}
-                    </Menu.Header>
-                    {actions.map((action) => {
+                {title}
+              </Menu.Header>
+                {actions.map((action) => {
                         const onClick = action.onClick
                             ? action.onClick
                             : () => {

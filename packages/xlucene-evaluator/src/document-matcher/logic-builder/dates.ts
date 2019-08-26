@@ -22,11 +22,15 @@ export function getRangeValues(node: Range) {
     const minValue = rangeQuery.gte || rangeQuery.gt || '*';
     const maxValue = rangeQuery.lte || rangeQuery.lt || '*';
 
-    return { incMin, incMax, minValue, maxValue };
+    return {
+        incMin, incMax, minValue, maxValue
+    };
 }
 
 function validateRangeValues(node: Range) {
-    let { incMin, incMax, minValue, maxValue } = getRangeValues(node);
+    let {
+        incMin, incMax, minValue, maxValue
+    } = getRangeValues(node);
 
     // javascript min/max date allowable http://www.ecma-international.org/ecma-262/5.1/#sec-15.9.1.1
     if (isInfiniteMin(minValue)) minValue = -8640000000000000;

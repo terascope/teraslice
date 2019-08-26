@@ -1,5 +1,5 @@
-import Hostname from '../../../src/types/versions/v1/hostname';
 import { TSError } from '@terascope/utils';
+import Hostname from '../../../src/types/versions/v1/hostname';
 import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('Hostname V1', () => {

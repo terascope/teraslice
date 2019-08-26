@@ -161,8 +161,6 @@ export function getXluceneTypeFromESType(type?: string): FieldType | undefined {
     if (['keyword', 'text'].includes(type)) return FieldType.String;
     if (type === 'object') return FieldType.Object;
     if (type === 'boolean') return FieldType.Boolean;
-
-    return;
 }
 
 export function getESVersion(client: Client): number {

@@ -40,5 +40,4 @@ describe('Document-Matcher', () => {
         expect(documentMatcher.match(data)).toBeTrue();
         expect(data).toStrictEqual(clone);
     });
-
 });

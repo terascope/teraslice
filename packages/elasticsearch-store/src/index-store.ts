@@ -9,7 +9,7 @@ import * as utils from './utils';
 /**
  * @todo add the ability to enable/disable refresh by default
  */
-export default class IndexStore<T extends Object, I extends Partial<T> = T> {
+export default class IndexStore<T extends Record<string, any>, I extends Partial<T> = T> {
     readonly client: es.Client;
     readonly config: i.IndexConfig;
     readonly indexQuery: string;
@@ -64,7 +64,9 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
         }
 
         if (config.data_schema != null) {
-            const { all_formatters, schema, strict, log_level = 'warn' } = config.data_schema;
+            const {
+                all_formatters, schema, strict, log_level = 'warn'
+            } = config.data_schema;
 
             const ajv = new Ajv({
                 useDefaults: true,
@@ -203,9 +205,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             if (data != null) bulkRequest.push(data);
         }
 
-        await ts.pRetry(() => {
-            return this._bulk(records, bulkRequest);
-        }, utils.getRetryConfig());
+        await ts.pRetry(() => this._bulk(records, bulkRequest), utils.getRetryConfig());
     }
 
     /** Get a single document */
@@ -244,9 +244,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             body: doc,
         });
 
-        const result = await ts.pRetry(() => {
-            return this.client.index(p);
-        }, utils.getRetryConfig());
+        const result = await ts.pRetry(() => this.client.index(p), utils.getRetryConfig());
         result._source = doc;
         return this._toRecord(result);
     }
@@ -285,9 +283,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             params
         );
 
-        await ts.pRetry(() => {
-            return this.client.indices.refresh(p);
-        }, utils.getRetryConfig());
+        await ts.pRetry(() => this.client.indices.refresh(p), utils.getRetryConfig());
     }
 
     /**
@@ -304,9 +300,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             }
         );
 
-        await ts.pRetry(() => {
-            return this.client.delete(p);
-        }, utils.getRetryConfig());
+        await ts.pRetry(() => this.client.delete(p), utils.getRetryConfig());
     }
 
     /**
@@ -345,16 +339,14 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             }
         }
 
-        const results = await ts.pRetry(async () => {
-            return this.client.search<T>(
-                this.getDefaultParams(
-                    {
-                        sort: this.config.default_sort,
-                    },
-                    params
-                )
-            );
-        }, utils.getRetryConfig());
+        const results = await ts.pRetry(async () => this.client.search<T>(
+            this.getDefaultParams(
+                {
+                    sort: this.config.default_sort,
+                },
+                params
+            )
+        ), utils.getRetryConfig());
 
         // @ts-ignore because failures doesn't exist in definition
         const { failures, failed } = results._shards;
@@ -392,9 +384,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
             body,
         });
 
-        await ts.pRetry(() => {
-            return this.client.update(p);
-        }, utils.getRetryConfig());
+        await ts.pRetry(() => this.client.update(p), utils.getRetryConfig());
     }
 
     /** Safely apply updates to a document by applying the latest changes */
@@ -427,9 +417,7 @@ export default class IndexStore<T extends Object, I extends Partial<T> = T> {
 
     private async _bulk(records: BulkRequest<I>[], body: any) {
         const result: i.BulkResponse = await ts.pRetry(
-            () => {
-                return this.client.bulk({ body });
-            },
+            () => this.client.bulk({ body }),
             { ...utils.getRetryConfig(), retries: 0 }
         );
 
@@ -499,14 +487,14 @@ type ReservedParams = 'index' | 'type';
 type PartialParam<T, E = any> = { [K in Exclude<keyof T, E extends keyof T ? ReservedParams & E : ReservedParams>]?: T[K] };
 
 type SearchParams<T> = ts.Overwrite<
-    es.SearchParams,
-    {
-        q: never;
-        body: never;
-        _source?: (keyof T)[];
-        _sourceInclude?: (keyof T)[];
-        _sourceExclude?: (keyof T)[];
-    }
+es.SearchParams,
+{
+    q: never;
+    body: never;
+    _source?: (keyof T)[];
+    _sourceInclude?: (keyof T)[];
+    _sourceExclude?: (keyof T)[];
+}
 >;
 
 type ApplyPartialUpdates<T> = (existing: T) => Promise<T> | T;

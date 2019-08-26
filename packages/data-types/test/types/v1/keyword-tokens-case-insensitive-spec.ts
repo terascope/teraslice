@@ -1,5 +1,5 @@
-import KeywordTokensCaseInsensitive from '../../../src/types/versions/v1/keyword-tokens-case-insensitive';
 import { TSError } from '@terascope/utils';
+import KeywordTokensCaseInsensitive from '../../../src/types/versions/v1/keyword-tokens-case-insensitive';
 import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('KeywordTokensCaseInsensitive V1', () => {

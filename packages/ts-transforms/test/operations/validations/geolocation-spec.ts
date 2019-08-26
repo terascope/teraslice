@@ -1,9 +1,11 @@
-import { Geolocation } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
+import { Geolocation } from '../../../src/operations';
 
 describe('geolocation validation', () => {
     it('can instantiate', () => {
-        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId'
+        };
         expect(() => new Geolocation(opConfig)).not.toThrow();
     });
 
@@ -23,7 +25,9 @@ describe('geolocation validation', () => {
     });
 
     it('can validate geo fields', () => {
-        const opConfig = { source_field: 'location', target_field: 'location', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            source_field: 'location', target_field: 'location', __id: 'someId', follow: 'otherId'
+        };
         const test = new Geolocation(opConfig);
         const metaData = { selectors: { 'some:query': true } };
 
@@ -73,7 +77,9 @@ describe('geolocation validation', () => {
     });
 
     it('can validate nested fields', async () => {
-        const opConfig = { source_field: 'event.location', target_field: 'event.location', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            source_field: 'event.location', target_field: 'event.location', __id: 'someId', follow: 'otherId'
+        };
         const test = new Geolocation(opConfig);
 
         const data1 = new DataEntity({ event: 'something' });

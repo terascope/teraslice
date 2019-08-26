@@ -98,7 +98,7 @@ const AddField: React.FC<Props> = ({ addField, fields }) => {
                     placeholder="Select Field Type"
                     value={state.type}
                     error={Boolean(state.typeError)}
-                        onChange={(e, { value }) => {
+                    onChange={(e, { value }) => {
                             e.preventDefault();
 
                             updateState({

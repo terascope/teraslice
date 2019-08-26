@@ -56,54 +56,54 @@ const RecordForm: React.FC<Props> = ({
     return (
         <React.Fragment>
         <Form
-              loading={loading || actionState.loading}
+            loading={loading || actionState.loading}
                 onSubmit={onSubmit}
-              error={hasErrors || requestError || actionState.error}
-              success={!hasErrors && actionState.success}
-              widths="equal"
-            >
-              <Grid columns={2}>
+            error={hasErrors || requestError || actionState.error}
+            success={!hasErrors && actionState.success}
+            widths="equal"
+          >
+            <Grid columns={2}>
                     <Grid.Row columns={1} className="recordFormTopButtons">
-                        <ButtonRow>
-                            <CancelButton />
-                        <SubmitButton
-                              isCreate={isCreate}
-                                loading={loading}
-                                hasErrors={hasErrors}
-                            />
-                      </ButtonRow>
-                </Grid.Row>
-            {requestError && (
-                        <Grid.Row columns={1}>
-                      <ErrorMessage
-                              title="Request Error"
-                              error={requestError}
-                            />
-                    </Grid.Row>
-                    )}
-            <Grid.Row>
-                        <Grid.Column
-                            mobile={16}
-                      tablet={16}
-                      computer={14}
-                      widescreen={10}
-                    >
-                            {children}
-                    </Grid.Column>
-                    </Grid.Row>
-                    <Grid.Row columns={1}>
                   <ButtonRow>
-                            {DeleteButton}
-                          <CancelButton />
-                          <SubmitButton
+                            <CancelButton />
+                            <SubmitButton
                     isCreate={isCreate}
                     loading={loading}
                                 hasErrors={hasErrors}
                   />
                         </ButtonRow>
                 </Grid.Row>
-          </Grid>
-            </Form>
+                    {requestError && (
+                        <Grid.Row columns={1}>
+                    <ErrorMessage
+                              title="Request Error"
+                              error={requestError}
+                            />
+                  </Grid.Row>
+                    )}
+                  <Grid.Row>
+                  <Grid.Column
+                            mobile={16}
+                          tablet={16}
+                          computer={14}
+                          widescreen={10}
+                        >
+                          {children}
+                        </Grid.Column>
+                </Grid.Row>
+                    <Grid.Row columns={1}>
+                  <ButtonRow>
+                            {DeleteButton}
+                          <CancelButton />
+                          <SubmitButton
+                              isCreate={isCreate}
+                              loading={loading}
+                                hasErrors={hasErrors}
+                            />
+                        </ButtonRow>
+                </Grid.Row>
+                </Grid>
+          </Form>
             {updated && <SuccessMessage attached="bottom" />}
         {created && (
           <SuccessMessage
@@ -116,7 +116,7 @@ const RecordForm: React.FC<Props> = ({
                 <SuccessMessage
                     attached="bottom"
               redirectTo={redirectPath}
-                    message={`Successfully deleted ${recordType}`}
+              message={`Successfully deleted ${recordType}`}
             />
             )}
         {actionState.error && (

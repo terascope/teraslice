@@ -1,9 +1,8 @@
 
-import { Selector } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
+import { Selector } from '../../../src/operations';
 
 describe('selector operator', () => {
-
     it('can instantiate', () => {
         const opConfig = { selector: 'some:data', __id: 'someId' };
         expect(() => new Selector(opConfig)).not.toThrow();
@@ -85,7 +84,7 @@ describe('selector operator', () => {
 
     it('can add selectors metadata to match documents', () => {
         const opConfig = { selector: 'some:data', __id: 'someId' };
-        const test =  new Selector(opConfig);
+        const test = new Selector(opConfig);
         const metaData = ['some:data'];
         const secondMetaData = ['other:data'];
         const mergedMetaData = [...secondMetaData, ...metaData];

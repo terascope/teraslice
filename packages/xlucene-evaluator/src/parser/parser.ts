@@ -1,4 +1,6 @@
-import { debugLogger, Logger, TSError, trim, toBoolean } from '@terascope/utils';
+import {
+    debugLogger, Logger, TSError, trim, toBoolean
+} from '@terascope/utils';
 import engine, { Tracer } from './engine';
 import { parseGeoPoint, parseGeoDistance } from '../utils';
 import * as i from './interfaces';
@@ -80,7 +82,6 @@ export class Parser {
                 for (const conj of node.nodes) {
                     walkNode(conj);
                 }
-                return;
             }
         };
 

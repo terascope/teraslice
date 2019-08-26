@@ -1,5 +1,5 @@
-import Domain from '../../../src/types/versions/v1/domain';
 import { TSError } from '@terascope/utils';
+import Domain from '../../../src/types/versions/v1/domain';
 import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('Domain V1', () => {

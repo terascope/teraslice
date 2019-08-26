@@ -13,5 +13,4 @@ export default class Ip extends ValidationOpBase<any> {
         if (net.isIP(data) === 0) return false;
         return true;
     }
-
 }

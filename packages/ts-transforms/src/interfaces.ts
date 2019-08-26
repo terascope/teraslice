@@ -75,14 +75,14 @@ export interface PluginClassType {
 
 export type PluginList = PluginClassConstructor[];
 
-export type BaseOperationClass = { new (config: any, types?: TypeConfig): Operation, cardinality:InputOutputCardinality };
+export type BaseOperationClass = { new (config: any, types?: TypeConfig): Operation; cardinality: InputOutputCardinality };
 
 export interface OperationsDict {
     [op: string]: BaseOperationClass;
 }
 
 export interface Operation {
-    config?:OperationConfig;
+    config?: OperationConfig;
     run(data: DataEntity): null | DataEntity;
 }
 
