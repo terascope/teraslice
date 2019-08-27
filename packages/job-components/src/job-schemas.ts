@@ -7,7 +7,8 @@ import {
     getTypeOf,
     isPlainObject,
     dataEncodings,
-    isString
+    isString,
+    DataEncoding
 } from '@terascope/utils';
 import { Context } from './interfaces';
 
@@ -237,7 +238,7 @@ export const opSchema: convict.Schema<any> = {
     },
     _encoding: {
         doc: 'Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`.',
-        default: 'json',
+        default: DataEncoding.JSON,
         format: dataEncodings,
     },
     _dead_letter_action: {

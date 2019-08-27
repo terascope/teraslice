@@ -7,6 +7,16 @@ import { isFunction, parseJSON, getTypeOf } from './utils';
 const _metadata = new WeakMap();
 
 /**
+ * available data encoding types
+ */
+export enum DataEncoding {
+    JSON = 'json',
+}
+
+/** A list of supported encoding formats */
+export const dataEncodings: readonly DataEncoding[] = Object.values(DataEncoding);
+
+/**
  * A wrapper for data that can hold additional metadata properties.
  * A DataEntity should be essentially transparent to use within operations.
  *
@@ -63,8 +73,8 @@ export class DataEntity<T extends object = object> {
         opConfig: EncodingConfig = {},
         metadata?: object
     ): DataEntity<T> {
-        const { _encoding = 'json' } = opConfig || {};
-        if (_encoding === 'json') {
+        const { _encoding = DataEncoding.JSON } = opConfig || {};
+        if (_encoding === DataEncoding.JSON) {
             return DataEntity.make(parseJSON(input), metadata);
         }
 
@@ -186,7 +196,7 @@ function setMetadata(ctx: any, key: string, value: string): void {
 }
 
 function toBuffer(ctx: any, opConfig: EncodingConfig): Buffer {
-    const { _encoding = 'json' } = opConfig;
+    const { _encoding = DataEncoding.JSON } = opConfig;
     if (_encoding === 'json') {
         return Buffer.from(JSON.stringify(ctx));
     }
@@ -239,12 +249,6 @@ function makeEntity<T extends object>(input: T): DataEntity<T> {
     return entity;
 }
 
-/** an encoding focused interfaces */
-export interface EncodingConfig {
-    _op?: string;
-    _encoding?: DataEncoding;
-}
-
 export type DataInput = object | DataEntity;
 export type DataArrayInput = DataInput | DataInput[];
 
@@ -271,10 +275,8 @@ interface DataEntityMetadata {
     [prop: string]: any;
 }
 
-/**
- * available data encoding types
- */
-export type DataEncoding = 'json';
-
-/** A list of supported encoding formats */
-export const dataEncodings: DataEncoding[] = ['json'];
+/** an encoding focused interfaces */
+export interface EncodingConfig {
+    _op?: string;
+    _encoding?: DataEncoding;
+}

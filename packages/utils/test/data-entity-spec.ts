@@ -1,5 +1,5 @@
 import 'jest-extended'; // require for type definitions
-import { DataEntity, parseJSON } from '../src';
+import { DataEntity, parseJSON, DataEncoding } from '../src';
 
 describe('DataEntity', () => {
     const testCases = [
@@ -170,7 +170,7 @@ describe('DataEntity', () => {
             const dataEntity = useClass ? new DataEntity(data, metadata) : DataEntity.make(data);
 
             it('should be convertable to a buffer', () => {
-                const buf = dataEntity.toBuffer({ _encoding: 'json' });
+                const buf = dataEntity.toBuffer({ _encoding: 'json' as DataEncoding });
                 expect(Buffer.isBuffer(buf)).toBeTrue();
                 const obj = parseJSON(buf);
 
@@ -342,7 +342,7 @@ describe('DataEntity', () => {
                 buf,
                 {
                     _op: 'baz',
-                    _encoding: 'json',
+                    _encoding: DataEncoding.JSON,
                 },
                 {
                     howdy: 'there',
@@ -365,7 +365,7 @@ describe('DataEntity', () => {
             expect(() => {
                 DataEntity.fromBuffer(buf, {
                     _op: 'test',
-                    _encoding: 'json',
+                    _encoding: DataEncoding.JSON,
                 });
             }).toThrow();
         });
