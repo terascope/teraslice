@@ -17,6 +17,11 @@ module.exports = Object.assign({}, jsRules, {
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/explicit-member-accessibility': 'off',
+
+    // https://github.com/typescript-eslint/typescript-eslint/issues/291
+    'no-dupe-class-members': 'off',
+    'lines-between-class-members': 'off',
+
     // The following rules make compatibility between eslint and typescript
     'consistent-return': 'off',
     indent: 'off',
@@ -27,7 +32,11 @@ module.exports = Object.assign({}, jsRules, {
     camelcase: 'off',
     '@typescript-eslint/camelcase': ['error', { properties: 'never' }],
     'no-use-before-define': 'off',
-    '@typescript-eslint/no-use-before-define': ['error', { functions: false }],
+    '@typescript-eslint/no-use-before-define': ['error', {
+        functions: false,
+        classes: false,
+        typedefs: false
+    }],
     'import/no-unresolved': 'off',
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': [

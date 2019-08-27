@@ -41,7 +41,6 @@ module.exports = {
     'import/prefer-default-export': 'off',
     'no-empty-function': 'off',
     'prefer-object-spread': 'off',
-    'consistent-return': ['error', { treatUndefinedAsUnspecified: true }],
     'lines-between-class-members': [
         'error',
         'always',
