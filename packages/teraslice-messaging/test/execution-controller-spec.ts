@@ -1,5 +1,6 @@
-import 'jest-extended';
+/* eslint-disable no-new */
 
+import 'jest-extended';
 import { pDelay, findPort } from './helpers';
 import { formatURL, newMsgId, ExecutionController } from '../src';
 

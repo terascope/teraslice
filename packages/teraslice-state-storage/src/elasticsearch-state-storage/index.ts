@@ -1,5 +1,10 @@
 import {
-    DataEntity, Logger, TSError, chunk, isFunction, pImmediate
+    DataEntity,
+    Logger,
+    TSError,
+    chunk,
+    isFunction,
+    pImmediate
 } from '@terascope/utils';
 import esApi, { Client } from '@terascope/elasticsearch-api';
 import { Promise as bPromise } from 'bluebird';
@@ -137,7 +142,10 @@ export default class ESCachedStateStorage {
         }
     }
 
-    private _updateCache(docArray: DataEntity[], fn: UpdateCacheFn): { uncached: UncachedChunks; duplicates: DataEntity[] } {
+    private _updateCache(
+        docArray: DataEntity[],
+        fn: UpdateCacheFn
+    ): { uncached: UncachedChunks; duplicates: DataEntity[] } {
         const duplicates: DataEntity[] = [];
         const found: { [key: string]: true } = {};
         const uncachedChunks: UncachedChunks = [];
@@ -256,7 +264,12 @@ export default class ESCachedStateStorage {
         return bulkRequest;
     }
 
-    private _updateCacheWith(fn: UpdateCacheFn, key: string, current: DataEntity, prev?: DataEntity) {
+    private _updateCacheWith(
+        fn: UpdateCacheFn,
+        key: string,
+        current: DataEntity,
+        prev?: DataEntity
+    ): void {
         const result = fn(key, current, prev);
         if (result === false) return;
         if (result == null || result === true) {
@@ -280,7 +293,11 @@ export default class ESCachedStateStorage {
     }
 }
 
-export type UpdateCacheFn = (key: string, current: DataEntity, prev?: DataEntity) => DataEntity|boolean;
+export type UpdateCacheFn = (
+    key: string,
+    current: DataEntity,
+    prev?: DataEntity
+) => DataEntity|boolean;
 
 interface ESMeta {
     _index: string;

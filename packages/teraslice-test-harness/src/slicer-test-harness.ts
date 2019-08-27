@@ -1,5 +1,8 @@
 import {
-    sortBy, map, groupBy, times
+    sortBy,
+    map,
+    groupBy,
+    times
 } from 'lodash';
 import {
     SlicerExecutionContext,

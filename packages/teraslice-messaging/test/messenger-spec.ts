@@ -1,5 +1,6 @@
-import 'jest-extended';
+/* eslint-disable no-new */
 
+import 'jest-extended';
 import http from 'http';
 import { Message } from '../src/messenger';
 import { Messenger, formatURL, newMsgId } from '../src';

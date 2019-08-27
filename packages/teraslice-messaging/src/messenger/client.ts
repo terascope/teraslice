@@ -116,6 +116,11 @@ export class Client extends Core {
         await new Promise((resolve, reject) => {
             let connectTimeout: any;
 
+            const onError = (err: any) => {
+                // it still connecting so this is probably okay
+                this.logger.debug(`${toString(err)} when connecting to ${this.serverName} at ${this.hostUrl}`);
+            };
+
             const cleanup = () => {
                 if (connectTimeout != null) {
                     clearTimeout(connectTimeout);
@@ -126,15 +131,10 @@ export class Client extends Core {
                 this.socket.removeListener('connect', onConnect);
             };
 
-            const onConnect = () => {
+            function onConnect() {
                 cleanup();
                 resolve();
-            };
-
-            const onError = (err: any) => {
-                // it still connecting so this is probably okay
-                this.logger.debug(`${toString(err)} when connecting to ${this.serverName} at ${this.hostUrl}`);
-            };
+            }
 
             this.socket.once('connect_error', onError);
             this.socket.once('connect_timeout', onError);

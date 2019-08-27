@@ -1,5 +1,6 @@
-import 'jest-extended';
+/* eslint-disable no-new */
 
+import 'jest-extended';
 import findPort from './helpers/find-port';
 import { formatURL, newMsgId, ClusterMaster } from '../src';
 
