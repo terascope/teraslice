@@ -1,5 +1,3 @@
-
-import _ from 'lodash';
 import { CMD } from '../../interfaces';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';

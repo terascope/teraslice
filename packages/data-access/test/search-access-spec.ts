@@ -4,7 +4,11 @@ import { SearchParams, SearchResponse } from 'elasticsearch';
 import { DataTypeConfig, LATEST_VERSION } from '@terascope/data-types';
 
 import {
-    SearchAccess, View, DataType, InputQuery, SpaceSearchConfig
+    SearchAccess,
+    View,
+    DataType,
+    InputQuery,
+    SpaceSearchConfig
 } from '../src';
 
 describe('SearchAccess', () => {
@@ -341,7 +345,11 @@ describe('SearchAccess', () => {
 
                 const params = searchAccess.getSearchParams(query);
 
-                const result = searchAccess.getSearchResponse(input as SearchResponse<any>, query, params);
+                const result = searchAccess.getSearchResponse(
+                    input as SearchResponse<any>,
+                    query,
+                    params
+                );
                 expect(result).toEqual({
                     total,
                     info: '5 results found. Returning 2.',
@@ -381,7 +389,11 @@ describe('SearchAccess', () => {
 
                 const params = searchAccess.getSearchParams(query);
 
-                const result = searchAccess.getSearchResponse(input as SearchResponse<any>, query, params);
+                const result = searchAccess.getSearchResponse(
+                    input as SearchResponse<any>,
+                    query,
+                    params
+                );
                 expect(result).toEqual({
                     total,
                     info: '150 results found. Returning 100.',
@@ -422,7 +434,11 @@ describe('SearchAccess', () => {
                     size: 2,
                 };
 
-                const result = searchAccess.getSearchResponse(input as SearchResponse<any>, query, params);
+                const result = searchAccess.getSearchResponse(
+                    input as SearchResponse<any>,
+                    query,
+                    params
+                );
                 expect(result).toEqual({
                     total,
                     info: '5 results found. Returning 2.',
@@ -464,7 +480,11 @@ describe('SearchAccess', () => {
                     size: 2,
                 };
 
-                const result = searchAccess.getSearchResponse(input as SearchResponse<any>, query, params);
+                const result = searchAccess.getSearchResponse(
+                    input as SearchResponse<any>,
+                    query,
+                    params
+                );
                 expect(result).toEqual({
                     total,
                     info: '5 results found. Returning 2. No sorting available.',

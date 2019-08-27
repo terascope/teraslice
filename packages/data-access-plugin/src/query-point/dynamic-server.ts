@@ -58,8 +58,15 @@ export class DynamicApolloServer extends apollo.ApolloServer {
 
                 schemaErrorHandler(req, res, async () => {
                     // TODO: check if user is false
-                    // @ts-ignore
-                    const roleSchema = await getSchemaByRole(req.aclManager, user, this.logger, this.pluginContext);
+                    const roleSchema = await getSchemaByRole(
+                        // @ts-ignore
+                        req.aclManager,
+                        user,
+                        // @ts-ignore
+                        this.logger,
+                        // @ts-ignore
+                        this.pluginContext
+                    );
 
                     /**
                      * This is the main reason to extend, to access graphqlExpress(),

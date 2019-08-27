@@ -731,7 +731,9 @@ describe('ACLManager Permissions', () => {
                 dataAdminUser
             );
 
-            await expect(manager.findDataType({ id: dataTypeId }, dataAdminUser)).resolves.toMatchObject({
+            await expect(manager.findDataType({
+                id: dataTypeId
+            }, dataAdminUser)).resolves.toMatchObject({
                 id: dataTypeId,
             });
 

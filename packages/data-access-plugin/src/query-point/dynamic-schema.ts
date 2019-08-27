@@ -9,7 +9,12 @@ import { createResolvers } from './resolvers';
 // TODO: elasticsearch search error should not leak to much
 // TODO: history capabilities??
 
-export default async function getSchemaByRole(aclManager: ACLManager, user: User, logger: ts.Logger, context: Context) {
+export default async function getSchemaByRole(
+    aclManager: ACLManager,
+    user: User,
+    logger: ts.Logger,
+    context: Context
+) {
     const query = `roles: ${user.role} AND type:SEARCH AND _exists_:endpoint`;
     const spaces = await aclManager.findSpaces({ query, size: 10000 }, false);
 
@@ -36,7 +41,7 @@ export default async function getSchemaByRole(aclManager: ACLManager, user: User
 function sanitize(name: string) {
     // https://graphql.github.io/graphql-spec/June2018/#sec-Punctuators
     return name
-        .replace(/[\!$\?@\*:\s=\(\)\[\]\{\}\|]/g, '')
+        .replace(/[!$?@*:\s=()[\]{}|]/g, '')
         .replace(/-/g, '_')
         .trim();
 }
@@ -86,7 +91,11 @@ function iterateList(srcList: string[], comparaterList: string[], cb: CB) {
     });
 }
 
-function restrict(fields: dt.TypeConfigFields, includes: string[], exludes: string[]): dt.TypeConfigFields {
+function restrict(
+    fields: dt.TypeConfigFields,
+    includes: string[],
+    exludes: string[]
+): dt.TypeConfigFields {
     let results: dt.TypeConfigFields;
     const fieldsList = Object.keys(fields);
 
@@ -94,7 +103,9 @@ function restrict(fields: dt.TypeConfigFields, includes: string[], exludes: stri
         results = fields;
     } else {
         results = {};
-        const cb: CB = (includedField) => (results[includedField] = fields[includedField]);
+        const cb: CB = (includedField) => {
+            (results[includedField] = fields[includedField]);
+        };
         iterateList(includes, fieldsList, cb);
     }
 
