@@ -1,6 +1,4 @@
-
 import { CMD } from '../../interfaces';
-import _ from 'lodash';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 import Jobs from '../../helpers/jobs';
@@ -13,7 +11,7 @@ export = {
     // TODO: is it [id] or <id>
     command: 'stop <cluster-alias> [id]',
     describe: 'stops job(s) running or failing on the cluster, saves running job(s) to a json file.\n',
-    builder(yargs:any) {
+    builder(yargs: any) {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));

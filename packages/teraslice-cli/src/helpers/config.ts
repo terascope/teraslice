@@ -18,7 +18,7 @@ export default class Config {
     args: any;
     aliases: Aliases;
 
-    constructor(cliArgs:any) {
+    constructor(cliArgs: any) {
         // We do this so that the command line options can be like 'cluster-url'
         // but the js properties are camelCase
         this.args = _.mapKeys(cliArgs, (value, key) => _.camelCase(key));

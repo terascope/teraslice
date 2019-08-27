@@ -4,7 +4,7 @@ import os from 'os';
 const homeDir = os.homedir();
 
 export = {
-    args: (yargs:any) => {
+    args: (yargs: any) => {
         yargs
             .option('config_dir', {
                 alias: 'config_directory',

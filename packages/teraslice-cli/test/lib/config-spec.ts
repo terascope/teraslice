@@ -7,8 +7,8 @@ import Config from '../../src/helpers/config';
 const tmpDir = createTempDirSync();
 
 describe('config', () => {
-    let cliArgs:any;
-    let testConfig:any;
+    let cliArgs: any;
+    let testConfig: any;
 
     beforeEach(() => {
         cliArgs = {

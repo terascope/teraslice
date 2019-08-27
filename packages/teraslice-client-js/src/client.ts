@@ -4,12 +4,12 @@ import got from 'got';
 import { STATUS_CODES } from 'http';
 import { URL } from 'url';
 import path from 'path';
-import { ClientConfig, SearchOptions , RequestOptions } from './interfaces';
+import { ClientConfig, SearchOptions, RequestOptions } from './interfaces';
 
 export default class Client {
-    private _apiVersion:string;
+    private _apiVersion: string;
     private _request: got.GotInstance;
-    protected _config:ClientConfig;
+    protected _config: ClientConfig;
 
     constructor(config: ClientConfig = {}) {
         const configUrl = new URL(config.host || config.baseUrl || 'http://localhost:5678');
@@ -30,23 +30,28 @@ export default class Client {
         });
     }
 
-    async get(endpoint: string, options?:SearchOptions) {
+    async get(endpoint: string, options?: SearchOptions) {
         return this._makeRequest('get', endpoint, options);
     }
 
-    async post(endpoint: string, data: any, options?:RequestOptions) {
+    async post(endpoint: string, data: any, options?: RequestOptions) {
         return this._makeRequest('post', endpoint, options, data);
     }
 
-    async put(endpoint: string, data: any, options?:RequestOptions) {
+    async put(endpoint: string, data: any, options?: RequestOptions) {
         return this._makeRequest('put', endpoint, options, data);
     }
 
-    async delete(endpoint: string, options?:SearchOptions) {
+    async delete(endpoint: string, options?: SearchOptions) {
         return this._makeRequest('delete', endpoint, options);
     }
 
-    private async _makeRequest(method:string, endpoint:string, searchOptions: SearchOptions = {}, data?:any) {
+    private async _makeRequest(
+        method: string,
+        endpoint: string,
+        searchOptions: SearchOptions = {},
+        data?: any
+    ) {
         const errorMsg = validateRequestOptions(endpoint, searchOptions);
         if (errorMsg) return Promise.reject(new TSError(errorMsg));
 
@@ -80,13 +85,13 @@ export default class Client {
         return results;
     }
     // TODO: make better types for this
-    protected makeOptions(query:any, options: RequestOptions | SearchOptions) {
+    protected makeOptions(query: any, options: RequestOptions | SearchOptions) {
         const formattedOptions = Object.assign({}, options, { query });
         return formattedOptions;
     }
 }
 
-function getAPIEndpoint(endpoint:string, apiVersion:string) {
+function getAPIEndpoint(endpoint: string, apiVersion: string) {
     if (!apiVersion) return endpoint;
     const txtIndex = endpoint.indexOf('txt');
     const isTxt = txtIndex < 2 && txtIndex > -1;
@@ -95,13 +100,12 @@ function getAPIEndpoint(endpoint:string, apiVersion:string) {
     return path.join(apiVersion, endpoint);
 }
 
-function getErrorFromResponse(response:any) {
+function getErrorFromResponse(response: any) {
     let { body } = response;
 
     if (body && isString(body)) {
         try {
             body = JSON.parse(body);
-
         } catch (err) {
             return { message: body };
         }
@@ -122,12 +126,12 @@ function getErrorFromResponse(response:any) {
 }
 
 interface OldErrorOutput extends TSError {
-    error:number;
-    code:string;
+    error: number;
+    code: string;
     statusCode: number;
 }
 
-function makeErrorFromResponse(response:any): OldErrorOutput {
+function makeErrorFromResponse(response: any): OldErrorOutput {
     const { statusCode } = response;
     const stuff = getErrorFromResponse(response);
     const {
@@ -142,7 +146,7 @@ function makeErrorFromResponse(response:any): OldErrorOutput {
 }
 
 // TODO: do more validations
-function validateRequestOptions(endpoint:string, options?: SearchOptions) {
+function validateRequestOptions(endpoint: string, _options?: SearchOptions) {
     if (!endpoint) {
         return 'endpoint must not be empty';
     }
@@ -152,7 +156,7 @@ function validateRequestOptions(endpoint:string, options?: SearchOptions) {
     return null;
 }
 
-function getRequestOptionsWithData(data: any, options:SearchOptions) {
+function getRequestOptionsWithData(data: any, options: SearchOptions) {
     if (isPlainObject(data) || Array.isArray(data)) {
         return Object.assign({}, options, { body: data });
     }

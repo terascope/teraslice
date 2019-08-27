@@ -2,8 +2,8 @@
 import GithubAsset from '../../src/helpers/github-asset';
 
 describe('GithubAsset', () => {
-    let config:any;
-    let testAsset:any;
+    let config: any;
+    let testAsset: any;
 
     beforeEach(() => {
         config = {

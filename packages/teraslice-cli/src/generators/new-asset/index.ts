@@ -5,23 +5,10 @@ import Generator from 'yeoman-generator';
 import ProcessorGenerator from '../new-processor';
 
 export default class extends Generator {
-    argument: any;
-    // TODO: what is this????
-    options: any;
     answers!: any;
-    prompt: any;
-    destinationRoot: any;
-    fs: any;
-    templatePath: any;
-    destinationPath: any;
-    composeWith: any;
-    useYarn: any;
-    spawnCommandSync: any;
-    installDependencies: any;
-    yarnInstall: any;
-    npmInstall: any;
+    useYarn?: boolean;
 
-    constructor(args:any, opts:any) {
+    constructor(args: any, opts: any) {
         super(args, opts);
         this.argument('new_asset_path', { type: String, required: true });
         this.sourceRoot(`${__dirname}/templates`);
@@ -33,13 +20,13 @@ export default class extends Generator {
                 type: 'input',
                 name: 'name',
                 message: 'Name of the new asset:',
-                validate: (value:string) => {
+                validate: (value: string) => {
                     if (value.length < 1) {
                         return 'must contain a value';
                     }
                     return true;
                 },
-                filter: (value:string) => _.kebabCase(value)
+                filter: (value: string) => _.kebabCase(value)
             },
             {
                 type: 'input',
@@ -61,14 +48,14 @@ export default class extends Generator {
                 description: this.answers.description
             });
 
-        this.fs.copyTpl(this.templatePath('eslintrc.json'), this.destinationPath('.eslintrc'));
+        this.fs.copyTpl(this.templatePath('eslintrc.json'), this.destinationPath('.eslintrc'), {});
         this.fs.copyTpl(this.templatePath('README.md'), this.destinationPath('README.md'), {
             name: this.answers.name,
             description: this.answers.description
         });
-        this.fs.copyTpl(this.templatePath('editorConfig'), this.destinationPath('.editorconfig'));
-        this.fs.copyTpl(this.templatePath('jest.config.js'), this.destinationPath('jest.config.js'));
-        this.fs.copyTpl(this.templatePath('gitignore'), this.destinationPath('.gitignore'));
+        this.fs.copyTpl(this.templatePath('editorConfig'), this.destinationPath('.editorconfig'), {});
+        this.fs.copyTpl(this.templatePath('jest.config.js'), this.destinationPath('jest.config.js'), {});
+        this.fs.copyTpl(this.templatePath('gitignore'), this.destinationPath('.gitignore'), {});
 
         // copy asset files
         this.fs.copyTpl(
@@ -93,7 +80,10 @@ export default class extends Generator {
     addExampleProcessor() {
         const assetPath = path.join(this.options.new_asset_path, this.answers.name);
         const processorPath = path.join(__dirname, '../../../dist/src/generators/new-processor');
-        this.composeWith({ Generator: ProcessorGenerator, path:  processorPath }, { arguments: [assetPath] });
+        this.composeWith({
+            Generator: ProcessorGenerator,
+            path: processorPath
+        } as any, { arguments: [assetPath] });
     }
 
     install() {

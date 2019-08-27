@@ -17,34 +17,34 @@ function _deprecateSlicerName(fn: () => Promise<ControllerState>) {
 }
 
 export default class Cluster extends Client {
-    constructor(config:any) {
+    constructor(config: any) {
         super(config);
         this.slicers = _deprecateSlicerName(this.slicers);
-         // @ts-ignore
+        // @ts-ignore
         autoBind(this);
     }
 
-    async info():Promise<RootResponse> {
+    async info(): Promise<RootResponse> {
         return this.get('/');
     }
 
-    async state():Promise<ClusterState> {
+    async state(): Promise<ClusterState> {
         return this.get('/cluster/state');
     }
 
-    async stats():Promise<ClusterStats> {
+    async stats(): Promise<ClusterStats> {
         return this.get('/cluster/stats');
     }
 
-    async slicers():Promise<ControllerState> {
+    async slicers(): Promise<ControllerState> {
         return this.get('/cluster/slicers');
     }
 
-    async controllers():Promise<ControllerState> {
+    async controllers(): Promise<ControllerState> {
         return this.get('/cluster/controllers');
     }
 
-    async txt(type: TxtType):Promise<string> {
+    async txt(type: TxtType): Promise<string> {
         const validTypes = ['assets', 'slicers', 'ex', 'jobs', 'nodes', 'workers'];
         const isValid = validTypes.some((validType) => startsWith(type, validType));
         if (!isValid) {

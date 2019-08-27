@@ -1,4 +1,5 @@
-/* tslint:disable */
+/* eslint-disable no-console */
+
 // @ts-ignore
 import ttyTable from 'tty-table';
 // @ts-ignore
@@ -7,19 +8,14 @@ import easyTable from 'easy-table';
 import _ from 'lodash';
 import prompts from 'prompts';
 
-// @ts-ignore
-async function pretty(headerValues, rows) {
-    // @ts-ignore
-    const header = [];
+async function pretty(headerValues: any, rows: any) {
+    const header: any[] = [];
     _.each(headerValues, (item) => {
-        // @ts-ignore
-        const col = [];
-        // @ts-ignore
+        const col: any = [];
         col.value = item;
-        // @ts-ignore
         header.push(col);
     });
-// @ts-ignore
+
     const table = ttyTable(header, rows, {
         borderStyle: 1,
         paddingTop: 0,
@@ -28,10 +24,11 @@ async function pretty(headerValues, rows) {
         align: 'left',
         defaultValue: ''
     });
+
     console.log(table.render());
 }
-// @ts-ignore
-async function horizontal(rows, opts) {
+
+async function horizontal(rows: any, opts: any) {
     const table = new CliTable(opts);
 
     _.each(rows, (item) => {
@@ -40,24 +37,23 @@ async function horizontal(rows, opts) {
 
     console.log(await table.toString());
 }
-// @ts-ignore
-async function vertical(header, rows, style) {
+
+async function vertical(header: any, rows: any, style: any) {
     _.each(rows, (keys) => {
         const table = new CliTable(style);
+
         console.log(`\n${header} -> ${keys[header]}`);
         _.each(keys, (value, key) => {
-            const val = {};
+            const val: any = {};
             val[key] = value;
-            // @ts-ignore
             table.push(val);
         });
         console.log(table.toString());
     });
 }
-// @ts-ignore
-async function text(headerValues, items) {
-    // @ts-ignore
-    const rows = [];
+
+async function text(headerValues: any, items: any) {
+    const rows: any[] = [];
     _.each(items, (item) => {
         const row = {};
         _.each(headerValues, (headerValue) => {
@@ -65,28 +61,25 @@ async function text(headerValues, items) {
         });
         rows.push(row);
     });
-    // @ts-ignore
+
     console.log(easyTable.print(rows));
 }
 
 /**
-     * Parses the teraslice client endpoint responses into an array used to generate
-     * tables in command line output.
-     *
-     @param {Array} header - Header values to include in output
-     @param {Object} response - Teraslice client response object
-     @param {Boolean} active - When set to true parse values in active list
-     @param {String} id - id value used to filter results by job_id or ex_id
-     @returns {Array} rows - Table content is an array of arrays with
-     *                       each row an element in the array.
+ * Parses the teraslice client endpoint responses into an array used to generate
+ * tables in command line output.
+ *
+ @param {Array} header - Header values to include in output
+ @param {Object} response - Teraslice client response object
+ @param {Boolean} active - When set to true parse values in active list
+ @param {String} id - id value used to filter results by job_id or ex_id
+ @returns {Array} rows - Table content is an array of arrays with
+ *                       each row an element in the array.
 */
-// @ts-ignore
-async function parseResponse(header, response, active = false, id?:string) {
-    // @ts-ignore
-    const rows = [];
+async function parseResponse(header: any, response: any, active = false, id?: string) {
+    const rows: any[] = [];
     _.each(response, (value, key) => {
-        // @ts-ignore
-        let row = [];
+        let row: any[] = [];
         if (active) {
             _.each(response[key].active, (activeValue) => {
                 row = [];
@@ -105,7 +98,6 @@ async function parseResponse(header, response, active = false, id?:string) {
                             row.push(activeValue[item]);
                         }
                     });
-                    // @ts-ignore
                     rows.push(row);
                 }
             });
@@ -117,15 +109,13 @@ async function parseResponse(header, response, active = false, id?:string) {
                     row.push(response[key][item]);
                 }
             });
-            // @ts-ignore
             rows.push(row);
         }
     });
-    // @ts-ignore
     return rows;
 }
 
-export default function module() {
+export default function displayModule() {
     /**
      * Display teraslice responses in a table
      *
@@ -136,8 +126,14 @@ export default function module() {
      @param {Boolean} parse - Set to true to parse response
      @param {String} id - id value used to filter results by job_id or ex_id
      */
-    // @ts-ignore
-    async function display(header, items, type, active? = false, parse? = false, id?:string) {
+    async function display(
+        header: any,
+        items: any,
+        type: any,
+        active = false,
+        parse = false,
+        id?: string
+    ) {
         let rows;
         if (type === 'txt') {
             await text(header, items);
@@ -225,8 +221,8 @@ export default function module() {
             await pretty(header, items);
         }
     }
-    // @ts-ignore
-    async function showPrompt(action, message = '') {
+
+    async function showPrompt(action: string, message = '') {
         const response = await prompts({
             type: 'confirm',
             name: 'continue',
@@ -237,8 +233,8 @@ export default function module() {
 
         return response.continue;
     }
-// @ts-ignore
-    async function setAction(action, tense) {
+
+    async function setAction(action: string, tense: string) {
         if (action === 'stop' && tense === 'past') {
             return 'stopped';
         }

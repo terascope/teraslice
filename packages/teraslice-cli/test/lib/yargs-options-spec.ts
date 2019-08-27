@@ -3,7 +3,7 @@ import _ from 'lodash';
 import Options from '../../src/helpers/yargs-options';
 
 describe('options', () => {
-    let options:any;
+    let options: any;
 
     beforeEach(() => {
         options = new Options();
@@ -46,7 +46,7 @@ describe('options', () => {
     describe('-> buildCoerce', () => {
         test('should build a coerce function', () => {
             options.coerce = {
-                testc: (newValue:string) => _.toUpper(newValue),
+                testc: (newValue: string) => _.toUpper(newValue),
             };
             expect(options.buildCoerce('testc')).toBeDefined();
         });

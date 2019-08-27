@@ -60,7 +60,6 @@ describe('Teraslice Cluster', () => {
     });
 
     describe('->txt', () => {
-
         beforeEach(() => {
             scope = nock('http://teraslice.example.dev/');
         });

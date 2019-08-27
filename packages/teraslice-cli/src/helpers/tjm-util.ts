@@ -7,7 +7,7 @@ export default class TjmUtil {
     client: any;
     job: any;
 
-    constructor(client:any, job:any) {
+    constructor(client: any, job: any) {
         this.client = client;
         this.job = job;
     }

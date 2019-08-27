@@ -79,7 +79,7 @@ describe('Teraslice Job', () => {
         {
             analytics: false,
             assets: [],
-            assetIds:[],
+            assetIds: [],
             lifecycle: 'once',
             max_retries: 3,
             name: 'some_name',
@@ -111,7 +111,7 @@ describe('Teraslice Job', () => {
 
         describe('when constructed with a invalid jobId', () => {
             it('should throw an error', () => {
-                 // @ts-ignore
+                // @ts-ignore
                 expect(() => new Job({}, { invalid: true })).toThrowError('Job requires jobId to be a string');
             });
         });
@@ -227,7 +227,6 @@ describe('Teraslice Job', () => {
     });
 
     describe('->recover', () => {
-
         describe('when called with nothing', () => {
             const data = { id: 'example' };
 
@@ -280,7 +279,6 @@ describe('Teraslice Job', () => {
     describe('->execuction', () => {
         const exJobId = executionResults[0].job_id;
         describe('when called with nothing', () => {
-
             beforeEach(() => {
                 scope.get(`/jobs/${exJobId}/ex`)
                     .reply(200, executionResults);
@@ -294,7 +292,6 @@ describe('Teraslice Job', () => {
         });
 
         describe('when called with options', () => {
-
             beforeEach(() => {
                 scope.get(`/jobs/${exJobId}/ex`)
                     .matchHeader('Some-Header', 'yes')
@@ -394,14 +391,13 @@ describe('Teraslice Job', () => {
             });
 
             it('should resolve json results from Teraslice', async () => {
-                const job =  new Job({ baseUrl }, 'some-job-id');
+                const job = new Job({ baseUrl }, 'some-job-id');
                 const results = await job.config();
                 expect(results).toEqual(data);
             });
         });
 
         describe('when called with with options', () => {
-
             const data = {
                 jobId: 'example-job-id',
                 example: 'job-spec'
@@ -414,7 +410,7 @@ describe('Teraslice Job', () => {
             });
 
             it('should resolve json results from Teraslice', async () => {
-                const job =  new Job({ baseUrl }, 'some-job-id');
+                const job = new Job({ baseUrl }, 'some-job-id');
                 const results = await job.config(requestOptions);
                 expect(results).toEqual(data);
             });
@@ -470,7 +466,6 @@ describe('Teraslice Job', () => {
         });
 
         describe('when called and the state has workers', () => {
-
             beforeEach(() => {
                 scope.get('/cluster/state')
                     .matchHeader('Some-Header', 'yes')
@@ -608,7 +603,11 @@ describe('Teraslice Job', () => {
 
             it('should resolve json results from Teraslice', async () => {
                 const job = new Job({ baseUrl }, 'some-job-id');
-                const results = await job.waitForStatus(ExecutionStatus.running, 1000, 0, searchOptions);
+                const results = await job.waitForStatus(
+                    ExecutionStatus.running,
+                    1000,
+                    0, searchOptions
+                );
                 expect(results).toEqual(data._status);
             });
         });

@@ -1,6 +1,4 @@
-
 import TjmUtil from '../../helpers/tjm-util';
-import _ from 'lodash';
 import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
@@ -11,7 +9,7 @@ const yargsOptions = new YargsOptions();
 export = {
     command: 'restart <job-file>',
     describe: 'Restart a job by referencing the job file',
-    builder (yargs) {
+    builder(yargs) {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));

@@ -7,7 +7,7 @@ import { createTempDirSync } from 'jest-fixtures';
 
 import Aliases from '../../src/helpers/aliases';
 
-let aliases:Aliases;
+let aliases: Aliases;
 
 beforeEach(() => {
     const tmpDir = createTempDirSync();

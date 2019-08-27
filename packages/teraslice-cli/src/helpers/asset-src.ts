@@ -59,7 +59,7 @@ export default class AssetSrc {
      * @param {string} dir - Path to directory containing package.json
      * @param {Array} yarnArgs - Array of arguments or options to be passed to yarn command
      */
-    private _yarnCmd(dir:string, yarnArgs:string[]) {
+    private _yarnCmd(dir: string, yarnArgs: string[]) {
         const yarn = spawnSync('yarn', yarnArgs, { cwd: dir });
 
         if (yarn.status !== 0) {
@@ -114,7 +114,7 @@ export default class AssetSrc {
      * zip - Creates properly named zip archive of asset from tmpAssetDir
      * @param {string} tmpAssetDir Path to the temporary asset source directory
      */
-    static zip(tmpAssetDir:string, outputFileName:string): Promise<ZipResults> {
+    static zip(tmpAssetDir: string, outputFileName: string): Promise<ZipResults> {
         const zipMessage = { bytes: '', success: '' };
 
         return new Promise((resolve, reject) => {
@@ -129,7 +129,7 @@ export default class AssetSrc {
                 resolve(zipMessage);
             });
 
-            archive.on('error', (err:any) => {
+            archive.on('error', (err: any) => {
                 reject(err);
             });
 

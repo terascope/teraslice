@@ -23,14 +23,14 @@ describe('Teraslice Assets', () => {
 
     const date = new Date();
 
-    const assetVersion1:Asset = {
+    const assetVersion1: Asset = {
         id: 'someId',
         version: '1.0',
         name: 'iAmAnAsset',
         _created: date.toISOString()
     };
 
-    const assetVersion2:Asset = {
+    const assetVersion2: Asset = {
         id: 'someId',
         version: '2.0',
         name: 'iAmAnAsset',
@@ -38,7 +38,6 @@ describe('Teraslice Assets', () => {
     };
 
     describe('->post', () => {
-
         describe('when called with nothing', () => {
             it('should reject with asset stream validation error', async () => {
                 expect.hasAssertions();
@@ -161,7 +160,7 @@ describe('Teraslice Assets', () => {
         });
 
         describe('when called with asset name', () => {
-            const name = assetVersion1.name;
+            const { name } = assetVersion1;
 
             beforeEach(() => {
                 scope.get(`/assets/${name}`)
@@ -175,8 +174,8 @@ describe('Teraslice Assets', () => {
         });
 
         describe('when called with asset name and version', () => {
-            const name = assetVersion1.name;
-            const version = assetVersion1.version;
+            const { name } = assetVersion1;
+            const { version } = assetVersion1;
 
             beforeEach(() => {
                 scope.get(`/assets/${name}/${version}`)
@@ -203,8 +202,8 @@ describe('Teraslice Assets', () => {
 
         describe('when called with asset name, version and options', () => {
             const searchOptions = { headers: { 'Some-Header': 'yes' } };
-            const name = assetVersion1.name;
-            const version = assetVersion1.version;
+            const { name } = assetVersion1;
+            const { version } = assetVersion1;
 
             beforeEach(() => {
                 scope.get(`/assets/${name}/${version}`)
@@ -251,7 +250,7 @@ describe('Teraslice Assets', () => {
         });
 
         describe('when called with asset name', () => {
-            const name = assetVersion1.name;
+            const { name } = assetVersion1;
 
             beforeEach(() => {
                 scope.get(`/txt/assets/${name}`)
@@ -265,8 +264,8 @@ describe('Teraslice Assets', () => {
         });
 
         describe('when called with asset name and version', () => {
-            const name = assetVersion1.name;
-            const version = assetVersion1.version;
+            const { name } = assetVersion1;
+            const { version } = assetVersion1;
 
             beforeEach(() => {
                 scope.get(`/txt/assets/${name}/${version}`)
@@ -292,8 +291,8 @@ describe('Teraslice Assets', () => {
         });
 
         describe('when called with asset name, version and options', () => {
-            const name = assetVersion1.name;
-            const version = assetVersion1.version;
+            const { name } = assetVersion1;
+            const { version } = assetVersion1;
             const queryParams = { size: 10, from: 2, sort: '_updated:desc' };
 
             beforeEach(() => {
@@ -311,8 +310,8 @@ describe('Teraslice Assets', () => {
         describe('when called with asset name, version and options and request options', () => {
             const searchOptions = { headers: { 'Some-Header': 'yes' } };
             const queryParams = { size: 10, from: 2, sort: '_updated:desc' };
-            const name = assetVersion1.name;
-            const version = assetVersion1.version;
+            const { name } = assetVersion1;
+            const { version } = assetVersion1;
 
             beforeEach(() => {
                 scope.get(`/txt/assets/${name}/${version}`)

@@ -1,5 +1,4 @@
 import { CMD } from '../../interfaces';
-import _ from 'lodash';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 import TerasliceUtil from '../../helpers/teraslice-util';
@@ -14,7 +13,7 @@ const yargsOptions = new YargsOptions();
 export = {
     command: 'list <cluster-alias> [id]',
     describe: 'List the workers in a cluster\n',
-    builder(yargs:any) {
+    builder(yargs: any) {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
         yargs.strict()

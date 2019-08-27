@@ -24,7 +24,6 @@ function deprecateMethod(fn: GetFn) {
 }
 
 export default class Assets extends Client {
-
     constructor(config: ClientConfig) {
         super(config);
         this.get = deprecateMethod(this.get);
@@ -44,7 +43,10 @@ export default class Assets extends Client {
         return this.parse(results);
     }
 
-    async list(query: SearchQuery = {}, searchOptions: SearchOptions = {}):Promise<AssetsGetResponse> {
+    async list(
+        query: SearchQuery = {},
+        searchOptions: SearchOptions = {}
+    ): Promise<AssetsGetResponse> {
         const options = Object.assign({}, searchOptions, { query });
         return super.get('/assets', options);
     }
@@ -54,7 +56,7 @@ export default class Assets extends Client {
         return super.get(pathing);
     }
 
-    async getAsset(name: string, version: string = '', searchOptions: SearchOptions = {}):Promise<AssetsGetResponse> {
+    async getAsset(name: string, version: string = '', searchOptions: SearchOptions = {}): Promise<AssetsGetResponse> {
         if (!name || !isString(name)) throw new TSError('name is required, and must be of type string');
         if (version && !isString(version)) throw new TSError('version if provided must be of type string');
         const pathing = path.join('/assets', name, version);
@@ -66,8 +68,7 @@ export default class Assets extends Client {
         version: string = '',
         query: TxtSearchParams = {},
         searchOptions: SearchOptions = {}
-        ):Promise<AssetsGetResponse> {
-
+    ): Promise<AssetsGetResponse> {
         if (name && !isString(name)) throw new TSError('name must be of type string');
         if (version && !isString(version)) throw new TSError('version must be of type string');
 
