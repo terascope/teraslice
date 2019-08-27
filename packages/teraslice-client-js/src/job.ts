@@ -157,7 +157,6 @@ export default class Job extends Client {
             // watching for these then we need to stop waiting as the job
             // status won't change further.
             if (terminal[result]) {
-                // tslint:disable-next-line:max-line-length
                 throw new TSError(
                     `Job cannot reach the target status, "${target}", because it is in the terminal state, "${result}"`,
                     { context: { lastStatus: result } }

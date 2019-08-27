@@ -1,5 +1,6 @@
 'use strict';
 
+require('./lib/patch-eslint6');
 const { rules } = require('./lib');
 
 module.exports = {
