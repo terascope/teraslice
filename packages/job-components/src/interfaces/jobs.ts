@@ -97,6 +97,8 @@ export interface ExecutionConfig extends ValidatedJobConfig {
     job_id: string;
     slicer_hostname: string;
     slicer_port: number;
+    recovered_execution?: string;
+    recovered_slice_type?: 'all' | 'errors';
 }
 
 /**

@@ -2,7 +2,9 @@
 
 /* eslint-disable no-console */
 
-const teraslice = require('../index')({
+const { TerasliceClient } = require('teraslice-client-js');
+
+const client = new TerasliceClient({
     host: 'http://localhost:5678'
 });
 
@@ -28,11 +30,11 @@ const exampleJob = {
     ]
 };
 
-teraslice.jobs.submit(exampleJob)
+client.jobs.submit(exampleJob)
     .then((job) => {
         console.log(job.id());
 
-        const job2 = teraslice.jobs.wrap(job.id());
+        const job2 = client.jobs.wrap(job.id());
         job2.status().then(console.log);
 
         console.log('Waiting for the job to finish.');

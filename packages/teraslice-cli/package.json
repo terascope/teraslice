@@ -1,6 +1,6 @@
 {
     "name": "teraslice-cli",
-    "version": "0.7.2",
+    "version": "0.8.0",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "teraslice"
@@ -12,17 +12,33 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
-    "main": "index.js",
+    "files": [
+        "bin/**/*",
+        "dist/src/**/*"
+    ],
+    "main": "dist/src/command.js",
+    "typings": "dist/src/index.d.ts",
     "bin": {
-        "earl": "./index.js",
-        "teraslice-cli": "./index.js"
+        "earl": "bin/teraslice-cli.js",
+        "teraslice-cli": "bin/teraslice-cli.js"
+    },
+    "directories": {
+        "lib": "dist/src",
+        "test": "test"
     },
     "scripts": {
+        "build": "tsc --build --pretty",
+        "build:watch": "yarn build --watch",
+        "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
+        "lint:fix": "yarn lint --fix",
+        "prepublishOnly": "yarn build",
         "test": "ts-scripts test . --",
-        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
+        "test:debug": "ts-scripts test --debug . --",
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
         "@terascope/fetch-github-release": "^0.6.0",
+        "@terascope/utils": "0.16.1",
         "archiver": "^3.0.0",
         "bluebird": "^3.5.5",
         "chalk": "^2.4.2",
@@ -35,7 +51,8 @@
         "prompts": "^2.1.0",
         "request": "^2.88.0",
         "request-promise": "^4.2.4",
-        "teraslice-client-js": "^0.7.2",
+        "signale": "^1.4.0",
+        "teraslice-client-js": "^0.8.0",
         "tmp": "^0.1.0",
         "tty-table": "^2.7.4",
         "yargs": "^13.2.4",
@@ -44,6 +61,15 @@
         "yo": "^3.1.0"
     },
     "devDependencies": {
+        "@types/archiver": "^3.0.0",
+        "@types/easy-table": "^0.0.32",
+        "@types/prompts": "^2.0.1",
+        "@types/signale": "^1.2.1",
+        "@types/tmp": "^0.1.0",
+        "@types/yargs": "^13.0.0",
+        "@types/yeoman-assert": "^3.1.1",
+        "@types/yeoman-environment": "^2.3.2",
+        "@types/yeoman-generator": "^3.1.4",
         "jest-fixtures": "^0.6.0",
         "yeoman-assert": "^3.1.1",
         "yeoman-test": "^2.0.0"
@@ -58,7 +84,9 @@
             "generators/**/templates/*"
         ]
     },
+    "srcMain": "src/index.ts",
     "terascope": {
-        "testSuite": "unit"
+        "testSuite": "unit",
+        "enableTypedoc": true
     }
 }

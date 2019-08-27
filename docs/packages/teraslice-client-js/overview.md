@@ -17,9 +17,11 @@ npm install --save teraslice-client-js
 ## Job submission example
 
 ```js
-var teraslice = require('teraslice-client-js')({
+const { TerasliceClient } = require('teraslice-client-js');
+
+const teraslice = new TerasliceClient({
     host: 'http://localhost:5678'
-});
+})
 
 var job = {
   "name": "Data Generator",

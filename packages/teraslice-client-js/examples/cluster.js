@@ -2,10 +2,12 @@
 
 /* eslint-disable no-console */
 
-const teraslice = require('../index')({
+const { TerasliceClient } = require('teraslice-client-js');
+
+const client = new TerasliceClient({
     host: 'http://localhost:5678'
 });
 
-teraslice.cluster.state().then(console.log);
+client.cluster.state().then(console.log);
 
-teraslice.cluster.controllers().then(console.log);
+client.cluster.controllers().then(console.log);

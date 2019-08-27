@@ -24,6 +24,7 @@ e2e/autoload
 e2e/.config
 packages/**/dist
 packages/**/build
-packages/teraslice-cli/generators/*/templates
+packages/teraslice-cli/src/generators/*/templates
 packages/xlucene-evaluator/peg/peg-engine.js
+
 website

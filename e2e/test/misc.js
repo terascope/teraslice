@@ -5,7 +5,7 @@ const path = require('path');
 const fse = require('fs-extra');
 const Promise = require('bluebird');
 const nanoid = require('nanoid/generate');
-const TerasliceClient = require('teraslice-client-js');
+const { TerasliceClient } = require('teraslice-client-js');
 const ElasticsearchClient = require('elasticsearch').Client;
 
 const {
@@ -42,7 +42,7 @@ const es = _.memoize(
     })
 );
 
-const teraslice = _.memoize(() => TerasliceClient({
+const teraslice = _.memoize(() => new TerasliceClient({
     host: `http://${HOST_IP}:45678`,
     timeout: 2 * 60 * 1000
 }));
