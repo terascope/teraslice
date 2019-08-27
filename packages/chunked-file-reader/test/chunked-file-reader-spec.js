@@ -88,7 +88,7 @@ describe('The chunked file reader', () => {
         ]);
         getChunk(reader, slice, ldjsonOpConfig, logger, metadata)
             .then((data) => {
-                expect(data).toEqual([{ test4: 'data' }, null, { test6: 'data' }]);
+                expect(data).toEqual([{ test4: 'data' }, { test6: 'data' }]);
                 done();
             });
     });
@@ -144,7 +144,7 @@ describe('The chunked file reader', () => {
         ]);
         getChunk(reader, slice, ldjsonOpConfig, logger, metadata)
             .then((data) => {
-                expect(data).toEqual([{ t1: 'd' }, { t2: 'd' }, null]);
+                expect(data).toEqual([{ t1: 'd' }, { t2: 'd' }]);
                 done();
             });
     });
@@ -215,7 +215,6 @@ describe('The chunked file reader', () => {
         getChunk(reader, slice, csvOpConfig, logger, metadata)
             .then((data) => {
                 expect(data).toEqual([
-                    null,
                     {
                         data1: '42', data2: '43', data3: '44', data4: '45', data5: '46'
                     }
