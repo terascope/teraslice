@@ -22,6 +22,10 @@ function queryComplexity(obj: ComplexityEstimatorArgs) {
     return 0;
 }
 
+function formatNumber(num:number) {
+    return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+}
+
 // https://github.com/slicknode/graphql-query-complexity/issues/7
 export default function makeComplexityPlugin(logger: Logger, complexitySize: number, schema: any, userId: string): ApolloServerPlugin {
     return {
@@ -41,7 +45,8 @@ export default function makeComplexityPlugin(logger: Logger, complexitySize: num
                 if (complexity >= complexitySize) {
                     logger.error(`user : ${userId} has tried to query with a query complexity of ${complexity} \n${request.query}`);
                     const error = new TSError(
-                        `The query was rejected due to its complexity score: ${complexity}, please reduce the size on the queries/joins`,
+                        // tslint:disable-next-line:max-line-length
+                        `The query was rejected due to its complexity score: ${formatNumber(complexity)}. Please reduce the "size" parameter on the queries/joins`,
                         { statusCode: 422 }
                     );
                     throw formatError(error);
