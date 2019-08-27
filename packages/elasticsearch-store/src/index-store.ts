@@ -395,7 +395,7 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
     async updatePartial(
         id: string,
         applyChanges: ApplyPartialUpdates<T>,
-        retriesOnConlfict: number = 3
+        retriesOnConlfict = 3
     ): Promise<void> {
         return this._updatePartial(id, applyChanges, retriesOnConlfict);
     }
@@ -403,7 +403,7 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
     private async _updatePartial(
         id: string,
         applyChanges: ApplyPartialUpdates<T>,
-        retries: number = 3
+        retries = 3
     ): Promise<void> {
         try {
             const existing = await this.get(id);

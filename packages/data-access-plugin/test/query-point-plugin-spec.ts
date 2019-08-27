@@ -6,7 +6,10 @@ import { GraphQLClient } from 'graphql-request';
 import { TestContext } from '@terascope/job-components';
 import { LATEST_VERSION, TypeConfigFields } from '@terascope/data-types';
 import {
-    makeClient, cleanupIndexes, deleteIndices, populateIndex
+    makeClient,
+    cleanupIndexes,
+    deleteIndices,
+    populateIndex
 } from './helpers/elasticsearch';
 import { TEST_INDEX_PREFIX } from './helpers/config';
 import QueryPointPlugin from '../src/query-point';
@@ -52,7 +55,7 @@ describe('Query Point API', () => {
     const spaces = new QueryPointPlugin(pluginConfig);
     const search = new SearchPlugin(pluginConfig);
 
-    function formatBaseUri(uri: string = ''): string {
+    function formatBaseUri(uri = ''): string {
         // @ts-ignore because the types aren't set right
         const { port } = listener.address();
 

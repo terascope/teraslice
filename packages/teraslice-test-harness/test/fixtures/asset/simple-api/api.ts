@@ -5,10 +5,10 @@ export default class SimpleOperationAPI extends OperationAPI<SimpleAPIConfig> {
     async createAPI() {
         return {
             count: 0,
-            add(n: number = 1) {
+            add(n = 1) {
                 this.count += n;
             },
-            sub(n: number = 1) {
+            sub(n = 1) {
                 this.count += n;
             },
         } as SimpleAPI;

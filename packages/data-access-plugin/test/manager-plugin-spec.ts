@@ -54,7 +54,7 @@ describe('Data Access Management', () => {
     const manager = new ManagerPlugin(pluginConfig);
     const search = new SearchPlugin(pluginConfig);
 
-    function formatBaseUri(uri: string = ''): string {
+    function formatBaseUri(uri = ''): string {
         // @ts-ignore because the types aren't set right
         const { port } = listener.address();
 

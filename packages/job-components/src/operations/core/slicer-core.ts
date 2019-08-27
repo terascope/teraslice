@@ -83,7 +83,7 @@ export default abstract class SlicerCore<T = OpConfig>
      * In the case of recovery the "Slice" already has the required
      * This will be enqueued and dequeued by the "Execution Controller"
      */
-    createSlice(input: Slice | SliceRequest, order: number, id: number = 0) {
+    createSlice(input: Slice | SliceRequest, order: number, id = 0) {
         // recovery slices already have correct meta data
         if (input.slice_id) {
             this.queue.enqueue(input as Slice);

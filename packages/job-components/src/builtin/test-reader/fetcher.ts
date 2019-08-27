@@ -9,7 +9,7 @@ import defaultData from './data/fetcher-data';
 
 export default class TestFetcher extends Fetcher<TestReaderConfig> {
     cachedData: Buffer|null = null;
-    lastFilePath: string = '';
+    lastFilePath = '';
 
     async initialize() {
         super.initialize();

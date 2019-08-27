@@ -574,7 +574,7 @@ describe('elasticsearch-state-storage', () => {
     });
 });
 
-function makeTestDocs(records: number = 3): DataEntity[] {
+function makeTestDocs(records = 3): DataEntity[] {
     return times(records, (n) => DataEntity.make({
         data: `data-${n}`
     }, {

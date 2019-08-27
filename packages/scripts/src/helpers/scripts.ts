@@ -50,7 +50,7 @@ function _exec(opts: ExecOpts) {
     return subprocess;
 }
 
-export async function exec(opts: ExecOpts, log: boolean = true): Promise<string> {
+export async function exec(opts: ExecOpts, log = true): Promise<string> {
     try {
         const env: ExecEnv = { FORCE_COLOR: '0', ...opts.env };
         const _opts = { ...opts };
@@ -179,7 +179,7 @@ export type DockerRunOptions = {
     env?: ExecEnv;
 };
 
-export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): Promise<() => void> {
+export async function dockerRun(opt: DockerRunOptions, tag = 'latest'): Promise<() => void> {
     const args: string[] = ['run', '--rm'];
     if (!opt.image) {
         throw new Error('Missing required image option');

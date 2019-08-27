@@ -9,7 +9,7 @@ import * as i from './interfaces';
 const _logger = debugLogger('teraslice-messaging:core');
 
 export class Core extends EventEmitter {
-    public closed: boolean = false;
+    public closed = false;
 
     protected networkLatencyBuffer: number;
     protected actionTimeout: number;

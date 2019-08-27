@@ -46,8 +46,7 @@ describe('TeraserverAdapterPlugin', () => {
         const pluginConfig: PluginConfig = {
             elasticsearch: client,
             url_base: '',
-            // @ts-ignore
-            app: { all() {} },
+            app: { all() {} } as any,
             context,
             logger: context.logger,
             server_config: {

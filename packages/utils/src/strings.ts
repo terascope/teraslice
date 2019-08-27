@@ -27,7 +27,7 @@ export function trimAndToUpper(input?: string): string {
 }
 
 /** Escape characters in string and avoid double escaping */
-export function escapeString(str: string = '', chars: string[]): string {
+export function escapeString(str = '', chars: string[]): string {
     const len = str.length;
     let escaped = '';
 
@@ -45,7 +45,7 @@ export function escapeString(str: string = '', chars: string[]): string {
 }
 
 /** Unescape characters in string and avoid double escaping */
-export function unescapeString(str: string = ''): string {
+export function unescapeString(str = ''): string {
     const len = str.length;
     let unescaped = '';
 

@@ -18,6 +18,7 @@ module.exports = Object.assign({}, jsRules, {
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/explicit-member-accessibility': 'off',
+    '@typescript-eslint/no-empty-function': 'off',
     // we SHOULD really have this but we've become depedent on it
     '@typescript-eslint/ban-ts-ignore': 'off',
 

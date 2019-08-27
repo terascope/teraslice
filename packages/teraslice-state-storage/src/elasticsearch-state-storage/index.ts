@@ -48,7 +48,7 @@ export default class ESCachedStateStorage {
         return this.cache.count();
     }
 
-    getIdentifier(doc: DataEntity, metaKey: string = '_key'): string {
+    getIdentifier(doc: DataEntity, metaKey = '_key'): string {
         const key = doc.getMetadata(metaKey);
         if (key === '' || key == null) {
             throw new TSError(`There is no field "${metaKey}" set in the metadata`, {

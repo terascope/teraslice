@@ -56,7 +56,7 @@ export default class Assets extends Client {
         return super.get(pathing);
     }
 
-    async getAsset(name: string, version: string = '', searchOptions: SearchOptions = {}): Promise<AssetsGetResponse> {
+    async getAsset(name: string, version = '', searchOptions: SearchOptions = {}): Promise<AssetsGetResponse> {
         if (!name || !isString(name)) throw new TSError('name is required, and must be of type string');
         if (version && !isString(version)) throw new TSError('version if provided must be of type string');
         const pathing = path.join('/assets', name, version);
@@ -64,8 +64,8 @@ export default class Assets extends Client {
     }
 
     async txt(
-        name: string = '',
-        version: string = '',
+        name = '',
+        version = '',
         query: TxtSearchParams = {},
         searchOptions: SearchOptions = {}
     ): Promise<AssetsGetResponse> {

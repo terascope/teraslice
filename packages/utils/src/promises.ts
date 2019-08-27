@@ -11,7 +11,7 @@ import {
 const logger = debugLogger('utils:promises');
 
 /** promisified setTimeout */
-export const pDelay = (delay: number = 1) => new Promise((resolve) => {
+export const pDelay = (delay = 1) => new Promise((resolve) => {
     setTimeout(resolve, delay);
 });
 
@@ -243,7 +243,7 @@ export async function pWhile(fn: PromiseFn, options: PWhileOptions = {}): Promis
  */
 export function getBackoffDelay(
     current: number,
-    factor: number = 2,
+    factor = 2,
     max = 60000,
     min = 500
 ): number {
