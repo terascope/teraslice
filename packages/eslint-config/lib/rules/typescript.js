@@ -9,6 +9,7 @@ module.exports = Object.assign({}, jsRules, {
     '@typescript-eslint/no-object-literal-type-assertion': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
+    // we should enable this in the future
     // '@typescript-eslint/explicit-function-return-type': ['warn', {
     //     allowHigherOrderFunctions: true,
     //     allowExpressions: true,
@@ -17,12 +18,14 @@ module.exports = Object.assign({}, jsRules, {
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/explicit-member-accessibility': 'off',
+    // we SHOULD really have this but we've become depedent on it
+    '@typescript-eslint/ban-ts-ignore': 'off',
 
     // https://github.com/typescript-eslint/typescript-eslint/issues/291
     'no-dupe-class-members': 'off',
     'lines-between-class-members': 'off',
 
-    // The following rules make compatibility between eslint and typescript
+    // The following rules make compatibility between eslint rules and typescript rules
     'consistent-return': 'off',
     indent: 'off',
     '@typescript-eslint/indent': ['error', INDENT],

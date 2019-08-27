@@ -18,7 +18,6 @@
     "dependencies": {
         "@typescript-eslint/eslint-plugin": "^2.0.0",
         "@typescript-eslint/parser": "^2.0.0",
-        "eslint": "^6.2.2",
         "eslint-config-airbnb": "^18.0.1",
         "eslint-config-airbnb-base": "^14.0.0",
         "eslint-plugin-import": "^2.18.2",
@@ -27,6 +26,9 @@
         "eslint-plugin-react-hooks": "^1.7.0"
     },
     "devDependencies": {},
+    "peerDependencies": {
+        "eslint": "^6.2.2"
+    },
     "publishConfig": {
         "access": "public"
     },
