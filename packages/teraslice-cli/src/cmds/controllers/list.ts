@@ -1,14 +1,14 @@
 
 import { CMD } from '../../interfaces';
-import Config from '../../lib/config';
+import Config from '../../helpers/config';
 import displayModule from '../lib/display';
-import TerasliceUtil from  '../../lib/teraslice-util';
-import YargsOptions from '../../lib/yargs-options';
+import TerasliceUtil from  '../../helpers/teraslice-util';
+import YargsOptions from '../../helpers/yargs-options';
 
 const yargsOptions = new YargsOptions();
 const display = displayModule();
 
-export default {
+export = {
     command: 'list <cluster-alias>',
     describe: 'List controller(s) on a cluster.\n',
     builder(yargs) {

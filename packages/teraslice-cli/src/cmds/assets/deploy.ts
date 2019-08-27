@@ -7,19 +7,19 @@ import path from 'path';
 import fs from 'fs-extra';
 import _ from 'lodash';
 
-import AssetSrc from '../../lib/asset-src';
-import GithubAsset from '../../lib/github-asset';
+import AssetSrc from '../../helpers/asset-src';
+import GithubAsset from '../../helpers/github-asset';
 
 import { CMD } from '../../interfaces';
 import Reply from '../lib/reply';
-import Config from '../../lib/config';
-import YargsOptions from '../../lib/yargs-options';
-import { getTerasliceClient } from '../../lib/utils';
+import Config from '../../helpers/config';
+import YargsOptions from '../../helpers/yargs-options';
+import { getTerasliceClient } from '../../helpers/utils';
 
 const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
-export default {
+export = {
     command: 'deploy <cluster-alias> [<asset>]',
     describe: 'Uploads asset from zipfile, github, or source to Teraslice\n',
     builder(yargs) {

@@ -1,8 +1,8 @@
 
 import { CMD } from '../../interfaces';
-import Config from '../../lib/config';
-import TerasliceUtil from '../../lib/teraslice-util';
-import YargsOptions from '../../lib/yargs-options';
+import Config from '../../helpers/config';
+import TerasliceUtil from '../../helpers/teraslice-util';
+import YargsOptions from '../../helpers/yargs-options';
 import Reply from '../lib/reply';
 import displayModule from '../lib/display';
 
@@ -10,7 +10,7 @@ const reply = new Reply();
 const display = displayModule();
 const yargsOptions = new YargsOptions();
 
-export default {
+export = {
     command: 'list <cluster-alias>',
     describe: 'List the executions ids on the teraslice cluster.\n',
     builder(yargs) {

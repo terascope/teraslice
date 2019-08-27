@@ -1,14 +1,14 @@
 
 import _ from 'lodash';
-import JobSrc from '../../lib/job-src';
+import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
-import YargsOptions from '../../lib/yargs-options';
+import YargsOptions from '../../helpers/yargs-options';
 import Reply from '../lib/reply';
 
 const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
-export default {
+export = {
     command: 'init <job-file>',
     describe: 'Create a new job file with example job definitions',
     builder (yargs) {

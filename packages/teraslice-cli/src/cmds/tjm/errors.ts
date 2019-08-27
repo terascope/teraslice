@@ -1,16 +1,16 @@
 
 import _ from 'lodash';
-import JobSrc from '../../lib/job-src';
+import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
-import YargsOptions from '../../lib/yargs-options';
+import YargsOptions from '../../helpers/yargs-options';
 import Reply from '../lib/reply';
-import { getTerasliceClient } from '../../lib/utils';
+import { getTerasliceClient } from '../../helpers/utils';
 
 const reply = new Reply();
 
 const yargsOptions = new YargsOptions();
 
-export default {
+export = {
     command: 'errors <job-file>',
     describe: 'View errors of a job by referencing the job file',
     builder (yargs) {

@@ -1,5 +1,5 @@
 
-import GithubAsset from '../../src/lib/github-asset';
+import GithubAsset from '../../src/helpers/github-asset';
 
 describe('GithubAsset', () => {
     let config:any;

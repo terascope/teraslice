@@ -1,11 +1,11 @@
 
-import Config from '../../lib/config';
-import YargsOptions from '../../lib/yargs-options';
+import Config from '../../helpers/config';
+import YargsOptions from '../../helpers/yargs-options';
 import { CMD } from '../../interfaces';
 
 const yargsOptions = new YargsOptions();
 
-export default {
+export = {
     command: 'list',
     describe: 'List the clusters defined in the config file.\n',
     exclude: 'lib',

@@ -1,17 +1,17 @@
 
 import _ from 'lodash';
-import Config from '../../lib/config';
-import TjmUtil from '../../lib/tjm-util';
-import { getTerasliceClient } from '../../lib/utils';
-import JobSrc from '../../lib/job-src';
+import Config from '../../helpers/config';
+import TjmUtil from '../../helpers/tjm-util';
+import { getTerasliceClient } from '../../helpers/utils';
+import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
-import YargsOptions from '../../lib/yargs-options';
+import YargsOptions from '../../helpers/yargs-options';
 import Reply from '../lib/reply';
 
 const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
-export default {
+export = {
     command: 'register <cluster-alias> <job-file>',
     describe: 'Register a job to a cluster from a job file',
     aliases: ['reg'],

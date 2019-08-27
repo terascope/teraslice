@@ -1,6 +1,6 @@
 
 import os from 'os';
-import Url from '../lib/url';
+import Url from './url';
 
 const homeDir = os.homedir();
 

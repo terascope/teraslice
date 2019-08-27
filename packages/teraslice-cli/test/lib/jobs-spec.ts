@@ -1,6 +1,6 @@
 
 import path from 'path';
-import Jobs from '../../src/lib/jobs';
+import Jobs from '../../src/helpers/jobs';
 
 describe('jobs', () => {
     let cliArgs;

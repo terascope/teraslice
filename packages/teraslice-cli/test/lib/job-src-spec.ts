@@ -2,8 +2,10 @@
 import path from 'path';
 import fs from 'fs-extra';
 import { createTempDirSync } from 'jest-fixtures';
-import JobSrc from '../../src/lib/job-src';
-import { version } from '../../package.json';
+import JobSrc from '../../src/helpers/job-src';
+import { getPackage } from '../../src/helpers/utils';
+
+const { version }  = getPackage();
 
 describe('JobSrc', () => {
     let jobFile:any;

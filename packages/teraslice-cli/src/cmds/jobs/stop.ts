@@ -1,15 +1,15 @@
 
 import { CMD } from '../../interfaces';
 import _ from 'lodash';
-import Config from '../../lib/config';
-import YargsOptions from '../../lib/yargs-options';
-import Jobs from '../../lib/jobs';
+import Config from '../../helpers/config';
+import YargsOptions from '../../helpers/yargs-options';
+import Jobs from '../../helpers/jobs';
 import Reply from '../lib/reply';
 
 const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
-export default {
+export = {
     // TODO: is it [id] or <id>
     command: 'stop <cluster-alias> [id]',
     describe: 'stops job(s) running or failing on the cluster, saves running job(s) to a json file.\n',

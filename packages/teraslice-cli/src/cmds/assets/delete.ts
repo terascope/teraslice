@@ -1,15 +1,15 @@
 
 import { CMD } from '../../interfaces';
 import Reply from '../lib/reply';
-import Config from '../../lib/config';
-import YargsOptions from '../../lib/yargs-options';
+import Config from '../../helpers/config';
+import YargsOptions from '../../helpers/yargs-options';
 import _ from 'lodash';
-import { getTerasliceClient } from '../../lib/utils';
+import { getTerasliceClient } from '../../helpers/utils';
 
 const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
-export default {
+export = {
     command: 'delete <cluster-alias> <asset-id>',
     describe: 'Delete asset from cluster.\n',
     builder(yargs) {

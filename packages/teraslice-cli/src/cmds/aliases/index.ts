@@ -1,7 +1,7 @@
 
 import { CMD } from '../../interfaces';
 
-export default {
+export = {
     command: 'aliases <command>',
     describe: 'commands to add and remove cluster aliases',
     exclude: 'lib',

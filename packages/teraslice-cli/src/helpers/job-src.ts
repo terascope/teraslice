@@ -3,7 +3,9 @@ import fs from 'fs-extra';
 import path from 'path';
 import _ from 'lodash';
 import Reply from '../cmds/lib/reply';
-import { version } from '../../package.json';
+import { getPackage } from '../../src/helpers/utils';
+
+const { version }  = getPackage();
 const reply = new Reply();
 
 // TODO: relook into this use!!!!!!!!!!!!!!

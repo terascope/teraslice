@@ -1,6 +1,6 @@
 
 import _ from 'lodash';
-import Options from '../../src/lib/yargs-options';
+import Options from '../../src/helpers/yargs-options';
 
 describe('options', () => {
     let options:any;

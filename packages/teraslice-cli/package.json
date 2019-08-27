@@ -16,7 +16,7 @@
         "bin/**/*",
         "dist/src/**/*"
     ],
-    "main": "dist/src/index.js",
+    "main": "dist/src/command.js",
     "typings": "dist/src/index.d.ts",
     "bin": {
         "earl": "bin/teraslice-cli.js",

@@ -1,7 +1,7 @@
 
 import { CMD } from '../../interfaces';
 
-export default {
+export = {
     command: 'jobs',
     describe: 'commands to manage job',
     exclude: 'lib',

@@ -1,13 +1,13 @@
 
 import { CMD } from '../../interfaces';
 import replyModule from '../lib/reply';
-import Config from '../../lib/config';
-import YargsOptions from '../../lib/yargs-options';
+import Config from '../../helpers/config';
+import YargsOptions from '../../helpers/yargs-options';
 
 const reply = new replyModule();
 const yargsOptions = new YargsOptions();
 
-export default {
+export = {
     command: 'update <cluster-alias> <new-cluster-url>',
     describe: 'Update an alias to the clusters defined in the config file.\n',
     exclude: 'lib',

@@ -1,15 +1,15 @@
 
 import _ from 'lodash';
-import JobSrc from '../../lib/job-src';
+import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
-import YargsOptions from '../../lib/yargs-options';
+import YargsOptions from '../../helpers/yargs-options';
 import Reply from '../lib/reply';
 
 const reply = new Reply();
 
 const yargsOptions = new YargsOptions();
 
-export default {
+export = {
     command: 'convert <job-file>',
     describe: 'Converts job files that used the previous version of tjm to be compatable with teraslice-cli\n',
     builder (yargs) {

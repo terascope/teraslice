@@ -1,9 +1,9 @@
 
 import { CMD } from '../../interfaces';
 import Reply from '../lib/reply';
-import Config from '../../lib/config';
-import YargsOptions from '../../lib/yargs-options';
-import { getTerasliceClient } from '../../lib/utils';
+import Config from '../../helpers/config';
+import YargsOptions from '../../helpers/yargs-options';
+import { getTerasliceClient } from '../../helpers/utils';
 import displayModule from '../lib/display';
 
 const display = displayModule();
@@ -11,7 +11,7 @@ const display = displayModule();
 const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
-export default {
+export = {
     command: 'list <cluster-alias>',
     describe: 'List assets on a cluster.\n',
     builder(yargs) {

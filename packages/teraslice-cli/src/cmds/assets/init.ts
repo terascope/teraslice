@@ -4,8 +4,8 @@ import path from 'path';
 import fs from 'fs-extra';
 import yeoman from 'yeoman-environment';
 
-import Config from '../../lib/config';
-import YargsOptions from '../../lib/yargs-options';
+import Config from '../../helpers/config';
+import YargsOptions from '../../helpers/yargs-options';
 import Reply from '../lib/reply';
 import newProcessor from '../../generators/new-processor';
 import newAsset from '../../generators/new-asset';
@@ -24,7 +24,7 @@ env.registerStub(newAsset, 'new-asset', path.join(
     __dirname, '../../generators/new-asset/index.js'
 ));
 
-export default {
+export = {
     command: 'init',
     // tslint:disable-next-line:max-line-length
     describe: 'Creates a new asset bundle or asset processor.  If called without --processor it builds the whole asset in the current directory.  Used with the --processor it adds an asset to the ./asset dir',

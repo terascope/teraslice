@@ -1,8 +1,8 @@
 
 import { CMD } from '../../interfaces';
-import Config from '../../lib/config';
-import TerasliceUtil from  '../../lib/teraslice-util';
-import YargsOptions from '../../lib/yargs-options';
+import Config from '../../helpers/config';
+import TerasliceUtil from  '../../helpers/teraslice-util';
+import YargsOptions from '../../helpers/yargs-options';
 import Reply from '../lib/reply';
 import displayModule from '../lib/display';
 
@@ -11,7 +11,7 @@ const display = displayModule();
 
 const yargsOptions = new YargsOptions();
 
-export default {
+export = {
     command: 'stats <cluster-alias> [id]',
     describe: 'Show stats of the controller(s) on a cluster.\n',
     builder (yargs) {

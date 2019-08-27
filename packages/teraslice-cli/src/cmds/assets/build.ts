@@ -1,13 +1,13 @@
-import AssetSrc from '../../lib/asset-src';
+import AssetSrc from '../../helpers/asset-src';
 import { CMD } from '../../interfaces';
 import Reply from '../lib/reply';
-import Config from '../../lib/config';
-import YargsOptions from '../../lib/yargs-options';
+import Config from '../../helpers/config';
+import YargsOptions from '../../helpers/yargs-options';
 
 const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
-export default {
+export = {
     command: 'build',
     describe: 'Builds asset bundle.\n',
     builder(yargs) {

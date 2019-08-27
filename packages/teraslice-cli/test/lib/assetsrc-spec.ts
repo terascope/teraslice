@@ -1,5 +1,5 @@
 
-import AssetSrc from '../../src/lib/asset-src';
+import AssetSrc from '../../src/helpers/asset-src';
 import path from 'path';
 import fs from 'fs-extra';
 import tmp from 'tmp';

@@ -1,5 +1,5 @@
 
-export default {
+export = {
     args: (yargs: any) => {
         yargs
         .option('base_dir', {

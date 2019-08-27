@@ -1,6 +1,6 @@
 
 import Promise from 'bluebird';
-import TjmUtil from '../../src/lib/tjm-util';
+import TjmUtil from '../../src/helpers/tjm-util';
 // @ts-ignore
 let startResponse = null;
 // @ts-ignore

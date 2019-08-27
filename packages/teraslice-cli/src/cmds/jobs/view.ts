@@ -1,15 +1,15 @@
 
 import { CMD } from '../../interfaces';
 import _ from 'lodash';
-import Config from '../../lib/config';
-import YargsOptions from '../../lib/yargs-options';
+import Config from '../../helpers/config';
+import YargsOptions from '../../helpers/yargs-options';
 import Reply from '../lib/reply';
-import TerasliceUtil from '../../lib/teraslice-util';
+import TerasliceUtil from '../../helpers/teraslice-util';
 
 const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
-export default {
+export = {
     // TODO: is it [id] or <id>
     command: 'view <cluster-alias> <id>',
     describe: 'View the job definition',

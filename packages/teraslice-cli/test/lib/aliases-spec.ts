@@ -1,4 +1,3 @@
-'use strict';
 
 import path from 'path';
 import fs from 'fs';
@@ -6,7 +5,7 @@ import fs from 'fs';
 import yaml from 'node-yaml';
 import { createTempDirSync } from 'jest-fixtures';
 
-import Aliases from '../../src/lib/aliases';
+import Aliases from '../../src/helpers/aliases';
 
 let aliases:Aliases;
 

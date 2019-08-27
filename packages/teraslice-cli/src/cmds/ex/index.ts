@@ -1,7 +1,7 @@
 
 import { CMD } from '../../interfaces';
 
-export default {
+export = {
     command: 'ex <command>',
     describe: 'commands to manage execution ids',
     builder(yargs) {

@@ -1,9 +1,9 @@
 
 import { CMD } from '../../interfaces';
 import _ from 'lodash';
-import Config from '../../lib/config';
-import YargsOptions from '../../lib/yargs-options';
-import TerasliceUtil from '../../lib/teraslice-util';
+import Config from '../../helpers/config';
+import YargsOptions from '../../helpers/yargs-options';
+import TerasliceUtil from '../../helpers/teraslice-util';
 
 import Reply from '../lib/reply';
 
@@ -11,7 +11,7 @@ const reply = new Reply();
 
 const yargsOptions = new YargsOptions();
 
-export default {
+export = {
     command: 'stop <cluster-alias> <id>',
     describe: 'Stops ex_id that is running or failing on the cluster.\n',
     builder(yargs:any) {

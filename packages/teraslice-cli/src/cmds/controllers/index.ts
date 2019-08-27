@@ -1,7 +1,7 @@
 
 import { CMD } from '../../interfaces';
 
-export default {
+export = {
     command: 'controllers <command>',
     describe: 'commands to manage controller',
     builder(yargs) {

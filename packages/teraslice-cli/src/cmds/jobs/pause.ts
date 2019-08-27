@@ -1,15 +1,15 @@
 
 import { CMD } from '../../interfaces';
 import _ from 'lodash';
-import Config from '../../lib/config';
-import YargsOptions from '../../lib/yargs-options';
-import Jobs from '../../lib/jobs';
+import Config from '../../helpers/config';
+import YargsOptions from '../../helpers/yargs-options';
+import Jobs from '../../helpers/jobs';
 import Reply from '../lib/reply';
 
 const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
-export default {
+export = {
     command: 'pause <cluster-alias> [id]',
     describe: 'Pause job id on the specified cluster.\n',
     builder(yargs:any) {

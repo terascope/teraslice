@@ -3,7 +3,7 @@ import os from 'os';
 
 const homeDir = os.homedir();
 
-export default {
+export = {
     args: (yargs:any) => {
         yargs
             .option('config_dir', {

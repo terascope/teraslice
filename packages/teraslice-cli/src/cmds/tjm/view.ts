@@ -1,15 +1,15 @@
 
 import _ from 'lodash';
-import JobSrc from '../../lib/job-src';
+import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
-import YargsOptions from '../../lib/yargs-options';
-import { getTerasliceClient } from '../../lib/utils';
+import YargsOptions from '../../helpers/yargs-options';
+import { getTerasliceClient } from '../../helpers/utils';
 import Reply from '../lib/reply';
 
 const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
-export default {
+export = {
     command: 'view <job-file>',
     describe: 'View job as saved on the cluster by referencing the job file',
     builder (yargs) {

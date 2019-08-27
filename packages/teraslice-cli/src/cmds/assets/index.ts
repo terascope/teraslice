@@ -1,7 +1,7 @@
 
 import { CMD } from '../../interfaces';
 
-export default {
+export = {
     command: 'assets <command>',
     describe: 'commands to manage assets',
     exclude: 'lib',

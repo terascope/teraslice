@@ -2,6 +2,17 @@
 import signale from 'signale';
 import { has, parseErrorInfo } from '@terascope/utils';
 import TerasliceClient from 'teraslice-client-js';
+import fs from 'fs';
+import path from 'path';
+
+export function getPackage(filePath?:string) {
+    let dataPath = filePath || path.join(__dirname, '../..', 'package.json');
+    if (!fs.existsSync(dataPath)) {
+        dataPath =  path.join(__dirname, '../../../', 'package.json');
+    }
+    const file = fs.readFileSync(dataPath, 'utf8');
+    return JSON.parse(file);
+}
 
 // TODO: figure out types
 export function getTerasliceClient(cliConfig:any) {

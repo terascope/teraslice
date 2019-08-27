@@ -5,6 +5,7 @@ import fs from 'fs-extra';
 import archiver from 'archiver';
 import path from 'path';
 import tmp from 'tmp';
+import { getPackage } from '../helpers/utils';
 
 interface ZipResults {
     success: string;
@@ -27,10 +28,8 @@ export default class AssetSrc {
     constructor(srcDir: string) {
         this.srcDir = path.resolve(srcDir);
         this.assetFile = path.join(this.srcDir, 'asset', 'asset.json');
-        // @ts-ignore
-        this.packageJson = JSON.parse(fs.readFileSync(path.join(this.srcDir, 'package.json')));
-        // @ts-ignore
-        this.assetPackageJson = JSON.parse(fs.readFileSync(path.join(this.srcDir, 'asset', 'package.json')));
+        this.packageJson = getPackage(path.join(this.srcDir, 'package.json'));
+        this.assetPackageJson = getPackage(path.join(this.srcDir, 'asset', 'package.json'));
 
         if (!fs.pathExistsSync(this.assetFile)) {
             throw new Error(`${this.srcDir} is not a valid asset source directory.`);

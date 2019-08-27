@@ -1,5 +1,5 @@
 
-import Url from '../../src/lib/url';
+import Url from '../../src/helpers/url';
 
 let url:any;
 
