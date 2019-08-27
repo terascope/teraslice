@@ -33,7 +33,7 @@
     },
     "dependencies": {
         "@terascope/elasticsearch-api": "^2.1.4",
-        "@terascope/job-components": "^0.22.0",
+        "@terascope/job-components": "^0.22.1",
         "@terascope/queue": "^1.1.7",
         "@terascope/teraslice-messaging": "^0.4.1",
         "@terascope/utils": "^0.16.1",

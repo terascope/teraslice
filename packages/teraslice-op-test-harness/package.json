@@ -17,7 +17,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.22.0",
+        "@terascope/job-components": "^0.22.1",
         "bluebird": "^3.5.5",
         "lodash": "^4.17.11"
     },
