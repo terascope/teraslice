@@ -600,7 +600,11 @@ describe('Query Point API', () => {
             }
         `;
 
-        await Promise.all([reqClient.request(space1Query), reqClient.request(space2Query), reqClient.request(space3Query)]);
+        await Promise.all([
+            reqClient.request(space1Query),
+            reqClient.request(space2Query),
+            reqClient.request(space3Query)
+        ]);
 
         fullRoleClient = createGQLClient(token1);
         limitedRoleClient = createGQLClient(token2);
@@ -824,7 +828,11 @@ describe('Query Point API', () => {
             { [space2]: results2 },
             // @ts-ignore
             { [space2]: results3 },
-        ] = await Promise.all([fullRoleClient.request(query1), fullRoleClient.request(query2), fullRoleClient.request(query3)]);
+        ] = await Promise.all([
+            fullRoleClient.request(query1),
+            fullRoleClient.request(query2),
+            fullRoleClient.request(query3)
+        ]);
 
         expect(results1).toBeArrayOfSize(1);
         expect(results1).toEqual(finalResults1);

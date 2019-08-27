@@ -77,7 +77,11 @@ function isSameUser(user: User, creds: Creds): boolean {
     return true;
 }
 
-export async function login(manager: ACLManager, req: Request, storeInSession = true): Promise<User> {
+export async function login(
+    manager: ACLManager,
+    req: Request,
+    storeInSession = true
+): Promise<User> {
     try {
         const loggedInUser = getLoggedInUser(req);
         const creds = getCredentialsFromReq(req);
@@ -125,7 +129,10 @@ export function getCredentialsFromReq(req: Request): Creds {
     return {};
 }
 
-export async function findAll<T extends AnyModel>(ids: string[] | undefined, fn: (query: string) => Promise<T[]>): Promise<T[]> {
+export async function findAll<T extends AnyModel>(
+    ids: string[] | undefined,
+    fn: (query: string) => Promise<T[]>
+): Promise<T[]> {
     const _ids = ts.castArray(ids || []).filter((id) => !!id);
     if (!_ids.length) return [];
 
