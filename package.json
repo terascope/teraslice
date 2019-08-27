@@ -6,7 +6,7 @@
         "setup": "lerna bootstrap --force-local && yarn build:cleanup dist && yarn build",
         "cleanup": "./scripts/cleanup.sh",
         "prebuild": "lerna run prebuild",
-        "build": "tsc --build --pretty",
+        "build": "tsc --build",
         "build:cleanup": "./scripts/build-cleanup.sh",
         "build:all": "yarn build:cleanup && env FORCE_COLOR=1 lerna run build",
         "build:pkg": "./scripts/build-pkg.sh",

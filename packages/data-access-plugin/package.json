@@ -20,7 +20,7 @@
         "simple-migrate": "./bin/simple-migrate.js"
     },
     "scripts": {
-        "build": "tsc --build --pretty",
+        "build": "tsc --build",
         "build:watch": "yarn build --watch",
         "prepublishOnly": "yarn build",
         "test": "ts-scripts test . --",

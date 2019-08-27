@@ -15,7 +15,7 @@
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "scripts": {
-        "build": "tsc --build --pretty",
+        "build": "tsc --build",
         "build:watch": "yarn build --watch",
         "prepublishOnly": "yarn build",
         "test": "ts-scripts test . --",

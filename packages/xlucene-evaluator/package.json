@@ -21,7 +21,7 @@
     },
     "scripts": {
         "prebuild": "./scripts/generate-engine.js",
-        "build": "yarn run prebuild && tsc --build --pretty",
+        "build": "yarn run prebuild && tsc --build",
         "build:watch": "yarn build --watch",
         "prepare": "yarn run prebuild",
         "prepublishOnly": "yarn build",

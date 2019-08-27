@@ -69,7 +69,7 @@ module.exports = (options) => {
         typings: 'dist/src/index.d.ts',
         scripts: {
             prepublishOnly: 'yarn build',
-            build: 'tsc --build --pretty',
+            build: 'tsc --build',
             'build:watch': 'yarn build --watch',
             test: 'jest',
             'test:watch': 'jest --coverage=false --notify --watch --onlyChanged',

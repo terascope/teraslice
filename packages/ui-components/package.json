@@ -15,7 +15,7 @@
     ],
     "main": "dist/src/index.js",
     "scripts": {
-        "build": "tsc --build --pretty",
+        "build": "tsc --build",
         "build:watch": "yarn build --watch",
         "prepublishOnly": "yarn build",
         "test": "echo '* tests not supported yet'"
