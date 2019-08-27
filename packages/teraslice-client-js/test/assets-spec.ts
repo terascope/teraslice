@@ -2,7 +2,7 @@
 import nock from 'nock';
 import path from 'path';
 import fs from 'fs';
-import Assets from '../src/lib/assets';
+import Assets from '../src/assets';
 import { AssetIDResponse, AssetsGetResponse, Asset } from '../src/interfaces';
 
 describe('Teraslice Assets', () => {

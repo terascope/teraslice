@@ -2,9 +2,9 @@
 
 /* eslint-disable no-console */
 
-const { Client } = require('teraslice-client-js');
+const { TerasliceClient } = require('teraslice-client-js');
 
-const client = new Client({
+const client = new TerasliceClient({
     host: 'http://localhost:5678'
 });
 

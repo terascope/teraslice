@@ -9,7 +9,7 @@ import {
     ClusterState,
     ClusterStats,
     ControllerState
-} from '../interfaces';
+} from './interfaces';
 
 function _deprecateSlicerName(fn: () => Promise<ControllerState>) {
     const msg = 'api endpoints with /slicers are being deprecated in favor of the semantically correct term of /controllers';

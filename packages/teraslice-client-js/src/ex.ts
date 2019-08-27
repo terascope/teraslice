@@ -14,7 +14,7 @@ import {
     ExecutionStatus,
     ExecutionGetResponse,
     StateErrors
-} from '../interfaces';
+} from './interfaces';
 
 type ListOptions = undefined | string | SearchQuery;
 

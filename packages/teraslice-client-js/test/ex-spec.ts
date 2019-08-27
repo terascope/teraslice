@@ -1,6 +1,6 @@
 
 import nock from 'nock';
-import Ex from '../src/lib/ex';
+import Ex from '../src/ex';
 
 describe('Teraslice Ex', () => {
     let ex: Ex;

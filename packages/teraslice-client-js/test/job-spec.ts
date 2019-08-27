@@ -1,6 +1,6 @@
 
 import nock from 'nock';
-import Job from '../src/lib/job';
+import Job from '../src/job';
 import {
     ExecutionStatus,
     ClusterStateNative,

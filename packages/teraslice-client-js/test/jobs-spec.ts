@@ -2,8 +2,8 @@
 import 'jest-extended';
 import nock from 'nock';
 import { JobConfig } from '@terascope/job-components';
-import Job from '../src/lib/job';
-import Jobs from '../src/lib/jobs';
+import Job from '../src/job';
+import Jobs from '../src/jobs';
 import { JobsGetResponse, ExecutionStatus } from '../src/interfaces';
 
 describe('Teraslice Jobs', () => {

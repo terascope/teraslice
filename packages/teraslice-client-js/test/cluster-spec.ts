@@ -1,6 +1,6 @@
 
 import nock from 'nock';
-import Cluster from '../src/lib/cluster';
+import Cluster from '../src/cluster';
 
 describe('Teraslice Cluster', () => {
     let cluster: Cluster;

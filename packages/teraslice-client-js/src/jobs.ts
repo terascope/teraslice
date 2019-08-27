@@ -9,7 +9,7 @@ import {
     SearchOptions,
     JobSearchParams,
     JobListStatusQuery
-} from '../interfaces';
+} from './interfaces';
 
 export default class Jobs extends Client {
     constructor(config: ClientConfig) {

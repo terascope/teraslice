@@ -1,7 +1,7 @@
 
 import nock from 'nock';
 import TerasliceClient from '../src';
-import Client from '../src/lib/client';
+import Client from '../src/client';
 
 describe('Teraslice Client', () => {
     describe('when using the main export function', () => {

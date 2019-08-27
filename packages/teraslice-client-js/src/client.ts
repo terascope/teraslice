@@ -4,7 +4,7 @@ import got from 'got';
 import { STATUS_CODES } from 'http';
 import { URL } from 'url';
 import path from 'path';
-import { ClientConfig, SearchOptions , RequestOptions } from '../interfaces';
+import { ClientConfig, SearchOptions , RequestOptions } from './interfaces';
 
 export default class Client {
     private _apiVersion:string;

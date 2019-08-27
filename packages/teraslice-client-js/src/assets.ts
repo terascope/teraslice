@@ -14,7 +14,7 @@ import {
     TxtSearchParams,
     ClientConfig,
     Asset
-} from '../interfaces';
+} from './interfaces';
 
 type GetFn = (name: string) => Promise<Asset[]>;
 

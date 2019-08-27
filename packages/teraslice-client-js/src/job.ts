@@ -31,7 +31,7 @@ import {
     PausedResponse,
     JobsPostResponse,
     StopQuery
-} from '../interfaces';
+} from './interfaces';
 import Client from './client';
 
 /*
