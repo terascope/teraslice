@@ -336,7 +336,7 @@ describe('DataEntity', () => {
     });
 
     describe('#fromBuffer', () => {
-        it('should be able to create a DataEntity from a buffer', () => {
+        it('should be able to create a DataEntity from a JSON encoded buffer', () => {
             const buf = Buffer.from(JSON.stringify({ foo: 'bar' }));
             const entity = DataEntity.fromBuffer(
                 buf,
@@ -350,6 +350,24 @@ describe('DataEntity', () => {
             );
 
             expect(entity.foo).toEqual('bar');
+            expect(entity.getMetadata('howdy')).toEqual('there');
+        });
+
+        it('should be able to create a DataEntity from a raw encoded buffer', () => {
+            const buf = Buffer.from(JSON.stringify({ foo: 'bar' }));
+            const entity = DataEntity.fromBuffer(
+                buf,
+                {
+                    _op: 'baz',
+                    _encoding: DataEncoding.RAW,
+                },
+                {
+                    howdy: 'there',
+                }
+            );
+
+            expect(entity.data).toEqual(buf);
+            expect(entity.data).toBe(buf);
             expect(entity.getMetadata('howdy')).toEqual('there');
         });
 

@@ -11,6 +11,7 @@ const _metadata = new WeakMap();
  */
 export enum DataEncoding {
     JSON = 'json',
+    RAW = 'raw',
 }
 
 /** A list of supported encoding formats */
@@ -76,6 +77,12 @@ export class DataEntity<T extends object = object> {
         const { _encoding = DataEncoding.JSON } = opConfig || {};
         if (_encoding === DataEncoding.JSON) {
             return DataEntity.make(parseJSON(input), metadata);
+        }
+
+        if (_encoding === DataEncoding.RAW) {
+            return DataEntity.make({
+                data: input,
+            }, metadata);
         }
 
         throw new Error(`Unsupported encoding type, got "${_encoding}"`);
@@ -165,8 +172,9 @@ export class DataEntity<T extends object = object> {
 
     /**
      * Convert the DataEntity to an encoded buffer
+     *
      * @param opConfig The operation config used to get the encoding type of the buffer,
-     * defaults to "json"
+     * @default "json"
      */
     toBuffer(opConfig: EncodingConfig = {}): Buffer {
         return toBuffer(this, opConfig);
