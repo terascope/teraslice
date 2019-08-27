@@ -1,4 +1,6 @@
-import { AnyQuery, TranslatorOptions, ElasticsearchDSLResult, ElasticsearchDSLOptions } from '../../../src';
+import {
+    AnyQuery, TranslatorOptions, ElasticsearchDSLResult, ElasticsearchDSLOptions
+} from '../../../src';
 
 export type TestCase = [
     // when given %s

@@ -1,17 +1,18 @@
 
-import { Md5Encode } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
 import crypto from 'crypto';
+import { Md5Encode } from '../../../src/operations';
 
 describe('Md5Encode operator', () => {
-
     function encode(str: string) {
         // @ts-ignore
         return crypto.createHash('md5').update(str).digest('hex');
     }
 
     it('can instantiate', () => {
-        const opConfig = { target_field: 'final', source_field: 'source', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            target_field: 'final', source_field: 'source', __id: 'someId', follow: 'otherId'
+        };
         expect(() => new Md5Encode(opConfig)).not.toThrow();
     });
 
@@ -19,11 +20,13 @@ describe('Md5Encode operator', () => {
         const badConfig1 = { target_field: 1324, __id: 'someId', follow: 'otherId' };
         const badConfig2 = { target_field: '', __id: 'someId', follow: 'otherId' };
         const badConfig3 = { target_field: {}, __id: 'someId', follow: 'otherId' };
-        const badConfig4 = { target_field: null , __id: 'someId', follow: 'otherId' };
+        const badConfig4 = { target_field: null, __id: 'someId', follow: 'otherId' };
         const badConfig5 = { source_field: [], __id: 'someId', follow: 'otherId' };
         const badConfig6 = { source_field: {}, __id: 'someId', follow: 'otherId' };
         const badConfig7 = { source_field: null, __id: 'someId', follow: 'otherId' };
-        const badConfig8 = { source_field: '', target_field: '', __id: 'someId', follow: 'otherId' };
+        const badConfig8 = {
+            source_field: '', target_field: '', __id: 'someId', follow: 'otherId'
+        };
         // @ts-ignore
         expect(() => new Md5Encode(badConfig1)).toThrow();
         expect(() => new Md5Encode(badConfig2)).toThrow();
@@ -41,9 +44,11 @@ describe('Md5Encode operator', () => {
     });
 
     it('can md5 encode fields', () => {
-        const opConfig = { source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId' };
-        const test =  new Md5Encode(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
+        const opConfig = {
+            source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId'
+        };
+        const test = new Md5Encode(opConfig);
+        const metaData = { selectors: { 'some:query': true } };
 
         const data1 = new DataEntity({ source: 123423 }, metaData);
         const data2 = new DataEntity({ source: null }, metaData);
@@ -90,9 +95,11 @@ describe('Md5Encode operator', () => {
     });
 
     it('can md5 encode nested fields', () => {
-        const opConfig = { source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId' };
-        const test =  new Md5Encode(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
+        const opConfig = {
+            source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId'
+        };
+        const test = new Md5Encode(opConfig);
+        const metaData = { selectors: { 'some:query': true } };
 
         const data = new DataEntity({ source: { field: 'hello world' } }, metaData);
 

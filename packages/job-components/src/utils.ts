@@ -1,4 +1,4 @@
-import { get } from '@terascope/utils';
+import { get, Logger } from '@terascope/utils';
 import { Context, ExecutionConfig } from './interfaces';
 
 export function makeContextLogger(context: Context, moduleName: string, extra = {}) {
@@ -14,7 +14,17 @@ export function makeContextLogger(context: Context, moduleName: string, extra = 
     );
 }
 
-export function makeExContextLogger(context: Context, config: ExecutionConfig, moduleName: string, extra = {}) {
-    const { ex_id, job_id } = config;
-    return makeContextLogger(context, moduleName, { ex_id, job_id, ...extra });
+export function makeExContextLogger(
+    context: Context,
+    config: ExecutionConfig,
+    moduleName: string,
+    extra = {}
+): Logger {
+    const { ex_id: exId, job_id: jobId } = config;
+
+    return makeContextLogger(context, moduleName, {
+        ex_id: exId,
+        job_id: jobId,
+        ...extra
+    });
 }

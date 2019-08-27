@@ -1,16 +1,17 @@
-import { Sha2Encode } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
 import crypto from 'crypto';
+import { Sha2Encode } from '../../../src/operations';
 
 describe('Sha2Encode operator', () => {
-
     function encode(str: string, algo = 'sha256') {
         // @ts-ignore
         return crypto.createHash(algo).update(str).digest('hex');
     }
 
     it('can instantiate', () => {
-        const opConfig = { target_field: 'final', source_field: 'source', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            target_field: 'final', source_field: 'source', __id: 'someId', follow: 'otherId'
+        };
         expect(() => new Sha2Encode(opConfig)).not.toThrow();
     });
 
@@ -18,11 +19,13 @@ describe('Sha2Encode operator', () => {
         const badConfig1 = { target_field: 1324, __id: 'someId', follow: 'otherId' };
         const badConfig2 = { target_field: '', __id: 'someId', follow: 'otherId' };
         const badConfig3 = { target_field: {}, __id: 'someId', follow: 'otherId' };
-        const badConfig4 = { target_field: null , __id: 'someId', follow: 'otherId' };
+        const badConfig4 = { target_field: null, __id: 'someId', follow: 'otherId' };
         const badConfig5 = { source_field: [], __id: 'someId', follow: 'otherId' };
         const badConfig6 = { source_field: {}, __id: 'someId', follow: 'otherId' };
         const badConfig7 = { source_field: null, __id: 'someId', follow: 'otherId' };
-        const badConfig8 = { source_field: '', target_field: '', __id: 'someId', follow: 'otherId' };
+        const badConfig8 = {
+            source_field: '', target_field: '', __id: 'someId', follow: 'otherId'
+        };
         // @ts-ignore
         expect(() => new Sha2Encode(badConfig1)).toThrow();
         expect(() => new Sha2Encode(badConfig2)).toThrow();
@@ -40,9 +43,11 @@ describe('Sha2Encode operator', () => {
     });
 
     it('can sha256 encode fields', () => {
-        const opConfig = { source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId' };
-        const test =  new Sha2Encode(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
+        const opConfig = {
+            source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId'
+        };
+        const test = new Sha2Encode(opConfig);
+        const metaData = { selectors: { 'some:query': true } };
 
         const data1 = new DataEntity({ source: 123423 }, metaData);
         const data2 = new DataEntity({ source: null }, metaData);
@@ -89,9 +94,11 @@ describe('Sha2Encode operator', () => {
     });
 
     it('can sh256 encode nested fields', () => {
-        const opConfig = { source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId' };
-        const test =  new Sha2Encode(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
+        const opConfig = {
+            source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId'
+        };
+        const test = new Sha2Encode(opConfig);
+        const metaData = { selectors: { 'some:query': true } };
 
         const data = new DataEntity({ source: { field: 'hello world' } }, metaData);
 
@@ -108,8 +115,8 @@ describe('Sha2Encode operator', () => {
             follow: 'otherId',
             hash: 'SHA224'
         };
-        const test =  new Sha2Encode(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
+        const test = new Sha2Encode(opConfig);
+        const metaData = { selectors: { 'some:query': true } };
 
         const data = new DataEntity({ source: { field: 'hello world' } }, metaData);
 

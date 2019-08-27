@@ -14,15 +14,11 @@ describe('APICore', () => {
     });
 
     describe('->initialize', () => {
-        it('should resolve undefined', () => {
-            return expect(api.initialize()).resolves.toBeUndefined();
-        });
+        it('should resolve undefined', () => expect(api.initialize()).resolves.toBeUndefined());
     });
 
     describe('->shutdown', () => {
-        it('should resolve undefined', () => {
-            return expect(api.shutdown()).resolves.toBeUndefined();
-        });
+        it('should resolve undefined', () => expect(api.shutdown()).resolves.toBeUndefined());
     });
 
     describe('->onSliceInitialized', () => {
@@ -60,5 +56,4 @@ describe('APICore', () => {
             expect(api).not.toHaveProperty('onSliceRetry');
         });
     });
-
 });

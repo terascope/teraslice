@@ -1,4 +1,3 @@
-
 import { CMD } from '../../interfaces';
 import Config from '../../helpers/config';
 import TerasliceUtil from '../../helpers/teraslice-util';
@@ -28,7 +27,8 @@ export = {
         } catch (err) {
             reply.fatal(`Error getting ex_id:${cliConfig.args.id} on ${cliConfig.args.clusterAlias}\n${err}`);
         }
-        // tslint:disable-next-line:no-console
+
+        // eslint-disable-next-line no-console
         console.log(JSON.stringify(response, null, 2));
     }
 } as CMD;

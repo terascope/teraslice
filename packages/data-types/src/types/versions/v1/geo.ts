@@ -3,9 +3,10 @@ import BaseType from '../base-type';
 import { ElasticSearchTypes } from '../../../interfaces';
 
 export default class GeoType extends BaseType {
-    toESMapping() {
+    toESMapping(_version?: number) {
         return { mapping: { [this.field]: { type: 'geo_point' as ElasticSearchTypes } } };
     }
+
     // TODO: need notion of injecting custom types, what about duplicates
     toGraphQL() {
         const customType = `

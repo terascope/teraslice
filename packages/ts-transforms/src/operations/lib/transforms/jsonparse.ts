@@ -1,4 +1,3 @@
-
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
 import TransformOpBase from './base';
@@ -17,7 +16,9 @@ export default class JsonParse extends TransformOpBase {
                 try {
                     const record = JSON.parse(data);
                     results.push(record);
-                } catch (err) {}
+                } catch (err) {
+                    // do nothing
+                }
             });
             if (results.length === 0) {
                 this.removeSource(doc);

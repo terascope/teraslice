@@ -2,7 +2,10 @@ import * as ts from '@terascope/utils';
 import { ErrorsState, AnyModel, SelectOption } from './interfaces';
 import { getModelType } from '../utils';
 
-export function validateClientId<T extends { client_id: string | number }>(errs: ErrorsState<T>, model: T): void {
+export function validateClientId<T extends { client_id: string | number }>(
+    errs: ErrorsState<T>,
+    model: T
+): void {
     const clientId = ts.toInteger(model.client_id);
     const modelType = getModelType(model);
 
@@ -64,7 +67,7 @@ export function prepareForMutation<T extends AnyModel>(model: T): T {
     return _prepareForMutation(input);
 }
 
-const unwanted: ReadonlyArray<string> = ['__typename'];
+const unwanted: readonly string[] = ['__typename'];
 function _prepareForMutation<T extends any>(obj: T, isNested = false): T {
     if (Array.isArray(obj)) {
         return obj.map((o: any) => _prepareForMutation(o, true));
@@ -87,7 +90,10 @@ function _prepareForMutation<T extends any>(obj: T, isNested = false): T {
     return obj;
 }
 
-export function getSelectValue(value?: SelectOption | SelectOption[], multiple?: boolean): string | string[] | undefined {
+export function getSelectValue(
+    value?: SelectOption | SelectOption[],
+    multiple?: boolean
+): string | string[] | undefined {
     if (multiple || Array.isArray(value)) {
         const arr = (value || []) as SelectOption[];
         return arr.map(getSelectId).filter((val) => !!val);

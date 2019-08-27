@@ -23,14 +23,14 @@ export interface TypeConfig {
 }
 
 export type AST = EmptyAST & LogicalGroup & Term
-    & Conjunction & Negation & FieldGroup
-    & Exists & Range & GeoDistance
-    & GeoBoundingBox & Regexp & Wildcard;
+& Conjunction & Negation & FieldGroup
+& Exists & Range & GeoDistance
+& GeoBoundingBox & Regexp & Wildcard;
 
 export type AnyAST = EmptyAST | LogicalGroup | Term
-    | Conjunction | Negation | FieldGroup
-    | Exists | Range | GeoDistance
-    | GeoBoundingBox | Regexp | Wildcard;
+| Conjunction | Negation | FieldGroup
+| Exists | Range | GeoDistance
+| GeoBoundingBox | Regexp | Wildcard;
 
 export type GroupLike = FieldGroup|LogicalGroup;
 export type GroupLikeType = ASTType.LogicalGroup|ASTType.FieldGroup;
@@ -41,7 +41,14 @@ export interface GroupLikeAST {
 }
 
 export type TermLike = Term|Regexp|Range|Wildcard|GeoBoundingBox|GeoDistance;
-export type TermLikeType = ASTType.Term|ASTType.Regexp|ASTType.Range|ASTType.Wildcard|ASTType.GeoBoundingBox|ASTType.GeoDistance;
+export type TermLikeType =
+    ASTType.Term|
+    ASTType.Regexp|
+    ASTType.Range|
+    ASTType.Wildcard|
+    ASTType.GeoBoundingBox|
+    ASTType.GeoDistance;
+
 export interface TermLikeAST {
     type: TermLikeType;
     field: Field;

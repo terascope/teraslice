@@ -76,7 +76,6 @@ describe('Teraslice Ex', () => {
                 scope.get('/ex')
                     .query({ anything: true })
                     .reply(200, data);
-
             });
 
             it('should resolve json results from Teraslice', async () => {

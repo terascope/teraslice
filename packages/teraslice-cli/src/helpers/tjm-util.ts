@@ -7,7 +7,7 @@ export default class TjmUtil {
     client: any;
     job: any;
 
-    constructor(client:any, job:any) {
+    constructor(client: any, job: any) {
         this.client = client;
         this.job = job;
     }
@@ -47,7 +47,6 @@ export default class TjmUtil {
             }
 
             if (terminalStatuses.includes(status)) {
-                // tslint:disable-next-line:max-line-length
                 reply.green(`job: ${this.job.name}, job id: ${this.job.jobId}, is not running.  Current status is ${status} on cluster: ${this.job.clusterUrl}`);
             } else {
                 reply.green(`attempting to stop job: ${this.job.name}, job id: ${this.job.jobId}, on cluster ${this.job.clusterUrl}`);

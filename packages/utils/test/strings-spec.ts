@@ -1,6 +1,8 @@
 import 'jest-extended';
 // @ts-ignore
-import { toSafeString, unescapeString, escapeString, matchAll, match, formatRegex, FormatRegexResult } from '../src';
+import {
+    toSafeString, unescapeString, escapeString, matchAll, match, formatRegex, FormatRegexResult
+} from '../src';
 
 describe('String Utils', () => {
     describe('toSafeString', () => {

@@ -38,40 +38,40 @@ declare namespace opTestHarness {
     export type LegacyRunResult = any;
 
     export interface SampleData {
-        ip:        string;
+        ip: string;
         userAgent: string;
-        url:       string;
-        uuid:      string;
-        created:   string;
-        ipv6:      string;
-        location:  string;
-        bytes:     number;
+        url: string;
+        uuid: string;
+        created: string;
+        ipv6: string;
+        location: string;
+        bytes: number;
     }
 
     export interface SampleDataElasticsearch {
-        took:      number;
+        took: number;
         timed_out: boolean;
-        hits:      Hits;
-        _shards:   Shards;
+        hits: Hits;
+        _shards: Shards;
     }
 
     interface Shards {
-        total:      number;
+        total: number;
         successful: number;
-        failed:     number;
+        failed: number;
     }
 
     interface Hits {
-        total:     number;
+        total: number;
         max_score: number;
-        hits:      Hit[];
+        hits: Hit[];
     }
 
     interface Hit {
-        _index:  string;
-        _type:   string;
-        _id:     string;
-        _score:  number;
+        _index: string;
+        _type: string;
+        _id: string;
+        _score: number;
         _source: SampleData;
     }
 

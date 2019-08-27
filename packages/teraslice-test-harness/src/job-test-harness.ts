@@ -86,7 +86,10 @@ export default class JobTestHarness {
             };
 
             try {
-                const result = await this.workerHarness.runSlice(slice, { fullResponse: true }) as RunSliceResult;
+                const result = await this.workerHarness.runSlice(
+                    slice,
+                    { fullResponse: true }
+                ) as RunSliceResult;
                 if (result.analytics) {
                     analytics = result.analytics;
                 }

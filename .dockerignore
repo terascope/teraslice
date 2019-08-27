@@ -31,6 +31,7 @@ packages/data-access-plugin
 packages/data-types
 packages/docker-compose-js
 packages/elasticsearch-store
+packages/eslint-config
 packages/generator-teraslice
 packages/scripts
 packages/teraslice-client-js

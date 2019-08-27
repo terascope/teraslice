@@ -1,11 +1,12 @@
 
-import { BooleanValidation } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
+import { BooleanValidation } from '../../../src/operations';
 
 describe('boolean validation', () => {
-
     it('can instantiate', () => {
-        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId'
+        };
         expect(() => new BooleanValidation(opConfig)).not.toThrow();
     });
 
@@ -16,18 +17,20 @@ describe('boolean validation', () => {
         const badConfig4 = {};
         // @ts-ignore
         expect(() => new BooleanValidation(badConfig1)).toThrow();
-         // @ts-ignore
+        // @ts-ignore
         expect(() => new BooleanValidation(badConfig2)).toThrow();
         // @ts-ignore
         expect(() => new BooleanValidation(badConfig3)).toThrow();
-         // @ts-ignore
+        // @ts-ignore
         expect(() => new BooleanValidation(badConfig4)).toThrow();
     });
 
     it('can validate boolean fields', () => {
-        const opConfig = { source_field: 'isTall', target_field: 'isTall', __id: 'someId', follow: 'otherId' };
-        const test =  new BooleanValidation(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
+        const opConfig = {
+            source_field: 'isTall', target_field: 'isTall', __id: 'someId', follow: 'otherId'
+        };
+        const test = new BooleanValidation(opConfig);
+        const metaData = { selectors: { 'some:query': true } };
 
         const data1 = new DataEntity({ isTall: '56.234,95.234' }, metaData);
         const data2 = new DataEntity({ isTall: 123423 }, metaData);
@@ -35,8 +38,8 @@ describe('boolean validation', () => {
         const data4 = new DataEntity({ isTall: [1324] });
         const data5 = new DataEntity({ isTall: { some: 'data' } });
         const data6 = new DataEntity({ isTall: true }, metaData);
-        const data7 = new DataEntity({  isTall: 'true' });
-        const data8 = new DataEntity({ isTall: ['true', false, 'hello', { other:'things ' }] });
+        const data7 = new DataEntity({ isTall: 'true' });
+        const data8 = new DataEntity({ isTall: ['true', false, 'hello', { other: 'things ' }] });
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -62,9 +65,11 @@ describe('boolean validation', () => {
     });
 
     it('can validate special boolean fields', () => {
-        const opConfig = { source_field: 'isTall', target_field: 'isTall', __id: 'someId', follow: 'otherId' };
-        const test =  new BooleanValidation(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
+        const opConfig = {
+            source_field: 'isTall', target_field: 'isTall', __id: 'someId', follow: 'otherId'
+        };
+        const test = new BooleanValidation(opConfig);
+        const metaData = { selectors: { 'some:query': true } };
 
         const data1 = new DataEntity({ isTall: true }, metaData);
         const data2 = new DataEntity({ isTall: 'true' }, metaData);
@@ -101,9 +106,11 @@ describe('boolean validation', () => {
         expect(results8).toEqual(isFalse);
     });
 
-    it('can validate nested fields', async() => {
-        const opConfig = { source_field: 'person.isTall', target_field: 'person.isTall', __id: 'someId', follow: 'otherId' };
-        const test =  new BooleanValidation(opConfig);
+    it('can validate nested fields', async () => {
+        const opConfig = {
+            source_field: 'person.isTall', target_field: 'person.isTall', __id: 'someId', follow: 'otherId'
+        };
+        const test = new BooleanValidation(opConfig);
 
         const data1 = new DataEntity({ isTall: true });
         const data2 = new DataEntity({ isTall: 'true' });

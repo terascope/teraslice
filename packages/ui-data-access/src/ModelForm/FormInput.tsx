@@ -36,14 +36,14 @@ function FormInput<T extends AnyModel>({
 }
 
 export type Props<T> = Overwrite<
-    FormInputProps,
-    {
-        name: keyof T;
-        label: string;
-        placeholder?: string;
-    }
+FormInputProps,
+{
+    name: keyof T;
+    label: string;
+    placeholder?: string;
+}
 > &
-    DefaultInputProps<T>;
+DefaultInputProps<T>;
 
 FormInput.propTypes = {
     name: PropTypes.string.isRequired,

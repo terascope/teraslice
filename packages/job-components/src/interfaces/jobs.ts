@@ -10,17 +10,21 @@ export interface OpConfig {
     /** The name of the operation */
     _op: string;
 
-    /** Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`. */
+    /**
+     * Used for specifying the data encoding type when using `DataEntity.fromBuffer`.
+     * @default `json`.
+    */
     _encoding?: DataEncoding;
     /**
-     * This action will specify what to do when failing to parse or transform a record. ​​​​​
-​​​​​     * The following builtin actions are supported: ​​​
-​​​​​     *  - "throw": throw the original error ​​​​​
-​​​​​     *  - "log": log the error and the data ​​​​​
-​​​​​     *  - "none": (default) skip the error entirely
+     * This action will specify what to do when failing to parse or transform a record.
+     * The following builtin actions are supported:
+     *  - "throw": throw the original error
+     *  - "log": log the error and the data
+     *  - "none": (default) skip the error entirely
      *
-​​     * If none of the actions are specified it will try and use a registered Dead Letter Queue API under that name.
-     * The API must be already be created by a operation before it can used.​
+     * If none of the actions are specified it will try and
+     * use a registered Dead Letter Queue API under that name.
+     * The API must be already be created by a operation before it can used.
     */
     _dead_letter_action?: DeadLetterAction;
     [prop: string]: any;
@@ -67,7 +71,7 @@ export interface ValidatedJobConfig {
     operations: OpConfig[];
     probation_window: number;
     performance_metrics?: boolean;
-    env_vars: { [key: string]: string; };
+    env_vars: { [key: string]: string };
     slicers: number;
     workers: number;
     /** This will only be available in the context of k8s */

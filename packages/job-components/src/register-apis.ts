@@ -1,7 +1,15 @@
 import fs from 'fs';
 import path from 'path';
 import { parseJSON } from '@terascope/utils';
-import { ConnectionConfig, Context, ValidatedJobConfig, ExecutionConfig, OpConfig, GetClientConfig, WorkerContextAPIs } from './interfaces';
+import {
+    ConnectionConfig,
+    Context,
+    ValidatedJobConfig,
+    ExecutionConfig,
+    OpConfig,
+    GetClientConfig,
+    WorkerContextAPIs
+} from './interfaces';
 import { ExecutionContextAPI } from './execution-context';
 
 /** Get the first opConfig from an operation name */
@@ -10,7 +18,11 @@ export function getOpConfig(job: ValidatedJobConfig, name: string): OpConfig | u
 }
 
 /* Get the asset path from a asset name or ID */
-export async function getAssetPath(assetDir: string, assets: string[], name: string): Promise<string> {
+export async function getAssetPath(
+    assetDir: string,
+    assets: string[],
+    name: string
+): Promise<string> {
     if (!assetDir) {
         throw new Error('No asset_directroy has been configured, cannot get asset path');
     }
@@ -80,7 +92,11 @@ export function getClient(context: Context, config: GetClientConfig, type: strin
     }
 }
 
-export function registerApis(context: Context, job: ValidatedJobConfig | ExecutionConfig, assetIds?: string[]): void {
+export function registerApis(
+    context: Context,
+    job: ValidatedJobConfig | ExecutionConfig,
+    assetIds?: string[]
+): void {
     const cleanupApis: (keyof WorkerContextAPIs)[] = ['op_runner', 'executionContext', 'job_runner', 'assets'];
     for (const api of cleanupApis) {
         if (context.apis[api] != null) {

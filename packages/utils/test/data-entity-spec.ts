@@ -48,7 +48,7 @@ describe('DataEntity', () => {
                 expect(keys).not.toInclude('setMetadata');
                 expect(keys).not.toInclude('toBuffer');
 
-                // tslint:disable-next-line: forin
+                // eslint-disable-next-line guard-for-in
                 for (const prop in dataEntity) {
                     expect(prop).not.toEqual('getMetadata');
                     expect(prop).not.toEqual('setMetadata');

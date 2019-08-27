@@ -1,5 +1,5 @@
-import { TransformerConfig, actions } from './interfaces';
 import { ConvictSchema } from '@terascope/job-components';
+import { TransformerConfig, actions } from './interfaces';
 
 export default class Schema extends ConvictSchema<TransformerConfig> {
     build() {

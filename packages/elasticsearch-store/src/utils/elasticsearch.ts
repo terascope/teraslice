@@ -39,7 +39,7 @@ export function timeseriesIndex(index: string, timeSeriesFormat: i.TimeSeriesFor
 
     const dateStr = new Date().toISOString();
     // remove -* or * at the end of the index name
-    const indexName = index.replace(/\-{0,1}\*$/, '');
+    const indexName = index.replace(/-{0,1}\*$/, '');
     return `${indexName}-${dateStr.slice(0, format).replace(/-/g, '.')}`;
 }
 
@@ -161,8 +161,6 @@ export function getXluceneTypeFromESType(type?: string): FieldType | undefined {
     if (['keyword', 'text'].includes(type)) return FieldType.String;
     if (type === 'object') return FieldType.Object;
     if (type === 'boolean') return FieldType.Boolean;
-
-    return;
 }
 
 export function getESVersion(client: Client): number {

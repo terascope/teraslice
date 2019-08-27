@@ -1,9 +1,11 @@
-
 import { CMD } from '../../interfaces';
 import Config from '../../helpers/config';
 import displayModule from '../lib/display';
-import TerasliceUtil from  '../../helpers/teraslice-util';
+import TerasliceUtil from '../../helpers/teraslice-util';
 import YargsOptions from '../../helpers/yargs-options';
+import Reply from '../lib/reply';
+
+const reply = new Reply();
 
 const yargsOptions = new YargsOptions();
 const display = displayModule();
@@ -18,7 +20,7 @@ export = {
         yargs.strict().example('$0 controllers list cluster1');
         return yargs;
     },
-    async handler (argv) {
+    async handler(argv) {
         let response;
         const parse = true;
         const active = false;
@@ -34,8 +36,8 @@ export = {
         } catch (e) {
             response = await teraslice.client.cluster.slicers();
         }
+
         if (Object.keys(response).length === 0) {
-            // @ts-ignore
             reply.fatal(`> No controllers on ${cliConfig.args.clusterAlias}`);
         }
         await display.display(header, response, format, active, parse);

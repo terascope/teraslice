@@ -1,7 +1,5 @@
-
 import { JobsGetResponse } from 'teraslice-client-js';
 import { CMD } from '../../interfaces';
-import _ from 'lodash';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 import TerasliceUtil from '../../helpers/teraslice-util';
@@ -15,7 +13,7 @@ const yargsOptions = new YargsOptions();
 export = {
     command: 'list <cluster-alias>',
     describe: 'List the jobs on the cluster. Defaults to 10 jobs.',
-    builder(yargs:any) {
+    builder(yargs: any) {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
         yargs.strict()

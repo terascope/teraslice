@@ -1,6 +1,6 @@
 
-import TjmUtil from '../../helpers/tjm-util';
 import _ from 'lodash';
+import TjmUtil from '../../helpers/tjm-util';
 import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
@@ -13,7 +13,7 @@ const yargsOptions = new YargsOptions();
 export = {
     command: 'update <job-file>',
     describe: 'Update a job by referencing the job file',
-    builder (yargs) {
+    builder(yargs) {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('start', yargsOptions.buildOption('start'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));

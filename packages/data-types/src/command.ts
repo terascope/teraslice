@@ -11,6 +11,7 @@ import { validateDataTypeConfig } from './utils';
 const packagePath = path.join(__dirname, '../../package.json');
 const { version } = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 
+// eslint-disable-next-line
 yargs
     .command({
         command: 'es-mapping',
@@ -27,9 +28,7 @@ yargs
                 alias: 'c',
                 describe: 'Override the elasticsearch mapping configuration',
                 string: true,
-                coerce: (arg) => {
-                    return JSON.parse(fs.readFileSync(arg, 'utf8'));
-                },
+                coerce: (arg) => JSON.parse(fs.readFileSync(arg, 'utf8')),
             },
             'es-version': {
                 number: true,
@@ -170,12 +169,16 @@ function parseInput(rawData: string): DataTypeConfig {
         const records = results.map((doc: ESData) => doc._source);
         if (!records.length) {
             throw new TSError('No elasticsearch results', {
-                context: { rawData, parsedData, results, records },
+                context: {
+                    rawData, parsedData, results, records
+                },
             });
         }
         if (records.length > 1) {
             throw new TSError('Expected only one elasticsearch results', {
-                context: { rawData, parsedData, results, records },
+                context: {
+                    rawData, parsedData, results, records
+                },
             });
         }
         return records[0] as DataTypeConfig;

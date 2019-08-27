@@ -117,7 +117,6 @@ export default [
         }
     ],
     [
-        // tslint:disable-next-line: max-line-length
         'loc_a:(_geo_point_:"22.435518,-22.873616" _geo_distance_:22NM) AND loc_b:(_geo_point_:"11.435518,-11.873616" _geo_distance_:11cm)',
         '.',
         {

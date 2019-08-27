@@ -114,7 +114,6 @@ export class BigMap<K, V> {
         return _iterator<V>(this._maps, 'values');
     }
 
-    // tslint:disable-next-line: function-name
     [Symbol.iterator](): IterableIterator<[K, V]> {
         if (this._simpleMode) {
             return this._current[Symbol.iterator]();
@@ -165,7 +164,6 @@ function _iterator<R>(items: Map<any, any>[], name: any): IterableIterator<R> {
 
             return result;
         },
-        // tslint:disable-next-line: function-name
         [Symbol.iterator]() {
             return this;
         },

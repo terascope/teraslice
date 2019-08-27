@@ -1,4 +1,6 @@
-import { firstToLower, get, TSError, isEmpty } from '@terascope/utils';
+import {
+    firstToLower, get, TSError, isEmpty
+} from '@terascope/utils';
 import { setLoggedInUser, forEachModel, logoutUser } from '../utils';
 import { ManagerContext } from '../interfaces';
 

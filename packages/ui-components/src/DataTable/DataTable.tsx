@@ -77,11 +77,10 @@ const DataTable: React.FC<Props> = (props) => {
                         });
                         try {
                             if (action === 'EXPORT') {
-                                const docs = selected.map((id) =>
-                                    records.find((record) => {
-                                        return rowMapping.getId(record) === id;
-                                    })
-                                );
+                                const docs = selected.map((id) => {
+                                    const hasId = (record: any) => rowMapping.getId(record) === id;
+                                    return records.find(hasId);
+                                });
 
                                 const message = await exportRecords(
                                     selectedAll || docs
@@ -108,7 +107,6 @@ const DataTable: React.FC<Props> = (props) => {
                     }}
                 />
                 <Header
-                    numSelected={selected.length}
                     sort={queryState.sort}
                     toggleSelectAll={() => {
                         if (selectedAll) {
@@ -136,7 +134,6 @@ const DataTable: React.FC<Props> = (props) => {
                     selectRecord={selectRecord}
                     selected={selected}
                     selectedAll={selectedAll}
-                    total={total}
                 />
                 <Footer
                     total={total}

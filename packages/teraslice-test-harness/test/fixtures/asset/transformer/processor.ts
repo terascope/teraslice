@@ -1,5 +1,5 @@
-import { SimpleAPI } from '../simple-api/interfaces';
 import { MapProcessor, DataEntity } from '@terascope/job-components';
+import { SimpleAPI } from '../simple-api/interfaces';
 import { TransformerConfig } from './interfaces';
 
 export default class Transformer extends MapProcessor<TransformerConfig> {

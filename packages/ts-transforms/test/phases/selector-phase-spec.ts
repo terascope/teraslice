@@ -1,7 +1,9 @@
 
 import path from 'path';
 import { DataEntity, debugLogger } from '@terascope/utils';
-import { SelectionPhase, Loader, OperationsManager, SelectorConfig } from '../../src';
+import {
+    SelectionPhase, Loader, OperationsManager, SelectorConfig
+} from '../../src';
 
 describe('selector phase', () => {
     const logger = debugLogger('selectorPhaseTest');
@@ -77,6 +79,5 @@ describe('selector phase', () => {
         expect(selectorPhase.selectionPhase[0].selector).toEqual('host:fc2.com');
         // @ts-ignore
         expect(selectorPhase.selectionPhase[1].selector).toEqual('*');
-
     });
 });

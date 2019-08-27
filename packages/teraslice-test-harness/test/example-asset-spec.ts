@@ -2,7 +2,9 @@ import 'jest-extended';
 import path from 'path';
 import { DataEntity, TestClientConfig } from '@terascope/job-components';
 import SimpleClient from './fixtures/asset/simple-connector/client';
-import { JobTestHarness, newTestJobConfig, newTestSlice, SlicerTestHarness, WorkerTestHarness } from '../src';
+import {
+    JobTestHarness, newTestJobConfig, newTestSlice, SlicerTestHarness, WorkerTestHarness
+} from '../src';
 import { SimpleAPI } from './fixtures/asset/simple-api/interfaces';
 
 jest.mock('./fixtures/asset/simple-connector/client');
@@ -12,16 +14,12 @@ describe('Example Asset', () => {
     const simpleClient = new SimpleClient();
     const clientConfig: TestClientConfig = {
         type: 'simple-client',
-        create: jest.fn(() => {
-            return { client: simpleClient };
-        }),
+        create: jest.fn(() => ({ client: simpleClient })),
     };
 
     beforeEach(() => {
         jest.restoreAllMocks();
-        clientConfig.create = jest.fn(() => {
-            return { client: simpleClient };
-        });
+        clientConfig.create = jest.fn(() => ({ client: simpleClient }));
     });
 
     describe('using the WorkerTestHarness', () => {
@@ -48,16 +46,14 @@ describe('Example Asset', () => {
 
         beforeEach(async () => {
             // @ts-ignore
-            simpleClient.fetchRecord.mockImplementation((id: number) => {
-                return {
-                    id,
-                    data: {
-                        a: 'b',
-                        c: 'd',
-                        e: 'f',
-                    },
-                };
-            });
+            simpleClient.fetchRecord.mockImplementation((id: number) => ({
+                id,
+                data: {
+                    a: 'b',
+                    c: 'd',
+                    e: 'f',
+                },
+            }));
 
             harness = new WorkerTestHarness(job, {
                 clients: [clientConfig],
@@ -118,9 +114,7 @@ describe('Example Asset', () => {
 
         beforeEach(async () => {
             // @ts-ignore
-            simpleClient.sliceRequest.mockImplementation((count: number) => {
-                return { count, super: 'man' };
-            });
+            simpleClient.sliceRequest.mockImplementation((count: number) => ({ count, super: 'man' }));
 
             harness = new SlicerTestHarness(job, {
                 clients: [clientConfig],

@@ -1,5 +1,5 @@
-import GeoType from '../../../src/types/versions/v1/geo';
 import { TSError } from '@terascope/utils';
+import GeoType from '../../../src/types/versions/v1/geo';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Geo V1', () => {
@@ -31,7 +31,10 @@ describe('Geo V1', () => {
     });
 
     it('can get proper graphQl types', () => {
-        const { type: graphQlTypes, custom_type: customType } = new GeoType(field, typeConfig).toGraphQL();
+        const {
+            type: graphQlTypes,
+            custom_type: customType
+        } = new GeoType(field, typeConfig).toGraphQL();
         const results = `${field}: GeoPointType`;
 
         expect(graphQlTypes).toEqual(results);

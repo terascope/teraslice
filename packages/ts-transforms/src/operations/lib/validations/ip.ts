@@ -1,5 +1,3 @@
-
-import _ from 'lodash';
 import net from 'net';
 import ValidationOpBase from './base';
 import { PostProcessConfig } from '../../../interfaces';
@@ -13,5 +11,4 @@ export default class Ip extends ValidationOpBase<any> {
         if (net.isIP(data) === 0) return false;
         return true;
     }
-
 }

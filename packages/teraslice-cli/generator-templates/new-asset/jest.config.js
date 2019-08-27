@@ -5,17 +5,15 @@ module.exports = {
     verbose: true,
     testEnvironment: 'node',
     setupFilesAfterEnv: ['jest-extended'],
-    globals: {
-        availableExtensions: ['.js', '.ts']
-    },
     testMatch: [
-        '<rootDir>/test/*-spec.{ts,js}'
+        '<rootDir>/test/*-spec.js'
     ],
     collectCoverage: true,
     collectCoverageFrom: [
-        '<rootDir>/asset/*/processor.js',
+        '<rootDir>/asset/**/*.js',
+        '<rootDir>/asset/*/*.js',
+        '!<rootDir>/asset/node_modules',
     ],
     coverageReporters: ['lcov', 'text-summary', 'html'],
-    coverageDirectory: '<rootDir>/coverage',
-    preset: 'ts-jest'
+    coverageDirectory: '<rootDir>/coverage'
 };

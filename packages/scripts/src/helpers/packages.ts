@@ -39,13 +39,16 @@ export function addPackageConfig(pkgInfo: i.PackageInfo): void {
     for (const _key of Object.keys(pkgInfo.terascope)) {
         const key = _key as (keyof i.PackageConfig);
         if (!i.AvailablePackageConfigKeys.includes(key)) {
-            throw new Error(`Unknown terascope config "${key}" found in "${name}" package`);
+            throw new Error(`Unknown terascope config "${key}" found in "${pkgInfo.name}" package`);
         }
     }
 }
 
 export function readPackageInfo(folderPath: string): i.PackageInfo {
-    const dir = path.isAbsolute(folderPath) ? path.join(folderPath) : path.join(getRootDir(), folderPath);
+    const dir = path.isAbsolute(folderPath)
+        ? path.join(folderPath)
+        : path.join(getRootDir(), folderPath);
+
     const pkgJSONPath = path.join(dir, 'package.json');
     const pkgJSON = getSortedPkgJSON(fse.readJSONSync(pkgJSONPath));
     pkgJSON.dir = dir;

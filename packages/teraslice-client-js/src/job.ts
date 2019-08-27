@@ -7,7 +7,7 @@ import {
     toString,
     TSError,
     Assignment,
- } from '@terascope/job-components';
+} from '@terascope/job-components';
 import {
     ClientConfig,
     SearchQuery,
@@ -25,11 +25,10 @@ import {
     ExecutionIDResponse,
     ExecutionGetResponse,
     RecoverQuery,
-    Recover,
     ResumeResponse,
     StoppedResponse,
     PausedResponse,
-    JobsPostResponse,
+    JobIDResponse,
     StopQuery
 } from './interfaces';
 import Client from './client';
@@ -49,7 +48,7 @@ function _deprecateSlicerName(fn: () => Promise<ControllerState>) {
 export default class Job extends Client {
     private _jobId: string;
 
-    constructor(config:ClientConfig, jobId: string) {
+    constructor(config: ClientConfig, jobId: string) {
         super(config);
         if (!jobId) {
             throw new TSError('Job requires jobId');
@@ -73,41 +72,44 @@ export default class Job extends Client {
         return this.get(`/jobs/${this._jobId}/controller`, requestOptions);
     }
 
-    async start(query?: SearchQuery, searchOptions: SearchOptions = {}):Promise<JobsPostResponse> {
+    async start(query?: SearchQuery, searchOptions: SearchOptions = {}): Promise<JobIDResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/jobs/${this._jobId}/_start`, null, options);
     }
 
-    async stop(query?: StopQuery, searchOptions: SearchOptions = {}):Promise<StoppedResponse> {
+    async stop(query?: StopQuery, searchOptions: SearchOptions = {}): Promise<StoppedResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/jobs/${this._jobId}/_stop`, null, options);
     }
 
-    async pause(query?: SearchQuery, searchOptions: SearchOptions = {}):Promise<PausedResponse> {
+    async pause(query?: SearchQuery, searchOptions: SearchOptions = {}): Promise<PausedResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/jobs/${this._jobId}/_pause`, null, options);
     }
 
-    async resume(query?: SearchQuery, searchOptions: SearchOptions = {}):Promise<ResumeResponse> {
+    async resume(query?: SearchQuery, searchOptions: SearchOptions = {}): Promise<ResumeResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/jobs/${this._jobId}/_resume`, null, options);
     }
 
-    async recover(query: RecoverQuery = {}, searchOptions: SearchOptions = {}):Promise<Recover> {
+    async recover(
+        query: RecoverQuery = {},
+        searchOptions: SearchOptions = {}
+    ): Promise<JobIDResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/jobs/${this._jobId}/_recover`, null, options);
     }
 
-    async execution(requestOptions: RequestOptions = {}):Promise<ExecutionGetResponse> {
+    async execution(requestOptions: RequestOptions = {}): Promise<ExecutionGetResponse> {
         return this.get(`/jobs/${this._jobId}/ex`, requestOptions);
     }
 
-    async exId(requestOptions: RequestOptions = {}):Promise<ExecutionIDResponse> {
+    async exId(requestOptions: RequestOptions = {}): Promise<ExecutionIDResponse> {
         const { ex_id: exId } = await this.get(`/jobs/${this._jobId}/ex`, requestOptions);
         return exId;
     }
 
-    async status(requestOptions: RequestOptions = {}):Promise<ExecutionStatus> {
+    async status(requestOptions: RequestOptions = {}): Promise<ExecutionStatus> {
         const { _status: status } = await this.get(`/jobs/${this._jobId}/ex`, requestOptions);
         return status;
     }
@@ -117,8 +119,7 @@ export default class Job extends Client {
         intervalMs = 1000,
         timeoutMs = 0,
         requestOptions: RequestOptions = {}
-        ):Promise<ExecutionStatus> {
-
+    ): Promise<ExecutionStatus> {
         const terminal = {
             terminated: true,
             failed: true,
@@ -156,7 +157,6 @@ export default class Job extends Client {
             // watching for these then we need to stop waiting as the job
             // status won't change further.
             if (terminal[result]) {
-                // tslint:disable-next-line:max-line-length
                 throw new TSError(
                     `Job cannot reach the target status, "${target}", because it is in the terminal state, "${result}"`,
                     { context: { lastStatus: result } }
@@ -182,7 +182,7 @@ export default class Job extends Client {
         return this.get(`/jobs/${this._jobId}`, requestOptions);
     }
 
-    async errors(query: SearchQuery = {}, searchOptions: SearchOptions = {}):Promise<StateErrors> {
+    async errors(query: SearchQuery = {}, searchOptions: SearchOptions = {}): Promise<StateErrors> {
         return this.get(`/jobs/${this._jobId}/errors`, this.makeOptions(query, searchOptions));
     }
 
@@ -192,10 +192,10 @@ export default class Job extends Client {
     }
 
     async changeWorkers(
-        action:ChangeWorkerQueryParams,
-        workerNum:number,
+        action: ChangeWorkerQueryParams,
+        workerNum: number,
         requestOptions: RequestOptions = {}
-        ): Promise<ChangeWorkerResponse | string> {
+    ): Promise<ChangeWorkerResponse | string> {
         if (action == null || workerNum == null) {
             throw new TSError('changeWorkers requires action and count');
         }
@@ -204,7 +204,7 @@ export default class Job extends Client {
         }
 
         const query = { [action]: workerNum };
-        requestOptions['json'] = false;
+        requestOptions.json = false;
         const options = this.makeOptions(query, requestOptions);
 
         const response = await this.post(`/jobs/${this._jobId}/_workers`, null, options);
@@ -212,18 +212,20 @@ export default class Job extends Client {
         if (typeof response === 'string') {
             try {
                 return this.parse(response);
-            } catch (err) {}
+            } catch (err) {
+                // do nothing
+            }
         }
 
         return response;
     }
 }
 
-function filterProcesses<T>(state:ClusterState, jobId: string, type:Assignment) {
-    const results:T[] = [];
+function filterProcesses<T>(state: ClusterState, jobId: string, type: Assignment) {
+    const results: T[] = [];
 
     for (const [, node] of Object.entries(state)) {
-        node.active.forEach((child:ClusterProcess) => {
+        node.active.forEach((child: ClusterProcess) => {
             const { assignment, job_id: procJobId } = child;
             if ((assignment && assignment === type) && (procJobId && procJobId === jobId)) {
                 const jobProcess = Object.assign({}, child, { node_id: node.node_id });

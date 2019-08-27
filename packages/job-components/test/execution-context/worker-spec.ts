@@ -2,7 +2,14 @@ import 'jest-extended';
 import path from 'path';
 import { pDelay, DataEntity } from '@terascope/utils';
 import { terasliceOpPath } from '../helpers';
-import { WorkerExecutionContext, TestContext, newTestExecutionConfig, FetcherCore, ProcessorCore, newTestSlice } from '../../src';
+import {
+    WorkerExecutionContext,
+    TestContext,
+    newTestExecutionConfig,
+    FetcherCore,
+    ProcessorCore,
+    newTestSlice
+} from '../../src';
 
 describe('WorkerExecutionContext', () => {
     const assetIds = ['fixtures'];
@@ -213,10 +220,8 @@ describe('WorkerExecutionContext', () => {
                         if (current !== previous) {
                             console.warn(`Metric "${metric}" should not have changed for the fetcher. Expected ${current} === ${previous}`);
                         }
-                    } else {
-                        if (current < previous) {
-                            console.warn(`Metric "${metric}" should be greater than the last run. Expected ${current} >= ${previous}.`);
-                        }
+                    } else if (current < previous) {
+                        console.warn(`Metric "${metric}" should be greater than the last run. Expected ${current} >= ${previous}.`);
                     }
                 }
             }

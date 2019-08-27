@@ -19,6 +19,7 @@ describe('IndexManager', () => {
         const indexManager = new IndexManager(client);
 
         describe('->_logger', () => {
+            // eslint-disable-next-line
             const loggerFn = (config: Partial<IndexConfig>) => {
                 // @ts-ignore
                 return indexManager._logger(config);

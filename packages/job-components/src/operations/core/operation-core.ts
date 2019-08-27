@@ -20,7 +20,10 @@ import { makeExContextLogger } from '../../utils';
  * See [[Core]] more information
  */
 
-export default class OperationCore<T = OpConfig> extends Core<WorkerContext> implements WorkerOperationLifeCycle {
+export default class OperationCore<T = OpConfig>
+    extends Core<WorkerContext>
+    implements WorkerOperationLifeCycle {
+    // ...
     readonly opConfig: Readonly<OpConfig & T>;
     deadLetterAction: DeadLetterAction;
 
@@ -62,7 +65,8 @@ export default class OperationCore<T = OpConfig> extends Core<WorkerContext> imp
      * See {@link #rejectRecord} for handling
      *
      * @param fn a function to transform the data with
-     * @returns a curried a function that will be called with the data and handle the dead letter action
+     * @returns a curried a function that will be called
+     * with the data and handle the dead letter action
      */
     tryRecord<I, R>(fn: (input: I) => R): (input: I) => R | null {
         return (input) => {

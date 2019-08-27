@@ -3,7 +3,11 @@ import { Request, Response } from 'express';
 import { Context } from '@terascope/job-components';
 import * as ts from '@terascope/utils';
 
-export type ErrorHandlerFn = (req: Request, res: Response, fn: (...args: any[]) => Promise<any> | any) => Promise<void>;
+export type ErrorHandlerFn = (
+    req: Request,
+    res: Response,
+    fn: (...args: any[]) => Promise<any> | any
+) => Promise<void>;
 
 export function makeErrorHandler(reason: string, logger: ts.Logger): ErrorHandlerFn {
     return async (req, res, fn) => {

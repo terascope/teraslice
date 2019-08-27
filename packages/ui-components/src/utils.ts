@@ -3,7 +3,9 @@ import _parseDate from 'date-fns/parse';
 import _formatDate from 'date-fns/format';
 import { UserType } from '@terascope/data-access';
 import { withRouter, RouteComponentProps, matchPath } from 'react-router-dom';
-import { PluginConfig, PluginRoute, ResolvedUser, UserPermissionMap, AccessLevel } from './interfaces';
+import {
+    PluginConfig, PluginRoute, ResolvedUser, UserPermissionMap, AccessLevel
+} from './interfaces';
 import PluginService from './plugin-service';
 
 export function formatPath(...paths: (string | undefined)[]) {
@@ -35,15 +37,16 @@ export function formatDate(dateStr: any): string {
 }
 
 type FindPluginRouteResult = { plugin: PluginConfig; route: PluginRoute };
-export function findPluginRoute(pathname: string, authUser?: ResolvedUser): FindPluginRouteResult | undefined {
+export function findPluginRoute(
+    pathname: string,
+    authUser?: ResolvedUser
+): FindPluginRouteResult | undefined {
     const plugins = PluginService.plugins();
     for (const plugin of plugins) {
-        const route = plugin.routes.find(({ path }) => {
-            return !!matchPath(pathname, {
-                path,
-                exact: true,
-            });
-        });
+        const route = plugin.routes.find(({ path }) => !!matchPath(pathname, {
+            path,
+            exact: true,
+        }));
 
         if (route) {
             const result: FindPluginRouteResult = { route, plugin };
@@ -64,8 +67,6 @@ export function getAccessLevels(access?: AccessLevel): UserType[] | undefined {
     if (access) {
         return [access];
     }
-
-    return;
 }
 
 export function hasAccessToRoute(authUser?: ResolvedUser, result?: FindPluginRouteResult): boolean {

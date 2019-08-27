@@ -5,11 +5,11 @@ import { createTempDirSync } from 'jest-fixtures';
 import JobSrc from '../../src/helpers/job-src';
 import { getPackage } from '../../src/helpers/utils';
 
-const { version }  = getPackage();
+const { version } = getPackage();
 
 describe('JobSrc', () => {
-    let jobFile:any;
-    let args:any;
+    let jobFile: any;
+    let args: any;
     const jobPath = createTempDirSync();
 
     beforeEach(() => {

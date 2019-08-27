@@ -8,6 +8,8 @@ import {
     isString
 } from '@terascope/utils';
 
+const deprecateType = deprecate((result: any): DataEntity[] => castArray<DataEntity>(result), 'Legacy processors should return an array of Objects or DataEntities');
+
 /**
  * Convert legacy processor results into DataEntities if possible.
  * But in order to be more backwards compatible legacy modules
@@ -30,7 +32,3 @@ export function convertResult(input: DataInput[]|Buffer[]|string[]): DataEntity[
 
     throw new Error('Invalid return type for processor');
 }
-
-const deprecateType = deprecate((result: any): DataEntity[] => {
-    return castArray<DataEntity>(result);
-}, 'Legacy processors should return an array of Objects or DataEntities');

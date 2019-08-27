@@ -1,6 +1,4 @@
-
 import { CMD } from '../../interfaces';
-import _ from 'lodash';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 import Jobs from '../../helpers/jobs';
@@ -12,7 +10,7 @@ const yargsOptions = new YargsOptions();
 export = {
     command: 'pause <cluster-alias> [id]',
     describe: 'Pause job id on the specified cluster.\n',
-    builder(yargs:any) {
+    builder(yargs: any) {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));

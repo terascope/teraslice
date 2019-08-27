@@ -3,7 +3,7 @@ import * as i from './interfaces';
 
 export const CoreContext = createContext<i.CoreContextState>({
     authenticated: false,
-    updateState(updates) {},
+    updateState(_updates) {},
 });
 
 const CoreContextProvider: React.FC<Props> = ({ children }) => {

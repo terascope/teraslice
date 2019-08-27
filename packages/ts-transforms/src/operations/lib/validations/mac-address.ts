@@ -1,5 +1,4 @@
 import { DataEntity } from '@terascope/utils';
-import _ from 'lodash';
 import validator from 'validator';
 import ValidationOpBase from './base';
 import { PostProcessConfig } from '../../../interfaces';

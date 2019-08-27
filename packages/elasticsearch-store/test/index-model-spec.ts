@@ -2,7 +2,9 @@ import 'jest-extended';
 import { Client } from 'elasticsearch';
 import { QueryAccess } from 'xlucene-evaluator';
 import { times, TSError, AnyObject } from '@terascope/utils';
-import { IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions } from '../src';
+import {
+    IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions
+} from '../src';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
 import { TEST_INDEX_PREFIX } from './helpers/config';
 
@@ -151,24 +153,22 @@ describe('IndexModel', () => {
             }
         });
 
-        it('should be able to create the same name in different client', async () => {
-            return expect(
-                indexModel.create({
-                    client_id: 2,
-                    name: 'Billy',
-                    config: {
-                        foo: 2,
-                        bar: 2,
-                        baz: {
-                            a: 2,
-                        },
-                    },
-                })
-            ).resolves.toMatchObject({
+        it('should be able to create the same name in different client', async () => expect(
+            indexModel.create({
                 client_id: 2,
                 name: 'Billy',
-            });
-        });
+                config: {
+                    foo: 2,
+                    bar: 2,
+                    baz: {
+                        a: 2,
+                    },
+                },
+            })
+        ).resolves.toMatchObject({
+            client_id: 2,
+            name: 'Billy',
+        }));
 
         it('should not be able to create the record without a name', async () => {
             expect.hasAssertions();
@@ -198,9 +198,7 @@ describe('IndexModel', () => {
             });
 
             describe('when given an object with a id', () => {
-                it('should resolve the full record', () => {
-                    return expect(indexModel.findAndApply({ id: fetched.id })).resolves.toEqual(fetched);
-                });
+                it('should resolve the full record', () => expect(indexModel.findAndApply({ id: fetched.id })).resolves.toEqual(fetched));
             });
 
             describe('when given an object without an id', () => {
@@ -300,9 +298,7 @@ describe('IndexModel', () => {
     });
 
     describe('when giving an invalid input into findAll', () => {
-        it('should NOT fail when given an empty array', async () => {
-            return expect(indexModel.findAll([])).resolves.toBeArrayOfSize(0);
-        });
+        it('should NOT fail when given an empty array', async () => expect(indexModel.findAll([])).resolves.toBeArrayOfSize(0));
 
         it('should NOT fail when given an array of falsey values', async () => {
             const input: any = ['', undefined, null];
@@ -313,23 +309,19 @@ describe('IndexModel', () => {
     describe('when creating mulitple records', () => {
         beforeAll(async () => {
             await Promise.all(
-                times(5, (n) => {
-                    return indexModel.create({
-                        client_id: 1,
-                        name: `Joe ${n}`,
-                        config: {},
-                    });
-                })
+                times(5, (n) => indexModel.create({
+                    client_id: 1,
+                    name: `Joe ${n}`,
+                    config: {},
+                }))
             );
 
             await Promise.all(
-                times(5, (n) => {
-                    return indexModel.create({
-                        client_id: 1,
-                        name: `Bob ${n}`,
-                        config: {},
-                    });
-                })
+                times(5, (n) => indexModel.create({
+                    client_id: 1,
+                    name: `Bob ${n}`,
+                    config: {},
+                }))
             );
         });
 

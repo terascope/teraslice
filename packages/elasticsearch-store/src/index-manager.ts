@@ -157,7 +157,9 @@ export default class IndexManager {
      * @todo add support for complicated reindexing behaviors
      */
     async migrateIndex(options: MigrateIndexOptions): Promise<any> {
-        const { timeout, config, previousVersion, previousName, previousNamespace } = options;
+        const {
+            timeout, config, previousVersion, previousName, previousNamespace
+        } = options;
         utils.validateIndexConfig(config);
 
         const logger = this._logger(config);

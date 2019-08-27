@@ -46,7 +46,9 @@ const config: ModelConfig<Input> = {
     pluralLabel: 'Spaces',
     searchFields: ['name', 'type', 'endpoint'],
     requiredFields: ['name', 'type'],
-    handleFormProps(authUser, { result, views, dataTypes: _dataTypes, ...extra }) {
+    handleFormProps(authUser, {
+        result, views, dataTypes: _dataTypes, ...extra
+    }) {
         const input = {} as Input;
         for (const field of inputFields) {
             if (field === 'config') {

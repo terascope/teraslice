@@ -149,8 +149,6 @@ export class DataType {
     }
 
     toXlucene() {
-        return this._types.reduce((accum, type) => {
-            return { ...accum, ...type.toXlucene() };
-        }, {});
+        return this._types.reduce((accum, type) => ({ ...accum, ...type.toXlucene() }), {});
     }
 }

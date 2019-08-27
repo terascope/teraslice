@@ -7,7 +7,9 @@ export default abstract class BaseType {
     protected config: FieldTypeConfig;
 
     constructor(field: string, config: FieldTypeConfig) {
-        if (!field || !ts.isString(field)) throw new ts.TSError('A field must be provided and must be of type string');
+        if (!field || !ts.isString(field)) {
+            throw new ts.TSError('A field must be provided and must be of type string');
+        }
         this.field = field;
         this.config = config;
     }
@@ -16,7 +18,10 @@ export default abstract class BaseType {
     abstract toGraphQL(): GraphQLType;
     abstract toXlucene(): TypeConfig;
 
-    protected _formatGql(type: string, customType?: string): { type: string; custom_type?: string } {
+    protected _formatGql(
+        type: string,
+        customType?: string
+    ): { type: string; custom_type?: string } {
         if (this.field.includes('.')) {
             const [base] = this.field.split('.');
             if (!ts.isTest) {

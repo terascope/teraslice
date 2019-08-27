@@ -1,6 +1,6 @@
 {
     "name": "xlucene-evaluator",
-    "version": "0.10.0",
+    "version": "0.10.1",
     "description": "Flexible Lucene-like evalutor and language parser",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator#readme",
     "repository": {
@@ -21,10 +21,8 @@
     },
     "scripts": {
         "prebuild": "./scripts/generate-engine.js",
-        "build": "yarn run prebuild && tsc --build --pretty",
+        "build": "yarn run prebuild && tsc --build",
         "build:watch": "yarn build --watch",
-        "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
-        "lint:fix": "yarn lint --fix",
         "prepare": "yarn run prebuild",
         "prepublishOnly": "yarn build",
         "test": "ts-scripts test . --",

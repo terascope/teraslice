@@ -1,12 +1,11 @@
 
-import AssetSrc from '../../src/helpers/asset-src';
 import path from 'path';
 import fs from 'fs-extra';
 import tmp from 'tmp';
+import AssetSrc from '../../src/helpers/asset-src';
 
 describe('AssetSrc', () => {
-
-    let testAsset:any;
+    let testAsset: any;
     const srcDir = path.join(__dirname, '../fixtures/testAsset');
 
     beforeEach(() => {
@@ -51,8 +50,7 @@ describe('AssetSrc', () => {
 });
 
 describe('AssetSrc with build', () => {
-
-    let testAsset:any;
+    let testAsset: any;
     const srcDir = path.join(__dirname, '../fixtures/testAssetWithBuild');
 
     beforeEach(() => {

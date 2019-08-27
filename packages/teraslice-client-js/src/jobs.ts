@@ -18,25 +18,28 @@ export default class Jobs extends Client {
         autoBind(this);
     }
 
-    async submit(jobSpec:JobConfig, shouldNotStart?:boolean) {
+    async submit(jobSpec: JobConfig, shouldNotStart?: boolean) {
         if (!jobSpec) throw new TSError('submit requires a jobSpec');
         const job = await this.post('/jobs', jobSpec, { query: { start: !shouldNotStart } });
         return this.wrap(job.job_id);
     }
 
-    async list(status?: JobListStatusQuery, searchOptions: SearchOptions = {}):Promise<JobsGetResponse> {
+    async list(
+        status?: JobListStatusQuery,
+        searchOptions: SearchOptions = {}
+    ): Promise<JobsGetResponse> {
         const query = _parseListOptions(status);
         return this.get('/jobs', this.makeOptions(query, searchOptions));
     }
 
     // Wraps the job_id with convenience functions for accessing
     // the state on the server.
-    wrap(jobId:string) {
+    wrap(jobId: string) {
         return new Job(this._config, jobId);
     }
 }
 
-function _parseListOptions(options?:JobListStatusQuery): JobSearchParams {
+function _parseListOptions(options?: JobListStatusQuery): JobSearchParams {
     // support legacy
     if (!options) return { status: '*' };
     if (isString(options)) return { status: options };

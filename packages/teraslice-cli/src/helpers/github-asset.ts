@@ -71,8 +71,8 @@ export default class GithubAsset {
         return !release.draft && !release.prerelease;
     }
 
-    static genFilterAsset(nodeMajorVersion:string, platform:string, arch:string) {
-        return (asset:any) => {
+    static genFilterAsset(nodeMajorVersion: string, platform: string, arch: string) {
+        return (asset: any) => {
             const mustContain = `node-${nodeMajorVersion}-${platform}-${arch}.zip`;
             return asset.name.indexOf(mustContain) >= 0;
         };
@@ -93,7 +93,7 @@ export default class GithubAsset {
      *            terascope/file-assets@v2.0.0
      * @return {AssetDescriptor}
      */
-    static parseAssetString(assetString:string) {
+    static parseAssetString(assetString: string) {
         let userAndName;
         let version;
 

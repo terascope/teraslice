@@ -1,5 +1,7 @@
 import React, { FormEvent, useState, ReactElement } from 'react';
-import { AnyObject, get, isFunction, uniq } from '@terascope/utils';
+import {
+    AnyObject, get, isFunction, uniq
+} from '@terascope/utils';
 import { RecordForm, useCoreContext } from '@terascope/ui-components';
 import { getModelConfig } from '../config';
 import {

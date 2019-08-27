@@ -30,7 +30,7 @@ module.exports = (options) => {
     }
 
     const {
-        pkgName, pkgDirName, pkgVersion, typescript, description, license
+        pkgName, pkgDirName, pkgVersion, typescript, description, license,
     } = options;
 
     const common = {
@@ -38,16 +38,16 @@ module.exports = (options) => {
         description,
         version: pkgVersion,
         publishConfig: {
-            access: 'public'
+            access: 'public',
         },
         homepage: `https://github.com/terascope/teraslice/tree/master/packages/${pkgDirName}#readme`,
         repository: 'git@github.com:terascope/teraslice.git',
         author: 'Terascope, LLC <info@terascope.io>',
         license,
         bugs: {
-            url: 'https://github.com/terascope/teraslice/issues'
+            url: 'https://github.com/terascope/teraslice/issues',
         },
-        dependencies: {}
+        dependencies: {},
     };
 
     if (!typescript) {
@@ -56,9 +56,9 @@ module.exports = (options) => {
             files: ['*.js', 'lib/**/*'],
             scripts: {
                 test: 'jest',
-                'test:watch': 'jest --coverage=false --notify --watch --onlyChanged'
+                'test:watch': 'jest --coverage=false --notify --watch --onlyChanged',
             },
-            devDependencies: getPkgValues({})
+            devDependencies: getPkgValues({}),
         });
     }
 
@@ -68,16 +68,14 @@ module.exports = (options) => {
         main: 'dist/src/index.js',
         typings: 'dist/src/index.d.ts',
         scripts: {
-            lint: "tslint -p tsconfig.json -t verbose -e '**/*.json'",
-            'lint:fix': 'yarn lint --fix',
             prepublishOnly: 'yarn build',
-            build: 'tsc --build --pretty',
+            build: 'tsc --build',
             'build:watch': 'yarn build --watch',
             test: 'jest',
             'test:watch': 'jest --coverage=false --notify --watch --onlyChanged',
             'test:debug':
-                "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+                "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
         },
-        devDependencies: getPkgValues({})
+        devDependencies: getPkgValues({}),
     });
 };

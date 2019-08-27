@@ -1,6 +1,4 @@
-
 import { CMD } from '../../interfaces';
-import _ from 'lodash';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 import TerasliceUtil from '../../helpers/teraslice-util';
@@ -14,7 +12,7 @@ const yargsOptions = new YargsOptions();
 export = {
     command: 'errors <cluster-alias> [id]',
     describe: 'List errors for all running and failing job on cluster.\n',
-    builder(yargs:any) {
+    builder(yargs: any) {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
         yargs.options('from', yargsOptions.buildOption('jobs-from'));
@@ -37,7 +35,7 @@ export = {
         const format = `${cliConfig.args.output}Horizontal`;
 
         try {
-            const opts:any = {};
+            const opts: any = {};
             opts.from = cliConfig.args.from;
             opts.sort = cliConfig.args.sort;
             opts.size = cliConfig.args.size;

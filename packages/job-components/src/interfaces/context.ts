@@ -44,7 +44,7 @@ export interface TerasliceConfig {
     slicer_port_range: string|'45679:46678';
     slicer_timeout: number|180000;
     state: ClusterStateConfig;
-    env_vars: { [key: string]: string; };
+    env_vars: { [key: string]: string };
     worker_disconnect_timeout: number|300000;
     workers: number|4;
 }
@@ -65,7 +65,11 @@ export interface ConnectionConfig {
     type: string;
 }
 
-export type ClientFactoryFn = (config: object, logger: Logger, options: ConnectionConfig) => { client: any };
+export type ClientFactoryFn = (
+    config: object,
+    logger: Logger,
+    options: ConnectionConfig
+) => { client: any };
 
 export interface FoundationApis {
     makeLogger(...params: any[]): Logger;
@@ -85,6 +89,7 @@ export interface ContextApis {
     [namespace: string]: any;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ContextAPIs extends ContextApis {}
 
 export interface GetClientConfig {
@@ -111,10 +116,6 @@ export interface JobRunnerAPI {
 export interface AssetsAPI {
     /* Get the asset path from a asset name or ID */
     getPath(name: string): Promise<string>;
-}
-
-export interface WorkerContext extends Context {
-    apis: WorkerContextAPIs;
 }
 
 /**

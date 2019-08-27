@@ -1,11 +1,12 @@
 
-import { Uppercase } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
+import { Uppercase } from '../../../src/operations';
 
 describe('transform operator', () => {
-
     it('can instantiate', () => {
-        const opConfig = { target_field: 'someField', source_field: 'someField', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            target_field: 'someField', source_field: 'someField', __id: 'someId', follow: 'otherId'
+        };
         expect(() => new Uppercase(opConfig)).not.toThrow();
     });
 
@@ -25,7 +26,9 @@ describe('transform operator', () => {
     });
 
     it('can transform strings to Uppercase', () => {
-        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId'
+        };
         const test = new Uppercase(opConfig);
 
         const data1 = new DataEntity({ someField: '56.234,95.234' });
@@ -55,6 +58,5 @@ describe('transform operator', () => {
         expect(results6).toEqual({ someField: 'OTHER' });
         expect(results7).toEqual({ sideField: 'data' });
         expect(results8).toEqual({ someField: ['OTHER', 'DATA'] });
-
     });
 });

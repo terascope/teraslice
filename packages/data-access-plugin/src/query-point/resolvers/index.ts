@@ -30,7 +30,12 @@ function dedup<T>(records: T[]): T[] {
     return Object.values(deduped);
 }
 
-function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger: Logger, context: Context) {
+function createResolvers(
+    viewList: DataAccessConfig[],
+    typeDefs: string,
+    logger: Logger,
+    context: Context
+) {
     const results = {} as IResolvers<any, SpacesContext>;
     const endpoints = {};
     // we create the master resolver list
@@ -64,7 +69,12 @@ function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger:
         const client = elasticsearchApi(esClient, logger);
         const {
             data_type: { config },
-            view: { includes, excludes, constraint, prevent_prefix_wildcard },
+            view: {
+                includes,
+                excludes,
+                constraint,
+                prevent_prefix_wildcard: preventPrefixWildcard
+            },
         } = view;
 
         const dateType = new DataType(config);
@@ -72,7 +82,7 @@ function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger:
             includes,
             excludes,
             constraint,
-            prevent_prefix_wildcard,
+            prevent_prefix_wildcard: preventPrefixWildcard,
             allow_implicit_queries: true,
         };
 
@@ -81,11 +91,20 @@ function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger:
             logger,
         });
 
-        endpoints[view.space_endpoint!] = async function resolverFn(root: any, args: any, ctx: any, info: GraphQLResolveInfo) {
+        endpoints[view.space_endpoint!] = async function resolverFn(
+            root: any,
+            args: any,
+            ctx: any,
+            info: GraphQLResolveInfo
+        ) {
             const spaceConfig = view.config as SpaceSearchConfig;
             const _sourceInclude = getSelectionKeys(info);
-            const { size, sort, from, join } = args;
-            const queryParams = { index: spaceConfig.index, from, sort, size, _sourceInclude };
+            const {
+                size, sort, from, join
+            } = args;
+            const queryParams = {
+                index: spaceConfig.index, from, sort, size, _sourceInclude
+            };
             let { query: q } = args;
 
             if (root == null && q == null) throw new UserInputError('Invalid request, expected query to nested');

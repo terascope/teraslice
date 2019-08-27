@@ -1,9 +1,24 @@
 import { isEmpty } from './utils';
 import { debugLogger } from './logger';
 import { toHumanTime, trackTimeout } from './dates';
-import { isRetryableError, TSError, parseError, isFatalError } from './errors';
+import {
+    isRetryableError,
+    TSError,
+    parseError,
+    isFatalError
+} from './errors';
 
 const logger = debugLogger('utils:promises');
+
+/** promisified setTimeout */
+export const pDelay = (delay = 1) => new Promise((resolve) => {
+    setTimeout(resolve, delay);
+});
+
+/** promisified setImmediate */
+export const pImmediate = () => new Promise((resolve) => {
+    setImmediate(resolve);
+});
 
 export interface PRetryConfig {
     /**
@@ -61,7 +76,10 @@ export interface PRetryConfig {
 /**
  * A promise retry fn.
  */
-export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetryConfig>): Promise<T> {
+export async function pRetry<T = any>(
+    fn: PromiseFn<T>,
+    options?: Partial<PRetryConfig>
+): Promise<T> {
     const config = Object.assign(
         {
             retries: 3,
@@ -124,7 +142,12 @@ export async function pRetry<T = any>(fn: PromiseFn<T>, options?: Partial<PRetry
 
         if (isRetryableError(err) && config.retries > 1) {
             config.retries--;
-            config._currentDelay = getBackoffDelay(config._currentDelay, config.backoff, config.maxDelay, config.delay);
+            config._currentDelay = getBackoffDelay(
+                config._currentDelay,
+                config.backoff,
+                config.maxDelay,
+                config.delay
+            );
 
             await pDelay(config._currentDelay);
 
@@ -218,7 +241,12 @@ export async function pWhile(fn: PromiseFn, options: PWhileOptions = {}): Promis
 /**
  * Get backoff delay that will safe to retry and is slightly staggered
  */
-export function getBackoffDelay(current: number, factor: number = 2, max = 60000, min = 500): number {
+export function getBackoffDelay(
+    current: number,
+    factor = 2,
+    max = 60000,
+    min = 500
+): number {
     // jitter is a floating point number between -0.2 and 0.8
     const jitter = Math.random() * 0.8 + -0.2;
 
@@ -239,20 +267,6 @@ export function getBackoffDelay(current: number, factor: number = 2, max = 60000
 type PRetryContext = {
     attempts: number;
     startTime: number;
-};
-
-/** promisified setTimeout */
-export const pDelay = (delay: number = 1) => {
-    return new Promise((resolve) => {
-        setTimeout(resolve, delay);
-    });
-};
-
-/** promisified setImmediate */
-export const pImmediate = () => {
-    return new Promise((resolve) => {
-        setImmediate(resolve);
-    });
 };
 
 interface PromiseFn<T = any> {
@@ -296,7 +310,11 @@ export function pRace(promises: Promise<any>[], logError?: (err: any) => void): 
 /**
  * Similar to pRace but with
  */
-export function pRaceWithTimeout(promises: Promise<any>[] | Promise<any>, timeout: number, logError?: (err: any) => void): Promise<any> {
+export function pRaceWithTimeout(
+    promises: Promise<any>[] | Promise<any>,
+    timeout: number,
+    logError?: (err: any) => void
+): Promise<any> {
     if (!timeout || typeof timeout !== 'number') {
         throw new Error('Invalid timeout argument, must be a number');
     }

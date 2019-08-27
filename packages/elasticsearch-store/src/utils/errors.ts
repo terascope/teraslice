@@ -2,6 +2,11 @@ import * as R from 'rambda';
 import * as ts from '@terascope/utils';
 import ajv from 'ajv';
 
+export const getErrorMessages: (errors: ErrorLike[]) => string = R.pipe(
+    R.map(getErrorMessage),
+    R.join(', ')
+);
+
 export function throwValidationError(errors: ErrorLike[] | null | undefined): string | null {
     if (errors == null) return null;
     if (!errors.length) return null;
@@ -27,11 +32,6 @@ export function getErrorMessage(err: ErrorLike): string {
 
     return `${prefix ? `${prefix} ` : ''}${message}`;
 }
-
-export const getErrorMessages: (errors: ErrorLike[]) => string = R.pipe(
-    R.map(getErrorMessage),
-    R.join(', ')
-);
 
 export const getErrorType = R.pathOr('', ['error', 'type']);
 

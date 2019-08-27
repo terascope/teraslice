@@ -1,26 +1,17 @@
-'use strict';
 
 import path from 'path';
 import _ from 'lodash';
 import Generator from 'yeoman-generator';
+import { getTemplatePath } from '../utils';
 
 export default class extends Generator {
-    argument: any;
-    // TODO: what is this????
-    options: any;
     answers!: any;
-    prompt: any;
-    destinationRoot: any;
-    fs: any;
-    templatePath: any;
-    destinationPath: any;
 
-    constructor(args:any, opts:any) {
+    constructor(args: any, opts: any) {
         super(args, opts);
         this.argument('asset_path', { type: String, required: true });
-        // @ts-ignore
-        this.option('new');
-        this.sourceRoot(`${__dirname}/templates`);
+        this.option('new', {});
+        this.sourceRoot(getTemplatePath('new-processor'));
     }
 
     async prompting() {
@@ -30,13 +21,13 @@ export default class extends Generator {
                     type: 'input',
                     name: 'name',
                     message: 'New Processor name',
-                    validate: (value:string) => {
+                    validate: (value: string) => {
                         if (value.length < 1) {
                             return 'Please enter a value';
                         }
                         return true;
                     },
-                    filter: (value:string) => _.snakeCase(value)
+                    filter: (value: string) => _.snakeCase(value)
                 },
                 {
                     type: 'list',
@@ -57,7 +48,7 @@ export default class extends Generator {
     }
 
     createProcessor() {
-        function capitolizeFirstLetter(value:string) {
+        function capitolizeFirstLetter(value: string) {
             return value.charAt(0).toUpperCase() + value.slice(1);
         }
 
@@ -69,7 +60,11 @@ export default class extends Generator {
             type = this.answers.type;
         }
 
-        this.fs.copyTpl(this.templatePath('base-op/schema.js'), this.destinationPath(`asset/${name}/schema.js`));
+        this.fs.copyTpl(
+            this.templatePath('base-op/schema.js'),
+            this.destinationPath(`asset/${name}/schema.js`),
+            {}
+        );
 
         this.fs.copyTpl(this.templatePath(`base-op/${type}.js`),
             this.destinationPath(`asset/${name}/processor.js`),

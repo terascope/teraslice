@@ -5,4 +5,6 @@ import IndexStore from './index-store';
 import { timeseriesIndex, getESVersion, fixMappingRequest } from './utils';
 
 export * from './interfaces';
-export { Cluster, IndexManager, IndexModel, IndexStore, timeseriesIndex, getESVersion, fixMappingRequest };
+export {
+    Cluster, IndexManager, IndexModel, IndexStore, timeseriesIndex, getESVersion, fixMappingRequest
+};

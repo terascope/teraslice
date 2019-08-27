@@ -1,8 +1,9 @@
-'use strict';
 
-import { Context, OpConfig, JobConfig, ValidatedJobConfig } from './interfaces';
 import convict from 'convict';
 import { cloneDeep } from '@terascope/utils';
+import {
+    Context, OpConfig, JobConfig, ValidatedJobConfig
+} from './interfaces';
 import { validateJobConfig } from './config-validators';
 import { jobSchema } from './job-schemas';
 import { OperationLoader } from './operation-loader';

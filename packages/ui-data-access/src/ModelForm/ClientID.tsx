@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { toInteger } from '@terascope/utils';
 import { useCoreContext } from '@terascope/ui-components';
-import { AnyModel, DefaultInputProps } from './interfaces';
 import { FormInputProps } from 'semantic-ui-react';
+import { AnyModel, DefaultInputProps } from './interfaces';
 import FormInput from './FormInput';
 
 function ClientID<T extends AnyModel>({
@@ -23,7 +23,7 @@ function ClientID<T extends AnyModel>({
     }
 
     return (
-        <React.Fragment>
+        <>
             {authUser.type === 'SUPERADMIN' && (
                 <FormInput<T>
                     {...props}
@@ -33,7 +33,7 @@ function ClientID<T extends AnyModel>({
                     label="Client ID"
                 />
             )}
-        </React.Fragment>
+        </>
     );
 }
 

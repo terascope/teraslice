@@ -1,11 +1,12 @@
 
-import { Lowercase } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
+import { Lowercase } from '../../../src/operations';
 
 describe('Lowercase operator', () => {
-
     it('can instantiate', () => {
-        const opConfig = { target_field: 'someField', source_field: 'someField', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            target_field: 'someField', source_field: 'someField', __id: 'someId', follow: 'otherId'
+        };
         expect(() => new Lowercase(opConfig)).not.toThrow();
     });
 
@@ -25,7 +26,9 @@ describe('Lowercase operator', () => {
     });
 
     it('can transform strings to lowercase', () => {
-        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId'
+        };
         const test = new Lowercase(opConfig);
 
         const data1 = new DataEntity({ someField: '56.234,95.234' });

@@ -1,7 +1,9 @@
 import 'jest-extended';
 import path from 'path';
 import { DataEntity, debugLogger } from '@terascope/utils';
-import { ExtractionPhase, Loader, OperationsManager, ExtractionProcessingDict } from '../../src';
+import {
+    ExtractionPhase, Loader, OperationsManager, ExtractionProcessingDict
+} from '../../src';
 
 describe('extraction phase', () => {
     const logger = debugLogger('extractionPhaseTest');
@@ -106,14 +108,21 @@ describe('extraction phase', () => {
         };
 
         const data = [
-            new DataEntity({ domain: 'www.example.com', url: 'http://hello.com?value=hello&value2=goodbye', date, key }, metaData),
-            new DataEntity({ domain: 'www.example.com', url: 'http://hello.com?value3=hello&value4=goodbye', date, key }, metaData),
+            new DataEntity({
+                domain: 'www.example.com', url: 'http://hello.com?value=hello&value2=goodbye', date, key
+            }, metaData),
+            new DataEntity({
+                domain: 'www.example.com', url: 'http://hello.com?value3=hello&value4=goodbye', date, key
+            }, metaData),
         ];
 
         const results = extractionPhase.run(data);
-        // removal of other_match_required happens at output phase, at this point a doc is still made
+        // removal of other_match_required happens at output phase,
+        // at this point a doc is still made
         expect(results.length).toEqual(2);
-        expect(results[0]).toEqual({ value: 'hello', value2: 'goodbye', date, key });
+        expect(results[0]).toEqual({
+            value: 'hello', value2: 'goodbye', date, key
+        });
         expect(results[1]).toEqual({ date, key });
     });
 });

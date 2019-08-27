@@ -1,7 +1,7 @@
 
 /** A simplified implemation of lodash isString */
 export function isString(val: any): val is string {
-    return typeof val === 'string' ? true : false;
+    return typeof val === 'string';
 }
 
 /** Safely convert any input to a string */
@@ -27,7 +27,7 @@ export function trimAndToUpper(input?: string): string {
 }
 
 /** Escape characters in string and avoid double escaping */
-export function escapeString(str: string = '', chars: string[]): string {
+export function escapeString(str = '', chars: string[]): string {
     const len = str.length;
     let escaped = '';
 
@@ -45,7 +45,7 @@ export function escapeString(str: string = '', chars: string[]): string {
 }
 
 /** Unescape characters in string and avoid double escaping */
-export function unescapeString(str: string = ''): string {
+export function unescapeString(str = ''): string {
     const len = str.length;
     let unescaped = '';
 
@@ -88,7 +88,7 @@ export function truncate(str: string, len: number): string {
  */
 export function toSafeString(input: string): string {
     let s = trimAndToLower(input);
-    const startReg = /^[_\-\+]+/;
+    const startReg = /^[_\-+]+/;
     while (startReg.test(s)) {
         s = s.replace(startReg, '');
     }
@@ -124,7 +124,7 @@ export function formatRegex(str: string): FormatRegexResult {
     return [str, undefined];
 }
 
-export function match(regexp:string, value: string) {
+export function match(regexp: string, value: string) {
     const [reg, options] = formatRegex(regexp);
     const regex = new RegExp(reg, options);
     const results = regex.exec(value);
@@ -132,14 +132,14 @@ export function match(regexp:string, value: string) {
     return results;
 }
 
-export function matchAll(regexp:string, str:string):string[]|null {
+export function matchAll(regexp: string, str: string): string[]|null {
     const [reg, formatOptions] = formatRegex(regexp);
     let options = formatOptions || 'g';
 
     if (!options.includes('g')) options = `g${options}`;
 
     const regex = new RegExp(reg, options);
-    const matches:string[] = [];
+    const matches: string[] = [];
     let matchedData = regex.exec(str);
 
     while (matchedData != null && matchedData[0]) {

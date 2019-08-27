@@ -40,7 +40,11 @@ const adapter: TeraserverPluginAdapter = {
             throw new Error('Plugin has not been configured');
         }
 
-        await Promise.all([this._manager.initialize(), this._search.initialize(), this._queryPoint.initialize()]);
+        await Promise.all([
+            this._manager.initialize(),
+            this._search.initialize(),
+            this._queryPoint.initialize()
+        ]);
         this._initialized = true;
     },
 
@@ -56,8 +60,12 @@ const adapter: TeraserverPluginAdapter = {
         this._search.registerRoutes();
     },
 
-    routes(deferred) {
-        if (this._manager == null || this._search == null || this._queryPoint == null || this._config == null) {
+    routes(_deferred) {
+        if (this._manager == null
+            || this._search == null
+            || this._queryPoint == null
+            || this._config == null
+        ) {
             throw new Error('Plugin has not been configured');
         }
 
@@ -81,6 +89,7 @@ interface TeraserverPluginAdapter {
     _queryPoint?: QueryPointPlugin;
     _initialized: boolean;
 
+    // eslint-disable-next-line
     config_schema(): any;
     config(config: PluginConfig): void;
     post(): void;

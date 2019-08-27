@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Role, UserType } from '@terascope/data-access';
 
-export const UserTypes: ReadonlyArray<UserType> = ['SUPERADMIN', 'ADMIN', 'DATAADMIN', 'USER'];
+export const UserTypes: readonly UserType[] = ['SUPERADMIN', 'ADMIN', 'DATAADMIN', 'USER'];
 
 export type PageAction = {
     label: string;
@@ -82,7 +82,7 @@ export type CoreContextState = {
     updateState(updates: Partial<CoreContextState>): void;
 };
 
-export const UserPermissionMap: { readonly [key in UserType]: ReadonlyArray<UserType> } = {
+export const UserPermissionMap: { readonly [key in UserType]: readonly UserType[] } = {
     USER: ['USER'],
     DATAADMIN: ['USER', 'DATAADMIN'],
     ADMIN: ['USER', 'ADMIN'],

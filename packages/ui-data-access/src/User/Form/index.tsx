@@ -30,7 +30,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
     };
 
     const beforeSubmit: BeforeSubmitFn<Input> = (input, create) => {
-        const password = input.password;
+        const { password } = input;
         delete input.password;
         delete input.repeat_password;
 
@@ -53,19 +53,19 @@ const RolesForm: React.FC<Props> = ({ id }) => {
             modelName={config.name}
             id={id}
             validate={validate}
-            canDelete={(model) =>
-                ['ADMIN', 'SUPERADMIN'].includes(authUser.type) &&
-                authUser.id !== model.id
-            }
+            canDelete={(model) => ['ADMIN', 'SUPERADMIN'].includes(authUser.type)
+                && authUser.id !== model.id}
             afterChange={afterChange}
             beforeSubmit={beforeSubmit}
         >
-            {({ defaultInputProps, model, roles, update }) => {
+            {({
+                defaultInputProps, model, roles, update
+            }) => {
                 const modelType = getModelType(model);
                 const userTypes = UserPermissionMap[authUser.type];
 
                 return (
-                    <React.Fragment>
+                    <>
                         <Form.Group>
                             <FormInput<Input>
                                 {...defaultInputProps}
@@ -145,7 +145,7 @@ const RolesForm: React.FC<Props> = ({ id }) => {
                         {update && (
                             <TokenForm token={model.api_token} id={id!} />
                         )}
-                    </React.Fragment>
+                    </>
                 );
             }}
         </ModelForm>

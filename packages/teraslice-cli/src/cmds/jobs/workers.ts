@@ -1,6 +1,4 @@
-
 import { CMD } from '../../interfaces';
-import _ from 'lodash';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 import Reply from '../lib/reply';
@@ -13,7 +11,7 @@ export = {
     // TODO: is it [id] or <id>
     command: 'workers <cluster-alias> <id> <action> <num>',
     describe: 'Manage workers in job\n',
-    builder(yargs:any) {
+    builder(yargs: any) {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
         yargs.strict()

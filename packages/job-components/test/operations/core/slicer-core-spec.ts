@@ -26,15 +26,11 @@ describe('SlicerCore', () => {
     });
 
     describe('->initialize', () => {
-        it('should resolve undefined', () => {
-            return expect(slicer.initialize([])).resolves.toBeUndefined();
-        });
+        it('should resolve undefined', () => expect(slicer.initialize([])).resolves.toBeUndefined());
     });
 
     describe('->shutdown', () => {
-        it('should resolves undefined', () => {
-            return expect(slicer.shutdown()).resolves.toBeUndefined();
-        });
+        it('should resolves undefined', () => expect(slicer.shutdown()).resolves.toBeUndefined());
     });
 
     describe('->onSliceEnqueued', () => {
@@ -83,5 +79,4 @@ describe('SlicerCore', () => {
             expect(slicer.maxQueueLength()).toEqual(10000);
         });
     });
-
 });

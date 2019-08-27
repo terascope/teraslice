@@ -27,4 +27,6 @@ export function fastAssign<T, U>(target: T, source: U) {
 }
 
 // export a few dependencies
-export { isPlainObject, cloneDeep, get, set };
+export {
+    isPlainObject, cloneDeep, get, set
+};

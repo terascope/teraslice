@@ -1,11 +1,12 @@
 
-import { ISDN } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
+import { ISDN } from '../../../src/operations';
 
 describe('phone number validation', () => {
-
     it('can instantiate', () => {
-        const opConfig = { refs: 'someId', source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            refs: 'someId', source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId'
+        };
         expect(() => new ISDN(opConfig)).not.toThrow();
     });
 
@@ -25,9 +26,11 @@ describe('phone number validation', () => {
     });
 
     it('can validate phone number fields', () => {
-        const opConfig = { refs: 'someId', source_field: 'field', target_field: 'field', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            refs: 'someId', source_field: 'field', target_field: 'field', __id: 'someId', follow: 'otherId'
+        };
         const test = new ISDN(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
+        const metaData = { selectors: { 'some:query': true } };
         const validPhone1 = '14803847362';
         const validPhone2 = '1(480)384-7362';
 

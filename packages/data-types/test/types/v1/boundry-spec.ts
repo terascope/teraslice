@@ -1,5 +1,5 @@
-import Boundary from '../../../src/types/versions/v1/boundary';
 import { TSError } from '@terascope/utils';
+import Boundary from '../../../src/types/versions/v1/boundary';
 import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('Boundary V1', () => {
@@ -40,7 +40,10 @@ describe('Boundary V1', () => {
     });
 
     it('can get proper graphQl types', () => {
-        const { type: graphQlTypes, custom_type: customType } = new Boundary(field, typeConfig).toGraphQL();
+        const {
+            type: graphQlTypes,
+            custom_type: customType
+        } = new Boundary(field, typeConfig).toGraphQL();
         const results = `${field}: GeoBoundaryType`;
 
         expect(graphQlTypes).toEqual(results);

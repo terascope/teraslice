@@ -1,11 +1,15 @@
 import React, { useState, FormEvent } from 'react';
 import PropTypes from 'prop-types';
-import { Menu, Input, Icon, Table, Button, Label } from 'semantic-ui-react';
+import {
+    Menu, Input, Icon, Table, Button, Label
+} from 'semantic-ui-react';
 import ConfirmExport from './ConfirmExport';
 import { UpdateQueryState } from './interfaces';
 
 const Toolbar: React.FC<Props> = (props) => {
-    const { numCols, numSelected, updateQueryState, onAction } = props;
+    const {
+        numCols, numSelected, updateQueryState, onAction
+    } = props;
     const [query, updateQuery] = useState(props.query || '');
 
     const submitQuery = (e: React.FormEvent) => {
@@ -47,13 +51,13 @@ const Toolbar: React.FC<Props> = (props) => {
                         <Menu.Item position="right">
                             <form onSubmit={submitQuery}>
                                 <Input
-                                    action={
+                                    action={(
                                         <Button
                                             basic
                                             icon="search"
                                             onClick={submitQuery}
                                         />
-                                    }
+                                    )}
                                     value={query || ''}
                                     onChange={(e: FormEvent, { value }) => {
                                         updateQuery(value);
