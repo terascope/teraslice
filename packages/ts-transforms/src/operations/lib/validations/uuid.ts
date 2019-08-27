@@ -1,6 +1,4 @@
-
 import validator from 'validator';
-import _ from 'lodash';
 import ValidationOpBase from './base';
 import { PostProcessConfig } from '../../../interfaces';
 

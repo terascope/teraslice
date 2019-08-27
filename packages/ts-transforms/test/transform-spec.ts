@@ -99,8 +99,10 @@ describe('can transform matches', () => {
 
         const test = await opTest.init(config);
         const results = await test.run(data);
-        //  NOTE:   'regex': 'some.*?$' will give you the entire matched string => wholeRegexResponse
-        //  NOTE:   'regex': 'some(.*?)$' will give you the captured part of the string => partRegexResponse
+        //  NOTE: 'regex': 'some.*?$'
+        //      - will give you the entire matched string => wholeRegexResponse
+        //  NOTE: 'regex': 'some(.*?)$'
+        //      - will give you the captured part of the string => partRegexResponse
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ wholeRegexResponse: 'something', partRegexResponse: 'thing' });

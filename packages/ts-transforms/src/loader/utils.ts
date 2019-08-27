@@ -20,7 +20,11 @@ const {
     alg: { topsort, findCycles },
 } = graphlib;
 
-export function parseConfig(configList: OperationConfig[], opsManager: OperationsManager, logger: Logger) {
+export function parseConfig(
+    configList: OperationConfig[],
+    opsManager: OperationsManager,
+    logger: Logger
+) {
     const graph = new Graph();
     const tagMapping: StateDict = {};
     const graphEdges: StateDict = {};
@@ -92,7 +96,11 @@ export function parseConfig(configList: OperationConfig[], opsManager: Operation
     return results;
 }
 
-function normalizeConfig(configList: OperationConfig[], opsManager: OperationsManager, tagMapping: StateDict): OperationConfig[] {
+function normalizeConfig(
+    configList: OperationConfig[],
+    opsManager: OperationsManager,
+    tagMapping: StateDict
+): OperationConfig[] {
     const results: OperationConfig[] = [];
 
     return configList.reduce((list, config) => {
@@ -104,7 +112,8 @@ function normalizeConfig(configList: OperationConfig[], opsManager: OperationsMa
             if (isOneToOne(opsManager, config)) {
                 list.push(...createMatchingConfig(fieldsConfigs, config, tagMapping));
             } else {
-                config.__pipeline = fieldsConfigs.map((obj) => obj.pipeline)[0];
+                const [pipeline] = fieldsConfigs.map((obj) => obj.pipeline);
+                config.__pipeline = pipeline;
                 config.source_fields = [...new Set(fieldsConfigs.map((obj) => obj.source))];
                 if (targetField && !Array.isArray(targetField)) {
                     config.target_field = targetField;
@@ -125,7 +134,11 @@ interface FieldSourceConfigs {
     pipeline: string;
 }
 
-function findConfigs(config: OperationConfig, configList: OperationConfig[], tagMapping: StateDict) {
+function findConfigs(
+    config: OperationConfig,
+    configList: OperationConfig[],
+    tagMapping: StateDict
+): FieldSourceConfigs[] {
     const identifier = config.follow || config.__id;
     const nodeIds: string[] = tagMapping[identifier];
     const mapping = {};
@@ -145,7 +158,11 @@ function findConfigs(config: OperationConfig, configList: OperationConfig[], tag
     return results;
 }
 
-function createMatchingConfig(fieldsConfigs: FieldSourceConfigs[], config: OperationConfig, tagMapping: StateDict): OperationConfig[] {
+function createMatchingConfig(
+    fieldsConfigs: FieldSourceConfigs[],
+    config: OperationConfig,
+    tagMapping: StateDict
+): OperationConfig[] {
     // we clone the original to preserve the __id in reference to tag mappings and the like
     const original = _.cloneDeep(config);
     return fieldsConfigs.map((obj: FieldSourceConfigs, index: number) => {
@@ -197,7 +214,8 @@ function validateOtherMatchRequired(configDict: ExtractionProcessingDict, logger
 }
 
 function checkForSource(config: OperationConfig) {
-    if (!config.source_field && (config.source_fields == null || config.source_fields.length === 0)) {
+    if (!config.source_field
+        && (config.source_fields == null || config.source_fields.length === 0)) {
         throw new Error(`could not find source fields for config ${JSON.stringify(config)}`);
     }
 }

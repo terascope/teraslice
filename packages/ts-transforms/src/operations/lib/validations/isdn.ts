@@ -1,5 +1,3 @@
-
-import _ from 'lodash';
 import PhoneValidator from 'awesome-phonenumber';
 import ValidationOpBase from './base';
 import { PostProcessConfig } from '../../../interfaces';

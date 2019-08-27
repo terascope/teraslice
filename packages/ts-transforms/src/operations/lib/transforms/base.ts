@@ -1,14 +1,8 @@
-
 import _ from 'lodash';
 import { DataEntity } from '@terascope/utils';
 import OperationBase from '../base';
 
 export default abstract class TransformOpBase extends OperationBase {
-    // @ts-ignore
-    constructor(config) {
-        super(config);
-    }
-
     protected execute(doc: DataEntity, fn: Function) {
         try {
             const value = _.get(doc, this.source);
@@ -20,7 +14,9 @@ export default abstract class TransformOpBase extends OperationBase {
                         try {
                             const decodedValue = fn(str);
                             results.push(decodedValue);
-                        } catch (err) {}
+                        } catch (err) {
+                            // do nothing
+                        }
                     }
                 });
                 if (results.length === 0) {

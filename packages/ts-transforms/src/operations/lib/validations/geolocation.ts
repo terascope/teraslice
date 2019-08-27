@@ -25,13 +25,20 @@ export default class Geolocation extends ValidationOpBase<any> {
         if (typeof geoData === 'string') {
             const pieces = parseNumberList(geoData);
             if (pieces.length !== 2) return isValid;
-            if ((pieces[0] <= 90 || pieces[0] >= -90) && (pieces[1] <= 180 || pieces[1] >= -180)) isValid = true;
+            if ((pieces[0] <= 90 || pieces[0] >= -90)
+                && (pieces[1] <= 180 || pieces[1] >= -180)) {
+                isValid = true;
+            }
         }
 
         if (typeof geoData === 'object') {
             const lat = geoData.lat || geoData.latitude;
             const lon = geoData.lon || geoData.longitude;
-            if (lat && lon && (lat <= 90 && lat >= -90) && (lon <= 180 && lon >= -180)) isValid = true;
+            if (lat && lon
+                && (lat <= 90 && lat >= -90)
+                && (lon <= 180 && lon >= -180)) {
+                isValid = true;
+            }
         }
         return isValid;
     }

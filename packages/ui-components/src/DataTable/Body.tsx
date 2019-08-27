@@ -82,7 +82,6 @@ type Props = {
     selectedAll?: boolean;
     selectRecord: (id: string) => void;
     baseEditPath: string;
-    total: number;
 };
 
 Body.propTypes = {
@@ -90,7 +89,6 @@ Body.propTypes = {
     records: PropTypes.array.isRequired,
     selected: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
     selectedAll: PropTypes.bool,
-    total: PropTypes.number.isRequired,
     baseEditPath: PropTypes.string.isRequired,
     rowMapping: RowMappingProp.isRequired,
 };

@@ -1,5 +1,4 @@
 import { DataEntity, Logger, debugLogger } from '@terascope/utils';
-import _ from 'lodash';
 import { PhaseConfig, PluginList } from '../interfaces';
 import { Loader } from '../loader';
 import SelectionPhase from './selector-phase';
@@ -28,7 +27,9 @@ export default class PhaseManager {
     public async init(Plugins?: PluginList) {
         const opsManager = new OperationsManager(Plugins);
         const phaseConfiguration = await this.loader.load(opsManager);
-        const sequence: PhaseBase[] = [new SelectionPhase(this.opConfig, phaseConfiguration.selectors, opsManager)];
+        const sequence: PhaseBase[] = [
+            new SelectionPhase(this.opConfig, phaseConfiguration.selectors, opsManager)
+        ];
 
         if (!this.isMatcher) {
             sequence.push(

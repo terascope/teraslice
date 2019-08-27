@@ -1,3 +1,5 @@
+/* eslint-disable max-classes-per-file */
+
 import validator from 'validator';
 import ValidationOpBase from './base';
 import { PostProcessConfig, PluginClassType, InputOutputCardinality } from '../../../interfaces';

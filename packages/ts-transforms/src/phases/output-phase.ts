@@ -13,7 +13,11 @@ export default class OutputPhase extends PhaseBase {
     private hasRestrictedOutput: boolean;
     private hasRequirements: boolean;
 
-    constructor(opConfig: WatcherConfig, outputConfig: OutputValidation, _opsManager: OperationsManager) {
+    constructor(
+        opConfig: WatcherConfig,
+        outputConfig: OutputValidation,
+        _opsManager: OperationsManager
+    ) {
         super(opConfig);
         this.restrictOutput = outputConfig.restrictOutput;
         this.matchRequirements = outputConfig.matchRequirements;
@@ -27,7 +31,11 @@ export default class OutputPhase extends PhaseBase {
 
         for (let i = 0; i < data.length; i++) {
             const doc = data[i];
-            const { otherExtractionsFound, requireExtractionsFound } = checkDoc(doc, isKeyMatchRequired);
+            const {
+                otherExtractionsFound,
+                requireExtractionsFound
+            } = checkDoc(doc, isKeyMatchRequired);
+
             if (!requireExtractionsFound || (requireExtractionsFound && otherExtractionsFound)) {
                 finalResults.push(doc);
             }

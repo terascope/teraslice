@@ -117,7 +117,8 @@ describe('extraction phase', () => {
         ];
 
         const results = extractionPhase.run(data);
-        // removal of other_match_required happens at output phase, at this point a doc is still made
+        // removal of other_match_required happens at output phase,
+        // at this point a doc is still made
         expect(results.length).toEqual(2);
         expect(results[0]).toEqual({
             value: 'hello', value2: 'goodbye', date, key

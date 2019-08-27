@@ -134,7 +134,6 @@ const DataTable: React.FC<Props> = (props) => {
                     selectRecord={selectRecord}
                     selected={selected}
                     selectedAll={selectedAll}
-                    total={total}
                 />
                 <Footer
                     total={total}

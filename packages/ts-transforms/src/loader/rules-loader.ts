@@ -19,7 +19,9 @@ export default class RulesLoader {
         }
 
         if (rules) {
-            const results = await Promise.all<OperationConfigInput[]>(rules.map((ruleFile) => this.fileLoader(ruleFile)));
+            const results = await Promise.all<OperationConfigInput[]>(
+                rules.map((ruleFile) => this.fileLoader(ruleFile))
+            );
             return _.flatten(results);
         }
 

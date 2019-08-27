@@ -1,10 +1,15 @@
 import _ from 'lodash';
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
-import {
-    RulesValidator, RulesParser, OperationConfig, OperationConfigInput, OperationsManager, PluginList
-} from '../../src';
 import { isPrimaryConfig } from '../../src/loader/utils';
+import {
+    RulesValidator,
+    RulesParser,
+    OperationConfig,
+    OperationConfigInput,
+    OperationsManager,
+    PluginList
+} from '../../src';
 
 describe('rules-validator', () => {
     const testLogger = debugLogger('rules-validator-test');
@@ -281,7 +286,11 @@ describe('rules-validator', () => {
         },
     ]);
 
-    function constructValidator(configList: OperationConfig[], Plugins?: PluginList, logger = testLogger) {
+    function constructValidator(
+        configList: OperationConfig[],
+        Plugins?: PluginList,
+        logger = testLogger
+    ) {
         const opsManager = new OperationsManager(Plugins);
         return new RulesValidator(configList, opsManager, logger);
     }

@@ -14,7 +14,11 @@ import {
 import PhaseBase from './base';
 
 export default class PostProcessPhase extends PhaseBase {
-    constructor(opConfig: WatcherConfig, configList: PostProcessingDict, opsManager: OperationsManager) {
+    constructor(
+        opConfig: WatcherConfig,
+        configList: PostProcessingDict,
+        opsManager: OperationsManager
+    ) {
         super(opConfig);
 
         function loadOp(config: PostProcessConfig) {

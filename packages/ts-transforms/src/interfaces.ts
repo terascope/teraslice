@@ -1,4 +1,3 @@
-
 import { TypeConfig } from 'xlucene-evaluator';
 import { DataEntity } from '@terascope/utils';
 
@@ -8,7 +7,11 @@ export type OperationConfigInput = Partial<OperationConfig> & {
     tag?: string;
 };
 
-export type OperationConfig = { __id: string } & Partial<SelectorConfig> & Partial<PostProcessConfig> & Partial<ExtractionConfig>;
+export type OperationConfig =
+    { __id: string }
+    & Partial<SelectorConfig>
+    & Partial<PostProcessConfig>
+    & Partial<ExtractionConfig>;
 
 export interface PostProcessConfig {
     __id: string;
@@ -75,7 +78,10 @@ export interface PluginClassType {
 
 export type PluginList = PluginClassConstructor[];
 
-export type BaseOperationClass = { new (config: any, types?: TypeConfig): Operation; cardinality: InputOutputCardinality };
+export type BaseOperationClass = {
+    new (config: any, types?: TypeConfig): Operation;
+    cardinality: InputOutputCardinality;
+};
 
 export interface OperationsDict {
     [op: string]: BaseOperationClass;
