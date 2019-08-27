@@ -1,5 +1,3 @@
-/* eslint-disable no-new */
-
 import 'jest-extended'; // require for type definitions
 import { createTempDirSync } from 'jest-fixtures';
 import fse from 'fs-extra';

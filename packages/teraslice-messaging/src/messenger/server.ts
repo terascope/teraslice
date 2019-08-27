@@ -1,5 +1,3 @@
-/* eslint-disable no-new */
-
 import http from 'http';
 import porty from 'porty';
 import SocketIOServer from 'socket.io';

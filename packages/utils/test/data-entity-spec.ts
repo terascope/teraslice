@@ -1,4 +1,3 @@
-/* eslint-disable no-new */
 import 'jest-extended'; // require for type definitions
 import { DataEntity, parseJSON } from '../src';
 

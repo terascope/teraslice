@@ -3,7 +3,7 @@ import BaseType from '../base-type';
 import { ElasticSearchTypes } from '../../../interfaces';
 
 export default class KeywordPathAnalyzer extends BaseType {
-    toESMapping(version?: number) {
+    toESMapping(_version?: number) {
         return {
             mapping: {
                 [this.field]: {
@@ -25,7 +25,7 @@ export default class KeywordPathAnalyzer extends BaseType {
             tokenizer: {
                 path_tokenizer: {
                     type: 'pattern',
-                    pattern: '\/'
+                    pattern: '/'
                 }
             },
         };

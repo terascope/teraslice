@@ -1,5 +1,3 @@
-/* eslint-disable no-new */
-
 import 'jest-extended';
 import { TSError, debugLogger } from '@terascope/utils';
 import { IndexManager, IndexConfig } from '../src';

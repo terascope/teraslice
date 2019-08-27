@@ -1,5 +1,3 @@
-/* eslint-disable no-new */
-
 import 'jest-extended';
 import {
     times, pDelay, DataEntity, Omit, TSError, debugLogger

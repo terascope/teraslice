@@ -40,7 +40,10 @@ describe('Boundary V1', () => {
     });
 
     it('can get proper graphQl types', () => {
-        const { type: graphQlTypes, custom_type: customType } = new Boundary(field, typeConfig).toGraphQL();
+        const {
+            type: graphQlTypes,
+            custom_type: customType
+        } = new Boundary(field, typeConfig).toGraphQL();
         const results = `${field}: GeoBoundaryType`;
 
         expect(graphQlTypes).toEqual(results);

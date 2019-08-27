@@ -46,7 +46,7 @@ describe('KeywordPathAnalyzer V1', () => {
             tokenizer: {
                 path_tokenizer: {
                     type: 'pattern',
-                    pattern: '\/'
+                    pattern: '/'
                 }
             },
         };

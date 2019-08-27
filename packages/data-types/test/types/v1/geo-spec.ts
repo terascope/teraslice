@@ -31,7 +31,10 @@ describe('Geo V1', () => {
     });
 
     it('can get proper graphQl types', () => {
-        const { type: graphQlTypes, custom_type: customType } = new GeoType(field, typeConfig).toGraphQL();
+        const {
+            type: graphQlTypes,
+            custom_type: customType
+        } = new GeoType(field, typeConfig).toGraphQL();
         const results = `${field}: GeoPointType`;
 
         expect(graphQlTypes).toEqual(results);

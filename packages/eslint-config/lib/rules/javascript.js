@@ -33,6 +33,7 @@ module.exports = {
     'no-await-in-loop': 'off',
     'no-plusplus': 'off',
     'no-continue': 'off',
+    'no-new': 'off',
     'no-console': ['error', { allow: ['warn', 'error', 'time', 'timeEnd'] }],
     'no-unused-expressions': [
         'error',

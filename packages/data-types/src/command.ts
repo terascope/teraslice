@@ -11,6 +11,7 @@ import { validateDataTypeConfig } from './utils';
 const packagePath = path.join(__dirname, '../../package.json');
 const { version } = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 
+// eslint-disable-next-line
 yargs
     .command({
         command: 'es-mapping',
