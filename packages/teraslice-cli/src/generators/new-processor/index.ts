@@ -2,6 +2,7 @@
 import path from 'path';
 import _ from 'lodash';
 import Generator from 'yeoman-generator';
+import { getTemplatePath } from '../utils';
 
 export default class extends Generator {
     answers!: any;
@@ -9,9 +10,8 @@ export default class extends Generator {
     constructor(args: any, opts: any) {
         super(args, opts);
         this.argument('asset_path', { type: String, required: true });
-        // @ts-ignore
-        this.option('new');
-        this.sourceRoot(`${__dirname}/templates`);
+        this.option('new', {});
+        this.sourceRoot(getTemplatePath('new-processor'));
     }
 
     async prompting() {

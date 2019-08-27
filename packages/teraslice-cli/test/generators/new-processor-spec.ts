@@ -94,7 +94,6 @@ describe('processor generator with new flag', () => {
 
     it('should generate an assiated spec file', () => {
         assert.file(path.join(testPath, 'good_processor-spec.js'));
-        // tslint:disable-next-line:max-line-length
         assert.fileContent(path.join(testPath, 'good_processor-spec.js'), 'const Processor = require(\'../asset/good_processor/processor.js\');');
         assert.fileContent(path.join(testPath, 'good_processor-spec.js'), '_op: \'good_processor\'');
     });

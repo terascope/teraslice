@@ -3,6 +3,7 @@ import path from 'path';
 import _ from 'lodash';
 import Generator from 'yeoman-generator';
 import ProcessorGenerator from '../new-processor';
+import { getTemplatePath } from '../utils';
 
 export default class extends Generator {
     answers!: any;
@@ -11,7 +12,7 @@ export default class extends Generator {
     constructor(args: any, opts: any) {
         super(args, opts);
         this.argument('new_asset_path', { type: String, required: true });
-        this.sourceRoot(`${__dirname}/templates`);
+        this.sourceRoot(getTemplatePath('new-asset'));
     }
 
     async prompting() {
@@ -79,7 +80,7 @@ export default class extends Generator {
 
     addExampleProcessor() {
         const assetPath = path.join(this.options.new_asset_path, this.answers.name);
-        const processorPath = path.join(__dirname, '../../../dist/src/generators/new-processor');
+        const processorPath = path.join(__dirname, '../new-processor');
         this.composeWith({
             Generator: ProcessorGenerator,
             path: processorPath
@@ -105,12 +106,5 @@ export default class extends Generator {
             bower: false,
             yarn: this.useYarn
         });
-    }
-
-    end() {
-        if (this.useYarn) {
-            return this.yarnInstall('', {}, { cwd: path.join(path.join(this.options.new_asset_path, this.answers.name, 'asset')) });
-        }
-        return this.npmInstall('', {}, { cwd: path.join(path.join(this.options.new_asset_path, this.answers.name, 'asset')) });
     }
 }

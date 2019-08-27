@@ -31,12 +31,11 @@ export default class AssetSrc {
         this.packageJson = getPackage(path.join(this.srcDir, 'package.json'));
         this.assetPackageJson = getPackage(path.join(this.srcDir, 'asset', 'package.json'));
 
-        if (!fs.pathExistsSync(this.assetFile)) {
+        if (!this.assetFile || !fs.pathExistsSync(this.assetFile)) {
             throw new Error(`${this.srcDir} is not a valid asset source directory.`);
         }
-        // @ts-ignore
 
-        const asset = JSON.parse(fs.readFileSync(this.assetFile));
+        const asset = fs.readJSONSync(this.assetFile);
         this.name = asset.name;
         this.version = asset.version;
     }

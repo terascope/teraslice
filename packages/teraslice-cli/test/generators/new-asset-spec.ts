@@ -41,14 +41,20 @@ describe('new asset generator should', () => {
     });
 
     it('should modify the file content with the name and description', () => {
-        assert.jsonFileContent(path.join(rootAssetPath, 'package.json'), { name: 'new_asset' });
-        assert.jsonFileContent(path.join(rootAssetPath, 'package.json'), { description: 'this is a new asset' });
-        assert.jsonFileContent(path.join(rootAssetPath, 'package.json'), { version: '0.0.1' });
-        assert.jsonFileContent(path.join(assetAssetPath, 'package.json'), { name: 'new_asset' });
-        assert.jsonFileContent(path.join(assetAssetPath, 'package.json'), { description: 'this is a new asset' });
-        assert.jsonFileContent(path.join(assetAssetPath, 'package.json'), { version: '0.0.1' });
-        assert.jsonFileContent(path.join(assetAssetPath, 'asset.json'), { name: 'new_asset' });
-        assert.jsonFileContent(path.join(assetAssetPath, 'asset.json'), { description: 'this is a new asset' });
-        assert.jsonFileContent(path.join(assetAssetPath, 'asset.json'), { version: '0.0.1' });
+        assert.jsonFileContent(path.join(rootAssetPath, 'package.json'), {
+            name: 'new_asset-bundle',
+            description: 'this is a new asset',
+            version: '0.1.0'
+        });
+        assert.jsonFileContent(path.join(assetAssetPath, 'package.json'), {
+            name: 'new_asset',
+            description: 'this is a new asset',
+            version: '0.1.0'
+        });
+        assert.jsonFileContent(path.join(assetAssetPath, 'asset.json'), {
+            name: 'new_asset',
+            description: 'this is a new asset',
+            version: '0.1.0'
+        });
     });
 });

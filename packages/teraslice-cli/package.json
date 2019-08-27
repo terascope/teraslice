@@ -14,6 +14,7 @@
     "author": "Terascope, LLC <info@terascope.io>",
     "files": [
         "bin/**/*",
+        "generator-templates/**/*",
         "dist/src/**/*"
     ],
     "main": "dist/src/command.js",
@@ -79,7 +80,8 @@
     "pkg": {
         "scripts": "cmds/**/*.js",
         "assets": [
-            "generators/**/templates/*"
+            "package.json",
+            "generators-templates/**/*"
         ]
     },
     "srcMain": "src/index.ts",
