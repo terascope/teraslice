@@ -1,3 +1,5 @@
+/* eslint-disable no-new */
+
 import 'jest-extended';
 import {
     times, pDelay, DataEntity, Omit, TSError, debugLogger
@@ -350,8 +352,7 @@ describe('IndexStore', () => {
                     sort: 'test_number:asc',
                 });
 
-                // @ts-ignore
-                const modifiedResult = await indexStore._search({
+                await indexStore._search({
                     body: {
                         query: {
                             constant_score: {
@@ -399,10 +400,13 @@ describe('IndexStore', () => {
                     type_config: indexStore.xluceneTypeConfig
                 }).toElasticsearchDSL();
 
+                // eslint-disable-next-line no-console
                 console.log(JSON.stringify({ q, translated }, null, 4));
 
                 // expect(realResult).toEqual(modifiedResult);
                 expect(xluceneResult).toEqual(realResult);
+
+                // eslint-disable-next-line no-console
                 console.dir(xluceneResult);
             });
 
@@ -414,6 +418,8 @@ describe('IndexStore', () => {
                     sort: 'test_number:asc',
                 });
                 // expect(result).toBeArrayOfSize(0);
+
+                // eslint-disable-next-line no-console
                 console.dir(result);
             });
 
@@ -503,7 +509,10 @@ describe('IndexStore', () => {
             },
         });
 
-        const indexStore = new IndexStore<SimpleRecord, SimpleRecordInput>(_client, configWithDataSchema);
+        const indexStore = new IndexStore<SimpleRecord, SimpleRecordInput>(
+            _client,
+            configWithDataSchema
+        );
 
         beforeAll(async () => {
             await cleanupIndexStore(indexStore);

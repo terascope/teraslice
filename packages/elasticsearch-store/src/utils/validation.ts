@@ -29,18 +29,21 @@ export function validateIndexConfig(config: any): config is IndexConfig {
         errors.push('Invalid namespace, must be a non-empty string and cannot contain a "-"');
     }
 
-    const { index_schema = { version: 1 }, version = 1 } = config || {};
+    const {
+        index_schema: indexSchema = { version: 1 },
+        version = 1
+    } = config || {};
 
-    if (!ts.isInteger(index_schema.version)) {
-        errors.push(`Index Version must a Integer, got "${ts.getTypeOf(index_schema.version)}"`);
+    if (!ts.isInteger(indexSchema.version)) {
+        errors.push(`Index Version must a Integer, got "${ts.getTypeOf(indexSchema.version)}"`);
     }
 
     if (!ts.isInteger(version)) {
         errors.push(`Data Version must a Integer, got "${ts.getTypeOf(version)}"`);
     }
 
-    if (index_schema.version < 1) {
-        errors.push(`Index Version must be greater than 0, got "${index_schema.version}"`);
+    if (indexSchema.version < 1) {
+        errors.push(`Index Version must be greater than 0, got "${indexSchema.version}"`);
     }
 
     if (version < 1) {

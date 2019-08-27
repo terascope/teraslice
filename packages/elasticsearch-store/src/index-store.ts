@@ -65,12 +65,15 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
 
         if (config.data_schema != null) {
             const {
-                all_formatters, schema, strict, log_level = 'warn'
+                all_formatters: allFormatters,
+                schema,
+                strict,
+                log_level: logLevel = 'warn'
             } = config.data_schema;
 
             const ajv = new Ajv({
                 useDefaults: true,
-                format: all_formatters ? 'full' : 'fast',
+                format: allFormatters ? 'full' : 'fast',
                 allErrors: true,
                 coerceTypes: true,
                 logger: {
@@ -86,10 +89,10 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
 
                 if (strictMode) {
                     utils.throwValidationError(validate.errors);
-                } else if (log_level === 'warn' || log_level === 'error') {
-                    this._logger[log_level]('Invalid record', input, utils.getErrorMessages(validate.errors || []));
-                } else if (log_level === 'debug' || log_level === 'trace') {
-                    this._logger[log_level]('Record validation warnings', input, utils.getErrorMessages(validate.errors || []));
+                } else if (logLevel === 'warn' || logLevel === 'error') {
+                    this._logger[logLevel]('Invalid record', input, utils.getErrorMessages(validate.errors || []));
+                } else if (logLevel === 'debug' || logLevel === 'trace') {
+                    this._logger[logLevel]('Record validation warnings', input, utils.getErrorMessages(validate.errors || []));
                 }
             };
         } else {
@@ -130,11 +133,12 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
                  */
                 data = { doc: args[0] };
             } else {
-                data = args[0];
+                ([data] = args);
             }
+            // eslint-disable-next-line prefer-destructuring
             id = args[1];
         } else {
-            id = args[0];
+            ([id] = args);
         }
 
         // @ts-ignore because metadata[action] will never be undefined
@@ -388,11 +392,19 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
     }
 
     /** Safely apply updates to a document by applying the latest changes */
-    async updatePartial(id: string, applyChanges: ApplyPartialUpdates<T>, retriesOnConlfict: number = 3): Promise<void> {
+    async updatePartial(
+        id: string,
+        applyChanges: ApplyPartialUpdates<T>,
+        retriesOnConlfict: number = 3
+    ): Promise<void> {
         return this._updatePartial(id, applyChanges, retriesOnConlfict);
     }
 
-    private async _updatePartial(id: string, applyChanges: ApplyPartialUpdates<T>, retries: number = 3): Promise<void> {
+    private async _updatePartial(
+        id: string,
+        applyChanges: ApplyPartialUpdates<T>,
+        retries: number = 3
+    ): Promise<void> {
         try {
             const existing = await this.get(id);
             await this.indexWithId(await applyChanges(existing), id);
@@ -484,7 +496,9 @@ interface RecordResponse<T> {
 }
 
 type ReservedParams = 'index' | 'type';
-type PartialParam<T, E = any> = { [K in Exclude<keyof T, E extends keyof T ? ReservedParams & E : ReservedParams>]?: T[K] };
+type PartialParam<T, E = any> = {
+    [K in Exclude<keyof T, E extends keyof T ? ReservedParams & E : ReservedParams>]?: T[K]
+};
 
 type SearchParams<T> = ts.Overwrite<
 es.SearchParams,

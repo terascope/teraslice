@@ -1,3 +1,5 @@
+/* eslint-disable no-new */
+
 import 'jest-extended';
 import { TSError, debugLogger } from '@terascope/utils';
 import { IndexManager, IndexConfig } from '../src';
@@ -19,9 +21,12 @@ describe('IndexManager', () => {
         const indexManager = new IndexManager(client);
 
         describe('->_logger', () => {
-            const loggerFn = (config: Partial<IndexConfig>) =>
+            // eslint-disable-next-line
+            const loggerFn = (config: Partial<IndexConfig>) => {
                 // @ts-ignore
-                indexManager._logger(config);
+                return indexManager._logger(config);
+            };
+
             describe('when a logger is configured', () => {
                 const logger = debugLogger('hello');
                 const config = {

@@ -17,7 +17,11 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     private _uniqueFields: (keyof T)[];
     private _sanitizeFields: i.SanitizeFields;
 
-    constructor(client: es.Client, options: i.IndexModelOptions, modelConfig: i.IndexModelConfig<T>) {
+    constructor(
+        client: es.Client,
+        options: i.IndexModelOptions,
+        modelConfig: i.IndexModelConfig<T>
+    ) {
         const baseConfig: i.IndexConfig<T> = {
             version: 1,
             name: modelConfig.name,
@@ -126,7 +130,12 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return count === ids.length;
     }
 
-    async findBy(fields: AnyInput<T>, joinBy?: JoinBy, options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>) {
+    async findBy(
+        fields: AnyInput<T>,
+        joinBy?: JoinBy,
+        options?: i.FindOneOptions<T>,
+        queryAccess?: QueryAccess<T>
+    ) {
         const query = this._createJoinQuery(fields, joinBy);
 
         const results = await this._find(
@@ -148,7 +157,11 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return record;
     }
 
-    async findById(id: string, options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>): Promise<T> {
+    async findById(
+        id: string,
+        options?: i.FindOneOptions<T>,
+        queryAccess?: QueryAccess<T>
+    ): Promise<T> {
         const fields = { id } as Partial<T>;
         return this.findBy(fields, 'AND', options, queryAccess);
     }
@@ -163,7 +176,11 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return this.findBy(fields, 'OR', options, queryAccess);
     }
 
-    async findAndApply(updates: Partial<T> | undefined, options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>): Promise<Partial<T>> {
+    async findAndApply(
+        updates: Partial<T> | undefined,
+        options?: i.FindOneOptions<T>,
+        queryAccess?: QueryAccess<T>
+    ): Promise<Partial<T>> {
         if (!updates) {
             throw new ts.TSError(`Invalid input for ${this.name}`, {
                 statusCode: 422,
@@ -177,7 +194,11 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return { ...current, ...updates };
     }
 
-    async findAll(input: string[] | string | undefined, options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>): Promise<T[]> {
+    async findAll(
+        input: string[] | string | undefined,
+        options?: i.FindOneOptions<T>,
+        queryAccess?: QueryAccess<T>
+    ): Promise<T[]> {
         const ids: string[] = ts.parseList(input);
         if (!ids || !ids.length) return [];
 
@@ -232,7 +253,11 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         await this.store.update(body, id);
     }
 
-    protected async _appendToArray(id: string, field: keyof T, values: string[] | string): Promise<void> {
+    protected async _appendToArray(
+        id: string,
+        field: keyof T,
+        values: string[] | string
+    ): Promise<void> {
         const valueArray = values && ts.uniq(ts.castArray(values)).filter((v) => !!v);
         if (!valueArray || !valueArray.length) return;
 
@@ -253,7 +278,11 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         });
     }
 
-    protected async _removeFromArray(id: string, field: keyof T, values: string[] | string): Promise<void> {
+    protected async _removeFromArray(
+        id: string,
+        field: keyof T,
+        values: string[] | string
+    ): Promise<void> {
         const valueArray = values && ts.uniq(ts.castArray(values)).filter((v) => !!v);
         if (!valueArray || !valueArray.length) return;
 

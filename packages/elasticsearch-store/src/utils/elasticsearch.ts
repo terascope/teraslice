@@ -39,7 +39,7 @@ export function timeseriesIndex(index: string, timeSeriesFormat: i.TimeSeriesFor
 
     const dateStr = new Date().toISOString();
     // remove -* or * at the end of the index name
-    const indexName = index.replace(/\-{0,1}\*$/, '');
+    const indexName = index.replace(/-{0,1}\*$/, '');
     return `${indexName}-${dateStr.slice(0, format).replace(/-/g, '.')}`;
 }
 
