@@ -77,7 +77,7 @@ function getChunk(readerClient, slice, opConfig, logger, metadata) {
             return data;
         })
         .then((data) => chunkFormatter[opConfig.format](data, logger, opConfig, metadata, slice))
-        .then((data) => data.filter(record => record));
+        .then((data) => data.filter((record) => record));
 }
 
 module.exports = {
