@@ -86,9 +86,9 @@ function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger:
             const _sourceInclude = getSelectionKeys(info);
             const { size, sort, from, join } = args;
             const queryParams = { index: spaceConfig.index, from, sort, size, _sourceInclude };
-            let { query: q } = args;
+            let { query } = args;
 
-            if (root == null && q == null) throw new UserInputError('Invalid request, expected query to nested');
+            if (root == null && query == null) throw new UserInputError('Invalid request, expected query to nested');
             if (root && join == null) throw new UserInputError('Invalid query, expected join when querying against another space');
 
             if (join) {
@@ -96,20 +96,24 @@ function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger:
                 join.forEach((field) => {
                     const [orig, target] = field.split(':') || [field, field];
                     const selector = target || orig; // In case there's no colon in field.
-                    if (root && root[orig] !== null) {
-                        if (q) {
-                            q = `${selector}:${root[orig]} AND (${q})`;
+
+                    if (root && root[orig] != null) {
+                        if (query) {
+                            query = `${selector}:${root[orig]} AND (${query})`;
+                        } else {
+                            query = `${selector}:"${root[orig]}"`;
                         }
-                        q = `${selector}:${root[orig]}`;
+                    } else {
+                        throw new UserInputError('Invalid join, you may only join on a field that is being returned in a query');
                     }
                 });
             }
 
-            const query = queryAccess.restrictSearchQuery(q, {
+            const restrictedQuery = queryAccess.restrictSearchQuery(query, {
                 params: queryParams,
                 elasticsearch_version: getESVersion(esClient)
             });
-            return dedup(await client.search(query));
+            return dedup(await client.search(restrictedQuery));
         };
     });
 
