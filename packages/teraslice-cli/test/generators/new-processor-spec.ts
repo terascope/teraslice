@@ -31,19 +31,26 @@ describe('processor generator with no new flag', () => {
 
     it('should create a batch processor exporting ExampleProcessor class', () => {
         assert.fileContent([
-            [path.join(processPath, 'example', 'processor.js'), new RegExp('class Example extends BatchProcessor')],
-            [path.join(processPath, 'example', 'processor.js'), new RegExp('module.exports = Example;')],
-            [path.join(processPath, 'example', 'processor.js'), new RegExp('onBatch(dataArray)')],
-            [path.join(processPath, 'example', 'processor.js'), new RegExp('dataArray.forEach((doc) => {')]
+            // @ts-ignore
+            [path.join(processPath, 'example', 'processor.js'), 'class Example extends BatchProcessor'],
+            // @ts-ignore
+            [path.join(processPath, 'example', 'processor.js'), 'module.exports = Example;'],
+            // @ts-ignore
+            [path.join(processPath, 'example', 'processor.js'), 'onBatch(dataArray)'],
+            // @ts-ignore
+            [path.join(processPath, 'example', 'processor.js'), 'dataArray.forEach((doc) => {']
         ]);
     });
 
     it('should create an associated test', () => {
         assert.file(path.join(testPath, 'example-spec.js'));
         assert.fileContent([
-            [path.join(testPath, 'example-spec.js'), new RegExp('const Processor = require(\'../asset/example/processor.js\')')],
-            [path.join(testPath, 'example-spec.js'), new RegExp('_op: \'example\'')],
-            [path.join(testPath, 'example-spec.js'), new RegExp('add type to all the docs')]
+            // @ts-ignore
+            [path.join(testPath, 'example-spec.js'), 'const Processor = require(\'../asset/example/processor.js\')'],
+            // @ts-ignore
+            [path.join(testPath, 'example-spec.js'), '_op: \'example\''],
+            // @ts-ignore
+            [path.join(testPath, 'example-spec.js'), 'add type to all the docs']
         ]);
     });
 });
@@ -77,9 +84,12 @@ describe('processor generator with new flag', () => {
 
     it('should generate a Map processor', () => {
         assert.fileContent([
-            [path.join(processPath, 'good_processor', 'processor.js'), new RegExp('class GoodProcessor extends MapProcessor')],
-            [path.join(processPath, 'good_processor', 'processor.js'), new RegExp('module.exports = GoodProcessor;')],
-            [path.join(processPath, 'good_processor', 'processor.js'), new RegExp('map(doc)')]
+            // @ts-ignore
+            [path.join(processPath, 'good_processor', 'processor.js'), 'class GoodProcessor extends MapProcessor'],
+            // @ts-ignore
+            [path.join(processPath, 'good_processor', 'processor.js'), 'module.exports = GoodProcessor;'],
+            // @ts-ignore
+            [path.join(processPath, 'good_processor', 'processor.js'), 'map(doc)']
         ]);
     });
 
