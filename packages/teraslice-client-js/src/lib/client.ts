@@ -75,12 +75,12 @@ export default class Client {
         }
     }
 
-    parse(results: any) {
+    protected parse(results: any) {
         if (typeof results === 'string') return JSON.parse(results);
         return results;
     }
     // TODO: make better types for this
-    makeOptions(query:any, options: RequestOptions | SearchOptions) {
+    protected makeOptions(query:any, options: RequestOptions | SearchOptions) {
         const formattedOptions = Object.assign({}, options, { query });
         return formattedOptions;
     }

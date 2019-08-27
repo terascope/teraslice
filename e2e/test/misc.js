@@ -42,7 +42,7 @@ const es = _.memoize(
     })
 );
 
-const teraslice = _.memoize(() => TerasliceClient({
+const teraslice = _.memoize(() => new TerasliceClient({
     host: `http://${HOST_IP}:45678`,
     timeout: 2 * 60 * 1000
 }));

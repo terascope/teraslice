@@ -2,7 +2,6 @@
 
 import path from 'path';
 import fs from 'fs-extra';
-// @ts-ignore
 import assert from 'yeoman-assert';
 // @ts-ignore
 import helpers from 'yeoman-test';

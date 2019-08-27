@@ -1,6 +1,6 @@
 
 import _ from 'lodash';
-import TerasliceClient, { Client } from 'teraslice-client-js';
+import TerasliceClient from 'teraslice-client-js';
 
 export default class TerasliceUtil {
     config: any;
@@ -8,8 +8,8 @@ export default class TerasliceUtil {
         this.config = cliConfig;
     }
 
-    get client():Client  {
-        return TerasliceClient({ host: this.config.clusterUrl });
+    get client()  {
+        return new TerasliceClient({ host: this.config.clusterUrl });
     }
 
     async info() {

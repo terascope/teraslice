@@ -5,7 +5,7 @@ import TerasliceClient from 'teraslice-client-js';
 
 // TODO: figure out types
 export function getTerasliceClient(cliConfig:any) {
-    return TerasliceClient({ host: cliConfig.clusterUrl });
+    return new TerasliceClient({ host: cliConfig.clusterUrl });
 }
 
 // @ts-ignore
