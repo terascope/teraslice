@@ -2,12 +2,12 @@ import fs from 'fs';
 import _ from 'lodash';
 import readline from 'readline';
 import { Readable } from 'stream';
-import { TSError } from '@terascope/utils';
+import { TSError, Logger } from '@terascope/utils';
 import { WatcherConfig, OperationConfigInput } from '../interfaces';
 
 export default class RulesLoader {
     private opConfig: WatcherConfig;
-    constructor(opConfig: WatcherConfig) {
+    constructor(opConfig: WatcherConfig, _logger?: Logger) {
         this.opConfig = opConfig;
     }
 

@@ -817,7 +817,7 @@ describe('can transform matches', () => {
 
         const data1Results = data1.reduce<object[]>((arr, obj) => {
             if (obj.input) {
-                const results = {};
+                const results: any = {};
                 results.output = obj.input;
                 if (obj.date) results.date = obj.date;
                 arr.push(results);
@@ -827,7 +827,7 @@ describe('can transform matches', () => {
 
         const data2Results = data2.reduce<object[]>((arr, obj) => {
             if (obj.other_input) {
-                const results = {};
+                const results: any = {};
                 results.other_output = obj.other_input;
                 if (obj.date) results.date = obj.date;
                 if (obj.key) results.output_key = obj.key;
