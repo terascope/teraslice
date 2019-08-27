@@ -1,22 +1,22 @@
 
 import nock from 'nock';
-import terasliceClientJs from '../src/index';
+import TerasliceClient from '../src';
 import Client from '../src/lib/client';
 
 describe('Teraslice Client', () => {
     describe('when using the main export function', () => {
         it('returns a function', () => {
-            expect(typeof terasliceClientJs).toEqual('function');
+            expect(typeof TerasliceClient).toEqual('function');
         });
 
         it('should not throw an error if constructed with nothing', () => {
             // @ts-ignore
-            expect(() => terasliceClientJs()).not.toThrow();
+            expect(() => new TerasliceClient()).not.toThrow();
         });
 
         it('should have jobs, cluster, and assets', () => {
              // @ts-ignore
-            const client = terasliceClientJs();
+            const client = new TerasliceClient();
             expect(client.jobs).not.toBeUndefined();
             expect(client.cluster).not.toBeUndefined();
             expect(client.assets).not.toBeUndefined();
