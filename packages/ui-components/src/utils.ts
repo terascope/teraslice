@@ -37,7 +37,10 @@ export function formatDate(dateStr: any): string {
 }
 
 type FindPluginRouteResult = { plugin: PluginConfig; route: PluginRoute };
-export function findPluginRoute(pathname: string, authUser?: ResolvedUser): FindPluginRouteResult | undefined {
+export function findPluginRoute(
+    pathname: string,
+    authUser?: ResolvedUser
+): FindPluginRouteResult | undefined {
     const plugins = PluginService.plugins();
     for (const plugin of plugins) {
         const route = plugin.routes.find(({ path }) => !!matchPath(pathname, {
