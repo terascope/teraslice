@@ -15,7 +15,10 @@ import { getMetric } from './utils';
  * functionality to interface with the
  * Execution Configuration and any Operation.
  */
-export class WorkerExecutionContext extends BaseExecutionContext<WorkerOperationLifeCycle> implements WorkerOperationLifeCycle {
+export class WorkerExecutionContext
+    extends BaseExecutionContext<WorkerOperationLifeCycle>
+    implements WorkerOperationLifeCycle {
+    // ...
     readonly processors: ProcessorCore[];
     readonly logger: ts.Logger;
 

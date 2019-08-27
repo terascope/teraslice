@@ -15,7 +15,11 @@ import ConvictSchema from '../convict-schema';
 // This file for backwards compatibility and functionality will be limited
 // but it should allow you to write processors using the new way today
 
-export default function legacyProcessorShim(Processor: any, Schema: SchemaConstructor, apis?: APIs): LegacyProcessor {
+export default function legacyProcessorShim(
+    Processor: any,
+    Schema: SchemaConstructor,
+    apis?: APIs
+): LegacyProcessor {
     let schema: ConvictSchema<any, any>|undefined;
 
     return {
@@ -51,8 +55,11 @@ export default function legacyProcessorShim(Processor: any, Schema: SchemaConstr
 
             operationAPIShim(context, apis);
 
-            return async (input: DataInput[], logger: Logger, sliceRequest: SliceRequest): Promise<DataInput[]> => {
-                // @ts-ignore
+            return async (
+                input: DataInput[],
+                logger: Logger,
+                sliceRequest: SliceRequest
+            ): Promise<DataInput[]> => {
                 processor.logger = logger;
 
                 const output = await processor.handle(DataEntity.makeArray(input), sliceRequest);

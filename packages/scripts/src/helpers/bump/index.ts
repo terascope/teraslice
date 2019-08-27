@@ -51,7 +51,11 @@ function bumpVersion(pkgInfo: PackageInfo, release: semver.ReleaseType = 'patch'
     return version;
 }
 
-async function updateDependent(mainPkgInfo: PackageInfo, pkgInfo: PackageInfo, options: BumpPackageOptions) {
+async function updateDependent(
+    mainPkgInfo: PackageInfo,
+    pkgInfo: PackageInfo,
+    options: BumpPackageOptions
+) {
     if (!isDependent(mainPkgInfo, pkgInfo)) return;
     const { name } = mainPkgInfo;
     const newVersion = formatVersion(mainPkgInfo.version);

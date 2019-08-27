@@ -1,10 +1,17 @@
 import path from 'path';
 import isCI from 'is-ci';
 import {
-    debugLogger, chunk, TSError, getFullErrorStack
+    debugLogger,
+    chunk,
+    TSError,
+    getFullErrorStack
 } from '@terascope/utils';
 import {
-    writePkgHeader, writeHeader, formatList, getRootDir, getRootInfo
+    writePkgHeader,
+    writeHeader,
+    formatList,
+    getRootDir,
+    getRootInfo
 } from '../misc';
 import { ensureServices, stopAllServices } from './services';
 import { PackageInfo, TestSuite } from '../interfaces';
@@ -31,7 +38,7 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
     if (errors.length > 1) {
         errorMsg = `Multiple Test Failures:${formatList(errors)}`;
     } else if (errors.length === 1) {
-        errorMsg = errors[0];
+        ([errorMsg] = errors);
     }
 
     if (errors.length) {
@@ -96,7 +103,11 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
     return errors;
 }
 
-async function runTestSuite(suite: TestSuite, pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
+async function runTestSuite(
+    suite: TestSuite,
+    pkgInfos: PackageInfo[],
+    options: TestOptions
+): Promise<string[]> {
     let cleanup = () => {};
     const errors: string[] = [];
 

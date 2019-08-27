@@ -74,7 +74,7 @@ export async function ensureKafka(options: TestOptions): Promise<() => void> {
     return fn;
 }
 
-export async function ensureElasticsearch(options: TestOptions, ensureNetwork?: boolean): Promise<() => void> {
+export async function ensureElasticsearch(options: TestOptions): Promise<() => void> {
     let fn = () => {};
     fn = await startService(options, TestSuite.Elasticsearch);
     await checkElasticsearch(options, 10);

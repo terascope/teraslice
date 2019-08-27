@@ -1,6 +1,12 @@
+/* eslint-disable max-classes-per-file */
+
 import { toString, DataEntity } from '@terascope/utils';
 import {
-    Context, LegacyProcessor, SliceRequest, ProcessorFn, ValidatedJobConfig
+    Context,
+    LegacyProcessor,
+    SliceRequest,
+    ProcessorFn,
+    ValidatedJobConfig
 } from '../../interfaces';
 import ProcessorCore from '../core/processor-core';
 import ConvictSchema from '../convict-schema';
@@ -13,7 +19,11 @@ export default function processorShim<S = any>(legacy: LegacyProcessor): Process
             private processorFn: ProcessorFn<DataEntity[]>|undefined;
 
             async initialize() {
-                this.processorFn = await legacy.newProcessor(this.context, this.opConfig, this.executionConfig);
+                this.processorFn = await legacy.newProcessor(
+                    this.context,
+                    this.opConfig,
+                    this.executionConfig
+                );
             }
 
             async handle(input: DataEntity[], sliceRequest: SliceRequest): Promise<DataEntity[]> {

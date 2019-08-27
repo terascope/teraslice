@@ -1,5 +1,9 @@
 import {
-    DataEntity, DataInput, Logger, times, isFunction
+    DataEntity,
+    DataInput,
+    Logger,
+    times,
+    isFunction
 } from '@terascope/utils';
 import SlicerClass from '../slicer';
 import operationAPIShim, { APIs } from './operation-api-shim';
@@ -21,7 +25,12 @@ import ConvictSchema from '../convict-schema';
 
 type SchemaType = SchemaConstructor;
 
-export default function legacyReaderShim(Slicer: any, Fetcher: any, Schema: SchemaType, apis?: APIs): LegacyReader {
+export default function legacyReaderShim(
+    Slicer: any,
+    Fetcher: any,
+    Schema: SchemaType,
+    apis?: APIs
+): LegacyReader {
     let schema: ConvictSchema<any, any>|undefined;
 
     return {
@@ -63,7 +72,12 @@ export default function legacyReaderShim(Slicer: any, Fetcher: any, Schema: Sche
                 return DataEntity.makeArray(output);
             };
         },
-        async newSlicer(context, executionContext, recoveryData: object[], logger: Logger): Promise<SlicerFns> {
+        async newSlicer(
+            context,
+            executionContext,
+            recoveryData: object[],
+            logger: Logger
+        ): Promise<SlicerFns> {
             const executionConfig = executionContext.config;
             const opConfig = executionConfig.operations[0];
 

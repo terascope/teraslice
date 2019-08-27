@@ -1,7 +1,12 @@
 import path from 'path';
 import { EventEmitter } from 'events';
 import {
-    random, isString, getTypeOf, isFunction, debugLogger, Logger
+    random,
+    isString,
+    getTypeOf,
+    isFunction,
+    debugLogger,
+    Logger
 } from '@terascope/utils';
 import * as i from './interfaces';
 
@@ -51,7 +56,10 @@ export function newTestExecutionConfig(jobConfig: Partial<i.JobConfig> = {}): i.
  * Create a new Execution Context
  * @deprecated use the new WorkerExecutionContext and SlicerExecutionContext
  */
-export function newTestExecutionContext(type: i.Assignment, config: i.ExecutionConfig): i.LegacyExecutionContext {
+export function newTestExecutionContext(
+    type: i.Assignment,
+    config: i.ExecutionConfig
+): i.LegacyExecutionContext {
     if (type === 'execution_controller') {
         return {
             config,
@@ -112,7 +120,12 @@ function getKey(opts: GetKeyOpts) {
     return `${type}:${endpoint}`;
 }
 
-function setConnectorConfig<T extends Record<string, any>>(sysconfig: i.SysConfig, opts: GetKeyOpts, config: T, override = true): T {
+function setConnectorConfig<T extends Record<string, any>>(
+    sysconfig: i.SysConfig,
+    opts: GetKeyOpts,
+    config: T,
+    override = true
+): T {
     const { type, endpoint = 'default' } = opts;
     const { connectors } = sysconfig.terafoundation;
     if (connectors[type] == null) connectors[type] = {};

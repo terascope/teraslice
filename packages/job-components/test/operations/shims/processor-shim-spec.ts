@@ -1,6 +1,11 @@
 import 'jest-extended'; // require for type definitions
 import {
-    processorShim, DataEntity, TestContext, newTestExecutionConfig, WorkerContext, ValidatedJobConfig
+    processorShim,
+    DataEntity,
+    TestContext,
+    newTestExecutionConfig,
+    WorkerContext,
+    ValidatedJobConfig
 } from '../../../src';
 
 describe('Processor Shim', () => {

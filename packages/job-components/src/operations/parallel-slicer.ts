@@ -61,7 +61,9 @@ export default abstract class ParallelSlicer<T = OpConfig> extends SlicerCore<T>
     async handle(): Promise<boolean> {
         if (this.isFinished) return true;
 
-        const promises = this._slicers.filter((slicer) => !slicer.processing).map((slicer) => this.processSlicer(slicer));
+        const promises = this._slicers
+            .filter((slicer) => !slicer.processing)
+            .map((slicer) => this.processSlicer(slicer));
 
         await Promise.race(promises);
         return this.isFinished;

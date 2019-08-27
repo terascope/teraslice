@@ -23,9 +23,8 @@ describe('Collect Processor', () => {
     let context: WorkerContext;
     let collect: Collect;
 
-    const getQueue = (): DataEntity[] =>
-        // @ts-ignore
-        collect.collector._queue;
+    // @ts-ignore
+    const getQueue = (): DataEntity[] => collect.collector._queue;
     beforeEach(() => {
         context = new TestContext('collect') as WorkerContext;
         collect = new Collect(context, opConfig, exConfig);

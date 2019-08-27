@@ -11,7 +11,10 @@ import BaseExecutionContext from './base';
  * functionality to interface with the
  * Execution Configuration and any Operation.
  */
-export class SlicerExecutionContext extends BaseExecutionContext<SlicerOperationLifeCycle> implements SlicerOperationLifeCycle {
+export class SlicerExecutionContext
+    extends BaseExecutionContext<SlicerOperationLifeCycle>
+    implements SlicerOperationLifeCycle {
+    // ...
     private readonly _slicer: SlicerCore;
     readonly logger: Logger;
 

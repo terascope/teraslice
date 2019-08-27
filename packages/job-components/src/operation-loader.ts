@@ -107,7 +107,9 @@ export class OperationLoader {
 
         try {
             API = this.require(codePath, 'api');
-        } catch (err) {}
+        } catch (err) {
+            // do nothing
+        }
 
         return {
             // @ts-ignore
@@ -150,7 +152,9 @@ export class OperationLoader {
 
         try {
             API = this.require(codePath, 'api');
-        } catch (err) {}
+        } catch (err) {
+            // do nothing
+        }
 
         return {
             // @ts-ignore
@@ -171,13 +175,17 @@ export class OperationLoader {
 
         try {
             API = this.require(codePath, 'api');
-        } catch (err) {}
+        } catch (err) {
+            // do nothing
+        }
 
         let Observer: ObserverConstructor | undefined;
 
         try {
             Observer = this.require(codePath, 'observer');
-        } catch (err) {}
+        } catch (err) {
+            // do nothing
+        }
 
         let Schema: SchemaConstructor | undefined;
 
@@ -293,7 +301,9 @@ export class OperationLoader {
                             })
                         )
                     );
-                } catch (err) {}
+                } catch (_err) {
+                    // do nothing
+                }
             }
             return null;
         }
@@ -318,7 +328,8 @@ export class OperationLoader {
         const invalid = ['node_modules', ...ignoreDirectories()];
 
         const findCode = (rootDir: string): string | null => {
-            const fileNames = fs.readdirSync(rootDir).filter((fileName: string) => !invalid.includes(fileName));
+            const fileNames = fs.readdirSync(rootDir)
+                .filter((fileName: string) => !invalid.includes(fileName));
 
             for (const fileName of fileNames) {
                 if (filePath) break;

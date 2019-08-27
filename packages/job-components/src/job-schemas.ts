@@ -2,7 +2,12 @@
 import os from 'os';
 import convict from 'convict';
 import {
-    flatten, getTypeOf, isPlainObject, dataEncodings, isString
+    getField,
+    flatten,
+    getTypeOf,
+    isPlainObject,
+    dataEncodings,
+    isString
 } from '@terascope/utils';
 import { Context } from './interfaces';
 
@@ -13,7 +18,10 @@ export function jobSchema(context: Context): convict.Schema<any> {
     const schemas: convict.Schema<any> = {
         analytics: {
             default: true,
-            doc: 'logs the time it took in milliseconds for each action, ' + 'as well as the number of docs it receives',
+            doc: [
+                'logs the time it took in milliseconds for each action,',
+                'as well as the number of docs it receives',
+            ].join(' '),
             format: Boolean,
         },
         performance_metrics: {
@@ -44,7 +52,10 @@ export function jobSchema(context: Context): convict.Schema<any> {
         },
         max_retries: {
             default: 3,
-            doc: 'the number of times a worker will attempt to process ' + 'the same slice after a error has occurred',
+            doc: [
+                'the number of times a worker will attempt to process',
+                'the same slice after a error has occurred',
+            ].join(' '),
             format: 'nat', // integer >=0 (natural number)
         },
         name: {
@@ -63,7 +74,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
                     throw new Error('Operations need to be of type array with at least two operations in it');
                 }
 
-                const connectorsObject = (context.sysconfig.terafoundation && context.sysconfig.terafoundation.connectors) || {};
+                const connectorsObject = getField(context.sysconfig.terafoundation, 'connectors', {});
                 const connectors = Object.values(connectorsObject);
 
                 const connections = flatten(connectors.map((conn) => Object.keys(conn)));
@@ -89,7 +100,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
                     throw new Error('APIs is required to be an array');
                 }
 
-                const connectorsObject = (context.sysconfig.terafoundation && context.sysconfig.terafoundation.connectors) || {};
+                const connectorsObject = getField(context.sysconfig.terafoundation, 'connectors', {});
                 const connectors = Object.values(connectorsObject);
 
                 const connections = flatten(connectors.map((conn) => Object.keys(conn)));
@@ -230,14 +241,15 @@ export const opSchema: convict.Schema<any> = {
         format: dataEncodings,
     },
     _dead_letter_action: {
-        doc: `This action will specify what to do when failing to parse or transform a record. ​​​​​
-​​​​​The following builtin actions are supported: ​​​
-​​​​​  - "throw": throw the original error ​​​​​
-​​​​​  - "log": log the error and the data ​​​​​
-​​​​​  - "none": (default) skip the error entirely
-
-​​​​​If none of the actions are specified it will try and use a registered Dead Letter Queue API under that name.
-The API must be already be created by a operation before it can used.​`.trim(),
+        doc: [
+            'This action will specify what to do when failing to parse or transform a record.',
+            'The following builtin actions are supported:',
+            '  - "throw": throw the original error​​',
+            '  - "log": log the error and the data​​',
+            '  - "none": (default) skip the error entirely',
+            'If none of the actions are specified it will try and use a registered Dead Letter Queue API under that name.',
+            'The API must be already be created by a operation before it can used.'
+        ].join('\n'),
         default: 'none',
         format: 'optional_String',
     },

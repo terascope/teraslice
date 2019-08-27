@@ -117,7 +117,12 @@ export async function yarnRun(script: string, args: string[] = [], cwd?: string)
     await fork({ cmd: 'yarn', args: ['run', script, ...args], cwd: dir });
 }
 
-export async function runJest(cwd: string, argsMap: ArgsMap, env?: ExecEnv, extraArgs?: string[]): Promise<void> {
+export async function runJest(
+    cwd: string,
+    argsMap: ArgsMap,
+    env?: ExecEnv,
+    extraArgs?: string[]
+): Promise<void> {
     const args = mapToArgs(argsMap);
     if (extraArgs) {
         extraArgs.forEach((extraArg) => {
@@ -261,7 +266,11 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
     };
 }
 
-export async function dockerBuild(tag: string, cacheFrom: string[] = [], target?: string): Promise<void> {
+export async function dockerBuild(
+    tag: string,
+    cacheFrom: string[] = [],
+    target?: string
+): Promise<void> {
     const cacheFromArgs: string[] = [];
 
     cacheFrom.forEach((image) => {

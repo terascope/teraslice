@@ -22,7 +22,12 @@ describe('Reader Shim', () => {
             return 'QUEUE_MINIMUM_SIZE';
         },
         async newSlicer(_context, executionContext, recoveryData, logger) {
-            logger.debug(opConfig, executionContext, recoveryData, _context.sysconfig.teraslice.assets_directory);
+            logger.debug(
+                opConfig,
+                executionContext,
+                recoveryData,
+                _context.sysconfig.teraslice.assets_directory
+            );
             const results = [{ say: 'hi' }, { say: 'hello' }];
             return [async () => results.shift() || null, async () => results.shift() || null];
         },

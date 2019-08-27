@@ -1,9 +1,17 @@
+/* eslint-disable no-new */
+
 import 'jest-extended'; // require for type definitions
 import { createTempDirSync } from 'jest-fixtures';
 import fse from 'fs-extra';
 import path from 'path';
 import {
-    OperationLoader, LegacyProcessor, LegacyReader, newTestExecutionConfig, debugLogger, TestContext, WorkerContext
+    OperationLoader,
+    LegacyProcessor,
+    LegacyReader,
+    newTestExecutionConfig,
+    debugLogger,
+    TestContext,
+    WorkerContext
 } from '../src';
 
 describe('OperationLoader', () => {

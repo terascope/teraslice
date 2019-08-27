@@ -1,7 +1,11 @@
 import 'jest-extended'; // require for type definitions
 import path from 'path';
 import {
-    registerApis, OperationAPI, newTestJobConfig, TestContext, TestClientConfig
+    registerApis,
+    OperationAPI,
+    newTestJobConfig,
+    TestContext,
+    TestClientConfig
 } from '../src';
 
 describe('registerApis', () => {
@@ -209,7 +213,10 @@ describe('registerApis', () => {
             failingContext.foundation.getConnection = makeError;
 
             const events = failingContext.apis.foundation.getSystemEvents();
-            const errStr = 'No configuration for endpoint default ' + 'was found in the terafoundation connectors';
+            const errStr = [
+                'No configuration for endpoint default',
+                'was found in the terafoundation connectors'
+            ].join(' ');
 
             events.once('client:initialization:error', (errMsg) => {
                 expect(errMsg.error.includes(errStr)).toEqual(true);

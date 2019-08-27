@@ -3,7 +3,12 @@ import path from 'path';
 import { pDelay, DataEntity } from '@terascope/utils';
 import { terasliceOpPath } from '../helpers';
 import {
-    WorkerExecutionContext, TestContext, newTestExecutionConfig, FetcherCore, ProcessorCore, newTestSlice
+    WorkerExecutionContext,
+    TestContext,
+    newTestExecutionConfig,
+    FetcherCore,
+    ProcessorCore,
+    newTestSlice
 } from '../../src';
 
 describe('WorkerExecutionContext', () => {

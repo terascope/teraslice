@@ -1,7 +1,11 @@
 import 'jest-extended'; // require for type definitions
 import { Schema } from 'convict';
 import {
-    jobSchema, validateJobConfig, validateOpConfig, TestContext, validateAPIConfig
+    jobSchema,
+    validateJobConfig,
+    validateOpConfig,
+    TestContext,
+    validateAPIConfig
 } from '../src';
 
 describe('when using native clustering', () => {
@@ -544,7 +548,9 @@ describe('when using native clustering', () => {
                         },
                     ],
                 };
-                expect(() => validateJobConfig(schema, job)).toThrowError('value for key \"foo\" must be not empty');
+                expect(() => validateJobConfig(schema, job)).toThrowError(
+                    'value for key "foo" must be not empty'
+                );
             });
         });
 

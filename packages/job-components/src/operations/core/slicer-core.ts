@@ -22,7 +22,10 @@ import { makeExContextLogger } from '../../utils';
  * See [[Core]] for more information
  */
 
-export default abstract class SlicerCore<T = OpConfig> extends Core<WorkerContext> implements SlicerOperationLifeCycle {
+export default abstract class SlicerCore<T = OpConfig>
+    extends Core<WorkerContext>
+    implements SlicerOperationLifeCycle {
+    // ...
     protected stats: ExecutionStats;
     protected recoveryData: object[];
     protected readonly opConfig: Readonly<OpConfig & T>;
