@@ -41,7 +41,7 @@ docker run -it --rm -v ./teraslice-master.yaml:/app/config/teraslice.yml terasli
 
 ### Recommended Settings
 
-```json
+```js
 {
     // use eslint formating
     "editor.formatOnSave": true,
