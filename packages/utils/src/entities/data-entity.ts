@@ -5,9 +5,6 @@ import { isFunction, parseJSON, getTypeOf } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
 
-// WeakMaps are used as a memory efficient reference to private data
-const _metadata = new WeakMap();
-
 /**
  * A wrapper for data that can hold additional metadata properties.
  * A DataEntity should be essentially transparent to use within operations.
@@ -46,10 +43,11 @@ export class DataEntity<T extends object = object> {
         input?: T,
         metadata?: object
     ): { entity: DataEntity<T>; metadata: i.DataEntityMetadata } {
-        const entity = makeEntity(input || {});
+        const m = utils.makeMetadata(metadata);
+        const entity = makeRawEntity(input || {}, m);
         return {
             entity,
-            metadata: makeMetadata(entity, metadata),
+            metadata: m,
         };
     }
 
@@ -102,7 +100,7 @@ export class DataEntity<T extends object = object> {
     static isDataEntity(input: any): input is DataEntity<object> {
         if (input == null) return false;
         if (input instanceof DataEntity) return true;
-        if (input.__isDataEntity) return true;
+        if (input[i.IS_ENTITY_KEY]) return true;
         return isFunction(input.getMetadata)
             && isFunction(input.setMetadata)
             && isFunction(input.toBuffer);
@@ -136,9 +134,8 @@ export class DataEntity<T extends object = object> {
     [prop: string]: any;
 
     constructor(data: T, metadata?: object) {
-        makeMetadata(this, metadata);
-
-        utils.setDataEntityProps(this);
+        const m = utils.makeMetadata(metadata);
+        utils.makeDataEntityObj(this, m);
 
         if (data == null) return;
 
@@ -149,23 +146,27 @@ export class DataEntity<T extends object = object> {
         fastAssign(this, data);
     }
 
+    /**
+     * Get the metadata for the DataEntity.
+     * If a key is specified, it will get that property of the metadata
+    */
     getMetadata<K extends keyof i.DataEntityMetadata>(key?: K): i.DataEntityMetadata[K] | any {
-        const metadata = _metadata.get(this) as i.DataEntityMetadata;
         if (key) {
-            return metadata[key];
+            return this[i.METADATA_KEY][key];
         }
-        return metadata;
+        return this[i.METADATA_KEY];
     }
 
+    /**
+     * Given a key and value set the metadata on the record
+    */
     setMetadata(key: string, value: any): void {
         const readonlyMetadataKeys: string[] = ['_createTime'];
         if (readonlyMetadataKeys.includes(key)) {
             throw new Error(`Cannot set readonly metadata property ${key}`);
         }
 
-        const metadata = _metadata.get(this) as i.DataEntityMetadata;
-        metadata[key] = value;
-        _metadata.set(this, metadata);
+        this[i.METADATA_KEY][key] = value;
     }
 
     /**
@@ -184,16 +185,13 @@ export class DataEntity<T extends object = object> {
     }
 }
 
-function makeMetadata<T extends object, M extends object>(entity: T, metadata?: M) {
-    const newMetadata = { _createTime: Date.now(), ...metadata };
-    _metadata.set(entity, newMetadata);
-    return newMetadata;
-}
-
-function makeEntity<T extends object>(input: T): DataEntity<T> {
+function makeRawEntity<T extends object, M extends i.DataEntityMetadata>(
+    input: T,
+    metadata: M
+): DataEntity<T> {
     const entity = input as DataEntity<T>;
     Object.setPrototypeOf(entity, DataEntity.prototype);
-    utils.setDataEntityProps(entity);
+    utils.makeDataEntityObj(entity, metadata);
     return entity;
 }
 

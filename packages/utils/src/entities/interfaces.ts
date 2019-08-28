@@ -1,3 +1,11 @@
+export type TYPE_IS_ENTITY_KEY = '__isDataEntity';
+export type TYPE_METADATA_KEY = '___DataEntityMetadata';
+export type TYPE_RAWDATA_KEY = '___DataEntityRawData';
+
+export const IS_ENTITY_KEY: TYPE_IS_ENTITY_KEY = '__isDataEntity';
+export const METADATA_KEY: TYPE_METADATA_KEY = '___DataEntityMetadata';
+export const RAWDATA_KEY: TYPE_RAWDATA_KEY = '___DataEntityRawData';
+
 export interface DataEntityMetadata {
     /** The time at which this entity was created */
     readonly _createTime: number;
