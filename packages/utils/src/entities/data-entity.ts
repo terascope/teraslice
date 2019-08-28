@@ -1,5 +1,4 @@
 import isPlainObject from 'is-plain-object';
-import { fastMap } from '../arrays';
 import { fastAssign } from '../objects';
 import { isFunction, parseJSON, getTypeOf } from '../utils';
 import * as i from './interfaces';
@@ -91,7 +90,7 @@ export class DataEntity<T extends object = object> {
             return input;
         }
 
-        return fastMap(input, (d) => DataEntity.make(d));
+        return input.map((d) => DataEntity.make(d));
     }
 
     /**
