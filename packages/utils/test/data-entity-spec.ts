@@ -2,6 +2,14 @@ import 'jest-extended'; // require for type definitions
 import { DataEntity, parseJSON, DataEncoding } from '../src';
 
 describe('DataEntity', () => {
+    const methods: (keyof DataEntity)[] = [
+        'getMetadata',
+        'setMetadata',
+        'getRawData',
+        'setRawData',
+        'toBuffer'
+    ];
+
     const testCases = [
         [
             'when using new DataEntity',
@@ -44,30 +52,30 @@ describe('DataEntity', () => {
 
             it('should not be able to enumerate metadata methods', () => {
                 const keys = Object.keys(dataEntity);
-                expect(keys).not.toInclude('getMetadata');
-                expect(keys).not.toInclude('setMetadata');
-                expect(keys).not.toInclude('toBuffer');
+                for (const method of methods) {
+                    expect(keys).not.toInclude(method as string);
+                }
 
                 // eslint-disable-next-line guard-for-in
                 for (const prop in dataEntity) {
-                    expect(prop).not.toEqual('getMetadata');
-                    expect(prop).not.toEqual('setMetadata');
-                    expect(prop).not.toEqual('toBuffer');
+                    for (const method of methods) {
+                        expect(prop).not.toEqual(method as string);
+                    }
                 }
             });
 
             it('should only convert non-metadata properties with stringified', () => {
-                const object = JSON.parse(JSON.stringify(dataEntity));
-                expect(object).not.toHaveProperty('getMetadata');
-                expect(object).not.toHaveProperty('setMetadata');
-                expect(object).not.toHaveProperty('toBuffer');
+                const obj = JSON.parse(JSON.stringify(dataEntity));
+                for (const method of methods) {
+                    expect(obj).not.toHaveProperty(method as string);
+                }
 
-                expect(object).toHaveProperty('teal', 'neal');
-                expect(object).toHaveProperty('blue', 'green');
-                expect(object).toHaveProperty('metadata', {
+                expect(obj).toHaveProperty('teal', 'neal');
+                expect(obj).toHaveProperty('blue', 'green');
+                expect(obj).toHaveProperty('metadata', {
                     uh: 'oh',
                 });
-                expect(object).toHaveProperty('purple', 'pink');
+                expect(obj).toHaveProperty('purple', 'pink');
             });
 
             it('should be able to get the metadata', () => {
@@ -162,6 +170,10 @@ describe('DataEntity', () => {
                     }
                 }).toThrowError('Invalid data source, must be an object, got "Buffer"');
             });
+        });
+
+        describe('->setRawData', () => {
+
         });
 
         describe('->toBuffer', () => {
