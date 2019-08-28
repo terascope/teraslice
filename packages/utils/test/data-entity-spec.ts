@@ -239,22 +239,40 @@ describe('DataEntity', () => {
         describe('->toBuffer', () => {
             const data = { foo: 'bar' };
             const metadata = { hello: 'there' };
-            const dataEntity = useClass ? new DataEntity(data, metadata) : DataEntity.make(data);
+            const dataEntity = useClass ? new DataEntity(data, metadata) : DataEntity.make(data, metadata);
+            const dataStr = JSON.stringify({ other: 'data' });
+            dataEntity.setData(dataStr);
 
-            it('should be convertable to a buffer', () => {
-                const buf = dataEntity.toBuffer({ _encoding: 'json' as DataEncoding });
-                expect(Buffer.isBuffer(buf)).toBeTrue();
-                const obj = parseJSON(buf);
+            describe('when using encoding type JSON', () => {
+                it('should be convertable to a buffer', () => {
+                    const buf = dataEntity.toBuffer({
+                        _encoding: 'json' as DataEncoding
+                    });
+                    expect(Buffer.isBuffer(buf)).toBeTrue();
+                    const obj = parseJSON(buf);
 
-                expect(obj).toEqual({ foo: 'bar' });
+                    expect(obj).toEqual({ foo: 'bar' });
+                });
+
+                it('should be able to default to JSON', () => {
+                    const buf = dataEntity.toBuffer();
+                    expect(Buffer.isBuffer(buf)).toBeTrue();
+                    const obj = parseJSON(buf);
+
+                    expect(obj).toEqual({ foo: 'bar' });
+                });
             });
 
-            it('should be able to handle no config', () => {
-                const buf = dataEntity.toBuffer();
-                expect(Buffer.isBuffer(buf)).toBeTrue();
-                const obj = parseJSON(buf);
+            describe('when using encoding type RAW', () => {
+                it('should be able to return the data', () => {
+                    const buf = dataEntity.toBuffer({
+                        _encoding: 'raw' as DataEncoding
+                    });
+                    expect(Buffer.isBuffer(buf)).toBeTrue();
+                    const obj = parseJSON(buf);
 
-                expect(obj).toEqual({ foo: 'bar' });
+                    expect(obj).toEqual({ other: 'data' });
+                });
             });
 
             it('should fail if given an invalid encoding', () => {
@@ -454,7 +472,7 @@ describe('DataEntity', () => {
                 expect(entity.getMetadata('howdy')).toEqual('there');
             });
 
-            it('should be able handle no config', () => {
+            it('should be able handle to default to JSON', () => {
                 const buf = Buffer.from(JSON.stringify({ foo: 'bar' }));
                 const entity = DataEntity.fromBuffer(buf);
 

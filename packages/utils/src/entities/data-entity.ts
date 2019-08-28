@@ -207,6 +207,10 @@ export class DataEntity<T extends object = object> {
             return Buffer.from(JSON.stringify(this));
         }
 
+        if (_encoding === i.DataEncoding.RAW) {
+            return this.getData();
+        }
+
         throw new Error(`Unsupported encoding type, got "${_encoding}"`);
     }
 }
