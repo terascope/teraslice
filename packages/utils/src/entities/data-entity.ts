@@ -74,7 +74,7 @@ export class DataEntity<T extends object = object> {
 
         if (_encoding === i.DataEncoding.RAW) {
             const entity = DataEntity.make({}, metadata);
-            entity.setData(input);
+            entity.setRawData(input);
             return entity;
         }
 
@@ -177,7 +177,7 @@ export class DataEntity<T extends object = object> {
      * Get the raw data, usually used for encoding type `raw`
      * If there is no data, an error will be thrown
     */
-    getData(): Buffer {
+    getRawData(): Buffer {
         const buf = this[i.RAWDATA_KEY];
         if (buf != null && Buffer.isBuffer(buf)) return buf;
         throw new Error('No data has been set');
@@ -187,7 +187,7 @@ export class DataEntity<T extends object = object> {
      * Set the raw data, usually used for encoding type `raw`
      * If given `null`, it will unset the data
     */
-    setData(buf: Buffer|string|null): void {
+    setRawData(buf: Buffer|string|null): void {
         if (buf == null) {
             this[i.RAWDATA_KEY] = null;
             return;
@@ -208,7 +208,7 @@ export class DataEntity<T extends object = object> {
         }
 
         if (_encoding === i.DataEncoding.RAW) {
-            return this.getData();
+            return this.getRawData();
         }
 
         throw new Error(`Unsupported encoding type, got "${_encoding}"`);

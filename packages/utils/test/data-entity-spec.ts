@@ -12,8 +12,8 @@ describe('DataEntity', () => {
     const methods: (keyof DataEntity)[] = [
         'getMetadata',
         'setMetadata',
-        'getData',
-        'setData',
+        'getRawData',
+        'setRawData',
         'toBuffer'
     ];
 
@@ -195,44 +195,44 @@ describe('DataEntity', () => {
             });
         });
 
-        describe('->setData/->getData', () => {
+        describe('->setRawData/->getRawData', () => {
             const dataEntity = useClass ? new DataEntity({}) : DataEntity.make({});
             const initialBuffer = Buffer.from('HI');
             const updatedBuffer = Buffer.from('HELLO');
 
             it('should throw an error if no data is set', () => {
-                expect(() => dataEntity.getData()).toThrow();
+                expect(() => dataEntity.getRawData()).toThrow();
             });
 
             it('should be able to initial set the raw data', () => {
-                expect(dataEntity.setData(initialBuffer)).toBeNil();
+                expect(dataEntity.setRawData(initialBuffer)).toBeNil();
             });
 
             it('should have not mutated the initial buffer', () => {
-                expect(dataEntity.getData()).toBe(initialBuffer);
-                expect(dataEntity.getData().toString('utf8'))
+                expect(dataEntity.getRawData()).toBe(initialBuffer);
+                expect(dataEntity.getRawData().toString('utf8'))
                     .toEqual('HI');
             });
 
             it('should be able to update the buffer', () => {
-                expect(dataEntity.setData(updatedBuffer)).toBeNil();
-                expect(dataEntity.getData()).not.toBe(initialBuffer);
-                expect(Buffer.isBuffer(dataEntity.getData())).toBeTrue();
+                expect(dataEntity.setRawData(updatedBuffer)).toBeNil();
+                expect(dataEntity.getRawData()).not.toBe(initialBuffer);
+                expect(Buffer.isBuffer(dataEntity.getRawData())).toBeTrue();
 
-                expect(dataEntity.getData()).toBe(updatedBuffer);
-                expect(dataEntity.getData().toString('utf8'))
+                expect(dataEntity.getRawData()).toBe(updatedBuffer);
+                expect(dataEntity.getRawData().toString('utf8'))
                     .toEqual('HELLO');
             });
 
             it('should be able to mutate the raw data', () => {
-                const buf = dataEntity.getData();
+                const buf = dataEntity.getRawData();
                 buf.write('HOWDY', 'utf8');
                 expect(updatedBuffer.toString('utf8')).toEqual('HOWDY');
             });
 
             it('should be able to set the data to null', () => {
-                expect(dataEntity.setData(null)).toBeNil();
-                expect(() => dataEntity.getData()).toThrow();
+                expect(dataEntity.setRawData(null)).toBeNil();
+                expect(() => dataEntity.getRawData()).toThrow();
             });
         });
 
@@ -244,7 +244,7 @@ describe('DataEntity', () => {
                 : DataEntity.make(data, metadata);
 
             const dataStr = JSON.stringify({ other: 'data' });
-            dataEntity.setData(dataStr);
+            dataEntity.setRawData(dataStr);
 
             describe('when using encoding type JSON', () => {
                 it('should be convertable to a buffer', () => {
@@ -517,9 +517,9 @@ describe('DataEntity', () => {
                     }
                 );
 
-                expect(entity.getData()).toEqual(buf);
-                expect(entity.getData()).toBe(buf);
-                expect(Buffer.isBuffer(entity.getData())).toBeTrue();
+                expect(entity.getRawData()).toEqual(buf);
+                expect(entity.getRawData()).toBe(buf);
+                expect(Buffer.isBuffer(entity.getRawData())).toBeTrue();
 
                 expect(entity).not.toHaveProperty('data');
                 expect(entity.getMetadata('howdy')).toEqual('there');
@@ -539,8 +539,8 @@ describe('DataEntity', () => {
                     }
                 );
 
-                expect(entity.getData().toString('utf8')).toEqual(str);
-                expect(Buffer.isBuffer(entity.getData())).toBeTrue();
+                expect(entity.getRawData().toString('utf8')).toEqual(str);
+                expect(Buffer.isBuffer(entity.getRawData())).toBeTrue();
 
                 expect(entity).not.toHaveProperty('data');
                 expect(entity.getMetadata('howdy')).toEqual('there');
