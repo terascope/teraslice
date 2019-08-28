@@ -59,8 +59,6 @@ interface AssetJSON {
 /*
  * This will request a connection based on the 'connection' attribute of
  * an opConfig. Intended as a context API endpoint.
- * If there is an error getting the connection, it will not throw an error
- * it will log it and emit `client:initialization:error`
  */
 export function getClient(context: Context, config: GetClientConfig, type: string): any {
     const clientConfig: ConnectionConfig = {
@@ -68,7 +66,6 @@ export function getClient(context: Context, config: GetClientConfig, type: strin
         cached: true,
         endpoint: 'default',
     };
-    const events = context.apis.foundation.getSystemEvents();
 
     if (config && config.connection) {
         clientConfig.endpoint = config.connection || 'default';
@@ -79,17 +76,7 @@ export function getClient(context: Context, config: GetClientConfig, type: strin
         clientConfig.cached = true;
     }
 
-    try {
-        return context.foundation.getConnection(clientConfig).client;
-    } catch (err) {
-        const message = `No configuration for endpoint ${clientConfig.endpoint} was found in the terafoundation connectors config`;
-        context.logger.error(err, message);
-
-        events.emit('client:initialization:error', {
-            error: message,
-            stack: err,
-        });
-    }
+    return context.foundation.getConnection(clientConfig).client;
 }
 
 export function registerApis(
