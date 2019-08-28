@@ -366,8 +366,11 @@ describe('DataEntity', () => {
                 }
             );
 
-            expect(entity.data).toEqual(buf);
-            expect(entity.data).toBe(buf);
+            expect(entity.getRawData()).toEqual(buf);
+            expect(entity.getRawData()).toBe(buf);
+
+            expect(entity).not.toHaveProperty('data');
+            expect(entity.getMetadata('howdy')).toEqual('there');
             expect(entity.getMetadata('howdy')).toEqual('there');
         });
 

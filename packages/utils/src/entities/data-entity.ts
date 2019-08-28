@@ -69,9 +69,9 @@ export class DataEntity<T extends object = object> {
         }
 
         if (_encoding === i.DataEncoding.RAW) {
-            return DataEntity.make({
-                data: input,
-            }, metadata);
+            const entity = DataEntity.make({}, metadata);
+            entity.setRawData(input);
+            return entity;
         }
 
         throw new Error(`Unsupported encoding type, got "${_encoding}"`);
@@ -170,10 +170,24 @@ export class DataEntity<T extends object = object> {
     }
 
     /**
+     * Get the raw data, usually used for encoding type `raw`
+    */
+    getRawData(): Buffer {
+        return this[i.RAWDATA_KEY];
+    }
+
+    /**
+     * Set the raw data, usually used for encoding type `raw`
+    */
+    setRawData(buf: Buffer): void {
+        this[i.RAWDATA_KEY] = buf;
+    }
+
+    /**
      * Convert the DataEntity to an encoded buffer
      *
      * @param opConfig The operation config used to get the encoding type of the buffer,
-     * @default "json"
+     * @default `json`
      */
     toBuffer(opConfig: i.EncodingConfig = {}): Buffer {
         const { _encoding = i.DataEncoding.JSON } = opConfig;
