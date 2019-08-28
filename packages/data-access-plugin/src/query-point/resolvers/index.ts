@@ -1,13 +1,13 @@
+
 import crypto from 'crypto';
 import { GraphQLResolveInfo } from 'graphql';
 import { IResolvers, UserInputError } from 'apollo-server-express';
-import { DataAccessConfig, SpaceSearchConfig } from '@terascope/data-access';
-import elasticsearchApi from '@terascope/elasticsearch-api';
-import { getESVersion } from 'elasticsearch-store';
+import { DataAccessConfig, SearchAccess, InputQuery } from '@terascope/data-access';
 import { Context } from '@terascope/job-components';
-import { DataType } from '@terascope/data-types';
 import { Logger, get } from '@terascope/utils';
-import { QueryAccess } from 'xlucene-evaluator';
+import DataLoader from 'dataloader';
+import Bluebird from 'bluebird';
+import { Client } from 'elasticsearch';
 import { getESClient } from '../../utils';
 import { SpacesContext } from '../interfaces';
 import Misc from './misc';
@@ -30,16 +30,30 @@ function dedup<T>(records: T[]): T[] {
     return Object.values(deduped);
 }
 
+interface QueryClient {
+    client: Client;
+    searchAccess: SearchAccess;
+}
+
+interface SearchDict {
+    [key: string]: QueryClient;
+}
+// endpoint is first
+interface QueryArgs {
+    [key: string]: [string, InputQuery];
+}
+
 function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger: Logger, context: Context) {
     const results = {} as IResolvers<any, SpacesContext>;
     const endpoints = {};
+    const searchDict: SearchDict = {};
+    const queryArgs:QueryArgs = {};
     // we create the master resolver list
     for (const key in Misc) {
         if (typeDefs.includes(key)) results[key] = Misc[key];
     }
 
     function getSelectionKeys(info: GraphQLResolveInfo) {
-        // @ts-ignore
         const {
             fieldNodes: [
                 {
@@ -59,36 +73,54 @@ function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger:
         return filteredResults;
     }
 
+    const loader = new DataLoader((keys:string[]) => loadJoinData(keys));
+
+    function loadJoinData(luceneQuerys: string[]) {
+        return Promise.resolve(Bluebird.map(luceneQuerys, (luceneQuery: string) => {
+            // TODO: make sure this does not clash
+            const [endpoint, query] = queryArgs[luceneQuery];
+            const { searchAccess, client } = searchDict[endpoint];
+            return searchAccess.performSearch(client, query);
+        }, { concurrency: 10 }));
+    }
+
+    function makeSelctor(selector: string, value: any | any[], prevQ: undefined|string) {
+        let q = '';
+
+        if (Array.isArray(value)) {
+            q = value.map((field) => `${selector}:"${field}"`).join(' AND ');
+        } else {
+            q = `${selector}:"${value}"`;
+        }
+
+        if (prevQ) {
+            q = `${q} AND (${prevQ})`;
+        }
+
+        return q;
+    }
+
     viewList.forEach((view) => {
-        const esClient = getESClient(context, get(view, 'config.connection', 'default'));
-        const client = elasticsearchApi(esClient, logger);
-        const {
-            data_type: { config },
-            view: { includes, excludes, constraint, prevent_prefix_wildcard },
-        } = view;
+        const endpoint = view.space_endpoint!;
+        const client = getESClient(context, get(view, 'config.connection', 'default'));
+        const searchAccess = new SearchAccess(view, logger);
+        searchDict[endpoint] = { client, searchAccess };
 
-        const dateType = new DataType(config);
-        const accessData = {
-            includes,
-            excludes,
-            constraint,
-            prevent_prefix_wildcard,
-            allow_implicit_queries: true,
-        };
+        endpoints[endpoint] = async function resolverFn(root: any, args: any, ctx: any, info: GraphQLResolveInfo) {
 
-        const queryAccess = new QueryAccess(accessData, {
-            type_config: dateType.toXlucene(),
-            logger,
-        });
-
-        endpoints[view.space_endpoint!] = async function resolverFn(root: any, args: any, ctx: any, info: GraphQLResolveInfo) {
-            const spaceConfig = view.config as SpaceSearchConfig;
-            const _sourceInclude = getSelectionKeys(info);
+            const fields = getSelectionKeys(info);
             const { size, sort, from, join } = args;
-            const queryParams = { index: spaceConfig.index, from, sort, size, _sourceInclude };
-            let { query } = args;
 
-            if (root == null && query == null) throw new UserInputError('Invalid request, expected query to nested');
+            const query: InputQuery = {
+                start: from,
+                sort,
+                size,
+                fields,
+            };
+
+            let { query:q,  } = args;
+
+            if (root == null && q == null) throw new UserInputError('Invalid request, expected query to nested');
             if (root && join == null) throw new UserInputError('Invalid query, expected join when querying against another space');
 
             if (join) {
@@ -98,22 +130,18 @@ function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger:
                     const selector = target || orig; // In case there's no colon in field.
 
                     if (root && root[orig] != null) {
-                        if (query) {
-                            query = `${selector}:${root[orig]} AND (${query})`;
-                        } else {
-                            query = `${selector}:"${root[orig]}"`;
-                        }
+                        q = makeSelctor(selector, root[orig], q);
                     } else {
                         throw new UserInputError('Invalid join, you may only join on a field that is being returned in a query');
                     }
                 });
             }
+            query.q = q;
+            // set the query obj for dataloader
+            queryArgs[q] = [endpoint, query];
 
-            const restrictedQuery = queryAccess.restrictSearchQuery(query, {
-                params: queryParams,
-                elasticsearch_version: getESVersion(esClient)
-            });
-            return dedup(await client.search(restrictedQuery));
+            const response = await loader.load(q);
+            return dedup(response.results);
         };
     });
 
@@ -121,7 +149,7 @@ function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger:
         // we create individual resolver
         results[key] = endpoints;
     }
-    // @ts-ignore TODO: fix typing
+
     results.Query = endpoints;
 
     return results;
