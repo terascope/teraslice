@@ -336,61 +336,6 @@ describe('DataEntity', () => {
     });
 
     describe('#fromBuffer', () => {
-        it('should be able to create a DataEntity from a JSON encoded buffer', () => {
-            const buf = Buffer.from(JSON.stringify({ foo: 'bar' }));
-            const entity = DataEntity.fromBuffer(
-                buf,
-                {
-                    _op: 'baz',
-                    _encoding: DataEncoding.JSON,
-                },
-                {
-                    howdy: 'there',
-                }
-            );
-
-            expect(entity.foo).toEqual('bar');
-            expect(entity.getMetadata('howdy')).toEqual('there');
-        });
-
-        it('should be able to create a DataEntity from a raw encoded buffer', () => {
-            const buf = Buffer.from(JSON.stringify({ foo: 'bar' }));
-            const entity = DataEntity.fromBuffer(
-                buf,
-                {
-                    _op: 'baz',
-                    _encoding: DataEncoding.RAW,
-                },
-                {
-                    howdy: 'there',
-                }
-            );
-
-            expect(entity.getRawData()).toEqual(buf);
-            expect(entity.getRawData()).toBe(buf);
-
-            expect(entity).not.toHaveProperty('data');
-            expect(entity.getMetadata('howdy')).toEqual('there');
-            expect(entity.getMetadata('howdy')).toEqual('there');
-        });
-
-        it('should be able handle no config', () => {
-            const buf = Buffer.from(JSON.stringify({ foo: 'bar' }));
-            const entity = DataEntity.fromBuffer(buf);
-
-            expect(entity.foo).toEqual('bar');
-        });
-
-        it('should throw an error if given invalid buffer', () => {
-            const buf = Buffer.from('hello:there');
-            expect(() => {
-                DataEntity.fromBuffer(buf, {
-                    _op: 'test',
-                    _encoding: DataEncoding.JSON,
-                });
-            }).toThrow();
-        });
-
         it('should throw an error if given an unsupported encoding', () => {
             const buf = Buffer.from(JSON.stringify({ hi: 'there' }));
             expect(() => {
@@ -400,6 +345,122 @@ describe('DataEntity', () => {
                     _encoding: 'crazy',
                 });
             }).toThrowError('Unsupported encoding type, got "crazy"');
+        });
+
+        describe('when encoding is type JSON', () => {
+            it('should be able to create a DataEntity from a JSON buffer', () => {
+                const buf = Buffer.from(JSON.stringify({ foo: 'bar' }));
+                const entity = DataEntity.fromBuffer(
+                    buf,
+                    {
+                        _op: 'baz',
+                        _encoding: DataEncoding.JSON,
+                    },
+                    {
+                        howdy: 'there',
+                    }
+                );
+
+                expect(entity.foo).toEqual('bar');
+                expect(entity.getMetadata('howdy')).toEqual('there');
+            });
+
+            it('should be able to create a DataEntity from a json string', () => {
+                const str = JSON.stringify({ foo: 'bar' });
+                const entity = DataEntity.fromBuffer(
+                    str,
+                    {
+                        _op: 'baz',
+                        _encoding: DataEncoding.JSON,
+                    },
+                    {
+                        howdy: 'there',
+                    }
+                );
+
+                expect(entity.foo).toEqual('bar');
+                expect(entity.getMetadata('howdy')).toEqual('there');
+            });
+
+            it('should be able handle no config', () => {
+                const buf = Buffer.from(JSON.stringify({ foo: 'bar' }));
+                const entity = DataEntity.fromBuffer(buf);
+
+                expect(entity.foo).toEqual('bar');
+            });
+
+            it('should throw an error if given an invalid buffer', () => {
+                const buf = Buffer.from('hello:there');
+                expect(() => {
+                    DataEntity.fromBuffer(buf, {
+                        _op: 'test',
+                        _encoding: DataEncoding.JSON,
+                    });
+                }).toThrow();
+            });
+
+            it('should throw an error if given an invalid input', () => {
+                const input = 5 as any;
+                expect(() => {
+                    DataEntity.fromBuffer(input, {
+                        _op: 'test',
+                        _encoding: DataEncoding.JSON,
+                    });
+                }).toThrow();
+            });
+        });
+
+        describe('when encoding is type RAW', () => {
+            it('should be able to create a DataEntity from a buffer', () => {
+                const buf = Buffer.from(JSON.stringify({ foo: 'bar' }));
+                const entity = DataEntity.fromBuffer(
+                    buf,
+                    {
+                        _op: 'baz',
+                        _encoding: DataEncoding.RAW,
+                    },
+                    {
+                        howdy: 'there',
+                    }
+                );
+
+                expect(entity.getRawData()).toEqual(buf);
+                expect(entity.getRawData()).toBe(buf);
+
+                expect(entity).not.toHaveProperty('data');
+                expect(entity.getMetadata('howdy')).toEqual('there');
+                expect(entity.getMetadata('howdy')).toEqual('there');
+            });
+
+            it('should be able to create a DataEntity from a string', () => {
+                const str = JSON.stringify({ foo: 'bar' });
+                const entity = DataEntity.fromBuffer(
+                    str,
+                    {
+                        _op: 'baz',
+                        _encoding: DataEncoding.RAW,
+                    },
+                    {
+                        howdy: 'there',
+                    }
+                );
+
+                expect(entity.getRawData().toString('utf8')).toEqual(str);
+
+                expect(entity).not.toHaveProperty('data');
+                expect(entity.getMetadata('howdy')).toEqual('there');
+                expect(entity.getMetadata('howdy')).toEqual('there');
+            });
+
+            it('should throw an error if given an invalid input', () => {
+                const input = 1 as any;
+                expect(() => {
+                    DataEntity.fromBuffer(input, {
+                        _op: 'test',
+                        _encoding: DataEncoding.RAW,
+                    });
+                }).toThrow();
+            });
         });
     });
 });

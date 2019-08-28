@@ -1,7 +1,10 @@
 import get from 'lodash.get';
 import kindOf from 'kind-of';
 import {
-    isString, toString, firstToUpper, trimAndToLower
+    isString,
+    toString,
+    firstToUpper,
+    trimAndToLower
 } from './strings';
 
 /** Check if an input is empty, similar to lodash.isEmpty */
@@ -65,6 +68,16 @@ export function toBoolean(input: any): boolean {
     const val: any = isString(input) ? trimAndToLower(input) : input;
     const thruthy = [1, '1', true, 'true', 'yes'];
     return thruthy.includes(val);
+}
+
+export function ensureBuffer(input: string|Buffer, encoding: BufferEncoding = 'utf8'): Buffer {
+    if (isString(input)) {
+        return Buffer.from(input, encoding);
+    }
+    if (Buffer.isBuffer(input)) {
+        return input;
+    }
+    throw new Error(`Invalid input given, expected string or buffer, got ${getTypeOf(input)}`);
 }
 
 export function isBooleanLike(input: any): boolean {

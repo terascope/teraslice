@@ -1,6 +1,11 @@
 import isPlainObject from 'is-plain-object';
 import { fastAssign } from '../objects';
-import { isFunction, parseJSON, getTypeOf } from '../utils';
+import {
+    isFunction,
+    parseJSON,
+    getTypeOf,
+    ensureBuffer
+} from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
 
@@ -58,7 +63,7 @@ export class DataEntity<T extends object = object> {
      * @param metadata Optionally add any metadata
      */
     static fromBuffer<T extends object = object>(
-        input: Buffer,
+        input: Buffer|string,
         opConfig: i.EncodingConfig = {},
         metadata?: object
     ): DataEntity<T> {
@@ -178,8 +183,8 @@ export class DataEntity<T extends object = object> {
     /**
      * Set the raw data, usually used for encoding type `raw`
     */
-    setRawData(buf: Buffer): void {
-        this[i.RAWDATA_KEY] = buf;
+    setRawData(buf: Buffer|string): void {
+        this[i.RAWDATA_KEY] = ensureBuffer(buf, 'utf8');
     }
 
     /**
