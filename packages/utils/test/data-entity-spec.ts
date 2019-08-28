@@ -239,7 +239,10 @@ describe('DataEntity', () => {
         describe('->toBuffer', () => {
             const data = { foo: 'bar' };
             const metadata = { hello: 'there' };
-            const dataEntity = useClass ? new DataEntity(data, metadata) : DataEntity.make(data, metadata);
+            const dataEntity = useClass
+                ? new DataEntity(data, metadata)
+                : DataEntity.make(data, metadata);
+
             const dataStr = JSON.stringify({ other: 'data' });
             dataEntity.setData(dataStr);
 
