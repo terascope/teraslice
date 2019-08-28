@@ -52,8 +52,8 @@ docker run -it --rm -v ./teraslice-master.yaml:/app/config/teraslice.yml terasli
     "eslint.validate": [
         "javascript",
         "javascriptreact",
-        "typescript",
-        "typescriptreact"
+        { "language": "typescript", "autoFix": true },
+        { "language": "typescriptreact", "autoFix": true }
     ],
     "javascript.format.enable": false,
     "javascript.preferences.quoteStyle": "single",
@@ -61,6 +61,18 @@ docker run -it --rm -v ./teraslice-master.yaml:/app/config/teraslice.yml terasli
     "typescript.format.enable": false,
     "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": true,
     "typescript.preferences.quoteStyle": "single",
+    "[javascript]": {
+        "editor.formatOnSave": false
+    },
+    "[javascriptreact]": {
+        "editor.formatOnSave": false
+    },
+    "[typescript]": {
+        "editor.formatOnSave": false
+    },
+    "[typescriptreact]": {
+        "editor.formatOnSave": false
+    }
     "files.autoGuessEncoding": true,
     "files.exclude": {
         "**/.DS_Store": true,

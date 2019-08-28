@@ -12,6 +12,7 @@ export interface OpConfig {
 
     /**
      * Used for specifying the data encoding type when using `DataEntity.fromBuffer`.
+     *
      * @default `json`.
     */
     _encoding?: DataEncoding;

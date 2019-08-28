@@ -1,10 +1,13 @@
 import isPlainObject from 'is-plain-object';
-import { fastMap } from './arrays';
-import { fastAssign } from './objects';
-import { isFunction, parseJSON, getTypeOf } from './utils';
-
-// WeakMaps are used as a memory efficient reference to private data
-const _metadata = new WeakMap();
+import { fastAssign } from '../objects';
+import {
+    isFunction,
+    parseJSON,
+    getTypeOf,
+    ensureBuffer
+} from '../utils';
+import * as i from './interfaces';
+import * as utils from './utils';
 
 /**
  * A wrapper for data that can hold additional metadata properties.
@@ -43,11 +46,12 @@ export class DataEntity<T extends object = object> {
     static makeRaw<T extends object = object>(
         input?: T,
         metadata?: object
-    ): { entity: DataEntity<T>; metadata: DataEntityMetadata } {
-        const entity = makeEntity(input || {});
+    ): { entity: DataEntity<T>; metadata: i.DataEntityMetadata } {
+        const m = utils.makeMetadata(metadata);
+        const entity = makeRawEntity(input || {}, m);
         return {
             entity,
-            metadata: makeMetadata(entity, metadata),
+            metadata: m,
         };
     }
 
@@ -59,13 +63,19 @@ export class DataEntity<T extends object = object> {
      * @param metadata Optionally add any metadata
      */
     static fromBuffer<T extends object = object>(
-        input: Buffer,
-        opConfig: EncodingConfig = {},
+        input: Buffer|string,
+        opConfig: i.EncodingConfig = {},
         metadata?: object
     ): DataEntity<T> {
-        const { _encoding = 'json' } = opConfig || {};
-        if (_encoding === 'json') {
+        const { _encoding = i.DataEncoding.JSON } = opConfig || {};
+        if (_encoding === i.DataEncoding.JSON) {
             return DataEntity.make(parseJSON(input), metadata);
+        }
+
+        if (_encoding === i.DataEncoding.RAW) {
+            const entity = DataEntity.make({}, metadata);
+            entity.setRawData(input);
+            return entity;
         }
 
         throw new Error(`Unsupported encoding type, got "${_encoding}"`);
@@ -85,7 +95,7 @@ export class DataEntity<T extends object = object> {
             return input;
         }
 
-        return fastMap(input, (d) => DataEntity.make(d));
+        return input.map((d) => DataEntity.make(d));
     }
 
     /**
@@ -94,7 +104,7 @@ export class DataEntity<T extends object = object> {
     static isDataEntity(input: any): input is DataEntity<object> {
         if (input == null) return false;
         if (input instanceof DataEntity) return true;
-        if (input.__isDataEntity) return true;
+        if (input[i.IS_ENTITY_KEY]) return true;
         return isFunction(input.getMetadata)
             && isFunction(input.setMetadata)
             && isFunction(input.toBuffer);
@@ -128,13 +138,8 @@ export class DataEntity<T extends object = object> {
     [prop: string]: any;
 
     constructor(data: T, metadata?: object) {
-        makeMetadata(this, metadata);
-
-        Object.defineProperty(this, '__isDataEntity', {
-            value: true,
-            writable: false,
-            enumerable: false,
-        });
+        const m = utils.makeMetadata(metadata);
+        utils.makeDataEntityObj(this, m);
 
         if (data == null) return;
 
@@ -145,136 +150,80 @@ export class DataEntity<T extends object = object> {
         fastAssign(this, data);
     }
 
-    getMetadata<K extends keyof DataEntityMetadata>(key?: K): DataEntityMetadata[K] | any {
-        return getMetadata(this, key);
+    /**
+     * Get the metadata for the DataEntity.
+     * If a key is specified, it will get that property of the metadata
+    */
+    getMetadata<K extends keyof i.DataEntityMetadata>(key?: K): i.DataEntityMetadata[K] | any {
+        if (key) {
+            return this[i.METADATA_KEY][key];
+        }
+        return this[i.METADATA_KEY];
     }
 
-    setMetadata(key: string, value: any) {
-        return setMetadata(this, key, value);
+    /**
+     * Given a key and value set the metadata on the record
+    */
+    setMetadata(key: string, value: any): void {
+        const readonlyMetadataKeys: string[] = ['_createTime'];
+        if (readonlyMetadataKeys.includes(key)) {
+            throw new Error(`Cannot set readonly metadata property ${key}`);
+        }
+
+        this[i.METADATA_KEY][key] = value;
+    }
+
+    /**
+     * Get the raw data, usually used for encoding type `raw`
+     * If there is no data, an error will be thrown
+    */
+    getRawData(): Buffer {
+        const buf = this[i.RAWDATA_KEY];
+        if (buf != null && Buffer.isBuffer(buf)) return buf;
+        throw new Error('No data has been set');
+    }
+
+    /**
+     * Set the raw data, usually used for encoding type `raw`
+     * If given `null`, it will unset the data
+    */
+    setRawData(buf: Buffer|string|null): void {
+        if (buf == null) {
+            this[i.RAWDATA_KEY] = null;
+            return;
+        }
+        this[i.RAWDATA_KEY] = ensureBuffer(buf, 'utf8');
     }
 
     /**
      * Convert the DataEntity to an encoded buffer
+     *
      * @param opConfig The operation config used to get the encoding type of the buffer,
-     * defaults to "json"
+     * @default `json`
      */
-    toBuffer(opConfig: EncodingConfig = {}): Buffer {
-        return toBuffer(this, opConfig);
+    toBuffer(opConfig: i.EncodingConfig = {}): Buffer {
+        const { _encoding = i.DataEncoding.JSON } = opConfig;
+        if (_encoding === i.DataEncoding.JSON) {
+            return Buffer.from(JSON.stringify(this));
+        }
+
+        if (_encoding === i.DataEncoding.RAW) {
+            return this.getRawData();
+        }
+
+        throw new Error(`Unsupported encoding type, got "${_encoding}"`);
     }
 }
 
-function getMetadata<K extends keyof DataEntityMetadata>(
-    ctx: any,
-    key?: K
-): DataEntityMetadata[K] | any {
-    const metadata = _metadata.get(ctx) as DataEntityMetadata;
-    if (key) {
-        return metadata[key];
-    }
-    return metadata;
-}
-
-function setMetadata(ctx: any, key: string, value: string): void {
-    const readonlyMetadataKeys: string[] = ['_createTime'];
-    if (readonlyMetadataKeys.includes(key)) {
-        throw new Error(`Cannot set readonly metadata property ${key}`);
-    }
-
-    const metadata = _metadata.get(ctx) as DataEntityMetadata;
-    metadata[key] = value;
-    _metadata.set(ctx, metadata);
-}
-
-function toBuffer(ctx: any, opConfig: EncodingConfig): Buffer {
-    const { _encoding = 'json' } = opConfig;
-    if (_encoding === 'json') {
-        return Buffer.from(JSON.stringify(ctx));
-    }
-
-    throw new Error(`Unsupported encoding type, got "${_encoding}"`);
-}
-
-function makeMetadata<T extends object, M extends object>(entity: T, metadata?: M) {
-    const newMetadata = { _createTime: Date.now(), ...metadata };
-    _metadata.set(entity, newMetadata);
-    return newMetadata;
-}
-
-const dataEntityProperties = {
-    constructor: {
-        value: DataEntity,
-        enumerable: false,
-    },
-    __isDataEntity: {
-        value: true,
-        enumerable: false,
-        writable: false,
-    },
-    getMetadata: {
-        value(key?: string) {
-            return getMetadata(this, key);
-        },
-        enumerable: false,
-        writable: false,
-    },
-    setMetadata: {
-        value(key: string, value: any) {
-            return setMetadata(this, key, value);
-        },
-        enumerable: false,
-        writable: false,
-    },
-    toBuffer: {
-        value(opConfig: EncodingConfig = {}) {
-            return toBuffer(this, opConfig);
-        },
-        enumerable: false,
-        writable: false,
-    },
-};
-
-function makeEntity<T extends object>(input: T): DataEntity<T> {
+function makeRawEntity<T extends object, M extends i.DataEntityMetadata>(
+    input: T,
+    metadata: M
+): DataEntity<T> {
     const entity = input as DataEntity<T>;
-    Object.defineProperties(entity, dataEntityProperties);
+    Object.setPrototypeOf(entity, DataEntity.prototype);
+    utils.makeDataEntityObj(entity, metadata);
     return entity;
-}
-
-/** an encoding focused interfaces */
-export interface EncodingConfig {
-    _op?: string;
-    _encoding?: DataEncoding;
 }
 
 export type DataInput = object | DataEntity;
 export type DataArrayInput = DataInput | DataInput[];
-
-interface DataEntityMetadata {
-    /** The time at which this entity was created */
-    readonly _createTime: number;
-
-    /** The time at which the data was ingested into the source data */
-    _ingestTime?: number;
-
-    /** The time at which the data was consumed by the reader */
-    _processTime?: number;
-
-    /**
-     * The time associated with this data entity,
-     * usually off of a specific field on source data or message
-     */
-    _eventTime?: number;
-
-    /** A unique key for the data which will be can be used to key the data */
-    _key?: string;
-
-    // Add the ability to specify any additional properties
-    [prop: string]: any;
-}
-
-/**
- * available data encoding types
- */
-export type DataEncoding = 'json';
-
-/** A list of supported encoding formats */
-export const dataEncodings: DataEncoding[] = ['json'];
