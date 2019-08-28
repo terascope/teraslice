@@ -1,6 +1,6 @@
 {
     "name": "@terascope/teraslice-op-test-harness",
-    "version": "1.7.3",
+    "version": "1.7.4",
     "description": "A testing harness to simplify testing Teraslice processors and operations.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-op-test-harness#readme",
     "bugs": {
