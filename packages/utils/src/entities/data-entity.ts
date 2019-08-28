@@ -185,7 +185,7 @@ export class DataEntity<T extends object = object> {
 
     /**
      * Set the raw data, usually used for encoding type `raw`
-     * If given null, it will unset the data
+     * If given `null`, it will unset the data
     */
     setData(buf: Buffer|string|null): void {
         if (buf == null) {
