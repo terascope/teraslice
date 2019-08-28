@@ -74,7 +74,7 @@ export class DataEntity<T extends object = object> {
 
         if (_encoding === i.DataEncoding.RAW) {
             const entity = DataEntity.make({}, metadata);
-            entity.setRawData(input);
+            entity.setData(input);
             return entity;
         }
 
@@ -175,15 +175,23 @@ export class DataEntity<T extends object = object> {
 
     /**
      * Get the raw data, usually used for encoding type `raw`
+     * If there is no data, an error will be thrown
     */
-    getRawData(): Buffer {
-        return this[i.RAWDATA_KEY];
+    getData(): Buffer {
+        const buf = this[i.RAWDATA_KEY];
+        if (buf != null && Buffer.isBuffer(buf)) return buf;
+        throw new Error('No data has been set');
     }
 
     /**
      * Set the raw data, usually used for encoding type `raw`
+     * If given null, it will unset the data
     */
-    setRawData(buf: Buffer|string): void {
+    setData(buf: Buffer|string|null): void {
+        if (buf == null) {
+            this[i.RAWDATA_KEY] = null;
+            return;
+        }
         this[i.RAWDATA_KEY] = ensureBuffer(buf, 'utf8');
     }
 

@@ -1,13 +1,26 @@
 import 'jest-extended'; // require for type definitions
-import { DataEntity, parseJSON, DataEncoding } from '../src';
+import {
+    DataEntity,
+    parseJSON,
+    DataEncoding,
+    IS_ENTITY_KEY,
+    METADATA_KEY,
+    RAWDATA_KEY,
+} from '../src';
 
 describe('DataEntity', () => {
     const methods: (keyof DataEntity)[] = [
         'getMetadata',
         'setMetadata',
-        'getRawData',
-        'setRawData',
+        'getData',
+        'setData',
         'toBuffer'
+    ];
+
+    const hiddenProps: string[] = [
+        IS_ENTITY_KEY,
+        METADATA_KEY,
+        RAWDATA_KEY
     ];
 
     const testCases = [
@@ -55,11 +68,17 @@ describe('DataEntity', () => {
                 for (const method of methods) {
                     expect(keys).not.toInclude(method as string);
                 }
+                for (const hiddenProp of hiddenProps) {
+                    expect(keys).not.toInclude(hiddenProp);
+                }
 
                 // eslint-disable-next-line guard-for-in
                 for (const prop in dataEntity) {
                     for (const method of methods) {
                         expect(prop).not.toEqual(method as string);
+                    }
+                    for (const hiddenProp of hiddenProps) {
+                        expect(prop).not.toEqual(hiddenProp);
                     }
                 }
             });
@@ -68,6 +87,10 @@ describe('DataEntity', () => {
                 const obj = JSON.parse(JSON.stringify(dataEntity));
                 for (const method of methods) {
                     expect(obj).not.toHaveProperty(method as string);
+                }
+
+                for (const hiddenProp of hiddenProps) {
+                    expect(obj).not.toHaveProperty(hiddenProp);
                 }
 
                 expect(obj).toHaveProperty('teal', 'neal');
@@ -172,8 +195,45 @@ describe('DataEntity', () => {
             });
         });
 
-        describe('->setRawData', () => {
+        describe('->setData/->getData', () => {
+            const dataEntity = useClass ? new DataEntity({}) : DataEntity.make({});
+            const initialBuffer = Buffer.from('HI');
+            const updatedBuffer = Buffer.from('HELLO');
 
+            it('should throw an error if no data is set', () => {
+                expect(() => dataEntity.getData()).toThrow();
+            });
+
+            it('should be able to initial set the raw data', () => {
+                expect(dataEntity.setData(initialBuffer)).toBeNil();
+            });
+
+            it('should have not mutated the initial buffer', () => {
+                expect(dataEntity.getData()).toBe(initialBuffer);
+                expect(dataEntity.getData().toString('utf8'))
+                    .toEqual('HI');
+            });
+
+            it('should be able to update the buffer', () => {
+                expect(dataEntity.setData(updatedBuffer)).toBeNil();
+                expect(dataEntity.getData()).not.toBe(initialBuffer);
+                expect(Buffer.isBuffer(dataEntity.getData())).toBeTrue();
+
+                expect(dataEntity.getData()).toBe(updatedBuffer);
+                expect(dataEntity.getData().toString('utf8'))
+                    .toEqual('HELLO');
+            });
+
+            it('should be able to mutate the raw data', () => {
+                const buf = dataEntity.getData();
+                buf.write('HOWDY', 'utf8');
+                expect(updatedBuffer.toString('utf8')).toEqual('HOWDY');
+            });
+
+            it('should be able to set the data to null', () => {
+                expect(dataEntity.setData(null)).toBeNil();
+                expect(() => dataEntity.getData()).toThrow();
+            });
         });
 
         describe('->toBuffer', () => {
@@ -436,8 +496,9 @@ describe('DataEntity', () => {
                     }
                 );
 
-                expect(entity.getRawData()).toEqual(buf);
-                expect(entity.getRawData()).toBe(buf);
+                expect(entity.getData()).toEqual(buf);
+                expect(entity.getData()).toBe(buf);
+                expect(Buffer.isBuffer(entity.getData())).toBeTrue();
 
                 expect(entity).not.toHaveProperty('data');
                 expect(entity.getMetadata('howdy')).toEqual('there');
@@ -457,7 +518,8 @@ describe('DataEntity', () => {
                     }
                 );
 
-                expect(entity.getRawData().toString('utf8')).toEqual(str);
+                expect(entity.getData().toString('utf8')).toEqual(str);
+                expect(Buffer.isBuffer(entity.getData())).toBeTrue();
 
                 expect(entity).not.toHaveProperty('data');
                 expect(entity.getMetadata('howdy')).toEqual('there');
