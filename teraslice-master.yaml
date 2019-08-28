@@ -1,0 +1,48 @@
+terafoundation:
+    environment: 'development'
+    connectors:
+        # ***********************
+        # Elastic Search Configuration
+        # ***********************
+        elasticsearch:
+            default:
+                host:
+                    - "127.0.0.1:9200"
+            homeslice:
+                host:
+                    - "127.0.0.1:9200"
+            homeslice_2:
+                host:
+                    - "127.0.0.1:9200"
+            dev_es_rc1:
+                host:
+                    - "es_rc1.tera1.terascope.io:9271"
+            dev_es_gen2:
+                host:
+                    - "es_gen2.tera1.terascope.io:9291"
+            dev_es_s4_gmove:
+                host: 
+                    - "es-s4-gmoves.tera1.lan"
+
+        kafka:
+            homeslice:
+                brokers:
+                    - "127.0.0.1:9092"
+            dev_kafka_gen1:
+                brokers:
+                    - "10.210.3.221:9092"
+            dev_kafka_data1:
+                brokers:
+                    - "10.210.3.224:9092"
+            dev_kafka_data4:
+                brokers:
+                    - "10.210.7.216:9092"
+            dev_kafka_data3:
+                brokers:
+                    - "10.210.7.222:9092"
+
+teraslice:
+    master: true
+    master_hostname: "127.0.0.1"
+    name: "teracluster"
+    worker_disconnect_timeout: 60000

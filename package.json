@@ -26,7 +26,9 @@
     "displayName": "Teraslice",
     "homepage": "https://github.com/terascope/teraslice",
     "documentation": "https://terascope.github.io/teraslice",
-    "dependencies": {},
+    "dependencies": {
+        "terafoundation_kafka_connector": "~0.4.2"
+    },
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
     },
