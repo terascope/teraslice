@@ -26,7 +26,7 @@ sidebar_label: CachedTranslator
 
 \+ **new CachedTranslator**(): *[CachedTranslator](cachedtranslator.md)*
 
-*Defined in [translator/cached-translator.ts:9](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/cached-translator.ts#L9)*
+*Defined in [translator/cached-translator.ts:9](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/translator/cached-translator.ts#L9)*
 
 **Returns:** *[CachedTranslator](cachedtranslator.md)*
 
@@ -34,17 +34,16 @@ sidebar_label: CachedTranslator
 
 ###  make
 
-▸ **make**(`input`: string | [Parser](parser.md), `typeConfig?`: [TypeConfig](../interfaces/typeconfig.md), `logger?`: `Logger`): *[Translator](translator.md)*
+▸ **make**(`input`: string | [Parser](parser.md), `options?`: [TranslatorOptions](../overview.md#translatoroptions)): *[Translator](translator.md)*
 
-*Defined in [translator/cached-translator.ts:14](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/cached-translator.ts#L14)*
+*Defined in [translator/cached-translator.ts:14](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/translator/cached-translator.ts#L14)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `input` | string \| [Parser](parser.md) |
-`typeConfig?` | [TypeConfig](../interfaces/typeconfig.md) |
-`logger?` | `Logger` |
+`options?` | [TranslatorOptions](../overview.md#translatoroptions) |
 
 **Returns:** *[Translator](translator.md)*
 
@@ -54,6 +53,6 @@ ___
 
 ▸ **reset**(): *void*
 
-*Defined in [translator/cached-translator.ts:27](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/cached-translator.ts#L27)*
+*Defined in [translator/cached-translator.ts:27](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/translator/cached-translator.ts#L27)*
 
 **Returns:** *void*

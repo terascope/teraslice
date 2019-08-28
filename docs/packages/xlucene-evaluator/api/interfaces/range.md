@@ -28,7 +28,7 @@ sidebar_label: Range
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [parser/interfaces.ts:25](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L25)*
+*Defined in [parser/interfaces.ts:54](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L54)*
 
 ___
 
@@ -36,7 +36,7 @@ ___
 
 • **left**: *[RangeNode](rangenode.md)*
 
-*Defined in [parser/interfaces.ts:97](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L97)*
+*Defined in [parser/interfaces.ts:129](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L129)*
 
 ___
 
@@ -44,7 +44,7 @@ ___
 
 • **right**? : *[RangeNode](rangenode.md)*
 
-*Defined in [parser/interfaces.ts:98](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L98)*
+*Defined in [parser/interfaces.ts:130](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L130)*
 
 ___
 
@@ -54,4 +54,4 @@ ___
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [parser/interfaces.ts:96](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L96)*
+*Defined in [parser/interfaces.ts:128](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L128)*

@@ -3,6 +3,8 @@ title: Teraslice Test Harness API Overview
 sidebar_label: API
 ---
 
+## Index
+
 ### Classes
 
 * [BaseTestHarness](classes/basetestharness.md)
@@ -33,33 +35,33 @@ sidebar_label: API
 
 ###  AnyOperationConstructor
 
-Ƭ **AnyOperationConstructor**: *`ProcessorConstructor` | `SlicerConstructor`*
+Ƭ **AnyOperationConstructor**: *ProcessorConstructor | SlicerConstructor*
 
-*Defined in [interfaces.ts:22](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/interfaces.ts#L22)*
+*Defined in [interfaces.ts:22](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/interfaces.ts#L22)*
 
 ___
 
 ###  BatchedResults
 
-Ƭ **BatchedResults**: *`DataEntity`[][]*
+Ƭ **BatchedResults**: *DataEntity[][]*
 
-*Defined in [job-test-harness.ts:120](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/job-test-harness.ts#L120)*
+*Defined in [job-test-harness.ts:123](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/job-test-harness.ts#L123)*
 
 ___
 
 ###  Context
 
-Ƭ **Context**: *`WorkerContext`*
+Ƭ **Context**: *WorkerContext*
 
-*Defined in [interfaces.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/interfaces.ts#L11)*
+*Defined in [interfaces.ts:11](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/interfaces.ts#L11)*
 
 ___
 
 ###  ExecutionContext
 
-Ƭ **ExecutionContext**: *`WorkerExecutionContext` | `SlicerExecutionContext`*
+Ƭ **ExecutionContext**: *WorkerExecutionContext | SlicerExecutionContext*
 
-*Defined in [interfaces.ts:10](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/interfaces.ts#L10)*
+*Defined in [interfaces.ts:10](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/interfaces.ts#L10)*
 
 ## Functions
 
@@ -67,7 +69,7 @@ ___
 
 ▸ **isAssetDirRoot**(`assetDir`: string): *boolean*
 
-*Defined in [utils.ts:27](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/utils.ts#L27)*
+*Defined in [utils.ts:27](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/utils.ts#L27)*
 
 **Parameters:**
 
@@ -83,7 +85,7 @@ ___
 
 ▸ **isBaseAssetDir**(`assetDir`: string): *boolean*
 
-*Defined in [utils.ts:21](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/utils.ts#L21)*
+*Defined in [utils.ts:21](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/utils.ts#L21)*
 
 **Parameters:**
 
@@ -99,7 +101,7 @@ ___
 
 ▸ **resolveAssetDir**(`assetDir`: string): *string*
 
-*Defined in [utils.ts:4](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/utils.ts#L4)*
+*Defined in [utils.ts:4](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/utils.ts#L4)*
 
 **Parameters:**
 

@@ -15,10 +15,6 @@ sidebar_label: DocumentMatcher
 
 * [constructor](documentmatcher.md#constructor)
 
-### Properties
-
-* [typeConfig](documentmatcher.md#typeconfig)
-
 ### Methods
 
 * [match](documentmatcher.md#match)
@@ -27,26 +23,18 @@ sidebar_label: DocumentMatcher
 
 ###  constructor
 
-\+ **new DocumentMatcher**(`luceneStr`: string, `typeConfig?`: [TypeConfig](../interfaces/typeconfig.md)): *[DocumentMatcher](documentmatcher.md)*
+\+ **new DocumentMatcher**(`query`: string, `options`: [DocumentMatcherOptions](../interfaces/documentmatcheroptions.md)): *[DocumentMatcher](documentmatcher.md)*
 
-*Defined in [document-matcher/index.ts:13](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/document-matcher/index.ts#L13)*
+*Defined in [document-matcher/index.ts:10](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/document-matcher/index.ts#L10)*
 
 **Parameters:**
 
-Name | Type |
------- | ------ |
-`luceneStr` | string |
-`typeConfig?` | [TypeConfig](../interfaces/typeconfig.md) |
+Name | Type | Default |
+------ | ------ | ------ |
+`query` | string | - |
+`options` | [DocumentMatcherOptions](../interfaces/documentmatcheroptions.md) |  {} |
 
 **Returns:** *[DocumentMatcher](documentmatcher.md)*
-
-## Properties
-
-###  typeConfig
-
-• **typeConfig**: *[TypeConfig](../interfaces/typeconfig.md) | undefined*
-
-*Defined in [document-matcher/index.ts:13](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/document-matcher/index.ts#L13)*
 
 ## Methods
 
@@ -54,7 +42,7 @@ Name | Type |
 
 ▸ **match**(`doc`: object): *boolean*
 
-*Defined in [document-matcher/index.ts:21](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/document-matcher/index.ts#L21)*
+*Defined in [document-matcher/index.ts:25](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/document-matcher/index.ts#L25)*
 
 **Parameters:**
 

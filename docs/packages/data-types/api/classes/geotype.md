@@ -37,7 +37,7 @@ sidebar_label: GeoType
 
 *Inherited from [BaseType](basetype.md).[constructor](basetype.md#constructor)*
 
-*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/base-type.ts#L7)*
+*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/versions/base-type.ts#L7)*
 
 **Parameters:**
 
@@ -56,7 +56,7 @@ Name | Type |
 
 *Inherited from [BaseType](basetype.md).[config](basetype.md#protected-config)*
 
-*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/base-type.ts#L7)*
+*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/versions/base-type.ts#L7)*
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 *Inherited from [BaseType](basetype.md).[field](basetype.md#protected-field)*
 
-*Defined in [types/versions/base-type.ts:6](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/base-type.ts#L6)*
+*Defined in [types/versions/base-type.ts:6](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/versions/base-type.ts#L6)*
 
 ## Methods
 
@@ -76,7 +76,7 @@ ___
 
 *Inherited from [BaseType](basetype.md).[_formatGql](basetype.md#protected-_formatgql)*
 
-*Defined in [types/versions/base-type.ts:19](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/base-type.ts#L19)*
+*Defined in [types/versions/base-type.ts:21](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/versions/base-type.ts#L21)*
 
 **Parameters:**
 
@@ -91,11 +91,17 @@ ___
 
 ###  toESMapping
 
-▸ **toESMapping**(): *object*
+▸ **toESMapping**(`_version?`: undefined | number): *object*
 
 *Overrides [BaseType](basetype.md).[toESMapping](basetype.md#abstract-toesmapping)*
 
-*Defined in [types/versions/v1/geo.ts:6](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/v1/geo.ts#L6)*
+*Defined in [types/versions/v1/geo.ts:6](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/versions/v1/geo.ts#L6)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`_version?` | undefined \| number |
 
 **Returns:** *object*
 
@@ -107,7 +113,7 @@ ___
 
 *Overrides [BaseType](basetype.md).[toGraphQL](basetype.md#abstract-tographql)*
 
-*Defined in [types/versions/v1/geo.ts:10](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/v1/geo.ts#L10)*
+*Defined in [types/versions/v1/geo.ts:11](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/versions/v1/geo.ts#L11)*
 
 **Returns:** *object*
 
@@ -119,6 +125,6 @@ ___
 
 *Overrides [BaseType](basetype.md).[toXlucene](basetype.md#abstract-toxlucene)*
 
-*Defined in [types/versions/v1/geo.ts:20](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/v1/geo.ts#L20)*
+*Defined in [types/versions/v1/geo.ts:21](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/versions/v1/geo.ts#L21)*
 
 **Returns:** *object*

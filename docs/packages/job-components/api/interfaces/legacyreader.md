@@ -33,7 +33,7 @@ sidebar_label: LegacyReader
 
 *Inherited from [LegacyOperation](legacyoperation.md).[crossValidation](legacyoperation.md#optional-crossvalidation)*
 
-*Defined in [interfaces/operations.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L11)*
+*Defined in [interfaces/operations.ts:13](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L13)*
 
 ___
 
@@ -43,7 +43,7 @@ ___
 
 *Inherited from [LegacyOperation](legacyoperation.md).[selfValidation](legacyoperation.md#optional-selfvalidation)*
 
-*Defined in [interfaces/operations.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L12)*
+*Defined in [interfaces/operations.ts:14](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L14)*
 
 ___
 
@@ -51,15 +51,15 @@ ___
 
 • **slicerQueueLength**? : *[sliceQueueLengthFn](../overview.md#slicequeuelengthfn)*
 
-*Defined in [interfaces/operations.ts:17](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L17)*
+*Defined in [interfaces/operations.ts:19](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L19)*
 
 ## Methods
 
 ###  newReader
 
-▸ **newReader**(`context`: [Context](context.md), `opConfig`: [OpConfig](opconfig.md), `exectutionConfig`: [ExecutionConfig](executionconfig.md)): *`Promise<ReaderFn<any>>`*
+▸ **newReader**(`context`: [Context](context.md), `opConfig`: [OpConfig](opconfig.md), `exectutionConfig`: [ExecutionConfig](executionconfig.md)): *Promise‹[ReaderFn](../overview.md#readerfn)‹any››*
 
-*Defined in [interfaces/operations.ts:19](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L19)*
+*Defined in [interfaces/operations.ts:21](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L21)*
 
 **Parameters:**
 
@@ -69,15 +69,15 @@ Name | Type |
 `opConfig` | [OpConfig](opconfig.md) |
 `exectutionConfig` | [ExecutionConfig](executionconfig.md) |
 
-**Returns:** *`Promise<ReaderFn<any>>`*
+**Returns:** *Promise‹[ReaderFn](../overview.md#readerfn)‹any››*
 
 ___
 
 ###  newSlicer
 
-▸ **newSlicer**(`context`: [Context](context.md), `executionContext`: [LegacyExecutionContext](legacyexecutioncontext.md), `recoveryData`: object[], `logger`: `Logger`): *`Promise<SlicerFns>`*
+▸ **newSlicer**(`context`: [Context](context.md), `executionContext`: [LegacyExecutionContext](legacyexecutioncontext.md), `recoveryData`: object[], `logger`: Logger): *Promise‹[SlicerFns](../overview.md#slicerfns)›*
 
-*Defined in [interfaces/operations.ts:20](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L20)*
+*Defined in [interfaces/operations.ts:26](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L26)*
 
 **Parameters:**
 
@@ -86,19 +86,19 @@ Name | Type |
 `context` | [Context](context.md) |
 `executionContext` | [LegacyExecutionContext](legacyexecutioncontext.md) |
 `recoveryData` | object[] |
-`logger` | `Logger` |
+`logger` | Logger |
 
-**Returns:** *`Promise<SlicerFns>`*
+**Returns:** *Promise‹[SlicerFns](../overview.md#slicerfns)›*
 
 ___
 
 ###  schema
 
-▸ **schema**(`context?`: [Context](context.md)): *[Schema](operationmodule.md#schema)‹*any*›*
+▸ **schema**(`context?`: [Context](context.md)): *[Schema](operationmodule.md#schema)‹any›*
 
 *Overrides [LegacyOperation](legacyoperation.md).[schema](legacyoperation.md#schema)*
 
-*Defined in [interfaces/operations.ts:18](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L18)*
+*Defined in [interfaces/operations.ts:20](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L20)*
 
 **Parameters:**
 
@@ -106,4 +106,4 @@ Name | Type |
 ------ | ------ |
 `context?` | [Context](context.md) |
 
-**Returns:** *[Schema](operationmodule.md#schema)‹*any*›*
+**Returns:** *[Schema](operationmodule.md#schema)‹any›*

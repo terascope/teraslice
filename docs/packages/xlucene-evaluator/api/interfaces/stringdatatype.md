@@ -17,16 +17,16 @@ sidebar_label: StringDataType
 
 ### Properties
 
-* [data_type](stringdatatype.md#data_type)
+* [field_type](stringdatatype.md#field_type)
 * [value](stringdatatype.md#value)
 
 ## Properties
 
-###  data_type
+###  field_type
 
-• **data_type**: *"string"*
+• **field_type**: *[String](../enums/fieldtype.md#string)*
 
-*Defined in [parser/interfaces.ts:61](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L61)*
+*Defined in [parser/interfaces.ts:93](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L93)*
 
 ___
 
@@ -34,4 +34,4 @@ ___
 
 • **value**: *string*
 
-*Defined in [parser/interfaces.ts:62](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L62)*
+*Defined in [parser/interfaces.ts:94](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L94)*

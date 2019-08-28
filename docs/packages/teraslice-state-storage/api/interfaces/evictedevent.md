@@ -24,9 +24,9 @@ sidebar_label: EvictedEvent
 
 ###  data
 
-• **data**: *`T`*
+• **data**: *T*
 
-*Defined in [interfaces.ts:59](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/interfaces.ts#L59)*
+*Defined in [interfaces.ts:26](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/interfaces.ts#L26)*
 
 ___
 
@@ -34,4 +34,4 @@ ___
 
 • **key**: *string*
 
-*Defined in [interfaces.ts:58](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/interfaces.ts#L58)*
+*Defined in [interfaces.ts:25](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/interfaces.ts#L25)*

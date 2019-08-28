@@ -11,4 +11,4 @@ sidebar_label: OperationsMapping
 
 ## Indexable
 
-● \[▪ **key**: *string*\]: [Operation](operation.md)
+* \[ **key**: *string*\]: [Operation](operation.md)

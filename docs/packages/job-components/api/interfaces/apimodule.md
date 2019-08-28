@@ -25,7 +25,7 @@ sidebar_label: APIModule
 
 • **API**: *[OperationAPIConstructor](../overview.md#operationapiconstructor) | [ObserverConstructor](../overview.md#observerconstructor)*
 
-*Defined in [operations/interfaces.ts:50](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/interfaces.ts#L50)*
+*Defined in [operations/interfaces.ts:64](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/interfaces.ts#L64)*
 
 ___
 
@@ -35,7 +35,7 @@ ___
 
 *Inherited from [SchemaModule](schemamodule.md).[Schema](schemamodule.md#schema)*
 
-*Defined in [operations/interfaces.ts:45](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/interfaces.ts#L45)*
+*Defined in [operations/interfaces.ts:59](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/interfaces.ts#L59)*
 
 ___
 
@@ -43,4 +43,4 @@ ___
 
 • **type**: *[OperationAPIType](../overview.md#operationapitype)*
 
-*Defined in [operations/interfaces.ts:51](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/interfaces.ts#L51)*
+*Defined in [operations/interfaces.ts:65](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/interfaces.ts#L65)*

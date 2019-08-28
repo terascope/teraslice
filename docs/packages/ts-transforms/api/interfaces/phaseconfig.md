@@ -15,19 +15,30 @@ sidebar_label: PhaseConfig
 
 ### Properties
 
-* [rules](phaseconfig.md#rules)
+* [notification_rules](phaseconfig.md#optional-notification_rules)
+* [rules](phaseconfig.md#optional-rules)
 * [type](phaseconfig.md#type)
 * [types](phaseconfig.md#optional-types)
 
 ## Properties
 
-###  rules
+### `Optional` notification_rules
 
-• **rules**: *string[]*
+• **notification_rules**? : *undefined | string*
 
-*Inherited from [WatcherConfig](watcherconfig.md).[rules](watcherconfig.md#rules)*
+*Inherited from [WatcherConfig](watcherconfig.md).[notification_rules](watcherconfig.md#optional-notification_rules)*
 
-*Defined in [interfaces.ts:96](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/interfaces.ts#L96)*
+*Defined in [interfaces.ts:106](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L106)*
+
+___
+
+### `Optional` rules
+
+• **rules**? : *string[]*
+
+*Inherited from [WatcherConfig](watcherconfig.md).[rules](watcherconfig.md#optional-rules)*
+
+*Defined in [interfaces.ts:104](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L104)*
 
 ___
 
@@ -35,14 +46,14 @@ ___
 
 • **type**: *string*
 
-*Defined in [interfaces.ts:101](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/interfaces.ts#L101)*
+*Defined in [interfaces.ts:110](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L110)*
 
 ___
 
 ### `Optional` types
 
-• **types**? : *`TypeConfig`*
+• **types**? : *TypeConfig*
 
 *Inherited from [WatcherConfig](watcherconfig.md).[types](watcherconfig.md#optional-types)*
 
-*Defined in [interfaces.ts:97](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/interfaces.ts#L97)*
+*Defined in [interfaces.ts:105](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L105)*

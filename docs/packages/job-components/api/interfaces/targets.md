@@ -22,7 +22,7 @@ sidebar_label: Targets
 
 • **key**: *string*
 
-*Defined in [interfaces/jobs.ts:84](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/jobs.ts#L84)*
+*Defined in [interfaces/jobs.ts:91](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/jobs.ts#L91)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **value**: *string*
 
-*Defined in [interfaces/jobs.ts:85](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/jobs.ts#L85)*
+*Defined in [interfaces/jobs.ts:92](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/jobs.ts#L92)*

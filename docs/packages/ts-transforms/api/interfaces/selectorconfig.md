@@ -22,7 +22,7 @@ sidebar_label: SelectorConfig
 
 • **__id**: *string*
 
-*Defined in [interfaces.ts:50](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/interfaces.ts#L50)*
+*Defined in [interfaces.ts:55](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L55)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **selector**: *string*
 
-*Defined in [interfaces.ts:51](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/interfaces.ts#L51)*
+*Defined in [interfaces.ts:56](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L56)*

@@ -13,13 +13,13 @@ A simple definitions of array
 
 ## Hierarchy
 
-* `Array<T>`
+* Array‹T›
 
   * **Many**
 
 ## Indexable
 
-● \[▪ **n**: *number*\]: `T`
+* \[ **n**: *number*\]: T
 
 A simple definitions of array
 
@@ -68,7 +68,7 @@ A simple definitions of array
 
 ###  Array
 
-• **Array**: *`ArrayConstructor`*
+• **Array**: *ArrayConstructor*
 
 Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1368
 
@@ -88,7 +88,7 @@ Gets or sets the length of the array. This is a number one higher than the highe
 
 ###  __@iterator
 
-▸ **__@iterator**(): *`IterableIterator<T>`*
+▸ **__@iterator**(): *IterableIterator‹T›*
 
 *Inherited from void*
 
@@ -96,7 +96,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 Iterator
 
-**Returns:** *`IterableIterator<T>`*
+**Returns:** *IterableIterator‹T›*
 
 ___
 
@@ -117,7 +117,7 @@ ___
 
 ###  concat
 
-▸ **concat**(...`items`: `ConcatArray<T>`[]): *`T`[]*
+▸ **concat**(...`items`: ConcatArray‹T›[]): *T[]*
 
 *Inherited from void*
 
@@ -129,11 +129,11 @@ Combines two or more arrays.
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`...items` | `ConcatArray<T>`[] | Additional items to add to the end of array1.  |
+`...items` | ConcatArray‹T›[] | Additional items to add to the end of array1.  |
 
-**Returns:** *`T`[]*
+**Returns:** *T[]*
 
-▸ **concat**(...`items`: `T` | `ConcatArray<T>`[]): *`T`[]*
+▸ **concat**(...`items`: T | ConcatArray‹T›[]): *T[]*
 
 *Inherited from void*
 
@@ -145,9 +145,9 @@ Combines two or more arrays.
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`...items` | `T` \| `ConcatArray<T>`[] | Additional items to add to the end of array1.  |
+`...items` | T \| ConcatArray‹T›[] | Additional items to add to the end of array1.  |
 
-**Returns:** *`T`[]*
+**Returns:** *T[]*
 
 ___
 
@@ -176,7 +176,7 @@ ___
 
 ###  entries
 
-▸ **entries**(): *`IterableIterator<[number, T]>`*
+▸ **entries**(): *IterableIterator‹[number, T]›*
 
 *Inherited from void*
 
@@ -184,7 +184,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 Returns an iterable of key, value pairs for every entry in the array
 
-**Returns:** *`IterableIterator<[number, T]>`*
+**Returns:** *IterableIterator‹[number, T]›*
 
 ___
 
@@ -204,15 +204,15 @@ Determines whether all the members of an array satisfy the specified test.
 
 A function that accepts up to three arguments. The every method calls the callbackfn function for each element in array1 until the callbackfn returns false, or until the end of the array.
 
-▸ (`value`: `T`, `index`: number, `array`: `T`[]): *unknown*
+▸ (`value`: T, `index`: number, `array`: T[]): *unknown*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`value` | `T` |
+`value` | T |
 `index` | number |
-`array` | `T`[] |
+`array` | T[] |
 
 ▪`Optional`  **thisArg**: *any*
 
@@ -224,7 +224,7 @@ ___
 
 ###  fill
 
-▸ **fill**(`value`: `T`, `start?`: undefined | number, `end?`: undefined | number): *this*
+▸ **fill**(`value`: T, `start?`: undefined | number, `end?`: undefined | number): *this*
 
 *Inherited from void*
 
@@ -236,7 +236,7 @@ Returns the this object after filling the section identified by start and end wi
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`value` | `T` | value to fill array section with |
+`value` | T | value to fill array section with |
 `start?` | undefined \| number | index to start filling the array at. If start is negative, it is treated as length+start where length is the length of the array. |
 `end?` | undefined \| number | index to stop filling the array at. If end is negative, it is treated as length+end.  |
 
@@ -246,7 +246,7 @@ ___
 
 ###  filter
 
-▸ **filter**<**S**>(`callbackfn`: function, `thisArg?`: any): *`S`[]*
+▸ **filter**<**S**>(`callbackfn`: function, `thisArg?`: any): *S[]*
 
 *Inherited from void*
 
@@ -256,7 +256,7 @@ Returns the elements of an array that meet the condition specified in a callback
 
 **Type parameters:**
 
-▪ **S**: *`T`*
+▪ **S**: *T*
 
 **Parameters:**
 
@@ -264,23 +264,23 @@ Returns the elements of an array that meet the condition specified in a callback
 
 A function that accepts up to three arguments. The filter method calls the callbackfn function one time for each element in the array.
 
-▸ (`value`: `T`, `index`: number, `array`: `T`[]): *boolean*
+▸ (`value`: T, `index`: number, `array`: T[]): *boolean*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`value` | `T` |
+`value` | T |
 `index` | number |
-`array` | `T`[] |
+`array` | T[] |
 
 ▪`Optional`  **thisArg**: *any*
 
 An object to which the this keyword can refer in the callbackfn function. If thisArg is omitted, undefined is used as the this value.
 
-**Returns:** *`S`[]*
+**Returns:** *S[]*
 
-▸ **filter**(`callbackfn`: function, `thisArg?`: any): *`T`[]*
+▸ **filter**(`callbackfn`: function, `thisArg?`: any): *T[]*
 
 *Inherited from void*
 
@@ -294,27 +294,27 @@ Returns the elements of an array that meet the condition specified in a callback
 
 A function that accepts up to three arguments. The filter method calls the callbackfn function one time for each element in the array.
 
-▸ (`value`: `T`, `index`: number, `array`: `T`[]): *unknown*
+▸ (`value`: T, `index`: number, `array`: T[]): *unknown*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`value` | `T` |
+`value` | T |
 `index` | number |
-`array` | `T`[] |
+`array` | T[] |
 
 ▪`Optional`  **thisArg**: *any*
 
 An object to which the this keyword can refer in the callbackfn function. If thisArg is omitted, undefined is used as the this value.
 
-**Returns:** *`T`[]*
+**Returns:** *T[]*
 
 ___
 
 ###  find
 
-▸ **find**<**S**>(`predicate`: function, `thisArg?`: any): *`S` | undefined*
+▸ **find**<**S**>(`predicate`: function, `thisArg?`: any): *S | undefined*
 
 *Inherited from void*
 
@@ -325,7 +325,7 @@ otherwise.
 
 **Type parameters:**
 
-▪ **S**: *`T`*
+▪ **S**: *T*
 
 **Parameters:**
 
@@ -335,25 +335,25 @@ find calls predicate once for each element of the array, in ascending
 order, until it finds one where predicate returns true. If such an element is found, find
 immediately returns that element value. Otherwise, find returns undefined.
 
-▸ (`this`: void, `value`: `T`, `index`: number, `obj`: `T`[]): *boolean*
+▸ (`this`: void, `value`: T, `index`: number, `obj`: T[]): *boolean*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `this` | void |
-`value` | `T` |
+`value` | T |
 `index` | number |
-`obj` | `T`[] |
+`obj` | T[] |
 
 ▪`Optional`  **thisArg**: *any*
 
 If provided, it will be used as the this value for each invocation of
 predicate. If it is not provided, undefined is used instead.
 
-**Returns:** *`S` | undefined*
+**Returns:** *S | undefined*
 
-▸ **find**(`predicate`: function, `thisArg?`: any): *`T` | undefined*
+▸ **find**(`predicate`: function, `thisArg?`: any): *T | undefined*
 
 *Inherited from void*
 
@@ -363,19 +363,19 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 ▪ **predicate**: *function*
 
-▸ (`value`: `T`, `index`: number, `obj`: `T`[]): *unknown*
+▸ (`value`: T, `index`: number, `obj`: T[]): *unknown*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`value` | `T` |
+`value` | T |
 `index` | number |
-`obj` | `T`[] |
+`obj` | T[] |
 
 ▪`Optional`  **thisArg**: *any*
 
-**Returns:** *`T` | undefined*
+**Returns:** *T | undefined*
 
 ___
 
@@ -398,15 +398,15 @@ find calls predicate once for each element of the array, in ascending
 order, until it finds one where predicate returns true. If such an element is found,
 findIndex immediately returns that element index. Otherwise, findIndex returns -1.
 
-▸ (`value`: `T`, `index`: number, `obj`: `T`[]): *unknown*
+▸ (`value`: T, `index`: number, `obj`: T[]): *unknown*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`value` | `T` |
+`value` | T |
 `index` | number |
-`obj` | `T`[] |
+`obj` | T[] |
 
 ▪`Optional`  **thisArg**: *any*
 
@@ -433,15 +433,15 @@ Performs the specified action for each element in an array.
 
 A function that accepts up to three arguments. forEach calls the callbackfn function one time for each element in the array.
 
-▸ (`value`: `T`, `index`: number, `array`: `T`[]): *void*
+▸ (`value`: T, `index`: number, `array`: T[]): *void*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`value` | `T` |
+`value` | T |
 `index` | number |
-`array` | `T`[] |
+`array` | T[] |
 
 ▪`Optional`  **thisArg**: *any*
 
@@ -453,7 +453,7 @@ ___
 
 ###  includes
 
-▸ **includes**(`searchElement`: `T`, `fromIndex?`: undefined | number): *boolean*
+▸ **includes**(`searchElement`: T, `fromIndex?`: undefined | number): *boolean*
 
 *Inherited from void*
 
@@ -465,7 +465,7 @@ Determines whether an array includes a certain element, returning true or false 
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`searchElement` | `T` | The element to search for. |
+`searchElement` | T | The element to search for. |
 `fromIndex?` | undefined \| number | The position in this array at which to begin searching for searchElement.  |
 
 **Returns:** *boolean*
@@ -474,7 +474,7 @@ ___
 
 ###  indexOf
 
-▸ **indexOf**(`searchElement`: `T`, `fromIndex?`: undefined | number): *number*
+▸ **indexOf**(`searchElement`: T, `fromIndex?`: undefined | number): *number*
 
 *Inherited from void*
 
@@ -486,7 +486,7 @@ Returns the index of the first occurrence of a value in an array.
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`searchElement` | `T` | The value to locate in the array. |
+`searchElement` | T | The value to locate in the array. |
 `fromIndex?` | undefined \| number | The array index at which to begin the search. If fromIndex is omitted, the search starts at index 0.  |
 
 **Returns:** *number*
@@ -515,7 +515,7 @@ ___
 
 ###  keys
 
-▸ **keys**(): *`IterableIterator<number>`*
+▸ **keys**(): *IterableIterator‹number›*
 
 *Inherited from void*
 
@@ -523,13 +523,13 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 Returns an iterable of keys in the array
 
-**Returns:** *`IterableIterator<number>`*
+**Returns:** *IterableIterator‹number›*
 
 ___
 
 ###  lastIndexOf
 
-▸ **lastIndexOf**(`searchElement`: `T`, `fromIndex?`: undefined | number): *number*
+▸ **lastIndexOf**(`searchElement`: T, `fromIndex?`: undefined | number): *number*
 
 *Inherited from void*
 
@@ -541,7 +541,7 @@ Returns the index of the last occurrence of a specified value in an array.
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`searchElement` | `T` | The value to locate in the array. |
+`searchElement` | T | The value to locate in the array. |
 `fromIndex?` | undefined \| number | The array index at which to begin the search. If fromIndex is omitted, the search starts at the last index in the array.  |
 
 **Returns:** *number*
@@ -550,7 +550,7 @@ ___
 
 ###  map
 
-▸ **map**<**U**>(`callbackfn`: function, `thisArg?`: any): *`U`[]*
+▸ **map**<**U**>(`callbackfn`: function, `thisArg?`: any): *U[]*
 
 *Inherited from void*
 
@@ -568,27 +568,27 @@ Calls a defined callback function on each element of an array, and returns an ar
 
 A function that accepts up to three arguments. The map method calls the callbackfn function one time for each element in the array.
 
-▸ (`value`: `T`, `index`: number, `array`: `T`[]): *`U`*
+▸ (`value`: T, `index`: number, `array`: T[]): *U*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`value` | `T` |
+`value` | T |
 `index` | number |
-`array` | `T`[] |
+`array` | T[] |
 
 ▪`Optional`  **thisArg**: *any*
 
 An object to which the this keyword can refer in the callbackfn function. If thisArg is omitted, undefined is used as the this value.
 
-**Returns:** *`U`[]*
+**Returns:** *U[]*
 
 ___
 
 ###  pop
 
-▸ **pop**(): *`T` | undefined*
+▸ **pop**(): *T | undefined*
 
 *Inherited from void*
 
@@ -596,13 +596,13 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 Removes the last element from an array and returns it.
 
-**Returns:** *`T` | undefined*
+**Returns:** *T | undefined*
 
 ___
 
 ###  push
 
-▸ **push**(...`items`: `T`[]): *number*
+▸ **push**(...`items`: T[]): *number*
 
 *Inherited from void*
 
@@ -614,7 +614,7 @@ Appends new elements to an array, and returns the new length of the array.
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`...items` | `T`[] | New elements of the Array.  |
+`...items` | T[] | New elements of the Array.  |
 
 **Returns:** *number*
 
@@ -622,7 +622,7 @@ ___
 
 ###  reduce
 
-▸ **reduce**(`callbackfn`: function): *`T`*
+▸ **reduce**(`callbackfn`: function): *T*
 
 *Inherited from void*
 
@@ -636,20 +636,20 @@ Calls the specified callback function for all the elements in an array. The retu
 
 A function that accepts up to four arguments. The reduce method calls the callbackfn function one time for each element in the array.
 
-▸ (`previousValue`: `T`, `currentValue`: `T`, `currentIndex`: number, `array`: `T`[]): *`T`*
+▸ (`previousValue`: T, `currentValue`: T, `currentIndex`: number, `array`: T[]): *T*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`previousValue` | `T` |
-`currentValue` | `T` |
+`previousValue` | T |
+`currentValue` | T |
 `currentIndex` | number |
-`array` | `T`[] |
+`array` | T[] |
 
-**Returns:** *`T`*
+**Returns:** *T*
 
-▸ **reduce**(`callbackfn`: function, `initialValue`: `T`): *`T`*
+▸ **reduce**(`callbackfn`: function, `initialValue`: T): *T*
 
 *Inherited from void*
 
@@ -659,22 +659,22 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 ▪ **callbackfn**: *function*
 
-▸ (`previousValue`: `T`, `currentValue`: `T`, `currentIndex`: number, `array`: `T`[]): *`T`*
+▸ (`previousValue`: T, `currentValue`: T, `currentIndex`: number, `array`: T[]): *T*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`previousValue` | `T` |
-`currentValue` | `T` |
+`previousValue` | T |
+`currentValue` | T |
 `currentIndex` | number |
-`array` | `T`[] |
+`array` | T[] |
 
-▪ **initialValue**: *`T`*
+▪ **initialValue**: *T*
 
-**Returns:** *`T`*
+**Returns:** *T*
 
-▸ **reduce**<**U**>(`callbackfn`: function, `initialValue`: `U`): *`U`*
+▸ **reduce**<**U**>(`callbackfn`: function, `initialValue`: U): *U*
 
 *Inherited from void*
 
@@ -692,28 +692,28 @@ Calls the specified callback function for all the elements in an array. The retu
 
 A function that accepts up to four arguments. The reduce method calls the callbackfn function one time for each element in the array.
 
-▸ (`previousValue`: `U`, `currentValue`: `T`, `currentIndex`: number, `array`: `T`[]): *`U`*
+▸ (`previousValue`: U, `currentValue`: T, `currentIndex`: number, `array`: T[]): *U*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`previousValue` | `U` |
-`currentValue` | `T` |
+`previousValue` | U |
+`currentValue` | T |
 `currentIndex` | number |
-`array` | `T`[] |
+`array` | T[] |
 
-▪ **initialValue**: *`U`*
+▪ **initialValue**: *U*
 
 If initialValue is specified, it is used as the initial value to start the accumulation. The first call to the callbackfn function provides this value as an argument instead of an array value.
 
-**Returns:** *`U`*
+**Returns:** *U*
 
 ___
 
 ###  reduceRight
 
-▸ **reduceRight**(`callbackfn`: function): *`T`*
+▸ **reduceRight**(`callbackfn`: function): *T*
 
 *Inherited from void*
 
@@ -727,20 +727,20 @@ Calls the specified callback function for all the elements in an array, in desce
 
 A function that accepts up to four arguments. The reduceRight method calls the callbackfn function one time for each element in the array.
 
-▸ (`previousValue`: `T`, `currentValue`: `T`, `currentIndex`: number, `array`: `T`[]): *`T`*
+▸ (`previousValue`: T, `currentValue`: T, `currentIndex`: number, `array`: T[]): *T*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`previousValue` | `T` |
-`currentValue` | `T` |
+`previousValue` | T |
+`currentValue` | T |
 `currentIndex` | number |
-`array` | `T`[] |
+`array` | T[] |
 
-**Returns:** *`T`*
+**Returns:** *T*
 
-▸ **reduceRight**(`callbackfn`: function, `initialValue`: `T`): *`T`*
+▸ **reduceRight**(`callbackfn`: function, `initialValue`: T): *T*
 
 *Inherited from void*
 
@@ -750,22 +750,22 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 ▪ **callbackfn**: *function*
 
-▸ (`previousValue`: `T`, `currentValue`: `T`, `currentIndex`: number, `array`: `T`[]): *`T`*
+▸ (`previousValue`: T, `currentValue`: T, `currentIndex`: number, `array`: T[]): *T*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`previousValue` | `T` |
-`currentValue` | `T` |
+`previousValue` | T |
+`currentValue` | T |
 `currentIndex` | number |
-`array` | `T`[] |
+`array` | T[] |
 
-▪ **initialValue**: *`T`*
+▪ **initialValue**: *T*
 
-**Returns:** *`T`*
+**Returns:** *T*
 
-▸ **reduceRight**<**U**>(`callbackfn`: function, `initialValue`: `U`): *`U`*
+▸ **reduceRight**<**U**>(`callbackfn`: function, `initialValue`: U): *U*
 
 *Inherited from void*
 
@@ -783,28 +783,28 @@ Calls the specified callback function for all the elements in an array, in desce
 
 A function that accepts up to four arguments. The reduceRight method calls the callbackfn function one time for each element in the array.
 
-▸ (`previousValue`: `U`, `currentValue`: `T`, `currentIndex`: number, `array`: `T`[]): *`U`*
+▸ (`previousValue`: U, `currentValue`: T, `currentIndex`: number, `array`: T[]): *U*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`previousValue` | `U` |
-`currentValue` | `T` |
+`previousValue` | U |
+`currentValue` | T |
 `currentIndex` | number |
-`array` | `T`[] |
+`array` | T[] |
 
-▪ **initialValue**: *`U`*
+▪ **initialValue**: *U*
 
 If initialValue is specified, it is used as the initial value to start the accumulation. The first call to the callbackfn function provides this value as an argument instead of an array value.
 
-**Returns:** *`U`*
+**Returns:** *U*
 
 ___
 
 ###  reverse
 
-▸ **reverse**(): *`T`[]*
+▸ **reverse**(): *T[]*
 
 *Inherited from void*
 
@@ -812,13 +812,13 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 Reverses the elements in an Array.
 
-**Returns:** *`T`[]*
+**Returns:** *T[]*
 
 ___
 
 ###  shift
 
-▸ **shift**(): *`T` | undefined*
+▸ **shift**(): *T | undefined*
 
 *Inherited from void*
 
@@ -826,13 +826,13 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 Removes the first element from an array and returns it.
 
-**Returns:** *`T` | undefined*
+**Returns:** *T | undefined*
 
 ___
 
 ###  slice
 
-▸ **slice**(`start?`: undefined | number, `end?`: undefined | number): *`T`[]*
+▸ **slice**(`start?`: undefined | number, `end?`: undefined | number): *T[]*
 
 *Inherited from void*
 
@@ -847,7 +847,7 @@ Name | Type | Description |
 `start?` | undefined \| number | The beginning of the specified portion of the array. |
 `end?` | undefined \| number | The end of the specified portion of the array.  |
 
-**Returns:** *`T`[]*
+**Returns:** *T[]*
 
 ___
 
@@ -867,15 +867,15 @@ Determines whether the specified callback function returns true for any element 
 
 A function that accepts up to three arguments. The some method calls the callbackfn function for each element in array1 until the callbackfn returns true, or until the end of the array.
 
-▸ (`value`: `T`, `index`: number, `array`: `T`[]): *unknown*
+▸ (`value`: T, `index`: number, `array`: T[]): *unknown*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`value` | `T` |
+`value` | T |
 `index` | number |
-`array` | `T`[] |
+`array` | T[] |
 
 ▪`Optional`  **thisArg**: *any*
 
@@ -907,7 +907,7 @@ ___
 
 ###  splice
 
-▸ **splice**(`start`: number, `deleteCount?`: undefined | number): *`T`[]*
+▸ **splice**(`start`: number, `deleteCount?`: undefined | number): *T[]*
 
 *Inherited from void*
 
@@ -922,9 +922,9 @@ Name | Type | Description |
 `start` | number | The zero-based location in the array from which to start removing elements. |
 `deleteCount?` | undefined \| number | The number of elements to remove.  |
 
-**Returns:** *`T`[]*
+**Returns:** *T[]*
 
-▸ **splice**(`start`: number, `deleteCount`: number, ...`items`: `T`[]): *`T`[]*
+▸ **splice**(`start`: number, `deleteCount`: number, ...`items`: T[]): *T[]*
 
 *Inherited from void*
 
@@ -938,9 +938,9 @@ Name | Type | Description |
 ------ | ------ | ------ |
 `start` | number | The zero-based location in the array from which to start removing elements. |
 `deleteCount` | number | The number of elements to remove. |
-`...items` | `T`[] | Elements to insert into the array in place of the deleted elements.  |
+`...items` | T[] | Elements to insert into the array in place of the deleted elements.  |
 
-**Returns:** *`T`[]*
+**Returns:** *T[]*
 
 ___
 
@@ -974,7 +974,7 @@ ___
 
 ###  unshift
 
-▸ **unshift**(...`items`: `T`[]): *number*
+▸ **unshift**(...`items`: T[]): *number*
 
 *Inherited from void*
 
@@ -986,7 +986,7 @@ Inserts new elements at the start of an array.
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`...items` | `T`[] | Elements to insert at the start of the Array.  |
+`...items` | T[] | Elements to insert at the start of the Array.  |
 
 **Returns:** *number*
 
@@ -994,7 +994,7 @@ ___
 
 ###  values
 
-▸ **values**(): *`IterableIterator<T>`*
+▸ **values**(): *IterableIterator‹T›*
 
 *Inherited from void*
 
@@ -1002,4 +1002,4 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 Returns an iterable of values in the array
 
-**Returns:** *`IterableIterator<T>`*
+**Returns:** *IterableIterator‹T›*

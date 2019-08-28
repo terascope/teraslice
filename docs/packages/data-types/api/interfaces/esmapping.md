@@ -24,9 +24,9 @@ sidebar_label: ESMapping
 
 ### `Optional` aliases
 
-• **aliases**? : *`AnyObject`*
+• **aliases**? : *AnyObject*
 
-*Defined in [interfaces.ts:185](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/interfaces.ts#L185)*
+*Defined in [interfaces.ts:186](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L186)*
 
 ___
 
@@ -34,7 +34,7 @@ ___
 
 • **index_patterns**? : *string[]*
 
-*Defined in [interfaces.ts:186](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/interfaces.ts#L186)*
+*Defined in [interfaces.ts:187](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L187)*
 
 ___
 
@@ -42,11 +42,11 @@ ___
 
 • **mappings**: *object*
 
-*Defined in [interfaces.ts:180](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/interfaces.ts#L180)*
+*Defined in [interfaces.ts:181](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L181)*
 
 #### Type declaration:
 
-● \[▪ **typeName**: *string*\]: [ESTypeMappings](estypemappings.md)
+* \[ **typeName**: *string*\]: [ESTypeMappings](estypemappings.md)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 • **order**? : *undefined | number*
 
-*Defined in [interfaces.ts:184](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/interfaces.ts#L184)*
+*Defined in [interfaces.ts:185](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L185)*
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • **settings**: *[ESIndexSettings](esindexsettings.md)*
 
-*Defined in [interfaces.ts:187](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/interfaces.ts#L187)*
+*Defined in [interfaces.ts:188](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L188)*
 
 ___
 
@@ -70,4 +70,4 @@ ___
 
 • **template**? : *undefined | string*
 
-*Defined in [interfaces.ts:183](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/interfaces.ts#L183)*
+*Defined in [interfaces.ts:184](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L184)*

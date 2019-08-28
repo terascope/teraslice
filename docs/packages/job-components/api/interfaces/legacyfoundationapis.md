@@ -23,7 +23,7 @@ sidebar_label: LegacyFoundationApis
 
 ▸ **getConnection**(`config`: [ConnectionConfig](connectionconfig.md)): *object*
 
-*Defined in [interfaces/context.ts:78](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L78)*
+*Defined in [interfaces/context.ts:83](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/context.ts#L83)*
 
 **Parameters:**
 
@@ -37,19 +37,19 @@ ___
 
 ###  getEventEmitter
 
-▸ **getEventEmitter**(): *`EventEmitter`*
+▸ **getEventEmitter**(): *EventEmitter*
 
-*Defined in [interfaces/context.ts:77](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L77)*
+*Defined in [interfaces/context.ts:82](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/context.ts#L82)*
 
-**Returns:** *`EventEmitter`*
+**Returns:** *EventEmitter*
 
 ___
 
 ###  makeLogger
 
-▸ **makeLogger**(...`params`: any[]): *`Logger`*
+▸ **makeLogger**(...`params`: any[]): *Logger*
 
-*Defined in [interfaces/context.ts:76](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L76)*
+*Defined in [interfaces/context.ts:81](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/context.ts#L81)*
 
 **Parameters:**
 
@@ -57,4 +57,4 @@ Name | Type |
 ------ | ------ |
 `...params` | any[] |
 
-**Returns:** *`Logger`*
+**Returns:** *Logger*

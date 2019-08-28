@@ -13,7 +13,7 @@ sidebar_label: CollectConfig
 
 ## Indexable
 
-● \[▪ **prop**: *string*\]: any
+* \[ **prop**: *string*\]: any
 
 ## Index
 
@@ -33,28 +33,31 @@ sidebar_label: CollectConfig
 
 *Inherited from [OpConfig](opconfig.md).[_dead_letter_action](opconfig.md#optional-_dead_letter_action)*
 
-*Defined in [interfaces/jobs.ts:25](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/jobs.ts#L25)*
+*Defined in [interfaces/jobs.ts:30](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/jobs.ts#L30)*
 
-This action will specify what to do when failing to parse or transform a record. ​​​​​
-​​​​​     * The following builtin actions are supported: ​​​
-​​​​​     *  - "throw": throw the original error ​​​​​
-​​​​​     *  - "log": log the error and the data ​​​​​
-​​​​​     *  - "none": (default) skip the error entirely
+This action will specify what to do when failing to parse or transform a record.
+The following builtin actions are supported:
+ - "throw": throw the original error
+ - "log": log the error and the data
+ - "none": (default) skip the error entirely
 
-​​     * If none of the actions are specified it will try and use a registered Dead Letter Queue API under that name.
-The API must be already be created by a operation before it can used.​
+If none of the actions are specified it will try and
+use a registered Dead Letter Queue API under that name.
+The API must be already be created by a operation before it can used.
 
 ___
 
 ### `Optional` _encoding
 
-• **_encoding**? : *`DataEncoding`*
+• **_encoding**? : *DataEncoding*
 
 *Inherited from [OpConfig](opconfig.md).[_encoding](opconfig.md#optional-_encoding)*
 
-*Defined in [interfaces/jobs.ts:14](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/jobs.ts#L14)*
+*Defined in [interfaces/jobs.ts:18](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/jobs.ts#L18)*
 
-Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`.
+Used for specifying the data encoding type when using `DataEntity.fromBuffer`.
+
+**`default`** `json`.
 
 ___
 
@@ -64,7 +67,7 @@ ___
 
 *Inherited from [OpConfig](opconfig.md).[_op](opconfig.md#_op)*
 
-*Defined in [interfaces/jobs.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/jobs.ts#L11)*
+*Defined in [interfaces/jobs.ts:11](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/jobs.ts#L11)*
 
 The name of the operation
 
@@ -74,7 +77,7 @@ ___
 
 • **size**: *number*
 
-*Defined in [builtin/collect/interfaces.ts:5](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/builtin/collect/interfaces.ts#L5)*
+*Defined in [builtin/collect/interfaces.ts:5](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/builtin/collect/interfaces.ts#L5)*
 
 ___
 
@@ -82,4 +85,4 @@ ___
 
 • **wait**: *number*
 
-*Defined in [builtin/collect/interfaces.ts:4](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/builtin/collect/interfaces.ts#L4)*
+*Defined in [builtin/collect/interfaces.ts:4](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/builtin/collect/interfaces.ts#L4)*

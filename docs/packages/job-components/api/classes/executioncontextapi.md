@@ -42,7 +42,7 @@ The following functionality is included:
 
 \+ **new ExecutionContextAPI**(`context`: [Context](../interfaces/context.md), `executionConfig`: [ExecutionConfig](../interfaces/executionconfig.md)): *[ExecutionContextAPI](executioncontextapi.md)*
 
-*Defined in [execution-context/api.ts:22](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/api.ts#L22)*
+*Defined in [execution-context/api.ts:25](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/api.ts#L25)*
 
 **Parameters:**
 
@@ -57,11 +57,11 @@ Name | Type |
 
 ###  apis
 
-• **get apis**(): *`Readonly<JobAPIInstances>`*
+• **get apis**(): *Readonly‹[JobAPIInstances](../interfaces/jobapiinstances.md)›*
 
-*Defined in [execution-context/api.ts:36](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/api.ts#L36)*
+*Defined in [execution-context/api.ts:39](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/api.ts#L39)*
 
-**Returns:** *`Readonly<JobAPIInstances>`*
+**Returns:** *Readonly‹[JobAPIInstances](../interfaces/jobapiinstances.md)›*
 
 ___
 
@@ -69,7 +69,7 @@ ___
 
 • **get registry**(): *object*
 
-*Defined in [execution-context/api.ts:32](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/api.ts#L32)*
+*Defined in [execution-context/api.ts:35](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/api.ts#L35)*
 
 For backwards compatibility
 
@@ -81,7 +81,7 @@ For backwards compatibility
 
 ▸ **addToRegistry**(`name`: string, `API`: [APIConstructor](../overview.md#apiconstructor)): *void*
 
-*Defined in [execution-context/api.ts:41](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/api.ts#L41)*
+*Defined in [execution-context/api.ts:44](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/api.ts#L44)*
 
 Add an API constructor to the registry
 
@@ -98,9 +98,9 @@ ___
 
 ###  getAPI
 
-▸ **getAPI**<**T**>(`name`: string): *`T`*
+▸ **getAPI**<**T**>(`name`: string): *T*
 
-*Defined in [execution-context/api.ts:89](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/api.ts#L89)*
+*Defined in [execution-context/api.ts:92](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/api.ts#L92)*
 
 Get a reference to a specific operation API,
 the must be initialized and created
@@ -115,15 +115,15 @@ Name | Type |
 ------ | ------ |
 `name` | string |
 
-**Returns:** *`T`*
+**Returns:** *T*
 
 ___
 
 ###  getObserver
 
-▸ **getObserver**<**T**>(`name`: string): *`T`*
+▸ **getObserver**<**T**>(`name`: string): *T*
 
-*Defined in [execution-context/api.ts:74](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/api.ts#L74)*
+*Defined in [execution-context/api.ts:77](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/api.ts#L77)*
 
 Get a reference to a specific operation API,
 the must be initialized and created
@@ -138,15 +138,15 @@ Name | Type |
 ------ | ------ |
 `name` | string |
 
-**Returns:** *`T`*
+**Returns:** *T*
 
 ___
 
 ###  initAPI
 
-▸ **initAPI**<**T**>(`name`: string, ...`params`: any[]): *`Promise<T>`*
+▸ **initAPI**<**T**>(`name`: string, ...`params`: any[]): *Promise‹T›*
 
-*Defined in [execution-context/api.ts:106](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/api.ts#L106)*
+*Defined in [execution-context/api.ts:109](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/api.ts#L109)*
 
 Create an instance of the API
 
@@ -161,15 +161,15 @@ Name | Type | Description |
 `name` | string | the name of API to create |
 `...params` | any[] | any additional options that the API may need  |
 
-**Returns:** *`Promise<T>`*
+**Returns:** *Promise‹T›*
 
 ___
 
 ###  makeLogger
 
-▸ **makeLogger**(`moduleName`: string, `extra`: `AnyObject`): *`Logger`*
+▸ **makeLogger**(`moduleName`: string, `extra`: AnyObject): *Logger*
 
-*Defined in [execution-context/api.ts:134](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/api.ts#L134)*
+*Defined in [execution-context/api.ts:137](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/api.ts#L137)*
 
 Make a logger with a the job_id and ex_id in the logger context
 
@@ -178,6 +178,6 @@ Make a logger with a the job_id and ex_id in the logger context
 Name | Type | Default |
 ------ | ------ | ------ |
 `moduleName` | string | - |
-`extra` | `AnyObject` |  {} |
+`extra` | AnyObject |  {} |
 
-**Returns:** *`Logger`*
+**Returns:** *Logger*

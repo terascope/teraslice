@@ -3,6 +3,8 @@ title: Elasticsearch Store API Overview
 sidebar_label: API
 ---
 
+## Index
+
 ### Classes
 
 * [Cluster](classes/cluster.md)
@@ -20,7 +22,7 @@ sidebar_label: API
 * [IndexModelOptions](interfaces/indexmodeloptions.md)
 * [IndexModelRecord](interfaces/indexmodelrecord.md)
 * [IndexSchema](interfaces/indexschema.md)
-* [MigrateIndexConfig](interfaces/migrateindexconfig.md)
+* [MigrateIndexOptions](interfaces/migrateindexoptions.md)
 
 ### Type aliases
 
@@ -31,6 +33,7 @@ sidebar_label: API
 * [ErrorLike](overview.md#errorlike)
 * [FindOneOptions](overview.md#findoneoptions)
 * [FindOptions](overview.md#findoptions)
+* [MigrateIndexStoreOptions](overview.md#migrateindexstoreoptions)
 * [SanitizeFields](overview.md#sanitizefields)
 * [Shard](overview.md#shard)
 * [TimeSeriesFormat](overview.md#timeseriesformat)
@@ -46,8 +49,6 @@ sidebar_label: API
 * [getDataVersionStr](overview.md#const-getdataversionstr)
 * [getErrorMessages](overview.md#const-geterrormessages)
 * [getErrorType](overview.md#const-geterrortype)
-* [getFirstKey](overview.md#const-getfirstkey)
-* [getFirstValue](overview.md#const-getfirstvalue)
 * [getIndexMapping](overview.md#const-getindexmapping)
 * [getRolloverFrequency](overview.md#const-getrolloverfrequency)
 * [getSchemaVersion](overview.md#const-getschemaversion)
@@ -67,6 +68,8 @@ sidebar_label: API
 * [getBulkResponseItem](overview.md#getbulkresponseitem)
 * [getESVersion](overview.md#getesversion)
 * [getErrorMessage](overview.md#geterrormessage)
+* [getFirstKey](overview.md#getfirstkey)
+* [getFirstValue](overview.md#getfirstvalue)
 * [getRetryConfig](overview.md#getretryconfig)
 * [getTimeByField](overview.md#gettimebyfield)
 * [getTypesFromProperties](overview.md#gettypesfromproperties)
@@ -95,11 +98,11 @@ sidebar_label: API
 
 Ƭ **AsyncFn**: *function*
 
-*Defined in [interfaces.ts:156](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L156)*
+*Defined in [interfaces.ts:156](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/interfaces.ts#L156)*
 
 #### Type declaration:
 
-▸ (): *`Promise<T>`*
+▸ (): *Promise‹T›*
 
 ___
 
@@ -107,7 +110,7 @@ ___
 
 Ƭ **BulkAction**: *"index" | "create" | "delete" | "update"*
 
-*Defined in [interfaces.ts:158](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L158)*
+*Defined in [interfaces.ts:158](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/interfaces.ts#L158)*
 
 ___
 
@@ -115,7 +118,7 @@ ___
 
 Ƭ **BulkResponseItems**: *object*
 
-*Defined in [interfaces.ts:172](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L172)*
+*Defined in [interfaces.ts:172](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/interfaces.ts#L172)*
 
 #### Type declaration:
 
@@ -123,17 +126,17 @@ ___
 
 ###  CreateRecordInput
 
-Ƭ **CreateRecordInput**: *`Omit<T, keyof IndexModelRecord>` & object*
+Ƭ **CreateRecordInput**: *Omit‹T, keyof IndexModelRecord› & object*
 
-*Defined in [interfaces.ts:204](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L204)*
+*Defined in [interfaces.ts:204](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/interfaces.ts#L204)*
 
 ___
 
 ###  ErrorLike
 
-Ƭ **ErrorLike**: *object | `ErrorObject` | string*
+Ƭ **ErrorLike**: *object | ErrorObject | string*
 
-*Defined in [utils/errors.ts:43](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/errors.ts#L43)*
+*Defined in [utils/errors.ts:43](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/errors.ts#L43)*
 
 ___
 
@@ -141,7 +144,7 @@ ___
 
 Ƭ **FindOneOptions**: *object*
 
-*Defined in [interfaces.ts:256](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L256)*
+*Defined in [interfaces.ts:258](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/interfaces.ts#L258)*
 
 #### Type declaration:
 
@@ -151,9 +154,17 @@ ___
 
 Ƭ **FindOptions**: *object*
 
-*Defined in [interfaces.ts:248](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L248)*
+*Defined in [interfaces.ts:250](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/interfaces.ts#L250)*
 
 #### Type declaration:
+
+___
+
+###  MigrateIndexStoreOptions
+
+Ƭ **MigrateIndexStoreOptions**: *Omit‹[MigrateIndexOptions](interfaces/migrateindexoptions.md), "config"›*
+
+*Defined in [interfaces.ts:271](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/interfaces.ts#L271)*
 
 ___
 
@@ -161,11 +172,11 @@ ___
 
 Ƭ **SanitizeFields**: *object*
 
-*Defined in [interfaces.ts:239](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L239)*
+*Defined in [interfaces.ts:241](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/interfaces.ts#L241)*
 
 #### Type declaration:
 
-● \[▪ **field**: *string*\]: "trimAndToLower" | "trim" | "toSafeString"
+* \[ **field**: *string*\]: "trimAndToLower" | "trim" | "toSafeString"
 
 ___
 
@@ -173,7 +184,7 @@ ___
 
 Ƭ **Shard**: *object*
 
-*Defined in [interfaces.ts:180](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L180)*
+*Defined in [interfaces.ts:180](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/interfaces.ts#L180)*
 
 #### Type declaration:
 
@@ -183,31 +194,31 @@ ___
 
 Ƭ **TimeSeriesFormat**: *"daily" | "monthly" | "yearly"*
 
-*Defined in [interfaces.ts:119](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L119)*
+*Defined in [interfaces.ts:119](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/interfaces.ts#L119)*
 
 ___
 
 ###  UpdateRecordInput
 
-Ƭ **UpdateRecordInput**: *`Partial<Omit<T, keyof IndexModelRecord>>` & object*
+Ƭ **UpdateRecordInput**: *Partial‹Omit‹T, keyof IndexModelRecord›› & object*
 
-*Defined in [interfaces.ts:208](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/interfaces.ts#L208)*
+*Defined in [interfaces.ts:208](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/interfaces.ts#L208)*
 
 ## Variables
 
 ### `Const` MAX_RETRIES
 
-• **MAX_RETRIES**: *`2` | `100`* =  isTest ? 2 : 100
+• **MAX_RETRIES**: *2 | 100* =  isTest ? 2 : 100
 
-*Defined in [utils/retry-config.ts:3](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/retry-config.ts#L3)*
+*Defined in [utils/retry-config.ts:3](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/retry-config.ts#L3)*
 
 ___
 
 ### `Const` RETRY_DELAY
 
-• **RETRY_DELAY**: *`50` | `500`* =  isTest ? 50 : 500
+• **RETRY_DELAY**: *50 | 500* =  isTest ? 50 : 500
 
-*Defined in [utils/retry-config.ts:4](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/retry-config.ts#L4)*
+*Defined in [utils/retry-config.ts:4](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/retry-config.ts#L4)*
 
 ___
 
@@ -219,7 +230,7 @@ ___
     R.join('.')
 )
 
-*Defined in [utils/misc.ts:43](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/misc.ts#L43)*
+*Defined in [utils/misc.ts:36](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/misc.ts#L36)*
 
 #### Type declaration:
 
@@ -241,7 +252,7 @@ ___
     R.join('-')
 )
 
-*Defined in [utils/misc.ts:37](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/misc.ts#L37)*
+*Defined in [utils/misc.ts:30](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/misc.ts#L30)*
 
 #### Type declaration:
 
@@ -259,7 +270,7 @@ ___
 
 • **getDataVersion**: *function* =  R.pathOr(1, ['version'])
 
-*Defined in [utils/misc.ts:30](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/misc.ts#L30)*
+*Defined in [utils/misc.ts:23](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/misc.ts#L23)*
 
 #### Type declaration:
 
@@ -281,7 +292,7 @@ ___
     R.prepend('v')
 ) as any
 
-*Defined in [utils/misc.ts:31](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/misc.ts#L31)*
+*Defined in [utils/misc.ts:24](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/misc.ts#L24)*
 
 #### Type declaration:
 
@@ -302,7 +313,7 @@ ___
     R.join(', ')
 )
 
-*Defined in [utils/errors.ts:31](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/errors.ts#L31)*
+*Defined in [utils/errors.ts:5](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/errors.ts#L5)*
 
 #### Type declaration:
 
@@ -320,7 +331,7 @@ ___
 
 • **getErrorType**: *function* =  R.pathOr('', ['error', 'type'])
 
-*Defined in [utils/errors.ts:36](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/errors.ts#L36)*
+*Defined in [utils/errors.ts:36](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/errors.ts#L36)*
 
 #### Type declaration:
 
@@ -334,39 +345,15 @@ Name | Type |
 
 ___
 
-### `Const` getFirstKey
-
-• **getFirstKey**: *`getFirstFn`* =  R.pipe(
-    // @ts-ignore
-    R.keys,
-    R.head
-)
-
-*Defined in [utils/misc.ts:13](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/misc.ts#L13)*
-
-___
-
-### `Const` getFirstValue
-
-• **getFirstValue**: *`getFirstFn`* =  R.pipe(
-    // @ts-ignore
-    R.values,
-    R.head
-)
-
-*Defined in [utils/misc.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/misc.ts#L7)*
-
-___
-
 ### `Const` getIndexMapping
 
 • **getIndexMapping**: *function* =  R.path(['index_schema', 'mapping'])
 
-*Defined in [utils/misc.ts:19](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/misc.ts#L19)*
+*Defined in [utils/misc.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/misc.ts#L12)*
 
 #### Type declaration:
 
-▸ (`obj`: any): *`T` | undefined*
+▸ (`obj`: any): *T | undefined*
 
 **Parameters:**
 
@@ -380,7 +367,7 @@ ___
 
 • **getRolloverFrequency**: *function* =  R.pathOr('monthly', ['index_schema', 'rollover_frequency'])
 
-*Defined in [utils/misc.ts:21](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/misc.ts#L21)*
+*Defined in [utils/misc.ts:14](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/misc.ts#L14)*
 
 #### Type declaration:
 
@@ -398,7 +385,7 @@ ___
 
 • **getSchemaVersion**: *function* =  R.pathOr(1, ['index_schema', 'version'])
 
-*Defined in [utils/misc.ts:23](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/misc.ts#L23)*
+*Defined in [utils/misc.ts:16](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/misc.ts#L16)*
 
 #### Type declaration:
 
@@ -420,7 +407,7 @@ ___
     R.prepend('s')
 ) as any
 
-*Defined in [utils/misc.ts:24](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/misc.ts#L24)*
+*Defined in [utils/misc.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/misc.ts#L17)*
 
 #### Type declaration:
 
@@ -441,7 +428,7 @@ ___
     R.defaultTo(500)
 )
 
-*Defined in [utils/errors.ts:38](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/errors.ts#L38)*
+*Defined in [utils/errors.ts:38](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/errors.ts#L38)*
 
 #### Type declaration:
 
@@ -457,7 +444,7 @@ ___
 
 ### `Const` isSimpleIndex
 
-• **isSimpleIndex**: *`indexFn`* =  R.both(
+• **isSimpleIndex**: *indexFn* =  R.both(
     isNotNil,
     R.both(
         R.has('mapping'),
@@ -468,23 +455,23 @@ ___
     )
 )
 
-*Defined in [utils/validation.ts:67](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/validation.ts#L67)*
+*Defined in [utils/validation.ts:70](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/validation.ts#L70)*
 
 ___
 
 ### `Const` isTemplatedIndex
 
-• **isTemplatedIndex**: *`indexFn`* =  R.both(isNotNil, R.both(R.has('mapping'), R.propEq('template', true)))
+• **isTemplatedIndex**: *indexFn* =  R.both(isNotNil, R.both(R.has('mapping'), R.propEq('template', true)))
 
-*Defined in [utils/validation.ts:78](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/validation.ts#L78)*
+*Defined in [utils/validation.ts:81](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/validation.ts#L81)*
 
 ___
 
 ### `Const` isTimeSeriesIndex
 
-• **isTimeSeriesIndex**: *`indexFn`* =  R.both(isTemplatedIndex, R.propEq('timeseries', true))
+• **isTimeSeriesIndex**: *indexFn* =  R.both(isTemplatedIndex, R.propEq('timeseries', true))
 
-*Defined in [utils/validation.ts:80](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/validation.ts#L80)*
+*Defined in [utils/validation.ts:83](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/validation.ts#L83)*
 
 ___
 
@@ -496,33 +483,33 @@ ___
     R.all((shard: i.Shard) => shard.stage === 'DONE')
 )
 
-*Defined in [utils/elasticsearch.ts:24](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/elasticsearch.ts#L24)*
+*Defined in [utils/elasticsearch.ts:24](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/elasticsearch.ts#L24)*
 
 #### Type declaration:
 
-▸ (`shards`: `i.Shard`[]): *boolean*
+▸ (`shards`: i.Shard[]): *boolean*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`shards` | `i.Shard`[] |
+`shards` | i.Shard[] |
 
 ## Functions
 
 ###  addDefaultMapping
 
-▸ **addDefaultMapping**(`input`: `ESTypeMappings`): *`ESTypeMappings`*
+▸ **addDefaultMapping**(`input`: ESTypeMappings): *ESTypeMappings*
 
-*Defined in [utils/model.ts:51](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/model.ts#L51)*
+*Defined in [utils/model.ts:51](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/model.ts#L51)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`input` | `ESTypeMappings` |
+`input` | ESTypeMappings |
 
-**Returns:** *`ESTypeMappings`*
+**Returns:** *ESTypeMappings*
 
 ___
 
@@ -530,7 +517,7 @@ ___
 
 ▸ **addDefaultSchema**(`input`: object): *object*
 
-*Defined in [utils/model.ts:55](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/model.ts#L55)*
+*Defined in [utils/model.ts:55](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/model.ts#L55)*
 
 **Parameters:**
 
@@ -544,9 +531,9 @@ ___
 
 ###  filterBulkRetries
 
-▸ **filterBulkRetries**<**T**>(`records`: `T`[], `result`: [BulkResponse](interfaces/bulkresponse.md)): *`T`[]*
+▸ **filterBulkRetries**<**T**>(`records`: T[], `result`: [BulkResponse](interfaces/bulkresponse.md)): *T[]*
 
-*Defined in [utils/elasticsearch.ts:46](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/elasticsearch.ts#L46)*
+*Defined in [utils/elasticsearch.ts:46](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/elasticsearch.ts#L46)*
 
 **Type parameters:**
 
@@ -556,24 +543,24 @@ ___
 
 Name | Type |
 ------ | ------ |
-`records` | `T`[] |
+`records` | T[] |
 `result` | [BulkResponse](interfaces/bulkresponse.md) |
 
-**Returns:** *`T`[]*
+**Returns:** *T[]*
 
 ___
 
 ###  fixMappingRequest
 
-▸ **fixMappingRequest**(`client`: `Client`, `_params`: any, `isTemplate`: boolean): *any*
+▸ **fixMappingRequest**(`client`: Client, `_params`: any, `isTemplate`: boolean): *any*
 
-*Defined in [utils/elasticsearch.ts:172](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/elasticsearch.ts#L172)*
+*Defined in [utils/elasticsearch.ts:175](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/elasticsearch.ts#L175)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`client` | `Client` |
+`client` | Client |
 `_params` | any |
 `isTemplate` | boolean |
 
@@ -583,9 +570,9 @@ ___
 
 ###  getBulkResponseItem
 
-▸ **getBulkResponseItem**(`input`: any): *`BulkResponseItemResult`*
+▸ **getBulkResponseItem**(`input`: any): *BulkResponseItemResult*
 
-*Defined in [utils/elasticsearch.ts:108](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/elasticsearch.ts#L108)*
+*Defined in [utils/elasticsearch.ts:108](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/elasticsearch.ts#L108)*
 
 Get the first key and value from the bulk response:
 
@@ -616,21 +603,21 @@ Name | Type | Default |
 ------ | ------ | ------ |
 `input` | any |  {} |
 
-**Returns:** *`BulkResponseItemResult`*
+**Returns:** *BulkResponseItemResult*
 
 ___
 
 ###  getESVersion
 
-▸ **getESVersion**(`client`: `Client`): *number*
+▸ **getESVersion**(`client`: Client): *number*
 
-*Defined in [utils/elasticsearch.ts:163](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/elasticsearch.ts#L163)*
+*Defined in [utils/elasticsearch.ts:166](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/elasticsearch.ts#L166)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`client` | `Client` |
+`client` | Client |
 
 **Returns:** *number*
 
@@ -640,7 +627,7 @@ ___
 
 ▸ **getErrorMessage**(`err`: [ErrorLike](overview.md#errorlike)): *string*
 
-*Defined in [utils/errors.ts:19](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/errors.ts#L19)*
+*Defined in [utils/errors.ts:24](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/errors.ts#L24)*
 
 **Parameters:**
 
@@ -652,13 +639,53 @@ Name | Type |
 
 ___
 
+###  getFirstKey
+
+▸ **getFirstKey**<**T**>(`input`: T): *keyof T | undefined*
+
+*Defined in [utils/misc.ts:8](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/misc.ts#L8)*
+
+**Type parameters:**
+
+▪ **T**
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`input` | T |
+
+**Returns:** *keyof T | undefined*
+
+___
+
+###  getFirstValue
+
+▸ **getFirstValue**<**T**>(`input`: object): *T | undefined*
+
+*Defined in [utils/misc.ts:5](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/misc.ts#L5)*
+
+**Type parameters:**
+
+▪ **T**
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`input` | object |
+
+**Returns:** *T | undefined*
+
+___
+
 ###  getRetryConfig
 
-▸ **getRetryConfig**(): *`Partial<PRetryConfig>`*
+▸ **getRetryConfig**(): *Partial‹PRetryConfig›*
 
-*Defined in [utils/retry-config.ts:6](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/retry-config.ts#L6)*
+*Defined in [utils/retry-config.ts:6](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/retry-config.ts#L6)*
 
-**Returns:** *`Partial<PRetryConfig>`*
+**Returns:** *Partial‹PRetryConfig›*
 
 ___
 
@@ -666,7 +693,7 @@ ___
 
 ▸ **getTimeByField**(`field`: string): *function*
 
-*Defined in [utils/elasticsearch.ts:9](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/elasticsearch.ts#L9)*
+*Defined in [utils/elasticsearch.ts:9](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/elasticsearch.ts#L9)*
 
 **Parameters:**
 
@@ -688,26 +715,26 @@ ___
 
 ###  getTypesFromProperties
 
-▸ **getTypesFromProperties**(`properties`: `MappingProperties`, `basePath`: string): *`TypeMappingPair`[]*
+▸ **getTypesFromProperties**(`properties`: MappingProperties, `basePath`: string): *TypeMappingPair[]*
 
-*Defined in [utils/elasticsearch.ts:134](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/elasticsearch.ts#L134)*
+*Defined in [utils/elasticsearch.ts:134](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/elasticsearch.ts#L134)*
 
 **Parameters:**
 
 Name | Type | Default |
 ------ | ------ | ------ |
-`properties` | `MappingProperties` | - |
+`properties` | MappingProperties | - |
 `basePath` | string | "" |
 
-**Returns:** *`TypeMappingPair`[]*
+**Returns:** *TypeMappingPair[]*
 
 ___
 
 ###  getXLuceneTypesFromMapping
 
-▸ **getXLuceneTypesFromMapping**(`mapping`: any): *`TypeConfig` | undefined*
+▸ **getXLuceneTypesFromMapping**(`mapping`: any): *TypeConfig | undefined*
 
-*Defined in [utils/elasticsearch.ts:115](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/elasticsearch.ts#L115)*
+*Defined in [utils/elasticsearch.ts:115](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/elasticsearch.ts#L115)*
 
 **Parameters:**
 
@@ -715,15 +742,15 @@ Name | Type |
 ------ | ------ |
 `mapping` | any |
 
-**Returns:** *`TypeConfig` | undefined*
+**Returns:** *TypeConfig | undefined*
 
 ___
 
 ###  getXluceneTypeFromESType
 
-▸ **getXluceneTypeFromESType**(`type?`: undefined | string): *`FieldType` | undefined*
+▸ **getXluceneTypeFromESType**(`type?`: undefined | string): *FieldType | undefined*
 
-*Defined in [utils/elasticsearch.ts:153](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/elasticsearch.ts#L153)*
+*Defined in [utils/elasticsearch.ts:153](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/elasticsearch.ts#L153)*
 
 **Parameters:**
 
@@ -731,7 +758,7 @@ Name | Type |
 ------ | ------ |
 `type?` | undefined \| string |
 
-**Returns:** *`FieldType` | undefined*
+**Returns:** *FieldType | undefined*
 
 ___
 
@@ -739,7 +766,7 @@ ___
 
 ▸ **isNotNil**(`input`: any): *boolean*
 
-*Defined in [utils/misc.ts:3](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/misc.ts#L3)*
+*Defined in [utils/misc.ts:3](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/misc.ts#L3)*
 
 **Parameters:**
 
@@ -755,7 +782,7 @@ ___
 
 ▸ **isValidClient**(`input`: any): *boolean*
 
-*Defined in [utils/validation.ts:57](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/validation.ts#L57)*
+*Defined in [utils/validation.ts:60](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/validation.ts#L60)*
 
 **Parameters:**
 
@@ -769,9 +796,9 @@ ___
 
 ###  isValidName
 
-▸ **isValidName**(`name`: string): *false | true | `""`*
+▸ **isValidName**(`name`: string): *false | true | ""*
 
-*Defined in [utils/validation.ts:8](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/validation.ts#L8)*
+*Defined in [utils/validation.ts:8](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/validation.ts#L8)*
 
 **Parameters:**
 
@@ -779,15 +806,15 @@ Name | Type |
 ------ | ------ |
 `name` | string |
 
-**Returns:** *false | true | `""`*
+**Returns:** *false | true | ""*
 
 ___
 
 ###  isValidNamespace
 
-▸ **isValidNamespace**(`namespace`: string): *false | true | `""`*
+▸ **isValidNamespace**(`namespace`: string): *false | true | ""*
 
-*Defined in [utils/validation.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/validation.ts#L12)*
+*Defined in [utils/validation.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/validation.ts#L12)*
 
 **Parameters:**
 
@@ -795,15 +822,15 @@ Name | Type |
 ------ | ------ |
 `namespace` | string |
 
-**Returns:** *false | true | `""`*
+**Returns:** *false | true | ""*
 
 ___
 
 ###  makeId
 
-▸ **makeId**(`len`: number): *`Promise<string>`*
+▸ **makeId**(`len`: number): *Promise‹string›*
 
-*Defined in [utils/model.ts:64](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/model.ts#L64)*
+*Defined in [utils/model.ts:64](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/model.ts#L64)*
 
 Make unique URL friendly id
 
@@ -813,15 +840,15 @@ Name | Type | Default |
 ------ | ------ | ------ |
 `len` | number | 12 |
 
-**Returns:** *`Promise<string>`*
+**Returns:** *Promise‹string›*
 
 ___
 
 ###  mergeDefaults
 
-▸ **mergeDefaults**<**T**>(`source`: `T`, `from`: `Partial<T>`): *`T`*
+▸ **mergeDefaults**<**T**>(`source`: T, `from`: Partial‹T›): *T*
 
-*Defined in [utils/model.ts:77](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/model.ts#L77)*
+*Defined in [utils/model.ts:77](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/model.ts#L77)*
 
 Deep copy two levels deep (useful for mapping and schema)
 
@@ -833,10 +860,10 @@ Deep copy two levels deep (useful for mapping and schema)
 
 Name | Type |
 ------ | ------ |
-`source` | `T` |
-`from` | `Partial<T>` |
+`source` | T |
+`from` | Partial‹T› |
 
-**Returns:** *`T`*
+**Returns:** *T*
 
 ___
 
@@ -844,7 +871,7 @@ ___
 
 ▸ **shardsPath**(`index`: string): *function*
 
-*Defined in [utils/elasticsearch.ts:20](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/elasticsearch.ts#L20)*
+*Defined in [utils/elasticsearch.ts:20](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/elasticsearch.ts#L20)*
 
 **Parameters:**
 
@@ -854,7 +881,7 @@ Name | Type |
 
 **Returns:** *function*
 
-▸ (`stats`: any): *`i.Shard`[]*
+▸ (`stats`: any): *i.Shard[]*
 
 **Parameters:**
 
@@ -868,7 +895,7 @@ ___
 
 ▸ **throwValidationError**(`errors`: [ErrorLike](overview.md#errorlike)[] | null | undefined): *string | null*
 
-*Defined in [utils/errors.ts:5](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/errors.ts#L5)*
+*Defined in [utils/errors.ts:10](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/errors.ts#L10)*
 
 **Parameters:**
 
@@ -882,16 +909,16 @@ ___
 
 ###  timeseriesIndex
 
-▸ **timeseriesIndex**(`index`: string, `timeSeriesFormat`: `i.TimeSeriesFormat`): *string*
+▸ **timeseriesIndex**(`index`: string, `timeSeriesFormat`: i.TimeSeriesFormat): *string*
 
-*Defined in [utils/elasticsearch.ts:30](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/elasticsearch.ts#L30)*
+*Defined in [utils/elasticsearch.ts:30](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/elasticsearch.ts#L30)*
 
 **Parameters:**
 
 Name | Type | Default |
 ------ | ------ | ------ |
 `index` | string | - |
-`timeSeriesFormat` | `i.TimeSeriesFormat` | "monthly" |
+`timeSeriesFormat` | i.TimeSeriesFormat | "monthly" |
 
 **Returns:** *string*
 
@@ -901,7 +928,7 @@ ___
 
 ▸ **toInstanceName**(`name`: string): *string*
 
-*Defined in [utils/model.ts:96](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/model.ts#L96)*
+*Defined in [utils/model.ts:96](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/model.ts#L96)*
 
 **Parameters:**
 
@@ -917,7 +944,7 @@ ___
 
 ▸ **validateIndexConfig**(`config`: any): *boolean*
 
-*Defined in [utils/validation.ts:17](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/validation.ts#L17)*
+*Defined in [utils/validation.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/validation.ts#L17)*
 
 **Parameters:**
 
@@ -933,7 +960,7 @@ Name | Type |
 
 ### ▪ **mapping**: *object*
 
-*Defined in [utils/model.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/model.ts#L7)*
+*Defined in [utils/model.ts:7](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/model.ts#L7)*
 
 ElasticSearch Mapping
 
@@ -941,17 +968,17 @@ ElasticSearch Mapping
 
 • **dynamic**: *false* = false
 
-*Defined in [utils/model.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/model.ts#L11)*
+*Defined in [utils/model.ts:11](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/model.ts#L11)*
 
 ▪ **_all**: *object*
 
-*Defined in [utils/model.ts:8](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/model.ts#L8)*
+*Defined in [utils/model.ts:8](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/model.ts#L8)*
 
 * **enabled**: *false* = false
 
 ▪ **properties**: *object*
 
-*Defined in [utils/model.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/model.ts#L12)*
+*Defined in [utils/model.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/model.ts#L12)*
 
 * **client_id**: *object*
 
@@ -975,7 +1002,7 @@ ___
 
 ### ▪ **schema**: *object*
 
-*Defined in [utils/model.ts:29](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/model.ts#L29)*
+*Defined in [utils/model.ts:29](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/model.ts#L29)*
 
 JSON Schema
 
@@ -983,17 +1010,17 @@ JSON Schema
 
 • **additionalProperties**: *boolean* = false
 
-*Defined in [utils/model.ts:30](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/model.ts#L30)*
+*Defined in [utils/model.ts:30](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/model.ts#L30)*
 
 ###  required
 
 • **required**: *string[]* =  ['id', 'client_id', 'created', 'updated']
 
-*Defined in [utils/model.ts:48](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/model.ts#L48)*
+*Defined in [utils/model.ts:48](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/model.ts#L48)*
 
 ▪ **properties**: *object*
 
-*Defined in [utils/model.ts:31](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/utils/model.ts#L31)*
+*Defined in [utils/model.ts:31](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/utils/model.ts#L31)*
 
 * **client_id**: *object*
 

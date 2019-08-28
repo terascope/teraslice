@@ -39,7 +39,7 @@ sidebar_label: PhaseBase
 
 \+ **new PhaseBase**(`opConfig`: [WatcherConfig](../interfaces/watcherconfig.md)): *[PhaseBase](phasebase.md)*
 
-*Defined in [phases/base.ts:9](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/base.ts#L9)*
+*Defined in [phases/base.ts:7](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/phases/base.ts#L7)*
 
 **Parameters:**
 
@@ -55,7 +55,7 @@ Name | Type |
 
 • **hasProcessing**: *boolean*
 
-*Defined in [phases/base.ts:8](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/base.ts#L8)*
+*Defined in [phases/base.ts:6](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/phases/base.ts#L6)*
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 • **opConfig**: *[WatcherConfig](../interfaces/watcherconfig.md)*
 
-*Defined in [phases/base.ts:9](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/base.ts#L9)*
+*Defined in [phases/base.ts:7](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/phases/base.ts#L7)*
 
 ___
 
@@ -71,20 +71,20 @@ ___
 
 • **phase**: *[OperationsPipline](../interfaces/operationspipline.md)*
 
-*Defined in [phases/base.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/base.ts#L7)*
+*Defined in [phases/base.ts:5](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/phases/base.ts#L5)*
 
 ## Methods
 
 ### `Abstract` run
 
-▸ **run**(`data`: `DataEntity`[]): *`DataEntity`[]*
+▸ **run**(`data`: DataEntity[]): *DataEntity[]*
 
-*Defined in [phases/base.ts:17](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/base.ts#L17)*
+*Defined in [phases/base.ts:15](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/phases/base.ts#L15)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`data` | `DataEntity`[] |
+`data` | DataEntity[] |
 
-**Returns:** *`DataEntity`[]*
+**Returns:** *DataEntity[]*

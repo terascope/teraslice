@@ -25,20 +25,20 @@ sidebar_label: Operation
 
 • **config**? : *[OperationConfig](../overview.md#operationconfig)*
 
-*Defined in [interfaces.ts:83](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/interfaces.ts#L83)*
+*Defined in [interfaces.ts:91](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L91)*
 
 ## Methods
 
 ###  run
 
-▸ **run**(`data`: `DataEntity`): *null | `DataEntity`*
+▸ **run**(`data`: DataEntity): *null | DataEntity*
 
-*Defined in [interfaces.ts:84](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/interfaces.ts#L84)*
+*Defined in [interfaces.ts:92](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L92)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`data` | `DataEntity` |
+`data` | DataEntity |
 
-**Returns:** *null | `DataEntity`*
+**Returns:** *null | DataEntity*

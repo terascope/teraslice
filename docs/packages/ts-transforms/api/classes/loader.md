@@ -23,16 +23,16 @@ sidebar_label: Loader
 
 ###  constructor
 
-\+ **new Loader**(`opConfig`: [WatcherConfig](../interfaces/watcherconfig.md), `logger`: `Logger`): *[Loader](loader.md)*
+\+ **new Loader**(`opConfig`: [WatcherConfig](../interfaces/watcherconfig.md), `logger`: Logger): *[Loader](loader.md)*
 
-*Defined in [loader/loader.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/loader/loader.ts#L11)*
+*Defined in [loader/loader.ts:11](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/loader/loader.ts#L11)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `opConfig` | [WatcherConfig](../interfaces/watcherconfig.md) |
-`logger` | `Logger` |
+`logger` | Logger |
 
 **Returns:** *[Loader](loader.md)*
 
@@ -40,14 +40,14 @@ Name | Type |
 
 ###  load
 
-▸ **load**(`opsManager`: `OperationsManager`): *`Promise<ValidationResults>`*
+▸ **load**(`opsManager`: OperationsManager): *Promise‹[ValidationResults](../interfaces/validationresults.md)›*
 
-*Defined in [loader/loader.ts:18](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/loader/loader.ts#L18)*
+*Defined in [loader/loader.ts:18](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/loader/loader.ts#L18)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`opsManager` | `OperationsManager` |
+`opsManager` | OperationsManager |
 
-**Returns:** *`Promise<ValidationResults>`*
+**Returns:** *Promise‹[ValidationResults](../interfaces/validationresults.md)›*

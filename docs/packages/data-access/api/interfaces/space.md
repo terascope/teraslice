@@ -9,7 +9,7 @@ The definition of a Space model
 
 ## Hierarchy
 
-* `IndexModelRecord`
+* IndexModelRecord
 
   * **Space**
 
@@ -48,7 +48,7 @@ ___
 
 • **config**? : *[SpaceSearchConfig](spacesearchconfig.md) | [SpaceStreamingConfig](spacestreamingconfig.md)*
 
-*Defined in [models/config/spaces.ts:210](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/spaces.ts#L210)*
+*Defined in [models/config/spaces.ts:211](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/spaces.ts#L211)*
 
 Configuration for the space
 
@@ -70,7 +70,7 @@ ___
 
 • **data_type**: *string*
 
-*Defined in [models/config/spaces.ts:195](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/spaces.ts#L195)*
+*Defined in [models/config/spaces.ts:196](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/spaces.ts#L196)*
 
 The associated data type
 
@@ -80,7 +80,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [models/config/spaces.ts:190](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/spaces.ts#L190)*
+*Defined in [models/config/spaces.ts:191](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/spaces.ts#L191)*
 
 Description of the Role
 
@@ -90,7 +90,7 @@ ___
 
 • **endpoint**? : *undefined | string*
 
-*Defined in [models/config/spaces.ts:185](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/spaces.ts#L185)*
+*Defined in [models/config/spaces.ts:186](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/spaces.ts#L186)*
 
 A URL friendly name for endpoint that is associated with the space, this must be unique
 
@@ -112,7 +112,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [models/config/spaces.ts:175](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/spaces.ts#L175)*
+*Defined in [models/config/spaces.ts:176](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/spaces.ts#L176)*
 
 Name of the Space
 
@@ -122,7 +122,7 @@ ___
 
 • **roles**: *string[]*
 
-*Defined in [models/config/spaces.ts:205](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/spaces.ts#L205)*
+*Defined in [models/config/spaces.ts:206](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/spaces.ts#L206)*
 
 A list of associated roles
 
@@ -132,7 +132,7 @@ ___
 
 • **type**: *[SpaceConfigType](../overview.md#spaceconfigtype)*
 
-*Defined in [models/config/spaces.ts:180](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/spaces.ts#L180)*
+*Defined in [models/config/spaces.ts:181](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/spaces.ts#L181)*
 
 The space configuration type
 
@@ -154,6 +154,6 @@ ___
 
 • **views**: *string[]*
 
-*Defined in [models/config/spaces.ts:200](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/spaces.ts#L200)*
+*Defined in [models/config/spaces.ts:201](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/spaces.ts#L201)*
 
 A list of associated views

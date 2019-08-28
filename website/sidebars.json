@@ -89,7 +89,8 @@
                 "type": "subcategory",
                 "label": "queue",
                 "ids": [
-                    "packages/queue/overview"
+                    "packages/queue/overview",
+                    "packages/queue/api/overview"
                 ]
             },
             {
@@ -110,14 +111,16 @@
                 "type": "subcategory",
                 "label": "teraslice-cli",
                 "ids": [
-                    "packages/teraslice-cli/overview"
+                    "packages/teraslice-cli/overview",
+                    "packages/teraslice-cli/api/overview"
                 ]
             },
             {
                 "type": "subcategory",
                 "label": "teraslice-client-js",
                 "ids": [
-                    "packages/teraslice-client-js/overview"
+                    "packages/teraslice-client-js/overview",
+                    "packages/teraslice-client-js/api/overview"
                 ]
             },
             {

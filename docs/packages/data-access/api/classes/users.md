@@ -9,7 +9,7 @@ Manager for Users
 
 ## Hierarchy
 
-* `IndexModel<User>`
+* IndexModel‹[User](../interfaces/user.md)›
 
   * **Users**
 
@@ -24,6 +24,7 @@ Manager for Users
 * [logger](users.md#logger)
 * [name](users.md#name)
 * [store](users.md#store)
+* [xluceneTypeConfig](users.md#xlucenetypeconfig)
 * [IndexModelConfig](users.md#static-indexmodelconfig)
 * [PrivateFields](users.md#static-privatefields)
 
@@ -65,18 +66,18 @@ Manager for Users
 
 ###  constructor
 
-\+ **new Users**(`client`: `Client`, `options`: `IndexModelOptions`): *[Users](users.md)*
+\+ **new Users**(`client`: Client, `options`: IndexModelOptions): *[Users](users.md)*
 
 *Overrides void*
 
-*Defined in [models/users.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L12)*
+*Defined in [models/users.ts:14](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/users.ts#L14)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`client` | `Client` |
-`options` | `IndexModelOptions` |
+`client` | Client |
+`options` | IndexModelOptions |
 
 **Returns:** *[Users](users.md)*
 
@@ -84,7 +85,7 @@ Name | Type |
 
 ###  logger
 
-• **logger**: *`Logger`*
+• **logger**: *Logger*
 
 *Inherited from void*
 
@@ -104,7 +105,7 @@ ___
 
 ###  store
 
-• **store**: *`IndexStore<User>`*
+• **store**: *IndexStore‹[User](../interfaces/user.md)›*
 
 *Inherited from void*
 
@@ -112,11 +113,21 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 ___
 
+###  xluceneTypeConfig
+
+• **xluceneTypeConfig**: *TypeConfig | undefined*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:17
+
+___
+
 ### `Static` IndexModelConfig
 
-▪ **IndexModelConfig**: *`IndexModelConfig<User>`* =  usersConfig
+▪ **IndexModelConfig**: *IndexModelConfig‹[User](../interfaces/user.md)›* =  usersConfig
 
-*Defined in [models/users.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L12)*
+*Defined in [models/users.ts:14](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/users.ts#L14)*
 
 ___
 
@@ -124,17 +135,17 @@ ___
 
 ▪ **PrivateFields**: *string[]* =  ['api_token', 'salt', 'hash']
 
-*Defined in [models/users.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L11)*
+*Defined in [models/users.ts:13](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/users.ts#L13)*
 
 ## Methods
 
 ### `Protected` _appendToArray
 
-▸ **_appendToArray**(`id`: string, `field`: keyof User, `values`: string[] | string): *`Promise<void>`*
+▸ **_appendToArray**(`id`: string, `field`: keyof User, `values`: string[] | string): *Promise‹void›*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:33
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:34
 
 **Parameters:**
 
@@ -144,25 +155,25 @@ Name | Type |
 `field` | keyof User |
 `values` | string[] \| string |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ### `Protected` _createJoinQuery
 
-▸ **_createJoinQuery**(`fields`: `AnyInput<User>`, `joinBy?`: `JoinBy`, `arrayJoinBy?`: `JoinBy`): *string*
+▸ **_createJoinQuery**(`fields`: AnyInput‹[User](../interfaces/user.md)›, `joinBy?`: JoinBy, `arrayJoinBy?`: JoinBy): *string*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:40
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:41
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`fields` | `AnyInput<User>` |
-`joinBy?` | `JoinBy` |
-`arrayJoinBy?` | `JoinBy` |
+`fields` | AnyInput‹[User](../interfaces/user.md)› |
+`joinBy?` | JoinBy |
+`arrayJoinBy?` | JoinBy |
 
 **Returns:** *string*
 
@@ -170,7 +181,26 @@ ___
 
 ### `Protected` _ensureUnique
 
-▸ **_ensureUnique**(`record`: [User](../interfaces/user.md), `existing?`: [T]()): *`Promise<void>`*
+▸ **_ensureUnique**(`record`: [User](../interfaces/user.md), `existing?`: [T]()): *Promise‹void›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:37
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`record` | [User](../interfaces/user.md) |
+`existing?` | [T]() |
+
+**Returns:** *Promise‹void›*
+
+___
+
+### `Protected` _find
+
+▸ **_find**(`q?`: undefined | string, `options?`: i.FindOptions‹[User](../interfaces/user.md)›, `queryAccess?`: QueryAccess‹[User](../interfaces/user.md)›): *Promise‹[User](../interfaces/user.md)[]›*
 
 *Inherited from void*
 
@@ -180,30 +210,11 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`record` | [User](../interfaces/user.md) |
-`existing?` | [T]() |
-
-**Returns:** *`Promise<void>`*
-
-___
-
-### `Protected` _find
-
-▸ **_find**(`q?`: undefined | string, `options?`: `i.FindOptions<User>`, `queryAccess?`: `QueryAccess<User>`): *`Promise<User[]>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:35
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
 `q?` | undefined \| string |
-`options?` | `i.FindOptions<User>` |
-`queryAccess?` | `QueryAccess<User>` |
+`options?` | i.FindOptions‹[User](../interfaces/user.md)› |
+`queryAccess?` | QueryAccess‹[User](../interfaces/user.md)› |
 
-**Returns:** *`Promise<User[]>`*
+**Returns:** *Promise‹[User](../interfaces/user.md)[]›*
 
 ___
 
@@ -213,7 +224,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:38
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:39
 
 **Parameters:**
 
@@ -231,7 +242,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:39
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:40
 
 **Parameters:**
 
@@ -245,11 +256,11 @@ ___
 
 ### `Protected` _removeFromArray
 
-▸ **_removeFromArray**(`id`: string, `field`: keyof User, `values`: string[] | string): *`Promise<void>`*
+▸ **_removeFromArray**(`id`: string, `field`: keyof User, `values`: string[] | string): *Promise‹void›*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:34
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:35
 
 **Parameters:**
 
@@ -259,7 +270,7 @@ Name | Type |
 `field` | keyof User |
 `values` | string[] \| string |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
@@ -269,7 +280,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:37
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:38
 
 **Parameters:**
 
@@ -283,11 +294,11 @@ ___
 
 ### `Protected` _updateWith
 
-▸ **_updateWith**(`id`: string, `body`: any): *`Promise<void>`*
+▸ **_updateWith**(`id`: string, `body`: any): *Promise‹void›*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:32
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:33
 
 **Parameters:**
 
@@ -296,15 +307,15 @@ Name | Type |
 `id` | string |
 `body` | any |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ###  authenticate
 
-▸ **authenticate**(`username`: string, `password`: string): *`Promise<User>`*
+▸ **authenticate**(`username`: string, `password`: string): *Promise‹[User](../interfaces/user.md)›*
 
-*Defined in [models/users.ts:49](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L49)*
+*Defined in [models/users.ts:51](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/users.ts#L51)*
 
 Authenticate the user
 
@@ -315,15 +326,15 @@ Name | Type |
 `username` | string |
 `password` | string |
 
-**Returns:** *`Promise<User>`*
+**Returns:** *Promise‹[User](../interfaces/user.md)›*
 
 ___
 
 ###  authenticateWithToken
 
-▸ **authenticateWithToken**(`apiToken?`: undefined | string): *`Promise<User>`*
+▸ **authenticateWithToken**(`apiToken?`: undefined | string): *Promise‹[User](../interfaces/user.md)›*
 
-*Defined in [models/users.ts:93](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L93)*
+*Defined in [models/users.ts:95](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/users.ts#L95)*
 
 Authenticate user by api token, returns private fields
 
@@ -333,32 +344,13 @@ Name | Type |
 ------ | ------ |
 `apiToken?` | undefined \| string |
 
-**Returns:** *`Promise<User>`*
+**Returns:** *Promise‹[User](../interfaces/user.md)›*
 
 ___
 
 ###  count
 
-▸ **count**(`q?`: undefined | string, `queryAccess?`: `QueryAccess<User>`): *`Promise<number>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:19
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`q?` | undefined \| string |
-`queryAccess?` | `QueryAccess<User>` |
-
-**Returns:** *`Promise<number>`*
-
-___
-
-###  countBy
-
-▸ **countBy**(`fields`: `AnyInput<User>`, `joinBy?`: `JoinBy`, `arrayJoinBy?`: `JoinBy`): *`Promise<number>`*
+▸ **count**(`q?`: undefined | string, `queryAccess?`: QueryAccess‹[User](../interfaces/user.md)›): *Promise‹number›*
 
 *Inherited from void*
 
@@ -368,17 +360,16 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`fields` | `AnyInput<User>` |
-`joinBy?` | `JoinBy` |
-`arrayJoinBy?` | `JoinBy` |
+`q?` | undefined \| string |
+`queryAccess?` | QueryAccess‹[User](../interfaces/user.md)› |
 
-**Returns:** *`Promise<number>`*
+**Returns:** *Promise‹number›*
 
 ___
 
-###  create
+###  countBy
 
-▸ **create**(`record`: `i.CreateRecordInput<User>`): *`Promise<User>`*
+▸ **countBy**(`fields`: AnyInput‹[User](../interfaces/user.md)›, `joinBy?`: JoinBy, `arrayJoinBy?`: JoinBy): *Promise‹number›*
 
 *Inherited from void*
 
@@ -388,17 +379,37 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`record` | `i.CreateRecordInput<User>` |
+`fields` | AnyInput‹[User](../interfaces/user.md)› |
+`joinBy?` | JoinBy |
+`arrayJoinBy?` | JoinBy |
 
-**Returns:** *`Promise<User>`*
+**Returns:** *Promise‹number›*
+
+___
+
+###  create
+
+▸ **create**(`record`: i.CreateRecordInput‹[User](../interfaces/user.md)›): *Promise‹[User](../interfaces/user.md)›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:22
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`record` | i.CreateRecordInput‹[User](../interfaces/user.md)› |
+
+**Returns:** *Promise‹[User](../interfaces/user.md)›*
 
 ___
 
 ###  createWithPassword
 
-▸ **createWithPassword**(`record`: [CreateUserInput](../overview.md#createuserinput), `password`: string): *`Promise<User>`*
+▸ **createWithPassword**(`record`: [CreateUserInput](../overview.md#createuserinput), `password`: string): *Promise‹[User](../interfaces/user.md)›*
 
-*Defined in [models/users.ts:21](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L21)*
+*Defined in [models/users.ts:23](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/users.ts#L23)*
 
 Create user with password, returns private fields
 
@@ -409,49 +420,13 @@ Name | Type |
 `record` | [CreateUserInput](../overview.md#createuserinput) |
 `password` | string |
 
-**Returns:** *`Promise<User>`*
+**Returns:** *Promise‹[User](../interfaces/user.md)›*
 
 ___
 
 ###  deleteAll
 
-▸ **deleteAll**(`ids`: string[]): *`Promise<void>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:23
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`ids` | string[] |
-
-**Returns:** *`Promise<void>`*
-
-___
-
-###  deleteById
-
-▸ **deleteById**(`id`: string): *`Promise<void>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:22
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`id` | string |
-
-**Returns:** *`Promise<void>`*
-
-___
-
-###  exists
-
-▸ **exists**(`id`: string[] | string): *`Promise<boolean>`*
+▸ **deleteAll**(`ids`: string[]): *Promise‹void›*
 
 *Inherited from void*
 
@@ -461,75 +436,33 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`id` | string[] \| string |
+`ids` | string[] |
 
-**Returns:** *`Promise<boolean>`*
+**Returns:** *Promise‹void›*
 
 ___
 
-###  find
+###  deleteById
 
-▸ **find**(`q?`: undefined | string, `options?`: `i.FindOptions<User>`, `queryAccess?`: `QueryAccess<User>`): *`Promise<User[]>`*
+▸ **deleteById**(`id`: string): *Promise‹void›*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:30
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:23
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`q?` | undefined \| string |
-`options?` | `i.FindOptions<User>` |
-`queryAccess?` | `QueryAccess<User>` |
+`id` | string |
 
-**Returns:** *`Promise<User[]>`*
+**Returns:** *Promise‹void›*
 
 ___
 
-###  findAll
+###  exists
 
-▸ **findAll**(`input`: string[] | string | undefined, `options?`: `i.FindOneOptions<User>`, `queryAccess?`: `QueryAccess<User>`): *`Promise<User[]>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:29
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`input` | string[] \| string \| undefined |
-`options?` | `i.FindOneOptions<User>` |
-`queryAccess?` | `QueryAccess<User>` |
-
-**Returns:** *`Promise<User[]>`*
-
-___
-
-###  findAndApply
-
-▸ **findAndApply**(`updates`: `Partial<User>` | undefined, `options?`: `i.FindOneOptions<User>`, `queryAccess?`: `QueryAccess<User>`): *`Promise<Partial<User>>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:28
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`updates` | `Partial<User>` \| undefined |
-`options?` | `i.FindOneOptions<User>` |
-`queryAccess?` | `QueryAccess<User>` |
-
-**Returns:** *`Promise<Partial<User>>`*
-
-___
-
-###  findBy
-
-▸ **findBy**(`fields`: `AnyInput<User>`, `joinBy?`: `JoinBy`, `options?`: `i.FindOneOptions<User>`, `queryAccess?`: `QueryAccess<User>`): *`Promise<User>`*
+▸ **exists**(`id`: string[] | string): *Promise‹boolean›*
 
 *Inherited from void*
 
@@ -539,114 +472,15 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`fields` | `AnyInput<User>` |
-`joinBy?` | `JoinBy` |
-`options?` | `i.FindOneOptions<User>` |
-`queryAccess?` | `QueryAccess<User>` |
+`id` | string[] \| string |
 
-**Returns:** *`Promise<User>`*
+**Returns:** *Promise‹boolean›*
 
 ___
 
-###  findByAnyId
+###  find
 
-▸ **findByAnyId**(`anyId`: any, `options?`: `i.FindOneOptions<User>`, `queryAccess?`: `QueryAccess<User>`): *`Promise<User>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:27
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`anyId` | any |
-`options?` | `i.FindOneOptions<User>` |
-`queryAccess?` | `QueryAccess<User>` |
-
-**Returns:** *`Promise<User>`*
-
-___
-
-###  findById
-
-▸ **findById**(`id`: string, `options?`: `i.FindOneOptions<User>`, `queryAccess?`: `QueryAccess<User>`): *`Promise<User>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:26
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`id` | string |
-`options?` | `i.FindOneOptions<User>` |
-`queryAccess?` | `QueryAccess<User>` |
-
-**Returns:** *`Promise<User>`*
-
-___
-
-###  initialize
-
-▸ **initialize**(): *`Promise<void>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:17
-
-**Returns:** *`Promise<void>`*
-
-___
-
-###  isPrivateUser
-
-▸ **isPrivateUser**(`user`: `Partial<User>`): *boolean*
-
-*Defined in [models/users.ts:119](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L119)*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`user` | `Partial<User>` |
-
-**Returns:** *boolean*
-
-___
-
-###  removeRoleFromUsers
-
-▸ **removeRoleFromUsers**(`roleId`: string): *`Promise<void>`*
-
-*Defined in [models/users.ts:128](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L128)*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`roleId` | string |
-
-**Returns:** *`Promise<void>`*
-
-___
-
-###  shutdown
-
-▸ **shutdown**(): *`Promise<void>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:18
-
-**Returns:** *`Promise<void>`*
-
-___
-
-###  update
-
-▸ **update**(`record`: `i.UpdateRecordInput<User>`): *`Promise<void>`*
+▸ **find**(`q?`: undefined | string, `options?`: i.FindOptions‹[User](../interfaces/user.md)›, `queryAccess?`: QueryAccess‹[User](../interfaces/user.md)›): *Promise‹[User](../interfaces/user.md)[]›*
 
 *Inherited from void*
 
@@ -656,17 +490,194 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`record` | `i.UpdateRecordInput<User>` |
+`q?` | undefined \| string |
+`options?` | i.FindOptions‹[User](../interfaces/user.md)› |
+`queryAccess?` | QueryAccess‹[User](../interfaces/user.md)› |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹[User](../interfaces/user.md)[]›*
+
+___
+
+###  findAll
+
+▸ **findAll**(`input`: string[] | string | undefined, `options?`: i.FindOneOptions‹[User](../interfaces/user.md)›, `queryAccess?`: QueryAccess‹[User](../interfaces/user.md)›): *Promise‹[User](../interfaces/user.md)[]›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:30
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`input` | string[] \| string \| undefined |
+`options?` | i.FindOneOptions‹[User](../interfaces/user.md)› |
+`queryAccess?` | QueryAccess‹[User](../interfaces/user.md)› |
+
+**Returns:** *Promise‹[User](../interfaces/user.md)[]›*
+
+___
+
+###  findAndApply
+
+▸ **findAndApply**(`updates`: Partial‹[User](../interfaces/user.md)› | undefined, `options?`: i.FindOneOptions‹[User](../interfaces/user.md)›, `queryAccess?`: QueryAccess‹[User](../interfaces/user.md)›): *Promise‹Partial‹[User](../interfaces/user.md)››*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:29
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`updates` | Partial‹[User](../interfaces/user.md)› \| undefined |
+`options?` | i.FindOneOptions‹[User](../interfaces/user.md)› |
+`queryAccess?` | QueryAccess‹[User](../interfaces/user.md)› |
+
+**Returns:** *Promise‹Partial‹[User](../interfaces/user.md)››*
+
+___
+
+###  findBy
+
+▸ **findBy**(`fields`: AnyInput‹[User](../interfaces/user.md)›, `joinBy?`: JoinBy, `options?`: i.FindOneOptions‹[User](../interfaces/user.md)›, `queryAccess?`: QueryAccess‹[User](../interfaces/user.md)›): *Promise‹[User](../interfaces/user.md)›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:26
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`fields` | AnyInput‹[User](../interfaces/user.md)› |
+`joinBy?` | JoinBy |
+`options?` | i.FindOneOptions‹[User](../interfaces/user.md)› |
+`queryAccess?` | QueryAccess‹[User](../interfaces/user.md)› |
+
+**Returns:** *Promise‹[User](../interfaces/user.md)›*
+
+___
+
+###  findByAnyId
+
+▸ **findByAnyId**(`anyId`: any, `options?`: i.FindOneOptions‹[User](../interfaces/user.md)›, `queryAccess?`: QueryAccess‹[User](../interfaces/user.md)›): *Promise‹[User](../interfaces/user.md)›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:28
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`anyId` | any |
+`options?` | i.FindOneOptions‹[User](../interfaces/user.md)› |
+`queryAccess?` | QueryAccess‹[User](../interfaces/user.md)› |
+
+**Returns:** *Promise‹[User](../interfaces/user.md)›*
+
+___
+
+###  findById
+
+▸ **findById**(`id`: string, `options?`: i.FindOneOptions‹[User](../interfaces/user.md)›, `queryAccess?`: QueryAccess‹[User](../interfaces/user.md)›): *Promise‹[User](../interfaces/user.md)›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:27
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`id` | string |
+`options?` | i.FindOneOptions‹[User](../interfaces/user.md)› |
+`queryAccess?` | QueryAccess‹[User](../interfaces/user.md)› |
+
+**Returns:** *Promise‹[User](../interfaces/user.md)›*
+
+___
+
+###  initialize
+
+▸ **initialize**(): *Promise‹void›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:18
+
+**Returns:** *Promise‹void›*
+
+___
+
+###  isPrivateUser
+
+▸ **isPrivateUser**(`user`: Partial‹[User](../interfaces/user.md)›): *boolean*
+
+*Defined in [models/users.ts:121](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/users.ts#L121)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`user` | Partial‹[User](../interfaces/user.md)› |
+
+**Returns:** *boolean*
+
+___
+
+###  removeRoleFromUsers
+
+▸ **removeRoleFromUsers**(`roleId`: string): *Promise‹void›*
+
+*Defined in [models/users.ts:128](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/users.ts#L128)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`roleId` | string |
+
+**Returns:** *Promise‹void›*
+
+___
+
+###  shutdown
+
+▸ **shutdown**(): *Promise‹void›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:19
+
+**Returns:** *Promise‹void›*
+
+___
+
+###  update
+
+▸ **update**(`record`: i.UpdateRecordInput‹[User](../interfaces/user.md)›): *Promise‹void›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:32
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`record` | i.UpdateRecordInput‹[User](../interfaces/user.md)› |
+
+**Returns:** *Promise‹void›*
 
 ___
 
 ###  updatePassword
 
-▸ **updatePassword**(`id`: string, `password`: string): *`Promise<void>`*
+▸ **updatePassword**(`id`: string, `password`: string): *Promise‹void›*
 
-*Defined in [models/users.ts:34](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L34)*
+*Defined in [models/users.ts:36](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/users.ts#L36)*
 
 **Parameters:**
 
@@ -675,15 +686,15 @@ Name | Type |
 `id` | string |
 `password` | string |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ###  updateToken
 
-▸ **updateToken**(`id`: string): *`Promise<string>`*
+▸ **updateToken**(`id`: string): *Promise‹string›*
 
-*Defined in [models/users.ts:78](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/users.ts#L78)*
+*Defined in [models/users.ts:80](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/users.ts#L80)*
 
 Update the API Token for a user
 
@@ -693,4 +704,4 @@ Name | Type |
 ------ | ------ |
 `id` | string |
 
-**Returns:** *`Promise<string>`*
+**Returns:** *Promise‹string›*

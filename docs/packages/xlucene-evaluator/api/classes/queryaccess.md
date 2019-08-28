@@ -7,7 +7,7 @@ sidebar_label: QueryAccess
 
 ## Type parameters
 
-▪ **T**: *`AnyObject`*
+▪ **T**: *AnyObject*
 
 ## Hierarchy
 
@@ -24,6 +24,9 @@ sidebar_label: QueryAccess
 * [allowEmpty](queryaccess.md#allowempty)
 * [allowImplicitQueries](queryaccess.md#allowimplicitqueries)
 * [constraint](queryaccess.md#optional-constraint)
+* [defaultGeoField](queryaccess.md#optional-defaultgeofield)
+* [defaultGeoSortOrder](queryaccess.md#optional-defaultgeosortorder)
+* [defaultGeoSortUnit](queryaccess.md#optional-defaultgeosortunit)
 * [excludes](queryaccess.md#excludes)
 * [includes](queryaccess.md#includes)
 * [logger](queryaccess.md#logger)
@@ -41,16 +44,16 @@ sidebar_label: QueryAccess
 
 ###  constructor
 
-\+ **new QueryAccess**(`config`: [QueryAccessConfig](../interfaces/queryaccessconfig.md)‹*`T`*›, `logger?`: `ts.Logger`): *[QueryAccess](queryaccess.md)*
+\+ **new QueryAccess**(`config`: [QueryAccessConfig](../interfaces/queryaccessconfig.md)‹T›, `options`: [QueryAccessOptions](../interfaces/queryaccessoptions.md)): *[QueryAccess](queryaccess.md)*
 
-*Defined in [query-access/query-access.ts:22](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/query-access.ts#L22)*
+*Defined in [query-access/query-access.ts:24](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/query-access.ts#L24)*
 
 **Parameters:**
 
 Name | Type | Default |
 ------ | ------ | ------ |
-`config` | [QueryAccessConfig](../interfaces/queryaccessconfig.md)‹*`T`*› |  {} |
-`logger?` | `ts.Logger` | - |
+`config` | [QueryAccessConfig](../interfaces/queryaccessconfig.md)‹T› |  {} |
+`options` | [QueryAccessOptions](../interfaces/queryaccessoptions.md) |  {} |
 
 **Returns:** *[QueryAccess](queryaccess.md)*
 
@@ -60,7 +63,7 @@ Name | Type | Default |
 
 • **allowEmpty**: *boolean*
 
-*Defined in [query-access/query-access.ts:17](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/query-access.ts#L17)*
+*Defined in [query-access/query-access.ts:19](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/query-access.ts#L19)*
 
 ___
 
@@ -68,7 +71,7 @@ ___
 
 • **allowImplicitQueries**: *boolean*
 
-*Defined in [query-access/query-access.ts:16](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/query-access.ts#L16)*
+*Defined in [query-access/query-access.ts:15](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/query-access.ts#L15)*
 
 ___
 
@@ -76,31 +79,55 @@ ___
 
 • **constraint**? : *undefined | string*
 
-*Defined in [query-access/query-access.ts:14](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/query-access.ts#L14)*
+*Defined in [query-access/query-access.ts:13](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/query-access.ts#L13)*
+
+___
+
+### `Optional` defaultGeoField
+
+• **defaultGeoField**? : *undefined | string*
+
+*Defined in [query-access/query-access.ts:16](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/query-access.ts#L16)*
+
+___
+
+### `Optional` defaultGeoSortOrder
+
+• **defaultGeoSortOrder**? : *[SortOrder](../overview.md#sortorder)*
+
+*Defined in [query-access/query-access.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/query-access.ts#L17)*
+
+___
+
+### `Optional` defaultGeoSortUnit
+
+• **defaultGeoSortUnit**? : *p.GeoDistanceUnit | string*
+
+*Defined in [query-access/query-access.ts:18](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/query-access.ts#L18)*
 
 ___
 
 ###  excludes
 
-• **excludes**: *`keyof T`[]*
+• **excludes**: *keyof T[]*
 
-*Defined in [query-access/query-access.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/query-access.ts#L12)*
+*Defined in [query-access/query-access.ts:11](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/query-access.ts#L11)*
 
 ___
 
 ###  includes
 
-• **includes**: *`keyof T`[]*
+• **includes**: *keyof T[]*
 
-*Defined in [query-access/query-access.ts:13](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/query-access.ts#L13)*
+*Defined in [query-access/query-access.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/query-access.ts#L12)*
 
 ___
 
 ###  logger
 
-• **logger**: *`Logger`*
+• **logger**: *Logger*
 
-*Defined in [query-access/query-access.ts:19](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/query-access.ts#L19)*
+*Defined in [query-access/query-access.ts:21](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/query-access.ts#L21)*
 
 ___
 
@@ -108,7 +135,7 @@ ___
 
 • **preventPrefixWildcard**: *boolean*
 
-*Defined in [query-access/query-access.ts:15](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/query-access.ts#L15)*
+*Defined in [query-access/query-access.ts:14](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/query-access.ts#L14)*
 
 ___
 
@@ -116,7 +143,7 @@ ___
 
 • **typeConfig**: *[TypeConfig](../interfaces/typeconfig.md)*
 
-*Defined in [query-access/query-access.ts:18](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/query-access.ts#L18)*
+*Defined in [query-access/query-access.ts:20](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/query-access.ts#L20)*
 
 ## Methods
 
@@ -124,7 +151,7 @@ ___
 
 ▸ **clearCache**(): *void*
 
-*Defined in [query-access/query-access.ts:45](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/query-access.ts#L45)*
+*Defined in [query-access/query-access.ts:50](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/query-access.ts#L50)*
 
 **Returns:** *void*
 
@@ -132,9 +159,9 @@ ___
 
 ###  restrict
 
-▸ **restrict**(`query`: string): *string*
+▸ **restrict**(`q`: string): *string*
 
-*Defined in [query-access/query-access.ts:55](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/query-access.ts#L55)*
+*Defined in [query-access/query-access.ts:60](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/query-access.ts#L60)*
 
 Validate and restrict a xlucene query
 
@@ -142,7 +169,7 @@ Validate and restrict a xlucene query
 
 Name | Type |
 ------ | ------ |
-`query` | string |
+`q` | string |
 
 **Returns:** *string*
 
@@ -152,9 +179,9 @@ ___
 
 ###  restrictSearchQuery
 
-▸ **restrictSearchQuery**(`query`: string, `params`: `Partial<SearchParams>`, `esVersion`: number): *`SearchParams`*
+▸ **restrictSearchQuery**(`query`: string, `opts`: [RestrictSearchQueryOptions](../interfaces/restrictsearchqueryoptions.md)): *SearchParams*
 
-*Defined in [query-access/query-access.ts:110](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/query-access.ts#L110)*
+*Defined in [query-access/query-access.ts:150](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/query-access.ts#L150)*
 
 Converts a restricted xlucene query to an elasticsearch search query
 
@@ -163,10 +190,9 @@ Converts a restricted xlucene query to an elasticsearch search query
 Name | Type | Default |
 ------ | ------ | ------ |
 `query` | string | - |
-`params` | `Partial<SearchParams>` |  {} |
-`esVersion` | number | 6 |
+`opts` | [RestrictSearchQueryOptions](../interfaces/restrictsearchqueryoptions.md) |  {} |
 
-**Returns:** *`SearchParams`*
+**Returns:** *SearchParams*
 
 a restricted elasticsearch search query
 
@@ -174,9 +200,9 @@ ___
 
 ###  restrictSourceFields
 
-▸ **restrictSourceFields**(`includes?`: `keyof T`[], `excludes?`: `keyof T`[]): *object*
+▸ **restrictSourceFields**(`includes?`: keyof T[], `excludes?`: keyof T[]): *object*
 
-*Defined in [query-access/query-access.ts:154](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/query-access.ts#L154)*
+*Defined in [query-access/query-access.ts:212](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/query-access.ts#L212)*
 
 Restrict requested source to all or subset of the ones available
 
@@ -186,7 +212,7 @@ Restrict requested source to all or subset of the ones available
 
 Name | Type |
 ------ | ------ |
-`includes?` | `keyof T`[] |
-`excludes?` | `keyof T`[] |
+`includes?` | keyof T[] |
+`excludes?` | keyof T[] |
 
 **Returns:** *object*

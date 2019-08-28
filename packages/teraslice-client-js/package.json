@@ -48,6 +48,7 @@
     "displayName": "Teraslice Client (JavaScript)",
     "srcMain": "src/index.ts",
     "terascope": {
+        "enableTypedoc": true,
         "testSuite": "unit"
     }
 }

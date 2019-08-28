@@ -24,7 +24,7 @@ sidebar_label: ParsedRange
 
 • **gt**? : *number | string*
 
-*Defined in [utils.ts:23](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/utils.ts#L23)*
+*Defined in [utils.ts:24](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/utils.ts#L24)*
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **gte**? : *number | string*
 
-*Defined in [utils.ts:22](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/utils.ts#L22)*
+*Defined in [utils.ts:23](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/utils.ts#L23)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **lt**? : *number | string*
 
-*Defined in [utils.ts:25](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/utils.ts#L25)*
+*Defined in [utils.ts:26](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/utils.ts#L26)*
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **lte**? : *number | string*
 
-*Defined in [utils.ts:24](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/utils.ts#L24)*
+*Defined in [utils.ts:25](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/utils.ts#L25)*
