@@ -12,8 +12,8 @@ describe('Manager Utils', () => {
             const err = formatError(false)(input);
 
             expect(err).toHaveProperty('extensions');
-            expect(err.stack).toBeDefined();
-            expect(err.message).toEqual(input.stack);
+            expect(err.stack).toEqual(input.stack);
+            expect(err.message).toEqual(input.message);
         });
 
         it('should handle a TSError error', () => {
@@ -25,12 +25,29 @@ describe('Manager Utils', () => {
             expect(err.message).toEqual(input.message);
         });
 
-        it('stack should be undefined it set to true', () => {
+        it('if removeUserStack is true, and status code above 400 below 500 remove stack', () => {
+            const input1 = new TSError('Uh oh', { statusCode: 400 });
+            const err1 = formatError(true)(input1);
+
+            const input2 = new TSError('Uh oh', { statusCode: 500 });
+            const err2 = formatError(true)(input2);
+
+
+            expect(err1).toHaveProperty('extensions');
+            expect(err1.stack).toBeUndefined();
+            expect(err1.message).toEqual(input1.message);
+
+            expect(err2).toHaveProperty('extensions');
+            expect(err2.stack).toBeDefined();
+            expect(err2.message).toEqual(input2.message);
+        });
+
+        it('should handle a TSError error', () => {
             const input = new TSError('Uh oh');
-            const err = formatError(true)(input);
+            const err = formatError(false)(input);
 
             expect(err).toHaveProperty('extensions');
-            expect(err.stack).not.toBeDefined();
+            expect(err.stack).toBeDefined();
             expect(err.message).toEqual(input.message);
         });
 
@@ -116,6 +133,16 @@ describe('Manager Utils', () => {
             const err = formatError(false)(input);
 
             expect(err).toBe(input);
+        });
+
+        it('stack should be undefined it set to true with an apollo error', () => {
+            const input = new apollo.UserInputError('Uh oh');
+            input.extensions.exception = { stack: input.stack };
+            const err = formatError(true)(input);
+
+            expect(err).toHaveProperty('extensions');
+            expect(err.extensions.exception.stack).not.toBeDefined();
+            expect(err.message).toEqual(input.message);
         });
     });
 });

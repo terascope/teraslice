@@ -13,7 +13,9 @@ export function forEachModel(fn: (model: ModelName) => void) {
 export function formatError(removeUserStack: boolean = false) {
     return (err: any) => {
         if (err && err.extensions != null) {
-            if (removeUserStack && err.extensions.exception) err.extensions.exception = undefined;
+            if (removeUserStack && err.extensions.exception) {
+                delete err.extensions.exception.stack;
+            }
             return err;
         }
 
