@@ -22,20 +22,25 @@ function queryComplexity(obj: ComplexityEstimatorArgs) {
     return 0;
 }
 
-function formatNumber(num:number) {
+function formatNumber(num: number) {
     return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 }
 
 // https://github.com/slicknode/graphql-query-complexity/issues/7
-export default function makeComplexityPlugin(logger: Logger, complexitySize: number, schema: any, userId: string): ApolloServerPlugin {
+export default function makeComplexityPlugin(
+    logger: Logger,
+    complexitySize: number,
+    schema: any,
+    userId: string
+): ApolloServerPlugin {
     return {
         requestDidStart: () => ({
             didResolveOperation({ request, document }) {
                 const complexity = getComplexity({
                     schema,
                     query: request.operationName
-                    ? separateOperations(document)[request.operationName]
-                    : document,
+                        ? separateOperations(document)[request.operationName]
+                        : document,
                     variables: request.variables,
                     estimators: [
                         queryComplexity,

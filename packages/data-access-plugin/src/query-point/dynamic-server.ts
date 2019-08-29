@@ -1,5 +1,7 @@
 
-import { get, TSError, startsWith, Logger } from '@terascope/utils';
+import {
+    get, TSError, startsWith, Logger
+} from '@terascope/utils';
 import * as apollo from 'apollo-server-express';
 import accepts from 'accepts';
 import { json } from 'body-parser';
@@ -28,7 +30,6 @@ export class DynamicApolloServer extends apollo.ApolloServer {
         const schemaErrorHandler = makeErrorHandler('Failure to create schema', this.logger);
 
         app.use(path, json(), async (req, res, next) => {
-
             loginErrorHandler(req, res, async () => {
                 const user = (await utils.login(get(req, 'aclManager'), req)) as User;
                 if (user.role == null) {
@@ -98,7 +99,14 @@ export class DynamicApolloServer extends apollo.ApolloServer {
                             schema: roleSchema,
                             formatError,
                             introspection: !!user.role,
-                            plugins: [makeComplexityPlugin(this.logger, this.complexitySize, roleSchema, user.id)],
+                            plugins: [
+                                makeComplexityPlugin(
+                                    this.logger,
+                                    this.complexitySize,
+                                    roleSchema,
+                                    user.id
+                                )
+                            ],
                         })
                     )(req, res, next);
                 });

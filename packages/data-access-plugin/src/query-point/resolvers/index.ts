@@ -49,11 +49,11 @@ function createResolvers(
     logger: Logger,
     context: Context,
     concurrency: number
-    ) {
+) {
     const results = {} as IResolvers<any, SpacesContext>;
     const endpoints = {};
     const searchDict: SearchDict = {};
-    const queryArgs:QueryArgs = {};
+    const queryArgs: QueryArgs = {};
 
     // we create the master resolver list
     for (const key in Misc) {
@@ -80,7 +80,7 @@ function createResolvers(
         return filteredResults;
     }
 
-    const loader = new DataLoader((keys:string[]) => loadJoinData(keys));
+    const loader = new DataLoader((keys: string[]) => loadJoinData(keys));
 
     function loadJoinData(luceneQuerys: string[]) {
         return Promise.resolve(Bluebird.map(luceneQuerys, (keyString: string) => {
@@ -105,10 +105,10 @@ function createResolvers(
         const hasExtraParams = field.match(regex);
 
         if (hasExtraParams) {
-            extraParams = hasExtraParams[1];
+            [, extraParams] = hasExtraParams;
             field = field.replace(`|${extraParams}`, '');
         }
-        const selectorTargets =  field.split(':');
+        const selectorTargets = field.split(':');
         const origin = selectorTargets[0];
         const target = selectorTargets[1] || origin;
 
@@ -128,22 +128,22 @@ function createResolvers(
     class JoinStitcher {
         view: DataAccessConfig;
 
-        constructor(view:DataAccessConfig) {
+        constructor(view: DataAccessConfig) {
             this.view = view;
         }
 
-        private isGeoJoinField(field: string):boolean {
+        private isGeoJoinField(field: string): boolean {
             const dataTypeFields = this.view.data_type.config.fields;
             return dataTypeFields[field] != null && dataTypeFields[field].type === 'Geo';
         }
 
-        private _geoQuery(target: string , value: any | any[], params: string | undefined) {
+        private _geoQuery(target: string, value: any | any[], params: string | undefined) {
             const distance = params || '10m';
-            const { lat, lon }: { lat: string, lon: string } = value;
+            const { lat, lon }: { lat: string; lon: string } = value;
             return `${target}:(_geo_point_:"${lat},${lon}" _geo_distance_:${distance})`;
         }
 
-        private _createQuery(target: string , value: string | string[]) {
+        private _createQuery(target: string, value: string | string[]) {
             if (Array.isArray(value)) {
                 return value.map((field) => `${target}:"${field}"`).join(' AND ');
             }
@@ -151,7 +151,7 @@ function createResolvers(
             return `${target}:"${value}"`;
         }
 
-        make(target: string , value: any | any[], params: undefined | string) {
+        make(target: string, value: any | any[], params: undefined | string) {
             if (this.isGeoJoinField(target)) {
                 return this._geoQuery(target, value, params);
             }
@@ -160,15 +160,18 @@ function createResolvers(
         }
     }
 
-    function makeJoinQuery(view: DataAccessConfig, root: any, join: string[], prevQ: undefined|string) {
+    function makeJoinQuery(
+        view: DataAccessConfig,
+        root: any,
+        join: string[],
+        prevQ: undefined|string
+    ) {
         let q = '';
         const sticher = new JoinStitcher(view);
         const parsedFields = join.map(parseJoinField);
         validateFields(root, parsedFields);
         // @ts-ignore
-        q = parsedFields.map((config) => {
-            return sticher.make(config.target, root[config.origin], config.extraParams);
-        }).join(' AND ');
+        q = parsedFields.map((config) => sticher.make(config.target, root[config.origin], config.extraParams)).join(' AND ');
 
         if (prevQ) {
             q = `${q} AND (${prevQ})`;
@@ -183,10 +186,16 @@ function createResolvers(
         const searchAccess = new SearchAccess(view, logger);
         searchDict[endpoint] = { client, searchAccess };
 
-        endpoints[endpoint] = async function resolverFn(root: any, args: any, ctx: any, info: GraphQLResolveInfo) {
-
+        endpoints[endpoint] = async function resolverFn(
+            root: any,
+            args: any,
+            ctx: any,
+            info: GraphQLResolveInfo
+        ) {
             const fields = getSelectionKeys(info);
-            const { size, sort, from, join } = args;
+            const {
+                size, sort, from, join
+            } = args;
 
             const query: InputQuery = {
                 start: from,

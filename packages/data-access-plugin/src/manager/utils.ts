@@ -10,7 +10,7 @@ export function forEachModel(fn: (model: ModelName) => void) {
     return models.forEach((model) => fn(model));
 }
 
-export function formatError(removeUserStack: boolean = false) {
+export function formatError(removeUserStack = false) {
     return (err: any) => {
         if (err && err.extensions != null) {
             if (removeUserStack && err.extensions.exception) {

@@ -34,8 +34,9 @@ export default class QueryPointPlugin {
             throw new TSError('no data_access configuration is provided', { statusCode: 503 });
         }
 
-        const complexitySize = pluginConfig.server_config.data_access.complexity_limit || 10000 ** 2;
-        const concurrency = pluginConfig.server_config.data_access.concurrency || 10;
+        const dataAccess = pluginConfig.server_config.data_access;
+        const complexitySize = dataAccess.complexity_limit || 10000 ** 2;
+        const concurrency = dataAccess.concurrency || 10;
 
         this.server.complexitySize = complexitySize;
         this.server.concurrency = concurrency;

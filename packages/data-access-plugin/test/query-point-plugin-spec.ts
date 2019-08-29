@@ -679,7 +679,7 @@ describe('Query Point API', () => {
                 { bytes: 210 },
                 { bytes: 1500 }
             ]
-        };    
+        };
 
         const queryResults = await fullRoleClient.request(query);
         expect(queryResults).toEqual(results);
@@ -1196,10 +1196,10 @@ describe('Query Point API', () => {
                         }
                     }
                 }
-        ` ;
+        `;
 
         const results = {
-            [space1] : [
+            [space1]: [
                 {
                     bytes: 1500,
                     url: 'http://last.com',
@@ -1230,7 +1230,7 @@ describe('Query Point API', () => {
                         }
                     }
                 }
-        ` ;
+        `;
 
         const results = {
             [space2]: [
