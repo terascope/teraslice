@@ -1,11 +1,5 @@
-import isPlainObject from 'is-plain-object';
-import { fastAssign } from '../objects';
-import {
-    isFunction,
-    parseJSON,
-    getTypeOf,
-    ensureBuffer
-} from '../utils';
+import { isSimpleObject } from '../objects';
+import { parseJSON, getTypeOf, ensureBuffer } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
 
@@ -16,27 +10,17 @@ import * as utils from './utils';
  * IMPORTANT: Use `DataEntity.make`, `DataEntity.fromBuffer` and `DataEntity.makeArray`
  * to create DataEntities that are significantly faster (600x-1000x faster).
  */
-export class DataEntity<T extends object = object> {
+export class DataEntity<T extends object = object, M extends object = object> {
     /**
      * A utility for safely converting an object a `DataEntity`.
      * If the input is a DataEntity it will return it and have no side-effect.
      * If you want a create new DataEntity from an existing DataEntity
      * either use `new DataEntity` or shallow clone the input before
      * passing it to `DataEntity.make`.
-     *
-     * NOTE: `DataEntity.make` is different from using `new DataEntity`
-     * because it attaching it doesn't shallow cloning the object
-     * onto the `DataEntity` instance, this is significatly faster and so it
-     * is recommended to use this in production.
      */
     static make<T extends object = object>(input: DataInput, metadata?: object): DataEntity<T> {
-        if (input == null) return DataEntity.makeRaw({}, metadata).entity;
         if (DataEntity.isDataEntity(input)) return input;
-        if (!isPlainObject(input)) {
-            throw new Error(`Invalid data source, must be an object, got "${getTypeOf(input)}"`);
-        }
-
-        return DataEntity.makeRaw(input, metadata).entity;
+        return new DataEntity(input, metadata);
     }
 
     /**
@@ -47,11 +31,10 @@ export class DataEntity<T extends object = object> {
         input?: T,
         metadata?: object
     ): { entity: DataEntity<T>; metadata: i.DataEntityMetadata } {
-        const m = utils.makeMetadata(metadata);
-        const entity = makeRawEntity(input || {}, m);
+        const entity = new DataEntity(input, metadata);
         return {
             entity,
-            metadata: m,
+            metadata: entity.getMetadata(),
         };
     }
 
@@ -102,12 +85,7 @@ export class DataEntity<T extends object = object> {
      * Verify that an input is the `DataEntity`
      */
     static isDataEntity(input: any): input is DataEntity<object> {
-        if (input == null) return false;
-        if (input instanceof DataEntity) return true;
-        if (input[i.IS_ENTITY_KEY]) return true;
-        return isFunction(input.getMetadata)
-            && isFunction(input.setMetadata)
-            && isFunction(input.toBuffer);
+        return Boolean(input != null && input[i.__IS_ENTITY_KEY]);
     }
 
     /**
@@ -136,18 +114,18 @@ export class DataEntity<T extends object = object> {
 
     // Add the ability to specify any additional properties
     [prop: string]: any;
+    [i.__DATAENTITY_METADATA_KEY]: i.__DataEntityProps<M>;
 
-    constructor(data: T, metadata?: object) {
-        const m = utils.makeMetadata(metadata);
-        utils.makeDataEntityObj(this, m);
-
-        if (data == null) return;
-
-        if (!isPlainObject(data) && !DataEntity.isDataEntity(data)) {
+    constructor(data: T|null|undefined, metadata?: M) {
+        if (data && !isSimpleObject(data)) {
             throw new Error(`Invalid data source, must be an object, got "${getTypeOf(data)}"`);
         }
 
-        fastAssign(this, data);
+        utils.makeDataEntityObj(this, utils.makeMetadata(metadata));
+
+        if (data) {
+            Object.assign(this, data);
+        }
     }
 
     /**
@@ -156,21 +134,20 @@ export class DataEntity<T extends object = object> {
     */
     getMetadata<K extends keyof i.DataEntityMetadata>(key?: K): i.DataEntityMetadata[K] | any {
         if (key) {
-            return this[i.METADATA_KEY][key];
+            return this.__dataEntityMetadata.metadata[key];
         }
-        return this[i.METADATA_KEY];
+        return this.__dataEntityMetadata.metadata;
     }
 
     /**
      * Given a key and value set the metadata on the record
     */
-    setMetadata(key: string, value: any): void {
-        const readonlyMetadataKeys: string[] = ['_createTime'];
-        if (readonlyMetadataKeys.includes(key)) {
+    setMetadata(key: keyof M|keyof i.DataEntityMetadata|string, value: any): void {
+        if (key === '_createTime') {
             throw new Error(`Cannot set readonly metadata property ${key}`);
         }
 
-        this[i.METADATA_KEY][key] = value;
+        this.__dataEntityMetadata.metadata[key] = value;
     }
 
     /**
@@ -178,7 +155,7 @@ export class DataEntity<T extends object = object> {
      * If there is no data, an error will be thrown
     */
     getRawData(): Buffer {
-        const buf = this[i.RAWDATA_KEY];
+        const buf = this.__dataEntityMetadata.rawData;
         if (buf != null && Buffer.isBuffer(buf)) return buf;
         throw new Error('No data has been set');
     }
@@ -189,10 +166,10 @@ export class DataEntity<T extends object = object> {
     */
     setRawData(buf: Buffer|string|null): void {
         if (buf == null) {
-            this[i.RAWDATA_KEY] = null;
+            this.__dataEntityMetadata.rawData = null;
             return;
         }
-        this[i.RAWDATA_KEY] = ensureBuffer(buf, 'utf8');
+        this.__dataEntityMetadata.rawData = ensureBuffer(buf, 'utf8');
     }
 
     /**
@@ -213,16 +190,10 @@ export class DataEntity<T extends object = object> {
 
         throw new Error(`Unsupported encoding type, got "${_encoding}"`);
     }
-}
 
-function makeRawEntity<T extends object, M extends i.DataEntityMetadata>(
-    input: T,
-    metadata: M
-): DataEntity<T> {
-    const entity = input as DataEntity<T>;
-    Object.setPrototypeOf(entity, DataEntity.prototype);
-    utils.makeDataEntityObj(entity, metadata);
-    return entity;
+    private get __dataEntityMetadata(): i.__DataEntityProps<M> {
+        return this[i.__DATAENTITY_METADATA_KEY];
+    }
 }
 
 export type DataInput = object | DataEntity;

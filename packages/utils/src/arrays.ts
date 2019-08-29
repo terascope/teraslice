@@ -1,4 +1,3 @@
-import isPlainObject from 'is-plain-object';
 import { Many, WithoutNil } from './interfaces';
 
 /** A native implemation of lodash flatten */
@@ -92,7 +91,7 @@ export function includes(input: any, key: string): boolean {
     if (!input) return false;
     if (Array.isArray(input) || typeof input === 'string') return input.includes(key);
     if (typeof input.has === 'function') return input.has(key);
-    if (isPlainObject(input)) {
+    if (typeof input === 'object') {
         return Object.keys(input).includes(key);
     }
     return false;
