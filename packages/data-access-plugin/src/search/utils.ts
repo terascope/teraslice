@@ -6,10 +6,12 @@ import * as i from './interfaces';
 /**
  * Search elasticsearch in a teraserver backwards compatible way
  */
-export function makeSearchFn(client: Client, accessConfig: da.DataAccessConfig, logger: ts.Logger): i.SearchFn {
+export function makeSearchFn(
+    client: Client,
+    accessConfig: da.DataAccessConfig,
+    logger: ts.Logger
+): i.SearchFn {
     const searchAccess = new da.SearchAccess(accessConfig, logger);
 
-    return async (query: da.InputQuery) => {
-        return searchAccess.performSearch(client, query);
-    };
+    return async (query: da.InputQuery) => searchAccess.performSearch(client, query);
 }

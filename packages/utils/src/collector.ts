@@ -17,7 +17,7 @@ export class Collector<T> {
     private _queue: T[] = [];
     private _startTime: number|null = null;
 
-    constructor(max: { wait: number, size: number }) {
+    constructor(max: { wait: number; size: number }) {
         this.wait = max.wait;
         this.size = max.size;
     }
@@ -39,8 +39,6 @@ export class Collector<T> {
     /**
      * Add a record, or records, to the in-memory queue.
     */
-    add(record: T): void;
-    add(records: T[]): void;
     add(_records: T[]|T): void {
         if (!this._queue.length) {
             this._startTime = Date.now();

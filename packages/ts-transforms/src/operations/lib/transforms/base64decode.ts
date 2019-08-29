@@ -8,7 +8,7 @@ export default class Base64Decode extends TransformOpBase {
         super(config);
     }
 
-    decode(data:string) {
+    decode(data: string) {
         return Buffer.from(data, 'base64').toString('utf8');
     }
 

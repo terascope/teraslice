@@ -43,8 +43,8 @@ const TypeConfig: React.FC<Props> = ({
     return (
         <Section
             title="Type Configuration"
-            description={
-                <React.Fragment>
+            description={(
+                <>
                     {inherits && (
                         <div>
                             <Label
@@ -57,7 +57,9 @@ const TypeConfig: React.FC<Props> = ({
                                 <Icon
                                     name={showResolved ? 'eye slash' : 'eye'}
                                 />
-                                {showResolved ? 'Hide' : 'Show'} Inherited
+                                {showResolved ? 'Hide' : 'Show'}
+                                {' '}
+Inherited
                                 Fields
                             </Label>
                         </div>
@@ -66,17 +68,17 @@ const TypeConfig: React.FC<Props> = ({
                         Data Types Version:&nbsp;
                         <strong>{typeConfig.version}</strong>
                     </div>
-                </React.Fragment>
-            }
-            info={
+                </>
+            )}
+            info={(
                 <span>
                     Use dot notation to specify nested properties, e.g. &nbsp;
                     <Code inline>example.field</Code>
                 </span>
-            }
+            )}
         >
-            {showResolved &&
-                resolved.map((fieldConfig) => (
+            {showResolved
+                && resolved.map((fieldConfig) => (
                     <ResolvedField
                         key={`resolved-${fieldConfig.field}`}
                         {...fieldConfig}

@@ -55,7 +55,7 @@ const AuthUserQuery = tsWithRouter(({ children, history }) => {
     if (otherError) return <ErrorPage error={otherError} />;
     if (loading) return <LoadingPage />;
 
-    return <React.Fragment>{children}</React.Fragment>;
+    return <>{children}</>;
 });
 
 function isAuthError(error: ApolloError) {

@@ -24,7 +24,7 @@ sidebar_label: FinalResponse
 
 • **info**: *string*
 
-*Defined in [interfaces.ts:49](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/interfaces.ts#L49)*
+*Defined in [interfaces.ts:34](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L34)*
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **results**: *any[]*
 
-*Defined in [interfaces.ts:52](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/interfaces.ts#L52)*
+*Defined in [interfaces.ts:37](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L37)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **returning**: *number*
 
-*Defined in [interfaces.ts:51](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/interfaces.ts#L51)*
+*Defined in [interfaces.ts:36](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L36)*
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **total**: *number*
 
-*Defined in [interfaces.ts:50](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/interfaces.ts#L50)*
+*Defined in [interfaces.ts:35](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L35)*

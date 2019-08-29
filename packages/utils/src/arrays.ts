@@ -58,7 +58,7 @@ export function times<T>(n: number, fn?: (index: number) => T): T[] {
 
 /** Map an array faster without sparse array handling */
 export function fastMap<T, U>(arr: T[], fn: (val: T, index: number) => U): U[] {
-    const length = arr.length;
+    const { length } = arr;
     const result = Array(length);
 
     let i = -1;

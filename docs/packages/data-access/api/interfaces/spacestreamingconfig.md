@@ -21,4 +21,4 @@ sidebar_label: SpaceStreamingConfig
 
 • **connection**? : *undefined | string*
 
-*Defined in [models/config/spaces.ts:214](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/spaces.ts#L214)*
+*Defined in [models/config/spaces.ts:215](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/spaces.ts#L215)*

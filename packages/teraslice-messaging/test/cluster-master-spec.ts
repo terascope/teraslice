@@ -1,5 +1,4 @@
 import 'jest-extended';
-
 import findPort from './helpers/find-port';
 import { formatURL, newMsgId, ClusterMaster } from '../src';
 
@@ -114,9 +113,7 @@ describe('ClusterMaster', () => {
         });
 
         describe('when calling start on the client again', () => {
-            it('should not throw an error', () => {
-                return expect(client.start()).resolves.toBeNil();
-            });
+            it('should not throw an error', () => expect(client.start()).resolves.toBeNil());
         });
 
         it('should have one connected executions', () => {

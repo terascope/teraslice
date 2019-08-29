@@ -1,3 +1,5 @@
+/* eslint-disable max-classes-per-file */
+
 import 'jest-extended'; // require for type definitions
 import {
     Fetcher,

@@ -15,6 +15,6 @@ A simple object with any values
 
 ## Indexable
 
-● \[▪ **prop**: *string*\]: any
+* \[ **prop**: *string*\]: any
 
 A simple object with any values

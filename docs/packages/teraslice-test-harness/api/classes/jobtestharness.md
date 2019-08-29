@@ -40,15 +40,15 @@ This is useful for testing Readers.
 
 ###  constructor
 
-\+ **new JobTestHarness**(`job`: `JobConfig`, `options`: [JobHarnessOptions](../interfaces/jobharnessoptions.md)): *[JobTestHarness](jobtestharness.md)*
+\+ **new JobTestHarness**(`job`: JobConfig, `options`: [JobHarnessOptions](../interfaces/jobharnessoptions.md)): *[JobTestHarness](jobtestharness.md)*
 
-*Defined in [job-test-harness.ts:25](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/job-test-harness.ts#L25)*
+*Defined in [job-test-harness.ts:25](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/job-test-harness.ts#L25)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`job` | `JobConfig` |
+`job` | JobConfig |
 `options` | [JobHarnessOptions](../interfaces/jobharnessoptions.md) |
 
 **Returns:** *[JobTestHarness](jobtestharness.md)*
@@ -59,7 +59,7 @@ Name | Type |
 
 • **get apis**(): *object*
 
-*Defined in [job-test-harness.ts:44](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/job-test-harness.ts#L44)*
+*Defined in [job-test-harness.ts:44](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/job-test-harness.ts#L44)*
 
 **Returns:** *object*
 
@@ -67,33 +67,33 @@ ___
 
 ###  processors
 
-• **get processors**(): *`ProcessorCore<OpConfig>`[]*
+• **get processors**(): *ProcessorCore‹OpConfig›[]*
 
-*Defined in [job-test-harness.ts:40](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/job-test-harness.ts#L40)*
+*Defined in [job-test-harness.ts:40](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/job-test-harness.ts#L40)*
 
-**Returns:** *`ProcessorCore<OpConfig>`[]*
+**Returns:** *ProcessorCore‹OpConfig›[]*
 
 ## Methods
 
 ###  fetcher
 
-▸ **fetcher**<**T**>(): *`T`*
+▸ **fetcher**<**T**>(): *T*
 
-*Defined in [job-test-harness.ts:36](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/job-test-harness.ts#L36)*
+*Defined in [job-test-harness.ts:36](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/job-test-harness.ts#L36)*
 
 **Type parameters:**
 
-▪ **T**: *`FetcherCore`*
+▪ **T**: *FetcherCore*
 
-**Returns:** *`T`*
+**Returns:** *T*
 
 ___
 
 ###  initialize
 
-▸ **initialize**(`recoveryData?`: object[]): *`Promise<void>`*
+▸ **initialize**(`recoveryData?`: object[]): *Promise‹void›*
 
-*Defined in [job-test-harness.ts:63](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/job-test-harness.ts#L63)*
+*Defined in [job-test-harness.ts:63](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/job-test-harness.ts#L63)*
 
 Initialize the Operations in both of the Slicer
 and Worker contexts.
@@ -104,21 +104,21 @@ Name | Type | Description |
 ------ | ------ | ------ |
 `recoveryData?` | object[] | is an array of starting points to recover from the retry data is only passed to slicer  |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ###  run
 
-▸ **run**(): *`Promise<BatchedResults>`*
+▸ **run**(): *Promise‹[BatchedResults](../overview.md#batchedresults)›*
 
-*Defined in [job-test-harness.ts:74](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/job-test-harness.ts#L74)*
+*Defined in [job-test-harness.ts:74](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/job-test-harness.ts#L74)*
 
 Create a batch of slices in the Slicer context
 and then run each slice on the Worker context
 in series.
 
-**Returns:** *`Promise<BatchedResults>`*
+**Returns:** *Promise‹[BatchedResults](../overview.md#batchedresults)›*
 
 batches of results
 
@@ -126,9 +126,9 @@ ___
 
 ###  setClients
 
-▸ **setClients**(`clients`: `TestClientConfig`[]): *`Promise<void>`*
+▸ **setClients**(`clients`: TestClientConfig[]): *Promise‹void›*
 
-*Defined in [job-test-harness.ts:52](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/job-test-harness.ts#L52)*
+*Defined in [job-test-harness.ts:52](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/job-test-harness.ts#L52)*
 
 Set the Terafoundation Clients on both
 the Slicer and Worker contexts
@@ -137,32 +137,32 @@ the Slicer and Worker contexts
 
 Name | Type |
 ------ | ------ |
-`clients` | `TestClientConfig`[] |
+`clients` | TestClientConfig[] |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ###  shutdown
 
-▸ **shutdown**(): *`Promise<void>`*
+▸ **shutdown**(): *Promise‹void›*
 
-*Defined in [job-test-harness.ts:112](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/job-test-harness.ts#L112)*
+*Defined in [job-test-harness.ts:115](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/job-test-harness.ts#L115)*
 
 Shutdown both the Worker and Slicer test harness
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ###  slicer
 
-▸ **slicer**<**T**>(): *`T`*
+▸ **slicer**<**T**>(): *T*
 
-*Defined in [job-test-harness.ts:32](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/job-test-harness.ts#L32)*
+*Defined in [job-test-harness.ts:32](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/job-test-harness.ts#L32)*
 
 **Type parameters:**
 
-▪ **T**: *`SlicerCore`*
+▪ **T**: *SlicerCore*
 
-**Returns:** *`T`*
+**Returns:** *T*

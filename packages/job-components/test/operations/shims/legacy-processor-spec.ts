@@ -1,3 +1,5 @@
+/* eslint-disable max-classes-per-file */
+
 import 'jest-extended'; // require for type definitions
 import {
     BatchProcessor,
@@ -180,5 +182,4 @@ describe('Legacy Processor Shim', () => {
             }).toThrowError('Backwards compatibility only works for "convict" schemas');
         });
     });
-
 });

@@ -1,4 +1,10 @@
-import { DataEntity, DataInput, Logger, times, isFunction } from '@terascope/utils';
+import {
+    DataEntity,
+    DataInput,
+    Logger,
+    times,
+    isFunction
+} from '@terascope/utils';
 import SlicerClass from '../slicer';
 import operationAPIShim, { APIs } from './operation-api-shim';
 import legacySliceEventsShim from './legacy-slice-events-shim';
@@ -19,8 +25,12 @@ import ConvictSchema from '../convict-schema';
 
 type SchemaType = SchemaConstructor;
 
-// tslint:disable-next-line:variable-name
-export default function legacyReaderShim(Slicer: any, Fetcher: any, Schema: SchemaType, apis?: APIs): LegacyReader {
+export default function legacyReaderShim(
+    Slicer: any,
+    Fetcher: any,
+    Schema: SchemaType,
+    apis?: APIs
+): LegacyReader {
     let schema: ConvictSchema<any, any>|undefined;
 
     return {
@@ -62,7 +72,12 @@ export default function legacyReaderShim(Slicer: any, Fetcher: any, Schema: Sche
                 return DataEntity.makeArray(output);
             };
         },
-        async newSlicer(context, executionContext, recoveryData: object[], logger: Logger): Promise<SlicerFns> {
+        async newSlicer(
+            context,
+            executionContext,
+            recoveryData: object[],
+            logger: Logger
+        ): Promise<SlicerFns> {
             const executionConfig = executionContext.config;
             const opConfig = executionConfig.operations[0];
 
@@ -84,9 +99,7 @@ export default function legacyReaderShim(Slicer: any, Fetcher: any, Schema: Sche
                 ];
             }
 
-            const slicers = times(executionConfig.slicers, () => {
-                return slicer.newSlicer();
-            });
+            const slicers = times(executionConfig.slicers, () => slicer.newSlicer());
 
             return Promise.all(slicers);
         }

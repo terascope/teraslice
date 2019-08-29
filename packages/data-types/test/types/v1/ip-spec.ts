@@ -1,5 +1,5 @@
-import IpType from '../../../src/types/versions/v1/ip';
 import { TSError } from '@terascope/utils';
+import IpType from '../../../src/types/versions/v1/ip';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('IP V1', () => {

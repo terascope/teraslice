@@ -1,15 +1,16 @@
 
-import { HexEncode } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
+import { HexEncode } from '../../../src/operations';
 
 describe('HexEncode operator', () => {
-
     function encode(str: string) {
         return Buffer.from(str).toString('hex');
     }
 
     it('can instantiate', () => {
-        const opConfig = { target_field: 'final', source_field: 'source', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            target_field: 'final', source_field: 'source', __id: 'someId', follow: 'otherId'
+        };
         expect(() => new HexEncode(opConfig)).not.toThrow();
     });
 
@@ -17,11 +18,13 @@ describe('HexEncode operator', () => {
         const badConfig1 = { target_field: 1324, __id: 'someId', follow: 'otherId' };
         const badConfig2 = { target_field: '', __id: 'someId', follow: 'otherId' };
         const badConfig3 = { target_field: {}, __id: 'someId', follow: 'otherId' };
-        const badConfig4 = { target_field: null , __id: 'someId', follow: 'otherId' };
+        const badConfig4 = { target_field: null, __id: 'someId', follow: 'otherId' };
         const badConfig5 = { source_field: [], __id: 'someId', follow: 'otherId' };
         const badConfig6 = { source_field: {}, __id: 'someId', follow: 'otherId' };
         const badConfig7 = { source_field: null, __id: 'someId', follow: 'otherId' };
-        const badConfig8 = { source_field: '', target_field: '', __id: 'someId', follow: 'otherId' };
+        const badConfig8 = {
+            source_field: '', target_field: '', __id: 'someId', follow: 'otherId'
+        };
         // @ts-ignore
         expect(() => new HexEncode(badConfig1)).toThrow();
         expect(() => new HexEncode(badConfig2)).toThrow();
@@ -39,9 +42,11 @@ describe('HexEncode operator', () => {
     });
 
     it('can hex encode fields', () => {
-        const opConfig = { source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId' };
-        const test =  new HexEncode(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
+        const opConfig = {
+            source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId'
+        };
+        const test = new HexEncode(opConfig);
+        const metaData = { selectors: { 'some:query': true } };
 
         const data1 = new DataEntity({ source: 123423 }, metaData);
         const data2 = new DataEntity({ source: null }, metaData);
@@ -88,9 +93,11 @@ describe('HexEncode operator', () => {
     });
 
     it('can hex encode nested fields', () => {
-        const opConfig = { source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId' };
-        const test =  new HexEncode(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
+        const opConfig = {
+            source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId'
+        };
+        const test = new HexEncode(opConfig);
+        const metaData = { selectors: { 'some:query': true } };
 
         const data = new DataEntity({ source: { field: 'hello world' } }, metaData);
 

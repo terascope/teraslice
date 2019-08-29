@@ -8,7 +8,7 @@ export default class UrlDecode extends TransformOpBase {
         super(config);
     }
 
-    decode(data:string) {
+    decode(data: string) {
         return decodeURI(data);
     }
 

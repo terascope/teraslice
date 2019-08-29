@@ -21,8 +21,8 @@ sidebar_label: MatchQuery
 
 • **match**: *object*
 
-*Defined in [translator/interfaces.ts:51](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/interfaces.ts#L51)*
+*Defined in [translator/interfaces.ts:79](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/translator/interfaces.ts#L79)*
 
 #### Type declaration:
 
-● \[▪ **field**: *string*\]: object
+* \[ **field**: *string*\]: object

@@ -14,11 +14,7 @@ describe('Cluster', () => {
         expect(cluster).toBeInstanceOf(Cluster);
     });
 
-    it('should have a nodeInfo function', () => {
-        return cluster.nodeInfo({ nodeId: 'hello' });
-    });
+    it('should have a nodeInfo function', () => cluster.nodeInfo({ nodeId: 'hello' }));
 
-    it('should have a nodeStats function', () => {
-        return cluster.nodeStats({ nodeId: 'hello' });
-    });
+    it('should have a nodeStats function', () => cluster.nodeStats({ nodeId: 'hello' }));
 });

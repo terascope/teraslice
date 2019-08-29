@@ -1,6 +1,8 @@
 import { EventEmitter } from 'events';
 import { AnyObject, Logger, isTest } from '@terascope/utils';
-import { OpAPI, Context, ExecutionConfig, APIConfig, WorkerContext } from '../interfaces';
+import {
+    OpAPI, Context, ExecutionConfig, APIConfig, WorkerContext
+} from '../interfaces';
 import { isOperationAPI, getOperationAPIType } from './utils';
 import { Observer, APIConstructor } from '../operations';
 import { JobAPIInstances } from './interfaces';

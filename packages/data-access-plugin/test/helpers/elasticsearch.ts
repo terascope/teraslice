@@ -36,7 +36,12 @@ function format(arr: any[], index: string) {
     return results;
 }
 
-export async function populateIndex(client: es.Client, index: string, _properties: any, data: any[]) {
+export async function populateIndex(
+    client: es.Client,
+    index: string,
+    _properties: any,
+    data: any[]
+) {
     const overrides = {
         settings: {
             'index.number_of_shards': 1,
@@ -60,15 +65,21 @@ export async function populateIndex(client: es.Client, index: string, _propertie
         )
     );
 
-    return client.bulk({ index, type: 'events', body: format(data, index), refresh: true });
+    return client.bulk({
+        index, type: 'events', body: format(data, index), refresh: true
+    });
 }
 
 export function deleteIndices(client: es.Client, list: string[]) {
-    return Promise.all(list.map((index) => client.indices.delete({ index, requestTimeout: 1000 }).catch(() => {})));
+    return Promise.all(list.map((index) => client.indices.delete({
+        index,
+        requestTimeout: 1000
+    }).catch(() => {})));
 }
 
 export function cleanupIndexes(manager: ACLManager) {
     // @ts-ignore
+    // eslint-disable-next-line
     const models = [manager._roles, manager._spaces, manager._users, manager._views, manager._dataTypes];
     return Promise.all(models.map(cleanupIndex));
 }

@@ -5,7 +5,7 @@ export type SortOrder = 'asc'|'desc';
 
 export type TranslatorOptions = {
     logger?: Logger;
-    type_config?: p.TypeConfig,
+    type_config?: p.TypeConfig;
     default_geo_field?: string;
     default_geo_sort_order?: SortOrder;
     default_geo_sort_unit?: p.GeoDistanceUnit|string;

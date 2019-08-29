@@ -2,16 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { SpaceSearchConfig } from '@terascope/data-access';
 import { Form, Segment } from 'semantic-ui-react';
-import FormCheckbox from '../../ModelForm/FormCheckbox';
 import { Section } from '@terascope/ui-components';
-
-type ConfigKey = keyof SpaceSearchConfig;
+import FormCheckbox from '../../ModelForm/FormCheckbox';
 
 const SearchConfig: React.FC<Props> = ({ config, updateConfig }) => {
     const onChange = (e: any, props: any) => {
         e.preventDefault();
-        const name = props.name as ConfigKey;
-        const value = props.value;
+        // eslint-disable-next-line react/prop-types
+        const { value, name } = props;
         updateConfig({ ...config, [name]: value });
     };
 

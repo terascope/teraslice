@@ -54,9 +54,7 @@ describe('ParallelSlicer', () => {
             await slicer.initialize([]);
         });
 
-        afterAll(() => {
-            return slicer.shutdown();
-        });
+        afterAll(() => slicer.shutdown());
 
         describe('->handle', () => {
             describe('on the first call', () => {
@@ -215,9 +213,7 @@ describe('ParallelSlicer', () => {
             await slicer.initialize([]);
         });
 
-        afterAll(() => {
-            return slicer.shutdown();
-        });
+        afterAll(() => slicer.shutdown());
 
         describe('->handle', () => {
             it('should not emit slicer:subslice yet', () => {
@@ -345,7 +341,6 @@ describe('ParallelSlicer', () => {
                     expect(slicer.getSlice()).toBeNil();
                 });
             });
-
         });
     });
 });

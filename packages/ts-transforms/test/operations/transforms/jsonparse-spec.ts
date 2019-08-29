@@ -1,11 +1,12 @@
 
-import { JsonParse } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
+import { JsonParse } from '../../../src/operations';
 
 describe('JsonParse operator', () => {
-
     it('can instantiate', () => {
-        const opConfig = { target_field: 'someField', source_field: 'someField', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            target_field: 'someField', source_field: 'someField', __id: 'someId', follow: 'otherId'
+        };
         expect(() => new JsonParse(opConfig)).not.toThrow();
     });
 
@@ -25,7 +26,9 @@ describe('JsonParse operator', () => {
     });
 
     it('can parse json data', () => {
-        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId'
+        };
         const test = new JsonParse(opConfig);
 
         const data1 = new DataEntity({ someField: JSON.stringify('56.234,95.234') });
@@ -56,5 +59,4 @@ describe('JsonParse operator', () => {
         expect(results7).toEqual({ sideField: 'data' });
         expect(results8).toEqual({ someField: ['other', 'data'] });
     });
-
 });

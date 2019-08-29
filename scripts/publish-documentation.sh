@@ -26,7 +26,7 @@ main() {
     esac
 
     cd website &&
-        yarn install &&
+        yarn install --prod &&
         GIT_USER="${GITHUB_NAME}" \
             CURRENT_BRANCH="${TRAVIS_BRANCH:-master}" \
             yarn run publish-gh-pages

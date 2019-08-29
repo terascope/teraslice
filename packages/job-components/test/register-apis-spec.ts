@@ -1,6 +1,12 @@
 import 'jest-extended'; // require for type definitions
 import path from 'path';
-import { registerApis, OperationAPI, newTestJobConfig, TestContext, TestClientConfig } from '../src';
+import {
+    registerApis,
+    OperationAPI,
+    newTestJobConfig,
+    TestContext,
+    TestClientConfig
+} from '../src';
 
 describe('registerApis', () => {
     const context = new TestContext('teraslice-operations');
@@ -57,9 +63,7 @@ describe('registerApis', () => {
             return expect(getPath('fixtures')).resolves.toEqual(assetPath);
         });
 
-        it('should throw an error if asset is not found', () => {
-            return expect(getPath('unknown')).rejects.toThrowError('Unable to find asset "unknown"');
-        });
+        it('should throw an error if asset is not found', () => expect(getPath('unknown')).rejects.toThrowError('Unable to find asset "unknown"'));
     });
 
     describe('->getClient', () => {
@@ -189,7 +193,7 @@ describe('registerApis', () => {
             });
         });
 
-        it('getClient will error properly', (done) => {
+        it('getClient will error properly', () => {
             const failingContext = new TestContext('teraslice-operations');
             const failJobConfig = newTestJobConfig();
 
@@ -202,21 +206,15 @@ describe('registerApis', () => {
             });
 
             registerApis(failingContext, failJobConfig);
+            const err = new Error('a client error');
             const makeError = () => {
-                throw new Error('a client error');
+                throw err;
             };
 
             failingContext.foundation.getConnection = makeError;
 
-            const events = failingContext.apis.foundation.getSystemEvents();
-            const errStr = 'No configuration for endpoint default ' + 'was found in the terafoundation connectors';
-
-            events.once('client:initialization:error', (errMsg) => {
-                expect(errMsg.error.includes(errStr)).toEqual(true);
-                done();
-            });
-
-            failingContext.apis.op_runner.getClient();
+            expect(() => failingContext.apis.op_runner.getClient())
+                .toThrowError(err);
         });
     });
 

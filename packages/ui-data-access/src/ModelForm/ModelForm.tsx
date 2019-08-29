@@ -20,7 +20,7 @@ function ModelForm<T extends i.AnyModel>({
 }: Props<T>): ReactElement {
     const config = getModelConfig(modelName);
     let query: any;
-    let skip: boolean = false;
+    let skip = false;
     let variables: Vars | undefined;
 
     if (id) {
@@ -34,7 +34,9 @@ function ModelForm<T extends i.AnyModel>({
     }
 
     const authUser = useCoreContext().authUser!;
-    const { loading, error, data, client } = useQuery<any, Vars>(query, {
+    const {
+        loading, error, data, client
+    } = useQuery<any, Vars>(query, {
         variables,
         skip,
     });

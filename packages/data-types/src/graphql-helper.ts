@@ -1,4 +1,6 @@
-import { GraphQLScalarType, ASTNode, buildSchema, printSchema } from 'graphql';
+import {
+    GraphQLScalarType, ASTNode, buildSchema, printSchema
+} from 'graphql';
 import { Kind } from 'graphql/language';
 import { TSError } from '@terascope/utils';
 import { mapping } from './types/versions/mapping';

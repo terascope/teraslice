@@ -22,9 +22,9 @@ an encoding focused interfaces
 
 ### `Optional` _encoding
 
-• **_encoding**? : *[DataEncoding](../overview.md#dataencoding)*
+• **_encoding**? : *[DataEncoding](../enums/dataencoding.md)*
 
-*Defined in [data-entity.ts:225](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/data-entity.ts#L225)*
+*Defined in [entities/interfaces.ts:43](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/entities/interfaces.ts#L43)*
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **_op**? : *undefined | string*
 
-*Defined in [data-entity.ts:224](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/data-entity.ts#L224)*
+*Defined in [entities/interfaces.ts:42](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/entities/interfaces.ts#L42)*

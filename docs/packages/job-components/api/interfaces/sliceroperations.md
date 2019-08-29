@@ -7,7 +7,7 @@ sidebar_label: SlicerOperations
 
 ## Hierarchy
 
-* `Set<SlicerOperationLifeCycle>`
+* Set‹[SlicerOperationLifeCycle](sliceroperationlifecycle.md)›
 
   * **SlicerOperations**
 
@@ -35,7 +35,7 @@ sidebar_label: SlicerOperations
 
 ###  Set
 
-• **Set**: *`SetConstructor`*
+• **Set**: *SetConstructor*
 
 Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:71
 
@@ -63,7 +63,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 ###  __@iterator
 
-▸ **__@iterator**(): *`IterableIterator<SlicerOperationLifeCycle>`*
+▸ **__@iterator**(): *IterableIterator‹[SlicerOperationLifeCycle](sliceroperationlifecycle.md)›*
 
 *Inherited from void*
 
@@ -71,7 +71,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 Iterates over values in the set.
 
-**Returns:** *`IterableIterator<SlicerOperationLifeCycle>`*
+**Returns:** *IterableIterator‹[SlicerOperationLifeCycle](sliceroperationlifecycle.md)›*
 
 ___
 
@@ -125,7 +125,7 @@ ___
 
 ###  entries
 
-▸ **entries**(): *`IterableIterator<[SlicerOperationLifeCycle, SlicerOperationLifeCycle]>`*
+▸ **entries**(): *IterableIterator‹[[SlicerOperationLifeCycle](sliceroperationlifecycle.md), [SlicerOperationLifeCycle](sliceroperationlifecycle.md)]›*
 
 *Inherited from void*
 
@@ -133,7 +133,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 Returns an iterable of [v,v] pairs for every value `v` in the set.
 
-**Returns:** *`IterableIterator<[SlicerOperationLifeCycle, SlicerOperationLifeCycle]>`*
+**Returns:** *IterableIterator‹[[SlicerOperationLifeCycle](sliceroperationlifecycle.md), [SlicerOperationLifeCycle](sliceroperationlifecycle.md)]›*
 
 ___
 
@@ -149,7 +149,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 ▪ **callbackfn**: *function*
 
-▸ (`value`: [SlicerOperationLifeCycle](sliceroperationlifecycle.md), `value2`: [SlicerOperationLifeCycle](sliceroperationlifecycle.md), `set`: `Set<SlicerOperationLifeCycle>`): *void*
+▸ (`value`: [SlicerOperationLifeCycle](sliceroperationlifecycle.md), `value2`: [SlicerOperationLifeCycle](sliceroperationlifecycle.md), `set`: Set‹[SlicerOperationLifeCycle](sliceroperationlifecycle.md)›): *void*
 
 **Parameters:**
 
@@ -157,7 +157,7 @@ Name | Type |
 ------ | ------ |
 `value` | [SlicerOperationLifeCycle](sliceroperationlifecycle.md) |
 `value2` | [SlicerOperationLifeCycle](sliceroperationlifecycle.md) |
-`set` | `Set<SlicerOperationLifeCycle>` |
+`set` | Set‹[SlicerOperationLifeCycle](sliceroperationlifecycle.md)› |
 
 ▪`Optional`  **thisArg**: *any*
 
@@ -185,7 +185,7 @@ ___
 
 ###  keys
 
-▸ **keys**(): *`IterableIterator<SlicerOperationLifeCycle>`*
+▸ **keys**(): *IterableIterator‹[SlicerOperationLifeCycle](sliceroperationlifecycle.md)›*
 
 *Inherited from void*
 
@@ -193,13 +193,13 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 Despite its name, returns an iterable of the values in the set,
 
-**Returns:** *`IterableIterator<SlicerOperationLifeCycle>`*
+**Returns:** *IterableIterator‹[SlicerOperationLifeCycle](sliceroperationlifecycle.md)›*
 
 ___
 
 ###  values
 
-▸ **values**(): *`IterableIterator<SlicerOperationLifeCycle>`*
+▸ **values**(): *IterableIterator‹[SlicerOperationLifeCycle](sliceroperationlifecycle.md)›*
 
 *Inherited from void*
 
@@ -207,4 +207,4 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 Returns an iterable of values in the set.
 
-**Returns:** *`IterableIterator<SlicerOperationLifeCycle>`*
+**Returns:** *IterableIterator‹[SlicerOperationLifeCycle](sliceroperationlifecycle.md)›*

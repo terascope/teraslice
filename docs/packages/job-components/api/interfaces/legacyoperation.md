@@ -30,7 +30,7 @@ sidebar_label: LegacyOperation
 
 • **crossValidation**? : *[crossValidationFn](../overview.md#crossvalidationfn)*
 
-*Defined in [interfaces/operations.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L11)*
+*Defined in [interfaces/operations.ts:13](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L13)*
 
 ___
 
@@ -38,15 +38,15 @@ ___
 
 • **selfValidation**? : *[selfValidationFn](../overview.md#selfvalidationfn)*
 
-*Defined in [interfaces/operations.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L12)*
+*Defined in [interfaces/operations.ts:14](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L14)*
 
 ## Methods
 
 ###  schema
 
-▸ **schema**(`context?`: [Context](context.md)): *[Schema](operationmodule.md#schema)‹*any*›*
+▸ **schema**(`context?`: [Context](context.md)): *[Schema](operationmodule.md#schema)‹any›*
 
-*Defined in [interfaces/operations.ts:13](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L13)*
+*Defined in [interfaces/operations.ts:15](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L15)*
 
 **Parameters:**
 
@@ -54,4 +54,4 @@ Name | Type |
 ------ | ------ |
 `context?` | [Context](context.md) |
 
-**Returns:** *[Schema](operationmodule.md#schema)‹*any*›*
+**Returns:** *[Schema](operationmodule.md#schema)‹any›*

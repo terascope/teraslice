@@ -17,22 +17,12 @@ sidebar_label: Term
 
 ### Properties
 
-* [data_type](term.md#data_type)
 * [field](term.md#field)
+* [field_type](term.md#field_type)
 * [type](term.md#type)
 * [value](term.md#value)
 
 ## Properties
-
-###  data_type
-
-• **data_type**: *[DataType](../overview.md#datatype)*
-
-*Inherited from [AnyDataType](anydatatype.md).[data_type](anydatatype.md#data_type)*
-
-*Defined in [parser/interfaces.ts:51](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L51)*
-
-___
 
 ###  field
 
@@ -40,7 +30,20 @@ ___
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [parser/interfaces.ts:25](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L25)*
+*Defined in [parser/interfaces.ts:54](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L54)*
+
+___
+
+###  field_type
+
+• **field_type**: *[FieldType](../enums/fieldtype.md)*
+
+*Inherited from [AnyDataType](anydatatype.md).[field_type](anydatatype.md#field_type)*
+
+*Defined in [parser/interfaces.ts:83](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L83)*
+
+The field type here may be the field type specified
+in the type_config
 
 ___
 
@@ -50,7 +53,7 @@ ___
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [parser/interfaces.ts:131](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L131)*
+*Defined in [parser/interfaces.ts:163](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L163)*
 
 ___
 
@@ -60,4 +63,4 @@ ___
 
 *Inherited from [AnyDataType](anydatatype.md).[value](anydatatype.md#value)*
 
-*Defined in [parser/interfaces.ts:52](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L52)*
+*Defined in [parser/interfaces.ts:84](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L84)*

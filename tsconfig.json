@@ -5,12 +5,8 @@
         "moduleResolution": "node",
         "target": "es2017",
         "skipLibCheck": true,
-        "pretty": true,
         "experimentalDecorators": true,
         "strict": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": false,
-        "noImplicitReturns": true,
         "preserveConstEnums": true,
         "esModuleInterop": true,
         "resolveJsonModule": true,
@@ -54,6 +50,9 @@
             "path": "packages/ts-transforms"
         },
         {
+            "path": "packages/teraslice-client-js"
+        },
+        {
             "path": "packages/elasticsearch-store"
         },
         {
@@ -70,6 +69,10 @@
         },
         {
             "path": "packages/teraslice-state-storage"
+        },
+        {
+            "path": "packages/teraslice-cli"
         }
     ]
 }
+// TODO: add teraslice-client before the cli

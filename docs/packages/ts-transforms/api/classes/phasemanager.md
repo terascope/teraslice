@@ -33,16 +33,16 @@ sidebar_label: PhaseManager
 
 ###  constructor
 
-\+ **new PhaseManager**(`opConfig`: [PhaseConfig](../interfaces/phaseconfig.md), `logger`: `Logger`): *[PhaseManager](phasemanager.md)*
+\+ **new PhaseManager**(`opConfig`: [PhaseConfig](../interfaces/phaseconfig.md), `logger`: Logger): *[PhaseManager](phasemanager.md)*
 
-*Defined in [phases/phase-manager.ts:18](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/phase-manager.ts#L18)*
+*Defined in [phases/phase-manager.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/phases/phase-manager.ts#L17)*
 
 **Parameters:**
 
 Name | Type | Default |
 ------ | ------ | ------ |
 `opConfig` | [PhaseConfig](../interfaces/phaseconfig.md) | - |
-`logger` | `Logger` |  debugLogger('ts-transforms') |
+`logger` | Logger |  debugLogger('ts-transforms') |
 
 **Returns:** *[PhaseManager](phasemanager.md)*
 
@@ -52,7 +52,7 @@ Name | Type | Default |
 
 • **isMatcher**: *boolean*
 
-*Defined in [phases/phase-manager.ts:18](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/phase-manager.ts#L18)*
+*Defined in [phases/phase-manager.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/phases/phase-manager.ts#L17)*
 
 ___
 
@@ -60,15 +60,15 @@ ___
 
 • **sequence**: *[PhaseBase](phasebase.md)[]*
 
-*Defined in [phases/phase-manager.ts:17](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/phase-manager.ts#L17)*
+*Defined in [phases/phase-manager.ts:16](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/phases/phase-manager.ts#L16)*
 
 ## Methods
 
 ###  init
 
-▸ **init**(`Plugins?`: [PluginList](../overview.md#pluginlist)): *`Promise<void>`*
+▸ **init**(`Plugins?`: [PluginList](../overview.md#pluginlist)): *Promise‹void›*
 
-*Defined in [phases/phase-manager.ts:28](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/phase-manager.ts#L28)*
+*Defined in [phases/phase-manager.ts:27](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/phases/phase-manager.ts#L27)*
 
 **Parameters:**
 
@@ -76,15 +76,15 @@ Name | Type |
 ------ | ------ |
 `Plugins?` | [PluginList](../overview.md#pluginlist) |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ###  run
 
-▸ **run**(`input`: object[]): *`DataEntity`[]*
+▸ **run**(`input`: object[]): *DataEntity[]*
 
-*Defined in [phases/phase-manager.ts:44](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/phases/phase-manager.ts#L44)*
+*Defined in [phases/phase-manager.ts:45](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/phases/phase-manager.ts#L45)*
 
 **Parameters:**
 
@@ -92,4 +92,4 @@ Name | Type |
 ------ | ------ |
 `input` | object[] |
 
-**Returns:** *`DataEntity`[]*
+**Returns:** *DataEntity[]*

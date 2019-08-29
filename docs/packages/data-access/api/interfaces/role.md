@@ -7,7 +7,7 @@ sidebar_label: Role
 
 ## Hierarchy
 
-* `IndexModelRecord`
+* IndexModelRecord
 
   * **Role**
 
@@ -52,7 +52,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [models/config/roles.ts:42](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/roles.ts#L42)*
+*Defined in [models/config/roles.ts:42](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/roles.ts#L42)*
 
 Description of the Role
 
@@ -74,7 +74,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [models/config/roles.ts:37](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/roles.ts#L37)*
+*Defined in [models/config/roles.ts:37](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/roles.ts#L37)*
 
 Name of the Role
 

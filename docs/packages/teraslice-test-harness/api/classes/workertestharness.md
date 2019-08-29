@@ -14,7 +14,7 @@ This is useful for testing Fetcher and Processors together or individually.
 
 ## Hierarchy
 
-* [BaseTestHarness](basetestharness.md)‹*`WorkerExecutionContext`*›
+* [BaseTestHarness](basetestharness.md)‹WorkerExecutionContext›
 
   * **WorkerTestHarness**
 
@@ -52,17 +52,17 @@ This is useful for testing Fetcher and Processors together or individually.
 
 ###  constructor
 
-\+ **new WorkerTestHarness**(`job`: `JobConfig`, `options`: [JobHarnessOptions](../interfaces/jobharnessoptions.md)): *[WorkerTestHarness](workertestharness.md)*
+\+ **new WorkerTestHarness**(`job`: JobConfig, `options`: [JobHarnessOptions](../interfaces/jobharnessoptions.md)): *[WorkerTestHarness](workertestharness.md)*
 
 *Overrides [BaseTestHarness](basetestharness.md).[constructor](basetestharness.md#constructor)*
 
-*Defined in [worker-test-harness.ts:25](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/worker-test-harness.ts#L25)*
+*Defined in [worker-test-harness.ts:25](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/worker-test-harness.ts#L25)*
 
 **Parameters:**
 
 Name | Type | Default |
 ------ | ------ | ------ |
-`job` | `JobConfig` | - |
+`job` | JobConfig | - |
 `options` | [JobHarnessOptions](../interfaces/jobharnessoptions.md) |  {} |
 
 **Returns:** *[WorkerTestHarness](workertestharness.md)*
@@ -71,31 +71,31 @@ Name | Type | Default |
 
 ### `Protected` context
 
-• **context**: *`TestContext`*
+• **context**: *TestContext*
 
 *Inherited from [BaseTestHarness](basetestharness.md).[context](basetestharness.md#protected-context)*
 
-*Defined in [base-test-harness.ts:26](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/base-test-harness.ts#L26)*
+*Defined in [base-test-harness.ts:26](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/base-test-harness.ts#L26)*
 
 ___
 
 ###  events
 
-• **events**: *`EventEmitter`*
+• **events**: *EventEmitter*
 
 *Inherited from [BaseTestHarness](basetestharness.md).[events](basetestharness.md#events)*
 
-*Defined in [base-test-harness.ts:24](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/base-test-harness.ts#L24)*
+*Defined in [base-test-harness.ts:24](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/base-test-harness.ts#L24)*
 
 ___
 
 ### `Protected` executionContext
 
-• **executionContext**: *`WorkerExecutionContext`*
+• **executionContext**: *WorkerExecutionContext*
 
 *Inherited from [BaseTestHarness](basetestharness.md).[executionContext](basetestharness.md#protected-executioncontext)*
 
-*Defined in [base-test-harness.ts:25](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/base-test-harness.ts#L25)*
+*Defined in [base-test-harness.ts:25](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/base-test-harness.ts#L25)*
 
 ## Accessors
 
@@ -103,7 +103,7 @@ ___
 
 • **get apis**(): *object*
 
-*Defined in [worker-test-harness.ts:65](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/worker-test-harness.ts#L65)*
+*Defined in [worker-test-harness.ts:65](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/worker-test-harness.ts#L65)*
 
 **Returns:** *object*
 
@@ -111,53 +111,41 @@ ___
 
 ###  processors
 
-• **get processors**(): *`ProcessorCore<OpConfig>`[]*
+• **get processors**(): *ProcessorCore‹OpConfig›[]*
 
-*Defined in [worker-test-harness.ts:61](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/worker-test-harness.ts#L61)*
+*Defined in [worker-test-harness.ts:61](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/worker-test-harness.ts#L61)*
 
-**Returns:** *`ProcessorCore<OpConfig>`[]*
+**Returns:** *ProcessorCore‹OpConfig›[]*
 
 ## Methods
 
 ###  fetcher
 
-▸ **fetcher**<**T**>(): *`T`*
+▸ **fetcher**<**T**>(): *T*
 
-*Defined in [worker-test-harness.ts:57](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/worker-test-harness.ts#L57)*
+*Defined in [worker-test-harness.ts:57](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/worker-test-harness.ts#L57)*
 
 **Type parameters:**
 
-▪ **T**: *`FetcherCore`*
+▪ **T**: *FetcherCore*
 
-**Returns:** *`T`*
+**Returns:** *T*
 
 ___
 
 ###  flush
 
-▸ **flush**(): *`Promise<DataEntity[] | undefined>`*
+▸ **flush**(): *Promise‹DataEntity[] | undefined›*
 
-*Defined in [worker-test-harness.ts:127](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/worker-test-harness.ts#L127)*
+*Defined in [worker-test-harness.ts:138](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/worker-test-harness.ts#L138)*
 
 Shutdown the Operations on the ExecutionContext
 
-**Returns:** *`Promise<DataEntity[] | undefined>`*
+**Returns:** *Promise‹DataEntity[] | undefined›*
 
-▸ **flush**(`options`: object): *`Promise<DataEntity[] | undefined>`*
+▸ **flush**(`options`: object): *Promise‹DataEntity[] | undefined›*
 
-*Defined in [worker-test-harness.ts:128](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/worker-test-harness.ts#L128)*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`options` | object |
-
-**Returns:** *`Promise<DataEntity[] | undefined>`*
-
-▸ **flush**(`options`: object): *`Promise<RunSliceResult | undefined>`*
-
-*Defined in [worker-test-harness.ts:129](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/worker-test-harness.ts#L129)*
+*Defined in [worker-test-harness.ts:139](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/worker-test-harness.ts#L139)*
 
 **Parameters:**
 
@@ -165,19 +153,31 @@ Name | Type |
 ------ | ------ |
 `options` | object |
 
-**Returns:** *`Promise<RunSliceResult | undefined>`*
+**Returns:** *Promise‹DataEntity[] | undefined›*
+
+▸ **flush**(`options`: object): *Promise‹RunSliceResult | undefined›*
+
+*Defined in [worker-test-harness.ts:140](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/worker-test-harness.ts#L140)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`options` | object |
+
+**Returns:** *Promise‹RunSliceResult | undefined›*
 
 ___
 
 ###  getOperation
 
-▸ **getOperation**<**T**>(`findBy`: string | number): *`T`*
+▸ **getOperation**<**T**>(`findBy`: string | number): *T*
 
-*Defined in [worker-test-harness.ts:69](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/worker-test-harness.ts#L69)*
+*Defined in [worker-test-harness.ts:69](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/worker-test-harness.ts#L69)*
 
 **Type parameters:**
 
-▪ **T**: *`OperationCore`*
+▪ **T**: *OperationCore*
 
 **Parameters:**
 
@@ -185,48 +185,48 @@ Name | Type |
 ------ | ------ |
 `findBy` | string \| number |
 
-**Returns:** *`T`*
+**Returns:** *T*
 
 ___
 
 ###  initialize
 
-▸ **initialize**(): *`Promise<void>`*
+▸ **initialize**(): *Promise‹void›*
 
 *Overrides [BaseTestHarness](basetestharness.md).[initialize](basetestharness.md#initialize)*
 
-*Defined in [worker-test-harness.ts:76](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/worker-test-harness.ts#L76)*
+*Defined in [worker-test-harness.ts:76](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/worker-test-harness.ts#L76)*
 
 Initialize the Operations on the ExecutionContext
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ### `Protected` makeContextConfig
 
-▸ **makeContextConfig**(`job`: `JobConfig`, `assetDir`: string): *`ExecutionContextConfig`*
+▸ **makeContextConfig**(`job`: JobConfig, `assetDir`: string): *ExecutionContextConfig*
 
 *Inherited from [BaseTestHarness](basetestharness.md).[makeContextConfig](basetestharness.md#protected-makecontextconfig)*
 
-*Defined in [base-test-harness.ts:58](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/base-test-harness.ts#L58)*
+*Defined in [base-test-harness.ts:58](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/base-test-harness.ts#L58)*
 
 **Parameters:**
 
 Name | Type | Default |
 ------ | ------ | ------ |
-`job` | `JobConfig` | - |
+`job` | JobConfig | - |
 `assetDir` | string |  process.cwd() |
 
-**Returns:** *`ExecutionContextConfig`*
+**Returns:** *ExecutionContextConfig*
 
 ___
 
 ###  runSlice
 
-▸ **runSlice**(`input`: `Slice` | `SliceRequest`): *`Promise<DataEntity[]>`*
+▸ **runSlice**(`input`: Slice | SliceRequest): *Promise‹DataEntity[]›*
 
-*Defined in [worker-test-harness.ts:94](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/worker-test-harness.ts#L94)*
+*Defined in [worker-test-harness.ts:94](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/worker-test-harness.ts#L94)*
 
 Given a slice run pass it the Fetcher and then subsequent
 operations. This will also fire lifecycle events
@@ -236,53 +236,53 @@ which may be triggered any extra APIs.
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`input` | `Slice` \| `SliceRequest` | The input slice, can optionally include all of the slice metadata. Use `newTestSlice()` to create a test slice. |
+`input` | Slice \| SliceRequest | The input slice, can optionally include all of the slice metadata. Use `newTestSlice()` to create a test slice. |
 
-**Returns:** *`Promise<DataEntity[]>`*
+**Returns:** *Promise‹DataEntity[]›*
 
 an Array of DataEntities or a SliceResult
 
-▸ **runSlice**(`input`: `Slice` | `SliceRequest`, `options`: object): *`Promise<DataEntity[]>`*
+▸ **runSlice**(`input`: Slice | SliceRequest, `options`: object): *Promise‹DataEntity[]›*
 
-*Defined in [worker-test-harness.ts:95](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/worker-test-harness.ts#L95)*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`input` | `Slice` \| `SliceRequest` |
-`options` | object |
-
-**Returns:** *`Promise<DataEntity[]>`*
-
-▸ **runSlice**(`input`: `Slice` | `SliceRequest`, `options`: object): *`Promise<RunSliceResult>`*
-
-*Defined in [worker-test-harness.ts:96](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/worker-test-harness.ts#L96)*
+*Defined in [worker-test-harness.ts:97](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/worker-test-harness.ts#L97)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`input` | `Slice` \| `SliceRequest` |
+`input` | Slice \| SliceRequest |
 `options` | object |
 
-**Returns:** *`Promise<RunSliceResult>`*
+**Returns:** *Promise‹DataEntity[]›*
+
+▸ **runSlice**(`input`: Slice | SliceRequest, `options`: object): *Promise‹RunSliceResult›*
+
+*Defined in [worker-test-harness.ts:101](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/worker-test-harness.ts#L101)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`input` | Slice \| SliceRequest |
+`options` | object |
+
+**Returns:** *Promise‹RunSliceResult›*
 
 ___
 
 ###  setClients
 
-▸ **setClients**(`clients`: `TestClientConfig`[]): *void*
+▸ **setClients**(`clients`: TestClientConfig[]): *void*
 
 *Inherited from [BaseTestHarness](basetestharness.md).[setClients](basetestharness.md#setclients)*
 
-*Defined in [base-test-harness.ts:47](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/base-test-harness.ts#L47)*
+*Defined in [base-test-harness.ts:47](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/base-test-harness.ts#L47)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`clients` | `TestClientConfig`[] |
+`clients` | TestClientConfig[] |
 
 **Returns:** *void*
 
@@ -290,27 +290,27 @@ ___
 
 ###  shutdown
 
-▸ **shutdown**(): *`Promise<void>`*
+▸ **shutdown**(): *Promise‹void›*
 
 *Overrides [BaseTestHarness](basetestharness.md).[shutdown](basetestharness.md#shutdown)*
 
-*Defined in [worker-test-harness.ts:140](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/worker-test-harness.ts#L140)*
+*Defined in [worker-test-harness.ts:151](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/worker-test-harness.ts#L151)*
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ### `Static` testFetcher
 
-▸ **testFetcher**(`opConfig`: `OpConfig`, `options?`: [JobHarnessOptions](../interfaces/jobharnessoptions.md)): *[WorkerTestHarness](workertestharness.md)*
+▸ **testFetcher**(`opConfig`: OpConfig, `options?`: [JobHarnessOptions](../interfaces/jobharnessoptions.md)): *[WorkerTestHarness](workertestharness.md)*
 
-*Defined in [worker-test-harness.ts:44](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/worker-test-harness.ts#L44)*
+*Defined in [worker-test-harness.ts:44](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/worker-test-harness.ts#L44)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`opConfig` | `OpConfig` |
+`opConfig` | OpConfig |
 `options?` | [JobHarnessOptions](../interfaces/jobharnessoptions.md) |
 
 **Returns:** *[WorkerTestHarness](workertestharness.md)*
@@ -319,15 +319,15 @@ ___
 
 ### `Static` testProcessor
 
-▸ **testProcessor**(`opConfig`: `OpConfig`, `options?`: [JobHarnessOptions](../interfaces/jobharnessoptions.md)): *[WorkerTestHarness](workertestharness.md)*
+▸ **testProcessor**(`opConfig`: OpConfig, `options?`: [JobHarnessOptions](../interfaces/jobharnessoptions.md)): *[WorkerTestHarness](workertestharness.md)*
 
-*Defined in [worker-test-harness.ts:30](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/worker-test-harness.ts#L30)*
+*Defined in [worker-test-harness.ts:30](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/worker-test-harness.ts#L30)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`opConfig` | `OpConfig` |
+`opConfig` | OpConfig |
 `options?` | [JobHarnessOptions](../interfaces/jobharnessoptions.md) |
 
 **Returns:** *[WorkerTestHarness](workertestharness.md)*

@@ -30,7 +30,7 @@ sidebar_label: GeoDistance
 
 • **distance**: *number*
 
-*Defined in [parser/interfaces.ts:107](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L107)*
+*Defined in [parser/interfaces.ts:139](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L139)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [parser/interfaces.ts:25](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L25)*
+*Defined in [parser/interfaces.ts:54](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L54)*
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 *Inherited from [GeoPoint](geopoint.md).[lat](geopoint.md#lat)*
 
-*Defined in [parser/interfaces.ts:112](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L112)*
+*Defined in [parser/interfaces.ts:144](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L144)*
 
 ___
 
@@ -60,7 +60,7 @@ ___
 
 *Inherited from [GeoPoint](geopoint.md).[lon](geopoint.md#lon)*
 
-*Defined in [parser/interfaces.ts:113](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L113)*
+*Defined in [parser/interfaces.ts:145](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L145)*
 
 ___
 
@@ -70,12 +70,12 @@ ___
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [parser/interfaces.ts:106](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L106)*
+*Defined in [parser/interfaces.ts:138](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L138)*
 
 ___
 
 ###  unit
 
-• **unit**: *`Units`*
+• **unit**: *[GeoDistanceUnit](../overview.md#geodistanceunit)*
 
-*Defined in [parser/interfaces.ts:108](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L108)*
+*Defined in [parser/interfaces.ts:140](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L140)*

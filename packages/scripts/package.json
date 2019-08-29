@@ -19,10 +19,8 @@
         "ts-scripts": "./bin/ts-scripts.js"
     },
     "scripts": {
-        "build": "tsc --build --pretty",
+        "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
-        "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
@@ -30,7 +28,7 @@
     },
     "dependencies": {
         "@lerna/query-graph": "^3.14.0",
-        "@terascope/utils": "^0.16.1",
+        "@terascope/utils": "^0.17.0",
         "@types/is-ci": "^2.0.0",
         "codecov": "^3.5.0",
         "execa": "^2.0.4",

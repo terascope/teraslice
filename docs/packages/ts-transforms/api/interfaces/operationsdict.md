@@ -11,4 +11,4 @@ sidebar_label: OperationsDict
 
 ## Indexable
 
-● \[▪ **op**: *string*\]: [BaseOperationClass](../overview.md#baseoperationclass)
+* \[ **op**: *string*\]: [BaseOperationClass](../overview.md#baseoperationclass)

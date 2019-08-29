@@ -10,7 +10,9 @@ export class Server extends core.Server {
     queue: Queue<i.EnqueuedWorker>;
 
     constructor(opts: i.ServerOptions) {
-        const { port, actionTimeout, networkLatencyBuffer, workerDisconnectTimeout, logger } = opts;
+        const {
+            port, actionTimeout, networkLatencyBuffer, workerDisconnectTimeout, logger
+        } = opts;
 
         if (!isNumber(workerDisconnectTimeout)) {
             throw new Error('ExecutionController.Server requires a valid workerDisconnectTimeout');

@@ -9,7 +9,7 @@ Manager for DataTypes
 
 ## Hierarchy
 
-* `IndexModel<DataType>`
+* IndexModel‹[DataType](../interfaces/datatype.md)›
 
   * **DataTypes**
 
@@ -24,6 +24,7 @@ Manager for DataTypes
 * [logger](datatypes.md#logger)
 * [name](datatypes.md#name)
 * [store](datatypes.md#store)
+* [xluceneTypeConfig](datatypes.md#xlucenetypeconfig)
 * [IndexModelConfig](datatypes.md#static-indexmodelconfig)
 
 ### Methods
@@ -59,18 +60,18 @@ Manager for DataTypes
 
 ###  constructor
 
-\+ **new DataTypes**(`client`: `Client`, `options`: `IndexModelOptions`): *[DataTypes](datatypes.md)*
+\+ **new DataTypes**(`client`: Client, `options`: IndexModelOptions): *[DataTypes](datatypes.md)*
 
 *Overrides void*
 
-*Defined in [models/data-types.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/data-types.ts#L12)*
+*Defined in [models/data-types.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/data-types.ts#L17)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`client` | `Client` |
-`options` | `IndexModelOptions` |
+`client` | Client |
+`options` | IndexModelOptions |
 
 **Returns:** *[DataTypes](datatypes.md)*
 
@@ -78,7 +79,7 @@ Name | Type |
 
 ###  logger
 
-• **logger**: *`Logger`*
+• **logger**: *Logger*
 
 *Inherited from void*
 
@@ -98,7 +99,7 @@ ___
 
 ###  store
 
-• **store**: *`IndexStore<DataType>`*
+• **store**: *IndexStore‹[DataType](../interfaces/datatype.md)›*
 
 *Inherited from void*
 
@@ -106,21 +107,31 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 ___
 
+###  xluceneTypeConfig
+
+• **xluceneTypeConfig**: *TypeConfig | undefined*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:17
+
+___
+
 ### `Static` IndexModelConfig
 
-▪ **IndexModelConfig**: *`IndexModelConfig<DataType>`* =  dataTypesConfig
+▪ **IndexModelConfig**: *IndexModelConfig‹[DataType](../interfaces/datatype.md)›* =  dataTypesConfig
 
-*Defined in [models/data-types.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/data-types.ts#L12)*
+*Defined in [models/data-types.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/data-types.ts#L17)*
 
 ## Methods
 
 ### `Protected` _appendToArray
 
-▸ **_appendToArray**(`id`: string, `field`: keyof DataType, `values`: string[] | string): *`Promise<void>`*
+▸ **_appendToArray**(`id`: string, `field`: keyof DataType, `values`: string[] | string): *Promise‹void›*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:33
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:34
 
 **Parameters:**
 
@@ -130,25 +141,25 @@ Name | Type |
 `field` | keyof DataType |
 `values` | string[] \| string |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ### `Protected` _createJoinQuery
 
-▸ **_createJoinQuery**(`fields`: `AnyInput<DataType>`, `joinBy?`: `JoinBy`, `arrayJoinBy?`: `JoinBy`): *string*
+▸ **_createJoinQuery**(`fields`: AnyInput‹[DataType](../interfaces/datatype.md)›, `joinBy?`: JoinBy, `arrayJoinBy?`: JoinBy): *string*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:40
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:41
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`fields` | `AnyInput<DataType>` |
-`joinBy?` | `JoinBy` |
-`arrayJoinBy?` | `JoinBy` |
+`fields` | AnyInput‹[DataType](../interfaces/datatype.md)› |
+`joinBy?` | JoinBy |
+`arrayJoinBy?` | JoinBy |
 
 **Returns:** *string*
 
@@ -156,7 +167,26 @@ ___
 
 ### `Protected` _ensureUnique
 
-▸ **_ensureUnique**(`record`: [DataType](../interfaces/datatype.md), `existing?`: [T]()): *`Promise<void>`*
+▸ **_ensureUnique**(`record`: [DataType](../interfaces/datatype.md), `existing?`: [T]()): *Promise‹void›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:37
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`record` | [DataType](../interfaces/datatype.md) |
+`existing?` | [T]() |
+
+**Returns:** *Promise‹void›*
+
+___
+
+### `Protected` _find
+
+▸ **_find**(`q?`: undefined | string, `options?`: i.FindOptions‹[DataType](../interfaces/datatype.md)›, `queryAccess?`: QueryAccess‹[DataType](../interfaces/datatype.md)›): *Promise‹[DataType](../interfaces/datatype.md)[]›*
 
 *Inherited from void*
 
@@ -166,30 +196,11 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`record` | [DataType](../interfaces/datatype.md) |
-`existing?` | [T]() |
-
-**Returns:** *`Promise<void>`*
-
-___
-
-### `Protected` _find
-
-▸ **_find**(`q?`: undefined | string, `options?`: `i.FindOptions<DataType>`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<DataType[]>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:35
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
 `q?` | undefined \| string |
-`options?` | `i.FindOptions<DataType>` |
-`queryAccess?` | `QueryAccess<DataType>` |
+`options?` | i.FindOptions‹[DataType](../interfaces/datatype.md)› |
+`queryAccess?` | QueryAccess‹[DataType](../interfaces/datatype.md)› |
 
-**Returns:** *`Promise<DataType[]>`*
+**Returns:** *Promise‹[DataType](../interfaces/datatype.md)[]›*
 
 ___
 
@@ -199,7 +210,7 @@ ___
 
 *Overrides void*
 
-*Defined in [models/data-types.ts:164](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/data-types.ts#L164)*
+*Defined in [models/data-types.ts:180](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/data-types.ts#L180)*
 
 **Parameters:**
 
@@ -217,7 +228,7 @@ ___
 
 *Overrides void*
 
-*Defined in [models/data-types.ts:159](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/data-types.ts#L159)*
+*Defined in [models/data-types.ts:175](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/data-types.ts#L175)*
 
 **Parameters:**
 
@@ -231,11 +242,11 @@ ___
 
 ### `Protected` _removeFromArray
 
-▸ **_removeFromArray**(`id`: string, `field`: keyof DataType, `values`: string[] | string): *`Promise<void>`*
+▸ **_removeFromArray**(`id`: string, `field`: keyof DataType, `values`: string[] | string): *Promise‹void›*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:34
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:35
 
 **Parameters:**
 
@@ -245,7 +256,7 @@ Name | Type |
 `field` | keyof DataType |
 `values` | string[] \| string |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
@@ -255,7 +266,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:37
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:38
 
 **Parameters:**
 
@@ -269,11 +280,11 @@ ___
 
 ### `Protected` _updateWith
 
-▸ **_updateWith**(`id`: string, `body`: any): *`Promise<void>`*
+▸ **_updateWith**(`id`: string, `body`: any): *Promise‹void›*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:32
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:33
 
 **Parameters:**
 
@@ -282,32 +293,13 @@ Name | Type |
 `id` | string |
 `body` | any |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ###  count
 
-▸ **count**(`q?`: undefined | string, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<number>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:19
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`q?` | undefined \| string |
-`queryAccess?` | `QueryAccess<DataType>` |
-
-**Returns:** *`Promise<number>`*
-
-___
-
-###  countBy
-
-▸ **countBy**(`fields`: `AnyInput<DataType>`, `joinBy?`: `JoinBy`, `arrayJoinBy?`: `JoinBy`): *`Promise<number>`*
+▸ **count**(`q?`: undefined | string, `queryAccess?`: QueryAccess‹[DataType](../interfaces/datatype.md)›): *Promise‹number›*
 
 *Inherited from void*
 
@@ -317,17 +309,16 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`fields` | `AnyInput<DataType>` |
-`joinBy?` | `JoinBy` |
-`arrayJoinBy?` | `JoinBy` |
+`q?` | undefined \| string |
+`queryAccess?` | QueryAccess‹[DataType](../interfaces/datatype.md)› |
 
-**Returns:** *`Promise<number>`*
+**Returns:** *Promise‹number›*
 
 ___
 
-###  create
+###  countBy
 
-▸ **create**(`record`: `i.CreateRecordInput<DataType>`): *`Promise<DataType>`*
+▸ **countBy**(`fields`: AnyInput‹[DataType](../interfaces/datatype.md)›, `joinBy?`: JoinBy, `arrayJoinBy?`: JoinBy): *Promise‹number›*
 
 *Inherited from void*
 
@@ -337,33 +328,17 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`record` | `i.CreateRecordInput<DataType>` |
+`fields` | AnyInput‹[DataType](../interfaces/datatype.md)› |
+`joinBy?` | JoinBy |
+`arrayJoinBy?` | JoinBy |
 
-**Returns:** *`Promise<DataType>`*
-
-___
-
-###  deleteAll
-
-▸ **deleteAll**(`ids`: string[]): *`Promise<void>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:23
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`ids` | string[] |
-
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹number›*
 
 ___
 
-###  deleteById
+###  create
 
-▸ **deleteById**(`id`: string): *`Promise<void>`*
+▸ **create**(`record`: i.CreateRecordInput‹[DataType](../interfaces/datatype.md)›): *Promise‹[DataType](../interfaces/datatype.md)›*
 
 *Inherited from void*
 
@@ -373,15 +348,15 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`id` | string |
+`record` | i.CreateRecordInput‹[DataType](../interfaces/datatype.md)› |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹[DataType](../interfaces/datatype.md)›*
 
 ___
 
-###  exists
+###  deleteAll
 
-▸ **exists**(`id`: string[] | string): *`Promise<boolean>`*
+▸ **deleteAll**(`ids`: string[]): *Promise‹void›*
 
 *Inherited from void*
 
@@ -391,75 +366,33 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`id` | string[] \| string |
+`ids` | string[] |
 
-**Returns:** *`Promise<boolean>`*
+**Returns:** *Promise‹void›*
 
 ___
 
-###  find
+###  deleteById
 
-▸ **find**(`q?`: undefined | string, `options?`: `i.FindOptions<DataType>`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<DataType[]>`*
+▸ **deleteById**(`id`: string): *Promise‹void›*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:30
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:23
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`q?` | undefined \| string |
-`options?` | `i.FindOptions<DataType>` |
-`queryAccess?` | `QueryAccess<DataType>` |
+`id` | string |
 
-**Returns:** *`Promise<DataType[]>`*
+**Returns:** *Promise‹void›*
 
 ___
 
-###  findAll
+###  exists
 
-▸ **findAll**(`input`: string[] | string | undefined, `options?`: `i.FindOneOptions<DataType>`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<DataType[]>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:29
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`input` | string[] \| string \| undefined |
-`options?` | `i.FindOneOptions<DataType>` |
-`queryAccess?` | `QueryAccess<DataType>` |
-
-**Returns:** *`Promise<DataType[]>`*
-
-___
-
-###  findAndApply
-
-▸ **findAndApply**(`updates`: `Partial<DataType>` | undefined, `options?`: `i.FindOneOptions<DataType>`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<Partial<DataType>>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:28
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`updates` | `Partial<DataType>` \| undefined |
-`options?` | `i.FindOneOptions<DataType>` |
-`queryAccess?` | `QueryAccess<DataType>` |
-
-**Returns:** *`Promise<Partial<DataType>>`*
-
-___
-
-###  findBy
-
-▸ **findBy**(`fields`: `AnyInput<DataType>`, `joinBy?`: `JoinBy`, `options?`: `i.FindOneOptions<DataType>`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<DataType>`*
+▸ **exists**(`id`: string[] | string): *Promise‹boolean›*
 
 *Inherited from void*
 
@@ -469,121 +402,15 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`fields` | `AnyInput<DataType>` |
-`joinBy?` | `JoinBy` |
-`options?` | `i.FindOneOptions<DataType>` |
-`queryAccess?` | `QueryAccess<DataType>` |
+`id` | string[] \| string |
 
-**Returns:** *`Promise<DataType>`*
+**Returns:** *Promise‹boolean›*
 
 ___
 
-###  findByAnyId
+###  find
 
-▸ **findByAnyId**(`anyId`: any, `options?`: `i.FindOneOptions<DataType>`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<DataType>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:27
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`anyId` | any |
-`options?` | `i.FindOneOptions<DataType>` |
-`queryAccess?` | `QueryAccess<DataType>` |
-
-**Returns:** *`Promise<DataType>`*
-
-___
-
-###  findById
-
-▸ **findById**(`id`: string, `options?`: `i.FindOneOptions<DataType>`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<DataType>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:26
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`id` | string |
-`options?` | `i.FindOneOptions<DataType>` |
-`queryAccess?` | `QueryAccess<DataType>` |
-
-**Returns:** *`Promise<DataType>`*
-
-___
-
-###  initialize
-
-▸ **initialize**(): *`Promise<void>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:17
-
-**Returns:** *`Promise<void>`*
-
-___
-
-###  resolveDataType
-
-▸ **resolveDataType**(`id`: string, `options?`: `ResolveDataTypeOptions`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<DataType>`*
-
-*Defined in [models/data-types.ts:22](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/data-types.ts#L22)*
-
-Get the type configuration for a data type
-including any merged fields
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`id` | string |
-`options?` | `ResolveDataTypeOptions` |
-`queryAccess?` | `QueryAccess<DataType>` |
-
-**Returns:** *`Promise<DataType>`*
-
-___
-
-###  resolveTypeConfig
-
-▸ **resolveTypeConfig**(`dataType`: [DataType](../interfaces/datatype.md), `options?`: `ResolveDataTypeOptions`, `queryAccess?`: `QueryAccess<DataType>`): *`Promise<DataTypeConfig>`*
-
-*Defined in [models/data-types.ts:30](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/data-types.ts#L30)*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`dataType` | [DataType](../interfaces/datatype.md) |
-`options?` | `ResolveDataTypeOptions` |
-`queryAccess?` | `QueryAccess<DataType>` |
-
-**Returns:** *`Promise<DataTypeConfig>`*
-
-___
-
-###  shutdown
-
-▸ **shutdown**(): *`Promise<void>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:18
-
-**Returns:** *`Promise<void>`*
-
-___
-
-###  update
-
-▸ **update**(`record`: `i.UpdateRecordInput<DataType>`): *`Promise<void>`*
+▸ **find**(`q?`: undefined | string, `options?`: i.FindOptions‹[DataType](../interfaces/datatype.md)›, `queryAccess?`: QueryAccess‹[DataType](../interfaces/datatype.md)›): *Promise‹[DataType](../interfaces/datatype.md)[]›*
 
 *Inherited from void*
 
@@ -593,6 +420,190 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`record` | `i.UpdateRecordInput<DataType>` |
+`q?` | undefined \| string |
+`options?` | i.FindOptions‹[DataType](../interfaces/datatype.md)› |
+`queryAccess?` | QueryAccess‹[DataType](../interfaces/datatype.md)› |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹[DataType](../interfaces/datatype.md)[]›*
+
+___
+
+###  findAll
+
+▸ **findAll**(`input`: string[] | string | undefined, `options?`: i.FindOneOptions‹[DataType](../interfaces/datatype.md)›, `queryAccess?`: QueryAccess‹[DataType](../interfaces/datatype.md)›): *Promise‹[DataType](../interfaces/datatype.md)[]›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:30
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`input` | string[] \| string \| undefined |
+`options?` | i.FindOneOptions‹[DataType](../interfaces/datatype.md)› |
+`queryAccess?` | QueryAccess‹[DataType](../interfaces/datatype.md)› |
+
+**Returns:** *Promise‹[DataType](../interfaces/datatype.md)[]›*
+
+___
+
+###  findAndApply
+
+▸ **findAndApply**(`updates`: Partial‹[DataType](../interfaces/datatype.md)› | undefined, `options?`: i.FindOneOptions‹[DataType](../interfaces/datatype.md)›, `queryAccess?`: QueryAccess‹[DataType](../interfaces/datatype.md)›): *Promise‹Partial‹[DataType](../interfaces/datatype.md)››*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:29
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`updates` | Partial‹[DataType](../interfaces/datatype.md)› \| undefined |
+`options?` | i.FindOneOptions‹[DataType](../interfaces/datatype.md)› |
+`queryAccess?` | QueryAccess‹[DataType](../interfaces/datatype.md)› |
+
+**Returns:** *Promise‹Partial‹[DataType](../interfaces/datatype.md)››*
+
+___
+
+###  findBy
+
+▸ **findBy**(`fields`: AnyInput‹[DataType](../interfaces/datatype.md)›, `joinBy?`: JoinBy, `options?`: i.FindOneOptions‹[DataType](../interfaces/datatype.md)›, `queryAccess?`: QueryAccess‹[DataType](../interfaces/datatype.md)›): *Promise‹[DataType](../interfaces/datatype.md)›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:26
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`fields` | AnyInput‹[DataType](../interfaces/datatype.md)› |
+`joinBy?` | JoinBy |
+`options?` | i.FindOneOptions‹[DataType](../interfaces/datatype.md)› |
+`queryAccess?` | QueryAccess‹[DataType](../interfaces/datatype.md)› |
+
+**Returns:** *Promise‹[DataType](../interfaces/datatype.md)›*
+
+___
+
+###  findByAnyId
+
+▸ **findByAnyId**(`anyId`: any, `options?`: i.FindOneOptions‹[DataType](../interfaces/datatype.md)›, `queryAccess?`: QueryAccess‹[DataType](../interfaces/datatype.md)›): *Promise‹[DataType](../interfaces/datatype.md)›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:28
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`anyId` | any |
+`options?` | i.FindOneOptions‹[DataType](../interfaces/datatype.md)› |
+`queryAccess?` | QueryAccess‹[DataType](../interfaces/datatype.md)› |
+
+**Returns:** *Promise‹[DataType](../interfaces/datatype.md)›*
+
+___
+
+###  findById
+
+▸ **findById**(`id`: string, `options?`: i.FindOneOptions‹[DataType](../interfaces/datatype.md)›, `queryAccess?`: QueryAccess‹[DataType](../interfaces/datatype.md)›): *Promise‹[DataType](../interfaces/datatype.md)›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:27
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`id` | string |
+`options?` | i.FindOneOptions‹[DataType](../interfaces/datatype.md)› |
+`queryAccess?` | QueryAccess‹[DataType](../interfaces/datatype.md)› |
+
+**Returns:** *Promise‹[DataType](../interfaces/datatype.md)›*
+
+___
+
+###  initialize
+
+▸ **initialize**(): *Promise‹void›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:18
+
+**Returns:** *Promise‹void›*
+
+___
+
+###  resolveDataType
+
+▸ **resolveDataType**(`id`: string, `options?`: [ResolveDataTypeOptions](../overview.md#resolvedatatypeoptions), `queryAccess?`: QueryAccess‹[DataType](../interfaces/datatype.md)›): *Promise‹[DataType](../interfaces/datatype.md)›*
+
+*Defined in [models/data-types.ts:27](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/data-types.ts#L27)*
+
+Get the type configuration for a data type
+including any merged fields
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`id` | string |
+`options?` | [ResolveDataTypeOptions](../overview.md#resolvedatatypeoptions) |
+`queryAccess?` | QueryAccess‹[DataType](../interfaces/datatype.md)› |
+
+**Returns:** *Promise‹[DataType](../interfaces/datatype.md)›*
+
+___
+
+###  resolveTypeConfig
+
+▸ **resolveTypeConfig**(`dataType`: [DataType](../interfaces/datatype.md), `options?`: [ResolveDataTypeOptions](../overview.md#resolvedatatypeoptions), `queryAccess?`: QueryAccess‹[DataType](../interfaces/datatype.md)›): *Promise‹DataTypeConfig›*
+
+*Defined in [models/data-types.ts:39](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/data-types.ts#L39)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`dataType` | [DataType](../interfaces/datatype.md) |
+`options?` | [ResolveDataTypeOptions](../overview.md#resolvedatatypeoptions) |
+`queryAccess?` | QueryAccess‹[DataType](../interfaces/datatype.md)› |
+
+**Returns:** *Promise‹DataTypeConfig›*
+
+___
+
+###  shutdown
+
+▸ **shutdown**(): *Promise‹void›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:19
+
+**Returns:** *Promise‹void›*
+
+___
+
+###  update
+
+▸ **update**(`record`: i.UpdateRecordInput‹[DataType](../interfaces/datatype.md)›): *Promise‹void›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:32
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`record` | i.UpdateRecordInput‹[DataType](../interfaces/datatype.md)› |
+
+**Returns:** *Promise‹void›*

@@ -23,7 +23,7 @@ sidebar_label: SliceAnalyticsData
 
 • **memory**: *number[]*
 
-*Defined in [execution-controller/interfaces.ts:69](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L69)*
+*Defined in [execution-controller/interfaces.ts:68](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L68)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **size**: *number[]*
 
-*Defined in [execution-controller/interfaces.ts:68](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L68)*
+*Defined in [execution-controller/interfaces.ts:67](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L67)*
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **time**: *number[]*
 
-*Defined in [execution-controller/interfaces.ts:67](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L67)*
+*Defined in [execution-controller/interfaces.ts:66](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L66)*

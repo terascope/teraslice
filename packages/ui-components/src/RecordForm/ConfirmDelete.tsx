@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { Modal, Button, Header, Icon, Form } from 'semantic-ui-react';
+import {
+    Modal, Button, Header, Icon, Form
+} from 'semantic-ui-react';
 
 const ConfirmDelete: React.FC<Props> = ({ recordType, onConfirm }) => {
     const [open, setOpen] = useState(false);
 
     return (
         <Modal
-            trigger={
+            trigger={(
                 <Form.Button
                     basic
                     className="delete"
@@ -19,7 +21,7 @@ const ConfirmDelete: React.FC<Props> = ({ recordType, onConfirm }) => {
                 >
                     Delete
                 </Form.Button>
-            }
+            )}
             onOpen={() => setOpen(true)}
             onClose={() => setOpen(false)}
             open={open}
@@ -27,7 +29,12 @@ const ConfirmDelete: React.FC<Props> = ({ recordType, onConfirm }) => {
         >
             <Header icon="trash alternate" content="Delete record" />
             <Modal.Content>
-                <p>Are you sure you want to delete {recordType} record</p>
+                <p>
+Are you sure you want to delete
+                    {recordType}
+                    {' '}
+record
+                </p>
             </Modal.Content>
             <Modal.Actions>
                 <Button basic onClick={() => setOpen(false)}>
@@ -40,7 +47,9 @@ const ConfirmDelete: React.FC<Props> = ({ recordType, onConfirm }) => {
                         onConfirm();
                     }}
                 >
-                    <Icon name="check" /> Yes
+                    <Icon name="check" />
+                    {' '}
+Yes
                 </Button>
             </Modal.Actions>
         </Modal>

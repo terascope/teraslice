@@ -3,15 +3,13 @@ import PropTypes from 'prop-types';
 import { Segment, Container } from 'semantic-ui-react';
 import ErrorMessage from './ErrorMessage';
 
-const ErrorPage: React.FC<Props> = ({ error }) => {
-    return (
-        <Container className="simplePageContainer">
-            <Segment className="simplePageContent" padded="very">
-                <ErrorMessage error={error} />
-            </Segment>
-        </Container>
-    );
-};
+const ErrorPage: React.FC<Props> = ({ error }) => (
+    <Container className="simplePageContainer">
+        <Segment className="simplePageContent" padded="very">
+            <ErrorMessage error={error} />
+        </Segment>
+    </Container>
+);
 
 type Props = {
     error: any;

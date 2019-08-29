@@ -1,11 +1,12 @@
 
-import { NumberValidation } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
+import { NumberValidation } from '../../../src/operations';
 
 describe('number validation', () => {
-
     it('can instantiate', () => {
-        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId'
+        };
         expect(() => new NumberValidation(opConfig)).not.toThrow();
     });
 
@@ -16,18 +17,20 @@ describe('number validation', () => {
         const badConfig4 = {};
         // @ts-ignore
         expect(() => new NumberValidation(badConfig1)).toThrow();
-         // @ts-ignore
+        // @ts-ignore
         expect(() => new NumberValidation(badConfig2)).toThrow();
-         // @ts-ignore
+        // @ts-ignore
         expect(() => new NumberValidation(badConfig3)).toThrow();
-         // @ts-ignore
+        // @ts-ignore
         expect(() => new NumberValidation(badConfig4)).toThrow();
     });
 
     it('can validate number fields', () => {
-        const opConfig = { source_field: 'bytes', target_field: 'bytes', __id: 'someId', follow: 'otherId' };
-        const test =  new NumberValidation(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
+        const opConfig = {
+            source_field: 'bytes', target_field: 'bytes', __id: 'someId', follow: 'otherId'
+        };
+        const test = new NumberValidation(opConfig);
+        const metaData = { selectors: { 'some:query': true } };
 
         const data1 = new DataEntity({ bytes: '56.234,95.234' }, metaData);
         const data2 = new DataEntity({ bytes: 123423 }, metaData);
@@ -58,9 +61,11 @@ describe('number validation', () => {
         expect(results7).toEqual({});
     });
 
-    it('can validate nested fields', async() => {
-        const opConfig = { source_field: 'file.bytes', target_field: 'file.bytes', __id: 'someId', follow: 'otherId' };
-        const test =  new NumberValidation(opConfig);
+    it('can validate nested fields', async () => {
+        const opConfig = {
+            source_field: 'file.bytes', target_field: 'file.bytes', __id: 'someId', follow: 'otherId'
+        };
+        const test = new NumberValidation(opConfig);
 
         const data1 = new DataEntity({ file: 'something' });
         const data2 = new DataEntity({ file: {} });
@@ -83,9 +88,11 @@ describe('number validation', () => {
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
     });
 
-    it('can can convert the field', async() => {
-        const opConfig = { source_field: 'file.bytes', target_field: 'file.bytes', __id: 'someId', follow: 'otherId' };
-        const test =  new NumberValidation(opConfig);
+    it('can can convert the field', async () => {
+        const opConfig = {
+            source_field: 'file.bytes', target_field: 'file.bytes', __id: 'someId', follow: 'otherId'
+        };
+        const test = new NumberValidation(opConfig);
 
         const data1 = new DataEntity({ file: { bytes: 123423 } });
         const data2 = new DataEntity({ file: { bytes: '123423' } });

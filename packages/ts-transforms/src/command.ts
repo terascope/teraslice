@@ -77,6 +77,8 @@ function getPipedData(): Promise<string> {
     return new Promise((resolve, reject) => {
         let strResults = '';
         if (process.stdin.isTTY) {
+            // FIXME don't reject with a string
+            // eslint-disable-next-line prefer-promise-reject-errors
             reject('please pipe an elasticsearch response or provide the data parameter -d with path to data file');
             return;
         }
@@ -182,12 +184,10 @@ async function initCommand() {
 
         if (command.perf) {
             process.stderr.write('\n');
-            // tslint:disable-next-line
             console.time('execution-time');
         }
 
         const results = manager.run(data);
-        // tslint:disable-next-line
         if (command.perf) console.timeEnd('execution-time');
         process.stdout.write(`${JSON.stringify(results, null, 4)} \n`);
     } catch (err) {

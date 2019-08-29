@@ -11,4 +11,4 @@ sidebar_label: TypeConfig
 
 ## Indexable
 
-● \[▪ **field**: *string*\]: [FieldType](../overview.md#fieldtype)
+* \[ **field**: *string*\]: [FieldType](../enums/fieldtype.md)

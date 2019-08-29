@@ -7,13 +7,13 @@ sidebar_label: ESTypeMappings
 
 ## Hierarchy
 
-* `AnyObject`
+* AnyObject
 
   * **ESTypeMappings**
 
 ## Indexable
 
-● \[▪ **prop**: *string*\]: any
+* \[ **prop**: *string*\]: any
 
 ## Index
 
@@ -29,7 +29,7 @@ sidebar_label: ESTypeMappings
 
 • **_all**? : *undefined | object*
 
-*Defined in [interfaces.ts:169](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/interfaces.ts#L169)*
+*Defined in [interfaces.ts:170](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L170)*
 
 ___
 
@@ -37,7 +37,7 @@ ___
 
 • **dynamic**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:173](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/interfaces.ts#L173)*
+*Defined in [interfaces.ts:174](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L174)*
 
 ___
 
@@ -45,8 +45,8 @@ ___
 
 • **properties**: *object*
 
-*Defined in [interfaces.ts:174](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/interfaces.ts#L174)*
+*Defined in [interfaces.ts:175](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L175)*
 
 #### Type declaration:
 
-● \[▪ **key**: *string*\]: [ESTypeMapping](../overview.md#estypemapping)
+* \[ **key**: *string*\]: [ESTypeMapping](../overview.md#estypemapping)

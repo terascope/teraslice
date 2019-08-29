@@ -25,8 +25,12 @@ export class SearchAccess {
             throw new ts.TSError('Search is not configured correctly for search');
         }
 
-        const typeConfig = this.config.data_type.config || { fields: {}, version: t.LATEST_VERSION };
+        const typeConfig = this.config.data_type.config || {
+            fields: {},
+            version: t.LATEST_VERSION
+        };
         const types = new t.DataType(typeConfig);
+
         this._logger = logger;
         this._queryAccess = new x.QueryAccess(
             {
@@ -127,7 +131,7 @@ export class SearchAccess {
             throw new ts.TSError(...validationErr('size', 'must be a valid number', query));
         }
 
-        let maxQuerySize: number = 100000;
+        let maxQuerySize = 100000;
         const _maxQuerySize = ts.toInteger(this.spaceConfig.max_query_size);
         if (_maxQuerySize < 0) {
             maxQuerySize = 0;
@@ -203,7 +207,11 @@ export class SearchAccess {
     /**
      * Format the results or error from the performSearch
      */
-    getSearchResponse(response: es.SearchResponse<any>, query: i.InputQuery, params: es.SearchParams) {
+    getSearchResponse(
+        response: es.SearchResponse<any>,
+        query: i.InputQuery,
+        params: es.SearchParams
+    ): i.FinalResponse {
         // I don't think this property actually exists
         const error = ts.get(response, 'error');
         if (error) {
@@ -305,7 +313,11 @@ export class SearchAccess {
     }
 }
 
-function validationErr(param: keyof i.InputQuery, msg: string, query: i.InputQuery): [string, ts.TSErrorConfig] {
+function validationErr(
+    param: keyof i.InputQuery,
+    msg: string,
+    query: i.InputQuery
+): [string, ts.TSErrorConfig] {
     const given = ts.toString(ts.get(query, param));
     return [
         `Invalid ${param} parameter, ${msg}, was given: "${given}"`,

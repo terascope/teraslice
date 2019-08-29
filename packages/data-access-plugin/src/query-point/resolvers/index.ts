@@ -43,7 +43,13 @@ interface QueryArgs {
     [key: string]: InputQuery;
 }
 
-function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger: Logger, context: Context, concurrency: number) {
+function createResolvers(
+    viewList: DataAccessConfig[],
+    typeDefs: string,
+    logger: Logger,
+    context: Context,
+    concurrency: number
+    ) {
     const results = {} as IResolvers<any, SpacesContext>;
     const endpoints = {};
     const searchDict: SearchDict = {};

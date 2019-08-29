@@ -19,7 +19,7 @@ export default class NumberValidation extends ValidationOpBase<any> {
         throw new Error('could not convert to a number');
     }
 
-    validate(data:number) {
+    validate(data: number) {
         if (typeof data === 'number') return true;
         return false;
     }

@@ -9,7 +9,7 @@ Manager for Views
 
 ## Hierarchy
 
-* `IndexModel<View>`
+* IndexModel‹[View](../interfaces/view.md)›
 
   * **Views**
 
@@ -24,6 +24,7 @@ Manager for Views
 * [logger](views.md#logger)
 * [name](views.md#name)
 * [store](views.md#store)
+* [xluceneTypeConfig](views.md#xlucenetypeconfig)
 * [IndexModelConfig](views.md#static-indexmodelconfig)
 
 ### Methods
@@ -60,18 +61,18 @@ Manager for Views
 
 ###  constructor
 
-\+ **new Views**(`client`: `Client`, `config`: `IndexModelOptions`): *[Views](views.md)*
+\+ **new Views**(`client`: Client, `config`: IndexModelOptions): *[Views](views.md)*
 
 *Overrides void*
 
-*Defined in [models/views.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/views.ts#L12)*
+*Defined in [models/views.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/views.ts#L12)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`client` | `Client` |
-`config` | `IndexModelOptions` |
+`client` | Client |
+`config` | IndexModelOptions |
 
 **Returns:** *[Views](views.md)*
 
@@ -79,7 +80,7 @@ Name | Type |
 
 ###  logger
 
-• **logger**: *`Logger`*
+• **logger**: *Logger*
 
 *Inherited from void*
 
@@ -99,7 +100,7 @@ ___
 
 ###  store
 
-• **store**: *`IndexStore<View>`*
+• **store**: *IndexStore‹[View](../interfaces/view.md)›*
 
 *Inherited from void*
 
@@ -107,21 +108,31 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 ___
 
+###  xluceneTypeConfig
+
+• **xluceneTypeConfig**: *TypeConfig | undefined*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:17
+
+___
+
 ### `Static` IndexModelConfig
 
-▪ **IndexModelConfig**: *`IndexModelConfig<View>`* =  viewsConfig
+▪ **IndexModelConfig**: *IndexModelConfig‹[View](../interfaces/view.md)›* =  viewsConfig
 
-*Defined in [models/views.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/views.ts#L12)*
+*Defined in [models/views.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/views.ts#L12)*
 
 ## Methods
 
 ### `Protected` _appendToArray
 
-▸ **_appendToArray**(`id`: string, `field`: keyof View, `values`: string[] | string): *`Promise<void>`*
+▸ **_appendToArray**(`id`: string, `field`: keyof View, `values`: string[] | string): *Promise‹void›*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:33
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:34
 
 **Parameters:**
 
@@ -131,25 +142,25 @@ Name | Type |
 `field` | keyof View |
 `values` | string[] \| string |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ### `Protected` _createJoinQuery
 
-▸ **_createJoinQuery**(`fields`: `AnyInput<View>`, `joinBy?`: `JoinBy`, `arrayJoinBy?`: `JoinBy`): *string*
+▸ **_createJoinQuery**(`fields`: AnyInput‹[View](../interfaces/view.md)›, `joinBy?`: JoinBy, `arrayJoinBy?`: JoinBy): *string*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:40
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:41
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`fields` | `AnyInput<View>` |
-`joinBy?` | `JoinBy` |
-`arrayJoinBy?` | `JoinBy` |
+`fields` | AnyInput‹[View](../interfaces/view.md)› |
+`joinBy?` | JoinBy |
+`arrayJoinBy?` | JoinBy |
 
 **Returns:** *string*
 
@@ -157,7 +168,26 @@ ___
 
 ### `Protected` _ensureUnique
 
-▸ **_ensureUnique**(`record`: [View](../interfaces/view.md), `existing?`: [T]()): *`Promise<void>`*
+▸ **_ensureUnique**(`record`: [View](../interfaces/view.md), `existing?`: [T]()): *Promise‹void›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:37
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`record` | [View](../interfaces/view.md) |
+`existing?` | [T]() |
+
+**Returns:** *Promise‹void›*
+
+___
+
+### `Protected` _find
+
+▸ **_find**(`q?`: undefined | string, `options?`: i.FindOptions‹[View](../interfaces/view.md)›, `queryAccess?`: QueryAccess‹[View](../interfaces/view.md)›): *Promise‹[View](../interfaces/view.md)[]›*
 
 *Inherited from void*
 
@@ -167,30 +197,11 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`record` | [View](../interfaces/view.md) |
-`existing?` | [T]() |
-
-**Returns:** *`Promise<void>`*
-
-___
-
-### `Protected` _find
-
-▸ **_find**(`q?`: undefined | string, `options?`: `i.FindOptions<View>`, `queryAccess?`: `QueryAccess<View>`): *`Promise<View[]>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:35
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
 `q?` | undefined \| string |
-`options?` | `i.FindOptions<View>` |
-`queryAccess?` | `QueryAccess<View>` |
+`options?` | i.FindOptions‹[View](../interfaces/view.md)› |
+`queryAccess?` | QueryAccess‹[View](../interfaces/view.md)› |
 
-**Returns:** *`Promise<View[]>`*
+**Returns:** *Promise‹[View](../interfaces/view.md)[]›*
 
 ___
 
@@ -200,7 +211,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:38
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:39
 
 **Parameters:**
 
@@ -218,7 +229,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:39
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:40
 
 **Parameters:**
 
@@ -232,11 +243,11 @@ ___
 
 ### `Protected` _removeFromArray
 
-▸ **_removeFromArray**(`id`: string, `field`: keyof View, `values`: string[] | string): *`Promise<void>`*
+▸ **_removeFromArray**(`id`: string, `field`: keyof View, `values`: string[] | string): *Promise‹void›*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:34
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:35
 
 **Parameters:**
 
@@ -246,7 +257,7 @@ Name | Type |
 `field` | keyof View |
 `values` | string[] \| string |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
@@ -256,7 +267,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:37
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:38
 
 **Parameters:**
 
@@ -270,11 +281,11 @@ ___
 
 ### `Protected` _updateWith
 
-▸ **_updateWith**(`id`: string, `body`: any): *`Promise<void>`*
+▸ **_updateWith**(`id`: string, `body`: any): *Promise‹void›*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:32
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:33
 
 **Parameters:**
 
@@ -283,48 +294,29 @@ Name | Type |
 `id` | string |
 `body` | any |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ###  checkForViewConflicts
 
-▸ **checkForViewConflicts**(`space`: `Partial<Space>`): *`Promise<void>`*
+▸ **checkForViewConflicts**(`space`: Partial‹[Space](../interfaces/space.md)›): *Promise‹void›*
 
-*Defined in [models/views.ts:18](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/views.ts#L18)*
+*Defined in [models/views.ts:18](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/views.ts#L18)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`space` | `Partial<Space>` |
+`space` | Partial‹[Space](../interfaces/space.md)› |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ###  count
 
-▸ **count**(`q?`: undefined | string, `queryAccess?`: `QueryAccess<View>`): *`Promise<number>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:19
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`q?` | undefined \| string |
-`queryAccess?` | `QueryAccess<View>` |
-
-**Returns:** *`Promise<number>`*
-
-___
-
-###  countBy
-
-▸ **countBy**(`fields`: `AnyInput<View>`, `joinBy?`: `JoinBy`, `arrayJoinBy?`: `JoinBy`): *`Promise<number>`*
+▸ **count**(`q?`: undefined | string, `queryAccess?`: QueryAccess‹[View](../interfaces/view.md)›): *Promise‹number›*
 
 *Inherited from void*
 
@@ -334,17 +326,16 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`fields` | `AnyInput<View>` |
-`joinBy?` | `JoinBy` |
-`arrayJoinBy?` | `JoinBy` |
+`q?` | undefined \| string |
+`queryAccess?` | QueryAccess‹[View](../interfaces/view.md)› |
 
-**Returns:** *`Promise<number>`*
+**Returns:** *Promise‹number›*
 
 ___
 
-###  create
+###  countBy
 
-▸ **create**(`record`: `i.CreateRecordInput<View>`): *`Promise<View>`*
+▸ **countBy**(`fields`: AnyInput‹[View](../interfaces/view.md)›, `joinBy?`: JoinBy, `arrayJoinBy?`: JoinBy): *Promise‹number›*
 
 *Inherited from void*
 
@@ -354,33 +345,17 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`record` | `i.CreateRecordInput<View>` |
+`fields` | AnyInput‹[View](../interfaces/view.md)› |
+`joinBy?` | JoinBy |
+`arrayJoinBy?` | JoinBy |
 
-**Returns:** *`Promise<View>`*
-
-___
-
-###  deleteAll
-
-▸ **deleteAll**(`ids`: string[]): *`Promise<void>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:23
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`ids` | string[] |
-
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹number›*
 
 ___
 
-###  deleteById
+###  create
 
-▸ **deleteById**(`id`: string): *`Promise<void>`*
+▸ **create**(`record`: i.CreateRecordInput‹[View](../interfaces/view.md)›): *Promise‹[View](../interfaces/view.md)›*
 
 *Inherited from void*
 
@@ -390,15 +365,15 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`id` | string |
+`record` | i.CreateRecordInput‹[View](../interfaces/view.md)› |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹[View](../interfaces/view.md)›*
 
 ___
 
-###  exists
+###  deleteAll
 
-▸ **exists**(`id`: string[] | string): *`Promise<boolean>`*
+▸ **deleteAll**(`ids`: string[]): *Promise‹void›*
 
 *Inherited from void*
 
@@ -408,75 +383,33 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`id` | string[] \| string |
+`ids` | string[] |
 
-**Returns:** *`Promise<boolean>`*
+**Returns:** *Promise‹void›*
 
 ___
 
-###  find
+###  deleteById
 
-▸ **find**(`q?`: undefined | string, `options?`: `i.FindOptions<View>`, `queryAccess?`: `QueryAccess<View>`): *`Promise<View[]>`*
+▸ **deleteById**(`id`: string): *Promise‹void›*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:30
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:23
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`q?` | undefined \| string |
-`options?` | `i.FindOptions<View>` |
-`queryAccess?` | `QueryAccess<View>` |
+`id` | string |
 
-**Returns:** *`Promise<View[]>`*
+**Returns:** *Promise‹void›*
 
 ___
 
-###  findAll
+###  exists
 
-▸ **findAll**(`input`: string[] | string | undefined, `options?`: `i.FindOneOptions<View>`, `queryAccess?`: `QueryAccess<View>`): *`Promise<View[]>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:29
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`input` | string[] \| string \| undefined |
-`options?` | `i.FindOneOptions<View>` |
-`queryAccess?` | `QueryAccess<View>` |
-
-**Returns:** *`Promise<View[]>`*
-
-___
-
-###  findAndApply
-
-▸ **findAndApply**(`updates`: `Partial<View>` | undefined, `options?`: `i.FindOneOptions<View>`, `queryAccess?`: `QueryAccess<View>`): *`Promise<Partial<View>>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:28
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`updates` | `Partial<View>` \| undefined |
-`options?` | `i.FindOneOptions<View>` |
-`queryAccess?` | `QueryAccess<View>` |
-
-**Returns:** *`Promise<Partial<View>>`*
-
-___
-
-###  findBy
-
-▸ **findBy**(`fields`: `AnyInput<View>`, `joinBy?`: `JoinBy`, `options?`: `i.FindOneOptions<View>`, `queryAccess?`: `QueryAccess<View>`): *`Promise<View>`*
+▸ **exists**(`id`: string[] | string): *Promise‹boolean›*
 
 *Inherited from void*
 
@@ -486,115 +419,15 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`fields` | `AnyInput<View>` |
-`joinBy?` | `JoinBy` |
-`options?` | `i.FindOneOptions<View>` |
-`queryAccess?` | `QueryAccess<View>` |
+`id` | string[] \| string |
 
-**Returns:** *`Promise<View>`*
+**Returns:** *Promise‹boolean›*
 
 ___
 
-###  findByAnyId
+###  find
 
-▸ **findByAnyId**(`anyId`: any, `options?`: `i.FindOneOptions<View>`, `queryAccess?`: `QueryAccess<View>`): *`Promise<View>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:27
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`anyId` | any |
-`options?` | `i.FindOneOptions<View>` |
-`queryAccess?` | `QueryAccess<View>` |
-
-**Returns:** *`Promise<View>`*
-
-___
-
-###  findById
-
-▸ **findById**(`id`: string, `options?`: `i.FindOneOptions<View>`, `queryAccess?`: `QueryAccess<View>`): *`Promise<View>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:26
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`id` | string |
-`options?` | `i.FindOneOptions<View>` |
-`queryAccess?` | `QueryAccess<View>` |
-
-**Returns:** *`Promise<View>`*
-
-___
-
-###  getViewOfSpace
-
-▸ **getViewOfSpace**(`space`: [Space](../interfaces/space.md), `role`: [Role](../interfaces/role.md)): *`Promise<View>`*
-
-*Defined in [models/views.ts:53](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/views.ts#L53)*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`space` | [Space](../interfaces/space.md) |
-`role` | [Role](../interfaces/role.md) |
-
-**Returns:** *`Promise<View>`*
-
-___
-
-###  initialize
-
-▸ **initialize**(): *`Promise<void>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:17
-
-**Returns:** *`Promise<void>`*
-
-___
-
-###  removeRoleFromViews
-
-▸ **removeRoleFromViews**(`roleId`: string): *`Promise<void>`*
-
-*Defined in [models/views.ts:70](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/views.ts#L70)*
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`roleId` | string |
-
-**Returns:** *`Promise<void>`*
-
-___
-
-###  shutdown
-
-▸ **shutdown**(): *`Promise<void>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:18
-
-**Returns:** *`Promise<void>`*
-
-___
-
-###  update
-
-▸ **update**(`record`: `i.UpdateRecordInput<View>`): *`Promise<void>`*
+▸ **find**(`q?`: undefined | string, `options?`: i.FindOptions‹[View](../interfaces/view.md)›, `queryAccess?`: QueryAccess‹[View](../interfaces/view.md)›): *Promise‹[View](../interfaces/view.md)[]›*
 
 *Inherited from void*
 
@@ -604,6 +437,184 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`record` | `i.UpdateRecordInput<View>` |
+`q?` | undefined \| string |
+`options?` | i.FindOptions‹[View](../interfaces/view.md)› |
+`queryAccess?` | QueryAccess‹[View](../interfaces/view.md)› |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹[View](../interfaces/view.md)[]›*
+
+___
+
+###  findAll
+
+▸ **findAll**(`input`: string[] | string | undefined, `options?`: i.FindOneOptions‹[View](../interfaces/view.md)›, `queryAccess?`: QueryAccess‹[View](../interfaces/view.md)›): *Promise‹[View](../interfaces/view.md)[]›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:30
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`input` | string[] \| string \| undefined |
+`options?` | i.FindOneOptions‹[View](../interfaces/view.md)› |
+`queryAccess?` | QueryAccess‹[View](../interfaces/view.md)› |
+
+**Returns:** *Promise‹[View](../interfaces/view.md)[]›*
+
+___
+
+###  findAndApply
+
+▸ **findAndApply**(`updates`: Partial‹[View](../interfaces/view.md)› | undefined, `options?`: i.FindOneOptions‹[View](../interfaces/view.md)›, `queryAccess?`: QueryAccess‹[View](../interfaces/view.md)›): *Promise‹Partial‹[View](../interfaces/view.md)››*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:29
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`updates` | Partial‹[View](../interfaces/view.md)› \| undefined |
+`options?` | i.FindOneOptions‹[View](../interfaces/view.md)› |
+`queryAccess?` | QueryAccess‹[View](../interfaces/view.md)› |
+
+**Returns:** *Promise‹Partial‹[View](../interfaces/view.md)››*
+
+___
+
+###  findBy
+
+▸ **findBy**(`fields`: AnyInput‹[View](../interfaces/view.md)›, `joinBy?`: JoinBy, `options?`: i.FindOneOptions‹[View](../interfaces/view.md)›, `queryAccess?`: QueryAccess‹[View](../interfaces/view.md)›): *Promise‹[View](../interfaces/view.md)›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:26
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`fields` | AnyInput‹[View](../interfaces/view.md)› |
+`joinBy?` | JoinBy |
+`options?` | i.FindOneOptions‹[View](../interfaces/view.md)› |
+`queryAccess?` | QueryAccess‹[View](../interfaces/view.md)› |
+
+**Returns:** *Promise‹[View](../interfaces/view.md)›*
+
+___
+
+###  findByAnyId
+
+▸ **findByAnyId**(`anyId`: any, `options?`: i.FindOneOptions‹[View](../interfaces/view.md)›, `queryAccess?`: QueryAccess‹[View](../interfaces/view.md)›): *Promise‹[View](../interfaces/view.md)›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:28
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`anyId` | any |
+`options?` | i.FindOneOptions‹[View](../interfaces/view.md)› |
+`queryAccess?` | QueryAccess‹[View](../interfaces/view.md)› |
+
+**Returns:** *Promise‹[View](../interfaces/view.md)›*
+
+___
+
+###  findById
+
+▸ **findById**(`id`: string, `options?`: i.FindOneOptions‹[View](../interfaces/view.md)›, `queryAccess?`: QueryAccess‹[View](../interfaces/view.md)›): *Promise‹[View](../interfaces/view.md)›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:27
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`id` | string |
+`options?` | i.FindOneOptions‹[View](../interfaces/view.md)› |
+`queryAccess?` | QueryAccess‹[View](../interfaces/view.md)› |
+
+**Returns:** *Promise‹[View](../interfaces/view.md)›*
+
+___
+
+###  getViewOfSpace
+
+▸ **getViewOfSpace**(`space`: [Space](../interfaces/space.md), `role`: [Role](../interfaces/role.md)): *Promise‹[View](../interfaces/view.md)›*
+
+*Defined in [models/views.ts:53](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/views.ts#L53)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`space` | [Space](../interfaces/space.md) |
+`role` | [Role](../interfaces/role.md) |
+
+**Returns:** *Promise‹[View](../interfaces/view.md)›*
+
+___
+
+###  initialize
+
+▸ **initialize**(): *Promise‹void›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:18
+
+**Returns:** *Promise‹void›*
+
+___
+
+###  removeRoleFromViews
+
+▸ **removeRoleFromViews**(`roleId`: string): *Promise‹void›*
+
+*Defined in [models/views.ts:70](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/views.ts#L70)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`roleId` | string |
+
+**Returns:** *Promise‹void›*
+
+___
+
+###  shutdown
+
+▸ **shutdown**(): *Promise‹void›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:19
+
+**Returns:** *Promise‹void›*
+
+___
+
+###  update
+
+▸ **update**(`record`: i.UpdateRecordInput‹[View](../interfaces/view.md)›): *Promise‹void›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:32
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`record` | i.UpdateRecordInput‹[View](../interfaces/view.md)› |
+
+**Returns:** *Promise‹void›*

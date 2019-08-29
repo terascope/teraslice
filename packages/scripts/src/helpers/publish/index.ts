@@ -2,7 +2,9 @@ import ms from 'ms';
 import { PackageInfo } from '../interfaces';
 import { listPackages, getMainPackageInfo } from '../packages';
 import { PublishAction, PublishOptions, PublishType } from './interfaces';
-import { yarnPublish, yarnRun, remoteDockerImageExists, dockerBuild, dockerPush } from '../scripts';
+import {
+    yarnPublish, yarnRun, remoteDockerImageExists, dockerBuild, dockerPush
+} from '../scripts';
 import { shouldNPMPublish, formatDailyTag, buildCacheLayers } from './utils';
 import { getRootInfo } from '../misc';
 import signale from '../signale';
@@ -41,7 +43,7 @@ async function npmPublish(pkgInfo: PackageInfo, options: PublishOptions) {
 
 async function publishToDocker(options: PublishOptions) {
     const imagesToPush = [];
-    let imageToBuild: string = '';
+    let imageToBuild = '';
     const rootInfo = getRootInfo();
 
     if (options.type === PublishType.Latest) {

@@ -13,7 +13,7 @@ event handlers that should be cleaned up
 
 ## Indexable
 
-● \[▪ **eventName**: *string*\]: function
+* \[ **eventName**: *string*\]: function
 
 event handlers that should be cleaned up
 

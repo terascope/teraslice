@@ -1,6 +1,6 @@
+import { TSError } from '@terascope/utils';
 import ObejctType from '../../../src/types/versions/v1/object';
 import { FieldTypeConfig } from '../../../src/interfaces';
-import { TSError } from '@terascope/utils';
 
 describe('Object V1', () => {
     const field = 'someField';

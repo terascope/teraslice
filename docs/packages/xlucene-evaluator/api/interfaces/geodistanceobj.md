@@ -22,12 +22,12 @@ sidebar_label: GeoDistanceObj
 
 • **distance**: *number*
 
-*Defined in [interfaces.ts:17](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/interfaces.ts#L17)*
+*Defined in [interfaces.ts:16](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/interfaces.ts#L16)*
 
 ___
 
 ###  unit
 
-• **unit**: *`Units`*
+• **unit**: *[GeoDistanceUnit](../overview.md#geodistanceunit)*
 
-*Defined in [interfaces.ts:18](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/interfaces.ts#L18)*
+*Defined in [interfaces.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/interfaces.ts#L17)*

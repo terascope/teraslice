@@ -1,7 +1,15 @@
 import fs from 'fs';
 import path from 'path';
 import { parseJSON } from '@terascope/utils';
-import { ConnectionConfig, Context, ValidatedJobConfig, ExecutionConfig, OpConfig, GetClientConfig, WorkerContextAPIs } from './interfaces';
+import {
+    ConnectionConfig,
+    Context,
+    ValidatedJobConfig,
+    ExecutionConfig,
+    OpConfig,
+    GetClientConfig,
+    WorkerContextAPIs
+} from './interfaces';
 import { ExecutionContextAPI } from './execution-context';
 
 /** Get the first opConfig from an operation name */
@@ -10,7 +18,11 @@ export function getOpConfig(job: ValidatedJobConfig, name: string): OpConfig | u
 }
 
 /* Get the asset path from a asset name or ID */
-export async function getAssetPath(assetDir: string, assets: string[], name: string): Promise<string> {
+export async function getAssetPath(
+    assetDir: string,
+    assets: string[],
+    name: string
+): Promise<string> {
     if (!assetDir) {
         throw new Error('No asset_directroy has been configured, cannot get asset path');
     }
@@ -47,8 +59,6 @@ interface AssetJSON {
 /*
  * This will request a connection based on the 'connection' attribute of
  * an opConfig. Intended as a context API endpoint.
- * If there is an error getting the connection, it will not throw an error
- * it will log it and emit `client:initialization:error`
  */
 export function getClient(context: Context, config: GetClientConfig, type: string): any {
     const clientConfig: ConnectionConfig = {
@@ -56,7 +66,6 @@ export function getClient(context: Context, config: GetClientConfig, type: strin
         cached: true,
         endpoint: 'default',
     };
-    const events = context.apis.foundation.getSystemEvents();
 
     if (config && config.connection) {
         clientConfig.endpoint = config.connection || 'default';
@@ -67,20 +76,14 @@ export function getClient(context: Context, config: GetClientConfig, type: strin
         clientConfig.cached = true;
     }
 
-    try {
-        return context.foundation.getConnection(clientConfig).client;
-    } catch (err) {
-        const message = `No configuration for endpoint ${clientConfig.endpoint} was found in the terafoundation connectors config`;
-        context.logger.error(err, message);
-
-        events.emit('client:initialization:error', {
-            error: message,
-            stack: err,
-        });
-    }
+    return context.foundation.getConnection(clientConfig).client;
 }
 
-export function registerApis(context: Context, job: ValidatedJobConfig | ExecutionConfig, assetIds?: string[]): void {
+export function registerApis(
+    context: Context,
+    job: ValidatedJobConfig | ExecutionConfig,
+    assetIds?: string[]
+): void {
     const cleanupApis: (keyof WorkerContextAPIs)[] = ['op_runner', 'executionContext', 'job_runner', 'assets'];
     for (const api of cleanupApis) {
         if (context.apis[api] != null) {

@@ -23,16 +23,16 @@ sidebar_label: RulesLoader
 
 ###  constructor
 
-\+ **new RulesLoader**(`opConfig`: [WatcherConfig](../interfaces/watcherconfig.md), `logger`: `Logger`): *[RulesLoader](rulesloader.md)*
+\+ **new RulesLoader**(`opConfig`: [WatcherConfig](../interfaces/watcherconfig.md), `_logger?`: Logger): *[RulesLoader](rulesloader.md)*
 
-*Defined in [loader/rules-loader.ts:10](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/loader/rules-loader.ts#L10)*
+*Defined in [loader/rules-loader.ts:9](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/loader/rules-loader.ts#L9)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `opConfig` | [WatcherConfig](../interfaces/watcherconfig.md) |
-`logger` | `Logger` |
+`_logger?` | Logger |
 
 **Returns:** *[RulesLoader](rulesloader.md)*
 
@@ -40,8 +40,8 @@ Name | Type |
 
 ###  load
 
-▸ **load**(): *`Promise<OperationConfigInput[]>`*
+▸ **load**(): *Promise‹[OperationConfigInput](../overview.md#operationconfiginput)[]›*
 
-*Defined in [loader/rules-loader.ts:17](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/loader/rules-loader.ts#L17)*
+*Defined in [loader/rules-loader.ts:14](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/loader/rules-loader.ts#L14)*
 
-**Returns:** *`Promise<OperationConfigInput[]>`*
+**Returns:** *Promise‹[OperationConfigInput](../overview.md#operationconfiginput)[]›*

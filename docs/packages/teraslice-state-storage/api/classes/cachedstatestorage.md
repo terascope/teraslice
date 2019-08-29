@@ -11,7 +11,7 @@ sidebar_label: CachedStateStorage
 
 ## Hierarchy
 
-* `EventEmitter`
+* EventEmitter
 
   * **CachedStateStorage**
 
@@ -23,7 +23,6 @@ sidebar_label: CachedStateStorage
 
 ### Properties
 
-* [IDField](cachedstatestorage.md#protected-idfield)
 * [defaultMaxListeners](cachedstatestorage.md#static-defaultmaxlisteners)
 
 ### Methods
@@ -36,7 +35,6 @@ sidebar_label: CachedStateStorage
 * [get](cachedstatestorage.md#get)
 * [getMaxListeners](cachedstatestorage.md#getmaxlisteners)
 * [has](cachedstatestorage.md#has)
-* [initialize](cachedstatestorage.md#initialize)
 * [listenerCount](cachedstatestorage.md#listenercount)
 * [listeners](cachedstatestorage.md#listeners)
 * [mget](cachedstatestorage.md#mget)
@@ -60,7 +58,7 @@ sidebar_label: CachedStateStorage
 
 \+ **new CachedStateStorage**(`config`: [CacheConfig](../interfaces/cacheconfig.md)): *[CachedStateStorage](cachedstatestorage.md)*
 
-*Defined in [cached-state-storage/index.ts:18](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L18)*
+*Defined in [cached-state-storage/index.ts:10](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L10)*
 
 **Parameters:**
 
@@ -71,14 +69,6 @@ Name | Type |
 **Returns:** *[CachedStateStorage](cachedstatestorage.md)*
 
 ## Properties
-
-### `Protected` IDField
-
-• **IDField**: *string*
-
-*Defined in [cached-state-storage/index.ts:17](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L17)*
-
-___
 
 ### `Static` defaultMaxListeners
 
@@ -122,7 +112,7 @@ ___
 
 ▸ **clear**(): *void*
 
-*Defined in [cached-state-storage/index.ts:68](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L68)*
+*Defined in [cached-state-storage/index.ts:63](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L63)*
 
 **Returns:** *void*
 
@@ -132,7 +122,7 @@ ___
 
 ▸ **count**(): *number*
 
-*Defined in [cached-state-storage/index.ts:47](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L47)*
+*Defined in [cached-state-storage/index.ts:44](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L44)*
 
 **Returns:** *number*
 
@@ -161,7 +151,7 @@ ___
 
 ###  eventNames
 
-▸ **eventNames**(): *`Array<string | symbol>`*
+▸ **eventNames**(): *Array‹string | symbol›*
 
 *Inherited from void*
 
@@ -169,15 +159,15 @@ ___
 
 Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:24
 
-**Returns:** *`Array<string | symbol>`*
+**Returns:** *Array‹string | symbol›*
 
 ___
 
 ###  get
 
-▸ **get**(`key`: string): *`T` | undefined*
+▸ **get**(`key`: string): *T | undefined*
 
-*Defined in [cached-state-storage/index.ts:26](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L26)*
+*Defined in [cached-state-storage/index.ts:19](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L19)*
 
 **Parameters:**
 
@@ -185,7 +175,7 @@ Name | Type |
 ------ | ------ |
 `key` | string |
 
-**Returns:** *`T` | undefined*
+**Returns:** *T | undefined*
 
 ___
 
@@ -207,7 +197,7 @@ ___
 
 ▸ **has**(`key`: string): *boolean*
 
-*Defined in [cached-state-storage/index.ts:62](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L62)*
+*Defined in [cached-state-storage/index.ts:59](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L59)*
 
 **Parameters:**
 
@@ -216,16 +206,6 @@ Name | Type |
 `key` | string |
 
 **Returns:** *boolean*
-
-___
-
-###  initialize
-
-▸ **initialize**(): *void*
-
-*Defined in [cached-state-storage/index.ts:66](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L66)*
-
-**Returns:** *void*
 
 ___
 
@@ -251,7 +231,7 @@ ___
 
 ###  listeners
 
-▸ **listeners**(`event`: string | symbol): *`Function`[]*
+▸ **listeners**(`event`: string | symbol): *Function[]*
 
 *Inherited from void*
 
@@ -265,7 +245,7 @@ Name | Type |
 ------ | ------ |
 `event` | string \| symbol |
 
-**Returns:** *`Function`[]*
+**Returns:** *Function[]*
 
 ___
 
@@ -273,7 +253,7 @@ ___
 
 ▸ **mget**(`keyArray`: string[]): *[MGetCacheResponse](../interfaces/mgetcacheresponse.md)*
 
-*Defined in [cached-state-storage/index.ts:30](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L30)*
+*Defined in [cached-state-storage/index.ts:23](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L23)*
 
 **Parameters:**
 
@@ -287,15 +267,15 @@ ___
 
 ###  mset
 
-▸ **mset**(`docArray`: [SetTuple](../interfaces/settuple.md)‹*`T`*›[]): *void*
+▸ **mset**(`docArray`: [SetTuple](../interfaces/settuple.md)‹T›[]): *void*
 
-*Defined in [cached-state-storage/index.ts:43](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L43)*
+*Defined in [cached-state-storage/index.ts:38](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L38)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`docArray` | [SetTuple](../interfaces/settuple.md)‹*`T`*›[] |
+`docArray` | [SetTuple](../interfaces/settuple.md)‹T›[] |
 
 **Returns:** *void*
 
@@ -443,7 +423,7 @@ ___
 
 ###  rawListeners
 
-▸ **rawListeners**(`event`: string | symbol): *`Function`[]*
+▸ **rawListeners**(`event`: string | symbol): *Function[]*
 
 *Inherited from void*
 
@@ -457,7 +437,7 @@ Name | Type |
 ------ | ------ |
 `event` | string \| symbol |
 
-**Returns:** *`Function`[]*
+**Returns:** *Function[]*
 
 ___
 
@@ -511,16 +491,16 @@ ___
 
 ###  set
 
-▸ **set**(`key`: string, `value`: `T`): *void*
+▸ **set**(`key`: string, `value`: T): *void*
 
-*Defined in [cached-state-storage/index.ts:38](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L38)*
+*Defined in [cached-state-storage/index.ts:31](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L31)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `key` | string |
-`value` | `T` |
+`value` | T |
 
 **Returns:** *void*
 
@@ -548,23 +528,23 @@ ___
 
 ###  values
 
-▸ **values**(`fn`: [ValuesFn](../overview.md#valuesfn)‹*`T`*›): *`Promise<void>`*
+▸ **values**(`fn`: [ValuesFn](../overview.md#valuesfn)‹T›): *Promise‹void›*
 
-*Defined in [cached-state-storage/index.ts:51](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L51)*
+*Defined in [cached-state-storage/index.ts:48](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L48)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`fn` | [ValuesFn](../overview.md#valuesfn)‹*`T`*› |
+`fn` | [ValuesFn](../overview.md#valuesfn)‹T› |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ### `Static` listenerCount
 
-▸ **listenerCount**(`emitter`: `EventEmitter`, `event`: string | symbol): *number*
+▸ **listenerCount**(`emitter`: EventEmitter, `event`: string | symbol): *number*
 
 *Inherited from void*
 
@@ -576,7 +556,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:
 
 Name | Type |
 ------ | ------ |
-`emitter` | `EventEmitter` |
+`emitter` | EventEmitter |
 `event` | string \| symbol |
 
 **Returns:** *number*

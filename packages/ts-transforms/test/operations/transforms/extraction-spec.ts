@@ -1,14 +1,18 @@
-import { Extraction } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
+import { Extraction } from '../../../src/operations';
 
 describe('transform operator', () => {
     it('can instantiate', () => {
-        const opConfig = { target_field: 'someField', source_field: 'someField', __id: 'someId', mutate: false };
+        const opConfig = {
+            target_field: 'someField', source_field: 'someField', __id: 'someId', mutate: false
+        };
         expect(() => new Extraction(opConfig)).not.toThrow();
     });
 
     it('can transform data', () => {
-        const opConfig = { source_field: 'someField', target_field: 'otherField', __id: 'someId', mutate: false };
+        const opConfig = {
+            source_field: 'someField', target_field: 'otherField', __id: 'someId', mutate: false
+        };
         const test = new Extraction(opConfig);
 
         const data1 = new DataEntity({ someField: '56.234,95.234' });
@@ -107,7 +111,6 @@ describe('transform operator', () => {
     });
 
     describe('regexp handling', () => {
-
         it('can transform data with regex', () => {
             const opConfig = {
                 regex: '/d.*ta/',
@@ -246,7 +249,9 @@ describe('transform operator', () => {
 
     it('can maintain extract array values to array extractions and singular values to singular extractions', () => {
         // direct field transfer ignores multivalue=false
-        const opConfig1 = { source_field: 'someField', target_field: 'otherField', __id: 'someId', mutate: false, multivalue: false };
+        const opConfig1 = {
+            source_field: 'someField', target_field: 'otherField', __id: 'someId', mutate: false, multivalue: false
+        };
         const opConfig2 = {
             source_field: 'someField',
             target_field: 'otherField',
@@ -317,7 +322,9 @@ describe('transform operator', () => {
     });
 
     it('can mutate existing doc instead of returning a new one', () => {
-        const opConfig = { source_field: 'someField', target_field: 'otherField', mutate: true, __id: 'someId' };
+        const opConfig = {
+            source_field: 'someField', target_field: 'otherField', mutate: true, __id: 'someId'
+        };
         const test = new Extraction(opConfig);
 
         const dataArray = DataEntity.makeArray([
@@ -331,7 +338,7 @@ describe('transform operator', () => {
 
         const finalArray = dataArray.map((doc) => {
             if (doc.someField !== undefined) {
-                doc['otherField'] = doc.someField;
+                doc.otherField = doc.someField;
             }
             return doc;
         });
@@ -357,7 +364,9 @@ describe('transform operator', () => {
             __id: 'someId',
         };
 
-        const opConfig3 = { selector: 'some:data', source_field: 'someField', target_field: 'otherField', __id: 'someId', mutate: false };
+        const opConfig3 = {
+            selector: 'some:data', source_field: 'someField', target_field: 'otherField', __id: 'someId', mutate: false
+        };
 
         const test1 = new Extraction(opConfig);
         const test2 = new Extraction(opConfig2);

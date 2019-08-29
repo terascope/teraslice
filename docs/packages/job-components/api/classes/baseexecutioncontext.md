@@ -57,7 +57,7 @@ A base class for an Execution Context
 
 \+ **new BaseExecutionContext**(`config`: [ExecutionContextConfig](../interfaces/executioncontextconfig.md)): *[BaseExecutionContext](baseexecutioncontext.md)*
 
-*Defined in [execution-context/base.ts:27](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L27)*
+*Defined in [execution-context/base.ts:27](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L27)*
 
 **Parameters:**
 
@@ -73,23 +73,23 @@ Name | Type |
 
 • **_loader**: *[OperationLoader](operationloader.md)*
 
-*Defined in [execution-context/base.ts:23](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L23)*
+*Defined in [execution-context/base.ts:23](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L23)*
 
 ___
 
 ### `Protected` _methodRegistry
 
-• **_methodRegistry**: *`Map<keyof T, Set<number>>`* =  new Map<keyof T, Set<number>>()
+• **_methodRegistry**: *Map‹keyof T, Set‹number››* =  new Map<keyof T, Set<number>>()
 
-*Defined in [execution-context/base.ts:25](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L25)*
+*Defined in [execution-context/base.ts:25](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L25)*
 
 ___
 
 ### `Protected` _operations
 
-• **_operations**: *`Set<T>`* =  new Set() as Set<T>
+• **_operations**: *Set‹T›* =  new Set() as Set<T>
 
-*Defined in [execution-context/base.ts:24](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L24)*
+*Defined in [execution-context/base.ts:24](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L24)*
 
 ___
 
@@ -97,7 +97,7 @@ ___
 
 • **assetIds**: *string[]* =  []
 
-*Defined in [execution-context/base.ts:15](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L15)*
+*Defined in [execution-context/base.ts:15](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L15)*
 
 ___
 
@@ -105,7 +105,7 @@ ___
 
 • **config**: *[ExecutionConfig](../interfaces/executionconfig.md)*
 
-*Defined in [execution-context/base.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L12)*
+*Defined in [execution-context/base.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L12)*
 
 ___
 
@@ -113,15 +113,15 @@ ___
 
 • **context**: *[WorkerContext](../interfaces/workercontext.md)*
 
-*Defined in [execution-context/base.ts:13](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L13)*
+*Defined in [execution-context/base.ts:13](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L13)*
 
 ___
 
 ###  events
 
-• **events**: *`EventEmitter`*
+• **events**: *EventEmitter*
 
-*Defined in [execution-context/base.ts:21](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L21)*
+*Defined in [execution-context/base.ts:21](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L21)*
 
 The terafoundation EventEmitter
 
@@ -131,7 +131,7 @@ ___
 
 • **exId**: *string*
 
-*Defined in [execution-context/base.ts:17](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L17)*
+*Defined in [execution-context/base.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L17)*
 
 ___
 
@@ -139,7 +139,7 @@ ___
 
 • **jobId**: *string*
 
-*Defined in [execution-context/base.ts:18](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L18)*
+*Defined in [execution-context/base.ts:18](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L18)*
 
 ## Accessors
 
@@ -147,7 +147,7 @@ ___
 
 • **get api**(): *[ExecutionContextAPI](executioncontextapi.md)*
 
-*Defined in [execution-context/base.ts:83](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L83)*
+*Defined in [execution-context/base.ts:83](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L83)*
 
 **Returns:** *[ExecutionContextAPI](executioncontextapi.md)*
 
@@ -157,7 +157,7 @@ ___
 
 ▸ **_resetMethodRegistry**(): *void*
 
-*Defined in [execution-context/base.ts:135](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L135)*
+*Defined in [execution-context/base.ts:135](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L135)*
 
 **Returns:** *void*
 
@@ -167,7 +167,7 @@ ___
 
 ▸ **_runMethod**(`method`: keyof T, ...`args`: any[]): *void*
 
-*Defined in [execution-context/base.ts:121](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L121)*
+*Defined in [execution-context/base.ts:121](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L121)*
 
 Run an method
 
@@ -184,9 +184,9 @@ ___
 
 ### `Protected` _runMethodAsync
 
-▸ **_runMethodAsync**(`method`: keyof T, ...`args`: any[]): *undefined | `Promise<any[]>`*
+▸ **_runMethodAsync**(`method`: keyof T, ...`args`: any[]): *undefined | Promise‹any[]›*
 
-*Defined in [execution-context/base.ts:103](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L103)*
+*Defined in [execution-context/base.ts:103](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L103)*
 
 Run an async method on the operation lifecycle
 
@@ -197,15 +197,15 @@ Name | Type |
 `method` | keyof T |
 `...args` | any[] |
 
-**Returns:** *undefined | `Promise<any[]>`*
+**Returns:** *undefined | Promise‹any[]›*
 
 ___
 
 ### `Protected` addOperation
 
-▸ **addOperation**(`op`: `T`): *void*
+▸ **addOperation**(`op`: T): *void*
 
-*Defined in [execution-context/base.ts:96](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L96)*
+*Defined in [execution-context/base.ts:96](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L96)*
 
 Add an operation to the lifecycle queue
 
@@ -213,7 +213,7 @@ Add an operation to the lifecycle queue
 
 Name | Type |
 ------ | ------ |
-`op` | `T` |
+`op` | T |
 
 **Returns:** *void*
 
@@ -221,22 +221,22 @@ ___
 
 ###  getOperations
 
-▸ **getOperations**(): *`IterableIterator<T>`*
+▸ **getOperations**(): *IterableIterator‹T›*
 
-*Defined in [execution-context/base.ts:91](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L91)*
+*Defined in [execution-context/base.ts:91](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L91)*
 
 Returns a list of any registered Operation that has been
 initialized.
 
-**Returns:** *`IterableIterator<T>`*
+**Returns:** *IterableIterator‹T›*
 
 ___
 
 ###  initialize
 
-▸ **initialize**(`initConfig?`: any): *`Promise<void>`*
+▸ **initialize**(`initConfig?`: any): *Promise‹void›*
 
-*Defined in [execution-context/base.ts:57](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L57)*
+*Defined in [execution-context/base.ts:57](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L57)*
 
 Called to initialize all of the registered operations
 
@@ -246,16 +246,16 @@ Name | Type |
 ------ | ------ |
 `initConfig?` | any |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ###  shutdown
 
-▸ **shutdown**(): *`Promise<void>`*
+▸ **shutdown**(): *Promise‹void›*
 
-*Defined in [execution-context/base.ts:69](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L69)*
+*Defined in [execution-context/base.ts:69](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L69)*
 
 Called to cleanup all of the registered operations
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*

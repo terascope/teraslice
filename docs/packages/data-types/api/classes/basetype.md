@@ -15,7 +15,7 @@ sidebar_label: BaseType
 
   * [GeoType](geotype.md)
 
-  * [IpType](iptype.md)
+  * [IPType](iptype.md)
 
   * [IpRangeType](iprangetype.md)
 
@@ -77,7 +77,7 @@ sidebar_label: BaseType
 
 \+ **new BaseType**(`field`: string, `config`: [FieldTypeConfig](../overview.md#fieldtypeconfig)): *[BaseType](basetype.md)*
 
-*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/base-type.ts#L7)*
+*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/versions/base-type.ts#L7)*
 
 **Parameters:**
 
@@ -94,7 +94,7 @@ Name | Type |
 
 • **config**: *[FieldTypeConfig](../overview.md#fieldtypeconfig)*
 
-*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/base-type.ts#L7)*
+*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/versions/base-type.ts#L7)*
 
 ___
 
@@ -102,7 +102,7 @@ ___
 
 • **field**: *string*
 
-*Defined in [types/versions/base-type.ts:6](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/base-type.ts#L6)*
+*Defined in [types/versions/base-type.ts:6](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/versions/base-type.ts#L6)*
 
 ## Methods
 
@@ -110,7 +110,7 @@ ___
 
 ▸ **_formatGql**(`type`: string, `customType?`: undefined | string): *object*
 
-*Defined in [types/versions/base-type.ts:19](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/base-type.ts#L19)*
+*Defined in [types/versions/base-type.ts:21](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/versions/base-type.ts#L21)*
 
 **Parameters:**
 
@@ -127,7 +127,7 @@ ___
 
 ▸ **toESMapping**(`version?`: undefined | number): *[TypeESMapping](../interfaces/typeesmapping.md)*
 
-*Defined in [types/versions/base-type.ts:15](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/base-type.ts#L15)*
+*Defined in [types/versions/base-type.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/versions/base-type.ts#L17)*
 
 **Parameters:**
 
@@ -143,7 +143,7 @@ ___
 
 ▸ **toGraphQL**(): *[GraphQLType](../interfaces/graphqltype.md)*
 
-*Defined in [types/versions/base-type.ts:16](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/base-type.ts#L16)*
+*Defined in [types/versions/base-type.ts:18](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/versions/base-type.ts#L18)*
 
 **Returns:** *[GraphQLType](../interfaces/graphqltype.md)*
 
@@ -151,8 +151,8 @@ ___
 
 ### `Abstract` toXlucene
 
-▸ **toXlucene**(): *`TypeConfig`*
+▸ **toXlucene**(): *TypeConfig*
 
-*Defined in [types/versions/base-type.ts:17](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/versions/base-type.ts#L17)*
+*Defined in [types/versions/base-type.ts:19](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/versions/base-type.ts#L19)*
 
-**Returns:** *`TypeConfig`*
+**Returns:** *TypeConfig*

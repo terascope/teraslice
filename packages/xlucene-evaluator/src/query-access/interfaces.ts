@@ -30,5 +30,6 @@ export interface QueryAccessConfig<T extends AnyObject = AnyObject> {
     type_config?: TypeConfig;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface QueryAccessOptions extends ParserOptions {
 }

@@ -1,5 +1,7 @@
 import 'jest-extended'; // require for type definitions
-import { DataEntity, MapProcessor, newTestExecutionConfig, TestContext, WorkerContext } from '../../src';
+import {
+    DataEntity, MapProcessor, newTestExecutionConfig, TestContext, WorkerContext
+} from '../../src';
 
 describe('MapProcessor', () => {
     class ExampleProcessor extends MapProcessor<object> {

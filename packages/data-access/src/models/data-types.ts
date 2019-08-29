@@ -1,9 +1,14 @@
 import * as es from 'elasticsearch';
-import { escapeString, unescapeString, TSError, getField } from '@terascope/utils';
+import {
+    escapeString,
+    unescapeString,
+    TSError,
+    getField
+} from '@terascope/utils';
 import { IndexModel, IndexModelOptions, FindOneOptions } from 'elasticsearch-store';
 import { DataTypeConfig, LATEST_VERSION, TypeConfigFields } from '@terascope/data-types';
-import dataTypesConfig, { DataType } from './config/data-types';
 import { QueryAccess } from 'xlucene-evaluator';
+import dataTypesConfig, { DataType } from './config/data-types';
 
 /**
  * Manager for DataTypes
@@ -19,7 +24,11 @@ export class DataTypes extends IndexModel<DataType> {
      * Get the type configuration for a data type
      * including any merged fields
      */
-    async resolveDataType(id: string, options?: ResolveDataTypeOptions, queryAccess?: QueryAccess<DataType>): Promise<DataType> {
+    async resolveDataType(
+        id: string,
+        options?: ResolveDataTypeOptions,
+        queryAccess?: QueryAccess<DataType>
+    ): Promise<DataType> {
         const dataType = await this.findByAnyId(id, options, queryAccess);
         if (dataType.inherit_from && dataType.inherit_from.length) {
             dataType.config = await this.resolveTypeConfig(dataType, options, queryAccess);
@@ -49,12 +58,12 @@ export class DataTypes extends IndexModel<DataType> {
 
     private async _resolveDataTypes(
         initialDataType: DataType,
-        _resolved: ReadonlyArray<DataType>,
+        _resolved: readonly DataType[],
         options?: ResolveDataTypeOptions,
         queryAccess?: QueryAccess<DataType>
-    ): Promise<ReadonlyArray<DataType>> {
-        const version = initialDataType.config.version;
-        let resolved: ReadonlyArray<DataType> = [initialDataType];
+    ): Promise<readonly DataType[]> {
+        const { version } = initialDataType.config;
+        let resolved: readonly DataType[] = [initialDataType];
 
         const inheritFrom = initialDataType.inherit_from;
         if (!inheritFrom || !inheritFrom.length) return resolved;
@@ -82,7 +91,9 @@ export class DataTypes extends IndexModel<DataType> {
             }
 
             if (dataType.config.version && dataType.config.version !== version) {
-                const latest = dataType.config.version > version ? dataType.config.version : version;
+                const latest = dataType.config.version > version
+                    ? dataType.config.version
+                    : version;
                 const mainError = `Data Type "${dataType.name}" has a mismatched version`;
                 const versionInfo = `expected version ${latest}`;
                 const error = new TSError([mainError, versionInfo].join(', '), {
@@ -100,14 +111,19 @@ export class DataTypes extends IndexModel<DataType> {
                 }
             }
 
-            const moreDataTypes = await this._resolveDataTypes(dataType, resolved, options, queryAccess);
+            const moreDataTypes = await this._resolveDataTypes(
+                dataType,
+                resolved,
+                options,
+                queryAccess
+            );
             resolved = resolved.concat(moreDataTypes);
         }
 
         return resolved;
     }
 
-    private _mergeTypeConfigFields(dataTypes: ReadonlyArray<DataType>): TypeConfigFields {
+    private _mergeTypeConfigFields(dataTypes: readonly DataType[]): TypeConfigFields {
         const allFields = dataTypes.map(({ config }) => config.fields).reverse();
         const fields = Object.assign({}, ...allFields);
         this.logger.trace('resolved data types', dataTypes, '\n -> to', fields);
@@ -167,8 +183,8 @@ export class DataTypes extends IndexModel<DataType> {
     }
 }
 
-type ResolveDataTypeOptions = FindOneOptions<DataType> & {
+export type ResolveDataTypeOptions = FindOneOptions<DataType> & {
     validate?: boolean;
 };
 
-export { DataType, ResolveDataTypeOptions };
+export { DataType };

@@ -9,7 +9,13 @@ import { createResolvers } from './resolvers';
 
 // TODO: history capabilities??
 
-export default async function getSchemaByRole(aclManager: ACLManager, user: User, logger: ts.Logger, context: Context, concurrency: number) {
+export default async function getSchemaByRole(
+    aclManager: ACLManager,
+    user: User,
+    logger: ts.Logger,
+    context: Context,
+    concurrency: number
+) {
     const query = `roles: ${user.role} AND type:SEARCH AND _exists_:endpoint`;
     const spaces = await aclManager.findSpaces({ query, size: 10000 }, false);
 
@@ -38,7 +44,7 @@ export default async function getSchemaByRole(aclManager: ACLManager, user: User
 function sanitize(name: string) {
     // https://graphql.github.io/graphql-spec/June2018/#sec-Punctuators
     return name
-        .replace(/[\!$\?@\*:\s=\(\)\[\]\{\}\|]/g, '')
+        .replace(/[!$?@*:\s=()[\]{}|]/g, '')
         .replace(/-/g, '_')
         .trim();
 }
@@ -71,9 +77,7 @@ function createTypes(dataAccessConfigs: DataAccessConfig[]) {
 }
 
 function hasKey(values: string[], field: string) {
-    const results = values.filter((value) => {
-        return value === field || value.match(new RegExp(`^${field}\\.`));
-    });
+    const results = values.filter((value) => value === field || value.match(new RegExp(`^${field}\\.`)));
 
     if (results.length > 0) return results;
     return false;
@@ -90,7 +94,11 @@ function iterateList(srcList: string[], comparaterList: string[], cb: CB) {
     });
 }
 
-function restrict(fields: dt.TypeConfigFields, includes: string[], exludes: string[]): dt.TypeConfigFields {
+function restrict(
+    fields: dt.TypeConfigFields,
+    includes: string[],
+    exludes: string[]
+): dt.TypeConfigFields {
     let results: dt.TypeConfigFields;
     const fieldsList = Object.keys(fields);
 
@@ -98,7 +106,9 @@ function restrict(fields: dt.TypeConfigFields, includes: string[], exludes: stri
         results = fields;
     } else {
         results = {};
-        const cb: CB = (includedField) => (results[includedField] = fields[includedField]);
+        const cb: CB = (includedField) => {
+            (results[includedField] = fields[includedField]);
+        };
         iterateList(includes, fieldsList, cb);
     }
 

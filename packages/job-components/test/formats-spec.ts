@@ -4,9 +4,7 @@ import { formats } from '../src/formats';
 
 describe('Convict Formats', () => {
     function getSchema(name: string): Format | undefined {
-        return formats.find((obj: Format) => {
-            return obj.name === name;
-        });
+        return formats.find((obj: Format) => obj.name === name);
     }
 
     it('returns an array with objects used for validations', () => {
@@ -169,7 +167,7 @@ describe('Convict Formats', () => {
         }).toThrowError('parameter must be a string or number IF specified');
         expect(() => {
             format.validate!('idk');
-        }).toThrowError(/^value: \"idk"\ cannot be coerced into a proper date/);
+        }).toThrowError(/^value: "idk" cannot be coerced into a proper date/);
         expect(() => {
             format.validate!(undefined);
         }).not.toThrowError();
@@ -217,6 +215,7 @@ describe('Convict Formats', () => {
             }).not.toThrowError();
         });
 
+        // eslint-disable-next-line no-useless-escape
         it('should not contain any of: #\\\/*?"<>|', () => {
             const format = getSchema('elasticsearch_Name');
             if (!format) {

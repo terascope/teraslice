@@ -1,4 +1,6 @@
-import { IndexModelConfig, IndexModelRecord, CreateRecordInput, UpdateRecordInput } from 'elasticsearch-store';
+import {
+    IndexModelConfig, IndexModelRecord, CreateRecordInput, UpdateRecordInput
+} from 'elasticsearch-store';
 
 /**
  * A fixed permission level type system, used for primarly metadata management.
@@ -10,7 +12,7 @@ import { IndexModelConfig, IndexModelRecord, CreateRecordInput, UpdateRecordInpu
  * - `USER`: This type is single-tenate and can only read/write things it has direct permission to.
  */
 export type UserType = 'SUPERADMIN' | 'ADMIN' | 'DATAADMIN' | 'USER';
-export const UserTypes: ReadonlyArray<UserType> = ['SUPERADMIN', 'ADMIN', 'DATAADMIN', 'USER'];
+export const UserTypes: readonly UserType[] = ['SUPERADMIN', 'ADMIN', 'DATAADMIN', 'USER'];
 
 const config: IndexModelConfig<User> = {
     version: 1,

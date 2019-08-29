@@ -1,5 +1,7 @@
 import 'jest-extended';
-import { TestContext, newTestExecutionConfig, WorkerContext, DataEntity } from '../../src';
+import {
+    TestContext, newTestExecutionConfig, WorkerContext, DataEntity
+} from '../../src';
 import Noop from '../../src/builtin/noop/processor';
 import Schema from '../../src/builtin/noop/schema';
 

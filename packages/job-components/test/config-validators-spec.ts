@@ -1,6 +1,12 @@
 import 'jest-extended'; // require for type definitions
 import { Schema } from 'convict';
-import { jobSchema, validateJobConfig, validateOpConfig, TestContext, validateAPIConfig } from '../src';
+import {
+    jobSchema,
+    validateJobConfig,
+    validateOpConfig,
+    TestContext,
+    validateAPIConfig
+} from '../src';
 
 describe('when using native clustering', () => {
     describe('when passed a valid jobSchema and jobConfig', () => {
@@ -542,7 +548,9 @@ describe('when using native clustering', () => {
                         },
                     ],
                 };
-                expect(() => validateJobConfig(schema, job)).toThrowError('value for key \"foo\" must be not empty');
+                expect(() => validateJobConfig(schema, job)).toThrowError(
+                    'value for key "foo" must be not empty'
+                );
             });
         });
 
@@ -701,5 +709,4 @@ describe('when validating k8s clustering', () => {
             expect(jobConfig).toMatchObject(validJob);
         });
     });
-
 });

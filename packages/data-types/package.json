@@ -19,17 +19,15 @@
         "data-types": "./bin/data-types.js"
     },
     "scripts": {
-        "build": "tsc --build --pretty",
+        "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
-        "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/utils": "^0.16.1",
+        "@terascope/utils": "^0.17.0",
         "graphql": "^14.3.1",
         "lodash.defaultsdeep": "^4.6.1",
         "lodash.set": "^4.3.2",
@@ -39,7 +37,7 @@
         "@types/lodash.defaultsdeep": "^4.6.6",
         "@types/lodash.set": "^4.3.6",
         "@types/yargs": "^13.0.2",
-        "xlucene-evaluator": "^0.10.0"
+        "xlucene-evaluator": "^0.10.1"
     },
     "engines": {
         "node": ">=8.0.0"

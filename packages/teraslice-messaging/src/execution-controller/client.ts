@@ -87,7 +87,10 @@ export class Client extends core.Client {
         });
     }
 
-    async waitForSlice(fn: i.WaitUntilFn = () => false, timeoutMs = 2 * ONE_MIN): Promise<i.Slice | undefined> {
+    async waitForSlice(
+        fn: i.WaitUntilFn = () => false,
+        timeoutMs = 2 * ONE_MIN
+    ): Promise<i.Slice | undefined> {
         this.sendAvailable();
 
         const startTime = Date.now();

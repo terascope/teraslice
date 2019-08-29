@@ -11,4 +11,4 @@ sidebar_label: APIs
 
 ## Indexable
 
-● \[▪ **name**: *string*\]: [OperationAPIConstructor](../overview.md#operationapiconstructor)
+* \[ **name**: *string*\]: [OperationAPIConstructor](../overview.md#operationapiconstructor)

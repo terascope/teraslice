@@ -9,7 +9,7 @@ import { dataClone } from './utils';
 
 export default class TestSlicer extends Slicer<TestReaderConfig> {
     requests: object[] = [];
-    position: number = 0;
+    position = 0;
 
     async initialize(recoveryData: SlicerRecoveryData[]) {
         await super.initialize(recoveryData);

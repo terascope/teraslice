@@ -167,8 +167,7 @@ module.exports = async function makeAPI(context, app, options) {
         const { cleanup } = req.query;
 
         if (cleanup && !(cleanup === 'all' || cleanup === 'errors')) {
-            const errorMsg = 'if cleanup is specified it must be set to "all" or "errors"';
-            res.status(400).json({ error: errorMsg });
+            sendError(res, 400, 'if cleanup is specified it must be set to "all" or "errors"');
             return;
         }
 
@@ -186,7 +185,7 @@ module.exports = async function makeAPI(context, app, options) {
         requestHandler(async () => {
             const exId = await _getExIdFromRequest(req);
             const result = await _changeWorkers(exId, query);
-            return `${result.workerNum} workers have been ${result.action} for execution: ${result.ex_id}`;
+            return { message: `${result.workerNum} workers have been ${result.action} for execution: ${result.ex_id}` };
         });
     });
 
@@ -441,9 +440,7 @@ module.exports = async function makeAPI(context, app, options) {
             const { statusCode, message } = parseErrorInfo(err, {
                 defaultErrorMsg: 'Asset Service error while processing request'
             });
-            res.status(statusCode).json({
-                error: message
-            });
+            sendError(res, statusCode, message);
         });
     }
 

@@ -1,6 +1,6 @@
 {
     "name": "teraslice-client-js",
-    "version": "0.7.2",
+    "version": "0.8.1",
     "description": "A Node.js client for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "elasticsearch",
@@ -15,27 +15,40 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
-    "main": "index.js",
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
+    "directories": {
+        "lib": "dist/src",
+        "test": "test"
+    },
     "scripts": {
+        "build": "tsc --build",
+        "build:watch": "yarn build --watch",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
+        "@terascope/job-components": "^0.23.1",
         "auto-bind": "^2.1.0",
         "bluebird": "^3.5.5",
+        "got": "^9.6.0",
         "lodash": "^4.17.11",
         "request": "^2.88.0",
         "request-promise": "^4.2.4"
     },
     "devDependencies": {
+        "@types/got": "^9.6.7",
+        "@types/nock": "^10.0.3",
         "nock": "^10.0.6"
     },
     "publishConfig": {
         "access": "public"
     },
     "displayName": "Teraslice Client (JavaScript)",
+    "srcMain": "src/index.ts",
     "terascope": {
+        "enableTypedoc": true,
         "testSuite": "unit"
     }
 }

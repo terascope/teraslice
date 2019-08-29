@@ -15,10 +15,8 @@
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "scripts": {
-        "build": "tsc --build --pretty",
+        "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
-        "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
@@ -26,7 +24,7 @@
     },
     "dependencies": {
         "@terascope/elasticsearch-api": "^2.1.4",
-        "@terascope/utils": "^0.16.1",
+        "@terascope/utils": "^0.17.0",
         "bluebird": "^3.5.5",
         "mnemonist": "^0.30.0"
     },

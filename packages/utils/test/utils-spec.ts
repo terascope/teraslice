@@ -84,9 +84,7 @@ describe('Utils', () => {
 
             expect(getTypeOf([])).toEqual('Array');
 
-            const fn = () => {
-                return 123;
-            };
+            const fn = () => 123;
 
             function hello() {
                 return 'hello';

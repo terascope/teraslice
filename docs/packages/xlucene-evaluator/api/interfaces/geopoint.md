@@ -24,7 +24,7 @@ sidebar_label: GeoPoint
 
 • **lat**: *number*
 
-*Defined in [parser/interfaces.ts:112](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L112)*
+*Defined in [parser/interfaces.ts:144](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L144)*
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **lon**: *number*
 
-*Defined in [parser/interfaces.ts:113](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L113)*
+*Defined in [parser/interfaces.ts:145](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L145)*

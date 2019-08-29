@@ -11,8 +11,6 @@ sidebar_label: Context
 
   * [WorkerContext](workercontext.md)
 
-  * [WorkerContext](workercontext.md)
-
 ## Implemented by
 
 * [TestContext](../classes/testcontext.md)
@@ -37,7 +35,7 @@ sidebar_label: Context
 
 • **apis**: *[ContextAPIs](contextapis.md)*
 
-*Defined in [interfaces/context.ts:141](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L141)*
+*Defined in [interfaces/context.ts:143](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/context.ts#L143)*
 
 ___
 
@@ -45,7 +43,7 @@ ___
 
 • **arch**: *string*
 
-*Defined in [interfaces/context.ts:142](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L142)*
+*Defined in [interfaces/context.ts:144](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/context.ts#L144)*
 
 ___
 
@@ -53,7 +51,7 @@ ___
 
 • **assignment**: *[Assignment](../overview.md#assignment)*
 
-*Defined in [interfaces/context.ts:143](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L143)*
+*Defined in [interfaces/context.ts:145](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/context.ts#L145)*
 
 ___
 
@@ -61,7 +59,7 @@ ___
 
 • **cluster**: *[ContextClusterConfig](contextclusterconfig.md)*
 
-*Defined in [interfaces/context.ts:149](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L149)*
+*Defined in [interfaces/context.ts:151](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/context.ts#L151)*
 
 ___
 
@@ -69,15 +67,15 @@ ___
 
 • **foundation**: *[LegacyFoundationApis](legacyfoundationapis.md)*
 
-*Defined in [interfaces/context.ts:144](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L144)*
+*Defined in [interfaces/context.ts:146](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/context.ts#L146)*
 
 ___
 
 ###  logger
 
-• **logger**: *`Logger`*
+• **logger**: *Logger*
 
-*Defined in [interfaces/context.ts:145](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L145)*
+*Defined in [interfaces/context.ts:147](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/context.ts#L147)*
 
 ___
 
@@ -85,7 +83,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [interfaces/context.ts:146](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L146)*
+*Defined in [interfaces/context.ts:148](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/context.ts#L148)*
 
 ___
 
@@ -93,7 +91,7 @@ ___
 
 • **platform**: *string*
 
-*Defined in [interfaces/context.ts:147](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L147)*
+*Defined in [interfaces/context.ts:149](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/context.ts#L149)*
 
 ___
 
@@ -101,4 +99,4 @@ ___
 
 • **sysconfig**: *[SysConfig](sysconfig.md)*
 
-*Defined in [interfaces/context.ts:148](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L148)*
+*Defined in [interfaces/context.ts:150](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/context.ts#L150)*

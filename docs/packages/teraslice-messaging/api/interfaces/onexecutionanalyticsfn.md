@@ -11,8 +11,8 @@ sidebar_label: OnExecutionAnalyticsFn
 
 ## Callable
 
-▸ (): *`Promise<ExecutionAnalytics>` | [ExecutionAnalytics](executionanalytics.md)*
+▸ (): *Promise‹[ExecutionAnalytics](executionanalytics.md)› | [ExecutionAnalytics](executionanalytics.md)*
 
-*Defined in [cluster-master/interfaces.ts:62](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L62)*
+*Defined in [cluster-master/interfaces.ts:61](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L61)*
 
-**Returns:** *`Promise<ExecutionAnalytics>` | [ExecutionAnalytics](executionanalytics.md)*
+**Returns:** *Promise‹[ExecutionAnalytics](executionanalytics.md)› | [ExecutionAnalytics](executionanalytics.md)*

@@ -1,9 +1,13 @@
-'use strict';
-
 import http from 'http';
 import porty from 'porty';
 import SocketIOServer from 'socket.io';
-import { isTest, isString, isNumber, get, debugLogger } from '@terascope/utils';
+import {
+    get,
+    isTest,
+    isString,
+    isNumber,
+    debugLogger
+} from '@terascope/utils';
 import { newMsgId } from '../utils';
 import * as i from './interfaces';
 import { Core } from './core';
@@ -242,11 +246,14 @@ export class Server extends Core {
         return onlineStates.includes(clientState);
     }
 
-    protected sendToAll(eventName: string, payload?: i.Payload, options: i.SendOptions = { volatile: true, response: true }) {
+    protected sendToAll(
+        eventName: string,
+        payload?: i.Payload,
+        options: i.SendOptions = { volatile: true, response: true }
+    ) {
         const clients = this.filterClientsByState(onlineStates);
-        const promises = Object.values(clients).map((client) => {
-            return this.send(client.clientId, eventName, payload, options);
-        });
+        const promises = Object.values(clients)
+            .map((client) => this.send(client.clientId, eventName, payload, options));
         return Promise.all(promises);
     }
 
@@ -302,9 +309,7 @@ export class Server extends Core {
     }
 
     private filterClientsByState(states: i.ClientState[]): i.ConnectedClient[] {
-        return Object.values(this._clients).filter((client) => {
-            return states.includes(client.state);
-        });
+        return Object.values(this._clients).filter((client) => states.includes(client.state));
     }
 
     private countClientsByState(states: i.ClientState[]): number {

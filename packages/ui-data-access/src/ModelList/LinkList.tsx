@@ -9,13 +9,13 @@ import { getModelConfig } from '../config';
 const LinkList: React.FC<Props> = ({ records, modelName }) => {
     const { pathname } = getModelConfig(modelName);
     return (
-        <React.Fragment>
+        <>
             {records.map((record) => (
                 <Link key={record.id} to={`/${pathname}/edit/${record.id}`}>
                     {record.name}
                 </Link>
             ))}
-        </React.Fragment>
+        </>
     );
 };
 

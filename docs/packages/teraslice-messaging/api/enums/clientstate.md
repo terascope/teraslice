@@ -11,7 +11,6 @@ sidebar_label: ClientState
 
 * [Available](clientstate.md#available)
 * [Disconnected](clientstate.md#disconnected)
-* [Offline](clientstate.md#offline)
 * [Online](clientstate.md#online)
 * [Shutdown](clientstate.md#shutdown)
 * [Unavailable](clientstate.md#unavailable)
@@ -22,7 +21,7 @@ sidebar_label: ClientState
 
 • **Available**: = "available"
 
-*Defined in [messenger/interfaces.ts:79](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L79)*
+*Defined in [messenger/interfaces.ts:76](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L76)*
 
 ___
 
@@ -30,15 +29,7 @@ ___
 
 • **Disconnected**: = "disconnected"
 
-*Defined in [messenger/interfaces.ts:78](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L78)*
-
-___
-
-###  Offline
-
-• **Offline**: = "offline"
-
-*Defined in [messenger/interfaces.ts:76](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L76)*
+*Defined in [messenger/interfaces.ts:75](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L75)*
 
 ___
 
@@ -46,7 +37,7 @@ ___
 
 • **Online**: = "online"
 
-*Defined in [messenger/interfaces.ts:77](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L77)*
+*Defined in [messenger/interfaces.ts:74](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L74)*
 
 ___
 
@@ -54,7 +45,7 @@ ___
 
 • **Shutdown**: = "shutdown"
 
-*Defined in [messenger/interfaces.ts:81](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L81)*
+*Defined in [messenger/interfaces.ts:78](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L78)*
 
 ___
 
@@ -62,4 +53,4 @@ ___
 
 • **Unavailable**: = "unavailable"
 
-*Defined in [messenger/interfaces.ts:80](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L80)*
+*Defined in [messenger/interfaces.ts:77](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L77)*

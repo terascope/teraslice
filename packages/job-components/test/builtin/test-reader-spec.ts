@@ -78,7 +78,7 @@ describe('Test Reader', () => {
                 await fetcher.initialize();
             });
 
-            afterAll(async() => {
+            afterAll(async () => {
                 await fetcher.shutdown();
             });
 
@@ -110,7 +110,7 @@ describe('Test Reader', () => {
                 await fetcher.initialize();
             });
 
-            afterAll(async() => {
+            afterAll(async () => {
                 await fetcher.shutdown();
             });
 

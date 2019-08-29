@@ -5,7 +5,9 @@ import { isPlainObject, get } from '@terascope/utils';
 import { PackageInfo, RootPackageInfo } from './interfaces';
 import signale from './signale';
 
+// eslint-disable-next-line
 export let rootDir: string | undefined;
+
 export function getRootDir(cwd: string = process.cwd()): string {
     if (rootDir) return rootDir;
     const rootPkgJSON = pkgUp.sync({ cwd });
@@ -67,7 +69,11 @@ export function listMdFiles(dir: string, levels = 10): string[] {
 }
 
 export type WriteIfChangedOptions = { mkdir?: boolean; log?: boolean };
-export async function writeIfChanged(filePath: string, contents: any, options: WriteIfChangedOptions = {}): Promise<boolean> {
+export async function writeIfChanged(
+    filePath: string,
+    contents: any,
+    options: WriteIfChangedOptions = {}
+): Promise<boolean> {
     if (options.mkdir) {
         await fse.ensureDir(path.dirname(filePath));
     }
@@ -127,7 +133,11 @@ export function writeHeader(msg: string, prefixNewline?: boolean): void {
     signale.star(`${msg}`);
 }
 
-export function writePkgHeader(prefix: string, pkgInfos: PackageInfo[], prefixNewline?: boolean): void {
+export function writePkgHeader(
+    prefix: string,
+    pkgInfos: PackageInfo[],
+    prefixNewline?: boolean
+): void {
     const names = pkgInfos.map(({ name }) => name).join(', ');
     writeHeader(`${prefix} for ${names}`, prefixNewline);
 }

@@ -4,7 +4,7 @@ import { FindOptions, FindOneOptions } from 'elasticsearch-store';
 import * as models from './models';
 
 export type ModelName = 'User' | 'Role' | 'DataType' | 'Space' | 'View';
-export const ModelNames: ReadonlyArray<ModelName> = ['User', 'Role', 'DataType', 'Space', 'View'];
+export const ModelNames: readonly ModelName[] = ['User', 'Role', 'DataType', 'Space', 'View'];
 
 export type AuthUser = models.User | false;
 export type AnyModel = models.User | models.Role | models.DataType | models.Space | models.View;

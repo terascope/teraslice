@@ -1,7 +1,6 @@
 {
     "recommendations": [
         "dbaeumer.vscode-eslint",
-        "ms-vscode.vscode-typescript-tslint-plugin",
         "editorconfig.editorconfig"
     ],
     "unwantedRecommendations": ["hookyqr.beautify", "dbaeumer.jshint"]

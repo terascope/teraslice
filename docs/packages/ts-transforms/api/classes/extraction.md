@@ -21,7 +21,7 @@ sidebar_label: Extraction
 
 ### Methods
 
-* [extractRun](extraction.md#extractrun)
+* [extractionPhaseRun](extraction.md#extractionphaserun)
 * [run](extraction.md#run)
 
 ## Constructors
@@ -30,7 +30,7 @@ sidebar_label: Extraction
 
 \+ **new Extraction**(`configArgs`: [ExtractionConfig](../interfaces/extractionconfig.md) | [ExtractionConfig](../interfaces/extractionconfig.md)[]): *[Extraction](extraction.md)*
 
-*Defined in [operations/lib/transforms/extraction.ts:109](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L109)*
+*Defined in [operations/lib/transforms/extraction.ts:102](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L102)*
 
 **Parameters:**
 
@@ -46,21 +46,21 @@ Name | Type |
 
 ▪ **cardinality**: *[InputOutputCardinality](../overview.md#inputoutputcardinality)* = "one-to-one"
 
-*Defined in [operations/lib/transforms/extraction.ts:109](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L109)*
+*Defined in [operations/lib/transforms/extraction.ts:102](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L102)*
 
 ## Methods
 
-###  extractRun
+###  extractionPhaseRun
 
-▸ **extractRun**(`doc`: `DataEntity`, `results`: object): *void*
+▸ **extractionPhaseRun**(`doc`: DataEntity, `results`: object): *void*
 
-*Defined in [operations/lib/transforms/extraction.ts:150](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L150)*
+*Defined in [operations/lib/transforms/extraction.ts:143](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L143)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`doc` | `DataEntity` |
+`doc` | DataEntity |
 `results` | object |
 
 **Returns:** *void*
@@ -69,14 +69,14 @@ ___
 
 ###  run
 
-▸ **run**(`doc`: `DataEntity`): *`DataEntity` | null*
+▸ **run**(`doc`: DataEntity): *DataEntity | null*
 
-*Defined in [operations/lib/transforms/extraction.ts:132](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L132)*
+*Defined in [operations/lib/transforms/extraction.ts:125](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/operations/lib/transforms/extraction.ts#L125)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`doc` | `DataEntity` |
+`doc` | DataEntity |
 
-**Returns:** *`DataEntity` | null*
+**Returns:** *DataEntity | null*

@@ -1,6 +1,11 @@
 import get from 'lodash.get';
 import kindOf from 'kind-of';
-import { isString, toString, firstToUpper, trimAndToLower } from './strings';
+import {
+    isString,
+    toString,
+    firstToUpper,
+    trimAndToLower
+} from './strings';
 
 /** Check if an input is empty, similar to lodash.isEmpty */
 export function isEmpty(val?: any): boolean {
@@ -55,7 +60,7 @@ export function getTypeOf(val: any): string {
 
 /** Verify an input is a function */
 export function isFunction(input: any): input is Function {
-    return input && typeof input === 'function' ? true : false;
+    return !!(input && typeof input === 'function');
 }
 
 /** Convert any input into a boolean, this will work with stringified boolean */
@@ -63,6 +68,16 @@ export function toBoolean(input: any): boolean {
     const val: any = isString(input) ? trimAndToLower(input) : input;
     const thruthy = [1, '1', true, 'true', 'yes'];
     return thruthy.includes(val);
+}
+
+export function ensureBuffer(input: string|Buffer, encoding: BufferEncoding = 'utf8'): Buffer {
+    if (isString(input)) {
+        return Buffer.from(input, encoding);
+    }
+    if (Buffer.isBuffer(input)) {
+        return input;
+    }
+    throw new Error(`Invalid input given, expected string or buffer, got ${getTypeOf(input)}`);
 }
 
 export function isBooleanLike(input: any): boolean {
@@ -93,7 +108,7 @@ export function parseList(input: any): string[] {
     return strings.map((s) => s.trim()).filter((s) => !!s);
 }
 
-export function noop(...args: any[]): any {}
+export function noop(..._args: any[]): any {}
 
 /**
  * A typesafe get function (will always return the correct type)
@@ -102,13 +117,38 @@ export function noop(...args: any[]): any {}
  * it does not deal with dot notation (nested fields)
  * and it will use the default when dealing with OR statements
  */
-export function getField<V>(input: undefined, field: string, defaultVal?: V): V;
-export function getField<T extends {}, P extends keyof T>(input: T, field: P): T[P];
-export function getField<T extends {}, P extends keyof T>(input: T | undefined, field: P): T[P];
-export function getField<T extends {}, P extends keyof T>(input: T | undefined, field: P, defaultVal: never[]): T[P];
-export function getField<T extends {}, P extends keyof T, V>(input: T | undefined, field: P, defaultVal: V): T[P] | V;
-export function getField<T extends {}, P extends keyof T, V extends T[P]>(input: T | undefined, field: P, defaultVal: V): T[P];
-export function getField<T, P extends keyof T, V>(input: T, field: P, defaultVal?: V): any {
+export function getField<V>(
+    input: undefined,
+    field: string,
+    defaultVal?: V
+): V;
+export function getField<T extends {}, P extends keyof T>(
+    input: T,
+    field: P
+): T[P];
+export function getField<T extends {}, P extends keyof T>(
+    input: T | undefined,
+    field: P
+): T[P];
+export function getField<T extends {}, P extends keyof T>(
+    input: T | undefined,
+    field: P,
+    defaultVal: never[]
+): T[P];
+export function getField<T extends {}, P extends keyof T, V>(
+    input: T | undefined,
+    field: P,
+    defaultVal: V
+): T[P] | V;
+export function getField<T extends {}, P extends keyof T, V extends T[P]>(
+    input: T | undefined,
+    field: P, defaultVal: V
+): T[P];
+export function getField<T, P extends keyof T, V>(
+    input: T,
+    field: P,
+    defaultVal?: V
+): any {
     const result = get(input, field);
     if (isBooleanLike(defaultVal)) {
         if (result == null) return defaultVal;

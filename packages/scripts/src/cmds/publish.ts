@@ -45,7 +45,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
     },
     handler(argv) {
         return publish(argv.action, {
-            type: argv['type'],
+            type: argv.type,
             dryRun: argv['dry-run'],
         });
     },

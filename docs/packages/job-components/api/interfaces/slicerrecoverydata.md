@@ -23,4 +23,4 @@ The metadata given to Slicer after succefully recovering the execution
 
 • **lastSlice**: *[Slice](slice.md)*
 
-*Defined in [interfaces/operations.ts:48](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L48)*
+*Defined in [interfaces/operations.ts:67](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L67)*

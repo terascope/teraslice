@@ -8,7 +8,9 @@ export function has(data: object, key: any) {
     return key in data;
 }
 
-/** JSON.parse(JSON.stringify(input)) */
+/**
+ * A clone deep using `JSON.parse(JSON.stringify(input))`
+*/
 export function fastCloneDeep<T>(input: T): T {
     return JSON.parse(JSON.stringify(input));
 }
@@ -19,12 +21,14 @@ export function fastAssign<T, U>(target: T, source: U) {
         return target;
     }
 
-    for (const key of Object.keys(source)) {
-        target[key] = source[key];
+    for (const [key, val] of Object.entries(source)) {
+        target[key] = val;
     }
 
     return target;
 }
 
 // export a few dependencies
-export { isPlainObject, cloneDeep, get, set };
+export {
+    isPlainObject, cloneDeep, get, set
+};

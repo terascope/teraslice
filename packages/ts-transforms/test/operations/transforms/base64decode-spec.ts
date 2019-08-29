@@ -1,15 +1,16 @@
 
-import { Base64Decode } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
+import { Base64Decode } from '../../../src/operations';
 
 describe('Base64Decode operator', () => {
-
     function encode(str: string) {
         return Buffer.from(str).toString('base64');
     }
 
     it('can instantiate', () => {
-        const opConfig = { target_field: 'final', source_field: 'source', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            target_field: 'final', source_field: 'source', __id: 'someId', follow: 'otherId'
+        };
         expect(() => new Base64Decode(opConfig)).not.toThrow();
     });
 
@@ -17,11 +18,13 @@ describe('Base64Decode operator', () => {
         const badConfig1 = { target_field: 1324, __id: 'someId', follow: 'otherId' };
         const badConfig2 = { target_field: '', __id: 'someId', follow: 'otherId' };
         const badConfig3 = { target_field: {}, __id: 'someId', follow: 'otherId' };
-        const badConfig4 = { target_field: null , __id: 'someId', follow: 'otherId' };
+        const badConfig4 = { target_field: null, __id: 'someId', follow: 'otherId' };
         const badConfig5 = { source_field: [], __id: 'someId', follow: 'otherId' };
         const badConfig6 = { source_field: {}, __id: 'someId', follow: 'otherId' };
         const badConfig7 = { source_field: null, __id: 'someId', follow: 'otherId' };
-        const badConfig8 = { source_field: '', target_field: '', __id: 'someId', follow: 'otherId' };
+        const badConfig8 = {
+            source_field: '', target_field: '', __id: 'someId', follow: 'otherId'
+        };
         // @ts-ignore
         expect(() => new Base64Decode(badConfig1)).toThrow();
         expect(() => new Base64Decode(badConfig2)).toThrow();
@@ -39,9 +42,11 @@ describe('Base64Decode operator', () => {
     });
 
     it('can base64 decode fields', () => {
-        const opConfig = { source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId' };
-        const test =  new Base64Decode(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
+        const opConfig = {
+            source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId'
+        };
+        const test = new Base64Decode(opConfig);
+        const metaData = { selectors: { 'some:query': true } };
 
         const data1 = new DataEntity({ source: 123423 }, metaData);
         const data2 = new DataEntity({ source: null }, metaData);
@@ -54,7 +59,7 @@ describe('Base64Decode operator', () => {
         const data9 = new DataEntity({ source: encode('::') });
         const data10 = new DataEntity({ source: encode('193.0.0.23') }, metaData);
         const data11 = new DataEntity({ source: encode('hello world') }, metaData);
-        const data12 = new DataEntity({ source: [encode('hello world'),  encode('other things')] }, metaData);
+        const data12 = new DataEntity({ source: [encode('hello world'), encode('other things')] }, metaData);
 
         const results1 = test.run(data1);
         const results2 = test.run(data2);
@@ -88,9 +93,11 @@ describe('Base64Decode operator', () => {
     });
 
     it('can base64 decode nested fields', () => {
-        const opConfig = { source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId' };
-        const test =  new Base64Decode(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
+        const opConfig = {
+            source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId'
+        };
+        const test = new Base64Decode(opConfig);
+        const metaData = { selectors: { 'some:query': true } };
 
         const data = new DataEntity({ source: { field: encode('hello world') } }, metaData);
 

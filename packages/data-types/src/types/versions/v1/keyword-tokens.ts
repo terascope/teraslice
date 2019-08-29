@@ -2,7 +2,7 @@ import { FieldType } from 'xlucene-evaluator';
 import BaseType from '../base-type';
 
 export default class KeywordTokens extends BaseType {
-    toESMapping(version?: number) {
+    toESMapping(_version?: number) {
         return {
             mapping: {
                 [this.field]: {

@@ -1,7 +1,9 @@
 import { Express } from 'express';
 import { Client } from 'elasticsearch';
 import { Context } from '@terascope/job-components';
-import { Logger, toBoolean, get, TSError } from '@terascope/utils';
+import {
+    Logger, toBoolean, get, TSError
+} from '@terascope/utils';
 import { DataAccessConfig, User, ACLManager } from '@terascope/data-access';
 import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { SearchFn } from './interfaces';
@@ -38,7 +40,7 @@ export default class SearchPlugin {
         // The default GET route which uses the space middleware.
         this.app.get(searchUrl, (req, res) => {
             // @ts-ignore
-            const space: SpaceSearch = req.space;
+            const { space } = req;
             if (!space) {
                 this.logger.error('Space middleware not setup properly');
                 res.sendStatus(500);

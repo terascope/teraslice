@@ -1,7 +1,9 @@
 import * as es from 'elasticsearch';
 import { TSError } from '@terascope/utils';
 import { IndexModel, IndexModelOptions } from 'elasticsearch-store';
-import spacesConfig, { Space, SpaceSearchConfig, SpaceStreamingConfig, SpaceConfigType } from './config/spaces';
+import spacesConfig, {
+    Space, SpaceSearchConfig, SpaceStreamingConfig, SpaceConfigType
+} from './config/spaces';
 
 /**
  * Manager for Spaces
@@ -38,11 +40,11 @@ export class Spaces extends IndexModel<Space> {
 
     async removeViewFromSpaces(viewId: string) {
         const views = await this.find(`views: ${viewId}`);
-        const promises = views.map((view) => {
-            return this._removeFromArray(view.id, 'views', viewId);
-        });
+        const promises = views.map((view) => this._removeFromArray(view.id, 'views', viewId));
         await Promise.all(promises);
     }
 }
 
-export { Space, SpaceSearchConfig, SpaceStreamingConfig, SpaceConfigType };
+export {
+    Space, SpaceSearchConfig, SpaceStreamingConfig, SpaceConfigType
+};

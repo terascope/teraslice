@@ -1,11 +1,22 @@
 import 'jest-extended';
-import { TSError, ElasticsearchError, isFatalError, isRetryableError, parseError, times, isTSError, stripErrorMessage } from '../src';
+import {
+    TSError,
+    ElasticsearchError,
+    isFatalError,
+    isRetryableError,
+    parseError,
+    times,
+    isTSError,
+    stripErrorMessage
+} from '../src';
 
 describe('Error Utils', () => {
     describe('TSError', () => {
         const testCases = [
             ['hello', undefined, { message: 'hello', statusCode: 500, fatalError: false }],
-            ['hello', {}, { message: 'hello', statusCode: 500, fatalError: false, code: 'INTERNAL_SERVER_ERROR' }],
+            ['hello', {}, {
+                message: 'hello', statusCode: 500, fatalError: false, code: 'INTERNAL_SERVER_ERROR'
+            }],
             ['hello', { statusCode: 411 }, { statusCode: 411, fatalError: false, code: 'LENGTH_REQUIRED' }],
             ['hello', { fatalError: true, statusCode: 502, retryable: true }, { fatalError: true, statusCode: 502, retryable: undefined }],
             ['hello', { fatalError: false, statusCode: 504, retryable: true }, { fatalError: false, statusCode: 504, retryable: true }],
@@ -362,8 +373,6 @@ function newESError(obj: any, metadata: any = {}) {
     const error = new Error() as ElasticsearchError;
     error.name = 'ESError';
     Object.assign(error, obj);
-    error.toJSON = () => {
-        return metadata;
-    };
+    error.toJSON = () => metadata;
     return error;
 }

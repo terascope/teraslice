@@ -1,6 +1,6 @@
+import { TSError } from '@terascope/utils';
 import BooleanType from '../../../src/types/versions/v1/boolean';
 import { FieldTypeConfig } from '../../../src/interfaces';
-import { TSError } from '@terascope/utils';
 
 describe('Boolean V1', () => {
     const field = 'someField';

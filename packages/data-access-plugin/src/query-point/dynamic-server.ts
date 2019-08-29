@@ -69,11 +69,19 @@ export class DynamicApolloServer extends apollo.ApolloServer {
                     }
                 }
                 /* Not necessary, but removing to ensure schema built on the request */
-                // tslint:disable-next-line
                 const { schema, ...serverObj } = this;
 
                 schemaErrorHandler(req, res, async () => {
-                    const roleSchema = await getSchemaByRole(get(req, 'aclManager'), user, this.logger, this.pluginContext, this.concurrency);
+                    // TODO: check if user is false
+                    const roleSchema = await getSchemaByRole(
+                        // @ts-ignore
+                        req.aclManager,
+                        user,
+                        this.logger,
+                        this.pluginContext,
+                        this.concurrency
+                    );
+
                     /**
                      * This is the main reason to extend, to access graphqlExpress(),
                      * to be able to modify the schema based on the request
