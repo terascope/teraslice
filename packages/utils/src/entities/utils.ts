@@ -5,24 +5,25 @@ export function makeDataEntityObj<T extends object, M extends i.DataEntityMetada
     metadata: M
 ): void {
     Object.defineProperties(entity, {
-        [i.IS_ENTITY_KEY]: {
+        [i.__IS_ENTITY_KEY]: {
             value: true,
             enumerable: false,
             writable: false,
         },
-        [i.METADATA_KEY]: {
-            value: metadata,
+        [i.__DATAENTITY_METADATA_KEY]: {
+            value: {
+                metadata,
+                rawData: null,
+            },
+            configurable: false,
             enumerable: false,
             writable: false,
         },
-        [i.RAWDATA_KEY]: {
-            value: null,
-            enumerable: false,
-            writable: true,
-        }
     });
 }
 
 export function makeMetadata<M extends object>(metadata?: M): i.DataEntityMetadata {
-    return { _createTime: Date.now(), ...metadata };
+    const m = { _createTime: Date.now() };
+    if (!metadata) return m;
+    return Object.assign({}, m, metadata);
 }

@@ -28,7 +28,22 @@ export function fastAssign<T, U>(target: T, source: U) {
     return target;
 }
 
+/**
+ * Similar to is-plain-object but works better when clone deeping a DataEntity
+*/
+export function isSimpleObject(input: any): input is object {
+    if (input == null) return false;
+    if (Buffer.isBuffer(input)) return false;
+    if (Array.isArray(input)) return false;
+    if (input instanceof Set) return false;
+    if (input instanceof Map) return false;
+    return typeof input === 'object';
+}
+
 // export a few dependencies
 export {
-    isPlainObject, cloneDeep, get, set
+    isPlainObject,
+    cloneDeep,
+    get,
+    set
 };
