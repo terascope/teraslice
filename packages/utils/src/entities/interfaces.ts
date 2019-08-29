@@ -1,10 +1,13 @@
 export type TYPE_IS_ENTITY_KEY = '__isDataEntity';
-export type TYPE_METADATA_KEY = '___DataEntityMetadata';
-export type TYPE_RAWDATA_KEY = '___DataEntityRawData';
+export type TYPE_DATAENTITY_METADATA_KEY = '___DataEntityMetadata';
 
-export const IS_ENTITY_KEY: TYPE_IS_ENTITY_KEY = '__isDataEntity';
-export const METADATA_KEY: TYPE_METADATA_KEY = '___DataEntityMetadata';
-export const RAWDATA_KEY: TYPE_RAWDATA_KEY = '___DataEntityRawData';
+export const __IS_ENTITY_KEY: TYPE_IS_ENTITY_KEY = '__isDataEntity';
+export const __DATAENTITY_METADATA_KEY: TYPE_DATAENTITY_METADATA_KEY = '___DataEntityMetadata';
+
+export type __DataEntityProps<M extends object> = {
+    metadata: M & DataEntityMetadata;
+    rawData: Buffer|null;
+};
 
 export interface DataEntityMetadata {
     /** The time at which this entity was created */
