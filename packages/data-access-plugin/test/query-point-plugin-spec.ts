@@ -94,6 +94,7 @@ describe('Query Point API', () => {
 
     const space3Properties: TypeConfigFields = {
         location: { type: 'Geo' },
+        urls: { type: 'Keyword', array: true },
         bytes: { type: 'Long' },
         wasFound: { type: 'Boolean' },
         date: { type: 'Date' },
@@ -156,7 +157,7 @@ describe('Query Point API', () => {
         },
         {
             ip: '152.113.244.212',
-            urls: ['http://amazon.com'],
+            urls: ['http://website1.com', 'http://website2.com'],
             location: {
                 lat: '81.90873',
                 lon: '-98.281',
@@ -170,8 +171,8 @@ describe('Query Point API', () => {
             ip: '152.113.244.200',
             urls: ['http://twitter.com'],
             location: {
-                lat: '61.90873',
-                lon: '-118.281',
+                lat: '62.90873',
+                lon: '-117.281',
             },
             id: 'a0fa3951-8c12-4ccf-814f-134abaf561ae',
             created: '2019-04-26T04:07:23.207-07:00',
@@ -186,6 +187,7 @@ describe('Query Point API', () => {
                 lat: '0.05102',
                 lon: '-41.82129',
             },
+            urls: ['http://somewebsite.com'],
             bytes: 1234,
             wasFound: true,
             nested: {
@@ -198,6 +200,7 @@ describe('Query Point API', () => {
                 lat: '81.90873',
                 lon: '-98.281',
             },
+            urls: ['http://someotherwebsite.com'],
             bytes: 210,
             wasFound: false,
             nested: {
@@ -210,6 +213,7 @@ describe('Query Point API', () => {
                 lat: '61.90873',
                 lon: '-118.281',
             },
+            urls: ['http://website1.com', 'http://website2.com'],
             bytes: 1500,
             wasFound: true,
             nested: {
@@ -629,7 +633,7 @@ describe('Query Point API', () => {
     it('can query the endpoint', async () => {
         const query1 = `
             query {
-                ${space1}(query: "*", size: 1){
+                ${space1}(query: "bytes:>1", size: 1){
                     bytes
                 }
             }
@@ -637,14 +641,13 @@ describe('Query Point API', () => {
 
         const query2 = `
             query {
-                ${space2}(query: "*", size: 1){
+                ${space2}(query: "bytes:>1", size: 1){
                     bytes,
                     bool
                 }
             }
         `;
 
-        // @ts-ignore
         const [{ [space1]: results1 }, { [space2]: results2 }] = await Promise.all([
             fullRoleClient.request(query1),
             limitedRoleClient.request(query2),
@@ -688,7 +691,7 @@ describe('Query Point API', () => {
         // location is not accessible by this role
         const query = `
                 query {
-                    ${space2}(query: "*", size: 1){
+                    ${space2}(query: "bytes:>1", size: 1){
                         bytes,
                         bool,
                         location
@@ -711,7 +714,7 @@ describe('Query Point API', () => {
 
         const query = `
                 query {
-                    ${space3}(query: "*", size: 1){
+                    ${space3}(query: "bytes:>1", size: 1){
                         bytes,
                         bool
                     }
@@ -732,7 +735,7 @@ describe('Query Point API', () => {
         // it is constrained to bytes:>=1300
         const query = `
                 query {
-                    ${space2}(query: "*"){
+                    ${space2}(query: "bytes:>1"){
                         bytes,
                         bool,
                     }
@@ -1009,7 +1012,7 @@ describe('Query Point API', () => {
                 query {
                     ${space1}(query: "bytes:>=1000"){
                         bytes
-                        ${space2}(query: "*", size: 1){
+                        ${space2}(query: "bytes:>1", size: 1){
                             bool
                         }
                     }
@@ -1173,5 +1176,75 @@ describe('Query Point API', () => {
             `;
 
         await expect(fullRoleClient.request(query)).toReject();
+    });
+
+    it('can join on Geo type values', async () => {
+        const query = `
+                query {
+                    test_space1(query:"bytes:>1300") {
+                        bytes,
+                        url,
+                        location {
+                            lat, lon
+                        },
+                        test_space2(join: ["location|80miles"]){
+                            bool,
+                            urls,
+                            bytes,
+                        }
+                    }
+                }
+        ` ;
+
+        const results = {
+            [space1] : [
+                {
+                    bytes: 1500,
+                    url: 'http://last.com',
+                    location: { lat: '61.90873', lon: '-118.281' },
+                    [space2]: [
+                        {
+                            bool: true,
+                            urls: ['http://twitter.com'],
+                            bytes: 1500
+                        }
+                    ]
+                }
+            ]
+        };
+
+        const queryResults = await fullRoleClient.request(query);
+        expect(queryResults).toEqual(results);
+    });
+
+    it('can join on arrayed values', async () => {
+        const query = `
+                query {
+                    test_space2(query:"bytes:<300") {
+                        bytes,
+                        urls
+                        test_space3(join: ["urls"]){
+                           wasFound
+                        }
+                    }
+                }
+        ` ;
+
+        const results = {
+            [space2]: [
+                {
+                    bytes: 210,
+                    urls: ['http://website1.com', 'http://website2.com'],
+                    [space3]: [
+                        {
+                            wasFound: true
+                        }
+                    ]
+                }
+            ]
+        };
+
+        const queryResults = await fullRoleClient.request(query);
+        expect(queryResults).toEqual(results);
     });
 });
