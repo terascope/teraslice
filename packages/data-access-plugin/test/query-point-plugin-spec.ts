@@ -554,8 +554,7 @@ describe('Query Point API', () => {
                         roles: ["${highRoleId}", "${lowRoleId}"],
                         views: ["${view1ID}"],
                         config: {
-                            index:"${space1}",
-                            require_query: true
+                            index:"${space1}"
                         },
                     }
                 ){
@@ -576,8 +575,7 @@ describe('Query Point API', () => {
                         roles: ["${highRoleId}", "${lowRoleId}"],
                         views: ["${view2ID}", "${view2BID}"],
                         config: {
-                            index:"${space2}",
-                            require_query: true
+                            index:"${space2}"
                         },
                     }
                 ){
@@ -598,8 +596,7 @@ describe('Query Point API', () => {
                         roles: ["${highRoleId}"],
                         views: ["${view3ID}"],
                         config: {
-                            index:"${space3}",
-                            require_query: true
+                            index:"${space3}"
                         },
                     }
                 ){
@@ -667,29 +664,25 @@ describe('Query Point API', () => {
         expect(results2[0].bool).toBeDefined();
     });
 
-    it('will throw if no query is provided for top level query', async () => {
-        expect.hasAssertions();
-
+    it('will query all if no query is specified', async () => {
         const query = `
                 query {
-                    ${space1}(size: 1){
+                    ${space1} {
                         bytes
                     }
                 }
             `;
 
-        try {
-            await fullRoleClient.request(query);
-        } catch (err) {
-            const {
-                response: {
-                    status,
-                    errors: [{ message }],
-                },
-            } = err;
-            expect(message).toEqual('Invalid request, expected query to nested');
-            expect(status).toEqual(200);
-        }
+        const results = {
+            [space1]: [
+                { bytes: 1234 },
+                { bytes: 210 },
+                { bytes: 1500 }
+            ]
+        };    
+
+        const queryResults = await fullRoleClient.request(query);
+        expect(queryResults).toEqual(results);
     });
 
     it('can limit fields on endpoint by role', async () => {

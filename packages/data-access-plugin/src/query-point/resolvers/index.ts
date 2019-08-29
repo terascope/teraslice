@@ -197,7 +197,6 @@ function createResolvers(
 
             let { query: q } = args;
 
-            if (root == null && q == null) throw new UserInputError('Invalid request, expected query to nested');
             if (root && join == null) throw new UserInputError('Invalid query, expected join when querying against another space');
 
             if (join) {
