@@ -43,11 +43,12 @@ interface QueryArgs {
     [key: string]: InputQuery;
 }
 
-function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger: Logger, context: Context) {
+function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger: Logger, context: Context, concurrency: number) {
     const results = {} as IResolvers<any, SpacesContext>;
     const endpoints = {};
     const searchDict: SearchDict = {};
     const queryArgs:QueryArgs = {};
+
     // we create the master resolver list
     for (const key in Misc) {
         if (typeDefs.includes(key)) results[key] = Misc[key];
@@ -77,13 +78,11 @@ function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger:
 
     function loadJoinData(luceneQuerys: string[]) {
         return Promise.resolve(Bluebird.map(luceneQuerys, (keyString: string) => {
-            // TODO: make sure this does not clash
             const [endpoint] = keyString.split('__');
             const query = queryArgs[keyString];
             const { searchAccess, client } = searchDict[endpoint];
             return searchAccess.performSearch(client, query);
-            // TODO: make this configurable
-        }, { concurrency: 10 }));
+        }, { concurrency }));
     }
 
     interface ParsedJoinFields {

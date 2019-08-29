@@ -9,7 +9,7 @@ import { createResolvers } from './resolvers';
 
 // TODO: history capabilities??
 
-export default async function getSchemaByRole(aclManager: ACLManager, user: User, logger: ts.Logger, context: Context) {
+export default async function getSchemaByRole(aclManager: ACLManager, user: User, logger: ts.Logger, context: Context, concurrency: number) {
     const query = `roles: ${user.role} AND type:SEARCH AND _exists_:endpoint`;
     const spaces = await aclManager.findSpaces({ query, size: 10000 }, false);
 
@@ -24,7 +24,7 @@ export default async function getSchemaByRole(aclManager: ACLManager, user: User
     });
 
     const types = createTypes(sanatizedList);
-    const myResolvers = createResolvers(sanatizedList, types[0], logger, context);
+    const myResolvers = createResolvers(sanatizedList, types[0], logger, context, concurrency);
 
     const schema = makeExecutableSchema({
         typeDefs: types,

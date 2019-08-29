@@ -35,7 +35,10 @@ export default class QueryPointPlugin {
         }
 
         const complexitySize = pluginConfig.server_config.data_access.complexity_limit || 10000 ** 2;
+        const concurrency = pluginConfig.server_config.data_access.concurrency || 10;
+
         this.server.complexitySize = complexitySize;
+        this.server.concurrency = concurrency;
         this.server.pluginContext = pluginConfig.context;
         this.server.logger = this.logger;
     }

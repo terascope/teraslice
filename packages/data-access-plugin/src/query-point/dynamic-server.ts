@@ -20,6 +20,7 @@ export class DynamicApolloServer extends apollo.ApolloServer {
     logger!: Logger;
     pluginContext!: Context;
     complexitySize!: number;
+    concurrency!: number;
 
     applyMiddleware({ app, path = '/graphql' }: apollo.ServerRegistration) {
         /* Adds project specific middleware inside, just to keep in one place */
@@ -72,7 +73,7 @@ export class DynamicApolloServer extends apollo.ApolloServer {
                 const { schema, ...serverObj } = this;
 
                 schemaErrorHandler(req, res, async () => {
-                    const roleSchema = await getSchemaByRole(get(req, 'aclManager'), user, this.logger, this.pluginContext);
+                    const roleSchema = await getSchemaByRole(get(req, 'aclManager'), user, this.logger, this.pluginContext, this.concurrency);
                     /**
                      * This is the main reason to extend, to access graphqlExpress(),
                      * to be able to modify the schema based on the request
