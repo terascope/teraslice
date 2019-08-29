@@ -40,7 +40,7 @@ interface SearchDict {
 }
 // endpoint is first
 interface QueryArgs {
-    [key: string]: [string, InputQuery];
+    [key: string]: InputQuery;
 }
 
 function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger: Logger, context: Context) {
@@ -76,22 +76,94 @@ function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger:
     const loader = new DataLoader((keys:string[]) => loadJoinData(keys));
 
     function loadJoinData(luceneQuerys: string[]) {
-        return Promise.resolve(Bluebird.map(luceneQuerys, (luceneQuery: string) => {
+        return Promise.resolve(Bluebird.map(luceneQuerys, (keyString: string) => {
             // TODO: make sure this does not clash
-            const [endpoint, query] = queryArgs[luceneQuery];
+            const [endpoint] = keyString.split('__');
+            const query = queryArgs[keyString];
             const { searchAccess, client } = searchDict[endpoint];
             return searchAccess.performSearch(client, query);
+            // TODO: make this configurable
         }, { concurrency: 10 }));
     }
 
-    function makeSelctor(selector: string, value: any | any[], prevQ: undefined|string) {
-        let q = '';
+    interface ParsedJoinFields {
+        origin: string;
+        target: string;
+        extraParams?: string;
+    }
 
-        if (Array.isArray(value)) {
-            q = value.map((field) => `${selector}:"${field}"`).join(' AND ');
-        } else {
-            q = `${selector}:"${value}"`;
+    function parseJoinField(fieldParams: string): ParsedJoinFields {
+        // any chars between a | and a whitespace or :
+        let field = fieldParams;
+        let extraParams: undefined | string;
+        const regex = /\|([^: ]+)/;
+        const hasExtraParams = field.match(regex);
+
+        if (hasExtraParams) {
+            extraParams = hasExtraParams[1];
+            field = field.replace(`|${extraParams}`, '');
         }
+        const selectorTargets =  field.split(':');
+        const origin = selectorTargets[0];
+        const target = selectorTargets[1] || origin;
+
+        return { origin, target, extraParams };
+    }
+
+    function validateFields(root: any, parsedFields: ParsedJoinFields[]) {
+        parsedFields.forEach((parsedFieldData) => {
+            const { origin } = parsedFieldData;
+            if (!(root && root[origin] != null)) {
+                const errMsg = `Invalid join on field "${origin}", you may only join on a field that is being returned in a query`;
+                throw new UserInputError(errMsg);
+            }
+        });
+    }
+
+    class JoinStitcher {
+        view: DataAccessConfig;
+
+        constructor(view:DataAccessConfig) {
+            this.view = view;
+        }
+
+        private isGeoJoinField(field: string):boolean {
+            const dataTypeFields = this.view.data_type.config.fields;
+            return dataTypeFields[field] != null && dataTypeFields[field].type === 'Geo';
+        }
+
+        private _geoQuery(target: string , value: any | any[], params: string | undefined) {
+            const distance = params || '10m';
+            const { lat, lon }: { lat: string, lon: string } = value;
+            return `${target}:(_geo_point_:"${lat},${lon}" _geo_distance_:${distance})`;
+        }
+
+        private _createQuery(target: string , value: string | string[]) {
+            if (Array.isArray(value)) {
+                return value.map((field) => `${target}:"${field}"`).join(' AND ');
+            }
+
+            return `${target}:"${value}"`;
+        }
+
+        make(target: string , value: any | any[], params: undefined | string) {
+            if (this.isGeoJoinField(target)) {
+                return this._geoQuery(target, value, params);
+            }
+
+            return this._createQuery(target, value);
+        }
+    }
+
+    function makeJoinQuery(view: DataAccessConfig, root: any, join: string[], prevQ: undefined|string) {
+        let q = '';
+        const sticher = new JoinStitcher(view);
+        const parsedFields = join.map(parseJoinField);
+        validateFields(root, parsedFields);
+        // @ts-ignore
+        q = parsedFields.map((config) => {
+            return sticher.make(config.target, root[config.origin], config.extraParams);
+        }).join(' AND ');
 
         if (prevQ) {
             q = `${q} AND (${prevQ})`;
@@ -118,29 +190,21 @@ function createResolvers(viewList: DataAccessConfig[], typeDefs: string, logger:
                 fields,
             };
 
-            let { query:q,  } = args;
+            let { query: q } = args;
 
             if (root == null && q == null) throw new UserInputError('Invalid request, expected query to nested');
             if (root && join == null) throw new UserInputError('Invalid query, expected join when querying against another space');
 
             if (join) {
                 if (!Array.isArray(join)) throw new UserInputError('Invalid join, must be an array of values');
-                join.forEach((field) => {
-                    const [orig, target] = field.split(':') || [field, field];
-                    const selector = target || orig; // In case there's no colon in field.
-
-                    if (root && root[orig] != null) {
-                        q = makeSelctor(selector, root[orig], q);
-                    } else {
-                        throw new UserInputError('Invalid join, you may only join on a field that is being returned in a query');
-                    }
-                });
+                q = makeJoinQuery(view, root, join, q);
             }
             query.q = q;
             // set the query obj for dataloader
-            queryArgs[q] = [endpoint, query];
+            const key = `${endpoint}__${q}`;
+            queryArgs[key] = query;
 
-            const response = await loader.load(q);
+            const response = await loader.load(key);
             return dedup(response.results);
         };
     });
