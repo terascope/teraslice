@@ -93,7 +93,10 @@ export class SearchAccess {
 
         let response: any = {};
         try {
+            console.log('the search access query', JSON.stringify(esQuery))
             response = await client.search(esQuery);
+            console.log('the search access response', JSON.stringify(response))
+
         } catch (err) {
             response.error = err;
         }
@@ -178,7 +181,7 @@ export class SearchAccess {
 
         const fields = ts.get(query, 'fields');
         if (fields) {
-            params._sourceInclude = ts.uniq(ts.parseList(fields).map((s) => s.toLowerCase()));
+            params._sourceInclude = ts.uniq(ts.parseList(fields));
         }
 
         const geoSortUnit = ts.get(query, 'geo_sort_unit');

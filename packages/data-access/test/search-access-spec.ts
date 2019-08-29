@@ -287,7 +287,7 @@ describe('SearchAccess', () => {
                     sort: 'created:desc',
                     size: 999,
                     from: 0,
-                    _sourceInclude: ['one', 'two', 'three'],
+                    _sourceInclude: ['one', 'tWo', 'Three'],
                 });
             });
         });
