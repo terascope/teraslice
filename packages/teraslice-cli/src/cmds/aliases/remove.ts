@@ -1,11 +1,10 @@
 
 import { CMD } from '../../interfaces';
-
-import replyModule from '../lib/reply';
+import Reply from '../lib/reply';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 
-const reply = new replyModule();
+const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
 export = {

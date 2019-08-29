@@ -49,8 +49,8 @@ const Header: React.FC<Props> = (props) => {
                             const current = parseSortBy(sort);
                             let direction: SortDirection = 'asc';
                             if (
-                                current.field === field &&
-                                current.direction === 'asc'
+                                current.field === field
+                                && current.direction === 'asc'
                             ) {
                                 direction = 'desc';
                             }
@@ -68,7 +68,6 @@ const Header: React.FC<Props> = (props) => {
 };
 
 type Props = {
-    numSelected: number;
     updateQueryState: UpdateQueryState;
     toggleSelectAll: () => void;
     sort: string;
@@ -77,7 +76,6 @@ type Props = {
 };
 
 Header.propTypes = {
-    numSelected: PropTypes.number.isRequired,
     updateQueryState: PropTypes.func.isRequired,
     toggleSelectAll: PropTypes.func.isRequired,
     sort: PropTypes.string.isRequired,

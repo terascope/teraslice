@@ -8,7 +8,7 @@ export default class HexEncode extends TransformOpBase {
         super(config);
     }
 
-    encode(data:string) {
+    encode(data: string) {
         return Buffer.from(data).toString('hex');
     }
 

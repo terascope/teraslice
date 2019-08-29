@@ -1,5 +1,5 @@
-import { Join } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
+import { Join } from '../../../src/operations';
 
 describe('join operator', () => {
     it('can instantiate', () => {
@@ -21,7 +21,9 @@ describe('join operator', () => {
         const badConfig4 = { post_process: 'join', fields: 1234, target_field: 'someField' };
         const badConfig5 = { post_process: 'join', fields: ['first'], target_field: 'someField' };
         const badConfig6 = { post_process: 'join', fields: { first: 'first', last: 'last' }, target_field: 'someField' };
-        const badConfig7 = { post_process: 'join', fields: ['first', 'last'], target_field: 'someField', delimiter: 1324 };
+        const badConfig7 = {
+            post_process: 'join', fields: ['first', 'last'], target_field: 'someField', delimiter: 1324
+        };
         // @ts-ignore
         expect(() => new Join(badConfig1)).toThrow();
         // @ts-ignore
@@ -39,7 +41,9 @@ describe('join operator', () => {
     });
 
     it('can join fields of data entities', () => {
-        const opConfig = { post_process: 'join', fields: ['first', 'last'], target_field: 'full', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            post_process: 'join', fields: ['first', 'last'], target_field: 'full', __id: 'someId', follow: 'otherId'
+        };
         const test = new Join(opConfig);
         const data = new DataEntity({ first: 'John', last: 'Doe' });
         const results = test.run(data);

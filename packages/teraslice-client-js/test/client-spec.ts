@@ -15,7 +15,7 @@ describe('Teraslice Client', () => {
         });
 
         it('should have jobs, cluster, and assets', () => {
-             // @ts-ignore
+            // @ts-ignore
             const client = new TerasliceClient();
             expect(client.jobs).not.toBeUndefined();
             expect(client.cluster).not.toBeUndefined();
@@ -65,7 +65,6 @@ describe('Teraslice Client', () => {
             });
 
             describe('when called with a valid path', () => {
-
                 beforeEach(() => {
                     scope.get('/hello')
                         .reply(200, { example: 'hello' });
@@ -78,10 +77,9 @@ describe('Teraslice Client', () => {
             });
 
             describe('when called with a path, query and options', () => {
-
                 beforeEach(() => {
                     scope.get('/hello')
-                    .matchHeader('Some-Header', 'yes')
+                        .matchHeader('Some-Header', 'yes')
                         .query({ hello: true })
                         .reply(200, { example: 'hello' });
                 });
@@ -89,7 +87,7 @@ describe('Teraslice Client', () => {
                 it('should resolve with the response from the server', async () => {
                     const results = await client.get('/hello', {
                         headers: { 'Some-Header': 'yes' },
-                                        // @ts-ignore
+                        // @ts-ignore
 
                         query: { hello: true }
                     });
@@ -105,7 +103,7 @@ describe('Teraslice Client', () => {
                 });
 
                 it('should resolve with the response from the server', async () => {
-                                    // @ts-ignore
+                    // @ts-ignore
 
                     const results = await client.get('/hello', { query: { hello: true } });
                     expect(results).toEqual({ example: 'hello' });
@@ -280,7 +278,6 @@ describe('Teraslice Client', () => {
             });
 
             describe('when called with a path and headers', () => {
-
                 beforeEach(() => {
                     scope.post('/hello', { hello: true })
                         .reply(200, { example: 'hello' });

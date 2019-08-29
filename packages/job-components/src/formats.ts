@@ -1,4 +1,3 @@
-'use strict';
 
 import { addFormat, Format } from 'convict';
 // @ts-ignore
@@ -11,7 +10,7 @@ import {
     toInteger,
 } from '@terascope/utils';
 
-export const formats : Format[] = [
+export const formats: Format[] = [
     {
         name: 'required_String',
         validate(val: any) {
@@ -76,12 +75,12 @@ export const formats : Format[] = [
             // NOTE: the \\\\ is necessary to match a single \ in this case
             const badChar = new RegExp('[#*?"<>|/\\\\]');
             if (badChar.test(val)) {
-                throw new Error(`value: ${ val } should not contain any invalid characters: #*?"<>|/\\`);
+                throw new Error(`value: ${val} should not contain any invalid characters: #*?"<>|/\\`);
             }
 
             const upperRE = new RegExp('[A-Z]');
             if (upperRE.test(val)) {
-                throw new Error(`value: ${ val } should be lower case`);
+                throw new Error(`value: ${val} should be lower case`);
             }
         },
         coerce(val) {

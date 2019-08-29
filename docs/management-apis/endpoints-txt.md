@@ -1,5 +1,5 @@
 ---
-title: Txt APIs
+title: TXT APIs
 ---
 
 The `txt` APIs provide more human readable and script friendly API endpoints for common information requests.
@@ -344,4 +344,3 @@ name     version  id                                        _created            
 -------  -------  ----------------------------------------  ------------------------  ------------------------------
 zipfile  0.3.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-28T18:19:18.638Z  Some description
 ```
-

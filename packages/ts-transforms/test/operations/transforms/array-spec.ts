@@ -1,5 +1,5 @@
-import { MakeArray } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
+import { MakeArray } from '../../../src/operations';
 
 describe('MakeArray operator', () => {
     it('can instantiate', () => {
@@ -33,7 +33,9 @@ describe('MakeArray operator', () => {
     });
 
     it('can make an array of fields of data entities', () => {
-        const opConfig = { post_process: 'array', fields: ['first', 'last'], target_field: 'full', __id: 'someId', follow: 'someTag' };
+        const opConfig = {
+            post_process: 'array', fields: ['first', 'last'], target_field: 'full', __id: 'someId', follow: 'someTag'
+        };
         const test = new MakeArray(opConfig);
         const data = new DataEntity({ first: 'John', last: 'Doe' });
         const results = test.run(data);
@@ -43,7 +45,9 @@ describe('MakeArray operator', () => {
     });
 
     it('can make an array of fields if values are arrays or singular values', () => {
-        const opConfig = { post_process: 'array', fields: ['first', 'last'], target_field: 'full', __id: 'someId', follow: 'someTag' };
+        const opConfig = {
+            post_process: 'array', fields: ['first', 'last'], target_field: 'full', __id: 'someId', follow: 'someTag'
+        };
         const test = new MakeArray(opConfig);
         const data = new DataEntity({ first: ['John', 'Jane'], last: 'Doe' });
         const results = test.run(data);
@@ -69,7 +73,9 @@ describe('MakeArray operator', () => {
     });
 
     it('can make an array of fields if only one field is specified', () => {
-        const opConfig = { post_process: 'array', source_fields: ['first'], target_field: 'full', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            post_process: 'array', source_fields: ['first'], target_field: 'full', __id: 'someId', follow: 'otherId'
+        };
         const test = new MakeArray(opConfig);
         const data = new DataEntity({ first: 'John', last: 'Doe' });
         const results = test.run(data);

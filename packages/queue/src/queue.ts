@@ -4,7 +4,7 @@ import Node from './node';
 export default class Queue<T> {
     head?: Node<T>;
     tail?: Node<T>;
-    private _size: number = 0;
+    private _size = 0;
 
     /** A value to the end of the queue */
     enqueue(value: T): void {
@@ -150,8 +150,6 @@ export default class Queue<T> {
                 currentNode = nextNode;
             }
         }
-
-        return;
     }
 
     /**

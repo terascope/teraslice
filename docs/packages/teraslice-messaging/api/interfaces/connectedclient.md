@@ -14,7 +14,6 @@ sidebar_label: ConnectedClient
 ### Properties
 
 * [clientId](connectedclient.md#clientid)
-* [offlineAt](connectedclient.md#offlineat)
 * [state](connectedclient.md#state)
 
 ## Properties
@@ -23,15 +22,7 @@ sidebar_label: ConnectedClient
 
 • **clientId**: *string*
 
-*Defined in [messenger/interfaces.ts:64](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L64)*
-
-___
-
-###  offlineAt
-
-• **offlineAt**: *number | null*
-
-*Defined in [messenger/interfaces.ts:66](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L66)*
+*Defined in [messenger/interfaces.ts:63](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L63)*
 
 ___
 
@@ -39,4 +30,4 @@ ___
 
 • **state**: *[ClientState](../enums/clientstate.md)*
 
-*Defined in [messenger/interfaces.ts:65](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L65)*
+*Defined in [messenger/interfaces.ts:64](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L64)*

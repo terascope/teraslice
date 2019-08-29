@@ -29,7 +29,7 @@ export default class OperationBase {
         } = config;
         // @ts-ignore
         this.source = sField || sFields;
-         // @ts-ignore
+        // @ts-ignore
         this.target = targetField;
         hasStringValues(this.source);
         hasStringValues(this.target);
@@ -57,7 +57,5 @@ function hasStringValues(value: string|string[]) {
         if (value.length === 0) throw new Error('if input is an array it must have string values inside');
         const bool = _.every(value, _.isString);
         if (!bool) throw new Error(`input: ${value} must be of type string`);
-    } else {
-        if (typeof value !== 'string') throw new Error(`input: ${value} must be of type string`);
-    }
+    } else if (typeof value !== 'string') throw new Error(`input: ${value} must be of type string`);
 }

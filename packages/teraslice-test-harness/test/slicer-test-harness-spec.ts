@@ -36,9 +36,7 @@ describe('SlicerTestHarness', () => {
             clients,
         });
 
-        it('should be able to call initialize', () => {
-            return expect(slicerHarness.initialize()).resolves.toBeNil();
-        });
+        it('should be able to call initialize', () => expect(slicerHarness.initialize()).resolves.toBeNil());
 
         it('should have a slicer', () => {
             expect(slicerHarness.slicer()).toBeInstanceOf(Slicer);
@@ -61,8 +59,6 @@ describe('SlicerTestHarness', () => {
             expect(result[0]).toHaveProperty('slicer_order');
         });
 
-        it('should be able to call shutdown', () => {
-            return expect(slicerHarness.shutdown()).resolves.toBeNil();
-        });
+        it('should be able to call shutdown', () => expect(slicerHarness.shutdown()).resolves.toBeNil());
     });
 });

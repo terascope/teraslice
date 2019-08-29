@@ -1,7 +1,9 @@
 import path from 'path';
 import execa from 'execa';
 import fse from 'fs-extra';
-import { debugLogger, pDelay, isString, get } from '@terascope/utils';
+import {
+    debugLogger, pDelay, isString, get
+} from '@terascope/utils';
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
 import signale from './signale';
@@ -48,7 +50,7 @@ function _exec(opts: ExecOpts) {
     return subprocess;
 }
 
-export async function exec(opts: ExecOpts, log: boolean = true): Promise<string> {
+export async function exec(opts: ExecOpts, log = true): Promise<string> {
     try {
         const env: ExecEnv = { FORCE_COLOR: '0', ...opts.env };
         const _opts = { ...opts };
@@ -115,7 +117,12 @@ export async function yarnRun(script: string, args: string[] = [], cwd?: string)
     await fork({ cmd: 'yarn', args: ['run', script, ...args], cwd: dir });
 }
 
-export async function runJest(cwd: string, argsMap: ArgsMap, env?: ExecEnv, extraArgs?: string[]): Promise<void> {
+export async function runJest(
+    cwd: string,
+    argsMap: ArgsMap,
+    env?: ExecEnv,
+    extraArgs?: string[]
+): Promise<void> {
     const args = mapToArgs(argsMap);
     if (extraArgs) {
         extraArgs.forEach((extraArg) => {
@@ -172,7 +179,7 @@ export type DockerRunOptions = {
     env?: ExecEnv;
 };
 
-export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): Promise<() => void> {
+export async function dockerRun(opt: DockerRunOptions, tag = 'latest'): Promise<() => void> {
     const args: string[] = ['run', '--rm'];
     if (!opt.image) {
         throw new Error('Missing required image option');
@@ -207,7 +214,7 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
 
     let error: any;
     let stderr: any;
-    let done: boolean = true;
+    let done = true;
 
     signale.debug(`executing: docker ${args.join(' ')}`);
     const subprocess = execa('docker', args);
@@ -259,7 +266,11 @@ export async function dockerRun(opt: DockerRunOptions, tag: string = 'latest'): 
     };
 }
 
-export async function dockerBuild(tag: string, cacheFrom: string[] = [], target?: string): Promise<void> {
+export async function dockerBuild(
+    tag: string,
+    cacheFrom: string[] = [],
+    target?: string
+): Promise<void> {
     const cacheFromArgs: string[] = [];
 
     cacheFrom.forEach((image) => {

@@ -1,13 +1,13 @@
+import { Context, WorkerContext } from '../interfaces';
+import { SlicerExecutionContext } from './slicer';
+import { WorkerExecutionContext } from './worker';
+import { ExecutionContextConfig } from './interfaces';
+
 export * from './api';
 export * from './interfaces';
 export * from './slicer';
 export * from './worker';
 export * from './utils';
-
-import { Context, WorkerContext } from '../interfaces';
-import { SlicerExecutionContext } from './slicer';
-import { WorkerExecutionContext } from './worker';
-import { ExecutionContextConfig } from './interfaces';
 
 export function isWorkerContext(context: Context): context is WorkerContext {
     return context.assignment === 'worker';

@@ -1,5 +1,7 @@
 import semver from 'semver';
-import { getLatestNPMVersion, getCommitHash, dockerPull, dockerBuild } from '../scripts';
+import {
+    getLatestNPMVersion, getCommitHash, dockerPull, dockerBuild
+} from '../scripts';
 import { PublishType } from './interfaces';
 import { PackageInfo } from '../interfaces';
 import { getRootInfo } from '../misc';

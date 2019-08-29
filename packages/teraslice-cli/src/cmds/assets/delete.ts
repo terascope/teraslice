@@ -28,7 +28,7 @@ export = {
             const resp = await terasliceClient.assets.delete(cliConfig.args.assetId);
 
             if (_.has(resp, 'error')) {
-                        // @ts-ignore
+                // @ts-ignore
                 reply.yellow(`WARNING: Error (${resp.error}): ${resp.message}`);
             } else {
                 reply.green(`Asset ${cliConfig.args.assetId} deleted from ${cliConfig.args.clusterAlias}`);

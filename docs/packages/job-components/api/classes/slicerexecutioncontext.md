@@ -11,7 +11,7 @@ Execution Configuration and any Operation.
 
 ## Hierarchy
 
-* [BaseExecutionContext](baseexecutioncontext.md)‹*[SlicerOperationLifeCycle](../interfaces/sliceroperationlifecycle.md)*›
+* [BaseExecutionContext](baseexecutioncontext.md)‹[SlicerOperationLifeCycle](../interfaces/sliceroperationlifecycle.md)›
 
   * **SlicerExecutionContext**
 
@@ -65,7 +65,7 @@ Execution Configuration and any Operation.
 
 *Overrides [BaseExecutionContext](baseexecutioncontext.md).[constructor](baseexecutioncontext.md#constructor)*
 
-*Defined in [execution-context/slicer.ts:14](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/slicer.ts#L14)*
+*Defined in [execution-context/slicer.ts:19](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/slicer.ts#L19)*
 
 **Parameters:**
 
@@ -83,27 +83,27 @@ Name | Type |
 
 *Inherited from [BaseExecutionContext](baseexecutioncontext.md).[_loader](baseexecutioncontext.md#protected-_loader)*
 
-*Defined in [execution-context/base.ts:23](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L23)*
+*Defined in [execution-context/base.ts:23](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L23)*
 
 ___
 
 ### `Protected` _methodRegistry
 
-• **_methodRegistry**: *`Map<keyof T, Set<number>>`* =  new Map<keyof T, Set<number>>()
+• **_methodRegistry**: *Map‹keyof T, Set‹number››* =  new Map<keyof T, Set<number>>()
 
 *Inherited from [BaseExecutionContext](baseexecutioncontext.md).[_methodRegistry](baseexecutioncontext.md#protected-_methodregistry)*
 
-*Defined in [execution-context/base.ts:25](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L25)*
+*Defined in [execution-context/base.ts:25](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L25)*
 
 ___
 
 ### `Protected` _operations
 
-• **_operations**: *`Set<T>`* =  new Set() as Set<T>
+• **_operations**: *Set‹T›* =  new Set() as Set<T>
 
 *Inherited from [BaseExecutionContext](baseexecutioncontext.md).[_operations](baseexecutioncontext.md#protected-_operations)*
 
-*Defined in [execution-context/base.ts:24](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L24)*
+*Defined in [execution-context/base.ts:24](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L24)*
 
 ___
 
@@ -113,7 +113,7 @@ ___
 
 *Inherited from [BaseExecutionContext](baseexecutioncontext.md).[assetIds](baseexecutioncontext.md#assetids)*
 
-*Defined in [execution-context/base.ts:15](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L15)*
+*Defined in [execution-context/base.ts:15](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L15)*
 
 ___
 
@@ -123,7 +123,7 @@ ___
 
 *Inherited from [BaseExecutionContext](baseexecutioncontext.md).[config](baseexecutioncontext.md#config)*
 
-*Defined in [execution-context/base.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L12)*
+*Defined in [execution-context/base.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L12)*
 
 ___
 
@@ -133,17 +133,17 @@ ___
 
 *Inherited from [BaseExecutionContext](baseexecutioncontext.md).[context](baseexecutioncontext.md#context)*
 
-*Defined in [execution-context/base.ts:13](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L13)*
+*Defined in [execution-context/base.ts:13](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L13)*
 
 ___
 
 ###  events
 
-• **events**: *`EventEmitter`*
+• **events**: *EventEmitter*
 
 *Inherited from [BaseExecutionContext](baseexecutioncontext.md).[events](baseexecutioncontext.md#events)*
 
-*Defined in [execution-context/base.ts:21](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L21)*
+*Defined in [execution-context/base.ts:21](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L21)*
 
 The terafoundation EventEmitter
 
@@ -155,7 +155,7 @@ ___
 
 *Inherited from [BaseExecutionContext](baseexecutioncontext.md).[exId](baseexecutioncontext.md#exid)*
 
-*Defined in [execution-context/base.ts:17](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L17)*
+*Defined in [execution-context/base.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L17)*
 
 ___
 
@@ -165,15 +165,15 @@ ___
 
 *Inherited from [BaseExecutionContext](baseexecutioncontext.md).[jobId](baseexecutioncontext.md#jobid)*
 
-*Defined in [execution-context/base.ts:18](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L18)*
+*Defined in [execution-context/base.ts:18](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L18)*
 
 ___
 
 ###  logger
 
-• **logger**: *`Logger`*
+• **logger**: *Logger*
 
-*Defined in [execution-context/slicer.ts:14](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/slicer.ts#L14)*
+*Defined in [execution-context/slicer.ts:19](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/slicer.ts#L19)*
 
 ## Accessors
 
@@ -183,7 +183,7 @@ ___
 
 *Inherited from [BaseExecutionContext](baseexecutioncontext.md).[api](baseexecutioncontext.md#api)*
 
-*Defined in [execution-context/base.ts:83](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L83)*
+*Defined in [execution-context/base.ts:83](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L83)*
 
 **Returns:** *[ExecutionContextAPI](executioncontextapi.md)*
 
@@ -195,7 +195,7 @@ ___
 
 *Inherited from [BaseExecutionContext](baseexecutioncontext.md).[_resetMethodRegistry](baseexecutioncontext.md#protected-_resetmethodregistry)*
 
-*Defined in [execution-context/base.ts:135](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L135)*
+*Defined in [execution-context/base.ts:135](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L135)*
 
 **Returns:** *void*
 
@@ -207,7 +207,7 @@ ___
 
 *Inherited from [BaseExecutionContext](baseexecutioncontext.md).[_runMethod](baseexecutioncontext.md#protected-_runmethod)*
 
-*Defined in [execution-context/base.ts:121](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L121)*
+*Defined in [execution-context/base.ts:121](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L121)*
 
 Run an method
 
@@ -224,11 +224,11 @@ ___
 
 ### `Protected` _runMethodAsync
 
-▸ **_runMethodAsync**(`method`: keyof SlicerOperationLifeCycle, ...`args`: any[]): *undefined | `Promise<any[]>`*
+▸ **_runMethodAsync**(`method`: keyof SlicerOperationLifeCycle, ...`args`: any[]): *undefined | Promise‹any[]›*
 
 *Inherited from [BaseExecutionContext](baseexecutioncontext.md).[_runMethodAsync](baseexecutioncontext.md#protected-_runmethodasync)*
 
-*Defined in [execution-context/base.ts:103](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L103)*
+*Defined in [execution-context/base.ts:103](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L103)*
 
 Run an async method on the operation lifecycle
 
@@ -239,7 +239,7 @@ Name | Type |
 `method` | keyof SlicerOperationLifeCycle |
 `...args` | any[] |
 
-**Returns:** *undefined | `Promise<any[]>`*
+**Returns:** *undefined | Promise‹any[]›*
 
 ___
 
@@ -249,7 +249,7 @@ ___
 
 *Inherited from [BaseExecutionContext](baseexecutioncontext.md).[addOperation](baseexecutioncontext.md#protected-addoperation)*
 
-*Defined in [execution-context/base.ts:96](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L96)*
+*Defined in [execution-context/base.ts:96](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L96)*
 
 Add an operation to the lifecycle queue
 
@@ -265,26 +265,26 @@ ___
 
 ###  getOperations
 
-▸ **getOperations**(): *`IterableIterator<T>`*
+▸ **getOperations**(): *IterableIterator‹T›*
 
 *Inherited from [BaseExecutionContext](baseexecutioncontext.md).[getOperations](baseexecutioncontext.md#getoperations)*
 
-*Defined in [execution-context/base.ts:91](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L91)*
+*Defined in [execution-context/base.ts:91](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L91)*
 
 Returns a list of any registered Operation that has been
 initialized.
 
-**Returns:** *`IterableIterator<T>`*
+**Returns:** *IterableIterator‹T›*
 
 ___
 
 ###  initialize
 
-▸ **initialize**(`recoveryData?`: object[]): *`Promise<void>`*
+▸ **initialize**(`recoveryData?`: object[]): *Promise‹void›*
 
 *Overrides [BaseExecutionContext](baseexecutioncontext.md).[initialize](baseexecutioncontext.md#initialize)*
 
-*Defined in [execution-context/slicer.ts:39](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/slicer.ts#L39)*
+*Defined in [execution-context/slicer.ts:44](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/slicer.ts#L44)*
 
 Called during execution initialization
 
@@ -294,7 +294,7 @@ Name | Type | Description |
 ------ | ------ | ------ |
 `recoveryData?` | object[] | is the data to recover from  |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
@@ -304,7 +304,7 @@ ___
 
 *Implementation of [SlicerOperationLifeCycle](../interfaces/sliceroperationlifecycle.md)*
 
-*Defined in [execution-context/slicer.ts:48](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/slicer.ts#L48)*
+*Defined in [execution-context/slicer.ts:53](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/slicer.ts#L53)*
 
 **Parameters:**
 
@@ -322,7 +322,7 @@ ___
 
 *Implementation of [SlicerOperationLifeCycle](../interfaces/sliceroperationlifecycle.md)*
 
-*Defined in [execution-context/slicer.ts:60](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/slicer.ts#L60)*
+*Defined in [execution-context/slicer.ts:65](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/slicer.ts#L65)*
 
 **Parameters:**
 
@@ -340,7 +340,7 @@ ___
 
 *Implementation of [SlicerOperationLifeCycle](../interfaces/sliceroperationlifecycle.md)*
 
-*Defined in [execution-context/slicer.ts:56](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/slicer.ts#L56)*
+*Defined in [execution-context/slicer.ts:61](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/slicer.ts#L61)*
 
 **Parameters:**
 
@@ -358,7 +358,7 @@ ___
 
 *Implementation of [SlicerOperationLifeCycle](../interfaces/sliceroperationlifecycle.md)*
 
-*Defined in [execution-context/slicer.ts:52](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/slicer.ts#L52)*
+*Defined in [execution-context/slicer.ts:57](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/slicer.ts#L57)*
 
 **Parameters:**
 
@@ -372,25 +372,25 @@ ___
 
 ###  shutdown
 
-▸ **shutdown**(): *`Promise<void>`*
+▸ **shutdown**(): *Promise‹void›*
 
 *Implementation of [SlicerOperationLifeCycle](../interfaces/sliceroperationlifecycle.md)*
 
 *Inherited from [BaseExecutionContext](baseexecutioncontext.md).[shutdown](baseexecutioncontext.md#shutdown)*
 
-*Defined in [execution-context/base.ts:69](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/base.ts#L69)*
+*Defined in [execution-context/base.ts:69](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/base.ts#L69)*
 
 Called to cleanup all of the registered operations
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ###  slicer
 
-▸ **slicer**<**T**>(): *`T`*
+▸ **slicer**<**T**>(): *T*
 
-*Defined in [execution-context/slicer.ts:44](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/slicer.ts#L44)*
+*Defined in [execution-context/slicer.ts:49](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/slicer.ts#L49)*
 
 The instance of a "Slicer"
 
@@ -398,4 +398,4 @@ The instance of a "Slicer"
 
 ▪ **T**: *[SlicerCore](slicercore.md)*
 
-**Returns:** *`T`*
+**Returns:** *T*

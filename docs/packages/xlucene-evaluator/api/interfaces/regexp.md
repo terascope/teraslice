@@ -17,22 +17,12 @@ sidebar_label: Regexp
 
 ### Properties
 
-* [data_type](regexp.md#data_type)
 * [field](regexp.md#field)
+* [field_type](regexp.md#field_type)
 * [type](regexp.md#type)
 * [value](regexp.md#value)
 
 ## Properties
-
-###  data_type
-
-• **data_type**: *"string"*
-
-*Inherited from [StringDataType](stringdatatype.md).[data_type](stringdatatype.md#data_type)*
-
-*Defined in [parser/interfaces.ts:61](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L61)*
-
-___
 
 ###  field
 
@@ -40,7 +30,17 @@ ___
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [parser/interfaces.ts:25](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L25)*
+*Defined in [parser/interfaces.ts:54](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L54)*
+
+___
+
+###  field_type
+
+• **field_type**: *[String](../enums/fieldtype.md#string)*
+
+*Inherited from [StringDataType](stringdatatype.md).[field_type](stringdatatype.md#field_type)*
+
+*Defined in [parser/interfaces.ts:93](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L93)*
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [parser/interfaces.ts:123](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L123)*
+*Defined in [parser/interfaces.ts:155](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L155)*
 
 ___
 
@@ -60,4 +60,4 @@ ___
 
 *Inherited from [StringDataType](stringdatatype.md).[value](stringdatatype.md#value)*
 
-*Defined in [parser/interfaces.ts:62](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L62)*
+*Defined in [parser/interfaces.ts:94](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L94)*

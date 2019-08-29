@@ -46,7 +46,7 @@ export function isTerm(node: any): node is i.Term {
 }
 
 export function isEmptyAST(node: any): node is i.EmptyAST {
-    return isEmpty(node) || node && node.type === i.ASTType.Empty;
+    return isEmpty(node) || (node && node.type === i.ASTType.Empty);
 }
 
 export function isStringDataType(node: any): node is i.StringDataType {

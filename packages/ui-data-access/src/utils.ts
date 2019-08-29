@@ -1,8 +1,18 @@
 import { UserType } from '@terascope/data-access';
 import { DataTypeConfig, AvailableType } from '@terascope/data-types';
-import { getField, AnyObject, get, trimAndToLower } from '@terascope/utils';
+import {
+    get,
+    getField,
+    AnyObject,
+    trimAndToLower
+} from '@terascope/utils';
 
-export function copyField<T extends any, P extends keyof T, V extends T[P]>(to: T, from: T, field: P, defaultVal: V) {
+export function copyField<T extends any, P extends keyof T, V extends T[P]>(
+    to: T,
+    from: T,
+    field: P,
+    defaultVal: V
+) {
     to[field] = getField(from, field, defaultVal);
 }
 
@@ -20,7 +30,10 @@ export function getModelType(model: AnyObject): UserType {
     return get(model, 'type.id', get(model, 'type')) || 'USER';
 }
 
-export function parseTypeConfig(typeConfig?: DataTypeConfig, recentlyAdded: string[] = []): ({ field: string; type: AvailableType })[] {
+export function parseTypeConfig(
+    typeConfig?: DataTypeConfig,
+    recentlyAdded: string[] = []
+): ({ field: string; type: AvailableType })[] {
     if (!typeConfig || !typeConfig.fields) return [];
 
     const alwaysAtBottom: string[] = recentlyAdded.map(trimAndToLower);

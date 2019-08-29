@@ -1,7 +1,7 @@
 
 import Url from '../../src/helpers/url';
 
-let url:any;
+let url: any;
 
 beforeEach(() => {
     url = new Url();

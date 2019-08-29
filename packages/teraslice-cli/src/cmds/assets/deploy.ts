@@ -1,4 +1,3 @@
-
 // TODO: Implement tests of handler using nock
 // TODO: Let's rework all of the IO that the `reply` module provides and ensure
 //       our commands are as Unix like as possible.
@@ -51,7 +50,6 @@ export = {
         const assetJsonPath = path.join('.', 'asset', 'asset.json');
         const assetJsonExists = fs.existsSync(assetJsonPath);
         let assetPath; // path to completed asset zipfile
-        let assetZip;
         let clusterInfo = {};
         const cliConfig = new Config(argv);
         const terasliceClient = getTerasliceClient(cliConfig);
@@ -119,10 +117,12 @@ export = {
                 }
                 reply.green('Beginning asset build.');
                 assetPath = await asset.build();
-                 // @ts-ignore
-                if (!cliConfig.args.quiet) reply.green(`Asset created:\n\t${assetPath}`);
+                if (!cliConfig.args.quiet) {
+                    reply.green(`Asset created:\n\t${assetPath}`);
+                }
             } catch (err) {
                 reply.fatal(`Error building asset: ${err}`);
+                return;
             }
 
             // NOTE: --replace only works if you're doing --build, we can change
@@ -130,11 +130,10 @@ export = {
             // this is needed, I do it here.  In the github and file cases, I would
             // have to extract the asset name from the zipfile.
             if (cliConfig.args.replace) {
-                // tslint:disable-next-line:prefer-template
                 reply.yellow('*** Warning ***\n'
                     + 'The --replace option is intended for asset development only.\n'
                     + 'Using it for production asset management is a bad idea.');
-                // @ts-ignore
+
                 const clusterAssetData = await terasliceClient.assets.get(asset.name);
                 const assetToReplace = clusterAssetData
                     .filter((clusterAsset:any) => clusterAsset.version === asset.version)[0];
@@ -150,32 +149,34 @@ export = {
                         );
                     }
                 } else {
-                     // @ts-ignore
                     reply.green(`Asset: ${asset.name}, version: ${asset.version}, was not found on ${cliConfig.args.clusterAlias}`);
                 }
             }
         } else {
             reply.fatal(
-                // tslint:disable-next-line:prefer-template
                 'You must be in a directory containing asset/asset.json, specify\n'
                 + 'an asset name or use -f /path/to/asset.zip.  Call with -h for\n'
                 + 'details.'
             );
         }
         if (!cliConfig.args.skipUpload) {
+            let assetZip: Buffer;
+
             try {
                 assetZip = await fs.readFile(assetPath);
             } catch (err) {
                 reply.fatal(`Error reading file: ${assetPath}, ${err.stack}`);
+                return;
             }
 
             try {
-                // @ts-ignore
                 const resp = await terasliceClient.assets.post(assetZip);
-
+                // @ts-ignore FIXME
                 if (resp.error) {
+                    // @ts-ignore
                     reply.fatal(`Error posting asset: ${resp.error}`);
                 }
+
                 if (!cliConfig.args.quiet) {
                     reply.green(`Asset posted to ${cliConfig.args.clusterAlias}: ${resp._id}`);
                 }

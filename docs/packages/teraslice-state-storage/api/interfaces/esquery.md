@@ -1,6 +1,6 @@
 ---
-title: Teraslice State Storage: `ESQUery`
-sidebar_label: ESQUery
+title: Teraslice State Storage: `ESQuery`
+sidebar_label: ESQuery
 ---
 
 # Interface: ESQuery
@@ -19,6 +19,6 @@ sidebar_label: ESQUery
 
 ###  index
 
-• **index**: *`ESMeta`*
+• **index**: *ESMeta*
 
-*Defined in [interfaces.ts:21](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-state-storage/src/interfaces.ts#L21)*
+*Defined in [elasticsearch-state-storage/index.ts:309](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L309)*

@@ -1,7 +1,9 @@
 
 import path from 'path';
 import { DataEntity, debugLogger } from '@terascope/utils';
-import { OutputPhase, Loader, OperationsManager, OutputValidation } from '../../src';
+import {
+    OutputPhase, Loader, OperationsManager, OutputValidation
+} from '../../src';
 
 describe('output phase', () => {
     const logger = debugLogger('outputPhaseTest');
@@ -52,5 +54,4 @@ describe('output phase', () => {
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ field: 'something' });
     });
-
 });

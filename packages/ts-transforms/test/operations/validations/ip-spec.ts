@@ -1,11 +1,12 @@
 
-import { Ip } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
+import { Ip } from '../../../src/operations';
 
 describe('ip validation', () => {
-
     it('can instantiate', () => {
-        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId'
+        };
         expect(() => new Ip(opConfig)).not.toThrow();
     });
 
@@ -16,18 +17,20 @@ describe('ip validation', () => {
         const badConfig4 = {};
         // @ts-ignore
         expect(() => new Ip(badConfig1)).toThrow();
-         // @ts-ignore
+        // @ts-ignore
         expect(() => new Ip(badConfig2)).toThrow();
         // @ts-ignore
         expect(() => new Ip(badConfig3)).toThrow();
-         // @ts-ignore
+        // @ts-ignore
         expect(() => new Ip(badConfig4)).toThrow();
     });
 
     it('can validate ip fields', () => {
-        const opConfig = { source_field: 'ipAddress', target_field: 'ipAddress', __id: 'someId', follow: 'otherId' };
-        const test =  new Ip(opConfig);
-        const metaData = { selectors: { 'some:query' : true } };
+        const opConfig = {
+            source_field: 'ipAddress', target_field: 'ipAddress', __id: 'someId', follow: 'otherId'
+        };
+        const test = new Ip(opConfig);
+        const metaData = { selectors: { 'some:query': true } };
 
         const data1 = new DataEntity({ ipAddress: '56.234,95.234' }, metaData);
         const data2 = new DataEntity({ ipAddress: 123423 }, metaData);
@@ -77,9 +80,11 @@ describe('ip validation', () => {
         expect(results13).toEqual({ ipAddress: ['193.0.0.23'] });
     });
 
-    it('can validate nested fields', async() => {
-        const opConfig = { source_field: 'event.ipAddress', target_field: 'event.ipAddress', __id: 'someId', follow: 'otherId' };
-        const test =  new Ip(opConfig);
+    it('can validate nested fields', async () => {
+        const opConfig = {
+            source_field: 'event.ipAddress', target_field: 'event.ipAddress', __id: 'someId', follow: 'otherId'
+        };
+        const test = new Ip(opConfig);
 
         const data1 = new DataEntity({ event: 'something' });
         const data2 = new DataEntity({ event: {} });

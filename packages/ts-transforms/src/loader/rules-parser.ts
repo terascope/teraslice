@@ -1,15 +1,13 @@
 import _ from 'lodash';
 import shortid from 'shortid';
+import { Logger } from '@terascope/utils';
 import { OperationConfigInput, OperationConfig } from '../interfaces';
 import { isDeprecatedCompactConfig, needsDefaultSelector } from './utils';
-import { Logger } from '@terascope/utils';
 
 export default class RulesParser {
     private configList: OperationConfigInput[];
-    // @ts-ignore
-    private logger: Logger;
 
-    constructor(configList: OperationConfigInput[], logger: Logger) {
+    constructor(configList: OperationConfigInput[], _logger?: Logger) {
         this.configList = configList;
     }
 

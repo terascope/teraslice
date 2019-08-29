@@ -55,7 +55,10 @@ export default class BaseTestHarness<U extends ExecutionContext> {
         this.events.removeAllListeners();
     }
 
-    protected makeContextConfig(job: JobConfig, assetDir: string = process.cwd()): ExecutionContextConfig {
+    protected makeContextConfig(
+        job: JobConfig,
+        assetDir: string = process.cwd()
+    ): ExecutionContextConfig {
         const assetIds = job.assets ? [...job.assets, '.'] : ['.'];
         const resolvedAssetDir = resolveAssetDir(assetDir);
         this.context.sysconfig.teraslice.assets_directory = resolvedAssetDir;

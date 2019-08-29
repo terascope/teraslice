@@ -1,6 +1,4 @@
-
 import { DataEntity } from '@terascope/utils';
-import _ from 'lodash';
 import { OperationsPipline, WatcherConfig } from '../interfaces';
 
 export default abstract class PhaseBase {

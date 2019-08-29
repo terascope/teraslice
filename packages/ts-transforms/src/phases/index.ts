@@ -4,4 +4,6 @@ import PostProcessPhase from './post-process-phase';
 import OutputPhase from './output-phase';
 import PhaseManager from './phase-manager';
 
-export { SelectionPhase, ExtractionPhase, PostProcessPhase, OutputPhase, PhaseManager };
+export {
+    SelectionPhase, ExtractionPhase, PostProcessPhase, OutputPhase, PhaseManager
+};

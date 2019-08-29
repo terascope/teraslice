@@ -7,7 +7,7 @@ sidebar_label: QueryAccessConfig
 
 ## Type parameters
 
-▪ **T**: *`AnyObject`*
+▪ **T**: *AnyObject*
 
 ## Hierarchy
 
@@ -20,6 +20,9 @@ sidebar_label: QueryAccessConfig
 * [allow_empty_queries](queryaccessconfig.md#optional-allow_empty_queries)
 * [allow_implicit_queries](queryaccessconfig.md#optional-allow_implicit_queries)
 * [constraint](queryaccessconfig.md#optional-constraint)
+* [default_geo_field](queryaccessconfig.md#optional-default_geo_field)
+* [default_geo_sort_order](queryaccessconfig.md#optional-default_geo_sort_order)
+* [default_geo_sort_unit](queryaccessconfig.md#optional-default_geo_sort_unit)
 * [excludes](queryaccessconfig.md#optional-excludes)
 * [includes](queryaccessconfig.md#optional-includes)
 * [prevent_prefix_wildcard](queryaccessconfig.md#optional-prevent_prefix_wildcard)
@@ -31,7 +34,7 @@ sidebar_label: QueryAccessConfig
 
 • **allow_empty_queries**? : *undefined | false | true*
 
-*Defined in [query-access/interfaces.ts:10](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/interfaces.ts#L10)*
+*Defined in [query-access/interfaces.ts:26](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L26)*
 
 ___
 
@@ -39,7 +42,7 @@ ___
 
 • **allow_implicit_queries**? : *undefined | false | true*
 
-*Defined in [query-access/interfaces.ts:9](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/interfaces.ts#L9)*
+*Defined in [query-access/interfaces.ts:25](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L25)*
 
 ___
 
@@ -47,23 +50,47 @@ ___
 
 • **constraint**? : *undefined | string*
 
-*Defined in [query-access/interfaces.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/interfaces.ts#L7)*
+*Defined in [query-access/interfaces.ts:23](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L23)*
+
+___
+
+### `Optional` default_geo_field
+
+• **default_geo_field**? : *undefined | string*
+
+*Defined in [query-access/interfaces.ts:27](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L27)*
+
+___
+
+### `Optional` default_geo_sort_order
+
+• **default_geo_sort_order**? : *[SortOrder](../overview.md#sortorder)*
+
+*Defined in [query-access/interfaces.ts:28](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L28)*
+
+___
+
+### `Optional` default_geo_sort_unit
+
+• **default_geo_sort_unit**? : *[GeoDistanceUnit](../overview.md#geodistanceunit) | string*
+
+*Defined in [query-access/interfaces.ts:29](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L29)*
 
 ___
 
 ### `Optional` excludes
 
-• **excludes**? : *`keyof T`[]*
+• **excludes**? : *keyof T[]*
 
-*Defined in [query-access/interfaces.ts:5](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/interfaces.ts#L5)*
+*Defined in [query-access/interfaces.ts:21](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L21)*
 
 ___
 
 ### `Optional` includes
 
-• **includes**? : *`keyof T`[]*
+• **includes**? : *keyof T[]*
 
-*Defined in [query-access/interfaces.ts:6](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/interfaces.ts#L6)*
+*Defined in [query-access/interfaces.ts:22](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L22)*
 
 ___
 
@@ -71,7 +98,7 @@ ___
 
 • **prevent_prefix_wildcard**? : *undefined | false | true*
 
-*Defined in [query-access/interfaces.ts:8](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/interfaces.ts#L8)*
+*Defined in [query-access/interfaces.ts:24](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L24)*
 
 ___
 
@@ -79,4 +106,4 @@ ___
 
 • **type_config**? : *[TypeConfig](typeconfig.md)*
 
-*Defined in [query-access/interfaces.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/query-access/interfaces.ts#L11)*
+*Defined in [query-access/interfaces.ts:30](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L30)*

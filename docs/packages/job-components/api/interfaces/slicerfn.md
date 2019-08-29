@@ -11,8 +11,8 @@ sidebar_label: SlicerFn
 
 ## Callable
 
-▸ (): *`Promise<SlicerResult>`*
+▸ (): *Promise‹[SlicerResult](../overview.md#slicerresult)›*
 
-*Defined in [interfaces/operations.ts:87](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L87)*
+*Defined in [interfaces/operations.ts:106](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L106)*
 
-**Returns:** *`Promise<SlicerResult>`*
+**Returns:** *Promise‹[SlicerResult](../overview.md#slicerresult)›*

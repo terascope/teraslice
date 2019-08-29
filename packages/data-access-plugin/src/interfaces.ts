@@ -16,7 +16,7 @@ export interface TeraserverConfig {
     teranaut?: {
         auth?: {
             open_signup: boolean;
-        },
+        };
         ui: boolean;
         url_base?: string;
     };

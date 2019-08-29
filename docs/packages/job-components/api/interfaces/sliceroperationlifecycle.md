@@ -34,11 +34,11 @@ sidebar_label: SlicerOperationLifeCycle
 
 ###  initialize
 
-▸ **initialize**(`recoveryData?`: [SlicerRecoveryData](slicerrecoverydata.md)[]): *`Promise<void>`*
+▸ **initialize**(`recoveryData?`: [SlicerRecoveryData](slicerrecoverydata.md)[]): *Promise‹void›*
 
 *Overrides [OperationLifeCycle](operationlifecycle.md).[initialize](operationlifecycle.md#initialize)*
 
-*Defined in [interfaces/operation-lifecycle.ts:93](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operation-lifecycle.ts#L93)*
+*Defined in [interfaces/operation-lifecycle.ts:100](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operation-lifecycle.ts#L100)*
 
 Called during execution initialization,
 when this is cleanup any open connections or cleanup any in-memory state.
@@ -49,7 +49,7 @@ Name | Type | Description |
 ------ | ------ | ------ |
 `recoveryData?` | [SlicerRecoveryData](slicerrecoverydata.md)[] | is the data to recover from (one for each slicer)  |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 ▸ **onExecutionStats**(`stats`: [ExecutionStats](executionstats.md)): *void*
 
-*Defined in [interfaces/operation-lifecycle.ts:117](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operation-lifecycle.ts#L117)*
+*Defined in [interfaces/operation-lifecycle.ts:124](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operation-lifecycle.ts#L124)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track various slicer satistics
@@ -76,7 +76,7 @@ ___
 
 ▸ **onSliceComplete**(`result`: [SliceResult](sliceresult.md)): *void*
 
-*Defined in [interfaces/operation-lifecycle.ts:111](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operation-lifecycle.ts#L111)*
+*Defined in [interfaces/operation-lifecycle.ts:118](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operation-lifecycle.ts#L118)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track the slices completed by the execution controller
@@ -95,7 +95,7 @@ ___
 
 ▸ **onSliceDispatch**(`slice`: [Slice](slice.md)): *void*
 
-*Defined in [interfaces/operation-lifecycle.ts:105](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operation-lifecycle.ts#L105)*
+*Defined in [interfaces/operation-lifecycle.ts:112](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operation-lifecycle.ts#L112)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track the slices disptached by the execution controller
@@ -114,7 +114,7 @@ ___
 
 ▸ **onSliceEnqueued**(`slice`: [Slice](slice.md)): *void*
 
-*Defined in [interfaces/operation-lifecycle.ts:99](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operation-lifecycle.ts#L99)*
+*Defined in [interfaces/operation-lifecycle.ts:106](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operation-lifecycle.ts#L106)*
 
 A method called by the "Execution Controller" to give a "Slicer"
 the opportunity to track the slices enqueued by the execution controller
@@ -131,13 +131,13 @@ ___
 
 ###  shutdown
 
-▸ **shutdown**(): *`Promise<void>`*
+▸ **shutdown**(): *Promise‹void›*
 
 *Inherited from [OperationLifeCycle](operationlifecycle.md).[shutdown](operationlifecycle.md#shutdown)*
 
-*Defined in [interfaces/operation-lifecycle.ts:15](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operation-lifecycle.ts#L15)*
+*Defined in [interfaces/operation-lifecycle.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operation-lifecycle.ts#L17)*
 
 Called during execution shutdown,
 when this is cleanup any open connections or destroy any in-memory state.
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*

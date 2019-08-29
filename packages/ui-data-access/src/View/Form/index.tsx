@@ -71,10 +71,12 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                 return { input };
             }}
         >
-            {({ defaultInputProps, model, roles, dataTypes }) => {
+            {({
+                defaultInputProps, model, roles, dataTypes
+            }) => {
                 const { loading, error, data } = useQuery(DataTypeQuery, {
                     variables: { id: model.data_type.id },
-                    skip: !Boolean(model.data_type.id),
+                    skip: !model.data_type.id,
                 });
 
                 const resolvedConfig: DataTypeConfig = get(
@@ -88,7 +90,7 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                     }
                 );
                 return (
-                    <React.Fragment>
+                    <>
                         <Form.Group>
                             <FormInput<Input>
                                 {...defaultInputProps}
@@ -194,7 +196,7 @@ const ViewForm: React.FC<Props> = ({ id }) => {
                                 </Section>
                             </Segment>
                         )}
-                    </React.Fragment>
+                    </>
                 );
             }}
         </ModelForm>

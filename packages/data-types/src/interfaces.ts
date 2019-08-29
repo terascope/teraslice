@@ -1,5 +1,5 @@
-import BaseType from './types/versions/base-type';
 import { AnyObject } from '@terascope/utils';
+import BaseType from './types/versions/base-type';
 
 export type GraphQLTypesResult = {
     schema: string;

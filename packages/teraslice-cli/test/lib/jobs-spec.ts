@@ -4,7 +4,7 @@ import Jobs from '../../src/helpers/jobs';
 
 describe('jobs', () => {
     let cliArgs;
-    let jobs:any;
+    let jobs: any;
 
     beforeEach(() => {
         cliArgs = {

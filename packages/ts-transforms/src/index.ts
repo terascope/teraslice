@@ -1,8 +1,11 @@
 
-export * from './loader';
-import { OperationsManager, OperationBase, TransformOpBase, ValidationOpBase } from './operations';
+import {
+    OperationsManager, OperationBase, TransformOpBase, ValidationOpBase
+} from './operations';
 import Transform from './transform';
 import Matcher from './matcher';
+
+export * from './loader';
 
 export * from './interfaces';
 export * from './phases';

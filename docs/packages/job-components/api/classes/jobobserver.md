@@ -5,7 +5,7 @@ sidebar_label: JobObserver
 
 # Class: JobObserver <**T**>
 
-An Observer for monitoring the Slice Analyitcs
+An Observer for monitoring the Slice Analytics
 
 ## Type parameters
 
@@ -58,7 +58,7 @@ An Observer for monitoring the Slice Analyitcs
 
 *Overrides [APICore](apicore.md).[constructor](apicore.md#constructor)*
 
-*Defined in [operations/job-observer.ts:21](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/job-observer.ts#L21)*
+*Defined in [operations/job-observer.ts:23](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/job-observer.ts#L23)*
 
 **Parameters:**
 
@@ -76,7 +76,7 @@ Name | Type |
 
 • **_currentIndex**: *number*
 
-*Defined in [operations/job-observer.ts:15](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/job-observer.ts#L15)*
+*Defined in [operations/job-observer.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/job-observer.ts#L17)*
 
 ___
 
@@ -84,7 +84,7 @@ ___
 
 • **_currentSliceId**: *string*
 
-*Defined in [operations/job-observer.ts:13](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/job-observer.ts#L13)*
+*Defined in [operations/job-observer.ts:15](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/job-observer.ts#L15)*
 
 ___
 
@@ -92,17 +92,17 @@ ___
 
 • **analyticsData**: *[SliceAnalyticsData](../interfaces/sliceanalyticsdata.md) | undefined*
 
-*Defined in [operations/job-observer.ts:10](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/job-observer.ts#L10)*
+*Defined in [operations/job-observer.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/job-observer.ts#L12)*
 
 ___
 
 ###  apiConfig
 
-• **apiConfig**: *`Readonly<APIConfig & T>`*
+• **apiConfig**: *Readonly‹[APIConfig](../interfaces/apiconfig.md) & T›*
 
 *Inherited from [APICore](apicore.md).[apiConfig](apicore.md#apiconfig)*
 
-*Defined in [operations/core/api-core.ts:13](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/core/api-core.ts#L13)*
+*Defined in [operations/core/api-core.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/api-core.ts#L17)*
 
 ___
 
@@ -110,47 +110,47 @@ ___
 
 • **collectAnalytics**: *boolean*
 
-*Defined in [operations/job-observer.ts:9](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/job-observer.ts#L9)*
+*Defined in [operations/job-observer.ts:11](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/job-observer.ts#L11)*
 
 ___
 
 ###  context
 
-• **context**: *`Readonly<WorkerContext>`*
+• **context**: *Readonly‹[WorkerContext](../interfaces/workercontext.md)›*
 
 *Inherited from [Core](core.md).[context](core.md#context)*
 
-*Defined in [operations/core/core.ts:10](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/core/core.ts#L10)*
+*Defined in [operations/core/core.ts:10](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/core.ts#L10)*
 
 ___
 
 ###  events
 
-• **events**: *`EventEmitter`*
+• **events**: *EventEmitter*
 
 *Inherited from [Core](core.md).[events](core.md#events)*
 
-*Defined in [operations/core/core.ts:13](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/core/core.ts#L13)*
+*Defined in [operations/core/core.ts:13](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/core.ts#L13)*
 
 ___
 
 ###  executionConfig
 
-• **executionConfig**: *`Readonly<ExecutionConfig>`*
+• **executionConfig**: *Readonly‹[ExecutionConfig](../interfaces/executionconfig.md)›*
 
 *Inherited from [Core](core.md).[executionConfig](core.md#executionconfig)*
 
-*Defined in [operations/core/core.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/core/core.ts#L11)*
+*Defined in [operations/core/core.ts:11](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/core.ts#L11)*
 
 ___
 
 ###  logger
 
-• **logger**: *`Logger`*
+• **logger**: *Logger*
 
 *Inherited from [Core](core.md).[logger](core.md#logger)*
 
-*Defined in [operations/core/core.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/core/core.ts#L12)*
+*Defined in [operations/core/core.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/core.ts#L12)*
 
 ## Methods
 
@@ -158,7 +158,7 @@ ___
 
 ▸ **defaultAnalytics**(): *[SliceAnalyticsData](../interfaces/sliceanalyticsdata.md)*
 
-*Defined in [operations/job-observer.ts:87](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/job-observer.ts#L87)*
+*Defined in [operations/job-observer.ts:89](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/job-observer.ts#L89)*
 
 **Returns:** *[SliceAnalyticsData](../interfaces/sliceanalyticsdata.md)*
 
@@ -168,7 +168,7 @@ ___
 
 ▸ **getAnalytics**(): *undefined | object*
 
-*Defined in [operations/job-observer.ts:76](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/job-observer.ts#L76)*
+*Defined in [operations/job-observer.ts:78](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/job-observer.ts#L78)*
 
 **Returns:** *undefined | object*
 
@@ -176,15 +176,15 @@ ___
 
 ###  initialize
 
-▸ **initialize**(): *`Promise<void>`*
+▸ **initialize**(): *Promise‹void›*
 
 *Inherited from [APICore](apicore.md).[initialize](apicore.md#initialize)*
 
 *Overrides [Core](core.md).[initialize](core.md#abstract-initialize)*
 
-*Defined in [operations/core/api-core.ts:28](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/core/api-core.ts#L28)*
+*Defined in [operations/core/api-core.ts:32](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/api-core.ts#L32)*
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
@@ -192,7 +192,7 @@ ___
 
 ▸ **onOperationComplete**(`sliceId`: string, `index`: number, `processed`: number): *void*
 
-*Defined in [operations/job-observer.ts:61](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/job-observer.ts#L61)*
+*Defined in [operations/job-observer.ts:63](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/job-observer.ts#L63)*
 
 **Parameters:**
 
@@ -212,7 +212,7 @@ ___
 
 *Implementation of [WorkerOperationLifeCycle](../interfaces/workeroperationlifecycle.md)*
 
-*Defined in [operations/job-observer.ts:49](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/job-observer.ts#L49)*
+*Defined in [operations/job-observer.ts:51](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/job-observer.ts#L51)*
 
 **Parameters:**
 
@@ -227,11 +227,11 @@ ___
 
 ###  onSliceInitialized
 
-▸ **onSliceInitialized**(`sliceId`: string): *`Promise<void>`*
+▸ **onSliceInitialized**(`sliceId`: string): *Promise‹void›*
 
 *Implementation of [WorkerOperationLifeCycle](../interfaces/workeroperationlifecycle.md)*
 
-*Defined in [operations/job-observer.ts:38](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/job-observer.ts#L38)*
+*Defined in [operations/job-observer.ts:40](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/job-observer.ts#L40)*
 
 **Parameters:**
 
@@ -239,13 +239,13 @@ Name | Type |
 ------ | ------ |
 `sliceId` | string |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ###  shutdown
 
-▸ **shutdown**(): *`Promise<void>`*
+▸ **shutdown**(): *Promise‹void›*
 
 *Implementation of [WorkerOperationLifeCycle](../interfaces/workeroperationlifecycle.md)*
 
@@ -253,6 +253,6 @@ ___
 
 *Overrides [Core](core.md).[shutdown](core.md#abstract-shutdown)*
 
-*Defined in [operations/core/api-core.ts:32](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/core/api-core.ts#L32)*
+*Defined in [operations/core/api-core.ts:36](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/api-core.ts#L36)*
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*

@@ -3,6 +3,8 @@ title: Job Components API Overview
 sidebar_label: API
 ---
 
+## Index
+
 ### Classes
 
 * [APICore](classes/apicore.md)
@@ -166,6 +168,7 @@ sidebar_label: API
 * [legacyReaderShim](overview.md#legacyreadershim)
 * [legacySliceEventsShim](overview.md#legacysliceeventsshim)
 * [makeContextLogger](overview.md#makecontextlogger)
+* [makeExContextLogger](overview.md#makeexcontextlogger)
 * [makeExecutionContext](overview.md#makeexecutioncontext)
 * [newTestExecutionConfig](overview.md#newtestexecutionconfig)
 * [newTestExecutionContext](overview.md#newtestexecutioncontext)
@@ -189,9 +192,9 @@ sidebar_label: API
 
 ###  APIConstructor
 
-Ƭ **APIConstructor**: *[APICoreConstructor](overview.md#apicoreconstructor)‹*[APICore](classes/apicore.md)*›*
+Ƭ **APIConstructor**: *[APICoreConstructor](overview.md#apicoreconstructor)‹[APICore](classes/apicore.md)›*
 
-*Defined in [operations/interfaces.ts:30](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/interfaces.ts#L30)*
+*Defined in [operations/interfaces.ts:44](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/interfaces.ts#L44)*
 
 ___
 
@@ -199,7 +202,7 @@ ___
 
 Ƭ **APICoreConstructor**: *object*
 
-*Defined in [operations/interfaces.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/interfaces.ts#L11)*
+*Defined in [operations/interfaces.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/interfaces.ts#L17)*
 
 #### Type declaration:
 
@@ -209,7 +212,7 @@ ___
 
 Ƭ **Assignment**: *"assets_service" | "cluster_master" | "node_master" | "execution_controller" | "worker"*
 
-*Defined in [interfaces/context.ts:158](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L158)*
+*Defined in [interfaces/context.ts:160](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/context.ts#L160)*
 
 ___
 
@@ -217,18 +220,18 @@ ___
 
 Ƭ **ClientFactoryFn**: *function*
 
-*Defined in [interfaces/context.ts:67](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L67)*
+*Defined in [interfaces/context.ts:68](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/context.ts#L68)*
 
 #### Type declaration:
 
-▸ (`config`: object, `logger`: `Logger`, `options`: [ConnectionConfig](interfaces/connectionconfig.md)): *object*
+▸ (`config`: object, `logger`: Logger, `options`: [ConnectionConfig](interfaces/connectionconfig.md)): *object*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `config` | object |
-`logger` | `Logger` |
+`logger` | Logger |
 `options` | [ConnectionConfig](interfaces/connectionconfig.md) |
 
 ___
@@ -237,7 +240,7 @@ ___
 
 Ƭ **ClusterManagerType**: *"native" | "kubernetes"*
 
-*Defined in [interfaces/context.ts:17](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L17)*
+*Defined in [interfaces/context.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/context.ts#L17)*
 
 ___
 
@@ -245,7 +248,7 @@ ___
 
 Ƭ **CoreOperation**: *[FetcherCore](classes/fetchercore.md) | [SlicerCore](classes/slicercore.md) | [ProcessorCore](classes/processorcore.md)*
 
-*Defined in [operations/interfaces.ts:37](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/interfaces.ts#L37)*
+*Defined in [operations/interfaces.ts:51](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/interfaces.ts#L51)*
 
 ___
 
@@ -253,20 +256,20 @@ ___
 
 Ƭ **DeadLetterAPIFn**: *function*
 
-*Defined in [interfaces/jobs.ts:35](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/jobs.ts#L35)*
+*Defined in [interfaces/jobs.ts:40](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/jobs.ts#L40)*
 
 A supported DeadLetterAPIFn
 
 #### Type declaration:
 
-▸ (`input`: any, `err`: `Error`): *void*
+▸ (`input`: any, `err`: Error): *void*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `input` | any |
-`err` | `Error` |
+`err` | Error |
 
 ___
 
@@ -274,7 +277,7 @@ ___
 
 Ƭ **DeadLetterAction**: *"throw" | "log" | "none" | string*
 
-*Defined in [interfaces/jobs.ts:32](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/jobs.ts#L32)*
+*Defined in [interfaces/jobs.ts:37](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/jobs.ts#L37)*
 
 available dead letter queue actions
 
@@ -282,17 +285,17 @@ ___
 
 ###  FetcherConstructor
 
-Ƭ **FetcherConstructor**: *[OperationCoreConstructor](overview.md#operationcoreconstructor)‹*[FetcherCore](classes/fetchercore.md)*›*
+Ƭ **FetcherConstructor**: *[OperationCoreConstructor](overview.md#operationcoreconstructor)‹[FetcherCore](classes/fetchercore.md)›*
 
-*Defined in [operations/interfaces.ts:34](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/interfaces.ts#L34)*
+*Defined in [operations/interfaces.ts:48](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/interfaces.ts#L48)*
 
 ___
 
 ###  JobConfig
 
-Ƭ **JobConfig**: *`Partial<ValidatedJobConfig>`*
+Ƭ **JobConfig**: *Partial‹[ValidatedJobConfig](interfaces/validatedjobconfig.md)›*
 
-*Defined in [interfaces/jobs.ts:56](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/jobs.ts#L56)*
+*Defined in [interfaces/jobs.ts:61](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/jobs.ts#L61)*
 
 JobConfig is the configuration that user specifies
 for a Job
@@ -303,15 +306,15 @@ ___
 
 Ƭ **LifeCycle**: *"once" | "persistent"*
 
-*Defined in [interfaces/jobs.ts:50](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/jobs.ts#L50)*
+*Defined in [interfaces/jobs.ts:55](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/jobs.ts#L55)*
 
 ___
 
 ###  ObserverConstructor
 
-Ƭ **ObserverConstructor**: *[APICoreConstructor](overview.md#apicoreconstructor)‹*[APICore](classes/apicore.md)*›*
+Ƭ **ObserverConstructor**: *[APICoreConstructor](overview.md#apicoreconstructor)‹[APICore](classes/apicore.md)›*
 
-*Defined in [operations/interfaces.ts:29](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/interfaces.ts#L29)*
+*Defined in [operations/interfaces.ts:43](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/interfaces.ts#L43)*
 
 ___
 
@@ -319,15 +322,15 @@ ___
 
 Ƭ **OpAPI**: *[OpAPIFn](overview.md#opapifn) | [OpAPIInstance](overview.md#opapiinstance)*
 
-*Defined in [interfaces/operations.ts:97](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L97)*
+*Defined in [interfaces/operations.ts:116](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L116)*
 
 ___
 
 ###  OpAPIFn
 
-Ƭ **OpAPIFn**: *`Function`*
+Ƭ **OpAPIFn**: *Function*
 
-*Defined in [interfaces/operations.ts:93](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L93)*
+*Defined in [interfaces/operations.ts:112](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L112)*
 
 ___
 
@@ -335,11 +338,11 @@ ___
 
 Ƭ **OpAPIInstance**: *object*
 
-*Defined in [interfaces/operations.ts:94](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L94)*
+*Defined in [interfaces/operations.ts:113](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L113)*
 
 #### Type declaration:
 
-● \[▪ **method**: *string*\]: `Function` | any
+* \[ **method**: *string*\]: Function | any
 
 ___
 
@@ -347,15 +350,15 @@ ___
 
 Ƭ **OpType**: *"operation" | "api"*
 
-*Defined in [operations/core/schema-core.ts:21](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/core/schema-core.ts#L21)*
+*Defined in [operations/core/schema-core.ts:21](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/schema-core.ts#L21)*
 
 ___
 
 ###  OperationAPIConstructor
 
-Ƭ **OperationAPIConstructor**: *[APICoreConstructor](overview.md#apicoreconstructor)‹*[OperationAPI](classes/operationapi.md)*›*
+Ƭ **OperationAPIConstructor**: *[APICoreConstructor](overview.md#apicoreconstructor)‹[OperationAPI](classes/operationapi.md)›*
 
-*Defined in [operations/interfaces.ts:28](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/interfaces.ts#L28)*
+*Defined in [operations/interfaces.ts:42](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/interfaces.ts#L42)*
 
 ___
 
@@ -363,7 +366,7 @@ ___
 
 Ƭ **OperationAPIType**: *"api" | "observer"*
 
-*Defined in [operations/interfaces.ts:48](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/interfaces.ts#L48)*
+*Defined in [operations/interfaces.ts:62](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/interfaces.ts#L62)*
 
 ___
 
@@ -371,7 +374,7 @@ ___
 
 Ƭ **OperationCoreConstructor**: *object*
 
-*Defined in [operations/interfaces.ts:15](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/interfaces.ts#L15)*
+*Defined in [operations/interfaces.ts:21](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/interfaces.ts#L21)*
 
 #### Type declaration:
 
@@ -379,17 +382,17 @@ ___
 
 ###  ParallelSlicerConstructor
 
-Ƭ **ParallelSlicerConstructor**: *[SlicerCoreConstructor](overview.md#slicercoreconstructor)‹*[ParallelSlicer](classes/parallelslicer.md)*›*
+Ƭ **ParallelSlicerConstructor**: *[SlicerCoreConstructor](overview.md#slicercoreconstructor)‹[ParallelSlicer](classes/parallelslicer.md)›*
 
-*Defined in [operations/interfaces.ts:33](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/interfaces.ts#L33)*
+*Defined in [operations/interfaces.ts:47](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/interfaces.ts#L47)*
 
 ___
 
 ###  ProcessorConstructor
 
-Ƭ **ProcessorConstructor**: *[OperationCoreConstructor](overview.md#operationcoreconstructor)‹*[ProcessorCore](classes/processorcore.md)*›*
+Ƭ **ProcessorConstructor**: *[OperationCoreConstructor](overview.md#operationcoreconstructor)‹[ProcessorCore](classes/processorcore.md)›*
 
-*Defined in [operations/interfaces.ts:35](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/interfaces.ts#L35)*
+*Defined in [operations/interfaces.ts:49](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/interfaces.ts#L49)*
 
 ___
 
@@ -397,18 +400,18 @@ ___
 
 Ƭ **ProcessorFn**: *function*
 
-*Defined in [interfaces/operations.ts:30](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L30)*
+*Defined in [interfaces/operations.ts:45](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L45)*
 
 #### Type declaration:
 
-▸ (`data`: `T`, `logger`: `Logger`, `sliceRequest`: [SliceRequest](interfaces/slicerequest.md)): *`Promise<T>` | `T`*
+▸ (`data`: T, `logger`: Logger, `sliceRequest`: [SliceRequest](interfaces/slicerequest.md)): *Promise‹T› | T*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`data` | `T` |
-`logger` | `Logger` |
+`data` | T |
+`logger` | Logger |
 `sliceRequest` | [SliceRequest](interfaces/slicerequest.md) |
 
 ___
@@ -417,18 +420,18 @@ ___
 
 Ƭ **ReaderFn**: *function*
 
-*Defined in [interfaces/operations.ts:23](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L23)*
+*Defined in [interfaces/operations.ts:34](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L34)*
 
 #### Type declaration:
 
-▸ (`sliceRequest`: [SliceRequest](interfaces/slicerequest.md), `logger`: `Logger`): *`Promise<T>` | `T`*
+▸ (`sliceRequest`: [SliceRequest](interfaces/slicerequest.md), `logger`: Logger): *Promise‹T› | T*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `sliceRequest` | [SliceRequest](interfaces/slicerequest.md) |
-`logger` | `Logger` |
+`logger` | Logger |
 
 ___
 
@@ -436,7 +439,7 @@ ___
 
 Ƭ **RolloverFrequency**: *"daily" | "montly" | "yearly"*
 
-*Defined in [interfaces/context.ts:10](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/context.ts#L10)*
+*Defined in [interfaces/context.ts:10](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/context.ts#L10)*
 
 ___
 
@@ -444,7 +447,7 @@ ___
 
 Ƭ **SchemaConstructor**: *object*
 
-*Defined in [operations/interfaces.ts:23](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/interfaces.ts#L23)*
+*Defined in [operations/interfaces.ts:37](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/interfaces.ts#L37)*
 
 #### Type declaration:
 
@@ -452,9 +455,9 @@ ___
 
 ###  SingleSlicerConstructor
 
-Ƭ **SingleSlicerConstructor**: *[SlicerCoreConstructor](overview.md#slicercoreconstructor)‹*[Slicer](classes/slicer.md)*›*
+Ƭ **SingleSlicerConstructor**: *[SlicerCoreConstructor](overview.md#slicercoreconstructor)‹[Slicer](classes/slicer.md)›*
 
-*Defined in [operations/interfaces.ts:32](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/interfaces.ts#L32)*
+*Defined in [operations/interfaces.ts:46](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/interfaces.ts#L46)*
 
 ___
 
@@ -462,15 +465,15 @@ ___
 
 Ƭ **SliceStatus**: *"starting" | "started" | "completed" | "failed" | "flushed"*
 
-*Defined in [execution-context/interfaces.ts:40](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/interfaces.ts#L40)*
+*Defined in [execution-context/interfaces.ts:42](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/interfaces.ts#L42)*
 
 ___
 
 ###  SlicerConstructor
 
-Ƭ **SlicerConstructor**: *[SlicerCoreConstructor](overview.md#slicercoreconstructor)‹*[SlicerCore](classes/slicercore.md)*›*
+Ƭ **SlicerConstructor**: *[SlicerCoreConstructor](overview.md#slicercoreconstructor)‹[SlicerCore](classes/slicercore.md)›*
 
-*Defined in [operations/interfaces.ts:31](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/interfaces.ts#L31)*
+*Defined in [operations/interfaces.ts:45](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/interfaces.ts#L45)*
 
 ___
 
@@ -478,7 +481,7 @@ ___
 
 Ƭ **SlicerCoreConstructor**: *object*
 
-*Defined in [operations/interfaces.ts:19](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/interfaces.ts#L19)*
+*Defined in [operations/interfaces.ts:29](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/interfaces.ts#L29)*
 
 #### Type declaration:
 
@@ -488,7 +491,7 @@ ___
 
 Ƭ **SlicerFns**: *[SlicerFn](interfaces/slicerfn.md)[]*
 
-*Defined in [interfaces/operations.ts:91](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L91)*
+*Defined in [interfaces/operations.ts:110](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L110)*
 
 ___
 
@@ -496,7 +499,7 @@ ___
 
 Ƭ **SlicerResult**: *[Slice](interfaces/slice.md) | [SliceRequest](interfaces/slicerequest.md) | [SliceRequest](interfaces/slicerequest.md)[] | null*
 
-*Defined in [interfaces/operations.ts:79](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L79)*
+*Defined in [interfaces/operations.ts:98](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L98)*
 
 ___
 
@@ -504,7 +507,7 @@ ___
 
 Ƭ **WorkerSliceState**: *object*
 
-*Defined in [execution-context/interfaces.ts:48](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/interfaces.ts#L48)*
+*Defined in [execution-context/interfaces.ts:50](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/interfaces.ts#L50)*
 
 #### Type declaration:
 
@@ -514,7 +517,7 @@ ___
 
 Ƭ **WorkerStatus**: *"initializing" | "idle" | "flushing" | "running" | "shutdown"*
 
-*Defined in [execution-context/interfaces.ts:39](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/interfaces.ts#L39)*
+*Defined in [execution-context/interfaces.ts:41](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/interfaces.ts#L41)*
 
 ___
 
@@ -522,7 +525,7 @@ ___
 
 Ƭ **crossValidationFn**: *function*
 
-*Defined in [interfaces/operations.ts:6](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L6)*
+*Defined in [interfaces/operations.ts:8](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L8)*
 
 #### Type declaration:
 
@@ -541,7 +544,7 @@ ___
 
 Ƭ **selfValidationFn**: *function*
 
-*Defined in [interfaces/operations.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L7)*
+*Defined in [interfaces/operations.ts:9](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L9)*
 
 #### Type declaration:
 
@@ -559,7 +562,7 @@ ___
 
 Ƭ **sliceQueueLengthFn**: *function*
 
-*Defined in [interfaces/operations.ts:8](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L8)*
+*Defined in [interfaces/operations.ts:10](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L10)*
 
 #### Type declaration:
 
@@ -575,7 +578,7 @@ Name | Type |
 
 ### `Const` formats
 
-• **formats**: *`Format`[]* =  [
+• **formats**: *Format[]* =  [
     {
         name: 'required_String',
         validate(val: any) {
@@ -640,21 +643,33 @@ Name | Type |
             // NOTE: the \\\\ is necessary to match a single \ in this case
             const badChar = new RegExp('[#*?"<>|/\\\\]');
             if (badChar.test(val)) {
-                throw new Error(`value: ${ val } should not contain any invalid characters: #*?"<>|/\\`);
+                throw new Error(`value: ${val} should not contain any invalid characters: #*?"<>|/\\`);
             }
 
             const upperRE = new RegExp('[A-Z]');
             if (upperRE.test(val)) {
-                throw new Error(`value: ${ val } should be lower case`);
+                throw new Error(`value: ${val} should be lower case`);
             }
         },
         coerce(val) {
             return val;
         },
     } as Format,
+    {
+        name: 'positive_int',
+        validate(val: any) {
+            const int = toInteger(val);
+            if (int === false || int < 1) {
+                throw new Error('must be valid integer greater than zero');
+            }
+        },
+        coerce(val: any) {
+            return toInteger(val) || 0;
+        },
+    } as Format,
 ]
 
-*Defined in [formats.ts:13](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/formats.ts#L13)*
+*Defined in [formats.ts:13](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/formats.ts#L13)*
 
 ___
 
@@ -662,15 +677,15 @@ ___
 
 • **makeJobSchema**: *[jobSchema](overview.md#jobschema)* =  jobSchema
 
-*Defined in [job-schemas.ts:224](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/job-schemas.ts#L224)*
+*Defined in [job-schemas.ts:231](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/job-schemas.ts#L231)*
 
 ___
 
 ### `Const` sliceAnalyticsMetrics
 
-• **sliceAnalyticsMetrics**: *`ReadonlyArray<keyof SliceAnalyticsData>`* =  ['memory', 'size', 'time']
+• **sliceAnalyticsMetrics**: *keyof ("memory" | "time" | "size")[]* =  ['memory', 'size', 'time']
 
-*Defined in [interfaces/operations.ts:77](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L77)*
+*Defined in [interfaces/operations.ts:96](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L96)*
 
 ## Functions
 
@@ -678,7 +693,7 @@ ___
 
 ▸ **addFormats**(): *void*
 
-*Defined in [formats.ts:92](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/formats.ts#L92)*
+*Defined in [formats.ts:104](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/formats.ts#L104)*
 
 **Returns:** *void*
 
@@ -686,9 +701,9 @@ ___
 
 ###  convertResult
 
-▸ **convertResult**(`input`: `DataInput`[] | `Buffer`[] | string[]): *`DataEntity`[]*
+▸ **convertResult**(`input`: DataInput[] | Buffer[] | string[]): *DataEntity[]*
 
-*Defined in [operations/shims/shim-utils.ts:16](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/shims/shim-utils.ts#L16)*
+*Defined in [operations/shims/shim-utils.ts:18](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/shims/shim-utils.ts#L18)*
 
 Convert legacy processor results into DataEntities if possible.
 But in order to be more backwards compatible legacy modules
@@ -698,9 +713,9 @@ can return an array of buffers or strings.
 
 Name | Type |
 ------ | ------ |
-`input` | `DataInput`[] \| `Buffer`[] \| string[] |
+`input` | DataInput[] \| Buffer[] \| string[] |
 
-**Returns:** *`DataEntity`[]*
+**Returns:** *DataEntity[]*
 
 ___
 
@@ -708,7 +723,7 @@ ___
 
 ▸ **dataClone**(`data`: any): *any*
 
-*Defined in [builtin/test-reader/utils.ts:1](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/builtin/test-reader/utils.ts#L1)*
+*Defined in [builtin/test-reader/utils.ts:1](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/builtin/test-reader/utils.ts#L1)*
 
 **Parameters:**
 
@@ -722,9 +737,9 @@ ___
 
 ###  getAssetPath
 
-▸ **getAssetPath**(`assetDir`: string, `assets`: string[], `name`: string): *`Promise<string>`*
+▸ **getAssetPath**(`assetDir`: string, `assets`: string[], `name`: string): *Promise‹string›*
 
-*Defined in [register-apis.ts:13](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/register-apis.ts#L13)*
+*Defined in [register-apis.ts:21](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/register-apis.ts#L21)*
 
 **Parameters:**
 
@@ -734,7 +749,7 @@ Name | Type |
 `assets` | string[] |
 `name` | string |
 
-**Returns:** *`Promise<string>`*
+**Returns:** *Promise‹string›*
 
 ___
 
@@ -742,7 +757,7 @@ ___
 
 ▸ **getClient**(`context`: [Context](interfaces/context.md), `config`: [GetClientConfig](interfaces/getclientconfig.md), `type`: string): *any*
 
-*Defined in [register-apis.ts:53](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/register-apis.ts#L53)*
+*Defined in [register-apis.ts:65](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/register-apis.ts#L65)*
 
 **Parameters:**
 
@@ -760,7 +775,7 @@ ___
 
 ▸ **getMetric**(`input`: number[], `i`: number): *number*
 
-*Defined in [execution-context/utils.ts:5](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/utils.ts#L5)*
+*Defined in [execution-context/utils.ts:4](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/utils.ts#L4)*
 
 **Parameters:**
 
@@ -777,7 +792,7 @@ ___
 
 ▸ **getOpConfig**(`job`: [ValidatedJobConfig](interfaces/validatedjobconfig.md), `name`: string): *[OpConfig](interfaces/opconfig.md) | undefined*
 
-*Defined in [register-apis.ts:8](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/register-apis.ts#L8)*
+*Defined in [register-apis.ts:16](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/register-apis.ts#L16)*
 
 Get the first opConfig from an operation name
 
@@ -796,7 +811,7 @@ ___
 
 ▸ **getOperationAPIType**(`api`: any): *[OperationAPIType](overview.md#operationapitype)*
 
-*Defined in [execution-context/utils.ts:15](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/utils.ts#L15)*
+*Defined in [execution-context/utils.ts:14](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/utils.ts#L14)*
 
 **Parameters:**
 
@@ -812,7 +827,7 @@ ___
 
 ▸ **isOperationAPI**(`api`: any): *boolean*
 
-*Defined in [execution-context/utils.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/utils.ts#L11)*
+*Defined in [execution-context/utils.ts:10](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/utils.ts#L10)*
 
 **Parameters:**
 
@@ -828,7 +843,7 @@ ___
 
 ▸ **isSlicerContext**(`context`: [Context](interfaces/context.md)): *boolean*
 
-*Defined in [execution-context/index.ts:16](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/index.ts#L16)*
+*Defined in [execution-context/index.ts:16](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/index.ts#L16)*
 
 **Parameters:**
 
@@ -844,7 +859,7 @@ ___
 
 ▸ **isSlicerExecutionContext**(`context`: any): *boolean*
 
-*Defined in [execution-context/index.ts:24](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/index.ts#L24)*
+*Defined in [execution-context/index.ts:24](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/index.ts#L24)*
 
 **Parameters:**
 
@@ -860,7 +875,7 @@ ___
 
 ▸ **isWorkerContext**(`context`: [Context](interfaces/context.md)): *boolean*
 
-*Defined in [execution-context/index.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/index.ts#L12)*
+*Defined in [execution-context/index.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/index.ts#L12)*
 
 **Parameters:**
 
@@ -876,7 +891,7 @@ ___
 
 ▸ **isWorkerExecutionContext**(`context`: any): *boolean*
 
-*Defined in [execution-context/index.ts:20](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/index.ts#L20)*
+*Defined in [execution-context/index.ts:20](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/index.ts#L20)*
 
 **Parameters:**
 
@@ -890,9 +905,9 @@ ___
 
 ###  jobSchema
 
-▸ **jobSchema**(`context`: [Context](interfaces/context.md)): *`convict.Schema<any>`*
+▸ **jobSchema**(`context`: [Context](interfaces/context.md)): *convict.Schema‹any›*
 
-*Defined in [job-schemas.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/job-schemas.ts#L11)*
+*Defined in [job-schemas.ts:18](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/job-schemas.ts#L18)*
 
 **Parameters:**
 
@@ -900,7 +915,7 @@ Name | Type |
 ------ | ------ |
 `context` | [Context](interfaces/context.md) |
 
-**Returns:** *`convict.Schema<any>`*
+**Returns:** *convict.Schema‹any›*
 
 ___
 
@@ -908,7 +923,7 @@ ___
 
 ▸ **legacyProcessorShim**(`Processor`: any, `Schema`: [SchemaConstructor](overview.md#schemaconstructor), `apis?`: [APIs](interfaces/apis.md)): *[LegacyProcessor](interfaces/legacyprocessor.md)*
 
-*Defined in [operations/shims/legacy-processor-shim.ts:17](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/shims/legacy-processor-shim.ts#L17)*
+*Defined in [operations/shims/legacy-processor-shim.ts:18](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/shims/legacy-processor-shim.ts#L18)*
 
 **Parameters:**
 
@@ -924,9 +939,9 @@ ___
 
 ###  legacyReaderShim
 
-▸ **legacyReaderShim**(`Slicer`: any, `Fetcher`: any, `Schema`: `SchemaType`, `apis?`: [APIs](interfaces/apis.md)): *[LegacyReader](interfaces/legacyreader.md)*
+▸ **legacyReaderShim**(`Slicer`: any, `Fetcher`: any, `Schema`: SchemaType, `apis?`: [APIs](interfaces/apis.md)): *[LegacyReader](interfaces/legacyreader.md)*
 
-*Defined in [operations/shims/legacy-reader-shim.ts:23](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/shims/legacy-reader-shim.ts#L23)*
+*Defined in [operations/shims/legacy-reader-shim.ts:28](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/shims/legacy-reader-shim.ts#L28)*
 
 **Parameters:**
 
@@ -934,7 +949,7 @@ Name | Type |
 ------ | ------ |
 `Slicer` | any |
 `Fetcher` | any |
-`Schema` | `SchemaType` |
+`Schema` | SchemaType |
 `apis?` | [APIs](interfaces/apis.md) |
 
 **Returns:** *[LegacyReader](interfaces/legacyreader.md)*
@@ -943,15 +958,15 @@ ___
 
 ###  legacySliceEventsShim
 
-▸ **legacySliceEventsShim**(`op`: `SliceOperation`): *void*
+▸ **legacySliceEventsShim**(`op`: SliceOperation): *void*
 
-*Defined in [operations/shims/legacy-slice-events-shim.ts:9](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/shims/legacy-slice-events-shim.ts#L9)*
+*Defined in [operations/shims/legacy-slice-events-shim.ts:9](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/shims/legacy-slice-events-shim.ts#L9)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`op` | `SliceOperation` |
+`op` | SliceOperation |
 
 **Returns:** *void*
 
@@ -959,9 +974,9 @@ ___
 
 ###  makeContextLogger
 
-▸ **makeContextLogger**(`context`: [Context](interfaces/context.md), `moduleName`: string, `extra`: object): *`Logger`*
+▸ **makeContextLogger**(`context`: [Context](interfaces/context.md), `moduleName`: string, `extra`: object): *Logger*
 
-*Defined in [execution-context/utils.ts:19](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/utils.ts#L19)*
+*Defined in [utils.ts:4](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/utils.ts#L4)*
 
 **Parameters:**
 
@@ -971,7 +986,26 @@ Name | Type | Default |
 `moduleName` | string | - |
 `extra` | object |  {} |
 
-**Returns:** *`Logger`*
+**Returns:** *Logger*
+
+___
+
+###  makeExContextLogger
+
+▸ **makeExContextLogger**(`context`: [Context](interfaces/context.md), `config`: [ExecutionConfig](interfaces/executionconfig.md), `moduleName`: string, `extra`: object): *Logger*
+
+*Defined in [utils.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/utils.ts#L17)*
+
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`context` | [Context](interfaces/context.md) | - |
+`config` | [ExecutionConfig](interfaces/executionconfig.md) | - |
+`moduleName` | string | - |
+`extra` | object |  {} |
+
+**Returns:** *Logger*
 
 ___
 
@@ -979,7 +1013,7 @@ ___
 
 ▸ **makeExecutionContext**(`config`: [ExecutionContextConfig](interfaces/executioncontextconfig.md)): *[SlicerExecutionContext](classes/slicerexecutioncontext.md) | [WorkerExecutionContext](classes/workerexecutioncontext.md)*
 
-*Defined in [execution-context/index.ts:28](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/execution-context/index.ts#L28)*
+*Defined in [execution-context/index.ts:28](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/execution-context/index.ts#L28)*
 
 **Parameters:**
 
@@ -993,15 +1027,15 @@ ___
 
 ###  newTestExecutionConfig
 
-▸ **newTestExecutionConfig**(`jobConfig`: `Partial<i.JobConfig>`): *[ExecutionConfig](interfaces/executionconfig.md)*
+▸ **newTestExecutionConfig**(`jobConfig`: Partial‹i.JobConfig›): *[ExecutionConfig](interfaces/executionconfig.md)*
 
-*Defined in [test-helpers.ts:38](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/test-helpers.ts#L38)*
+*Defined in [test-helpers.ts:46](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/test-helpers.ts#L46)*
 
 **Parameters:**
 
 Name | Type | Default |
 ------ | ------ | ------ |
-`jobConfig` | `Partial<i.JobConfig>` |  {} |
+`jobConfig` | Partial‹i.JobConfig› |  {} |
 
 **Returns:** *[ExecutionConfig](interfaces/executionconfig.md)*
 
@@ -1009,9 +1043,9 @@ ___
 
 ###  newTestExecutionContext
 
-▸ **newTestExecutionContext**(`type`: `i.Assignment`, `config`: [ExecutionConfig](interfaces/executionconfig.md)): *[LegacyExecutionContext](interfaces/legacyexecutioncontext.md)*
+▸ **newTestExecutionContext**(`type`: i.Assignment, `config`: [ExecutionConfig](interfaces/executionconfig.md)): *[LegacyExecutionContext](interfaces/legacyexecutioncontext.md)*
 
-*Defined in [test-helpers.ts:51](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/test-helpers.ts#L51)*
+*Defined in [test-helpers.ts:59](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/test-helpers.ts#L59)*
 
 Create a new Execution Context
 
@@ -1021,7 +1055,7 @@ Create a new Execution Context
 
 Name | Type |
 ------ | ------ |
-`type` | `i.Assignment` |
+`type` | i.Assignment |
 `config` | [ExecutionConfig](interfaces/executionconfig.md) |
 
 **Returns:** *[LegacyExecutionContext](interfaces/legacyexecutioncontext.md)*
@@ -1030,15 +1064,15 @@ ___
 
 ###  newTestJobConfig
 
-▸ **newTestJobConfig**(`defaults`: `Partial<i.JobConfig>`): *[ValidatedJobConfig](interfaces/validatedjobconfig.md)*
+▸ **newTestJobConfig**(`defaults`: Partial‹i.JobConfig›): *[ValidatedJobConfig](interfaces/validatedjobconfig.md)*
 
-*Defined in [test-helpers.ts:20](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/test-helpers.ts#L20)*
+*Defined in [test-helpers.ts:27](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/test-helpers.ts#L27)*
 
 **Parameters:**
 
 Name | Type | Default |
 ------ | ------ | ------ |
-`defaults` | `Partial<i.JobConfig>` |  {} |
+`defaults` | Partial‹i.JobConfig› |  {} |
 
 **Returns:** *[ValidatedJobConfig](interfaces/validatedjobconfig.md)*
 
@@ -1048,7 +1082,7 @@ ___
 
 ▸ **newTestSlice**(`request`: [SliceRequest](interfaces/slicerequest.md)): *[Slice](interfaces/slice.md)*
 
-*Defined in [test-helpers.ts:10](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/test-helpers.ts#L10)*
+*Defined in [test-helpers.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/test-helpers.ts#L17)*
 
 **Parameters:**
 
@@ -1064,7 +1098,7 @@ ___
 
 ▸ **operationAPIShim**(`context`: [Context](interfaces/context.md), `apis`: [APIs](interfaces/apis.md)): *void*
 
-*Defined in [operations/shims/operation-api-shim.ts:4](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/shims/operation-api-shim.ts#L4)*
+*Defined in [operations/shims/operation-api-shim.ts:4](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/shims/operation-api-shim.ts#L4)*
 
 **Parameters:**
 
@@ -1081,7 +1115,7 @@ ___
 
 ▸ **processorShim**<**S**>(`legacy`: [LegacyProcessor](interfaces/legacyprocessor.md)): *[ProcessorModule](interfaces/processormodule.md)*
 
-*Defined in [operations/shims/processor-shim.ts:8](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/shims/processor-shim.ts#L8)*
+*Defined in [operations/shims/processor-shim.ts:16](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/shims/processor-shim.ts#L16)*
 
 **Type parameters:**
 
@@ -1101,7 +1135,7 @@ ___
 
 ▸ **readerShim**<**S**>(`legacy`: [LegacyReader](interfaces/legacyreader.md)): *[ReaderModule](interfaces/readermodule.md)*
 
-*Defined in [operations/shims/reader-shim.ts:18](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/shims/reader-shim.ts#L18)*
+*Defined in [operations/shims/reader-shim.ts:22](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/shims/reader-shim.ts#L22)*
 
 **Type parameters:**
 
@@ -1121,7 +1155,7 @@ ___
 
 ▸ **registerApis**(`context`: [Context](interfaces/context.md), `job`: [ValidatedJobConfig](interfaces/validatedjobconfig.md) | [ExecutionConfig](interfaces/executionconfig.md), `assetIds?`: string[]): *void*
 
-*Defined in [register-apis.ts:83](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/register-apis.ts#L83)*
+*Defined in [register-apis.ts:95](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/register-apis.ts#L95)*
 
 **Parameters:**
 
@@ -1139,7 +1173,7 @@ ___
 
 ▸ **schemaShim**<**S**>(`legacy`: [LegacyProcessor](interfaces/legacyprocessor.md)): *[SchemaModule](interfaces/schemamodule.md)*
 
-*Defined in [operations/shims/schema-shim.ts:5](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/operations/shims/schema-shim.ts#L5)*
+*Defined in [operations/shims/schema-shim.ts:5](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/shims/schema-shim.ts#L5)*
 
 **Type parameters:**
 
@@ -1157,9 +1191,9 @@ ___
 
 ###  validateAPIConfig
 
-▸ **validateAPIConfig**<**T**>(`inputSchema`: `convict.Schema<any>`, `inputConfig`: any): *[APIConfig](interfaces/apiconfig.md) & `T`*
+▸ **validateAPIConfig**<**T**>(`inputSchema`: convict.Schema‹any›, `inputConfig`: any): *[APIConfig](interfaces/apiconfig.md) & T*
 
-*Defined in [config-validators.ts:33](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/config-validators.ts#L33)*
+*Defined in [config-validators.ts:33](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/config-validators.ts#L33)*
 
 Merges the provided inputSchema with commonSchema and then validates the
 provided apiConfig against the resulting schema.
@@ -1172,18 +1206,18 @@ provided apiConfig against the resulting schema.
 
 Name | Type |
 ------ | ------ |
-`inputSchema` | `convict.Schema<any>` |
+`inputSchema` | convict.Schema‹any› |
 `inputConfig` | any |
 
-**Returns:** *[APIConfig](interfaces/apiconfig.md) & `T`*
+**Returns:** *[APIConfig](interfaces/apiconfig.md) & T*
 
 ___
 
 ###  validateJobConfig
 
-▸ **validateJobConfig**<**T**>(`inputSchema`: `convict.Schema<any>`, `inputConfig`: any): *[ValidatedJobConfig](interfaces/validatedjobconfig.md) & `T`*
+▸ **validateJobConfig**<**T**>(`inputSchema`: convict.Schema‹any›, `inputConfig`: any): *[ValidatedJobConfig](interfaces/validatedjobconfig.md) & T*
 
-*Defined in [config-validators.ts:51](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/config-validators.ts#L51)*
+*Defined in [config-validators.ts:51](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/config-validators.ts#L51)*
 
 Merges the provided inputSchema with commonSchema and then validates the
 provided jobConfig against the resulting schema.
@@ -1196,18 +1230,18 @@ provided jobConfig against the resulting schema.
 
 Name | Type |
 ------ | ------ |
-`inputSchema` | `convict.Schema<any>` |
+`inputSchema` | convict.Schema‹any› |
 `inputConfig` | any |
 
-**Returns:** *[ValidatedJobConfig](interfaces/validatedjobconfig.md) & `T`*
+**Returns:** *[ValidatedJobConfig](interfaces/validatedjobconfig.md) & T*
 
 ___
 
 ###  validateOpConfig
 
-▸ **validateOpConfig**<**T**>(`inputSchema`: `convict.Schema<any>`, `inputConfig`: any): *[OpConfig](interfaces/opconfig.md) & `T`*
+▸ **validateOpConfig**<**T**>(`inputSchema`: convict.Schema‹any›, `inputConfig`: any): *[OpConfig](interfaces/opconfig.md) & T*
 
-*Defined in [config-validators.ts:15](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/config-validators.ts#L15)*
+*Defined in [config-validators.ts:15](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/config-validators.ts#L15)*
 
 Merges the provided inputSchema with commonSchema and then validates the
 provided opConfig against the resulting schema.
@@ -1220,10 +1254,10 @@ provided opConfig against the resulting schema.
 
 Name | Type |
 ------ | ------ |
-`inputSchema` | `convict.Schema<any>` |
+`inputSchema` | convict.Schema‹any› |
 `inputConfig` | any |
 
-**Returns:** *[OpConfig](interfaces/opconfig.md) & `T`*
+**Returns:** *[OpConfig](interfaces/opconfig.md) & T*
 
 ## Object literals
 
@@ -1231,11 +1265,11 @@ Name | Type |
 
 ### ▪ **apiSchema**: *object*
 
-*Defined in [job-schemas.ts:251](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/job-schemas.ts#L251)*
+*Defined in [job-schemas.ts:259](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/job-schemas.ts#L259)*
 
 ▪ **_name**: *object*
 
-*Defined in [job-schemas.ts:252](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/job-schemas.ts#L252)*
+*Defined in [job-schemas.ts:260](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/job-schemas.ts#L260)*
 
 * **default**: *string* = ""
 
@@ -1251,38 +1285,39 @@ ___
 
 ### ▪ **opSchema**: *object*
 
-*Defined in [job-schemas.ts:226](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/job-schemas.ts#L226)*
+*Defined in [job-schemas.ts:233](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/job-schemas.ts#L233)*
 
 ▪ **_dead_letter_action**: *object*
 
-*Defined in [job-schemas.ts:237](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/job-schemas.ts#L237)*
+*Defined in [job-schemas.ts:244](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/job-schemas.ts#L244)*
 
 * **default**: *string* = "none"
 
-* **doc**: *string* =  `This action will specify what to do when failing to parse or transform a record. ​​​​​
-​​​​​The following builtin actions are supported: ​​​
-​​​​​  - "throw": throw the original error ​​​​​
-​​​​​  - "log": log the error and the data ​​​​​
-​​​​​  - "none": (default) skip the error entirely
-
-​​​​​If none of the actions are specified it will try and use a registered Dead Letter Queue API under that name.
-The API must be already be created by a operation before it can used.​`.trim()
+* **doc**: *string* =  [
+            'This action will specify what to do when failing to parse or transform a record.',
+            'The following builtin actions are supported:',
+            '  - "throw": throw the original error​​',
+            '  - "log": log the error and the data​​',
+            '  - "none": (default) skip the error entirely',
+            'If none of the actions are specified it will try and use a registered Dead Letter Queue API under that name.',
+            'The API must be already be created by a operation before it can used.'
+        ].join('\n')
 
 * **format**: *"optional_String"* = "optional_String"
 
 ▪ **_encoding**: *object*
 
-*Defined in [job-schemas.ts:232](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/job-schemas.ts#L232)*
+*Defined in [job-schemas.ts:239](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/job-schemas.ts#L239)*
 
-* **default**: *string* = "json"
+* **default**: *DataEncoding* =  DataEncoding.JSON
 
 * **doc**: *string* = "Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`."
 
-* **format**: *"json"[]* =  dataEncodings
+* **format**: *ReadonlyArray‹DataEncoding›* =  dataEncodings
 
 ▪ **_op**: *object*
 
-*Defined in [job-schemas.ts:227](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/job-schemas.ts#L227)*
+*Defined in [job-schemas.ts:234](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/job-schemas.ts#L234)*
 
 * **default**: *string* = ""
 

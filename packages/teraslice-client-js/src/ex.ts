@@ -1,7 +1,7 @@
 
 import { isString, isPlainObject, TSError } from '@terascope/job-components';
-import Client from './client';
 import autoBind from 'auto-bind';
+import Client from './client';
 
 import {
     ClientConfig,
@@ -25,33 +25,33 @@ export default class Ex extends Client {
         autoBind(this);
     }
 
-    async stop(exId: string, query?: StopQuery):Promise<StoppedResponse> {
+    async stop(exId: string, query?: StopQuery): Promise<StoppedResponse> {
         validateExId(exId);
         return this.post(`/ex/${exId}/_stop`, null, { query });
     }
 
-    async pause(exId: string, query?: SearchQuery):Promise<PausedResponse> {
+    async pause(exId: string, query?: SearchQuery): Promise<PausedResponse> {
         validateExId(exId);
         return this.post(`/ex/${exId}/_pause`, null, { query });
     }
 
-    async resume(exId: string, query?: SearchQuery):Promise<ResumeResponse> {
+    async resume(exId: string, query?: SearchQuery): Promise<ResumeResponse> {
         validateExId(exId);
         return this.post(`/ex/${exId}/_resume`, null, { query });
     }
 
-    async status(exId: string):Promise<ExecutionStatus> {
+    async status(exId: string): Promise<ExecutionStatus> {
         validateExId(exId);
-        const { _status: status } =  await this.get(`/ex/${exId}`);
+        const { _status: status } = await this.get(`/ex/${exId}`);
         return status;
     }
 
-    async list(options?: ListOptions):Promise<ExecutionGetResponse> {
+    async list(options?: ListOptions): Promise<ExecutionGetResponse> {
         const query = _parseListOptions(options);
         return this.get('/ex', { query } as SearchOptions);
     }
 
-    async errors(exId: string | SearchQuery, opts?: SearchQuery):Promise<StateErrors> {
+    async errors(exId: string | SearchQuery, opts?: SearchQuery): Promise<StateErrors> {
         const options: SearchQuery = {};
         if (isString(exId)) {
             if (isPlainObject(opts)) {
@@ -78,7 +78,7 @@ function validateExId(exId: string) {
     }
 }
 
-function _parseListOptions(options: ListOptions):SearchQuery {
+function _parseListOptions(options: ListOptions): SearchQuery {
     // support legacy
     if (!options) return { status: '*' };
     if (isString(options)) return { status: options };

@@ -1,5 +1,7 @@
 import { parseList, isString, uniq } from '@terascope/utils';
-import { ParsedSort, SortDirection, RowMapping, ColumnMapping } from './interfaces';
+import {
+    ParsedSort, SortDirection, RowMapping, ColumnMapping
+} from './interfaces';
 import { ResolvedUser } from '../interfaces';
 
 export function parseSortBy(sort: string, defaultSort = 'created:asc'): ParsedSort {

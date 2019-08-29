@@ -44,17 +44,17 @@ A base class for the Slicer and Worker TestHarnesses
 
 ###  constructor
 
-\+ **new BaseTestHarness**(`job`: `JobConfig`, `options`: [JobHarnessOptions](../interfaces/jobharnessoptions.md), `assignment`: `Assignment`): *[BaseTestHarness](basetestharness.md)*
+\+ **new BaseTestHarness**(`job`: JobConfig, `options`: [JobHarnessOptions](../interfaces/jobharnessoptions.md), `assignment`: Assignment): *[BaseTestHarness](basetestharness.md)*
 
-*Defined in [base-test-harness.ts:26](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/base-test-harness.ts#L26)*
+*Defined in [base-test-harness.ts:26](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/base-test-harness.ts#L26)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`job` | `JobConfig` |
+`job` | JobConfig |
 `options` | [JobHarnessOptions](../interfaces/jobharnessoptions.md) |
-`assignment` | `Assignment` |
+`assignment` | Assignment |
 
 **Returns:** *[BaseTestHarness](basetestharness.md)*
 
@@ -62,68 +62,68 @@ Name | Type |
 
 ### `Protected` context
 
-• **context**: *`TestContext`*
+• **context**: *TestContext*
 
-*Defined in [base-test-harness.ts:26](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/base-test-harness.ts#L26)*
+*Defined in [base-test-harness.ts:26](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/base-test-harness.ts#L26)*
 
 ___
 
 ###  events
 
-• **events**: *`EventEmitter`*
+• **events**: *EventEmitter*
 
-*Defined in [base-test-harness.ts:24](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/base-test-harness.ts#L24)*
+*Defined in [base-test-harness.ts:24](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/base-test-harness.ts#L24)*
 
 ___
 
 ### `Protected` executionContext
 
-• **executionContext**: *`U`*
+• **executionContext**: *U*
 
-*Defined in [base-test-harness.ts:25](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/base-test-harness.ts#L25)*
+*Defined in [base-test-harness.ts:25](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/base-test-harness.ts#L25)*
 
 ## Methods
 
 ###  initialize
 
-▸ **initialize**(): *`Promise<void>`*
+▸ **initialize**(): *Promise‹void›*
 
-*Defined in [base-test-harness.ts:44](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/base-test-harness.ts#L44)*
+*Defined in [base-test-harness.ts:44](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/base-test-harness.ts#L44)*
 
 Initialize any test cod
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ### `Protected` makeContextConfig
 
-▸ **makeContextConfig**(`job`: `JobConfig`, `assetDir`: string): *`ExecutionContextConfig`*
+▸ **makeContextConfig**(`job`: JobConfig, `assetDir`: string): *ExecutionContextConfig*
 
-*Defined in [base-test-harness.ts:58](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/base-test-harness.ts#L58)*
+*Defined in [base-test-harness.ts:58](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/base-test-harness.ts#L58)*
 
 **Parameters:**
 
 Name | Type | Default |
 ------ | ------ | ------ |
-`job` | `JobConfig` | - |
+`job` | JobConfig | - |
 `assetDir` | string |  process.cwd() |
 
-**Returns:** *`ExecutionContextConfig`*
+**Returns:** *ExecutionContextConfig*
 
 ___
 
 ###  setClients
 
-▸ **setClients**(`clients`: `TestClientConfig`[]): *void*
+▸ **setClients**(`clients`: TestClientConfig[]): *void*
 
-*Defined in [base-test-harness.ts:47](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/base-test-harness.ts#L47)*
+*Defined in [base-test-harness.ts:47](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/base-test-harness.ts#L47)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`clients` | `TestClientConfig`[] |
+`clients` | TestClientConfig[] |
 
 **Returns:** *void*
 
@@ -131,10 +131,10 @@ ___
 
 ###  shutdown
 
-▸ **shutdown**(): *`Promise<void>`*
+▸ **shutdown**(): *Promise‹void›*
 
-*Defined in [base-test-harness.ts:54](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-test-harness/src/base-test-harness.ts#L54)*
+*Defined in [base-test-harness.ts:54](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-test-harness/src/base-test-harness.ts#L54)*
 
 Cleanup test code
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*

@@ -1,6 +1,6 @@
-import { SimpleReaderConfig } from './interfaces';
 import times from 'lodash/times';
 import { Fetcher, SliceRequest } from '@terascope/job-components';
+import { SimpleReaderConfig } from './interfaces';
 import SimpleClient from '../simple-connector/client';
 import { SimpleAPI } from '../simple-api/interfaces';
 

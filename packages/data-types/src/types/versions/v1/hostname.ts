@@ -3,7 +3,7 @@ import BaseType from '../base-type';
 import { ElasticSearchTypes } from '../../../interfaces';
 
 export default class Hostname extends BaseType {
-    toESMapping(version?: number) {
+    toESMapping(_version?: number) {
         return {
             mapping: {
                 [this.field]: {

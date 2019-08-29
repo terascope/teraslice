@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-for-of */
 
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
@@ -12,7 +13,11 @@ export default class OutputPhase extends PhaseBase {
     private hasRestrictedOutput: boolean;
     private hasRequirements: boolean;
 
-    constructor(opConfig: WatcherConfig, outputConfig:OutputValidation, _opsManager: OperationsManager) {
+    constructor(
+        opConfig: WatcherConfig,
+        outputConfig: OutputValidation,
+        _opsManager: OperationsManager
+    ) {
         super(opConfig);
         this.restrictOutput = outputConfig.restrictOutput;
         this.matchRequirements = outputConfig.matchRequirements;
@@ -26,7 +31,11 @@ export default class OutputPhase extends PhaseBase {
 
         for (let i = 0; i < data.length; i++) {
             const doc = data[i];
-            const { otherExtractionsFound, requireExtractionsFound } = checkDoc(doc, isKeyMatchRequired);
+            const {
+                otherExtractionsFound,
+                requireExtractionsFound
+            } = checkDoc(doc, isKeyMatchRequired);
+
             if (!requireExtractionsFound || (requireExtractionsFound && otherExtractionsFound)) {
                 finalResults.push(doc);
             }
@@ -66,7 +75,7 @@ function restrictFields(data: DataEntity[], restrictOutput: any) {
     return restrictedData;
 }
 
-function isKeyMatchRequiredFn(matchRequirements:any) {
+function isKeyMatchRequiredFn(matchRequirements: any) {
     return function isKeyMatchRequired(key: string, docSelectorData: object) {
         let bool = false;
         const requiredKey = matchRequirements[key];
@@ -80,7 +89,7 @@ function isKeyMatchRequiredFn(matchRequirements:any) {
     };
 }
 
-function checkDoc(doc: DataEntity, fn:any) {
+function checkDoc(doc: DataEntity, fn: any) {
     const docSelectorData = doc.getMetadata('selectors');
     let otherExtractionsFound = false;
     let requireExtractionsFound = false;

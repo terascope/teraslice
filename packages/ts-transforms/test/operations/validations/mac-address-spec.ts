@@ -3,9 +3,10 @@ import { DataEntity } from '@terascope/utils';
 import { MacAddress } from '../../../src/operations';
 
 describe('MacAddress validation', () => {
-
     it('can instantiate', () => {
-        const opConfig = { follow: 'someId', source_field: 'someField', target_field: 'someField', __id: 'someId' };
+        const opConfig = {
+            follow: 'someId', source_field: 'someField', target_field: 'someField', __id: 'someId'
+        };
         expect(() => new MacAddress(opConfig)).not.toThrow();
     });
 
@@ -25,13 +26,17 @@ describe('MacAddress validation', () => {
     });
 
     it('can validate MacAddress fields', () => {
-        const opConfig = { follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId' };
+        const opConfig = {
+            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+        };
         const test = new MacAddress(opConfig);
 
-        const opConfig2 = { follow: 'someId', source_field: 'field', target_field: 'field', preserve_colons: true, __id: 'someId' };
+        const opConfig2 = {
+            follow: 'someId', source_field: 'field', target_field: 'field', preserve_colons: true, __id: 'someId'
+        };
         const test2 = new MacAddress(opConfig2);
 
-        const metaData = { selectors: { 'some:query' : true } };
+        const metaData = { selectors: { 'some:query': true } };
 
         const data1 = new DataEntity({ field: '56.234,95.234' }, metaData);
         const data2 = new DataEntity({ field: 123423 }, metaData);

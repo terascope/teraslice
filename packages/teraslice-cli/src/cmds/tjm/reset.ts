@@ -1,4 +1,3 @@
-
 import _ from 'lodash';
 import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
@@ -11,7 +10,7 @@ const yargsOptions = new YargsOptions();
 export = {
     command: 'reset <job-file>',
     describe: 'Removes cli metadata so job can be registerd on another cluster',
-    builder (yargs) {
+    builder(yargs) {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));

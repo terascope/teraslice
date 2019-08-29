@@ -50,7 +50,6 @@ type Props = {
     title?: string;
     redirectTo?: string;
     attached?: 'bottom' | 'top';
-    loading?: boolean;
     message?: string | string[];
 };
 
@@ -58,7 +57,6 @@ SuccessMessage.propTypes = {
     title: PropTypes.string,
     redirectTo: PropTypes.string,
     attached: PropTypes.oneOf(['bottom', 'top']),
-    loading: PropTypes.any,
     message: PropTypes.any,
 };
 

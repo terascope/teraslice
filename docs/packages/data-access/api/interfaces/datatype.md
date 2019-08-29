@@ -9,7 +9,7 @@ The definition a DataType model
 
 ## Hierarchy
 
-* `IndexModelRecord`
+* IndexModelRecord
 
   * **DataType**
 
@@ -42,9 +42,9 @@ ___
 
 ###  config
 
-• **config**: *`DataTypeConfig`*
+• **config**: *DataTypeConfig*
 
-*Defined in [models/config/data-types.ts:93](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/data-types.ts#L93)*
+*Defined in [models/config/data-types.ts:94](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/data-types.ts#L94)*
 
 Data Type Config
 
@@ -66,7 +66,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [models/config/data-types.ts:83](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/data-types.ts#L83)*
+*Defined in [models/config/data-types.ts:84](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/data-types.ts#L84)*
 
 Description of the DataType
 
@@ -88,7 +88,7 @@ ___
 
 • **inherit_from**? : *string[]*
 
-*Defined in [models/config/data-types.ts:88](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/data-types.ts#L88)*
+*Defined in [models/config/data-types.ts:89](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/data-types.ts#L89)*
 
 DataType to inherit from
 
@@ -98,7 +98,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [models/config/data-types.ts:78](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/config/data-types.ts#L78)*
+*Defined in [models/config/data-types.ts:79](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/data-types.ts#L79)*
 
 Name of the DataType
 

@@ -9,6 +9,7 @@ cache:
   yarn: false
   directories:
     - '$TRAVIS_BUILD_DIR/.yarn-cache'
+    - '$TRAVIS_BUILD_DIR/.eslintcache'
 
 before_install: . ./scripts/travis-setup.sh
 install:

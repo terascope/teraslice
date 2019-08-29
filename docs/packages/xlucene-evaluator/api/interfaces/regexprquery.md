@@ -21,8 +21,8 @@ sidebar_label: RegExprQuery
 
 • **regexp**: *object*
 
-*Defined in [translator/interfaces.ts:45](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/interfaces.ts#L45)*
+*Defined in [translator/interfaces.ts:73](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/translator/interfaces.ts#L73)*
 
 #### Type declaration:
 
-● \[▪ **field**: *string*\]: string
+* \[ **field**: *string*\]: string

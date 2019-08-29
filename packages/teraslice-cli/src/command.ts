@@ -1,4 +1,3 @@
-
 import yargs from 'yargs';
 import aliases from './cmds/aliases';
 import assets from './cmds/assets';
@@ -9,6 +8,7 @@ import workers from './cmds/workers';
 import controllers from './cmds/controllers';
 import tjm from './cmds/tjm';
 
+// eslint-disable-next-line
 yargs
     .command(aliases)
     .command(assets)

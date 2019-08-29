@@ -20,7 +20,6 @@ LegacyExecutionContext is the old ExecutionContext available
 * [queue](legacyexecutioncontext.md#queue)
 * [queueLength](legacyexecutioncontext.md#queuelength)
 * [reader](legacyexecutioncontext.md#reader)
-* [reporter](legacyexecutioncontext.md#reporter)
 * [slicer](legacyexecutioncontext.md#slicer)
 
 ## Properties
@@ -29,7 +28,7 @@ LegacyExecutionContext is the old ExecutionContext available
 
 • **config**: *[ExecutionConfig](executionconfig.md)*
 
-*Defined in [interfaces/jobs.ts:104](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/jobs.ts#L104)*
+*Defined in [interfaces/jobs.ts:113](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/jobs.ts#L113)*
 
 ___
 
@@ -37,44 +36,36 @@ ___
 
 • **dynamicQueueLength**: *boolean*
 
-*Defined in [interfaces/jobs.ts:107](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/jobs.ts#L107)*
+*Defined in [interfaces/jobs.ts:116](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/jobs.ts#L116)*
 
 ___
 
 ###  queue
 
-• **queue**: *`Function`[]*
+• **queue**: *Function[]*
 
-*Defined in [interfaces/jobs.ts:108](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/jobs.ts#L108)*
+*Defined in [interfaces/jobs.ts:117](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/jobs.ts#L117)*
 
 ___
 
 ###  queueLength
 
-• **queueLength**: *`10000` | number*
+• **queueLength**: *10000 | number*
 
-*Defined in [interfaces/jobs.ts:106](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/jobs.ts#L106)*
+*Defined in [interfaces/jobs.ts:115](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/jobs.ts#L115)*
 
 ___
 
 ###  reader
 
-• **reader**: *`Function` | null*
+• **reader**: *Function | null*
 
-*Defined in [interfaces/jobs.ts:109](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/jobs.ts#L109)*
-
-___
-
-###  reporter
-
-• **reporter**: *null*
-
-*Defined in [interfaces/jobs.ts:110](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/jobs.ts#L110)*
+*Defined in [interfaces/jobs.ts:118](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/jobs.ts#L118)*
 
 ___
 
 ###  slicer
 
-• **slicer**: *`Function`*
+• **slicer**: *Function*
 
-*Defined in [interfaces/jobs.ts:105](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/jobs.ts#L105)*
+*Defined in [interfaces/jobs.ts:114](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/jobs.ts#L114)*

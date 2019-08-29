@@ -1,4 +1,5 @@
 import uuidv4 from 'uuid/v4';
+import Queue from '@terascope/queue';
 import {
     OpConfig,
     ExecutionConfig,
@@ -9,7 +10,6 @@ import {
     WorkerContext,
     SlicerRecoveryData,
 } from '../../interfaces';
-import Queue from '@terascope/queue';
 import Core from './core';
 import { makeExContextLogger } from '../../utils';
 
@@ -22,7 +22,10 @@ import { makeExContextLogger } from '../../utils';
  * See [[Core]] for more information
  */
 
-export default abstract class SlicerCore<T = OpConfig> extends Core<WorkerContext> implements SlicerOperationLifeCycle {
+export default abstract class SlicerCore<T = OpConfig>
+    extends Core<WorkerContext>
+    implements SlicerOperationLifeCycle {
+    // ...
     protected stats: ExecutionStats;
     protected recoveryData: object[];
     protected readonly opConfig: Readonly<OpConfig & T>;
@@ -80,7 +83,7 @@ export default abstract class SlicerCore<T = OpConfig> extends Core<WorkerContex
      * In the case of recovery the "Slice" already has the required
      * This will be enqueued and dequeued by the "Execution Controller"
      */
-    createSlice(input: Slice | SliceRequest, order: number, id: number = 0) {
+    createSlice(input: Slice | SliceRequest, order: number, id = 0) {
         // recovery slices already have correct meta data
         if (input.slice_id) {
             this.queue.enqueue(input as Slice);

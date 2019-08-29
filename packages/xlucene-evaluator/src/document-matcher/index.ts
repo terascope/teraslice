@@ -22,7 +22,7 @@ export default class DocumentMatcher {
         this.filterFn = logicBuilder(parser, options.type_config);
     }
 
-    public match(doc:object):boolean {
+    public match(doc: object): boolean {
         return this.filterFn(doc);
     }
 }

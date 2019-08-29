@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/prefer-for-of */
 
 import { DataEntity } from '@terascope/utils';
-import _ from 'lodash';
 import { WatcherConfig, Operation, SelectorConfig } from '../interfaces';
 import PhaseBase from './base';
 import { OperationsManager } from '../operations';
@@ -8,11 +8,17 @@ import { OperationsManager } from '../operations';
 export default class SelectionPhase extends PhaseBase {
     readonly selectionPhase: Operation[];
 
-    constructor(opConfig: WatcherConfig, selectorList:SelectorConfig[], opsManager: OperationsManager) {
+    constructor(
+        opConfig: WatcherConfig,
+        selectorList: SelectorConfig[],
+        opsManager: OperationsManager
+    ) {
         super(opConfig);
         this.opConfig = opConfig;
+
         const Selector = opsManager.getTransform('selector');
-        this.selectionPhase = selectorList.map((config) => new Selector(config, this.opConfig.types));
+        this.selectionPhase = selectorList
+            .map((config) => new Selector(config, this.opConfig.types));
     }
 
     public run(data: DataEntity[]): DataEntity[] {

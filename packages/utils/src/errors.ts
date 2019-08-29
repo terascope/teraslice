@@ -41,7 +41,9 @@ export class TSError extends Error {
     constructor(input: any, config: TSErrorConfig = {}) {
         const { fatalError = false } = config;
 
-        const { message, statusCode, context, code } = parseErrorInfo(input, config);
+        const {
+            message, statusCode, context, code
+        } = parseErrorInfo(input, config);
 
         super(message);
 
@@ -159,7 +161,12 @@ export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInf
         if (esErrorInfo) {
             const updatedContext = Object.assign({}, esErrorInfo.context, config.context);
             return {
-                message: config.message || prefixErrorMsg(esErrorInfo.message, config.reason, defaultErrorMsg),
+                message: config.message
+                    || prefixErrorMsg(
+                        esErrorInfo.message,
+                        config.reason,
+                        defaultErrorMsg
+                    ),
                 context: createErrorContext(input, { ...config, context: updatedContext }),
                 statusCode,
                 code: esErrorInfo.code,
@@ -228,7 +235,9 @@ function _cleanErrorMsg(input: string): string {
     return s.truncate(input.trim(), 3000);
 }
 
-function _parseESErrorInfo(input: ElasticsearchError): { message: string; context: object; code: string } | null {
+function _parseESErrorInfo(
+    input: ElasticsearchError
+): { message: string; context: object; code: string } | null {
     const bodyError = input && input.body && input.body.error;
     const name = (input && input.name) || 'ElasticSearchError';
 
@@ -376,7 +385,11 @@ function coerceStatusCode(input: any): number | null {
     return STATUS_CODES[input] != null ? input : null;
 }
 
-export function getErrorStatusCode(err: any, config: TSErrorConfig = {}, defaultCode = DEFAULT_STATUS_CODE): number {
+export function getErrorStatusCode(
+    err: any,
+    config: TSErrorConfig = {},
+    defaultCode = DEFAULT_STATUS_CODE
+): number {
     const metadata = isElasticsearchError(err) ? err.toJSON() : {};
 
     for (const key of ['statusCode', 'status', 'code']) {
@@ -393,7 +406,11 @@ export function getErrorStatusCode(err: any, config: TSErrorConfig = {}, default
     return defaultCode;
 }
 
-export function stripErrorMessage(error: any, reason: string = DEFAULT_ERR_MSG, requireSafe = false): string {
+export function stripErrorMessage(
+    error: any,
+    reason: string = DEFAULT_ERR_MSG,
+    requireSafe = false
+): string {
     const { message, context, statusCode } = parseErrorInfo(error, {
         defaultErrorMsg: reason,
         context: error && error.context,

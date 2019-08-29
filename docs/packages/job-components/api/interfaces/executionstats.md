@@ -20,14 +20,14 @@ sidebar_label: ExecutionStats
 
 ###  slices
 
-• **slices**: *`ExecutionSliceStats`*
+• **slices**: *ExecutionSliceStats*
 
-*Defined in [interfaces/operations.ts:111](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L111)*
+*Defined in [interfaces/operations.ts:130](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L130)*
 
 ___
 
 ###  workers
 
-• **workers**: *`ExecutionWorkerStats`*
+• **workers**: *ExecutionWorkerStats*
 
-*Defined in [interfaces/operations.ts:110](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/operations.ts#L110)*
+*Defined in [interfaces/operations.ts:129](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/operations.ts#L129)*

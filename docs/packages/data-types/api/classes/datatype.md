@@ -38,15 +38,15 @@ and can be converted to the following formats:
 
 ###  constructor
 
-\+ **new DataType**(`config`: `i.DataTypeConfig`, `typeName?`: undefined | string): *[DataType](datatype.md)*
+\+ **new DataType**(`config`: i.DataTypeConfig, `typeName?`: undefined | string): *[DataType](datatype.md)*
 
-*Defined in [data-type.ts:46](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/data-type.ts#L46)*
+*Defined in [data-type.ts:46](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/data-type.ts#L46)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`config` | `i.DataTypeConfig` |
+`config` | i.DataTypeConfig |
 `typeName?` | undefined \| string |
 
 **Returns:** *[DataType](datatype.md)*
@@ -57,7 +57,7 @@ Name | Type |
 
 • **name**: *string*
 
-*Defined in [data-type.ts:19](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/data-type.ts#L19)*
+*Defined in [data-type.ts:19](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/data-type.ts#L19)*
 
 ## Methods
 
@@ -65,7 +65,7 @@ Name | Type |
 
 ▸ **toESMapping**(`__namedParameters`: object): *[ESMapping](../interfaces/esmapping.md)*
 
-*Defined in [data-type.ts:59](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/data-type.ts#L59)*
+*Defined in [data-type.ts:59](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/data-type.ts#L59)*
 
 Convert the DataType to an elasticsearch mapping.
 
@@ -81,15 +81,15 @@ ___
 
 ###  toGraphQL
 
-▸ **toGraphQL**(`args?`: `i.GraphQLOptions`): *string*
+▸ **toGraphQL**(`args?`: i.GraphQLOptions): *string*
 
-*Defined in [data-type.ts:103](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/data-type.ts#L103)*
+*Defined in [data-type.ts:103](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/data-type.ts#L103)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`args?` | `i.GraphQLOptions` |
+`args?` | i.GraphQLOptions |
 
 **Returns:** *string*
 
@@ -97,17 +97,17 @@ ___
 
 ###  toGraphQLTypes
 
-▸ **toGraphQLTypes**(`args`: `i.GraphQLOptions`): *`i.GraphQLTypesResult`*
+▸ **toGraphQLTypes**(`args`: i.GraphQLOptions): *i.GraphQLTypesResult*
 
-*Defined in [data-type.ts:109](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/data-type.ts#L109)*
+*Defined in [data-type.ts:109](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/data-type.ts#L109)*
 
 **Parameters:**
 
 Name | Type | Default |
 ------ | ------ | ------ |
-`args` | `i.GraphQLOptions` |  {} |
+`args` | i.GraphQLOptions |  {} |
 
-**Returns:** *`i.GraphQLTypesResult`*
+**Returns:** *i.GraphQLTypesResult*
 
 ___
 
@@ -115,7 +115,7 @@ ___
 
 ▸ **toXlucene**(): *object*
 
-*Defined in [data-type.ts:151](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/data-type.ts#L151)*
+*Defined in [data-type.ts:151](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/data-type.ts#L151)*
 
 **Returns:** *object*
 
@@ -123,9 +123,9 @@ ___
 
 ### `Static` mergeGraphQLDataTypes
 
-▸ **mergeGraphQLDataTypes**(`types`: [DataType](datatype.md)[], `typeReferences`: `i.GraphQLTypeReferences`): *string*
+▸ **mergeGraphQLDataTypes**(`types`: [DataType](datatype.md)[], `typeReferences`: i.GraphQLTypeReferences): *string*
 
-*Defined in [data-type.ts:23](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/data-type.ts#L23)*
+*Defined in [data-type.ts:23](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/data-type.ts#L23)*
 
 Merge multiple data types into one GraphQL schema, useful for removing duplicates
 
@@ -134,6 +134,6 @@ Merge multiple data types into one GraphQL schema, useful for removing duplicate
 Name | Type | Default |
 ------ | ------ | ------ |
 `types` | [DataType](datatype.md)[] | - |
-`typeReferences` | `i.GraphQLTypeReferences` |  {} |
+`typeReferences` | i.GraphQLTypeReferences |  {} |
 
 **Returns:** *string*

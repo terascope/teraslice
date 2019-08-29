@@ -42,7 +42,8 @@ export default [
         [
             { location: { lat: '33.435967', lon: '-111.867710' } },
             { location: { latitude: '33.435967', longitude: '-111.867710' } },
-            // Techincally elasticsearch can take data3 as an array of numbers, but we are ignoring that right now
+            // Techincally elasticsearch can take data3 as an array of numbers,
+            // but we are ignoring that right now
             { location: ['33.435967, -111.867710'] },
             // this is a geohash below
             { location: '9tbqnqu6tkj8' },
@@ -51,7 +52,6 @@ export default [
     ],
     [
         'can do complicated matches',
-        // tslint:disable-next-line: max-line-length
         'location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902") OR (some:/ke.*/ OR bytes:>=10000)',
         [
             { location: '33.435967,-111.867710', some: 'key', bytes: 123432 },

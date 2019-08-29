@@ -10,7 +10,7 @@ like statusCode and fatalError
 
 ## Hierarchy
 
-* `Error`
+* Error
 
   * **TSError**
 
@@ -42,7 +42,7 @@ like statusCode and fatalError
 
 \+ **new TSError**(`input`: any, `config`: [TSErrorConfig](../interfaces/tserrorconfig.md)): *[TSError](tserror.md)*
 
-*Defined in [errors.ts:37](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L37)*
+*Defined in [errors.ts:39](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/errors.ts#L39)*
 
 **Parameters:**
 
@@ -59,7 +59,7 @@ Name | Type | Default |
 
 • **code**: *string*
 
-*Defined in [errors.ts:15](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L15)*
+*Defined in [errors.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/errors.ts#L17)*
 
 An descriptive error code that specifies the error type, this follows more
 node convention
@@ -70,7 +70,7 @@ ___
 
 • **context**: *[TSErrorContext](../interfaces/tserrorcontext.md)*
 
-*Defined in [errors.ts:37](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L37)*
+*Defined in [errors.ts:39](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/errors.ts#L39)*
 
 Additional context metadata
 
@@ -80,7 +80,7 @@ ___
 
 • **fatalError**: *boolean*
 
-*Defined in [errors.ts:25](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L25)*
+*Defined in [errors.ts:27](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/errors.ts#L27)*
 
 Used to indicate the an error is fatal
 
@@ -110,7 +110,7 @@ ___
 
 • **retryable**? : *undefined | false | true*
 
-*Defined in [errors.ts:32](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L32)*
+*Defined in [errors.ts:34](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/errors.ts#L34)*
 
 Used sometimes to indicate whether an error is retryable
 
@@ -134,7 +134,7 @@ ___
 
 • **statusCode**: *number*
 
-*Defined in [errors.ts:20](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L20)*
+*Defined in [errors.ts:22](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/errors.ts#L22)*
 
 A HTTP status code for easy use
 
@@ -142,7 +142,7 @@ ___
 
 ### `Static` Error
 
-▪ **Error**: *`ErrorConstructor`*
+▪ **Error**: *ErrorConstructor*
 
 Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:984
 
@@ -152,6 +152,6 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typ
 
 ▸ **cause**(): *any*
 
-*Defined in [errors.ts:67](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/utils/src/errors.ts#L67)*
+*Defined in [errors.ts:71](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/errors.ts#L71)*
 
 **Returns:** *any*

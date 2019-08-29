@@ -1,11 +1,12 @@
 
-import { Trim } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
+import { Trim } from '../../../src/operations';
 
 describe('transform operator', () => {
-
     it('can instantiate', () => {
-        const opConfig = { target_field: 'someField', source_field: 'someField', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            target_field: 'someField', source_field: 'someField', __id: 'someId', follow: 'otherId'
+        };
         expect(() => new Trim(opConfig)).not.toThrow();
     });
 
@@ -25,7 +26,9 @@ describe('transform operator', () => {
     });
 
     it('can transform strings to Trim', () => {
-        const opConfig = { source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId'
+        };
         const test = new Trim(opConfig);
 
         const data1 = new DataEntity({ someField: ' 56.234,95.234 ' });

@@ -1,7 +1,28 @@
 import 'jest-extended'; // require for type definitions
-import { DataEntity, parseJSON } from '../src';
+import {
+    DataEntity,
+    parseJSON,
+    DataEncoding,
+    IS_ENTITY_KEY,
+    METADATA_KEY,
+    RAWDATA_KEY,
+} from '../src';
 
 describe('DataEntity', () => {
+    const methods: (keyof DataEntity)[] = [
+        'getMetadata',
+        'setMetadata',
+        'getRawData',
+        'setRawData',
+        'toBuffer'
+    ];
+
+    const hiddenProps: string[] = [
+        IS_ENTITY_KEY,
+        METADATA_KEY,
+        RAWDATA_KEY
+    ];
+
     const testCases = [
         [
             'when using new DataEntity',
@@ -44,30 +65,40 @@ describe('DataEntity', () => {
 
             it('should not be able to enumerate metadata methods', () => {
                 const keys = Object.keys(dataEntity);
-                expect(keys).not.toInclude('getMetadata');
-                expect(keys).not.toInclude('setMetadata');
-                expect(keys).not.toInclude('toBuffer');
+                for (const method of methods) {
+                    expect(keys).not.toInclude(method as string);
+                }
+                for (const hiddenProp of hiddenProps) {
+                    expect(keys).not.toInclude(hiddenProp);
+                }
 
-                // tslint:disable-next-line: forin
+                // eslint-disable-next-line guard-for-in
                 for (const prop in dataEntity) {
-                    expect(prop).not.toEqual('getMetadata');
-                    expect(prop).not.toEqual('setMetadata');
-                    expect(prop).not.toEqual('toBuffer');
+                    for (const method of methods) {
+                        expect(prop).not.toEqual(method as string);
+                    }
+                    for (const hiddenProp of hiddenProps) {
+                        expect(prop).not.toEqual(hiddenProp);
+                    }
                 }
             });
 
             it('should only convert non-metadata properties with stringified', () => {
-                const object = JSON.parse(JSON.stringify(dataEntity));
-                expect(object).not.toHaveProperty('getMetadata');
-                expect(object).not.toHaveProperty('setMetadata');
-                expect(object).not.toHaveProperty('toBuffer');
+                const obj = JSON.parse(JSON.stringify(dataEntity));
+                for (const method of methods) {
+                    expect(obj).not.toHaveProperty(method as string);
+                }
 
-                expect(object).toHaveProperty('teal', 'neal');
-                expect(object).toHaveProperty('blue', 'green');
-                expect(object).toHaveProperty('metadata', {
+                for (const hiddenProp of hiddenProps) {
+                    expect(obj).not.toHaveProperty(hiddenProp);
+                }
+
+                expect(obj).toHaveProperty('teal', 'neal');
+                expect(obj).toHaveProperty('blue', 'green');
+                expect(obj).toHaveProperty('metadata', {
                     uh: 'oh',
                 });
-                expect(object).toHaveProperty('purple', 'pink');
+                expect(obj).toHaveProperty('purple', 'pink');
             });
 
             it('should be able to get the metadata', () => {
@@ -164,25 +195,87 @@ describe('DataEntity', () => {
             });
         });
 
+        describe('->setRawData/->getRawData', () => {
+            const dataEntity = useClass ? new DataEntity({}) : DataEntity.make({});
+            const initialBuffer = Buffer.from('HI');
+            const updatedBuffer = Buffer.from('HELLO');
+
+            it('should throw an error if no data is set', () => {
+                expect(() => dataEntity.getRawData()).toThrow();
+            });
+
+            it('should be able to initial set the raw data', () => {
+                expect(dataEntity.setRawData(initialBuffer)).toBeNil();
+            });
+
+            it('should have not mutated the initial buffer', () => {
+                expect(dataEntity.getRawData()).toBe(initialBuffer);
+                expect(dataEntity.getRawData().toString('utf8'))
+                    .toEqual('HI');
+            });
+
+            it('should be able to update the buffer', () => {
+                expect(dataEntity.setRawData(updatedBuffer)).toBeNil();
+                expect(dataEntity.getRawData()).not.toBe(initialBuffer);
+                expect(Buffer.isBuffer(dataEntity.getRawData())).toBeTrue();
+
+                expect(dataEntity.getRawData()).toBe(updatedBuffer);
+                expect(dataEntity.getRawData().toString('utf8'))
+                    .toEqual('HELLO');
+            });
+
+            it('should be able to mutate the raw data', () => {
+                const buf = dataEntity.getRawData();
+                buf.write('HOWDY', 'utf8');
+                expect(updatedBuffer.toString('utf8')).toEqual('HOWDY');
+            });
+
+            it('should be able to set the data to null', () => {
+                expect(dataEntity.setRawData(null)).toBeNil();
+                expect(() => dataEntity.getRawData()).toThrow();
+            });
+        });
+
         describe('->toBuffer', () => {
             const data = { foo: 'bar' };
             const metadata = { hello: 'there' };
-            const dataEntity = useClass ? new DataEntity(data, metadata) : DataEntity.make(data);
+            const dataEntity = useClass
+                ? new DataEntity(data, metadata)
+                : DataEntity.make(data, metadata);
 
-            it('should be convertable to a buffer', () => {
-                const buf = dataEntity.toBuffer({ _encoding: 'json' });
-                expect(Buffer.isBuffer(buf)).toBeTrue();
-                const obj = parseJSON(buf);
+            const dataStr = JSON.stringify({ other: 'data' });
+            dataEntity.setRawData(dataStr);
 
-                expect(obj).toEqual({ foo: 'bar' });
+            describe('when using encoding type JSON', () => {
+                it('should be convertable to a buffer', () => {
+                    const buf = dataEntity.toBuffer({
+                        _encoding: 'json' as DataEncoding
+                    });
+                    expect(Buffer.isBuffer(buf)).toBeTrue();
+                    const obj = parseJSON(buf);
+
+                    expect(obj).toEqual({ foo: 'bar' });
+                });
+
+                it('should be able to default to JSON', () => {
+                    const buf = dataEntity.toBuffer();
+                    expect(Buffer.isBuffer(buf)).toBeTrue();
+                    const obj = parseJSON(buf);
+
+                    expect(obj).toEqual({ foo: 'bar' });
+                });
             });
 
-            it('should be able to handle no config', () => {
-                const buf = dataEntity.toBuffer();
-                expect(Buffer.isBuffer(buf)).toBeTrue();
-                const obj = parseJSON(buf);
+            describe('when using encoding type RAW', () => {
+                it('should be able to return the data', () => {
+                    const buf = dataEntity.toBuffer({
+                        _encoding: 'raw' as DataEncoding
+                    });
+                    expect(Buffer.isBuffer(buf)).toBeTrue();
+                    const obj = parseJSON(buf);
 
-                expect(obj).toEqual({ foo: 'bar' });
+                    expect(obj).toEqual({ other: 'data' });
+                });
             });
 
             it('should fail if given an invalid encoding', () => {
@@ -336,40 +429,6 @@ describe('DataEntity', () => {
     });
 
     describe('#fromBuffer', () => {
-        it('should be able to create a DataEntity from a buffer', () => {
-            const buf = Buffer.from(JSON.stringify({ foo: 'bar' }));
-            const entity = DataEntity.fromBuffer(
-                buf,
-                {
-                    _op: 'baz',
-                    _encoding: 'json',
-                },
-                {
-                    howdy: 'there',
-                }
-            );
-
-            expect(entity.foo).toEqual('bar');
-            expect(entity.getMetadata('howdy')).toEqual('there');
-        });
-
-        it('should be able handle no config', () => {
-            const buf = Buffer.from(JSON.stringify({ foo: 'bar' }));
-            const entity = DataEntity.fromBuffer(buf);
-
-            expect(entity.foo).toEqual('bar');
-        });
-
-        it('should throw an error if given invalid buffer', () => {
-            const buf = Buffer.from('hello:there');
-            expect(() => {
-                DataEntity.fromBuffer(buf, {
-                    _op: 'test',
-                    _encoding: 'json',
-                });
-            }).toThrow();
-        });
-
         it('should throw an error if given an unsupported encoding', () => {
             const buf = Buffer.from(JSON.stringify({ hi: 'there' }));
             expect(() => {
@@ -379,6 +438,124 @@ describe('DataEntity', () => {
                     _encoding: 'crazy',
                 });
             }).toThrowError('Unsupported encoding type, got "crazy"');
+        });
+
+        describe('when encoding is type JSON', () => {
+            it('should be able to create a DataEntity from a JSON buffer', () => {
+                const buf = Buffer.from(JSON.stringify({ foo: 'bar' }));
+                const entity = DataEntity.fromBuffer(
+                    buf,
+                    {
+                        _op: 'baz',
+                        _encoding: DataEncoding.JSON,
+                    },
+                    {
+                        howdy: 'there',
+                    }
+                );
+
+                expect(entity.foo).toEqual('bar');
+                expect(entity.getMetadata('howdy')).toEqual('there');
+            });
+
+            it('should be able to create a DataEntity from a json string', () => {
+                const str = JSON.stringify({ foo: 'bar' });
+                const entity = DataEntity.fromBuffer(
+                    str,
+                    {
+                        _op: 'baz',
+                        _encoding: DataEncoding.JSON,
+                    },
+                    {
+                        howdy: 'there',
+                    }
+                );
+
+                expect(entity.foo).toEqual('bar');
+                expect(entity.getMetadata('howdy')).toEqual('there');
+            });
+
+            it('should be able handle to default to JSON', () => {
+                const buf = Buffer.from(JSON.stringify({ foo: 'bar' }));
+                const entity = DataEntity.fromBuffer(buf);
+
+                expect(entity.foo).toEqual('bar');
+            });
+
+            it('should throw an error if given an invalid buffer', () => {
+                const buf = Buffer.from('hello:there');
+                expect(() => {
+                    DataEntity.fromBuffer(buf, {
+                        _op: 'test',
+                        _encoding: DataEncoding.JSON,
+                    });
+                }).toThrow();
+            });
+
+            it('should throw an error if given an invalid input', () => {
+                const input = 5 as any;
+                expect(() => {
+                    DataEntity.fromBuffer(input, {
+                        _op: 'test',
+                        _encoding: DataEncoding.JSON,
+                    });
+                }).toThrow();
+            });
+        });
+
+        describe('when encoding is type RAW', () => {
+            it('should be able to create a DataEntity from a buffer', () => {
+                const buf = Buffer.from(JSON.stringify({ foo: 'bar' }));
+                const entity = DataEntity.fromBuffer(
+                    buf,
+                    {
+                        _op: 'baz',
+                        _encoding: DataEncoding.RAW,
+                    },
+                    {
+                        howdy: 'there',
+                    }
+                );
+
+                expect(entity.getRawData()).toEqual(buf);
+                expect(entity.getRawData()).toBe(buf);
+                expect(Buffer.isBuffer(entity.getRawData())).toBeTrue();
+
+                expect(entity).not.toHaveProperty('data');
+                expect(entity.getMetadata('howdy')).toEqual('there');
+                expect(entity.getMetadata('howdy')).toEqual('there');
+            });
+
+            it('should be able to create a DataEntity from a string', () => {
+                const str = JSON.stringify({ foo: 'bar' });
+                const entity = DataEntity.fromBuffer(
+                    str,
+                    {
+                        _op: 'baz',
+                        _encoding: DataEncoding.RAW,
+                    },
+                    {
+                        howdy: 'there',
+                    }
+                );
+
+                expect(entity.getRawData().toString('utf8')).toEqual(str);
+                expect(Buffer.isBuffer(entity.getRawData())).toBeTrue();
+
+                expect(entity).not.toHaveProperty('data');
+                expect(entity.getMetadata('howdy')).toEqual('there');
+                expect(entity.getMetadata('howdy')).toEqual('there');
+            });
+
+            it('should throw an error if given an invalid input', () => {
+                const input = 1 as any;
+                expect(() => {
+                    DataEntity.fromBuffer(input, {
+                        _op: 'test',
+                        _encoding: DataEncoding.RAW,
+                    });
+                }).toThrow();
+            });
         });
     });
 });

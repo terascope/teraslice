@@ -14,19 +14,11 @@ const yargsOptions = new YargsOptions();
 const reply = new Reply();
 
 const env = yeoman.createEnv();
-// @ts-ignore
-env.registerStub(newProcessor, 'new-processor', path.join(
-    __dirname, '../../generators/new-processor/index.js'
-));
-// @ts-ignore
-
-env.registerStub(newAsset, 'new-asset', path.join(
-    __dirname, '../../generators/new-asset/index.js'
-));
+env.registerStub(newProcessor as any, 'new-processor');
+env.registerStub(newAsset as any, 'new-asset');
 
 export = {
     command: 'init',
-    // tslint:disable-next-line:max-line-length
     describe: 'Creates a new asset bundle or asset processor.  If called without --processor it builds the whole asset in the current directory.  Used with the --processor it adds an asset to the ./asset dir',
     builder(yargs) {
         yargs.option('processor', yargsOptions.buildOption('processor'));
@@ -49,13 +41,18 @@ export = {
 
         try {
             if (argv.proc) {
-                 // @ts-ignore
-                await env.run(`new-processor ${assetBaseDir} --new`);
+                // for pkg
+                path.join(__dirname, '../../generators/new-processor');
+                await env.run(`new-processor ${assetBaseDir} --new`, () => {
+                    reply.green('All done!');
+                });
             } else {
-                 // @ts-ignore
-                await env.run(`new-asset ${assetBaseDir}`);
+                // for pkg
+                path.join(__dirname, '../../generators/new-asset');
+                await env.run(`new-asset ${assetBaseDir}`, () => {
+                    reply.green('All done!');
+                });
             }
-            reply.green('All done!');
         } catch (e) {
             reply.fatal(e);
         }

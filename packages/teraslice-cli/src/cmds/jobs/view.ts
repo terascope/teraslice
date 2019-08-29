@@ -1,6 +1,4 @@
-
 import { CMD } from '../../interfaces';
-import _ from 'lodash';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 import Reply from '../lib/reply';
@@ -13,7 +11,7 @@ export = {
     // TODO: is it [id] or <id>
     command: 'view <cluster-alias> <id>',
     describe: 'View the job definition',
-    builder(yargs:any) {
+    builder(yargs: any) {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.strict()
             .example('$0 jobs view cluster1 99999999-9999-9999-9999-999999999999');
@@ -30,7 +28,7 @@ export = {
             reply.fatal(`> job_id:${cliConfig.args.id} not found on ${cliConfig.args.clusterAlias}`);
         }
 
-        // tslint:disable-next-line:no-console
+        // eslint-disable-next-line no-console
         console.log(JSON.stringify(response, null, 4));
     }
 } as CMD;

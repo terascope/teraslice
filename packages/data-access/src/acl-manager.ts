@@ -34,7 +34,7 @@ export class ACLManager {
     /**
      * Initialize all index stores
      */
-    async initialize() {
+    async initialize(): Promise<void> {
         await Promise.all([
             this._roles.initialize(),
             this._spaces.initialize(),
@@ -47,7 +47,7 @@ export class ACLManager {
     /**
      * Shutdown all index stores
      */
-    async shutdown() {
+    async shutdown(): Promise<void> {
         await Promise.all([
             this._roles.shutdown(),
             this._spaces.shutdown(),
@@ -57,24 +57,26 @@ export class ACLManager {
         ]);
     }
 
-    async simpleMigrate() {
+    async simpleMigrate(): Promise<ts.AnyObject> {
         const results: ts.AnyObject = {};
-        results['dataTypes'] = await this._dataTypes.store.migrateIndex({});
-        results['roles'] = await this._roles.store.migrateIndex({});
-        results['users'] = await this._users.store.migrateIndex({});
-        results['spaces'] = await this._spaces.store.migrateIndex({});
-        results['views'] = await this._views.store.migrateIndex({});
+        results.dataTypes = await this._dataTypes.store.migrateIndex({});
+        results.roles = await this._roles.store.migrateIndex({});
+        results.users = await this._users.store.migrateIndex({});
+        results.spaces = await this._spaces.store.migrateIndex({});
+        results.views = await this._views.store.migrateIndex({});
         return results;
     }
 
-    async migrateIndex(model: i.ModelName, options: MigrateIndexStoreOptions) {
+    async migrateIndex(model: i.ModelName, options: MigrateIndexStoreOptions): Promise<any> {
         return this[`_${model}`].store.migrateIndex(options);
     }
 
     /**
      * Authenticate user with an api_token or username and password
      */
-    async authenticate(args: { username?: string; password?: string; token?: string }): Promise<models.User> {
+    async authenticate(
+        args: { username?: string; password?: string; token?: string }
+    ): Promise<models.User> {
         if (args.username && args.password) {
             const user = await this._users.authenticate(args.username, args.password);
             return this._postProcessAuthenticatedUser(user);
@@ -94,7 +96,11 @@ export class ACLManager {
      * Find user by id
      */
     async findUser(args: i.FindOneArgs<models.User>, authUser: i.AuthUser) {
-        const user = await this._users.findByAnyId(args.id, args, this._getUserQueryAccess(authUser));
+        const user = await this._users.findByAnyId(
+            args.id,
+            args,
+            this._getUserQueryAccess(authUser)
+        );
         return this._postProcessAuthenticatedUser(user);
     }
 
@@ -115,7 +121,10 @@ export class ACLManager {
     /**
      * Create a user
      */
-    async createUser(args: { user: models.CreateUserInput; password: string }, authUser: i.AuthUser) {
+    async createUser(
+        args: { user: models.CreateUserInput; password: string },
+        authUser: i.AuthUser
+    ): Promise<models.User> {
         await this._validateUserInput(args.user, authUser);
 
         const user = await this._users.createWithPassword(args.user, args.password);
@@ -127,7 +136,10 @@ export class ACLManager {
      *
      * This cannot include private information
      */
-    async updateUser(args: { user: models.UpdateUserInput; password?: string }, authUser: i.AuthUser): Promise<models.User> {
+    async updateUser(
+        args: { user: models.UpdateUserInput; password?: string },
+        authUser: i.AuthUser
+    ): Promise<models.User> {
         await this._validateUserInput(args.user, authUser);
         await this._users.update(args.user);
         if (args.password) {
@@ -141,7 +153,10 @@ export class ACLManager {
     /**
      * Update user's password
      */
-    async updatePassword(args: { id: string; password: string }, authUser: i.AuthUser): Promise<boolean> {
+    async updatePassword(
+        args: { id: string; password: string },
+        authUser: i.AuthUser
+    ): Promise<boolean> {
         await this._validateUserInput({ id: args.id }, authUser);
         await this._users.updatePassword(args.id, args.password);
         return true;
@@ -269,7 +284,10 @@ export class ACLManager {
      * Get the resolved type config for DataType
      */
     async resolveDataTypeConfig(args: i.ResolveDataTypeArgs, authUser: i.AuthUser) {
-        return this._dataTypes.resolveTypeConfig(args.dataType, args, this._getDataTypeQueryAccess(authUser));
+        return this._dataTypes.resolveTypeConfig(
+            args.dataType, args,
+            this._getDataTypeQueryAccess(authUser)
+        );
     }
 
     /**
@@ -289,7 +307,10 @@ export class ACLManager {
     /**
      * Create a data type
      */
-    async createDataType(args: { dataType: CreateRecordInput<models.DataType> }, authUser: i.AuthUser) {
+    async createDataType(
+        args: { dataType: CreateRecordInput<models.DataType> },
+        authUser: i.AuthUser
+    ): Promise<models.DataType> {
         await this._validateCanCreate('DataType', authUser);
         await this._validateDataTypeInput(args.dataType, authUser);
 
@@ -299,12 +320,19 @@ export class ACLManager {
     /**
      * Update a data type
      */
-    async updateDataType(args: { dataType: UpdateRecordInput<models.DataType> }, authUser: i.AuthUser) {
+    async updateDataType(
+        args: { dataType: UpdateRecordInput<models.DataType> },
+        authUser: i.AuthUser
+    ): Promise<models.DataType> {
         await this._validateCanUpdate('DataType', authUser);
         await this._validateDataTypeInput(args.dataType, authUser);
 
         await this._dataTypes.update(args.dataType);
-        return this._dataTypes.findById(args.dataType.id, {}, this._getDataTypeQueryAccess(authUser));
+        return this._dataTypes.findById(
+            args.dataType.id,
+            {},
+            this._getDataTypeQueryAccess(authUser)
+        );
     }
 
     /**
@@ -510,7 +538,10 @@ export class ACLManager {
     /**
      * Get the User's data access configuration for a "Space"
      */
-    async getViewForSpace(args: { token?: string; space: string }, authUser: i.AuthUser): Promise<i.DataAccessConfig> {
+    async getViewForSpace(
+        args: { token?: string; space: string },
+        authUser: i.AuthUser
+    ): Promise<i.DataAccessConfig> {
         // if the token is provided use the authenticated user
         const user = args.token || !authUser ? await this.authenticate(args) : authUser;
 
@@ -523,7 +554,10 @@ export class ACLManager {
             throw new ts.TSError(msg, { statusCode: 403 });
         }
 
-        const [role, space] = await Promise.all([this._roles.findById(user.role), this._spaces.findByAnyId(args.space)]);
+        const [role, space] = await Promise.all([
+            this._roles.findById(user.role),
+            this._spaces.findByAnyId(args.space)
+        ]);
 
         const hasAccess = space.roles.includes(user.role);
         if (!hasAccess) {
@@ -854,7 +888,10 @@ export class ACLManager {
 
         const authType = this._getUserType(authUser);
         const authClientId = this._getUserClientId(authUser);
-        const { client_id: currentClientId, type: currentType } = await this._getCurrentUserInfo(authUser, user);
+        const {
+            client_id: currentClientId,
+            type: currentType
+        } = await this._getCurrentUserInfo(authUser, user);
 
         const restrictedCreateTypes: models.UserType[] = ['SUPERADMIN', 'DATAADMIN'];
         if (!user.id && authType === 'ADMIN' && restrictedCreateTypes.includes(user.type!)) {
@@ -897,8 +934,8 @@ export class ACLManager {
         }
     }
 
-    private async _validateSpaceInput(_space: Partial<models.Space>, authUser: i.AuthUser) {
-        const space = await this._spaces.findAndApply(_space);
+    private async _validateSpaceInput(input: Partial<models.Space>, authUser: i.AuthUser) {
+        const space = await this._spaces.findAndApply(input);
         this._validateAnyInput(space, authUser);
 
         if (space.roles) {
@@ -928,21 +965,25 @@ export class ACLManager {
             await this._views.checkForViewConflicts(space);
         }
     }
-    private async _validateRoleInput(_role: Partial<models.Role>, authUser: i.AuthUser) {
-        const role = await this._roles.findAndApply(_role);
+
+    private async _validateRoleInput(input: Partial<models.Role>, authUser: i.AuthUser) {
+        const role = await this._roles.findAndApply(input);
         this._validateAnyInput(role, authUser);
     }
 
-    private async _validateDataTypeInput(_dataType: Partial<models.DataType>, authUser: i.AuthUser) {
-        const dataType = await this._dataTypes.findAndApply(_dataType);
+    private async _validateDataTypeInput(
+        input: Partial<models.DataType>,
+        authUser: i.AuthUser
+    ) {
+        const dataType = await this._dataTypes.findAndApply(input);
         this._validateAnyInput(dataType, authUser);
         if (dataType.inherit_from && dataType.inherit_from) {
             await this._dataTypes.resolveTypeConfig(dataType as models.DataType);
         }
     }
 
-    private async _validateViewInput(_view: Partial<models.View>, authUser: i.AuthUser) {
-        const view = await this._views.findAndApply(_view);
+    private async _validateViewInput(input: Partial<models.View>, authUser: i.AuthUser) {
+        const view = await this._views.findAndApply(input);
         this._validateAnyInput(view, authUser);
 
         if (view.roles) {
@@ -978,9 +1019,9 @@ export class ACLManager {
         const dataAdminRestricted: i.ModelName[] = ['Role'];
 
         if (
-            type === 'USER' ||
-            (type === 'ADMIN' && adminRestricted.includes(model)) ||
-            (type === 'DATAADMIN' && dataAdminRestricted.includes(model))
+            type === 'USER'
+            || (type === 'ADMIN' && adminRestricted.includes(model))
+            || (type === 'DATAADMIN' && dataAdminRestricted.includes(model))
         ) {
             throw new ts.TSError(`User doesn't have permission to create ${model}`, {
                 statusCode: 403,
@@ -1014,9 +1055,9 @@ export class ACLManager {
         const dataAdminRestricted: i.ModelName[] = ['Role'];
 
         if (
-            type === 'USER' ||
-            (type === 'ADMIN' && adminRestricted.includes(model)) ||
-            (type === 'DATAADMIN' && dataAdminRestricted.includes(model))
+            type === 'USER'
+            || (type === 'ADMIN' && adminRestricted.includes(model))
+            || (type === 'DATAADMIN' && dataAdminRestricted.includes(model))
         ) {
             throw new ts.TSError(`User doesn't have permission to remove ${model}`, {
                 statusCode: 403,

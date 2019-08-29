@@ -4,7 +4,7 @@ import TerasliceUtil from '../../src/helpers/teraslice-util';
 
 describe('teraslice-util', () => {
     let cliArgs;
-    let testTerasliceUtil:any;
+    let testTerasliceUtil: any;
 
     beforeEach(() => {
         cliArgs = {

@@ -14,13 +14,13 @@ export default class Jobs {
      * @param {object} cliConfig config object
      *
      */
-    config:any;
+    config: any;
     teraslice: TerasliceUtil;
     jobsList: string[]; // list of jobs
     jobsListInitial: string[];
     allJobsStopped: boolean;
-    activeStatus : string[];
-    jobsListChecked : string[];
+    activeStatus: string[];
+    jobsListChecked: string[];
 
     constructor(cliConfig: any) {
         this.config = cliConfig;
@@ -258,7 +258,7 @@ export default class Jobs {
         }
     }
     // TODO: fixme
-    async addWorkers(expectedJobs:any[], actualJobs:any[]) {
+    async addWorkers(expectedJobs: any[], actualJobs: any[]) {
         for (const job of actualJobs) {
             for (const expectedJob of expectedJobs) {
                 let addWorkersOnce = true;
@@ -281,7 +281,7 @@ export default class Jobs {
         }
     }
 
-    async checkWorkerCount(expectedJobs:any[], actualJobs:any[], addedWorkers = false) {
+    async checkWorkerCount(expectedJobs: any[], actualJobs: any[], addedWorkers = false) {
         let allWorkersStartedCount = 0;
         let allWorkers = false;
         let expectedWorkers = 0;
@@ -313,7 +313,7 @@ export default class Jobs {
         return allWorkers;
     }
 
-    async controllerStatus(result:any[], jobStatus:string, controllerList:any) {
+    async controllerStatus(result: any[], jobStatus: string, controllerList: any) {
         const jobs = [];
         for (const item of result) {
             // TODO, use args instead of hardcoding
@@ -327,7 +327,7 @@ export default class Jobs {
         return jobs;
     }
 
-    async checkJobsStop(statusList:any[]) {
+    async checkJobsStop(statusList: any[]) {
         const activeJobs = await this.statusCheck(statusList);
         for (const job of this.jobsList) {
             for (const cjob of activeJobs) {
@@ -341,7 +341,7 @@ export default class Jobs {
         }
     }
 
-    async checkJobsStart(statusList:any[]) {
+    async checkJobsStart(statusList: any[]) {
         const activeJobs = await this.statusCheck(statusList);
         for (const job of this.jobsList) {
             let found = false;
@@ -359,13 +359,13 @@ export default class Jobs {
         }
     }
 
-    async changeStatus(jobs:any[], action:string) {
+    async changeStatus(jobs: any[], action: string) {
         reply.info(`> Waiting for jobs to ${action}`);
         // @ts-ignore
         const response = jobs.map((job) => {
             if (action === 'stop') {
                 return this.teraslice.client.jobs.wrap(job.job_id).stop()
-                    .then((stopResponse:any) => {
+                    .then((stopResponse: any) => {
                         if (stopResponse.status.status === 'stopped' || stopResponse.status === 'stopped') {
                             return display.setAction(action, 'past')
                                 .then((setActionResult) => {
@@ -380,7 +380,7 @@ export default class Jobs {
             }
             if (action === 'start') {
                 return this.teraslice.client.jobs.wrap(job.job_id).start()
-                    .then((startResponse:any) => {
+                    .then((startResponse: any) => {
                         if (startResponse.job_id === job.job_id) {
                             return display.setAction(action, 'past')
                                 .then((setActionResult) => {
@@ -395,7 +395,7 @@ export default class Jobs {
             }
             if (action === 'resume') {
                 return this.teraslice.client.jobs.wrap(job.job_id).resume()
-                    .then((resumeResponse:any) => {
+                    .then((resumeResponse: any) => {
                         if (resumeResponse.status.status === 'running' || resumeResponse.status === 'running') {
                             return display.setAction(action, 'past')
                                 .then((setActionResult) => {
@@ -410,7 +410,7 @@ export default class Jobs {
             }
             if (action === 'pause') {
                 return this.teraslice.client.jobs.wrap(job.job_id).pause()
-                    .then((pauseResponse:any) => {
+                    .then((pauseResponse: any) => {
                         if (pauseResponse.status.status === 'paused' || pauseResponse.status === 'paused') {
                             return display.setAction(action, 'past')
                                 .then((setActionResult) => {

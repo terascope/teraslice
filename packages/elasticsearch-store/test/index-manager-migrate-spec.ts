@@ -48,7 +48,10 @@ describe('IndexManager->migrateIndex()', () => {
         const previousIndex = indexManager.formatIndexName(previousConfig);
 
         beforeAll(async () => {
-            await Promise.all([cleanupIndex(client, newIndex), cleanupIndex(client, previousIndex)]);
+            await Promise.all([
+                cleanupIndex(client, newIndex),
+                cleanupIndex(client, previousIndex)
+            ]);
 
             await indexManager.indexSetup(previousConfig);
             const body: any[] = [];
@@ -80,7 +83,10 @@ describe('IndexManager->migrateIndex()', () => {
         });
 
         afterAll(async () => {
-            await Promise.all([cleanupIndex(client, newIndex), cleanupIndex(client, previousIndex)]);
+            await Promise.all([
+                cleanupIndex(client, newIndex),
+                cleanupIndex(client, previousIndex)
+            ]);
             client.close();
         });
 

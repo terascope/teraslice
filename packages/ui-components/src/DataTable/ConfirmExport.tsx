@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Modal, Button, Header, Icon } from 'semantic-ui-react';
+import {
+    Modal, Button, Header, Icon
+} from 'semantic-ui-react';
 
 const ConfirmExport: React.FC<Props> = ({
     children,
@@ -18,7 +20,12 @@ const ConfirmExport: React.FC<Props> = ({
         >
             <Header icon="download" content="Export records" />
             <Modal.Content>
-                <p>Are you sure you want to export {numSelected} records</p>
+                <p>
+Are you sure you want to export
+                    {numSelected}
+                    {' '}
+records
+                </p>
             </Modal.Content>
             <Modal.Actions>
                 <Button basic onClick={() => setOpen(false)}>
@@ -31,7 +38,9 @@ const ConfirmExport: React.FC<Props> = ({
                         onConfirm();
                     }}
                 >
-                    <Icon name="check" /> Yes
+                    <Icon name="check" />
+                    {' '}
+Yes
                 </Button>
             </Modal.Actions>
         </Modal>

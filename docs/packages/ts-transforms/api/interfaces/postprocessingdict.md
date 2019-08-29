@@ -11,4 +11,4 @@ sidebar_label: PostProcessingDict
 
 ## Indexable
 
-● \[▪ **field**: *string*\]: [PostProcessConfig](postprocessconfig.md)[]
+* \[ **field**: *string*\]: [PostProcessConfig](postprocessconfig.md)[]

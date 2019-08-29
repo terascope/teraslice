@@ -205,10 +205,12 @@ export type CreateRecordInput<T extends IndexModelRecord> = Omit<T, keyof IndexM
     client_id: number;
 };
 
-export type UpdateRecordInput<T extends IndexModelRecord> = Partial<Omit<T, keyof IndexModelRecord>> & {
-    client_id?: number;
-    id: string;
-};
+export type UpdateRecordInput<T extends IndexModelRecord> =
+    Partial<Omit<T, keyof IndexModelRecord>>
+    & {
+        client_id?: number;
+        id: string;
+    };
 
 export interface IndexModelConfig<T extends IndexModelRecord> {
     /** Schema Version */

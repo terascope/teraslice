@@ -11,7 +11,7 @@ sidebar_label: SliceRequest
 
 ## Indexable
 
-● \[▪ **prop**: *string*\]: any
+* \[ **prop**: *string*\]: any
 
 ## Index
 
@@ -25,4 +25,4 @@ sidebar_label: SliceRequest
 
 • **request_worker**? : *undefined | string*
 
-*Defined in [execution-controller/interfaces.ts:54](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L54)*
+*Defined in [execution-controller/interfaces.ts:53](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L53)*

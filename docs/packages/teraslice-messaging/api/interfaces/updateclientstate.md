@@ -21,9 +21,9 @@ sidebar_label: UpdateClientState
 
 ### `Optional` error
 
-• **error**? : *`Error` | string*
+• **error**? : *Error | string*
 
-*Defined in [messenger/interfaces.ts:71](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L71)*
+*Defined in [messenger/interfaces.ts:69](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L69)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **payload**? : *[Payload](payload.md)*
 
-*Defined in [messenger/interfaces.ts:72](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L72)*
+*Defined in [messenger/interfaces.ts:70](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L70)*
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **state**: *[ClientState](../enums/clientstate.md)*
 
-*Defined in [messenger/interfaces.ts:70](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L70)*
+*Defined in [messenger/interfaces.ts:68](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L68)*

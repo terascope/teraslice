@@ -12,7 +12,7 @@ let statusResponse = null;
 // @ts-ignore
 
 let waitStatus = null;
-let job:any = {};
+let job: any = {};
 
 const client = {
     jobs: {

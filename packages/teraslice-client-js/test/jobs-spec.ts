@@ -7,8 +7,8 @@ import Jobs from '../src/jobs';
 import { JobsGetResponse, ExecutionStatus } from '../src/interfaces';
 
 describe('Teraslice Jobs', () => {
-    let jobs:Jobs;
-    let scope:nock.Scope;
+    let jobs: Jobs;
+    let scope: nock.Scope;
 
     beforeEach(() => {
         jobs = new Jobs({
@@ -28,7 +28,7 @@ describe('Teraslice Jobs', () => {
         {
             analytics: false,
             assets: [],
-            assetIds:[],
+            assetIds: [],
             lifecycle: 'once',
             max_retries: 3,
             name: 'some_name',
@@ -164,7 +164,6 @@ describe('Teraslice Jobs', () => {
 
     describe('->list', () => {
         describe('when called with nothing', () => {
-
             beforeEach(() => {
                 scope.get('/jobs')
                     .query({ status: '*' })

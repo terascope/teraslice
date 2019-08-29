@@ -1,5 +1,3 @@
-
-import _ from 'lodash';
 import { DataEntity } from '@terascope/utils';
 import * as url from 'valid-url';
 import { PostProcessConfig } from '../../../interfaces';

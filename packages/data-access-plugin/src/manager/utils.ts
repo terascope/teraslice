@@ -1,7 +1,9 @@
 import { Request } from 'express';
 import * as ts from '@terascope/utils';
 import * as apollo from 'apollo-server-express';
-import { User, ACLManager, ModelName, AnyModel } from '@terascope/data-access';
+import {
+    User, ACLManager, ModelName, AnyModel
+} from '@terascope/data-access';
 
 export function forEachModel(fn: (model: ModelName) => void) {
     const models: ModelName[] = ['User', 'Role', 'DataType', 'Space', 'View'];
@@ -75,7 +77,11 @@ function isSameUser(user: User, creds: Creds): boolean {
     return true;
 }
 
-export async function login(manager: ACLManager, req: Request, storeInSession = true): Promise<User> {
+export async function login(
+    manager: ACLManager,
+    req: Request,
+    storeInSession = true
+): Promise<User> {
     try {
         const loggedInUser = getLoggedInUser(req);
         const creds = getCredentialsFromReq(req);
@@ -123,7 +129,10 @@ export function getCredentialsFromReq(req: Request): Creds {
     return {};
 }
 
-export async function findAll<T extends AnyModel>(ids: string[] | undefined, fn: (query: string) => Promise<T[]>): Promise<T[]> {
+export async function findAll<T extends AnyModel>(
+    ids: string[] | undefined,
+    fn: (query: string) => Promise<T[]>
+): Promise<T[]> {
     const _ids = ts.castArray(ids || []).filter((id) => !!id);
     if (!_ids.length) return [];
 

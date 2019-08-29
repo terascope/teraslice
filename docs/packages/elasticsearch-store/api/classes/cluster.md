@@ -30,15 +30,15 @@ Get Cluster Metadata and Stats
 
 ###  constructor
 
-\+ **new Cluster**(`client`: `Client`): *[Cluster](cluster.md)*
+\+ **new Cluster**(`client`: Client): *[Cluster](cluster.md)*
 
-*Defined in [cluster.ts:5](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/cluster.ts#L5)*
+*Defined in [cluster.ts:5](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/cluster.ts#L5)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`client` | `Client` |
+`client` | Client |
 
 **Returns:** *[Cluster](cluster.md)*
 
@@ -46,17 +46,17 @@ Name | Type |
 
 ###  client
 
-• **client**: *`Client`*
+• **client**: *Client*
 
-*Defined in [cluster.ts:5](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/cluster.ts#L5)*
+*Defined in [cluster.ts:5](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/cluster.ts#L5)*
 
 ## Methods
 
 ###  nodeInfo
 
-▸ **nodeInfo**(`params`: `NodesInfoParams`): *`Promise<void>`*
+▸ **nodeInfo**(`_params`: NodesInfoParams): *Promise‹void›*
 
-*Defined in [cluster.ts:14](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/cluster.ts#L14)*
+*Defined in [cluster.ts:14](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/cluster.ts#L14)*
 
 Get the Cluster Nodes Info
 
@@ -64,17 +64,17 @@ Get the Cluster Nodes Info
 
 Name | Type |
 ------ | ------ |
-`params` | `NodesInfoParams` |
+`_params` | NodesInfoParams |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ###  nodeStats
 
-▸ **nodeStats**(`params`: `NodesStatsParams`): *`Promise<void>`*
+▸ **nodeStats**(`_params`: NodesStatsParams): *Promise‹void›*
 
-*Defined in [cluster.ts:21](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/elasticsearch-store/src/cluster.ts#L21)*
+*Defined in [cluster.ts:21](https://github.com/terascope/teraslice/blob/d2d877b60/packages/elasticsearch-store/src/cluster.ts#L21)*
 
 Get the Cluster Nodes Stats
 
@@ -82,6 +82,6 @@ Get the Cluster Nodes Stats
 
 Name | Type |
 ------ | ------ |
-`params` | `NodesStatsParams` |
+`_params` | NodesStatsParams |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*

@@ -16,7 +16,7 @@ export function coercePkgArg(input: CoercePkgInput): PackageInfo[] {
     const packages = listPackages();
 
     for (const name of names) {
-        let folderName: string = '';
+        let folderName = '';
         if (fs.existsSync(path.resolve(name))) {
             folderName = path.basename(path.resolve(name));
         }

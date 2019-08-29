@@ -1,4 +1,8 @@
-import { DataEntity, isInteger, isFunction, toString } from '@terascope/utils';
+/* eslint-disable max-classes-per-file */
+
+import {
+    DataEntity, isInteger, isFunction, toString
+} from '@terascope/utils';
 import {
     Context,
     LegacyExecutionContext,
@@ -43,7 +47,12 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
                     }
                 }
 
-                this.slicerFns = await legacy.newSlicer(this.context, executionContext, recoveryData, this.logger);
+                this.slicerFns = await legacy.newSlicer(
+                    this.context,
+                    executionContext,
+                    recoveryData,
+                    this.logger
+                );
 
                 await super.initialize(recoveryData);
             }
@@ -66,7 +75,11 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
             private fetcherFn: ReaderFn<DataEntity[]> | undefined;
 
             async initialize() {
-                this.fetcherFn = await legacy.newReader(this.context, this.opConfig, this.executionConfig);
+                this.fetcherFn = await legacy.newReader(
+                    this.context,
+                    this.opConfig,
+                    this.executionConfig
+                );
             }
 
             async handle(sliceRequest: SliceRequest): Promise<DataEntity[]> {

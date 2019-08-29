@@ -7,7 +7,7 @@ import { DataAccessConfig } from './interfaces';
  * @todo implement this
 */
 export class StreamAccess<T extends object> {
-    constructor(acl: DataAccessConfig) {
+    constructor(_acl: DataAccessConfig) {
 
     }
 

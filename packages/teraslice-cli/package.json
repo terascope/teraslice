@@ -1,6 +1,6 @@
 {
     "name": "teraslice-cli",
-    "version": "0.8.0",
+    "version": "0.8.1",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "teraslice"
@@ -14,6 +14,7 @@
     "author": "Terascope, LLC <info@terascope.io>",
     "files": [
         "bin/**/*",
+        "generator-templates/**/*",
         "dist/src/**/*"
     ],
     "main": "dist/src/command.js",
@@ -27,10 +28,8 @@
         "test": "test"
     },
     "scripts": {
-        "build": "tsc --build --pretty",
+        "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "lint": "tslint -p tsconfig.json -t verbose -e '**/*.json'",
-        "lint:fix": "yarn lint --fix",
         "prepublishOnly": "yarn build",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
@@ -38,7 +37,7 @@
     },
     "dependencies": {
         "@terascope/fetch-github-release": "^0.6.0",
-        "@terascope/utils": "0.16.1",
+        "@terascope/utils": "^0.17.0",
         "archiver": "^3.0.0",
         "bluebird": "^3.5.5",
         "chalk": "^2.4.2",
@@ -52,7 +51,7 @@
         "request": "^2.88.0",
         "request-promise": "^4.2.4",
         "signale": "^1.4.0",
-        "teraslice-client-js": "^0.8.0",
+        "teraslice-client-js": "^0.8.1",
         "tmp": "^0.1.0",
         "tty-table": "^2.7.4",
         "yargs": "^13.2.4",
@@ -66,7 +65,7 @@
         "@types/prompts": "^2.0.1",
         "@types/signale": "^1.2.1",
         "@types/tmp": "^0.1.0",
-        "@types/yargs": "^13.0.0",
+        "@types/yargs": "^13.0.2",
         "@types/yeoman-assert": "^3.1.1",
         "@types/yeoman-environment": "^2.3.2",
         "@types/yeoman-generator": "^3.1.4",
@@ -81,7 +80,8 @@
     "pkg": {
         "scripts": "cmds/**/*.js",
         "assets": [
-            "generators/**/templates/*"
+            "package.json",
+            "generators-templates/**/*"
         ]
     },
     "srcMain": "src/index.ts",

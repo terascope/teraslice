@@ -1,5 +1,5 @@
-import DateType from '../../../src/types/versions/v1/date';
 import { TSError } from '@terascope/utils';
+import DateType from '../../../src/types/versions/v1/date';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Date V1', () => {

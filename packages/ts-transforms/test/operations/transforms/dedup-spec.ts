@@ -1,5 +1,5 @@
-import { Dedup } from '../../../src/operations';
 import { DataEntity } from '@terascope/utils';
+import { Dedup } from '../../../src/operations';
 
 describe('Dedup operator', () => {
     it('can instantiate', () => {
@@ -32,7 +32,9 @@ describe('Dedup operator', () => {
     });
 
     it('can dedup an array of values', () => {
-        const opConfig = { post_process: 'dedup', source_field: 'array', target_field: 'array', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            post_process: 'dedup', source_field: 'array', target_field: 'array', __id: 'someId', follow: 'otherId'
+        };
         const test = new Dedup(opConfig);
         const data = new DataEntity({ array: ['hello', 'hello', 'world', 'world', 'hi'] });
         const results = test.run(data);
@@ -42,7 +44,9 @@ describe('Dedup operator', () => {
     });
 
     it('dedup any other value will just pass it through', () => {
-        const opConfig = { post_process: 'dedup', source_field: 'array', target_field: 'array', __id: 'someId', follow: 'otherId' };
+        const opConfig = {
+            post_process: 'dedup', source_field: 'array', target_field: 'array', __id: 'someId', follow: 'otherId'
+        };
         const test = new Dedup(opConfig);
 
         const data1 = new DataEntity({ array: 'hello' });

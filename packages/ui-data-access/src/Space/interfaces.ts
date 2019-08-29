@@ -1,22 +1,24 @@
-import { Space, Role, DataType, View, SpaceSearchConfig, SpaceConfigType } from '@terascope/data-access';
+import {
+    Space, Role, DataType, View, SpaceSearchConfig, SpaceConfigType
+} from '@terascope/data-access';
 import { Overwrite } from '@terascope/utils';
 import { OverwriteModelWith } from '../ModelForm';
 
 type SpaceDataType = Overwrite<
-    Pick<DataType, 'id' | 'client_id' | 'name'>,
-    {
-        views: Pick<View, 'id' | 'name'>[];
-    }
+Pick<DataType, 'id' | 'client_id' | 'name'>,
+{
+    views: Pick<View, 'id' | 'name'>[];
+}
 >;
 
 export type Input = OverwriteModelWith<
-    Space,
-    {
-        views: Pick<View, 'id' | 'name'>[];
-        roles: Pick<Role, 'id' | 'name'>[];
-        data_type: SpaceDataType;
-        config: SpaceSearchConfig;
-    }
+Space,
+{
+    views: Pick<View, 'id' | 'name'>[];
+    roles: Pick<Role, 'id' | 'name'>[];
+    data_type: SpaceDataType;
+    config: SpaceSearchConfig;
+}
 >;
 
 export const inputFields: (keyof Input)[] = [

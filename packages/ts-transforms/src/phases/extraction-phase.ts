@@ -1,14 +1,23 @@
+/* eslint-disable @typescript-eslint/prefer-for-of */
 
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
-import  { hasKeys } from './utils';
-import { WatcherConfig, ExtractionProcessingDict, OperationsPipline, Operation } from '../interfaces';
+import { hasKeys } from './utils';
+import {
+    WatcherConfig,
+    ExtractionProcessingDict,
+    OperationsPipline,
+    Operation
+} from '../interfaces';
 import PhaseBase from './base';
 import { OperationsManager } from '../operations';
 
 export default class ExtractionPhase extends PhaseBase {
-
-    constructor(opConfig: WatcherConfig, configList:ExtractionProcessingDict, opsManager: OperationsManager) {
+    constructor(
+        opConfig: WatcherConfig,
+        configList: ExtractionProcessingDict,
+        opsManager: OperationsManager
+    ) {
         super(opConfig);
         this.opConfig = opConfig;
         const Extraction = opsManager.getTransform('extraction');
@@ -43,14 +52,22 @@ function createTargetResults(input: DataEntity) {
     };
 }
 
-function runExtractions(phase: OperationsPipline, doc: DataEntity, results: { entity: DataEntity, metadata: any }) {
+function runExtractions(
+    phase: OperationsPipline,
+    doc: DataEntity,
+    results: { entity: DataEntity; metadata: any }
+): { entity: DataEntity; metadata: any } {
     for (let i = 0; i < results.metadata.selectors.length; i++) {
         runSelectorExtraction(phase[results.metadata.selectors[i]], doc, results);
     }
     return results;
 }
 
-function runSelectorExtraction(selectorPhase: Operation[], doc: DataEntity, results: { entity: DataEntity, metadata: any }) {
+function runSelectorExtraction(
+    selectorPhase: Operation[],
+    doc: DataEntity,
+    results: { entity: DataEntity; metadata: any }
+): void {
     for (let i = 0; i < selectorPhase.length; i++) {
         // @ts-ignore
         selectorPhase[i].extractionPhaseRun(doc, results);

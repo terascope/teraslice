@@ -23,17 +23,17 @@ sidebar_label: RulesValidator
 
 ###  constructor
 
-\+ **new RulesValidator**(`configList`: [OperationConfig](../overview.md#operationconfig)[], `opsManager`: `OperationsManager`, `logger`: `Logger`): *[RulesValidator](rulesvalidator.md)*
+\+ **new RulesValidator**(`configList`: [OperationConfig](../overview.md#operationconfig)[], `opsManager`: OperationsManager, `logger`: Logger): *[RulesValidator](rulesvalidator.md)*
 
-*Defined in [loader/rules-validator.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/loader/rules-validator.ts#L11)*
+*Defined in [loader/rules-validator.ts:9](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/loader/rules-validator.ts#L9)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `configList` | [OperationConfig](../overview.md#operationconfig)[] |
-`opsManager` | `OperationsManager` |
-`logger` | `Logger` |
+`opsManager` | OperationsManager |
+`logger` | Logger |
 
 **Returns:** *[RulesValidator](rulesvalidator.md)*
 
@@ -43,6 +43,6 @@ Name | Type |
 
 ▸ **validate**(): *[ValidationResults](../interfaces/validationresults.md)*
 
-*Defined in [loader/rules-validator.ts:19](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/ts-transforms/src/loader/rules-validator.ts#L19)*
+*Defined in [loader/rules-validator.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/loader/rules-validator.ts#L17)*
 
 **Returns:** *[ValidationResults](../interfaces/validationresults.md)*

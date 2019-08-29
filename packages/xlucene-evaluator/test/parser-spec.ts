@@ -33,7 +33,6 @@ describe('Parser', () => {
 
     describe('when given a invalid query "(ba"', () => {
         it('should throw an error', () => {
-            // tslint:disable-next-line: max-line-length
             const errMsg = [
                 'Failure to parse xlucene query "(ba",',
                 'caused by SyntaxError: Expected ")", field, term, or whitespace but end of input found.',
@@ -47,8 +46,7 @@ describe('Parser', () => {
 
     describe('when given a invalid query "AND foo:bar"', () => {
         it('should throw an error', () => {
-            const errMsg =
-                'Failure to parse xlucene query "AND foo:bar", caused by SyntaxError: Expected term, or whitespace but ":" found.';
+            const errMsg = 'Failure to parse xlucene query "AND foo:bar", caused by SyntaxError: Expected term, or whitespace but ":" found.';
             expect(() => {
                 new Parser('AND foo:bar');
             }).toThrowWithMessage(TSError, errMsg);
@@ -57,8 +55,7 @@ describe('Parser', () => {
 
     describe('when given a invalid query "OR foo:bar"', () => {
         it('should throw an error', () => {
-            const errMsg =
-                'Failure to parse xlucene query "OR foo:bar", caused by SyntaxError: Expected term, or whitespace but ":" found.';
+            const errMsg = 'Failure to parse xlucene query "OR foo:bar", caused by SyntaxError: Expected term, or whitespace but ":" found.';
             expect(() => {
                 new Parser('OR foo:bar');
             }).toThrowWithMessage(TSError, errMsg);

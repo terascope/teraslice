@@ -1,6 +1,4 @@
-
 import { CMD } from '../../interfaces';
-import _ from 'lodash';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 import Jobs from '../../helpers/jobs';
@@ -13,7 +11,7 @@ export = {
     // TODO: is it [id] or <id>
     command: 'status <cluster-alias>',
     describe: 'List the job status of running and failing job.\n',
-    builder(yargs:any) {
+    builder(yargs: any) {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
         yargs.options('status', yargsOptions.buildOption('jobs-status'));

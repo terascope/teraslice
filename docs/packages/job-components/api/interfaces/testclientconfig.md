@@ -24,15 +24,15 @@ sidebar_label: TestClientConfig
 
 • **config**? : *undefined | object*
 
-*Defined in [test-helpers.ts:86](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/test-helpers.ts#L86)*
+*Defined in [test-helpers.ts:95](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/test-helpers.ts#L95)*
 
 ___
 
 ###  create
 
-• **create**: *`i.ClientFactoryFn`*
+• **create**: *i.ClientFactoryFn*
 
-*Defined in [test-helpers.ts:85](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/test-helpers.ts#L85)*
+*Defined in [test-helpers.ts:94](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/test-helpers.ts#L94)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **endpoint**? : *undefined | string*
 
-*Defined in [test-helpers.ts:87](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/test-helpers.ts#L87)*
+*Defined in [test-helpers.ts:96](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/test-helpers.ts#L96)*
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **type**: *string*
 
-*Defined in [test-helpers.ts:84](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/test-helpers.ts#L84)*
+*Defined in [test-helpers.ts:93](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/test-helpers.ts#L93)*

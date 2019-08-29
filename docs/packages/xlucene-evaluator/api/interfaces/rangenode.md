@@ -15,19 +15,19 @@ sidebar_label: RangeNode
 
 ### Properties
 
-* [data_type](rangenode.md#data_type)
+* [field_type](rangenode.md#field_type)
 * [operator](rangenode.md#operator)
 * [value](rangenode.md#value)
 
 ## Properties
 
-###  data_type
+###  field_type
 
-• **data_type**: *"number" | "integer" | "float"*
+• **field_type**: *[Integer](../enums/fieldtype.md#integer) | [Float](../enums/fieldtype.md#float)*
 
-*Inherited from [NumberDataType](numberdatatype.md).[data_type](numberdatatype.md#data_type)*
+*Inherited from [NumberDataType](numberdatatype.md).[field_type](numberdatatype.md#field_type)*
 
-*Defined in [parser/interfaces.ts:56](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L56)*
+*Defined in [parser/interfaces.ts:88](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L88)*
 
 ___
 
@@ -35,7 +35,7 @@ ___
 
 • **operator**: *[RangeOperator](../overview.md#rangeoperator)*
 
-*Defined in [parser/interfaces.ts:102](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L102)*
+*Defined in [parser/interfaces.ts:134](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L134)*
 
 ___
 
@@ -45,4 +45,4 @@ ___
 
 *Inherited from [NumberDataType](numberdatatype.md).[value](numberdatatype.md#value)*
 
-*Defined in [parser/interfaces.ts:57](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/parser/interfaces.ts#L57)*
+*Defined in [parser/interfaces.ts:89](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L89)*

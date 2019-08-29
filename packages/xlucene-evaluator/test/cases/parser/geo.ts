@@ -38,7 +38,6 @@ export default [
             unit: 'meters',
         },
     ],
-    // tslint:disable-next-line: max-line-length
     [
         'location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")',
         'a geo point query top left and bottom right',

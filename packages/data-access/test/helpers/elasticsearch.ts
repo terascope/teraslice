@@ -28,6 +28,7 @@ export function cleanupIndex(model: Model) {
 
 export function cleanupIndexes(manager: ACLManager) {
     // @ts-ignore
+    // eslint-disable-next-line
     const models = [manager._roles, manager._spaces, manager._users, manager._views, manager._dataTypes];
     return Promise.all(models.map(cleanupIndex));
 }

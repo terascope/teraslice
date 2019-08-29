@@ -11,9 +11,9 @@ sidebar_label: MessageHandler
 
 ## Callable
 
-▸ (`msg`: [Message](message.md)): *`Promise<Payload | void>` | [Payload](payload.md) | void*
+▸ (`msg`: [Message](message.md)): *Promise‹[Payload](payload.md) | void› | [Payload](payload.md) | void*
 
-*Defined in [messenger/interfaces.ts:101](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L101)*
+*Defined in [messenger/interfaces.ts:98](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L98)*
 
 **Parameters:**
 
@@ -21,4 +21,4 @@ Name | Type |
 ------ | ------ |
 `msg` | [Message](message.md) |
 
-**Returns:** *`Promise<Payload | void>` | [Payload](payload.md) | void*
+**Returns:** *Promise‹[Payload](payload.md) | void› | [Payload](payload.md) | void*

@@ -1,4 +1,3 @@
-
 import _ from 'lodash';
 import Config from '../../helpers/config';
 import TjmUtil from '../../helpers/tjm-util';
@@ -15,7 +14,7 @@ export = {
     command: 'register <cluster-alias> <job-file>',
     describe: 'Register a job to a cluster from a job file',
     aliases: ['reg'],
-    builder (yargs) {
+    builder(yargs) {
         yargs.positional('cluster-alias', yargsOptions.buildPositional('cluster-alias'));
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('start', yargsOptions.buildOption('start'));
@@ -23,9 +22,9 @@ export = {
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         // @ts-ignore
         yargs.example('$0 tjm register localhost new-job.json');
-         // @ts-ignore
+        // @ts-ignore
         yargs.example('$0 tjm register localhost new-job.json --start');
-         // @ts-ignore
+        // @ts-ignore
         yargs.example('$0 tjm reg localhost new-job.json --start');
         return yargs;
     },

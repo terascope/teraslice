@@ -29,14 +29,18 @@ export type Override<T1, T2 extends { [P in keyof T2]: P extends keyof T1 ? T2[P
  *
  * @example `Required<{ a: number, b: number }, 'b'>`
  */
-export type Required<T, K extends keyof T> = { [P in keyof T]: P extends K ? NonNullable<T[P]> : (NonNullable<T[P]> | undefined) };
+export type Required<T, K extends keyof T> = {
+    [P in keyof T]: P extends K ? NonNullable<T[P]> : (NonNullable<T[P]> | undefined)
+};
 
 /**
  * Like Partial but makes certain properties optional
  *
  * @example `Optional<{ a: number, b: number }, 'b'>`
  */
-export type Optional<T, K extends keyof T> = { [P in keyof T]: P extends K ? (NonNullable<T[P]> | undefined) : NonNullable<T[P]> };
+export type Optional<T, K extends keyof T> = {
+    [P in keyof T]: P extends K ? (NonNullable<T[P]> | undefined) : NonNullable<T[P]>
+};
 
 /**
  * Without null or undefined properties
@@ -44,6 +48,7 @@ export type Optional<T, K extends keyof T> = { [P in keyof T]: P extends K ? (No
 export type WithoutNil<T> = { [P in keyof T]: T[P] extends (undefined | null) ? never : T[P] };
 
 /** A simple definitions of array */
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Many<T> extends Array<T> {}
 
 /** A simple object with any values */

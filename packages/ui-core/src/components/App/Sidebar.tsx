@@ -24,15 +24,13 @@ const SidebarMenuIcon = tsWithRouter<any>(({ icon, color, open }) => {
     return <Icon className={className} {...props} />;
 });
 
-const SidebarToggleIcon: React.FC<{ open: boolean }> = ({ open }) => {
-    return (
-        <SidebarMenuIcon
-            icon={`chevron ${!open ? 'right' : 'left'}`}
-            color="grey"
-            open={open}
-        />
-    );
-};
+const SidebarToggleIcon: React.FC<{ open: boolean }> = ({ open }) => (
+    <SidebarMenuIcon
+        icon={`chevron ${!open ? 'right' : 'left'}`}
+        color="grey"
+        open={open}
+    />
+);
 
 const makePluginLinks = (
     history: History,

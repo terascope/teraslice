@@ -1,6 +1,4 @@
-
 import validator from 'validator';
-import _ from 'lodash';
 import ValidationOpBase from './base';
 import { PostProcessConfig } from '../../../interfaces';
 
@@ -12,7 +10,7 @@ export default class Uuid extends ValidationOpBase<any> {
         this.case = config.case || 'lowercase';
     }
 
-    normalize(doc:any) {
+    normalize(doc: any) {
         if (typeof doc !== 'string') throw new Error('field must be a string');
         let results = doc;
         if (this.case === 'lowercase') results = results.toLowerCase();

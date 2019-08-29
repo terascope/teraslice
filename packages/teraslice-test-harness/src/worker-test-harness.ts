@@ -91,10 +91,21 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
      *
      * @returns an Array of DataEntities or a SliceResult
      */
-    async runSlice(input: Slice | SliceRequest): Promise<DataEntity[]>;
-    async runSlice(input: Slice | SliceRequest, options: { fullResponse: false }): Promise<DataEntity[]>;
-    async runSlice(input: Slice | SliceRequest, options: { fullResponse: true }): Promise<RunSliceResult>;
-    async runSlice(input: Slice | SliceRequest, { fullResponse = false } = {}): Promise<DataEntity[] | RunSliceResult> {
+    async runSlice(
+        input: Slice | SliceRequest
+    ): Promise<DataEntity[]>;
+    async runSlice(
+        input: Slice | SliceRequest,
+        options: { fullResponse: false }
+    ): Promise<DataEntity[]>;
+    async runSlice(
+        input: Slice | SliceRequest,
+        options: { fullResponse: true }
+    ): Promise<RunSliceResult>;
+    async runSlice(
+        input: Slice | SliceRequest,
+        { fullResponse = false } = {}
+    ): Promise<DataEntity[] | RunSliceResult> {
         const slice: Slice = isSlice(input) ? input : newTestSlice(input);
 
         await this.executionContext.initializeSlice(slice);

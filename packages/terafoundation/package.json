@@ -22,7 +22,7 @@
     },
     "dependencies": {
         "@terascope/elasticsearch-api": "^2.1.4",
-        "@terascope/utils": "^0.16.1",
+        "@terascope/utils": "^0.17.0",
         "aws-sdk": "^2.513.0",
         "bluebird": "^3.5.5",
         "bunyan": "^1.8.12",

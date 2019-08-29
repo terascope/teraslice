@@ -29,17 +29,16 @@ sidebar_label: Translator
 
 ###  constructor
 
-\+ **new Translator**(`input`: string | [Parser](parser.md), `typeConfig?`: [TypeConfig](../interfaces/typeconfig.md), `logger?`: `Logger`): *[Translator](translator.md)*
+\+ **new Translator**(`input`: string | [Parser](parser.md), `options`: i.TranslatorOptions): *[Translator](translator.md)*
 
-*Defined in [translator/translator.ts:13](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/translator.ts#L13)*
+*Defined in [translator/translator.ts:16](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/translator/translator.ts#L16)*
 
 **Parameters:**
 
-Name | Type |
------- | ------ |
-`input` | string \| [Parser](parser.md) |
-`typeConfig?` | [TypeConfig](../interfaces/typeconfig.md) |
-`logger?` | `Logger` |
+Name | Type | Default |
+------ | ------ | ------ |
+`input` | string \| [Parser](parser.md) | - |
+`options` | i.TranslatorOptions |  {} |
 
 **Returns:** *[Translator](translator.md)*
 
@@ -47,9 +46,9 @@ Name | Type |
 
 ###  logger
 
-• **logger**: *`Logger`*
+• **logger**: *Logger*
 
-*Defined in [translator/translator.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/translator.ts#L11)*
+*Defined in [translator/translator.ts:11](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/translator/translator.ts#L11)*
 
 ___
 
@@ -57,7 +56,7 @@ ___
 
 • **query**: *string*
 
-*Defined in [translator/translator.ts:10](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/translator.ts#L10)*
+*Defined in [translator/translator.ts:10](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/translator/translator.ts#L10)*
 
 ___
 
@@ -65,14 +64,20 @@ ___
 
 • **typeConfig**? : *[TypeConfig](../interfaces/typeconfig.md)*
 
-*Defined in [translator/translator.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/translator.ts#L12)*
+*Defined in [translator/translator.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/translator/translator.ts#L12)*
 
 ## Methods
 
 ###  toElasticsearchDSL
 
-▸ **toElasticsearchDSL**(): *`i.ElasticsearchDSLResult`*
+▸ **toElasticsearchDSL**(`opts`: i.ElasticsearchDSLOptions): *i.ElasticsearchDSLResult*
 
-*Defined in [translator/translator.ts:28](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/xlucene-evaluator/src/translator/translator.ts#L28)*
+*Defined in [translator/translator.ts:46](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/translator/translator.ts#L46)*
 
-**Returns:** *`i.ElasticsearchDSLResult`*
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`opts` | i.ElasticsearchDSLOptions |  {} |
+
+**Returns:** *i.ElasticsearchDSLResult*

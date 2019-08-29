@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-for-of */
 
 import _ from 'lodash';
 import { DataEntity, matchAll } from '@terascope/utils';
@@ -7,7 +8,7 @@ function isMutation(configs: ExtractionConfig[]): boolean {
     return _.some(configs, 'mutate');
 }
 
-function getSubslice(start:string, end: string) {
+function getSubslice(start: string, end: string) {
     return (data: string) => {
         const indexStart = data.indexOf(start);
         if (indexStart !== -1) {
@@ -21,10 +22,9 @@ function getSubslice(start:string, end: string) {
     };
 }
 
-type Cb = (data:any) => string|string[]|null;
+type Cb = (data: any) => string|string[]|null;
 
 function extractField(data: any, fn: Cb, isMultiValue = true) {
-
     if (typeof data === 'string') {
         return fn(data);
     }
@@ -32,7 +32,7 @@ function extractField(data: any, fn: Cb, isMultiValue = true) {
     if (Array.isArray(data)) {
         const results: string[] = [];
 
-        data.forEach((subData:any) => {
+        data.forEach((subData: any) => {
             if (typeof subData === 'string') {
                 const extractedSlice = fn(subData);
                 if (extractedSlice) {
@@ -55,7 +55,7 @@ function extractField(data: any, fn: Cb, isMultiValue = true) {
 }
 
 function matchRegex(config: ExtractionConfig) {
-    return (data:string) => {
+    return (data: string) => {
         const results = matchAll(config.regex as string, data);
         if (config.multivalue) return results;
         return results ? results[0] : results;
@@ -72,7 +72,7 @@ function extractAndTransferFields(data: any, dest: DataEntity, config: Extractio
         } else if (config.start && config.end) {
             const { start, end } = config;
             const sliceString = getSubslice(start, end);
-            extractedResult =  extractField(data, sliceString, config.multivalue);
+            extractedResult = extractField(data, sliceString, config.multivalue);
         } else {
             extractedResult = data;
         }
@@ -96,7 +96,7 @@ function getData(config: ExtractionConfig, record: DataEntity) {
 }
 
 export default class Extraction {
-    private isMutation: Boolean;
+    private isMutation: boolean;
     private configs: ExtractionConfig[];
 
     static cardinality: InputOutputCardinality = 'one-to-one';
@@ -140,7 +140,7 @@ export default class Extraction {
         return null;
     }
 
-    extractionPhaseRun(doc: DataEntity, results: { entity: DataEntity, metadata: any }) {
+    extractionPhaseRun(doc: DataEntity, results: { entity: DataEntity; metadata: any }) {
         for (let i = 0; i < this.configs.length; i += 1) {
             const data = getData(this.configs[i], doc);
             extractAndTransferFields(data, results.entity, this.configs[i]);

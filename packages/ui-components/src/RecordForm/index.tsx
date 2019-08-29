@@ -54,7 +54,7 @@ const RecordForm: React.FC<Props> = ({
     );
 
     return (
-        <React.Fragment>
+        <>
             <Form
                 loading={loading || actionState.loading}
                 onSubmit={onSubmit}
@@ -136,7 +136,7 @@ const RecordForm: React.FC<Props> = ({
                     attached="bottom"
                 />
             )}
-        </React.Fragment>
+        </>
     );
 };
 

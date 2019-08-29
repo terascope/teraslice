@@ -30,7 +30,7 @@ sidebar_label: TypesManager
 
 \+ **new TypesManager**(`version`: [AvailableVersion](../overview.md#availableversion)): *[TypesManager](typesmanager.md)*
 
-*Defined in [types/index.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/index.ts#L7)*
+*Defined in [types/index.ts:7](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/index.ts#L7)*
 
 **Parameters:**
 
@@ -46,7 +46,7 @@ Name | Type |
 
 • **version**: *[AvailableVersion](../overview.md#availableversion)*
 
-*Defined in [types/index.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/index.ts#L7)*
+*Defined in [types/index.ts:7](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/index.ts#L7)*
 
 ## Methods
 
@@ -54,7 +54,7 @@ Name | Type |
 
 ▸ **getType**(`field`: string, `type`: [FieldTypeConfig](../overview.md#fieldtypeconfig)): *[BaseType](basetype.md)*
 
-*Defined in [types/index.ts:22](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/index.ts#L22)*
+*Defined in [types/index.ts:22](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/index.ts#L22)*
 
 **Parameters:**
 
@@ -71,7 +71,7 @@ ___
 
 ▸ **getTypes**(`fields`: [TypeConfigFields](../overview.md#typeconfigfields)): *[BaseType](basetype.md)[]*
 
-*Defined in [types/index.ts:14](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-types/src/types/index.ts#L14)*
+*Defined in [types/index.ts:14](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/index.ts#L14)*
 
 **Parameters:**
 

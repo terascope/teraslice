@@ -1,29 +1,27 @@
 import fs from 'fs';
+import _ from 'lodash';
 import readline from 'readline';
 import { Readable } from 'stream';
+import { TSError, Logger } from '@terascope/utils';
 import { WatcherConfig, OperationConfigInput } from '../interfaces';
-import _ from 'lodash';
-import { Logger, TSError } from '@terascope/utils';
 
 export default class RulesLoader {
     private opConfig: WatcherConfig;
-    // @ts-ignore
-    private logger: Logger;
-
-    constructor(opConfig: WatcherConfig, logger: Logger) {
+    constructor(opConfig: WatcherConfig, _logger?: Logger) {
         this.opConfig = opConfig;
-        this.logger = logger;
     }
 
     public async load(): Promise<OperationConfigInput[]> {
-        const { notification_rules, rules } = this.opConfig;
+        const { notification_rules: notifcationRules, rules } = this.opConfig;
 
-        if (notification_rules) {
-            return this.notificationLoader(notification_rules);
+        if (notifcationRules) {
+            return this.notificationLoader(notifcationRules);
         }
 
         if (rules) {
-            const results = await Promise.all<OperationConfigInput[]>(rules.map((ruleFile) => this.fileLoader(ruleFile)));
+            const results = await Promise.all<OperationConfigInput[]>(
+                rules.map((ruleFile) => this.fileLoader(ruleFile))
+            );
             return _.flatten(results);
         }
 
@@ -80,7 +78,6 @@ export default class RulesLoader {
                             const errMsg = err.message;
                             hasError = true;
                             errorResults.push(errMsg, ' => ', configStr, '\n');
-
                         }
                     }
                 }
@@ -88,7 +85,7 @@ export default class RulesLoader {
 
             rl.on('close', () => {
                 if (hasError) {
-                    const errors =  errorResults.join('');
+                    const errors = errorResults.join('');
                     const err = new Error(`could not load and parse the following configs: \n ${errors}`);
                     err.stack = undefined;
                     return reject(err);

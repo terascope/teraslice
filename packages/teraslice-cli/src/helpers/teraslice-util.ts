@@ -8,7 +8,7 @@ export default class TerasliceUtil {
         this.config = cliConfig;
     }
 
-    get client()  {
+    get client() {
         return new TerasliceClient({ host: this.config.clusterUrl });
     }
 

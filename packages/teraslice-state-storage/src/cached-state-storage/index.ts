@@ -2,7 +2,9 @@ import { EventEmitter } from 'events';
 import LRUMap from 'mnemonist/lru-map';
 import { pImmediate, BigMap } from '@terascope/utils';
 
-import { CacheConfig, MGetCacheResponse, SetTuple, ValuesFn, EvictedEvent } from '../interfaces';
+import {
+    CacheConfig, MGetCacheResponse, SetTuple, ValuesFn, EvictedEvent
+} from '../interfaces';
 
 export default class CachedStateStorage<T> extends EventEmitter {
     private _cache: LRUMap<string, T>;

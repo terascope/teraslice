@@ -9,7 +9,7 @@ Manager for Roles
 
 ## Hierarchy
 
-* `IndexModel<Role>`
+* IndexModel‹[Role](../interfaces/role.md)›
 
   * **Roles**
 
@@ -24,6 +24,7 @@ Manager for Roles
 * [logger](roles.md#logger)
 * [name](roles.md#name)
 * [store](roles.md#store)
+* [xluceneTypeConfig](roles.md#xlucenetypeconfig)
 * [IndexModelConfig](roles.md#static-indexmodelconfig)
 
 ### Methods
@@ -57,18 +58,18 @@ Manager for Roles
 
 ###  constructor
 
-\+ **new Roles**(`client`: `Client`, `config`: `IndexModelOptions`): *[Roles](roles.md)*
+\+ **new Roles**(`client`: Client, `config`: IndexModelOptions): *[Roles](roles.md)*
 
 *Overrides void*
 
-*Defined in [models/roles.ts:9](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/roles.ts#L9)*
+*Defined in [models/roles.ts:9](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/roles.ts#L9)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`client` | `Client` |
-`config` | `IndexModelOptions` |
+`client` | Client |
+`config` | IndexModelOptions |
 
 **Returns:** *[Roles](roles.md)*
 
@@ -76,7 +77,7 @@ Name | Type |
 
 ###  logger
 
-• **logger**: *`Logger`*
+• **logger**: *Logger*
 
 *Inherited from void*
 
@@ -96,7 +97,7 @@ ___
 
 ###  store
 
-• **store**: *`IndexStore<Role>`*
+• **store**: *IndexStore‹[Role](../interfaces/role.md)›*
 
 *Inherited from void*
 
@@ -104,21 +105,31 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 ___
 
+###  xluceneTypeConfig
+
+• **xluceneTypeConfig**: *TypeConfig | undefined*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:17
+
+___
+
 ### `Static` IndexModelConfig
 
-▪ **IndexModelConfig**: *`IndexModelConfig<Role>`* =  rolesConfig
+▪ **IndexModelConfig**: *IndexModelConfig‹[Role](../interfaces/role.md)›* =  rolesConfig
 
-*Defined in [models/roles.ts:9](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/data-access/src/models/roles.ts#L9)*
+*Defined in [models/roles.ts:9](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/roles.ts#L9)*
 
 ## Methods
 
 ### `Protected` _appendToArray
 
-▸ **_appendToArray**(`id`: string, `field`: keyof Role, `values`: string[] | string): *`Promise<void>`*
+▸ **_appendToArray**(`id`: string, `field`: keyof Role, `values`: string[] | string): *Promise‹void›*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:33
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:34
 
 **Parameters:**
 
@@ -128,25 +139,25 @@ Name | Type |
 `field` | keyof Role |
 `values` | string[] \| string |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ### `Protected` _createJoinQuery
 
-▸ **_createJoinQuery**(`fields`: `AnyInput<Role>`, `joinBy?`: `JoinBy`, `arrayJoinBy?`: `JoinBy`): *string*
+▸ **_createJoinQuery**(`fields`: AnyInput‹[Role](../interfaces/role.md)›, `joinBy?`: JoinBy, `arrayJoinBy?`: JoinBy): *string*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:40
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:41
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`fields` | `AnyInput<Role>` |
-`joinBy?` | `JoinBy` |
-`arrayJoinBy?` | `JoinBy` |
+`fields` | AnyInput‹[Role](../interfaces/role.md)› |
+`joinBy?` | JoinBy |
+`arrayJoinBy?` | JoinBy |
 
 **Returns:** *string*
 
@@ -154,7 +165,26 @@ ___
 
 ### `Protected` _ensureUnique
 
-▸ **_ensureUnique**(`record`: [Role](../interfaces/role.md), `existing?`: [T]()): *`Promise<void>`*
+▸ **_ensureUnique**(`record`: [Role](../interfaces/role.md), `existing?`: [T]()): *Promise‹void›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:37
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`record` | [Role](../interfaces/role.md) |
+`existing?` | [T]() |
+
+**Returns:** *Promise‹void›*
+
+___
+
+### `Protected` _find
+
+▸ **_find**(`q?`: undefined | string, `options?`: i.FindOptions‹[Role](../interfaces/role.md)›, `queryAccess?`: QueryAccess‹[Role](../interfaces/role.md)›): *Promise‹[Role](../interfaces/role.md)[]›*
 
 *Inherited from void*
 
@@ -164,30 +194,11 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`record` | [Role](../interfaces/role.md) |
-`existing?` | [T]() |
-
-**Returns:** *`Promise<void>`*
-
-___
-
-### `Protected` _find
-
-▸ **_find**(`q?`: undefined | string, `options?`: `i.FindOptions<Role>`, `queryAccess?`: `QueryAccess<Role>`): *`Promise<Role[]>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:35
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
 `q?` | undefined \| string |
-`options?` | `i.FindOptions<Role>` |
-`queryAccess?` | `QueryAccess<Role>` |
+`options?` | i.FindOptions‹[Role](../interfaces/role.md)› |
+`queryAccess?` | QueryAccess‹[Role](../interfaces/role.md)› |
 
-**Returns:** *`Promise<Role[]>`*
+**Returns:** *Promise‹[Role](../interfaces/role.md)[]›*
 
 ___
 
@@ -197,7 +208,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:38
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:39
 
 **Parameters:**
 
@@ -215,7 +226,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:39
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:40
 
 **Parameters:**
 
@@ -229,11 +240,11 @@ ___
 
 ### `Protected` _removeFromArray
 
-▸ **_removeFromArray**(`id`: string, `field`: keyof Role, `values`: string[] | string): *`Promise<void>`*
+▸ **_removeFromArray**(`id`: string, `field`: keyof Role, `values`: string[] | string): *Promise‹void›*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:34
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:35
 
 **Parameters:**
 
@@ -243,7 +254,7 @@ Name | Type |
 `field` | keyof Role |
 `values` | string[] \| string |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
@@ -253,7 +264,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:37
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:38
 
 **Parameters:**
 
@@ -267,11 +278,11 @@ ___
 
 ### `Protected` _updateWith
 
-▸ **_updateWith**(`id`: string, `body`: any): *`Promise<void>`*
+▸ **_updateWith**(`id`: string, `body`: any): *Promise‹void›*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:32
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:33
 
 **Parameters:**
 
@@ -280,32 +291,13 @@ Name | Type |
 `id` | string |
 `body` | any |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹void›*
 
 ___
 
 ###  count
 
-▸ **count**(`q?`: undefined | string, `queryAccess?`: `QueryAccess<Role>`): *`Promise<number>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:19
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`q?` | undefined \| string |
-`queryAccess?` | `QueryAccess<Role>` |
-
-**Returns:** *`Promise<number>`*
-
-___
-
-###  countBy
-
-▸ **countBy**(`fields`: `AnyInput<Role>`, `joinBy?`: `JoinBy`, `arrayJoinBy?`: `JoinBy`): *`Promise<number>`*
+▸ **count**(`q?`: undefined | string, `queryAccess?`: QueryAccess‹[Role](../interfaces/role.md)›): *Promise‹number›*
 
 *Inherited from void*
 
@@ -315,17 +307,16 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`fields` | `AnyInput<Role>` |
-`joinBy?` | `JoinBy` |
-`arrayJoinBy?` | `JoinBy` |
+`q?` | undefined \| string |
+`queryAccess?` | QueryAccess‹[Role](../interfaces/role.md)› |
 
-**Returns:** *`Promise<number>`*
+**Returns:** *Promise‹number›*
 
 ___
 
-###  create
+###  countBy
 
-▸ **create**(`record`: `i.CreateRecordInput<Role>`): *`Promise<Role>`*
+▸ **countBy**(`fields`: AnyInput‹[Role](../interfaces/role.md)›, `joinBy?`: JoinBy, `arrayJoinBy?`: JoinBy): *Promise‹number›*
 
 *Inherited from void*
 
@@ -335,33 +326,17 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`record` | `i.CreateRecordInput<Role>` |
+`fields` | AnyInput‹[Role](../interfaces/role.md)› |
+`joinBy?` | JoinBy |
+`arrayJoinBy?` | JoinBy |
 
-**Returns:** *`Promise<Role>`*
-
-___
-
-###  deleteAll
-
-▸ **deleteAll**(`ids`: string[]): *`Promise<void>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:23
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`ids` | string[] |
-
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹number›*
 
 ___
 
-###  deleteById
+###  create
 
-▸ **deleteById**(`id`: string): *`Promise<void>`*
+▸ **create**(`record`: i.CreateRecordInput‹[Role](../interfaces/role.md)›): *Promise‹[Role](../interfaces/role.md)›*
 
 *Inherited from void*
 
@@ -371,15 +346,15 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`id` | string |
+`record` | i.CreateRecordInput‹[Role](../interfaces/role.md)› |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹[Role](../interfaces/role.md)›*
 
 ___
 
-###  exists
+###  deleteAll
 
-▸ **exists**(`id`: string[] | string): *`Promise<boolean>`*
+▸ **deleteAll**(`ids`: string[]): *Promise‹void›*
 
 *Inherited from void*
 
@@ -389,75 +364,33 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`id` | string[] \| string |
+`ids` | string[] |
 
-**Returns:** *`Promise<boolean>`*
+**Returns:** *Promise‹void›*
 
 ___
 
-###  find
+###  deleteById
 
-▸ **find**(`q?`: undefined | string, `options?`: `i.FindOptions<Role>`, `queryAccess?`: `QueryAccess<Role>`): *`Promise<Role[]>`*
+▸ **deleteById**(`id`: string): *Promise‹void›*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:30
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:23
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`q?` | undefined \| string |
-`options?` | `i.FindOptions<Role>` |
-`queryAccess?` | `QueryAccess<Role>` |
+`id` | string |
 
-**Returns:** *`Promise<Role[]>`*
+**Returns:** *Promise‹void›*
 
 ___
 
-###  findAll
+###  exists
 
-▸ **findAll**(`input`: string[] | string | undefined, `options?`: `i.FindOneOptions<Role>`, `queryAccess?`: `QueryAccess<Role>`): *`Promise<Role[]>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:29
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`input` | string[] \| string \| undefined |
-`options?` | `i.FindOneOptions<Role>` |
-`queryAccess?` | `QueryAccess<Role>` |
-
-**Returns:** *`Promise<Role[]>`*
-
-___
-
-###  findAndApply
-
-▸ **findAndApply**(`updates`: `Partial<Role>` | undefined, `options?`: `i.FindOneOptions<Role>`, `queryAccess?`: `QueryAccess<Role>`): *`Promise<Partial<Role>>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:28
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`updates` | `Partial<Role>` \| undefined |
-`options?` | `i.FindOneOptions<Role>` |
-`queryAccess?` | `QueryAccess<Role>` |
-
-**Returns:** *`Promise<Partial<Role>>`*
-
-___
-
-###  findBy
-
-▸ **findBy**(`fields`: `AnyInput<Role>`, `joinBy?`: `JoinBy`, `options?`: `i.FindOneOptions<Role>`, `queryAccess?`: `QueryAccess<Role>`): *`Promise<Role>`*
+▸ **exists**(`id`: string[] | string): *Promise‹boolean›*
 
 *Inherited from void*
 
@@ -467,82 +400,15 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`fields` | `AnyInput<Role>` |
-`joinBy?` | `JoinBy` |
-`options?` | `i.FindOneOptions<Role>` |
-`queryAccess?` | `QueryAccess<Role>` |
+`id` | string[] \| string |
 
-**Returns:** *`Promise<Role>`*
+**Returns:** *Promise‹boolean›*
 
 ___
 
-###  findByAnyId
+###  find
 
-▸ **findByAnyId**(`anyId`: any, `options?`: `i.FindOneOptions<Role>`, `queryAccess?`: `QueryAccess<Role>`): *`Promise<Role>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:27
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`anyId` | any |
-`options?` | `i.FindOneOptions<Role>` |
-`queryAccess?` | `QueryAccess<Role>` |
-
-**Returns:** *`Promise<Role>`*
-
-___
-
-###  findById
-
-▸ **findById**(`id`: string, `options?`: `i.FindOneOptions<Role>`, `queryAccess?`: `QueryAccess<Role>`): *`Promise<Role>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:26
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`id` | string |
-`options?` | `i.FindOneOptions<Role>` |
-`queryAccess?` | `QueryAccess<Role>` |
-
-**Returns:** *`Promise<Role>`*
-
-___
-
-###  initialize
-
-▸ **initialize**(): *`Promise<void>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:17
-
-**Returns:** *`Promise<void>`*
-
-___
-
-###  shutdown
-
-▸ **shutdown**(): *`Promise<void>`*
-
-*Inherited from void*
-
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:18
-
-**Returns:** *`Promise<void>`*
-
-___
-
-###  update
-
-▸ **update**(`record`: `i.UpdateRecordInput<Role>`): *`Promise<void>`*
+▸ **find**(`q?`: undefined | string, `options?`: i.FindOptions‹[Role](../interfaces/role.md)›, `queryAccess?`: QueryAccess‹[Role](../interfaces/role.md)›): *Promise‹[Role](../interfaces/role.md)[]›*
 
 *Inherited from void*
 
@@ -552,6 +418,151 @@ Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src
 
 Name | Type |
 ------ | ------ |
-`record` | `i.UpdateRecordInput<Role>` |
+`q?` | undefined \| string |
+`options?` | i.FindOptions‹[Role](../interfaces/role.md)› |
+`queryAccess?` | QueryAccess‹[Role](../interfaces/role.md)› |
 
-**Returns:** *`Promise<void>`*
+**Returns:** *Promise‹[Role](../interfaces/role.md)[]›*
+
+___
+
+###  findAll
+
+▸ **findAll**(`input`: string[] | string | undefined, `options?`: i.FindOneOptions‹[Role](../interfaces/role.md)›, `queryAccess?`: QueryAccess‹[Role](../interfaces/role.md)›): *Promise‹[Role](../interfaces/role.md)[]›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:30
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`input` | string[] \| string \| undefined |
+`options?` | i.FindOneOptions‹[Role](../interfaces/role.md)› |
+`queryAccess?` | QueryAccess‹[Role](../interfaces/role.md)› |
+
+**Returns:** *Promise‹[Role](../interfaces/role.md)[]›*
+
+___
+
+###  findAndApply
+
+▸ **findAndApply**(`updates`: Partial‹[Role](../interfaces/role.md)› | undefined, `options?`: i.FindOneOptions‹[Role](../interfaces/role.md)›, `queryAccess?`: QueryAccess‹[Role](../interfaces/role.md)›): *Promise‹Partial‹[Role](../interfaces/role.md)››*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:29
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`updates` | Partial‹[Role](../interfaces/role.md)› \| undefined |
+`options?` | i.FindOneOptions‹[Role](../interfaces/role.md)› |
+`queryAccess?` | QueryAccess‹[Role](../interfaces/role.md)› |
+
+**Returns:** *Promise‹Partial‹[Role](../interfaces/role.md)››*
+
+___
+
+###  findBy
+
+▸ **findBy**(`fields`: AnyInput‹[Role](../interfaces/role.md)›, `joinBy?`: JoinBy, `options?`: i.FindOneOptions‹[Role](../interfaces/role.md)›, `queryAccess?`: QueryAccess‹[Role](../interfaces/role.md)›): *Promise‹[Role](../interfaces/role.md)›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:26
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`fields` | AnyInput‹[Role](../interfaces/role.md)› |
+`joinBy?` | JoinBy |
+`options?` | i.FindOneOptions‹[Role](../interfaces/role.md)› |
+`queryAccess?` | QueryAccess‹[Role](../interfaces/role.md)› |
+
+**Returns:** *Promise‹[Role](../interfaces/role.md)›*
+
+___
+
+###  findByAnyId
+
+▸ **findByAnyId**(`anyId`: any, `options?`: i.FindOneOptions‹[Role](../interfaces/role.md)›, `queryAccess?`: QueryAccess‹[Role](../interfaces/role.md)›): *Promise‹[Role](../interfaces/role.md)›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:28
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`anyId` | any |
+`options?` | i.FindOneOptions‹[Role](../interfaces/role.md)› |
+`queryAccess?` | QueryAccess‹[Role](../interfaces/role.md)› |
+
+**Returns:** *Promise‹[Role](../interfaces/role.md)›*
+
+___
+
+###  findById
+
+▸ **findById**(`id`: string, `options?`: i.FindOneOptions‹[Role](../interfaces/role.md)›, `queryAccess?`: QueryAccess‹[Role](../interfaces/role.md)›): *Promise‹[Role](../interfaces/role.md)›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:27
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`id` | string |
+`options?` | i.FindOneOptions‹[Role](../interfaces/role.md)› |
+`queryAccess?` | QueryAccess‹[Role](../interfaces/role.md)› |
+
+**Returns:** *Promise‹[Role](../interfaces/role.md)›*
+
+___
+
+###  initialize
+
+▸ **initialize**(): *Promise‹void›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:18
+
+**Returns:** *Promise‹void›*
+
+___
+
+###  shutdown
+
+▸ **shutdown**(): *Promise‹void›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:19
+
+**Returns:** *Promise‹void›*
+
+___
+
+###  update
+
+▸ **update**(`record`: i.UpdateRecordInput‹[Role](../interfaces/role.md)›): *Promise‹void›*
+
+*Inherited from void*
+
+Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:32
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`record` | i.UpdateRecordInput‹[Role](../interfaces/role.md)› |
+
+**Returns:** *Promise‹void›*

@@ -5,7 +5,7 @@ import _ from 'lodash';
 import Reply from '../cmds/lib/reply';
 import { getPackage } from '../../src/helpers/utils';
 
-const { version }  = getPackage();
+const { version } = getPackage();
 const reply = new Reply();
 
 // TODO: relook into this use!!!!!!!!!!!!!!
@@ -22,7 +22,7 @@ export default class JobFile {
     clusterUrl!: string;
     content: any;
 
-    constructor(argv:any) {
+    constructor(argv: any) {
         try {
             this.jobPath = path.join(argv.srcDir, argv.jobFile);
         } catch (e) {
@@ -65,7 +65,7 @@ export default class JobFile {
         this.content = fs.readJsonSync(this.jobPath);
     }
 
-    addMetaData(id: string, clusterUrl:string) {
+    addMetaData(id: string, clusterUrl: string) {
         _.set(this.content, '__metadata.cli.cluster', clusterUrl);
         _.set(this.content, '__metadata.cli.version', this.version);
         _.set(this.content, '__metadata.cli.job_id', id);

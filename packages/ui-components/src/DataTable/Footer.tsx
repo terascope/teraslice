@@ -1,21 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Table, Pagination, Dropdown, Label } from 'semantic-ui-react';
+import {
+    Table, Pagination, Dropdown, Label
+} from 'semantic-ui-react';
 import { UpdateQueryState } from './interfaces';
 import { uniqIntArray } from './utils';
 
-const TableFooter: React.FC<{ numCols: number }> = ({ numCols, children }) => {
-    return (
-        <Table.Footer fullWidth>
-            <Table.Row>
-                <Table.HeaderCell />
-                <Table.HeaderCell colSpan={numCols - 1}>
-                    {children}
-                </Table.HeaderCell>
-            </Table.Row>
-        </Table.Footer>
-    );
-};
+const TableFooter: React.FC<{ numCols: number }> = ({ numCols, children }) => (
+    <Table.Footer fullWidth>
+        <Table.Row>
+            <Table.HeaderCell />
+            <Table.HeaderCell colSpan={numCols - 1}>
+                {children}
+            </Table.HeaderCell>
+        </Table.Row>
+    </Table.Footer>
+);
 
 const Footer: React.FC<Props> = ({
     total,
@@ -38,7 +38,12 @@ const Footer: React.FC<Props> = ({
     return (
         <TableFooter numCols={numCols}>
             <div className="dtFooterCell">
-                <div className="dtFooterResults">Found {total} results</div>
+                <div className="dtFooterResults">
+Found
+                    {total}
+                    {' '}
+results
+                </div>
                 <div className="dtFooterOptions">
                     <Label basic className="dtFooterPerPageLabel">
                         Per Page

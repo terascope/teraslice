@@ -16,12 +16,6 @@ const AddField: React.FC<Props> = ({ addField, fields }) => {
         typeError: '',
     });
 
-    const updateState = (updates: Partial<State>): void => {
-        const latestState = { ...state, ...updates };
-        validate(latestState);
-        setState(latestState);
-    };
-
     const validate = (latestState: State): State => {
         latestState.fieldError = '';
         latestState.typeError = '';
@@ -42,6 +36,12 @@ const AddField: React.FC<Props> = ({ addField, fields }) => {
             return latestState;
         }
         return latestState;
+    };
+
+    const updateState = (updates: Partial<State>): void => {
+        const latestState = { ...state, ...updates };
+        validate(latestState);
+        setState(latestState);
     };
 
     return (

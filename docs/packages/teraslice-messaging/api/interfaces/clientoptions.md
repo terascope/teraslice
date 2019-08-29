@@ -16,6 +16,7 @@ sidebar_label: ClientOptions
 ### Properties
 
 * [actionTimeout](clientoptions.md#actiontimeout)
+* [clientDisconnectTimeout](clientoptions.md#clientdisconnecttimeout)
 * [clientId](clientoptions.md#clientid)
 * [clientType](clientoptions.md#clienttype)
 * [clusterMasterUrl](clientoptions.md#clustermasterurl)
@@ -25,8 +26,10 @@ sidebar_label: ClientOptions
 * [hostUrl](clientoptions.md#hosturl)
 * [logger](clientoptions.md#optional-logger)
 * [networkLatencyBuffer](clientoptions.md#optional-networklatencybuffer)
+* [nodeDisconnectTimeout](clientoptions.md#nodedisconnecttimeout)
 * [serverName](clientoptions.md#servername)
 * [socketOptions](clientoptions.md#optional-socketoptions)
+* [workerDisconnectTimeout](clientoptions.md#workerdisconnecttimeout)
 * [workerId](clientoptions.md#workerid)
 
 ## Properties
@@ -37,11 +40,19 @@ sidebar_label: ClientOptions
 
 *Inherited from [CoreOptions](coreoptions.md).[actionTimeout](coreoptions.md#actiontimeout)*
 
-*Defined in [messenger/interfaces.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L7)*
+*Defined in [messenger/interfaces.ts:7](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L7)*
 
-*Defined in [cluster-master/interfaces.ts:9](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L9)*
+*Defined in [cluster-master/interfaces.ts:10](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L10)*
 
-*Defined in [execution-controller/interfaces.ts:8](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L8)*
+*Defined in [execution-controller/interfaces.ts:9](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L9)*
+
+___
+
+###  clientDisconnectTimeout
+
+• **clientDisconnectTimeout**: *number*
+
+*Defined in [messenger/interfaces.ts:16](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L16)*
 
 ___
 
@@ -49,7 +60,7 @@ ___
 
 • **clientId**: *string*
 
-*Defined in [messenger/interfaces.ts:13](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L13)*
+*Defined in [messenger/interfaces.ts:13](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L13)*
 
 ___
 
@@ -57,7 +68,7 @@ ___
 
 • **clientType**: *string*
 
-*Defined in [messenger/interfaces.ts:14](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L14)*
+*Defined in [messenger/interfaces.ts:14](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L14)*
 
 ___
 
@@ -65,7 +76,7 @@ ___
 
 • **clusterMasterUrl**: *string*
 
-*Defined in [cluster-master/interfaces.ts:6](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L6)*
+*Defined in [cluster-master/interfaces.ts:6](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L6)*
 
 ___
 
@@ -73,11 +84,11 @@ ___
 
 • **connectTimeout**: *number*
 
-*Defined in [messenger/interfaces.ts:16](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L16)*
+*Defined in [messenger/interfaces.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L17)*
 
-*Defined in [cluster-master/interfaces.ts:10](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L10)*
+*Defined in [cluster-master/interfaces.ts:11](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L11)*
 
-*Defined in [execution-controller/interfaces.ts:9](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L9)*
+*Defined in [execution-controller/interfaces.ts:10](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L10)*
 
 ___
 
@@ -85,7 +96,7 @@ ___
 
 • **exId**: *string*
 
-*Defined in [cluster-master/interfaces.ts:5](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L5)*
+*Defined in [cluster-master/interfaces.ts:5](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L5)*
 
 ___
 
@@ -93,7 +104,7 @@ ___
 
 • **executionControllerUrl**: *string*
 
-*Defined in [execution-controller/interfaces.ts:4](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L4)*
+*Defined in [execution-controller/interfaces.ts:4](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L4)*
 
 ___
 
@@ -101,21 +112,21 @@ ___
 
 • **hostUrl**: *string*
 
-*Defined in [messenger/interfaces.ts:12](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L12)*
+*Defined in [messenger/interfaces.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L12)*
 
 ___
 
 ### `Optional` logger
 
-• **logger**? : *`Logger`*
+• **logger**? : *Logger*
 
 *Inherited from [CoreOptions](coreoptions.md).[logger](coreoptions.md#optional-logger)*
 
-*Defined in [messenger/interfaces.ts:8](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L8)*
+*Defined in [messenger/interfaces.ts:8](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L8)*
 
-*Defined in [cluster-master/interfaces.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L11)*
+*Defined in [cluster-master/interfaces.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L12)*
 
-*Defined in [execution-controller/interfaces.ts:10](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L10)*
+*Defined in [execution-controller/interfaces.ts:11](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L11)*
 
 ___
 
@@ -125,11 +136,19 @@ ___
 
 *Inherited from [CoreOptions](coreoptions.md).[networkLatencyBuffer](coreoptions.md#optional-networklatencybuffer)*
 
-*Defined in [messenger/interfaces.ts:6](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L6)*
+*Defined in [messenger/interfaces.ts:6](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L6)*
 
-*Defined in [cluster-master/interfaces.ts:8](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L8)*
+*Defined in [cluster-master/interfaces.ts:9](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L9)*
 
-*Defined in [execution-controller/interfaces.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L7)*
+*Defined in [execution-controller/interfaces.ts:8](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L8)*
+
+___
+
+###  nodeDisconnectTimeout
+
+• **nodeDisconnectTimeout**: *number*
+
+*Defined in [cluster-master/interfaces.ts:7](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L7)*
 
 ___
 
@@ -137,19 +156,27 @@ ___
 
 • **serverName**: *string*
 
-*Defined in [messenger/interfaces.ts:15](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L15)*
+*Defined in [messenger/interfaces.ts:15](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L15)*
 
 ___
 
 ### `Optional` socketOptions
 
-• **socketOptions**? : *`ConnectOpts`*
+• **socketOptions**? : *ConnectOpts*
 
-*Defined in [messenger/interfaces.ts:17](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/messenger/interfaces.ts#L17)*
+*Defined in [messenger/interfaces.ts:18](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L18)*
 
-*Defined in [cluster-master/interfaces.ts:7](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L7)*
+*Defined in [cluster-master/interfaces.ts:8](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L8)*
 
-*Defined in [execution-controller/interfaces.ts:6](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L6)*
+*Defined in [execution-controller/interfaces.ts:6](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L6)*
+
+___
+
+###  workerDisconnectTimeout
+
+• **workerDisconnectTimeout**: *number*
+
+*Defined in [execution-controller/interfaces.ts:7](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L7)*
 
 ___
 
@@ -157,4 +184,4 @@ ___
 
 • **workerId**: *string*
 
-*Defined in [execution-controller/interfaces.ts:5](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L5)*
+*Defined in [execution-controller/interfaces.ts:5](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L5)*

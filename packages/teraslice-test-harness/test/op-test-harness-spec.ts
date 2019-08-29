@@ -49,8 +49,6 @@ describe('OpTestHarness', () => {
             expect(result[0]).toHaveProperty('greeting', 'hello');
         });
 
-        it('should be able to call shutdown', () => {
-            return expect(opHarness.shutdown()).resolves.toBeNil();
-        });
+        it('should be able to call shutdown', () => expect(opHarness.shutdown()).resolves.toBeNil());
     });
 });

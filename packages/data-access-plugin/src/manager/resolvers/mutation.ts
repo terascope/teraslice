@@ -20,9 +20,7 @@ forEachModel((model) => {
 });
 
 function proxyMethod(method: string) {
-    return (root: any, args: any, ctx: ManagerContext) => {
-        return ctx.manager[method](args, ctx.user);
-    };
+    return (root: any, args: any, ctx: ManagerContext) => ctx.manager[method](args, ctx.user);
 }
 
 export default {

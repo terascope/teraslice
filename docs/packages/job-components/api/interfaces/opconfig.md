@@ -22,7 +22,7 @@ to find the operation.
 
 ## Indexable
 
-● \[▪ **prop**: *string*\]: any
+* \[ **prop**: *string*\]: any
 
 OpConfig is the configuration that user specifies
 for a Operation.
@@ -43,26 +43,29 @@ to find the operation.
 
 • **_dead_letter_action**? : *[DeadLetterAction](../overview.md#deadletteraction)*
 
-*Defined in [interfaces/jobs.ts:25](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/jobs.ts#L25)*
+*Defined in [interfaces/jobs.ts:30](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/jobs.ts#L30)*
 
-This action will specify what to do when failing to parse or transform a record. ​​​​​
-​​​​​     * The following builtin actions are supported: ​​​
-​​​​​     *  - "throw": throw the original error ​​​​​
-​​​​​     *  - "log": log the error and the data ​​​​​
-​​​​​     *  - "none": (default) skip the error entirely
+This action will specify what to do when failing to parse or transform a record.
+The following builtin actions are supported:
+ - "throw": throw the original error
+ - "log": log the error and the data
+ - "none": (default) skip the error entirely
 
-​​     * If none of the actions are specified it will try and use a registered Dead Letter Queue API under that name.
-The API must be already be created by a operation before it can used.​
+If none of the actions are specified it will try and
+use a registered Dead Letter Queue API under that name.
+The API must be already be created by a operation before it can used.
 
 ___
 
 ### `Optional` _encoding
 
-• **_encoding**? : *`DataEncoding`*
+• **_encoding**? : *DataEncoding*
 
-*Defined in [interfaces/jobs.ts:14](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/jobs.ts#L14)*
+*Defined in [interfaces/jobs.ts:18](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/jobs.ts#L18)*
 
-Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`.
+Used for specifying the data encoding type when using `DataEntity.fromBuffer`.
+
+**`default`** `json`.
 
 ___
 
@@ -70,6 +73,6 @@ ___
 
 • **_op**: *string*
 
-*Defined in [interfaces/jobs.ts:11](https://github.com/terascope/teraslice/blob/fd211a8bb/packages/job-components/src/interfaces/jobs.ts#L11)*
+*Defined in [interfaces/jobs.ts:11](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/interfaces/jobs.ts#L11)*
 
 The name of the operation

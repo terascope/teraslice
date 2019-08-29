@@ -1,6 +1,8 @@
 import 'jest-extended';
-import { DataType, DataTypeConfig, LATEST_VERSION, formatSchema } from '../src';
 import { TSError } from '@terascope/utils';
+import {
+    DataType, DataTypeConfig, LATEST_VERSION, formatSchema
+} from '../src';
 
 describe('DataType', () => {
     describe('when constructing', () => {

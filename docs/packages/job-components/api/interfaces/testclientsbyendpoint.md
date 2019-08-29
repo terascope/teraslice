@@ -11,4 +11,4 @@ sidebar_label: TestClientsByEndpoint
 
 ## Indexable
 
-● \[▪ **endpoint**: *string*\]: any
+* \[ **endpoint**: *string*\]: any

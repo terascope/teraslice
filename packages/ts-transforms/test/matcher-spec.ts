@@ -1,5 +1,3 @@
-
-import _ from 'lodash';
 import path from 'path';
 import { DataEntity } from '@terascope/utils';
 import { FieldType } from 'xlucene-evaluator';
@@ -95,7 +93,7 @@ describe('matcher', () => {
         ]);
 
         const test = await opTest.init(config);
-        const results =  await test.run(data);
+        const results = await test.run(data);
         // each match will be inserted into the results
         expect(results.length).toEqual(1);
         expect(results[0].getMetadata('selectors')).toEqual(rules);

@@ -1,8 +1,15 @@
 import _ from 'lodash';
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
-import { RulesValidator, RulesParser, OperationConfig, OperationConfigInput, OperationsManager, PluginList } from '../../src';
 import { isPrimaryConfig } from '../../src/loader/utils';
+import {
+    RulesValidator,
+    RulesParser,
+    OperationConfig,
+    OperationConfigInput,
+    OperationsManager,
+    PluginList
+} from '../../src';
 
 describe('rules-validator', () => {
     const testLogger = debugLogger('rules-validator-test');
@@ -268,12 +275,22 @@ describe('rules-validator', () => {
     ]);
 
     const multiOutput = parseData([
-        { selector: 'some:value', source_field: 'other', target_field: 'field', tag: 'hello', output: false },
-        { post_process: 'extraction', target_field: 'first_copy', follow: 'hello', mutate: true },
-        { source_field: 'key', target_field: 'key', other_match_required: true, mutate: true },
+        {
+            selector: 'some:value', source_field: 'other', target_field: 'field', tag: 'hello', output: false
+        },
+        {
+            post_process: 'extraction', target_field: 'first_copy', follow: 'hello', mutate: true
+        },
+        {
+            source_field: 'key', target_field: 'key', other_match_required: true, mutate: true
+        },
     ]);
 
-    function constructValidator(configList: OperationConfig[], Plugins?: PluginList, logger = testLogger) {
+    function constructValidator(
+        configList: OperationConfig[],
+        Plugins?: PluginList,
+        logger = testLogger
+    ) {
         const opsManager = new OperationsManager(Plugins);
         return new RulesValidator(configList, opsManager, logger);
     }

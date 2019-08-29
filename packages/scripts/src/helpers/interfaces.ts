@@ -42,7 +42,7 @@ export type RootPackageInfo = {
     };
 };
 
-export const AvailablePackageConfigKeys: ReadonlyArray<keyof PackageConfig> = ['enableTypedoc', 'testSuite', 'main'];
+export const AvailablePackageConfigKeys: readonly (keyof PackageConfig)[] = ['enableTypedoc', 'testSuite', 'main'];
 
 export type TSCommands = 'docs';
 

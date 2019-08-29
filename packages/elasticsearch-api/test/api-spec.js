@@ -233,7 +233,7 @@ describe('elasticsearch-api', () => {
         },
         indices: {
             exists: () => {
-                if (elasticDown) return Promise.reject(true);
+                if (elasticDown) return Promise.reject(new Error('Elasticsearch is down'));
                 return Promise.resolve(indexAlreadyExists);
             },
             create: () => Promise.resolve({ acknowledged: true, shards_acknowledged: true }),

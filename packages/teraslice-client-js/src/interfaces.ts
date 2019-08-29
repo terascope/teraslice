@@ -99,7 +99,9 @@ export interface AssetIDResponse {
     _id: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AssetsPostResponse extends AssetIDResponse {}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AssetsDeleteResponse extends AssetIDResponse {}
 export type AssetsTxtResponse = string;
 export type AssetsGetResponse = Asset[];
@@ -181,8 +183,6 @@ export interface JobIDResponse {
     job_id: string;
 }
 
-export interface JobsPostResponse extends JobIDResponse {}
-export interface JobsDeleteResponse extends JobIDResponse {}
 export type JobsTxtResponse = string;
 export type JobsGetResponse = JobConfiguration[];
 export type JobsPutResponse = JobConfiguration;
@@ -263,8 +263,6 @@ export interface ExecutionIDResponse {
     ex_id: string;
 }
 
-export interface ExecutionPostResponse extends ExecutionIDResponse {}
-export interface ExecutionDeleteResponse extends ExecutionIDResponse {}
 export type ExecutionTxtResponse = string;
 export type ExecutionGetResponse = Execution[];
 export type ExecutionPutResponse = Execution;
@@ -276,8 +274,6 @@ export type ExecutionPutResponse = Execution;
 export interface RecoverQuery {
     cleanup?: 'all' | 'errors';
 }
-
-export interface Recover extends JobIDResponse {}
 
 export interface PausedResponse {
     status: ExecutionStatus.paused;

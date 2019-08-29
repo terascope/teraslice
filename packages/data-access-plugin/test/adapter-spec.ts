@@ -14,9 +14,7 @@ describe('TeraserverAdapterPlugin', () => {
         clients: [
             {
                 type: 'elasticsearch',
-                create: () => {
-                    return { client };
-                },
+                create: () => ({ client }),
                 endpoint: 'default',
             },
         ],
@@ -36,9 +34,7 @@ describe('TeraserverAdapterPlugin', () => {
         expect(index.config_schema()).toBeObject();
     });
 
-    it('should not be able to call init if not configured', () => {
-        return expect(index.init()).rejects.toThrowError('Plugin has not been configured');
-    });
+    it('should not be able to call init if not configured', () => expect(index.init()).rejects.toThrowError('Plugin has not been configured'));
 
     it('should not be able to call routes if not configured', () => {
         expect(() => {
@@ -50,8 +46,7 @@ describe('TeraserverAdapterPlugin', () => {
         const pluginConfig: PluginConfig = {
             elasticsearch: client,
             url_base: '',
-            // @ts-ignore
-            app: { all() {} },
+            app: { all() {} } as any,
             context,
             logger: context.logger,
             server_config: {

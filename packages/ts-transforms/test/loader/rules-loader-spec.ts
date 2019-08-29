@@ -1,4 +1,3 @@
-
 import path from 'path';
 import _ from 'lodash';
 import { debugLogger } from '@terascope/utils';
@@ -10,10 +9,10 @@ describe('rules-loader', () => {
     async function getConfigList(fileName: string): Promise<OperationConfigInput[]> {
         const filePath = path.join(__dirname, `../fixtures/${fileName}`);
         const myFileLoader = new RulesLoader({ rules: [filePath] }, logger);
-        return await myFileLoader.load();
+        return myFileLoader.load();
     }
 
-    it('can load from transform file', async() => {
+    it('can load from transform file', async () => {
         const results = await getConfigList('transformRules8.txt');
 
         expect(results).toBeArrayOfSize(2);
@@ -21,7 +20,7 @@ describe('rules-loader', () => {
         expect(results[1].validation).toEqual('hexdecode');
     });
 
-    it('can load from matcher file', async() => {
+    it('can load from matcher file', async () => {
         const results = await getConfigList('matchRules1.txt');
 
         expect(results).toBeArrayOfSize(2);
@@ -32,7 +31,7 @@ describe('rules-loader', () => {
         });
     });
 
-    it('can load notifications', async() => {
+    it('can load notifications', async () => {
         const notificationRules = 'some:thing AND other:thing \n last:thing OR really:lastThing';
         const notificationResults = notificationRules.split('\n').map((str) => ({ selector: str.trim() }));
         const dataLoader = new RulesLoader({ notification_rules: notificationRules }, logger);
