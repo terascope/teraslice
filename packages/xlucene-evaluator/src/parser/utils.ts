@@ -79,8 +79,8 @@ export const termTypes: i.ASTType[] = [
     i.ASTType.Regexp,
     i.ASTType.Range,
     i.ASTType.Wildcard,
-    i.ASTType.GeoBoundingBox,
     i.ASTType.GeoDistance,
+    i.ASTType.GeoBoundingBox,
 ];
 
 export function isTermType(node: any): node is i.TermLike {

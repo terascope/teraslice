@@ -1,13 +1,14 @@
 import {
-    debugLogger, Logger, TSError, trim, toBoolean
+    debugLogger,
+    Logger,
+    TSError,
+    trim
 } from '@terascope/utils';
-import engine, { Tracer } from './engine';
-import { parseGeoPoint, parseGeoDistance } from '../utils';
+import { parse } from './peg-engine';
 import * as i from './interfaces';
 import * as utils from './utils';
 
 const _logger = debugLogger('xlucene-parser');
-const debugLucene = toBoolean(process.env.DEBUG_LUCENE);
 
 export class Parser {
     readonly ast: i.AST;
@@ -21,31 +22,23 @@ export class Parser {
 
         this.query = trim(query || '');
 
-        const tracer = new Tracer(this.query, {
-            showTrace: false,
-        });
-
-        const context = {
+        const contextArg = {
             typeConfig: options.type_config,
-            ASTType: i.ASTType,
-            FieldType: i.FieldType,
-            parseGeoPoint,
-            parseGeoDistance,
-            logger: this.logger,
+            logger: this.logger
         };
 
         try {
-            this.ast = engine.parse(this.query, {
-                tracer,
+            this.ast = parse(this.query, {
                 // pass in a context the certian variables
                 // and functions can be passed in
                 // in the parser as options.typeConfig
                 // @ts-ignore
-                context,
+                contextArg,
             });
             const astJSON = JSON.stringify(this.ast, null, 4);
             this.logger.trace(`parsed ${this.query ? this.query : "''"} to `, astJSON);
         } catch (err) {
+            console.error(err);
             if (err && err.message.includes('Expected ,')) {
                 err.message = err.message.replace('Expected ,', 'Expected');
             }
@@ -53,10 +46,6 @@ export class Parser {
             throw new TSError(err, {
                 reason: `Failure to parse xlucene query "${this.query}"`,
             });
-        } finally {
-            if (debugLucene) {
-                console.error(tracer.getBacktraceString());
-            }
         }
     }
 

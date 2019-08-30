@@ -5,19 +5,24 @@
 const fs = require('fs');
 const path = require('path');
 const peg = require('pegjs');
+const tspegjs = require('ts-pegjs');
 
 function generate() {
     const input = path.join(__dirname, '..', 'peg', 'lucene.pegjs');
-    const output = path.join(__dirname, '..', 'peg', 'peg-engine.js');
+    const output = path.join(__dirname, '..', 'src', 'parser', 'peg-engine.ts');
 
     const current = fs.existsSync(output) && fs.readFileSync(output, 'utf8');
     const grammar = fs.readFileSync(input, 'utf8');
     const updated = peg.generate(grammar, {
         output: 'source',
         optimize: 'speed',
+        plugins: [tspegjs],
         parser: {},
         format: 'commonjs',
-        trace: process.env.DEBUG_LUCENE === '1'
+        tspegjs: {
+            noTslint: true,
+            customHeader: "import makeContext from './context';\nimport * as i from './interfaces';"
+        },
     });
 
     if (current === updated) return null;

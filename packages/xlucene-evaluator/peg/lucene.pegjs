@@ -1,141 +1,13 @@
 /** Functions **/
 {
     const {
-        ASTType,
         parseGeoPoint,
         parseGeoDistance,
-        FieldType,
-        typeConfig = {},
-        logger,
-    } = options.context;
-
-    const termTypes = [
-        ASTType.Term,
-        ASTType.Regexp,
-        ASTType.Range,
-        ASTType.Wildcard,
-        ASTType.GeoDistance,
-        ASTType.GeoBoundingBox
-    ];
-
-    const groupTypes = [
-        ASTType.LogicalGroup,
-        ASTType.FieldGroup
-    ];
-
-    /**
-    * Propagate the default field on a field group expression
-    */
-    function propagateDefaultField(node, field) {
-       if (!node) return;
-
-       if (termTypes.includes(node.type) && !node.field) {
-           node.field = field;
-           coerceTermType(node);
-           return;
-       }
-
-       if (node.type === ASTType.Negation) {
-           propagateDefaultField(node.node, field);
-           return;
-       }
-
-       if (groupTypes.includes(node.type)) {
-           for (const conj of node.flow) {
-               propagateDefaultField(conj, field);
-           }
-           return;
-       }
-
-       if (node.type === ASTType.Conjunction) {
-           for (const conj of node.nodes) {
-               propagateDefaultField(conj, field);
-           }
-           return;
-       }
-    }
-
-    // The following functions are javascript functions and not
-    // peg grammar because this is based off configuration passed
-    // in and cannot be inferred by the syntax
-
-    function getFieldType(field) {
-        if (!field) return;
-        return typeConfig[field];
-    }
-
-    const inferredFieldTypes = [FieldType.String];
-    function isInferredTermType(field) {
-        const fieldType = getFieldType(field);
-        return inferredFieldTypes.includes(fieldType);
-    }
-
-    // parse an inferred field type
-    function parseInferredTermType(field, value) {
-        const fieldType = getFieldType(field);
-        const term = {
-            type: ASTType.Term,
-            field_type: fieldType,
-        };
-
-        if (fieldType === FieldType.String) {
-            term.quoted = false;
-            term.value = `${value}`;
-            return term;
-        }
-
-        logger.warn(`Unsupported field inferred field type ${fieldType} for field ${field}`);
-        term.value = value;
-        return term;
-    }
-
-    function coerceTermType(node, _field) {
-        if (!node) return;
-        const field = node.field || _field;
-        if (!field) return;
-
-        const fieldType = getFieldType(field);
-        if (fieldType === node.field_type) return;
-        logger.trace(
-            `coercing field "${field}":${node.value} type of ${node.field_type} to ${fieldType}`
-        );
-
-        if (fieldType === FieldType.Boolean) {
-            node.field_type = fieldType;
-            delete node.quoted;
-            delete node.restricted;
-            if (node.value === 'true') {
-                node.value = true;
-            }
-            if (node.value === 'false') {
-                node.value = false;
-            }
-            return;
-        }
-
-        if (fieldType === FieldType.Integer) {
-            node.field_type = fieldType;
-            delete node.quoted;
-            delete node.restricted;
-            node.value = parseInt(node.value, 10);
-            return;
-        }
-
-        if (fieldType === FieldType.Float) {
-            node.field_type = fieldType;
-            delete node.quoted;
-            delete node.restricted;
-            node.value = parseFloat(node.value);
-            return;
-        }
-
-        if (fieldType === FieldType.String) {
-            node.field_type = fieldType;
-            node.qouted = false;
-            node.value = `${node.value}`;
-            return;
-        }
-    }
+        coerceTermType,
+        parseInferredTermType,
+        isInferredTermType,
+        propagateDefaultField,
+    } = makeContext(options.contextArg);
 }
 
 
@@ -148,7 +20,7 @@ start
     / ws* group:ParensGroup ws* EOF { return group; }
     / ws* EOF {
         return {
-            type: ASTType.Empty,
+            type: i.ASTType.Empty,
         }
     }
 
@@ -159,7 +31,7 @@ LogicalGroup
     // then you can stop early.
    = !ConjunctionOperator conjunctions:Conjunction+ {
         return {
-            type: ASTType.LogicalGroup,
+            type: i.ASTType.LogicalGroup,
             flow: [].concat(...conjunctions)
         };
     }
@@ -173,7 +45,7 @@ Conjunction
     // group all AND nodes together
     = nodes:AndConjunctionStart+ {
         return [{
-            type: ASTType.Conjunction,
+            type: i.ASTType.Conjunction,
             nodes: [].concat(...nodes),
         }]
     }
@@ -189,10 +61,10 @@ Conjunction
     ]
     **/
     / nodes:OrConjunction+ {
-        return nodes.reduce((prev, current) => {
-            current.forEach((node) => {
+        return nodes.reduce((prev: any, current: any) => {
+            current.forEach((node: any) => {
                 prev.push({
-                    type: ASTType.Conjunction,
+                    type: i.ASTType.Conjunction,
                     nodes: Array.isArray(node) ? node : [node]
                 })
             });
@@ -253,13 +125,13 @@ FieldOrQuotedTermGroup
 NegationExpression
     = 'NOT' ws+ node:NegatedTermGroup {
         return {
-            type: ASTType.Negation,
+            type: i.ASTType.Negation,
             node
         }
     }
     / '!' ws* node:NegatedTermGroup {
         return {
-            type: ASTType.Negation,
+            type: i.ASTType.Negation,
             node
         }
     }
@@ -274,7 +146,7 @@ FieldGroup
     = field:FieldName ws* FieldSeparator ws* group:ParensGroup {
         const node = {
             ...group,
-            type: ASTType.FieldGroup,
+            type: i.ASTType.FieldGroup,
             field,
         };
         propagateDefaultField(group, field);
@@ -284,7 +156,7 @@ FieldGroup
 BaseTermExpression
     = ExistsKeyword ws* FieldSeparator ws* field:FieldName {
         return {
-            type: ASTType.Exists,
+            type: i.ASTType.Exists,
             field,
         }
     }
@@ -369,14 +241,14 @@ UnqoutedTermType
 RangeExpression
     = left:LeftRangeExpression ws+ RangeJoinOperator ws+ right:RightRangeExpression {
         return {
-            type: ASTType.Range,
+            type: i.ASTType.Range,
             left,
             right,
         }
     }
     / operator:RangeOperator value:TermType {
         return {
-            type: ASTType.Range,
+            type: i.ASTType.Range,
             left: {
                 operator,
                 ...value,
@@ -403,28 +275,28 @@ RightRangeExpression
 GeoTermType
     = point:GeoPoint ws* distance:GeoDistance {
         return {
-            type: ASTType.GeoDistance,
+            type: i.ASTType.GeoDistance,
             ...point,
             ...distance
         }
     }
     / distance:GeoDistance ws* point:GeoPoint {
         return {
-            type: ASTType.GeoDistance,
+            type: i.ASTType.GeoDistance,
             ...point,
             ...distance
         }
     }
     / topLeft:GeoTopLeft ws* bottomRight:GeoBottomRight {
         return {
-            type: ASTType.GeoBoundingBox,
+            type: i.ASTType.GeoBoundingBox,
             ...topLeft,
             ...bottomRight
         }
     }
     / bottomRight:GeoBottomRight ws* topLeft:GeoTopLeft  {
         return {
-            type: ASTType.GeoBoundingBox,
+            type: i.ASTType.GeoBoundingBox,
             ...topLeft,
             ...bottomRight
         }
@@ -460,8 +332,8 @@ TermType
 NegativeInfinityType
     = '*' {
         return {
-            type: ASTType.Term,
-            field_type: FieldType.Integer,
+            type: i.ASTType.Term,
+            field_type: i.FieldType.Integer,
             value: Number.NEGATIVE_INFINITY
         }
     }
@@ -469,8 +341,8 @@ NegativeInfinityType
 PostiveInfinityType
     = '*' {
         return {
-            type: ASTType.Term,
-            field_type: FieldType.Integer,
+            type: i.ASTType.Term,
+            field_type: i.FieldType.Integer,
             value: Number.POSITIVE_INFINITY
         }
     }
@@ -478,8 +350,8 @@ PostiveInfinityType
 FloatType
     = value:Float {
         return {
-            type: ASTType.Term,
-            field_type: FieldType.Float,
+            type: i.ASTType.Term,
+            field_type: i.FieldType.Float,
             value
         }
     }
@@ -487,8 +359,8 @@ FloatType
 IntegerType
     = value:Integer {
         return {
-            type: ASTType.Term,
-            field_type: FieldType.Integer,
+            type: i.ASTType.Term,
+            field_type: i.FieldType.Integer,
             value
         }
     }
@@ -496,8 +368,8 @@ IntegerType
 BooleanType
   = value:Boolean {
       return {
-        type: ASTType.Term,
-        field_type: FieldType.Boolean,
+        type: i.ASTType.Term,
+        field_type: i.FieldType.Boolean,
         value
       }
   }
@@ -505,8 +377,8 @@ BooleanType
 RegexpType
     = value:Regex {
         return {
-            type: ASTType.Regexp,
-            field_type: FieldType.String,
+            type: i.ASTType.Regexp,
+            field_type: i.FieldType.String,
             value
         }
     }
@@ -514,8 +386,8 @@ RegexpType
 WildcardType
   = value:Wildcard {
        return {
-           type: ASTType.Wildcard,
-           field_type: FieldType.String,
+           type: i.ASTType.Wildcard,
+           field_type: i.FieldType.String,
            value
        };
     }
@@ -523,8 +395,8 @@ WildcardType
 QuotedStringType
     = value:QuotedTerm {
         return {
-            type: ASTType.Term,
-            field_type: FieldType.String,
+            type: i.ASTType.Term,
+            field_type: i.FieldType.String,
             quoted: true,
             value
         };
@@ -533,8 +405,8 @@ QuotedStringType
 UnqoutedStringType
     = value:UnquotedTerm {
        return {
-           type: ASTType.Term,
-           field_type: FieldType.String,
+           type: i.ASTType.Term,
+           field_type: i.FieldType.String,
            quoted: false,
            value
        };
@@ -543,8 +415,8 @@ UnqoutedStringType
 RestrictedStringType
     = value:RestrictedString {
        return {
-           type: ASTType.Term,
-           field_type: FieldType.String,
+           type: i.ASTType.Term,
+           field_type: i.FieldType.String,
            restricted: true,
            quoted: false,
            value

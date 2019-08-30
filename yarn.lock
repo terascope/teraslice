@@ -13437,11 +13437,6 @@ pbkdf2@^3.0.3:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
-pegjs-backtrace@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/pegjs-backtrace/-/pegjs-backtrace-0.2.0.tgz#f6083d80059640af2fc96ec1541f1c640ed69512"
-  integrity sha512-wWczRCecnPlAdSc6Sfqb+3RY89Rhfcxud6+45tuN6f2BNJDd0vQaHIC4TggdlLfMrlhhy37MhznV+Axj2k7xyQ==
-
 pegjs@^0.10.0:
   version "0.10.0"
   resolved "https://registry.yarnpkg.com/pegjs/-/pegjs-0.10.0.tgz#cf8bafae6eddff4b5a7efb185269eaaf4610ddbd"
@@ -17160,6 +17155,13 @@ ts-loader@^6.0.3:
     loader-utils "^1.0.2"
     micromatch "^4.0.0"
     semver "^6.0.0"
+
+ts-pegjs@^0.2.6:
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/ts-pegjs/-/ts-pegjs-0.2.6.tgz#fc6261cca04736c43e58c630ecfc5dcff23dbb39"
+  integrity sha512-mIX/dMQ6a1EHAEhvCLS6Z41+O700zlLiwB4V5ZSlKFLZKLDE93reik5IFw/HJsKgs488UiLx144yeEWWyu7YIw==
+  dependencies:
+    pegjs "^0.10.0"
 
 ts-pnp@1.1.2, ts-pnp@^1.1.2:
   version "1.1.2"

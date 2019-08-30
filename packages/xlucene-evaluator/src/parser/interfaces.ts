@@ -126,6 +126,7 @@ export interface Exists {
 export type RangeOperator = 'gte'|'gt'|'lt'|'lte';
 export interface Range extends TermLikeAST {
     type: ASTType.Range;
+    field_type: FieldType;
     left: RangeNode;
     right?: RangeNode;
 }
@@ -136,6 +137,7 @@ export interface RangeNode extends NumberDataType {
 
 export interface GeoDistance extends GeoPoint, TermLikeAST {
     type: ASTType.GeoDistance;
+    field_type: FieldType.Geo;
     distance: number;
     unit: GeoDistanceUnit;
 }
@@ -147,6 +149,7 @@ export interface GeoPoint {
 
 export interface GeoBoundingBox extends TermLikeAST {
     type: ASTType.GeoBoundingBox;
+    field_type: FieldType.Geo;
     top_left: GeoPoint;
     bottom_right: GeoPoint;
 }
