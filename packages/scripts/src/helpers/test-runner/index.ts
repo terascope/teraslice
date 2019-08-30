@@ -109,6 +109,7 @@ async function runTestSuite(
     pkgInfos: PackageInfo[],
     options: TestOptions
 ): Promise<string[]> {
+    if (suite === TestSuite.E2E) return [];
     let cleanup = () => {};
     const errors: string[] = [];
 
