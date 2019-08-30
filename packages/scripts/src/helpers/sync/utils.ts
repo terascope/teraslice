@@ -23,14 +23,14 @@ export async function verifyCommitted(throwOutOfSync: boolean) {
 
     if (!changed.length) return;
     if (throwOutOfSync) {
-        signale.error(
-            `Before running this command make sure to commit the following files:${formatList(changed)}`
-        );
+        console.error(`Before running this command make sure to commit the following files
+${formatList(changed)}
+`);
         process.exit(1);
     } else {
-        signale.warn(
-            `Running this command with uncommitted changes is not recommended:${formatList(changed)}`
-        );
+        console.error(`Running this command with uncommitted changes is not recommended:
+${formatList(changed)}
+`);
     }
 }
 
@@ -41,18 +41,14 @@ export async function verify(files: string[], throwOutOfSync: boolean) {
     ]));
 
     if (!changed.length) return;
+    console.error(`
+This command made changes to the following files:
+${formatList(changed)}
+
+'Make sure to run yarn and commit your changes'
+`);
     if (throwOutOfSync) {
-        signale.error(
-            `This command made changes to the following files:${formatList(changed)}`
-        );
         process.exit(1);
-    } else {
-        signale.warn(
-            `Running this command made changes to the following files:${formatList(changed)}`
-        );
-        signale.warn(
-            'Make sure to run `yarn` and commit your changes'
-        );
     }
 }
 

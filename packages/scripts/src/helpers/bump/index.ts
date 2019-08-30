@@ -18,6 +18,15 @@ export async function bumpPackages(pkgInfos: PackageInfo[], options: BumpPackage
         await bumpPackage(pkgInfo, { ...options });
         runOnce = true;
     }
+    const folderNames = pkgInfos.map(({ folderName }) => folderName).join(', ');
+    const commitMsg = `bump(${options.release}) ${folderNames}`;
+    // eslint-disable-next-line no-console
+    console.log(`
+Please commit these changes:
+
+    git commit -am "${commitMsg}"
+    git push
+`);
 }
 
 export async function bumpPackage(mainPkgInfo: PackageInfo, options: BumpPackageOptions) {
