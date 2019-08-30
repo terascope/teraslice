@@ -1,6 +1,6 @@
 import path from 'path';
 import semver from 'semver';
-import { getFirstChar } from '@terascope/utils';
+import { getFirstChar, uniq } from '@terascope/utils';
 import { getChangedFiles } from '../scripts';
 import { PackageInfo } from '../interfaces';
 import { formatList } from '../misc';
@@ -9,7 +9,7 @@ import signale from '../signale';
 export async function verify(files: string[], throwOutOfSync: boolean) {
     if (!throwOutOfSync) return;
 
-    const changed = await getChangedFiles(...files);
+    const changed = await getChangedFiles(...uniq(files));
     if (changed.length) {
         signale.error(
             `Files have either changes or are out-of-sync, run 'yarn sync' and push up the changes:${formatList(changed)}`
@@ -18,14 +18,11 @@ export async function verify(files: string[], throwOutOfSync: boolean) {
     }
 }
 
-export function getFiles(pkgInfo?: PackageInfo): string[] {
-    if (pkgInfo) {
-        return [
-            path.join('packages', pkgInfo.folderName),
-            path.join('docs/packages', pkgInfo.folderName)
-        ];
-    }
-    return ['packages', 'docs', 'website'];
+export function getFiles(pkgInfo: PackageInfo): string[] {
+    return [
+        path.join(path.basename(pkgInfo.dir), pkgInfo.folderName),
+        path.join(`docs/${path.basename(pkgInfo.dir)}`, pkgInfo.folderName)
+    ];
 }
 
 export function syncVersions(packages: PackageInfo[]) {

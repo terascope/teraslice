@@ -4,8 +4,10 @@ import { PackageInfo } from '../interfaces';
 import { getRootDir, writeIfChanged } from '../misc';
 
 export async function generateReadme(pkgInfo: PackageInfo): Promise<string> {
+    const rootFolder = path.basename(pkgInfo.dir);
     const rootPkgJSON = await fse.readJSON(path.join(getRootDir(), 'package.json'));
-    const docsPath = `docs/packages/${pkgInfo.folderName}/overview`;
+
+    const docsPath = `docs/${rootFolder}/${pkgInfo.folderName}/overview`;
     const issuesUrl = `${rootPkgJSON.bugs.url}?q=is%3Aopen+is%3Aissue+label%3Apkg%2F${pkgInfo.folderName}`;
 
     return `<!-- THIS FILE IS AUTO-GENERATED, EDIT ${docsPath}.md -->
@@ -15,8 +17,8 @@ export async function generateReadme(pkgInfo: PackageInfo): Promise<string> {
 > ${pkgInfo.description}
 
 This a package within the [${rootPkgJSON.displayName}](${rootPkgJSON.homepage}) monorepo. See our [documentation](${
-        rootPkgJSON.documentation
-    }/${docsPath}) for more information or the [issues](${issuesUrl}) associated with this package
+    rootPkgJSON.documentation
+}/${docsPath}) for more information or the [issues](${issuesUrl}) associated with this package
 
 ## Contributing
 

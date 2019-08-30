@@ -7,7 +7,8 @@ import { SyncOptions } from './interfaces';
 import { writePkgHeader } from '../misc';
 
 export async function syncAll(options: SyncOptions) {
-    const files: string[] = [];
+    const files: string[] = ['website'];
+
     const pkgInfos = listPackages();
     syncVersions(pkgInfos);
 
@@ -17,11 +18,11 @@ export async function syncAll(options: SyncOptions) {
     }
 
     await updateSidebarJSON();
-    await verify(getFiles(), options.verify);
+    await verify(files, options.verify);
 }
 
 export async function syncPackages(pkgInfos: PackageInfo[], options: SyncOptions) {
-    const files: string[] = [];
+    const files: string[] = ['website'];
 
     writePkgHeader('Syncing files', pkgInfos);
     syncVersions(pkgInfos);
