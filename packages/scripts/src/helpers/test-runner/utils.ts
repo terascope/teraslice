@@ -3,10 +3,18 @@ import path from 'path';
 import isCI from 'is-ci';
 import fse from 'fs-extra';
 import {
-    debugLogger, get, TSError, isFunction
+    debugLogger,
+    get,
+    TSError,
+    isFunction
 } from '@terascope/utils';
 import {
-    ArgsMap, ExecEnv, exec, fork, dockerPull, dockerBuild
+    ArgsMap,
+    ExecEnv,
+    exec,
+    fork,
+    dockerPull,
+    dockerBuild
 } from '../scripts';
 import { TestOptions, GroupedPackages } from './interfaces';
 import { PackageInfo, TestSuite } from '../interfaces';

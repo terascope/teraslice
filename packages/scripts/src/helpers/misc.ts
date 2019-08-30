@@ -29,11 +29,15 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
     if (!isRoot) return undefined;
     return {
         root: isRoot,
+        name: pkg.name,
         type: get(pkg, 'terascope.type', 'monorepo'),
         docker: {
             image: get(pkg, 'terascope.docker.registry', 'terascope/teraslice'),
             cache_layers: get(pkg, 'terascope.docker.cache_layers', []),
         },
+        dependencies: pkg.dependencies,
+        devDependencies: pkg.devDependencies,
+        peerDependencies: pkg.peerDependencies,
     };
 }
 

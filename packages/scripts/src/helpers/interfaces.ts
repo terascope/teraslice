@@ -1,6 +1,7 @@
 export type PackageInfo = {
     dir: string;
     folderName: string;
+    private?: boolean;
     name: string;
     displayName: string;
     version: string;
@@ -33,12 +34,22 @@ export type PackageConfig = {
 };
 
 export type RootPackageInfo = {
+    name: string;
     root: boolean;
     // TODO support more than monorepo
     type: 'monorepo';
     docker: {
         image: string;
         cache_layers: ({ from: string; name: string })[];
+    };
+    dependencies?: {
+        [pkg: string]: string;
+    };
+    devDependencies?: {
+        [pkg: string]: string;
+    };
+    peerDependencies?: {
+        [pkg: string]: string;
     };
 };
 

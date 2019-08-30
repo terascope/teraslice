@@ -6,8 +6,10 @@ import { PackageInfo } from '../interfaces';
 import { SyncOptions } from './interfaces';
 import { writePkgHeader } from '../misc';
 
+const topLevelFiles: readonly string[] = ['website/sidebars.json', 'package.json'];
+
 export async function syncAll(options: SyncOptions) {
-    const files: string[] = ['website'];
+    const files: string[] = [...topLevelFiles];
 
     const pkgInfos = listPackages();
     syncVersions(pkgInfos);
@@ -22,7 +24,7 @@ export async function syncAll(options: SyncOptions) {
 }
 
 export async function syncPackages(pkgInfos: PackageInfo[], options: SyncOptions) {
-    const files: string[] = ['website'];
+    const files: string[] = [...topLevelFiles];
 
     writePkgHeader('Syncing files', pkgInfos);
     syncVersions(pkgInfos);

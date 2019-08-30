@@ -2,8 +2,8 @@ import path from 'path';
 import semver from 'semver';
 import { getFirstChar, uniq } from '@terascope/utils';
 import { getChangedFiles } from '../scripts';
-import { PackageInfo } from '../interfaces';
-import { formatList } from '../misc';
+import { PackageInfo, TestSuite, RootPackageInfo } from '../interfaces';
+import { formatList, getRootInfo } from '../misc';
 import signale from '../signale';
 
 export async function verify(files: string[], throwOutOfSync: boolean) {
@@ -19,9 +19,17 @@ export async function verify(files: string[], throwOutOfSync: boolean) {
 }
 
 export function getFiles(pkgInfo: PackageInfo): string[] {
+    const baseName = path.basename(pkgInfo.dir);
+    const suite = pkgInfo.terascope.testSuite;
+    if (suite === TestSuite.E2E) {
+        return [
+            path.join('docs/development', `${suite}.md`),
+            baseName,
+        ];
+    }
     return [
-        path.join(path.basename(pkgInfo.dir), pkgInfo.folderName),
-        path.join(`docs/${path.basename(pkgInfo.dir)}`, pkgInfo.folderName)
+        path.join(baseName, pkgInfo.folderName),
+        path.join('docs', baseName, pkgInfo.folderName)
     ];
 }
 
@@ -57,7 +65,7 @@ export function syncVersions(packages: PackageInfo[]) {
     }
 
     type DepKey = 'dependencies'|'devDependencies'|'peerDependencies';
-    function forDeps(pkgInfo: PackageInfo, key: DepKey): void {
+    function forDeps(pkgInfo: PackageInfo|RootPackageInfo, key: DepKey): void {
         const deps = pkgInfo[key] || {};
         for (const [name, version] of Object.entries(deps)) {
             const val = getVersion(version, false);
@@ -74,6 +82,8 @@ export function syncVersions(packages: PackageInfo[]) {
     }
 
     for (const pkgInfo of packages) {
+        if (pkgInfo.private) continue;
+
         const val = getVersion(pkgInfo.version, true);
         if (!val) {
             throw new Error(
@@ -95,6 +105,11 @@ export function syncVersions(packages: PackageInfo[]) {
         forDeps(pkgInfo, 'devDependencies');
         forDeps(pkgInfo, 'peerDependencies');
     }
+
+    const rootInfo = getRootInfo();
+    forDeps(rootInfo, 'dependencies');
+    forDeps(rootInfo, 'devDependencies');
+    forDeps(rootInfo, 'peerDependencies');
 
     return packages;
 }
