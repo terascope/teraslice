@@ -14,7 +14,7 @@
         "benchmark": "lerna run --concurrency=1 --no-prefix --stream benchmark",
         "sync": "ts-scripts sync",
         "docs": "ts-scripts docs",
-        "bump": "ts-scripts bump",
+        "bump": "yarn sync --verify && ts-scripts bump",
         "test": "ts-scripts test",
         "lint": "yarn lint:es && yarn sync --verify",
         "lint:es": "eslint --cache --ext .js,.jsx,.ts,.tsx .",

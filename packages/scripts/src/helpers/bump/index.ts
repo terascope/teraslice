@@ -2,8 +2,8 @@ import semver from 'semver';
 import { get } from '@terascope/utils';
 import { PackageInfo } from '../interfaces';
 import { listPackages, updatePkgJSON, readPackageInfo } from '../packages';
-import signale from '../signale';
 import { writePkgHeader } from '../misc';
+import signale from '../signale';
 
 export type BumpPackageOptions = {
     release: semver.ReleaseType;
