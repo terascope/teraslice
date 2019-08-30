@@ -10,7 +10,8 @@ describe('Sync Helpers', () => {
                     name: 'package-1',
                     version: '1.0.0',
                     dependencies: {
-                        'ex-1': '^0.2.0'
+                        'ex-1': '^0.2.0',
+                        'fixed-1': 'not-semver-reference',
                     }
                 } as any,
                 {
@@ -20,10 +21,11 @@ describe('Sync Helpers', () => {
                         'ex-1': '^0.1.0',
                         'package-1': '~1.0.1',
                         'ex-3': '~4.4.4',
+                        'star-1': '*',
                     },
                     peerDependencies: {
                         'ex-2': '~1.0.0',
-                        'ex-3': '~5.0.0-beta.2',
+                        'ex-3': '~5.0.0-beta.2'
                     },
                 } as any,
                 {
@@ -56,7 +58,8 @@ describe('Sync Helpers', () => {
                     name: 'package-1',
                     version: '1.0.0',
                     dependencies: {
-                        'ex-1': '^3.0.0'
+                        'ex-1': '^3.0.0',
+                        'fixed-1': 'not-semver-reference',
                     }
                 });
             });
@@ -70,6 +73,7 @@ describe('Sync Helpers', () => {
                         'ex-1': '^3.0.0',
                         'package-1': '^1.0.0',
                         'ex-3': '~5.5.5-beta.3',
+                        'star-1': '*',
                     },
                     peerDependencies: {
                         'ex-2': '^2.0.0',

@@ -1,14 +1,19 @@
 import { updateReadme, ensureOverview } from '../docs/overview';
 import { listPackages, updatePkgJSON } from '../packages';
+import { verify, getFiles, syncVersions } from './utils';
 import { updateSidebarJSON } from '../docs/sidebar';
 import { PackageInfo } from '../interfaces';
 import { SyncOptions } from './interfaces';
-import { verify, getFiles } from './utils';
 import { writePkgHeader } from '../misc';
 
 export async function syncAll(options: SyncOptions) {
-    for (const pkgInfo of listPackages()) {
-        await syncPackages([pkgInfo], { ...options, verify: false });
+    const files: string[] = [];
+    const pkgInfos = listPackages();
+    syncVersions(pkgInfos);
+
+    for (const pkgInfo of pkgInfos) {
+        writePkgHeader('Syncing files', [pkgInfo]);
+        await _syncPackage(files, pkgInfo);
     }
 
     await updateSidebarJSON();
@@ -19,16 +24,21 @@ export async function syncPackages(pkgInfos: PackageInfo[], options: SyncOptions
     const files: string[] = [];
 
     writePkgHeader('Syncing files', pkgInfos);
+    syncVersions(pkgInfos);
 
     await Promise.all(
         pkgInfos.map(async (pkgInfo) => {
-            await updateReadme(pkgInfo);
-            await ensureOverview(pkgInfo);
-            await updatePkgJSON(pkgInfo);
-
-            files.push(...getFiles(pkgInfo));
+            await _syncPackage(files, pkgInfo);
         })
     );
 
     await verify(files, options.verify);
+}
+
+async function _syncPackage(files: string[], pkgInfo: PackageInfo) {
+    await updateReadme(pkgInfo);
+    await ensureOverview(pkgInfo);
+    await updatePkgJSON(pkgInfo);
+
+    files.push(...getFiles(pkgInfo));
 }

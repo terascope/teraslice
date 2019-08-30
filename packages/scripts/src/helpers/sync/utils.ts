@@ -47,7 +47,11 @@ export function syncVersions(packages: PackageInfo[]) {
             return val;
         }
 
-        if (semver.gte(val.version, external.version)) {
+        if (!val.valid) {
+            return val;
+        }
+
+        if (external.valid && semver.gte(val.version, external.version)) {
             externalVersions[name] = val;
             return external;
         }
@@ -59,26 +63,26 @@ export function syncVersions(packages: PackageInfo[]) {
     function forDeps(pkgInfo: PackageInfo, key: DepKey): void {
         const deps = pkgInfo[key] || {};
         for (const [name, version] of Object.entries(deps)) {
-            const val = getVersion(version, '');
-            if (!val) {
-                throw new Error(
-                    `Package ${pkgInfo.name} has invalid ${key}['${name}'] version of ${version}`
+            const val = getVersion(version, false);
+            const latest = getLatest(name, val);
+            const updateTo = `${latest.range}${latest.version}`;
+            if (version !== updateTo) {
+                const currentInfo = `${pkgInfo.name}->${key}['${name}']: ${version}`;
+                signale.warn(
+                    `* found out-of-date version for ${currentInfo}, updating to ${updateTo}`
                 );
             }
-
-            const latest = getLatest(name, val);
-            deps[name] = `${latest.range}${latest.version}`;
+            deps[name] = updateTo;
         }
     }
 
     for (const pkgInfo of packages) {
-        const val = getVersion(pkgInfo.version);
+        const val = getVersion(pkgInfo.version, true);
         if (!val) {
             throw new Error(
                 `Package ${pkgInfo.name} has invalid version of ${pkgInfo.version}`
             );
         }
-
         internalVersions[pkgInfo.name] = val;
     }
 
@@ -98,10 +102,14 @@ export function syncVersions(packages: PackageInfo[]) {
     return packages;
 }
 
-function getVersion(input: string, defaultRange = '^'): VersionVal|null {
+function getVersion(input: string, strict: false): VersionVal;
+function getVersion(input: string, strict: true): VersionVal|undefined;
+function getVersion(input: string, strict: boolean): VersionVal|undefined {
     if (input === '*') {
+        if (strict) return undefined;
         return {
             version: '*',
+            valid: false,
             range: ''
         };
     }
@@ -112,19 +120,28 @@ function getVersion(input: string, defaultRange = '^'): VersionVal|null {
         : undefined;
 
     const _input = range ? input.slice(1) : input;
-    const parseResult = semver.parse(_input, {
-        loose: true
-    });
+    const version = semver.valid(_input);
 
-    if (!parseResult) return null;
+    if (!version) {
+        if (strict) return undefined;
+        return {
+            version: input,
+            valid: false,
+            range: ''
+        };
+    }
+
+    const defaultRange = strict ? '^' : '';
 
     return {
-        version: parseResult.raw,
+        version,
+        valid: true,
         range: range != null ? range : defaultRange,
     };
 }
 
 type VersionVal = {
     version: string;
+    valid: boolean;
     range: string;
 };

@@ -75,6 +75,7 @@ export function readPackageInfo(folderPath: string): i.PackageInfo {
     return pkgJSON;
 }
 
+
 export function getPkgInfo(name: string): i.PackageInfo {
     const found = listPackages().find((info) => [info.name, info.folderName].includes(name));
     if (!found) {
