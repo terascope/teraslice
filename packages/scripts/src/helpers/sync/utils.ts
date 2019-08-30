@@ -7,15 +7,51 @@ import { formatList, getRootDir } from '../misc';
 import signale from '../signale';
 import { getDocPath } from '../packages';
 
-export async function verify(files: string[], throwOutOfSync: boolean) {
-    if (!throwOutOfSync) return;
+const topLevelFiles: readonly string[] = [
+    'website/sidebars.json',
+    'package.json',
+    'yarn.lock'
+];
 
-    const changed = await getChangedFiles(...uniq(files));
-    if (changed.length) {
+export async function ensureCommitted(throwOutOfSync: boolean) {
+    const changed = await getChangedFiles(
+        ...topLevelFiles,
+        'docs',
+        'packages',
+    );
+
+    if (!changed.length) return;
+    if (throwOutOfSync) {
         signale.error(
-            `Files have either changes or are out-of-sync, run 'yarn sync' and push up the changes:${formatList(changed)}`
+            `Before running this command make sure to commit the following files:${formatList(changed)}`
         );
         process.exit(1);
+    } else {
+        signale.warn(
+            `Running this command with uncommitted changes is not recommended:${formatList(changed)}`
+        );
+    }
+}
+
+export async function verify(files: string[], throwOutOfSync: boolean) {
+    const changed = await getChangedFiles(...uniq([
+        ...topLevelFiles,
+        ...files,
+    ]));
+
+    if (!changed.length) return;
+    if (throwOutOfSync) {
+        signale.error(
+            `This command made changes to the following files:${formatList(changed)}`
+        );
+        process.exit(1);
+    } else {
+        signale.warn(
+            `Running this command made changes to the following files:${formatList(changed)}`
+        );
+        signale.warn(
+            'Make sure `yarn` and commit your changes'
+        );
     }
 }
 
