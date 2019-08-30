@@ -1,6 +1,6 @@
 
 import {
-    get, TSError, startsWith, Logger
+    get, TSError, Logger
 } from '@terascope/utils';
 import * as apollo from 'apollo-server-express';
 import accepts from 'accepts';
