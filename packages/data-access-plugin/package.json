@@ -43,7 +43,7 @@
         "graphql-query-complexity": "^0.3.0",
         "graphql-type-json": "^0.3.0",
         "terafoundation": "^0.12.1",
-        "xlucene-evaluator": "^0.10.1"
+        "xlucene-evaluator": "^0.10.2"
     },
     "devDependencies": {
         "@terascope/job-components": "^0.23.2",
