@@ -2,9 +2,10 @@ import path from 'path';
 import semver from 'semver';
 import { getFirstChar, uniq } from '@terascope/utils';
 import { getChangedFiles } from '../scripts';
-import { PackageInfo, TestSuite, RootPackageInfo } from '../interfaces';
-import { formatList, getRootInfo } from '../misc';
+import { PackageInfo, RootPackageInfo } from '../interfaces';
+import { formatList, getRootInfo, getRootDir } from '../misc';
 import signale from '../signale';
+import { getDocPath } from '../packages';
 
 export async function verify(files: string[], throwOutOfSync: boolean) {
     if (!throwOutOfSync) return;
@@ -19,17 +20,10 @@ export async function verify(files: string[], throwOutOfSync: boolean) {
 }
 
 export function getFiles(pkgInfo: PackageInfo): string[] {
-    const baseName = path.basename(pkgInfo.dir);
-    const suite = pkgInfo.terascope.testSuite;
-    if (suite === TestSuite.E2E) {
-        return [
-            path.join('docs/development', `${suite}.md`),
-            baseName,
-        ];
-    }
+    const docPath = getDocPath(pkgInfo, false);
     return [
-        path.join(baseName, pkgInfo.folderName),
-        path.join('docs', baseName, pkgInfo.folderName)
+        path.relative(getRootDir(), pkgInfo.dir),
+        docPath
     ];
 }
 

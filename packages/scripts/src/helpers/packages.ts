@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import fse from 'fs-extra';
-import { uniq } from '@terascope/utils';
+import { uniq, fastCloneDeep } from '@terascope/utils';
 // @ts-ignore
 import QueryGraph from '@lerna/query-graph';
 import sortPackageJson from 'sort-package-json';
@@ -119,5 +119,31 @@ export function updatePkgJSON(pkgInfo: i.PackageInfo, log?: boolean): Promise<bo
 }
 
 function getSortedPkgJSON(pkgInfo: i.PackageInfo) {
-    return JSON.parse(JSON.stringify(sortPackageJson(pkgInfo)));
+    return fastCloneDeep(sortPackageJson(pkgInfo));
+}
+
+
+export function getDocPath(pkgInfo: i.PackageInfo, withFileName: boolean, withExt = true): string {
+    const suite = pkgInfo.terascope.testSuite;
+    if (suite === i.TestSuite.E2E) {
+        const e2eDevDocs = path.join('docs/development');
+        fse.ensureDirSync(e2eDevDocs);
+        if (withFileName) {
+            return path.join(
+                e2eDevDocs,
+                withExt ? `${pkgInfo.folderName}.md` : pkgInfo.folderName
+            );
+        }
+        return e2eDevDocs;
+    }
+
+    const docPath = path.join('docs/packages', pkgInfo.folderName);
+    fse.ensureDirSync(docPath);
+    if (withFileName) {
+        return path.join(
+            docPath,
+            withExt ? 'overview.md' : 'overview'
+        );
+    }
+    return docPath;
 }

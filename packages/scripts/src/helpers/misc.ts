@@ -30,6 +30,12 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
     return {
         root: isRoot,
         name: pkg.name,
+        displayName: pkg.displayName || getName(pkg.name),
+        documentation: pkg.documentation || '',
+        homepage: pkg.homepage || '',
+        bugs: {
+            url: get(pkg, 'bugs.url', ''),
+        },
         type: get(pkg, 'terascope.type', 'monorepo'),
         docker: {
             image: get(pkg, 'terascope.docker.registry', 'terascope/teraslice'),

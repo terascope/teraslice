@@ -34,10 +34,16 @@ export type PackageConfig = {
 };
 
 export type RootPackageInfo = {
-    name: string;
     root: boolean;
     // TODO support more than monorepo
     type: 'monorepo';
+    name: string;
+    displayName: string;
+    bugs: {
+        url: string;
+    };
+    documentation: string;
+    homepage: string;
     docker: {
         image: string;
         cache_layers: ({ from: string; name: string })[];
