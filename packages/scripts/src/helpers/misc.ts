@@ -144,7 +144,7 @@ export async function writeIfChanged(
 }
 
 export function formatList(list: string[]) {
-    return `\n\n - ${list.join('\n - ')}`;
+    return `\n - ${list.join('\n - ')}`;
 }
 
 export function writeHeader(msg: string, prefixNewline?: boolean): void {

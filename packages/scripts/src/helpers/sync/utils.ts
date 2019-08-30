@@ -1,11 +1,12 @@
 import path from 'path';
 import semver from 'semver';
 import { getFirstChar, uniq } from '@terascope/utils';
-import { getChangedFiles } from '../scripts';
 import { PackageInfo, RootPackageInfo } from '../interfaces';
+import { updateReadme, ensureOverview } from '../docs/overview';
+import { getDocPath, updatePkgJSON } from '../packages';
 import { formatList, getRootDir } from '../misc';
+import { getChangedFiles } from '../scripts';
 import signale from '../signale';
-import { getDocPath } from '../packages';
 
 const topLevelFiles: readonly string[] = [
     'website/sidebars.json',
@@ -13,7 +14,7 @@ const topLevelFiles: readonly string[] = [
     'yarn.lock'
 ];
 
-export async function ensureCommitted(throwOutOfSync: boolean) {
+export async function verifyCommitted(throwOutOfSync: boolean) {
     const changed = await getChangedFiles(
         ...topLevelFiles,
         'docs',
@@ -50,7 +51,7 @@ export async function verify(files: string[], throwOutOfSync: boolean) {
             `Running this command made changes to the following files:${formatList(changed)}`
         );
         signale.warn(
-            'Make sure `yarn` and commit your changes'
+            'Make sure to run `yarn` and commit your changes'
         );
     }
 }
@@ -61,6 +62,14 @@ export function getFiles(pkgInfo: PackageInfo): string[] {
         path.relative(getRootDir(), pkgInfo.dir),
         docPath
     ];
+}
+
+export async function syncPackage(files: string[], pkgInfo: PackageInfo) {
+    await updateReadme(pkgInfo);
+    await ensureOverview(pkgInfo);
+    await updatePkgJSON(pkgInfo);
+
+    files.push(...getFiles(pkgInfo));
 }
 
 export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo) {

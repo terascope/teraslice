@@ -52,8 +52,8 @@ const cmd: CommandModule = {
             })
             .requiresArg('packages');
     },
-    handler(argv) {
-        syncAll({ verify: true });
+    async handler(argv) {
+        await syncAll({ verify: true });
         return bumpPackages(argv.packages as PackageInfo[], {
             preId: argv['prelease-id'] as string | undefined,
             release: argv.release as ReleaseType,
