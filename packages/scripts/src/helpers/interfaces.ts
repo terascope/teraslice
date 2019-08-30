@@ -34,9 +34,8 @@ export type PackageConfig = {
 };
 
 export type RootPackageInfo = {
-    root: boolean;
-    // TODO support more than monorepo
-    type: 'monorepo';
+    dir: string;
+    folderName: string;
     name: string;
     displayName: string;
     bugs: {
@@ -44,9 +43,13 @@ export type RootPackageInfo = {
     };
     documentation: string;
     homepage: string;
-    docker: {
-        image: string;
-        cache_layers: ({ from: string; name: string })[];
+    terascope: {
+        root: boolean;
+        type: 'monorepo';
+        docker: {
+            registry: string;
+            cache_layers: ({ from: string; name: string })[];
+        };
     };
     dependencies?: {
         [pkg: string]: string;

@@ -1,6 +1,7 @@
 import 'jest-extended';
 import { PackageInfo } from '../src/helpers/interfaces';
 import { syncVersions } from '../src/helpers/sync/utils';
+import { getRootInfo } from '../src/helpers/misc';
 
 describe('Sync Helpers', () => {
     describe('->syncVersions', () => {
@@ -45,7 +46,7 @@ describe('Sync Helpers', () => {
 
             let updated: PackageInfo[];
             beforeAll(() => {
-                updated = syncVersions(packages);
+                updated = syncVersions(packages, getRootInfo());
             });
 
             it('should return 3 packages', () => {

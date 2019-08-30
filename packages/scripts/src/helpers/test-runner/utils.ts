@@ -222,14 +222,14 @@ function getCacheFrom(): string[] {
     if (!isCI) return [];
 
     const rootInfo = getRootInfo();
-    const layers = rootInfo.docker.cache_layers || [];
+    const layers = rootInfo.terascope.docker.cache_layers || [];
     if (!layers.length) return [];
     const cacheFrom: { [name: string]: string } = {};
     layers.forEach(({ from, name }) => {
         if (cacheFrom[from] == null) {
             cacheFrom[from] = from;
         }
-        cacheFrom[name] = `${rootInfo.docker.image}:dev-${name}`;
+        cacheFrom[name] = `${rootInfo.terascope.docker.registry}:dev-${name}`;
     });
     return Object.values(cacheFrom);
 }

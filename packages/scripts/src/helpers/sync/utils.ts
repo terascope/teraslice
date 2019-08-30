@@ -3,7 +3,7 @@ import semver from 'semver';
 import { getFirstChar, uniq } from '@terascope/utils';
 import { getChangedFiles } from '../scripts';
 import { PackageInfo, RootPackageInfo } from '../interfaces';
-import { formatList, getRootInfo, getRootDir } from '../misc';
+import { formatList, getRootDir } from '../misc';
 import signale from '../signale';
 import { getDocPath } from '../packages';
 
@@ -27,7 +27,7 @@ export function getFiles(pkgInfo: PackageInfo): string[] {
     ];
 }
 
-export function syncVersions(packages: PackageInfo[]) {
+export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo) {
     const externalVersions: Record<string, VersionVal> = {};
     const internalVersions: Record<string, VersionVal> = {};
 
@@ -100,7 +100,6 @@ export function syncVersions(packages: PackageInfo[]) {
         forDeps(pkgInfo, 'peerDependencies');
     }
 
-    const rootInfo = getRootInfo();
     forDeps(rootInfo, 'dependencies');
     forDeps(rootInfo, 'devDependencies');
     forDeps(rootInfo, 'peerDependencies');
