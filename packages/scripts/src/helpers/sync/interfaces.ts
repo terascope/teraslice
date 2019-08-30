@@ -1,3 +1,3 @@
 export type SyncOptions = {
-    verify?: boolean;
+    verify: boolean;
 };

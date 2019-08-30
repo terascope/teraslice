@@ -6,16 +6,16 @@ import { SyncOptions } from './interfaces';
 import { verify, getFiles } from './utils';
 import { writePkgHeader } from '../misc';
 
-export async function syncAll(options: SyncOptions = {}) {
+export async function syncAll(options: SyncOptions) {
     for (const pkgInfo of listPackages()) {
         await syncPackages([pkgInfo], { ...options, verify: false });
     }
 
     await updateSidebarJSON();
-    await verify(getFiles(), options);
+    await verify(getFiles(), options.verify);
 }
 
-export async function syncPackages(pkgInfos: PackageInfo[], options: SyncOptions = {}) {
+export async function syncPackages(pkgInfos: PackageInfo[], options: SyncOptions) {
     const files: string[] = [];
 
     writePkgHeader('Syncing files', pkgInfos);
@@ -30,5 +30,5 @@ export async function syncPackages(pkgInfos: PackageInfo[], options: SyncOptions
         })
     );
 
-    await verify(files, options);
+    await verify(files, options.verify);
 }

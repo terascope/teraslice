@@ -9,6 +9,18 @@ import { getName, getRootDir, writeIfChanged } from './misc';
 import * as i from './interfaces';
 
 let _packages: i.PackageInfo[] = [];
+let _e2eDir: string|undefined;
+
+export function getE2EDir(): string|undefined {
+    if (_e2eDir) return _e2eDir;
+
+    if (fs.existsSync(path.join(getRootDir(), 'e2e'))) {
+        _e2eDir = path.join(getRootDir(), 'e2e');
+        return _e2eDir;
+    }
+
+    return undefined;
+}
 
 export function listPackages(): i.PackageInfo[] {
     if (_packages && _packages.length) return _packages.slice();
@@ -17,15 +29,22 @@ export function listPackages(): i.PackageInfo[] {
     if (!fs.existsSync(packagesPath)) {
         return [];
     }
+
+    const extraPaths: string[] = [];
+    const e2eDir = getE2EDir();
+    if (e2eDir) {
+        extraPaths.push(e2eDir);
+    }
+
     const packages = fs
         .readdirSync(packagesPath)
-        .filter((fileName: string) => {
-            const filePath = path.join(packagesPath, fileName);
-
+        .map((fileName) => path.join(packagesPath, fileName))
+        .concat(extraPaths)
+        .filter((filePath: string) => {
             if (!fs.statSync(filePath).isDirectory()) return false;
             return fs.existsSync(path.join(filePath, 'package.json'));
         })
-        .map((fileName) => readPackageInfo(path.join(packagesPath, fileName)));
+        .map((filePath) => readPackageInfo(filePath));
 
     _packages = QueryGraph.toposort(packages);
     return _packages;

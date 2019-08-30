@@ -19,6 +19,7 @@ import { TestOptions } from './interfaces';
 import { runJest } from '../scripts';
 import * as utils from './utils';
 import signale from '../signale';
+import { getE2EDir } from '../packages';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -176,9 +177,13 @@ async function runTestSuite(
 async function runE2ETest(options: TestOptions): Promise<string[]> {
     let cleanup = () => {};
     const errors: string[] = [];
-    const e2eDir = path.join(getRootDir(), 'e2e');
     const suite = TestSuite.E2E;
     let startedTest = false;
+
+    const e2eDir = getE2EDir();
+    if (!e2eDir) {
+        throw new Error('Missing e2e test directory');
+    }
 
     try {
         cleanup = await ensureServices(suite, options);
