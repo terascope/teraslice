@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import fse from 'fs-extra';
-import { uniq } from '@terascope/utils';
+import { uniq, fastCloneDeep, get } from '@terascope/utils';
 // @ts-ignore
 import QueryGraph from '@lerna/query-graph';
 import sortPackageJson from 'sort-package-json';
@@ -9,6 +9,18 @@ import { getName, getRootDir, writeIfChanged } from './misc';
 import * as i from './interfaces';
 
 let _packages: i.PackageInfo[] = [];
+let _e2eDir: string|undefined;
+
+export function getE2EDir(): string|undefined {
+    if (_e2eDir) return _e2eDir;
+
+    if (fs.existsSync(path.join(getRootDir(), 'e2e'))) {
+        _e2eDir = path.join(getRootDir(), 'e2e');
+        return _e2eDir;
+    }
+
+    return undefined;
+}
 
 export function listPackages(): i.PackageInfo[] {
     if (_packages && _packages.length) return _packages.slice();
@@ -17,15 +29,22 @@ export function listPackages(): i.PackageInfo[] {
     if (!fs.existsSync(packagesPath)) {
         return [];
     }
+
+    const extraPaths: string[] = [];
+    const e2eDir = getE2EDir();
+    if (e2eDir) {
+        extraPaths.push(e2eDir);
+    }
+
     const packages = fs
         .readdirSync(packagesPath)
-        .filter((fileName: string) => {
-            const filePath = path.join(packagesPath, fileName);
-
+        .map((fileName) => path.join(packagesPath, fileName))
+        .concat(extraPaths)
+        .filter((filePath: string) => {
             if (!fs.statSync(filePath).isDirectory()) return false;
             return fs.existsSync(path.join(filePath, 'package.json'));
         })
-        .map((fileName) => readPackageInfo(path.join(packagesPath, fileName)));
+        .map((filePath) => readPackageInfo(filePath));
 
     _packages = QueryGraph.toposort(packages);
     return _packages;
@@ -55,6 +74,7 @@ export function readPackageInfo(folderPath: string): i.PackageInfo {
     updatePkgInfo(pkgJSON);
     return pkgJSON;
 }
+
 
 export function getPkgInfo(name: string): i.PackageInfo {
     const found = listPackages().find((info) => [info.name, info.folderName].includes(name));
@@ -87,8 +107,13 @@ export function updatePkgInfo(pkgInfo: i.PackageInfo): void {
     }
 }
 
-export function updatePkgJSON(pkgInfo: i.PackageInfo, log?: boolean): Promise<boolean> {
-    updatePkgInfo(pkgInfo);
+export function updatePkgJSON(
+    pkgInfo: i.PackageInfo|i.RootPackageInfo,
+    log?: boolean
+): Promise<boolean> {
+    if (!get(pkgInfo, 'terascope.root')) {
+        updatePkgInfo(pkgInfo as i.PackageInfo);
+    }
 
     const pkgJSON = getSortedPkgJSON(pkgInfo);
     delete pkgJSON.folderName;
@@ -98,6 +123,31 @@ export function updatePkgJSON(pkgInfo: i.PackageInfo, log?: boolean): Promise<bo
     });
 }
 
-function getSortedPkgJSON(pkgInfo: i.PackageInfo) {
-    return JSON.parse(JSON.stringify(sortPackageJson(pkgInfo)));
+function getSortedPkgJSON<T extends object>(pkgInfo: T): T {
+    return fastCloneDeep(sortPackageJson(pkgInfo));
+}
+
+export function getDocPath(pkgInfo: i.PackageInfo, withFileName: boolean, withExt = true): string {
+    const suite = pkgInfo.terascope.testSuite;
+    if (suite === i.TestSuite.E2E) {
+        const e2eDevDocs = path.join('docs/development');
+        fse.ensureDirSync(e2eDevDocs);
+        if (withFileName) {
+            return path.join(
+                e2eDevDocs,
+                withExt ? `${pkgInfo.folderName}.md` : pkgInfo.folderName
+            );
+        }
+        return e2eDevDocs;
+    }
+
+    const docPath = path.join('docs/packages', pkgInfo.folderName);
+    fse.ensureDirSync(docPath);
+    if (withFileName) {
+        return path.join(
+            docPath,
+            withExt ? 'overview.md' : 'overview'
+        );
+    }
+    return docPath;
 }

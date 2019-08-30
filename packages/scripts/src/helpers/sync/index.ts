@@ -1,56 +1,41 @@
-import path from 'path';
-import { updateReadme, ensureOverview } from '../docs/overview';
 import { listPackages, updatePkgJSON } from '../packages';
 import { updateSidebarJSON } from '../docs/sidebar';
-import { formatList, writePkgHeader } from '../misc';
-import { getChangedFiles } from '../scripts';
 import { PackageInfo } from '../interfaces';
-import signale from '../signale';
+import { SyncOptions } from './interfaces';
+import { getRootInfo } from '../misc';
+import * as utils from './utils';
 
-export type SyncOptions = {
-    verify?: boolean;
-};
+export async function syncAll(options: SyncOptions) {
+    await utils.verifyCommitted(options.verify);
+    const files: string[] = [];
 
-export async function syncAll(options: SyncOptions = {}) {
-    for (const pkgInfo of listPackages()) {
-        await syncPackages([pkgInfo], { ...options, verify: false });
+    const pkgInfos = listPackages();
+    const rootInfo = getRootInfo();
+    utils.syncVersions(pkgInfos, rootInfo);
+    await updatePkgJSON(rootInfo);
+
+    for (const pkgInfo of pkgInfos) {
+        await utils.syncPackage(files, pkgInfo);
     }
 
     await updateSidebarJSON();
-    await verify(getFiles(), options);
+    await utils.verify(files, options.verify);
 }
 
-export async function syncPackages(pkgInfos: PackageInfo[], options: SyncOptions = {}) {
+export async function syncPackages(pkgInfos: PackageInfo[], options: SyncOptions) {
+    await utils.verifyCommitted(options.verify);
+
     const files: string[] = [];
 
-    writePkgHeader('Syncing files', pkgInfos);
+    const rootInfo = getRootInfo();
+    utils.syncVersions(pkgInfos, rootInfo);
+    await updatePkgJSON(rootInfo);
 
     await Promise.all(
         pkgInfos.map(async (pkgInfo) => {
-            await updateReadme(pkgInfo);
-            await ensureOverview(pkgInfo);
-            await updatePkgJSON(pkgInfo);
-
-            files.push(...getFiles(pkgInfo));
+            await utils.syncPackage(files, pkgInfo);
         })
     );
 
-    await verify(files, options);
-}
-
-export async function verify(files: string[], options: SyncOptions) {
-    if (!options.verify) return;
-
-    const changed = await getChangedFiles(...files);
-    if (changed.length) {
-        signale.error(`Files have either changes or are out-of-sync, run 'yarn sync' and push up the changes:${formatList(changed)}`);
-        process.exit(1);
-    }
-}
-
-function getFiles(pkgInfo?: PackageInfo): string[] {
-    if (pkgInfo) {
-        return [path.join('packages', pkgInfo.folderName), path.join('docs/packages', pkgInfo.folderName)];
-    }
-    return ['packages', 'docs', 'website'];
+    await utils.verify(files, options.verify);
 }
