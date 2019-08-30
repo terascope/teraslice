@@ -20,8 +20,9 @@ export async function bumpPackages(pkgInfos: PackageInfo[], options: BumpPackage
     }
     const folderNames = pkgInfos.map(({ folderName }) => folderName).join(', ');
     const commitMsg = `bump(${options.release}) ${folderNames}`;
-    // eslint-disable-next-line no-console
-    console.log(`
+
+    signale.success(`
+
 Please commit these changes:
 
     git commit -am "${commitMsg}"

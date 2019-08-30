@@ -28,9 +28,7 @@ ${formatList(changed)}
 `);
         process.exit(1);
     } else {
-        console.error(`Running this command with uncommitted changes is not recommended:
-${formatList(changed)}
-`);
+        signale.warn(`Found ${changed.length} uncommitted files`);
     }
 }
 
@@ -41,12 +39,13 @@ export async function verify(files: string[], throwOutOfSync: boolean) {
     ]));
 
     if (!changed.length) return;
+
     console.error(`
 This command made changes to the following files:
 ${formatList(changed)}
-
-'Make sure to run yarn and commit your changes'
 `);
+    signale.warn('Make sure to run yarn and commit your changes');
+
     if (throwOutOfSync) {
         process.exit(1);
     }
@@ -75,7 +74,7 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
     /**
      * verify an external dependency and return the correct version to use
     */
-    function getLatest(name: string, val: VersionVal): VersionVal {
+    function getLatest(name: string, val: VersionVal): VersionVal|null {
         const internal = internalVersions[name];
         const external = externalVersions[name];
         if (internal != null) {
@@ -84,16 +83,16 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
 
         if (external == null) {
             externalVersions[name] = val;
-            return val;
+            return null;
         }
 
         if (!val.valid) {
-            return val;
+            return null;
         }
 
         if (external.valid && semver.gte(val.version, external.version)) {
             externalVersions[name] = val;
-            return external;
+            return val;
         }
 
         return external;
@@ -105,12 +104,12 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
         for (const [name, version] of Object.entries(deps)) {
             const val = getVersion(version, false);
             const latest = getLatest(name, val);
+            if (latest == null) continue;
+
             const updateTo = `${latest.range}${latest.version}`;
             if (version !== updateTo) {
-                const currentInfo = `${pkgInfo.name}->${key}['${name}']: ${version}`;
-                signale.warn(
-                    `* found out-of-date version for ${currentInfo}, updating to ${updateTo}`
-                );
+                const currentInfo = `${pkgInfo.folderName} ${name}@${version}`;
+                signale.warn(`updating (${key}) ${currentInfo} to ${updateTo}`);
             }
             deps[name] = updateTo;
         }
