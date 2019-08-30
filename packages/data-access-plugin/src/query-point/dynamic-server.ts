@@ -46,8 +46,7 @@ export class DynamicApolloServer extends apollo.ApolloServer {
                     const types = accept.types() as string[];
                     const prefersHTML = types.find((x: string) => x === 'text/html' || x === 'application/json') === 'text/html';
                     if (prefersHTML) {
-                        let endpoint = `${req.headers.host}${req.baseUrl}`;
-                        if (!startsWith(endpoint, 'http')) endpoint = `http://${endpoint}`;
+                        const endpoint = `${req.protocol}://${req.headers.host}${req.baseUrl}`;
 
                         const playgroundRenderPageOptions: PlaygroundRenderPageOptions = {
                             ...this.playgroundOptions,
