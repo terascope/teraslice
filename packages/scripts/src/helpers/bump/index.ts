@@ -14,7 +14,7 @@ export type BumpPackageOptions = {
 export async function bumpPackages(pkgInfos: PackageInfo[], options: BumpPackageOptions) {
     let runOnce = false;
     for (const pkgInfo of pkgInfos) {
-        writePkgHeader(`Bumping package version by ${options.release}`, [pkgInfo], runOnce);
+        writePkgHeader(`Bump(${options.release}) package version`, [pkgInfo], runOnce);
         await bumpPackage(pkgInfo, { ...options });
         runOnce = true;
     }
