@@ -1,12 +1,14 @@
 import path from 'path';
 import fse from 'fs-extra';
-import { PackageInfo } from '../interfaces';
-import { getRootDir, writeIfChanged } from '../misc';
+import { PackageInfo, TestSuite } from '../interfaces';
+import { getRootDir, writeIfChanged, getRootInfo } from '../misc';
+import { getDocPath } from '../packages';
 
 export async function generateReadme(pkgInfo: PackageInfo): Promise<string> {
-    const rootPkgJSON = await fse.readJSON(path.join(getRootDir(), 'package.json'));
-    const docsPath = `docs/packages/${pkgInfo.folderName}/overview`;
-    const issuesUrl = `${rootPkgJSON.bugs.url}?q=is%3Aopen+is%3Aissue+label%3Apkg%2F${pkgInfo.folderName}`;
+    const rootInfo = getRootInfo();
+
+    const docsPath = getDocPath(pkgInfo, true, false);
+    const issuesUrl = `${rootInfo.bugs.url}?q=is%3Aopen+is%3Aissue+label%3Apkg%2F${pkgInfo.folderName}`;
 
     return `<!-- THIS FILE IS AUTO-GENERATED, EDIT ${docsPath}.md -->
 
@@ -14,9 +16,9 @@ export async function generateReadme(pkgInfo: PackageInfo): Promise<string> {
 
 > ${pkgInfo.description}
 
-This a package within the [${rootPkgJSON.displayName}](${rootPkgJSON.homepage}) monorepo. See our [documentation](${
-        rootPkgJSON.documentation
-    }/${docsPath}) for more information or the [issues](${issuesUrl}) associated with this package
+This a package within the [${rootInfo.displayName}](${rootInfo.homepage}) monorepo. See our [documentation](${
+    rootInfo.documentation
+}/${docsPath}) for more information or the [issues](${issuesUrl}) associated with this package
 
 ## Contributing
 
@@ -36,21 +38,25 @@ export async function updateReadme(pkgInfo: PackageInfo): Promise<void> {
 }
 
 export async function generateOverview(pkgInfo: PackageInfo) {
+    const sideBarLabel = isE2E ? pkgInfo.displayName : 'overview';
     return `---
 title: ${pkgInfo.displayName}
-sidebar_label: Overview
+sidebar_label: ${sideBarLabel}
 ---
 
 > ${pkgInfo.description}`;
 }
 
 export async function ensureOverview(pkgInfo: PackageInfo): Promise<void> {
-    const pkgDocPath = path.join(getRootDir(), 'docs/packages/', pkgInfo.folderName);
-    const overviewPath = path.join(pkgDocPath, 'overview.md');
-    if (!fse.existsSync(overviewPath)) {
+    const pkgDocPath = getDocPath(pkgInfo, true, true);
+    if (!fse.existsSync(pkgDocPath)) {
         const contents = await generateOverview(pkgInfo);
-        await writeIfChanged(overviewPath, contents, {
+        await writeIfChanged(pkgDocPath, contents, {
             mkdir: true,
         });
     }
+}
+
+function isE2E(pkgInfo: PackageInfo) {
+    return pkgInfo.terascope.testSuite === TestSuite.E2E;
 }

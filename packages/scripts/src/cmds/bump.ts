@@ -4,6 +4,7 @@ import { castArray } from '@terascope/utils';
 import { coercePkgArg } from '../helpers/args';
 import { bumpPackages } from '../helpers/bump';
 import { PackageInfo } from '../helpers/interfaces';
+import { syncAll } from '../helpers/sync';
 
 const releaseChoices = ['major', 'minor', 'patch', 'prerelease', 'premajor', 'preminor', 'prepatch'];
 
@@ -51,7 +52,8 @@ const cmd: CommandModule = {
             })
             .requiresArg('packages');
     },
-    handler(argv) {
+    async handler(argv) {
+        await syncAll({ verify: true });
         return bumpPackages(argv.packages as PackageInfo[], {
             preId: argv['prelease-id'] as string | undefined,
             release: argv.release as ReleaseType,

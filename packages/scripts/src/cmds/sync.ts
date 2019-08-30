@@ -1,16 +1,21 @@
 import isCI from 'is-ci';
 import { CommandModule } from 'yargs';
 import { syncAll, syncPackages } from '../helpers/sync';
-import { PackageInfo } from '../helpers/interfaces';
+import { PackageInfo, GlobalCMDOptions } from '../helpers/interfaces';
 import { coercePkgArg } from '../helpers/args';
 
-const cmd: CommandModule = {
+type Options = {
+    verify: boolean;
+    packages?: PackageInfo[];
+}
+
+const cmd: CommandModule<GlobalCMDOptions, Options> = {
     command: 'sync [packages..]',
     describe: 'Sync packages to make sure they are up-to-date',
     builder(yargs) {
         return yargs
             .option('verify', {
-                description: 'This will verify that all the files are synced. Defaults to true in CI',
+                description: 'This will throw an error if out-of-sync. Defaults to true in CI',
                 type: 'boolean',
                 default: isCI,
             })
@@ -22,11 +27,9 @@ const cmd: CommandModule = {
                 },
             });
     },
-    handler(argv) {
-        const pkgInfos = argv.packages as PackageInfo[];
-        const verify = Boolean(argv.verify);
-        if (pkgInfos && pkgInfos.length) {
-            return syncPackages(pkgInfos, { verify });
+    handler({ packages, verify }) {
+        if (packages && packages.length) {
+            return syncPackages(packages, { verify });
         }
         return syncAll({ verify });
     },
