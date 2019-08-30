@@ -42,7 +42,7 @@
         "teraslice-client-js": "^0.8.1",
         "uuid": "^3.3.3"
     },
-    "displayName": "E2E",
+    "displayName": "E2E Tests",
     "terascope": {
         "testSuite": "e2e"
     }
