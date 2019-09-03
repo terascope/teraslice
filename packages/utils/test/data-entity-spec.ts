@@ -79,8 +79,24 @@ describe('DataEntity', () => {
                 }
             });
 
+            it('should not be able to override the DataEntity properties via an input', () => {
+                const allProps = [
+                    ...methods,
+                    ...hiddenProps,
+                ] as string[];
+
+                const obj: Record<string, 'uhoh'> = {};
+                for (const prop of allProps) {
+                    obj[prop] = 'uhoh';
+                }
+
+                expect(() => {
+                    useClass ? new DataEntity(obj) : DataEntity.make(obj);
+                }).toThrow();
+            });
+
             it('should only convert non-metadata properties with stringified', () => {
-                const obj = JSON.parse(JSON.stringify(dataEntity));
+                const obj = fastCloneDeep(dataEntity);
                 for (const method of methods) {
                     expect(obj).not.toHaveProperty(method as string);
                 }

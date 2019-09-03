@@ -132,7 +132,7 @@ export class DataEntity<
     static isDataEntity<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = any>(
         input: any
     ): input is DataEntity<T, M> {
-        return Boolean(input != null && input[i.__IS_ENTITY_KEY]);
+        return Boolean(input != null && input[i.__IS_ENTITY_KEY] === true);
     }
 
     /**
