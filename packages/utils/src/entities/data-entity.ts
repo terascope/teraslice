@@ -217,7 +217,6 @@ export class DataEntity<
      * Get the raw data, usually used for encoding type `raw`
      * If there is no data, an error will be thrown
     */
-
     @locked()
     getRawData(): Buffer {
         const buf = this[i.__DATAENTITY_METADATA_KEY].rawData;
@@ -229,7 +228,6 @@ export class DataEntity<
      * Set the raw data, usually used for encoding type `raw`
      * If given `null`, it will unset the data
     */
-
     @locked()
     setRawData(buf: Buffer|string|null): void {
         if (buf == null) {
@@ -245,7 +243,6 @@ export class DataEntity<
      * @param opConfig The operation config used to get the encoding type of the buffer,
      * @default `json`
      */
-
     @locked()
     toBuffer(opConfig: i.EncodingConfig = {}): Buffer {
         const { _encoding = i.DataEncoding.JSON } = opConfig;
