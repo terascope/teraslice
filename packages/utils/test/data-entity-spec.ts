@@ -10,7 +10,13 @@ import {
 } from '../src';
 
 describe('DataEntity', () => {
-    const methods = Object.keys(Object.getPrototypeOf(DataEntity));
+    const methods: readonly (keyof DataEntity)[] = [
+        'getMetadata',
+        'setMetadata',
+        'getRawData',
+        'setRawData',
+        'toBuffer'
+    ];
 
     const hiddenProps: string[] = [
         __IS_ENTITY_KEY,
@@ -56,30 +62,27 @@ describe('DataEntity', () => {
                 expect(dataEntity).toHaveProperty('purple', 'pink');
             });
 
-            it('should not be able to enumerate metadata methods', () => {
-                const keys = Object.keys(dataEntity);
-                for (const method of methods) {
-                    expect(keys).not.toInclude(method);
-                }
-                for (const hiddenProp of hiddenProps) {
-                    expect(keys).not.toInclude(hiddenProp);
-                }
+            test.each(methods)('should be able to overwrite ->%s', (method) => {
+                expect(() => {
+                    dataEntity[method] = 'overwrite';
+                }).toThrow();
+            });
 
+            test.each([
+                ...methods,
+                ...hiddenProps,
+            ] as string[])('should NOT be able to enumerate ->%s', (key: string) => {
+                expect(Object.keys(dataEntity)).not.toContain(key);
                 // eslint-disable-next-line guard-for-in
                 for (const prop in dataEntity) {
-                    for (const method of methods) {
-                        expect(prop).not.toEqual(method);
-                    }
-                    for (const hiddenProp of hiddenProps) {
-                        expect(prop).not.toEqual(hiddenProp);
-                    }
+                    expect(prop).not.toEqual(key);
                 }
             });
 
             it('should only convert non-metadata properties with stringified', () => {
                 const obj = JSON.parse(JSON.stringify(dataEntity));
                 for (const method of methods) {
-                    expect(obj).not.toHaveProperty(method);
+                    expect(obj).not.toHaveProperty(method as string);
                 }
 
                 for (const hiddenProp of hiddenProps) {
@@ -97,6 +100,7 @@ describe('DataEntity', () => {
             it('should be able to get the metadata', () => {
                 const metadata = dataEntity.getMetadata();
                 expect(metadata).toHaveProperty('_createTime');
+                expect(metadata._createTime).toBeNumber();
             });
 
             it('should be able to set and get a metadata property', () => {

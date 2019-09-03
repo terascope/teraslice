@@ -9,6 +9,7 @@ import {
 } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
+import { locked } from '../misc';
 
 /**
  * A wrapper for data that can hold additional metadata properties.
@@ -185,9 +186,9 @@ export class DataEntity<
     */
     getMetadata(key?: undefined): i.EntityMetadata<M>;
     getMetadata<K extends i.EntityMetadataKey<M>>(key: K): i.EntityMetadataValue<M, K>;
-    getMetadata<K extends i.EntityMetadataKey<M>>(
-        key?: K
-    ): i.EntityMetadataValue<M, K>|i.EntityMetadata<M> {
+
+    @locked()
+    getMetadata<K extends i.EntityMetadataKey<M>>(key?: K): i.EntityMetadataValue<M, K>|i.EntityMetadata<M> {
         if (key) {
             return this.__dataEntityMetadata.metadata[key];
         }
@@ -202,6 +203,8 @@ export class DataEntity<
         key: K,
         value: V
     ): void;
+
+    @locked()
     setMetadata<K extends i.EntityMetadataKey<M>|string>(key: K, value: any): void {
         if (key === '_createTime') {
             throw new Error(`Cannot set readonly metadata property ${key}`);
@@ -214,6 +217,8 @@ export class DataEntity<
      * Get the raw data, usually used for encoding type `raw`
      * If there is no data, an error will be thrown
     */
+
+    @locked()
     getRawData(): Buffer {
         const buf = this.__dataEntityMetadata.rawData;
         if (isBuffer(buf)) return buf;
@@ -224,6 +229,8 @@ export class DataEntity<
      * Set the raw data, usually used for encoding type `raw`
      * If given `null`, it will unset the data
     */
+
+    @locked()
     setRawData(buf: Buffer|string|null): void {
         if (buf == null) {
             this.__dataEntityMetadata.rawData = null;
@@ -238,6 +245,8 @@ export class DataEntity<
      * @param opConfig The operation config used to get the encoding type of the buffer,
      * @default `json`
      */
+
+    @locked()
     toBuffer(opConfig: i.EncodingConfig = {}): Buffer {
         const { _encoding = i.DataEncoding.JSON } = opConfig;
         if (_encoding === i.DataEncoding.JSON) {
@@ -259,8 +268,6 @@ export class DataEntity<
         throw new Error('Unable to set internal DataEntity metadata');
     }
 }
-
-// utils.definePrototypeProperties(DataEntity.prototype);
 
 export type DataInput = AnyObject | DataEntity;
 export type DataArrayInput = DataInput | DataInput[];
