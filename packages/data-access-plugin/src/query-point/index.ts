@@ -6,6 +6,7 @@ import { TeraserverConfig, PluginConfig } from '../interfaces';
 import { DynamicApolloServer } from './dynamic-server';
 import typeDefs from './types';
 import { defaultResolvers as resolvers } from './resolvers';
+import { validateJoins } from './utils';
 import * as utils from '../manager/utils';
 
 export default class QueryPointPlugin {
@@ -26,6 +27,12 @@ export default class QueryPointPlugin {
                 resolvers,
                 inheritResolversFromInterfaces: true,
             }),
+            context: async ({ req }) => {
+                const { query, operationName } = req.body;
+                if (operationName !== 'IntrospectionQuery' && query) {
+                    validateJoins(query);
+                }
+            },
             formatError: utils.formatError(true),
             introspection: true,
         });
