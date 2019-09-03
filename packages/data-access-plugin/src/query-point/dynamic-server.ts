@@ -5,12 +5,12 @@ import {
 import * as apollo from 'apollo-server-express';
 import accepts from 'accepts';
 import { json } from 'body-parser';
+import { URL } from 'url';
 import { User } from '@terascope/data-access';
 import { renderPlaygroundPage, RenderPageOptions as PlaygroundRenderPageOptions } from '@apollographql/graphql-playground-html';
 /* Don't think it's exported normally, get directly */
 import { graphqlExpress } from 'apollo-server-express/dist/expressApollo';
 import { Context } from '@terascope/job-components';
-
 import * as utils from '../manager/utils';
 import getSchemaByRole from './dynamic-schema';
 import { makeErrorHandler } from '../utils';
@@ -46,7 +46,7 @@ export class DynamicApolloServer extends apollo.ApolloServer {
                     const types = accept.types() as string[];
                     const prefersHTML = types.find((x: string) => x === 'text/html' || x === 'application/json') === 'text/html';
                     if (prefersHTML) {
-                        const endpoint = `${req.protocol}://${req.headers.host}${req.baseUrl}${req.url.slice(1)}`;
+                        const { href: endpoint } = new URL(`${req.baseUrl}${req.url.slice(1)}`, `${req.protocol}://${req.headers.host}${req.baseUrl}`);
 
                         const playgroundRenderPageOptions: PlaygroundRenderPageOptions = {
                             ...this.playgroundOptions,

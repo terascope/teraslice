@@ -1,6 +1,9 @@
+
 import { Request } from 'express';
 import { Logger } from '@terascope/utils';
 import { AuthUser } from '@terascope/data-access';
+import { SortOrder, GeoDistanceUnit } from 'xlucene-evaluator';
+
 
 export interface SpacesContext {
     user: AuthUser;
@@ -21,4 +24,7 @@ export interface EndpointArgs {
     size?: number;
     from?: number;
     sort?: string;
+    geoSortPoint?: string;
+    geoSortOrder?: SortOrder;
+    geoSortUnit?: GeoDistanceUnit | string;
 }

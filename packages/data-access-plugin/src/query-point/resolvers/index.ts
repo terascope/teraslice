@@ -152,7 +152,7 @@ function createResolvers(
 
             const fields = getSelectionKeys(info);
             const {
-                size, sort, from, join
+                size, sort, from, join, geoSortPoint, geoSortOrder, geoSortUnit
             } = args;
 
             const query: InputQuery = {
@@ -160,6 +160,9 @@ function createResolvers(
                 sort,
                 size,
                 fields,
+                geo_sort_point: geoSortPoint,
+                geo_sort_order: geoSortOrder,
+                geo_sort_unit: geoSortUnit
             };
 
             let { query: q } = args;

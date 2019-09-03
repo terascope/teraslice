@@ -50,7 +50,7 @@ function sanitize(name: string) {
 }
 
 function makeEndpoint(endpoint: string) {
-    return `${endpoint}(join: [String], query: String, size: Int, from: Int, sort: String): [${endpoint}!]!`;
+    return `${endpoint}(join: [String], query: String, size: Int, from: Int, sort: String, geoSortPoint: String, geoSortOrder: String, geoSortUnit: String): [${endpoint}!]!`;
 }
 
 function createTypes(dataAccessConfigs: DataAccessConfig[]) {
