@@ -51,6 +51,9 @@ export type WithoutNil<T> = { [P in keyof T]: T[P] extends (undefined | null) ? 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Many<T> extends Array<T> {}
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface EmptyObject {}
+
 /** A simple object with any values */
 export interface AnyObject {
     [prop: string]: any;

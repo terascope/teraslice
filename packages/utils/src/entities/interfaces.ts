@@ -1,13 +1,38 @@
+import { AnyObject } from '../interfaces';
+
 export type TYPE_IS_ENTITY_KEY = '__isDataEntity';
 export type TYPE_DATAENTITY_METADATA_KEY = '___DataEntityMetadata';
 
 export const __IS_ENTITY_KEY: TYPE_IS_ENTITY_KEY = '__isDataEntity';
 export const __DATAENTITY_METADATA_KEY: TYPE_DATAENTITY_METADATA_KEY = '___DataEntityMetadata';
 
-export type __DataEntityProps<M extends object> = {
-    metadata: M & DataEntityMetadata;
+export type __DataEntityProps<M extends EntityMetadataType> = {
+    metadata: EntityMetadata<M>;
     rawData: Buffer|null;
 };
+
+export type EntityMetadataType = AnyObject|undefined;
+export type EntityMetadataKeyType = AnyObject|undefined;
+export type EntityMetadata<M extends EntityMetadataType = undefined> =
+    M extends undefined
+        ? DataEntityMetadata :
+        M & DataEntityMetadata;
+
+export type EntityMetadataKey<M extends EntityMetadataType =undefined> =
+    M extends undefined
+        ? (keyof DataEntityMetadata)|string :
+        (keyof M) | (keyof DataEntityMetadata) | string;
+
+export type EntityMetadataValue<M extends EntityMetadataType, K extends EntityMetadataKey<M>> =
+    M extends undefined
+        ? (
+            K extends (keyof DataEntityMetadata)
+                ? DataEntityMetadata[K] : any
+        ) : (
+            K extends (keyof M) ?
+                M[K] : K extends (keyof DataEntityMetadata)
+                    ? DataEntityMetadata[K] : any
+        );
 
 export interface DataEntityMetadata {
     /** The time at which this entity was created */

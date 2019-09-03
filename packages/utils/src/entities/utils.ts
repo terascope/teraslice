@@ -1,47 +1,34 @@
 import * as i from './interfaces';
 
-export function defineProperties<T extends object, M extends i.DataEntityMetadata>(
-    entity: T,
-    metadata: M
-): void {
-    Object.defineProperties(entity, {
-        [i.__IS_ENTITY_KEY]: _makeISEntityProp(),
-        [i.__DATAENTITY_METADATA_KEY]: _makeDataEntityMetadata(metadata),
-    });
-}
-
-function _makeDataEntityMetadata<M>(metadata: M) {
-    return {
-        value: {
-            metadata,
-            rawData: null,
-        },
-        configurable: false,
-        enumerable: false,
-        writable: false,
-    };
-}
-
-function _makeISEntityProp() {
-    return {
+export function defineProperties(entity: any): void {
+    Object.defineProperty(entity, i.__IS_ENTITY_KEY, {
         value: true,
         configurable: false,
         enumerable: false,
         writable: false,
-    };
+    });
+
+    Object.defineProperty(entity, i.__DATAENTITY_METADATA_KEY, {
+        value: {},
+        configurable: false,
+        enumerable: false,
+        writable: false,
+    });
 }
 
-export function createMetadata<M extends object>(metadata: M): i.DataEntityMetadata {
-    return { ..._baseMetadata(), ...metadata };
+export function createMetadata<M>(metadata: M): i.EntityMetadata<M> {
+    return { ...createCoreMetadata(), ...metadata } as i.EntityMetadata<M>;
 }
 
-export function makeMetadata<M extends object>(metadata?: M): i.DataEntityMetadata {
-    if (!metadata) return _baseMetadata();
+export function makeMetadata<M extends i.EntityMetadataType>(
+    metadata?: M|undefined
+): i.EntityMetadata<M> {
+    if (!metadata) return createCoreMetadata();
     return createMetadata(metadata);
 }
 
-function _baseMetadata() {
-    return { _createTime: Date.now() };
+export function createCoreMetadata<M extends i.EntityMetadataType>(): i.EntityMetadata<M> {
+    return { _createTime: Date.now() } as i.EntityMetadata<M>;
 }
 
 export function jsonToBuffer(input: any): Buffer {
