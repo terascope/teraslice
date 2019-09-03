@@ -189,6 +189,9 @@ export class DataEntity<
 
     @locked()
     getMetadata<K extends i.EntityMetadataKey<M>>(key?: K): i.EntityMetadataValue<M, K>|i.EntityMetadata<M> {
+        if (key === '_key') {
+            return this.getKey() as i.EntityMetadataValue<M, K>;
+        }
         if (key) {
             return this[i.__DATAENTITY_METADATA_KEY].metadata[key];
         }
@@ -207,6 +210,9 @@ export class DataEntity<
         if (key === '_createTime') {
             throw new Error(`Cannot set readonly metadata property ${key}`);
         }
+        if (key === '_key') {
+            return this.setKey(value as any);
+        }
 
         this[i.__DATAENTITY_METADATA_KEY].metadata[key] = value as any;
     }
@@ -217,7 +223,7 @@ export class DataEntity<
     */
     @locked()
     getKey(): string|number {
-        const key = this.getMetadata('_key');
+        const key = this[i.__DATAENTITY_METADATA_KEY].metadata._key;
         if (!utils.isValidKey(key)) {
             throw new Error('No key has been set in the metadata');
         }
@@ -233,7 +239,7 @@ export class DataEntity<
         if (!utils.isValidKey(key)) {
             throw new Error('Invalid key to set in metadata');
         }
-        return this.setMetadata('_key', key);
+        this[i.__DATAENTITY_METADATA_KEY].metadata._key = key;
     }
 
     /**
