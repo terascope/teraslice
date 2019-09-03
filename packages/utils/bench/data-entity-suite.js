@@ -74,8 +74,8 @@ const run = async () => Suite('DataEntity')
     .add('DataEntity.makeRaw', {
         fn() {
             const input = makeObj();
-            // eslint-disable-next-line
-                let entity = DataEntity.makeRaw(input, metadata).entity;
+            // eslint-disable-next-line prefer-destructuring
+            let entity = DataEntity.makeRaw(input, metadata).entity;
             entity.hello = Math.random();
             entity.hello;
             entity = null;
@@ -85,7 +85,7 @@ const run = async () => Suite('DataEntity')
     .run({
         async: true,
         initCount: 1,
-        maxTime: 3
+        maxTime: 5
     });
 
 if (require.main === module) {

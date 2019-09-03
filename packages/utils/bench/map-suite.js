@@ -34,7 +34,7 @@ const run = async () => Suite('Map vs BigMap')
             return runTest(new BigMap());
         }
     })
-    .add('BigMap (mutliple maps)', {
+    .add('BigMap (multiple maps)', {
         fn() {
             return runTest(new BigMap(Math.round(iterationsPer / 2)));
         }
@@ -43,7 +43,7 @@ const run = async () => Suite('Map vs BigMap')
         async: true,
         minSamples: 3,
         initCount: 0,
-        maxTime: 3
+        maxTime: 5
     });
 
 if (require.main === module) {
