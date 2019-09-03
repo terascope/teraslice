@@ -173,7 +173,7 @@ export class DataEntity<
         }
 
         utils.defineProperties(this);
-        this.__dataEntityMetadata.metadata = utils.makeMetadata(metadata);
+        this[i.__DATAENTITY_METADATA_KEY].metadata = utils.makeMetadata(metadata);
 
         if (data) {
             Object.assign(this, data);
@@ -190,9 +190,9 @@ export class DataEntity<
     @locked()
     getMetadata<K extends i.EntityMetadataKey<M>>(key?: K): i.EntityMetadataValue<M, K>|i.EntityMetadata<M> {
         if (key) {
-            return this.__dataEntityMetadata.metadata[key];
+            return this[i.__DATAENTITY_METADATA_KEY].metadata[key];
         }
-        return this.__dataEntityMetadata.metadata;
+        return this[i.__DATAENTITY_METADATA_KEY].metadata;
     }
 
     /**
@@ -210,7 +210,7 @@ export class DataEntity<
             throw new Error(`Cannot set readonly metadata property ${key}`);
         }
 
-        this.__dataEntityMetadata.metadata[key] = value as any;
+        this[i.__DATAENTITY_METADATA_KEY].metadata[key] = value as any;
     }
 
     /**
@@ -220,7 +220,7 @@ export class DataEntity<
 
     @locked()
     getRawData(): Buffer {
-        const buf = this.__dataEntityMetadata.rawData;
+        const buf = this[i.__DATAENTITY_METADATA_KEY].rawData;
         if (isBuffer(buf)) return buf;
         throw new Error('No data has been set');
     }
@@ -233,10 +233,10 @@ export class DataEntity<
     @locked()
     setRawData(buf: Buffer|string|null): void {
         if (buf == null) {
-            this.__dataEntityMetadata.rawData = null;
+            this[i.__DATAENTITY_METADATA_KEY].rawData = null;
             return;
         }
-        this.__dataEntityMetadata.rawData = ensureBuffer(buf, 'utf8');
+        this[i.__DATAENTITY_METADATA_KEY].rawData = ensureBuffer(buf, 'utf8');
     }
 
     /**
@@ -258,14 +258,6 @@ export class DataEntity<
         }
 
         throw new Error(`Unsupported encoding type, got "${_encoding}"`);
-    }
-
-    private get __dataEntityMetadata() {
-        return this[i.__DATAENTITY_METADATA_KEY];
-    }
-
-    private set __dataEntityMetadata(_value: i.__DataEntityProps<M>) {
-        throw new Error('Unable to set internal DataEntity metadata');
     }
 }
 
