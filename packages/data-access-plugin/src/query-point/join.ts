@@ -16,7 +16,7 @@ export default class JoinStitcher {
 
     private _geoQuery(target: string, value: any | any[], params: string | undefined) {
         if (value == null) return '';
-        const distance = params || '10m';
+        const distance = params || '100m';
         const { lat, lon }: { lat: string; lon: string } = value;
         return `${target}:(_geo_point_:"${lat},${lon}" _geo_distance_:${distance})`;
     }
