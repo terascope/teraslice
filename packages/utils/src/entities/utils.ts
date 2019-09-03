@@ -34,3 +34,7 @@ export function createCoreMetadata<M extends i.EntityMetadataType>(): i.EntityMe
 export function jsonToBuffer(input: any): Buffer {
     return Buffer.from(JSON.stringify(input));
 }
+
+export function isValidKey(key: any): key is string|number {
+    return Boolean(key != null && key !== '');
+}

@@ -13,6 +13,7 @@ describe('DataEntity', () => {
     const methods: readonly (keyof DataEntity)[] = [
         'getMetadata',
         'setMetadata',
+        'getKey',
         'getRawData',
         'setRawData',
         'toBuffer'
@@ -177,7 +178,7 @@ describe('DataEntity', () => {
 
             it('should not be able to set _createTime', () => {
                 expect(() => {
-                    dataEntity.setMetadata('_createTime', 'hello');
+                    dataEntity.setMetadata('_createTime', 10);
                 }).toThrowError('Cannot set readonly metadata property _createTime');
             });
 
@@ -251,6 +252,37 @@ describe('DataEntity', () => {
                         DataEntity.make(buf);
                     }
                 }).toThrowError('Invalid data source, must be an object, got "Buffer"');
+            });
+        });
+
+        describe('->getKey/->setKey', () => {
+            const dataEntity = useClass ? new DataEntity({}) : DataEntity.make({});
+
+            it('should throw an if there is no key', () => {
+                expect(() => {
+                    dataEntity.getKey();
+                }).toThrowError('No key has been set in the metadata');
+            });
+
+            it('should throw an when setting an invalid key', () => {
+                expect(() => {
+                    dataEntity.setKey('');
+                }).toThrowError('Invalid key to set in metadata');
+            });
+
+            it('should be able to set and get a string key', () => {
+                expect(dataEntity.setKey('hello')).toBeNil();
+                expect(dataEntity.getKey()).toBe('hello');
+            });
+
+            it('should be able to set and get a numeric key', () => {
+                expect(dataEntity.setKey(1)).toBeNil();
+                expect(dataEntity.getKey()).toBe(1);
+            });
+
+            it('should be able to set and get key with 0', () => {
+                expect(dataEntity.setKey(0)).toBeNil();
+                expect(dataEntity.getKey()).toBe(0);
             });
         });
 

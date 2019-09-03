@@ -151,7 +151,7 @@ export class DataEntity<
      * Safely get the metadata from a `DataEntity`.
      * If the input is object it will get the property from the object
      */
-    static getMetadata(input: DataInput, key?: i.EntityMetadataKey) {
+    static getMetadata(input: DataInput, key?: i.EntityMetadataKey<AnyObject>) {
         if (input == null) return null;
 
         if (DataEntity.isDataEntity(input)) {
@@ -198,19 +198,42 @@ export class DataEntity<
     /**
      * Given a key and value set the metadata on the record
     */
-    setMetadata<K extends string>(key: K, value: any): void
+
+    @locked()
     setMetadata<K extends i.EntityMetadataKey<M>, V extends i.EntityMetadataValue<M, K>>(
         key: K,
         value: V
-    ): void;
-
-    @locked()
-    setMetadata<K extends i.EntityMetadataKey<M>|string>(key: K, value: any): void {
+    ): void {
         if (key === '_createTime') {
             throw new Error(`Cannot set readonly metadata property ${key}`);
         }
 
         this[i.__DATAENTITY_METADATA_KEY].metadata[key] = value as any;
+    }
+
+    /**
+     * Get the unique document `_key` from the metadata.
+     * If no `_key` is found, an error will be thrown
+    */
+    @locked()
+    getKey(): string|number {
+        const key = this.getMetadata('_key');
+        if (!utils.isValidKey(key)) {
+            throw new Error('No key has been set in the metadata');
+        }
+        return key;
+    }
+
+    /**
+     * Set the unique document `_key` from the metadata.
+     * If no `_key` is found, an error will be thrown
+    */
+    @locked()
+    setKey(key: string|number): void {
+        if (!utils.isValidKey(key)) {
+            throw new Error('Invalid key to set in metadata');
+        }
+        return this.setMetadata('_key', key);
     }
 
     /**
