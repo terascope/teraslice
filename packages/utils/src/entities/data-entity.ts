@@ -1,5 +1,10 @@
 import { isSimpleObject } from '../objects';
-import { parseJSON, getTypeOf, ensureBuffer } from '../utils';
+import {
+    parseJSON,
+    getTypeOf,
+    ensureBuffer,
+    isBuffer
+} from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
 
@@ -106,7 +111,7 @@ export class DataEntity<T extends object = object, M extends object = object> {
         if (input == null) return null;
 
         if (DataEntity.isDataEntity(input)) {
-            return key ? input.getMetadata(key) : input.getMetadata();
+            return input.getMetadata(key);
         }
 
         return key ? input[key] : undefined;
@@ -114,18 +119,16 @@ export class DataEntity<T extends object = object, M extends object = object> {
 
     // Add the ability to specify any additional properties
     [prop: string]: any;
-    [i.__DATAENTITY_METADATA_KEY]: i.__DataEntityProps<M>;
+    private [i.__DATAENTITY_METADATA_KEY]: i.__DataEntityProps<M>;
 
     constructor(data: T|null|undefined, metadata?: M) {
         if (data && !isSimpleObject(data)) {
             throw new Error(`Invalid data source, must be an object, got "${getTypeOf(data)}"`);
         }
 
-        utils.makeDataEntityObj(this, utils.makeMetadata(metadata));
+        utils.defineProperties(this, utils.makeMetadata(metadata));
 
-        if (data) {
-            Object.assign(this, data);
-        }
+        if (data) Object.assign(this, data);
     }
 
     /**
@@ -134,9 +137,9 @@ export class DataEntity<T extends object = object, M extends object = object> {
     */
     getMetadata<K extends keyof i.DataEntityMetadata>(key?: K): i.DataEntityMetadata[K] | any {
         if (key) {
-            return this.__dataEntityMetadata.metadata[key];
+            return this[i.__DATAENTITY_METADATA_KEY].metadata[key];
         }
-        return this.__dataEntityMetadata.metadata;
+        return this[i.__DATAENTITY_METADATA_KEY].metadata;
     }
 
     /**
@@ -147,7 +150,7 @@ export class DataEntity<T extends object = object, M extends object = object> {
             throw new Error(`Cannot set readonly metadata property ${key}`);
         }
 
-        this.__dataEntityMetadata.metadata[key] = value;
+        this[i.__DATAENTITY_METADATA_KEY].metadata[key] = value;
     }
 
     /**
@@ -155,8 +158,8 @@ export class DataEntity<T extends object = object, M extends object = object> {
      * If there is no data, an error will be thrown
     */
     getRawData(): Buffer {
-        const buf = this.__dataEntityMetadata.rawData;
-        if (buf != null && Buffer.isBuffer(buf)) return buf;
+        const buf = this[i.__DATAENTITY_METADATA_KEY].rawData;
+        if (isBuffer(buf)) return buf;
         throw new Error('No data has been set');
     }
 
@@ -166,10 +169,10 @@ export class DataEntity<T extends object = object, M extends object = object> {
     */
     setRawData(buf: Buffer|string|null): void {
         if (buf == null) {
-            this.__dataEntityMetadata.rawData = null;
+            this[i.__DATAENTITY_METADATA_KEY].rawData = null;
             return;
         }
-        this.__dataEntityMetadata.rawData = ensureBuffer(buf, 'utf8');
+        this[i.__DATAENTITY_METADATA_KEY].rawData = ensureBuffer(buf, 'utf8');
     }
 
     /**
@@ -181,7 +184,7 @@ export class DataEntity<T extends object = object, M extends object = object> {
     toBuffer(opConfig: i.EncodingConfig = {}): Buffer {
         const { _encoding = i.DataEncoding.JSON } = opConfig;
         if (_encoding === i.DataEncoding.JSON) {
-            return Buffer.from(JSON.stringify(this));
+            return utils.jsonToBuffer(this);
         }
 
         if (_encoding === i.DataEncoding.RAW) {
@@ -189,10 +192,6 @@ export class DataEntity<T extends object = object, M extends object = object> {
         }
 
         throw new Error(`Unsupported encoding type, got "${_encoding}"`);
-    }
-
-    private get __dataEntityMetadata(): i.__DataEntityProps<M> {
-        return this[i.__DATAENTITY_METADATA_KEY];
     }
 }
 

@@ -6,7 +6,6 @@ export const isDev = NODE_ENV === 'development';
 
 /** A decorator for locking down a method */
 export function locked() {
-    // @ts-ignore
     return function _locked(
         target: any,
         propertyKey: string,
@@ -15,6 +14,17 @@ export function locked() {
         descriptor.configurable = false;
         descriptor.enumerable = false;
         descriptor.writable = false;
+    };
+}
+
+/** A decorator making changing the changing configurable property */
+export function configurable(value: boolean) {
+    return function _configurable(
+        target: any,
+        propertyKey: string,
+        descriptor: PropertyDescriptor
+    ) {
+        descriptor.configurable = value;
     };
 }
 
