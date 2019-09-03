@@ -35,7 +35,7 @@
         "node-webhdfs": "^1.0.2",
         "redis": "^2.8.0",
         "shortid": "^2.2.14",
-        "yargs": "^13.2.4"
+        "yargs": "^14.0.0"
     },
     "devDependencies": {},
     "publishConfig": {
