@@ -45,7 +45,7 @@
         "valid-url": "^1.0.9",
         "validator": "^11.0.0",
         "xlucene-evaluator": "^0.10.1",
-        "yargs": "^13.2.4"
+        "yargs": "^14.0.0"
     },
     "devDependencies": {
         "@types/valid-url": "^1.0.2",
