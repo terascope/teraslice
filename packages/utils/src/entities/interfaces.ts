@@ -7,36 +7,42 @@ export const __IS_ENTITY_KEY: TYPE_IS_ENTITY_KEY = '__isDataEntity';
 export const __DATAENTITY_METADATA_KEY: TYPE_DATAENTITY_METADATA_KEY = '___DataEntityMetadata';
 
 export type __DataEntityProps<M extends EntityMetadataType> = {
-    metadata: EntityMetadata<M>;
+    metadata: EntityMetadata<M> & AnyObject;
     rawData: Buffer|null;
 };
 
-export type EntityMetadataType = AnyObject|undefined;
-export type EntityMetadataKeyType = AnyObject|undefined;
-export type EntityMetadata<M extends EntityMetadataType = undefined> =
+export type EntityMetadataType = DataEntityMetadata|AnyObject|undefined;
+export type EntityMetadata<M extends EntityMetadataType = any> =
     M extends undefined
-        ? DataEntityMetadata :
-        M & DataEntityMetadata;
+        ? (DataEntityMetadata & AnyObject):
+        (M & DataEntityMetadata & AnyObject);
 
-export type EntityMetadataKey<M extends EntityMetadataType =undefined> =
+export type EntityMetadataKey<M extends EntityMetadataType|AnyObject = any> =
     M extends undefined
-        ? (keyof DataEntityMetadata)|string :
-        (keyof M) | (keyof DataEntityMetadata) | string;
+        ? (keyof DataEntityMetadata)|string : (keyof M) | (keyof DataEntityMetadata) | string;
 
-export type EntityMetadataValue<M extends EntityMetadataType, K extends EntityMetadataKey<M>> =
+export type EntityMetadataValue<
+    M extends EntityMetadataType,
+    K extends EntityMetadataKey<M>|string
+> =
     M extends undefined
         ? (
             K extends (keyof DataEntityMetadata)
                 ? DataEntityMetadata[K] : any
         ) : (
             K extends (keyof M) ?
-                M[K] : K extends (keyof DataEntityMetadata)
-                    ? DataEntityMetadata[K] : any
+                M[K] : (
+                    K extends (keyof DataEntityMetadata)
+                        ? DataEntityMetadata[K]
+                        : any)
         );
 
 export interface DataEntityMetadata {
-    /** The time at which this entity was created */
-    readonly _createTime: number;
+    /**
+     * The time at which this entity was created
+     * @readonly
+    */
+    _createTime?: number;
 
     /** The time at which the data was ingested into the source data */
     _ingestTime?: number;
@@ -52,9 +58,6 @@ export interface DataEntityMetadata {
 
     /** A unique key for the data which will be can be used to key the data */
     _key?: string;
-
-    // Add the ability to specify any additional properties
-    [prop: string]: any;
 }
 
 /**

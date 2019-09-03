@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/prefer-for-of */
 
-import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
+import { DataEntity } from '@terascope/utils';
 import { hasKeys } from './utils';
 import {
     WatcherConfig,
@@ -44,10 +44,10 @@ export default class ExtractionPhase extends PhaseBase {
     }
 }
 
-function createTargetResults(input: DataEntity) {
-    const { entity, metadata } = DataEntity.makeRaw({}, input.getMetadata());
+function createTargetResults(input: DataEntity): { entity: DataEntity; metadata: any } {
+    const entity = DataEntity.fork(input, false);
     return {
-        metadata,
+        metadata: entity.getMetadata(),
         entity,
     };
 }

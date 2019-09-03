@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { isSimpleObject } from '../objects';
 import { AnyObject } from '../interfaces';
 import {
@@ -18,7 +19,7 @@ import * as utils from './utils';
  */
 export class DataEntity<
     T extends AnyObject = AnyObject,
-    M extends i.EntityMetadataType = undefined
+    M extends i.EntityMetadataType = any
 > {
     /**
      * A utility for safely converting an object a `DataEntity`.
@@ -27,16 +28,15 @@ export class DataEntity<
      * either use `new DataEntity` or shallow clone the input before
      * passing it to `DataEntity.make`.
      */
-    static make<T extends DataEntity<any, any>, M extends i.EntityMetadataType = undefined>(
+    static make<T extends DataEntity<any, any>, M extends i.EntityMetadataType = any>(
         input: T,
         metadata?: M
     ): T;
-    static make<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = undefined>(
+    static make<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = any>(
         input: AnyObject,
         metadata?: M
     ): DataEntity<T, M>;
-    // eslint-disable-next-line max-len
-    static make<T extends AnyObject|DataEntity<any, any> = AnyObject, M extends i.EntityMetadataType = undefined>(
+    static make<T extends AnyObject|DataEntity<any, any> = AnyObject, M extends i.EntityMetadataType = any>(
         input: T,
         metadata?: M
     ): T|DataEntity<T, M> {
@@ -45,10 +45,31 @@ export class DataEntity<
     }
 
     /**
-     * A barebones method for creating data-entities.
-     * Returns the metadata and entity
+     * Create a new instance of a DataEntity.
+     *
+     * If the second param `withData` is set to `true`
+     * both the data and metadata will be forked, if set
+     * to `false` only the metadata will be copied. Defaults
+     * to `true`
      */
-    static makeRaw<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = undefined>(
+    static fork<T extends DataEntity<any, any> = DataEntity>(
+        input: T,
+        withData = true
+    ): T {
+        if (!DataEntity.isDataEntity(input)) {
+            throw new Error(`Invalid input to fork, expected DataEntity, got ${getTypeOf(input)}`);
+        }
+        if (withData) {
+            return DataEntity.make(input, input.getMetadata()) as T;
+        }
+        return DataEntity.make({}, input.getMetadata()) as T;
+    }
+
+    /**
+     * A barebones method for creating data-entities.
+     * @returns the metadata and entity
+     */
+    static makeRaw<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = any>(
         input?: T,
         metadata?: M
     ): { entity: DataEntity<T, M>; metadata: i.EntityMetadata<M> } {
@@ -66,7 +87,7 @@ export class DataEntity<
      * defaults to "json"
      * @param metadata Optionally add any metadata
      */
-    static fromBuffer<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = undefined>(
+    static fromBuffer<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = any>(
         input: Buffer|string,
         opConfig: i.EncodingConfig = {},
         metadata?: M
@@ -90,7 +111,7 @@ export class DataEntity<
      * or an array of objects, to an array of DataEntities.
      * This will detect if passed an already converted input and return it.
      */
-    static makeArray<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = undefined>(
+    static makeArray<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = any>(
         input: DataArrayInput
     ): DataEntity<T, M>[] {
         if (!Array.isArray(input)) {
@@ -107,10 +128,7 @@ export class DataEntity<
     /**
      * Verify that an input is the `DataEntity`
      */
-    static isDataEntity<
-        T extends AnyObject = AnyObject,
-        M extends i.EntityMetadataType = undefined
-    >(
+    static isDataEntity<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = any>(
         input: any
     ): input is DataEntity<T, M> {
         return Boolean(input != null && input[i.__IS_ENTITY_KEY]);
@@ -119,8 +137,7 @@ export class DataEntity<
     /**
      * Verify that an input is an Array of DataEntities,
      */
-    // eslint-disable-next-line max-len
-    static isDataEntityArray<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = undefined>(
+    static isDataEntityArray<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = any>(
         input: any
     ): input is DataEntity<T, M>[] {
         if (input == null) return false;
@@ -133,14 +150,14 @@ export class DataEntity<
      * Safely get the metadata from a `DataEntity`.
      * If the input is object it will get the property from the object
      */
-    static getMetadata(input: DataInput, key?: string) {
+    static getMetadata(input: DataInput, key?: i.EntityMetadataKey) {
         if (input == null) return null;
 
         if (DataEntity.isDataEntity(input)) {
             return key ? input.getMetadata(key) : input.getMetadata();
         }
 
-        return key ? input[key] : undefined;
+        return key ? input[key as string] : undefined;
     }
 
     // Add the ability to specify any additional properties
@@ -166,7 +183,7 @@ export class DataEntity<
      * Get the metadata for the DataEntity.
      * If a key is specified, it will get that property of the metadata
     */
-    getMetadata<K extends i.EntityMetadataKey<M>>(key?: undefined): i.EntityMetadata<M>;
+    getMetadata(key?: undefined): i.EntityMetadata<M>;
     getMetadata<K extends i.EntityMetadataKey<M>>(key: K): i.EntityMetadataValue<M, K>;
     getMetadata<K extends i.EntityMetadataKey<M>>(
         key?: K
@@ -180,15 +197,17 @@ export class DataEntity<
     /**
      * Given a key and value set the metadata on the record
     */
+    setMetadata<K extends string>(key: K, value: any): void
     setMetadata<K extends i.EntityMetadataKey<M>, V extends i.EntityMetadataValue<M, K>>(
-        key: i.EntityMetadataKey<M>,
+        key: K,
         value: V
-    ): void {
+    ): void;
+    setMetadata<K extends i.EntityMetadataKey<M>|string>(key: K, value: any): void {
         if (key === '_createTime') {
             throw new Error(`Cannot set readonly metadata property ${key}`);
         }
 
-        this.__dataEntityMetadata.metadata[key] = value;
+        this.__dataEntityMetadata.metadata[key] = value as any;
     }
 
     /**

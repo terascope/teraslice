@@ -5,7 +5,7 @@ import { CachedStateStorage, SetTuple, EvictedEvent } from '../src';
 describe('Cache Storage State', () => {
     const idField = '_key';
 
-    const doc = DataEntity.make({ data: 'thisIsSomeData' }, { [idField]: 1 });
+    const doc = DataEntity.make({ data: 'thisIsSomeData' }, { [idField]: '1' });
 
     const docArray = [
         {
@@ -17,7 +17,7 @@ describe('Cache Storage State', () => {
         {
             data: 'thisIsThirdData',
         },
-    ].map((obj, index) => DataEntity.make(obj, { [idField]: index + 1 }));
+    ].map((obj, index) => DataEntity.make(obj, { [idField]: `${index + 1}` }));
 
     const formattedMSet: SetTuple<DataEntity>[] = docArray.map((obj) => ({
         data: obj,
@@ -92,7 +92,7 @@ describe('Cache Storage State', () => {
             expect(data[id]).toEqual(docArray[id - 1]);
             expect(DataEntity.isDataEntity(data[id])).toEqual(true);
             const metaId = data[id].getMetadata(idField);
-            expect(metaId).toEqual(id);
+            expect(metaId).toEqual(idStr);
         });
     });
 

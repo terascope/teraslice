@@ -10,13 +10,7 @@ import {
 } from '../src';
 
 describe('DataEntity', () => {
-    const methods: (keyof DataEntity)[] = [
-        'getMetadata',
-        'setMetadata',
-        'getRawData',
-        'setRawData',
-        'toBuffer'
-    ];
+    const methods = Object.keys(Object.getPrototypeOf(DataEntity));
 
     const hiddenProps: string[] = [
         __IS_ENTITY_KEY,
@@ -65,7 +59,7 @@ describe('DataEntity', () => {
             it('should not be able to enumerate metadata methods', () => {
                 const keys = Object.keys(dataEntity);
                 for (const method of methods) {
-                    expect(keys).not.toInclude(method as string);
+                    expect(keys).not.toInclude(method);
                 }
                 for (const hiddenProp of hiddenProps) {
                     expect(keys).not.toInclude(hiddenProp);
@@ -74,7 +68,7 @@ describe('DataEntity', () => {
                 // eslint-disable-next-line guard-for-in
                 for (const prop in dataEntity) {
                     for (const method of methods) {
-                        expect(prop).not.toEqual(method as string);
+                        expect(prop).not.toEqual(method);
                     }
                     for (const hiddenProp of hiddenProps) {
                         expect(prop).not.toEqual(hiddenProp);
@@ -85,7 +79,7 @@ describe('DataEntity', () => {
             it('should only convert non-metadata properties with stringified', () => {
                 const obj = JSON.parse(JSON.stringify(dataEntity));
                 for (const method of methods) {
-                    expect(obj).not.toHaveProperty(method as string);
+                    expect(obj).not.toHaveProperty(method);
                 }
 
                 for (const hiddenProp of hiddenProps) {
@@ -385,6 +379,40 @@ describe('DataEntity', () => {
             expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
 
             expect(DataEntity.makeArray(dataEntities)).toEqual(dataEntities);
+        });
+    });
+
+    describe('#fork', () => {
+        describe('when withData is not set (it should default to true)', () => {
+            it('should create a new instance and copy the data', () => {
+                const entity = new DataEntity({ a: 1 }, { b: 2 });
+                const forked = DataEntity.fork(entity);
+                expect(forked).toHaveProperty('a', 1);
+                const b = forked.getMetadata('b');
+                expect(b).toBe(2);
+            });
+        });
+
+        describe('when withData is true', () => {
+            it('should create a new instance and copy the data', () => {
+                const entity = new DataEntity({ a: 1 }, { b: 2 });
+                const forked = DataEntity.fork(entity, true);
+                expect(forked.a).toBe(1);
+                expect(forked.getMetadata()).toHaveProperty('b', 2);
+            });
+        });
+
+        describe('when withData is false', () => {
+            it('should create a new instance and copy the data', () => {
+                const entity = new DataEntity({ a: 1 }, { b: 2 });
+                const forked = DataEntity.fork(entity, false);
+                expect(forked).not.toHaveProperty('a', 1);
+                expect(forked.getMetadata('b')).toBe(2);
+            });
+        });
+
+        it('should throw if not given a data entity', () => {
+            expect(() => DataEntity.fork(null as any)).toThrowError(/Invalid input to fork/);
         });
     });
 
