@@ -44,7 +44,7 @@
         "shortid": "^2.2.14",
         "valid-url": "^1.0.9",
         "validator": "^11.0.0",
-        "xlucene-evaluator": "^0.10.1",
+        "xlucene-evaluator": "^0.10.2",
         "yargs": "^14.0.0"
     },
     "devDependencies": {
