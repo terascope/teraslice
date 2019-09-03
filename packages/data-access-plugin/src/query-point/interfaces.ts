@@ -8,3 +8,17 @@ export interface SpacesContext {
     authenticating: boolean;
     logger: Logger;
 }
+
+export interface ParsedJoinFields {
+    origin: string;
+    target: string;
+    extraParams?: string;
+}
+
+export interface EndpointArgs {
+    join?: string[];
+    query?: string;
+    size?: number;
+    from?: number;
+    sort?: string;
+}

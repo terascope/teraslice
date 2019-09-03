@@ -46,7 +46,7 @@ export class DynamicApolloServer extends apollo.ApolloServer {
                     const types = accept.types() as string[];
                     const prefersHTML = types.find((x: string) => x === 'text/html' || x === 'application/json') === 'text/html';
                     if (prefersHTML) {
-                        const endpoint = `${req.protocol}://${req.headers.host}${req.baseUrl}`;
+                        const endpoint = `${req.protocol}://${req.headers.host}${req.baseUrl}${req.url.slice(1)}`;
 
                         const playgroundRenderPageOptions: PlaygroundRenderPageOptions = {
                             ...this.playgroundOptions,
@@ -56,10 +56,20 @@ export class DynamicApolloServer extends apollo.ApolloServer {
                                 'editor.reuseHeaders': true,
                                 // @ts-ignore
                                 'schema.polling.interval': 10000,
-                                'schema.polling.endpointFilter': path
+                                workspaceName: endpoint,
+                                config: {
+                                    app: {
+                                        extensions: {
+                                            endpoints: {
+                                                default: endpoint,
+                                                headers: {
+                                                    Authorization: `Token ${user.api_token}`,
+                                                },
+                                            },
+                                        },
+                                    }
+                                }
                             },
-                            // @ts-ignore
-                            tabs: [{ endpoint, headers: { Authorization: `Token ${user.api_token}` } }]
                         };
                         res.setHeader('Content-Type', 'text/html');
                         const playground = renderPlaygroundPage(playgroundRenderPageOptions);

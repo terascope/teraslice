@@ -4,13 +4,16 @@ import { GraphQLResolveInfo } from 'graphql';
 import { IResolvers, UserInputError } from 'apollo-server-express';
 import { DataAccessConfig, SearchAccess, InputQuery } from '@terascope/data-access';
 import { Context } from '@terascope/job-components';
-import { Logger, get } from '@terascope/utils';
+import { Logger, get, AnyObject } from '@terascope/utils';
 import DataLoader from 'dataloader';
 import Bluebird from 'bluebird';
 import { Client } from 'elasticsearch';
-import { getESClient } from '../../utils';
-import { SpacesContext } from '../interfaces';
+import JoinStitcher from '../join';
+import { parseJoinField } from '../utils';
+import { SpacesContext, ParsedJoinFields, EndpointArgs } from '../interfaces';
 import Misc from './misc';
+import { getESClient } from '../../utils';
+
 
 const defaultResolvers = {
     ...Misc,
@@ -18,6 +21,7 @@ const defaultResolvers = {
 } as IResolvers<any, SpacesContext>;
 
 export { defaultResolvers, createResolvers };
+
 
 function dedup<T>(records: T[]): T[] {
     const deduped: { [hash: string]: T } = {};
@@ -64,17 +68,16 @@ function createResolvers(
         const {
             fieldNodes: [
                 {
-                    // @ts-ignore
-                    selectionSet: { selections },
+                    selectionSet
                 },
             ],
         } = info;
 
+        const selections = selectionSet ? selectionSet.selections : [];
         const filteredResults: string[] = [];
-        selections.forEach((selector: any) => {
-            const {
-                name: { value },
-            } = selector;
+        selections.forEach((selector) => {
+            // @ts-ignore
+            const value = selector.name != null ? selector.name.value : false;
             if (endpoints[value] == null) filteredResults.push(value);
         });
         return filteredResults;
@@ -91,87 +94,38 @@ function createResolvers(
         }, { concurrency }));
     }
 
-    interface ParsedJoinFields {
-        origin: string;
-        target: string;
-        extraParams?: string;
-    }
 
-    function parseJoinField(fieldParams: string): ParsedJoinFields {
-        // any chars between a | and a whitespace or :
-        let field = fieldParams;
-        let extraParams: undefined | string;
-        const regex = /\|([^: ]+)/;
-        const hasExtraParams = field.match(regex);
-
-        if (hasExtraParams) {
-            [, extraParams] = hasExtraParams;
-            field = field.replace(`|${extraParams}`, '');
-        }
-        const selectorTargets = field.split(':');
-        const origin = selectorTargets[0];
-        const target = selectorTargets[1] || origin;
-
-        return { origin, target, extraParams };
-    }
-
-    function validateFields(root: any, parsedFields: ParsedJoinFields[]) {
-        parsedFields.forEach((parsedFieldData) => {
+    function validateFields(
+        info: GraphQLResolveInfo,
+        root: AnyObject | undefined,
+        parsedFields: ParsedJoinFields[]
+    ) {
+        for (const parsedFieldData of parsedFields) {
             const { origin } = parsedFieldData;
+            // if we have a root, we are joining
             if (!(root && root[origin] != null)) {
-                const errMsg = `Invalid join on field "${origin}", you may only join on a field that is being returned in a query`;
-                throw new UserInputError(errMsg);
+                // if field is queried by parent but is undefined, we abort the join query
+                return [];
             }
-        });
-    }
-
-    class JoinStitcher {
-        view: DataAccessConfig;
-
-        constructor(view: DataAccessConfig) {
-            this.view = view;
-        }
-
-        private isGeoJoinField(field: string): boolean {
-            const dataTypeFields = this.view.data_type.config.fields;
-            return dataTypeFields[field] != null && dataTypeFields[field].type === 'Geo';
-        }
-
-        private _geoQuery(target: string, value: any | any[], params: string | undefined) {
-            const distance = params || '10m';
-            const { lat, lon }: { lat: string; lon: string } = value;
-            return `${target}:(_geo_point_:"${lat},${lon}" _geo_distance_:${distance})`;
-        }
-
-        private _createQuery(target: string, value: string | string[]) {
-            if (Array.isArray(value)) {
-                return value.map((field) => `${target}:"${field}"`).join(' AND ');
-            }
-
-            return `${target}:"${value}"`;
-        }
-
-        make(target: string, value: any | any[], params: undefined | string) {
-            if (this.isGeoJoinField(target)) {
-                return this._geoQuery(target, value, params);
-            }
-
-            return this._createQuery(target, value);
         }
     }
 
     function makeJoinQuery(
         view: DataAccessConfig,
-        root: any,
+        root: AnyObject,
+        info: GraphQLResolveInfo,
         join: string[],
         prevQ: undefined|string
     ) {
         let q = '';
         const sticher = new JoinStitcher(view);
         const parsedFields = join.map(parseJoinField);
-        validateFields(root, parsedFields);
+
+        validateFields(info, root, parsedFields);
+
         // @ts-ignore
         q = parsedFields.map((config) => sticher.make(config.target, root[config.origin], config.extraParams)).join(' AND ');
+        if (q.length === 0) return;
 
         if (prevQ) {
             q = `${q} AND (${prevQ})`;
@@ -187,11 +141,15 @@ function createResolvers(
         searchDict[endpoint] = { client, searchAccess };
 
         endpoints[endpoint] = async function resolverFn(
-            root: any,
-            args: any,
+            root: AnyObject| undefined,
+            args: EndpointArgs,
             ctx: any,
             info: GraphQLResolveInfo
         ) {
+            if (!ctx.isValid) {
+                ctx.isValid = true;
+            }
+
             const fields = getSelectionKeys(info);
             const {
                 size, sort, from, join
@@ -210,7 +168,10 @@ function createResolvers(
 
             if (join) {
                 if (!Array.isArray(join)) throw new UserInputError('Invalid join, must be an array of values');
-                q = makeJoinQuery(view, root, join, q);
+                q = makeJoinQuery(view, root as AnyObject, info, join, q);
+                if (q == null) {
+                    return [];
+                }
             }
             query.q = q;
             // set the query obj for dataloader
