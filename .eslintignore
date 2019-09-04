@@ -25,7 +25,7 @@ e2e/.config
 packages/**/dist
 packages/**/build
 packages/teraslice-cli/generator-templates
-packages/xlucene-evaluator/peg/peg-engine.js
+packages/xlucene-evaluator/src/parser/peg-engine.ts
 
 website
 packages/*/**/*.d.ts
