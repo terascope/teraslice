@@ -36,10 +36,6 @@ jobs:
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn test --suite unit
-      after_script:
-        # verify the ui packages can build
-        - yarn --cwd=./packages/ui-core build
-        - yarn --cwd=./packages/ui-data-access build
 
     - script:
       name: 'ES Test Suite (elasticsearch 5) (node 10)'
