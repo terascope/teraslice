@@ -22,9 +22,9 @@ npm install --global yo
 
 ```bash
 # Using yarn
-yarn global add tersalice-generator
+yarn global add generator-teraslice
 # Using npm
-npm install --global teraslice-generator
+npm install --global generator-teraslice
 ```
 
 ### Development Setup

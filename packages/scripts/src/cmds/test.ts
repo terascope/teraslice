@@ -3,7 +3,7 @@ import isCI from 'is-ci';
 import { CommandModule } from 'yargs';
 import { toBoolean, castArray } from '@terascope/utils';
 import { TestSuite, PackageInfo, GlobalCMDOptions } from '../helpers/interfaces';
-import { KAFKA_BROKER, ELASTICSEARCH_HOST } from '../helpers/config';
+import * as config from '../helpers/config';
 import { listPackages } from '../helpers/packages';
 import { runTests } from '../helpers/test-runner';
 import { coercePkgArg } from '../helpers/args';
@@ -19,6 +19,7 @@ type Options = {
     'elasticsearch-api-version': string;
     'kafka-broker': string;
     'kafka-version': string;
+    'use-existing-services': boolean;
     packages?: PackageInfo[];
 };
 
@@ -46,7 +47,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .option('report-coverage', {
                 description: 'Report the coverage for CI',
                 type: 'boolean',
-                default: isCI,
+                default: config.REPORT_COVERAGE,
             })
             .option('watch', {
                 description: 'Run tests in an interactive watch mode, this will test only the changed files',
@@ -61,30 +62,35 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                     return arg;
                 },
             })
+            .option('use-existing-services', {
+                description: 'If true no services will be launched',
+                type: 'boolean',
+                default: config.USE_EXISTING_SERVICES,
+            })
             .option('elasticsearch-host', {
                 description: 'The elasticsearch URL to use when needed (usually for --suite elasticsearch or e2e)',
                 type: 'string',
-                default: ELASTICSEARCH_HOST,
+                default: config.ELASTICSEARCH_HOST,
             })
             .option('elasticsearch-version', {
                 description: 'The elasticsearch version to use',
                 type: 'string',
-                default: process.env.ELASTICSEARCH_VERSION || '6.8',
+                default: config.ELASTICSEARCH_VERSION,
             })
             .option('elasticsearch-api-version', {
                 description: 'The elasticsearch client API version to use',
                 type: 'string',
-                default: process.env.ELASTICSEARCH_API_VERSION || '6.5',
+                default: config.ELASTICSEARCH_API_VERSION,
             })
             .option('kafka-broker', {
                 description: 'The kafka brokers to use when needed (usually for --suite kafka or e2e)',
                 type: 'string',
-                default: KAFKA_BROKER,
+                default: config.KAFKA_BROKER,
             })
             .option('kafka-version', {
                 description: 'The kafka version to use',
                 type: 'string',
-                default: process.env.KAFKA_VERSION || '2.1',
+                default: config.KAFKA_VERSION,
             })
             .positional('packages', {
                 description: 'Runs the test for one or more package, if none specified it will run all of the tests',
@@ -108,6 +114,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             watch,
             bail,
             suite: argv.suite,
+            useExistingServices: argv['use-existing-services'],
             elasticsearchHost: argv['elasticsearch-host'],
             elasticsearchVersion: argv['elasticsearch-version'],
             elasticsearchAPIVersion: argv['elasticsearch-api-version'],

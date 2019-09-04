@@ -3,7 +3,7 @@ import got from 'got';
 import semver from 'semver';
 import { debugLogger, pRetry, TSError } from '@terascope/utils';
 import {
-    dockerRun, DockerRunOptions, getContainerInfo, dockerStop, pgrep
+    dockerRun, DockerRunOptions, getContainerInfo, dockerStop
 } from '../scripts';
 import { TestOptions } from './interfaces';
 import { TestSuite } from '../interfaces';
@@ -81,12 +81,6 @@ export async function ensureElasticsearch(options: TestOptions): Promise<() => v
     return fn;
 }
 
-export async function stopAllServices(): Promise<void> {
-    const promises = Object.keys(services).map((service) => stopService(service as Service));
-
-    await Promise.all(promises);
-}
-
 async function stopService(service: Service) {
     const { name } = services[service];
     const info = await getContainerInfo(name);
@@ -148,6 +142,11 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
 
 async function startService(options: TestOptions, service: Service): Promise<() => void> {
     const version = options[`${service}Version`] as string;
+    if (options.useExistingServices) {
+        signale.warn(`expecting ${service}@${version} to be running (this can be dangerous)...`);
+        return () => {};
+    }
+
     const startTime = Date.now();
     signale.pending(`starting ${service}@${version} service...`);
 
@@ -171,10 +170,5 @@ async function startService(options: TestOptions, service: Service): Promise<() 
 }
 
 async function checkKafka(options: TestOptions) {
-    const p = await pgrep('kafka');
-    if (!p) {
-        throw new Error('Kafka is not running');
-    }
-
     signale.debug(`kafka should be running at ${options.kafkaBroker}`);
 }
