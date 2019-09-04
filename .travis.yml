@@ -11,7 +11,7 @@ cache:
     - '$TRAVIS_BUILD_DIR/.yarn-cache'
     - '$TRAVIS_BUILD_DIR/.eslintcache'
 
-before_install: . ./scripts/travis-setup.sh
+before_install: . ./scripts/ci-setup.sh
 install:
     # Install the dependencies
     - yarn

@@ -11,7 +11,7 @@ usage() {
 Usage:
     $cmdname
 
-    Setup and verify NPM, Docker, and Github inside travis-ci
+    Setup and verify ci dependencies
 USAGE
     exit 1
 }
@@ -30,8 +30,8 @@ require_env() {
 }
 
 only_ci() {
-    if [ "$TRAVIS" != "true" ]; then
-        echoerr "This script can only be ran in Travis CI"
+    if [ "$CI" != "true" ]; then
+        echoerr "This script can only be ran in CI"
         exit 1
     fi
 }
