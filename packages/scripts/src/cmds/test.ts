@@ -3,7 +3,7 @@ import isCI from 'is-ci';
 import { CommandModule } from 'yargs';
 import { toBoolean, castArray } from '@terascope/utils';
 import { TestSuite, PackageInfo, GlobalCMDOptions } from '../helpers/interfaces';
-import { KAFKA_BROKER, ELASTICSEARCH_HOST } from '../helpers/config';
+import { KAFKA_BROKER, ELASTICSEARCH_HOST, REPORT_COVERAGE } from '../helpers/config';
 import { listPackages } from '../helpers/packages';
 import { runTests } from '../helpers/test-runner';
 import { coercePkgArg } from '../helpers/args';
@@ -46,7 +46,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .option('report-coverage', {
                 description: 'Report the coverage for CI',
                 type: 'boolean',
-                default: isCI,
+                default: REPORT_COVERAGE,
             })
             .option('watch', {
                 description: 'Run tests in an interactive watch mode, this will test only the changed files',

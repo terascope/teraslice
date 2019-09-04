@@ -82,6 +82,11 @@ main() {
     export FORCE_COLOR=1
     echoerr "* set FORCE_COLOR=1"
 
+    if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
+        export REPORT_COVERAGE=false
+        echoerr "* set REPORT_COVERAGE=false"
+    fi
+
     only_ci
     setup_npm
     setup_github
