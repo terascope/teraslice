@@ -11,8 +11,11 @@ import { getRootInfo } from '../misc';
 import signale from '../signale';
 
 export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType): Promise<boolean> {
+    if (pkgInfo.private) return false;
+
     const remote = await getLatestNPMVersion(pkgInfo.name);
     const local = pkgInfo.version;
+
     if (semver.gt(local, remote)) {
         if (type === PublishType.Tag) {
             if (pkgInfo.terascope.main) {
