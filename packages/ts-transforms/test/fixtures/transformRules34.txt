@@ -1,0 +1,2 @@
+{ "selector": "bool:true", "source_field": "bool", "target_field": "wasTransformed" }
+{ "selector": "bool:true", "source_field": "bytes", "target_field": "bytes" }

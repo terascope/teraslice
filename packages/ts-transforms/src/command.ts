@@ -1,7 +1,7 @@
 import yargs from 'yargs';
 import path from 'path';
 import fs from 'fs';
-import { DataEntity, debugLogger, parseList } from '@terascope/utils';
+import { DataEntity, debugLogger, parseList, AnyObject } from '@terascope/utils';
 import _ from 'lodash';
 import { PhaseManager } from './index';
 import { PhaseConfig } from './interfaces';
@@ -128,6 +128,10 @@ function parseData(data: string): object[] | null {
     return results;
 }
 
+function toJSON(obj: AnyObject) {
+    return JSON.stringify(obj);
+}
+
 function handleParsedData(data: object[] | object): DataEntity<object>[] {
     // input from elasticsearch
     const elasticSearchResults = _.get(data[0], 'hits.hits', null);
@@ -189,7 +193,8 @@ async function initCommand() {
 
         const results = manager.run(data);
         if (command.perf) console.timeEnd('execution-time');
-        process.stdout.write(`${JSON.stringify(results, null, 4)} \n`);
+        const output = results.map(toJSON).join('\n');
+        process.stdout.write(output);
     } catch (err) {
         console.error(err);
         process.exit(1);

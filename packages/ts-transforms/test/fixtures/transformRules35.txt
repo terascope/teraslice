@@ -1,0 +1,2 @@
+{ "source_field": "wasFound", "target_field": "myBool" }
+{ "source_field": "nested", "target_field": "myObj" }
