@@ -41,9 +41,9 @@ module.exports = (options) => {
             access: 'public',
         },
         scripts: {
-            test: 'ts-scripts test --',
-            'test:debug': 'ts-scripts test --debug --',
-            'test:watch': 'ts-scripts test --watch --',
+            test: 'ts-scripts test . --',
+            'test:debug': 'ts-scripts test --debug . --',
+            'test:watch': 'ts-scripts test --watch . --',
         },
         homepage: `https://github.com/terascope/teraslice/tree/master/packages/${pkgDirName}#readme`,
         repository: 'git@github.com:terascope/teraslice.git',
