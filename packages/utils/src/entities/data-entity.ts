@@ -189,9 +189,6 @@ export class DataEntity<
 
     @locked()
     getMetadata<K extends i.EntityMetadataKey<M>>(key?: K): i.EntityMetadataValue<M, K>|i.EntityMetadata<M> {
-        if (key === '_key') {
-            return this.getKey() as i.EntityMetadataValue<M, K>;
-        }
         if (key) {
             return this[i.__DATAENTITY_METADATA_KEY].metadata[key];
         }
