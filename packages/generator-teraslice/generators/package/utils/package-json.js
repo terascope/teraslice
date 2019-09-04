@@ -40,6 +40,11 @@ module.exports = (options) => {
         publishConfig: {
             access: 'public',
         },
+        scripts: {
+            test: 'ts-scripts test --',
+            'test:debug': 'ts-scripts test --debug --',
+            'test:watch': 'ts-scripts test --watch --',
+        },
         homepage: `https://github.com/terascope/teraslice/tree/master/packages/${pkgDirName}#readme`,
         repository: 'git@github.com:terascope/teraslice.git',
         author: 'Terascope, LLC <info@terascope.io>',
@@ -48,16 +53,15 @@ module.exports = (options) => {
             url: 'https://github.com/terascope/teraslice/issues',
         },
         dependencies: {},
+        terascope: {
+            testSuite: 'unit'
+        }
     };
 
     if (!typescript) {
         return _.defaultsDeep(common, {
             main: 'index.js',
             files: ['*.js', 'lib/**/*'],
-            scripts: {
-                test: 'jest',
-                'test:watch': 'jest --coverage=false --notify --watch --onlyChanged',
-            },
             devDependencies: getPkgValues({}),
         });
     }
@@ -67,15 +71,14 @@ module.exports = (options) => {
         srcMain: 'src/index.ts',
         main: 'dist/src/index.js',
         typings: 'dist/src/index.d.ts',
+        devDependencies: getPkgValues({}),
         scripts: {
             prepublishOnly: 'yarn build',
             build: 'tsc --build',
             'build:watch': 'yarn build --watch',
-            test: 'jest',
-            'test:watch': 'jest --coverage=false --notify --watch --onlyChanged',
-            'test:debug':
-                "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
         },
-        devDependencies: getPkgValues({}),
+        terascope: {
+            enableTypedoc: true
+        }
     });
 };
