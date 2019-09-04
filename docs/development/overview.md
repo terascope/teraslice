@@ -72,7 +72,7 @@ docker run -it --rm -v ./teraslice-master.yaml:/app/config/teraslice.yml terasli
     },
     "[typescriptreact]": {
         "editor.formatOnSave": false
-    }
+    },
     "files.autoGuessEncoding": true,
     "files.exclude": {
         "**/.DS_Store": true,
