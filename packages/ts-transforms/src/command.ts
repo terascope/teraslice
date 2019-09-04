@@ -1,7 +1,9 @@
 import yargs from 'yargs';
 import path from 'path';
 import fs from 'fs';
-import { DataEntity, debugLogger, parseList, AnyObject } from '@terascope/utils';
+import {
+    DataEntity, debugLogger, parseList, AnyObject
+} from '@terascope/utils';
 import _ from 'lodash';
 import { PhaseManager } from './index';
 import { PhaseConfig } from './interfaces';
@@ -96,7 +98,7 @@ function getPipedData(): Promise<string> {
 
 function parseData(data: string): object[] | null {
     // handle json array input
-    if (/^\s*\[.*\]$/.test(data)) {
+    if (/^\s*\[.*\]$/gm.test(data)) {
         try {
             return JSON.parse(data);
         } catch (err) {

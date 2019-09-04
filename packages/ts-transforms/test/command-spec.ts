@@ -14,12 +14,17 @@ async function runCli(command: string, options: execa.Options = {}) {
 }
 
 function parseOutput(str: string) {
-    const interm = str.trim().split('\n');
-    return interm.map((objStr: string) => JSON.parse(objStr));
+    const results = str.trim().split('\n');
+    return results.map((objStr: string) => JSON.parse(objStr));
 }
 
 const singleDocResults = [
     { other: 'someData' }
+];
+
+const jsonArrayResults = [
+    { target: 'data' },
+    { target: 'final' }
 ];
 
 const teraserverResults = [
@@ -36,6 +41,26 @@ const elasticsearchResults = [
 ];
 
 describe('ts-transforms cli', () => {
+    it('can read json array input from file', async () => {
+        const rulesPath = path.join(cwd, './test/fixtures/transformRules36.txt');
+        const dataPath = path.join(cwd, './test/fixtures/data/array.txt');
+
+        const response = await runCli(`node ${cliPath} -d ${dataPath} -r ${rulesPath}`);
+        const output = parseOutput(response.stdout);
+
+        expect(output).toEqual(jsonArrayResults);
+    });
+
+    it('can pipe json array input into cli', async () => {
+        const rulesPath = path.join(cwd, './test/fixtures/transformRules36.txt');
+        const dataPath = path.join(cwd, './test/fixtures/data/array.txt');
+
+        const response = await runCli(`cat ${dataPath} | node ${cliPath} -r ${rulesPath}`, { shell: true });
+        const output = parseOutput(response.stdout);
+
+        expect(output).toEqual(jsonArrayResults);
+    });
+
     it('can read ldjson input from file', async () => {
         const rulesPath = path.join(cwd, './test/fixtures/transformRules13.txt');
         const dataPath = path.join(cwd, './test/fixtures/data/singleDoc.txt');
