@@ -17,7 +17,8 @@ export type EntityMetadata<M> = M & DataEntityMetadata & AnyObject;
 export type EntityMetadataKey<M> =
     (keyof DataEntityMetadata)
     | (keyof M)
-    | string;
+    | string
+    | number;
 
 export type EntityMetadataValue<M, K> =
     K extends (keyof DataEntityMetadata) ?

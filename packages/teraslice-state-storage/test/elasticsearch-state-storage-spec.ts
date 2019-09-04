@@ -138,7 +138,7 @@ describe('elasticsearch-state-storage', () => {
 
         describe('when the record is in the cache', () => {
             const doc = makeTestDoc();
-            const key = doc.getMetadata('_key');
+            const key = doc.getKey();
             beforeEach(() => {
                 stateStorage.set(doc);
             });
@@ -157,7 +157,7 @@ describe('elasticsearch-state-storage', () => {
 
     describe('->isCached', () => {
         const doc = makeTestDoc();
-        const key = doc.getMetadata('_key');
+        const key = doc.getKey();
 
         beforeAll(async () => {
             await setup();
@@ -324,7 +324,7 @@ describe('elasticsearch-state-storage', () => {
             keys.forEach((id: string) => {
                 expect(stateResponse[id]).toEqual(docObj[id]);
                 expect(DataEntity.isDataEntity(stateResponse[id])).toEqual(true);
-                const metaId = stateResponse[id].getMetadata('_key');
+                const metaId = stateResponse[id].getKey();
                 expect(metaId).toEqual(id);
             });
         });
@@ -359,12 +359,12 @@ describe('elasticsearch-state-storage', () => {
         const updateFnResults: { key: string; current: DataEntity; prev?: DataEntity }[] = [];
         const fn: UpdateCacheFn = (key, current, prev) => {
             updateFnResults.push({ key, current, prev });
-            if (key === inCacheCurrent.getMetadata('_key')) {
+            if (key === inCacheCurrent.getKey()) {
                 inCacheCurrent.seen = true;
                 return current;
             }
-            if (key === inCacheUpdated.getMetadata('_key')) return false;
-            if (key === inCacheChanged.getMetadata('_key')) {
+            if (key === inCacheUpdated.getKey()) return false;
+            if (key === inCacheChanged.getKey()) {
                 return newInCacheChanged;
             }
             return true;
@@ -410,7 +410,7 @@ describe('elasticsearch-state-storage', () => {
         });
 
         it('should handle the current cache record correctly', () => {
-            const key = inCacheCurrent.getMetadata('_key');
+            const key = inCacheCurrent.getKey();
             const results = updateFnResults.filter((result) => result.key === key);
             expect(results).toBeArrayOfSize(1);
             const { current, prev } = results[0];
@@ -428,7 +428,7 @@ describe('elasticsearch-state-storage', () => {
         it('should handle the updated cache record correctly', () => {
             expect(inCacheUpdated).not.toBe(prevInCacheUpdated);
 
-            const key = inCacheUpdated.getMetadata('_key');
+            const key = inCacheUpdated.getKey();
 
             const results = updateFnResults.filter((result) => result.key === key);
             expect(results).toBeArrayOfSize(1);
@@ -447,7 +447,7 @@ describe('elasticsearch-state-storage', () => {
         it('should handle the new cache record correctly', () => {
             expect(inCacheChanged).not.toBe(newInCacheChanged);
 
-            const key = inCacheChanged.getMetadata('_key');
+            const key = inCacheChanged.getKey();
             const results = updateFnResults.filter((result) => result.key === key);
             expect(results).toBeArrayOfSize(1);
             const { current, prev } = results[0];
@@ -463,7 +463,7 @@ describe('elasticsearch-state-storage', () => {
         });
 
         it('should handle the current es record correctly (which was a duplicate)', () => {
-            const key = inESCurrent.getMetadata('_key');
+            const key = inESCurrent.getKey();
 
             const results = updateFnResults.filter((result) => result.key === key);
             expect(results).toBeArrayOfSize(2);
@@ -496,7 +496,7 @@ describe('elasticsearch-state-storage', () => {
         it('should handle the updated es record correctly', () => {
             expect(inESUpdated).not.toBe(prevInESUpdated);
 
-            const key = inESUpdated.getMetadata('_key');
+            const key = inESUpdated.getKey();
             const results = updateFnResults.filter((result) => result.key === key);
             expect(results).toBeArrayOfSize(1);
             const { current, prev } = results[0];
@@ -513,7 +513,7 @@ describe('elasticsearch-state-storage', () => {
         });
 
         it('should handle the NOT found in es record correctly', () => {
-            const key = notFoundInES.getMetadata('_key');
+            const key = notFoundInES.getKey();
 
             const results = updateFnResults.filter((result) => result.key === key);
             expect(results).toBeArrayOfSize(1);
@@ -590,14 +590,14 @@ function makeTestDoc() {
 function docsToObject(docs: DataEntity[]): { [key: string]: DataEntity } {
     const obj: { [key: string]: DataEntity } = {};
     for (const doc of docs) {
-        const key = doc.getMetadata('_key');
+        const key = doc.getKey();
         obj[key] = doc;
     }
     return obj;
 }
 
 function copyDataEntity(doc: DataEntity): DataEntity {
-    const key = doc.getMetadata('_key');
+    const key = doc.getKey();
     const updated = Object.assign({}, doc, { copy: `copy-${key}` });
     return DataEntity.make(updated, doc.getMetadata());
 }
@@ -622,7 +622,7 @@ class TestClient {
 
     createMGetResponse(dataArray: DataEntity[], found = true): ESMGetResponse {
         const docs = dataArray.map((item) => {
-            const id = item.getMetadata('_key');
+            const id = item.getKey();
             if (!id) throw new Error('Missing _key on test record');
             if (typeof id !== 'string') throw new Error('Invalid _key on test record');
 

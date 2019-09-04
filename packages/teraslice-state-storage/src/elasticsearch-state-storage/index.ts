@@ -55,7 +55,7 @@ export default class ESCachedStateStorage {
                 context: { doc }
             });
         }
-        return key;
+        return `${key}`;
     }
 
     async mset(docArray: DataEntity[]) {
@@ -76,7 +76,7 @@ export default class ESCachedStateStorage {
         return this.setCacheByKey(key, doc);
     }
 
-    setCacheByKey(key: string, doc: DataEntity): void {
+    setCacheByKey(key: string|number, doc: DataEntity): void {
         return this.cache.set(key, doc);
     }
 
@@ -85,7 +85,7 @@ export default class ESCachedStateStorage {
         return this.getFromCacheByKey(key);
     }
 
-    getFromCacheByKey(key: string) {
+    getFromCacheByKey(key: string|number) {
         return this.cache.get(key);
     }
 
@@ -94,7 +94,7 @@ export default class ESCachedStateStorage {
         return this.isKeyCached(key);
     }
 
-    isKeyCached(key: string) {
+    isKeyCached(key: string|number) {
         return this.cache.has(key);
     }
 

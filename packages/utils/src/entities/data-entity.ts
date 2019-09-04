@@ -20,7 +20,7 @@ import { locked } from '../misc';
  */
 export class DataEntity<
     T extends AnyObject = AnyObject,
-    M extends i.EntityMetadataType = any
+    M extends i.EntityMetadataType = {}
 > {
     /**
      * A utility for safely converting an object a `DataEntity`.
@@ -29,15 +29,15 @@ export class DataEntity<
      * either use `new DataEntity` or shallow clone the input before
      * passing it to `DataEntity.make`.
      */
-    static make<T extends DataEntity<any, any>, M extends i.EntityMetadataType = any>(
+    static make<T extends DataEntity<any, any>, M extends i.EntityMetadataType = {}>(
         input: T,
         metadata?: M
     ): T;
-    static make<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = any>(
+    static make<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = {}>(
         input: AnyObject,
         metadata?: M
     ): DataEntity<T, M>;
-    static make<T extends AnyObject|DataEntity<any, any> = AnyObject, M extends i.EntityMetadataType = any>(
+    static make<T extends AnyObject|DataEntity<any, any> = AnyObject, M extends i.EntityMetadataType = {}>(
         input: T,
         metadata?: M
     ): T|DataEntity<T, M> {
@@ -70,7 +70,7 @@ export class DataEntity<
      * A barebones method for creating data-entities.
      * @returns the metadata and entity
      */
-    static makeRaw<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = any>(
+    static makeRaw<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = {}>(
         input?: T,
         metadata?: M
     ): { entity: DataEntity<T, M>; metadata: i.EntityMetadata<M> } {
@@ -88,7 +88,7 @@ export class DataEntity<
      * defaults to "json"
      * @param metadata Optionally add any metadata
      */
-    static fromBuffer<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = any>(
+    static fromBuffer<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = {}>(
         input: Buffer|string,
         opConfig: i.EncodingConfig = {},
         metadata?: M
@@ -112,7 +112,7 @@ export class DataEntity<
      * or an array of objects, to an array of DataEntities.
      * This will detect if passed an already converted input and return it.
      */
-    static makeArray<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = any>(
+    static makeArray<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = {}>(
         input: DataArrayInput
     ): DataEntity<T, M>[] {
         if (!Array.isArray(input)) {
@@ -129,7 +129,7 @@ export class DataEntity<
     /**
      * Verify that an input is the `DataEntity`
      */
-    static isDataEntity<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = any>(
+    static isDataEntity<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = {}>(
         input: any
     ): input is DataEntity<T, M> {
         return Boolean(input != null && input[i.__IS_ENTITY_KEY] === true);
@@ -138,7 +138,7 @@ export class DataEntity<
     /**
      * Verify that an input is an Array of DataEntities,
      */
-    static isDataEntityArray<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = any>(
+    static isDataEntityArray<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = {}>(
         input: any
     ): input is DataEntity<T, M>[] {
         if (input == null) return false;
