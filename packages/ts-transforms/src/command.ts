@@ -1,8 +1,10 @@
 import yargs from 'yargs';
 import path from 'path';
 import fs from 'fs';
+import readline from 'readline';
 import {
-    DataEntity, debugLogger, parseList, AnyObject
+    // @ts-ignore
+    DataEntity, debugLogger, parseList, AnyObject, pDelay
 } from '@terascope/utils';
 import _ from 'lodash';
 import { PhaseManager } from './index';
@@ -23,6 +25,9 @@ const command = yargs
     .alias('perf', 'performance')
     .alias('m', 'match')
     .alias('p', 'plugins')
+    .alias('f', 'format')
+    .alias('s', 'size')
+    .default('s', 10000)
     .help('h')
     .alias('h', 'help')
     .describe('r', 'path to load the rules file')
@@ -31,13 +36,17 @@ const command = yargs
     .describe('t', 'specify type configs ie field:value, otherfield:value')
     .describe('T', 'specify type configs from file')
     .describe('p', 'path to plugins that should be added into ts-transforms')
+    .describe('s', 'batch size for stream processing, defaults to 10,000')
+    .describe('format', 'set this to type of incoming data, if set to ldjson then it will stream the input and output records')
     .demandOption(['r'])
+    .choices('f', ['ldjson', 'json', 'teraserver', 'es'])
     .version(version).argv;
 
 const filePath = command.rules as string;
-const dataPath = command.data;
-
+const dataPath = command.data as string;
+const streamData = command.f && command.f === 'ldjson' ? command.f : false;
 const ignoreErrors = command.i || false;
+const batchSize = command.s;
 let typesConfig = {};
 const type = command.m ? 'matcher' : 'transform';
 
@@ -111,7 +120,7 @@ function parseData(data: string): object[] | null {
     const results: object[] = [];
     const lines = _.split(data, '\n');
     for (let i = 0; i < lines.length; i++) {
-        const line = _.trim(lines[i]);
+        const line = (lines[i].trim());
         // if its not an empty space or a comment then parse it
         if (line.length > 0 && line[0] !== '#') {
             try {
@@ -161,6 +170,66 @@ async function getData(dataFilePath?: string) {
     return handleParsedData(parsedData);
 }
 
+function parseLine(str: string) {
+    const line = str.trim();
+    // if its not an empty space or a comment then parse it
+    if (line.length > 0 && line[0] !== '#') {
+        try {
+            return (JSON.parse(line));
+        } catch (err) {
+            const errorMsg = `Failed to parse data "${line}"`;
+            if (ignoreErrors === true) {
+                console.error(errorMsg);
+            } else {
+                throw new Error(errorMsg);
+            }
+        }
+    }
+}
+
+async function transformIO(manager: PhaseManager) {
+    return new Promise((resolve, reject) => {
+        let data: DataEntity[] = [];
+        try {
+            const input = dataPath ? fs.createReadStream(dataPath) : process.stdin;
+
+            const rl = readline.createInterface({
+                input,
+            });
+
+            if (command.perf) {
+                process.stderr.write('\n');
+                console.time('execution-time');
+            }
+
+
+            rl.on('line', (str: string) => {
+                const obj = parseLine(str);
+                if (obj != null) data.push(DataEntity.make(obj));
+                if (data.length >= batchSize) {
+                    const results = manager.run(data);
+                    data = [];
+                    const output = `${results.map(toJSON).join('\n')}\n`;
+                    process.stdout.write(output);
+                }
+            });
+
+            rl.on('close', () => {
+                if (data.length > 0) {
+                    const results = manager.run(data);
+                    data = [];
+                    const output = `${results.map(toJSON).join('\n')}\n`;
+                    process.stdout.write(output);
+                    if (command.perf) console.timeEnd('execution-time');
+                    return resolve(true);
+                }
+            });
+        } catch (err) {
+            reject(err);
+        }
+    });
+}
+
 async function initCommand() {
     try {
         const opConfig: PhaseConfig = {
@@ -170,36 +239,36 @@ async function initCommand() {
         };
         let plugins = [];
         if (command.p) {
-            try {
-                const pluginList = parseList(command.p as string);
-                plugins = pluginList.map((pluginPath) => {
-                    const mod = require(path.resolve(pluginPath));
-                    return mod.default || mod;
-                });
-            } catch (err) {
-                // @ts-ignore
-                console.error('could not load plugins');
-                process.exit(1);
-            }
+            const pluginList = parseList(command.p as string);
+            plugins = pluginList.map((pluginPath) => {
+                const mod = require(path.resolve(pluginPath));
+                return mod.default || mod;
+            });
         }
         const manager = new PhaseManager(opConfig, logger);
 
         await manager.init(plugins);
 
-        const data = await getData(dataPath as string);
 
-        if (command.perf) {
-            process.stderr.write('\n');
-            console.time('execution-time');
+        if (streamData) {
+            await transformIO(manager);
+        } else {
+            // regular processing
+            const data = await getData(dataPath as string);
+
+            if (command.perf) {
+                process.stderr.write('\n');
+                console.time('execution-time');
+            }
+
+            const results = manager.run(data);
+            if (command.perf) console.timeEnd('execution-time');
+            const output = results.map(toJSON).join('\n');
+            process.stdout.write(output);
         }
-
-        const results = manager.run(data);
-        if (command.perf) console.timeEnd('execution-time');
-        const output = results.map(toJSON).join('\n');
-        process.stdout.write(output);
     } catch (err) {
         console.error(err);
-        process.exit(1);
+        process.exitCode = 1;
     }
 }
 

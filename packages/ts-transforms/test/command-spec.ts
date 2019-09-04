@@ -101,7 +101,6 @@ describe('ts-transforms cli', () => {
         expect(output).toEqual(teraserverResults);
     });
 
-
     it('can read elasticsearch input from file', async () => {
         const rulesPath = path.join(cwd, './test/fixtures/transformRules35.txt');
         const dataPath = path.join(cwd, './test/fixtures/data/elasticsearch.txt');
@@ -120,5 +119,50 @@ describe('ts-transforms cli', () => {
         const output = parseOutput(response.stdout);
 
         expect(output).toEqual(elasticsearchResults);
+    });
+
+    describe('streaming', () => {
+        const streamData = [
+            { target: 'data' },
+            { target: '1234' },
+            { target: '4321' },
+            { target: '345' },
+            { target: 'hello' },
+            { target: 'hi' },
+            { target: 'random' },
+            { target: 'stuff' },
+            { target: 'MICAP' },
+            { target: 'GoldStar' },
+        ];
+
+        it('can stream ldjson input from file', async () => {
+            const rulesPath = path.join(cwd, './test/fixtures/transformRules36.txt');
+            const dataPath = path.join(cwd, './test/fixtures/data/ldjson.txt');
+
+            const response = await runCli(`node ${cliPath} -f ldjson -d ${dataPath} -r ${rulesPath}`);
+            const output = parseOutput(response.stdout);
+
+            expect(output).toEqual(streamData);
+        });
+
+        it('can pipe stream ldjson input into cli', async () => {
+            const rulesPath = path.join(cwd, './test/fixtures/transformRules36.txt');
+            const dataPath = path.join(cwd, './test/fixtures/data/ldjson.txt');
+
+            const response = await runCli(`cat ${dataPath} | node ${cliPath} -f ldjson -r ${rulesPath}`, { shell: true });
+            const output = parseOutput(response.stdout);
+
+            expect(output).toEqual(streamData);
+        });
+
+        it('can pipe stream ldjson using different batch size', async () => {
+            const rulesPath = path.join(cwd, './test/fixtures/transformRules36.txt');
+            const dataPath = path.join(cwd, './test/fixtures/data/ldjson.txt');
+
+            const response = await runCli(`cat ${dataPath} | node ${cliPath} -f ldjson -s 5 -r ${rulesPath}`, { shell: true });
+            const output = parseOutput(response.stdout);
+
+            expect(output).toEqual(streamData);
+        });
     });
 });
