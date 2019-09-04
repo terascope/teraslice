@@ -1,26 +1,35 @@
-import { get, TSError } from '@terascope/utils';
+
+import {
+    get, TSError, Logger
+} from '@terascope/utils';
 import * as apollo from 'apollo-server-express';
 import accepts from 'accepts';
 import { json } from 'body-parser';
+import { URL } from 'url';
 import { User } from '@terascope/data-access';
 import { renderPlaygroundPage, RenderPageOptions as PlaygroundRenderPageOptions } from '@apollographql/graphql-playground-html';
 /* Don't think it's exported normally, get directly */
 import { graphqlExpress } from 'apollo-server-express/dist/expressApollo';
-
+import { Context } from '@terascope/job-components';
 import * as utils from '../manager/utils';
 import getSchemaByRole from './dynamic-schema';
 import { makeErrorHandler } from '../utils';
+import makeComplexityPlugin from './plugins';
+
+const formatError = utils.formatError(true);
 
 export class DynamicApolloServer extends apollo.ApolloServer {
+    logger!: Logger;
+    pluginContext!: Context;
+    complexitySize!: number;
+    concurrency!: number;
+
     applyMiddleware({ app, path = '/graphql' }: apollo.ServerRegistration) {
         /* Adds project specific middleware inside, just to keep in one place */
-        // @ts-ignore
         const loginErrorHandler = makeErrorHandler('Failure to login user', this.logger);
-        // @ts-ignore
         const schemaErrorHandler = makeErrorHandler('Failure to create schema', this.logger);
 
         app.use(path, json(), async (req, res, next) => {
-            // @ts-ignore
             loginErrorHandler(req, res, async () => {
                 const user = (await utils.login(get(req, 'aclManager'), req)) as User;
                 if (user.role == null) {
@@ -33,18 +42,34 @@ export class DynamicApolloServer extends apollo.ApolloServer {
                 }
 
                 if (this.playgroundOptions && req.method === 'GET') {
-                    // perform more expensive content-type check only if necessary
-                    // XXX We could potentially move this logic into the GuiOptions lambda,
-                    // but I don't think it needs any overriding
                     const accept = accepts(req);
                     const types = accept.types() as string[];
                     const prefersHTML = types.find((x: string) => x === 'text/html' || x === 'application/json') === 'text/html';
-
                     if (prefersHTML) {
+                        const { href: endpoint } = new URL(`${req.baseUrl}${req.url.slice(1)}`, `${req.protocol}://${req.headers.host}${req.baseUrl}`);
+
                         const playgroundRenderPageOptions: PlaygroundRenderPageOptions = {
-                            endpoint: path,
-                            subscriptionEndpoint: this.subscriptionsPath,
                             ...this.playgroundOptions,
+                            endpoint,
+                            subscriptionEndpoint: endpoint,
+                            settings: {
+                                'editor.reuseHeaders': true,
+                                // @ts-ignore
+                                'schema.polling.interval': 10000,
+                                workspaceName: endpoint,
+                                config: {
+                                    app: {
+                                        extensions: {
+                                            endpoints: {
+                                                default: endpoint,
+                                                headers: {
+                                                    Authorization: `Token ${user.api_token}`,
+                                                },
+                                            },
+                                        },
+                                    }
+                                }
+                            },
                         };
                         res.setHeader('Content-Type', 'text/html');
                         const playground = renderPlaygroundPage(playgroundRenderPageOptions);
@@ -62,10 +87,9 @@ export class DynamicApolloServer extends apollo.ApolloServer {
                         // @ts-ignore
                         req.aclManager,
                         user,
-                        // @ts-ignore
                         this.logger,
-                        // @ts-ignore
-                        this.pluginContext
+                        this.pluginContext,
+                        this.concurrency
                     );
 
                     /**
@@ -82,13 +106,16 @@ export class DynamicApolloServer extends apollo.ApolloServer {
                             graphqlPath: path,
                             /* Retrieves a custom graphql schema based on request */
                             schema: roleSchema,
-                            formatError: utils.formatError,
+                            formatError,
                             introspection: !!user.role,
-                            playground: {
-                                settings: {
-                                    'request.credentials': 'include',
-                                },
-                            } as apollo.PlaygroundConfig,
+                            plugins: [
+                                makeComplexityPlugin(
+                                    this.logger,
+                                    this.complexitySize,
+                                    roleSchema,
+                                    user.id
+                                )
+                            ],
                         })
                     )(req, res, next);
                 });
