@@ -13,7 +13,7 @@ import {
     getRootDir,
     getRootInfo
 } from '../misc';
-import { ensureServices, stopAllServices } from './services';
+import { ensureServices } from './services';
 import { PackageInfo, TestSuite } from '../interfaces';
 import { TestOptions } from './interfaces';
 import { runJest } from '../scripts';
@@ -33,8 +33,6 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
         errors = [getFullErrorStack(err)];
     }
 
-    await cleanUpIfNeeded(pkgInfos, options);
-
     let errorMsg = '';
     if (errors.length > 1) {
         errorMsg = `Multiple Test Failures:${formatList(errors)}`;
@@ -52,16 +50,6 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
     }
 
     process.exit(0);
-}
-
-async function cleanUpIfNeeded(pkgInfos: PackageInfo[], options: TestOptions) {
-    if (options.suite === TestSuite.E2E || !utils.onlyUnitTests(pkgInfos)) {
-        try {
-            await stopAllServices();
-        } catch (err) {
-            signale.error(new TSError(err, { reason: 'Failure stopping services' }));
-        }
-    }
 }
 
 async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
