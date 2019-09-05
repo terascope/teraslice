@@ -73,6 +73,10 @@
         "jest-fixtures": "^0.6.0",
         "nock": "^10.0.6"
     },
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
+    },
     "displayName": "Teraslice",
     "terascope": {
         "main": true,

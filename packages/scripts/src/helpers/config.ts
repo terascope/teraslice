@@ -16,3 +16,5 @@ const reportCov = process.env.REPORT_COVERAGE;
 export const REPORT_COVERAGE = reportCov != null || reportCov !== ''
     ? toBoolean(reportCov)
     : isCI;
+
+export const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org/';

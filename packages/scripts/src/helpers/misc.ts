@@ -1,9 +1,11 @@
 import path from 'path';
 import pkgUp from 'pkg-up';
 import fse from 'fs-extra';
+import defaultsDeep from 'lodash.defaultsdeep';
 import { isPlainObject, get } from '@terascope/utils';
 import sortPackageJson from 'sort-package-json';
 import { PackageInfo, RootPackageInfo } from './interfaces';
+import { NPM_DEFAULT_REGISTRY } from './config';
 import signale from './signale';
 
 let rootDir: string | undefined;
@@ -31,19 +33,11 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
     const pkg = fse.readJSONSync(pkgJSONPath);
     const isRoot = get(pkg, 'terascope.root', false);
     if (!isRoot) return undefined;
+
     const dir = path.dirname(pkgJSONPath);
     const folderName = path.basename(dir);
 
-    const terascopeConfig = Object.assign({
-        root: isRoot,
-        type: 'monorepo',
-        docker: {
-            registry: `terascope/${folderName}`,
-            cache_layers: [],
-        },
-    }, pkg.terascope);
-
-    return sortPackageJson(Object.assign({
+    return sortPackageJson(defaultsDeep(pkg, {
         dir,
         folderName,
         displayName: getName(pkg.name),
@@ -52,12 +46,26 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
         bugs: {
             url: '',
         },
-        terascope: terascopeConfig,
-    }, pkg));
+        terascope: {
+            root: isRoot,
+            type: 'monorepo',
+            docker: {
+                registry: `terascope/${folderName}`,
+                cache_layers: [],
+            },
+            npm: {
+                registry: NPM_DEFAULT_REGISTRY
+            }
+        },
+    }));
 }
 
-export function getRootInfo() {
-    return _getRootInfo(path.join(getRootDir(), 'package.json'))!;
+let _rootInfo: RootPackageInfo;
+
+export function getRootInfo(): RootPackageInfo {
+    if (_rootInfo) return _rootInfo;
+    _rootInfo = _getRootInfo(path.join(getRootDir(), 'package.json'))!;
+    return _rootInfo;
 }
 
 export function getName(input: string): string {

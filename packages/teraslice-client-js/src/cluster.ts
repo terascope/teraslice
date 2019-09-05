@@ -1,4 +1,3 @@
-
 import { startsWith } from '@terascope/job-components';
 import util from 'util';
 import autoBind from 'auto-bind';

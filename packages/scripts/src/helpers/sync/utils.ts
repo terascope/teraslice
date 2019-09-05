@@ -23,12 +23,13 @@ export async function verifyCommitted(throwOutOfSync: boolean) {
 
     if (!changed.length) return;
     if (throwOutOfSync) {
-        console.error(`Before running this command make sure to commit the following files
+        console.error(`
+Before running this command make sure to commit, or stage, the following files:
 ${formatList(changed)}
 `);
         process.exit(1);
     } else {
-        signale.warn(`Found ${changed.length} uncommitted files`);
+        signale.warn(`Found ${changed.length} previously uncommitted files`);
     }
 }
 
@@ -40,8 +41,9 @@ export async function verify(files: string[], throwOutOfSync: boolean) {
 
     if (!changed.length) return;
 
+    const certainty = throwOutOfSync ? 'made' : 'may have';
     console.error(`
-This command made changes to the following files:
+This command ${certainty} changes to the following files:
 ${formatList(changed)}
 `);
     signale.warn('Make sure to run yarn and commit your changes');
