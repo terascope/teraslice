@@ -72,7 +72,7 @@ high level abstraction of Spaces, Users, Roles, and Views
 
 \+ **new ACLManager**(`client`: Client, `config`: [ManagerConfig](../interfaces/managerconfig.md)): *[ACLManager](aclmanager.md)*
 
-*Defined in [acl-manager.ts:23](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L23)*
+*Defined in [acl-manager.ts:23](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L23)*
 
 **Parameters:**
 
@@ -89,7 +89,7 @@ Name | Type |
 
 • **logger**: *Logger*
 
-*Defined in [acl-manager.ts:16](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L16)*
+*Defined in [acl-manager.ts:16](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L16)*
 
 ## Methods
 
@@ -97,7 +97,7 @@ Name | Type |
 
 ▸ **authenticate**(`args`: object): *Promise‹[User](../interfaces/user.md)›*
 
-*Defined in [acl-manager.ts:77](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L77)*
+*Defined in [acl-manager.ts:77](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L77)*
 
 Authenticate user with an api_token or username and password
 
@@ -115,7 +115,7 @@ ___
 
 ▸ **countDataTypes**(`args`: object, `authUser`: i.AuthUser): *Promise‹number›*
 
-*Defined in [acl-manager.ts:303](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L303)*
+*Defined in [acl-manager.ts:303](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L303)*
 
 Count data types by a given query
 
@@ -134,7 +134,7 @@ ___
 
 ▸ **countRoles**(`args`: object, `authUser`: i.AuthUser): *Promise‹number›*
 
-*Defined in [acl-manager.ts:210](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L210)*
+*Defined in [acl-manager.ts:210](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L210)*
 
 Count roles by a given query
 
@@ -153,7 +153,7 @@ ___
 
 ▸ **countSpaces**(`args`: object, `authUser`: i.AuthUser): *Promise‹number›*
 
-*Defined in [acl-manager.ts:399](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L399)*
+*Defined in [acl-manager.ts:399](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L399)*
 
 Count spaces by a given query
 
@@ -172,7 +172,7 @@ ___
 
 ▸ **countUsers**(`args`: object, `authUser`: i.AuthUser): *Promise‹number›*
 
-*Defined in [acl-manager.ts:117](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L117)*
+*Defined in [acl-manager.ts:117](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L117)*
 
 Count users by a given query
 
@@ -191,7 +191,7 @@ ___
 
 ▸ **countViews**(`args`: object, `authUser`: i.AuthUser): *Promise‹number›*
 
-*Defined in [acl-manager.ts:471](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L471)*
+*Defined in [acl-manager.ts:471](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L471)*
 
 Count views by a given query
 
@@ -210,7 +210,7 @@ ___
 
 ▸ **createDataType**(`args`: object, `authUser`: i.AuthUser): *Promise‹[DataType](../interfaces/datatype.md)›*
 
-*Defined in [acl-manager.ts:310](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L310)*
+*Defined in [acl-manager.ts:310](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L310)*
 
 Create a data type
 
@@ -229,7 +229,7 @@ ___
 
 ▸ **createRole**(`args`: object, `authUser`: i.AuthUser): *Promise‹[Role](../interfaces/role.md)›*
 
-*Defined in [acl-manager.ts:217](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L217)*
+*Defined in [acl-manager.ts:217](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L217)*
 
 Create a role
 
@@ -248,7 +248,7 @@ ___
 
 ▸ **createSpace**(`args`: object, `authUser`: i.AuthUser): *Promise‹[Space](../interfaces/space.md)›*
 
-*Defined in [acl-manager.ts:409](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L409)*
+*Defined in [acl-manager.ts:409](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L409)*
 
 Create space with optional views
 If roles are specified on any of the views, it will try automatically
@@ -269,7 +269,7 @@ ___
 
 ▸ **createUser**(`args`: object, `authUser`: i.AuthUser): *Promise‹[User](../interfaces/user.md)›*
 
-*Defined in [acl-manager.ts:124](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L124)*
+*Defined in [acl-manager.ts:124](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L124)*
 
 Create a user
 
@@ -288,7 +288,7 @@ ___
 
 ▸ **createView**(`args`: object, `authUser`: i.AuthUser): *Promise‹[View](../interfaces/view.md)›*
 
-*Defined in [acl-manager.ts:478](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L478)*
+*Defined in [acl-manager.ts:478](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L478)*
 
 Create a view, this will attach to the space and the role
 
@@ -307,7 +307,7 @@ ___
 
 ▸ **findDataType**(`args`: i.FindOneArgs‹[DataType](../interfaces/datatype.md)›, `authUser`: i.AuthUser): *Promise‹[DataType](../interfaces/datatype.md)›*
 
-*Defined in [acl-manager.ts:279](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L279)*
+*Defined in [acl-manager.ts:279](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L279)*
 
 Find data type by id
 
@@ -326,7 +326,7 @@ ___
 
 ▸ **findDataTypes**(`args`: i.FindArgs‹[DataType](../interfaces/datatype.md)›, `authUser`: i.AuthUser): *Promise‹[DataType](../interfaces/datatype.md)[]›*
 
-*Defined in [acl-manager.ts:296](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L296)*
+*Defined in [acl-manager.ts:296](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L296)*
 
 Find data types by a given query
 
@@ -345,7 +345,7 @@ ___
 
 ▸ **findRole**(`args`: i.FindOneArgs‹[Role](../interfaces/role.md)›, `authUser`: i.AuthUser): *Promise‹[Role](../interfaces/role.md)›*
 
-*Defined in [acl-manager.ts:196](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L196)*
+*Defined in [acl-manager.ts:196](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L196)*
 
 Find role by id
 
@@ -364,7 +364,7 @@ ___
 
 ▸ **findRoles**(`args`: i.FindArgs‹[Role](../interfaces/role.md)›, `authUser`: i.AuthUser): *Promise‹[Role](../interfaces/role.md)[]›*
 
-*Defined in [acl-manager.ts:203](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L203)*
+*Defined in [acl-manager.ts:203](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L203)*
 
 Find roles by a given query
 
@@ -383,7 +383,7 @@ ___
 
 ▸ **findSpace**(`args`: i.FindOneArgs‹[Space](../interfaces/space.md)›, `authUser`: i.AuthUser): *Promise‹[Space](../interfaces/space.md)›*
 
-*Defined in [acl-manager.ts:385](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L385)*
+*Defined in [acl-manager.ts:385](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L385)*
 
 Find space by id
 
@@ -402,7 +402,7 @@ ___
 
 ▸ **findSpaces**(`args`: i.FindArgs‹[Space](../interfaces/space.md)›, `authUser`: i.AuthUser): *Promise‹[Space](../interfaces/space.md)[]›*
 
-*Defined in [acl-manager.ts:392](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L392)*
+*Defined in [acl-manager.ts:392](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L392)*
 
 Find spaces by a given query
 
@@ -421,7 +421,7 @@ ___
 
 ▸ **findUser**(`args`: i.FindOneArgs‹[User](../interfaces/user.md)›, `authUser`: i.AuthUser): *Promise‹[User](../interfaces/user.md)›*
 
-*Defined in [acl-manager.ts:98](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L98)*
+*Defined in [acl-manager.ts:98](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L98)*
 
 Find user by id
 
@@ -440,7 +440,7 @@ ___
 
 ▸ **findUsers**(`args`: i.FindArgs‹[User](../interfaces/user.md)›, `authUser`: i.AuthUser): *Promise‹[User](../interfaces/user.md)[]›*
 
-*Defined in [acl-manager.ts:110](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L110)*
+*Defined in [acl-manager.ts:110](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L110)*
 
 Find all users by a given query
 
@@ -459,7 +459,7 @@ ___
 
 ▸ **findView**(`args`: i.FindOneArgs‹[View](../interfaces/view.md)›, `authUser`: i.AuthUser): *Promise‹[View](../interfaces/view.md)›*
 
-*Defined in [acl-manager.ts:457](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L457)*
+*Defined in [acl-manager.ts:457](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L457)*
 
 Find view by id
 
@@ -478,7 +478,7 @@ ___
 
 ▸ **findViews**(`args`: i.FindArgs‹[View](../interfaces/view.md)›, `authUser`: i.AuthUser): *Promise‹[View](../interfaces/view.md)[]›*
 
-*Defined in [acl-manager.ts:464](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L464)*
+*Defined in [acl-manager.ts:464](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L464)*
 
 Find views by a given query
 
@@ -497,7 +497,7 @@ ___
 
 ▸ **getViewForSpace**(`args`: object, `authUser`: i.AuthUser): *Promise‹[DataAccessConfig](../interfaces/dataaccessconfig.md)›*
 
-*Defined in [acl-manager.ts:541](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L541)*
+*Defined in [acl-manager.ts:541](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L541)*
 
 Get the User's data access configuration for a "Space"
 
@@ -516,7 +516,7 @@ ___
 
 ▸ **initialize**(): *Promise‹void›*
 
-*Defined in [acl-manager.ts:37](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L37)*
+*Defined in [acl-manager.ts:37](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L37)*
 
 Initialize all index stores
 
@@ -528,7 +528,7 @@ ___
 
 ▸ **migrateIndex**(`model`: i.ModelName, `options`: MigrateIndexStoreOptions): *Promise‹any›*
 
-*Defined in [acl-manager.ts:70](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L70)*
+*Defined in [acl-manager.ts:70](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L70)*
 
 **Parameters:**
 
@@ -545,7 +545,7 @@ ___
 
 ▸ **removeDataType**(`args`: object, `authUser`: i.AuthUser): *Promise‹boolean›*
 
-*Defined in [acl-manager.ts:343](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L343)*
+*Defined in [acl-manager.ts:343](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L343)*
 
 Remove a data type, this is really dangerous since there are views and spaces linked this
 
@@ -566,7 +566,7 @@ ___
 
 ▸ **removeRole**(`args`: object, `authUser`: i.AuthUser): *Promise‹boolean›*
 
-*Defined in [acl-manager.ts:238](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L238)*
+*Defined in [acl-manager.ts:238](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L238)*
 
 Remove role and remove from any associated views or users
 
@@ -585,7 +585,7 @@ ___
 
 ▸ **removeSpace**(`args`: object, `authUser`: i.AuthUser): *Promise‹boolean›*
 
-*Defined in [acl-manager.ts:444](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L444)*
+*Defined in [acl-manager.ts:444](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L444)*
 
 Remove a space by id, this will clean up any associated views and roles
 
@@ -604,7 +604,7 @@ ___
 
 ▸ **removeUser**(`args`: object, `authUser`: i.AuthUser): *Promise‹boolean›*
 
-*Defined in [acl-manager.ts:176](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L176)*
+*Defined in [acl-manager.ts:176](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L176)*
 
 Remove user by id
 
@@ -623,7 +623,7 @@ ___
 
 ▸ **removeView**(`args`: object, `authUser`: i.AuthUser): *Promise‹boolean›*
 
-*Defined in [acl-manager.ts:516](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L516)*
+*Defined in [acl-manager.ts:516](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L516)*
 
 Remove views and remove from any associated spaces
 
@@ -642,7 +642,7 @@ ___
 
 ▸ **resolveDataTypeConfig**(`args`: i.ResolveDataTypeArgs, `authUser`: i.AuthUser): *Promise‹object›*
 
-*Defined in [acl-manager.ts:286](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L286)*
+*Defined in [acl-manager.ts:286](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L286)*
 
 Get the resolved type config for DataType
 
@@ -661,7 +661,7 @@ ___
 
 ▸ **shutdown**(): *Promise‹void›*
 
-*Defined in [acl-manager.ts:50](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L50)*
+*Defined in [acl-manager.ts:50](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L50)*
 
 Shutdown all index stores
 
@@ -673,7 +673,7 @@ ___
 
 ▸ **simpleMigrate**(): *Promise‹AnyObject›*
 
-*Defined in [acl-manager.ts:60](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L60)*
+*Defined in [acl-manager.ts:60](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L60)*
 
 **Returns:** *Promise‹AnyObject›*
 
@@ -683,7 +683,7 @@ ___
 
 ▸ **updateDataType**(`args`: object, `authUser`: i.AuthUser): *Promise‹[DataType](../interfaces/datatype.md)›*
 
-*Defined in [acl-manager.ts:323](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L323)*
+*Defined in [acl-manager.ts:323](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L323)*
 
 Update a data type
 
@@ -702,7 +702,7 @@ ___
 
 ▸ **updatePassword**(`args`: object, `authUser`: i.AuthUser): *Promise‹boolean›*
 
-*Defined in [acl-manager.ts:156](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L156)*
+*Defined in [acl-manager.ts:156](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L156)*
 
 Update user's password
 
@@ -721,7 +721,7 @@ ___
 
 ▸ **updateRole**(`args`: object, `authUser`: i.AuthUser): *Promise‹[Role](../interfaces/role.md)›*
 
-*Defined in [acl-manager.ts:227](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L227)*
+*Defined in [acl-manager.ts:227](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L227)*
 
 Update a role
 
@@ -740,7 +740,7 @@ ___
 
 ▸ **updateSpace**(`args`: object, `authUser`: i.AuthUser): *Promise‹[Space](../interfaces/space.md)›*
 
-*Defined in [acl-manager.ts:426](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L426)*
+*Defined in [acl-manager.ts:426](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L426)*
 
 Update a space
 
@@ -759,7 +759,7 @@ ___
 
 ▸ **updateToken**(`args`: object, `authUser`: i.AuthUser): *Promise‹string›*
 
-*Defined in [acl-manager.ts:168](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L168)*
+*Defined in [acl-manager.ts:168](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L168)*
 
 Generate a new API Token for a user
 
@@ -778,7 +778,7 @@ ___
 
 ▸ **updateUser**(`args`: object, `authUser`: i.AuthUser): *Promise‹[User](../interfaces/user.md)›*
 
-*Defined in [acl-manager.ts:139](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L139)*
+*Defined in [acl-manager.ts:139](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L139)*
 
 Update user without password
 
@@ -799,7 +799,7 @@ ___
 
 ▸ **updateView**(`args`: object, `authUser`: i.AuthUser): *Promise‹[View](../interfaces/view.md)›*
 
-*Defined in [acl-manager.ts:489](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/acl-manager.ts#L489)*
+*Defined in [acl-manager.ts:489](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/acl-manager.ts#L489)*
 
 Update a view, this will attach to the space and the role
 

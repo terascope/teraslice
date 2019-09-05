@@ -391,6 +391,8 @@ Most of the command arguments have a direct correlcation with the configuration:
 - `-p`  plugins path
 - `-d`  data path
 - `-t`  types
+- `-f`  format
+- `-s`  steam batch size
 
 NOTE: in any case that you would specify an object or array, it must be set to a comma deliminated string
 
@@ -410,4 +412,12 @@ you may also pipe the results to a file for further analysis
 
 ```sh
 curl 'http://localhost:9200/test_index/_search?q=bytes:>=5642500' | ts-transform -r someRules.txt | tee results.txt
+```
+
+to stream large files it must be in ldjson format, this will also stream the output
+
+```sh
+cat largeLDJSONFile.txt | ts-transform -f ldjson -r someRules.txt
+
+ts-transform -f ldjson -r someRules.txt -d largeLDJSONFile.txt
 ```

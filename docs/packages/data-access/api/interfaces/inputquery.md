@@ -30,7 +30,7 @@ sidebar_label: InputQuery
 
 • **fields**? : *string | string[]*
 
-*Defined in [interfaces.ts:25](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L25)*
+*Defined in [interfaces.ts:25](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/interfaces.ts#L25)*
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • **geo_sort_order**? : *SortOrder*
 
-*Defined in [interfaces.ts:29](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L29)*
+*Defined in [interfaces.ts:29](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/interfaces.ts#L29)*
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 • **geo_sort_point**? : *undefined | string*
 
-*Defined in [interfaces.ts:28](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L28)*
+*Defined in [interfaces.ts:28](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/interfaces.ts#L28)*
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 • **geo_sort_unit**? : *GeoDistanceUnit | string*
 
-*Defined in [interfaces.ts:30](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L30)*
+*Defined in [interfaces.ts:30](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/interfaces.ts#L30)*
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • **history**? : *undefined | number*
 
-*Defined in [interfaces.ts:26](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L26)*
+*Defined in [interfaces.ts:26](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/interfaces.ts#L26)*
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 • **history_start**? : *undefined | string*
 
-*Defined in [interfaces.ts:27](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L27)*
+*Defined in [interfaces.ts:27](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/interfaces.ts#L27)*
 
 ___
 
@@ -78,7 +78,7 @@ ___
 
 • **q**? : *undefined | string*
 
-*Defined in [interfaces.ts:23](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L23)*
+*Defined in [interfaces.ts:23](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/interfaces.ts#L23)*
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 • **size**? : *number | string*
 
-*Defined in [interfaces.ts:21](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L21)*
+*Defined in [interfaces.ts:21](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/interfaces.ts#L21)*
 
 ___
 
@@ -94,7 +94,7 @@ ___
 
 • **sort**? : *undefined | string*
 
-*Defined in [interfaces.ts:22](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L22)*
+*Defined in [interfaces.ts:22](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/interfaces.ts#L22)*
 
 ___
 
@@ -102,4 +102,4 @@ ___
 
 • **start**? : *number | string*
 
-*Defined in [interfaces.ts:24](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L24)*
+*Defined in [interfaces.ts:24](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/interfaces.ts#L24)*

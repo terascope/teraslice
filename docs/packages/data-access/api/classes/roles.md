@@ -62,7 +62,7 @@ Manager for Roles
 
 *Overrides void*
 
-*Defined in [models/roles.ts:9](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/roles.ts#L9)*
+*Defined in [models/roles.ts:9](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/roles.ts#L9)*
 
 **Parameters:**
 
@@ -81,7 +81,7 @@ Name | Type |
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:13
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:13
 
 ___
 
@@ -91,7 +91,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:12
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:12
 
 ___
 
@@ -101,7 +101,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:11
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:11
 
 ___
 
@@ -111,7 +111,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:17
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:17
 
 ___
 
@@ -119,7 +119,7 @@ ___
 
 ▪ **IndexModelConfig**: *IndexModelConfig‹[Role](../interfaces/role.md)›* =  rolesConfig
 
-*Defined in [models/roles.ts:9](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/roles.ts#L9)*
+*Defined in [models/roles.ts:9](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/roles.ts#L9)*
 
 ## Methods
 
@@ -129,7 +129,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:34
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:34
 
 **Parameters:**
 
@@ -149,7 +149,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:41
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:41
 
 **Parameters:**
 
@@ -169,7 +169,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:37
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:37
 
 **Parameters:**
 
@@ -188,7 +188,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:36
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:36
 
 **Parameters:**
 
@@ -208,7 +208,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:39
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:39
 
 **Parameters:**
 
@@ -226,7 +226,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:40
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:40
 
 **Parameters:**
 
@@ -244,7 +244,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:35
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:35
 
 **Parameters:**
 
@@ -264,7 +264,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:38
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:38
 
 **Parameters:**
 
@@ -282,7 +282,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:33
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:33
 
 **Parameters:**
 
@@ -301,7 +301,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:20
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:20
 
 **Parameters:**
 
@@ -320,7 +320,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:21
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:21
 
 **Parameters:**
 
@@ -340,7 +340,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:22
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:22
 
 **Parameters:**
 
@@ -358,7 +358,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:24
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:24
 
 **Parameters:**
 
@@ -376,7 +376,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:23
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:23
 
 **Parameters:**
 
@@ -394,7 +394,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:25
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:25
 
 **Parameters:**
 
@@ -412,7 +412,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:31
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:31
 
 **Parameters:**
 
@@ -432,7 +432,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:30
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:30
 
 **Parameters:**
 
@@ -452,7 +452,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:29
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:29
 
 **Parameters:**
 
@@ -472,7 +472,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:26
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:26
 
 **Parameters:**
 
@@ -493,7 +493,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:28
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:28
 
 **Parameters:**
 
@@ -513,7 +513,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:27
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:27
 
 **Parameters:**
 
@@ -533,7 +533,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:18
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:18
 
 **Returns:** *Promise‹void›*
 
@@ -545,7 +545,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:19
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:19
 
 **Returns:** *Promise‹void›*
 
@@ -557,7 +557,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:32
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/index-model.d.ts:32
 
 **Parameters:**
 

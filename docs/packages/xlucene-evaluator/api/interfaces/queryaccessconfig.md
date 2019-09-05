@@ -34,7 +34,7 @@ sidebar_label: QueryAccessConfig
 
 • **allow_empty_queries**? : *undefined | false | true*
 
-*Defined in [query-access/interfaces.ts:26](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L26)*
+*Defined in [query-access/interfaces.ts:26](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/query-access/interfaces.ts#L26)*
 
 ___
 
@@ -42,7 +42,7 @@ ___
 
 • **allow_implicit_queries**? : *undefined | false | true*
 
-*Defined in [query-access/interfaces.ts:25](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L25)*
+*Defined in [query-access/interfaces.ts:25](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/query-access/interfaces.ts#L25)*
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 • **constraint**? : *undefined | string*
 
-*Defined in [query-access/interfaces.ts:23](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L23)*
+*Defined in [query-access/interfaces.ts:23](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/query-access/interfaces.ts#L23)*
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 • **default_geo_field**? : *undefined | string*
 
-*Defined in [query-access/interfaces.ts:27](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L27)*
+*Defined in [query-access/interfaces.ts:27](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/query-access/interfaces.ts#L27)*
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 • **default_geo_sort_order**? : *[SortOrder](../overview.md#sortorder)*
 
-*Defined in [query-access/interfaces.ts:28](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L28)*
+*Defined in [query-access/interfaces.ts:28](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/query-access/interfaces.ts#L28)*
 
 ___
 
@@ -74,7 +74,7 @@ ___
 
 • **default_geo_sort_unit**? : *[GeoDistanceUnit](../overview.md#geodistanceunit) | string*
 
-*Defined in [query-access/interfaces.ts:29](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L29)*
+*Defined in [query-access/interfaces.ts:29](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/query-access/interfaces.ts#L29)*
 
 ___
 
@@ -82,7 +82,7 @@ ___
 
 • **excludes**? : *keyof T[]*
 
-*Defined in [query-access/interfaces.ts:21](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L21)*
+*Defined in [query-access/interfaces.ts:21](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/query-access/interfaces.ts#L21)*
 
 ___
 
@@ -90,7 +90,7 @@ ___
 
 • **includes**? : *keyof T[]*
 
-*Defined in [query-access/interfaces.ts:22](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L22)*
+*Defined in [query-access/interfaces.ts:22](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/query-access/interfaces.ts#L22)*
 
 ___
 
@@ -98,7 +98,7 @@ ___
 
 • **prevent_prefix_wildcard**? : *undefined | false | true*
 
-*Defined in [query-access/interfaces.ts:24](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L24)*
+*Defined in [query-access/interfaces.ts:24](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/query-access/interfaces.ts#L24)*
 
 ___
 
@@ -106,4 +106,4 @@ ___
 
 • **type_config**? : *[TypeConfig](typeconfig.md)*
 
-*Defined in [query-access/interfaces.ts:30](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L30)*
+*Defined in [query-access/interfaces.ts:30](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/query-access/interfaces.ts#L30)*

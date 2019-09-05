@@ -34,7 +34,7 @@ records and fields
 
 \+ **new StreamAccess**(`_acl`: [DataAccessConfig](../interfaces/dataaccessconfig.md)): *[StreamAccess](streamaccess.md)*
 
-*Defined in [stream-access.ts:9](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/stream-access.ts#L9)*
+*Defined in [stream-access.ts:9](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/stream-access.ts#L9)*
 
 **Parameters:**
 
@@ -50,7 +50,7 @@ Name | Type |
 
 ▸ **filter**(`incoming`: T[]): *T[]*
 
-*Defined in [stream-access.ts:14](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/stream-access.ts#L14)*
+*Defined in [stream-access.ts:14](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/stream-access.ts#L14)*
 
 **Parameters:**
 

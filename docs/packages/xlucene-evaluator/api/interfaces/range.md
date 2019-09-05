@@ -16,6 +16,7 @@ sidebar_label: Range
 ### Properties
 
 * [field](range.md#field)
+* [field_type](range.md#field_type)
 * [left](range.md#left)
 * [right](range.md#optional-right)
 * [type](range.md#type)
@@ -28,7 +29,15 @@ sidebar_label: Range
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [parser/interfaces.ts:54](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L54)*
+*Defined in [parser/interfaces.ts:54](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L54)*
+
+___
+
+###  field_type
+
+• **field_type**: *[FieldType](../enums/fieldtype.md)*
+
+*Defined in [parser/interfaces.ts:129](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L129)*
 
 ___
 
@@ -36,7 +45,7 @@ ___
 
 • **left**: *[RangeNode](rangenode.md)*
 
-*Defined in [parser/interfaces.ts:129](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L129)*
+*Defined in [parser/interfaces.ts:130](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L130)*
 
 ___
 
@@ -44,7 +53,7 @@ ___
 
 • **right**? : *[RangeNode](rangenode.md)*
 
-*Defined in [parser/interfaces.ts:130](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L130)*
+*Defined in [parser/interfaces.ts:131](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L131)*
 
 ___
 
@@ -54,4 +63,4 @@ ___
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [parser/interfaces.ts:128](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L128)*
+*Defined in [parser/interfaces.ts:128](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L128)*

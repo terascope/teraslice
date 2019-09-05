@@ -62,7 +62,7 @@ sidebar_label: API
 
 Ƭ **AnyModel**: *[User](interfaces/user.md) | [Role](interfaces/role.md) | [DataType](interfaces/datatype.md) | [Space](interfaces/space.md) | [View](interfaces/view.md)*
 
-*Defined in [interfaces.ts:10](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L10)*
+*Defined in [interfaces.ts:10](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/interfaces.ts#L10)*
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 Ƭ **AuthUser**: *[User](interfaces/user.md) | false*
 
-*Defined in [interfaces.ts:9](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L9)*
+*Defined in [interfaces.ts:9](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/interfaces.ts#L9)*
 
 ___
 
@@ -78,7 +78,7 @@ ___
 
 Ƭ **CreateUserInput**: *Omit‹CreateRecordInput‹[User](interfaces/user.md)›, "api_token" | "hash" | "salt"›*
 
-*Defined in [models/config/users.ts:187](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/users.ts#L187)*
+*Defined in [models/config/users.ts:187](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/users.ts#L187)*
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 Ƭ **FindArgs**: *object & FindOptions‹T›*
 
-*Defined in [interfaces.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L12)*
+*Defined in [interfaces.ts:12](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/interfaces.ts#L12)*
 
 ___
 
@@ -94,7 +94,7 @@ ___
 
 Ƭ **FindOneArgs**: *object & FindOneOptions‹T›*
 
-*Defined in [interfaces.ts:13](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L13)*
+*Defined in [interfaces.ts:13](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/interfaces.ts#L13)*
 
 ___
 
@@ -102,7 +102,7 @@ ___
 
 Ƭ **ModelName**: *"User" | "Role" | "DataType" | "Space" | "View"*
 
-*Defined in [interfaces.ts:6](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L6)*
+*Defined in [interfaces.ts:6](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/interfaces.ts#L6)*
 
 ___
 
@@ -110,7 +110,7 @@ ___
 
 Ƭ **ResolveDataTypeArgs**: *models.ResolveDataTypeOptions & object*
 
-*Defined in [interfaces.ts:88](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L88)*
+*Defined in [interfaces.ts:88](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/interfaces.ts#L88)*
 
 ___
 
@@ -118,7 +118,7 @@ ___
 
 Ƭ **ResolveDataTypeOptions**: *FindOneOptions‹[DataType](interfaces/datatype.md)› & object*
 
-*Defined in [models/data-types.ts:186](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/data-types.ts#L186)*
+*Defined in [models/data-types.ts:186](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/data-types.ts#L186)*
 
 ___
 
@@ -126,7 +126,7 @@ ___
 
 Ƭ **SpaceConfigType**: *"SEARCH" | "STREAMING"*
 
-*Defined in [models/config/spaces.ts:3](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/spaces.ts#L3)*
+*Defined in [models/config/spaces.ts:3](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/spaces.ts#L3)*
 
 ___
 
@@ -134,7 +134,7 @@ ___
 
 Ƭ **UpdateUserInput**: *Omit‹UpdateRecordInput‹[User](interfaces/user.md)›, "api_token" | "hash" | "salt"›*
 
-*Defined in [models/config/users.ts:188](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/users.ts#L188)*
+*Defined in [models/config/users.ts:188](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/users.ts#L188)*
 
 ___
 
@@ -142,7 +142,7 @@ ___
 
 Ƭ **UserType**: *"SUPERADMIN" | "ADMIN" | "DATAADMIN" | "USER"*
 
-*Defined in [models/config/users.ts:14](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/users.ts#L14)*
+*Defined in [models/config/users.ts:14](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/users.ts#L14)*
 
 A fixed permission level type system, used for primarly metadata management.
 
@@ -158,7 +158,7 @@ Available Types:
 
 • **ModelNames**: *keyof ModelName[]* =  ['User', 'Role', 'DataType', 'Space', 'View']
 
-*Defined in [interfaces.ts:7](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/interfaces.ts#L7)*
+*Defined in [interfaces.ts:7](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/interfaces.ts#L7)*
 
 ___
 
@@ -166,7 +166,7 @@ ___
 
 • **SpaceConfigTypes**: *keyof SpaceConfigType[]* =  ['SEARCH', 'STREAMING']
 
-*Defined in [models/config/spaces.ts:4](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/spaces.ts#L4)*
+*Defined in [models/config/spaces.ts:4](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/spaces.ts#L4)*
 
 ___
 
@@ -174,7 +174,7 @@ ___
 
 • **UserTypes**: *keyof UserType[]* =  ['SUPERADMIN', 'ADMIN', 'DATAADMIN', 'USER']
 
-*Defined in [models/config/users.ts:15](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/users.ts#L15)*
+*Defined in [models/config/users.ts:15](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/users.ts#L15)*
 
 ## Functions
 
@@ -182,7 +182,7 @@ ___
 
 ▸ **generateAPIToken**(`hash`: string, `username`: string): *Promise‹string›*
 
-*Defined in [utils/crypto.ts:10](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/utils/crypto.ts#L10)*
+*Defined in [utils/crypto.ts:10](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/utils/crypto.ts#L10)*
 
 Generate a API Token
 
@@ -201,7 +201,7 @@ ___
 
 ▸ **generatePasswordHash**(`password`: string, `salt`: string): *Promise‹string›*
 
-*Defined in [utils/crypto.ts:30](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/utils/crypto.ts#L30)*
+*Defined in [utils/crypto.ts:30](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/utils/crypto.ts#L30)*
 
 Generate a secure password hash
 
@@ -220,7 +220,7 @@ ___
 
 ▸ **generateSalt**(): *Promise‹string›*
 
-*Defined in [utils/crypto.ts:22](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/utils/crypto.ts#L22)*
+*Defined in [utils/crypto.ts:22](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/utils/crypto.ts#L22)*
 
 Generate a random salt
 

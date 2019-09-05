@@ -35,7 +35,7 @@ sidebar_label: ElasticsearchError
 
 • **Error**: *ErrorConstructor*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:984
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:984
 
 ___
 
@@ -43,7 +43,7 @@ ___
 
 • **body**? : *undefined | object*
 
-*Defined in [errors.ts:357](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/errors.ts#L357)*
+*Defined in [errors.ts:357](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/errors.ts#L357)*
 
 ___
 
@@ -51,7 +51,7 @@ ___
 
 • **index**? : *undefined | string*
 
-*Defined in [errors.ts:375](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/errors.ts#L375)*
+*Defined in [errors.ts:375](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/errors.ts#L375)*
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:974
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:974
 
 ___
 
@@ -71,7 +71,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:973
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:973
 
 ___
 
@@ -79,7 +79,7 @@ ___
 
 • **reason**? : *undefined | string*
 
-*Defined in [errors.ts:374](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/errors.ts#L374)*
+*Defined in [errors.ts:374](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/errors.ts#L374)*
 
 ___
 
@@ -91,7 +91,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:975
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:975
 
 ___
 
@@ -99,7 +99,7 @@ ___
 
 • **status**? : *undefined | number*
 
-*Defined in [errors.ts:372](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/errors.ts#L372)*
+*Defined in [errors.ts:372](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/errors.ts#L372)*
 
 ___
 
@@ -107,7 +107,7 @@ ___
 
 • **type**? : *undefined | string*
 
-*Defined in [errors.ts:373](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/errors.ts#L373)*
+*Defined in [errors.ts:373](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/errors.ts#L373)*
 
 ## Methods
 
@@ -115,6 +115,6 @@ ___
 
 ▸ **toJSON**(): *object*
 
-*Defined in [errors.ts:377](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/errors.ts#L377)*
+*Defined in [errors.ts:377](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/errors.ts#L377)*
 
 **Returns:** *object*

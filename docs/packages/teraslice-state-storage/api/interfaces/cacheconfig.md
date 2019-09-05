@@ -24,7 +24,7 @@ sidebar_label: CacheConfig
 
 • **cache_size**: *number*
 
-*Defined in [interfaces.ts:14](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/interfaces.ts#L14)*
+*Defined in [interfaces.ts:14](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/interfaces.ts#L14)*
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **max_big_map_size**? : *undefined | number*
 
-*Defined in [interfaces.ts:15](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/interfaces.ts#L15)*
+*Defined in [interfaces.ts:15](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/interfaces.ts#L15)*

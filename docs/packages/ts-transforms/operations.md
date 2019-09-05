@@ -210,6 +210,7 @@ This is the core transform class used to extract data from incoming records. A n
 - target: `String`(required) = this is the field where the result will be put. You may create deely nested object by using dot notation (ie: `location.lat` like in the example above)
 - start: `String` (optional) = used to do simple extractions within the source. It marks where is the start of the data you wish to extract
 - end: `String` (optional) = used to do simple extractions within the source. It marks where is the end of the data you wish to extract. NOTE: this is a special syntax of `EOP` which stands for 'end of parameter' this is used for url base extractions where it will take until the next parameter or end of line
+- exp: `String` (optional) = exp is a jexl expression string, please refer to https://github.com/TomFrost/Jexl for detailed information.
 
 **Example:**
 

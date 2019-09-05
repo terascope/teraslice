@@ -30,7 +30,7 @@ sidebar_label: Regexp
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [parser/interfaces.ts:54](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L54)*
+*Defined in [parser/interfaces.ts:54](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L54)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 *Inherited from [StringDataType](stringdatatype.md).[field_type](stringdatatype.md#field_type)*
 
-*Defined in [parser/interfaces.ts:93](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L93)*
+*Defined in [parser/interfaces.ts:93](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L93)*
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [parser/interfaces.ts:155](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L155)*
+*Defined in [parser/interfaces.ts:158](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L158)*
 
 ___
 
@@ -60,4 +60,4 @@ ___
 
 *Inherited from [StringDataType](stringdatatype.md).[value](stringdatatype.md#value)*
 
-*Defined in [parser/interfaces.ts:94](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L94)*
+*Defined in [parser/interfaces.ts:94](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L94)*

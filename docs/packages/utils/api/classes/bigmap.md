@@ -51,7 +51,7 @@ This class has the same API as Map but minus more differences in ->set and ->for
 
 \+ **new BigMap**(`maxMapSize`: number): *[BigMap](bigmap.md)*
 
-*Defined in [big-map.ts:11](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/big-map.ts#L11)*
+*Defined in [big-map.ts:11](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/big-map.ts#L11)*
 
 **Parameters:**
 
@@ -67,7 +67,7 @@ Name | Type | Default |
 
 • **maxMapSize**: *number*
 
-*Defined in [big-map.ts:8](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/big-map.ts#L8)*
+*Defined in [big-map.ts:8](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/big-map.ts#L8)*
 
 ## Accessors
 
@@ -75,7 +75,7 @@ Name | Type | Default |
 
 • **get size**(): *number*
 
-*Defined in [big-map.ts:70](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/big-map.ts#L70)*
+*Defined in [big-map.ts:70](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/big-map.ts#L70)*
 
 **Returns:** *number*
 
@@ -85,7 +85,7 @@ Name | Type | Default |
 
 ▸ **__@iterator**(): *IterableIterator‹[K, V]›*
 
-*Defined in [big-map.ts:117](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/big-map.ts#L117)*
+*Defined in [big-map.ts:117](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/big-map.ts#L117)*
 
 **Returns:** *IterableIterator‹[K, V]›*
 
@@ -95,7 +95,7 @@ ___
 
 ▸ **clear**(): *void*
 
-*Defined in [big-map.ts:57](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/big-map.ts#L57)*
+*Defined in [big-map.ts:57](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/big-map.ts#L57)*
 
 **Returns:** *void*
 
@@ -105,7 +105,7 @@ ___
 
 ▸ **delete**(`key`: K): *boolean*
 
-*Defined in [big-map.ts:44](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/big-map.ts#L44)*
+*Defined in [big-map.ts:44](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/big-map.ts#L44)*
 
 **Parameters:**
 
@@ -121,7 +121,7 @@ ___
 
 ▸ **entries**(): *IterableIterator‹[K, V]›*
 
-*Defined in [big-map.ts:96](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/big-map.ts#L96)*
+*Defined in [big-map.ts:96](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/big-map.ts#L96)*
 
 **Returns:** *IterableIterator‹[K, V]›*
 
@@ -131,7 +131,7 @@ ___
 
 ▸ **forEach**(`callbackFn`: function, `thisArg?`: any): *void*
 
-*Defined in [big-map.ts:84](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/big-map.ts#L84)*
+*Defined in [big-map.ts:84](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/big-map.ts#L84)*
 
 **Parameters:**
 
@@ -157,7 +157,7 @@ ___
 
 ▸ **get**(`key`: K): *unknown*
 
-*Defined in [big-map.ts:37](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/big-map.ts#L37)*
+*Defined in [big-map.ts:37](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/big-map.ts#L37)*
 
 **Parameters:**
 
@@ -173,7 +173,7 @@ ___
 
 ▸ **has**(`key`: K): *boolean*
 
-*Defined in [big-map.ts:30](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/big-map.ts#L30)*
+*Defined in [big-map.ts:30](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/big-map.ts#L30)*
 
 **Parameters:**
 
@@ -189,7 +189,7 @@ ___
 
 ▸ **keys**(): *IterableIterator‹K›*
 
-*Defined in [big-map.ts:103](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/big-map.ts#L103)*
+*Defined in [big-map.ts:103](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/big-map.ts#L103)*
 
 **Returns:** *IterableIterator‹K›*
 
@@ -199,7 +199,7 @@ ___
 
 ▸ **set**(`key`: K, `value`: V): *Map‹K, V›*
 
-*Defined in [big-map.ts:20](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/big-map.ts#L20)*
+*Defined in [big-map.ts:20](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/big-map.ts#L20)*
 
 **Parameters:**
 
@@ -216,6 +216,6 @@ ___
 
 ▸ **values**(): *IterableIterator‹V›*
 
-*Defined in [big-map.ts:110](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/big-map.ts#L110)*
+*Defined in [big-map.ts:110](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/big-map.ts#L110)*
 
 **Returns:** *IterableIterator‹V›*

@@ -38,7 +38,7 @@ The definition of a Space model
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:163
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:163
 
 The mutli-tenant ID representing the client
 
@@ -48,7 +48,7 @@ ___
 
 • **config**? : *[SpaceSearchConfig](spacesearchconfig.md) | [SpaceStreamingConfig](spacestreamingconfig.md)*
 
-*Defined in [models/config/spaces.ts:211](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/spaces.ts#L211)*
+*Defined in [models/config/spaces.ts:211](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/spaces.ts#L211)*
 
 Configuration for the space
 
@@ -60,7 +60,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:171
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:171
 
 Creation date
 
@@ -70,7 +70,7 @@ ___
 
 • **data_type**: *string*
 
-*Defined in [models/config/spaces.ts:196](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/spaces.ts#L196)*
+*Defined in [models/config/spaces.ts:196](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/spaces.ts#L196)*
 
 The associated data type
 
@@ -80,7 +80,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [models/config/spaces.ts:191](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/spaces.ts#L191)*
+*Defined in [models/config/spaces.ts:191](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/spaces.ts#L191)*
 
 Description of the Role
 
@@ -90,7 +90,7 @@ ___
 
 • **endpoint**? : *undefined | string*
 
-*Defined in [models/config/spaces.ts:186](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/spaces.ts#L186)*
+*Defined in [models/config/spaces.ts:186](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/spaces.ts#L186)*
 
 A URL friendly name for endpoint that is associated with the space, this must be unique
 
@@ -102,7 +102,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:159
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:159
 
 A unique ID for the record - nanoid 12 digit
 
@@ -112,7 +112,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [models/config/spaces.ts:176](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/spaces.ts#L176)*
+*Defined in [models/config/spaces.ts:176](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/spaces.ts#L176)*
 
 Name of the Space
 
@@ -122,7 +122,7 @@ ___
 
 • **roles**: *string[]*
 
-*Defined in [models/config/spaces.ts:206](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/spaces.ts#L206)*
+*Defined in [models/config/spaces.ts:206](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/spaces.ts#L206)*
 
 A list of associated roles
 
@@ -132,7 +132,7 @@ ___
 
 • **type**: *[SpaceConfigType](../overview.md#spaceconfigtype)*
 
-*Defined in [models/config/spaces.ts:181](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/spaces.ts#L181)*
+*Defined in [models/config/spaces.ts:181](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/spaces.ts#L181)*
 
 The space configuration type
 
@@ -144,7 +144,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:167
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:167
 
 Updated date
 
@@ -154,6 +154,6 @@ ___
 
 • **views**: *string[]*
 
-*Defined in [models/config/spaces.ts:201](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/spaces.ts#L201)*
+*Defined in [models/config/spaces.ts:201](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/spaces.ts#L201)*
 
 A list of associated views

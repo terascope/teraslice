@@ -38,7 +38,7 @@ The definition of a User model
 
 • **api_token**: *string*
 
-*Defined in [models/config/users.ts:167](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/users.ts#L167)*
+*Defined in [models/config/users.ts:167](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/users.ts#L167)*
 
 The User's API Token
 
@@ -50,7 +50,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:163
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:163
 
 The mutli-tenant ID representing the client
 
@@ -62,7 +62,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:171
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:171
 
 Creation date
 
@@ -72,7 +72,7 @@ ___
 
 • **email**? : *undefined | string*
 
-*Defined in [models/config/users.ts:142](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/users.ts#L142)*
+*Defined in [models/config/users.ts:142](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/users.ts#L142)*
 
 The User's email address
 
@@ -82,7 +82,7 @@ ___
 
 • **firstname**: *string*
 
-*Defined in [models/config/users.ts:132](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/users.ts#L132)*
+*Defined in [models/config/users.ts:132](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/users.ts#L132)*
 
 First Name of the User
 
@@ -92,7 +92,7 @@ ___
 
 • **hash**: *string*
 
-*Defined in [models/config/users.ts:177](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/users.ts#L177)*
+*Defined in [models/config/users.ts:177](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/users.ts#L177)*
 
 A hash password using:
 
@@ -109,7 +109,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:159
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:159
 
 A unique ID for the record - nanoid 12 digit
 
@@ -119,7 +119,7 @@ ___
 
 • **lastname**: *string*
 
-*Defined in [models/config/users.ts:137](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/users.ts#L137)*
+*Defined in [models/config/users.ts:137](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/users.ts#L137)*
 
 Last Name of the User
 
@@ -129,7 +129,7 @@ ___
 
 • **role**? : *undefined | string*
 
-*Defined in [models/config/users.ts:147](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/users.ts#L147)*
+*Defined in [models/config/users.ts:147](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/users.ts#L147)*
 
 The users attached role
 
@@ -139,7 +139,7 @@ ___
 
 • **role_name**? : *undefined | string*
 
-*Defined in [models/config/users.ts:154](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/users.ts#L154)*
+*Defined in [models/config/users.ts:154](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/users.ts#L154)*
 
 This used to provide compatibility with legacy roles
 
@@ -151,7 +151,7 @@ ___
 
 • **salt**: *string*
 
-*Defined in [models/config/users.ts:184](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/users.ts#L184)*
+*Defined in [models/config/users.ts:184](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/users.ts#L184)*
 
 A unique salt for the password
 
@@ -163,7 +163,7 @@ ___
 
 • **type**? : *[UserType](../overview.md#usertype)*
 
-*Defined in [models/config/users.ts:162](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/users.ts#L162)*
+*Defined in [models/config/users.ts:162](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/users.ts#L162)*
 
 A fixed permission level type system, used for primarly metadata management.
 
@@ -179,7 +179,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:167
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:167
 
 Updated date
 
@@ -189,6 +189,6 @@ ___
 
 • **username**: *string*
 
-*Defined in [models/config/users.ts:127](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/users.ts#L127)*
+*Defined in [models/config/users.ts:127](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/users.ts#L127)*
 
 The User's username

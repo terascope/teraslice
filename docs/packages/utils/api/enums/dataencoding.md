@@ -20,7 +20,7 @@ available data encoding types
 
 • **JSON**: = "json"
 
-*Defined in [entities/interfaces.ts:36](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/entities/interfaces.ts#L36)*
+*Defined in [entities/interfaces.ts:39](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/entities/interfaces.ts#L39)*
 
 ___
 
@@ -28,4 +28,4 @@ ___
 
 • **RAW**: = "raw"
 
-*Defined in [entities/interfaces.ts:37](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/entities/interfaces.ts#L37)*
+*Defined in [entities/interfaces.ts:40](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/entities/interfaces.ts#L40)*

@@ -36,7 +36,7 @@ specific fields and records
 
 \+ **new SearchAccess**(`config`: [DataAccessConfig](../interfaces/dataaccessconfig.md), `logger`: Logger): *[SearchAccess](searchaccess.md)*
 
-*Defined in [search-access.ts:19](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/search-access.ts#L19)*
+*Defined in [search-access.ts:19](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/search-access.ts#L19)*
 
 **Parameters:**
 
@@ -53,7 +53,7 @@ Name | Type | Default |
 
 • **config**: *[DataAccessConfig](../interfaces/dataaccessconfig.md)*
 
-*Defined in [search-access.ts:16](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/search-access.ts#L16)*
+*Defined in [search-access.ts:16](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/search-access.ts#L16)*
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **spaceConfig**: *[SpaceSearchConfig](../interfaces/spacesearchconfig.md)*
 
-*Defined in [search-access.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/search-access.ts#L17)*
+*Defined in [search-access.ts:17](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/search-access.ts#L17)*
 
 ## Methods
 
@@ -69,7 +69,7 @@ ___
 
 ▸ **getSearchParams**(`query`: [InputQuery](../interfaces/inputquery.md)): *SearchParams*
 
-*Defined in [search-access.ts:115](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/search-access.ts#L115)*
+*Defined in [search-access.ts:115](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/search-access.ts#L115)*
 
 Validate and get elasticsearch search request parameters
 
@@ -87,7 +87,7 @@ ___
 
 ▸ **getSearchResponse**(`response`: SearchResponse‹any›, `query`: [InputQuery](../interfaces/inputquery.md), `params`: SearchParams): *[FinalResponse](../interfaces/finalresponse.md)*
 
-*Defined in [search-access.ts:210](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/search-access.ts#L210)*
+*Defined in [search-access.ts:210](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/search-access.ts#L210)*
 
 Format the results or error from the performSearch
 
@@ -107,7 +107,7 @@ ___
 
 ▸ **performSearch**(`client`: Client, `query`: [InputQuery](../interfaces/inputquery.md)): *Promise‹[FinalResponse](../interfaces/finalresponse.md)›*
 
-*Defined in [search-access.ts:61](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/search-access.ts#L61)*
+*Defined in [search-access.ts:61](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/search-access.ts#L61)*
 
 Safely search a space given an elasticsearch client and a valid query
 
@@ -126,7 +126,7 @@ ___
 
 ▸ **restrictSearchQuery**(`query?`: undefined | string, `options?`: x.RestrictSearchQueryOptions): *SearchParams*
 
-*Defined in [search-access.ts:54](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/search-access.ts#L54)*
+*Defined in [search-access.ts:54](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/search-access.ts#L54)*
 
 Converts a restricted xlucene query to an elasticsearch search query
 

@@ -30,7 +30,7 @@ sidebar_label: Role
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:163
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:163
 
 The mutli-tenant ID representing the client
 
@@ -42,7 +42,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:171
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:171
 
 Creation date
 
@@ -52,7 +52,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [models/config/roles.ts:42](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/roles.ts#L42)*
+*Defined in [models/config/roles.ts:42](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/roles.ts#L42)*
 
 Description of the Role
 
@@ -64,7 +64,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:159
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:159
 
 A unique ID for the record - nanoid 12 digit
 
@@ -74,7 +74,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [models/config/roles.ts:37](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/roles.ts#L37)*
+*Defined in [models/config/roles.ts:37](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/roles.ts#L37)*
 
 Name of the Role
 
@@ -86,6 +86,6 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:167
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:167
 
 Updated date

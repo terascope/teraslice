@@ -58,11 +58,16 @@ export interface SelectorConfig {
     selector: string;
 }
 
+
 export interface ExtractionConfig {
     __id: string;
     start?: string;
     end?: string;
     regex?: string;
+/**
+ * exp is a jexl expression string, please refer to https://github.com/TomFrost/Jexl for detailed information.
+ *
+ */
     exp?: string;
     mutate: boolean;
     output?: boolean;

@@ -27,7 +27,7 @@ sidebar_label: RestrictSearchQueryOptions
 
 • **elasticsearch_version**? : *undefined | number*
 
-*Defined in [query-access/interfaces.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L17)*
+*Defined in [query-access/interfaces.ts:17](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/query-access/interfaces.ts#L17)*
 
 The elasticsearch version (to format the request properly)
 
@@ -41,7 +41,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [translator/interfaces.ts:27](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/translator/interfaces.ts#L27)*
+*Defined in [translator/interfaces.ts:27](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/interfaces.ts#L27)*
 
 ___
 
@@ -51,7 +51,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [translator/interfaces.ts:26](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/translator/interfaces.ts#L26)*
+*Defined in [translator/interfaces.ts:26](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/interfaces.ts#L26)*
 
 If a default_geo_field is set, this is required to enable sorting
 
@@ -63,7 +63,7 @@ ___
 
 *Inherited from void*
 
-*Defined in [translator/interfaces.ts:28](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/translator/interfaces.ts#L28)*
+*Defined in [translator/interfaces.ts:28](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/interfaces.ts#L28)*
 
 ___
 
@@ -71,7 +71,7 @@ ___
 
 • **params**? : *Partial‹SearchParams›*
 
-*Defined in [query-access/interfaces.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/interfaces.ts#L12)*
+*Defined in [query-access/interfaces.ts:12](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/query-access/interfaces.ts#L12)*
 
 Elasticsearch search parameters
 _sourceInclude and _sourceExclude will be filtered based

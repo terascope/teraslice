@@ -30,7 +30,7 @@ sidebar_label: Term
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [parser/interfaces.ts:54](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L54)*
+*Defined in [parser/interfaces.ts:54](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L54)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 *Inherited from [AnyDataType](anydatatype.md).[field_type](anydatatype.md#field_type)*
 
-*Defined in [parser/interfaces.ts:83](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L83)*
+*Defined in [parser/interfaces.ts:83](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L83)*
 
 The field type here may be the field type specified
 in the type_config
@@ -53,7 +53,7 @@ ___
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [parser/interfaces.ts:163](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L163)*
+*Defined in [parser/interfaces.ts:166](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L166)*
 
 ___
 
@@ -63,4 +63,4 @@ ___
 
 *Inherited from [AnyDataType](anydatatype.md).[value](anydatatype.md#value)*
 
-*Defined in [parser/interfaces.ts:84](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L84)*
+*Defined in [parser/interfaces.ts:84](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L84)*

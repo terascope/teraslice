@@ -34,7 +34,7 @@ The definition a DataType model
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:163
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:163
 
 The mutli-tenant ID representing the client
 
@@ -44,7 +44,7 @@ ___
 
 • **config**: *DataTypeConfig*
 
-*Defined in [models/config/data-types.ts:94](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/data-types.ts#L94)*
+*Defined in [models/config/data-types.ts:94](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/data-types.ts#L94)*
 
 Data Type Config
 
@@ -56,7 +56,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:171
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:171
 
 Creation date
 
@@ -66,7 +66,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [models/config/data-types.ts:84](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/data-types.ts#L84)*
+*Defined in [models/config/data-types.ts:84](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/data-types.ts#L84)*
 
 Description of the DataType
 
@@ -78,7 +78,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:159
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:159
 
 A unique ID for the record - nanoid 12 digit
 
@@ -88,7 +88,7 @@ ___
 
 • **inherit_from**? : *string[]*
 
-*Defined in [models/config/data-types.ts:89](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/data-types.ts#L89)*
+*Defined in [models/config/data-types.ts:89](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/data-types.ts#L89)*
 
 DataType to inherit from
 
@@ -98,7 +98,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [models/config/data-types.ts:79](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-access/src/models/config/data-types.ts#L79)*
+*Defined in [models/config/data-types.ts:79](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-access/src/models/config/data-types.ts#L79)*
 
 Name of the DataType
 
@@ -110,6 +110,6 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:167
+Defined in /Users/jarednoble/Projects/terascope/teraslice/packages/elasticsearch-store/dist/src/interfaces.d.ts:167
 
 Updated date

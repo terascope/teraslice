@@ -21,4 +21,4 @@ sidebar_label: JobIDResponse
 
 • **job_id**: *string*
 
-*Defined in [interfaces.ts:183](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/interfaces.ts#L183)*
+*Defined in [interfaces.ts:182](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L182)*
