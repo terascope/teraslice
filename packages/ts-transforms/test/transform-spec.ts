@@ -1036,4 +1036,21 @@ describe('can transform matches', () => {
             { output: 'value', count: 20 }
         ]);
     });
+
+    it('can transform with source/target instead of source_field/target_field', async () => {
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules39.txt')],
+        };
+
+        const data = [
+            new DataEntity({ html: '<value>' }),
+            new DataEntity({ some: 'otherValue' })
+        ];
+
+        const test = await opTest.init(config, [Plugins]);
+        const results = await test.run(data);
+        expect(results).toEqual([
+            { output: 'value', count: 20 }
+        ]);
+    });
 });

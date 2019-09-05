@@ -97,4 +97,27 @@ describe('Loader', () => {
 
         expect(() => parseData(configList)).toThrowError();
     });
+
+    it('will convert source => source_fields, target => target_fields', () => {
+        const configList = [
+            {
+                selector: 'hello:world',
+                source: 'first',
+                target: 'first_name',
+                tag: 'someTag'
+            },
+            {
+                follow: 'someTag',
+                target: 'full_name',
+                exp: 'true'
+            }
+        ];
+
+        const [selectorConfig, postConfig] = parseData(configList);
+
+        expect(selectorConfig.source_field).toEqual(configList[0].source);
+        expect(selectorConfig.target_field).toEqual(configList[0].target);
+
+        expect(postConfig.target_field).toEqual(configList[1].target);
+    });
 });

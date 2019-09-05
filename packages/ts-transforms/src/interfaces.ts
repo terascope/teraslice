@@ -8,7 +8,7 @@ export type OperationConfigInput = Partial<OperationConfig> & {
 };
 
 export type OperationConfig =
-    { __id: string }
+    { __id: string; target?: string; source?: string }
     & Partial<SelectorConfig>
     & Partial<PostProcessConfig>
     & Partial<ExtractionConfig>;
