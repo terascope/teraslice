@@ -107,10 +107,10 @@ export function updatePkgInfo(pkgInfo: i.PackageInfo): void {
                 registry: rootInfo.terascope.npm.registry,
             };
         } else {
-            Object.assign(pkgInfo.publishConfig, {
+            pkgInfo.publishConfig = Object.assign({}, {
                 access: 'public',
                 registry: rootInfo.terascope.npm.registry,
-            });
+            }, pkgInfo.publishConfig);
         }
     } else {
         delete pkgInfo.publishConfig;
