@@ -153,6 +153,12 @@ async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
         return JSON.stringify(obj);
     }
 
+    async function logClusterState() {
+        const state = await misc.teraslice().cluster.state();
+
+        signale.warn(`Cluster State on Job Failure: ${JSON.stringify(state, null, 2)}`);
+    }
+
     async function logExStatus(lastStatus) {
         try {
             const exStatus = await job.get(`/jobs/${jobId}/ex`);
@@ -197,7 +203,11 @@ async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
     } catch (err) {
         err.message = `Job: ${jobId}: ${err.message}`;
 
-        await Promise.all([logExErrors(err.lastStatus), logExStatus()]);
+        await Promise.all([
+            logExErrors(err.lastStatus),
+            logExStatus(),
+            logClusterState()
+        ]);
 
         throw err;
     }
