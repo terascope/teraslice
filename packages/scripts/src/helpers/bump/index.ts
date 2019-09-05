@@ -2,8 +2,8 @@ import semver from 'semver';
 import { get } from '@terascope/utils';
 import { PackageInfo } from '../interfaces';
 import { listPackages, updatePkgJSON, readPackageInfo } from '../packages';
-import signale from '../signale';
 import { writePkgHeader } from '../misc';
+import signale from '../signale';
 
 export type BumpPackageOptions = {
     release: semver.ReleaseType;
@@ -14,10 +14,19 @@ export type BumpPackageOptions = {
 export async function bumpPackages(pkgInfos: PackageInfo[], options: BumpPackageOptions) {
     let runOnce = false;
     for (const pkgInfo of pkgInfos) {
-        writePkgHeader('Bumping', [pkgInfo], runOnce);
+        writePkgHeader(`Bump(${options.release}) package version`, [pkgInfo], runOnce);
         await bumpPackage(pkgInfo, { ...options });
         runOnce = true;
     }
+    const folderNames = pkgInfos.map(({ folderName }) => folderName).join(', ');
+    const commitMsg = `bump(${options.release}) ${folderNames}`;
+
+    signale.success(`
+
+Please commit these changes:
+
+    git commit -am "${commitMsg}" && git push
+`);
 }
 
 export async function bumpPackage(mainPkgInfo: PackageInfo, options: BumpPackageOptions) {

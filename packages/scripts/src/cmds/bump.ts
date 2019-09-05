@@ -4,6 +4,7 @@ import { castArray } from '@terascope/utils';
 import { coercePkgArg } from '../helpers/args';
 import { bumpPackages } from '../helpers/bump';
 import { PackageInfo } from '../helpers/interfaces';
+import { syncAll } from '../helpers/sync';
 
 const releaseChoices = ['major', 'minor', 'patch', 'prerelease', 'premajor', 'preminor', 'prepatch'];
 
@@ -39,7 +40,6 @@ const cmd: CommandModule = {
             .positional('packages', {
                 description: 'Run scripts for one or more package (if specifying more than one make sure they are ordered by dependants)',
                 type: 'string',
-                default: '.',
                 coerce(arg) {
                     castArray(arg).forEach((a) => {
                         if (releaseChoices.includes(a)) {
@@ -51,7 +51,8 @@ const cmd: CommandModule = {
             })
             .requiresArg('packages');
     },
-    handler(argv) {
+    async handler(argv) {
+        await syncAll({ verify: true });
         return bumpPackages(argv.packages as PackageInfo[], {
             preId: argv['prelease-id'] as string | undefined,
             release: argv.release as ReleaseType,

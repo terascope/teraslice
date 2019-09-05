@@ -100,23 +100,34 @@ module.exports = function nativeClustering(context, clusterMasterServer, executi
         // if disconnected node had a slicer, we stop the execution of each slicer on it
         // and mark it as failed
         if (node.hasSlicer) {
-            _.forIn(node.slicerExecutions, (exId) => {
+            _.forIn(node.slicerExecutions, async (exId) => {
                 const errMsg = `node ${nodeId} has been disconnected from cluster_master past the allowed timeout, it has an active slicer for execution: ${exId} which will be marked as terminated and shut down`;
                 logger.error(errMsg);
                 const metaData = executionService.executionMetaData(null, errMsg);
                 pendingWorkerRequests.remove(exId, 'ex_id');
-                executionService.setExecutionStatus(exId, 'terminated', metaData);
-                messaging.broadcast('cluster:execution:stop', { ex_id: exId });
+
+                try {
+                    await executionService.setExecutionStatus(exId, 'terminated', metaData);
+                } catch (err) {
+                    logger.error(err, `failure to set execution ${exId} status to terminated`);
+                } finally {
+                    messaging.broadcast('cluster:execution:stop', { ex_id: exId });
+                }
             });
         }
         // for any other worker not part of what is being shutdown, we attempt to reallocate
-        _.forIn(node.workerExecutions, (__, exId) => {
+        _.forIn(node.workerExecutions, async (__, exId) => {
             // looking for unique ex_id's not in slicerJobID
             if (!node.slicerExecutions[exId]) {
                 const activeWorkers = clusterState[nodeId].active;
                 const numOfWorkers = activeWorkers.filter((worker) => worker.ex_id === exId).length;
-                executionService.getActiveExecution(exId)
-                    .then((execution) => addWorkers(execution, numOfWorkers));
+
+                try {
+                    const execution = await executionService.getActiveExecution(exId);
+                    addWorkers(execution, numOfWorkers);
+                } catch (err) {
+                    logger.error(err, `failure to add workers to execution ${exId}`);
+                }
             }
         });
 

@@ -44,8 +44,8 @@
         "shortid": "^2.2.14",
         "valid-url": "^1.0.9",
         "validator": "^11.0.0",
-        "xlucene-evaluator": "^0.10.1",
-        "yargs": "^13.2.4"
+        "xlucene-evaluator": "^0.10.2",
+        "yargs": "^14.0.0"
     },
     "devDependencies": {
         "@types/jexl": "^2.1.0",
@@ -58,7 +58,8 @@
         "node": ">=8.0.0"
     },
     "publishConfig": {
-        "access": "public"
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
     },
     "displayName": "Ts Transforms",
     "srcMain": "src/index.ts",

@@ -11,7 +11,7 @@ cache:
     - '$TRAVIS_BUILD_DIR/.yarn-cache'
     - '$TRAVIS_BUILD_DIR/.eslintcache'
 
-before_install: . ./scripts/travis-setup.sh
+before_install: . ./scripts/ci-setup.sh
 install:
     # Install the dependencies
     - yarn
@@ -36,10 +36,6 @@ jobs:
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn test --suite unit
-      after_script:
-        # verify the ui packages can build
-        - yarn --cwd=./packages/ui-core build
-        - yarn --cwd=./packages/ui-data-access build
 
     - script:
       name: 'ES Test Suite (elasticsearch 5) (node 10)'

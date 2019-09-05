@@ -1,6 +1,6 @@
 {
     "name": "teraslice",
-    "version": "0.56.2",
+    "version": "0.56.3",
     "description": "Distributed computing platform for processing JSON data",
     "homepage": "https://github.com/terascope/teraslice#readme",
     "bugs": {
@@ -32,7 +32,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/elasticsearch-api": "^2.1.4",
+        "@terascope/elasticsearch-api": "^2.1.5",
         "@terascope/job-components": "^0.23.2",
         "@terascope/queue": "^1.1.7",
         "@terascope/teraslice-messaging": "^0.4.1",
@@ -60,7 +60,7 @@
         "shortid": "^2.2.14",
         "socket.io": "^1.7.4",
         "socket.io-client": "^1.7.4",
-        "terafoundation": "^0.12.1",
+        "terafoundation": "^0.12.2",
         "uuid": "^3.3.3"
     },
     "devDependencies": {
@@ -72,6 +72,10 @@
         "got": "^9.6.0",
         "jest-fixtures": "^0.6.0",
         "nock": "^10.0.6"
+    },
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
     },
     "displayName": "Teraslice",
     "terascope": {

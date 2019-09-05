@@ -1,16 +1,19 @@
+
 import crypto from 'crypto';
 import { GraphQLResolveInfo } from 'graphql';
 import { IResolvers, UserInputError } from 'apollo-server-express';
-import { DataAccessConfig, SpaceSearchConfig } from '@terascope/data-access';
-import elasticsearchApi from '@terascope/elasticsearch-api';
-import { getESVersion } from 'elasticsearch-store';
+import { DataAccessConfig, SearchAccess, InputQuery } from '@terascope/data-access';
 import { Context } from '@terascope/job-components';
-import { DataType } from '@terascope/data-types';
-import { Logger, get } from '@terascope/utils';
-import { QueryAccess } from 'xlucene-evaluator';
-import { getESClient } from '../../utils';
-import { SpacesContext } from '../interfaces';
+import { Logger, get, AnyObject } from '@terascope/utils';
+import DataLoader from 'dataloader';
+import Bluebird from 'bluebird';
+import { Client } from 'elasticsearch';
+import JoinStitcher from '../join';
+import { parseJoinField } from '../utils';
+import { SpacesContext, ParsedJoinFields, EndpointArgs } from '../interfaces';
 import Misc from './misc';
+import { getESClient } from '../../utils';
+
 
 const defaultResolvers = {
     ...Misc,
@@ -18,6 +21,7 @@ const defaultResolvers = {
 } as IResolvers<any, SpacesContext>;
 
 export { defaultResolvers, createResolvers };
+
 
 function dedup<T>(records: T[]): T[] {
     const deduped: { [hash: string]: T } = {};
@@ -30,105 +34,155 @@ function dedup<T>(records: T[]): T[] {
     return Object.values(deduped);
 }
 
+interface QueryClient {
+    client: Client;
+    searchAccess: SearchAccess;
+}
+
+interface SearchDict {
+    [key: string]: QueryClient;
+}
+// endpoint is first
+interface QueryArgs {
+    [key: string]: InputQuery;
+}
+
 function createResolvers(
     viewList: DataAccessConfig[],
     typeDefs: string,
     logger: Logger,
-    context: Context
+    context: Context,
+    concurrency: number
 ) {
     const results = {} as IResolvers<any, SpacesContext>;
     const endpoints = {};
+    const searchDict: SearchDict = {};
+    const queryArgs: QueryArgs = {};
+
     // we create the master resolver list
     for (const key in Misc) {
         if (typeDefs.includes(key)) results[key] = Misc[key];
     }
 
     function getSelectionKeys(info: GraphQLResolveInfo) {
-        // @ts-ignore
         const {
             fieldNodes: [
                 {
-                    // @ts-ignore
-                    selectionSet: { selections },
+                    selectionSet
                 },
             ],
         } = info;
 
+        const selections = selectionSet ? selectionSet.selections : [];
         const filteredResults: string[] = [];
-        selections.forEach((selector: any) => {
-            const {
-                name: { value },
-            } = selector;
+        selections.forEach((selector) => {
+            // @ts-ignore
+            const value = selector.name != null ? selector.name.value : false;
             if (endpoints[value] == null) filteredResults.push(value);
         });
         return filteredResults;
     }
 
+    const loader = new DataLoader((keys: string[]) => loadJoinData(keys));
+
+    function loadJoinData(luceneQuerys: string[]) {
+        return Promise.resolve(Bluebird.map(luceneQuerys, (keyString: string) => {
+            const [endpoint] = keyString.split('__');
+            const query = queryArgs[keyString];
+            const { searchAccess, client } = searchDict[endpoint];
+            return searchAccess.performSearch(client, query);
+        }, { concurrency }));
+    }
+
+
+    function validateFields(
+        info: GraphQLResolveInfo,
+        root: AnyObject | undefined,
+        parsedFields: ParsedJoinFields[]
+    ) {
+        for (const parsedFieldData of parsedFields) {
+            const { origin } = parsedFieldData;
+            // if we have a root, we are joining
+            if (!(root && root[origin] != null)) {
+                // if field is queried by parent but is undefined, we abort the join query
+                return [];
+            }
+        }
+    }
+
+    function makeJoinQuery(
+        view: DataAccessConfig,
+        root: AnyObject,
+        info: GraphQLResolveInfo,
+        join: string[],
+        prevQ: undefined|string
+    ) {
+        let q = '';
+        const sticher = new JoinStitcher(view);
+        const parsedFields = join.map(parseJoinField);
+
+        validateFields(info, root, parsedFields);
+
+        // @ts-ignore
+        q = parsedFields.map((config) => sticher.make(config.target, root[config.origin], config.extraParams)).join(' AND ');
+        if (q.length === 0) return;
+
+        if (prevQ) {
+            q = `${q} AND (${prevQ})`;
+        }
+
+        return q;
+    }
+
     viewList.forEach((view) => {
-        const esClient = getESClient(context, get(view, 'config.connection', 'default'));
-        const client = elasticsearchApi(esClient, logger);
-        const {
-            data_type: { config },
-            view: {
-                includes,
-                excludes,
-                constraint,
-                prevent_prefix_wildcard: preventPrefixWildcard
-            },
-        } = view;
+        const endpoint = view.space_endpoint!;
+        const client = getESClient(context, get(view, 'config.connection', 'default'));
+        const searchAccess = new SearchAccess(view, logger);
+        searchDict[endpoint] = { client, searchAccess };
 
-        const dateType = new DataType(config);
-        const accessData = {
-            includes,
-            excludes,
-            constraint,
-            prevent_prefix_wildcard: preventPrefixWildcard,
-            allow_implicit_queries: true,
-        };
-
-        const queryAccess = new QueryAccess(accessData, {
-            type_config: dateType.toXlucene(),
-            logger,
-        });
-
-        endpoints[view.space_endpoint!] = async function resolverFn(
-            root: any,
-            args: any,
+        endpoints[endpoint] = async function resolverFn(
+            root: AnyObject| undefined,
+            args: EndpointArgs,
             ctx: any,
             info: GraphQLResolveInfo
         ) {
-            const spaceConfig = view.config as SpaceSearchConfig;
-            const _sourceInclude = getSelectionKeys(info);
+            if (!ctx.isValid) {
+                ctx.isValid = true;
+            }
+
+            const fields = getSelectionKeys(info);
             const {
-                size, sort, from, join
+                size, sort, from, join, geoSortPoint, geoSortOrder, geoSortUnit
             } = args;
-            const queryParams = {
-                index: spaceConfig.index, from, sort, size, _sourceInclude
+
+            const query: InputQuery = {
+                start: from,
+                sort,
+                size,
+                fields,
+                geo_sort_point: geoSortPoint,
+                geo_sort_order: geoSortOrder,
+                geo_sort_unit: geoSortUnit
             };
+
             let { query: q } = args;
 
-            if (root == null && q == null) throw new UserInputError('Invalid request, expected query to nested');
             if (root && join == null) throw new UserInputError('Invalid query, expected join when querying against another space');
 
             if (join) {
                 if (!Array.isArray(join)) throw new UserInputError('Invalid join, must be an array of values');
-                join.forEach((field) => {
-                    const [orig, target] = field.split(':') || [field, field];
-                    const selector = target || orig; // In case there's no colon in field.
-                    if (root && root[orig] !== null) {
-                        if (q) {
-                            q = `${selector}:${root[orig]} AND (${q})`;
-                        }
-                        q = `${selector}:${root[orig]}`;
-                    }
-                });
+                q = makeJoinQuery(view, root as AnyObject, info, join, q);
+                if (q == null) {
+                    return [];
+                }
             }
+            query.q = q;
+            // set the query obj for dataloader
+            const key = `${endpoint}__${q}`;
+            queryArgs[key] = query;
 
-            const query = queryAccess.restrictSearchQuery(q, {
-                params: queryParams,
-                elasticsearch_version: getESVersion(esClient)
-            });
-            return dedup(await client.search(query));
+            const response = await loader.load(key);
+            return dedup(response.results);
         };
     });
 
@@ -136,7 +190,7 @@ function createResolvers(
         // we create individual resolver
         results[key] = endpoints;
     }
-    // @ts-ignore TODO: fix typing
+
     results.Query = endpoints;
 
     return results;

@@ -39,9 +39,11 @@
         "nanoid": "^2.0.3",
         "semver": "^6.1.1",
         "signale": "^1.4.0",
-        "teraslice-client-js": "^0.8.1",
+        "teraslice-client-js": "^0.8.2",
         "uuid": "^3.3.3"
     },
-    "displayName": "E2e",
-    "terascope": {}
+    "displayName": "E2E Tests",
+    "terascope": {
+        "testSuite": "e2e"
+    }
 }

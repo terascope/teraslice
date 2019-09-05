@@ -1,13 +1,9 @@
 'use strict';
 
-const javascript = require('./rules/javascript');
-const typescript = require('./rules/typescript');
-const react = require('./rules/react');
+const rules = require('./rules');
+const overrides = require('./overrides');
 
 module.exports = {
-    rules: {
-        javascript,
-        typescript,
-        react,
-    }
+    rules,
+    overrides,
 };

@@ -1,6 +1,10 @@
 import semver from 'semver';
+import { get } from '@terascope/utils';
 import {
-    getLatestNPMVersion, getCommitHash, dockerPull, dockerBuild
+    getLatestNPMVersion,
+    getCommitHash,
+    dockerPull,
+    dockerBuild
 } from '../scripts';
 import { PublishType } from './interfaces';
 import { PackageInfo } from '../interfaces';
@@ -8,8 +12,12 @@ import { getRootInfo } from '../misc';
 import signale from '../signale';
 
 export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType): Promise<boolean> {
-    const remote = await getLatestNPMVersion(pkgInfo.name);
+    if (pkgInfo.private) return false;
+
+    const registry: string|undefined = get(pkgInfo, 'publishConfig.registry');
+    const remote = await getLatestNPMVersion(pkgInfo.name, registry);
     const local = pkgInfo.version;
+
     if (semver.gt(local, remote)) {
         if (type === PublishType.Tag) {
             if (pkgInfo.terascope.main) {
@@ -63,7 +71,7 @@ export async function formatDailyTag() {
 
 export async function buildCacheLayers(): Promise<string[]> {
     const rootInfo = getRootInfo();
-    const layers = rootInfo.docker.cache_layers || [];
+    const layers = rootInfo.terascope.docker.cache_layers;
     if (!layers.length) return [];
 
     const cacheFrom: { [name: string]: string } = {};
@@ -71,7 +79,7 @@ export async function buildCacheLayers(): Promise<string[]> {
         if (cacheFrom[from] == null) {
             cacheFrom[from] = from;
         }
-        cacheFrom[name] = `${rootInfo.docker.image}:dev-${name}`;
+        cacheFrom[name] = `${rootInfo.terascope.docker.registry}:dev-${name}`;
     });
 
     const layersToPull = Object.values(cacheFrom);

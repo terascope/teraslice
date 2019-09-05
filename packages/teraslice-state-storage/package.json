@@ -23,13 +23,14 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/elasticsearch-api": "^2.1.4",
+        "@terascope/elasticsearch-api": "^2.1.5",
         "@terascope/utils": "^0.17.1",
         "bluebird": "^3.5.5",
         "mnemonist": "^0.30.0"
     },
     "publishConfig": {
-        "access": "public"
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
     },
     "displayName": "Teraslice State Storage",
     "srcMain": "src/index.ts",

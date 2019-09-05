@@ -1,12 +1,14 @@
 import path from 'path';
 import pkgUp from 'pkg-up';
 import fse from 'fs-extra';
+import defaultsDeep from 'lodash.defaultsdeep';
 import { isPlainObject, get } from '@terascope/utils';
+import sortPackageJson from 'sort-package-json';
 import { PackageInfo, RootPackageInfo } from './interfaces';
+import { NPM_DEFAULT_REGISTRY } from './config';
 import signale from './signale';
 
-// eslint-disable-next-line
-export let rootDir: string | undefined;
+let rootDir: string | undefined;
 
 export function getRootDir(cwd: string = process.cwd()): string {
     if (rootDir) return rootDir;
@@ -20,25 +22,50 @@ export function getRootDir(cwd: string = process.cwd()): string {
         return rootDir;
     }
 
-    return getRootDir(path.join(path.dirname(rootPkgJSON), '..'));
+    const upOne = path.join(path.dirname(rootPkgJSON), '..');
+    if (!fse.existsSync(upOne) || !fse.statSync(upOne).isDirectory()) {
+        throw new Error('Unable to find root directory');
+    }
+    return getRootDir(upOne);
 }
 
 function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
     const pkg = fse.readJSONSync(pkgJSONPath);
     const isRoot = get(pkg, 'terascope.root', false);
     if (!isRoot) return undefined;
-    return {
-        root: isRoot,
-        type: get(pkg, 'terascope.type', 'monorepo'),
-        docker: {
-            image: get(pkg, 'terascope.docker.registry', 'terascope/teraslice'),
-            cache_layers: get(pkg, 'terascope.docker.cache_layers', []),
+
+    const dir = path.dirname(pkgJSONPath);
+    const folderName = path.basename(dir);
+
+    return sortPackageJson(defaultsDeep(pkg, {
+        dir,
+        folderName,
+        displayName: getName(pkg.name),
+        documentation: '',
+        homepage: '',
+        bugs: {
+            url: '',
         },
-    };
+        terascope: {
+            root: isRoot,
+            type: 'monorepo',
+            docker: {
+                registry: `terascope/${folderName}`,
+                cache_layers: [],
+            },
+            npm: {
+                registry: NPM_DEFAULT_REGISTRY
+            }
+        },
+    }));
 }
 
-export function getRootInfo() {
-    return _getRootInfo(path.join(getRootDir(), 'package.json'))!;
+let _rootInfo: RootPackageInfo;
+
+export function getRootInfo(): RootPackageInfo {
+    if (_rootInfo) return _rootInfo;
+    _rootInfo = _getRootInfo(path.join(getRootDir(), 'package.json'))!;
+    return _rootInfo;
 }
 
 export function getName(input: string): string {
@@ -125,7 +152,7 @@ export async function writeIfChanged(
 }
 
 export function formatList(list: string[]) {
-    return `\n\n - ${list.join('\n - ')}`;
+    return `\n - ${list.join('\n - ')}`;
 }
 
 export function writeHeader(msg: string, prefixNewline?: boolean): void {

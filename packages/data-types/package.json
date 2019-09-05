@@ -1,6 +1,6 @@
 {
     "name": "@terascope/data-types",
-    "version": "0.5.6",
+    "version": "0.5.7",
     "description": "A library for defining the data structures and mapping",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-types#readme",
     "bugs": {
@@ -31,19 +31,20 @@
         "graphql": "^14.3.1",
         "lodash.defaultsdeep": "^4.6.1",
         "lodash.set": "^4.3.2",
-        "yargs": "^13.2.4"
+        "yargs": "^14.0.0"
     },
     "devDependencies": {
         "@types/lodash.defaultsdeep": "^4.6.6",
         "@types/lodash.set": "^4.3.6",
         "@types/yargs": "^13.0.2",
-        "xlucene-evaluator": "^0.10.1"
+        "xlucene-evaluator": "^0.10.2"
     },
     "engines": {
         "node": ">=8.0.0"
     },
     "publishConfig": {
-        "access": "public"
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
     },
     "displayName": "Data Types",
     "srcMain": "src/index.ts",

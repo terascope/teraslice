@@ -7,6 +7,7 @@ import {
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
 import signale from './signale';
+import { NPM_DEFAULT_REGISTRY } from './config';
 
 const logger = debugLogger('ts-scripts:cmd');
 
@@ -317,7 +318,7 @@ export async function getChangedFiles(...files: string[]) {
     return result
         .split('\n')
         .map((str) => str.trim())
-        .filter((str) => !!str);
+        .filter(Boolean);
 }
 
 export type ArgsMap = { [key: string]: string | string[] };
@@ -334,10 +335,16 @@ export function mapToArgs(input: ArgsMap): string[] {
     return args.filter((str) => str != null && str !== '');
 }
 
-export async function getLatestNPMVersion(name: string): Promise<string> {
-    const subprocess = await execa('npm', ['info', name, 'version'], {
-        reject: false,
-    });
+export async function getLatestNPMVersion(
+    name: string,
+    registry: string = NPM_DEFAULT_REGISTRY
+): Promise<string> {
+    const subprocess = await execa(
+        'npm',
+        ['--registry', registry, 'info', name, 'version'],
+        { reject: false }
+    );
+
     if (subprocess.exitCode > 0) return '0.0.0';
 
     return subprocess.stdout;
@@ -346,7 +353,13 @@ export async function getLatestNPMVersion(name: string): Promise<string> {
 export async function yarnPublish(pkgInfo: PackageInfo) {
     await fork({
         cmd: 'yarn',
-        args: ['publish', '--non-interactive', '--new-version', pkgInfo.version, '--no-git-tag-version'],
+        args: [
+            'publish',
+            '--non-interactive',
+            '--new-version',
+            pkgInfo.version,
+            '--no-git-tag-version'
+        ],
         cwd: pkgInfo.dir,
     });
 }

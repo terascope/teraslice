@@ -1,9 +1,8 @@
-
 import { isString, TSError, isPlainObject } from '@terascope/job-components';
-import got from 'got';
 import { STATUS_CODES } from 'http';
 import { URL } from 'url';
 import path from 'path';
+import got from 'got';
 import { ClientConfig, SearchOptions, RequestOptions } from './interfaces';
 
 export default class Client {

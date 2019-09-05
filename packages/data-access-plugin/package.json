@@ -1,6 +1,6 @@
 {
     "name": "@terascope/data-access-plugin",
-    "version": "0.13.0",
+    "version": "0.14.1",
     "description": "A teraserver plugin for managing data access and searching spaces",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-access-plugin#readme",
     "bugs": {
@@ -29,19 +29,21 @@
     },
     "dependencies": {
         "@apollographql/graphql-playground-html": "^1.6.24",
-        "@terascope/data-access": "^0.14.1",
-        "@terascope/data-types": "^0.5.6",
-        "@terascope/elasticsearch-api": "^2.1.4",
+        "@terascope/data-access": "^0.15.0",
+        "@terascope/data-types": "^0.5.7",
         "@terascope/utils": "^0.17.1",
         "accepts": "^1.3.7",
         "apollo-server-express": "~2.6.5",
+        "bluebird": "^3.5.5",
         "body-parser": "^1.19.0",
-        "elasticsearch-store": "^0.11.3",
+        "dataloader": "^1.4.0",
+        "elasticsearch-store": "^0.11.4",
         "graphql": "^14.3.1",
         "graphql-iso-date": "^3.6.1",
+        "graphql-query-complexity": "^0.3.0",
         "graphql-type-json": "^0.3.0",
-        "terafoundation": "^0.12.1",
-        "xlucene-evaluator": "^0.10.1"
+        "terafoundation": "^0.12.2",
+        "xlucene-evaluator": "^0.10.2"
     },
     "devDependencies": {
         "@terascope/job-components": "^0.23.2",
@@ -55,7 +57,8 @@
         "graphql-request": "^1.8.2"
     },
     "publishConfig": {
-        "access": "public"
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
     },
     "displayName": "Data Access Plugin",
     "srcMain": "src/index.ts",
