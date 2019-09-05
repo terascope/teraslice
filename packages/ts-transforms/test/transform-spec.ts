@@ -1,7 +1,7 @@
+
 import 'jest-extended';
-import _ from 'lodash';
 import path from 'path';
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, get, cloneDeep } from '@terascope/utils';
 import { FieldType } from 'xlucene-evaluator';
 import TestHarness from './test-harness';
 import { WatcherConfig } from '../src';
@@ -41,9 +41,9 @@ describe('can transform matches', () => {
         const results = await test.run(data);
 
         expect(results.length).toEqual(1);
-        _.each(results, (d) => {
+        results.forEach((d) => {
             expect(DataEntity.isDataEntity(d)).toEqual(true);
-            expect(_.get(d, 'topfield.value1')).toEqual('hello');
+            expect(get(d, 'topfield.value1')).toEqual('hello');
             expect(d.getMetadata('selectors')).toBeDefined();
         });
     });
@@ -79,7 +79,7 @@ describe('can transform matches', () => {
         const results = await test.run(data);
 
         expect(results.length).toEqual(2);
-        _.each(results, (d, index) => {
+        results.forEach((d, index) => {
             expect(DataEntity.isDataEntity(d)).toEqual(true);
             expect(d.other).toEqual(resultSet[index]);
             expect(d.getMetadata('selectors').includes('*')).toBeTrue();
@@ -243,7 +243,7 @@ describe('can transform matches', () => {
         const test = await opTest.init(config);
         const results = await test.run(data);
 
-        _.each(results, (d, index) => {
+        results.forEach((d, index) => {
             expect(DataEntity.isDataEntity(d)).toEqual(true);
             expect(d).toEqual(resultSet[index]);
             expect(d.getMetadata('selectors')).toBeDefined();
@@ -348,15 +348,15 @@ describe('can transform matches', () => {
 
         const resultsData1 = data.map((doc) => ({ hex: doc.txt }));
 
-        const data1 = DataEntity.makeArray(_.cloneDeep(transformedData));
-        const data2 = DataEntity.makeArray(_.cloneDeep(transformedData));
-        const data3 = DataEntity.makeArray(_.cloneDeep(transformedData));
+        const data1 = DataEntity.makeArray(cloneDeep(transformedData));
+        const data2 = DataEntity.makeArray(cloneDeep(transformedData));
+        const data3 = DataEntity.makeArray(cloneDeep(transformedData));
 
         const test1 = await opTest.init(config);
         const results1 = await test1.run(data1);
 
         expect(results1.length).toEqual(3);
-        _.each(results1, (result, ind) => {
+        results1.forEach((result, ind) => {
             expect(result).toEqual(resultsData1[ind]);
             expect(DataEntity.isDataEntity(result)).toEqual(true);
         });
@@ -365,7 +365,7 @@ describe('can transform matches', () => {
         const results2 = await test2.run(data2);
 
         expect(results2.length).toEqual(3);
-        _.each(results2, (result, ind) => {
+        results2.forEach((result, ind) => {
             expect(result).toEqual(resultsData1[ind]);
             expect(DataEntity.isDataEntity(result)).toEqual(true);
         });
@@ -374,7 +374,7 @@ describe('can transform matches', () => {
         const results3 = await test3.run(data3);
 
         expect(results3.length).toEqual(3);
-        _.each(results3, (result, ind) => {
+        results3.forEach((result, ind) => {
             expect(result).toEqual(resultsData1[ind]);
             expect(DataEntity.isDataEntity(result)).toEqual(true);
         });
@@ -417,8 +417,8 @@ describe('can transform matches', () => {
             { domain: 'example.com', url: 'http:// www.example.com/path?field5=blah&field6=moreblah&field7=evenmoreblah' },
         ];
 
-        const data1 = DataEntity.makeArray(_.cloneDeep(data));
-        const data2 = DataEntity.makeArray(_.cloneDeep(data));
+        const data1 = DataEntity.makeArray(cloneDeep(data));
+        const data2 = DataEntity.makeArray(cloneDeep(data));
 
         const test1 = await opTest.init(config);
         const results1 = await test1.run(data1);
@@ -448,7 +448,7 @@ describe('can transform matches', () => {
         const results = await test.run(data);
 
         expect(results.length).toEqual(2);
-        _.each(results, (d, index) => {
+        results.forEach((d, index) => {
             expect(DataEntity.isDataEntity(d)).toEqual(true);
             expect(d).toEqual(resultSet[index]);
         });

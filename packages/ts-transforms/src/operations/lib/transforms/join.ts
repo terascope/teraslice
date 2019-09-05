@@ -1,6 +1,7 @@
 
-import _ from 'lodash';
-import { DataEntity } from '@terascope/utils';
+import {
+    DataEntity, set, get, flattenDeep
+} from '@terascope/utils';
 import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces';
 import TransformOpBase from './base';
 
@@ -39,9 +40,9 @@ export default class Join extends TransformOpBase {
     }
 
     run(doc: DataEntity): DataEntity | null {
-        const fieldsData = _.flattenDeep(this.fields.map((field) => _.get(doc, field)));
+        const fieldsData = flattenDeep(this.fields.map((field) => get(doc, field)));
         const results = fieldsData.join(this.delimiter);
-        if (results.length !== this.delimiter.length) _.set(doc, this.target, results);
+        if (results.length !== this.delimiter.length) set(doc, this.target, results);
         return doc;
     }
 }

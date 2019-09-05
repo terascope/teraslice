@@ -1,16 +1,13 @@
-/* eslint-disable @typescript-eslint/prefer-for-of */
 
 import { DataEntity } from '@terascope/utils';
-import _ from 'lodash';
 import { hasKeys } from './utils';
 import {
     WatcherConfig,
     ExtractionProcessingDict,
-    OperationsPipline,
-    Operation
+    ExtractionPipline
 } from '../interfaces';
 import PhaseBase from './base';
-import { OperationsManager } from '../operations';
+import { OperationsManager, Extraction } from '../operations';
 
 export default class ExtractionPhase extends PhaseBase {
     constructor(
@@ -20,11 +17,11 @@ export default class ExtractionPhase extends PhaseBase {
     ) {
         super(opConfig);
         this.opConfig = opConfig;
-        const Extraction = opsManager.getTransform('extraction');
+        const ExtractionOp = opsManager.getTransform('extraction');
 
-        _.forOwn(configList, (operationList, key) => {
-            this.phase[key] = [new Extraction(operationList)];
-        });
+        for (const [key, operationList] of Object.entries(configList)) {
+            this.phase[key] = [new ExtractionOp(operationList)];
+        }
 
         this.hasProcessing = hasKeys(this.phase);
     }
@@ -33,9 +30,10 @@ export default class ExtractionPhase extends PhaseBase {
         if (!this.hasProcessing) return dataArray;
         const resultsList: DataEntity[] = [];
 
-        for (let i = 0; i < dataArray.length; i += 1) {
-            const results = createTargetResults(dataArray[i]);
-            runExtractions(this.phase, dataArray[i], results);
+        for (const doc of dataArray) {
+            const results = createTargetResults(doc);
+            // @ts-ignore
+            runExtractions(this.phase, doc, results);
             if (results.metadata.hasExtractions) {
                 resultsList.push(results.entity);
             }
@@ -53,23 +51,22 @@ function createTargetResults(input: DataEntity) {
 }
 
 function runExtractions(
-    phase: OperationsPipline,
+    phase: ExtractionPipline,
     doc: DataEntity,
     results: { entity: DataEntity; metadata: any }
 ): { entity: DataEntity; metadata: any } {
-    for (let i = 0; i < results.metadata.selectors.length; i++) {
-        runSelectorExtraction(phase[results.metadata.selectors[i]], doc, results);
+    for (const selector of results.metadata.selectors) {
+        runSelectorExtraction(phase[selector], doc, results);
     }
     return results;
 }
 
 function runSelectorExtraction(
-    selectorPhase: Operation[],
+    extractionPhase: Extraction[],
     doc: DataEntity,
     results: { entity: DataEntity; metadata: any }
 ): void {
-    for (let i = 0; i < selectorPhase.length; i++) {
-        // @ts-ignore
-        selectorPhase[i].extractionPhaseRun(doc, results);
+    for (const extractor of extractionPhase) {
+        extractor.extractionPhaseRun(doc, results);
     }
 }

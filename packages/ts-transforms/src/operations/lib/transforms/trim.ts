@@ -1,6 +1,5 @@
 
-import _ from 'lodash';
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, get } from '@terascope/utils';
 import { PostProcessConfig } from '../../../interfaces';
 import TransformOpBase from './base';
 
@@ -10,7 +9,7 @@ export default class Trim extends TransformOpBase {
     }
 
     run(doc: DataEntity): DataEntity | null {
-        const field = _.get(doc, this.source);
+        const field = get(doc, this.source);
         if (typeof field === 'string') {
             this.set(doc, field.trim());
         } else if (Array.isArray(field)) {

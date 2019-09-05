@@ -1,6 +1,7 @@
 
-import _ from 'lodash';
-import { DataEntity } from '@terascope/utils';
+import {
+    DataEntity, set, unset, isString
+} from '@terascope/utils';
 import { OperationConfig, InputOutputCardinality } from '../../interfaces';
 
 export default class OperationBase {
@@ -36,26 +37,26 @@ export default class OperationBase {
     }
 
     set(doc: DataEntity, data: any) {
-        _.set(doc, this.destination, data);
+        set(doc, this.destination, data);
     }
 
     setField(doc: DataEntity, field: string, data: any) {
-        _.set(doc, field, data);
+        set(doc, field, data);
     }
 
     removeSource(doc: DataEntity) {
-        _.unset(doc, this.source);
+        unset(doc, this.source);
     }
 
     removeField(doc: DataEntity, field: string) {
-        _.unset(doc, field);
+        unset(doc, field);
     }
 }
 
 function hasStringValues(value: string|string[]) {
     if (Array.isArray(value)) {
         if (value.length === 0) throw new Error('if input is an array it must have string values inside');
-        const bool = _.every(value, _.isString);
+        const bool = value.every(isString);
         if (!bool) throw new Error(`input: ${value} must be of type string`);
     } else if (typeof value !== 'string') throw new Error(`input: ${value} must be of type string`);
 }

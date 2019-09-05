@@ -1,6 +1,5 @@
 
-import _ from 'lodash';
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, get, isFunction } from '@terascope/utils';
 import OperationBase from '../base';
 
 export default abstract class ValidationOpBase<T> extends OperationBase {
@@ -18,9 +17,9 @@ export default abstract class ValidationOpBase<T> extends OperationBase {
     run(doc: DataEntity): DataEntity | null {
         let value;
         if (Array.isArray(this.source)) {
-            value = this.source.map((field) => _.get(doc, field));
+            value = this.source.map((field) => get(doc, field));
         } else {
-            value = _.get(doc, this.source);
+            value = get(doc, this.source);
         }
         let isValid = false;
 
@@ -32,7 +31,7 @@ export default abstract class ValidationOpBase<T> extends OperationBase {
         try {
             if (Array.isArray(value)) {
                 let dataArray = value;
-                if (this.normalize && _.isFunction(this.normalize)) {
+                if (this.normalize && isFunction(this.normalize)) {
                     const normalizedResults: any[] = [];
                     dataArray.forEach((data) => {
                         try {

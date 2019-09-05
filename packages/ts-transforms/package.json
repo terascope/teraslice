@@ -41,7 +41,6 @@
         "awesome-phonenumber": "^2.15.0",
         "graphlib": "^2.1.7",
         "jexl": "^2.2.1",
-        "lodash": "^4.17.11",
         "shortid": "^2.2.14",
         "valid-url": "^1.0.9",
         "validator": "^11.0.0",

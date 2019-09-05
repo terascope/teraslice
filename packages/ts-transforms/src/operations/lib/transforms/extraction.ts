@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/prefer-for-of */
 
 import {
     DataEntity, matchAll, get, set
@@ -142,9 +141,9 @@ export default class Extraction {
             record = DataEntity.makeRaw({}, doc.getMetadata()).entity;
         }
 
-        for (let i = 0; i < this.configs.length; i += 1) {
-            const data = getData(this.configs[i], doc);
-            extractAndTransferFields(data, record, this.configs[i], doc);
+        for (const config of this.configs) {
+            const data = getData(config, doc);
+            extractAndTransferFields(data, record, config, doc);
         }
 
         if (hasExtracted(record) || this.isMutation) return record;
@@ -152,9 +151,9 @@ export default class Extraction {
     }
 
     extractionPhaseRun(doc: DataEntity, results: { entity: DataEntity; metadata: any }) {
-        for (let i = 0; i < this.configs.length; i += 1) {
-            const data = getData(this.configs[i], doc);
-            extractAndTransferFields(data, results.entity, this.configs[i], doc);
+        for (const config of this.configs) {
+            const data = getData(config, doc);
+            extractAndTransferFields(data, results.entity, config, doc);
         }
     }
 }

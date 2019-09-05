@@ -1,5 +1,6 @@
 import set from 'lodash.set';
 import get from 'lodash.get';
+import unset from 'lodash.unset';
 import cloneDeep from 'lodash.clonedeep';
 import isPlainObject from 'is-plain-object';
 
@@ -45,5 +46,6 @@ export {
     isPlainObject,
     cloneDeep,
     get,
-    set
+    set,
+    unset
 };

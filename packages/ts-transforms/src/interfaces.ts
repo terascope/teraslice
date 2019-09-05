@@ -1,5 +1,7 @@
+
 import { TypeConfig } from 'xlucene-evaluator';
 import { DataEntity } from '@terascope/utils';
+import { Extraction } from '../src/operations';
 
 export enum NotifyType { matcher = 'matcher', transform = 'transform' }
 
@@ -95,6 +97,10 @@ export interface Operation {
 
 export interface OperationsPipline {
     [key: string]: Operation[];
+}
+
+export interface ExtractionPipline {
+    [key: string]: Extraction[];
 }
 
 export interface OperationsMapping {

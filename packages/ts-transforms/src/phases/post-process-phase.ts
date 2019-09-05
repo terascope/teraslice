@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/prefer-for-of */
 
 import _ from 'lodash';
 import { DataEntity } from '@terascope/utils';
@@ -37,8 +36,7 @@ export default class PostProcessPhase extends PhaseBase {
         if (!this.hasProcessing) return dataArray;
         const resultsList: DataEntity[] = [];
 
-        for (let i = 0; i < dataArray.length; i += 1) {
-            const record = dataArray[i];
+        for (const record of dataArray) {
             const results = runProcessors(this.phase, record, record.getMetadata());
             if (results != null && hasKeys(results)) {
                 resultsList.push(results);
@@ -51,8 +49,8 @@ export default class PostProcessPhase extends PhaseBase {
 
 function runProcessors(phase: OperationsPipline, record: DataEntity, metadata: any): MaybeRecord {
     let results: MaybeRecord = record;
-    for (let i = 0; i < metadata.selectors.length; i++) {
-        const pipeline = phase[metadata.selectors[i]];
+    for (const selector of metadata.selectors) {
+        const pipeline = phase[selector];
         if (pipeline) results = process(pipeline, results);
     }
     return results;
@@ -60,9 +58,9 @@ function runProcessors(phase: OperationsPipline, record: DataEntity, metadata: a
 
 function process(phase: Operation[], record: MaybeRecord): MaybeRecord {
     let results = record;
-    for (let i = 0; i < phase.length; i++) {
+    for (const op of phase) {
         if (!results) continue;
-        results = phase[i].run(results);
+        results = op.run(results);
     }
     return results;
 }

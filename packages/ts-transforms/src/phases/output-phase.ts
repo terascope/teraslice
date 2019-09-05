@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/prefer-for-of */
 
 import { DataEntity } from '@terascope/utils';
 import _ from 'lodash';
@@ -29,8 +28,7 @@ export default class OutputPhase extends PhaseBase {
         const finalResults: DataEntity[] = [];
         const isKeyMatchRequired = isKeyMatchRequiredFn(this.matchRequirements);
 
-        for (let i = 0; i < data.length; i++) {
-            const doc = data[i];
+        for (const doc of data) {
             const {
                 otherExtractionsFound,
                 requireExtractionsFound
@@ -67,8 +65,7 @@ function removeKeys(doc: DataEntity, dict: any) {
 
 function restrictFields(data: DataEntity[], restrictOutput: any) {
     const restrictedData: DataEntity[] = [];
-    for (let i = 0; i < data.length; i++) {
-        const doc = data[i];
+    for (const doc of data) {
         removeKeys(doc, restrictOutput);
         if (hasKeys(doc)) restrictedData.push(doc);
     }

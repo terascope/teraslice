@@ -3,8 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import readline from 'readline';
 import {
-    // @ts-ignore
-    DataEntity, debugLogger, parseList, AnyObject, pDelay
+    DataEntity, debugLogger, parseList, AnyObject
 } from '@terascope/utils';
 import _ from 'lodash';
 import { PhaseManager } from './index';

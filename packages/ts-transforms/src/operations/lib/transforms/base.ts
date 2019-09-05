@@ -1,11 +1,11 @@
-import _ from 'lodash';
-import { DataEntity } from '@terascope/utils';
+
+import { DataEntity, get } from '@terascope/utils';
 import OperationBase from '../base';
 
 export default abstract class TransformOpBase extends OperationBase {
     protected execute(doc: DataEntity, fn: Function) {
         try {
-            const value = _.get(doc, this.source);
+            const value = get(doc, this.source);
             if (Array.isArray(value)) {
                 const dataArray = value;
                 const results: string[] = [];

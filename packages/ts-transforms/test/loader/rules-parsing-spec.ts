@@ -1,7 +1,8 @@
 
 import path from 'path';
-import _ from 'lodash';
-import { debugLogger } from '@terascope/utils';
+import {
+    debugLogger, has, isPlainObject, get
+} from '@terascope/utils';
 import {
     RulesLoader, RulesParser, OperationConfig, OperationConfigInput
 } from '../../src';
@@ -36,14 +37,14 @@ describe('Loader', () => {
         expect(results).toBeArrayOfSize(2);
 
         results.forEach((config) => {
-            expect(_.isObject(config)).toBeTrue();
-            expect(_.has(config, 'selector')).toBeTrue();
+            expect(isPlainObject(config)).toBeTrue();
+            expect(has(config, 'selector')).toBeTrue();
         });
     });
 
     it('can adds __id to every config', async () => {
         const results = await getConfigList('transformRules2.txt');
-        const hasIds = _.every(results, (obj) => obj.__id != null);
+        const hasIds = results.every((obj) => obj.__id != null);
 
         expect(hasIds).toBeTrue();
     });
@@ -59,7 +60,7 @@ describe('Loader', () => {
         const results = await getConfigList('transformRules8.txt');
 
         expect(results).toBeArrayOfSize(2);
-        expect(_.get(results, '[0].tags')).toEqual(['hexId']);
+        expect(get(results, '[0].tags')).toEqual(['hexId']);
     });
 
     it('can seperate simple post/validation configs out to seperate configs', async () => {
@@ -68,10 +69,10 @@ describe('Loader', () => {
 
         expect(results).toBeArrayOfSize(2);
         expect(config1.selector).toEqual('domain:example.com');
-        expect(_.has(config1, 'tags')).toBeTrue();
+        expect(has(config1, 'tags')).toBeTrue();
 
-        expect(_.has(config2, 'follow')).toBeTrue();
-        expect(_.has(config2, '__id')).toBeTrue();
+        expect(has(config2, 'follow')).toBeTrue();
+        expect(has(config2, '__id')).toBeTrue();
 
         const tags = config1.tags as string[];
         expect(tags.find((tag) => tag === config2.follow) !== undefined).toBeTrue();

@@ -80,6 +80,11 @@ export function ensureBuffer(input: string|Buffer, encoding: BufferEncoding = 'u
     throw new Error(`Invalid input given, expected string or buffer, got ${getTypeOf(input)}`);
 }
 
+export function isBoolean(input: any): boolean {
+    if (typeof input === 'boolean') return true;
+    return false;
+}
+
 export function isBooleanLike(input: any): boolean {
     if (input == null) return true;
     if (typeof input === 'boolean') return true;
