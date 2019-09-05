@@ -1,0 +1,2 @@
+{ "source_field": "html", "target_field": "output", "start": "<", "end": ">", "tag": "myTag" }
+{ "follow": "myTag", "exp": "20", "target_field": "count" }

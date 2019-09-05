@@ -1,6 +1,6 @@
-import _ from 'lodash';
+
 import 'jest-extended';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger, cloneDeep } from '@terascope/utils';
 import { isPrimaryConfig } from '../../src/loader/utils';
 import {
     RulesValidator,
@@ -29,6 +29,19 @@ describe('rules-validator', () => {
             selector: 'hello:world',
             source_field: 'last',
             target_field: 'last_name',
+        },
+    ]);
+
+    const basicExpressionConfig = parseData([
+        {
+            selector: 'hello:world',
+            target_field: 'value',
+            exp: '20'
+        },
+        {
+            selector: 'hello:world',
+            source_field: 'field',
+            target_field: 'target',
         },
     ]);
 
@@ -117,6 +130,37 @@ describe('rules-validator', () => {
         {
             follow: 'someTag',
             post_process: 'hexdecode',
+        },
+    ]);
+
+    const basicExpressionPostProcessing = parseData([
+        {
+            selector: 'hello:world',
+            source_field: 'first_name',
+            target_field: 'first',
+            output: false,
+            tag: 'someTag',
+        },
+        {
+            follow: 'someTag',
+            post_process: 'extraction',
+            exp: 'first + " Doe"',
+            target_field: 'final'
+        },
+    ]);
+
+    const defaultExpressionPostProcessing = parseData([
+        {
+            selector: 'hello:world',
+            source_field: 'first_name',
+            target_field: 'first',
+            output: false,
+            tag: 'someTag',
+        },
+        {
+            follow: 'someTag',
+            exp: 'first + " Doe"',
+            target_field: 'final'
         },
     ]);
 
@@ -335,6 +379,16 @@ describe('rules-validator', () => {
             const { extractions } = validator.validate();
             const results = {};
             results['hello:world'] = basicExtractionConfig;
+
+            expect(extractions).toEqual(results);
+        });
+
+        it('can return an expression extractions formatted correctly', () => {
+            const validator = constructValidator(basicExpressionConfig);
+            const { extractions } = validator.validate();
+            const results = {};
+            results['hello:world'] = basicExpressionConfig;
+
             expect(extractions).toEqual(results);
         });
 
@@ -395,6 +449,30 @@ describe('rules-validator', () => {
             expect(results[0].target_field).toEqual('decoded');
         });
 
+        it('can return a mapping of basic expression post processing', () => {
+            const validator = constructValidator(basicExpressionPostProcessing);
+            const {
+                postProcessing: { 'hello:world': results },
+            } = validator.validate();
+
+            expect(results).toBeArrayOfSize(1);
+            expect(results[0].post_process).toEqual('extraction');
+            expect(results[0].source_field).toEqual('first');
+            expect(results[0].target_field).toEqual('final');
+        });
+
+        it('can extraction in post processing does not have to specify post_process field', () => {
+            const validator = constructValidator(defaultExpressionPostProcessing);
+            const {
+                postProcessing: { 'hello:world': results },
+            } = validator.validate();
+
+            expect(results).toBeArrayOfSize(1);
+            expect(results[0].post_process).toEqual('extraction');
+            expect(results[0].source_field).toEqual('first');
+            expect(results[0].target_field).toEqual('final');
+        });
+
         it('can return a mapping of for chained post processing', () => {
             const validator = constructValidator(chainedRules1);
             const { postProcessing } = validator.validate();
@@ -430,7 +508,7 @@ describe('rules-validator', () => {
         });
 
         it('can normalize post_processing fields', () => {
-            const results = _.cloneDeep(chainedRules1);
+            const results = cloneDeep(chainedRules1);
             const validator = constructValidator(chainedRules1);
             const { postProcessing } = validator.validate();
             let prev: OperationConfig | undefined;

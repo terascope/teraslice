@@ -1003,4 +1003,37 @@ describe('can transform matches', () => {
             }
         ]);
     });
+
+    it('can set values in extractions', async () => {
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules37.txt')],
+        };
+
+        const data = [
+            new DataEntity({ field1: 'value' })
+        ];
+
+        const test = await opTest.init(config, [Plugins]);
+        const results = await test.run(data);
+        expect(results).toEqual([
+            { wasSet: true }
+        ]);
+    });
+
+    it('can conditionally set values in extractions', async () => {
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules38.txt')],
+        };
+
+        const data = [
+            new DataEntity({ html: '<value>' }),
+            new DataEntity({ some: 'otherValue' })
+        ];
+
+        const test = await opTest.init(config, [Plugins]);
+        const results = await test.run(data);
+        expect(results).toEqual([
+            { output: 'value', count: 20 }
+        ]);
+    });
 });
