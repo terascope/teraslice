@@ -51,7 +51,7 @@
         "request": "^2.88.0",
         "request-promise": "^4.2.4",
         "signale": "^1.4.0",
-        "teraslice-client-js": "^0.8.1",
+        "teraslice-client-js": "^0.8.2",
         "tmp": "^0.1.0",
         "tty-table": "^2.7.4",
         "yargs": "^14.0.0",
