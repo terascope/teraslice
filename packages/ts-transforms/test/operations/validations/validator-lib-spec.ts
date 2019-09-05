@@ -259,7 +259,6 @@ describe('validator lib', () => {
     });
 
     it('can call the currency method', () => {
-        // @ts-ignore
         const opConfig: PostProcessConfig = {
             follow: 'someId',
             source_field: 'field',

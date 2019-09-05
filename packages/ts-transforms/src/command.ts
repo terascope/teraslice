@@ -1,11 +1,11 @@
+
 import yargs from 'yargs';
 import path from 'path';
 import fs from 'fs';
 import readline from 'readline';
 import {
-    DataEntity, debugLogger, parseList, AnyObject
+    DataEntity, debugLogger, parseList, AnyObject, get, TSError
 } from '@terascope/utils';
-import _ from 'lodash';
 import { PhaseManager } from './index';
 import { PhaseConfig } from './interfaces';
 
@@ -87,9 +87,7 @@ function getPipedData(): Promise<string> {
     return new Promise((resolve, reject) => {
         let strResults = '';
         if (process.stdin.isTTY) {
-            // FIXME don't reject with a string
-            // eslint-disable-next-line prefer-promise-reject-errors
-            reject('please pipe an elasticsearch response or provide the data parameter -d with path to data file');
+            reject(new TSError('please pipe an elasticsearch response or provide the data parameter -d with path to data file'));
             return;
         }
         process.stdin.resume();
@@ -117,22 +115,11 @@ function parseData(data: string): object[] | null {
 
     // handle ldjson
     const results: object[] = [];
-    const lines = _.split(data, '\n');
-    for (let i = 0; i < lines.length; i++) {
-        const line = (lines[i].trim());
-        // if its not an empty space or a comment then parse it
-        if (line.length > 0 && line[0] !== '#') {
-            try {
-                results.push(JSON.parse(line));
-            } catch (err) {
-                const errorMsg = `Failed to parse line ${i + 1} -- "${line}"`;
-                if (ignoreErrors === true) {
-                    console.error(errorMsg);
-                } else {
-                    throw new Error(errorMsg);
-                }
-            }
-        }
+    const lines = data.split('\n');
+
+    for (const rawline of lines) {
+        const parsedData = parseLine(rawline);
+        if (parsedData != null) results.push(parsedData);
     }
 
     return results;
@@ -144,26 +131,26 @@ function toJSON(obj: AnyObject) {
 
 function handleParsedData(data: object[] | object): DataEntity<object>[] {
     // input from elasticsearch
-    const elasticSearchResults = _.get(data[0], 'hits.hits', null);
+    const elasticSearchResults = get(data[0], 'hits.hits', null);
     if (elasticSearchResults) {
         return elasticSearchResults.map((doc: ESData) => DataEntity.make(doc._source));
     }
     // input from teraserver
-    const teraserverResults = _.get(data[0], 'results', null);
+    const teraserverResults = get(data[0], 'results', null);
     if (teraserverResults) {
         return DataEntity.makeArray(teraserverResults);
     }
 
     if (Array.isArray(data)) return DataEntity.makeArray(data);
 
-    throw new Error('no data was received to parse');
+    throw new TSError('no data was received to parse');
 }
 
 async function getData(dataFilePath?: string) {
     const rawData = dataFilePath ? await dataFileLoader(dataFilePath) : await getPipedData();
     const parsedData = parseData(rawData);
     if (!parsedData) {
-        throw new Error('could not get data, please provide a data file or pipe an elasticsearch request');
+        throw new TSError('could not get data, please provide a data file or pipe an elasticsearch request');
     }
 
     return handleParsedData(parsedData);
@@ -180,10 +167,15 @@ function parseLine(str: string) {
             if (ignoreErrors === true) {
                 console.error(errorMsg);
             } else {
-                throw new Error(errorMsg);
+                throw new TSError(errorMsg);
             }
         }
     }
+}
+
+function outputData(results: AnyObject[]) {
+    const output = `${results.map(toJSON).join('\n')}\n`;
+    process.stdout.write(output);
 }
 
 async function transformIO(manager: PhaseManager) {
@@ -208,19 +200,21 @@ async function transformIO(manager: PhaseManager) {
                 if (data.length >= batchSize) {
                     const results = manager.run(data);
                     data = [];
-                    const output = `${results.map(toJSON).join('\n')}\n`;
-                    process.stdout.write(output);
+                    outputData(results);
                 }
             });
 
             rl.on('close', () => {
                 if (data.length > 0) {
                     const results = manager.run(data);
-                    data = [];
-                    const output = `${results.map(toJSON).join('\n')}\n`;
-                    process.stdout.write(output);
                     if (command.perf) console.timeEnd('execution-time');
+                    data = [];
+                    outputData(results);
                     return resolve(true);
+                }
+
+                if (data.length === 0 && command.perf) {
+                    console.timeEnd('execution-time');
                 }
             });
         } catch (err) {
@@ -262,8 +256,7 @@ async function initCommand() {
 
             const results = manager.run(data);
             if (command.perf) console.timeEnd('execution-time');
-            const output = results.map(toJSON).join('\n');
-            process.stdout.write(output);
+            outputData(results);
         }
     } catch (err) {
         console.error(err);
