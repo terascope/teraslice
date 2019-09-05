@@ -5,15 +5,15 @@ import { MacAddress } from '../../../src/operations';
 describe('MacAddress validation', () => {
     it('can instantiate', () => {
         const opConfig = {
-            follow: 'someId', source_field: 'someField', target_field: 'someField', __id: 'someId'
+            follow: 'someId', source: 'someField', target: 'someField', __id: 'someId'
         };
         expect(() => new MacAddress(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
-        const badConfig1 = { source_field: 1324 };
-        const badConfig2 = { source_field: '' };
-        const badConfig3 = { source_field: {} };
+        const badConfig1 = { source: 1324 };
+        const badConfig2 = { source: '' };
+        const badConfig3 = { source: {} };
         const badConfig4 = {};
         // @ts-ignore
         expect(() => new MacAddress(badConfig1)).toThrow();
@@ -27,12 +27,12 @@ describe('MacAddress validation', () => {
 
     it('can validate MacAddress fields', () => {
         const opConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = new MacAddress(opConfig);
 
         const opConfig2 = {
-            follow: 'someId', source_field: 'field', target_field: 'field', preserve_colons: true, __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', preserve_colons: true, __id: 'someId'
         };
         const test2 = new MacAddress(opConfig2);
 

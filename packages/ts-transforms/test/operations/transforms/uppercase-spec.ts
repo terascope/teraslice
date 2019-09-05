@@ -5,15 +5,15 @@ import { Uppercase } from '../../../src/operations';
 describe('transform operator', () => {
     it('can instantiate', () => {
         const opConfig = {
-            target_field: 'someField', source_field: 'someField', __id: 'someId', follow: 'otherId'
+            target: 'someField', source: 'someField', __id: 'someId', follow: 'otherId'
         };
         expect(() => new Uppercase(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
-        const badConfig1 = { source_field: 1324 };
-        const badConfig2 = { target_field: [] };
-        const badConfig3 = { source_field: false, target_field: 'someField' };
+        const badConfig1 = { source: 1324 };
+        const badConfig2 = { target: [] };
+        const badConfig3 = { source: false, target: 'someField' };
         const badConfig4 = {};
         // @ts-ignore
         expect(() => new Uppercase(badConfig1)).toThrow();
@@ -27,7 +27,7 @@ describe('transform operator', () => {
 
     it('can transform strings to Uppercase', () => {
         const opConfig = {
-            source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId'
+            source: 'someField', target: 'someField', __id: 'someId', follow: 'otherId'
         };
         const test = new Uppercase(opConfig);
 

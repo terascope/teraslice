@@ -1,1 +1,1 @@
-{ "target_field": "wasSet", "exp": "true" }
+{ "target": "wasSet", "exp": "true" }

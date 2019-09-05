@@ -4,15 +4,15 @@ import { Email } from '../../../src/operations';
 describe('email validation', () => {
     it('can instantiate', () => {
         const opConfig = {
-            source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId'
+            source: 'someField', target: 'someField', __id: 'someId', follow: 'otherId'
         };
         expect(() => new Email(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
-        const badConfig1 = { source_field: 1324 };
-        const badConfig2 = { source_field: '' };
-        const badConfig3 = { source_field: {} };
+        const badConfig1 = { source: 1324 };
+        const badConfig2 = { source: '' };
+        const badConfig3 = { source: {} };
         const badConfig4 = {};
         // @ts-ignore
         expect(() => new Email(badConfig1)).toThrow();
@@ -26,7 +26,7 @@ describe('email validation', () => {
 
     it('can validate email fields', () => {
         const opConfig = {
-            source_field: 'uri', target_field: 'uri', __id: 'someId', follow: 'otherId'
+            source: 'uri', target: 'uri', __id: 'someId', follow: 'otherId'
         };
         const test = new Email(opConfig);
         const metaData = { selectors: { 'some:query': true } };
@@ -80,7 +80,7 @@ describe('email validation', () => {
 
     it('can validate nested fields', async () => {
         const opConfig = {
-            source_field: 'person.email', target_field: 'person.email', __id: 'someId', follow: 'otherId'
+            source: 'person.email', target: 'person.email', __id: 'someId', follow: 'otherId'
         };
         const test = new Email(opConfig);
 
@@ -104,7 +104,7 @@ describe('email validation', () => {
 
     it('can validate uncommon email fields', () => {
         const opConfig = {
-            source_field: 'uri', target_field: 'uri', __id: 'someId', follow: 'otherId'
+            source: 'uri', target: 'uri', __id: 'someId', follow: 'otherId'
         };
         const test = new Email(opConfig);
         const metaData = { selectors: { 'some:query': true } };

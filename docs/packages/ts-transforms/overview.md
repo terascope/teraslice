@@ -159,7 +159,7 @@ If you do not specify a selector and it's not a post_process or validation then 
 `rulefile.txt`
 
 ```json
-{ "source_field": "data", "target_field": "final" }
+{ "source": "data", "target": "final" }
 ```
 
 ```js
@@ -191,11 +191,11 @@ This phase will go through all the configurations and apply all the extractions 
 ```ts
 // rules
 
-{ "selector": "hello:world", "source_field": "first", "target_field": "first_name" }
-{ "selector": "hello:world", "source_field": "last", "target_field": "last_name" }
+{ "selector": "hello:world", "source": "first", "target": "first_name" }
+{ "selector": "hello:world", "source": "last", "target": "last_name" }
 
-{ "selector": "some:data", "source_field": "first", "target_field": "other_first" }
-{ "selector": "some:data", "source_field": "last", "target_field": "other_last" }
+{ "selector": "some:data", "source": "first", "target": "other_first" }
+{ "selector": "some:data", "source": "last", "target": "other_last" }
 
 // Incoming Data to transform
 [
@@ -217,18 +217,18 @@ This phase will go through all the configurations and apply all the extractions 
 
 ### Post Process Phase
 
-This phase is for any additional processing that needs to occur after extraction. Each `post_process` configuration affects the `target_field` of the chained configuration if you use the `tags` and `follow` parameters. You can chain multiple times if needed. This phase also includes `validation` operations and can be freely chained to each other.
+This phase is for any additional processing that needs to occur after extraction. Each `post_process` configuration affects the `target` of the chained configuration if you use the `tags` and `follow` parameters. You can chain multiple times if needed. This phase also includes `validation` operations and can be freely chained to each other.
 
-- **tags** = an array of tags that marks the config and the target_field with an ID so other configurations can chain off of it
-- **tag** = marks the config and the target_field with an ID so other configurations can chain off of it
+- **tags** = an array of tags that marks the config and the target with an ID so other configurations can chain off of it
+- **tag** = marks the config and the target with an ID so other configurations can chain off of it
 - **follow** = marks the config that it is chaining off the tag id
 
 ```ts
 // rules
-{ "selector": "some:value", "source_field": "field", "target_field": "newField", "tag": "tag_field" }
+{ "selector": "some:value", "source": "field", "target": "newField", "tag": "tag_field" }
 { "follow": "tag_field", "validation": "email", "tag": "valid_email" }
-{ "follow": "valid_email", "post_process": "extraction", "start": "@", "end": ".", "output": false, "target_field": "secondary", "tag": "finalTag" }
-{ "follow": "finalTag", "post_process": "array", "target_field": "final" }
+{ "follow": "valid_email", "post_process": "extraction", "start": "@", "end": ".", "output": false, "target": "secondary", "tag": "finalTag" }
+{ "follow": "finalTag", "post_process": "array", "target": "final" }
 
 // Incoming Data to transform
 [
@@ -257,9 +257,9 @@ The rules file must be in ldjson format. Which is json data separated by a new l
 `transformrules.txt`
 
 ```json
-{ "selector": "host:google.com", "source_field": "field1", "start": "field1=", "end": "EOP", "target_field": "field1", "tag": "decodeMe" }
+{ "selector": "host:google.com", "source": "field1", "start": "field1=", "end": "EOP", "target": "field1", "tag": "decodeMe" }
 { "follow": "decodeMe", "post_process": "base64decode" }
-{ "source_field": "date", "target_field": "date", "other_match_required": true }
+{ "source": "date", "target": "date", "other_match_required": true }
 ```
 
 - Matcher:
@@ -349,9 +349,9 @@ This will not only select for matching records based on the selector but it can 
 Example rules file:
 
 ```json
-{ "selector": "hello:world", "source_field": "first", "target_field": "first_name", "tag": "field" }
-{ "selector": "hello:world", "source_field": "last", "target_field": "last_name", "tag": "field" }
-{ "follow": "field", "post_process": "join", "fields": ["first_name", "last_name"], "delimiter": " ", "target_field": "full_name" }
+{ "selector": "hello:world", "source": "first", "target": "first_name", "tag": "field" }
+{ "selector": "hello:world", "source": "last", "target": "last_name", "tag": "field" }
+{ "follow": "field", "post_process": "join", "fields": ["first_name", "last_name"], "delimiter": " ", "target": "full_name" }
 ```
 
 ```js

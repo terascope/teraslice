@@ -83,8 +83,8 @@ describe('Loader', () => {
         const configList = [
             {
                 selector: 'hello:world',
-                source_field: 'first',
-                target_field: 'first_name',
+                source: 'first',
+                target: 'first_name',
                 validation: 'string'
             },
             {
@@ -92,33 +92,33 @@ describe('Loader', () => {
                 post_process: 'join',
                 fields: ['first_name', 'last_name'],
                 delimiter: ' ',
-                target_field: 'full_name'
+                target: 'full_name'
             }
         ];
 
         expect(() => parseData(configList)).toThrowError();
     });
 
-    it('will convert source => source_fields, target => target_fields', () => {
+    it('will convert source_field => source, target_fields => target', () => {
         const configList = [
             {
                 selector: 'hello:world',
-                source: 'first',
-                target: 'first_name',
+                source_field: 'first',
+                target_field: 'first_name',
                 tag: 'someTag'
             },
             {
                 follow: 'someTag',
-                target: 'full_name',
+                target_field: 'full_name',
                 exp: 'true'
             }
         ];
 
         const [selectorConfig, postConfig] = parseData(configList);
 
-        expect(selectorConfig.source_field).toEqual(configList[0].source);
-        expect(selectorConfig.target_field).toEqual(configList[0].target);
+        expect(selectorConfig.source).toEqual(configList[0].source_field);
+        expect(selectorConfig.target).toEqual(configList[0].target_field);
 
-        expect(postConfig.target_field).toEqual(configList[1].target);
+        expect(postConfig.target).toEqual(configList[1].target_field);
     });
 });

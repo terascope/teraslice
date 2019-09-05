@@ -105,7 +105,7 @@ function normalizeConfig(
 
     return configList.reduce((list, config) => {
         if (hasPostProcess(config)) {
-            const targetField = config.target_field;
+            const targetField = config.target;
             // we search inside the list of altered normalized configs.
             // This works becuase topsort orders them
             const fieldsConfigs = findConfigs(config, list, tagMapping);
@@ -114,9 +114,9 @@ function normalizeConfig(
             } else {
                 const [pipeline] = fieldsConfigs.map((obj) => obj.pipeline);
                 config.__pipeline = pipeline;
-                config.source_fields = [...new Set(fieldsConfigs.map((obj) => obj.source))];
+                config.sources = [...new Set(fieldsConfigs.map((obj) => obj.source))];
                 if (targetField && !Array.isArray(targetField)) {
-                    config.target_field = targetField;
+                    config.target = targetField;
                 } else {
                     checkForTarget(config);
                 }
@@ -145,12 +145,12 @@ function findConfigs(
     const results: FieldSourceConfigs[] = [];
 
     configList
-        .filter((obj) => nodeIds.includes(obj.__id) && has(obj, 'target_field'))
+        .filter((obj) => nodeIds.includes(obj.__id) && has(obj, 'target'))
         .forEach((obj) => {
             if (!mapping[obj.__id]) {
                 mapping[obj.__id] = true;
                 const pipeline = obj.__pipeline || obj.selector;
-                results.push({ pipeline: pipeline as string, source: obj.target_field as string });
+                results.push({ pipeline: pipeline as string, source: obj.target as string });
             }
         });
 
@@ -183,13 +183,13 @@ function createMatchingConfig(
             }
         }
 
-        if (!resultsObj.source_field) resultsObj.source_field = obj.source;
-        if (config.target_field === undefined) {
-            resultsObj.target_field = obj.source;
-        } else if (Array.isArray(config.target_field)) {
-            resultsObj.target_field = config.target_field[index];
+        if (!resultsObj.source) resultsObj.source = obj.source;
+        if (config.target === undefined) {
+            resultsObj.target = obj.source;
+        } else if (Array.isArray(config.target)) {
+            resultsObj.target = config.target[index];
         } else {
-            resultsObj.target_field = config.target_field;
+            resultsObj.target = config.target;
         }
 
         checkForSource(resultsObj as OperationConfig);
@@ -214,8 +214,8 @@ function validateOtherMatchRequired(configDict: ExtractionProcessingDict, logger
 }
 
 function checkForSource(config: OperationConfig) {
-    if (!config.source_field
-        && (config.source_fields == null || config.source_fields.length === 0)) {
+    if (!config.source
+        && (config.sources == null || config.sources.length === 0)) {
         throw new Error(`could not find source fields for config ${JSON.stringify(config)}`);
     }
 }
@@ -228,7 +228,7 @@ function isOneToOne(opsManager: OperationsManager, config: OperationConfig): boo
 }
 
 function checkForTarget(config: OperationConfig) {
-    if (!config.target_field) {
+    if (!config.target) {
         throw new Error(`could not find target fields for config ${JSON.stringify(config)}`);
     }
 }
@@ -276,7 +276,7 @@ export function isSimplePostProcessConfig(config: Config) {
 }
 
 export function hasExtractions(config: Config) {
-    return has(config, 'source_field') || has(config, 'exp');
+    return has(config, 'source') || has(config, 'exp');
 }
 
 function hasPrimaryExtractions(config: Config) {
@@ -312,12 +312,12 @@ function createResults(list: OperationConfig[]): ValidationResults {
         duplicateListing[config.__id] = true;
 
         if (hasOutputRestrictions(config)) {
-            const key = config.target_field || config.source_field;
+            const key = config.target || config.source;
             output.restrictOutput[key as string] = true;
         }
 
         if (hasMatchRequirements(config)) {
-            const key = config.target_field || config.source_field;
+            const key = config.target || config.source;
             output.matchRequirements[key as string] = config.selector as string;
         }
 

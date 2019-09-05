@@ -84,13 +84,13 @@ function extractAndTransferFields(
         } else {
             extractedResult = data;
         }
-    } else if (config.exp && config.source_field === undefined) {
+    } else if (config.exp && config.source === undefined) {
         // this should be a set operation
         extractedResult = jexl.evalSync(config.exp, origin);
     }
 
     if (extractedResult !== undefined && extractedResult !== null) {
-        set(dest, config.target_field, extractedResult);
+        set(dest, config.target, extractedResult);
         dest.setMetadata('hasExtractions', true);
     }
 }
@@ -101,9 +101,9 @@ function hasExtracted(record: DataEntity) {
 
 function getData(config: ExtractionConfig, record: DataEntity) {
     if (config.deepSourceField) {
-        return get(record, config.source_field as string);
+        return get(record, config.source as string);
     }
-    return record[config.source_field as string];
+    return record[config.source as string];
 }
 
 export default class Extraction {
@@ -125,7 +125,7 @@ export default class Extraction {
 
         configs = configs.map((config) => {
             if (config.end === 'EOP') config.end = '&';
-            if (config.source_field && config.source_field.includes('.')) config.deepSourceField = true;
+            if (config.source && config.source.includes('.')) config.deepSourceField = true;
             return config;
         });
 

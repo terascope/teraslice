@@ -5,15 +5,15 @@ import { PostProcessConfig } from '../../../src/interfaces';
 describe('Uuid validation', () => {
     it('can instantiate', () => {
         const opConfig = {
-            follow: 'someId', source_field: 'someField', target_field: 'someField', __id: 'someId'
+            follow: 'someId', source: 'someField', target: 'someField', __id: 'someId'
         };
         expect(() => new Uuid(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
-        const badConfig1 = { source_field: 1324 };
-        const badConfig2 = { source_field: '' };
-        const badConfig3 = { source_field: {} };
+        const badConfig1 = { source: 1324 };
+        const badConfig2 = { source: '' };
+        const badConfig3 = { source: {} };
         const badConfig4 = {};
         // @ts-ignore
         expect(() => new Uuid(badConfig1)).toThrow();
@@ -27,7 +27,7 @@ describe('Uuid validation', () => {
 
     it('can validate Uuid fields', () => {
         const opConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = new Uuid(opConfig);
 
@@ -79,14 +79,14 @@ describe('Uuid validation', () => {
 
     it('can normailize the data', () => {
         const opConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = new Uuid(opConfig);
 
         const opConfig2: PostProcessConfig = {
             follow: 'someId',
-            source_field: 'field',
-            target_field: 'field',
+            source: 'field',
+            target: 'field',
             case: 'uppercase',
             __id: 'someId',
         };

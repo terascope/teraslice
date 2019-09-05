@@ -1037,7 +1037,7 @@ describe('can transform matches', () => {
         ]);
     });
 
-    it('can transform with source/target instead of source_field/target_field', async () => {
+    it('can transform with source/target instead of source/target', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules39.txt')],
         };

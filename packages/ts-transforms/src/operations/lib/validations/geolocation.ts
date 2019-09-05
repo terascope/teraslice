@@ -13,7 +13,7 @@ export default class Geolocation extends ValidationOpBase<any> {
         this.destination = this.target || this.source;
         // console.log('source', this.source, this.target)
         // TODO: fix this overwriting, this checks if its a compact config
-        // if (config.target_field && config.source_field) {
+        // if (config.target && config.source) {
         //     this.hasTarget = false;
         //     this.destination = this.source;
         // }

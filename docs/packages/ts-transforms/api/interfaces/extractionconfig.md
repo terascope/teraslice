@@ -21,9 +21,9 @@ sidebar_label: ExtractionConfig
 * [other_match_required](extractionconfig.md#optional-other_match_required)
 * [output](extractionconfig.md#optional-output)
 * [regex](extractionconfig.md#optional-regex)
-* [source_field](extractionconfig.md#source_field)
+* [source](extractionconfig.md#source)
 * [start](extractionconfig.md#optional-start)
-* [target_field](extractionconfig.md#target_field)
+* [target](extractionconfig.md#target)
 
 ## Properties
 
@@ -91,9 +91,9 @@ ___
 
 ___
 
-###  source_field
+###  source
 
-• **source_field**: *string*
+• **source**: *string*
 
 *Defined in [interfaces.ts:66](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L66)*
 
@@ -107,8 +107,8 @@ ___
 
 ___
 
-###  target_field
+###  target
 
-• **target_field**: *string*
+• **target**: *string*
 
 *Defined in [interfaces.ts:67](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L67)*

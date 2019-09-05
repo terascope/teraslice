@@ -28,8 +28,8 @@ export default class RulesParser {
                 config.post_process = 'extraction';
             }
 
-            if (config.target) config.target_field = config.target;
-            if (config.source) config.source_field = config.source;
+            if (config.target_field) config.target = config.target_field;
+            if (config.source_field) config.source = config.source_field;
 
             if (isDeprecatedCompactConfig(config)) {
                 const errStr = [

@@ -24,9 +24,9 @@ export default class OperationBase {
         // we don't need to check target or source for selector ops
         if (this.constructor.name === 'Selector') return;
         const {
-            target_field: targetField,
-            source_field: sField,
-            source_fields: sFields
+            target: targetField,
+            source: sField,
+            sources: sFields
         } = config;
         // @ts-ignore
         this.source = sField || sFields;

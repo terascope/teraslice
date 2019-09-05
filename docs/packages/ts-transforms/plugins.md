@@ -40,7 +40,7 @@ module.exports = Plugin;
 `pluginRules.txt`
 
 ```json
-{ "selector": "size:2", "source_field": "size", "target_field": "height", "tag": "pluginTag" }
+{ "selector": "size:2", "source": "size", "target": "height", "tag": "pluginTag" }
 { "follow": "pluginTag", "post_process": "double" }
 ```
 
@@ -79,7 +79,7 @@ The returning class must have a `run` method which is called by the framework an
 
 Errors must not interupt the pipeline
 
-The configuration `source_field` and `target_field` are set to `this.source` and `this.target` respectively
+The configuration `source` and `target` are set to `this.source` and `this.target` respectively
 
 **Example:**
 
@@ -115,7 +115,7 @@ It is constant to inherit  = require( the ValidationOpBase class if at all possi
 
 The returning class must have a `run` method (which is done through the ValidationOpBase class). If you are using the base class then you need to specify a `validate` method which takes in the value of the source key and must return a boolen if it is valid. You may also specify a `normalize` method which will alter the data before it hits the `validate` method. This will also normalize the output record itself
 
-The configuration `source_field` and `target_field` are set to `this.source` and `this.target` respectively
+The configuration `source` and `target` are set to `this.source` and `this.target` respectively
 
 **Example:**
 
@@ -152,7 +152,7 @@ module.exports = MacAddress;
 
 #### Operation Cardinality
 
-Each operation is designed for a specify task. These operations work either work on a single input, several inputs (like the join operator) and return a single output. To differentiate the operators and to determine at validation time if the operator can take in multiple outputs each class must have a static varialble labeling what it is meant to do. The options are either `one-to-one` or `many-to-one`. If by using the tag/follow rules a `one-to-one` has several inputs then it will be cloned as many times as there are inputs so that each operation will have a single input. A `many-to-one` will take multiple outputs and set it at `source_fields` (note that it is the plural form). If you inherit  = require( the base clase then it will default to `one-to-one`.
+Each operation is designed for a specify task. These operations work either work on a single input, several inputs (like the join operator) and return a single output. To differentiate the operators and to determine at validation time if the operator can take in multiple outputs each class must have a static varialble labeling what it is meant to do. The options are either `one-to-one` or `many-to-one`. If by using the tag/follow rules a `one-to-one` has several inputs then it will be cloned as many times as there are inputs so that each operation will have a single input. A `many-to-one` will take multiple outputs and set it at `sources` (note that it is the plural form). If you inherit the base clase then it will default to `one-to-one`.
 
 ```js
 // the none inherited version of a plugin
@@ -165,7 +165,7 @@ class Double {
 
     run(doc) {
         // @ts-ignore
-        doc[this.config.source_field] = doc[this.config.source_field] * 2;
+        doc[this.config.source] = doc[this.config.source] * 2;
         return doc;
     }
 }
@@ -180,10 +180,10 @@ class MakeArray {
     static cardinality = 'many-to-one';
 
     constructor(config:) {
-        // this will look for the fields config or look for the multi input located at source_fields
-        const fields = config.fields || config.source_fields;
+        // this will look for the fields config or look for the multi input located at sources
+        const fields = config.fields || config.sources;
         this.fields = fields;
-        this.target = config.target_field;
+        this.target = config.target;
     }
 
     run(doc) {
