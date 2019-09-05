@@ -1,6 +1,7 @@
 import path from 'path';
 import pkgUp from 'pkg-up';
 import fse from 'fs-extra';
+import defaultsDeep from 'lodash.defaultsdeep';
 import { isPlainObject, get } from '@terascope/utils';
 import sortPackageJson from 'sort-package-json';
 import { PackageInfo, RootPackageInfo } from './interfaces';
@@ -36,19 +37,7 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
     const dir = path.dirname(pkgJSONPath);
     const folderName = path.basename(dir);
 
-    const terascopeConfig = Object.assign({
-        root: isRoot,
-        type: 'monorepo',
-        docker: {
-            registry: `terascope/${folderName}`,
-            cache_layers: [],
-        },
-        npm: {
-            registry: NPM_DEFAULT_REGISTRY
-        }
-    }, pkg.terascope);
-
-    return sortPackageJson(Object.assign({
+    return sortPackageJson(defaultsDeep(pkg, {
         dir,
         folderName,
         displayName: getName(pkg.name),
@@ -57,8 +46,18 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
         bugs: {
             url: '',
         },
-        terascope: terascopeConfig,
-    }, pkg));
+        terascope: {
+            root: isRoot,
+            type: 'monorepo',
+            docker: {
+                registry: `terascope/${folderName}`,
+                cache_layers: [],
+            },
+            npm: {
+                registry: NPM_DEFAULT_REGISTRY
+            }
+        },
+    }));
 }
 
 let _rootInfo: RootPackageInfo;
