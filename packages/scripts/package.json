@@ -28,7 +28,7 @@
     },
     "dependencies": {
         "@lerna/query-graph": "^3.14.0",
-        "@terascope/utils": "^0.17.1",
+        "@terascope/utils": "^0.18.0",
         "@types/is-ci": "^2.0.0",
         "codecov": "^3.5.0",
         "execa": "^2.0.4",

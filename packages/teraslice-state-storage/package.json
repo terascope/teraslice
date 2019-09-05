@@ -24,7 +24,7 @@
     },
     "dependencies": {
         "@terascope/elasticsearch-api": "^2.1.5",
-        "@terascope/utils": "^0.17.1",
+        "@terascope/utils": "^0.18.0",
         "bluebird": "^3.5.5",
         "mnemonist": "^0.30.0"
     },
