@@ -184,21 +184,6 @@
             },
             {
                 "type": "subcategory",
-                "label": "data-access",
-                "ids": [
-                    "packages/data-access/overview",
-                    "packages/data-access/api/overview"
-                ]
-            },
-            {
-                "type": "subcategory",
-                "label": "data-access-plugin",
-                "ids": [
-                    "packages/data-access-plugin/overview"
-                ]
-            },
-            {
-                "type": "subcategory",
                 "label": "docker-compose-js",
                 "ids": [
                     "packages/docker-compose-js/overview"
