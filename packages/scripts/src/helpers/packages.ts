@@ -5,7 +5,7 @@ import { uniq, fastCloneDeep, get } from '@terascope/utils';
 // @ts-ignore
 import QueryGraph from '@lerna/query-graph';
 import sortPackageJson from 'sort-package-json';
-import { getName, getRootDir, writeIfChanged } from './misc';
+import * as misc from './misc';
 import * as i from './interfaces';
 
 let _packages: i.PackageInfo[] = [];
@@ -14,8 +14,8 @@ let _e2eDir: string|undefined;
 export function getE2EDir(): string|undefined {
     if (_e2eDir) return _e2eDir;
 
-    if (fs.existsSync(path.join(getRootDir(), 'e2e'))) {
-        _e2eDir = path.join(getRootDir(), 'e2e');
+    if (fs.existsSync(path.join(misc.getRootDir(), 'e2e'))) {
+        _e2eDir = path.join(misc.getRootDir(), 'e2e');
         return _e2eDir;
     }
 
@@ -25,7 +25,7 @@ export function getE2EDir(): string|undefined {
 export function listPackages(): i.PackageInfo[] {
     if (_packages && _packages.length) return _packages.slice();
 
-    const packagesPath = path.join(getRootDir(), 'packages');
+    const packagesPath = path.join(misc.getRootDir(), 'packages');
     if (!fs.existsSync(packagesPath)) {
         return [];
     }
@@ -66,7 +66,7 @@ export function addPackageConfig(pkgInfo: i.PackageInfo): void {
 export function readPackageInfo(folderPath: string): i.PackageInfo {
     const dir = path.isAbsolute(folderPath)
         ? path.join(folderPath)
-        : path.join(getRootDir(), folderPath);
+        : path.join(misc.getRootDir(), folderPath);
 
     const pkgJSONPath = path.join(dir, 'package.json');
     const pkgJSON = getSortedPkgJSON(fse.readJSONSync(pkgJSONPath));
@@ -92,16 +92,37 @@ export function updatePkgInfo(pkgInfo: i.PackageInfo): void {
     if (!pkgInfo.dir) {
         throw new Error('Missing dir on package.json reference');
     }
+
     if (!pkgInfo.terascope) pkgInfo.terascope = {};
     if (pkgInfo.terascope.enableTypedoc && !fs.existsSync(path.join(pkgInfo.dir, 'tsconfig.json'))) {
         pkgInfo.terascope.enableTypedoc = false;
     }
 
+    const rootInfo = misc.getRootInfo();
+
+    if (!pkgInfo.private) {
+        if (!pkgInfo.publishConfig) {
+            pkgInfo.publishConfig = {
+                access: 'public',
+                registry: rootInfo.terascope.npm.registry,
+            };
+        } else {
+            Object.assign(pkgInfo.publishConfig, {
+                access: 'public',
+                registry: rootInfo.terascope.npm.registry,
+            });
+        }
+    } else {
+        delete pkgInfo.publishConfig;
+    }
+
     pkgInfo.folderName = path.basename(pkgInfo.dir);
     addPackageConfig(pkgInfo);
+
     if (!pkgInfo.displayName) {
-        pkgInfo.displayName = getName(pkgInfo.folderName);
+        pkgInfo.displayName = misc.getName(pkgInfo.folderName);
     }
+
     if (!pkgInfo.license) {
         pkgInfo.license = 'MIT';
     }
@@ -118,7 +139,7 @@ export function updatePkgJSON(
     const pkgJSON = getSortedPkgJSON(pkgInfo);
     delete pkgJSON.folderName;
     delete pkgJSON.dir;
-    return writeIfChanged(path.join(pkgInfo.dir, 'package.json'), pkgJSON, {
+    return misc.writeIfChanged(path.join(pkgInfo.dir, 'package.json'), pkgJSON, {
         log,
     });
 }

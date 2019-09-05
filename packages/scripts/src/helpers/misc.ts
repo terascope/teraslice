@@ -31,6 +31,7 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
     const pkg = fse.readJSONSync(pkgJSONPath);
     const isRoot = get(pkg, 'terascope.root', false);
     if (!isRoot) return undefined;
+
     const dir = path.dirname(pkgJSONPath);
     const folderName = path.basename(dir);
 
@@ -41,6 +42,9 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
             registry: `terascope/${folderName}`,
             cache_layers: [],
         },
+        npm: {
+            registry: 'https://registry.npmjs.org/'
+        }
     }, pkg.terascope);
 
     return sortPackageJson(Object.assign({
@@ -56,8 +60,12 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
     }, pkg));
 }
 
-export function getRootInfo() {
-    return _getRootInfo(path.join(getRootDir(), 'package.json'))!;
+let _rootInfo: RootPackageInfo;
+
+export function getRootInfo(): RootPackageInfo {
+    if (_rootInfo) return _rootInfo;
+    _rootInfo = _getRootInfo(path.join(getRootDir(), 'package.json'))!;
+    return _rootInfo;
 }
 
 export function getName(input: string): string {
