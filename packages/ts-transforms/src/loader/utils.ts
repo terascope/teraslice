@@ -1,6 +1,6 @@
-import _ from 'lodash';
+
 import graphlib from 'graphlib';
-import { Logger } from '@terascope/utils';
+import { Logger, cloneDeep, has } from '@terascope/utils';
 import shortid from 'shortid';
 import { OperationsManager } from '../index';
 
@@ -66,7 +66,7 @@ export function parseConfig(
     });
 
     // config may be out of order so we build edges after the fact on post processors
-    _.forOwn(graphEdges, (ids, key) => {
+    for (const [key, ids] of Object.entries(graphEdges)) {
         ids.forEach((id) => {
             const matchingTags: string[] = tagMapping[key];
             if (matchingTags == null) {
@@ -74,7 +74,7 @@ export function parseConfig(
             }
             matchingTags.forEach((tag) => graph.setEdge(tag, id));
         });
-    });
+    }
 
     const cycles = findCycles(graph);
     if (cycles.length > 0) {
@@ -145,7 +145,7 @@ function findConfigs(
     const results: FieldSourceConfigs[] = [];
 
     configList
-        .filter((obj) => nodeIds.includes(obj.__id) && _.has(obj, 'target_field'))
+        .filter((obj) => nodeIds.includes(obj.__id) && has(obj, 'target_field'))
         .forEach((obj) => {
             if (!mapping[obj.__id]) {
                 mapping[obj.__id] = true;
@@ -154,7 +154,7 @@ function findConfigs(
             }
         });
 
-    if (!_.some(results, 'source')) throw new Error(`could not find source field for config ${JSON.stringify(config)}`);
+    if (!(results.some((obj) => obj.source != null))) throw new Error(`could not find source field for config ${JSON.stringify(config)}`);
     return results;
 }
 
@@ -164,7 +164,7 @@ function createMatchingConfig(
     tagMapping: StateDict
 ): OperationConfig[] {
     // we clone the original to preserve the __id in reference to tag mappings and the like
-    const original = _.cloneDeep(config);
+    const original = cloneDeep(config);
     return fieldsConfigs.map((obj: FieldSourceConfigs, index: number) => {
         let resultsObj: Partial<OperationConfig> = {};
         const pipelineConfig = { __pipeline: obj.pipeline };
@@ -200,7 +200,7 @@ function createMatchingConfig(
 }
 
 function validateOtherMatchRequired(configDict: ExtractionProcessingDict, logger: Logger) {
-    _.forOwn(configDict, (opsList, selector) => {
+    for (const [selector, opsList] of Object.entries(configDict)) {
         const hasMatchRequired = opsList.find((op) => !!op.other_match_required) != null;
         if (hasMatchRequired && opsList.length === 1) {
             logger.warn(
@@ -210,7 +210,7 @@ function validateOtherMatchRequired(configDict: ExtractionProcessingDict, logger
             `.trim()
             );
         }
-    });
+    }
 }
 
 function checkForSource(config: OperationConfig) {
@@ -256,15 +256,15 @@ function isPostProcessType(config: Config, type: string) {
 }
 
 function hasSelector(config: Config) {
-    return _.has(config, 'selector');
+    return has(config, 'selector');
 }
 
 function hasFollow(config: Config) {
-    return _.has(config, 'follow');
+    return has(config, 'follow');
 }
 
 function hasPostProcess(config: Config): boolean {
-    return _.has(config, 'post_process') || _.has(config, 'validation');
+    return has(config, 'post_process') || has(config, 'validation');
 }
 
 export function isDeprecatedCompactConfig(config: Config): boolean {
@@ -272,11 +272,11 @@ export function isDeprecatedCompactConfig(config: Config): boolean {
 }
 
 export function isSimplePostProcessConfig(config: Config) {
-    return !_.has(config, 'follow') && hasPostProcess(config);
+    return !has(config, 'follow') && hasPostProcess(config);
 }
 
 export function hasExtractions(config: Config) {
-    return _.has(config, 'source_field');
+    return has(config, 'source_field') || has(config, 'exp');
 }
 
 function hasPrimaryExtractions(config: Config) {
@@ -288,7 +288,7 @@ function hasOutputRestrictions(config: Config) {
 }
 
 function hasMatchRequirements(config: Config) {
-    return _.has(config, 'other_match_required');
+    return has(config, 'other_match_required');
 }
 
 function createResults(list: OperationConfig[]): ValidationResults {
