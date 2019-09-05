@@ -1,4 +1,3 @@
-
 import { isString, isPlainObject, TSError } from '@terascope/job-components';
 import autoBind from 'auto-bind';
 import Client from './client';
