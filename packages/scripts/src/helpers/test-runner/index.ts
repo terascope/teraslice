@@ -13,12 +13,13 @@ import {
     getRootDir,
     getRootInfo
 } from '../misc';
-import { ensureServices, stopAllServices } from './services';
+import { ensureServices } from './services';
 import { PackageInfo, TestSuite } from '../interfaces';
 import { TestOptions } from './interfaces';
 import { runJest } from '../scripts';
 import * as utils from './utils';
 import signale from '../signale';
+import { getE2EDir } from '../packages';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -31,8 +32,6 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
     } catch (err) {
         errors = [getFullErrorStack(err)];
     }
-
-    await cleanUpIfNeeded(pkgInfos, options);
 
     let errorMsg = '';
     if (errors.length > 1) {
@@ -51,16 +50,6 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
     }
 
     process.exit(0);
-}
-
-async function cleanUpIfNeeded(pkgInfos: PackageInfo[], options: TestOptions) {
-    if (options.suite === TestSuite.E2E || !utils.onlyUnitTests(pkgInfos)) {
-        try {
-            await stopAllServices();
-        } catch (err) {
-            signale.error(new TSError(err, { reason: 'Failure stopping services' }));
-        }
-    }
 }
 
 async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
@@ -108,6 +97,7 @@ async function runTestSuite(
     pkgInfos: PackageInfo[],
     options: TestOptions
 ): Promise<string[]> {
+    if (suite === TestSuite.E2E) return [];
     let cleanup = () => {};
     const errors: string[] = [];
 
@@ -176,9 +166,13 @@ async function runTestSuite(
 async function runE2ETest(options: TestOptions): Promise<string[]> {
     let cleanup = () => {};
     const errors: string[] = [];
-    const e2eDir = path.join(getRootDir(), 'e2e');
     const suite = TestSuite.E2E;
     let startedTest = false;
+
+    const e2eDir = getE2EDir();
+    if (!e2eDir) {
+        throw new Error('Missing e2e test directory');
+    }
 
     try {
         cleanup = await ensureServices(suite, options);
@@ -187,7 +181,7 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
     }
 
     const rootInfo = getRootInfo();
-    const image = `${rootInfo.docker.image}:e2e`;
+    const image = `${rootInfo.terascope.docker.registry}:e2e`;
     if (!errors.length) {
         try {
             await utils.buildDockerImage(image);

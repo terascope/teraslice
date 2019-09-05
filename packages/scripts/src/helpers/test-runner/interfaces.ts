@@ -7,6 +7,7 @@ export type TestOptions = {
     all: boolean;
     reportCoverage: boolean;
     suite?: TestSuite;
+    useExistingServices: boolean;
     elasticsearchHost: string;
     elasticsearchVersion: string;
     elasticsearchAPIVersion: string;

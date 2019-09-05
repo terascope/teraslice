@@ -21,10 +21,10 @@
     },
     "dependencies": {},
     "devDependencies": {
-        "@terascope/data-access": "^0.14.1",
-        "@terascope/data-types": "^0.5.6",
+        "@terascope/data-access": "^0.15.0",
+        "@terascope/data-types": "^0.5.7",
         "@terascope/ui-components": "^0.3.8",
-        "@terascope/utils": "^0.17.0",
+        "@terascope/utils": "^0.17.1",
         "@types/convict": "^4.2.1",
         "@types/react": "16.9.2",
         "@types/react-dom": "16.9.0",
@@ -42,12 +42,12 @@
         "react-apollo": "^3.0.1",
         "react-dom": "^16.9.0",
         "react-router-dom": "^5.0.1",
-        "semantic-ui-react": "^0.87.2",
+        "semantic-ui-react": "^0.88.0",
         "style-loader": "^1.0.0",
         "ts-loader": "^6.0.3",
         "webpack": "^4.39.2",
         "webpack-cli": "^3.3.7",
-        "xlucene-evaluator": "^0.10.1"
+        "xlucene-evaluator": "^0.10.2"
     },
     "publishConfig": {
         "access": "public"

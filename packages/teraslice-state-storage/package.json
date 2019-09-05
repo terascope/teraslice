@@ -23,8 +23,8 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/elasticsearch-api": "^2.1.4",
-        "@terascope/utils": "^0.17.0",
+        "@terascope/elasticsearch-api": "^2.1.5",
+        "@terascope/utils": "^0.17.1",
         "bluebird": "^3.5.5",
         "mnemonist": "^0.30.0"
     },

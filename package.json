@@ -1,33 +1,35 @@
 {
     "name": "teraslice-workspace",
     "private": true,
-    "scripts": {
-        "start": "node service.js",
-        "setup": "lerna bootstrap --force-local && yarn build:cleanup dist && yarn build",
-        "cleanup": "./scripts/cleanup.sh",
-        "prebuild": "lerna run prebuild",
-        "build": "tsc --build",
-        "build:cleanup": "./scripts/build-cleanup.sh",
-        "build:all": "yarn build:cleanup && env FORCE_COLOR=1 lerna run build",
-        "build:pkg": "./scripts/build-pkg.sh",
-        "build:watch": "yarn run build --watch",
-        "benchmark": "lerna run --concurrency=1 --no-prefix --stream benchmark",
-        "sync": "ts-scripts sync",
-        "docs": "ts-scripts docs",
-        "bump": "ts-scripts bump",
-        "test": "ts-scripts test",
-        "lint": "yarn lint:es && yarn sync --verify",
-        "lint:es": "eslint --cache --ext .js,.jsx,.ts,.tsx .",
-        "lint:fix": "yarn lint:es --fix && yarn sync"
-    },
-    "displayName": "Teraslice",
     "homepage": "https://github.com/terascope/teraslice",
-    "documentation": "https://terascope.github.io/teraslice",
-    "dependencies": {
-        "terafoundation_kafka_connector": "~0.4.2"
-    },
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
+    },
+    "workspaces": [
+        "packages/*",
+        "e2e"
+    ],
+    "scripts": {
+        "benchmark": "lerna run --concurrency=1 --no-prefix --stream benchmark",
+        "prebuild": "lerna run prebuild",
+        "build": "tsc --build",
+        "build:all": "yarn build:cleanup && env FORCE_COLOR=1 lerna run build",
+        "build:cleanup": "./scripts/build-cleanup.sh",
+        "build:pkg": "./scripts/build-pkg.sh",
+        "build:watch": "yarn run build --watch",
+        "bump": "ts-scripts bump",
+        "cleanup": "./scripts/cleanup.sh",
+        "docs": "ts-scripts docs",
+        "lint": "yarn lint:es && yarn sync --verify",
+        "lint:es": "eslint --cache --ext .js,.jsx,.ts,.tsx .",
+        "lint:fix": "yarn lint:es --fix && yarn sync",
+        "setup": "lerna bootstrap --force-local && yarn build:cleanup dist && yarn build",
+        "start": "node service.js",
+        "sync": "ts-scripts sync",
+        "test": "ts-scripts test"
+    },
+    "dependencies": {
+        "terafoundation_kafka_connector": "~0.4.2"
     },
     "devDependencies": {
         "@types/bluebird": "^3.5.27",
@@ -49,10 +51,16 @@
         "ts-jest": "^24.0.2",
         "typescript": "^3.5.3"
     },
-    "workspaces": [
-        "packages/*",
-        "e2e"
+    "engines": {
+        "node": ">=8.16.0",
+        "yarn": ">=1.16.0"
+    },
+    "os": [
+        "darwin",
+        "linux"
     ],
+    "displayName": "Teraslice",
+    "documentation": "https://terascope.github.io/teraslice",
     "terascope": {
         "root": true,
         "type": "monorepo",
@@ -69,13 +77,5 @@
                 }
             ]
         }
-    },
-    "engines": {
-        "node": ">=8.16.0",
-        "yarn": ">=1.16.0"
-    },
-    "os": [
-        "darwin",
-        "linux"
-    ]
+    }
 }

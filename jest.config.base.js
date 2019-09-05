@@ -79,7 +79,6 @@ module.exports = (projectDir) => {
     }
 
     if (fs.existsSync(path.join(projectDir, 'peg'))) {
-        config.watchPathIgnorePatterns.push(`${packageRoot}/peg/*engine*.js`);
         config.roots.push(`${packageRoot}/peg`);
     }
 

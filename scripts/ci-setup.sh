@@ -11,7 +11,7 @@ usage() {
 Usage:
     $cmdname
 
-    Setup and verify NPM, Docker, and Github inside travis-ci
+    Setup and verify ci dependencies
 USAGE
     exit 1
 }
@@ -30,8 +30,8 @@ require_env() {
 }
 
 only_ci() {
-    if [ "$TRAVIS" != "true" ]; then
-        echoerr "This script can only be ran in Travis CI"
+    if [ "$CI" != "true" ]; then
+        echoerr "This script can only be ran in CI"
         exit 1
     fi
 }
@@ -81,6 +81,11 @@ main() {
 
     export FORCE_COLOR=1
     echoerr "* set FORCE_COLOR=1"
+
+    if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
+        export REPORT_COVERAGE=false
+        echoerr "* set REPORT_COVERAGE=false"
+    fi
 
     only_ci
     setup_npm

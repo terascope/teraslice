@@ -2,11 +2,11 @@ import path from 'path';
 import pkgUp from 'pkg-up';
 import fse from 'fs-extra';
 import { isPlainObject, get } from '@terascope/utils';
+import sortPackageJson from 'sort-package-json';
 import { PackageInfo, RootPackageInfo } from './interfaces';
 import signale from './signale';
 
-// eslint-disable-next-line
-export let rootDir: string | undefined;
+let rootDir: string | undefined;
 
 export function getRootDir(cwd: string = process.cwd()): string {
     if (rootDir) return rootDir;
@@ -20,21 +20,40 @@ export function getRootDir(cwd: string = process.cwd()): string {
         return rootDir;
     }
 
-    return getRootDir(path.join(path.dirname(rootPkgJSON), '..'));
+    const upOne = path.join(path.dirname(rootPkgJSON), '..');
+    if (!fse.existsSync(upOne) || !fse.statSync(upOne).isDirectory()) {
+        throw new Error('Unable to find root directory');
+    }
+    return getRootDir(upOne);
 }
 
 function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
     const pkg = fse.readJSONSync(pkgJSONPath);
     const isRoot = get(pkg, 'terascope.root', false);
     if (!isRoot) return undefined;
-    return {
+    const dir = path.dirname(pkgJSONPath);
+    const folderName = path.basename(dir);
+
+    const terascopeConfig = Object.assign({
         root: isRoot,
-        type: get(pkg, 'terascope.type', 'monorepo'),
+        type: 'monorepo',
         docker: {
-            image: get(pkg, 'terascope.docker.registry', 'terascope/teraslice'),
-            cache_layers: get(pkg, 'terascope.docker.cache_layers', []),
+            registry: `terascope/${folderName}`,
+            cache_layers: [],
         },
-    };
+    }, pkg.terascope);
+
+    return sortPackageJson(Object.assign({
+        dir,
+        folderName,
+        displayName: getName(pkg.name),
+        documentation: '',
+        homepage: '',
+        bugs: {
+            url: '',
+        },
+        terascope: terascopeConfig,
+    }, pkg));
 }
 
 export function getRootInfo() {
@@ -125,7 +144,7 @@ export async function writeIfChanged(
 }
 
 export function formatList(list: string[]) {
-    return `\n\n - ${list.join('\n - ')}`;
+    return `\n - ${list.join('\n - ')}`;
 }
 
 export function writeHeader(msg: string, prefixNewline?: boolean): void {

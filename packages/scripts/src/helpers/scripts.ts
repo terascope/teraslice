@@ -317,7 +317,7 @@ export async function getChangedFiles(...files: string[]) {
     return result
         .split('\n')
         .map((str) => str.trim())
-        .filter((str) => !!str);
+        .filter(Boolean);
 }
 
 export type ArgsMap = { [key: string]: string | string[] };

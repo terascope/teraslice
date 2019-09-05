@@ -3,9 +3,10 @@ import {
     DataEntity,
     parseJSON,
     DataEncoding,
-    IS_ENTITY_KEY,
-    METADATA_KEY,
-    RAWDATA_KEY,
+    __IS_ENTITY_KEY,
+    __DATAENTITY_METADATA_KEY,
+    cloneDeep,
+    fastCloneDeep,
 } from '../src';
 
 describe('DataEntity', () => {
@@ -18,9 +19,8 @@ describe('DataEntity', () => {
     ];
 
     const hiddenProps: string[] = [
-        IS_ENTITY_KEY,
-        METADATA_KEY,
-        RAWDATA_KEY
+        __IS_ENTITY_KEY,
+        __DATAENTITY_METADATA_KEY
     ];
 
     const testCases = [
@@ -34,7 +34,6 @@ describe('DataEntity', () => {
         ],
     ];
 
-    // @ts-ignore
     describe.each(testCases)('%s', (m, useClass) => {
         describe('when constructed with an object', () => {
             const data = {
@@ -110,6 +109,52 @@ describe('DataEntity', () => {
                 dataEntity.setMetadata('yellow', 'mellow');
                 expect(dataEntity.getMetadata('yellow')).toEqual('mellow');
             });
+
+            const cloneMethods = {
+                fastCloneDeep,
+                cloneDeep,
+            };
+
+            test.each(Object.keys(cloneMethods))(
+                'should be able to %s and get a new metadata',
+                (cloneMethod) => {
+                    const newMetadata = { _key: 'hello' };
+                    const cloned = cloneMethods[cloneMethod](dataEntity);
+                    expect(DataEntity.isDataEntity(cloned)).toBeFalse();
+
+                    const newDataEntity = useClass
+                        ? new DataEntity(cloned, newMetadata)
+                        : DataEntity.make(cloned, newMetadata);
+
+                    newDataEntity.setMetadata('test', 'hello');
+
+                    expect(newDataEntity.getMetadata()).toMatchObject({
+                        ...newMetadata,
+                        test: 'hello'
+                    });
+                    const ogCreateTime = dataEntity.getMetadata('_createTime');
+                    expect(newDataEntity.getMetadata('_createTime')).not.toEqual(ogCreateTime);
+                    expect(newDataEntity.getMetadata()).not.toMatchObject(dataEntity.getMetadata());
+                }
+            );
+
+            test.each(Object.keys(cloneMethods))(
+                'should be able to %s and get a new data',
+                (cloneMethod) => {
+                    const cloned = cloneMethods[cloneMethod](dataEntity);
+                    const newDataEntity = useClass
+                        ? new DataEntity(cloned)
+                        : DataEntity.make(cloned);
+
+                    newDataEntity.test = 'hello';
+
+                    expect(newDataEntity).toMatchObject({
+                        ...dataEntity,
+                        test: 'hello'
+                    });
+                    expect(newDataEntity).not.toBe(dataEntity);
+                }
+            );
 
             it('should be able to get the metadata by key', () => {
                 const _createTime = dataEntity.getMetadata('_createTime');
@@ -360,15 +405,6 @@ describe('DataEntity', () => {
             expect(DataEntity.isDataEntity(DataEntity.make({}))).toBeTrue();
         });
 
-        it('should return true when given a DataEntity compatible object', () => {
-            const fakeDataEntity = {
-                getMetadata() {},
-                setMetadata() {},
-                toBuffer() {},
-            };
-            expect(DataEntity.isDataEntity(fakeDataEntity)).toBeTrue();
-        });
-
         it('should return false when given an array of DataEntities', () => {
             const input = DataEntity.makeArray([{ hi: true }, { hi: true }]);
             expect(DataEntity.isDataEntity(input)).toBeFalse();
@@ -395,17 +431,6 @@ describe('DataEntity', () => {
 
         it('should return true when given an empty array', () => {
             expect(DataEntity.isDataEntityArray([])).toBeTrue();
-        });
-
-        it('should return true when given an array of DataEntity compatible objects', () => {
-            const fakeDataEntities = [
-                {
-                    getMetadata() {},
-                    setMetadata() {},
-                    toBuffer() {},
-                },
-            ];
-            expect(DataEntity.isDataEntityArray(fakeDataEntities)).toBeTrue();
         });
     });
 
