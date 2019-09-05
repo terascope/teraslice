@@ -4,6 +4,7 @@ import fse from 'fs-extra';
 import { isPlainObject, get } from '@terascope/utils';
 import sortPackageJson from 'sort-package-json';
 import { PackageInfo, RootPackageInfo } from './interfaces';
+import { NPM_DEFAULT_REGISTRY } from './config';
 import signale from './signale';
 
 let rootDir: string | undefined;
@@ -43,7 +44,7 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
             cache_layers: [],
         },
         npm: {
-            registry: 'https://registry.npmjs.org/'
+            registry: NPM_DEFAULT_REGISTRY
         }
     }, pkg.terascope);
 
