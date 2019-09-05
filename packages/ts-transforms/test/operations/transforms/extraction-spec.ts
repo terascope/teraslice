@@ -386,4 +386,38 @@ describe('transform operator', () => {
         expect(DataEntity.isDataEntity(results3)).toEqual(true);
         expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors);
     });
+
+    it('can set a field using expr', () => {
+        const opConfig = {
+            exp: '20',
+            target_field: 'setKey',
+            __id: 'someId',
+            multivalue: false,
+            mutate: false
+        };
+        const test = new Extraction(opConfig);
+        const data = new DataEntity({ some: 'data' });
+
+        const results = test.run(data);
+
+        expect(results).toEqual({ setKey: 20 });
+    });
+
+
+    it('can use expr to manipulate data', () => {
+        const opConfig = {
+            exp: '"transformed_" + some ',
+            source_field: 'some',
+            target_field: 'setKey',
+            __id: 'someId',
+            multivalue: false,
+            mutate: false
+        };
+        const test = new Extraction(opConfig);
+        const data = new DataEntity({ some: 'data' });
+
+        const results = test.run(data);
+
+        expect(results).toEqual({ setKey: 'transformed_data' });
+    });
 });

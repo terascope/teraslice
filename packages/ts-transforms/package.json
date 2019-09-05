@@ -40,6 +40,7 @@
         "@types/shortid": "^0.0.29",
         "awesome-phonenumber": "^2.15.0",
         "graphlib": "^2.1.7",
+        "jexl": "^2.2.1",
         "lodash": "^4.17.11",
         "shortid": "^2.2.14",
         "valid-url": "^1.0.9",
@@ -48,6 +49,7 @@
         "yargs": "^13.2.4"
     },
     "devDependencies": {
+        "@types/jexl": "^2.1.0",
         "@types/valid-url": "^1.0.2",
         "@types/validator": "^10.11.3",
         "@types/yargs": "^13.0.2",

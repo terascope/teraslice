@@ -2741,6 +2741,11 @@
   dependencies:
     "@types/jest-diff" "*"
 
+"@types/jexl@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@types/jexl/-/jexl-2.1.0.tgz#5c08251c9890935b83527b3514e574145ef85b26"
+  integrity sha512-bMYxYd+KjQPh517n/Gigsvow1k2hPX3fXBmDxhcRP2Tugkva250y/kETXakkAvuteGAeCQ/xFgRmpSv+OF91dA==
+
 "@types/json-schema@^7.0.3":
   version "7.0.3"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.3.tgz#bdfd69d61e464dcc81b25159c270d75a73c1a636"
@@ -10813,6 +10818,11 @@ jest@^24.9.0:
   dependencies:
     import-local "^2.0.0"
     jest-cli "^24.9.0"
+
+jexl@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/jexl/-/jexl-2.2.1.tgz#1a4fe96707f4794826f492c3f45a6ddd6c49cffb"
+  integrity sha512-KrxxKPioq3aC4yoRdXrOcuHQL4qik9SNPnJg593hrdqVwHW+TPfap1KLUwUpjZPCZeRm3DWm6EypZ9hWI4UeMA==
 
 jmespath@0.15.0:
   version "0.15.0"
