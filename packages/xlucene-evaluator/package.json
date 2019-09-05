@@ -48,6 +48,10 @@
     "engines": {
         "node": ">=8.0.0"
     },
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
+    },
     "displayName": "Xlucene Evaluator",
     "srcMain": "src/index.ts",
     "terascope": {
