@@ -70,6 +70,10 @@ export function toBoolean(input: any): boolean {
     return thruthy.includes(val);
 }
 
+export function isBuffer(input: any): input is Buffer {
+    return input != null && Buffer.isBuffer(input);
+}
+
 export function ensureBuffer(input: string|Buffer, encoding: BufferEncoding = 'utf8'): Buffer {
     if (isString(input)) {
         return Buffer.from(input, encoding);

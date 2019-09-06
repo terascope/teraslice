@@ -16,11 +16,11 @@ export default class CachedStateStorage<T> extends EventEmitter {
         this._cache.items = new BigMap(config.max_big_map_size);
     }
 
-    get(key: string): T | undefined {
-        return this._cache.get(key);
+    get(key: string|number): T | undefined {
+        return this._cache.get(`${key}`);
     }
 
-    mget(keyArray: string[]): MGetCacheResponse {
+    mget(keyArray: (string|number)[]): MGetCacheResponse {
         return keyArray.reduce((cachedState, key) => {
             const state = this.get(key);
             if (state) cachedState[key] = state;
@@ -28,8 +28,8 @@ export default class CachedStateStorage<T> extends EventEmitter {
         }, {});
     }
 
-    set(key: string, value: T) {
-        const results = this._cache.setpop(key, value);
+    set(key: string|number, value: T) {
+        const results = this._cache.setpop(`${key}`, value);
         if (results && results.evicted) {
             this.emit('eviction', { key: results.key, data: results.value } as EvictedEvent<T>);
         }
@@ -56,8 +56,8 @@ export default class CachedStateStorage<T> extends EventEmitter {
         }
     }
 
-    has(key: string) {
-        return this._cache.has(key);
+    has(key: string|number) {
+        return this._cache.has(`${key}`);
     }
 
     clear() {

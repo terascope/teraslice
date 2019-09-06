@@ -129,7 +129,7 @@ export default class ExampleBatchProcessor extends BatchProcessor {
         let keys: string = [];
 
         for (const dataEntity of dataEntities) {
-            keys.push(dataEntity.getMetadata('_key'));
+            keys.push(dataEntity.getKey());
         }
 
         this.batchedKeys.push(keys);
