@@ -56,16 +56,7 @@
             "path": "packages/elasticsearch-store"
         },
         {
-            "path": "packages/data-access"
-        },
-        {
-            "path": "packages/data-access-plugin"
-        },
-        {
             "path": "packages/teraslice-test-harness"
-        },
-        {
-            "path": "packages/ui-components"
         },
         {
             "path": "packages/teraslice-state-storage"
