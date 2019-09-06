@@ -27,6 +27,16 @@ export type EntityMetadataValue<M, K> =
                 ? M[K]
                 : any);
 
+/**
+ * DataEntities have conventional metadata properties
+ * that can track source, destination and other process
+ * information.
+ *
+ * **NOTE** Time values are set in UNIX Epoch time,
+ * to reduce memory footput, the DataEntity has convenience
+ * apis for getting and setting the time given and handling
+ * the conversion between unix milliseconds to Date format.
+*/
 export interface DataEntityMetadata {
     /**
      * The time at which this entity was created

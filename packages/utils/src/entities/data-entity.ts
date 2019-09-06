@@ -151,14 +151,14 @@ export class DataEntity<
      * Safely get the metadata from a `DataEntity`.
      * If the input is object it will get the property from the object
      */
-    static getMetadata(input: DataInput, key?: i.EntityMetadataKey<AnyObject>) {
+    static getMetadata(input: DataInput, field?: i.EntityMetadataKey<AnyObject>) {
         if (input == null) return null;
 
         if (DataEntity.isDataEntity(input)) {
-            return key ? input.getMetadata(key) : input.getMetadata();
+            return field ? input.getMetadata(field) : input.getMetadata();
         }
 
-        return key ? input[key as string] : undefined;
+        return field ? input[field as string] : undefined;
     }
 
     // Add the ability to specify any additional properties
@@ -201,17 +201,20 @@ export class DataEntity<
 
     @locked()
     setMetadata<K extends i.EntityMetadataKey<M>, V extends i.EntityMetadataValue<M, K>>(
-        key: K,
+        field: K,
         value: V
     ): void {
-        if (key === '_createTime') {
-            throw new Error(`Cannot set readonly metadata property ${key}`);
+        if (field == null) {
+            throw new Error('Missing field to set in metadata');
         }
-        if (key === '_key') {
+        if (field === '_createTime') {
+            throw new Error(`Cannot set readonly metadata property ${field}`);
+        }
+        if (field === '_key') {
             return this.setKey(value as any);
         }
 
-        this[i.__DATAENTITY_METADATA_KEY].metadata[key] = value as any;
+        this[i.__DATAENTITY_METADATA_KEY].metadata[field] = value as any;
     }
 
     /**

@@ -14,6 +14,9 @@ describe('DataEntity', () => {
         'getMetadata',
         'setMetadata',
         'getKey',
+        'setKey',
+        'getTime',
+        'setTime',
         'getRawData',
         'setRawData',
         'toBuffer'
