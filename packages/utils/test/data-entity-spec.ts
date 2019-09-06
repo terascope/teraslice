@@ -8,6 +8,7 @@ import {
     cloneDeep,
     fastCloneDeep,
     DataEntityMetadata,
+    firstToLower,
 } from '../src';
 
 describe('DataEntity', () => {
@@ -16,8 +17,13 @@ describe('DataEntity', () => {
         'setMetadata',
         'getKey',
         'setKey',
-        'getTime',
-        'setTime',
+        'getCreateTime',
+        'getIngestTime',
+        'setIngestTime',
+        'getProcessTime',
+        'setProcessTime',
+        'getEventTime',
+        'setEventTime',
         'getRawData',
         'setRawData',
         'toBuffer'
@@ -290,79 +296,82 @@ describe('DataEntity', () => {
             });
         });
 
-        describe('->getTime/->setTime', () => {
-            const metadata: DataEntityMetadata = {
-                _ingestTime: 'invalid-date-string' as any
-            };
+        const cases: string[][] = [
+            ['CreateTime', 'CreateTime'],
+            ['EventTime', 'EventTime'],
+            ['ProcessTime', 'ProcessTime'],
+            ['IngestTime', 'IngestTime'],
+        ];
 
+        describe.each(cases)('->get%s/->set%s', (str) => {
             const dataEntity = useClass
-                ? new DataEntity({}, metadata)
-                : DataEntity.make({}, metadata);
+                ? new DataEntity({})
+                : DataEntity.make({});
 
-            it('should return undefined if no field is given', () => {
-                expect(dataEntity.getTime('_eventTime')).toBeUndefined();
-            });
+            const getMethod = `get${str}` as keyof DataEntity;
+            const setMethod = `set${str}` as keyof DataEntity;
+            const field = `_${firstToLower(str)}` as keyof DataEntityMetadata;
 
-            it('should return false if an invalid time is found', () => {
-                expect(dataEntity.getTime('_ingestTime')).toBeFalse();
-            });
+            if (field !== '_createTime') {
+                it(`should return undefined if ${field} does not exist`, () => {
+                    expect(dataEntity[getMethod]()).toBeUndefined();
+                });
 
-            it('should return a date for valid time', () => {
-                expect(dataEntity.getTime('_createTime')).toBeDate();
-            });
+                it('should throw if setting an invalid date', () => {
+                    expect(() => {
+                        dataEntity[setMethod](new Date('invalid-date'));
+                    }).toThrowError('Invalid date format');
+                });
 
-            it('should throw if setting _createTime', () => {
-                expect(() => {
-                    dataEntity.setTime('_createTime');
-                }).toThrowError('Cannot set readonly metadata property _createTime');
-            });
+                it('should throw if setting an invalid date string', () => {
+                    expect(() => {
+                        dataEntity[setMethod]('invalid-date-string');
+                    }).toThrowError('Invalid date format');
+                });
 
-            it('should throw if setting an invalid date', () => {
-                expect(() => {
-                    dataEntity.setTime('_processTime', new Date('invalid-date'));
-                }).toThrowError('Invalid date format for field _processTime');
-            });
+                it('should throw if setting an invalid unix time', () => {
+                    expect(() => {
+                        dataEntity[setMethod](-10);
+                    }).toThrowError('Invalid date format');
+                });
 
-            it('should throw if setting an invalid date string', () => {
-                expect(() => {
-                    dataEntity.setTime('_processTime', 'invalid-date-string');
-                }).toThrowError('Invalid date format for field _processTime');
-            });
+                it('should be able to set a valid date', () => {
+                    const date = new Date();
+                    expect(dataEntity[setMethod](date)).toBeNil();
+                    expect(dataEntity[getMethod]()).toBeDate();
+                    expect(dataEntity[getMethod]()).toEqual(date);
+                });
 
-            it('should throw if setting an invalid unix time', () => {
-                expect(() => {
-                    dataEntity.setTime('_processTime', -10);
-                }).toThrowError('Invalid date format for field _processTime');
-            });
+                it('should be able to set a valid date string', () => {
+                    const date = new Date();
+                    expect(dataEntity[setMethod](date.toISOString())).toBeNil();
+                    const result = dataEntity[getMethod]() as Date;
+                    expect(result).toBeDate();
+                    expect(result.toISOString()).toEqual(date.toISOString());
+                });
 
-            it('should be able to set a valid date', () => {
-                const date = new Date();
-                expect(dataEntity.setTime('_processTime', date)).toBeNil();
-                expect(dataEntity.getTime('_processTime')).toBeDate();
-                expect(dataEntity.getTime('_processTime')).toEqual(date);
-            });
+                it('should be able to set a valid unix time', () => {
+                    const date = new Date();
+                    expect(dataEntity[setMethod](date.getTime())).toBeNil();
+                    const result = dataEntity[getMethod]() as Date;
+                    expect(result).toBeDate();
+                    expect(result.toISOString()).toEqual(date.toISOString());
+                });
 
-            it('should be able to set a valid date string', () => {
-                const date = new Date();
-                expect(dataEntity.setTime('_processTime', date.toISOString())).toBeNil();
-                const result = dataEntity.getTime('_processTime') as Date;
-                expect(result).toBeDate();
-                expect(result.toISOString()).toEqual(date.toISOString());
-            });
+                it('should be able default now', () => {
+                    expect(dataEntity[setMethod]()).toBeNil();
+                    const result = dataEntity[getMethod]() as Date;
+                    expect(result).toBeDate();
+                });
+            } else {
+                it('should return a date for valid time', () => {
+                    expect(dataEntity.getCreateTime()).toBeDate();
+                });
 
-            it('should be able to set a valid unix time', () => {
-                const date = new Date();
-                expect(dataEntity.setTime('_processTime', date.getTime())).toBeNil();
-                const result = dataEntity.getTime('_processTime') as Date;
-                expect(result).toBeDate();
-                expect(result.toISOString()).toEqual(date.toISOString());
-            });
-
-            it('should be able default now', () => {
-                expect(dataEntity.setTime('_eventTime')).toBeNil();
-                const result = dataEntity.getTime('_eventTime') as Date;
-                expect(result).toBeDate();
-            });
+                it(`should not have DataEntity->${setMethod}`, () => {
+                    expect(dataEntity[setMethod]).toBeUndefined();
+                });
+            }
         });
 
         describe('->setRawData/->getRawData', () => {

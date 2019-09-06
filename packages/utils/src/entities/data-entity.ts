@@ -246,36 +246,100 @@ export class DataEntity<
     }
 
     /**
-     * Given a time field get the from metadata, returns a date
+     * Get the time at which this entity was created.
+    */
+    @locked()
+    getCreateTime(): Date {
+        const val = this[i.__DATAENTITY_METADATA_KEY].metadata._createTime;
+        const date = getValidDate(val);
+        if (date === false) {
+            throw new Error('Missing _createTime');
+        }
+        return date;
+    }
+
+    /**
+     * Get the time at which the data was ingested into the source data
+     *
      * If none is found, `undefined` will be returned.
      * If an invalid date is found, `false` will be returned.
     */
     @locked()
-    getTime(field: i.EntityTimeMetadataField): Date|false|undefined {
-        const val = this[i.__DATAENTITY_METADATA_KEY].metadata[field];
+    getIngestTime(): Date|false|undefined {
+        const val = this[i.__DATAENTITY_METADATA_KEY].metadata._ingestTime;
         if (val == null) return undefined;
         return getValidDate(val);
     }
 
     /**
-    * Given a time field and a valid date format, set the time
-    * field in the metadata using a UNIX Epoch time (milliseconds since 1970)
+     * Set the time at which the data was ingested into the source data
+     *
+     * If the value is empty it will set the time to now.
+     * If an invalid date is given, an error will be thrown.
+     */
+    @locked()
+    setIngestTime(val?: string|number|Date): void {
+        const unixTime = getUnixTime(val);
+        if (unixTime === false) {
+            throw new Error(`Invalid date format, got ${getTypeOf(val)}`);
+        }
+        this[i.__DATAENTITY_METADATA_KEY].metadata._ingestTime = unixTime;
+    }
+
+    /**
+     * Get the time at which the data was consumed by the reader
+     *
+     * If none is found, `undefined` will be returned.
+     * If an invalid date is found, `false` will be returned.
+    */
+    @locked()
+    getProcessTime(): Date|false|undefined {
+        const val = this[i.__DATAENTITY_METADATA_KEY].metadata._ingestTime;
+        if (val == null) return undefined;
+        return getValidDate(val);
+    }
+
+    /**
+    * Set the time at which the data was consumed by the reader
+    *
     * If the value is empty it will set the time to now.
     * If an invalid date is given, an error will be thrown.
     */
     @locked()
-    setTime(field: i.EntityTimeMetadataField, val?: string|number|Date): void {
-        if (!field) {
-            throw new Error('Missing field to set in metadata');
-        }
-        if (field === '_createTime') {
-            throw new Error(`Cannot set readonly metadata property ${field}`);
-        }
+    setProcessTime(val?: string|number|Date): void {
         const unixTime = getUnixTime(val);
         if (unixTime === false) {
-            throw new Error(`Invalid date format for field ${field}, got ${getTypeOf(val)}`);
+            throw new Error(`Invalid date format, got ${getTypeOf(val)}`);
         }
-        this[i.__DATAENTITY_METADATA_KEY].metadata[field] = unixTime;
+        this[i.__DATAENTITY_METADATA_KEY].metadata._ingestTime = unixTime;
+    }
+
+    /**
+     * Get time associated from a specific field on source data or message
+     *
+     * If none is found, `undefined` will be returned.
+     * If an invalid date is found, `false` will be returned.
+    */
+    @locked()
+    getEventTime(): Date|false|undefined {
+        const val = this[i.__DATAENTITY_METADATA_KEY].metadata._ingestTime;
+        if (val == null) return undefined;
+        return getValidDate(val);
+    }
+
+    /**
+     * Set time associated from a specific field on source data or message
+     *
+     * If the value is empty it will set the time to now.
+     * If an invalid date is given, an error will be thrown.
+     */
+    @locked()
+    setEventTime(val?: string|number|Date): void {
+        const unixTime = getUnixTime(val);
+        if (unixTime === false) {
+            throw new Error(`Invalid date format, got ${getTypeOf(val)}`);
+        }
+        this[i.__DATAENTITY_METADATA_KEY].metadata._ingestTime = unixTime;
     }
 
     /**
