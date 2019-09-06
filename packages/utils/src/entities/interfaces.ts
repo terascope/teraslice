@@ -61,6 +61,12 @@ export interface DataEntityMetadata {
     _key?: string|number;
 }
 
+export type EntityTimeMetadataField =
+    '_createTime'
+    |'_ingestTime'
+    |'_processTime'
+    |'_eventTime';
+
 /**
  * available data encoding types
  */

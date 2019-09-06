@@ -1,11 +1,12 @@
 /* eslint-disable max-len */
+import { getValidDate, getUnixTime } from '../dates';
 import { isSimpleObject } from '../objects';
 import { AnyObject } from '../interfaces';
 import {
     parseJSON,
     getTypeOf,
     ensureBuffer,
-    isBuffer
+    isBuffer,
 } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
@@ -204,7 +205,7 @@ export class DataEntity<
         field: K,
         value: V
     ): void {
-        if (field == null) {
+        if (field == null || field === '') {
             throw new Error('Missing field to set in metadata');
         }
         if (field === '_createTime') {
@@ -240,6 +241,38 @@ export class DataEntity<
             throw new Error('Invalid key to set in metadata');
         }
         this[i.__DATAENTITY_METADATA_KEY].metadata._key = key;
+    }
+
+    /**
+     * Given a time field get the from metadata, returns a date
+     * If none is found, undefined will be returned.
+     * If an invalid date is found, false will be returned.
+    */
+    @locked()
+    getTime(field: i.EntityTimeMetadataField): Date|false|undefined {
+        const val = this[i.__DATAENTITY_METADATA_KEY].metadata[field];
+        if (val == null) return undefined;
+        return getValidDate(val);
+    }
+
+    /**
+    * Given a time field and a valid date format, set the time
+    * field in the metadata using a UNIX Epoch time (milliseconds since 1970)
+    * If the value is empty it will set the time to now
+    */
+    @locked()
+    setTime(field: i.EntityTimeMetadataField, val?: string|number|Date): void {
+        if (!field) {
+            throw new Error('Missing field to set in metadata');
+        }
+        if (field === '_createTime') {
+            throw new Error(`Cannot set readonly metadata property ${field}`);
+        }
+        const unixTime = getUnixTime(val);
+        if (unixTime === false) {
+            throw new Error(`Invalid date format for field ${field}, got ${getTypeOf(val)}`);
+        }
+        this[i.__DATAENTITY_METADATA_KEY].metadata[field] = unixTime;
     }
 
     /**

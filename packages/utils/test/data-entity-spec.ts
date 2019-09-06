@@ -7,6 +7,7 @@ import {
     __DATAENTITY_METADATA_KEY,
     cloneDeep,
     fastCloneDeep,
+    DataEntityMetadata,
 } from '../src';
 
 describe('DataEntity', () => {
@@ -286,6 +287,81 @@ describe('DataEntity', () => {
             it('should be able to set and get key with 0', () => {
                 expect(dataEntity.setKey(0)).toBeNil();
                 expect(dataEntity.getKey()).toBe(0);
+            });
+        });
+
+        describe('->getTime/->setTime', () => {
+            const metadata: DataEntityMetadata = {
+                _ingestTime: 'invalid-date-string' as any
+            };
+
+            const dataEntity = useClass
+                ? new DataEntity({}, metadata)
+                : DataEntity.make({}, metadata);
+
+            it('should return undefined if no field is given', () => {
+                expect(dataEntity.getTime('_eventTime')).toBeUndefined();
+            });
+
+            it('should return false if an invalid time is found', () => {
+                expect(dataEntity.getTime('_ingestTime')).toBeFalse();
+            });
+
+            it('should return a date for valid time', () => {
+                expect(dataEntity.getTime('_createTime')).toBeDate();
+            });
+
+            it('should throw if setting _createTime', () => {
+                expect(() => {
+                    dataEntity.setTime('_createTime');
+                }).toThrowError('Cannot set readonly metadata property _createTime');
+            });
+
+            it('should throw if setting an invalid date', () => {
+                expect(() => {
+                    dataEntity.setTime('_processTime', new Date('invalid-date'));
+                }).toThrowError('Invalid date format for field _processTime');
+            });
+
+            it('should throw if setting an invalid date string', () => {
+                expect(() => {
+                    dataEntity.setTime('_processTime', 'invalid-date-string');
+                }).toThrowError('Invalid date format for field _processTime');
+            });
+
+            it('should throw if setting an invalid unix time', () => {
+                expect(() => {
+                    dataEntity.setTime('_processTime', -10);
+                }).toThrowError('Invalid date format for field _processTime');
+            });
+
+            it('should be able to set a valid date', () => {
+                const date = new Date();
+                expect(dataEntity.setTime('_processTime', date)).toBeNil();
+                expect(dataEntity.getTime('_processTime')).toBeDate();
+                expect(dataEntity.getTime('_processTime')).toEqual(date);
+            });
+
+            it('should be able to set a valid date string', () => {
+                const date = new Date();
+                expect(dataEntity.setTime('_processTime', date.toISOString())).toBeNil();
+                const result = dataEntity.getTime('_processTime') as Date;
+                expect(result).toBeDate();
+                expect(result.toISOString()).toEqual(date.toISOString());
+            });
+
+            it('should be able to set a valid unix time', () => {
+                const date = new Date();
+                expect(dataEntity.setTime('_processTime', date.getTime())).toBeNil();
+                const result = dataEntity.getTime('_processTime') as Date;
+                expect(result).toBeDate();
+                expect(result.toISOString()).toEqual(date.toISOString());
+            });
+
+            it('should be able default now', () => {
+                expect(dataEntity.setTime('_eventTime')).toBeNil();
+                const result = dataEntity.getTime('_eventTime') as Date;
+                expect(result).toBeDate();
             });
         });
 

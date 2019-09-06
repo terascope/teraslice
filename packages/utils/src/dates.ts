@@ -14,6 +14,10 @@ export function isValidDate(val: any): boolean {
 export function getValidDate(val: any): Date | false {
     if (val == null) return false;
     if (isValidDateInstance(val)) return val;
+    if (typeof val === 'number'
+        && (val <= 0 || !Number.isSafeInteger(val))) {
+        return false;
+    }
     const d = new Date(val);
     return isValidDateInstance(d) && d;
 }
