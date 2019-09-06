@@ -237,32 +237,9 @@ dataEntity.setKey('bar');
 expect(dataEntity.getKey()).toEqual('bar');
 ```
 
-### DataEntity->getTime
+### DataEntity->getCreateTime
 
-Given a time field get the from metadata, returns a date.
-If none is found, `undefined` will be returned.
-If an invalid date is found, `false` will be returned.
-
-```js
-'use strict';
-
-const { DataEnity } = require('@terascope/utils');
-
-const dataEntity = new DataEntity({}, {
-    _key: 'foo',
-    _ingestTime: 'invalid-time'
-});
-
-expect(dataEntity.getTime('_eventTime')).toBe(undefined);
-expect(dataEntity.getTime('_ingestTime')).toBe(false);
-expect(dataEntity.getTime('_createTime')).toBeDate();
-```
-
-### DataEntity->setTime
-
-Given a time field and a valid date format, set the time field in the metadata using a UNIX Epoch time (milliseconds since 1970). If the value is empty it will set the time to now. If an invalid date is given, an error will be thrown.
-
-Any date formated accepted by [JavaScript Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#Parameters) can be used.
+Get the time at which this entity was created.
 
 ```js
 'use strict';
@@ -271,17 +248,124 @@ const { DataEnity } = require('@terascope/utils');
 
 const dataEntity = new DataEntity();
 
-expect(() => {
-    dataEntity.setTime('_createTime', new Date());
-}).toThrowError();
+expect(dataEntity.getCreateTime()).toBeDate();
+```
 
-expect(() => {
-    dataEntity.setTime('_ingestTime', 'invalid-time');
-}).toThrowError();
+### DataEntity->getIngestTime / DataEntity->setIngestTime
 
-dataEntity.setTime('_processTime'); // sets the time to now
-dataEntity.setTime('_eventTime', '2019-09-06T16:13:24.439Z');
-dataEntity.setTime('_eventTime', Date.now() - 5000);
+The time at which the data was ingested into the source data.
+
+`->getIngestTime`:
+
+- If none is found, `undefined` will be returned.
+- If an invalid date is found, `false` will be returned.
+
+`->setIngestTime`:
+
+- If the value is empty it will set the time to now.
+- If an invalid date is given, an error will be thrown.
+
+Any date formated accepted by [JavaScript Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#Parameters) can be used.
+
+```js
+'use strict';
+
+const { DataEnity } = require('@terascope/utils');
+
+const dataEntity = new DataEntity({}, {
+    _key: 'foo'
+});
+
+expect(dataEntity.getIngestTime()).toBe(undefined);
+
+// if nothing is passed in it is set Date.now()
+dataEntity.setIngestTime();
+// use a date
+dataEntity.setIngestTime(new Date());
+// use a ISO or JavaScript Date string
+dataEntity.setIngestTime('2019-09-06T16:13:24.439Z');
+// use a UNIX epoch time
+dataEntity.setIngestTime(Date.now() - 1000);
+
+expect(dataEntity.getIngestTime()).toBeDate();
+```
+
+### DataEntity->getProcessTime / DataEntity->setProcessTime
+
+The time at which the data was consumed by the reader.
+
+`->getProcessTime`:
+
+- If none is found, `undefined` will be returned.
+- If an invalid date is found, `false` will be returned.
+
+`->setProcessTime`:
+
+- If the value is empty it will set the time to now.
+- If an invalid date is given, an error will be thrown.
+
+Any date formated accepted by [JavaScript Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#Parameters) can be used.
+
+```js
+'use strict';
+
+const { DataEnity } = require('@terascope/utils');
+
+const dataEntity = new DataEntity({}, {
+    _key: 'foo'
+});
+
+expect(dataEntity.getProcessTime()).toBe(undefined);
+
+// if nothing is passed in it is set Date.now()
+dataEntity.setProcessTime();
+// use a date
+dataEntity.setProcessTime(new Date());
+// use a ISO or JavaScript Date string
+dataEntity.setProcessTime('2019-09-06T16:13:24.439Z');
+// use a UNIX epoch time
+dataEntity.setProcessTime(Date.now() - 1000);
+
+expect(dataEntity.getProcessTime()).toBeDate();
+```
+
+### DataEntity->getEventTime / DataEntity->setEventTime
+
+The time associated from a specific field on source data or message.
+
+`->getEventTime`:
+
+- If none is found, `undefined` will be returned.
+- If an invalid date is found, `false` will be returned.
+
+`->setEventTime`:
+
+- If the value is empty it will set the time to now.
+- If an invalid date is given, an error will be thrown.
+
+Any date formated accepted by [JavaScript Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#Parameters) can be used.
+
+```js
+'use strict';
+
+const { DataEnity } = require('@terascope/utils');
+
+const dataEntity = new DataEntity({}, {
+    _key: 'foo'
+});
+
+expect(dataEntity.getEventTime()).toBe(undefined);
+
+// if nothing is passed in it is set Date.now()
+dataEntity.setEventTime();
+// use a date
+dataEntity.setEventTime(new Date());
+// use a ISO or JavaScript Date string
+dataEntity.setEventTime('2019-09-06T16:13:24.439Z');
+// use a UNIX epoch time
+dataEntity.setEventTime(Date.now() - 1000);
+
+expect(dataEntity.getEventTime()).toBeDate();
 ```
 
 ### DataEntity->getRawData

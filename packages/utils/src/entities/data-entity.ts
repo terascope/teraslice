@@ -287,7 +287,7 @@ export class DataEntity<
     }
 
     /**
-     * Get the time at which the data was consumed by the reader
+     * Get the time at which the data was consumed by the reader.
      *
      * If none is found, `undefined` will be returned.
      * If an invalid date is found, `false` will be returned.
