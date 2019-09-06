@@ -47,6 +47,40 @@ export class DataEntity<
     }
 
     /**
+     * A barebones method for creating data-entities.
+     * @returns the metadata and entity
+     */
+    static makeRaw<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = {}>(
+        input?: T,
+        metadata?: M
+    ): { entity: DataEntity<T, M>; metadata: i.EntityMetadata<M> } {
+        const entity = new DataEntity(input, metadata);
+        return {
+            entity,
+            metadata: entity.getMetadata(),
+        };
+    }
+
+    /**
+     * A utility for safely converting an input of an object,
+     * or an array of objects, to an array of DataEntities.
+     * This will detect if passed an already converted input and return it.
+     */
+    static makeArray<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = {}>(
+        input: DataArrayInput
+    ): DataEntity<T, M>[] {
+        if (!Array.isArray(input)) {
+            return [DataEntity.make(input)];
+        }
+
+        if (DataEntity.isDataEntityArray<T, M>(input)) {
+            return input;
+        }
+
+        return input.map((d) => DataEntity.make(d));
+    }
+
+    /**
      * Create a new instance of a DataEntity.
      *
      * If the second param `withData` is set to `true`
@@ -67,23 +101,11 @@ export class DataEntity<
         return DataEntity.make({}, input.getMetadata()) as T;
     }
 
-    /**
-     * A barebones method for creating data-entities.
-     * @returns the metadata and entity
-     */
-    static makeRaw<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = {}>(
-        input?: T,
-        metadata?: M
-    ): { entity: DataEntity<T, M>; metadata: i.EntityMetadata<M> } {
-        const entity = new DataEntity(input, metadata);
-        return {
-            entity,
-            metadata: entity.getMetadata(),
-        };
-    }
 
     /**
-     * A utility for safely converting an `Buffer` to a `DataEntity`.
+     * A utility for converting a `Buffer` to a `DataEntity`,
+     * using the DataEntity encoding.
+     *
      * @param input A `Buffer` to parse to JSON
      * @param opConfig The operation config used to get the encoding type of the Buffer,
      * defaults to "json"
@@ -106,25 +128,6 @@ export class DataEntity<
         }
 
         throw new Error(`Unsupported encoding type, got "${_encoding}"`);
-    }
-
-    /**
-     * A utility for safely converting an input of an object,
-     * or an array of objects, to an array of DataEntities.
-     * This will detect if passed an already converted input and return it.
-     */
-    static makeArray<T extends AnyObject = AnyObject, M extends i.EntityMetadataType = {}>(
-        input: DataArrayInput
-    ): DataEntity<T, M>[] {
-        if (!Array.isArray(input)) {
-            return [DataEntity.make(input)];
-        }
-
-        if (DataEntity.isDataEntityArray<T, M>(input)) {
-            return input;
-        }
-
-        return input.map((d) => DataEntity.make(d));
     }
 
     /**
@@ -183,7 +186,7 @@ export class DataEntity<
 
     /**
      * Get the metadata for the DataEntity.
-     * If a key is specified, it will get that property of the metadata
+     * If a field is specified, it will get that property of the metadata
     */
     getMetadata(key?: undefined): i.EntityMetadata<M>;
     getMetadata<K extends i.EntityMetadataKey<M>>(key: K): i.EntityMetadataValue<M, K>;
@@ -197,9 +200,8 @@ export class DataEntity<
     }
 
     /**
-     * Given a key and value set the metadata on the record
+     * Given a field and value set the metadata on the record
     */
-
     @locked()
     setMetadata<K extends i.EntityMetadataKey<M>, V extends i.EntityMetadataValue<M, K>>(
         field: K,
@@ -245,8 +247,8 @@ export class DataEntity<
 
     /**
      * Given a time field get the from metadata, returns a date
-     * If none is found, undefined will be returned.
-     * If an invalid date is found, false will be returned.
+     * If none is found, `undefined` will be returned.
+     * If an invalid date is found, `false` will be returned.
     */
     @locked()
     getTime(field: i.EntityTimeMetadataField): Date|false|undefined {
@@ -258,7 +260,8 @@ export class DataEntity<
     /**
     * Given a time field and a valid date format, set the time
     * field in the metadata using a UNIX Epoch time (milliseconds since 1970)
-    * If the value is empty it will set the time to now
+    * If the value is empty it will set the time to now.
+    * If an invalid date is given, an error will be thrown.
     */
     @locked()
     setTime(field: i.EntityTimeMetadataField, val?: string|number|Date): void {
@@ -276,7 +279,7 @@ export class DataEntity<
     }
 
     /**
-     * Get the raw data, usually used for encoding type `raw`
+     * Get the raw data, usually used for encoding type `raw`.
      * If there is no data, an error will be thrown
     */
     @locked()
@@ -292,7 +295,7 @@ export class DataEntity<
     */
     @locked()
     setRawData(buf: Buffer|string|null): void {
-        if (buf == null) {
+        if (buf === null) {
             this[i.__DATAENTITY_METADATA_KEY].rawData = null;
             return;
         }
