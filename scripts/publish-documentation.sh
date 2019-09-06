@@ -25,6 +25,9 @@ main() {
         ;;
     esac
 
+    echo '* cleaning up node_modules...'
+    rm -rf node_modules
+
     cd website &&
         yarn install --prod &&
         GIT_USER="${GITHUB_NAME}" \

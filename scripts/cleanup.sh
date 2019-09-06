@@ -126,6 +126,10 @@ cleanup_top_level() {
 }
 
 post_cleanup() {
+    prompt "Do you want to clear the yarn cache?" &&
+        echoerr "* running yarn cache clean" &&
+        yarn cache clean
+
     prompt "Do you want to verify/rebuild the node_modules?" &&
         echoerr "* running yarn --force --check-files --update-checksums" &&
         rm -rf ./.yarn-cache/* &&
