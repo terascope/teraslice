@@ -1,86 +1,90 @@
 {
-    "name": "teraslice",
-    "version": "0.56.3",
-    "description": "Distributed computing platform for processing JSON data",
-    "homepage": "https://github.com/terascope/teraslice#readme",
-    "bugs": {
-        "url": "https://github.com/terascope/teraslice/issues"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/terascope/teraslice.git"
-    },
-    "license": "Apache-2.0",
-    "author": "Terascope, LLC <info@terascope.io>",
-    "files": [
-        "*.js",
-        "lib/**/*",
-        "examples/**/*"
-    ],
-    "main": "index.js",
+  "name": "teraslice",
+  "version": "0.56.3",
+  "description": "Distributed computing platform for processing JSON data",
+  "homepage": "https://github.com/terascope/teraslice#readme",
+  "bugs": {
+    "url": "https://github.com/terascope/teraslice/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/terascope/teraslice.git"
+  },
+  "license": "Apache-2.0",
+  "author": "Terascope, LLC <info@terascope.io>",
+  "files": [
+    "*.js",
+    "lib/**/*",
+    "examples/**/*"
+  ],
+  "main": "index.js",
+  "bin": "service.js",
+  "directories": {
+    "lib": "lib",
     "bin": "service.js",
-    "directories": {
-        "lib": "lib",
-        "bin": "service.js",
-        "main": "index.js",
-        "test": "test"
-    },
-    "scripts": {
-        "start": "node service.js",
-        "test": "ts-scripts test . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --"
-    },
-    "dependencies": {
-        "@terascope/elasticsearch-api": "^2.1.6",
-        "@terascope/job-components": "^0.23.3",
-        "@terascope/queue": "^1.1.7",
-        "@terascope/teraslice-messaging": "^0.4.2",
-        "@terascope/utils": "^0.18.0",
-        "async-mutex": "^0.1.3",
-        "barbe": "^3.0.15",
-        "bluebird": "^3.5.5",
-        "body-parser": "^1.19.0",
-        "convict": "^4.4.1",
-        "decompress": "^4.2.0",
-        "easy-table": "^1.1.1",
-        "event-loop-stats": "^1.2.0",
-        "express": "^4.17.1",
-        "fs-extra": "^8.1.0",
-        "gc-stats": "^1.4.0",
-        "ip": "^1.1.5",
-        "js-yaml": "^3.13.1",
-        "kubernetes-client": "^6.12.1",
-        "lodash": "^4.17.11",
-        "ms": "^2.1.2",
-        "nanoid": "^2.0.3",
-        "p-whilst": "^2.1.0",
-        "porty": "^3.1.1",
-        "request": "^2.88.0",
-        "shortid": "^2.2.14",
-        "socket.io": "^1.7.4",
-        "socket.io-client": "^1.7.4",
-        "terafoundation": "^0.12.3",
-        "uuid": "^3.3.3"
-    },
-    "devDependencies": {
-        "@terascope/teraslice-op-test-harness": "^1.7.5",
-        "archiver": "^3.0.0",
-        "bufferstreams": "^2.0.1",
-        "chance": "^1.0.18",
-        "elasticsearch": "^15.4.1",
-        "got": "^9.6.0",
-        "jest-fixtures": "^0.6.0",
-        "nock": "^10.0.6"
-    },
-    "publishConfig": {
-        "access": "public",
-        "registry": "https://registry.npmjs.org/"
-    },
-    "displayName": "Teraslice",
-    "terascope": {
-        "main": true,
-        "enableTypedoc": false,
-        "testSuite": "elasticsearch"
-    }
+    "main": "index.js",
+    "test": "test"
+  },
+  "scripts": {
+    "start": "node service.js",
+    "test": "ts-scripts test . --",
+    "test:debug": "ts-scripts test --debug . --",
+    "test:watch": "ts-scripts test --watch . --",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
+  },
+  "dependencies": {
+    "@terascope/elasticsearch-api": "^2.1.6",
+    "@terascope/job-components": "^0.23.3",
+    "@terascope/queue": "^1.1.7",
+    "@terascope/teraslice-messaging": "^0.4.2",
+    "@terascope/utils": "^0.18.0",
+    "async-mutex": "^0.1.3",
+    "barbe": "^3.0.15",
+    "bluebird": "^3.5.5",
+    "body-parser": "^1.19.0",
+    "convict": "^4.4.1",
+    "decompress": "^4.2.0",
+    "easy-table": "^1.1.1",
+    "event-loop-stats": "^1.2.0",
+    "express": "^4.17.1",
+    "fs-extra": "^8.1.0",
+    "gc-stats": "^1.4.0",
+    "ip": "^1.1.5",
+    "js-yaml": "^3.13.1",
+    "kubernetes-client": "^6.12.1",
+    "lodash": "^4.17.11",
+    "ms": "^2.1.2",
+    "nanoid": "^2.0.3",
+    "p-whilst": "^2.1.0",
+    "porty": "^3.1.1",
+    "request": "^2.88.0",
+    "shortid": "^2.2.14",
+    "socket.io": "^1.7.4",
+    "socket.io-client": "^1.7.4",
+    "terafoundation": "^0.12.3",
+    "uuid": "^3.3.3",
+    "snyk": "^1.226.0"
+  },
+  "devDependencies": {
+    "@terascope/teraslice-op-test-harness": "^1.7.5",
+    "archiver": "^3.0.0",
+    "bufferstreams": "^2.0.1",
+    "chance": "^1.0.18",
+    "elasticsearch": "^15.4.1",
+    "got": "^9.6.0",
+    "jest-fixtures": "^0.6.0",
+    "nock": "^10.0.6"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "displayName": "Teraslice",
+  "terascope": {
+    "main": true,
+    "enableTypedoc": false,
+    "testSuite": "elasticsearch"
+  },
+  "snyk": true
 }
