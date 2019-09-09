@@ -25,13 +25,15 @@ main() {
         ;;
     esac
 
-    cd website &&
+    yarn docs &&
+        cd website &&
         yarn install \
             --prod \
             --no-default-rc &&
         GIT_USER="${GITHUB_NAME}" \
             CURRENT_BRANCH="${TRAVIS_BRANCH:-master}" \
-            yarn run publish-gh-pages
+            yarn run publish-gh-pages &&
+        git checkout ../docs
 }
 
 main "$@"
