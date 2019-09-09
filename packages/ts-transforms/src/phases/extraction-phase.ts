@@ -32,8 +32,8 @@ export default class ExtractionPhase extends PhaseBase {
 
         for (const doc of dataArray) {
             const results = createTargetResults(doc);
-            // @ts-ignore
-            runExtractions(this.phase, doc, results);
+
+            runExtractions(this.phase as ExtractionPipline, doc, results);
             if (results.metadata.hasExtractions) {
                 resultsList.push(results.entity);
             }
