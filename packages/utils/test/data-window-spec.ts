@@ -121,6 +121,26 @@ describe('DataWindow', () => {
             expect(window.setKey).toBeFunction();
         });
 
+        it('should be able to get and set a key', () => {
+            const window = new DataWindow();
+            expect(window.setKey('hello')).toBeNil();
+            expect(window.getKey()).toBe('hello');
+        });
+
+        it('should NOT be able set an invalid key', () => {
+            const window = new DataWindow();
+            expect(() => {
+                window.setKey({ uh: 'oh' } as any);
+            }).toThrowError('Invalid key to set in metadata');
+        });
+
+        it('should throw if no key is found', () => {
+            const window = new DataWindow();
+            expect(() => {
+                window.getKey();
+            }).toThrowError('No key has been set in the metadata');
+        });
+
         it('should be able to get the _createTime', () => {
             const window = new DataWindow();
             expect(window.getCreateTime()).toBeDate();
@@ -148,22 +168,92 @@ describe('DataWindow', () => {
     });
 
     describe('when fast cloning the window', () => {
-        it('should NOT have any of the built-in methods', () => {
-            const window = new DataWindow();
-            const cloned = fastCloneDeep(window);
+        const input = DataEntity.makeArray([
+            { a: 1 },
+            { a: 2 },
+            { a: 3 },
+        ]);
 
+        const window = new DataWindow(...input);
+        window.setMetadata('foo', 'bar');
+
+        const cloned = fastCloneDeep(window);
+
+        it('should have the same length', () => {
+            expect(cloned).toBeArrayOfSize(input.length);
+        });
+
+        it('should NOT be the same reference', () => {
+            expect(cloned).not.toBe(window);
+        });
+
+        it('the data should keep the same order with a different reference', () => {
+            window.forEach((doc, i) => {
+                expect(cloned[i]).not.toBe(doc);
+                expect(cloned[i]).toEqual(doc);
+            });
+        });
+
+        it('should NOT have any of the built-in methods', () => {
             for (const method of methods) {
                 expect(cloned[method]).not.toBeFunction();
             }
         });
 
         it('should NOT have any of the internal properties', () => {
-            const window = new DataWindow();
-            const cloned = fastCloneDeep(window);
-
             for (const prop of hiddenProps) {
                 expect(cloned).not.toHaveProperty(prop);
             }
+        });
+    });
+
+    describe('when shallow cloning the window', () => {
+        const input: DataEntity<{ a: number }>[] = [
+            DataEntity.make({ a: 1 }, { _key: 1 }),
+            DataEntity.make({ a: 2 }, { _key: 2 }),
+            DataEntity.make({ a: 3 }, { _key: 3 }),
+        ];
+
+        const window = new DataWindow(...input);
+        window.setMetadata('_key', 'hello');
+
+        const cloned = window.slice();
+
+        it('should have the same length', () => {
+            expect(cloned).toBeArrayOfSize(input.length);
+        });
+
+        it('should NOT be the same reference', () => {
+            expect(cloned).not.toBe(window);
+        });
+
+        it('the data should keep the same order with a same reference', () => {
+            window.forEach((doc, i) => {
+                expect(cloned[i]).toBe(doc);
+                expect(cloned[i]).toEqual(doc);
+            });
+        });
+
+        it('should have the built-in methods', () => {
+            for (const method of methods) {
+                expect(cloned[method]).toBeFunction();
+            }
+        });
+
+        it('should be the a DataWindow', () => {
+            expect(cloned).toBeInstanceOf(DataWindow);
+        });
+
+        it('should NOT have the same reference to the metadata', () => {
+            expect(cloned.getMetadata()).not.toBe(window.getMetadata());
+        });
+
+        it('should have a different createTime', () => {
+            expect(cloned.getCreateTime()).not.toEqual(window.getCreateTime());
+        });
+
+        it('should have the same _key', () => {
+            expect(cloned.getMetadata('_key')).toEqual(window.getMetadata('_key'));
         });
     });
 });

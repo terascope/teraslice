@@ -99,8 +99,12 @@ export class DataWindow<
      * If no `_key` is found, an error will be thrown
     */
     @locked()
-    getKey(): string {
-        return '';
+    getKey(): string|number {
+        const key = this[i.__DATAWINDOW_METADATA_KEY]._key;
+        if (!utils.isValidKey(key)) {
+            throw new Error('No key has been set in the metadata');
+        }
+        return key;
     }
 
     /**
@@ -109,7 +113,12 @@ export class DataWindow<
      * If no `_key` is found, an error will be thrown
     */
     @locked()
-    setKey(_key: string|number): void {}
+    setKey(key: string|number): void {
+        if (!utils.isValidKey(key)) {
+            throw new Error('Invalid key to set in metadata');
+        }
+        this[i.__DATAWINDOW_METADATA_KEY]._key = key;
+    }
 
     /**
      * Get the time at which this window was created.
@@ -163,4 +172,15 @@ export class DataWindow<
      */
     @locked()
     setFinishTime(_val?: string|number|Date): void {}
+
+    // override behaviour of an Array...
+    slice(begin?: number, end?: number): DataWindow<T, M> {
+        const copy = new DataWindow<T, M>(...super.slice(begin, end));
+        for (const [key, val] of Object.entries(this.getMetadata())) {
+            if (!['_createTime', '_startTime', '_finishTime'].includes(key)) {
+                copy.setMetadata(key, val);
+            }
+        }
+        return copy;
+    }
 }
