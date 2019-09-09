@@ -17,9 +17,8 @@ export = {
     builder(yargs) {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
-        // @ts-ignore
         yargs.strict()
-            .example('$0 controllers stats cluster1');
+            .example('$0 controllers stats cluster1', '');
         return yargs;
     },
     async handler(argv) {

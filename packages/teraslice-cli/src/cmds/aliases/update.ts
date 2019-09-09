@@ -18,9 +18,8 @@ export = {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
         yargs.options('list', yargsOptions.buildOption('list'));
-        // @ts-ignore
         yargs
-            .example('$0 aliases update cluster1 http://cluster1.net:80');
+            .example('$0 aliases update cluster1 http://cluster1.net:80', '');
         return yargs;
     },
     handler(argv) {

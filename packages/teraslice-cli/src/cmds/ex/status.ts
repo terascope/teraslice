@@ -12,9 +12,8 @@ export = {
     describe: 'Get the status of an execution id.\n',
     builder(yargs) {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
-        // @ts-ignore
         yargs.strict()
-            .example('$0 ex status cluster1 99999999-9999-9999-9999-999999999999');
+            .example('$0 ex status cluster1 99999999-9999-9999-9999-999999999999', '');
         return yargs;
     },
     async handler(argv: any) {
