@@ -5,7 +5,7 @@ import { CachedStateStorage, SetTuple, EvictedEvent } from '../src';
 describe('Cache Storage State', () => {
     const idField = '_key';
 
-    const doc = DataEntity.make({ data: 'thisIsSomeData' }, { [idField]: 1 });
+    const doc = DataEntity.make({ data: 'thisIsSomeData' }, { [idField]: '1' });
 
     const docArray = [
         {
@@ -17,13 +17,13 @@ describe('Cache Storage State', () => {
         {
             data: 'thisIsThirdData',
         },
-    ].map((obj, index) => DataEntity.make(obj, { [idField]: index + 1 }));
+    ].map((obj, index) => DataEntity.make(obj, { [idField]: `${index + 1}` }));
 
     const formattedMSet: SetTuple<DataEntity>[] = docArray.map((obj) => ({
         data: obj,
-        key: obj.getMetadata(idField)
+        key: obj.getKey()
     }));
-    const formattedMGet = docArray.map((data) => data.getMetadata(idField));
+    const formattedMGet = docArray.map((data) => data.getKey());
 
     const config = {
         id_field: idField,
@@ -41,13 +41,13 @@ describe('Cache Storage State', () => {
     });
 
     it('set should add items to the storage', () => {
-        const key = doc.getMetadata(idField);
+        const key = doc.getKey();
         cache.set(key, doc);
         expect(cache.count()).toBe(1);
     });
 
     it('get should return data from storage', () => {
-        const key = doc.getMetadata(idField);
+        const key = doc.getKey();
         cache.set(key, doc);
         const cachedData = cache.get(key);
 
@@ -56,7 +56,7 @@ describe('Cache Storage State', () => {
     });
 
     it('get should return undefined if not stored', () => {
-        const key = doc.getMetadata(idField);
+        const key = doc.getKey();
         const cachedData = cache.get(key);
         expect(cachedData).toBeUndefined();
     });
@@ -91,8 +91,8 @@ describe('Cache Storage State', () => {
             const id = Number(idStr);
             expect(data[id]).toEqual(docArray[id - 1]);
             expect(DataEntity.isDataEntity(data[id])).toEqual(true);
-            const metaId = data[id].getMetadata(idField);
-            expect(metaId).toEqual(id);
+            const metaId = data[id].getKey();
+            expect(metaId).toEqual(idStr);
         });
     });
 

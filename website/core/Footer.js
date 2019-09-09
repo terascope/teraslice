@@ -47,8 +47,8 @@ class Footer extends React.Component {
                         <a href={this.docUrl('packages.html', this.props.language)}>
                         Packages
                         </a>
-                        <a href={this.docUrl('apis.html', this.props.language)}>
-                        API Reference
+                        <a href={this.docUrl('asset-bundles.html', this.props.language)}>
+                        Asset Bundles
                         </a>
                     </div>
                     <div>

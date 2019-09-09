@@ -133,12 +133,12 @@ export default class Extraction {
     }
 
     run(doc: DataEntity): DataEntity | null {
-        let record;
+        let record: DataEntity;
 
         if (this.isMutation) {
             record = doc;
         } else {
-            record = DataEntity.makeRaw({}, doc.getMetadata()).entity;
+            record = DataEntity.fork(doc, false);
         }
 
         for (const config of this.configs) {

@@ -1,6 +1,6 @@
 {
     "name": "xlucene-evaluator",
-    "version": "0.10.2",
+    "version": "0.10.3",
     "description": "Flexible Lucene-like evalutor and language parser",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator#readme",
     "repository": {

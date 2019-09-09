@@ -42,10 +42,10 @@ export default class ExtractionPhase extends PhaseBase {
     }
 }
 
-function createTargetResults(input: DataEntity) {
-    const { entity, metadata } = DataEntity.makeRaw({}, input.getMetadata());
+function createTargetResults(input: DataEntity): { entity: DataEntity; metadata: any } {
+    const entity = DataEntity.fork(input, false);
     return {
-        metadata,
+        metadata: entity.getMetadata(),
         entity,
     };
 }

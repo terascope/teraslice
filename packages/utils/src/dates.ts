@@ -7,16 +7,31 @@ export function makeISODate(): string {
 
 /** A simplified implemation of moment(new Date(val)).isValid() */
 export function isValidDate(val: any): boolean {
-    const d = new Date(val);
-    // @ts-ignore
-    return d instanceof Date && !isNaN(d);
+    return getValidDate(val) !== false;
 }
 
 /** Check if the data is valid and return if it is */
 export function getValidDate(val: any): Date | false {
+    if (val == null) return false;
+    if (isValidDateInstance(val)) return val;
+    if (typeof val === 'number'
+        && (val <= 0 || !Number.isSafeInteger(val))) {
+        return false;
+    }
     const d = new Date(val);
-    // @ts-ignore
-    return d instanceof Date && !isNaN(d) && d;
+    return isValidDateInstance(d) && d;
+}
+
+export function isValidDateInstance(val: Date): boolean {
+    return val instanceof Date && !isNaN(val as any);
+}
+
+/** Ensure unix time */
+export function getUnixTime(val?: string|number|Date): number | false {
+    if (val == null) return Date.now();
+    const result = getValidDate(val);
+    if (result === false) return false;
+    return result.getTime();
 }
 
 /**
