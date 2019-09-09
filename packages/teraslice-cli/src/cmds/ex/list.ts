@@ -17,10 +17,9 @@ export = {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
         yargs.options('status', yargsOptions.buildOption('ex-status'));
-        // @ts-ignore
         yargs.strict()
-            .example('$0 ex list cluster1')
-            .example('$0 ex list cluster1 --status=failing');
+            .example('$0 ex list cluster1', '')
+            .example('$0 ex list cluster1 --status=failing', '');
         return yargs;
     },
     async handler(argv) {
