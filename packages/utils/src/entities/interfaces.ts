@@ -75,6 +75,12 @@ export interface EncodingConfig {
 /** A list of supported encoding formats */
 export const dataEncodings: readonly DataEncoding[] = Object.values(DataEncoding);
 
+export type TYPE_IS_WINDOW_KEY = '__isDataWindow';
+export type TYPE_DATAWINDOW_METADATA_KEY = '___DataWindowMetadata';
+
+export const __IS_WINDOW_KEY: TYPE_IS_WINDOW_KEY = '__isDataWindow';
+export const __DATAWINDOW_METADATA_KEY: TYPE_DATAWINDOW_METADATA_KEY = '___DataWindowMetadata';
+
 /**
  * DataWindows have conventional metadata properties
  * that can track process and key information around

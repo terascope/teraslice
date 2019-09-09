@@ -18,6 +18,22 @@ export function defineEntityProperties(entity: unknown): void {
     });
 }
 
+export function defineWindowProperties(entity: any): void {
+    Object.defineProperty(entity, i.__IS_WINDOW_KEY, {
+        value: true,
+        configurable: false,
+        enumerable: false,
+        writable: false,
+    });
+
+    Object.defineProperty(entity, i.__DATAWINDOW_METADATA_KEY, {
+        value: createCoreMetadata(),
+        configurable: false,
+        enumerable: false,
+        writable: false,
+    });
+}
+
 export function createMetadata<M>(metadata: M): i._DataEntityMetadata<M> {
     return { ...createCoreMetadata(), ...metadata } as i._DataEntityMetadata<M>;
 }

@@ -1,10 +1,16 @@
 import { DataEntity } from './data-entity';
+import * as i from './interfaces';
+import * as utils from './utils';
+import { getValidDate } from '../dates';
 
 /**
  * Acts as an array of DataEntities associated to a particular key or time frame.
  * A `DataWindow` should be able to be used in-place of an array in most cases.
  */
-export class DataWindow<T extends DataEntity = DataEntity> extends Array<T> {
+export class DataWindow<
+    T extends DataEntity = DataEntity,
+    M extends Record<string, any> = {}
+> extends Array<T> {
     /**
      * A utility for safely creating a `DataWindow`
      */
@@ -23,37 +29,87 @@ export class DataWindow<T extends DataEntity = DataEntity> extends Array<T> {
         return input instanceof DataWindow;
     }
 
+    private readonly [i.__DATAWINDOW_METADATA_KEY]: i.DataWindowMetadata & M;
+    private readonly [i.__IS_WINDOW_KEY]: true;
+
+    constructor(...docs: T[]) {
+        super(...docs);
+        utils.defineWindowProperties(this);
+    }
+
     /**
      * Get the metadata for the `DataWindow`.
      *
      * If a field is specified, it will get that property of the metadata
     */
-    getMetadata(_key?: string) {}
+    getMetadata(key?: undefined): i.DataWindowMetadata & M;
+    getMetadata<K extends keyof i.DataWindowMetadata>(key: K): i.DataWindowMetadata[K];
+    getMetadata<K extends keyof M>(key: K): M[K];
+    getMetadata(key: string|number): any;
+    getMetadata<K extends keyof M|keyof i.DataWindowMetadata>(
+        key?: K
+    ): (i.DataWindowMetadata & M)[K]|(i.DataWindowMetadata & M) {
+        if (key) {
+            return this[i.__DATAWINDOW_METADATA_KEY][key];
+        }
+        return this[i.__DATAWINDOW_METADATA_KEY];
+    }
 
     /**
      * Given a field and value set the metadata on the record
     */
-    setMetadata(_key: string, _val: any) {}
+    setMetadata<K extends string|number>(
+        field: K,
+        value: any
+    ): void;
+    setMetadata<K extends keyof i.DataWindowMetadata, V extends i.DataWindowMetadata[K]>(
+        field: K,
+        value: VRDisplayEvent
+    ): void;
+    setMetadata<K extends keyof M, V extends M[K]>(
+        field: K,
+        value: V
+    ): void;
+    setMetadata<K extends keyof M|keyof i.DataWindowMetadata>(field: K, value: any): void {
+        if (field == null || field === '') {
+            throw new Error('Missing field to set in metadata');
+        }
+        if (field === '_createTime') {
+            throw new Error(`Cannot set readonly metadata property ${field}`);
+        }
+        if (field === '_key') {
+            return this.setKey(value as any);
+        }
+
+        this[i.__DATAWINDOW_METADATA_KEY][field] = value as any;
+    }
 
     /**
      * Get the unique `_key` for the window
      *
      * If no `_key` is found, an error will be thrown
     */
-    getKey() {}
+    getKey(): string {
+        return '';
+    }
 
     /**
      * Set the unique `_key` for the window
      *
      * If no `_key` is found, an error will be thrown
     */
-    setKey(_key: string|number) {}
+    setKey(_key: string|number): void {}
 
     /**
      * Get the time at which this window was created.
     */
     getCreateTime(): Date {
-        return new Date();
+        const val = this[i.__DATAWINDOW_METADATA_KEY]._createTime;
+        const date = getValidDate(val);
+        if (date === false) {
+            throw new Error('Missing _createTime');
+        }
+        return date;
     }
 
     /**

@@ -36,6 +36,30 @@ describe('DataWindow', () => {
             expect(window.setMetadata).toBeFunction();
         });
 
+        it('should be able to set and get a metadata value', () => {
+            type M = { hello?: string };
+            const window = new DataWindow<DataEntity, M>();
+            window.setMetadata('hello', 'there');
+
+            expect(window.getMetadata()).toHaveProperty('hello', 'there');
+            const result: string|undefined = window.getMetadata('hello');
+            expect(result).toEqual('there');
+        });
+
+        it('should NOT be able to set _createTime', () => {
+            const window = new DataWindow();
+            expect(() => {
+                window.setMetadata('_createTime', 0);
+            }).toThrowError(/Cannot set readonly metadata property/);
+        });
+
+        it('should NOT be able to set an empty key', () => {
+            const window = new DataWindow();
+            expect(() => {
+                window.setMetadata('', '');
+            }).toThrowError(/Missing field to set in metadata/);
+        });
+
         it('should have a getKey function', () => {
             const window = new DataWindow();
             expect(window.getKey).toBeFunction();
@@ -44,6 +68,11 @@ describe('DataWindow', () => {
         it('should have a setKey function', () => {
             const window = new DataWindow();
             expect(window.setKey).toBeFunction();
+        });
+
+        it('should be able to get the _createTime', () => {
+            const window = new DataWindow();
+            expect(window.getCreateTime()).toBeDate();
         });
 
         it('should have a getStartTime function', () => {
