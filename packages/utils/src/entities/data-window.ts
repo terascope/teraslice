@@ -29,6 +29,10 @@ export class DataWindow<
         return input instanceof DataWindow;
     }
 
+    static [Symbol.hasInstance](instance: any): boolean {
+        return Boolean(instance != null && instance[i.__IS_WINDOW_KEY] === true);
+    }
+
     private readonly [i.__DATAWINDOW_METADATA_KEY]: i.DataWindowMetadata & M;
     private readonly [i.__IS_WINDOW_KEY]: true;
 
