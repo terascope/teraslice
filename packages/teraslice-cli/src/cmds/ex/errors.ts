@@ -19,12 +19,11 @@ export = {
         yargs.options('from', yargsOptions.buildOption('ex-from'));
         yargs.options('size', yargsOptions.buildOption('ex-size'));
         yargs.options('sort', yargsOptions.buildOption('ex-sort'));
-        // @ts-ignore
         yargs.strict()
-            .example('$0 ex errors cluster1 99999999-9999-9999-9999-999999999999')
-            .example('$0 ex errors cluster1 99999999-9999-9999-9999-999999999999 --from=500')
-            .example('$0 ex errors cluster1 99999999-9999-9999-9999-999999999999 --size=10')
-            .example('$0 ex errors cluster1 99999999-9999-9999-9999-999999999999 --sort=slicer_order:asc');
+            .example('$0 ex errors cluster1 99999999-9999-9999-9999-999999999999', '')
+            .example('$0 ex errors cluster1 99999999-9999-9999-9999-999999999999 --from=500', '')
+            .example('$0 ex errors cluster1 99999999-9999-9999-9999-999999999999 --size=10', '')
+            .example('$0 ex errors cluster1 99999999-9999-9999-9999-999999999999 --sort=slicer_order:asc', '');
         return yargs;
     },
     async handler(argv) {

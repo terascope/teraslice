@@ -7,7 +7,7 @@ import { syncAll } from '../helpers/sync';
 
 type Options = {
     type: PublishType;
-    action: PublishAction;
+    action?: PublishAction;
     'dry-run': boolean;
 };
 
@@ -46,7 +46,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
     },
     async handler(argv) {
         await syncAll({ verify: true });
-        return publish(argv.action, {
+        return publish(argv.action!, {
             type: argv.type,
             dryRun: argv['dry-run'],
         });
