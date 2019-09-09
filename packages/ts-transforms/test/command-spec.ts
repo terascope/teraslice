@@ -154,15 +154,5 @@ describe('ts-transforms cli', () => {
 
             expect(output).toEqual(streamData);
         });
-
-        it('can pipe stream ldjson using different batch size', async () => {
-            const rulesPath = path.join(cwd, './test/fixtures/transformRules36.txt');
-            const dataPath = path.join(cwd, './test/fixtures/data/ldjson.txt');
-
-            const response = await runCli(`cat ${dataPath} | node ${cliPath} -f ldjson -s 5 -r ${rulesPath}`, { shell: true });
-            const output = parseOutput(response.stdout);
-
-            expect(output).toEqual(streamData);
-        });
     });
 });

@@ -390,7 +390,7 @@ describe('transform operator', () => {
     it('can set a field using expr', () => {
         const opConfig = {
             exp: '20',
-            target: 'setKey',
+            target: 'my_key',
             __id: 'someId',
             multivalue: false,
             mutate: false
@@ -399,8 +399,7 @@ describe('transform operator', () => {
         const data = new DataEntity({ some: 'data' });
 
         const results = test.run(data);
-
-        expect(results).toEqual({ setKey: 20 });
+        expect(results).toEqual({ my_key: 20 });
     });
 
 
@@ -408,7 +407,7 @@ describe('transform operator', () => {
         const opConfig = {
             exp: '"transformed_" + some ',
             source: 'some',
-            target: 'setKey',
+            target: 'my_key',
             __id: 'someId',
             multivalue: false,
             mutate: false
@@ -418,6 +417,6 @@ describe('transform operator', () => {
 
         const results = test.run(data);
 
-        expect(results).toEqual({ setKey: 'transformed_data' });
+        expect(results).toEqual({ my_key: 'transformed_data' });
     });
 });

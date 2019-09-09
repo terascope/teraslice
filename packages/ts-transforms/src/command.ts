@@ -194,7 +194,7 @@ async function transformIO(manager: PhaseManager) {
                 if (obj != null) {
                     try {
                         const results = manager.run([obj]);
-                        outputData(results);
+                        if (results.length > 0) outputData(results);
                     } catch (err) {
                         reject(err);
                     }
