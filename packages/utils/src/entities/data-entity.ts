@@ -9,8 +9,9 @@ import * as utils from './utils';
 import { locked } from '../decorators';
 
 /**
- * A wrapper for data that can hold additional metadata properties.
- * A DataEntity should be essentially transparent to use within operations.
+ * Acts as a thin wrapper around a data object to expose additional metadata
+ * and convenience methods that used within teraslice pipelines.
+ * A `DataEntity` should be able to be used in-place of objects in most cases.
  *
  * NOTE: Use `DataEntity.make`, `DataEntity.fromBuffer` and `DataEntity.makeArray`
  * in production for potential performance gains

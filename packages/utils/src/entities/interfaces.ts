@@ -17,7 +17,7 @@ export type DataEntityMetadataValue<M> =
     | string
     | number;
 
-export type EntityMetadataValue<M, K> =
+export type DataEntityMetadataValue<M, K> =
     K extends (keyof DataEntityMetadata) ?
         DataEntityMetadata[K] : (
             K extends (keyof M)
@@ -74,3 +74,37 @@ export interface EncodingConfig {
 
 /** A list of supported encoding formats */
 export const dataEncodings: readonly DataEncoding[] = Object.values(DataEncoding);
+
+/**
+ * DataWindows have conventional metadata properties
+ * that can track process and key information around
+ * a DataWindow
+ *
+ * **NOTE** Time values are set in UNIX Epoch time,
+ * to reduce memory footput, the DataWindow has convenience
+ * apis for getting and setting the time given and handling
+ * the conversion between unix milliseconds to Date format.
+*/
+export interface DataWindowMetadata {
+    /**
+     * The time at which this entity was created
+     * (this is automatically set on DataWindow creation)
+     * @readonly
+    */
+    _createTime?: number;
+
+    /**
+     * The time at which a window was started to collect data
+    */
+    _startTime?: number;
+
+    /**
+     * The time at which a window completed collecting data
+    */
+    _finishTime?: number;
+
+    /**
+     * A unique key for the data that is associated with Window
+     */
+    _key?: string|number;
+}
