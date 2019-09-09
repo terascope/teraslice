@@ -1,6 +1,6 @@
 
 import {
-    DataEntity, matchAll, get, set
+    DataEntity, matchAll, get, set, AnyObject, TSError
 } from '@terascope/utils';
 import jexl from 'jexl';
 import { ExtractionConfig, InputOutputCardinality } from '../../../interfaces';
@@ -63,6 +63,15 @@ function matchRegex(config: ExtractionConfig) {
     };
 }
 
+function callExpression(exp: string, origin: DataEntity<AnyObject, {}>) {
+    try {
+        return jexl.evalSync(exp, origin);
+    } catch (err) {
+        const errMessage = `Invalid jexl expression: ${exp}, error: ${err.message}`;
+        throw new TSError(errMessage);
+    }
+}
+
 function extractAndTransferFields(
     data: any,
     dest: DataEntity,
@@ -80,13 +89,13 @@ function extractAndTransferFields(
             const sliceString = getSubslice(start, end);
             extractedResult = extractField(data, sliceString, config.multivalue);
         } else if (config.exp) {
-            extractedResult = jexl.evalSync(config.exp, origin);
+            extractedResult = callExpression(config.exp, origin);
         } else {
             extractedResult = data;
         }
     } else if (config.exp && config.source === undefined) {
         // this should be a set operation
-        extractedResult = jexl.evalSync(config.exp, origin);
+        extractedResult = callExpression(config.exp, origin);
     }
 
     if (extractedResult !== undefined && extractedResult !== null) {

@@ -25,8 +25,6 @@ const command = yargs
     .alias('m', 'match')
     .alias('p', 'plugins')
     .alias('f', 'format')
-    .alias('s', 'size')
-    .default('s', 10000)
     .help('h')
     .alias('h', 'help')
     .describe('r', 'path to load the rules file')
@@ -35,7 +33,6 @@ const command = yargs
     .describe('t', 'specify type configs ie field:value, otherfield:value')
     .describe('T', 'specify type configs from file')
     .describe('p', 'path to plugins that should be added into ts-transforms')
-    .describe('s', 'batch size for stream processing, defaults to 10,000')
     .describe('format', 'set this to type of incoming data, if set to ldjson then it will stream the input and output records')
     .demandOption(['r'])
     .choices('f', ['ldjson', 'json', 'teraserver', 'es'])
@@ -45,7 +42,6 @@ const filePath = command.rules as string;
 const dataPath = command.data as string;
 const streamData = command.f && command.f === 'ldjson' ? command.f : false;
 const ignoreErrors = command.i || false;
-const batchSize = command.s;
 let typesConfig = {};
 const type = command.m ? 'matcher' : 'transform';
 
@@ -161,7 +157,7 @@ function parseLine(str: string) {
     // if its not an empty space or a comment then parse it
     if (line.length > 0 && line[0] !== '#') {
         try {
-            return (JSON.parse(line));
+            return DataEntity.make(JSON.parse(line));
         } catch (err) {
             const errorMsg = `Failed to parse data "${line}"`;
             if (ignoreErrors === true) {
@@ -180,7 +176,6 @@ function outputData(results: AnyObject[]) {
 
 async function transformIO(manager: PhaseManager) {
     return new Promise((resolve, reject) => {
-        let data: DataEntity[] = [];
         try {
             const input = dataPath ? fs.createReadStream(dataPath) : process.stdin;
 
@@ -196,26 +191,19 @@ async function transformIO(manager: PhaseManager) {
 
             rl.on('line', (str: string) => {
                 const obj = parseLine(str);
-                if (obj != null) data.push(DataEntity.make(obj));
-                if (data.length >= batchSize) {
-                    const results = manager.run(data);
-                    data = [];
-                    outputData(results);
+                if (obj != null) {
+                    try {
+                        const results = manager.run([obj]);
+                        outputData(results);
+                    } catch (err) {
+                        reject(err);
+                    }
                 }
             });
 
             rl.on('close', () => {
-                if (data.length > 0) {
-                    const results = manager.run(data);
-                    if (command.perf) console.timeEnd('execution-time');
-                    data = [];
-                    outputData(results);
-                    return resolve(true);
-                }
-
-                if (data.length === 0 && command.perf) {
-                    console.timeEnd('execution-time');
-                }
+                if (command.perf) console.timeEnd('execution-time');
+                return resolve(true);
             });
         } catch (err) {
             reject(err);
@@ -238,10 +226,17 @@ async function initCommand() {
                 return mod.default || mod;
             });
         }
-        const manager = new PhaseManager(opConfig, logger);
+        let manager: PhaseManager;
 
-        await manager.init(plugins);
-
+        try {
+            manager = new PhaseManager(opConfig, logger);
+            await manager.init(plugins);
+        } catch (err) {
+            console.error(`could not initiate transforms: ${err.message}`);
+            process.exitCode = 1;
+        }
+        // @ts-ignore
+        if (manager === undefined) return;
 
         if (streamData) {
             await transformIO(manager);
@@ -259,7 +254,7 @@ async function initCommand() {
             outputData(results);
         }
     } catch (err) {
-        console.error(err);
+        console.error(err.message);
         process.exitCode = 1;
     }
 }
