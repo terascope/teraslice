@@ -2,6 +2,7 @@ import { DataEntity } from './data-entity';
 import * as i from './interfaces';
 import * as utils from './utils';
 import { getValidDate } from '../dates';
+import { locked } from '../misc';
 
 /**
  * Acts as an array of DataEntities associated to a particular key or time frame.
@@ -50,6 +51,8 @@ export class DataWindow<
     getMetadata<K extends keyof i.DataWindowMetadata>(key: K): i.DataWindowMetadata[K];
     getMetadata<K extends keyof M>(key: K): M[K];
     getMetadata(key: string|number): any;
+
+    @locked()
     getMetadata<K extends keyof M|keyof i.DataWindowMetadata>(
         key?: K
     ): (i.DataWindowMetadata & M)[K]|(i.DataWindowMetadata & M) {
@@ -74,6 +77,8 @@ export class DataWindow<
         field: K,
         value: V
     ): void;
+
+    @locked()
     setMetadata<K extends keyof M|keyof i.DataWindowMetadata>(field: K, value: any): void {
         if (field == null || field === '') {
             throw new Error('Missing field to set in metadata');
@@ -93,6 +98,7 @@ export class DataWindow<
      *
      * If no `_key` is found, an error will be thrown
     */
+    @locked()
     getKey(): string {
         return '';
     }
@@ -102,11 +108,13 @@ export class DataWindow<
      *
      * If no `_key` is found, an error will be thrown
     */
+    @locked()
     setKey(_key: string|number): void {}
 
     /**
      * Get the time at which this window was created.
     */
+    @locked()
     getCreateTime(): Date {
         const val = this[i.__DATAWINDOW_METADATA_KEY]._createTime;
         const date = getValidDate(val);
@@ -122,6 +130,7 @@ export class DataWindow<
      * If none is found, `undefined` will be returned.
      * If an invalid date is found, `false` will be returned.
     */
+    @locked()
     getStartTime(): Date|false|undefined {
         return undefined;
     }
@@ -132,6 +141,7 @@ export class DataWindow<
      * If the value is empty it will set the time to now.
      * If an invalid date is given, an error will be thrown.
      */
+    @locked()
     setStartTime(_val?: string|number|Date): void {}
 
     /**
@@ -140,6 +150,7 @@ export class DataWindow<
      * If none is found, `undefined` will be returned.
      * If an invalid date is found, `false` will be returned.
     */
+    @locked()
     getFinishTime(): Date|false|undefined {
         return undefined;
     }
@@ -150,5 +161,6 @@ export class DataWindow<
      * If the value is empty it will set the time to now.
      * If an invalid date is given, an error will be thrown.
      */
+    @locked()
     setFinishTime(_val?: string|number|Date): void {}
 }

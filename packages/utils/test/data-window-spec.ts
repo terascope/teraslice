@@ -2,13 +2,64 @@ import 'jest-extended';
 import {
     DataWindow,
     DataEntity,
+    fastCloneDeep,
+    __IS_WINDOW_KEY,
+    __DATAWINDOW_METADATA_KEY,
 } from '../src';
 
 describe('DataWindow', () => {
+    const methods: readonly (keyof DataWindow)[] = [
+        'getMetadata',
+        'setMetadata',
+        'getKey',
+        'setKey',
+        'getCreateTime',
+        'getStartTime',
+        'setStartTime',
+        'getFinishTime',
+        'setFinishTime',
+    ];
+
+    const hiddenProps: string[] = [
+        __IS_WINDOW_KEY,
+        __DATAWINDOW_METADATA_KEY,
+    ];
+
     describe('when constructed with nothing', () => {
         it('should return an array like entity', () => {
             const window = new DataWindow();
             expect(window).toBeArrayOfSize(0);
+        });
+
+        it('should NOT have any enumerable built-in methods', () => {
+            const window = new DataWindow();
+
+            // eslint-disable-next-line guard-for-in
+            for (const key in window) {
+                expect(methods).not.toContain(key);
+            }
+        });
+
+        it('should NOT have any enumerable internal properties', () => {
+            const window = new DataWindow();
+
+            // eslint-disable-next-line guard-for-in
+            for (const key in window) {
+                expect(hiddenProps).not.toContain(key);
+            }
+        });
+
+        it('should NOT be able to overwrite a built-in method', () => {
+            const window = new DataWindow();
+
+            for (const method of methods) {
+                try {
+                    window[method] = 'overwritten' as any;
+                } catch (err) {
+                    expect(err).toBeInstanceOf(TypeError);
+                }
+                expect(window[method]).not.toBe('overwritten');
+            }
         });
     });
 
@@ -93,6 +144,26 @@ describe('DataWindow', () => {
         it('should have a setFinishTime function', () => {
             const window = new DataWindow();
             expect(window.setFinishTime).toBeFunction();
+        });
+    });
+
+    describe('when fast cloning the window', () => {
+        it('should NOT have any of the built-in methods', () => {
+            const window = new DataWindow();
+            const cloned = fastCloneDeep(window);
+
+            for (const method of methods) {
+                expect(cloned[method]).not.toBeFunction();
+            }
+        });
+
+        it('should NOT have any of the internal properties', () => {
+            const window = new DataWindow();
+            const cloned = fastCloneDeep(window);
+
+            for (const prop of hiddenProps) {
+                expect(cloned).not.toHaveProperty(prop);
+            }
         });
     });
 });
