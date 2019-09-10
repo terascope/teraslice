@@ -88,7 +88,7 @@ describe('DataWindow', () => {
         });
     });
 
-    describe('when testing if something is a DataWindow', () => {
+    describe('#isDataWindow', () => {
         const shouldBe: ([string, any])[] = [
             ['new DataWindow', new DataWindow()],
             ['DataWindow.make', DataWindow.make({})],
@@ -99,10 +99,11 @@ describe('DataWindow', () => {
         });
 
         const shouldNotBe: ([string, any])[] = [
+            ['null', null],
             ['{ test: true }', { test: true }],
-            ['empty string', ''],
+            ['an empty string', ''],
             ['"hello"', 'hello'],
-            ['empty array', []],
+            ['an empty array', []],
             ['[1, 2]', [1, 2]],
             ['[DataWindow]', [new DataWindow()]],
             ['Buffer.from', Buffer.from('hello')],
@@ -116,7 +117,37 @@ describe('DataWindow', () => {
         });
     });
 
-    describe('when using make', () => {
+    describe('#isDataWindowArray', () => {
+        const shouldBe: ([string, any])[] = [
+            ['an empty array', []],
+            ['[DataWindow]', [new DataWindow()]],
+            ['[DataWindow.make]', [DataWindow.make({})]],
+        ];
+
+        test.each(shouldBe)('should think %s is an array of DataWindows', (_str, val) => {
+            expect(DataWindow.isDataWindowArray(val)).toBeTrue();
+        });
+
+        const shouldNotBe: ([string, any])[] = [
+            ['null', null],
+            ['{ test: true }', { test: true }],
+            ['an empty string', ''],
+            ['"hello"', 'hello'],
+            ['[1, 2]', [1, 2]],
+            ['DataWindow', new DataWindow()],
+            ['DataWindow.make', DataEntity.make],
+            ['Buffer.from', Buffer.from('hello')],
+            ['DataEntity.make', DataEntity.make({})],
+            ['new Set', new Set()],
+            ['new Map', new Map()],
+        ];
+
+        test.each(shouldNotBe)('should NOT think %s is an array of DataWindows', (_str, val) => {
+            expect(DataWindow.isDataWindowArray(val)).toBeFalse();
+        });
+    });
+
+    describe('#make', () => {
         it('should return a DataWindow', () => {
             const window = DataWindow.make({});
             expect(DataWindow.isDataWindow(window)).toBeTrue();

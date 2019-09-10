@@ -47,6 +47,7 @@ export class DataEntity<
             }
             return input;
         }
+        if (utils.isDataWindow(input)) return input;
         return new DataEntity(input, metadata);
     }
 

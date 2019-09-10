@@ -11,6 +11,7 @@ import {
     cloneDeep,
     fastCloneDeep,
     firstToLower,
+    DataWindow
 } from '../src';
 
 describe('DataEntity', () => {
@@ -513,6 +514,40 @@ describe('DataEntity', () => {
             expect(dataEntities[0]).toHaveProperty('hello', 'there');
 
             expect(DataEntity.makeArray(dataEntities)).toEqual(dataEntities);
+        });
+
+        it('should NOT convert a DataWindow', () => {
+            const entities = DataEntity.makeArray([
+                {
+                    hello: 'there',
+                },
+                {
+                    howdy: 'partner',
+                },
+            ]);
+
+            const window = new DataWindow(entities);
+            const result = DataEntity.makeArray(window);
+            expect(result).toBe(window);
+            expect(result).toBeArrayOfSize(2);
+            expect(result).toBeInstanceOf(DataWindow);
+        });
+
+        it('should NOT convert an array of DataWindows', () => {
+            const windows = [
+                new DataWindow({
+                    hello: 'there',
+                }),
+                new DataWindow({
+                    howdy: 'partner',
+                })
+            ];
+            const result = DataEntity.makeArray(windows);
+            // it should not keep the same reference
+            expect(result).not.toBe(windows);
+            expect(result).toBeArrayOfSize(2);
+            expect(result[0]).toBeInstanceOf(DataWindow);
+            expect(result[1]).toBeInstanceOf(DataWindow);
         });
 
         it('should return a batch of data entities', () => {

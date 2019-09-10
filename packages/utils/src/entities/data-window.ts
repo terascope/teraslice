@@ -32,6 +32,19 @@ export class DataWindow<
         return input instanceof DataWindow;
     }
 
+    /**
+     * Verify that an input is an Array of DataWindows
+     */
+    static isDataWindowArray<T = DataEntity, M = {}>(
+        input: any
+    ): input is DataWindow<T, M>[] {
+        if (input == null) return false;
+        if (!Array.isArray(input)) return false;
+        if (DataWindow.isDataWindow(input)) return false;
+        if (input.length === 0) return true;
+        return input.every(DataWindow.isDataWindow);
+    }
+
     static [Symbol.hasInstance](instance: any): boolean {
         return utils.isDataWindow(instance);
     }
