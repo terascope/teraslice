@@ -25,10 +25,19 @@ describe('DataWindow', () => {
         __DATAWINDOW_METADATA_KEY,
     ];
 
+    describe('when constructed with a array of numbers', () => {
+        it('should throw an error', () => {
+            expect(() => {
+                new DataWindow([1] as any);
+            }).toThrowError(/Invalid data source/);
+        });
+    });
+
     describe('when constructed with nothing', () => {
         it('should return an array like entity', () => {
             const window = new DataWindow();
             expect(window).toBeArrayOfSize(0);
+            expect(Array.isArray(window)).toBeTrue();
         });
 
         it('should be push a DataEntity', () => {
@@ -76,6 +85,89 @@ describe('DataWindow', () => {
                 }
                 expect(window[method]).not.toBe('overwritten');
             }
+        });
+    });
+
+    describe('when testing if something is a DataWindow', () => {
+        const shouldBe: ([string, any])[] = [
+            ['new DataWindow', new DataWindow()],
+            ['DataWindow.make', DataWindow.make({})],
+        ];
+
+        test.each(shouldBe)('should think %s is a DataWindow', (_str, val) => {
+            expect(DataWindow.isDataWindow(val)).toBeTrue();
+        });
+
+        const shouldNotBe: ([string, any])[] = [
+            ['{ test: true }', { test: true }],
+            ['empty string', ''],
+            ['"hello"', 'hello'],
+            ['empty array', []],
+            ['[1, 2]', [1, 2]],
+            ['[DataWindow]', [new DataWindow()]],
+            ['Buffer.from', Buffer.from('hello')],
+            ['DataEntity.make', DataEntity.make({})],
+            ['new Set', new Set()],
+            ['new Map', new Map()],
+        ];
+
+        test.each(shouldNotBe)('should NOT think %s is a DataWindow', (_str, val) => {
+            expect(DataWindow.isDataWindow(val)).toBeFalse();
+        });
+    });
+
+    describe('when using make', () => {
+        it('should return a DataWindow', () => {
+            const window = DataWindow.make({});
+            expect(DataWindow.isDataWindow(window)).toBeTrue();
+        });
+
+        it('should have all of the methods', () => {
+            const window = DataWindow.make({});
+            for (const method of methods) {
+                expect(window).toHaveProperty(method as string);
+                expect(window[method]).toBeFunction();
+            }
+        });
+
+        it('should be able to set the metadata', () => {
+            const window = DataWindow.make([], {
+                _key: 'hello',
+                foo: 'bar'
+            });
+            expect(window.getKey()).toBe('hello');
+            expect(window.getMetadata('foo')).toBe('bar');
+        });
+
+        describe('when given a DataWindow', () => {
+            it('should NOT create a new window', () => {
+                const window = new DataWindow();
+                expect(DataWindow.make(window)).toBe(window);
+            });
+        });
+
+        describe('when given an array of DataEntities', () => {
+            it('should create window with those DataEntities', () => {
+                const entities = DataEntity.makeArray([
+                    { a: 1 },
+                    { b: 2 },
+                    { c: 3 }
+                ]);
+                expect(DataWindow.make(entities)).toEqual(entities);
+            });
+        });
+
+        describe('when given an array of objects', () => {
+            it('should create window and have it convert them to DataEntities', () => {
+                const entities = [
+                    { a: 1 },
+                    { b: 2 },
+                    { c: 3 }
+                ];
+                const result = DataWindow.make(entities);
+                expect(result).toEqual(entities);
+                expect(DataEntity.isDataEntityArray(result)).toBeTrue();
+            });
         });
     });
 

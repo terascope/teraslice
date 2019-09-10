@@ -16,11 +16,11 @@ export class DataWindow<
     /**
      * A utility for safely creating a `DataWindow`
      */
-    static make<T extends DataEntity = DataEntity, M = {}>(
-        input: T[]|DataWindow, metadata?: M
+    static make<T = DataEntity, M = {}>(
+        input: T|T[], metadata?: M
     ): DataWindow<T, M> {
-        if (DataWindow.isDataWindow(input)) {
-            return input as DataWindow<T, M>;
+        if (DataWindow.isDataWindow<T, M>(input)) {
+            return input;
         }
         return new DataWindow(input, metadata);
     }
@@ -28,21 +28,21 @@ export class DataWindow<
     /**
      * Verify that an input is a `DataWindow`
      */
-    static isDataWindow(input: any): input is DataWindow {
+    static isDataWindow<T, M>(input: any): input is DataWindow<T, M> {
         return input instanceof DataWindow;
     }
 
     static [Symbol.hasInstance](instance: any): boolean {
-        return Boolean(instance != null && instance[i.__IS_WINDOW_KEY] === true);
+        return utils.isDataWindow(instance);
     }
 
     private readonly [i.__DATAWINDOW_METADATA_KEY]: i.DataWindowMetadata & M;
     private readonly [i.__IS_WINDOW_KEY]: true;
 
-    // FIXME: validate input
-    constructor(docs?: T[], metadata?: M) {
-        if (Array.isArray(docs) && docs.length) {
-            super(...docs);
+    constructor(docs?: T|T[], metadata?: M) {
+        if (docs != null && utils.canConvertToEntityArray(docs)) {
+            const entities: T[] = DataEntity.makeArray(docs) as any;
+            super(...entities);
         } else {
             super();
         }
