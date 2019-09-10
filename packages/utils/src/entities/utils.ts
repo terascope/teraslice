@@ -1,4 +1,5 @@
 import * as i from './interfaces';
+import { isPlainObject } from '../objects';
 import { isString } from '../strings';
 import { isNumber } from '../numbers';
 
@@ -63,4 +64,28 @@ export function isValidKey(key: unknown): key is string|number {
 
 export function isDataEntity(input: unknown): boolean {
     return Boolean(input != null && (input as any)[i.__IS_DATAENTITY_KEY] === true);
+}
+
+export function isDataWindow(input: unknown): boolean {
+    return Boolean(input != null && input[i.__IS_WINDOW_KEY] === true);
+}
+
+export function canConvertToEntityArray(input: unknown): boolean {
+    if (input == null) return false;
+    if (Array.isArray(input)) return true;
+    if (isDataEntity(input)) return true;
+    if (isPlainObject(input)) return true;
+    return false;
+}
+
+export function isDataWindow(input: any): boolean {
+    return Boolean(input != null && input[i.__IS_WINDOW_KEY] === true);
+}
+
+export function canConvertToEntityArray(input: any): boolean {
+    if (input == null) return false;
+    if (Array.isArray(input)) return true;
+    if (isDataEntity(input)) return true;
+    if (isPlainObject(input)) return true;
+    return false;
 }

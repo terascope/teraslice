@@ -291,14 +291,16 @@ describe('DataWindow', () => {
         });
     });
 
-    const shallowCloneCases: ([string, (window: DataWindow) => DataWindow])[] = [
-        ['.slice()', (window: DataWindow): any => window.slice()],
-        ['.map((entity) => entity)', (window: DataWindow): any => window.map((entity) => entity)],
-        ['.filter(Boolean)', (window: DataWindow): any => window.filter(Boolean)],
+    type shallowEntity = DataEntity<{ a: number }>;
+    type shallowTestFn = (window: DataWindow<shallowEntity>) => DataWindow<shallowEntity>;
+    const shallowCloneCases: ([string, shallowTestFn])[] = [
+        ['.slice()', (window) => window.slice()],
+        ['.map((entity) => entity)', (window) => window.map((entity) => entity)],
+        ['.filter(() => true)', (window) => window.filter(Boolean as any)],
     ];
 
     describe.each(shallowCloneCases)('when shallow cloning via %s on the window', (_str, fn) => {
-        const input: DataEntity<{ a: number }>[] = [
+        const input: shallowEntity[] = [
             DataEntity.make({ a: 1 }, { _key: 1 }),
             DataEntity.make({ a: 2 }, { _key: 2 }),
             DataEntity.make({ a: 3 }, { _key: 3 }),

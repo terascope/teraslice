@@ -1,9 +1,9 @@
+import { getValidDate, getUnixTime } from '../dates';
 import { DataEntity } from './data-entity';
+import { getTypeOf } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
-import { getValidDate, getUnixTime } from '../dates';
 import { locked } from '../misc';
-import { getTypeOf } from '../utils';
 
 /**
  * Acts as an array of DataEntities associated to a particular key or time frame.
@@ -197,7 +197,6 @@ export class DataWindow<
     }
 
     // override behaviour of an Array...
-    // FIXME: reduce, reduceRight
 
     slice(begin?: number, end?: number): DataWindow<T, M> {
         return new DataWindow<T, M>(
@@ -220,11 +219,11 @@ export class DataWindow<
         callbackfn: (value: T, index: number, array: T[]) => value is S,
         thisArg?: any
     ): DataWindow<S, M>;
-    filter<U = T>(
+    filter(
         callbackfn: (value: T, index: number, array: T[]) => unknown,
         thisArg?: any
     ): DataWindow<T, M> {
-        return new DataWindow(
+        return new DataWindow<T, M>(
             super.filter(callbackfn, thisArg),
             this.getMetadata()
         );
