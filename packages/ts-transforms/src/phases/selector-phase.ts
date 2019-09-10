@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/prefer-for-of */
 
 import { DataEntity } from '@terascope/utils';
 import { WatcherConfig, Operation, SelectorConfig } from '../interfaces';
@@ -24,11 +23,10 @@ export default class SelectionPhase extends PhaseBase {
     public run(data: DataEntity[]): DataEntity[] {
         if (this.selectionPhase.length > 0) {
             const results = [];
-            for (let i = 0; i < data.length; i += 1) {
-                const record = data[i];
+            for (const record of data) {
                 record.setMetadata('selectors', null);
-                for (let j = 0; j < this.selectionPhase.length; j += 1) {
-                    this.selectionPhase[j].run(record);
+                for (const selector of this.selectionPhase) {
+                    selector.run(record);
                 }
                 const recordMeta = record.getMetadata('selectors');
                 if (recordMeta) {

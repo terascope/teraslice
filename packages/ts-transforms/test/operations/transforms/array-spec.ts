@@ -6,8 +6,8 @@ describe('MakeArray operator', () => {
         const opConfig = {
             post_process: 'array',
             fields: ['first', 'last'],
-            source_field: 'someField',
-            target_field: 'otherField',
+            source: 'someField',
+            target: 'otherField',
             __id: 'someId',
             follow: 'otherId',
         };
@@ -15,11 +15,11 @@ describe('MakeArray operator', () => {
     });
 
     it('can properly throw with bad config values', () => {
-        const badConfig1 = { post_process: 'array', fields: ['first', 'last'], target_field: 1324 };
-        const badConfig2 = { post_process: 'array', fields: ['first', 'last'], target_field: '' };
+        const badConfig1 = { post_process: 'array', fields: ['first', 'last'], target: 1324 };
+        const badConfig2 = { post_process: 'array', fields: ['first', 'last'], target: '' };
         const badConfig3 = { post_process: 'array', fields: ['first', 'last'] };
-        const badConfig4 = { post_process: 'array', fields: 1234, target_field: 'someField' };
-        const badConfig5 = { post_process: 'array', fields: { first: 'first', last: 'last' }, target_field: 'someField' };
+        const badConfig4 = { post_process: 'array', fields: 1234, target: 'someField' };
+        const badConfig5 = { post_process: 'array', fields: { first: 'first', last: 'last' }, target: 'someField' };
         // @ts-ignore
         expect(() => new MakeArray(badConfig1)).toThrow();
         // @ts-ignore
@@ -34,7 +34,7 @@ describe('MakeArray operator', () => {
 
     it('can make an array of fields of data entities', () => {
         const opConfig = {
-            post_process: 'array', fields: ['first', 'last'], target_field: 'full', __id: 'someId', follow: 'someTag'
+            post_process: 'array', fields: ['first', 'last'], target: 'full', __id: 'someId', follow: 'someTag'
         };
         const test = new MakeArray(opConfig);
         const data = new DataEntity({ first: 'John', last: 'Doe' });
@@ -46,7 +46,7 @@ describe('MakeArray operator', () => {
 
     it('can make an array of fields if values are arrays or singular values', () => {
         const opConfig = {
-            post_process: 'array', fields: ['first', 'last'], target_field: 'full', __id: 'someId', follow: 'someTag'
+            post_process: 'array', fields: ['first', 'last'], target: 'full', __id: 'someId', follow: 'someTag'
         };
         const test = new MakeArray(opConfig);
         const data = new DataEntity({ first: ['John', 'Jane'], last: 'Doe' });
@@ -56,11 +56,11 @@ describe('MakeArray operator', () => {
         expect(results).toEqual({ first: ['John', 'Jane'], last: 'Doe', full: ['John', 'Jane', 'Doe'] });
     });
 
-    it('can make an array of fields of data entities through source_fields', () => {
+    it('can make an array of fields of data entities through sources', () => {
         const opConfig = {
             post_process: 'array',
-            source_fields: ['first', 'last'],
-            target_field: 'full',
+            sources: ['first', 'last'],
+            target: 'full',
             __id: 'someId',
             follow: 'otherId',
         };
@@ -74,7 +74,7 @@ describe('MakeArray operator', () => {
 
     it('can make an array of fields if only one field is specified', () => {
         const opConfig = {
-            post_process: 'array', source_fields: ['first'], target_field: 'full', __id: 'someId', follow: 'otherId'
+            post_process: 'array', sources: ['first'], target: 'full', __id: 'someId', follow: 'otherId'
         };
         const test = new MakeArray(opConfig);
         const data = new DataEntity({ first: 'John', last: 'Doe' });
@@ -84,11 +84,11 @@ describe('MakeArray operator', () => {
         expect(results).toEqual({ first: 'John', last: 'Doe', full: ['John'] });
     });
 
-    it('can make an array from nested target_field', () => {
+    it('can make an array from nested target', () => {
         const opConfig = {
             post_process: 'array',
             fields: ['person.first', 'person.last'],
-            target_field: 'author.full_name',
+            target: 'author.full_name',
             __id: 'someId',
             follow: 'otherId',
         };

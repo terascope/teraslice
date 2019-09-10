@@ -27,7 +27,7 @@ sidebar_label: APISearchParams
 
 • **from**? : *undefined | number*
 
-*Defined in [interfaces.ts:24](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/interfaces.ts#L24)*
+*Defined in [interfaces.ts:23](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L23)*
 
 ___
 
@@ -35,7 +35,7 @@ ___
 
 • **size**? : *undefined | number*
 
-*Defined in [interfaces.ts:23](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/interfaces.ts#L23)*
+*Defined in [interfaces.ts:22](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L22)*
 
 ___
 
@@ -43,4 +43,4 @@ ___
 
 • **sort**? : *undefined | string*
 
-*Defined in [interfaces.ts:25](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/interfaces.ts#L25)*
+*Defined in [interfaces.ts:24](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L24)*

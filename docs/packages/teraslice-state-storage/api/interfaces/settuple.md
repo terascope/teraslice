@@ -26,7 +26,7 @@ sidebar_label: SetTuple
 
 • **data**: *T*
 
-*Defined in [interfaces.ts:31](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/interfaces.ts#L31)*
+*Defined in [interfaces.ts:31](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/interfaces.ts#L31)*
 
 ___
 
@@ -34,4 +34,4 @@ ___
 
 • **key**: *string*
 
-*Defined in [interfaces.ts:30](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/interfaces.ts#L30)*
+*Defined in [interfaces.ts:30](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/interfaces.ts#L30)*

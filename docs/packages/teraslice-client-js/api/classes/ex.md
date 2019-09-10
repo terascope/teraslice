@@ -44,7 +44,7 @@ sidebar_label: Ex
 
 *Overrides [Client](client.md).[constructor](client.md#constructor)*
 
-*Defined in [ex.ts:21](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/ex.ts#L21)*
+*Defined in [ex.ts:20](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/ex.ts#L20)*
 
 **Parameters:**
 
@@ -62,7 +62,7 @@ Name | Type |
 
 *Inherited from [Client](client.md).[_config](client.md#protected-_config)*
 
-*Defined in [client.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/client.ts#L12)*
+*Defined in [client.ts:11](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L11)*
 
 ## Methods
 
@@ -72,7 +72,7 @@ Name | Type |
 
 *Inherited from [Client](client.md).[delete](client.md#delete)*
 
-*Defined in [client.ts:45](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/client.ts#L45)*
+*Defined in [client.ts:44](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L44)*
 
 **Parameters:**
 
@@ -89,7 +89,7 @@ ___
 
 ▸ **errors**(`exId`: string | [SearchQuery](../overview.md#searchquery), `opts?`: [SearchQuery](../overview.md#searchquery)): *Promise‹[StateErrors](../overview.md#stateerrors)›*
 
-*Defined in [ex.ts:54](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/ex.ts#L54)*
+*Defined in [ex.ts:53](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/ex.ts#L53)*
 
 **Parameters:**
 
@@ -108,7 +108,7 @@ ___
 
 *Inherited from [Client](client.md).[get](client.md#get)*
 
-*Defined in [client.ts:33](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/client.ts#L33)*
+*Defined in [client.ts:32](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L32)*
 
 **Parameters:**
 
@@ -125,7 +125,7 @@ ___
 
 ▸ **list**(`options?`: ListOptions): *Promise‹[ExecutionGetResponse](../overview.md#executiongetresponse)›*
 
-*Defined in [ex.ts:49](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/ex.ts#L49)*
+*Defined in [ex.ts:48](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/ex.ts#L48)*
 
 **Parameters:**
 
@@ -143,7 +143,7 @@ ___
 
 *Inherited from [Client](client.md).[makeOptions](client.md#protected-makeoptions)*
 
-*Defined in [client.ts:88](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/client.ts#L88)*
+*Defined in [client.ts:87](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L87)*
 
 **Parameters:**
 
@@ -162,7 +162,7 @@ ___
 
 *Inherited from [Client](client.md).[parse](client.md#protected-parse)*
 
-*Defined in [client.ts:83](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/client.ts#L83)*
+*Defined in [client.ts:82](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L82)*
 
 **Parameters:**
 
@@ -178,7 +178,7 @@ ___
 
 ▸ **pause**(`exId`: string, `query?`: [SearchQuery](../overview.md#searchquery)): *Promise‹[PausedResponse](../interfaces/pausedresponse.md)›*
 
-*Defined in [ex.ts:33](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/ex.ts#L33)*
+*Defined in [ex.ts:32](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/ex.ts#L32)*
 
 **Parameters:**
 
@@ -197,7 +197,7 @@ ___
 
 *Inherited from [Client](client.md).[post](client.md#post)*
 
-*Defined in [client.ts:37](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/client.ts#L37)*
+*Defined in [client.ts:36](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L36)*
 
 **Parameters:**
 
@@ -217,7 +217,7 @@ ___
 
 *Inherited from [Client](client.md).[put](client.md#put)*
 
-*Defined in [client.ts:41](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/client.ts#L41)*
+*Defined in [client.ts:40](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L40)*
 
 **Parameters:**
 
@@ -235,7 +235,7 @@ ___
 
 ▸ **resume**(`exId`: string, `query?`: [SearchQuery](../overview.md#searchquery)): *Promise‹[ResumeResponse](../interfaces/resumeresponse.md)›*
 
-*Defined in [ex.ts:38](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/ex.ts#L38)*
+*Defined in [ex.ts:37](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/ex.ts#L37)*
 
 **Parameters:**
 
@@ -252,7 +252,7 @@ ___
 
 ▸ **status**(`exId`: string): *Promise‹[ExecutionStatus](../enums/executionstatus.md)›*
 
-*Defined in [ex.ts:43](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/ex.ts#L43)*
+*Defined in [ex.ts:42](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/ex.ts#L42)*
 
 **Parameters:**
 
@@ -268,7 +268,7 @@ ___
 
 ▸ **stop**(`exId`: string, `query?`: [StopQuery](../interfaces/stopquery.md)): *Promise‹[StoppedResponse](../interfaces/stoppedresponse.md)›*
 
-*Defined in [ex.ts:28](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/ex.ts#L28)*
+*Defined in [ex.ts:27](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/ex.ts#L27)*
 
 **Parameters:**
 

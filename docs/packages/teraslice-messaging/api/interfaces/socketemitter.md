@@ -22,7 +22,7 @@ sidebar_label: SocketEmitter
 
 ▸ **emit**(`eventName`: string, `msg`: [Message](message.md)): *void*
 
-*Defined in [messenger/interfaces.ts:120](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L120)*
+*Defined in [messenger/interfaces.ts:120](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/messenger/interfaces.ts#L120)*
 
 **Parameters:**
 
@@ -39,7 +39,7 @@ ___
 
 ▸ **on**(`eventName`: string, `fn`: function): *void*
 
-*Defined in [messenger/interfaces.ts:119](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/messenger/interfaces.ts#L119)*
+*Defined in [messenger/interfaces.ts:119](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/messenger/interfaces.ts#L119)*
 
 **Parameters:**
 

@@ -17,6 +17,7 @@ sidebar_label: GeoBoundingBox
 
 * [bottom_right](geoboundingbox.md#bottom_right)
 * [field](geoboundingbox.md#field)
+* [field_type](geoboundingbox.md#field_type)
 * [top_left](geoboundingbox.md#top_left)
 * [type](geoboundingbox.md#type)
 
@@ -26,7 +27,7 @@ sidebar_label: GeoBoundingBox
 
 • **bottom_right**: *[GeoPoint](geopoint.md)*
 
-*Defined in [parser/interfaces.ts:151](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L151)*
+*Defined in [parser/interfaces.ts:154](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L154)*
 
 ___
 
@@ -36,7 +37,15 @@ ___
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [parser/interfaces.ts:54](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L54)*
+*Defined in [parser/interfaces.ts:54](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L54)*
+
+___
+
+###  field_type
+
+• **field_type**: *[Geo](../enums/fieldtype.md#geo)*
+
+*Defined in [parser/interfaces.ts:152](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L152)*
 
 ___
 
@@ -44,7 +53,7 @@ ___
 
 • **top_left**: *[GeoPoint](geopoint.md)*
 
-*Defined in [parser/interfaces.ts:150](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L150)*
+*Defined in [parser/interfaces.ts:153](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L153)*
 
 ___
 
@@ -54,4 +63,4 @@ ___
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [parser/interfaces.ts:149](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L149)*
+*Defined in [parser/interfaces.ts:151](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L151)*

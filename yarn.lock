@@ -1519,6 +1519,11 @@
   dependencies:
     "@types/jest-diff" "*"
 
+"@types/jexl@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@types/jexl/-/jexl-2.1.0.tgz#5c08251c9890935b83527b3514e574145ef85b26"
+  integrity sha512-bMYxYd+KjQPh517n/Gigsvow1k2hPX3fXBmDxhcRP2Tugkva250y/kETXakkAvuteGAeCQ/xFgRmpSv+OF91dA==
+
 "@types/json-schema@^7.0.3":
   version "7.0.3"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.3.tgz#bdfd69d61e464dcc81b25159c270d75a73c1a636"
@@ -1549,6 +1554,13 @@
   version "4.3.6"
   resolved "https://registry.yarnpkg.com/@types/lodash.set/-/lodash.set-4.3.6.tgz#33e635c2323f855359225df6a5c8c6f1f1908264"
   integrity sha512-ZeGDDlnRYTvS31Laij0RsSaguIUSBTYIlJFKL3vm3T2OAZAQj2YpSvVWJc0WiG4jqg9fGX6PAPGvDqBcHfSgFg==
+  dependencies:
+    "@types/lodash" "*"
+
+"@types/lodash.unset@^4.5.6":
+  version "4.5.6"
+  resolved "https://registry.yarnpkg.com/@types/lodash.unset/-/lodash.unset-4.5.6.tgz#a9c9937fcfc80a30b7c2e808c1ad2d1ed592e055"
+  integrity sha512-KRMd2I4kKsfUsJfXRKMuleZHG4LAvacUatvaBcMup1OAPAlNdQXWm3q3BhusPFsS0/4rl7XXAnLxjHeaS/XU8w==
   dependencies:
     "@types/lodash" "*"
 
@@ -6754,6 +6766,11 @@ jest@^24.9.0:
     import-local "^2.0.0"
     jest-cli "^24.9.0"
 
+jexl@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/jexl/-/jexl-2.2.1.tgz#1a4fe96707f4794826f492c3f45a6ddd6c49cffb"
+  integrity sha512-KrxxKPioq3aC4yoRdXrOcuHQL4qik9SNPnJg593hrdqVwHW+TPfap1KLUwUpjZPCZeRm3DWm6EypZ9hWI4UeMA==
+
 jmespath@0.15.0:
   version "0.15.0"
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
@@ -7228,6 +7245,11 @@ lodash.uniq@^4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
   integrity sha1-0CJTc662Uq3BvILklFM5qEJ1R3M=
+
+lodash.unset@^4.5.2:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/lodash.unset/-/lodash.unset-4.5.2.tgz#370d1d3e85b72a7e1b0cdf2d272121306f23e4ed"
+  integrity sha1-Nw0dPoW3Kn4bDN8tJyEhMG8j5O0=
 
 lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.2, lodash@^4.17.3, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.2.1, lodash@^4.3.0:
   version "4.17.15"

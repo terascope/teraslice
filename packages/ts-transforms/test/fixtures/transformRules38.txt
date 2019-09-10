@@ -1,0 +1,2 @@
+{ "source": "html", "target": "output", "start": "<", "end": ">", "tag": "myTag" }
+{ "follow": "myTag", "exp": "20", "target": "count" }

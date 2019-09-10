@@ -4,15 +4,15 @@ import { StringValidation } from '../../../src/operations';
 describe('string validation', () => {
     it('can instantiate', () => {
         const opConfig = {
-            refs: 'someId', source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId'
+            refs: 'someId', source: 'someField', target: 'someField', __id: 'someId', follow: 'otherId'
         };
         expect(() => new StringValidation(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
-        const badConfig1 = { source_field: 1324 };
-        const badConfig2 = { source_field: '' };
-        const badConfig3 = { source_field: {} };
+        const badConfig1 = { source: 1324 };
+        const badConfig2 = { source: '' };
+        const badConfig3 = { source: {} };
         const badConfig4 = {};
         // @ts-ignore
         expect(() => new StringValidation(badConfig1)).toThrow();
@@ -26,7 +26,7 @@ describe('string validation', () => {
 
     it('can validate string fields', () => {
         const opConfig = {
-            refs: 'someId', source_field: 'field', target_field: 'field', __id: 'someId', follow: 'otherId'
+            refs: 'someId', source: 'field', target: 'field', __id: 'someId', follow: 'otherId'
         };
         const test = new StringValidation(opConfig);
         const metaData = { selectors: { 'some:query': true } };
@@ -72,7 +72,7 @@ describe('string validation', () => {
 
     it('can ensure strings are of certain lengths', () => {
         const opConfig = {
-            refs: 'someId', source_field: 'field', target_field: 'field', length: 14, __id: 'someId', follow: 'otherId'
+            refs: 'someId', source: 'field', target: 'field', length: 14, __id: 'someId', follow: 'otherId'
         };
         const test = new StringValidation(opConfig);
         const metaData = { selectors: { 'some:query': true } };
@@ -93,8 +93,8 @@ describe('string validation', () => {
     it('can validate nested fields', async () => {
         const opConfig = {
             refs: 'someId',
-            source_field: 'person.name',
-            target_field: 'person.name',
+            source: 'person.name',
+            target: 'person.name',
             length: 14,
             __id: 'someId',
             follow: 'otherId',

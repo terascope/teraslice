@@ -6,8 +6,8 @@ describe('join operator', () => {
         const opConfig = {
             post_process: 'join',
             fields: ['first', 'last'],
-            source_field: 'someField',
-            target_field: 'otherField',
+            source: 'someField',
+            target: 'otherField',
             __id: 'someId',
             follow: 'otherId',
         };
@@ -15,14 +15,14 @@ describe('join operator', () => {
     });
 
     it('can properly throw with bad config values', () => {
-        const badConfig1 = { post_process: 'join', fields: ['first', 'last'], target_field: 1324 };
-        const badConfig2 = { post_process: 'join', fields: ['first', 'last'], target_field: '' };
+        const badConfig1 = { post_process: 'join', fields: ['first', 'last'], target: 1324 };
+        const badConfig2 = { post_process: 'join', fields: ['first', 'last'], target: '' };
         const badConfig3 = { post_process: 'join', fields: ['first', 'last'] };
-        const badConfig4 = { post_process: 'join', fields: 1234, target_field: 'someField' };
-        const badConfig5 = { post_process: 'join', fields: ['first'], target_field: 'someField' };
-        const badConfig6 = { post_process: 'join', fields: { first: 'first', last: 'last' }, target_field: 'someField' };
+        const badConfig4 = { post_process: 'join', fields: 1234, target: 'someField' };
+        const badConfig5 = { post_process: 'join', fields: ['first'], target: 'someField' };
+        const badConfig6 = { post_process: 'join', fields: { first: 'first', last: 'last' }, target: 'someField' };
         const badConfig7 = {
-            post_process: 'join', fields: ['first', 'last'], target_field: 'someField', delimiter: 1324
+            post_process: 'join', fields: ['first', 'last'], target: 'someField', delimiter: 1324
         };
         // @ts-ignore
         expect(() => new Join(badConfig1)).toThrow();
@@ -42,7 +42,7 @@ describe('join operator', () => {
 
     it('can join fields of data entities', () => {
         const opConfig = {
-            post_process: 'join', fields: ['first', 'last'], target_field: 'full', __id: 'someId', follow: 'otherId'
+            post_process: 'join', fields: ['first', 'last'], target: 'full', __id: 'someId', follow: 'otherId'
         };
         const test = new Join(opConfig);
         const data = new DataEntity({ first: 'John', last: 'Doe' });
@@ -52,11 +52,11 @@ describe('join operator', () => {
         expect(results).toEqual({ first: 'John', last: 'Doe', full: 'JohnDoe' });
     });
 
-    it('can join fields of data entities through source_fields', () => {
+    it('can join fields of data entities through sources', () => {
         const opConfig = {
             post_process: 'join',
-            source_fields: ['first', 'last'],
-            target_field: 'full',
+            sources: ['first', 'last'],
+            target: 'full',
             __id: 'someId',
             follow: 'otherId',
         };
@@ -72,7 +72,7 @@ describe('join operator', () => {
         const opConfig = {
             post_process: 'join',
             fields: ['firstGroup', 'secondGroup'],
-            target_field: 'allGroup',
+            target: 'allGroup',
             delimiter: ' & ',
             __id: 'someId',
             follow: 'otherId',
@@ -93,7 +93,7 @@ describe('join operator', () => {
         const opConfig = {
             post_process: 'join',
             fields: ['first', 'last'],
-            target_field: 'full',
+            target: 'full',
             delimiter: ' ',
             __id: 'someId',
             follow: 'otherId',
@@ -102,7 +102,7 @@ describe('join operator', () => {
         const opConfig2 = {
             post_process: 'join',
             fields: ['first', 'last'],
-            target_field: 'full',
+            target: 'full',
             delimiter: ' & ',
             __id: 'someId',
             follow: 'otherId',
@@ -123,11 +123,11 @@ describe('join operator', () => {
         expect(results2).toEqual({ first: 'John', last: 'Doe', full: 'John & Doe' });
     });
 
-    it('can join nested target_field', () => {
+    it('can join nested target', () => {
         const opConfig = {
             post_process: 'join',
             fields: ['person.first', 'person.last'],
-            target_field: 'author.full_name',
+            target: 'author.full_name',
             __id: 'someId',
             follow: 'otherId',
         };

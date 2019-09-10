@@ -28,7 +28,7 @@ sidebar_label: PhaseConfig
 
 *Inherited from [WatcherConfig](watcherconfig.md).[notification_rules](watcherconfig.md#optional-notification_rules)*
 
-*Defined in [interfaces.ts:106](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L106)*
+*Defined in [interfaces.ts:118](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L118)*
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 *Inherited from [WatcherConfig](watcherconfig.md).[rules](watcherconfig.md#optional-rules)*
 
-*Defined in [interfaces.ts:104](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L104)*
+*Defined in [interfaces.ts:116](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L116)*
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 • **type**: *string*
 
-*Defined in [interfaces.ts:110](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L110)*
+*Defined in [interfaces.ts:122](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L122)*
 
 ___
 
@@ -56,4 +56,4 @@ ___
 
 *Inherited from [WatcherConfig](watcherconfig.md).[types](watcherconfig.md#optional-types)*
 
-*Defined in [interfaces.ts:105](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L105)*
+*Defined in [interfaces.ts:117](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L117)*

@@ -27,7 +27,7 @@ sidebar_label: CachedQueryAccess
 
 \+ **new CachedQueryAccess**(): *[CachedQueryAccess](cachedqueryaccess.md)*
 
-*Defined in [query-access/cached-query-access.ts:7](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/cached-query-access.ts#L7)*
+*Defined in [query-access/cached-query-access.ts:7](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/query-access/cached-query-access.ts#L7)*
 
 **Returns:** *[CachedQueryAccess](cachedqueryaccess.md)*
 
@@ -37,7 +37,7 @@ sidebar_label: CachedQueryAccess
 
 ▸ **make**<**T**>(`config`: [QueryAccessConfig](../interfaces/queryaccessconfig.md)‹T›, `options?`: [QueryAccessOptions](../interfaces/queryaccessoptions.md)): *[QueryAccess](queryaccess.md)‹T›*
 
-*Defined in [query-access/cached-query-access.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/cached-query-access.ts#L12)*
+*Defined in [query-access/cached-query-access.ts:12](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/query-access/cached-query-access.ts#L12)*
 
 **Type parameters:**
 
@@ -58,7 +58,7 @@ ___
 
 ▸ **reset**(): *void*
 
-*Defined in [query-access/cached-query-access.ts:25](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/cached-query-access.ts#L25)*
+*Defined in [query-access/cached-query-access.ts:25](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/query-access/cached-query-access.ts#L25)*
 
 **Returns:** *void*
 
@@ -68,6 +68,6 @@ ___
 
 ▸ **resetInstances**(): *void*
 
-*Defined in [query-access/cached-query-access.ts:32](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/query-access/cached-query-access.ts#L32)*
+*Defined in [query-access/cached-query-access.ts:32](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/query-access/cached-query-access.ts#L32)*
 
 **Returns:** *void*

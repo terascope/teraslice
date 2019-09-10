@@ -5,15 +5,15 @@ import { ISDN } from '../../../src/operations';
 describe('phone number validation', () => {
     it('can instantiate', () => {
         const opConfig = {
-            refs: 'someId', source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId'
+            refs: 'someId', source: 'someField', target: 'targeteField', __id: 'someId', follow: 'otherId'
         };
         expect(() => new ISDN(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
-        const badConfig1 = { source_field: 1324 };
-        const badConfig2 = { source_field: '' };
-        const badConfig3 = { source_field: {} };
+        const badConfig1 = { source: 1324 };
+        const badConfig2 = { source: '' };
+        const badConfig3 = { source: {} };
         const badConfig4 = {};
         // @ts-ignore
         expect(() => new ISDN(badConfig1)).toThrow();
@@ -27,7 +27,7 @@ describe('phone number validation', () => {
 
     it('can validate phone number fields', () => {
         const opConfig = {
-            refs: 'someId', source_field: 'field', target_field: 'field', __id: 'someId', follow: 'otherId'
+            refs: 'someId', source: 'field', target: 'field', __id: 'someId', follow: 'otherId'
         };
         const test = new ISDN(opConfig);
         const metaData = { selectors: { 'some:query': true } };

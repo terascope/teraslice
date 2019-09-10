@@ -4,15 +4,15 @@ import { Geolocation } from '../../../src/operations';
 describe('geolocation validation', () => {
     it('can instantiate', () => {
         const opConfig = {
-            source_field: 'someField', target_field: 'someField', __id: 'someId', follow: 'otherId'
+            source: 'someField', target: 'someField', __id: 'someId', follow: 'otherId'
         };
         expect(() => new Geolocation(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
-        const badConfig1 = { source_field: 1324 };
-        const badConfig2 = { source_field: '' };
-        const badConfig3 = { source_field: {} };
+        const badConfig1 = { source: 1324 };
+        const badConfig2 = { source: '' };
+        const badConfig3 = { source: {} };
         const badConfig4 = {};
         // @ts-ignore
         expect(() => new Geolocation(badConfig1)).toThrow();
@@ -26,7 +26,7 @@ describe('geolocation validation', () => {
 
     it('can validate geo fields', () => {
         const opConfig = {
-            source_field: 'location', target_field: 'location', __id: 'someId', follow: 'otherId'
+            source: 'location', target: 'location', __id: 'someId', follow: 'otherId'
         };
         const test = new Geolocation(opConfig);
         const metaData = { selectors: { 'some:query': true } };
@@ -78,7 +78,7 @@ describe('geolocation validation', () => {
 
     it('can validate nested fields', async () => {
         const opConfig = {
-            source_field: 'event.location', target_field: 'event.location', __id: 'someId', follow: 'otherId'
+            source: 'event.location', target: 'event.location', __id: 'someId', follow: 'otherId'
         };
         const test = new Geolocation(opConfig);
 

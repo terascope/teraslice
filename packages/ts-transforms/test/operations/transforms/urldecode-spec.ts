@@ -4,20 +4,20 @@ import { UrlDecode } from '../../../src/operations';
 describe('urldecode operator', () => {
     it('can instantiate', () => {
         const opConfig = {
-            target_field: 'source', source_field: 'source', __id: 'someId', follow: 'otherId'
+            target: 'source', source: 'source', __id: 'someId', follow: 'otherId'
         };
         expect(() => new UrlDecode(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
-        const badConfig1 = { target_field: 1324 };
-        const badConfig2 = { target_field: '' };
-        const badConfig3 = { target_field: {} };
-        const badConfig4 = { target_field: null };
-        const badConfig5 = { source_field: [] };
-        const badConfig6 = { source_field: {} };
-        const badConfig7 = { source_field: null };
-        const badConfig8 = { source_field: '', target_field: '' };
+        const badConfig1 = { target: 1324 };
+        const badConfig2 = { target: '' };
+        const badConfig3 = { target: {} };
+        const badConfig4 = { target: null };
+        const badConfig5 = { source: [] };
+        const badConfig6 = { source: {} };
+        const badConfig7 = { source: null };
+        const badConfig8 = { source: '', target: '' };
         // @ts-ignore
         expect(() => new UrlDecode(badConfig1)).toThrow();
         // @ts-ignore
@@ -38,7 +38,7 @@ describe('urldecode operator', () => {
 
     it('can urldecode decode fields', () => {
         const opConfig = {
-            source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId'
+            source: 'source', target: 'source', __id: 'someId', follow: 'otherId'
         };
         const test = new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query': true } };
@@ -92,7 +92,7 @@ describe('urldecode operator', () => {
 
     it('can urldecode decode nested fields', () => {
         const opConfig = {
-            source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId'
+            source: 'source.field', target: 'source.field', __id: 'someId', follow: 'otherId'
         };
         const test = new UrlDecode(opConfig);
         const metaData = { selectors: { 'some:query': true } };

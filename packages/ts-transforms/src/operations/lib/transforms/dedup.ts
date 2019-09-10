@@ -1,6 +1,5 @@
 
-import { DataEntity } from '@terascope/utils';
-import _ from 'lodash';
+import { DataEntity, get, uniq } from '@terascope/utils';
 import TransformOpBase from './base';
 import { PostProcessConfig } from '../../../interfaces';
 
@@ -10,9 +9,9 @@ export default class Dedup extends TransformOpBase {
     }
 
     run(doc: DataEntity): DataEntity {
-        const arrayField = _.get(doc, this.source);
+        const arrayField = get(doc, this.source);
         if (Array.isArray(arrayField)) {
-            this.set(doc, _.uniq(arrayField));
+            this.set(doc, uniq(arrayField));
             return doc;
         }
         return doc;
