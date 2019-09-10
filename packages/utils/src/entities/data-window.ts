@@ -1,8 +1,9 @@
 import { DataEntity } from './data-entity';
 import * as i from './interfaces';
 import * as utils from './utils';
-import { getValidDate } from '../dates';
+import { getValidDate, getUnixTime } from '../dates';
 import { locked } from '../misc';
+import { getTypeOf } from '../utils';
 
 /**
  * Acts as an array of DataEntities associated to a particular key or time frame.
@@ -15,17 +16,18 @@ export class DataWindow<
     /**
      * A utility for safely creating a `DataWindow`
      */
-    static make(input: DataEntity[]|DataWindow, key?: string): DataWindow {
+    static make<T extends DataEntity = DataEntity, M extends Record<string, any> = {}>(
+        input: T[]|DataWindow, metadata?: M
+    ): DataWindow<T, M> {
         if (DataWindow.isDataWindow(input)) {
-            return input;
+            return input as DataWindow<T, M>;
         }
-        const window = new DataWindow(...input);
-        if (key) {
-            window.setKey(key);
-        }
-        return window;
+        return new DataWindow(input, metadata);
     }
 
+    /**
+     * Verify that an input is a `DataWindow`
+     */
     static isDataWindow(input: any): input is DataWindow {
         return input instanceof DataWindow;
     }
@@ -37,9 +39,13 @@ export class DataWindow<
     private readonly [i.__DATAWINDOW_METADATA_KEY]: i.DataWindowMetadata & M;
     private readonly [i.__IS_WINDOW_KEY]: true;
 
-    constructor(...docs: T[]) {
-        super(...docs);
-        utils.defineWindowProperties(this);
+    constructor(docs?: T[], metadata?: M) {
+        if (Array.isArray(docs) && docs.length) {
+            super(...docs);
+        } else {
+            super();
+        }
+        utils.defineWindowProperties(this, metadata);
     }
 
     /**
@@ -141,7 +147,9 @@ export class DataWindow<
     */
     @locked()
     getStartTime(): Date|false|undefined {
-        return undefined;
+        const val = this[i.__DATAWINDOW_METADATA_KEY]._startTime;
+        if (val == null) return undefined;
+        return getValidDate(val);
     }
 
     /**
@@ -151,7 +159,13 @@ export class DataWindow<
      * If an invalid date is given, an error will be thrown.
      */
     @locked()
-    setStartTime(_val?: string|number|Date): void {}
+    setStartTime(val?: string|number|Date): void {
+        const unixTime = getUnixTime(val);
+        if (unixTime === false) {
+            throw new Error(`Invalid date format, got ${getTypeOf(val)}`);
+        }
+        this[i.__DATAWINDOW_METADATA_KEY]._startTime = unixTime;
+    }
 
     /**
      * Get the window completion time
@@ -160,6 +174,7 @@ export class DataWindow<
      * If an invalid date is found, `false` will be returned.
     */
     @locked()
+    // FIXME
     getFinishTime(): Date|false|undefined {
         return undefined;
     }
@@ -171,16 +186,16 @@ export class DataWindow<
      * If an invalid date is given, an error will be thrown.
      */
     @locked()
+    // FIXME
     setFinishTime(_val?: string|number|Date): void {}
 
     // override behaviour of an Array...
+    // FIXME: map, reduce, reduceRight, and filter
+
     slice(begin?: number, end?: number): DataWindow<T, M> {
-        const copy = new DataWindow<T, M>(...super.slice(begin, end));
-        for (const [key, val] of Object.entries(this.getMetadata())) {
-            if (!['_createTime', '_startTime', '_finishTime'].includes(key)) {
-                copy.setMetadata(key, val);
-            }
-        }
-        return copy;
+        return new DataWindow<T, M>(
+            super.slice(begin, end),
+            this.getMetadata()
+        );
     }
 }

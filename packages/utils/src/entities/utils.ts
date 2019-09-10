@@ -18,7 +18,7 @@ export function defineEntityProperties(entity: unknown): void {
     });
 }
 
-export function defineWindowProperties(entity: any): void {
+export function defineWindowProperties(entity: any, metadata?: Record<string, any>): void {
     Object.defineProperty(entity, i.__IS_WINDOW_KEY, {
         value: true,
         configurable: false,
@@ -27,7 +27,7 @@ export function defineWindowProperties(entity: any): void {
     });
 
     Object.defineProperty(entity, i.__DATAWINDOW_METADATA_KEY, {
-        value: createCoreMetadata(),
+        value: makeMetadata(metadata),
         configurable: false,
         enumerable: false,
         writable: false,

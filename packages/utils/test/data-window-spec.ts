@@ -67,10 +67,10 @@ describe('DataWindow', () => {
         it('should return an array of size 2', () => {
             type TestData = DataEntity<{ a: number }, { b: number }>;
 
-            const window = new DataWindow<TestData>(
+            const window = new DataWindow<TestData>([
                 new DataEntity({ a: 1 }, { b: 1 }),
                 new DataEntity({ a: 2 }, { b: 1 })
-            );
+            ]);
 
             expect(window).toBeArrayOfSize(2);
         });
@@ -156,6 +156,33 @@ describe('DataWindow', () => {
             expect(window.setStartTime).toBeFunction();
         });
 
+        it('should be able to get and set the start time', () => {
+            const window = new DataWindow();
+            expect(window.setStartTime()).toBeNil();
+            expect(window.getStartTime()).toBeDate();
+        });
+
+        it('should be able to get and set the start time to a specific time', () => {
+            const window = new DataWindow();
+            const dateStr = new Date(Date.now() - 60000).toISOString();
+            expect(window.setStartTime(dateStr)).toBeNil();
+            const result = window.getStartTime();
+            if (result) {
+                expect(result.toISOString()).toEqual(dateStr);
+            }
+        });
+
+        it('should return undefined when there is no start time', () => {
+            const window = new DataWindow();
+            expect(window.getStartTime()).toBeUndefined();
+        });
+
+        it('should return false when there is no valid start time', () => {
+            const window = new DataWindow();
+            window.setMetadata('_startTime', 'uhoh');
+            expect(window.getStartTime()).toBeFalse();
+        });
+
         it('should have a getFinishTime function', () => {
             const window = new DataWindow();
             expect(window.getFinishTime).toBeFunction();
@@ -174,7 +201,7 @@ describe('DataWindow', () => {
             { a: 3 },
         ]);
 
-        const window = new DataWindow(...input);
+        const window = new DataWindow(input);
         window.setMetadata('foo', 'bar');
 
         const cloned = fastCloneDeep(window);
@@ -214,7 +241,7 @@ describe('DataWindow', () => {
             DataEntity.make({ a: 3 }, { _key: 3 }),
         ];
 
-        const window = new DataWindow(...input);
+        const window = new DataWindow(input);
         window.setMetadata('_key', 'hello');
 
         const cloned = window.slice();
@@ -248,12 +275,8 @@ describe('DataWindow', () => {
             expect(cloned.getMetadata()).not.toBe(window.getMetadata());
         });
 
-        it('should have a different createTime', () => {
-            expect(cloned.getCreateTime()).not.toEqual(window.getCreateTime());
-        });
-
-        it('should have the same _key', () => {
-            expect(cloned.getMetadata('_key')).toEqual(window.getMetadata('_key'));
+        it('should have the same metadata', () => {
+            expect(cloned.getMetadata()).toEqual(window.getMetadata());
         });
     });
 });
