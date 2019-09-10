@@ -5,6 +5,27 @@ import TerasliceClient from 'teraslice-client-js';
 import fs from 'fs';
 import path from 'path';
 
+export function kebabCase(str: string) {
+    return str
+        .replace(/([a-z])([A-Z])/g, '$1-$2')
+        .replace(/\s+/g, '-')
+        .toLowerCase();
+}
+
+export function snakeCase(str: string) {
+    if (!str) return '';
+
+    return String(str)
+        .replace(/^[^A-Za-z0-9]*|[^A-Za-z0-9]*$/g, '')
+        .replace(/([a-z])([A-Z])/g, (m, a, b) => `${a}_${b.toLowerCase()}`)
+        .replace(/[^A-Za-z0-9]+|_+/g, '_')
+        .toLowerCase();
+}
+
+export function camelCase(str: string) {
+    return str.replace(/\W+(.)/g, (match, chr) => chr.toUpperCase());
+}
+
 export function getPackage(filePath?: string) {
     let dataPath = filePath || path.join(__dirname, '../..', 'package.json');
     if (!fs.existsSync(dataPath)) {
