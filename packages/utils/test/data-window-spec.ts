@@ -4,7 +4,7 @@ import {
     DataEntity,
     fastCloneDeep,
     __IS_WINDOW_KEY,
-    __DATAWINDOW_METADATA_KEY,
+    __ENTITY_METADATA_KEY,
 } from '../src';
 
 describe('DataWindow', () => {
@@ -22,7 +22,7 @@ describe('DataWindow', () => {
 
     const hiddenProps: string[] = [
         __IS_WINDOW_KEY,
-        __DATAWINDOW_METADATA_KEY,
+        __ENTITY_METADATA_KEY,
     ];
 
     describe('when constructed with a array of numbers', () => {

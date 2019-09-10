@@ -1,9 +1,10 @@
+import * as e from './entity';
 import * as i from './interfaces';
 import { isPlainObject } from '../objects';
 import { isString } from '../strings';
 import { isNumber } from '../numbers';
 
-export function defineEntityProperties(entity: unknown): void {
+export function defineEntityProperties(entity: unknown, metadata?: Record<string, any>): void {
     Object.defineProperty(entity, i.__IS_DATAENTITY_KEY, {
         value: true,
         configurable: false,
@@ -11,8 +12,10 @@ export function defineEntityProperties(entity: unknown): void {
         writable: false,
     });
 
-    Object.defineProperty(entity, i.__ENTITY_METADATA_KEY, {
-        value: {},
+    Object.defineProperty(entity, e.__ENTITY_METADATA_KEY, {
+        value: {
+            metadata: makeMetadata(metadata)
+        },
         configurable: false,
         enumerable: false,
         writable: false,
@@ -27,8 +30,10 @@ export function defineWindowProperties(entity: any, metadata?: Record<string, an
         writable: false,
     });
 
-    Object.defineProperty(entity, i.__DATAWINDOW_METADATA_KEY, {
-        value: makeMetadata(metadata),
+    Object.defineProperty(entity, e.__ENTITY_METADATA_KEY, {
+        value: {
+            metadata: makeMetadata(metadata)
+        },
         configurable: false,
         enumerable: false,
         writable: false,
@@ -66,20 +71,8 @@ export function isDataEntity(input: unknown): boolean {
     return Boolean(input != null && (input as any)[i.__IS_DATAENTITY_KEY] === true);
 }
 
-export function isDataWindow(input: unknown): boolean {
-    return Boolean(input != null && input[i.__IS_WINDOW_KEY] === true);
-}
-
-export function canConvertToEntityArray(input: unknown): boolean {
-    if (input == null) return false;
-    if (Array.isArray(input)) return true;
-    if (isDataEntity(input)) return true;
-    if (isPlainObject(input)) return true;
-    return false;
-}
-
 export function isDataWindow(input: any): boolean {
-    return Boolean(input != null && input[i.__IS_WINDOW_KEY] === true);
+    return Boolean(input != null && (input as any)[i.__IS_WINDOW_KEY] === true);
 }
 
 // this only used in the DataWindow to detect if it can convert the input

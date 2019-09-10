@@ -4,6 +4,7 @@ import { getTypeOf } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
 import { locked } from '../misc';
+import * as e from './entity';
 
 /**
  * Acts as an collection of DataEntities associated to a particular key or time frame.
@@ -12,7 +13,7 @@ import { locked } from '../misc';
 export class DataWindow<
     T = DataEntity,
     M = {}
-> extends Array<T> {
+> extends Array<T> implements e.Entity<T, M> {
     /**
      * A utility for safely creating a `DataWindow`
      */
@@ -49,7 +50,9 @@ export class DataWindow<
         return utils.isDataWindow(instance);
     }
 
-    private readonly [i.__DATAWINDOW_METADATA_KEY]: i.DataWindowMetadata & M;
+    private readonly [e.__ENTITY_METADATA_KEY]: {
+        metadata: i.DataWindowMetadata & M;
+    };
     private readonly [i.__IS_WINDOW_KEY]: true;
 
     constructor(docs?: T|T[], metadata?: M) {
@@ -77,9 +80,9 @@ export class DataWindow<
         key?: K
     ): (i.DataWindowMetadata & M)[K]|(i.DataWindowMetadata & M) {
         if (key) {
-            return this[i.__DATAWINDOW_METADATA_KEY][key];
+            return this[e.__ENTITY_METADATA_KEY].metadata[key];
         }
-        return this[i.__DATAWINDOW_METADATA_KEY];
+        return this[e.__ENTITY_METADATA_KEY].metadata;
     }
 
     /**
@@ -91,7 +94,7 @@ export class DataWindow<
     ): void;
     setMetadata<K extends keyof i.DataWindowMetadata, V extends i.DataWindowMetadata[K]>(
         field: K,
-        value: VRDisplayEvent
+        value: V
     ): void;
     setMetadata<K extends keyof M, V extends M[K]>(
         field: K,
@@ -110,7 +113,7 @@ export class DataWindow<
             return this.setKey(value as any);
         }
 
-        this[i.__DATAWINDOW_METADATA_KEY][field] = value as any;
+        this[e.__ENTITY_METADATA_KEY].metadata[field] = value as any;
     }
 
     /**
@@ -120,7 +123,7 @@ export class DataWindow<
     */
     @locked()
     getKey(): string|number {
-        const key = this[i.__DATAWINDOW_METADATA_KEY]._key;
+        const key = this[e.__ENTITY_METADATA_KEY].metadata._key;
         if (!utils.isValidKey(key)) {
             throw new Error('No key has been set in the metadata');
         }
@@ -137,7 +140,7 @@ export class DataWindow<
         if (!utils.isValidKey(key)) {
             throw new Error('Invalid key to set in metadata');
         }
-        this[i.__DATAWINDOW_METADATA_KEY]._key = key;
+        this[e.__ENTITY_METADATA_KEY].metadata._key = key;
     }
 
     /**
@@ -145,7 +148,7 @@ export class DataWindow<
     */
     @locked()
     getCreateTime(): Date {
-        const val = this[i.__DATAWINDOW_METADATA_KEY]._createTime;
+        const val = this[e.__ENTITY_METADATA_KEY].metadata._createTime;
         const date = getValidDate(val);
         if (date === false) {
             throw new Error('Missing _createTime');
@@ -161,7 +164,7 @@ export class DataWindow<
     */
     @locked()
     getStartTime(): Date|false|undefined {
-        const val = this[i.__DATAWINDOW_METADATA_KEY]._startTime;
+        const val = this[e.__ENTITY_METADATA_KEY].metadata._startTime;
         if (val == null) return undefined;
         return getValidDate(val);
     }
@@ -178,7 +181,7 @@ export class DataWindow<
         if (unixTime === false) {
             throw new Error(`Invalid date format, got ${getTypeOf(val)}`);
         }
-        this[i.__DATAWINDOW_METADATA_KEY]._startTime = unixTime;
+        this[e.__ENTITY_METADATA_KEY].metadata._startTime = unixTime;
     }
 
     /**
@@ -189,7 +192,7 @@ export class DataWindow<
     */
     @locked()
     getFinishTime(): Date|false|undefined {
-        const val = this[i.__DATAWINDOW_METADATA_KEY]._finishTime;
+        const val = this[e.__ENTITY_METADATA_KEY].metadata._finishTime;
         if (val == null) return undefined;
         return getValidDate(val);
     }
@@ -206,7 +209,7 @@ export class DataWindow<
         if (unixTime === false) {
             throw new Error(`Invalid date format, got ${getTypeOf(val)}`);
         }
-        this[i.__DATAWINDOW_METADATA_KEY]._finishTime = unixTime;
+        this[e.__ENTITY_METADATA_KEY].metadata._finishTime = unixTime;
     }
 
     // override behaviour of an Array...
