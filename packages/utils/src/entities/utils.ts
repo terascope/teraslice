@@ -82,6 +82,8 @@ export function isDataWindow(input: any): boolean {
     return Boolean(input != null && input[i.__IS_WINDOW_KEY] === true);
 }
 
+// this only used in the DataWindow to detect if it can convert the input
+// to an Window
 export function canConvertToEntityArray(input: any): boolean {
     if (input == null) return false;
     if (Array.isArray(input)) return true;
