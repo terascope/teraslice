@@ -31,6 +31,22 @@ describe('DataWindow', () => {
             expect(window).toBeArrayOfSize(0);
         });
 
+        it('should be push a DataEntity', () => {
+            const window = new DataWindow();
+            window.push(DataEntity.make({ foo: 'bar' }));
+            expect(window).toBeArrayOfSize(1);
+        });
+
+        it('should be prepend a DataEntity', () => {
+            const window = new DataWindow([
+                DataEntity.make({ a: 1 })
+            ]);
+            window.unshift(DataEntity.make({ a: 2 }));
+            expect(window).toBeArrayOfSize(2);
+            expect(window[0].a).toBe(2);
+            expect(window[1].a).toBe(1);
+        });
+
         it('should NOT have any enumerable built-in methods', () => {
             const window = new DataWindow();
 
@@ -183,6 +199,13 @@ describe('DataWindow', () => {
             expect(window.getStartTime()).toBeFalse();
         });
 
+        it('should throw when setting an invalid start time', () => {
+            const window = new DataWindow();
+            expect(() => {
+                window.setStartTime('invalid');
+            }).toThrowError(/Invalid date format/);
+        });
+
         it('should have a getFinishTime function', () => {
             const window = new DataWindow();
             expect(window.getFinishTime).toBeFunction();
@@ -191,6 +214,40 @@ describe('DataWindow', () => {
         it('should have a setFinishTime function', () => {
             const window = new DataWindow();
             expect(window.setFinishTime).toBeFunction();
+        });
+
+        it('should be able to get and set the finish time', () => {
+            const window = new DataWindow();
+            expect(window.setFinishTime()).toBeNil();
+            expect(window.getFinishTime()).toBeDate();
+        });
+
+        it('should be able to get and set the finish time to a specific time', () => {
+            const window = new DataWindow();
+            const dateStr = new Date(Date.now() - 60000).toISOString();
+            expect(window.setFinishTime(dateStr)).toBeNil();
+            const result = window.getFinishTime();
+            if (result) {
+                expect(result.toISOString()).toEqual(dateStr);
+            }
+        });
+
+        it('should return undefined when there is no finish time', () => {
+            const window = new DataWindow();
+            expect(window.getFinishTime()).toBeUndefined();
+        });
+
+        it('should return false when there is no valid finish time', () => {
+            const window = new DataWindow();
+            window.setMetadata('_finishTime', 'uhoh');
+            expect(window.getFinishTime()).toBeFalse();
+        });
+
+        it('should throw when setting an invalid finish time', () => {
+            const window = new DataWindow();
+            expect(() => {
+                window.setFinishTime('invalid');
+            }).toThrowError(/Invalid date format/);
         });
     });
 

@@ -39,6 +39,7 @@ export class DataWindow<
     private readonly [i.__DATAWINDOW_METADATA_KEY]: i.DataWindowMetadata & M;
     private readonly [i.__IS_WINDOW_KEY]: true;
 
+    // FIXME: validate input
     constructor(docs?: T[], metadata?: M) {
         if (Array.isArray(docs) && docs.length) {
             super(...docs);
@@ -174,9 +175,10 @@ export class DataWindow<
      * If an invalid date is found, `false` will be returned.
     */
     @locked()
-    // FIXME
     getFinishTime(): Date|false|undefined {
-        return undefined;
+        const val = this[i.__DATAWINDOW_METADATA_KEY]._finishTime;
+        if (val == null) return undefined;
+        return getValidDate(val);
     }
 
     /**
@@ -186,8 +188,13 @@ export class DataWindow<
      * If an invalid date is given, an error will be thrown.
      */
     @locked()
-    // FIXME
-    setFinishTime(_val?: string|number|Date): void {}
+    setFinishTime(val?: string|number|Date): void {
+        const unixTime = getUnixTime(val);
+        if (unixTime === false) {
+            throw new Error(`Invalid date format, got ${getTypeOf(val)}`);
+        }
+        this[i.__DATAWINDOW_METADATA_KEY]._finishTime = unixTime;
+    }
 
     // override behaviour of an Array...
     // FIXME: map, reduce, reduceRight, and filter
