@@ -6,8 +6,8 @@ import * as utils from './utils';
 import { locked } from '../misc';
 
 /**
- * Acts as an array of DataEntities associated to a particular key or time frame.
- * A `DataWindow` should be able to be used in-place of an array in most cases.
+ * Acts as an collection of DataEntities associated to a particular key or time frame.
+ * A `DataWindow` should be able to be used in-place of an `Array` in most cases.
  */
 export class DataWindow<
     T = DataEntity,
@@ -70,7 +70,7 @@ export class DataWindow<
     }
 
     /**
-     * Given a field and value set the metadata on the record
+     * Given a field and value set the metadata on the window
     */
     setMetadata<K extends string|number>(
         field: K,

@@ -22,6 +22,7 @@
             "jobs/builtin-operations",
             "jobs/slices",
             "jobs/data-entities",
+            "jobs/data-windows",
             "jobs/dead-letter-queue",
             "jobs/development",
             "jobs/testing"

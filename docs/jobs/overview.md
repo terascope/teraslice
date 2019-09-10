@@ -10,6 +10,7 @@ sidebar_label: Overview
 - [Built-in Operations](./builtin-operations.md)
 - [Slices](./slices.md)
 - [Data Entities](./data-entities.md)
+- [Data Windows](./data-windows.md)
 - [Dead Letter Queue](./dead-letter-queue.md)
 - [Development](./development.md)
 - [Testing](./testing.md)
