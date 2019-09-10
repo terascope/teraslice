@@ -10,13 +10,13 @@ import { getTypeOf } from '../utils';
  * A `DataWindow` should be able to be used in-place of an array in most cases.
  */
 export class DataWindow<
-    T extends DataEntity = DataEntity,
-    M extends Record<string, any> = {}
+    T = DataEntity,
+    M = {}
 > extends Array<T> {
     /**
      * A utility for safely creating a `DataWindow`
      */
-    static make<T extends DataEntity = DataEntity, M extends Record<string, any> = {}>(
+    static make<T extends DataEntity = DataEntity, M = {}>(
         input: T[]|DataWindow, metadata?: M
     ): DataWindow<T, M> {
         if (DataWindow.isDataWindow(input)) {
@@ -197,11 +197,35 @@ export class DataWindow<
     }
 
     // override behaviour of an Array...
-    // FIXME: map, reduce, reduceRight, and filter
+    // FIXME: reduce, reduceRight
 
     slice(begin?: number, end?: number): DataWindow<T, M> {
         return new DataWindow<T, M>(
             super.slice(begin, end),
+            this.getMetadata()
+        );
+    }
+
+    map<U>(
+        callbackfn: (value: T, index: number, array: T[]) => U,
+        thisArg?: any
+    ): DataWindow<U, M> {
+        return new DataWindow<U, M>(
+            super.map(callbackfn, thisArg),
+            this.getMetadata()
+        );
+    }
+
+    filter<S extends T>(
+        callbackfn: (value: T, index: number, array: T[]) => value is S,
+        thisArg?: any
+    ): DataWindow<S, M>;
+    filter<U = T>(
+        callbackfn: (value: T, index: number, array: T[]) => unknown,
+        thisArg?: any
+    ): DataWindow<T, M> {
+        return new DataWindow(
+            super.filter(callbackfn, thisArg),
             this.getMetadata()
         );
     }

@@ -291,7 +291,13 @@ describe('DataWindow', () => {
         });
     });
 
-    describe('when shallow cloning the window', () => {
+    const shallowCloneCases: ([string, (window: DataWindow) => DataWindow])[] = [
+        ['.slice()', (window: DataWindow): any => window.slice()],
+        ['.map((entity) => entity)', (window: DataWindow): any => window.map((entity) => entity)],
+        ['.filter(Boolean)', (window: DataWindow): any => window.filter(Boolean)],
+    ];
+
+    describe.each(shallowCloneCases)('when shallow cloning via %s on the window', (_str, fn) => {
         const input: DataEntity<{ a: number }>[] = [
             DataEntity.make({ a: 1 }, { _key: 1 }),
             DataEntity.make({ a: 2 }, { _key: 2 }),
@@ -301,7 +307,7 @@ describe('DataWindow', () => {
         const window = new DataWindow(input);
         window.setMetadata('_key', 'hello');
 
-        const cloned = window.slice();
+        const cloned = fn(window);
 
         it('should have the same length', () => {
             expect(cloned).toBeArrayOfSize(input.length);
