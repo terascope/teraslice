@@ -21,7 +21,13 @@ describe('WorkerExecutionContext', () => {
 
     const events = context.apis.foundation.getSystemEvents();
 
-    describe('when constructed', () => {
+    const windowTestCases: [string, number][] = [
+        ['', 0],
+        ['with an array of 1 window fetched', 1],
+        ['with an array of 2 window fetched', 2],
+    ];
+
+    describe.each(windowTestCases)('when constructed %s', (_str, windows) => {
         const executionConfig = newTestExecutionConfig({
             analytics: true,
             apis: [
@@ -35,6 +41,7 @@ describe('WorkerExecutionContext', () => {
             operations: [
                 {
                     _op: 'example-reader',
+                    windows
                 },
                 {
                     _op: 'delay',
@@ -73,9 +80,28 @@ describe('WorkerExecutionContext', () => {
 
         it('should have the Fetcher', async () => {
             expect(executionContext).toHaveProperty('fetcher');
-            const result = await executionContext.fetcher().handle({});
-            expect(result).toBeArrayOfSize(10);
         });
+
+        if (windows) {
+            it(`should be able to fetch ${windows} windows`, async () => {
+                expect(executionContext).toHaveProperty('fetcher');
+                const allResults = await executionContext.fetcher().handle({});
+                expect(allResults).toBeArrayOfSize(windows);
+                expect(DataWindow.isArray(allResults)).toBeTrue();
+
+                for (const window of allResults) {
+                    expect(DataWindow.is(window)).toBeTrue();
+                    expect(window).toBeArrayOfSize(10);
+                }
+            });
+        } else {
+            it('should be able to fetch a window', async () => {
+                expect(executionContext).toHaveProperty('fetcher');
+                const window = await executionContext.fetcher().handle({});
+                expect(DataWindow.is(window)).toBeTrue();
+                expect(window).toBeArrayOfSize(10);
+            });
+        }
 
         it('should have the Processors', async () => {
             expect(executionContext).toHaveProperty('processors');
@@ -175,12 +201,33 @@ describe('WorkerExecutionContext', () => {
 
             expect(analytics).toContainAllKeys(['time', 'memory', 'size']);
 
-            expect(results.length).toBeGreaterThan(0);
+            if (windows) {
+                expect(analytics!.size[0]).toBe(windows * 10);
 
-            for (const item of results) {
-                expect(item).toHaveProperty('id');
-                expect(item).toHaveProperty('data');
-                expect(item).toHaveProperty('touchedAt');
+                expect(results).toBeArrayOfSize(windows);
+                if (!DataWindow.isArray(results)) {
+                    expect(DataWindow.isArray(results)).toBeTrue();
+                    return;
+                }
+
+                for (const window of results) {
+                    for (const item of window) {
+                        expect(item).toHaveProperty('id');
+                        expect(item).toHaveProperty('data');
+                        expect(item).toHaveProperty('touchedAt');
+                    }
+                }
+            } else {
+                expect(analytics!.size[0]).toBe(10);
+
+                expect(results.length).toBeGreaterThan(0);
+                expect(results).toBeInstanceOf(DataWindow);
+
+                for (const item of results) {
+                    expect(item).toHaveProperty('id');
+                    expect(item).toHaveProperty('data');
+                    expect(item).toHaveProperty('touchedAt');
+                }
             }
         });
 

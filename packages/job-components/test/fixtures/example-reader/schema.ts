@@ -15,6 +15,11 @@ export default class Schema extends ConvictSchema<any, any> {
                 doc: 'A random example schema property',
                 format: 'String',
             },
+            windows: {
+                doc: 'The number of windows to create',
+                default: 0,
+                format: 'positive_Int'
+            }
         };
     }
 }

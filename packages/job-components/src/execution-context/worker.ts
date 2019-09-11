@@ -113,7 +113,22 @@ export class WorkerExecutionContext
 
             this._queue.push(async (input: any) => {
                 this._onOperationStart(index);
-                const results = await processor.handle(input);
+                let results: ts.DataWindow|ts.DataWindow[];
+                if (ts.DataWindow.isArray(input)) {
+                    results = [] as ts.DataWindow[];
+                    for (const window of input) {
+                        const windowResult = await processor.handle(window);
+                        if (ts.DataWindow.isArray(windowResult)) {
+                            results.push(
+                                ...windowResult
+                            );
+                        } else {
+                            results.push(windowResult);
+                        }
+                    }
+                } else {
+                    results = await processor.handle(input);
+                }
                 this._onOperationComplete(index, results);
                 return results;
             });
