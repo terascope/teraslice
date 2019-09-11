@@ -57,7 +57,7 @@ describe('setting up an operation', () => {
         const results = await pTest.run(data);
 
         expect(Array.isArray(results)).toBe(true);
-        expect(DataEntity.isDataEntity(results[0])).toBe(true);
+        expect(DataEntity.is(results[0])).toBe(true);
     });
 
     it('can make a reader instance', async () => {
@@ -174,7 +174,7 @@ describe('setting up an operation', () => {
         const results = await test.run(data)
 
         expect(Array.isArray(results)).toBe(true);
-        expect(DataEntity.isDataEntity(results[0])).toBe(true);
+        expect(DataEntity.is(results[0])).toBe(true);
     });
 
     it('can make a slicer instance', async () => {
@@ -215,7 +215,7 @@ describe('processor operation test', () => {
         const results = await processorOpTest.processData(opConfig, data);
 
         expect(Array.isArray(results)).toBe(true);
-        expect(DataEntity.isDataEntity(results[0])).toBe(true);
+        expect(DataEntity.is(results[0])).toBe(true);
     })
 })
 

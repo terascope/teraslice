@@ -48,7 +48,7 @@ describe('selector operator', () => {
         expect(results4).toEqual(null);
         expect(results5).toEqual(null);
         expect(results6).toEqual(null);
-        expect(DataEntity.isDataEntity(results7)).toEqual(true);
+        expect(DataEntity.is(results7)).toEqual(true);
         expect(results7).toEqual(data7);
     });
 
@@ -96,7 +96,7 @@ describe('selector operator', () => {
         const results2 = test.run(data2);
         const results3 = test.run(data3);
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
+        expect(DataEntity.is(results1)).toEqual(true);
         expect((results1 as DataEntity).getMetadata('selectors')).toEqual(metaData);
         expect(results1).toEqual(data1);
         expect(results2).toEqual(null);

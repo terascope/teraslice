@@ -1,5 +1,6 @@
 import { DataEntity, cloneDeep } from '@terascope/utils';
 import crypto from 'crypto';
+import { DataEntity } from '@terascope/utils';
 import { Sha2Encode } from '../../../src/operations';
 
 describe('Sha2Encode operator', () => {

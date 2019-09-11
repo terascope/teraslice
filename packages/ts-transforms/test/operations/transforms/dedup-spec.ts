@@ -39,7 +39,7 @@ describe('Dedup operator', () => {
         const data = new DataEntity({ array: ['hello', 'hello', 'world', 'world', 'hi'] });
         const results = test.run(cloneDeep(data));
 
-        expect(DataEntity.isDataEntity(results)).toEqual(true);
+        expect(DataEntity.is(results)).toEqual(true);
         expect(results).toEqual({ array: ['hello', 'world', 'hi'] });
     });
 
@@ -61,7 +61,7 @@ describe('Dedup operator', () => {
         const results4 = test.run(cloneDeep(data4));
         const results5 = test.run(cloneDeep(data5));
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
+        expect(DataEntity.is(results1)).toEqual(true);
         expect(results1).toEqual({ array: 'hello' });
         expect(results2).toEqual({ array: 342 });
         expect(results3).toEqual({ array: { hello: 'world' } });

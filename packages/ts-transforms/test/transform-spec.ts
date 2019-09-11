@@ -41,7 +41,7 @@ describe('can transform matches', () => {
 
         expect(results.length).toEqual(1);
         results.forEach((d) => {
-            expect(DataEntity.isDataEntity(d)).toEqual(true);
+            expect(DataEntity.is(d)).toEqual(true);
             expect(get(d, 'topfield.value1')).toEqual('hello');
             expect(d.getMetadata('selectors')).toBeDefined();
         });
@@ -79,7 +79,7 @@ describe('can transform matches', () => {
 
         expect(results.length).toEqual(2);
         results.forEach((d, index) => {
-            expect(DataEntity.isDataEntity(d)).toEqual(true);
+            expect(DataEntity.is(d)).toEqual(true);
             expect(d.other).toEqual(resultSet[index]);
             expect(d.getMetadata('selectors').includes('*')).toBeTrue();
         });
@@ -145,7 +145,7 @@ describe('can transform matches', () => {
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ field1: ['blah'], field2: ['moreblah'], field3: ['evenmoreblah'] });
-        expect(DataEntity.isDataEntity(results[0])).toEqual(true);
+        expect(DataEntity.is(results[0])).toEqual(true);
     });
 
     it('can merge extacted results', async () => {
@@ -244,7 +244,7 @@ describe('can transform matches', () => {
 
         results.forEach((d, index) => {
             // console.log('what is d', d)
-            expect(DataEntity.isDataEntity(d)).toEqual(true);
+            expect(DataEntity.is(d)).toEqual(true);
             expect(d).toEqual(resultSet[index]);
             expect(d.getMetadata('selectors')).toBeDefined();
         });
@@ -358,7 +358,7 @@ describe('can transform matches', () => {
         expect(results1.length).toEqual(3);
         results1.forEach((result, ind) => {
             expect(result).toEqual(resultsData1[ind]);
-            expect(DataEntity.isDataEntity(result)).toEqual(true);
+            expect(DataEntity.is(result)).toEqual(true);
         });
 
         const test2 = await opTest.init(config2);
@@ -367,7 +367,7 @@ describe('can transform matches', () => {
         expect(results2.length).toEqual(3);
         results2.forEach((result, ind) => {
             expect(result).toEqual(resultsData1[ind]);
-            expect(DataEntity.isDataEntity(result)).toEqual(true);
+            expect(DataEntity.is(result)).toEqual(true);
         });
 
         const test3 = await opTest.init(config3);
@@ -376,7 +376,7 @@ describe('can transform matches', () => {
         expect(results3.length).toEqual(3);
         results3.forEach((result, ind) => {
             expect(result).toEqual(resultsData1[ind]);
-            expect(DataEntity.isDataEntity(result)).toEqual(true);
+            expect(DataEntity.is(result)).toEqual(true);
         });
     });
 
@@ -396,7 +396,7 @@ describe('can transform matches', () => {
 
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ field1: 'blah', field2: 'moreblah', field3: 'evenmoreblah' });
-        expect(DataEntity.isDataEntity(results[0])).toEqual(true);
+        expect(DataEntity.is(results[0])).toEqual(true);
     });
 
     it('can run the two variations of the same config', async () => {
@@ -425,14 +425,14 @@ describe('can transform matches', () => {
 
         expect(results1.length).toEqual(1);
         expect(results1[0]).toEqual({ field3: 'evenmoreblah' });
-        expect(DataEntity.isDataEntity(results1[0])).toEqual(true);
+        expect(DataEntity.is(results1[0])).toEqual(true);
 
         const test2 = await opTest.init(config2);
         const results2 = await test2.run(data2);
 
         expect(results2.length).toEqual(1);
         expect(results2[0]).toEqual({ field3: 'evenmoreblah' });
-        expect(DataEntity.isDataEntity(results2[0])).toEqual(true);
+        expect(DataEntity.is(results2[0])).toEqual(true);
     });
 
     it('do more basic extractions', async () => {
@@ -449,7 +449,7 @@ describe('can transform matches', () => {
 
         expect(results.length).toEqual(2);
         results.forEach((d, index) => {
-            expect(DataEntity.isDataEntity(d)).toEqual(true);
+            expect(DataEntity.is(d)).toEqual(true);
             expect(d).toEqual(resultSet[index]);
         });
     });

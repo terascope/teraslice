@@ -36,8 +36,8 @@ const dataEntity = new DataEntity(input, metadata);
 // the input should have been shallow cloned
 expect(dataEntity).not.toBe(input);
 expect(dataEntity).toEqual(input);
-expect(DataEntity.isDataEntity(input)).toBeFalse();
-expect(DataEntity.isDataEntity(dataEntity)).toBeTrue();
+expect(DataEntity.is(input)).toBeFalse();
+expect(DataEntity.is(dataEntity)).toBeTrue();
 
 // should be able to set a time key key
 dataEntity.setTime('_eventTime', new Date());
@@ -92,7 +92,7 @@ const input = [
 
 const dataEntities = DataEntity.makeArray(input);
 expect(dataEntites).toBeArrayOfSize(2);
-expect(DataEntity.isDataEntityArray(dataEntities)).toBeTrue();
+expect(DataEntity.isArray(dataEntities)).toBeTrue();
 ```
 
 ### DataEntity.fork

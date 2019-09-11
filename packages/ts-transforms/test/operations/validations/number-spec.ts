@@ -80,7 +80,7 @@ describe('number validation', () => {
         expect(results4).toEqual(data4);
         expect(results5).toEqual(data2);
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
+        expect(DataEntity.is(results1)).toEqual(true);
     });
 
     it('can convert the field', async () => {
@@ -100,6 +100,6 @@ describe('number validation', () => {
         expect(results1).toEqual(answer);
         expect(results2).toEqual(answer);
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
+        expect(DataEntity.is(results1)).toEqual(true);
     });
 });

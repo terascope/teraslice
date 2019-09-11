@@ -95,7 +95,7 @@ describe('email validation', () => {
         expect(results3).toEqual(data3);
         expect(results4).toEqual(data2);
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
+        expect(DataEntity.is(results1)).toEqual(true);
     });
 
     it('can validate uncommon email fields', () => {
@@ -117,23 +117,23 @@ describe('email validation', () => {
         const results4 = test.run(cloneDeep(data4));
         const results5 = test.run(cloneDeep(data5));
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
+        expect(DataEntity.is(results1)).toEqual(true);
         expect(results1?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results1).toEqual({ uri: 'user@blah@blah.com' });
 
-        expect(DataEntity.isDataEntity(results2)).toEqual(true);
+        expect(DataEntity.is(results2)).toEqual(true);
         expect(results2?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results2).toEqual({ uri: 'junk user@blah.com' });
 
-        expect(DataEntity.isDataEntity(results3)).toEqual(true);
+        expect(DataEntity.is(results3)).toEqual(true);
         expect(results3?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results3).toEqual({ uri: 'user@blah.com/junk.morejunk' });
 
-        expect(DataEntity.isDataEntity(results4)).toEqual(true);
+        expect(DataEntity.is(results4)).toEqual(true);
         expect(results4?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results4).toEqual({ uri: 'user@blah.com&value=junk' });
 
-        expect(DataEntity.isDataEntity(results5)).toEqual(true);
+        expect(DataEntity.is(results5)).toEqual(true);
         expect(results5?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results5).toEqual({ uri: 'user@blah.com/junk.junk?a=<tag value="junk"' });
     });

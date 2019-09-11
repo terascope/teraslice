@@ -52,7 +52,7 @@ describe('Cache Storage State', () => {
         const cachedData = cache.get(key);
 
         expect(cachedData).toEqual(doc);
-        expect(DataEntity.isDataEntity(cachedData)).toEqual(true);
+        expect(DataEntity.is(cachedData)).toEqual(true);
     });
 
     it('get should return undefined if not stored', () => {
@@ -90,7 +90,7 @@ describe('Cache Storage State', () => {
         keys.forEach((idStr: string) => {
             const id = Number(idStr);
             expect(data[id]).toEqual(docArray[id - 1]);
-            expect(DataEntity.isDataEntity(data[id])).toEqual(true);
+            expect(DataEntity.is(data[id])).toEqual(true);
             const metaId = data[id].getKey();
             expect(metaId).toEqual(idStr);
         });

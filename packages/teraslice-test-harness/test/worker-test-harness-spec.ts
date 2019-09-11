@@ -59,13 +59,13 @@ describe('WorkerTestHarness', () => {
         it('should be able to call runSlice', async () => {
             const result = await workerHarness.runSlice(newTestSlice());
             expect(result).toBeArray();
-            expect(DataEntity.isDataEntityArray(result)).toBeTrue();
+            expect(DataEntity.isArray(result)).toBeTrue();
         });
 
         it('should be able to call runSlice with just a request object', async () => {
             const result = await workerHarness.runSlice({ hello: true });
             expect(result).toBeArray();
-            expect(DataEntity.isDataEntityArray(result)).toBeTrue();
+            expect(DataEntity.isArray(result)).toBeTrue();
         });
 
         it('should call slice retry', async () => {

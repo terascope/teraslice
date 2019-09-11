@@ -288,7 +288,7 @@ describe('elasticsearch-state-storage', () => {
                 for (const doc of docArray) {
                     const savedDoc = await stateStorage.get(doc);
                     saved.push(savedDoc);
-                    expect(DataEntity.isDataEntity(savedDoc)).toEqual(true);
+                    expect(DataEntity.is(savedDoc)).toEqual(true);
                 }
 
                 expect(saved).toEqual(docArray);
@@ -393,7 +393,7 @@ describe('elasticsearch-state-storage', () => {
 
             keys.forEach((id: string) => {
                 expect(stateResponse[id]).toEqual(docObj[id]);
-                expect(DataEntity.isDataEntity(stateResponse[id])).toEqual(true);
+                expect(DataEntity.is(stateResponse[id])).toEqual(true);
                 const metaId = stateResponse[id].getKey();
                 expect(metaId).toEqual(id);
             });

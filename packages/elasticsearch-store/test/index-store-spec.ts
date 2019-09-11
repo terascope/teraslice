@@ -253,7 +253,7 @@ describe('IndexStore', () => {
             it('should be able to get the record by id', async () => {
                 const r: DataEntity<SimpleRecord> = (await indexStore.get(record.test_id)) as any;
 
-                expect(DataEntity.isDataEntity(r)).toBeTrue();
+                expect(DataEntity.is(r)).toBeTrue();
                 expect(r).toEqual(record);
 
                 const metadata = r.getMetadata();
@@ -356,7 +356,7 @@ describe('IndexStore', () => {
 
                 const result = await indexStore.mget({ docs });
 
-                expect(DataEntity.isDataEntityArray(result)).toBeTrue();
+                expect(DataEntity.isArray(result)).toBeTrue();
                 expect(result).toEqual(records);
             });
 
@@ -367,7 +367,7 @@ describe('IndexStore', () => {
                     sort: 'test_id',
                 });
 
-                expect(DataEntity.isDataEntityArray(results)).toBeTrue();
+                expect(DataEntity.isArray(results)).toBeTrue();
                 expect(results).toEqual(records);
             });
 
@@ -520,8 +520,7 @@ describe('IndexStore', () => {
                     size: records.length + 1,
                 });
 
-                expect(results).toBeArrayOfSize(records.length);
-                expect(DataEntity.isDataEntityArray(results)).toBeTrue();
+
             });
 
             it('should be able use exists and range xlucene syntax', async () => {
@@ -532,8 +531,7 @@ describe('IndexStore', () => {
                     size: 5,
                 });
 
-                expect(results).toBeArrayOfSize(5);
-                expect(DataEntity.isDataEntityArray(results)).toBeTrue();
+
             });
 
             it('should be able use multi-term xlucene syntax', async () => {
@@ -544,8 +542,7 @@ describe('IndexStore', () => {
                     sort: 'test_number',
                 });
 
-                expect(results).toBeArrayOfSize(3);
-                expect(DataEntity.isDataEntityArray(results)).toBeTrue();
+
             });
 
             it('should be able to bulk update the records', async () => {
@@ -724,12 +721,11 @@ describe('IndexStore', () => {
                     sort: 'test_id',
                 });
 
-                expect(DataEntity.isDataEntityArray(results)).toBeTrue();
-                expect(results).toEqual(expected);
+
 
                 const record = await indexStore.get(expected[0].test_id);
 
-                expect(DataEntity.isDataEntity(record)).toBeTrue();
+                expect(DataEntity.is(record)).toBeTrue();
                 expect(record).toEqual(expected[0]);
 
                 const records = await indexStore.mget({
@@ -738,7 +734,7 @@ describe('IndexStore', () => {
                     })),
                 });
 
-                expect(DataEntity.isDataEntityArray(records)).toBeTrue();
+                expect(DataEntity.isArray(records)).toBeTrue();
                 expect(records).toEqual(expected);
             });
 

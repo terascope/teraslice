@@ -69,7 +69,7 @@ describe('Example Asset (Slicer)', () => {
         expect(results.length).toBe(10);
 
         for (const result of results) {
-            expect(DataEntity.isDataEntity(result)).toBe(false);
+            expect(DataEntity.is(result)).toBe(false);
             expect(result.count).toEqual(10);
             expect(result.super).toEqual('man');
         }
@@ -130,13 +130,13 @@ describe('Example Asset (Worker)', () => {
         it('should be able to call runSlice', async () => {
             const result = await workerHarness.runSlice(newTestSlice());
             expect(result).toBeArray();
-            expect(DataEntity.isDataEntityArray(result)).toBeTrue();
+            expect(DataEntity.isArray(result)).toBeTrue();
         });
 
         it('should be able to call runSlice with just a request object', async () => {
             const result = await workerHarness.runSlice({ hello: true });
             expect(result).toBeArray();
-            expect(DataEntity.isDataEntityArray(result)).toBeTrue();
+            expect(DataEntity.isArray(result)).toBeTrue();
         });
 
         it('should call slice retry', async () => {
@@ -341,7 +341,7 @@ describe('Example Asset (Job)', () => {
             expect(results.length).toBe(10);
 
             for (const result of results) {
-                expect(DataEntity.isDataEntity(result)).toBe(true);
+                expect(DataEntity.is(result)).toBe(true);
                 expect(result.scale).toBe(6);
             }
         }
@@ -358,7 +358,7 @@ describe('Example Asset (Job)', () => {
             expect(results.length).toBe(10);
 
             for (const result of results) {
-                expect(DataEntity.isDataEntity(result)).toBe(true);
+                expect(DataEntity.is(result)).toBe(true);
                 expect(result.scale).toBe(6);
             }
         }

@@ -81,7 +81,7 @@ describe('Example Asset', () => {
             expect(results).toBeArrayOfSize(10);
 
             for (const result of results) {
-                expect(DataEntity.isDataEntity(result)).toBe(true);
+                expect(DataEntity.is(result)).toBe(true);
                 expect(result).toHaveProperty('foo', 'bar');
                 expect(result.data).toEqual({
                     a: 'b',
@@ -157,7 +157,7 @@ describe('Example Asset', () => {
             expect(results).toBeArrayOfSize(10);
 
             for (const result of results) {
-                expect(DataEntity.isDataEntity(result)).toBe(false);
+                expect(DataEntity.is(result)).toBe(false);
                 expect(result?.count).toEqual(10);
                 expect(result?.super).toEqual('man');
             }
@@ -219,7 +219,7 @@ describe('Example Asset', () => {
                 expect(results).toBeArrayOfSize(10);
 
                 for (const result of results as any) {
-                    expect(DataEntity.isDataEntity(result)).toBe(true);
+                    expect(DataEntity.is(result)).toBe(true);
                     expect(result.scale).toBe(6);
                 }
             }
@@ -242,7 +242,7 @@ describe('Example Asset', () => {
                 expect(results).toBeArrayOfSize(10);
 
                 for (const result of results as any) {
-                    expect(DataEntity.isDataEntity(result)).toBe(true);
+                    expect(DataEntity.is(result)).toBe(true);
                     expect(result.scale).toBe(6);
                 }
             }

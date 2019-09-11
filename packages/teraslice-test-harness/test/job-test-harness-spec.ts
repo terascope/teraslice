@@ -62,7 +62,7 @@ describe('JobTestHarness', () => {
             expect(results).toBeArray();
             expect(results[0]).toBeArray();
 
-            expect(DataEntity.isDataEntityArray(results[0])).toBeTrue();
+            expect(DataEntity.isArray(results[0])).toBeTrue();
         });
 
         it('should be able to call shutdown', () => expect(jobHarness.shutdown()).resolves.toBeNil());

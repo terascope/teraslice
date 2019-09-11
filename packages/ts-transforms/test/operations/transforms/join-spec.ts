@@ -48,7 +48,7 @@ describe('join operator', () => {
         const data = new DataEntity({ first: 'John', last: 'Doe' });
         const results = test.run(cloneDeep(data));
 
-        expect(DataEntity.isDataEntity(results)).toEqual(true);
+        expect(DataEntity.is(results)).toEqual(true);
         expect(results).toEqual({ first: 'John', last: 'Doe', full: 'JohnDoe' });
     });
 
@@ -64,7 +64,7 @@ describe('join operator', () => {
         const data = new DataEntity({ first: 'John', last: 'Doe' });
         const results = test.run(cloneDeep(data));
 
-        expect(DataEntity.isDataEntity(results)).toEqual(true);
+        expect(DataEntity.is(results)).toEqual(true);
         expect(results).toEqual({ first: 'John', last: 'Doe', full: 'JohnDoe' });
     });
 
@@ -81,7 +81,7 @@ describe('join operator', () => {
         const data = new DataEntity({ firstGroup: ['John', 'Sarah'], secondGroup: ['Connor', 'Billy'] });
         const results = test.run(cloneDeep(data));
 
-        expect(DataEntity.isDataEntity(results)).toEqual(true);
+        expect(DataEntity.is(results)).toEqual(true);
         expect(results).toEqual({
             firstGroup: ['John', 'Sarah'],
             secondGroup: ['Connor', 'Billy'],
@@ -116,8 +116,8 @@ describe('join operator', () => {
         const results1 = test1.run(cloneDeep(data));
         const results2 = test2.run(cloneDeep(data2));
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(DataEntity.isDataEntity(results2)).toEqual(true);
+        expect(DataEntity.is(results1)).toEqual(true);
+        expect(DataEntity.is(results2)).toEqual(true);
 
         expect(results1).toEqual({ first: 'John', last: 'Doe', full: 'John Doe' });
         expect(results2).toEqual({ first: 'John', last: 'Doe', full: 'John & Doe' });
@@ -136,7 +136,7 @@ describe('join operator', () => {
         const data = new DataEntity({ person: { first: 'John', last: 'Doe' } }, metaData);
         const results = test.run(cloneDeep(data));
 
-        expect(DataEntity.isDataEntity(results)).toEqual(true);
+        expect(DataEntity.is(results)).toEqual(true);
         expect(results.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results).toEqual({ author: { full_name: 'JohnDoe' }, person: { first: 'John', last: 'Doe' } });
     });

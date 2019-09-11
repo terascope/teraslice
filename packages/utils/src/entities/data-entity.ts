@@ -40,7 +40,7 @@ export class DataEntity<
         T extends Record<string, any>|DataEntity<any, any> = Record<string, any>,
         M extends i._DataEntityMetadataType = Record<string, any>
     >(input: T, metadata?: M): T|DataEntity<T, M> {
-        if (DataEntity.isDataEntity(input)) {
+        if (DataEntity.is(input)) {
             if (metadata) {
                 for (const [key, val] of Object.entries(metadata)) {
                     input.setMetadata(key, val);
@@ -64,7 +64,7 @@ export class DataEntity<
             return [DataEntity.make(input)];
         }
 
-        if (DataEntity.isDataEntityArray<T, M>(input)) {
+        if (DataEntity.isArray<T, M>(input)) {
             return input;
         }
 
@@ -83,7 +83,7 @@ export class DataEntity<
         input: T,
         withData = true
     ): T {
-        if (!DataEntity.isDataEntity(input)) {
+        if (!DataEntity.is(input)) {
             throw new Error(`Invalid input to fork, expected DataEntity, got ${getTypeOf(input)}`);
         }
         const { _createTime, ...metadata } = input.getMetadata();
@@ -133,12 +133,12 @@ export class DataEntity<
     /**
      * Verify that an input is the `DataEntity`
      */
-    static is(input: any): boolean {
+    static is(input: any): input is DataEntity<T, M> {
         return DataEntity.isDataEntity(input);
     }
 
     /**
-     * Verify that an input is an Array of DataEntities,
+     * Verify that an input is an of `DataEntities`
      */
     static isDataEntityArray<T = Record<string, any>, M = Record<string, any>>(
         input: unknown
@@ -152,7 +152,7 @@ export class DataEntity<
     /**
      * Verify that an input is the `DataEntity`
      */
-    static isArray(input: any): boolean {
+    static isArray(input: unknown): input is DataEntity<T, M>[] {
         return DataEntity.isDataEntityArray(input);
     }
 

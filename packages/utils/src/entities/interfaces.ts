@@ -1,4 +1,5 @@
 import { AnyObject } from '../interfaces';
+import { EntityMetadata } from './entity';
 
 export type TYPE_IS_DATAENTITY_KEY = '__isDataEntity';
 export type TYPE_ENTITY_METADATA_KEY = '___EntityMetadata';
@@ -37,14 +38,7 @@ export type DataEntityMetadataValue<M, K> =
  * apis for getting and setting the time given and handling
  * the conversion between unix milliseconds to Date format.
 */
-export interface DataEntityMetadata {
-    /**
-     * The time at which this entity was created
-     * (this is automatically set on DataEntity creation)
-     * @readonly
-    */
-    _createTime?: number;
-
+export interface DataEntityMetadata extends EntityMetadata {
     /** The time at which the data was ingested into the source data */
     _ingestTime?: number;
 
@@ -56,9 +50,6 @@ export interface DataEntityMetadata {
      * usually off of a specific field on source data or message
      */
     _eventTime?: number;
-
-    /** A unique key for the data which will be can be used to key the data */
-    _key?: string|number;
 }
 
 /**
@@ -88,14 +79,7 @@ export const dataEncodings: readonly DataEncoding[] = Object.values(DataEncoding
  * apis for getting and setting the time given and handling
  * the conversion between unix milliseconds to Date format.
 */
-export interface DataWindowMetadata {
-    /**
-     * The time at which this entity was created
-     * (this is automatically set on DataWindow creation)
-     * @readonly
-    */
-    _createTime?: number;
-
+export interface DataWindowMetadata extends EntityMetadata {
     /**
      * The time at which a window was started to collect data
     */
@@ -105,9 +89,4 @@ export interface DataWindowMetadata {
      * The time at which a window completed collecting data
     */
     _finishTime?: number;
-
-    /**
-     * A unique key for the data that is associated with Window
-     */
-    _key?: string|number;
 }

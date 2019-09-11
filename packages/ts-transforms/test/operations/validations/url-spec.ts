@@ -97,6 +97,6 @@ describe('url validation', () => {
         expect(results4).toEqual(data2);
         expect(results5).toEqual(data5);
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
+        expect(DataEntity.is(results1)).toEqual(true);
     });
 });

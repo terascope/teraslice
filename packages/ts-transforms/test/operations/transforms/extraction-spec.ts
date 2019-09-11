@@ -31,7 +31,7 @@ describe('transform operator', () => {
         const results6 = test.run(data6);
         const results7 = test.run(data7);
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
+        expect(DataEntity.is(results1)).toEqual(true);
         expect(results1).toEqual({ otherField: '56.234,95.234' });
         expect(results2).toEqual(null);
         expect(results3).toEqual({ otherField: 'data' });
@@ -345,7 +345,7 @@ describe('transform operator', () => {
         const resultsArray = dataArray.map((data) => test.run(data));
 
         resultsArray.forEach((result, ind) => {
-            if (result) expect(DataEntity.isDataEntity(result)).toEqual(true);
+            if (result) expect(DataEntity.is(result)).toEqual(true);
             expect(result).toEqual(finalArray[ind]);
         });
     });
@@ -381,9 +381,9 @@ describe('transform operator', () => {
         const results2 = test2.run(results1 as DataEntity);
         const results3 = test3.run(data2);
 
-        expect(DataEntity.isDataEntity(results2)).toEqual(true);
+        expect(DataEntity.is(results2)).toEqual(true);
         expect((results2 as DataEntity).getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(DataEntity.isDataEntity(results3)).toEqual(true);
+        expect(DataEntity.is(results3)).toEqual(true);
         expect((results3 as DataEntity).getMetadata('selectors')).toEqual(metaData.selectors);
     });
 

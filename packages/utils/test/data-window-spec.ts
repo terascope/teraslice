@@ -197,7 +197,7 @@ describe('DataWindow', () => {
                 ];
                 const result = DataWindow.make(entities);
                 expect(result).toEqual(entities);
-                expect(DataEntity.isDataEntityArray(result)).toBeTrue();
+                expect(DataEntity.isArray(result)).toBeTrue();
             });
         });
     });

@@ -13,7 +13,7 @@ import * as e from './entity';
 export class DataWindow<
     T = DataEntity,
     M = {}
-> extends Array<T> implements e.Entity<T, M> {
+> extends Array<T> implements e.Entity<T, M & e.EntityMetadata> {
     /**
      * A utility for safely creating a `DataWindow`
      */

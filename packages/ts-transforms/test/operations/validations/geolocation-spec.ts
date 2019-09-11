@@ -59,7 +59,7 @@ describe('geolocation validation', () => {
         const results10 = test.run(cloneDeep(data10));
         const results11 = test.run(cloneDeep(data11));
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
+        expect(DataEntity.is(results1)).toEqual(true);
         expect(results1?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results1).toEqual(data1);
         expect(results2).toEqual(data2);
@@ -67,9 +67,9 @@ describe('geolocation validation', () => {
         expect(results4).toEqual(null);
         expect(results5).toEqual(null);
         expect(results6).toEqual(null);
-        expect(DataEntity.isDataEntity(results7)).toEqual(true);
+        expect(DataEntity.is(results7)).toEqual(true);
         expect(results7).toEqual(data7);
-        expect(DataEntity.isDataEntity(results8)).toEqual(true);
+        expect(DataEntity.is(results8)).toEqual(true);
         expect(results8).toEqual(data8);
         expect(results8?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results9).toEqual(null);
@@ -103,6 +103,6 @@ describe('geolocation validation', () => {
         expect(results4).toEqual(data4);
         expect(results5).toEqual(data2);
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
+        expect(DataEntity.is(results1)).toEqual(true);
     });
 });
