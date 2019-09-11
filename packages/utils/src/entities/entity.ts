@@ -50,6 +50,38 @@ export interface Entity<Data = {}, Metadata = {}> {
     setKey(key: string|number): void;
 }
 
+/**
+ * This interface defines the core static methods
+ * for an `Entity`.
+ *
+ * **NOTE:**  We currently can't enforce `DataEntity`
+ * and `DataWindow` are using this, since typescript
+ * doesn't have first support for "implementing" static methods.
+ * We can only create this for reference and external type checking.
+*/
+export interface EntityConstructor<
+    E extends Entity,
+    Data = {},
+    Metadata = {}
+> {
+    /**
+     * Create a specific type of `Entity`
+     */
+    make<T = {}, M = {}>(input: T, metadata?: M): E;
+
+    /**
+     * Verify that an input is a specific type of `Entity`
+     */
+    is(input: any): input is E;
+
+    /**
+     * Verify that an input is a array of a specific type of `Entity`
+     */
+    isArray(input: any): input is E[];
+
+    new (data: Data|null|undefined, metadata?: Metadata): E;
+}
+
 export type TYPE_ENTITY_METADATA_KEY = '___EntityMetadata';
 export const __ENTITY_METADATA_KEY: TYPE_ENTITY_METADATA_KEY = '___EntityMetadata';
 
