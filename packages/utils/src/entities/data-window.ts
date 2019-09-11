@@ -213,6 +213,19 @@ export class DataWindow<
     }
 
     // override behaviour of an Array...
+    push(...items: T[]) {
+        if (!DataEntity.isArray(items)) {
+            throw new Error('Invalid item added to DataWindow, expected DataEntity');
+        }
+        return super.push(...items as any);
+    }
+
+    unshift(...items: T[]) {
+        if (!DataEntity.isArray(items)) {
+            throw new Error('Invalid item prepended to DataWindow, expected DataEntity');
+        }
+        return super.unshift(...items as any);
+    }
 
     slice(begin?: number, end?: number): DataWindow<T, M> {
         return new DataWindow<T, M>(

@@ -46,6 +46,25 @@ describe('DataWindow', () => {
             expect(window).toBeArrayOfSize(1);
         });
 
+        it('should throw if pushing a non-DataEntity', () => {
+            const window = new DataWindow();
+            expect(() => {
+                window.push(null as any);
+            }).toThrowError();
+
+            expect(() => {
+                window.push({} as any);
+            }).toThrowError();
+
+            expect(() => {
+                window.push([] as any);
+            }).toThrowError();
+
+            expect(() => {
+                window.push(DataWindow.make([]) as any);
+            }).toThrowError();
+        });
+
         it('should be prepend a DataEntity', () => {
             const window = new DataWindow([
                 DataEntity.make({ a: 1 })
@@ -54,6 +73,25 @@ describe('DataWindow', () => {
             expect(window).toBeArrayOfSize(2);
             expect(window[0].a).toBe(2);
             expect(window[1].a).toBe(1);
+        });
+
+        it('should throw if prepending a non-DataEntity', () => {
+            const window = new DataWindow();
+            expect(() => {
+                window.unshift(null as any);
+            }).toThrowError();
+
+            expect(() => {
+                window.unshift({} as any);
+            }).toThrowError();
+
+            expect(() => {
+                window.unshift([] as any);
+            }).toThrowError();
+
+            expect(() => {
+                window.unshift(DataWindow.make([]) as any);
+            }).toThrowError();
         });
 
         it('should NOT have any enumerable built-in methods', () => {
