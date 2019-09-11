@@ -229,6 +229,7 @@ export class DataWindow<
     }
 
     concat(...items: ConcatArray<T>[]): DataWindow<T, M>;
+    concat(...items: (T | ConcatArray<T>)[]): DataWindow<T, M>;
     concat(...items: (T | ConcatArray<T>)[]): DataWindow<T, M> {
         return new DataWindow<T, M>(
             super.concat(...items),
@@ -246,6 +247,15 @@ export class DataWindow<
     slice(begin?: number, end?: number): DataWindow<T, M> {
         return new DataWindow<T, M>(
             super.slice(begin, end),
+            this.getMetadata()
+        );
+    }
+
+    splice(start: number, deleteCount?: number): DataWindow<T, M>;
+    splice(start: number, deleteCount: number, ...items: T[]): DataWindow<T, M>;
+    splice(start: number, deleteCount: number, ...items: T[]): DataWindow<T, M> {
+        return new DataWindow<T, M>(
+            super.splice(start, deleteCount, ...items),
             this.getMetadata()
         );
     }

@@ -94,6 +94,25 @@ describe('DataWindow', () => {
             }).toThrowError();
         });
 
+        it('should be splice a DataWindow', () => {
+            const window = new DataWindow([
+                DataEntity.make({ a: 1 }),
+                DataEntity.make({ a: 2 })
+            ], { _key: 'spliced' });
+            expect(window).toBeArrayOfSize(2);
+
+            const spliced = window.splice(0, 2, DataEntity.make({ a: 3 }));
+            expect(spliced).toBeInstanceOf(DataWindow);
+            expect(spliced.getKey()).toBe('spliced');
+
+            expect(spliced).toBeArrayOfSize(2);
+            expect(spliced[0]).toHaveProperty('a', 1);
+            expect(spliced[1]).toHaveProperty('a', 2);
+
+            expect(window).toBeArrayOfSize(1);
+            expect(window[0]).toHaveProperty('a', 3);
+        });
+
         it('should NOT have any enumerable built-in methods', () => {
             const window = new DataWindow();
 
@@ -134,6 +153,7 @@ describe('DataWindow', () => {
 
         test.each(shouldBe)('should think %s is a DataWindow', (_str, val) => {
             expect(DataWindow.is(val)).toBeTrue();
+            expect(val).toBeInstanceOf(DataWindow);
         });
 
         const shouldNotBe: ([string, any])[] = [
@@ -152,6 +172,7 @@ describe('DataWindow', () => {
 
         test.each(shouldNotBe)('should NOT think %s is a DataWindow', (_str, val) => {
             expect(DataWindow.is(val)).toBeFalse();
+            expect(val).not.toBeInstanceOf(DataWindow);
         });
     });
 
