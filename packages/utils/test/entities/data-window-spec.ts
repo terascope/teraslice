@@ -5,7 +5,7 @@ import {
     fastCloneDeep,
     __IS_WINDOW_KEY,
     __ENTITY_METADATA_KEY,
-} from '../src';
+} from '../../src';
 
 describe('DataWindow', () => {
     const methods: readonly (keyof DataWindow)[] = [

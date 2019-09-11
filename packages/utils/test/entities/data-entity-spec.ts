@@ -12,7 +12,7 @@ import {
     fastCloneDeep,
     firstToLower,
     DataWindow
-} from '../src';
+} from '../../src';
 
 describe('DataEntity', () => {
     const methods: readonly (keyof DataEntity)[] = [
