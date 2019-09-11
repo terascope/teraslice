@@ -20,7 +20,7 @@ export class DataWindow<
     static make<T = DataEntity, M = {}>(
         input: T|T[], metadata?: M
     ): DataWindow<T, M> {
-        if (DataWindow.isDataWindow<T, M>(input)) {
+        if (DataWindow.is<T, M>(input)) {
             return input;
         }
         return new DataWindow(input, metadata);
@@ -29,21 +29,21 @@ export class DataWindow<
     /**
      * Verify that an input is a `DataWindow`
      */
-    static isDataWindow<T, M>(input: any): input is DataWindow<T, M> {
+    static is<T, M>(input: any): input is DataWindow<T, M> {
         return input instanceof DataWindow;
     }
 
     /**
      * Verify that an input is an Array of DataWindows
      */
-    static isDataWindowArray<T = DataEntity, M = {}>(
+    static isArray<T = DataEntity, M = {}>(
         input: any
     ): input is DataWindow<T, M>[] {
         if (input == null) return false;
         if (!Array.isArray(input)) return false;
-        if (DataWindow.isDataWindow(input)) return false;
+        if (DataWindow.is(input)) return false;
         if (input.length === 0) return true;
-        return input.every(DataWindow.isDataWindow);
+        return input.every(DataWindow.is);
     }
 
     static [Symbol.hasInstance](instance: any): boolean {

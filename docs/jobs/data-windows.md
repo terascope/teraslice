@@ -37,7 +37,7 @@ const metadata = {
 const dataWindow = new DataWindow(input, metadata);
 
 expect(dataWindow).toBeArrayOfSize(1);
-expect(DataWindow.isDataWindow(dataWindow)).toBeTrue();
+expect(DataWindow.is(dataWindow)).toBeTrue();
 expect(dataWindow.getKey()).toBe('test');
 ```
 

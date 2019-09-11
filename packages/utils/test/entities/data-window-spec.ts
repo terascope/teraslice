@@ -88,14 +88,14 @@ describe('DataWindow', () => {
         });
     });
 
-    describe('#isDataWindow', () => {
+    describe('#is', () => {
         const shouldBe: ([string, any])[] = [
             ['new DataWindow', new DataWindow()],
             ['DataWindow.make', DataWindow.make({})],
         ];
 
         test.each(shouldBe)('should think %s is a DataWindow', (_str, val) => {
-            expect(DataWindow.isDataWindow(val)).toBeTrue();
+            expect(DataWindow.is(val)).toBeTrue();
         });
 
         const shouldNotBe: ([string, any])[] = [
@@ -113,11 +113,11 @@ describe('DataWindow', () => {
         ];
 
         test.each(shouldNotBe)('should NOT think %s is a DataWindow', (_str, val) => {
-            expect(DataWindow.isDataWindow(val)).toBeFalse();
+            expect(DataWindow.is(val)).toBeFalse();
         });
     });
 
-    describe('#isDataWindowArray', () => {
+    describe('#isArray', () => {
         const shouldBe: ([string, any])[] = [
             ['an empty array', []],
             ['[DataWindow]', [new DataWindow()]],
@@ -125,7 +125,7 @@ describe('DataWindow', () => {
         ];
 
         test.each(shouldBe)('should think %s is an array of DataWindows', (_str, val) => {
-            expect(DataWindow.isDataWindowArray(val)).toBeTrue();
+            expect(DataWindow.isArray(val)).toBeTrue();
         });
 
         const shouldNotBe: ([string, any])[] = [
@@ -143,14 +143,14 @@ describe('DataWindow', () => {
         ];
 
         test.each(shouldNotBe)('should NOT think %s is an array of DataWindows', (_str, val) => {
-            expect(DataWindow.isDataWindowArray(val)).toBeFalse();
+            expect(DataWindow.isArray(val)).toBeFalse();
         });
     });
 
     describe('#make', () => {
         it('should return a DataWindow', () => {
             const window = DataWindow.make({});
-            expect(DataWindow.isDataWindow(window)).toBeTrue();
+            expect(DataWindow.is(window)).toBeTrue();
         });
 
         it('should have all of the methods', () => {
