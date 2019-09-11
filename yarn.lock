@@ -2251,9 +2251,9 @@ awesome-phonenumber@^2.15.0:
   integrity sha512-JMPXjOg5EIKr2rCekXIpnpVAsQSNneZV5OtZ0Ofn1owfpXYNVX9jA9za04tf1m3Ert/y3T1oP+PbdWlXTpT28Q==
 
 aws-sdk@^2.513.0:
-  version "2.517.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.517.0.tgz#415e6732d46c478a4f1867920d25af57651063b1"
-  integrity sha512-CX0b+8StmzAGQOP5eoBYJExpjTdPeVPig3NC4crq71/0LkrIDGcc6ekVEl0Rx23WTyGDzExeDD1be1HvQNwHdA==
+  version "2.526.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.526.0.tgz#e0f899be59edb7d50eb8cca7978bcd401a5d48c2"
+  integrity sha512-ZZqf8AnD9A8ZJd/4oU711R8taxm8sV7wcAOvT0HhrZxv8zASAzoz2lpZ19QAil6uJ52IOkq4ij/zGy7VBXEgPA==
   dependencies:
     buffer "4.9.1"
     events "1.1.1"
