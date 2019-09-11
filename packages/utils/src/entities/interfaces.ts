@@ -1,3 +1,6 @@
+// this file cannot depend on any other files
+// in this folder besides ./entity
+
 import { AnyObject } from '../interfaces';
 import { EntityMetadata } from './entity';
 

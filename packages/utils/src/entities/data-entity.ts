@@ -1,4 +1,6 @@
 /* eslint-disable max-len */
+// this file cannot depend on ./data-window
+
 import { getValidDate, getTime } from '../dates';
 import { getTypeOf } from '../deps';
 import { isSimpleObject } from '../objects';

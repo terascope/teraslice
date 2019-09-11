@@ -1,3 +1,5 @@
+// this file cannot depend on any other files in this folder
+
 /**
  * A core implementation of Entity in teraslice
  * with metadata capabilities
