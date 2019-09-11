@@ -213,6 +213,7 @@ export class DataWindow<
     }
 
     // override behaviour of an Array...
+
     push(...items: T[]) {
         if (!DataEntity.isArray(items)) {
             throw new Error('Invalid item added to DataWindow, expected DataEntity');
@@ -225,6 +226,21 @@ export class DataWindow<
             throw new Error('Invalid item prepended to DataWindow, expected DataEntity');
         }
         return super.unshift(...items as any);
+    }
+
+    concat(...items: ConcatArray<T>[]): DataWindow<T, M>;
+    concat(...items: (T | ConcatArray<T>)[]): DataWindow<T, M> {
+        return new DataWindow<T, M>(
+            super.concat(...items),
+            this.getMetadata()
+        );
+    }
+
+    reverse(): DataWindow<T, M> {
+        return new DataWindow<T, M>(
+            super.reverse(),
+            this.getMetadata()
+        );
     }
 
     slice(begin?: number, end?: number): DataWindow<T, M> {

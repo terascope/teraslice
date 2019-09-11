@@ -458,6 +458,8 @@ describe('DataWindow', () => {
         ['.slice()', (window) => window.slice()],
         ['.map((entity) => entity)', (window) => window.map((entity) => entity)],
         ['.filter(() => true)', (window) => window.filter(Boolean as any)],
+        ['.concat([])', (window) => window.concat([])],
+        ['.reverse([])', (window) => window.reverse()],
     ];
 
     describe.each(shallowCloneCases)('when shallow cloning via %s on the window', (_str, fn) => {
