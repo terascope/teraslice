@@ -23,7 +23,7 @@ for (let i = 0; i < 50; i++) {
 
 data['big-array'] = times(50, (n) => `item-${n}`);
 
-const metadata = { id: Math.random() * 1000 * 1000 };
+const metadata = { _key: Math.random() * 1000 * 1000 };
 
 const run = async () => Suite('DataEntity')
     .add('new data', {
