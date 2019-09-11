@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 
-import { toString, DataEntity } from '@terascope/utils';
+import { toString, DataEntity, DataWindow } from '@terascope/utils';
 import {
     Context,
     LegacyProcessor,
@@ -26,11 +26,18 @@ export default function processorShim<S = any>(legacy: LegacyProcessor): Process
                 );
             }
 
-            async handle(input: DataEntity[], sliceRequest: SliceRequest): Promise<DataEntity[]> {
+            async handle(
+                input: DataWindow,
+                sliceRequest: SliceRequest
+            ): Promise<DataWindow|DataWindow[]> {
                 if (this.processorFn != null) {
-                    const result = await this.processorFn(input, this.logger, sliceRequest);
+                    const result = await this.processorFn(
+                        input as DataEntity[],
+                        this.logger,
+                        sliceRequest
+                    );
                     try {
-                        return convertResult(result);
+                        return DataWindow.make(convertResult(result));
                     } catch (err) {
                         throw new Error(`${this.opConfig._op} failed to convert result: ${toString(err)}`);
                     }

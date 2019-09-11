@@ -5,6 +5,7 @@ import {
     newTestExecutionConfig,
     WorkerContext,
     DataEntity,
+    DataWindow,
     times
 } from '../../src';
 import Collect from '../../src/builtin/collect/processor';
@@ -58,7 +59,7 @@ describe('Collect Processor', () => {
     describe('when given a batch equal to the target size', () => {
         it('should immeditially resolve the slice, nothing should be queued', async () => {
             const data = times(opConfig.size, (n) => ({ n }));
-            const input = DataEntity.makeArray(data);
+            const input = DataWindow.make(data);
             const result = await collect.handle(input);
 
             expect(result).toEqual(input);
@@ -69,14 +70,14 @@ describe('Collect Processor', () => {
     describe('when given a batch less than the target size', () => {
         it('should eventually resolve the slice', async () => {
             const data1 = times(opConfig.size / 2, (n) => ({ n }));
-            const input1 = DataEntity.makeArray(data1);
+            const input1 = DataWindow.make(data1);
             const result1 = await collect.handle(input1);
 
             expect(result1).toBeArrayOfSize(0);
             expect(getQueue()).toBeArrayOfSize(50);
 
             const data2 = times(opConfig.size / 2, (n) => ({ n }));
-            const input2 = DataEntity.makeArray(data2);
+            const input2 = DataWindow.make(data2);
             const result2 = await collect.handle(input2);
 
             expect(result2).toBeArrayOfSize(opConfig.size);
@@ -87,14 +88,14 @@ describe('Collect Processor', () => {
     describe('when given a more than the target size', () => {
         it('should immediately resolve the slice, the remainder should be queued', async () => {
             const data1 = times(opConfig.size * 1.5, (n) => ({ n }));
-            const input1 = DataEntity.makeArray(data1);
+            const input1 = DataWindow.make(data1);
             const result1 = await collect.handle(input1);
 
             expect(result1).toBeArrayOfSize(opConfig.size);
             expect(getQueue()).toBeArrayOfSize(50);
 
             const data2 = times(opConfig.size / 2, (n) => ({ n }));
-            const input2 = DataEntity.makeArray(data2);
+            const input2 = DataWindow.make(data2);
             const result2 = await collect.handle(input2);
 
             expect(result2).toBeArrayOfSize(opConfig.size);
@@ -105,7 +106,7 @@ describe('Collect Processor', () => {
     describe('when a slice is partially enqueued and too much time passes', () => {
         it('should immediately resolve the slice, the remainder should be queued', async () => {
             const data1 = times(opConfig.size / 2, (n) => ({ n }));
-            const input1 = DataEntity.makeArray(data1);
+            const input1 = DataWindow.make(data1);
             const result1 = await collect.handle(input1);
 
             expect(result1).toBeArrayOfSize(0);
@@ -113,7 +114,7 @@ describe('Collect Processor', () => {
 
             await delay(150);
 
-            const result2 = await collect.handle([]);
+            const result2 = await collect.handle(DataWindow.make([]));
 
             expect(result2).toBeArrayOfSize(input1.length);
             expect(getQueue()).toBeArrayOfSize(0);
@@ -122,7 +123,7 @@ describe('Collect Processor', () => {
 
     describe('when shutting down', () => {
         it('should reject with an error if there are queued records', async () => {
-            const input = DataEntity.makeArray(times(opConfig.size / 2, (n) => ({ n })));
+            const input = DataWindow.make(times(opConfig.size / 2, (n) => ({ n })));
             await collect.handle(input);
 
             return expect(collect.shutdown()).rejects.toThrowError(`Collect is shutdown with ${opConfig.size / 2} unprocessed records`);

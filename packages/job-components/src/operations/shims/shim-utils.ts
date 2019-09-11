@@ -1,7 +1,6 @@
 import { deprecate } from 'util';
 import {
     DataEntity,
-    DataInput,
     isPlainObject,
     getFirst,
     castArray,
@@ -18,7 +17,7 @@ const deprecateType = deprecate(
  * But in order to be more backwards compatible legacy modules
  * can return an array of buffers or strings.
 */
-export function convertResult(input: DataInput[]|Buffer[]|string[]): DataEntity[] {
+export function convertResult(input: any): DataEntity[] {
     if (input == null) return [];
     if (Array.isArray(input) && input.length === 0) return [];
 

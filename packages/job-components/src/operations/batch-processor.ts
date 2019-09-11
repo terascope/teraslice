@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { EntityResult, DataWindow, makeWindowResult } from '@terascope/utils';
 import { OpConfig } from '../interfaces';
 import ProcessorCore from './core/processor-core';
 
@@ -10,10 +10,9 @@ export default abstract class BatchProcessor<T = OpConfig> extends ProcessorCore
      * A method called by {@link BatchProcessor#handle}
      * @returns an array of DataEntities
      */
-    abstract async onBatch(batch: DataEntity[]): Promise<DataEntity[]>;
+    abstract async onBatch(batch: DataWindow): Promise<EntityResult>;
 
-    async handle(input: DataEntity[]): Promise<DataEntity[]> {
-        const output = await this.onBatch(DataEntity.makeArray(input));
-        return DataEntity.makeArray(output);
+    async handle(input: DataWindow): Promise<DataWindow|DataWindow[]> {
+        return makeWindowResult(await this.onBatch(DataWindow.make(input)));
     }
 }

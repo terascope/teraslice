@@ -1,6 +1,11 @@
 import 'jest-extended'; // require for type definitions
 import {
-    DataEntity, FilterProcessor, newTestExecutionConfig, TestContext, WorkerContext
+    DataEntity,
+    DataWindow,
+    FilterProcessor,
+    newTestExecutionConfig,
+    TestContext,
+    WorkerContext
 } from '../../src';
 
 describe('FilterProcessor', () => {
@@ -33,7 +38,7 @@ describe('FilterProcessor', () => {
 
     describe('->handle', () => {
         it('should resolve the modified data entities which are passed in', async () => {
-            const input = DataEntity.makeArray([
+            const input = DataWindow.make([
                 {
                     hello: 'there',
                     keep: true,

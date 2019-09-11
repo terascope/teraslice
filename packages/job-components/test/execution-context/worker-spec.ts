@@ -1,6 +1,6 @@
 import 'jest-extended';
 import path from 'path';
-import { pDelay, DataEntity } from '@terascope/utils';
+import { pDelay, DataWindow } from '@terascope/utils';
 import { terasliceOpPath } from '../helpers';
 import {
     WorkerExecutionContext,
@@ -81,7 +81,7 @@ describe('WorkerExecutionContext', () => {
             expect(executionContext).toHaveProperty('processors');
             expect(executionContext.processors.length).toEqual(2);
 
-            const input = DataEntity.makeArray([
+            const input = DataWindow.make([
                 {
                     hello: true,
                 },

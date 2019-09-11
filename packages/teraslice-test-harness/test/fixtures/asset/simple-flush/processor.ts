@@ -1,9 +1,11 @@
-import { BatchProcessor, DataEntity } from '@terascope/job-components';
+import {
+    WorkerContext, BatchProcessor, ExecutionConfig, DataWindow
+} from '@terascope/job-components';
 import { FlusherConfig } from './interfaces';
 
 export default class Flusher extends BatchProcessor<FlusherConfig> {
     _flushing = false;
-    _state: DataEntity[] = [];
+    _state: DataWindow = DataWindow.make([]);
 
     async onFlushStart(): Promise<void> {
         this._flushing = true;
@@ -13,7 +15,7 @@ export default class Flusher extends BatchProcessor<FlusherConfig> {
         this._flushing = false;
     }
 
-    async onBatch(data: DataEntity[]): Promise<DataEntity[]> {
+    async onBatch(data: DataWindow): Promise<DataWindow> {
         if (this._flushing) return this._state;
         this._state = data;
         return [];

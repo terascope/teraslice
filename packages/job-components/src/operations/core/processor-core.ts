@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataWindow } from '@terascope/utils';
 import OperationCore from './operation-core';
 import { SliceRequest, OpConfig } from '../../interfaces';
 
@@ -18,5 +18,8 @@ export default abstract class ProcessorCore<T = OpConfig> extends OperationCore<
      * @param input an array of DataEntities
      * @returns an array of DataEntities
      */
-    abstract async handle(input: DataEntity[], sliceRequest?: SliceRequest): Promise<DataEntity[]>;
+    abstract async handle(
+        input: DataWindow,
+        sliceRequest?: SliceRequest
+    ): Promise<DataWindow|DataWindow[]>;
 }

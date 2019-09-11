@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataWindow } from '@terascope/utils';
 import {
     Context,
     ExecutionConfig,
@@ -44,7 +44,7 @@ export type SliceStatus = 'starting' | 'started' | 'completed' | 'failed' | 'flu
 export interface RunSliceResult {
     status: SliceStatus;
     analytics?: SliceAnalyticsData;
-    results: DataEntity[];
+    results: DataWindow|DataWindow[];
 }
 
 export type WorkerSliceState = {

@@ -1,6 +1,6 @@
 import 'jest-extended'; // require for type definitions
 import {
-    DataEntity, MapProcessor, newTestExecutionConfig, TestContext, WorkerContext
+    DataEntity, MapProcessor, newTestExecutionConfig, TestContext, WorkerContext, DataWindow
 } from '../../src';
 
 describe('MapProcessor', () => {
@@ -36,7 +36,7 @@ describe('MapProcessor', () => {
 
     describe('->handle', () => {
         it('should resolve the modified data entities which are passed in', async () => {
-            const input = DataEntity.makeArray([
+            const input = DataWindow.make([
                 {
                     hello: 'there',
                 },

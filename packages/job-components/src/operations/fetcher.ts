@@ -1,4 +1,4 @@
-import { DataEntity, DataArrayInput } from '@terascope/utils';
+import { EntityResult, DataWindow, makeWindowResult } from '@terascope/utils';
 import { OpConfig } from '../interfaces';
 import FetcherCore from './core/fetcher-core';
 
@@ -11,9 +11,9 @@ export default abstract class Fetcher<T = OpConfig> extends FetcherCore<T> {
      * A method called by {@link Fetcher#handle}
      * @returns a DataEntity compatible array
     */
-    abstract async fetch(sliceRequest?: unknown): Promise<DataArrayInput>;
+    abstract async fetch(sliceRequest?: unknown): Promise<EntityResult>;
 
-    async handle(sliceRequest?: unknown): Promise<DataEntity[]> {
-        return DataEntity.makeArray(await this.fetch(sliceRequest));
+    async handle(sliceRequest?: unknown): Promise<DataWindow|(DataWindow[])> {
+        return makeWindowResult(await this.fetch(sliceRequest));
     }
 }

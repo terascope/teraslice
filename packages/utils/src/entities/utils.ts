@@ -1,7 +1,6 @@
 // this file cannot depend on ./data-entity or ./data-window
 import * as e from './entity';
 import * as i from './interfaces';
-import { isPlainObject } from '../objects';
 import { isString } from '../strings';
 import { isNumber } from '../numbers';
 

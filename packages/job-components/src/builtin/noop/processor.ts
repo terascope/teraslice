@@ -1,8 +1,8 @@
-import { DataEntity } from '@terascope/utils';
+import { DataWindow } from '@terascope/utils';
 import { BatchProcessor } from '../../operations';
 
 export default class Noop extends BatchProcessor {
-    async onBatch(data: DataEntity[]): Promise<DataEntity[]> {
+    async onBatch(data: DataWindow): Promise<DataWindow> {
         return data;
     }
 }

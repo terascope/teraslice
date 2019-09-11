@@ -1,6 +1,7 @@
 import 'jest-extended'; // require for type definitions
 import {
     DataEntity,
+    DataWindow,
     EachProcessor,
     newTestExecutionConfig,
     TestContext,
@@ -45,7 +46,7 @@ describe('EachProcessor', () => {
 
     describe('->handle', () => {
         it('should resolve the data entity which are passed in', async () => {
-            const input = DataEntity.makeArray([
+            const input = DataWindow.make([
                 {
                     hello: 'there',
                 },

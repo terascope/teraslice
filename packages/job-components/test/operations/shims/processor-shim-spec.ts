@@ -2,6 +2,7 @@ import 'jest-extended'; // require for type definitions
 import {
     processorShim,
     DataEntity,
+    DataWindow,
     TestContext,
     newTestExecutionConfig,
     WorkerContext,
@@ -84,7 +85,7 @@ describe('Processor Shim', () => {
         const processor = new mod.Processor(context as WorkerContext, opConfig, exConfig);
         await processor.initialize();
 
-        const input = DataEntity.makeArray([{ say: 'hi' }]);
+        const input = DataWindow.make([{ say: 'hi' }]);
 
         const result = await processor.handle(input);
 

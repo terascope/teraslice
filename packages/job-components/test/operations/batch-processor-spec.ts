@@ -1,6 +1,7 @@
 import 'jest-extended'; // require for type definitions
 import {
     DataEntity,
+    DataWindow,
     BatchProcessor,
     newTestExecutionConfig,
     TestContext,
@@ -9,7 +10,7 @@ import {
 
 describe('BatchProcessor', () => {
     class ExampleBatchProcessor extends BatchProcessor<Record<string, any>> {
-        public async onBatch(batch: DataEntity[]): Promise<DataEntity[]> {
+        public async onBatch(batch: DataWindow): Promise<DataWindow> {
             batch.push(new DataEntity({
                 hi: 'there'
             }));
@@ -31,7 +32,7 @@ describe('BatchProcessor', () => {
 
     describe('->onBatch', () => {
         it('should resolve the data entities which are passed in', async () => {
-            const input = DataEntity.makeArray([
+            const input = DataWindow.make([
                 {
                     hello: 'there',
                 },
@@ -44,7 +45,7 @@ describe('BatchProcessor', () => {
 
     describe('->handle', () => {
         it('should resolve to a data entity list', async () => {
-            const input = DataEntity.makeArray([
+            const input = DataWindow.make([
                 {
                     hello: 'there',
                 },

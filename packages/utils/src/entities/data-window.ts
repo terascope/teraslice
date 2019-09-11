@@ -1,3 +1,4 @@
+import { EntityArray, ConcatEntityArray } from './entity-array';
 import { getValidDate, getUnixTime } from '../dates';
 import { DataEntity } from './data-entity';
 import { getTypeOf } from '../utils';
@@ -11,32 +12,45 @@ import * as e from './entity';
  * A `DataWindow` should be able to be used in-place of an `Array` in most cases.
  */
 export class DataWindow<
-    T = DataEntity,
+    T extends DataEntity = DataEntity,
     M = {}
-> extends Array<T> implements e.Entity<T, M & e.EntityMetadata> {
+> extends EntityArray<T> implements e.Entity<T, M & e.EntityMetadata> {
     /**
      * A utility for safely creating a `DataWindow`
      */
-    static make<T = DataEntity, M = {}>(
+    static make<T extends DataWindow>(input: T): T;
+    static make<T extends Record<string, any>, M = {}>(
+        input: T|T[], metadata?: M
+    ): DataWindow<DataEntity<T>, M>;
+    static make<T extends DataEntity = DataEntity, M = {}>(
         input: T|T[], metadata?: M
     ): DataWindow<T, M> {
         if (DataWindow.is<T, M>(input)) {
             return input;
         }
-        return new DataWindow(input, metadata);
+        if (DataEntity.is(input) || DataEntity.isArray(input)) {
+            return new DataWindow(
+                input,
+                metadata
+            );
+        }
+        return new DataWindow(
+            DataEntity.makeArray(input) as T[],
+            metadata
+        );
     }
 
     /**
      * Verify that an input is a `DataWindow`
      */
-    static is<T, M>(input: any): input is DataWindow<T, M> {
+    static is<T extends DataEntity = DataEntity, M = {}>(input: any): input is DataWindow<T, M> {
         return input instanceof DataWindow;
     }
 
     /**
      * Verify that an input is an Array of DataWindows
      */
-    static isArray<T = DataEntity, M = {}>(
+    static isArray<T extends DataEntity = DataEntity, M = {}>(
         input: any
     ): input is DataWindow<T, M>[] {
         if (input == null) return false;
@@ -55,10 +69,21 @@ export class DataWindow<
     };
     private readonly [i.__IS_WINDOW_KEY]: true;
 
-    constructor(docs?: T|T[], metadata?: M) {
-        if (docs != null && utils.canConvertToEntityArray(docs)) {
-            const entities: T[] = DataEntity.makeArray(docs) as any;
-            super(...entities);
+    constructor(data?: T|T[], metadata?: M) {
+        // sometimes the input will automatically be a number when
+        // cloning the a window
+        if (data != null && typeof data !== 'number') {
+            const errMsg = 'Invalid input to DataWindow, expected at least one DataEntity';
+
+            if (DataEntity.is(data)) {
+                super(data);
+            } else if (DataEntity.isArray(data)) {
+                super(...data);
+            } else if (Array.isArray(data) && (data as any).length) {
+                throw new Error(`${errMsg}, got an array of ${getTypeOf(data[0])}s`);
+            } else {
+                throw new Error(`${errMsg}, got ${getTypeOf(data)}`);
+            }
         } else {
             super();
         }
@@ -228,11 +253,11 @@ export class DataWindow<
         return super.unshift(...items as any);
     }
 
-    concat(...items: ConcatArray<T>[]): DataWindow<T, M>;
-    concat(...items: (T | ConcatArray<T>)[]): DataWindow<T, M>;
-    concat(...items: (T | ConcatArray<T>)[]): DataWindow<T, M> {
+    concat(...items: ConcatEntityArray<T>[]): DataWindow<T, M>;
+    concat(...items: (T | ConcatEntityArray<T>)[]): DataWindow<T, M>;
+    concat(...items: (T | ConcatEntityArray<T>)[]): DataWindow<T, M> {
         return new DataWindow<T, M>(
-            super.concat(...items),
+            super.concat(...items as any),
             this.getMetadata()
         );
     }
@@ -260,7 +285,7 @@ export class DataWindow<
         );
     }
 
-    map<U>(
+    map<U extends DataEntity>(
         callbackfn: (value: T, index: number, array: T[]) => U,
         thisArg?: any
     ): DataWindow<U, M> {
@@ -279,8 +304,32 @@ export class DataWindow<
         thisArg?: any
     ): DataWindow<T, M> {
         return new DataWindow<T, M>(
-            super.filter(callbackfn, thisArg),
+            super.filter(callbackfn as any, thisArg),
             this.getMetadata()
         );
     }
+
+    [n: number]: T;
+}
+
+/**
+ * Make a windowed result from an a variety of inputs.
+ * Used when returning results from a processor
+ *
+ * @returns a Window or Multiple Windows
+*/
+export type EntityResult =
+    Record<string, any>
+    |(Record<string, any>[])
+    |DataEntity
+    |(DataEntity[])
+    |DataWindow
+    |(DataWindow[]);
+
+export function makeWindowResult(
+    input: EntityResult
+): DataWindow|DataWindow[] {
+    if (DataWindow.is(input)) return input;
+    if (DataWindow.isArray(input)) return input;
+    return DataWindow.make<any>(input);
 }

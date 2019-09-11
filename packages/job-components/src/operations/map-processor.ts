@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, DataWindow } from '@terascope/utils';
 import { OpConfig } from '../interfaces';
 import ProcessorCore from './core/processor-core';
 
@@ -21,7 +21,7 @@ export default abstract class MapProcessor<T = OpConfig> extends ProcessorCore<T
      *
      * @returns an array of DataEntities
      */
-    async handle(input: DataEntity[]): Promise<DataEntity[]> {
-        return input.map((data, index, array) => DataEntity.make(this.map(data, index, array)));
+    async handle(input: DataWindow): Promise<DataWindow|DataWindow[]> {
+        return input.map((data, index, array) => this.map(data, index, array));
     }
 }

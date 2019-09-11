@@ -34,7 +34,7 @@ export class DataEntity<
         input: T,
         metadata?: M
     ): T;
-    static make<T = Record<string, any>, M = Record<string, any>>(
+    static make<T extends Record<string, any> = Record<string, any>, M extends i._DataEntityMetadataType = Record<string, any>>(
         input: Record<string, any>,
         metadata?: M
     ): DataEntity<T, M>;
@@ -65,11 +65,12 @@ export class DataEntity<
         if (!Array.isArray(input)) {
             return [DataEntity.make(input)];
         }
-
+        if (utils.isDataWindow(input)) {
+            return input as DataEntity<T, M>[];
+        }
         if (DataEntity.isArray<T, M>(input)) {
             return input;
         }
-
         return input.map((d) => DataEntity.make(d));
     }
 

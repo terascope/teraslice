@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, DataWindow } from '@terascope/utils';
 import { OpConfig } from '../interfaces';
 import ProcessorCore from './core/processor-core';
 
@@ -15,10 +15,11 @@ export default abstract class FilterProcessor<T = OpConfig> extends ProcessorCor
 
     /**
      * A generic method called by the Teraslice framework, calls {@link #filter}
-     * @param input an array of DataEntities
-     * @returns an array of DataEntities
      */
-    async handle(input: DataEntity[]): Promise<DataEntity[]> {
-        return input.filter((data, index, array) => this.filter(data, index, array));
+    async handle(input: DataWindow): Promise<DataWindow|DataWindow[]> {
+        // eslint-disable-next-line arrow-body-style
+        return input.filter((value, index, array): value is DataEntity => {
+            return this.filter(value, index, array);
+        });
     }
 }

@@ -29,7 +29,7 @@ describe('DataWindow', () => {
         it('should throw an error', () => {
             expect(() => {
                 new DataWindow([1] as any);
-            }).toThrowError(/Invalid data source/);
+            }).toThrowError(/Invalid input to DataWindow, expected at least one DataEntity/);
         });
     });
 

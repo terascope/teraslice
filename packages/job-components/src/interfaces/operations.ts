@@ -1,7 +1,10 @@
 import { Schema } from 'convict';
 import { Logger } from '@terascope/utils';
 import {
-    ValidatedJobConfig, OpConfig, ExecutionConfig, LegacyExecutionContext
+    ValidatedJobConfig,
+    OpConfig,
+    ExecutionConfig,
+    LegacyExecutionContext
 } from './jobs';
 import { Context, SysConfig } from './context';
 

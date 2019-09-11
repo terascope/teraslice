@@ -7,6 +7,7 @@ import {
     ConvictSchema,
     legacyProcessorShim,
     DataEntity,
+    DataWindow,
     TestContext,
     newTestExecutionConfig,
     OpConfig,
@@ -22,7 +23,7 @@ describe('Legacy Processor Shim', () => {
     }
 
     class ExampleBatchProcessor extends BatchProcessor<ExampleOpConfig> {
-        async onBatch(data: DataEntity[]): Promise<DataEntity[]> {
+        async onBatch(data: DataWindow): Promise<DataWindow> {
             return data.map((d) => {
                 d.name = 'hello';
                 return d;

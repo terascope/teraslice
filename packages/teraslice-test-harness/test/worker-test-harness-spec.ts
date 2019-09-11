@@ -6,7 +6,8 @@ import {
     DataEntity,
     Fetcher,
     BatchProcessor,
-    NoopProcessor
+    NoopProcessor,
+    DataWindow
 } from '@terascope/job-components';
 import { WorkerTestHarness } from '../src';
 
@@ -43,7 +44,7 @@ describe('WorkerTestHarness', () => {
             clients,
         });
 
-        workerHarness.processors[0].handle = jest.fn(async (data: DataEntity[]) => data);
+        workerHarness.processors[0].handle = jest.fn(async (data: DataWindow) => data);
 
         it('should be able to call initialize', () => expect(workerHarness.initialize()).resolves.toBeNil());
 

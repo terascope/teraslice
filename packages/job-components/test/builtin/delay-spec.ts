@@ -1,6 +1,9 @@
 import 'jest-extended';
 import {
-    TestContext, newTestExecutionConfig, WorkerContext, DataEntity
+    TestContext,
+    newTestExecutionConfig,
+    WorkerContext,
+    DataWindow
 } from '../../src';
 import Delay from '../../src/builtin/delay/processor';
 import Schema from '../../src/builtin/delay/schema';
@@ -30,7 +33,9 @@ describe('Delay Processor', () => {
 
     it('should delay at least 100ms', async () => {
         const startTime = Date.now();
-        await delay.handle([new DataEntity({ hi: true })]);
+        await delay.handle(DataWindow.make(
+            { hi: true }
+        ));
         expect(Date.now() - startTime).toBeGreaterThanOrEqual(98);
     });
 
@@ -40,7 +45,7 @@ describe('Delay Processor', () => {
 
         const startTime = Date.now();
 
-        await delay.handle([]);
+        await delay.handle(DataWindow.make([]));
 
         // this is 148 because bluebird.delay isn't as predicatable
         expect(Date.now() - startTime).toBeGreaterThanOrEqual(148);

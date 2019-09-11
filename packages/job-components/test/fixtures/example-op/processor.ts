@@ -1,4 +1,9 @@
-import { DataEntity, BatchProcessor, times } from '../../../src';
+import {
+    DataEntity,
+    BatchProcessor,
+    times,
+    DataWindow
+} from '../../../src';
 
 export default class ExampleBatch extends BatchProcessor {
     _initialized = false;
@@ -15,7 +20,7 @@ export default class ExampleBatch extends BatchProcessor {
         return super.shutdown();
     }
 
-    async onBatch(input: DataEntity[]): Promise<DataEntity[]> {
+    async onBatch(input: DataWindow): Promise<DataWindow> {
         if (this.opConfig.test_flush && this._flushing) {
             return times(30, () => DataEntity.make({ flush: true }));
         }

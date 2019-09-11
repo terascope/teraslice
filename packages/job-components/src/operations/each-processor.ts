@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, DataWindow } from '@terascope/utils';
 import { OpConfig } from '../interfaces';
 import ProcessorCore from './core/processor-core';
 
@@ -19,7 +19,7 @@ export default abstract class EachProcessor<T = OpConfig> extends ProcessorCore<
      * @param input an array of DataEntities
      * @returns an array of DataEntities
      */
-    async handle(input: DataEntity[]): Promise<DataEntity[]> {
+    async handle(input: DataWindow): Promise<DataWindow|DataWindow[]> {
         input.forEach((data, index, array) => this.forEach(data, index, array));
         return input;
     }

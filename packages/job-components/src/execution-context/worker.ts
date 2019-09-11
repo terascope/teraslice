@@ -32,7 +32,7 @@ export class WorkerExecutionContext
     status: WorkerStatus = 'initializing';
 
     private readonly _fetcher: FetcherCore;
-    private _queue: ((input: any) => Promise<ts.DataEntity[]>)[];
+    private _queue: ((input: any) => Promise<ts.DataWindow|ts.DataWindow[]>)[];
 
     constructor(config: ExecutionContextConfig) {
         super(config);
@@ -318,8 +318,14 @@ export class WorkerExecutionContext
         await this._runMethodAsync('onSliceRetry', this._sliceId);
     }
 
-    private _onOperationComplete(index: number, records: ts.DataEntity[]) {
-        this._runMethod('onOperationComplete', this._sliceId, index, records.length, records);
+    private _onOperationComplete(index: number, result: ts.DataWindow|ts.DataWindow[]) {
+        let total: number;
+        if (ts.DataWindow.is(result)) {
+            total = result.length;
+        } else {
+            total = result.reduce((acc, window) => acc + window.length, 0);
+        }
+        this._runMethod('onOperationComplete', this._sliceId, index, total, result);
     }
 
     private _onOperationStart(index: number) {
@@ -358,7 +364,11 @@ export class WorkerExecutionContext
 
         try {
             const request = ts.cloneDeep(this.sliceState.slice.request);
-            const results: ts.DataEntity[] = await ts.waterfall(request, this._queue, ts.isProd);
+            const results: ts.DataWindow|ts.DataWindow[] = await ts.waterfall(
+                request,
+                this._queue,
+                ts.isProd
+            );
 
             if (this.status === 'flushing') {
                 this._updateSliceState('flushed');
@@ -366,6 +376,7 @@ export class WorkerExecutionContext
             } else {
                 this._updateSliceState('completed');
             }
+
             return {
                 results,
                 status: this.sliceState.status,
