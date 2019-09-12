@@ -139,7 +139,10 @@ export class DataEntity<
      * Safely get the metadata from a `DataEntity`.
      * If the input is object it will get the property from the object
      *
-     * @deprecated THIS IS UNSAFE
+     * **DEPRECATED:** Since this isn't recommended to be used, and will
+     * be removed in future releases.
+     *
+     * @deprecated
      */
     static getMetadata(input: any, field?: any) {
         if (input == null) return null;
