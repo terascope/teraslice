@@ -6,11 +6,6 @@ export type TYPE_DATAENTITY_METADATA_KEY = '___DataEntityMetadata';
 export const __IS_ENTITY_KEY: TYPE_IS_ENTITY_KEY = '__isDataEntity';
 export const __DATAENTITY_METADATA_KEY: TYPE_DATAENTITY_METADATA_KEY = '___DataEntityMetadata';
 
-export type __DataEntityProps<M extends EntityMetadataType> = {
-    metadata: EntityMetadata<M>;
-    rawData: Buffer|null;
-};
-
 export type EntityMetadataType = DataEntityMetadata | AnyObject;
 export type EntityMetadata<M> = M & DataEntityMetadata & AnyObject;
 
@@ -61,14 +56,8 @@ export interface DataEntityMetadata {
     _key?: string|number;
 }
 
-export type EntityTimeMetadataField =
-    '_createTime'
-    |'_ingestTime'
-    |'_processTime'
-    |'_eventTime';
-
 /**
- * available data encoding types
+ * Available data encoding types for a DataEntity
  */
 export enum DataEncoding {
     JSON = 'json',
