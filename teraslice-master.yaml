@@ -40,6 +40,15 @@ terafoundation:
             dev_kafka_data3:
                 brokers:
                     - "10.210.7.222:9092"
+        
+        s3:
+            tera1:
+                endpoint: s3.gen2.tera1.lan
+                accessKeyId: 2CDZB8AFNWBZN80R1EHR
+                secretAccessKey: ZqNeywgGwDUrTYzlNSXB3KR3IvRMUWtG7g7ARfi9
+                sslEnabled: true
+                certLocation: config/certs/terascope/ca-root.pem
+
 
 teraslice:
     master: true
