@@ -3,8 +3,8 @@ import {
     DataEntity,
     parseJSON,
     DataEncoding,
-    __IS_ENTITY_KEY,
-    __DATAENTITY_METADATA_KEY,
+    __IS_DATAENTITY_KEY,
+    __ENTITY_METADATA_KEY,
     cloneDeep,
     fastCloneDeep,
     DataEntityMetadata,
@@ -30,8 +30,8 @@ describe('DataEntity', () => {
     ];
 
     const hiddenProps: string[] = [
-        __IS_ENTITY_KEY,
-        __DATAENTITY_METADATA_KEY
+        __IS_DATAENTITY_KEY,
+        __ENTITY_METADATA_KEY
     ];
 
     const testCases = [

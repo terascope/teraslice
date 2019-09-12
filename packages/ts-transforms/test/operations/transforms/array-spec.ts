@@ -98,7 +98,7 @@ describe('MakeArray operator', () => {
         const results = test.run(data);
 
         expect(DataEntity.isDataEntity(results)).toEqual(true);
-        expect(DataEntity.getMetadata(results as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results).toEqual({ author: { full_name: ['John', 'Doe'] }, person: { first: 'John', last: 'Doe' } });
     });
 });

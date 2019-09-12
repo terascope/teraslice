@@ -61,15 +61,15 @@ describe('MacAddress validation', () => {
         const results10 = test.run(data10);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results1.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results1).toEqual({});
-        expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results2.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results2).toEqual({});
         expect(results3).toEqual({});
         expect(results4).toEqual({});
         expect(results5).toEqual({});
         expect(results6).toEqual({});
-        expect(DataEntity.getMetadata(results6 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results6.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results7).toEqual({});
         expect(results8).toEqual(data8);
         expect(results9).toEqual({ field: 'ec1a592200d4' });

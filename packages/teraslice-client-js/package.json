@@ -29,7 +29,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.23.3",
+        "@terascope/job-components": "^0.23.4",
         "auto-bind": "^2.1.0",
         "got": "^9.6.0"
     },
