@@ -46,21 +46,6 @@ export class DataEntity<
     }
 
     /**
-     * A barebones method for creating data-entities.
-     * @returns the metadata and entity
-     */
-    static makeRaw<T = Record<string, any>, M = {}>(
-        input?: T,
-        metadata?: M
-    ): { entity: DataEntity<T, M>; metadata: i._DataEntityMetadata<M> } {
-        const entity = new DataEntity(input, metadata);
-        return {
-            entity,
-            metadata: entity.getMetadata(),
-        };
-    }
-
-    /**
      * A utility for safely converting an input of an object,
      * or an array of objects, to an array of DataEntities.
      * This will detect if passed an already converted input and return it.
