@@ -23,6 +23,7 @@
         "lint": "yarn lint:es && yarn sync --verify",
         "lint:es": "eslint --cache --ext .js,.jsx,.ts,.tsx .",
         "lint:fix": "yarn lint:es --fix && yarn sync",
+        "quick:setup": "yarn lerna link --force-local && tsc --build",
         "setup": "lerna bootstrap --force-local && yarn build:cleanup dist && yarn build",
         "start": "node service.js",
         "sync": "ts-scripts sync",
