@@ -60,7 +60,7 @@ const run = async () => Suite('DataWindow')
     })
     .add('new DataWindow', {
         fn() {
-            const input = fastCloneDeep(arr);
+            const input = DataEntity.makeArray(fastCloneDeep(arr));
             let window = new DataWindow(input, metadata);
             window.push(
                 DataEntity.make(makeObj(window.length + 1))
