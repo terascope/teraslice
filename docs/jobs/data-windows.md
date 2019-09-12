@@ -2,8 +2,8 @@
 title: Data Windows
 ---
 
-Acts as an collection of DataEntities associated to a particular key or time frame.
-A `DataWindow` should be able to be used in-place of an `Array` in most cases.
+ Acts as an collection of `DataEntity`s associated to a particular key or time frame.
+ A `DataWindow` should be able to be used in-place of an `Array` in most cases, except in cases where the data inputed is type checked or when calling a method clones the window, like `map`, `filter`, `slice`, `splice`, `reverse`, or `concat` since it will always return a `DataWindow` and persist the metadata. To convert a `DataWindow` to a native javascript array, use `toArray`.
 
 Check out the [API docs](../packages/utils/api/classes/datawindow.md) for more details.
 
@@ -11,7 +11,7 @@ Check out the [API docs](../packages/utils/api/classes/datawindow.md) for more d
 
 ### new DataWindow
 
-A straightforward way of creating a window
+A straightforward way of creating a window, requies an import of one or more `DataEntity`. If you want the window to convert the input to DataEntities, use `DataWindow.make`.
 
 ```js
 'use strict';
@@ -44,6 +44,9 @@ expect(dataWindow.getKey()).toBe('test');
 ### DataWindow.make
 
 A utility for safely creating a `DataWindow`. The main different between `new DataWindow` and `DataWindow.make`, that if given a `DataWindow` it will return it and not create a new one.
+
+If given a `DataWindow` it will return it and ingore the metadata param.
+If given an object, or array of objects, it will return it instead make them into `DataEntity`s
 
 ```js
 'use strict';

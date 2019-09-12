@@ -8,15 +8,22 @@ import { locked } from '../misc';
 import * as e from './entity';
 
 /**
- * Acts as an collection of DataEntities associated to a particular key or time frame.
- * A `DataWindow` should be able to be used in-place of an `Array` in most cases.
+ * Acts as an collection of `DataEntity`s associated to a particular key or time frame.
+ * A `DataWindow` should be able to be used in-place of an `Array` in most cases, except
+ * in cases where the data inputed is type checked or when calling a method clones the window,
+ * like `map`, `filter`, `slice`, `splice`, `reverse`, or `concat` since it will always return
+ * a `DataWindow` and persist the metadata. To convert a `DataWindow` to a native javascript
+ * array, use `toArray`
  */
 export class DataWindow<
     T extends DataEntity = DataEntity,
     M = {}
 > extends EntityArray<T> implements e.Entity<T, M & e.EntityMetadata> {
     /**
-     * A utility for safely creating a `DataWindow`
+     * A utility for safely creating a `DataWindow`.
+     *
+     * If given a `DataWindow` it will return it and ingore the metadata param.
+     * If given an object, or array of objects, it will return it instead make them into DataEntitys
      */
     static make<T extends DataWindow>(input: T): T;
     static make<T extends Record<string, any>, M = {}>(
