@@ -4,7 +4,8 @@ import {
     isPlainObject,
     getFirst,
     castArray,
-    isString
+    isString,
+    DataWindow
 } from '@terascope/utils';
 
 const deprecateType = deprecate(
@@ -19,10 +20,10 @@ const deprecateType = deprecate(
 */
 export function convertResult(input: any): DataEntity[] {
     if (input == null) return [];
-    if (Array.isArray(input) && input.length === 0) return [];
-
     if (DataEntity.isArray(input)) return input;
+    if (DataWindow.is(input)) return input as DataEntity[];
     if (DataEntity.is(input)) return [input];
+    
     const first = getFirst<Record<string, any>|string|Buffer>(input);
     if (first == null) return [];
 

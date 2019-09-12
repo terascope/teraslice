@@ -1,10 +1,10 @@
 'use strict';
 
-const { Fetcher, DataEntity } = require('../../../dist/src');
+const { Fetcher, DataEntity, DataWindow } = require('../../../dist/src');
 
 class SimpleFetcher extends Fetcher {
     async fetch({ count = 1000, precreate, addMetadata } = {}) {
-        const result = [];
+        const result = precreate ? new DataWindow() : [];
         for (let i = 0; i < count; i++) {
             const data = {
                 id: `${i}-${Math.random()}`,

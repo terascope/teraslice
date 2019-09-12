@@ -1,6 +1,6 @@
 import 'jest-extended';
+import { DataEntity, DataWindow } from '@terascope/utils';
 import { convertResult } from '../../../src/operations/shims/shim-utils';
-import { DataEntity } from '../../../src';
 
 describe('Shim Utils', () => {
     describe('convertResult', () => {
@@ -34,6 +34,37 @@ describe('Shim Utils', () => {
 
             expect(result).toBeArrayOfSize(1);
             expect(result[0]).toEqual(data);
+        });
+
+        it('should handle perserve a DataWindow', () => {
+            const window = DataWindow.make([{ hello: true }]);
+            const result = convertResult(window);
+
+            expect(result).toBeInstanceOf(DataWindow);
+            expect(result).toBe(window);
+            expect(result).toEqual([
+                {
+                    hello: true
+                }
+            ]);
+        });
+
+        it('should handle perserve an array of DataWindows', () => {
+            const window = DataWindow.make([{ hello: true }, { hi: true }]);
+            const result = convertResult([window]);
+
+            expect(DataWindow.isArray(result)).toBeTrue();
+            expect(result).toBeArrayOfSize(1);
+            expect(result[0]).toBeArrayOfSize(2);
+            expect(result[0]).toBe(window);
+            expect(result[0]).toEqual([
+                {
+                    hello: true
+                },
+                {
+                    hi: true
+                }
+            ]);
         });
 
         it('should handle a single DataEntity', () => {

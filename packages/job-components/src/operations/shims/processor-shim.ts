@@ -35,7 +35,7 @@ export default function processorShim<S = any>(legacy: LegacyProcessor): Process
                         {}
                     );
                     try {
-                        return DataWindow.make(convertResult(result));
+                        return convertResult(result) as DataWindow;
                     } catch (err) {
                         throw new Error(`${this.opConfig._op} failed to convert result: ${toString(err)}`);
                     }
