@@ -110,7 +110,7 @@ export class WorkerExecutionContext
         let i = 0;
         for (const processor of this.processors) {
             const index = ++i;
-            const handleFn = handleProcessorFn(processor.handle.bind(processor));
+            const handleFn = handleProcessorFn(processor);
 
             this._queue.push(async (input: any) => {
                 this._onOperationStart(index);

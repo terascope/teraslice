@@ -15,19 +15,21 @@ export function getOperationAPIType(api: unknown): OperationAPIType {
     return isOperationAPI(api) ? 'api' : 'observer';
 }
 
-type HandleFn = (input: DataWindow) => Promise<DataWindow|DataWindow[]>;
+interface ProcessorLike {
+    handle(input: DataWindow): Promise<DataWindow|DataWindow[]>;
+}
 
-export function handleProcessorFn(handle: HandleFn) {
+export function handleProcessorFn<T extends ProcessorLike>(processor: T) {
     return async (input: DataWindow|DataWindow[]): Promise<DataWindow|DataWindow[]> => {
         if (!input.length) {
-            return handle(DataWindow.make([]));
+            return processor.handle(DataWindow.make([]));
         }
 
         if (DataWindow.isArray(input)) {
             const results: DataWindow[] = [];
 
             for (const window of input) {
-                const windowResult = await handle(window);
+                const windowResult = await processor.handle(window);
                 if (DataWindow.isArray(windowResult)) {
                     results.push(
                         ...windowResult
@@ -47,6 +49,6 @@ export function handleProcessorFn(handle: HandleFn) {
             return results;
         }
 
-        return handle(input);
+        return processor.handle(input);
     };
 }

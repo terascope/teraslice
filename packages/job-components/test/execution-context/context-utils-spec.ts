@@ -12,7 +12,11 @@ describe('Execution Context Utils', () => {
             let results: any;
 
             beforeEach(async () => {
-                handleFn = handleProcessorFn(async () => DataWindow.make([]));
+                handleFn = handleProcessorFn({
+                    async handle() {
+                        return DataWindow.make([]);
+                    }
+                });
 
                 results = await handleFn(DataWindow.make([]));
             });
@@ -25,9 +29,13 @@ describe('Execution Context Utils', () => {
 
         describe('when handling the fn returns an array of DataEntities', () => {
             beforeEach(() => {
-                handleFn = handleProcessorFn(async (input) => DataEntity.makeArray(
-                    fastCloneDeep(input)
-                ) as any);
+                handleFn = handleProcessorFn({
+                    async handle(input): Promise<any> {
+                        return DataEntity.makeArray(
+                            fastCloneDeep(input)
+                        );
+                    }
+                });
             });
 
             describe('when given a DataWindow', () => {
@@ -95,9 +103,11 @@ describe('Execution Context Utils', () => {
 
         describe('when handling the fn returns a DataWindow', () => {
             beforeEach(() => {
-                handleFn = handleProcessorFn(async (input) => DataWindow.make(
-                    input.toArray()
-                ) as any);
+                handleFn = handleProcessorFn({
+                    async handle(input) {
+                        return DataWindow.make(input.toArray());
+                    }
+                });
             });
 
             describe('when given a DataWindow', () => {
@@ -170,19 +180,23 @@ describe('Execution Context Utils', () => {
 
         describe('when handling the fn returns an array of DataWindows', () => {
             beforeEach(() => {
-                handleFn = handleProcessorFn(async (input) => [
-                    DataWindow.make(
-                        input.toArray()
-                    ) as any,
-                    DataWindow.make(
-                        input.toArray()
-                            .map((doc) => new DataEntity(doc))
-                            .map((doc) => {
-                                doc.hi = false;
-                                return doc;
-                            })
-                    ) as any,
-                ]);
+                handleFn = handleProcessorFn({
+                    async handle(input) {
+                        return [
+                            DataWindow.make(
+                                input.toArray()
+                            ) as any,
+                            DataWindow.make(
+                                input.toArray()
+                                    .map((doc) => new DataEntity(doc))
+                                    .map((doc) => {
+                                        doc.hi = false;
+                                        return doc;
+                                    })
+                            ),
+                        ];
+                    }
+                });
             });
 
             describe('when given a DataWindow', () => {
