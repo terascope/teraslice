@@ -75,9 +75,9 @@ describe('Base64Decode operator', () => {
         const results12 = test.run(data12);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results1.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results1).toEqual({});
-        expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results2.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results2).toEqual({});
         expect(results3).toEqual({});
         expect(results4).toEqual({});
@@ -87,7 +87,7 @@ describe('Base64Decode operator', () => {
         expect(results8).toEqual({ source: 'ha3ke5@pawnage.com' });
         expect(results9).toEqual({ source: '::' });
         expect(results10).toEqual({ source: '193.0.0.23' });
-        expect(DataEntity.getMetadata(results11 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results11.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results11).toEqual({ source: 'hello world' });
         expect(results12).toEqual({ source: ['hello world', 'other things'] });
     });
@@ -103,7 +103,7 @@ describe('Base64Decode operator', () => {
 
         const results = test.run(data);
 
-        expect(DataEntity.getMetadata(results as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results).toEqual({ source: { field: 'hello world' } });
     });
 });
