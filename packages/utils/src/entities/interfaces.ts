@@ -1,15 +1,15 @@
 import { AnyObject } from '../interfaces';
 
-export type TYPE_IS_ENTITY_KEY = '__isDataEntity';
-export type TYPE_DATAENTITY_METADATA_KEY = '___DataEntityMetadata';
+export type TYPE_IS_DATAENTITY_KEY = '__isDataEntity';
+export type TYPE_ENTITY_METADATA_KEY = '___EntityMetadata';
 
-export const __IS_ENTITY_KEY: TYPE_IS_ENTITY_KEY = '__isDataEntity';
-export const __DATAENTITY_METADATA_KEY: TYPE_DATAENTITY_METADATA_KEY = '___DataEntityMetadata';
+export const __IS_DATAENTITY_KEY: TYPE_IS_DATAENTITY_KEY = '__isDataEntity';
+export const __ENTITY_METADATA_KEY: TYPE_ENTITY_METADATA_KEY = '___EntityMetadata';
 
-export type EntityMetadataType = DataEntityMetadata | AnyObject;
-export type EntityMetadata<M> = M & DataEntityMetadata & AnyObject;
+export type _DataEntityMetadataType = DataEntityMetadata | AnyObject;
+export type _DataEntityMetadata<M> = M & DataEntityMetadata & AnyObject;
 
-export type EntityMetadataKey<M> =
+export type DataEntityMetadataValue<M> =
     (keyof DataEntityMetadata)
     | (keyof M)
     | string
