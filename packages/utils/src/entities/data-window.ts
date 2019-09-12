@@ -240,6 +240,13 @@ export class DataWindow<
         this[e.__ENTITY_METADATA_KEY].metadata._finishTime = unixTime;
     }
 
+    /**
+     * Convert a DataWindow to a native javascript array
+    */
+    toArray(): Array<T> {
+        return super.slice() as Array<T>;
+    }
+
     // override behaviour of an Array...
 
     push(...items: T[]) {

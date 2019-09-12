@@ -4,7 +4,6 @@ import { toString, DataEntity, DataWindow } from '@terascope/utils';
 import {
     Context,
     LegacyProcessor,
-    SliceRequest,
     ProcessorFn,
     ValidatedJobConfig
 } from '../../interfaces';
@@ -28,13 +27,12 @@ export default function processorShim<S = any>(legacy: LegacyProcessor): Process
 
             async handle(
                 input: DataWindow,
-                sliceRequest: SliceRequest
             ): Promise<DataWindow|DataWindow[]> {
                 if (this.processorFn != null) {
                     const result = await this.processorFn(
                         input as DataEntity[],
                         this.logger,
-                        sliceRequest
+                        {}
                     );
                     try {
                         return DataWindow.make(convertResult(result));

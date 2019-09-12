@@ -23,8 +23,8 @@ describe('WorkerExecutionContext', () => {
 
     const windowTestCases: [string, number][] = [
         ['with a top level window fetched', 0],
-        ['with an array of 1 window fetched', 1],
-        ['with an array of 2 window fetched', 2],
+        ['with an array of two window fetched', 1],
+        ['with an array of three window fetched', 3],
     ];
 
     describe.each(windowTestCases)('when constructed %s', (_str, windows) => {

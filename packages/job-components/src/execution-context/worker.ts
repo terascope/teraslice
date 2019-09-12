@@ -13,7 +13,7 @@ import {
 import { FetcherCore, ProcessorCore, OperationCore } from '../operations/core';
 import JobObserver from '../operations/job-observer';
 import BaseExecutionContext from './base';
-import { getMetric } from './utils';
+import { getMetric, handleProcessorFn } from './utils';
 
 /**
  * WorkerExecutionContext is designed to add more
@@ -110,31 +110,11 @@ export class WorkerExecutionContext
         let i = 0;
         for (const processor of this.processors) {
             const index = ++i;
+            const handleFn = handleProcessorFn(processor.handle.bind(processor));
 
             this._queue.push(async (input: any) => {
                 this._onOperationStart(index);
-
-                if (ts.DataWindow.isArray(input)) {
-                    const results: ts.DataWindow[] = [];
-
-                    for (const window of input) {
-                        const windowResult = await processor.handle(window);
-                        if (ts.DataWindow.isArray(windowResult)) {
-                            results.push(
-                                ...windowResult
-                            );
-                        } else {
-                            results.push(
-                                windowResult
-                            );
-                        }
-                    }
-
-                    this._onOperationComplete(index, results);
-                    return results;
-                }
-
-                const results = await processor.handle(input);
+                const results = await handleFn(input);
                 this._onOperationComplete(index, results);
                 return results;
             });
