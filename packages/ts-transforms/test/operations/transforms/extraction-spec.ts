@@ -4,14 +4,14 @@ import { Extraction } from '../../../src/operations';
 describe('transform operator', () => {
     it('can instantiate', () => {
         const opConfig = {
-            target_field: 'someField', source_field: 'someField', __id: 'someId', mutate: false
+            target: 'someField', source: 'someField', __id: 'someId', mutate: false
         };
         expect(() => new Extraction(opConfig)).not.toThrow();
     });
 
     it('can transform data', () => {
         const opConfig = {
-            source_field: 'someField', target_field: 'otherField', __id: 'someId', mutate: false
+            source: 'someField', target: 'otherField', __id: 'someId', mutate: false
         };
         const test = new Extraction(opConfig);
 
@@ -43,8 +43,8 @@ describe('transform operator', () => {
 
     it('can transform data with start/end', () => {
         const opConfig = {
-            source_field: 'someField',
-            target_field: 'otherField',
+            source: 'someField',
+            target: 'otherField',
             start: 'field=',
             end: 'SomeStr',
             __id: 'someId',
@@ -88,8 +88,8 @@ describe('transform operator', () => {
 
     it('can transform data end = ', () => {
         const opConfig = {
-            source_field: 'someField',
-            target_field: 'otherField',
+            source: 'someField',
+            target: 'otherField',
             start: 'field=',
             end: 'EOP',
             __id: 'someId',
@@ -114,8 +114,8 @@ describe('transform operator', () => {
         it('can transform data with regex', () => {
             const opConfig = {
                 regex: '/d.*ta/',
-                source_field: 'someField',
-                target_field: 'otherField',
+                source: 'someField',
+                target: 'otherField',
                 __id: 'someId',
                 mutate: false
             };
@@ -155,8 +155,8 @@ describe('transform operator', () => {
         it('regex matching multiple values with a capturing group will return an array', () => {
             const opConfig = {
                 regex: '/<(.*?)>/',
-                source_field: 'field',
-                target_field: 'otherField',
+                source: 'field',
+                target: 'otherField',
                 __id: 'someId',
                 multivalue: true,
                 mutate: false
@@ -174,8 +174,8 @@ describe('transform operator', () => {
         it('regex matching multiple values with mutliple capturing group will return an array', () => {
             const opConfig = {
                 regex: '<(\\w+)>.*<(\\d+)>',
-                source_field: 'field',
-                target_field: 'otherField',
+                source: 'field',
+                target: 'otherField',
                 __id: 'someId',
                 multivalue: true,
                 mutate: false
@@ -193,8 +193,8 @@ describe('transform operator', () => {
         it('regex regression test', () => {
             const opConfig = {
                 regex: '.*',
-                source_field: 'field',
-                target_field: 'otherField',
+                source: 'field',
+                target: 'otherField',
                 __id: 'someId',
                 multivalue: true,
                 mutate: false
@@ -212,8 +212,8 @@ describe('transform operator', () => {
         it('can match extended values', () => {
             const opConfig = {
                 regex: '<(\\w+)>\\s\\w+\\s+<(\\d+)>',
-                source_field: 'field',
-                target_field: 'otherField',
+                source: 'field',
+                target: 'otherField',
                 __id: 'someId',
                 multivalue: true,
                 mutate: false
@@ -231,8 +231,8 @@ describe('transform operator', () => {
         it('can have sub capturing groups', () => {
             const opConfig = {
                 regex: '<(?:(\\w+)-(\\d+))>.*<(\\d+)>',
-                source_field: 'field',
-                target_field: 'otherField',
+                source: 'field',
+                target: 'otherField',
                 __id: 'someId',
                 multivalue: true,
                 mutate: false
@@ -250,19 +250,19 @@ describe('transform operator', () => {
     it('can maintain extract array values to array extractions and singular values to singular extractions', () => {
         // direct field transfer ignores multivalue=false
         const opConfig1 = {
-            source_field: 'someField', target_field: 'otherField', __id: 'someId', mutate: false, multivalue: false
+            source: 'someField', target: 'otherField', __id: 'someId', mutate: false, multivalue: false
         };
         const opConfig2 = {
-            source_field: 'someField',
-            target_field: 'otherField',
+            source: 'someField',
+            target: 'otherField',
             __id: 'someId',
             start: 'data=',
             end: 'EOP',
             mutate: false,
         };
         const opConfig3 = {
-            source_field: 'someField',
-            target_field: 'otherField',
+            source: 'someField',
+            target: 'otherField',
             __id: 'someId',
             start: 'data=',
             end: 'EOP',
@@ -297,8 +297,8 @@ describe('transform operator', () => {
 
     it('multivalue:false matches only return the first match', () => {
         const opConfig = {
-            source_field: 'someField',
-            target_field: 'otherField',
+            source: 'someField',
+            target: 'otherField',
             __id: 'someId',
             start: 'data=',
             end: 'EOP',
@@ -323,7 +323,7 @@ describe('transform operator', () => {
 
     it('can mutate existing doc instead of returning a new one', () => {
         const opConfig = {
-            source_field: 'someField', target_field: 'otherField', mutate: true, __id: 'someId'
+            source: 'someField', target: 'otherField', mutate: true, __id: 'someId'
         };
         const test = new Extraction(opConfig);
 
@@ -352,20 +352,20 @@ describe('transform operator', () => {
 
     it('can preserve metadata when transforming documents', () => {
         const opConfig = {
-            source_field: 'someField',
-            target_field: 'otherField',
+            source: 'someField',
+            target: 'otherField',
             mutate: true,
             __id: 'someId',
         };
         const opConfig2 = {
-            source_field: 'firstField',
-            target_field: 'secondField',
+            source: 'firstField',
+            target: 'secondField',
             mutate: true,
             __id: 'someId',
         };
 
         const opConfig3 = {
-            selector: 'some:data', source_field: 'someField', target_field: 'otherField', __id: 'someId', mutate: false
+            selector: 'some:data', source: 'someField', target: 'otherField', __id: 'someId', mutate: false
         };
 
         const test1 = new Extraction(opConfig);
@@ -385,5 +385,38 @@ describe('transform operator', () => {
         expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors);
         expect(DataEntity.isDataEntity(results3)).toEqual(true);
         expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+    });
+
+    it('can set a field using expr', () => {
+        const opConfig = {
+            exp: '20',
+            target: 'my_key',
+            __id: 'someId',
+            multivalue: false,
+            mutate: false
+        };
+        const test = new Extraction(opConfig);
+        const data = new DataEntity({ some: 'data' });
+
+        const results = test.run(data);
+        expect(results).toEqual({ my_key: 20 });
+    });
+
+
+    it('can use expr to manipulate data', () => {
+        const opConfig = {
+            exp: '"transformed_" + some ',
+            source: 'some',
+            target: 'my_key',
+            __id: 'someId',
+            multivalue: false,
+            mutate: false
+        };
+        const test = new Extraction(opConfig);
+        const data = new DataEntity({ some: 'data' });
+
+        const results = test.run(data);
+
+        expect(results).toEqual({ my_key: 'transformed_data' });
     });
 });

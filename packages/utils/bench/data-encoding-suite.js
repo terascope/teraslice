@@ -28,7 +28,7 @@ const run = async () => Suite('DataEncoding')
     .run({
         async: true,
         initCount: 1,
-        maxTime: 3,
+        maxTime: 5,
     });
 
 if (require.main === module) {

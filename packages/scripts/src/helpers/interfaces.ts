@@ -7,6 +7,10 @@ export type PackageInfo = {
     version: string;
     description: string;
     license: string;
+    publishConfig?: {
+        access: 'public'|'private';
+        registry: string;
+    };
     terascope: PackageConfig;
     dependencies: {
         [pkg: string]: string;
@@ -49,6 +53,9 @@ export type RootPackageInfo = {
         docker: {
             registry: string;
             cache_layers: ({ from: string; name: string })[];
+        };
+        npm: {
+            registry: string;
         };
     };
     dependencies?: {

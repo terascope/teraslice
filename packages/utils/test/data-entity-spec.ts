@@ -7,12 +7,23 @@ import {
     __DATAENTITY_METADATA_KEY,
     cloneDeep,
     fastCloneDeep,
+    DataEntityMetadata,
+    firstToLower,
 } from '../src';
 
 describe('DataEntity', () => {
-    const methods: (keyof DataEntity)[] = [
+    const methods: readonly (keyof DataEntity)[] = [
         'getMetadata',
         'setMetadata',
+        'getKey',
+        'setKey',
+        'getCreateTime',
+        'getIngestTime',
+        'setIngestTime',
+        'getProcessTime',
+        'setProcessTime',
+        'getEventTime',
+        'setEventTime',
         'getRawData',
         'setRawData',
         'toBuffer'
@@ -62,28 +73,41 @@ describe('DataEntity', () => {
                 expect(dataEntity).toHaveProperty('purple', 'pink');
             });
 
-            it('should not be able to enumerate metadata methods', () => {
-                const keys = Object.keys(dataEntity);
-                for (const method of methods) {
-                    expect(keys).not.toInclude(method as string);
-                }
-                for (const hiddenProp of hiddenProps) {
-                    expect(keys).not.toInclude(hiddenProp);
-                }
+            test.each(methods)('should be able to overwrite ->%s', (method) => {
+                expect(() => {
+                    dataEntity[method] = 'overwrite';
+                }).toThrow();
+            });
 
+            test.each([
+                ...methods,
+                ...hiddenProps,
+            ] as string[])('should NOT be able to enumerate ->%s', (key: string) => {
+                expect(Object.keys(dataEntity)).not.toContain(key);
                 // eslint-disable-next-line guard-for-in
                 for (const prop in dataEntity) {
-                    for (const method of methods) {
-                        expect(prop).not.toEqual(method as string);
-                    }
-                    for (const hiddenProp of hiddenProps) {
-                        expect(prop).not.toEqual(hiddenProp);
-                    }
+                    expect(prop).not.toEqual(key);
                 }
             });
 
+            it('should not be able to override the DataEntity properties via an input', () => {
+                const allProps = [
+                    ...methods,
+                    ...hiddenProps,
+                ] as string[];
+
+                const obj: Record<string, 'uhoh'> = {};
+                for (const prop of allProps) {
+                    obj[prop] = 'uhoh';
+                }
+
+                expect(() => {
+                    useClass ? new DataEntity(obj) : DataEntity.make(obj);
+                }).toThrow();
+            });
+
             it('should only convert non-metadata properties with stringified', () => {
-                const obj = JSON.parse(JSON.stringify(dataEntity));
+                const obj = fastCloneDeep(dataEntity);
                 for (const method of methods) {
                     expect(obj).not.toHaveProperty(method as string);
                 }
@@ -103,6 +127,7 @@ describe('DataEntity', () => {
             it('should be able to get the metadata', () => {
                 const metadata = dataEntity.getMetadata();
                 expect(metadata).toHaveProperty('_createTime');
+                expect(metadata._createTime).toBeNumber();
             });
 
             it('should be able to set and get a metadata property', () => {
@@ -163,7 +188,7 @@ describe('DataEntity', () => {
 
             it('should not be able to set _createTime', () => {
                 expect(() => {
-                    dataEntity.setMetadata('_createTime', 'hello');
+                    dataEntity.setMetadata('_createTime', 10);
                 }).toThrowError('Cannot set readonly metadata property _createTime');
             });
 
@@ -238,6 +263,115 @@ describe('DataEntity', () => {
                     }
                 }).toThrowError('Invalid data source, must be an object, got "Buffer"');
             });
+        });
+
+        describe('->getKey/->setKey', () => {
+            const dataEntity = useClass ? new DataEntity({}) : DataEntity.make({});
+
+            it('should throw an if there is no key', () => {
+                expect(() => {
+                    dataEntity.getKey();
+                }).toThrowError('No key has been set in the metadata');
+            });
+
+            it('should throw an when setting an invalid key', () => {
+                expect(() => {
+                    dataEntity.setKey('');
+                }).toThrowError('Invalid key to set in metadata');
+            });
+
+            it('should be able to set and get a string key', () => {
+                expect(dataEntity.setKey('hello')).toBeNil();
+                expect(dataEntity.getKey()).toBe('hello');
+            });
+
+            it('should be able to set and get a numeric key', () => {
+                expect(dataEntity.setKey(1)).toBeNil();
+                expect(dataEntity.getKey()).toBe(1);
+            });
+
+            it('should be able to set and get key with 0', () => {
+                expect(dataEntity.setKey(0)).toBeNil();
+                expect(dataEntity.getKey()).toBe(0);
+            });
+        });
+
+        const cases: string[][] = [
+            ['CreateTime', 'CreateTime'],
+            ['EventTime', 'EventTime'],
+            ['ProcessTime', 'ProcessTime'],
+            ['IngestTime', 'IngestTime'],
+        ];
+
+        describe.each(cases)('->get%s/->set%s', (str) => {
+            const dataEntity = useClass
+                ? new DataEntity({})
+                : DataEntity.make({});
+
+            const getMethod = `get${str}` as keyof DataEntity;
+            const setMethod = `set${str}` as keyof DataEntity;
+            const field = `_${firstToLower(str)}` as keyof DataEntityMetadata;
+
+            if (field !== '_createTime') {
+                it(`should return undefined if ${field} does not exist`, () => {
+                    expect(dataEntity[getMethod]()).toBeUndefined();
+                });
+
+                it('should throw if setting an invalid date', () => {
+                    expect(() => {
+                        dataEntity[setMethod](new Date('invalid-date'));
+                    }).toThrowError('Invalid date format');
+                });
+
+                it('should throw if setting an invalid date string', () => {
+                    expect(() => {
+                        dataEntity[setMethod]('invalid-date-string');
+                    }).toThrowError('Invalid date format');
+                });
+
+                it('should throw if setting an invalid unix time', () => {
+                    expect(() => {
+                        dataEntity[setMethod](-10);
+                    }).toThrowError('Invalid date format');
+                });
+
+                it('should be able to set a valid date', () => {
+                    const date = new Date();
+                    expect(dataEntity[setMethod](date)).toBeNil();
+                    expect(dataEntity[getMethod]()).toBeDate();
+                    expect(dataEntity[getMethod]()).toEqual(date);
+                });
+
+                it('should be able to set a valid date string', () => {
+                    const date = new Date();
+                    expect(dataEntity[setMethod](date.toISOString())).toBeNil();
+                    const result = dataEntity[getMethod]() as Date;
+                    expect(result).toBeDate();
+                    expect(result.toISOString()).toEqual(date.toISOString());
+                });
+
+                it('should be able to set a valid unix time', () => {
+                    const date = new Date();
+                    expect(dataEntity[setMethod](date.getTime())).toBeNil();
+                    const result = dataEntity[getMethod]() as Date;
+                    expect(result).toBeDate();
+                    expect(result.toISOString()).toEqual(date.toISOString());
+                });
+
+                it('should be able default now', () => {
+                    expect(dataEntity[setMethod]()).toBeNil();
+                    const result = dataEntity[getMethod]() as Date;
+                    expect(result).toBeDate();
+                });
+            } else {
+                it('should return a date for valid time', () => {
+                    expect(dataEntity.getCreateTime()).toBeDate();
+                });
+
+                it(`should not have DataEntity->${setMethod}`, () => {
+                    expect(dataEntity[setMethod]).toBeUndefined();
+                });
+            }
         });
 
         describe('->setRawData/->getRawData', () => {
@@ -385,6 +519,40 @@ describe('DataEntity', () => {
             expect(dataEntities[1]).toHaveProperty('howdy', 'partner');
 
             expect(DataEntity.makeArray(dataEntities)).toEqual(dataEntities);
+        });
+    });
+
+    describe('#fork', () => {
+        describe('when withData is not set (it should default to true)', () => {
+            it('should create a new instance and copy the data', () => {
+                const entity = new DataEntity({ a: 1 }, { b: 2 });
+                const forked = DataEntity.fork(entity);
+                expect(forked).toHaveProperty('a', 1);
+                const b = forked.getMetadata('b');
+                expect(b).toBe(2);
+            });
+        });
+
+        describe('when withData is true', () => {
+            it('should create a new instance and copy the data', () => {
+                const entity = new DataEntity({ a: 1 }, { b: 2 });
+                const forked = DataEntity.fork(entity, true);
+                expect(forked.a).toBe(1);
+                expect(forked.getMetadata()).toHaveProperty('b', 2);
+            });
+        });
+
+        describe('when withData is false', () => {
+            it('should create a new instance and copy the data', () => {
+                const entity = new DataEntity({ a: 1 }, { b: 2 });
+                const forked = DataEntity.fork(entity, false);
+                expect(forked).not.toHaveProperty('a', 1);
+                expect(forked.getMetadata('b')).toBe(2);
+            });
+        });
+
+        it('should throw if not given a data entity', () => {
+            expect(() => DataEntity.fork(null as any)).toThrowError(/Invalid input to fork/);
         });
     });
 

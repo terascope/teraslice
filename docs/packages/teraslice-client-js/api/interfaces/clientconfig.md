@@ -24,7 +24,7 @@ sidebar_label: ClientConfig
 
 • **apiVersion**? : *undefined | string*
 
-*Defined in [interfaces.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/interfaces.ts#L17)*
+*Defined in [interfaces.ts:16](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L16)*
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **baseUrl**? : *undefined | string*
 
-*Defined in [interfaces.ts:16](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/interfaces.ts#L16)*
+*Defined in [interfaces.ts:15](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L15)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **host**? : *undefined | string*
 
-*Defined in [interfaces.ts:15](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/interfaces.ts#L15)*
+*Defined in [interfaces.ts:14](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L14)*
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **timeout**? : *undefined | number*
 
-*Defined in [interfaces.ts:18](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/interfaces.ts#L18)*
+*Defined in [interfaces.ts:17](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L17)*

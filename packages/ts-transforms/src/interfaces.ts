@@ -1,5 +1,7 @@
+
 import { TypeConfig } from 'xlucene-evaluator';
 import { DataEntity } from '@terascope/utils';
+import { Extraction } from '../src/operations';
 
 export enum NotifyType { matcher = 'matcher', transform = 'transform' }
 
@@ -8,7 +10,7 @@ export type OperationConfigInput = Partial<OperationConfig> & {
 };
 
 export type OperationConfig =
-    { __id: string }
+    { __id: string; target_field?: string; source_field?: string}
     & Partial<SelectorConfig>
     & Partial<PostProcessConfig>
     & Partial<ExtractionConfig>;
@@ -17,9 +19,9 @@ export interface PostProcessConfig {
     __id: string;
 
     selector?: string;
-    source_field?: string;
-    source_fields?: string[];
-    target_field?: string;
+    source?: string;
+    sources?: string[];
+    target?: string;
 
     follow: string;
     tags?: string[];
@@ -56,15 +58,21 @@ export interface SelectorConfig {
     selector: string;
 }
 
+
 export interface ExtractionConfig {
     __id: string;
     start?: string;
     end?: string;
     regex?: string;
+    /**
+     * exp is a jexl expression string, please refer to https://github.com/TomFrost/Jexl for detailed information.
+     *
+     */
+    exp?: string;
     mutate: boolean;
     output?: boolean;
-    source_field: string;
-    target_field: string;
+    source?: string;
+    target: string;
     other_match_required?: boolean;
     multivalue?: boolean;
     deepSourceField?: boolean;
@@ -94,6 +102,10 @@ export interface Operation {
 
 export interface OperationsPipline {
     [key: string]: Operation[];
+}
+
+export interface ExtractionPipline {
+    [key: string]: Extraction[];
 }
 
 export interface OperationsMapping {

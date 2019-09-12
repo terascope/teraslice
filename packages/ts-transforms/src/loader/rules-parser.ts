@@ -1,8 +1,8 @@
-import _ from 'lodash';
+
 import shortid from 'shortid';
-import { Logger } from '@terascope/utils';
+import { Logger, set } from '@terascope/utils';
 import { OperationConfigInput, OperationConfig } from '../interfaces';
-import { isDeprecatedCompactConfig, needsDefaultSelector } from './utils';
+import { isDeprecatedCompactConfig, needsDefaultSelector, hasExtractions } from './utils';
 
 export default class RulesParser {
     private configList: OperationConfigInput[];
@@ -14,7 +14,7 @@ export default class RulesParser {
     parse(): OperationConfig[] {
         const resultsArray: OperationConfig[] = [];
         this.configList.forEach((config) => {
-            _.set(config, '__id', shortid.generate());
+            set(config, '__id', shortid.generate());
 
             // if its not set and its not a post process then set the selecter to *
             if (needsDefaultSelector(config)) config.selector = '*';
@@ -23,6 +23,13 @@ export default class RulesParser {
                 config.tags = [config.tag];
                 delete config.tag;
             }
+            // we default to extraction if no post process is set
+            if (config.follow && hasExtractions(config) && config.post_process === undefined) {
+                config.post_process = 'extraction';
+            }
+
+            if (config.target_field) config.target = config.target_field;
+            if (config.source_field) config.source = config.source_field;
 
             if (isDeprecatedCompactConfig(config)) {
                 const errStr = [

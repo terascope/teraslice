@@ -29,7 +29,7 @@ sidebar_label: DataEntityMetadata
 
 • **_createTime**: *number*
 
-*Defined in [entities/interfaces.ts:11](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/entities/interfaces.ts#L11)*
+*Defined in [entities/interfaces.ts:14](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/entities/interfaces.ts#L14)*
 
 The time at which this entity was created
 
@@ -39,7 +39,7 @@ ___
 
 • **_eventTime**? : *undefined | number*
 
-*Defined in [entities/interfaces.ts:23](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/entities/interfaces.ts#L23)*
+*Defined in [entities/interfaces.ts:26](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/entities/interfaces.ts#L26)*
 
 The time associated with this data entity,
 usually off of a specific field on source data or message
@@ -50,7 +50,7 @@ ___
 
 • **_ingestTime**? : *undefined | number*
 
-*Defined in [entities/interfaces.ts:14](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/entities/interfaces.ts#L14)*
+*Defined in [entities/interfaces.ts:17](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/entities/interfaces.ts#L17)*
 
 The time at which the data was ingested into the source data
 
@@ -60,7 +60,7 @@ ___
 
 • **_key**? : *undefined | string*
 
-*Defined in [entities/interfaces.ts:26](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/entities/interfaces.ts#L26)*
+*Defined in [entities/interfaces.ts:29](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/entities/interfaces.ts#L29)*
 
 A unique key for the data which will be can be used to key the data
 
@@ -70,6 +70,6 @@ ___
 
 • **_processTime**? : *undefined | number*
 
-*Defined in [entities/interfaces.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/utils/src/entities/interfaces.ts#L17)*
+*Defined in [entities/interfaces.ts:20](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/entities/interfaces.ts#L20)*
 
 The time at which the data was consumed by the reader

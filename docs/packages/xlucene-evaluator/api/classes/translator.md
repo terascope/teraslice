@@ -31,7 +31,7 @@ sidebar_label: Translator
 
 \+ **new Translator**(`input`: string | [Parser](parser.md), `options`: i.TranslatorOptions): *[Translator](translator.md)*
 
-*Defined in [translator/translator.ts:16](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/translator/translator.ts#L16)*
+*Defined in [translator/translator.ts:16](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/translator.ts#L16)*
 
 **Parameters:**
 
@@ -48,7 +48,7 @@ Name | Type | Default |
 
 • **logger**: *Logger*
 
-*Defined in [translator/translator.ts:11](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/translator/translator.ts#L11)*
+*Defined in [translator/translator.ts:11](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/translator.ts#L11)*
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 • **query**: *string*
 
-*Defined in [translator/translator.ts:10](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/translator/translator.ts#L10)*
+*Defined in [translator/translator.ts:10](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/translator.ts#L10)*
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **typeConfig**? : *[TypeConfig](../interfaces/typeconfig.md)*
 
-*Defined in [translator/translator.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/translator/translator.ts#L12)*
+*Defined in [translator/translator.ts:12](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/translator.ts#L12)*
 
 ## Methods
 
@@ -72,7 +72,7 @@ ___
 
 ▸ **toElasticsearchDSL**(`opts`: i.ElasticsearchDSLOptions): *i.ElasticsearchDSLResult*
 
-*Defined in [translator/translator.ts:46](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/translator/translator.ts#L46)*
+*Defined in [translator/translator.ts:46](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/translator.ts#L46)*
 
 **Parameters:**
 

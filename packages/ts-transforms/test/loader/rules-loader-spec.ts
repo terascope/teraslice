@@ -1,6 +1,6 @@
+
 import path from 'path';
-import _ from 'lodash';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger, isPlainObject, has } from '@terascope/utils';
 import { RulesLoader, OperationConfigInput } from '../../src';
 
 describe('rules-loader', () => {
@@ -26,8 +26,8 @@ describe('rules-loader', () => {
         expect(results).toBeArrayOfSize(2);
 
         results.forEach((config) => {
-            expect(_.isObject(config)).toBeTrue();
-            expect(_.has(config, 'selector')).toBeTrue();
+            expect(isPlainObject(config)).toBeTrue();
+            expect(has(config, 'selector')).toBeTrue();
         });
     });
 

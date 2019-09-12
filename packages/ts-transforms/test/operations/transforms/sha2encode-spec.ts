@@ -10,21 +10,21 @@ describe('Sha2Encode operator', () => {
 
     it('can instantiate', () => {
         const opConfig = {
-            target_field: 'final', source_field: 'source', __id: 'someId', follow: 'otherId'
+            target: 'final', source: 'source', __id: 'someId', follow: 'otherId'
         };
         expect(() => new Sha2Encode(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
-        const badConfig1 = { target_field: 1324, __id: 'someId', follow: 'otherId' };
-        const badConfig2 = { target_field: '', __id: 'someId', follow: 'otherId' };
-        const badConfig3 = { target_field: {}, __id: 'someId', follow: 'otherId' };
-        const badConfig4 = { target_field: null, __id: 'someId', follow: 'otherId' };
-        const badConfig5 = { source_field: [], __id: 'someId', follow: 'otherId' };
-        const badConfig6 = { source_field: {}, __id: 'someId', follow: 'otherId' };
-        const badConfig7 = { source_field: null, __id: 'someId', follow: 'otherId' };
+        const badConfig1 = { target: 1324, __id: 'someId', follow: 'otherId' };
+        const badConfig2 = { target: '', __id: 'someId', follow: 'otherId' };
+        const badConfig3 = { target: {}, __id: 'someId', follow: 'otherId' };
+        const badConfig4 = { target: null, __id: 'someId', follow: 'otherId' };
+        const badConfig5 = { source: [], __id: 'someId', follow: 'otherId' };
+        const badConfig6 = { source: {}, __id: 'someId', follow: 'otherId' };
+        const badConfig7 = { source: null, __id: 'someId', follow: 'otherId' };
         const badConfig8 = {
-            source_field: '', target_field: '', __id: 'someId', follow: 'otherId'
+            source: '', target: '', __id: 'someId', follow: 'otherId'
         };
         // @ts-ignore
         expect(() => new Sha2Encode(badConfig1)).toThrow();
@@ -44,7 +44,7 @@ describe('Sha2Encode operator', () => {
 
     it('can sha256 encode fields', () => {
         const opConfig = {
-            source_field: 'source', target_field: 'source', __id: 'someId', follow: 'otherId'
+            source: 'source', target: 'source', __id: 'someId', follow: 'otherId'
         };
         const test = new Sha2Encode(opConfig);
         const metaData = { selectors: { 'some:query': true } };
@@ -95,7 +95,7 @@ describe('Sha2Encode operator', () => {
 
     it('can sh256 encode nested fields', () => {
         const opConfig = {
-            source_field: 'source.field', target_field: 'source.field', __id: 'someId', follow: 'otherId'
+            source: 'source.field', target: 'source.field', __id: 'someId', follow: 'otherId'
         };
         const test = new Sha2Encode(opConfig);
         const metaData = { selectors: { 'some:query': true } };
@@ -109,8 +109,8 @@ describe('Sha2Encode operator', () => {
 
     it('can specify which sha2 family algorithm to use', () => {
         const opConfig = {
-            source_field: 'source.field',
-            target_field: 'source.field',
+            source: 'source.field',
+            target: 'source.field',
             __id: 'someId',
             follow: 'otherId',
             hash: 'SHA224'

@@ -21,4 +21,4 @@ sidebar_label: ChangeWorkerResponse
 
 • **message**: *string*
 
-*Defined in [interfaces.ts:302](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/interfaces.ts#L302)*
+*Defined in [interfaces.ts:301](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L301)*

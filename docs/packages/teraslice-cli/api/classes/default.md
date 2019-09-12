@@ -109,9 +109,9 @@ sidebar_label: default
 
 Ƭ **Answers**: *Answers*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:26
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:26
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:26
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:26
 
 ___
 
@@ -119,9 +119,9 @@ ___
 
 Ƭ **Question**: *inquirer.DistinctQuestion‹T› & object*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:20
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:20
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:20
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:20
 
 ___
 
@@ -129,9 +129,9 @@ ___
 
 Ƭ **Questions**: *NumberQuestion‹A› & object | InputQuestion‹A› & object | PasswordQuestion‹A› & object | ListQuestion‹A› & object | RawListQuestion‹A› & object | ExpandQuestion‹A› & object | CheckboxQuestion‹A› & object | ConfirmQuestion‹A› & object | EditorQuestion‹A› & object | NumberQuestion‹A› & object | InputQuestion‹A› & object | PasswordQuestion‹A› & object | ListQuestion‹A› & object | RawListQuestion‹A› & object | ExpandQuestion‹A› & object | CheckboxQuestion‹A› & object | ConfirmQuestion‹A› & object | EditorQuestion‹A› & object[] | Observable‹NumberQuestion‹A› & object | InputQuestion‹A› & object | PasswordQuestion‹A› & object | ListQuestion‹A› & object | RawListQuestion‹A› & object | ExpandQuestion‹A› & object | CheckboxQuestion‹A› & object | ConfirmQuestion‹A› & object | EditorQuestion‹A› & object›*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:28
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:28
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:28
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:28
 
 ## Constructors
 
@@ -141,7 +141,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/
 
 *Overrides void*
 
-*Defined in [generators/new-processor/index.ts:8](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-cli/src/generators/new-processor/index.ts#L8)*
+*Defined in [generators/new-processor/index.ts:8](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-cli/src/generators/new-processor/index.ts#L8)*
 
 **Parameters:**
 
@@ -158,9 +158,9 @@ Name | Type |
 
 • **answers**: *any*
 
-*Defined in [generators/new-processor/index.ts:8](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-cli/src/generators/new-processor/index.ts#L8)*
+*Defined in [generators/new-processor/index.ts:8](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-cli/src/generators/new-processor/index.ts#L8)*
 
-*Defined in [generators/new-asset/index.ts:9](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-cli/src/generators/new-asset/index.ts#L9)*
+*Defined in [generators/new-asset/index.ts:9](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-cli/src/generators/new-asset/index.ts#L9)*
 
 ___
 
@@ -172,7 +172,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:104
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:104
 
 ___
 
@@ -184,7 +184,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:101
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:101
 
 ___
 
@@ -196,7 +196,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:105
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:105
 
 ___
 
@@ -208,7 +208,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:103
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:103
 
 ___
 
@@ -220,7 +220,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:95
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:95
 
 #### Type declaration:
 
@@ -234,7 +234,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:106
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:106
 
 ___
 
@@ -246,7 +246,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:107
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:107
 
 #### Type declaration:
 
@@ -262,7 +262,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:102
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:102
 
 ___
 
@@ -270,7 +270,7 @@ ___
 
 • **useYarn**? : *undefined | false | true*
 
-*Defined in [generators/new-asset/index.ts:10](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-cli/src/generators/new-asset/index.ts#L10)*
+*Defined in [generators/new-asset/index.ts:10](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-cli/src/generators/new-asset/index.ts#L10)*
 
 ___
 
@@ -282,7 +282,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:200
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:200
 
 #### Type declaration:
 
@@ -296,7 +296,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:9
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:9
 
 ## Methods
 
@@ -304,7 +304,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:
 
 ▸ **addExampleProcessor**(): *void*
 
-*Defined in [generators/new-asset/index.ts:81](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-cli/src/generators/new-asset/index.ts#L81)*
+*Defined in [generators/new-asset/index.ts:81](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-cli/src/generators/new-asset/index.ts#L81)*
 
 **Returns:** *void*
 
@@ -318,7 +318,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:11
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:11
 
 **Parameters:**
 
@@ -346,7 +346,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:110
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:110
 
 **Parameters:**
 
@@ -367,7 +367,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:125
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:125
 
 **Returns:** *string*
 
@@ -381,7 +381,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:126
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:126
 
 **Returns:** *function*
 
@@ -397,7 +397,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:146
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:146
 
 Receives a list of `components` and an `options` object to install through bower.
 
@@ -423,7 +423,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:111
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:111
 
 **Parameters:**
 
@@ -441,7 +441,7 @@ ___
 
 ▸ **createProcessor**(): *void*
 
-*Defined in [generators/new-processor/index.ts:50](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-cli/src/generators/new-processor/index.ts#L50)*
+*Defined in [generators/new-processor/index.ts:50](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-cli/src/generators/new-processor/index.ts#L50)*
 
 **Returns:** *void*
 
@@ -451,7 +451,7 @@ ___
 
 ▸ **default**(): *void*
 
-*Defined in [generators/new-asset/index.ts:44](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-cli/src/generators/new-asset/index.ts#L44)*
+*Defined in [generators/new-asset/index.ts:44](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-cli/src/generators/new-asset/index.ts#L44)*
 
 **Returns:** *void*
 
@@ -465,7 +465,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:127
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:127
 
 **Parameters:**
 
@@ -485,7 +485,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:112
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:112
 
 **Parameters:**
 
@@ -505,7 +505,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:113
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:113
 
 **Parameters:**
 
@@ -525,7 +525,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:114
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:114
 
 **Returns:** *string*
 
@@ -539,7 +539,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:23
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:23
 
 **Parameters:**
 
@@ -560,7 +560,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:24
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:24
 
 **Returns:** *Array‹string | symbol›*
 
@@ -574,7 +574,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:20
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:20
 
 **Returns:** *number*
 
@@ -588,7 +588,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:128
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:128
 
 **Returns:** *string*
 
@@ -598,7 +598,7 @@ ___
 
 ▸ **install**(): *void*
 
-*Defined in [generators/new-asset/index.ts:90](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-cli/src/generators/new-asset/index.ts#L90)*
+*Defined in [generators/new-asset/index.ts:90](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-cli/src/generators/new-asset/index.ts#L90)*
 
 **Returns:** *void*
 
@@ -612,7 +612,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:164
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:164
 
 Runs `npm` and `bower`, in sequence, in the generated directory and prints a
 message to let the user know.
@@ -647,7 +647,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:25
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:25
 
 **Parameters:**
 
@@ -667,7 +667,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:21
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:21
 
 **Parameters:**
 
@@ -687,7 +687,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:108
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:108
 
 **Parameters:**
 
@@ -708,7 +708,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:174
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:174
 
 Receives a list of `packages` and an `options` object to install through npm.
 
@@ -734,7 +734,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:17
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:17
 
 **Parameters:**
 
@@ -762,7 +762,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:12
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:12
 
 **Parameters:**
 
@@ -790,7 +790,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:13
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:13
 
 **Parameters:**
 
@@ -818,7 +818,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:115
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:115
 
 **Parameters:**
 
@@ -839,7 +839,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:129
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:129
 
 **Returns:** *string*
 
@@ -849,7 +849,7 @@ ___
 
 ▸ **paths**(): *void*
 
-*Defined in [generators/new-processor/index.ts:46](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-cli/src/generators/new-processor/index.ts#L46)*
+*Defined in [generators/new-processor/index.ts:46](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-cli/src/generators/new-processor/index.ts#L46)*
 
 **Returns:** *void*
 
@@ -863,7 +863,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:14
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:14
 
 **Parameters:**
 
@@ -891,7 +891,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:15
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:15
 
 **Parameters:**
 
@@ -919,7 +919,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:116
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:116
 
 **Type parameters:**
 
@@ -939,7 +939,7 @@ ___
 
 ▸ **prompting**(): *Promise‹void›*
 
-*Defined in [generators/new-processor/index.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-cli/src/generators/new-processor/index.ts#L17)*
+*Defined in [generators/new-processor/index.ts:17](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-cli/src/generators/new-processor/index.ts#L17)*
 
 **Returns:** *Promise‹void›*
 
@@ -953,7 +953,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:22
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:22
 
 **Parameters:**
 
@@ -973,7 +973,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:117
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:117
 
 **Parameters:**
 
@@ -993,7 +993,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:18
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:18
 
 **Parameters:**
 
@@ -1013,7 +1013,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:16
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:16
 
 **Parameters:**
 
@@ -1041,7 +1041,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:118
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:118
 
 **Returns:** *string*
 
@@ -1055,7 +1055,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:119
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:119
 
 **Returns:** *string*
 
@@ -1069,7 +1069,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:120
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:120
 
 **Parameters:**
 
@@ -1089,7 +1089,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:187
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:187
 
 Combine package manager cmd line arguments and run the `install` command.
 
@@ -1117,7 +1117,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:19
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:19
 
 **Parameters:**
 
@@ -1137,7 +1137,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:121
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:121
 
 **Parameters:**
 
@@ -1157,7 +1157,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:133
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:133
 
 **Parameters:**
 
@@ -1179,7 +1179,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:134
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:134
 
 **Parameters:**
 
@@ -1201,7 +1201,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:122
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:122
 
 **Parameters:**
 
@@ -1221,7 +1221,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:130
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:130
 
 **Returns:** *string*
 
@@ -1235,7 +1235,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:197
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:197
 
 Receives a list of `packages` and an `options` object to install through npm.
 
@@ -1261,7 +1261,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:8
+Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:8
 
 **`deprecated`** since v4.0.0
 

@@ -40,7 +40,6 @@ const cmd: CommandModule = {
             .positional('packages', {
                 description: 'Run scripts for one or more package (if specifying more than one make sure they are ordered by dependants)',
                 type: 'string',
-                default: '.',
                 coerce(arg) {
                     castArray(arg).forEach((a) => {
                         if (releaseChoices.includes(a)) {

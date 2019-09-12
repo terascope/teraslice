@@ -24,7 +24,7 @@ sidebar_label: FieldType
 
 • **Boolean**: = "boolean"
 
-*Defined in [parser/interfaces.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L17)*
+*Defined in [parser/interfaces.ts:17](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L17)*
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **Date**: = "date"
 
-*Defined in [parser/interfaces.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L12)*
+*Defined in [parser/interfaces.ts:12](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L12)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **Float**: = "float"
 
-*Defined in [parser/interfaces.ts:16](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L16)*
+*Defined in [parser/interfaces.ts:16](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L16)*
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 • **Geo**: = "geo"
 
-*Defined in [parser/interfaces.ts:11](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L11)*
+*Defined in [parser/interfaces.ts:11](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L11)*
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 • **IP**: = "ip"
 
-*Defined in [parser/interfaces.ts:13](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L13)*
+*Defined in [parser/interfaces.ts:13](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L13)*
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **Integer**: = "integer"
 
-*Defined in [parser/interfaces.ts:15](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L15)*
+*Defined in [parser/interfaces.ts:15](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L15)*
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **Object**: = "object"
 
-*Defined in [parser/interfaces.ts:18](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L18)*
+*Defined in [parser/interfaces.ts:18](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L18)*
 
 ___
 
@@ -80,4 +80,4 @@ ___
 
 • **String**: = "string"
 
-*Defined in [parser/interfaces.ts:14](https://github.com/terascope/teraslice/blob/d2d877b60/packages/xlucene-evaluator/src/parser/interfaces.ts#L14)*
+*Defined in [parser/interfaces.ts:14](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L14)*

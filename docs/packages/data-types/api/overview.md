@@ -79,7 +79,7 @@ sidebar_label: API
 
 Ƭ **AvailableType**: *"Boolean" | "Boundary" | "Byte" | "Date" | "Domain" | "Double" | "Float" | "Geo" | "Hostname" | "Integer" | "IPRange" | "IP" | "KeywordCaseInsensitive" | "KeywordTokensCaseInsensitive" | "KeywordPathAnalyzer" | "KeywordTokens" | "Keyword" | "Long" | "NgramTokens" | "Object" | "Short" | "Text"*
 
-*Defined in [interfaces.ts:35](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L35)*
+*Defined in [interfaces.ts:35](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/interfaces.ts#L35)*
 
 ___
 
@@ -87,7 +87,7 @@ ___
 
 Ƭ **AvailableVersion**: *1*
 
-*Defined in [interfaces.ts:84](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L84)*
+*Defined in [interfaces.ts:84](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/interfaces.ts#L84)*
 
 ___
 
@@ -95,7 +95,7 @@ ___
 
 Ƭ **DataTypeConfig**: *object*
 
-*Defined in [interfaces.ts:104](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L104)*
+*Defined in [interfaces.ts:104](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/interfaces.ts#L104)*
 
 #### Type declaration:
 
@@ -105,7 +105,7 @@ ___
 
 Ƭ **DataTypeMapping**: *object*
 
-*Defined in [interfaces.ts:98](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L98)*
+*Defined in [interfaces.ts:98](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/interfaces.ts#L98)*
 
 #### Type declaration:
 
@@ -115,7 +115,7 @@ ___
 
 Ƭ **ESTypeMapping**: *PropertyESTypeMapping | FieldsESTypeMapping | BasicESTypeMapping*
 
-*Defined in [interfaces.ts:114](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L114)*
+*Defined in [interfaces.ts:114](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/interfaces.ts#L114)*
 
 ___
 
@@ -123,7 +123,7 @@ ___
 
 Ƭ **ElasticSearchTypes**: *"long" | "integer" | "short" | "byte" | "double" | "float" | "keyword" | "text" | "boolean" | "ip" | "ip_range" | "date" | "geo_point" | "object"*
 
-*Defined in [interfaces.ts:19](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L19)*
+*Defined in [interfaces.ts:19](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/interfaces.ts#L19)*
 
 ___
 
@@ -131,7 +131,7 @@ ___
 
 Ƭ **FieldTypeConfig**: *object*
 
-*Defined in [interfaces.ts:87](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L87)*
+*Defined in [interfaces.ts:87](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/interfaces.ts#L87)*
 
 #### Type declaration:
 
@@ -141,7 +141,7 @@ ___
 
 Ƭ **GraphQLOptions**: *object*
 
-*Defined in [interfaces.ts:10](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L10)*
+*Defined in [interfaces.ts:10](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/interfaces.ts#L10)*
 
 #### Type declaration:
 
@@ -151,7 +151,7 @@ ___
 
 Ƭ **GraphQLTypeReferences**: *object & object*
 
-*Defined in [interfaces.ts:15](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L15)*
+*Defined in [interfaces.ts:15](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/interfaces.ts#L15)*
 
 ___
 
@@ -159,7 +159,7 @@ ___
 
 Ƭ **GraphQLTypesResult**: *object*
 
-*Defined in [interfaces.ts:4](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L4)*
+*Defined in [interfaces.ts:4](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/interfaces.ts#L4)*
 
 #### Type declaration:
 
@@ -169,7 +169,7 @@ ___
 
 Ƭ **TypeConfigFields**: *object*
 
-*Defined in [interfaces.ts:100](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L100)*
+*Defined in [interfaces.ts:100](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/interfaces.ts#L100)*
 
 #### Type declaration:
 
@@ -204,7 +204,7 @@ ___
     'Text',
 ]
 
-*Defined in [interfaces.ts:59](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L59)*
+*Defined in [interfaces.ts:59](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/interfaces.ts#L59)*
 
 ___
 
@@ -212,7 +212,7 @@ ___
 
 • **AvailableVersions**: *[AvailableVersion](overview.md#availableversion)[]* =  [1]
 
-*Defined in [interfaces.ts:85](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/interfaces.ts#L85)*
+*Defined in [interfaces.ts:85](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/interfaces.ts#L85)*
 
 ___
 
@@ -226,7 +226,7 @@ ___
     parseLiteral,
 })
 
-*Defined in [graphql-helper.ts:49](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/graphql-helper.ts#L49)*
+*Defined in [graphql-helper.ts:49](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/graphql-helper.ts#L49)*
 
 ___
 
@@ -234,7 +234,7 @@ ___
 
 • **LATEST_VERSION**: *[AvailableVersion](overview.md#availableversion)* = 1
 
-*Defined in [types/index.ts:29](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/index.ts#L29)*
+*Defined in [types/index.ts:29](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/types/index.ts#L29)*
 
 ## Functions
 
@@ -242,7 +242,7 @@ ___
 
 ▸ **formatSchema**(`schemaStr`: string): *string*
 
-*Defined in [graphql-helper.ts:57](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/graphql-helper.ts#L57)*
+*Defined in [graphql-helper.ts:57](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/graphql-helper.ts#L57)*
 
 **Parameters:**
 
@@ -258,7 +258,7 @@ ___
 
 ▸ **validateDataTypeConfig**(`config`: [DataTypeConfig](overview.md#datatypeconfig)): *[DataTypeConfig](overview.md#datatypeconfig)*
 
-*Defined in [utils.ts:5](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/utils.ts#L5)*
+*Defined in [utils.ts:5](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/utils.ts#L5)*
 
 **Parameters:**
 
@@ -274,7 +274,7 @@ ___
 
 ▸ **validateField**(`field`: any): *boolean*
 
-*Defined in [utils.ts:42](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/utils.ts#L42)*
+*Defined in [utils.ts:42](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/utils.ts#L42)*
 
 **Parameters:**
 
@@ -290,11 +290,11 @@ Name | Type |
 
 ### ▪ **mapping**: *object*
 
-*Defined in [types/versions/mapping.ts:26](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/versions/mapping.ts#L26)*
+*Defined in [types/versions/mapping.ts:26](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/types/versions/mapping.ts#L26)*
 
 ▪ **1**: *object*
 
-*Defined in [types/versions/mapping.ts:27](https://github.com/terascope/teraslice/blob/d2d877b60/packages/data-types/src/types/versions/mapping.ts#L27)*
+*Defined in [types/versions/mapping.ts:27](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/types/versions/mapping.ts#L27)*
 
 * **Boolean**: *[BooleanType](classes/booleantype.md)* =  BooleanV1
 

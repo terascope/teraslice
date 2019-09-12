@@ -1,8 +1,17 @@
-import { Many, WithoutNil } from './interfaces';
+import { Many, WithoutNil, ListOfRecursiveArraysOrValues } from './interfaces';
 
 /** A native implemation of lodash flatten */
 export function flatten<T>(val: Many<T[]>): T[] {
     return val.reduce((a, b) => a.concat(b), []);
+}
+
+export function flattenDeep<T>(val: ListOfRecursiveArraysOrValues<T>): T[] {
+    return val.reduce((a: T[], b) => {
+        if (Array.isArray(b)) {
+            return a.concat(flattenDeep(b));
+        }
+        return a.concat(b);
+    }, []);
 }
 
 /** A simplified implemation of lodash castArray */

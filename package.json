@@ -76,6 +76,9 @@
                     "name": "connectors"
                 }
             ]
+        },
+        "npm": {
+            "registry": "https://registry.npmjs.org/"
         }
     }
 }

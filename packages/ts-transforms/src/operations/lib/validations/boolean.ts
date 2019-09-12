@@ -1,5 +1,5 @@
 
-import _ from 'lodash';
+import { isBoolean } from '@terascope/utils';
 import { PostProcessConfig, BoolValidationResult } from '../../../interfaces';
 import ValidationOpBase from './base';
 
@@ -8,9 +8,9 @@ export default class BooleanValidation extends ValidationOpBase<any> {
         super(config);
     }
 
-    validateBoolean(field: string | number | undefined): BoolValidationResult {
+    validateBoolean(field: any): BoolValidationResult {
         if (field === undefined) return { isValid: false };
-        if (_.isBoolean(field)) return { isValid: true, bool: field };
+        if (isBoolean(field)) return { isValid: true, bool: field };
         if (field === 'true' || field === '1' || field === 1) return { isValid: true, bool: true };
         if (field === 'false' || field === '0' || field === 0) return { isValid: true, bool: false };
         return { isValid: false };

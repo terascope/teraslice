@@ -1,11 +1,12 @@
-/* eslint-disable @typescript-eslint/prefer-for-of */
 
-import _ from 'lodash';
-import { DataEntity, matchAll } from '@terascope/utils';
+import {
+    DataEntity, matchAll, get, set, AnyObject, TSError
+} from '@terascope/utils';
+import jexl from 'jexl';
 import { ExtractionConfig, InputOutputCardinality } from '../../../interfaces';
 
 function isMutation(configs: ExtractionConfig[]): boolean {
-    return _.some(configs, 'mutate');
+    return configs.some((config) => config.mutate === true);
 }
 
 function getSubslice(start: string, end: string) {
@@ -62,10 +63,24 @@ function matchRegex(config: ExtractionConfig) {
     };
 }
 
-function extractAndTransferFields(data: any, dest: DataEntity, config: ExtractionConfig) {
-    if (data !== undefined) {
-        let extractedResult;
+function callExpression(exp: string, origin: DataEntity<AnyObject, {}>) {
+    try {
+        return jexl.evalSync(exp, origin);
+    } catch (err) {
+        const errMessage = `Invalid jexl expression: ${exp}, error: ${err.message}`;
+        throw new TSError(errMessage);
+    }
+}
 
+function extractAndTransferFields(
+    data: any,
+    dest: DataEntity,
+    config: ExtractionConfig,
+    origin: DataEntity
+) {
+    let extractedResult;
+
+    if (data !== undefined) {
         if (config.regex) {
             const checkRegex = matchRegex(config);
             extractedResult = extractField(data, checkRegex, config.multivalue);
@@ -73,14 +88,19 @@ function extractAndTransferFields(data: any, dest: DataEntity, config: Extractio
             const { start, end } = config;
             const sliceString = getSubslice(start, end);
             extractedResult = extractField(data, sliceString, config.multivalue);
+        } else if (config.exp) {
+            extractedResult = callExpression(config.exp, origin);
         } else {
             extractedResult = data;
         }
+    } else if (config.exp && config.source === undefined) {
+        // this should be a set operation
+        extractedResult = callExpression(config.exp, origin);
+    }
 
-        if (extractedResult !== null) {
-            _.set(dest, config.target_field, extractedResult);
-            dest.setMetadata('hasExtractions', true);
-        }
+    if (extractedResult !== undefined && extractedResult !== null) {
+        set(dest, config.target, extractedResult);
+        dest.setMetadata('hasExtractions', true);
     }
 }
 
@@ -90,15 +110,14 @@ function hasExtracted(record: DataEntity) {
 
 function getData(config: ExtractionConfig, record: DataEntity) {
     if (config.deepSourceField) {
-        return _.get(record, config.source_field);
+        return get(record, config.source as string);
     }
-    return record[config.source_field];
+    return record[config.source as string];
 }
 
 export default class Extraction {
     private isMutation: boolean;
     private configs: ExtractionConfig[];
-
     static cardinality: InputOutputCardinality = 'one-to-one';
 
     constructor(configArgs: ExtractionConfig | ExtractionConfig[]) {
@@ -115,7 +134,7 @@ export default class Extraction {
 
         configs = configs.map((config) => {
             if (config.end === 'EOP') config.end = '&';
-            if (config.source_field.includes('.')) config.deepSourceField = true;
+            if (config.source && config.source.includes('.')) config.deepSourceField = true;
             return config;
         });
 
@@ -123,17 +142,17 @@ export default class Extraction {
     }
 
     run(doc: DataEntity): DataEntity | null {
-        let record;
+        let record: DataEntity;
 
         if (this.isMutation) {
             record = doc;
         } else {
-            record = DataEntity.makeRaw({}, doc.getMetadata()).entity;
+            record = DataEntity.fork(doc, false);
         }
 
-        for (let i = 0; i < this.configs.length; i += 1) {
-            const data = getData(this.configs[i], doc);
-            extractAndTransferFields(data, record, this.configs[i]);
+        for (const config of this.configs) {
+            const data = getData(config, doc);
+            extractAndTransferFields(data, record, config, doc);
         }
 
         if (hasExtracted(record) || this.isMutation) return record;
@@ -141,9 +160,9 @@ export default class Extraction {
     }
 
     extractionPhaseRun(doc: DataEntity, results: { entity: DataEntity; metadata: any }) {
-        for (let i = 0; i < this.configs.length; i += 1) {
-            const data = getData(this.configs[i], doc);
-            extractAndTransferFields(data, results.entity, this.configs[i]);
+        for (const config of this.configs) {
+            const data = getData(config, doc);
+            extractAndTransferFields(data, results.entity, config, doc);
         }
     }
 }

@@ -46,7 +46,7 @@ describe('validator lib', () => {
 
     it('can call the contains method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', value: 'w', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', value: 'w', __id: 'someId'
         };
         const test = getValidator(opConfig, 'contains');
 
@@ -67,8 +67,8 @@ describe('validator lib', () => {
     it('can call the equals method', () => {
         const opConfig: PostProcessConfig = {
             follow: 'someId',
-            source_field: 'field',
-            target_field: 'field',
+            source: 'field',
+            target: 'field',
             value: 'world',
             __id: 'someId',
         };
@@ -92,8 +92,8 @@ describe('validator lib', () => {
         const newDate = new Date('December 17, 1995 03:24:00').toISOString();
         const opConfig: PostProcessConfig = {
             follow: 'someId',
-            source_field: 'field',
-            target_field: 'field',
+            source: 'field',
+            target: 'field',
             value: newDate,
             __id: 'someId',
         };
@@ -116,7 +116,7 @@ describe('validator lib', () => {
 
     it('can call the alpha method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'alpha');
 
@@ -138,7 +138,7 @@ describe('validator lib', () => {
 
     it('can call the alphanumeric method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'alphanumeric');
 
@@ -160,7 +160,7 @@ describe('validator lib', () => {
 
     it('can call the ascii method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = new Validator(opConfig, 'ascii');
 
@@ -179,7 +179,7 @@ describe('validator lib', () => {
 
     it('can call the base64 method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'base64');
 
@@ -197,8 +197,8 @@ describe('validator lib', () => {
         const newDate = new Date().toISOString();
         const opConfig: PostProcessConfig = {
             follow: 'someId',
-            source_field: 'field',
-            target_field: 'field',
+            source: 'field',
+            target: 'field',
             value: newDate,
             __id: 'someId',
         };
@@ -222,8 +222,8 @@ describe('validator lib', () => {
     it('can call the bytelength method', () => {
         const opConfig: PostProcessConfig = {
             follow: 'someId',
-            source_field: 'field',
-            target_field: 'field',
+            source: 'field',
+            target: 'field',
             min: 2,
             max: 6,
             __id: 'someId',
@@ -247,7 +247,7 @@ describe('validator lib', () => {
 
     it('can call the creditcard method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'creditcard');
 
@@ -259,11 +259,10 @@ describe('validator lib', () => {
     });
 
     it('can call the currency method', () => {
-        // @ts-ignore
         const opConfig: PostProcessConfig = {
             follow: 'someId',
-            source_field: 'field',
-            target_field: 'field',
+            source: 'field',
+            target: 'field',
             // @ts-ignore FIXME
             allow_space_after_symbol: true,
             __id: 'someId',
@@ -284,7 +283,7 @@ describe('validator lib', () => {
 
     it('can call the decimal method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'decimal');
 
@@ -305,7 +304,7 @@ describe('validator lib', () => {
 
     it('can call the divisibleby method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', value: 2, __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', value: 2, __id: 'someId'
         };
         const test = getValidator(opConfig, 'divisibleby');
 
@@ -326,7 +325,7 @@ describe('validator lib', () => {
 
     it('can call the empty method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'empty');
 
@@ -354,7 +353,7 @@ describe('validator lib', () => {
 
     it('can call the fqdn method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'fqdn');
 
@@ -381,7 +380,7 @@ describe('validator lib', () => {
 
     it('can call the float method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'float');
 
@@ -403,8 +402,8 @@ describe('validator lib', () => {
     it('can call the hash method', () => {
         const opConfig: PostProcessConfig = {
             follow: 'someId',
-            source_field: 'field',
-            target_field: 'field',
+            source: 'field',
+            target: 'field',
             value: 'sha256',
             __id: 'someId',
         };
@@ -431,7 +430,7 @@ describe('validator lib', () => {
 
     it('can call the hexadecimal method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'hexadecimal');
 
@@ -444,7 +443,7 @@ describe('validator lib', () => {
 
     it('can call the isbn method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'isbn');
 
@@ -459,7 +458,7 @@ describe('validator lib', () => {
 
     it('can call the issn method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'issn');
 
@@ -472,7 +471,7 @@ describe('validator lib', () => {
 
     it('can call the iso8601 method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'iso8601');
 
@@ -488,7 +487,7 @@ describe('validator lib', () => {
 
     it('can call the rfc3339 method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'rfc3339');
 
@@ -511,7 +510,7 @@ describe('validator lib', () => {
 
     it('can call the iso31661alpha2 method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'iso31661alpha2');
 
@@ -527,7 +526,7 @@ describe('validator lib', () => {
 
     it('can call the iso31661alpha3 method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'iso31661alpha3');
 
@@ -544,8 +543,8 @@ describe('validator lib', () => {
     it('can call the in method', () => {
         const opConfig: PostProcessConfig = {
             follow: 'someId',
-            source_field: 'field',
-            target_field: 'field',
+            source: 'field',
+            target: 'field',
             value: ['hello world'],
             __id: 'someId',
         };
@@ -564,7 +563,7 @@ describe('validator lib', () => {
 
     it('can call the int method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'int');
 
@@ -579,7 +578,7 @@ describe('validator lib', () => {
 
     it('can call the latlong method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'latlong');
 
@@ -596,8 +595,8 @@ describe('validator lib', () => {
     it('can call the length method', () => {
         const opConfig: PostProcessConfig = {
             follow: 'someId',
-            source_field: 'field',
-            target_field: 'field',
+            source: 'field',
+            target: 'field',
             min: 5,
             max: 6,
             __id: 'someId',
@@ -616,7 +615,7 @@ describe('validator lib', () => {
 
     it('can call the md5 method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'md5');
 
@@ -635,7 +634,7 @@ describe('validator lib', () => {
 
     it('can call the mimetype method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'mimetype');
 
@@ -650,7 +649,7 @@ describe('validator lib', () => {
 
     it('can call the numeric method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'numeric');
 
@@ -667,7 +666,7 @@ describe('validator lib', () => {
 
     it('can call the port method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'port');
 
@@ -689,7 +688,7 @@ describe('validator lib', () => {
 
     it('can call the postalcode method', () => {
         const opConfig: PostProcessConfig = {
-            follow: 'someId', source_field: 'field', target_field: 'field', value: 'US', __id: 'someId'
+            follow: 'someId', source: 'field', target: 'field', value: 'US', __id: 'someId'
         };
         const test = getValidator(opConfig, 'postalcode');
 
@@ -712,8 +711,8 @@ describe('validator lib', () => {
     it('can call the matches method', () => {
         const opConfig: PostProcessConfig = {
             follow: 'someId',
-            source_field: 'field',
-            target_field: 'field',
+            source: 'field',
+            target: 'field',
             value: /world/,
             __id: 'someId',
         };

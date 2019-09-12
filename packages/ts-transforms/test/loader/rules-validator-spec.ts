@@ -1,6 +1,6 @@
-import _ from 'lodash';
+
 import 'jest-extended';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger, cloneDeep } from '@terascope/utils';
 import { isPrimaryConfig } from '../../src/loader/utils';
 import {
     RulesValidator,
@@ -22,26 +22,39 @@ describe('rules-validator', () => {
     const basicExtractionConfig = parseData([
         {
             selector: 'hello:world',
-            source_field: 'first',
-            target_field: 'first_name',
+            source: 'first',
+            target: 'first_name',
         },
         {
             selector: 'hello:world',
-            source_field: 'last',
-            target_field: 'last_name',
+            source: 'last',
+            target: 'last_name',
+        },
+    ]);
+
+    const basicExpressionConfig = parseData([
+        {
+            selector: 'hello:world',
+            target: 'value',
+            exp: '20'
+        },
+        {
+            selector: 'hello:world',
+            source: 'field',
+            target: 'target',
         },
     ]);
 
     const mutateExtractionConfig = parseData([
         {
             selector: 'hello:world',
-            source_field: 'first',
-            target_field: 'first_name',
+            source: 'first',
+            target: 'first_name',
         },
         {
             selector: 'other:thing',
-            source_field: 'other',
-            target_field: 'thing',
+            source: 'other',
+            target: 'thing',
             mutate: true,
         },
     ]);
@@ -49,22 +62,22 @@ describe('rules-validator', () => {
     const mutateExtractionPostProcessConfig = parseData([
         {
             selector: 'hello:world',
-            source_field: 'first',
-            target_field: 'first_name',
+            source: 'first',
+            target: 'first_name',
             tag: 'someTag',
         },
         {
             follow: 'someTag',
             post_process: 'extraction',
-            source_field: 'other',
-            target_field: 'thing',
+            source: 'other',
+            target: 'thing',
             tag: 'otherTag',
         },
         {
             follow: 'otherTag',
             post_process: 'extraction',
-            source_field: 'some',
-            target_field: 'otherthing',
+            source: 'some',
+            target: 'otherthing',
             mutate: false,
         },
     ]);
@@ -72,17 +85,17 @@ describe('rules-validator', () => {
     const multiSelectorConfig = parseData([
         {
             selector: 'hello:world',
-            source_field: 'first',
-            target_field: 'first_name',
+            source: 'first',
+            target: 'first_name',
         },
         {
             selector: 'other:things',
-            source_field: 'last',
-            target_field: 'last_name',
+            source: 'last',
+            target: 'last_name',
         },
         {
-            source_field: 'person',
-            target_field: 'valid_person',
+            source: 'person',
+            target: 'valid_person',
             mutate: true,
         },
     ]);
@@ -90,8 +103,8 @@ describe('rules-validator', () => {
     const postSelector = parseData([
         {
             selector: 'hello:world',
-            source_field: 'first',
-            target_field: 'first_name',
+            source: 'first',
+            target: 'first_name',
             tag: 'hello',
         },
         {
@@ -104,13 +117,13 @@ describe('rules-validator', () => {
     const basicPostProcessing = parseData([
         {
             selector: 'hello:world',
-            source_field: 'first',
-            target_field: 'first_name',
+            source: 'first',
+            target: 'first_name',
         },
         {
             selector: 'hello:world',
-            source_field: 'hex',
-            target_field: 'decoded',
+            source: 'hex',
+            target: 'decoded',
             output: false,
             tag: 'someTag',
         },
@@ -120,12 +133,43 @@ describe('rules-validator', () => {
         },
     ]);
 
+    const basicExpressionPostProcessing = parseData([
+        {
+            selector: 'hello:world',
+            source: 'first_name',
+            target: 'first',
+            output: false,
+            tag: 'someTag',
+        },
+        {
+            follow: 'someTag',
+            post_process: 'extraction',
+            exp: 'first + " Doe"',
+            target: 'final'
+        },
+    ]);
+
+    const defaultExpressionPostProcessing = parseData([
+        {
+            selector: 'hello:world',
+            source: 'first_name',
+            target: 'first',
+            output: false,
+            tag: 'someTag',
+        },
+        {
+            follow: 'someTag',
+            exp: 'first + " Doe"',
+            target: 'final'
+        },
+    ]);
+
     const chainedRules1 = parseData([
         {
-            source_field: 'somefield',
+            source: 'somefield',
             start: 'value=',
             end: 'EOP',
-            target_field: 'hashoutput',
+            target: 'hashoutput',
             tag: 'source',
         },
         {
@@ -148,14 +192,14 @@ describe('rules-validator', () => {
     const newJoinRules = parseData([
         {
             selector: 'hello:world',
-            source_field: 'first',
-            target_field: 'first_name',
+            source: 'first',
+            target: 'first_name',
             tag: 'A',
         },
         {
             selector: 'hello:world',
-            source_field: 'last',
-            target_field: 'last_name',
+            source: 'last',
+            target: 'last_name',
             tag: 'A',
         },
         {
@@ -163,21 +207,21 @@ describe('rules-validator', () => {
             post_process: 'join',
             fields: ['first_name', 'last_name'],
             delimiter: ' ',
-            target_field: 'full_name',
+            target: 'full_name',
         },
     ]);
 
     const oneToOne = parseData([
         {
             selector: 'hello:world',
-            source_field: 'inc_byte',
-            target_field: 'byte',
+            source: 'inc_byte',
+            target: 'byte',
             tag: 'A',
         },
         {
             selector: 'hello:world',
-            source_field: 'person.age',
-            target_field: 'age',
+            source: 'person.age',
+            target: 'age',
             tag: 'A',
         },
         {
@@ -188,10 +232,10 @@ describe('rules-validator', () => {
 
     const cyclicRules = parseData([
         {
-            source_field: 'somefield',
+            source: 'somefield',
             start: 'value=',
             end: 'EOP',
-            target_field: 'hashoutput',
+            target: 'hashoutput',
             tag: 'source',
         },
         {
@@ -214,19 +258,19 @@ describe('rules-validator', () => {
     const matchRequiredError = parseData([
         {
             selector: 'some:selector',
-            source_field: 'somefield',
+            source: 'somefield',
             start: 'value=',
             end: 'EOP',
             other_match_required: true,
-            target_field: 'hashoutput',
+            target: 'hashoutput',
             tag: 'source',
         },
         {
             selector: 'thing:other',
-            source_field: 'somefield',
+            source: 'somefield',
             start: 'value=',
             end: 'EOP',
-            target_field: 'hashoutput',
+            target: 'hashoutput',
             tag: 'source',
         },
         {
@@ -249,11 +293,11 @@ describe('rules-validator', () => {
     const followTagError = parseData([
         {
             selector: 'some:selector',
-            source_field: 'somefield',
+            source: 'somefield',
             start: 'value=',
             end: 'EOP',
             other_match_required: true,
-            target_field: 'hashoutput',
+            target: 'hashoutput',
         },
         {
             follow: 'source',
@@ -267,22 +311,22 @@ describe('rules-validator', () => {
     ]);
 
     const multipleSources = parseData([
-        { source_field: 'field1', target_field: 'fields', tag: 'fields' },
-        { source_field: 'field2', target_field: 'fields', tag: 'fields' },
-        { source_field: 'field3', target_field: 'fields', tag: 'fields' },
-        { source_field: 'field4', target_field: 'fields', tag: 'fields' },
-        { follow: 'fields', post_process: 'array', target_field: 'fields' }
+        { source: 'field1', target: 'fields', tag: 'fields' },
+        { source: 'field2', target: 'fields', tag: 'fields' },
+        { source: 'field3', target: 'fields', tag: 'fields' },
+        { source: 'field4', target: 'fields', tag: 'fields' },
+        { follow: 'fields', post_process: 'array', target: 'fields' }
     ]);
 
     const multiOutput = parseData([
         {
-            selector: 'some:value', source_field: 'other', target_field: 'field', tag: 'hello', output: false
+            selector: 'some:value', source: 'other', target: 'field', tag: 'hello', output: false
         },
         {
-            post_process: 'extraction', target_field: 'first_copy', follow: 'hello', mutate: true
+            post_process: 'extraction', target: 'first_copy', follow: 'hello', mutate: true
         },
         {
-            source_field: 'key', target_field: 'key', other_match_required: true, mutate: true
+            source: 'key', target: 'key', other_match_required: true, mutate: true
         },
     ]);
 
@@ -335,6 +379,16 @@ describe('rules-validator', () => {
             const { extractions } = validator.validate();
             const results = {};
             results['hello:world'] = basicExtractionConfig;
+
+            expect(extractions).toEqual(results);
+        });
+
+        it('can return an expression extractions formatted correctly', () => {
+            const validator = constructValidator(basicExpressionConfig);
+            const { extractions } = validator.validate();
+            const results = {};
+            results['hello:world'] = basicExpressionConfig;
+
             expect(extractions).toEqual(results);
         });
 
@@ -391,8 +445,32 @@ describe('rules-validator', () => {
 
             expect(results).toBeArrayOfSize(1);
             expect(results[0].post_process).toEqual('hexdecode');
-            expect(results[0].source_field).toEqual('decoded');
-            expect(results[0].target_field).toEqual('decoded');
+            expect(results[0].source).toEqual('decoded');
+            expect(results[0].target).toEqual('decoded');
+        });
+
+        it('can return a mapping of basic expression post processing', () => {
+            const validator = constructValidator(basicExpressionPostProcessing);
+            const {
+                postProcessing: { 'hello:world': results },
+            } = validator.validate();
+
+            expect(results).toBeArrayOfSize(1);
+            expect(results[0].post_process).toEqual('extraction');
+            expect(results[0].source).toEqual('first');
+            expect(results[0].target).toEqual('final');
+        });
+
+        it('can extraction in post processing does not have to specify post_process field', () => {
+            const validator = constructValidator(defaultExpressionPostProcessing);
+            const {
+                postProcessing: { 'hello:world': results },
+            } = validator.validate();
+
+            expect(results).toBeArrayOfSize(1);
+            expect(results[0].post_process).toEqual('extraction');
+            expect(results[0].source).toEqual('first');
+            expect(results[0].target).toEqual('final');
         });
 
         it('can return a mapping of for chained post processing', () => {
@@ -430,7 +508,7 @@ describe('rules-validator', () => {
         });
 
         it('can normalize post_processing fields', () => {
-            const results = _.cloneDeep(chainedRules1);
+            const results = cloneDeep(chainedRules1);
             const validator = constructValidator(chainedRules1);
             const { postProcessing } = validator.validate();
             let prev: OperationConfig | undefined;
@@ -438,8 +516,8 @@ describe('rules-validator', () => {
             results.forEach((config) => {
                 if (config.post_process) {
                     if (prev) {
-                        config.source_field = prev.target_field;
-                        config.target_field = config.source_field;
+                        config.source = prev.target;
+                        config.target = config.source;
                     }
                 }
                 prev = config;
@@ -471,11 +549,11 @@ describe('rules-validator', () => {
             } = validator.validate();
 
             expect(results).toBeArrayOfSize(2);
-            expect(results[0].source_field).toEqual('byte');
-            expect(results[0].target_field).toEqual('byte');
+            expect(results[0].source).toEqual('byte');
+            expect(results[0].target).toEqual('byte');
 
-            expect(results[1].source_field).toEqual('age');
-            expect(results[1].target_field).toEqual('age');
+            expect(results[1].source).toEqual('age');
+            expect(results[1].target).toEqual('age');
         });
 
         it('if op cardinality is many-to-one then multi inputs will results in a single op', () => {
@@ -486,10 +564,10 @@ describe('rules-validator', () => {
 
             expect(results).toBeArrayOfSize(1);
             expect(results[0].post_process).toEqual('join');
-            expect(results[0].source_fields).toEqual(results[0].fields);
+            expect(results[0].sources).toEqual(results[0].fields);
         });
 
-        it('if op cardinality is many-to-one then source_fields will only have unique fields', () => {
+        it('if op cardinality is many-to-one then sources will only have unique fields', () => {
             const validator = constructValidator(multipleSources);
             const {
                 postProcessing: { '*': results },
@@ -497,7 +575,7 @@ describe('rules-validator', () => {
 
             expect(results).toBeArrayOfSize(1);
             expect(results[0].post_process).toEqual('array');
-            expect(results[0].source_fields).toEqual(['fields']);
+            expect(results[0].sources).toEqual(['fields']);
         });
     });
 

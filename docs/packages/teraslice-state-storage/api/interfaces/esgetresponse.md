@@ -26,7 +26,7 @@ sidebar_label: ESGetResponse
 
 • **_id**: *string*
 
-*Defined in [elasticsearch-state-storage/index.ts:337](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L337)*
+*Defined in [elasticsearch-state-storage/index.ts:337](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L337)*
 
 ___
 
@@ -34,7 +34,7 @@ ___
 
 • **_index**: *string*
 
-*Defined in [elasticsearch-state-storage/index.ts:334](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L334)*
+*Defined in [elasticsearch-state-storage/index.ts:334](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L334)*
 
 ___
 
@@ -42,7 +42,7 @@ ___
 
 • **_source**? : *any*
 
-*Defined in [elasticsearch-state-storage/index.ts:339](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L339)*
+*Defined in [elasticsearch-state-storage/index.ts:339](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L339)*
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 • **_type**: *string*
 
-*Defined in [elasticsearch-state-storage/index.ts:335](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L335)*
+*Defined in [elasticsearch-state-storage/index.ts:335](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L335)*
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 • **_version**: *number*
 
-*Defined in [elasticsearch-state-storage/index.ts:336](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L336)*
+*Defined in [elasticsearch-state-storage/index.ts:336](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L336)*
 
 ___
 
@@ -66,4 +66,4 @@ ___
 
 • **found**: *boolean*
 
-*Defined in [elasticsearch-state-storage/index.ts:338](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L338)*
+*Defined in [elasticsearch-state-storage/index.ts:338](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L338)*

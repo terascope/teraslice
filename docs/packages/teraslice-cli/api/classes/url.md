@@ -22,7 +22,7 @@ sidebar_label: Url
 
 ▸ **build**(`inUrl`: string): *string*
 
-*Defined in [helpers/url.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-cli/src/helpers/url.ts#L12)*
+*Defined in [helpers/url.ts:12](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-cli/src/helpers/url.ts#L12)*
 
 **Parameters:**
 
@@ -38,7 +38,7 @@ ___
 
 ▸ **check**(`inUrl`: string): *boolean*
 
-*Defined in [helpers/url.ts:7](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-cli/src/helpers/url.ts#L7)*
+*Defined in [helpers/url.ts:7](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-cli/src/helpers/url.ts#L7)*
 
 **Parameters:**
 
