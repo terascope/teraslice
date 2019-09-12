@@ -178,7 +178,6 @@ describe('DataWindow', () => {
 
     describe('#isArray', () => {
         const shouldBe: ([string, any])[] = [
-            ['an empty array', []],
             ['[DataWindow]', [new DataWindow()]],
             ['[DataWindow.make]', [DataWindow.make({})]],
         ];
@@ -192,6 +191,7 @@ describe('DataWindow', () => {
             ['{ test: true }', { test: true }],
             ['an empty string', ''],
             ['"hello"', 'hello'],
+            ['an empty array', []],
             ['[1, 2]', [1, 2]],
             ['DataWindow', new DataWindow()],
             ['DataWindow.make', DataEntity.make],

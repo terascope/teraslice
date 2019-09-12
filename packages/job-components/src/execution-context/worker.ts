@@ -113,9 +113,10 @@ export class WorkerExecutionContext
 
             this._queue.push(async (input: any) => {
                 this._onOperationStart(index);
-                let results: ts.DataWindow|ts.DataWindow[];
+
                 if (ts.DataWindow.isArray(input)) {
-                    results = [] as ts.DataWindow[];
+                    const results: ts.DataWindow[] = [];
+
                     for (const window of input) {
                         const windowResult = await processor.handle(window);
                         if (ts.DataWindow.isArray(windowResult)) {
@@ -123,12 +124,17 @@ export class WorkerExecutionContext
                                 ...windowResult
                             );
                         } else {
-                            results.push(windowResult);
+                            results.push(
+                                windowResult
+                            );
                         }
                     }
-                } else {
-                    results = await processor.handle(input);
+
+                    this._onOperationComplete(index, results);
+                    return results;
                 }
+
+                const results = await processor.handle(input);
                 this._onOperationComplete(index, results);
                 return results;
             });
@@ -335,10 +341,14 @@ export class WorkerExecutionContext
 
     private _onOperationComplete(index: number, result: ts.DataWindow|ts.DataWindow[]) {
         let total: number;
-        if (ts.DataWindow.is(result)) {
-            total = result.length;
-        } else {
+        if (ts.DataWindow.isArray(result)) {
+            const name = this.config.operations[index]._op;
             total = result.reduce((acc, window) => acc + window.length, 0);
+            this.logger.debug(
+                `operation ${name} returned ${result.length} windows with a total of ${total} records`
+            );
+        } else {
+            total = result.length;
         }
         this._runMethod('onOperationComplete', this._sliceId, index, total, result);
     }

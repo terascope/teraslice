@@ -18,7 +18,7 @@ export default class Schema extends ConvictSchema<any, any> {
             windows: {
                 doc: 'The number of windows to create',
                 default: 0,
-                format: 'positive_Int'
+                format: 'nat'
             }
         };
     }

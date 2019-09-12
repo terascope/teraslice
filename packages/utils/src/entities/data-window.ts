@@ -56,7 +56,10 @@ export class DataWindow<
         if (input == null) return false;
         if (!Array.isArray(input)) return false;
         if (DataWindow.is(input)) return false;
-        if (input.length === 0) return true;
+        // an empty array is not a DataWindow array since it
+        // can cause issues when trying deal with an arrays of DataWindows
+        // vs an array of DataEntities
+        if (input.length === 0) return false;
         return input.every(DataWindow.is);
     }
 

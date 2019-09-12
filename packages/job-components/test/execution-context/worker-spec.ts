@@ -22,7 +22,7 @@ describe('WorkerExecutionContext', () => {
     const events = context.apis.foundation.getSystemEvents();
 
     const windowTestCases: [string, number][] = [
-        ['', 0],
+        ['with a top level window fetched', 0],
         ['with an array of 1 window fetched', 1],
         ['with an array of 2 window fetched', 2],
     ];
@@ -254,21 +254,6 @@ describe('WorkerExecutionContext', () => {
 
             expect(analytics).toContainAllKeys(['time', 'memory', 'size']);
             expect(analytics).not.toEqual(previousAnalytics);
-            const ops = executionContext.config.operations.length;
-
-            for (const metric of ['size', 'time']) {
-                for (let i = 0; i < ops; i++) {
-                    const previous = previousAnalytics[metric][i];
-                    const current = analytics![metric][i];
-                    if (i === 0) {
-                        if (current !== previous) {
-                            console.warn(`Metric "${metric}" should not have changed for the fetcher. Expected ${current} === ${previous}`);
-                        }
-                    } else if (current < previous) {
-                        console.warn(`Metric "${metric}" should be greater than the last run. Expected ${current} >= ${previous}.`);
-                    }
-                }
-            }
 
             expect(results.length).toEqual(30);
 
