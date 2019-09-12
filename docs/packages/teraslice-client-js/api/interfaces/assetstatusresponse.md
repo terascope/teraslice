@@ -21,4 +21,4 @@ sidebar_label: AssetStatusResponse
 
 • **available**: *boolean*
 
-*Defined in [interfaces.ts:95](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/interfaces.ts#L95)*
+*Defined in [interfaces.ts:94](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L94)*

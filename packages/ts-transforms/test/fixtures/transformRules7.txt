@@ -1,3 +1,2 @@
-{ "selector": "hello:world", "source_field": "txt", "target_field": "hex", "tag": "decodeMe" }
+{ "selector": "hello:world", "source": "txt", "target": "hex", "tag": "decodeMe" }
 { "follow": "decodeMe", "validation": "hexdecode" }
-

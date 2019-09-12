@@ -34,7 +34,7 @@ sidebar_label: ExecutionAnalytics
 
 • **failed**: *number*
 
-*Defined in [cluster-master/interfaces.ts:46](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L46)*
+*Defined in [cluster-master/interfaces.ts:46](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L46)*
 
 ___
 
@@ -42,7 +42,7 @@ ___
 
 • **job_duration**: *number*
 
-*Defined in [cluster-master/interfaces.ts:45](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L45)*
+*Defined in [cluster-master/interfaces.ts:45](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L45)*
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 • **processed**: *number*
 
-*Defined in [cluster-master/interfaces.ts:50](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L50)*
+*Defined in [cluster-master/interfaces.ts:50](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L50)*
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 • **queued**: *number*
 
-*Defined in [cluster-master/interfaces.ts:48](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L48)*
+*Defined in [cluster-master/interfaces.ts:48](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L48)*
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 • **slice_range_expansion**: *number*
 
-*Defined in [cluster-master/interfaces.ts:49](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L49)*
+*Defined in [cluster-master/interfaces.ts:49](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L49)*
 
 ___
 
@@ -74,7 +74,7 @@ ___
 
 • **slicers**: *number*
 
-*Defined in [cluster-master/interfaces.ts:51](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L51)*
+*Defined in [cluster-master/interfaces.ts:51](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L51)*
 
 ___
 
@@ -82,7 +82,7 @@ ___
 
 • **started**: *string*
 
-*Defined in [cluster-master/interfaces.ts:53](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L53)*
+*Defined in [cluster-master/interfaces.ts:53](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L53)*
 
 ___
 
@@ -90,7 +90,7 @@ ___
 
 • **subslice_by_key**: *number*
 
-*Defined in [cluster-master/interfaces.ts:52](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L52)*
+*Defined in [cluster-master/interfaces.ts:52](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L52)*
 
 ___
 
@@ -98,7 +98,7 @@ ___
 
 • **subslices**: *number*
 
-*Defined in [cluster-master/interfaces.ts:47](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L47)*
+*Defined in [cluster-master/interfaces.ts:47](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L47)*
 
 ___
 
@@ -106,7 +106,7 @@ ___
 
 • **workers_active**: *number*
 
-*Defined in [cluster-master/interfaces.ts:41](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L41)*
+*Defined in [cluster-master/interfaces.ts:41](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L41)*
 
 ___
 
@@ -114,7 +114,7 @@ ___
 
 • **workers_available**: *number*
 
-*Defined in [cluster-master/interfaces.ts:40](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L40)*
+*Defined in [cluster-master/interfaces.ts:40](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L40)*
 
 ___
 
@@ -122,7 +122,7 @@ ___
 
 • **workers_disconnected**: *number*
 
-*Defined in [cluster-master/interfaces.ts:44](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L44)*
+*Defined in [cluster-master/interfaces.ts:44](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L44)*
 
 ___
 
@@ -130,7 +130,7 @@ ___
 
 • **workers_joined**: *number*
 
-*Defined in [cluster-master/interfaces.ts:42](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L42)*
+*Defined in [cluster-master/interfaces.ts:42](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L42)*
 
 ___
 
@@ -138,4 +138,4 @@ ___
 
 • **workers_reconnected**: *number*
 
-*Defined in [cluster-master/interfaces.ts:43](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L43)*
+*Defined in [cluster-master/interfaces.ts:43](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L43)*

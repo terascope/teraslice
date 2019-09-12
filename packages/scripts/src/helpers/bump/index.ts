@@ -25,8 +25,7 @@ export async function bumpPackages(pkgInfos: PackageInfo[], options: BumpPackage
 
 Please commit these changes:
 
-    git commit -am "${commitMsg}"
-    git push
+    git commit -am "${commitMsg}" && git push
 `);
 }
 

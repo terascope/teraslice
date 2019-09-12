@@ -1,4 +1,3 @@
-
 import { TSError, isEmpty, isString } from '@terascope/job-components';
 import util from 'util';
 import path from 'path';

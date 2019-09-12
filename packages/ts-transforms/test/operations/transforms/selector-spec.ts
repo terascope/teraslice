@@ -9,7 +9,7 @@ describe('selector operator', () => {
     });
 
     it('can properly throw with bad config values', () => {
-        const badConfig1 = { source_field: 1324 };
+        const badConfig1 = { source: 1324 };
         const badConfig2 = { selector: [] };
         const badConfig3 = { selector: false };
         const badConfig4 = { selector: 1234 };

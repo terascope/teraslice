@@ -9,7 +9,7 @@ sidebar_label: Operations
 
 transform globals: config parameters that may be put on any transform configurations
 
-- output: `Boolean` (optional) = if set to true then the `target_field` listed in the configuration will be removed in the final output phase. This is used to clean up any intermediate or source values from the final output
+- output: `Boolean` (optional) = if set to true then the `target` listed in the configuration will be removed in the final output phase. This is used to clean up any intermediate or source values from the final output
 
 **Example:**
 
@@ -17,9 +17,9 @@ transform globals: config parameters that may be put on any transform configurat
 // rules
 /* here we extract the field value and stick it on the first_name and last_name keys and we mark them as output false so they are not in the final results
 */
-{ "selector": "hello:world", "source_field": "first", "target_field": "first_name", "output": false, "tag": "joinFields" }
-{ "selector": "hello:world", "source_field": "last", "target_field": "last_name", "output": false, "tag": "joinFields" }
-{ "follow": "joinFields", "post_process": "join","fields": ["first_name", "last_name"],"delimiter": " ","target_field": "full_name" }
+{ "selector": "hello:world", "source": "first", "target": "first_name", "output": false, "tag": "joinFields" }
+{ "selector": "hello:world", "source": "last", "target": "last_name", "output": false, "tag": "joinFields" }
+{ "follow": "joinFields", "post_process": "join","fields": ["first_name", "last_name"],"delimiter": " ","target": "full_name" }
 
 // Incoming Data to transform
 [{ hello: 'world', first: 'John', last: 'Wayne' }]
@@ -38,14 +38,14 @@ transform globals: config parameters that may be put on any transform configurat
 // rules
 /* here we extract the url, date and key value. date and key WILL NOT BE EXTRACTED  if there was no succesfull extraction of value or value2
 */
-{ "selector": "domain:example.com", "source_field": "url", "start": "value=", "end": "EOP", "target_field": "value" }
-{ "selector": "domain:example.com", "source_field": "url", "start": "value2=", "end": "EOP", "target_field": "value2" }
-{ "source_field": "date", "target_field": "date", "other_match_required": true }
-{ "source_field": "key", "target_field": "key", "other_match_required": true }
+{ "selector": "domain:example.com", "source": "url", "start": "value=", "end": "EOP", "target": "value" }
+{ "selector": "domain:example.com", "source": "url", "start": "value2=", "end": "EOP", "target": "value2" }
+{ "source": "date", "target": "date", "other_match_required": true }
+{ "source": "key", "target": "key", "other_match_required": true }
 
-{ "selector": "select:me", "source_field": "first", "target_field": "target" }
+{ "selector": "select:me", "source": "first", "target": "target" }
 
-{ "selector": "select:me", "source_field": "other", "target_field": "field", "other_match_required": true }
+{ "selector": "select:me", "source": "other", "target": "field", "other_match_required": true }
 
 
 // Incoming Data to transform
@@ -93,8 +93,8 @@ This is a filtering operator and determines is the documnet matches a certain cr
 `rules.txt`
 
 ```json
-{ "selector": "hello:world", "source_field": "first", "target_field": "first_name" }
-{ "selector": "hello:world", "source_field": "last", "target_field": "last_name" }
+{ "selector": "hello:world", "source": "first", "target": "first_name" }
+{ "selector": "hello:world", "source": "last", "target": "last_name" }
 ```
 
 ```js
@@ -126,8 +126,8 @@ console.log(results);
 `rules.txt`
 
 ```json
-{ "source_field": "first", "target_field": "first_name" }
-{ "source_field": "last", "target_field": "last_name" }
+{ "source": "first", "target": "first_name" }
+{ "source": "last", "target": "last_name" }
 ```
 
 ```js
@@ -158,8 +158,8 @@ Can use as a post_process to further filter results
 
 ```ts
 // rules
-{ "source_field": "first", "target_field": "first_name", "tag": "filterMe" }
-{ "source_field": "last", "target_field": "last_name", "tag": "filterMe"}
+{ "source": "first", "target": "first_name", "tag": "filterMe" }
+{ "source": "last", "target": "last_name", "tag": "filterMe"}
 { "follow": "filterMe", "post_process": "selector", "selector": "first_name:Jane" }
 
 
@@ -185,9 +185,9 @@ This is the core transform class used to extract data from incoming records. A n
 
 ```ts
 // rules
-{ "selector": "transform:me", "source_field": "lat", "target_field": "location.lat" }
-{ "selector": "transform:me", "source_field": "lon", "target_field": "location.lon" }
-{ "selector": "transform:me", "source_field": "first", "target_field": "first_name" }
+{ "selector": "transform:me", "source": "lat", "target": "location.lat" }
+{ "selector": "transform:me", "source": "lon", "target": "location.lon" }
+{ "selector": "transform:me", "source": "first", "target": "first_name" }
 
 // Incoming Data to transform
 [
@@ -206,17 +206,18 @@ This is the core transform class used to extract data from incoming records. A n
 
 ```
 
-- source_field: `String`(required) = this is the field that you will pull/search from. You may search deeply nested fields by using dot notation (ie `person.name` )
-- target_field: `String`(required) = this is the field where the result will be put. You may create deely nested object by using dot notation (ie: `location.lat` like in the example above)
-- start: `String` (optional) = used to do simple extractions within the source_field. It marks where is the start of the data you wish to extract
-- end: `String` (optional) = used to do simple extractions within the source_field. It marks where is the end of the data you wish to extract. NOTE: this is a special syntax of `EOP` which stands for 'end of parameter' this is used for url base extractions where it will take until the next parameter or end of line
+- source: `String`(required) = this is the field that you will pull/search from. You may search deeply nested fields by using dot notation (ie `person.name` )
+- target: `String`(required) = this is the field where the result will be put. You may create deely nested object by using dot notation (ie: `location.lat` like in the example above)
+- start: `String` (optional) = used to do simple extractions within the source. It marks where is the start of the data you wish to extract
+- end: `String` (optional) = used to do simple extractions within the source. It marks where is the end of the data you wish to extract. NOTE: this is a special syntax of `EOP` which stands for 'end of parameter' this is used for url base extractions where it will take until the next parameter or end of line
+- exp: `String` (optional) = exp is a jexl expression string, please refer to https://github.com/TomFrost/Jexl for detailed information.
 
 **Example:**
 
 ```ts
 // rules
-{ "selector": "domain:example.com", "source_field": "url", "start": "field1=", "end": "EOP", "target_field": "field1" }
-{ "selector": "transform:me", "source_field": "string", "target_field": "extracting_string", "start": "someStuff(" , "end": ")" }
+{ "selector": "domain:example.com", "source": "url", "start": "field1=", "end": "EOP", "target": "field1" }
+{ "selector": "transform:me", "source": "string", "target": "extracting_string", "start": "someStuff(" , "end": ")" }
 
 // Incoming Data to transform
 [
@@ -239,8 +240,8 @@ This is the core transform class used to extract data from incoming records. A n
 
 ```ts
 // rules
-{ "selector": "hostname:www.example.com", "source_field": "pathLat", "regex": "/path/tiles/latitude/(.*?)$", "target_field": "location.lat" }
-{ "selector": "hostname:www.example.com", "source_field": "pathLon", "regex": "/path/tiles/longitude/(.*?)$", "target_field": "location.lon" }
+{ "selector": "hostname:www.example.com", "source": "pathLat", "regex": "/path/tiles/latitude/(.*?)$", "target": "location.lat" }
+{ "selector": "hostname:www.example.com", "source": "pathLon", "regex": "/path/tiles/longitude/(.*?)$", "target": "location.lon" }
 
 // Incoming Data to transform
 [
@@ -262,9 +263,9 @@ This is the core transform class used to extract data from incoming records. A n
 
 ```ts
 // rules
-{ "selector": "first:rule", "source_field": "otherField", "target_field": "otherField", "multivalue": false }
-{ "selector": "second:rule", "source_field": "someField", "target_field": "otherField", "start": "data=", "end": "EOP" }
-{ "selector": "third:rule", "source_field": "someField", "target_field": "otherField", "start": "data=", "end": "EOP", "multivalue": false }
+{ "selector": "first:rule", "source": "otherField", "target": "otherField", "multivalue": false }
+{ "selector": "second:rule", "source": "someField", "target": "otherField", "start": "data=", "end": "EOP" }
+{ "selector": "third:rule", "source": "someField", "target": "otherField", "start": "data=", "end": "EOP", "multivalue": false }
 
 // Incoming Data to transform
 [
@@ -298,14 +299,14 @@ This is the core transform class used to extract data from incoming records. A n
 
 ```ts
 // rules
-{ "selector": "rule:one", "source_field": "first", "target_field": "first_name", "tag": "first" }
-{ "selector": "rule:one", "source_field": "last", "target_field": "last_name", "tag": "first"}
-{ "follow": "first", "post_process": "extraction", "source_field": "first_name", "target_field": "post_extraction" }
+{ "selector": "rule:one", "source": "first", "target": "first_name", "tag": "first" }
+{ "selector": "rule:one", "source": "last", "target": "last_name", "tag": "first"}
+{ "follow": "first", "post_process": "extraction", "source": "first_name", "target": "post_extraction" }
 
 
-{ "selector": "rule:two", "source_field": "first", "target_field": "first_name", "tag": "second" }
-{ "selector": "rule:two", "source_field": "last", "target_field": "last_name", "tag": "second"}
-{ "follow": "second", "post_process": "extraction", "source_field": "first_name", "target_field": "post_extraction", "mutate": false}
+{ "selector": "rule:two", "source": "first", "target": "first_name", "tag": "second" }
+{ "selector": "rule:two", "source": "last", "target": "last_name", "tag": "second"}
+{ "follow": "second", "post_process": "extraction", "source": "first_name", "target": "post_extraction", "mutate": false}
 // Incoming Data to transform
 [
     { rule: 'one' ,first: 'John', last: 'Doe' },
@@ -327,9 +328,9 @@ This is the core transform class used to extract data from incoming records. A n
 ```ts
 // rules
 
-{ "selector": "selectfield:value", "source_field": "url", "start": "field1=", "end": "EOP", "target_field": "myfield1", "output": false, "tag": "tag1" }
-{ "selector": "selectfield:value", "source_field": "url", "start": "field2=", "end": "EOP", "target_field": "myfield2", "output": false, "tag": "tag1" }
-{ "follow": "tag1", "post_process": "array", "target_field": "myfield" }
+{ "selector": "selectfield:value", "source": "url", "start": "field1=", "end": "EOP", "target": "myfield1", "output": false, "tag": "tag1" }
+{ "selector": "selectfield:value", "source": "url", "start": "field2=", "end": "EOP", "target": "myfield2", "output": false, "tag": "tag1" }
+{ "follow": "tag1", "post_process": "array", "target": "myfield" }
 
 // Incoming Data to transform
 [
@@ -352,11 +353,11 @@ This will attempt to join to string values together (this is a `many-to-one` ope
 `rules.txt`
 
 ```json
-{ "selector": "hello:world", "source_field": "first", "target_field": "first_name", "output": false, "tag": "joinFields" }
-{ "selector": "hello:world", "source_field": "last", "target_field": "last_name", "output": false, "tag": "joinFields" }
+{ "selector": "hello:world", "source": "first", "target": "first_name", "output": false, "tag": "joinFields" }
+{ "selector": "hello:world", "source": "last", "target": "last_name", "output": false, "tag": "joinFields" }
 
 # since fields is not set it will look at the target_fields of the tags it follows  => ["first_name", "last_name"]
-{ "follow": "joinFields", "post_process": "join","delimiter": " ","target_field": "full_name" }
+{ "follow": "joinFields", "post_process": "join","delimiter": " ","target": "full_name" }
 ```
 
 ```js
@@ -394,9 +395,9 @@ This will take all inputs and create an array
 ``` js
 // rules
 
-{ "selector": "hello:world", "source_field": "field1", "target_field": "value1", "output": false, "tag": "values" }
-{ "selector": "hello:world", "source_field": "field2", "target_field": "value2", "output": false, "tag": "values" }
-{ "follow": "values", "post_process": "array", "target_field": "results" }
+{ "selector": "hello:world", "source": "field1", "target": "value1", "output": false, "tag": "values" }
+{ "selector": "hello:world", "source": "field2", "target": "value2", "output": false, "tag": "values" }
+{ "follow": "values", "post_process": "array", "target": "results" }
 
 // Incoming data
 [
@@ -417,9 +418,9 @@ NOTE: if you have an array as an input value, the results will be put together
 ``` js
 // rules
 
-{ "selector": "hello:world", "source_field": "field1", "target_field": "value1", "output": false, "tag": "values" }
-{ "selector": "hello:world", "source_field": "field2", "target_field": "value2", "output": false, "tag": "values" }
-{ "follow": "values", "post_process": "array", "target_field": "results" }
+{ "selector": "hello:world", "source": "field1", "target": "value1", "output": false, "tag": "values" }
+{ "selector": "hello:world", "source": "field2", "target": "value2", "output": false, "tag": "values" }
+{ "follow": "values", "post_process": "array", "target": "results" }
 
 // Incoming data
 [
@@ -619,7 +620,7 @@ check if the string contains what is specified in the param `value`.
 ```ts
 // rules
 
-{ "selector": "some:value", "source_field": "field", "target_field": "newField", "tag": "tag_field" }
+{ "selector": "some:value", "source": "field", "target": "newField", "tag": "tag_field" }
 { "follow": "tag_field", "validation": "contains", "value": "null", "output": false}
 
 // Incoming Data to transform

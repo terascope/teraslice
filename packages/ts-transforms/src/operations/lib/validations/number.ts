@@ -1,6 +1,5 @@
 
-import _ from 'lodash';
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, toNumber } from '@terascope/utils';
 import { PostProcessConfig } from '../../../interfaces';
 import ValidationOpBase from './base';
 
@@ -12,8 +11,8 @@ export default class NumberValidation extends ValidationOpBase<any> {
     normalize(data: any, _doc: DataEntity) {
         if (typeof data === 'number') return data;
         if (typeof data === 'string') {
-            const results = _.toNumber(data);
-            if (_.isNaN(results)) throw new Error('could not convert to a number');
+            const results = toNumber(data);
+            if (Number.isNaN(results)) throw new Error('could not convert to a number');
             return results;
         }
         throw new Error('could not convert to a number');

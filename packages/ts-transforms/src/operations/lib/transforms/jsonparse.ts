@@ -1,5 +1,5 @@
-import { DataEntity } from '@terascope/utils';
-import _ from 'lodash';
+
+import { DataEntity, get } from '@terascope/utils';
 import TransformOpBase from './base';
 import { PostProcessConfig } from '../../../interfaces';
 
@@ -9,7 +9,7 @@ export default class JsonParse extends TransformOpBase {
     }
 
     run(doc: DataEntity): DataEntity {
-        const field = _.get(doc, this.source);
+        const field = get(doc, this.source);
         if (Array.isArray(field)) {
             const results: any[] = [];
             field.forEach((data) => {

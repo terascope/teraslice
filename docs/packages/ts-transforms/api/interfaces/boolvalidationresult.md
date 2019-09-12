@@ -22,7 +22,7 @@ sidebar_label: BoolValidationResult
 
 • **bool**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:118](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L118)*
+*Defined in [interfaces.ts:130](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L130)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **isValid**: *boolean*
 
-*Defined in [interfaces.ts:117](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L117)*
+*Defined in [interfaces.ts:129](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L129)*

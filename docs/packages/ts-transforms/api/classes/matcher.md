@@ -35,7 +35,7 @@ sidebar_label: Matcher
 
 *Overrides [PhaseManager](phasemanager.md).[constructor](phasemanager.md#constructor)*
 
-*Defined in [matcher.ts:7](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/matcher.ts#L7)*
+*Defined in [matcher.ts:6](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/matcher.ts#L6)*
 
 **Parameters:**
 
@@ -54,7 +54,7 @@ Name | Type | Default |
 
 *Inherited from [PhaseManager](phasemanager.md).[isMatcher](phasemanager.md#ismatcher)*
 
-*Defined in [phases/phase-manager.ts:17](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/phases/phase-manager.ts#L17)*
+*Defined in [phases/phase-manager.ts:17](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/phases/phase-manager.ts#L17)*
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 *Inherited from [PhaseManager](phasemanager.md).[sequence](phasemanager.md#sequence)*
 
-*Defined in [phases/phase-manager.ts:16](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/phases/phase-manager.ts#L16)*
+*Defined in [phases/phase-manager.ts:16](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/phases/phase-manager.ts#L16)*
 
 ## Methods
 
@@ -74,7 +74,7 @@ ___
 
 *Inherited from [PhaseManager](phasemanager.md).[init](phasemanager.md#init)*
 
-*Defined in [phases/phase-manager.ts:27](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/phases/phase-manager.ts#L27)*
+*Defined in [phases/phase-manager.ts:27](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/phases/phase-manager.ts#L27)*
 
 **Parameters:**
 
@@ -92,7 +92,7 @@ ___
 
 *Inherited from [PhaseManager](phasemanager.md).[run](phasemanager.md#run)*
 
-*Defined in [phases/phase-manager.ts:45](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/phases/phase-manager.ts#L45)*
+*Defined in [phases/phase-manager.ts:45](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/phases/phase-manager.ts#L45)*
 
 **Parameters:**
 

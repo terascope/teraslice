@@ -31,7 +31,7 @@ sidebar_label: Node
 
 \+ **new Node**(`value`: T, `prev?`: [Node](node.md)‹T›, `next?`: [Node](node.md)‹T›): *[Node](node.md)*
 
-*Defined in [node.ts:4](https://github.com/terascope/teraslice/blob/d2d877b60/packages/queue/src/node.ts#L4)*
+*Defined in [node.ts:4](https://github.com/terascope/teraslice/blob/0ae31df4/packages/queue/src/node.ts#L4)*
 
 **Parameters:**
 
@@ -49,7 +49,7 @@ Name | Type |
 
 • **next**? : *[Node](node.md)‹T›*
 
-*Defined in [node.ts:3](https://github.com/terascope/teraslice/blob/d2d877b60/packages/queue/src/node.ts#L3)*
+*Defined in [node.ts:3](https://github.com/terascope/teraslice/blob/0ae31df4/packages/queue/src/node.ts#L3)*
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **prev**? : *[Node](node.md)‹T›*
 
-*Defined in [node.ts:4](https://github.com/terascope/teraslice/blob/d2d877b60/packages/queue/src/node.ts#L4)*
+*Defined in [node.ts:4](https://github.com/terascope/teraslice/blob/0ae31df4/packages/queue/src/node.ts#L4)*
 
 ___
 
@@ -65,4 +65,4 @@ ___
 
 • **value**: *T*
 
-*Defined in [node.ts:2](https://github.com/terascope/teraslice/blob/d2d877b60/packages/queue/src/node.ts#L2)*
+*Defined in [node.ts:2](https://github.com/terascope/teraslice/blob/0ae31df4/packages/queue/src/node.ts#L2)*

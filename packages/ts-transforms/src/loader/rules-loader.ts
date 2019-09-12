@@ -1,5 +1,5 @@
+
 import fs from 'fs';
-import _ from 'lodash';
 import readline from 'readline';
 import { Readable } from 'stream';
 import { TSError, Logger } from '@terascope/utils';
@@ -22,7 +22,7 @@ export default class RulesLoader {
             const results = await Promise.all<OperationConfigInput[]>(
                 rules.map((ruleFile) => this.fileLoader(ruleFile))
             );
-            return _.flatten(results);
+            return ([] as OperationConfigInput[]).concat(...results);
         }
 
         throw new TSError('rules or notifications must be provided');

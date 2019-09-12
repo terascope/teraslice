@@ -1,7 +1,5 @@
 'use strict';
 
-/* eslint-disable */
-
 /**
  * Copyright (c) 2017-present, Facebook, Inc.
  *
@@ -15,7 +13,6 @@ const CompLibrary = require('../../core/CompLibrary.js');
 
 const MarkdownBlock = CompLibrary.MarkdownBlock; /* Used to read markdown */
 const Container = CompLibrary.Container;
-const GridBlock = CompLibrary.GridBlock;
 
 class HomeSplash extends React.Component {
     render() {
@@ -70,7 +67,7 @@ class HomeSplash extends React.Component {
                     <PromoSection>
                         <Button href={docUrl('overview.html')}>Overview</Button>
                         <Button href={docUrl('getting-started.html')}>Getting Started</Button>
-                        <Button href={docUrl('development.html')}>Development</Button>
+                        <Button href={docUrl('development/overview.html')}>Development</Button>
                     </PromoSection>
                 </div>
             </SplashContainer>

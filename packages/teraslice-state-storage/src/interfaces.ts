@@ -27,6 +27,6 @@ export interface EvictedEvent<T> {
 }
 
 export interface SetTuple<T> {
-    key: string;
+    key: string|number;
     data: T;
 }

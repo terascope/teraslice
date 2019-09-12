@@ -5,8 +5,8 @@ describe('Dedup operator', () => {
     it('can instantiate', () => {
         const opConfig = {
             post_process: 'dedup',
-            source_field: 'someField',
-            target_field: 'otherField',
+            source: 'someField',
+            target: 'otherField',
             __id: 'someId',
             follow: 'otherId',
         };
@@ -14,11 +14,11 @@ describe('Dedup operator', () => {
     });
 
     it('can properly throw with bad config values', () => {
-        const badConfig1 = { post_process: 'dedup', target_field: 1324 };
-        const badConfig2 = { post_process: 'dedup', target_field: '' };
+        const badConfig1 = { post_process: 'dedup', target: 1324 };
+        const badConfig2 = { post_process: 'dedup', target: '' };
         const badConfig3 = { post_process: 'dedup' };
-        const badConfig4 = { post_process: 'dedup', fields: 1234, target_field: 'someField' };
-        const badConfig5 = { post_process: 'dedup', fields: { first: 'first', last: 'last' }, target_field: 'someField' };
+        const badConfig4 = { post_process: 'dedup', fields: 1234, target: 'someField' };
+        const badConfig5 = { post_process: 'dedup', fields: { first: 'first', last: 'last' }, target: 'someField' };
         // @ts-ignore
         expect(() => new Dedup(badConfig1)).toThrow();
         // @ts-ignore
@@ -33,7 +33,7 @@ describe('Dedup operator', () => {
 
     it('can dedup an array of values', () => {
         const opConfig = {
-            post_process: 'dedup', source_field: 'array', target_field: 'array', __id: 'someId', follow: 'otherId'
+            post_process: 'dedup', source: 'array', target: 'array', __id: 'someId', follow: 'otherId'
         };
         const test = new Dedup(opConfig);
         const data = new DataEntity({ array: ['hello', 'hello', 'world', 'world', 'hi'] });
@@ -45,7 +45,7 @@ describe('Dedup operator', () => {
 
     it('dedup any other value will just pass it through', () => {
         const opConfig = {
-            post_process: 'dedup', source_field: 'array', target_field: 'array', __id: 'someId', follow: 'otherId'
+            post_process: 'dedup', source: 'array', target: 'array', __id: 'someId', follow: 'otherId'
         };
         const test = new Dedup(opConfig);
 

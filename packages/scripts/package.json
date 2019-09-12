@@ -1,6 +1,6 @@
 {
     "name": "@terascope/scripts",
-    "version": "0.5.0",
+    "version": "0.5.2",
     "description": "A collection of terascope monorepo scripts",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/scripts#readme",
     "bugs": {
@@ -28,7 +28,7 @@
     },
     "dependencies": {
         "@lerna/query-graph": "^3.14.0",
-        "@terascope/utils": "^0.17.1",
+        "@terascope/utils": "^0.19.0",
         "@types/is-ci": "^2.0.0",
         "codecov": "^3.5.0",
         "execa": "^2.0.4",
@@ -36,6 +36,7 @@
         "got": "^9.6.0",
         "ip": "^1.1.5",
         "is-ci": "^2.0.0",
+        "lodash.defaultsdeep": "^4.6.1",
         "ms": "^2.1.2",
         "pkg-up": "^3.1.0",
         "semver": "^6.1.1",
@@ -48,12 +49,14 @@
     "devDependencies": {
         "@types/got": "^9.6.7",
         "@types/ip": "^1.1.0",
+        "@types/lodash.defaultsdeep": "^4.6.6",
         "@types/ms": "^0.7.30",
         "@types/semver": "^6.0.1",
         "@types/signale": "^1.2.1"
     },
     "publishConfig": {
-        "access": "public"
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
     },
     "displayName": "Scripts",
     "srcMain": "src/index.ts",

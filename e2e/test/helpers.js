@@ -64,7 +64,10 @@ async function submitAndStart(jobSpec, delay) {
     return job;
 }
 
-async function runEsJob(jobSpec, index) {
+async function runEsJob(jobSpec, index, delay) {
+    if (delay) {
+        misc.injectDelay(jobSpec, delay);
+    }
     const job = await jobs.submit(jobSpec);
     await wait.waitForJobStatus(job, 'completed');
 

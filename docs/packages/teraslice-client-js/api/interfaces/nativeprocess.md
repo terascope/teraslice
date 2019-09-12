@@ -27,7 +27,7 @@ sidebar_label: NativeProcess
 
 • **assignment**: *Assignment*
 
-*Defined in [interfaces.ts:116](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/interfaces.ts#L116)*
+*Defined in [interfaces.ts:115](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L115)*
 
 ___
 
@@ -35,7 +35,7 @@ ___
 
 • **ex_id**? : *undefined | string*
 
-*Defined in [interfaces.ts:118](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/interfaces.ts#L118)*
+*Defined in [interfaces.ts:117](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L117)*
 
 ___
 
@@ -43,7 +43,7 @@ ___
 
 • **job_id**? : *undefined | string*
 
-*Defined in [interfaces.ts:119](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/interfaces.ts#L119)*
+*Defined in [interfaces.ts:118](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L118)*
 
 ___
 
@@ -51,7 +51,7 @@ ___
 
 • **pid**: *number*
 
-*Defined in [interfaces.ts:117](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/interfaces.ts#L117)*
+*Defined in [interfaces.ts:116](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L116)*
 
 ___
 
@@ -59,4 +59,4 @@ ___
 
 • **worker_id**: *string*
 
-*Defined in [interfaces.ts:115](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-client-js/src/interfaces.ts#L115)*
+*Defined in [interfaces.ts:114](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L114)*

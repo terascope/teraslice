@@ -1,4 +1,5 @@
 import semver from 'semver';
+import { get } from '@terascope/utils';
 import {
     getLatestNPMVersion,
     getCommitHash,
@@ -13,7 +14,8 @@ import signale from '../signale';
 export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType): Promise<boolean> {
     if (pkgInfo.private) return false;
 
-    const remote = await getLatestNPMVersion(pkgInfo.name);
+    const registry: string|undefined = get(pkgInfo, 'publishConfig.registry');
+    const remote = await getLatestNPMVersion(pkgInfo.name, registry);
     const local = pkgInfo.version;
 
     if (semver.gt(local, remote)) {

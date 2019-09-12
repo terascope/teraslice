@@ -42,7 +42,7 @@ sidebar_label: ESCachedStateStorage
 
 \+ **new ESCachedStateStorage**(`client`: Client, `logger`: Logger, `config`: [ESStateStorageConfig](../interfaces/esstatestorageconfig.md)): *[ESCachedStateStorage](escachedstatestorage.md)*
 
-*Defined in [elasticsearch-state-storage/index.ts:24](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L24)*
+*Defined in [elasticsearch-state-storage/index.ts:24](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L24)*
 
 **Parameters:**
 
@@ -60,7 +60,7 @@ Name | Type |
 
 • **cache**: *[CachedStateStorage](cachedstatestorage.md)‹DataEntity›*
 
-*Defined in [elasticsearch-state-storage/index.ts:24](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L24)*
+*Defined in [elasticsearch-state-storage/index.ts:24](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L24)*
 
 ## Methods
 
@@ -68,7 +68,7 @@ Name | Type |
 
 ▸ **count**(): *number*
 
-*Defined in [elasticsearch-state-storage/index.ts:47](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L47)*
+*Defined in [elasticsearch-state-storage/index.ts:47](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L47)*
 
 **Returns:** *number*
 
@@ -78,7 +78,7 @@ ___
 
 ▸ **get**(`doc`: DataEntity): *Promise‹DataEntity | undefined›*
 
-*Defined in [elasticsearch-state-storage/index.ts:101](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L101)*
+*Defined in [elasticsearch-state-storage/index.ts:101](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L101)*
 
 **Parameters:**
 
@@ -92,9 +92,9 @@ ___
 
 ###  getFromCache
 
-▸ **getFromCache**(`doc`: DataEntity): *undefined | DataEntity‹object›*
+▸ **getFromCache**(`doc`: DataEntity): *undefined | DataEntity‹object, object›*
 
-*Defined in [elasticsearch-state-storage/index.ts:83](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L83)*
+*Defined in [elasticsearch-state-storage/index.ts:83](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L83)*
 
 **Parameters:**
 
@@ -102,15 +102,15 @@ Name | Type |
 ------ | ------ |
 `doc` | DataEntity |
 
-**Returns:** *undefined | DataEntity‹object›*
+**Returns:** *undefined | DataEntity‹object, object›*
 
 ___
 
 ###  getFromCacheByKey
 
-▸ **getFromCacheByKey**(`key`: string): *undefined | DataEntity‹object›*
+▸ **getFromCacheByKey**(`key`: string): *undefined | DataEntity‹object, object›*
 
-*Defined in [elasticsearch-state-storage/index.ts:88](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L88)*
+*Defined in [elasticsearch-state-storage/index.ts:88](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L88)*
 
 **Parameters:**
 
@@ -118,7 +118,7 @@ Name | Type |
 ------ | ------ |
 `key` | string |
 
-**Returns:** *undefined | DataEntity‹object›*
+**Returns:** *undefined | DataEntity‹object, object›*
 
 ___
 
@@ -126,7 +126,7 @@ ___
 
 ▸ **getIdentifier**(`doc`: DataEntity, `metaKey`: string): *string*
 
-*Defined in [elasticsearch-state-storage/index.ts:51](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L51)*
+*Defined in [elasticsearch-state-storage/index.ts:51](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L51)*
 
 **Parameters:**
 
@@ -143,7 +143,7 @@ ___
 
 ▸ **initialize**(): *Promise‹void›*
 
-*Defined in [elasticsearch-state-storage/index.ts:41](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L41)*
+*Defined in [elasticsearch-state-storage/index.ts:41](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L41)*
 
 **Returns:** *Promise‹void›*
 
@@ -153,7 +153,7 @@ ___
 
 ▸ **isCached**(`doc`: DataEntity): *boolean*
 
-*Defined in [elasticsearch-state-storage/index.ts:92](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L92)*
+*Defined in [elasticsearch-state-storage/index.ts:92](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L92)*
 
 **Parameters:**
 
@@ -169,7 +169,7 @@ ___
 
 ▸ **isKeyCached**(`key`: string): *boolean*
 
-*Defined in [elasticsearch-state-storage/index.ts:97](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L97)*
+*Defined in [elasticsearch-state-storage/index.ts:97](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L97)*
 
 **Parameters:**
 
@@ -185,7 +185,7 @@ ___
 
 ▸ **mget**(`docArray`: DataEntity[]): *Promise‹[MGetCacheResponse](../interfaces/mgetcacheresponse.md)›*
 
-*Defined in [elasticsearch-state-storage/index.ts:109](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L109)*
+*Defined in [elasticsearch-state-storage/index.ts:109](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L109)*
 
 **Parameters:**
 
@@ -201,7 +201,7 @@ ___
 
 ▸ **mset**(`docArray`: DataEntity[]): *Promise‹void›*
 
-*Defined in [elasticsearch-state-storage/index.ts:61](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L61)*
+*Defined in [elasticsearch-state-storage/index.ts:61](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L61)*
 
 **Parameters:**
 
@@ -217,7 +217,7 @@ ___
 
 ▸ **set**(`doc`: DataEntity): *void*
 
-*Defined in [elasticsearch-state-storage/index.ts:73](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L73)*
+*Defined in [elasticsearch-state-storage/index.ts:73](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L73)*
 
 **Parameters:**
 
@@ -233,7 +233,7 @@ ___
 
 ▸ **setCacheByKey**(`key`: string, `doc`: DataEntity): *void*
 
-*Defined in [elasticsearch-state-storage/index.ts:79](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L79)*
+*Defined in [elasticsearch-state-storage/index.ts:79](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L79)*
 
 **Parameters:**
 
@@ -250,7 +250,7 @@ ___
 
 ▸ **shutdown**(): *Promise‹void›*
 
-*Defined in [elasticsearch-state-storage/index.ts:43](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L43)*
+*Defined in [elasticsearch-state-storage/index.ts:43](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L43)*
 
 **Returns:** *Promise‹void›*
 
@@ -260,7 +260,7 @@ ___
 
 ▸ **sync**(`docArray`: DataEntity[], `fn`: [UpdateCacheFn](../overview.md#updatecachefn)): *Promise‹void›*
 
-*Defined in [elasticsearch-state-storage/index.ts:120](https://github.com/terascope/teraslice/blob/d2d877b60/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L120)*
+*Defined in [elasticsearch-state-storage/index.ts:120](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L120)*
 
 **Parameters:**
 

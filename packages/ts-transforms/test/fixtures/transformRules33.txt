@@ -1,5 +1,5 @@
-{ "source_field": "field1", "target_field": "fields", "tag": "fields" }
-{ "source_field": "field2", "target_field": "fields", "tag": "fields" }
-{ "source_field": "field3", "target_field": "fields", "tag": "fields" }
-{ "source_field": "field4", "target_field": "fields", "tag": "fields" }
-{ "follow": "fields", "post_process": "array", "target_field": "fields" }
+{ "source": "field1", "target": "fields", "tag": "fields" }
+{ "source": "field2", "target": "fields", "tag": "fields" }
+{ "source": "field3", "target": "fields", "tag": "fields" }
+{ "source": "field4", "target": "fields", "tag": "fields" }
+{ "follow": "fields", "post_process": "array", "target": "fields" }

@@ -61,6 +61,7 @@ sidebar_label: API
 
 * [BoolValidationResult](interfaces/boolvalidationresult.md)
 * [ExtractionConfig](interfaces/extractionconfig.md)
+* [ExtractionPipline](interfaces/extractionpipline.md)
 * [ExtractionProcessingDict](interfaces/extractionprocessingdict.md)
 * [MatchRequirements](interfaces/matchrequirements.md)
 * [Operation](interfaces/operation.md)
@@ -105,7 +106,7 @@ sidebar_label: API
 
 Ƭ **BaseOperationClass**: *object*
 
-*Defined in [interfaces.ts:81](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L81)*
+*Defined in [interfaces.ts:89](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L89)*
 
 #### Type declaration:
 
@@ -115,7 +116,7 @@ ___
 
 Ƭ **Case**: *"lowercase" | "uppercase"*
 
-*Defined in [interfaces.ts:52](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L52)*
+*Defined in [interfaces.ts:54](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L54)*
 
 ___
 
@@ -123,7 +124,7 @@ ___
 
 Ƭ **InputOutputCardinality**: *"one-to-one" | "many-to-one"*
 
-*Defined in [interfaces.ts:153](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L153)*
+*Defined in [interfaces.ts:165](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L165)*
 
 ___
 
@@ -131,7 +132,7 @@ ___
 
 Ƭ **OperationConfig**: *object & Partial‹[SelectorConfig](interfaces/selectorconfig.md)› & Partial‹[PostProcessConfig](interfaces/postprocessconfig.md)› & Partial‹[ExtractionConfig](interfaces/extractionconfig.md)›*
 
-*Defined in [interfaces.ts:10](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L10)*
+*Defined in [interfaces.ts:12](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L12)*
 
 ___
 
@@ -139,7 +140,7 @@ ___
 
 Ƭ **OperationConfigInput**: *Partial‹[OperationConfig](overview.md#operationconfig)› & object*
 
-*Defined in [interfaces.ts:6](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L6)*
+*Defined in [interfaces.ts:8](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L8)*
 
 ___
 
@@ -147,7 +148,7 @@ ___
 
 Ƭ **PluginClassConstructor**: *object*
 
-*Defined in [interfaces.ts:73](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L73)*
+*Defined in [interfaces.ts:81](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L81)*
 
 #### Type declaration:
 
@@ -157,7 +158,7 @@ ___
 
 Ƭ **PluginList**: *[PluginClassConstructor](overview.md#pluginclassconstructor)[]*
 
-*Defined in [interfaces.ts:79](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L79)*
+*Defined in [interfaces.ts:87](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L87)*
 
 ___
 
@@ -165,7 +166,7 @@ ___
 
 Ƭ **filterFn**: *function*
 
-*Defined in [interfaces.ts:114](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L114)*
+*Defined in [interfaces.ts:126](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L126)*
 
 #### Type declaration:
 
@@ -183,7 +184,7 @@ ___
 
 Ƭ **injectFn**: *function*
 
-*Defined in [interfaces.ts:113](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/interfaces.ts#L113)*
+*Defined in [interfaces.ts:125](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L125)*
 
 #### Type declaration:
 
@@ -202,7 +203,7 @@ Name | Type |
 
 ▸ **hasExtractions**(`config`: Config): *boolean*
 
-*Defined in [loader/utils.ts:278](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/loader/utils.ts#L278)*
+*Defined in [loader/utils.ts:278](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/loader/utils.ts#L278)*
 
 **Parameters:**
 
@@ -218,7 +219,7 @@ ___
 
 ▸ **hasKeys**(`doc`: object): *boolean*
 
-*Defined in [phases/utils.ts:2](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/phases/utils.ts#L2)*
+*Defined in [phases/utils.ts:2](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/phases/utils.ts#L2)*
 
 **Parameters:**
 
@@ -234,7 +235,7 @@ ___
 
 ▸ **isDeprecatedCompactConfig**(`config`: Config): *boolean*
 
-*Defined in [loader/utils.ts:270](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/loader/utils.ts#L270)*
+*Defined in [loader/utils.ts:270](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/loader/utils.ts#L270)*
 
 **Parameters:**
 
@@ -250,7 +251,7 @@ ___
 
 ▸ **isPrimaryConfig**(`config`: Config): *boolean*
 
-*Defined in [loader/utils.ts:238](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/loader/utils.ts#L238)*
+*Defined in [loader/utils.ts:238](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/loader/utils.ts#L238)*
 
 **Parameters:**
 
@@ -266,7 +267,7 @@ ___
 
 ▸ **isSimplePostProcessConfig**(`config`: Config): *boolean*
 
-*Defined in [loader/utils.ts:274](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/loader/utils.ts#L274)*
+*Defined in [loader/utils.ts:274](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/loader/utils.ts#L274)*
 
 **Parameters:**
 
@@ -282,7 +283,7 @@ ___
 
 ▸ **needsDefaultSelector**(`config`: Config): *boolean*
 
-*Defined in [loader/utils.ts:242](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/loader/utils.ts#L242)*
+*Defined in [loader/utils.ts:242](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/loader/utils.ts#L242)*
 
 **Parameters:**
 
@@ -298,7 +299,7 @@ ___
 
 ▸ **parseConfig**(`configList`: [OperationConfig](overview.md#operationconfig)[], `opsManager`: OperationsManager, `logger`: Logger): *[ValidationResults](interfaces/validationresults.md)*
 
-*Defined in [loader/utils.ts:23](https://github.com/terascope/teraslice/blob/d2d877b60/packages/ts-transforms/src/loader/utils.ts#L23)*
+*Defined in [loader/utils.ts:23](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/loader/utils.ts#L23)*
 
 **Parameters:**
 

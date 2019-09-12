@@ -66,7 +66,7 @@ sidebar_label: TestSlicer
 
 *Overrides [Core](core.md).[constructor](core.md#constructor)*
 
-*Defined in [operations/core/slicer-core.ts:32](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/slicer-core.ts#L32)*
+*Defined in [operations/core/slicer-core.ts:32](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/slicer-core.ts#L32)*
 
 **Parameters:**
 
@@ -86,7 +86,7 @@ Name | Type |
 
 *Inherited from [Core](core.md).[context](core.md#context)*
 
-*Defined in [operations/core/core.ts:10](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/core.ts#L10)*
+*Defined in [operations/core/core.ts:10](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/core.ts#L10)*
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 *Inherited from [Core](core.md).[events](core.md#events)*
 
-*Defined in [operations/core/core.ts:13](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/core.ts#L13)*
+*Defined in [operations/core/core.ts:13](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/core.ts#L13)*
 
 ___
 
@@ -106,7 +106,7 @@ ___
 
 *Inherited from [Core](core.md).[executionConfig](core.md#executionconfig)*
 
-*Defined in [operations/core/core.ts:11](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/core.ts#L11)*
+*Defined in [operations/core/core.ts:11](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/core.ts#L11)*
 
 ___
 
@@ -116,7 +116,7 @@ ___
 
 *Inherited from [Slicer](slicer.md).[isFinished](slicer.md#isfinished)*
 
-*Defined in [operations/slicer.ts:16](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/slicer.ts#L16)*
+*Defined in [operations/slicer.ts:16](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/slicer.ts#L16)*
 
 ___
 
@@ -126,7 +126,7 @@ ___
 
 *Inherited from [Core](core.md).[logger](core.md#logger)*
 
-*Defined in [operations/core/core.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/core.ts#L12)*
+*Defined in [operations/core/core.ts:12](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/core.ts#L12)*
 
 ___
 
@@ -136,7 +136,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[opConfig](slicercore.md#protected-opconfig)*
 
-*Defined in [operations/core/slicer-core.ts:31](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/slicer-core.ts#L31)*
+*Defined in [operations/core/slicer-core.ts:31](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/slicer-core.ts#L31)*
 
 ___
 
@@ -146,7 +146,7 @@ ___
 
 *Inherited from [Slicer](slicer.md).[order](slicer.md#private-order)*
 
-*Defined in [operations/slicer.ts:14](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/slicer.ts#L14)*
+*Defined in [operations/slicer.ts:14](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/slicer.ts#L14)*
 
 ___
 
@@ -154,7 +154,7 @@ ___
 
 • **position**: *number* = 0
 
-*Defined in [builtin/test-reader/slicer.ts:12](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/builtin/test-reader/slicer.ts#L12)*
+*Defined in [builtin/test-reader/slicer.ts:12](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/builtin/test-reader/slicer.ts#L12)*
 
 ___
 
@@ -164,7 +164,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[recoveryData](slicercore.md#protected-recoverydata)*
 
-*Defined in [operations/core/slicer-core.ts:30](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/slicer-core.ts#L30)*
+*Defined in [operations/core/slicer-core.ts:30](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/slicer-core.ts#L30)*
 
 ___
 
@@ -172,7 +172,7 @@ ___
 
 • **requests**: *object[]* =  []
 
-*Defined in [builtin/test-reader/slicer.ts:11](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/builtin/test-reader/slicer.ts#L11)*
+*Defined in [builtin/test-reader/slicer.ts:11](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/builtin/test-reader/slicer.ts#L11)*
 
 ___
 
@@ -182,7 +182,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[stats](slicercore.md#protected-stats)*
 
-*Defined in [operations/core/slicer-core.ts:29](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/slicer-core.ts#L29)*
+*Defined in [operations/core/slicer-core.ts:29](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/slicer-core.ts#L29)*
 
 ## Accessors
 
@@ -192,7 +192,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[workersConnected](slicercore.md#protected-workersconnected)*
 
-*Defined in [operations/core/slicer-core.ts:159](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/slicer-core.ts#L159)*
+*Defined in [operations/core/slicer-core.ts:159](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/slicer-core.ts#L159)*
 
 **Returns:** *number*
 
@@ -204,7 +204,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[canComplete](slicercore.md#protected-cancomplete)*
 
-*Defined in [operations/core/slicer-core.ts:155](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/slicer-core.ts#L155)*
+*Defined in [operations/core/slicer-core.ts:155](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/slicer-core.ts#L155)*
 
 **Returns:** *boolean*
 
@@ -216,7 +216,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[createSlice](slicercore.md#createslice)*
 
-*Defined in [operations/core/slicer-core.ts:86](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/slicer-core.ts#L86)*
+*Defined in [operations/core/slicer-core.ts:86](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/slicer-core.ts#L86)*
 
 Create a Slice object from a slice request.
 In the case of recovery the "Slice" already has the required
@@ -240,7 +240,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[getSlice](slicercore.md#getslice)*
 
-*Defined in [operations/core/slicer-core.ts:103](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/slicer-core.ts#L103)*
+*Defined in [operations/core/slicer-core.ts:103](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/slicer-core.ts#L103)*
 
 A method called by the "Execution Controller" to dequeue a created "Slice"
 
@@ -254,7 +254,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[getSlices](slicercore.md#getslices)*
 
-*Defined in [operations/core/slicer-core.ts:112](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/slicer-core.ts#L112)*
+*Defined in [operations/core/slicer-core.ts:112](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/slicer-core.ts#L112)*
 
 A method called by the "Execution Controller" to dequeue many created slices
 
@@ -276,7 +276,7 @@ ___
 
 *Overrides [SlicerCore](slicercore.md).[handle](slicercore.md#abstract-handle)*
 
-*Defined in [operations/slicer.ts:28](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/slicer.ts#L28)*
+*Defined in [operations/slicer.ts:28](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/slicer.ts#L28)*
 
 **Returns:** *Promise‹boolean›*
 
@@ -290,7 +290,7 @@ ___
 
 *Overrides [SlicerCore](slicercore.md).[initialize](slicercore.md#initialize)*
 
-*Defined in [builtin/test-reader/slicer.ts:14](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/builtin/test-reader/slicer.ts#L14)*
+*Defined in [builtin/test-reader/slicer.ts:14](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/builtin/test-reader/slicer.ts#L14)*
 
 **Parameters:**
 
@@ -308,7 +308,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[isRecoverable](slicercore.md#isrecoverable)*
 
-*Defined in [operations/core/slicer-core.ts:137](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/slicer-core.ts#L137)*
+*Defined in [operations/core/slicer-core.ts:137](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/slicer-core.ts#L137)*
 
 Used to indicate whether this slicer is recoverable.
 
@@ -322,7 +322,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[maxQueueLength](slicercore.md#maxqueuelength)*
 
-*Defined in [operations/core/slicer-core.ts:147](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/slicer-core.ts#L147)*
+*Defined in [operations/core/slicer-core.ts:147](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/slicer-core.ts#L147)*
 
 Used to determine the maximum number of slices queued.
 Defaults to 10000
@@ -341,7 +341,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[onExecutionStats](slicercore.md#onexecutionstats)*
 
-*Defined in [operations/core/slicer-core.ts:151](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/slicer-core.ts#L151)*
+*Defined in [operations/core/slicer-core.ts:151](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/slicer-core.ts#L151)*
 
 **Parameters:**
 
@@ -361,7 +361,7 @@ ___
 
 *Overrides [SlicerCore](slicercore.md).[shutdown](slicercore.md#shutdown)*
 
-*Defined in [builtin/test-reader/slicer.ts:30](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/builtin/test-reader/slicer.ts#L30)*
+*Defined in [builtin/test-reader/slicer.ts:30](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/builtin/test-reader/slicer.ts#L30)*
 
 **Returns:** *Promise‹void›*
 
@@ -373,7 +373,7 @@ ___
 
 *Overrides [Slicer](slicer.md).[slice](slicer.md#abstract-slice)*
 
-*Defined in [builtin/test-reader/slicer.ts:35](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/builtin/test-reader/slicer.ts#L35)*
+*Defined in [builtin/test-reader/slicer.ts:35](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/builtin/test-reader/slicer.ts#L35)*
 
 **Returns:** *Promise‹null | object›*
 
@@ -385,7 +385,7 @@ ___
 
 *Inherited from [SlicerCore](slicercore.md).[sliceCount](slicercore.md#slicecount)*
 
-*Defined in [operations/core/slicer-core.ts:130](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/core/slicer-core.ts#L130)*
+*Defined in [operations/core/slicer-core.ts:130](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/slicer-core.ts#L130)*
 
 The number of enqueued slices
 
@@ -401,6 +401,6 @@ ___
 
 *Overrides [SlicerCore](slicercore.md).[slicers](slicercore.md#abstract-slicers)*
 
-*Defined in [operations/slicer.ts:24](https://github.com/terascope/teraslice/blob/d2d877b60/packages/job-components/src/operations/slicer.ts#L24)*
+*Defined in [operations/slicer.ts:24](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/slicer.ts#L24)*
 
 **Returns:** *number*

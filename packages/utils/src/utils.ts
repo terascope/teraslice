@@ -70,6 +70,10 @@ export function toBoolean(input: any): boolean {
     return thruthy.includes(val);
 }
 
+export function isBuffer(input: any): input is Buffer {
+    return input != null && Buffer.isBuffer(input);
+}
+
 export function ensureBuffer(input: string|Buffer, encoding: BufferEncoding = 'utf8'): Buffer {
     if (isString(input)) {
         return Buffer.from(input, encoding);
@@ -78,6 +82,11 @@ export function ensureBuffer(input: string|Buffer, encoding: BufferEncoding = 'u
         return input;
     }
     throw new Error(`Invalid input given, expected string or buffer, got ${getTypeOf(input)}`);
+}
+
+export function isBoolean(input: any): input is boolean {
+    if (typeof input === 'boolean') return true;
+    return false;
 }
 
 export function isBooleanLike(input: any): boolean {
