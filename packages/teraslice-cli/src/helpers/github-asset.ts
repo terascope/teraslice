@@ -1,5 +1,6 @@
 
 import fs from 'fs-extra';
+import { TSError } from '@terascope/utils';
 import downloadRelease from '@terascope/fetch-github-release';
 
 interface GithubAssetConfig {
@@ -7,11 +8,6 @@ interface GithubAssetConfig {
     assetString: string;
     nodeVersion: string;
     platform: string;
-}
-
-interface ReleaseConfig {
-    draft?: string;
-    prerelease?: string;
 }
 
 export default class GithubAsset {
@@ -35,18 +31,36 @@ export default class GithubAsset {
         this.version = p.version;
     }
 
-    nodeMajorVersion() {
+    get nodeMajorVersion() {
         return this.nodeVersion.split('.')[0].substr(1);
     }
 
     async download(outDir = '/tmp', quiet = false) {
         let assetPath;
         const leaveZipped = true;
+        const assetName = `node-${this.nodeMajorVersion}-${this.platform}-${this.arch}.zip`;
+        const version = this.version ? this.version.slice(1) : null;
+        let filterRelease;
+
+        if (version) {
+            filterRelease = (r: any) => !r.draft && !r.prerelease && r.tag_name.includes(version);
+        } else {
+            filterRelease = (r: any) => {
+                if (!r.draft && !r.prerelease) {
+                    // console.log('what do I got here', r)
+                    return true;
+                }
+                return false;
+                // return !r.draft && !r.prerelease;
+            };
+        }
+
+        const genFilterAsset = (asset: any) => asset.name.indexOf(assetName) >= 0;
 
         try {
             await fs.ensureDir(outDir);
         } catch (err) {
-            throw new Error(`Error creating ${outDir}: ${err}`);
+            throw new TSError(`Error creating ${outDir}: ${err}`);
         }
 
         try {
@@ -54,9 +68,9 @@ export default class GithubAsset {
                 this.user,
                 this.name,
                 outDir,
-                // @ts-ignore
-                GithubAsset.filterRelease,
-                GithubAsset.genFilterAsset(this.nodeMajorVersion(), this.platform, this.arch),
+                // @ts-ignore TODO: need to fix types in forked repo
+                filterRelease,
+                genFilterAsset,
                 leaveZipped,
                 quiet
             );
@@ -65,17 +79,6 @@ export default class GithubAsset {
             throw new Error(`Error downloading ${this.assetString}: ${err}`);
         }
         return assetPath;
-    }
-
-    static filterRelease(release: ReleaseConfig) {
-        return !release.draft && !release.prerelease;
-    }
-
-    static genFilterAsset(nodeMajorVersion: string, platform: string, arch: string) {
-        return (asset: any) => {
-            const mustContain = `node-${nodeMajorVersion}-${platform}-${arch}.zip`;
-            return asset.name.indexOf(mustContain) >= 0;
-        };
     }
 
     /**
