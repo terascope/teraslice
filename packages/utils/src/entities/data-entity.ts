@@ -155,7 +155,13 @@ export class DataEntity<
     }
 
     static [Symbol.hasInstance](instance: any): boolean {
-        return utils.isDataEntity(instance);
+        // prevent automatically thinking a base DataEntity is
+        // an instance of a class that extends from a DataEntity
+        if (this.name !== 'DataEntity' && this.name !== 'Object') {
+            return false;
+        }
+        if (!utils.isDataEntity(instance)) return false;
+        return true;
     }
 
     private readonly [i.__ENTITY_METADATA_KEY]: {
