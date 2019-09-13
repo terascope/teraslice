@@ -135,6 +135,14 @@ describe('DataEntity', () => {
                 expect(dataEntity.getMetadata('yellow')).toEqual('mellow');
             });
 
+            it('should be able to remove the metadata _key property', () => {
+                dataEntity.setMetadata('_key', undefined);
+                expect(dataEntity.getMetadata('_key')).toBeUndefined();
+                expect(() => {
+                    dataEntity.getKey();
+                }).toThrow();
+            });
+
             const cloneMethods = {
                 fastCloneDeep,
                 cloneDeep,
@@ -559,6 +567,7 @@ describe('DataEntity', () => {
     describe('#isDataEntity', () => {
         it('should return false when given object', () => {
             expect(DataEntity.isDataEntity({})).toBeFalse();
+            expect({}).not.toBeInstanceOf(DataEntity);
         });
 
         it('should return false when given null', () => {
@@ -567,15 +576,24 @@ describe('DataEntity', () => {
 
         it('should return false when given array of object', () => {
             expect(DataEntity.isDataEntity([{}])).toBeFalse();
+            expect([{}]).not.toBeInstanceOf(DataEntity);
         });
 
         it('should return true when given a DataEntity', () => {
             expect(DataEntity.isDataEntity(DataEntity.make({}))).toBeTrue();
+            expect(DataEntity.make({})).toBeInstanceOf(DataEntity);
         });
 
         it('should return false when given an array of DataEntities', () => {
             const input = DataEntity.makeArray([{ hi: true }, { hi: true }]);
             expect(DataEntity.isDataEntity(input)).toBeFalse();
+        });
+
+        it('should return false when called with another type of DataEntity', () => {
+            class OtherEntity extends DataEntity {
+            }
+            const entity = new DataEntity({ og: true });
+            expect(entity).not.toBeInstanceOf(OtherEntity);
         });
     });
 
