@@ -135,6 +135,14 @@ describe('DataEntity', () => {
                 expect(dataEntity.getMetadata('yellow')).toEqual('mellow');
             });
 
+            it('should be able to remove the metadata _key property', () => {
+                dataEntity.setMetadata('_key', undefined);
+                expect(dataEntity.getMetadata('_key')).toBeUndefined();
+                expect(() => {
+                    dataEntity.getKey();
+                }).toThrow();
+            });
+
             const cloneMethods = {
                 fastCloneDeep,
                 cloneDeep,

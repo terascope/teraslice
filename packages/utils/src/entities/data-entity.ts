@@ -206,10 +206,6 @@ export class DataEntity<
         if (field === '_createTime') {
             throw new Error(`Cannot set readonly metadata property ${field}`);
         }
-        if (field === '_key') {
-            return this.setKey(value as any);
-        }
-
         this[i.__ENTITY_METADATA_KEY].metadata[field] = value as any;
     }
 
