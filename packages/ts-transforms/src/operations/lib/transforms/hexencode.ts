@@ -12,7 +12,7 @@ export default class HexEncode extends TransformOpBase {
         return Buffer.from(data).toString('hex');
     }
 
-    run(record: DataEntity): DataEntity | null {
+    run(record: DataEntity): DataEntity {
         return this.execute(record, this.encode);
     }
 }

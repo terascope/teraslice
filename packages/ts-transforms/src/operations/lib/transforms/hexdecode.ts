@@ -12,7 +12,7 @@ export default class HexDecode extends TransformOpBase {
         return Buffer.from(data, 'hex').toString('utf8');
     }
 
-    run(record: DataEntity): DataEntity | null {
+    run(record: DataEntity): DataEntity {
         return this.execute(record, this.decode);
     }
 }

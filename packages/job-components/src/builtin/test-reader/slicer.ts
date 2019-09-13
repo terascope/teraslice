@@ -1,11 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import { parseJSON } from '@terascope/utils';
+import { parseJSON, fastCloneDeep } from '@terascope/utils';
 import { SlicerRecoveryData } from '../../interfaces';
 import { TestReaderConfig } from './interfaces';
 import defaultData from './data/slicer-data';
 import { Slicer } from '../../operations';
-import { dataClone } from './utils';
 
 export default class TestSlicer extends Slicer<TestReaderConfig> {
     requests: object[] = [];
@@ -16,7 +15,7 @@ export default class TestSlicer extends Slicer<TestReaderConfig> {
         const filePath = this.opConfig.slicer_data_file_path;
 
         if (!filePath) {
-            this.requests = dataClone(defaultData);
+            this.requests = fastCloneDeep(defaultData);
             return;
         }
 

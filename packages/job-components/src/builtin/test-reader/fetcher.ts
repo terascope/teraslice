@@ -1,10 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import { parseJSON } from '@terascope/utils';
+import { parseJSON, fastCloneDeep } from '@terascope/utils';
 import { TestReaderConfig } from './interfaces';
 import { Fetcher } from '../../operations';
 import { SliceRequest } from '../../interfaces';
-import { dataClone } from './utils';
 import defaultData from './data/fetcher-data';
 
 export default class TestFetcher extends Fetcher<TestReaderConfig> {
@@ -25,7 +24,7 @@ export default class TestFetcher extends Fetcher<TestReaderConfig> {
 
         const filePath = this.opConfig.fetcher_data_file_path;
         if (!filePath) {
-            return dataClone(defaultData);
+            return fastCloneDeep(defaultData);
         }
 
         if (this.lastFilePath !== filePath) {

@@ -98,10 +98,10 @@ describe('selector operator', () => {
         const results3 = test.run(data3);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData);
+        expect((results1 as DataEntity).getMetadata('selectors')).toEqual(metaData);
         expect(results1).toEqual(data1);
         expect(results2).toEqual(null);
-        expect(DataEntity.getMetadata(results3 as DataEntity, 'selectors')).toEqual(mergedMetaData);
+        expect((results3 as DataEntity).getMetadata('selectors')).toEqual(mergedMetaData);
         expect(results1).toEqual(data3);
     });
 });
