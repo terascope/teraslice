@@ -160,8 +160,7 @@ export class DataEntity<
         if (this.name !== 'DataEntity' && this.name !== 'Object') {
             return false;
         }
-        if (!utils.isDataEntity(instance)) return false;
-        return true;
+        return utils.isDataEntity(instance);
     }
 
     private readonly [i.__ENTITY_METADATA_KEY]: {
