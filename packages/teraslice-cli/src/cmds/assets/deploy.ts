@@ -119,7 +119,7 @@ export = {
                     + 'The --replace option is intended for asset development only.\n'
                     + 'Using it for production asset management is a bad idea.');
 
-                const clusterAssetData = await terasliceClient.assets.get(asset.name);
+                const clusterAssetData = await terasliceClient.assets.getAsset(asset.name);
                 const assetToReplace = clusterAssetData
                     .filter((clusterAsset:any) => clusterAsset.version === asset.version)[0];
 

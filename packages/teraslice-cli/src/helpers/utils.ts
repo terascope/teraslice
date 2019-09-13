@@ -41,7 +41,7 @@ export function getPackage(filePath?: string) {
 }
 
 // TODO: figure out types
-export function getTerasliceClient(cliConfig: any) {
+export function getTerasliceClient(cliConfig: any): TerasliceClient {
     return new TerasliceClient({ host: cliConfig.clusterUrl });
 }
 
