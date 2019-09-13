@@ -1,0 +1,51 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.13.5
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'npm:debug:20170905':
+    - '@terascope/teraslice-messaging > socket.io > socket.io-client > engine.io-client > debug':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io > debug':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io > socket.io-client > debug':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io > socket.io-adapter > debug':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io-client > engine.io-client > debug':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io > engine.io > debug':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io-client > socket.io-parser > debug':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io > socket.io-parser > debug':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io > socket.io-adapter > socket.io-parser > debug':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io > socket.io-client > socket.io-parser > debug':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io-client > debug':
+        patched: '2019-09-13T01:52:56.157Z'
+  'npm:ms:20170412':
+    - '@terascope/teraslice-messaging > socket.io > socket.io-client > socket.io-parser > debug > ms':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io-client > debug > ms':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io > engine.io > debug > ms':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io > socket.io-client > debug > ms':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io > socket.io-adapter > debug > ms':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io-client > engine.io-client > debug > ms':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io > socket.io-client > engine.io-client > debug > ms':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io-client > socket.io-parser > debug > ms':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io > socket.io-parser > debug > ms':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io > socket.io-adapter > socket.io-parser > debug > ms':
+        patched: '2019-09-13T01:52:56.157Z'
+    - '@terascope/teraslice-messaging > socket.io > debug > ms':
+        patched: '2019-09-13T01:52:56.157Z'
