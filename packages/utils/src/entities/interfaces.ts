@@ -18,7 +18,7 @@ export const __IS_WINDOW_KEY: TYPE_IS_WINDOW_KEY = '__isDataWindow';
 export type _DataEntityMetadataType = DataEntityMetadata | AnyObject;
 export type _DataEntityMetadata<M> = M & DataEntityMetadata & AnyObject;
 
-export type DataEntityMetadataValue<M> =
+export type DataEntityMetadataKey<M> =
     (keyof DataEntityMetadata)
     | (keyof M)
     | string

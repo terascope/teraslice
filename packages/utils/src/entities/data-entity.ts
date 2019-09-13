@@ -205,10 +205,10 @@ export class DataEntity<
      * If a field is specified, it will get that property of the metadata
     */
     getMetadata(key?: undefined): i._DataEntityMetadata<M>;
-    getMetadata<K extends i.DataEntityMetadataValue<M>>(key: K): i.EntityMetadataValue<M, K>;
+    getMetadata<K extends i.DataEntityMetadataKey<M>>(key: K): i.DataEntityMetadataValue<M, K>;
 
     @locked()
-    getMetadata<K extends i.DataEntityMetadataValue<M>>(key?: K): i.EntityMetadataValue<M, K>|i._DataEntityMetadata<M> {
+    getMetadata<K extends i.DataEntityMetadataKey<M>>(key?: K): i.DataEntityMetadataValue<M, K>|i._DataEntityMetadata<M> {
         if (key) {
             return this[e.__ENTITY_METADATA_KEY].metadata[key];
         }
@@ -219,7 +219,7 @@ export class DataEntity<
      * Given a field and value set the metadata on the record
     */
     @locked()
-    setMetadata<K extends i.DataEntityMetadataValue<M>, V extends i.EntityMetadataValue<M, K>>(
+    setMetadata<K extends i.DataEntityMetadataKey<M>, V extends i.DataEntityMetadataValue<M, K>>(
         field: K,
         value: V
     ): void {
