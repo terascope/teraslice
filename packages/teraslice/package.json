@@ -1,6 +1,6 @@
 {
     "name": "teraslice",
-    "version": "0.57.0",
+    "version": "0.57.1",
     "description": "Distributed computing platform for processing JSON data",
     "homepage": "https://github.com/terascope/teraslice#readme",
     "bugs": {
@@ -64,7 +64,7 @@
         "uuid": "^3.3.3"
     },
     "devDependencies": {
-        "@terascope/teraslice-op-test-harness": "^1.7.6",
+        "@terascope/teraslice-op-test-harness": "^1.7.7",
         "archiver": "^3.0.0",
         "bufferstreams": "^2.0.1",
         "chance": "^1.0.18",
