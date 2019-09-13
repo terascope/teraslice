@@ -2,13 +2,7 @@
 import fs from 'fs-extra';
 import { TSError } from '@terascope/utils';
 import downloadRelease from '@terascope/fetch-github-release';
-
-interface GithubAssetConfig {
-    arch: string;
-    assetString: string;
-    nodeVersion: string;
-    platform: string;
-}
+import { GithubAssetConfig } from '../interfaces';
 
 export default class GithubAsset {
     arch: string;
@@ -45,14 +39,7 @@ export default class GithubAsset {
         if (version) {
             filterRelease = (r: any) => !r.draft && !r.prerelease && r.tag_name.includes(version);
         } else {
-            filterRelease = (r: any) => {
-                if (!r.draft && !r.prerelease) {
-                    // console.log('what do I got here', r)
-                    return true;
-                }
-                return false;
-                // return !r.draft && !r.prerelease;
-            };
+            filterRelease = (r: any) => !r.draft && !r.prerelease;
         }
 
         const genFilterAsset = (asset: any) => asset.name.indexOf(assetName) >= 0;

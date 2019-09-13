@@ -2,14 +2,14 @@
 import fs from 'fs';
 import path from 'path';
 import nock from 'nock';
-import elasticsearhReleaseJSON from './fixtures/elasticsearch-assets-release.json';
+import elasticsearhReleaseJSON from '../fixtures/elasticsearch-assets-release.json';
 
-export const regAsset = fs.readFileSync(path.resolve(__dirname, './fixtures/regularAsset.zip'));
-export const versionedAsset = fs.readFileSync(path.resolve(__dirname, './fixtures/versionAsset.zip'));
+export const regAsset = fs.readFileSync(path.resolve(__dirname, '../fixtures/regularAsset.zip'));
+export const versionedAsset = fs.readFileSync(path.resolve(__dirname, '../fixtures/versionAsset.zip'));
 
 const testReleaseId = 11111111;
 
-export default class NockServer {
+export default class GithubServer {
     init() {
         const githubURI = 'https://api.github.com';
 
@@ -31,6 +31,7 @@ export default class NockServer {
                     .reply(200, downloadedAssets, { 'Content-Length': length });
             }
         }
+        return scope;
     }
 
     close() {

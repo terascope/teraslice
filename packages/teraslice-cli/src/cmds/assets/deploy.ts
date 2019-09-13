@@ -1,15 +1,13 @@
-// TODO: Implement tests of handler using nock
 // TODO: Let's rework all of the IO that the `reply` module provides and ensure
 //       our commands are as Unix like as possible.
 
 import path from 'path';
 import fs from 'fs-extra';
 import _ from 'lodash';
-
 import AssetSrc from '../../helpers/asset-src';
 import GithubAsset from '../../helpers/github-asset';
 
-import { CMD } from '../../interfaces';
+import { CMD, GithubAssetConfig } from '../../interfaces';
 import Reply from '../lib/reply';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
@@ -36,23 +34,22 @@ export = {
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.conflicts('asset', ['build', 'file']);
         yargs.conflicts('replace', 'skip-upload');
-        // @ts-ignore
-        yargs.example('$0 assets deploy ts-test1');
-         // @ts-ignore
-        yargs.example('$0 assets deploy ts-test1 --build');
-         // @ts-ignore
-        yargs.example('$0 assets deploy ts-test1 terascope/file-assets');
-         // @ts-ignore
-        yargs.example('$0 assets deploy ts-test1 -f /tmp/my-assets.zip');
+        yargs.example('$0 assets deploy ts-test1','Deploys to cluster at aliase ts-test1. This supposes that you are in a dir with an asset/asset.json to deploy');
+        yargs.example('$0 assets deploy ts-test1 --build', 'zips up the current asset and deploys it');
+        yargs.example('$0 assets deploy ts-test1 terascope/file-assets', 'deploys the latest github asset terascope/file-assets to cluster ts-test1');
+        yargs.example('$0 assets deploy ts-test1 terascope/file-assets@v1.2.3', 'deploys the version v1.2.3 github asset terascope/file-assets to cluster ts-test1');
+        yargs.example('$0 assets deploy ts-test1 -f /tmp/my-assets.zip', 'sends the zipfile to be depoyedl ');
         return yargs;
     },
     async handler(argv) {
         const assetJsonPath = path.join('.', 'asset', 'asset.json');
         const assetJsonExists = fs.existsSync(assetJsonPath);
         let assetPath; // path to completed asset zipfile
-        let clusterInfo = {};
+
         const cliConfig = new Config(argv);
         const terasliceClient = getTerasliceClient(cliConfig);
+
+        let clusterInfo:Partial<GithubAssetConfig> = {};
 
         if (cliConfig.args.file) {
             // assetPath explicitly from a user provided file (-f/--file)
@@ -71,35 +68,23 @@ export = {
             // expose this info on the root url, so we get it there if all three are
             // not provided on the command line.
             if (cliConfig.args.arch && cliConfig.args.platform && cliConfig.args.nodeVersion) {
-                 // @ts-ignore
-                clusterInfo.arch = cliConfig.args.arch;
-                 // @ts-ignore
-                clusterInfo.platform = cliConfig.args.platform;
-                 // @ts-ignore
-                clusterInfo.nodeVersion = cliConfig.args.nodeVersion;
+                clusterInfo = {
+                    arch: cliConfig.args.arch,
+                    platform: cliConfig.args.platform,
+                    nodeVersion: cliConfig.args.nodeVersion,
+                    assetString: cliConfig.args.asset
+                }
                 // TODO: We should prevent people from uploading the wrong arch
                 // if cluster.info() is available
             } else {
                 try {
-                    clusterInfo = await terasliceClient.cluster.info();
-                    // Teraslice returns node_version but should be nodeVersion here
-                     // @ts-ignore
-                    clusterInfo.nodeVersion = clusterInfo.node_version;
+                    const clusterInfoResponse = await terasliceClient.cluster.info();
+                    clusterInfo = Object.assign({}, clusterInfoResponse,  { nodeVersion: clusterInfoResponse.node_version, assetString: cliConfig.args.asset })
                 } catch (err) {
                     reply.fatal(`Unable to get cluster information from ${cliConfig.args.clusterAlias}: ${err.stack}`);
                 }
             }
-
-            const asset = new GithubAsset({
-                 // @ts-ignore
-                arch: clusterInfo.arch,
-                 // @ts-ignore
-                assetString: cliConfig.args.asset,
-                 // @ts-ignore
-                platform: clusterInfo.platform,
-                 // @ts-ignore
-                nodeVersion: clusterInfo.nodeVersion
-            });
+            const asset = new GithubAsset(clusterInfo as GithubAssetConfig);
 
             try {
                 assetPath = await asset.download(cliConfig.assetDir, cliConfig.args.quiet);

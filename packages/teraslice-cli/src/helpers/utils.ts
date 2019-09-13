@@ -5,8 +5,12 @@ import TerasliceClient from 'teraslice-client-js';
 import fs from 'fs';
 import path from 'path';
 
+function sanitize(str: string) {
+    return str.replace(/[?$#@_-]/g, ' ');
+}
+
 export function kebabCase(str: string) {
-    return str
+    return sanitize(str)
         .replace(/([a-z])([A-Z])/g, '$1-$2')
         .replace(/\s+/g, '-')
         .toLowerCase();
@@ -15,7 +19,7 @@ export function kebabCase(str: string) {
 export function snakeCase(str: string) {
     if (!str) return '';
 
-    return String(str)
+    return sanitize(str)
         .replace(/^[^A-Za-z0-9]*|[^A-Za-z0-9]*$/g, '')
         .replace(/([a-z])([A-Z])/g, (m, a, b) => `${a}_${b.toLowerCase()}`)
         .replace(/[^A-Za-z0-9]+|_+/g, '_')
@@ -23,7 +27,8 @@ export function snakeCase(str: string) {
 }
 
 export function camelCase(str: string) {
-    return str.replace(/\W+(.)/g, (match, chr) => chr.toUpperCase());
+    return sanitize(str)
+        .replace(/\W+(.)/g, (match, chr) => chr.toUpperCase());
 }
 
 export function getPackage(filePath?: string) {

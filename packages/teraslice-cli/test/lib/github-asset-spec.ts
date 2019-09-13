@@ -4,9 +4,9 @@ import fs from 'fs-extra';
 import decompress from 'decompress';
 import path from 'path';
 import GithubAsset from '../../src/helpers/github-asset';
-import NockServer from '../nock-server';
+import { GithubServer } from '../servers';
 
-const server = new NockServer();
+const server = new GithubServer();
 
 describe('GithubAsset', () => {
     let config: any;
