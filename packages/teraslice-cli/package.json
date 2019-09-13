@@ -37,8 +37,8 @@
     },
     "dependencies": {
         "@terascope/fetch-github-release": "^0.6.0",
-        "@types/decompress": "^4.2.3",
         "@terascope/utils": "^0.20.1",
+        "@types/decompress": "^4.2.3",
         "archiver": "^3.0.0",
         "bluebird": "^3.5.5",
         "chalk": "^2.4.2",
