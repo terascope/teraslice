@@ -4,7 +4,31 @@ import { TestCase } from './interfaces';
 export default [
     [
         'location:(_geo_point_:"33.435518,-111.873616" _geo_distance_:5000m)',
-        'a geo distance query with point first',
+        'a geo distance query with point double quoted',
+        {
+            type: ASTType.GeoDistance,
+            field: 'location',
+            lat: 33.435518,
+            lon: -111.873616,
+            distance: 5000,
+            unit: 'meters',
+        },
+    ],
+    [
+        "location:(_geo_point_:'33.435518,-111.873616' _geo_distance_:5000m)",
+        'a geo distance query with point single quoted',
+        {
+            type: ASTType.GeoDistance,
+            field: 'location',
+            lat: 33.435518,
+            lon: -111.873616,
+            distance: 5000,
+            unit: 'meters',
+        },
+    ],
+    [
+        "location:(_geo_point_:'33.435518,-111.873616' _geo_distance_:'5000m')",
+        'a geo distance query with point single quoted and geo_distance single quoted',
         {
             type: ASTType.GeoDistance,
             field: 'location',

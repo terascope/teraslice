@@ -131,8 +131,8 @@ export default [
             type: ASTType.Term,
             field_type: FieldType.String,
             field: 'foo',
-            quoted: false,
-            value: "'bar'",
+            quoted: true,
+            value: 'bar',
         },
         {
             foo: FieldType.String

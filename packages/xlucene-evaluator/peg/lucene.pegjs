@@ -549,9 +549,10 @@ CharWithoutWS "term"
 
 QuotedTerm
   = '"' chars:DoubleStringChar* '"' { return chars.join(''); }
+  / "'" chars:DoubleStringChar* "'" { return chars.join(''); }
 
 DoubleStringChar
-  = !('"' / Escape) char:. { return char; }
+  = !('"' / "'" / Escape) char:. { return char; }
   / Escape sequence:ReservedChar { return '\\' + sequence; }
 
 RegexStringChar
