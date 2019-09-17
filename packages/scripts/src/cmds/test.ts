@@ -50,6 +50,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 default: config.REPORT_COVERAGE,
             })
             .option('watch', {
+                alias: 'w',
                 description: 'Run tests in an interactive watch mode, this will test only the changed files',
                 type: 'boolean',
                 default: false,
@@ -108,6 +109,9 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const debug = hoistJestArg(argv, 'debug');
         const watch = hoistJestArg(argv, 'watch');
         const bail = hoistJestArg(argv, 'bail');
+        if (debug && watch) {
+            throw new Error('--debug and --watch conflict, please set one or the other');
+        }
 
         return runTests(getPkgInfos(argv.packages), {
             debug,
