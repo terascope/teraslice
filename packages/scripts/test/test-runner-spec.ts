@@ -42,16 +42,40 @@ describe('Test Runner Helpers', () => {
     });
 
     describe('->groupBySuite', () => {
-        it('should be able to group by suite', () => {
-            const grouped = groupBySuite(packages);
-            for (const [suite, group] of Object.entries(grouped)) {
-                const options: any = {
+        describe('when running all tests', () => {
+            it('should be able to group by suite', () => {
+                const grouped = groupBySuite(packages, {} as any);
+                for (const [suite, group] of Object.entries(grouped)) {
+                    const filtered = filterBySuite(packages, {
+                        all: false,
+                        suite,
+                    } as any);
+                    expect(group).toEqual(filtered);
+                }
+            });
+        });
+
+        describe('when running all tests in watch mode', () => {
+            it('should be able group elasticsearch and unit together', () => {
+                const grouped = groupBySuite(packages, {
+                    watch: true
+                } as any);
+
+                const elasticsearchTests = filterBySuite(packages, {
                     all: false,
-                    suite,
-                };
-                const filtered = filterBySuite(packages, options);
-                expect(group).toEqual(filtered);
-            }
+                    suite: TestSuite.Elasticsearch,
+                } as any);
+                const unitTests = filterBySuite(packages, {
+                    all: false,
+                    suite: TestSuite.Unit,
+                } as any);
+
+                expect(grouped[TestSuite.Unit]).toBeArrayOfSize(0);
+                expect(grouped[TestSuite.Elasticsearch]).toEqual([
+                    ...unitTests,
+                    ...elasticsearchTests,
+                ]);
+            });
         });
     });
 });

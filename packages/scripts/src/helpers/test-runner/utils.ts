@@ -129,7 +129,7 @@ export function onlyUnitTests(pkgInfos: PackageInfo[]): boolean {
     return pkgInfos.every((pkgInfo) => pkgInfo.terascope.testSuite === TestSuite.Unit);
 }
 
-export function groupBySuite(pkgInfos: PackageInfo[]): GroupedPackages {
+export function groupBySuite(pkgInfos: PackageInfo[], options: TestOptions): GroupedPackages {
     const groups: GroupedPackages = {
         [TestSuite.Unit]: [],
         [TestSuite.Elasticsearch]: [],
@@ -141,6 +141,14 @@ export function groupBySuite(pkgInfos: PackageInfo[]): GroupedPackages {
         const suite = pkgInfo.terascope.testSuite || TestSuite.Disabled;
         if (suite === TestSuite.Disabled) continue;
         groups[suite].push(pkgInfo);
+    }
+
+    if (!options.suite && options.watch && groups[TestSuite.Elasticsearch].length) {
+        groups[TestSuite.Elasticsearch] = [
+            ...groups[TestSuite.Unit],
+            ...groups[TestSuite.Elasticsearch]
+        ];
+        groups[TestSuite.Unit] = [];
     }
 
     return groups;

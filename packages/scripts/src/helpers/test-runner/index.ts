@@ -63,7 +63,7 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
         return [];
     }
 
-    const grouped = utils.groupBySuite(filtered);
+    const grouped = utils.groupBySuite(filtered, options);
 
     const errors: string[] = [];
     let ranOnce = false;
