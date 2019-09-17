@@ -382,9 +382,9 @@ describe('transform operator', () => {
         const results3 = test3.run(data2);
 
         expect(DataEntity.isDataEntity(results2)).toEqual(true);
-        expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect((results2 as DataEntity).getMetadata('selectors')).toEqual(metaData.selectors);
         expect(DataEntity.isDataEntity(results3)).toEqual(true);
-        expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect((results3 as DataEntity).getMetadata('selectors')).toEqual(metaData.selectors);
     });
 
     it('can set a field using expr', () => {

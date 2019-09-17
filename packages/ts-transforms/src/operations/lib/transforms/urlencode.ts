@@ -12,7 +12,7 @@ export default class UrlEncode extends TransformOpBase {
         return encodeURI(data);
     }
 
-    run(record: DataEntity): DataEntity | null {
+    run(record: DataEntity): DataEntity {
         return this.execute(record, this.encode);
     }
 }

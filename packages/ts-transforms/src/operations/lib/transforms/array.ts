@@ -30,7 +30,7 @@ export default class MakeArray extends TransformOpBase {
         this.target = tField;
     }
 
-    run(doc: DataEntity): DataEntity | null {
+    run(doc: DataEntity): DataEntity {
         const results: any[] = [];
         this.fields.forEach((field) => {
             const data = get(doc, field);

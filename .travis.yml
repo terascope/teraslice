@@ -16,7 +16,7 @@ install:
     # Install the dependencies
     - yarn
     # Build setup the build
-    - yarn setup
+    - yarn quick:setup
 
 # set up build matrix
 # specify jobs (stages are serial, and scripts are parallel within a stage)

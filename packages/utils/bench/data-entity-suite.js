@@ -67,17 +67,6 @@ const run = async () => Suite('DataEntity')
             return entity;
         }
     })
-    .add('DataEntity.makeRaw', {
-        fn() {
-            const input = fastCloneDeep(data);
-            // eslint-disable-next-line prefer-destructuring
-            let entity = DataEntity.makeRaw(input, metadata).entity;
-            entity.hello = Math.random();
-            entity.hello;
-            entity = null;
-            return entity;
-        }
-    })
     .run({
         async: true,
         initCount: 1,

@@ -60,15 +60,15 @@ describe('Uuid validation', () => {
         const results12 = test.run(data12);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(DataEntity.getMetadata(results1 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results1.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results1).toEqual({});
-        expect(DataEntity.getMetadata(results2 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results2.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results2).toEqual({});
         expect(results3).toEqual({});
         expect(results4).toEqual({});
         expect(results5).toEqual({});
         expect(results6).toEqual({});
-        expect(DataEntity.getMetadata(results6 as DataEntity, 'selectors')).toEqual(metaData.selectors);
+        expect(results6.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results7).toEqual({});
         expect(results8).toEqual({ field: '1c7ce488-f4ad-4aae-a6f4-76f9cd5c8635' });
         expect(results9).toEqual({ field: 'a77da370-15df-11e9-b726-396c5e1cc8ce' });
