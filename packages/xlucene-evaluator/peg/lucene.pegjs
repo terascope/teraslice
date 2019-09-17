@@ -115,6 +115,9 @@ OrConjunction
     / left:TermGroup ws+ right:FieldOrQuotedTermGroup {
         return [left, right]
     }
+    // / left:TermGroup {
+    //     return [left]
+    // }
 
 TermGroup
     = NegationExpression / ParensGroup / TermExpression
@@ -227,6 +230,9 @@ GeoTermExpression
 
 ParensStringType
     = ParensStart ws* term:UnqoutedStringType ws* ParensEnd {
+        return term;
+    }
+    / ParensStart ws* term:QuotedStringType ws* ParensEnd {
         return term;
     }
 

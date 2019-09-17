@@ -92,6 +92,7 @@ export interface NumberDataType {
 export interface StringDataType {
     field_type: FieldType.String;
     value: string;
+    quoted: boolean;
 }
 
 export interface BooleanDataType {
