@@ -66,12 +66,8 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
     const grouped = utils.groupBySuite(filtered, options);
 
     const errors: string[] = [];
-    let ranOnce = false;
-
     for (const [suite, pkgs] of Object.entries(grouped)) {
-        if (!pkgs.length) continue;
-
-        writeHeader(`Running test suite "${suite}"`, ranOnce);
+        if (!pkgs.length || suite === TestSuite.E2E) continue;
 
         try {
             const suiteErrors: string[] = await runTestSuite(suite as TestSuite, pkgs, options);
@@ -84,8 +80,6 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
         } catch (err) {
             errors.push(getFullErrorStack(err));
             break;
-        } finally {
-            ranOnce = true;
         }
     }
 
@@ -98,66 +92,70 @@ async function runTestSuite(
     options: TestOptions
 ): Promise<string[]> {
     if (suite === TestSuite.E2E) return [];
-    let cleanup = () => {};
     const errors: string[] = [];
 
-    try {
-        cleanup = await ensureServices(suite, options);
-    } catch (err) {
-        errors.push(getFullErrorStack(err));
+    // jest or our tests have a memory leak, limiting this seems to help
+    const MAX_CHUNK_SIZE = isCI ? 5 : 10;
+    const CHUNK_SIZE = options.debug ? 1 : MAX_CHUNK_SIZE;
+
+    if (options.watch && pkgInfos.length > MAX_CHUNK_SIZE) {
+        throw new Error(
+            `Running more than ${MAX_CHUNK_SIZE} packages will cause memory leaks`
+        );
     }
 
-    if (!errors.length) {
-        // jest or our tests have a memory leak, limiting this to 5 seems to help
-        const chunked = chunk(pkgInfos, options.debug ? 1 : 5);
-        const timeLabel = `test suite "${suite}"`;
-        signale.time(timeLabel);
+    writeHeader(`Running test suite "${suite}"`, true);
 
-        const env = printAndGetEnv(suite, options);
+    const cleanup = await ensureServices(suite, options);
 
-        let chunkIndex = -1;
-        for (const pkgs of chunked) {
-            chunkIndex++;
+    const chunked = chunk(pkgInfos, CHUNK_SIZE);
+    const timeLabel = `test suite "${suite}"`;
+    signale.time(timeLabel);
 
-            if (!pkgs.length) continue;
-            if (pkgs.length === 1) {
-                writePkgHeader('Running test', pkgs, true);
-            } else {
-                writeHeader(`Running batch of ${pkgs.length} tests`, true);
-            }
+    const env = printAndGetEnv(suite, options);
 
-            const args = utils.getArgs(options);
-            args.projects = pkgs.map((pkgInfo) => path.join('packages', pkgInfo.folderName));
+    let chunkIndex = -1;
+    for (const pkgs of chunked) {
+        chunkIndex++;
 
-            try {
-                await runJest(getRootDir(), args, env, options.jestArgs);
-            } catch (err) {
-                if (pkgs.length > 1) {
-                    const error = new TSError(err, {
-                        message: `At least one of these tests failed ${pkgs.map((pkgInfo) => pkgInfo.name).join(', ')} failed`,
-                    });
-                    errors.push(getFullErrorStack(error));
-                } else {
-                    const error = new TSError(err, {
-                        message: `Test ${pkgs.map((pkgInfo) => pkgInfo.name).join(', ')} failed`,
-                    });
-                    errors.push(getFullErrorStack(error));
-                }
-
-                await utils.globalTeardown(options, pkgs.map(({ name, dir }) => ({ name, dir })));
-
-                if (options.bail) {
-                    break;
-                }
-            } finally {
-                if (options.reportCoverage) {
-                    await utils.reportCoverage(suite, chunkIndex);
-                }
-            }
+        if (!pkgs.length) continue;
+        if (pkgs.length === 1) {
+            writePkgHeader('Running test', pkgs, true);
+        } else {
+            writeHeader(`Running batch of ${pkgs.length} tests`, true);
         }
 
-        signale.timeEnd(timeLabel);
+        const args = utils.getArgs(options);
+        args.projects = pkgs.map((pkgInfo) => path.join('packages', pkgInfo.folderName));
+
+        try {
+            await runJest(getRootDir(), args, env, options.jestArgs);
+        } catch (err) {
+            if (pkgs.length > 1) {
+                const error = new TSError(err, {
+                    message: `At least one of these tests failed ${pkgs.map((pkgInfo) => pkgInfo.name).join(', ')} failed`,
+                });
+                errors.push(getFullErrorStack(error));
+            } else {
+                const error = new TSError(err, {
+                    message: `Test ${pkgs.map((pkgInfo) => pkgInfo.name).join(', ')} failed`,
+                });
+                errors.push(getFullErrorStack(error));
+            }
+
+            await utils.globalTeardown(options, pkgs.map(({ name, dir }) => ({ name, dir })));
+
+            if (options.bail) {
+                break;
+            }
+        } finally {
+            if (options.reportCoverage) {
+                await utils.reportCoverage(suite, chunkIndex);
+            }
+        }
     }
+
+    signale.timeEnd(timeLabel);
 
     cleanup();
     return errors;
