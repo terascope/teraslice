@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { listPackages } from '../src/helpers/packages';
 import { onlyUnitTests, filterBySuite, groupBySuite } from '../src/helpers/test-runner/utils';
-import { TestSuite } from '../src/helpers/interfaces';
+import { TestSuite, PackageInfo } from '../src/helpers/interfaces';
 
 describe('Test Runner Helpers', () => {
     const packages = listPackages();
@@ -44,38 +44,84 @@ describe('Test Runner Helpers', () => {
     describe('->groupBySuite', () => {
         describe('when running all tests', () => {
             it('should be able to group by suite', () => {
-                const grouped = groupBySuite(packages, {} as any);
+                const grouped = groupBySuite(packages, {
+                    all: true,
+                } as any);
                 for (const [suite, group] of Object.entries(grouped)) {
                     const filtered = filterBySuite(packages, {
                         all: false,
                         suite,
                     } as any);
-                    expect(group).toEqual(filtered);
+                    expect(mapInfo(group)).toEqual(mapInfo(filtered));
                 }
             });
         });
 
         describe('when running all tests in watch mode', () => {
             it('should be able group elasticsearch and unit together', () => {
-                const grouped = groupBySuite(packages, {
-                    watch: true
-                } as any);
-
                 const elasticsearchTests = filterBySuite(packages, {
-                    all: false,
+                    all: true,
                     suite: TestSuite.Elasticsearch,
                 } as any);
+
                 const unitTests = filterBySuite(packages, {
-                    all: false,
+                    all: true,
                     suite: TestSuite.Unit,
                 } as any);
 
-                expect(grouped[TestSuite.Unit]).toBeArrayOfSize(0);
-                expect(grouped[TestSuite.Elasticsearch]).toEqual([
+                const unitAndESPackages = [
                     ...unitTests,
                     ...elasticsearchTests,
-                ]);
+                ];
+
+                const grouped = groupBySuite(packages, {
+                    all: true,
+                    watch: true
+                } as any);
+
+                expect(mapInfo(grouped[TestSuite.Unit])).toBeArrayOfSize(0);
+                expect(mapInfo(grouped[TestSuite.Elasticsearch])).toEqual(
+                    mapInfo(unitAndESPackages)
+                );
+            });
+        });
+
+        describe('when a unit test and none-unit test, it should group them together', () => {
+            it('should be able group elasticsearch and unit together', () => {
+                const elasticsearchTests = filterBySuite(packages, {
+                    all: false,
+                    suite: TestSuite.Elasticsearch,
+                } as any).slice(0, 2);
+
+                const unitTests = filterBySuite(packages, {
+                    all: false,
+                    suite: TestSuite.Unit,
+                } as any).slice(0, 2);
+
+                const unitAndESPackages = [
+                    ...unitTests,
+                    ...elasticsearchTests,
+                ];
+
+                const grouped = groupBySuite(unitAndESPackages, {
+                    all: false,
+                } as any);
+
+                expect(mapInfo(grouped[TestSuite.Unit])).toBeArrayOfSize(0);
+                expect(mapInfo(grouped[TestSuite.Elasticsearch])).toEqual(
+                    mapInfo(unitAndESPackages)
+                );
             });
         });
     });
 });
+
+/**
+ * Used for more readable test failures
+*/
+function mapInfo(pkgInfos: PackageInfo[]): { name: string; suite?: TestSuite }[] {
+    return pkgInfos.map((pkgInfo) => ({
+        name: pkgInfo.name,
+        suite: pkgInfo.terascope.testSuite
+    }));
+}

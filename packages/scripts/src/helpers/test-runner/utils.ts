@@ -143,7 +143,9 @@ export function groupBySuite(pkgInfos: PackageInfo[], options: TestOptions): Gro
         groups[suite].push(pkgInfo);
     }
 
-    if (!options.suite && options.watch && groups[TestSuite.Elasticsearch].length) {
+    const isWatchAll = !options.suite && options.watch;
+    const isNotAll = !options.all;
+    if ((isNotAll || isWatchAll) && groups[TestSuite.Elasticsearch].length) {
         groups[TestSuite.Elasticsearch] = [
             ...groups[TestSuite.Unit],
             ...groups[TestSuite.Elasticsearch]
