@@ -307,6 +307,12 @@ GeoTermType
             ...bottomRight
         }
     }
+    / points:GeoPolygon {
+        return {
+            type: i.ASTType.GeoPolygon,
+            ...points
+        }
+    }
 
 LeftRangeType
     = NegativeInfinityType / RangeTermType
@@ -459,6 +465,30 @@ GeoBottomRight
          }
     }
 
+GeoPolygon
+    = GeoPolygonKeyword ws* FieldSeparator ws* points:List ws* {
+        console.log('what are the points', points)
+        const results = [];
+        for (const point of points) {
+            results.push(parseGeoPoint(point.value))
+        }
+        if (results.length < 3) throw new Error('a geo_polygon query must have at least three geo-pointsin the list')
+        return {
+            points: results
+        }
+    }
+
+List
+    = ListStart  ws* list: ListItem ws* ListEnd {
+        return list;
+    }
+
+ListItem
+    = item:TermExpression ws* Comma* ws* items:ListItem? {
+         if (items) return [item, ...items]
+         return [item]
+    }
+
 UnquotedTerm
     = chars:TermChar+ {
         return chars.join('');
@@ -496,6 +526,9 @@ GeoTopLeftKeyword
 GeoBottomRightKeyword
     = '_geo_box_bottom_right_'
 
+GeoPolygonKeyword
+    = '_geo_polygon_'
+
 ExistsKeyword
     = '_exists_'
 
@@ -526,6 +559,15 @@ ParensStart
 
 ParensEnd
     = ')'
+
+ListStart
+    = '['
+
+ListEnd
+    = ']'
+
+Comma
+    = ','
 
 WildcardCharSet "wildcard"
   = $([^\?\*\( ]* ('?' / '*')+ [^\?\*\) ]*)

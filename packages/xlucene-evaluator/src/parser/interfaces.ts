@@ -25,12 +25,12 @@ export interface TypeConfig {
 export type AST = EmptyAST & LogicalGroup & Term
 & Conjunction & Negation & FieldGroup
 & Exists & Range & GeoDistance
-& GeoBoundingBox & Regexp & Wildcard;
+& GeoBoundingBox & Regexp & Wildcard & GeoPolygon;
 
 export type AnyAST = EmptyAST | LogicalGroup | Term
 | Conjunction | Negation | FieldGroup
 | Exists | Range | GeoDistance
-| GeoBoundingBox | Regexp | Wildcard;
+| GeoBoundingBox | Regexp | Wildcard | GeoPolygon;
 
 export type GroupLike = FieldGroup|LogicalGroup;
 export type GroupLikeType = ASTType.LogicalGroup|ASTType.FieldGroup;
@@ -40,14 +40,15 @@ export interface GroupLikeAST {
     flow: Conjunction[];
 }
 
-export type TermLike = Term|Regexp|Range|Wildcard|GeoBoundingBox|GeoDistance;
+export type TermLike = Term|Regexp|Range|Wildcard|GeoBoundingBox|GeoDistance|GeoPolygon;
 export type TermLikeType =
     ASTType.Term|
     ASTType.Regexp|
     ASTType.Range|
     ASTType.Wildcard|
     ASTType.GeoBoundingBox|
-    ASTType.GeoDistance;
+    ASTType.GeoDistance|
+    ASTType.GeoPolygon;
 
 export interface TermLikeAST {
     type: TermLikeType;
@@ -64,6 +65,7 @@ export enum ASTType {
     Range = 'range',
     GeoDistance = 'geo-distance',
     GeoBoundingBox = 'geo-bounding-box',
+    GeoPolygon = 'geo-polygon',
     Regexp = 'regexp',
     Wildcard = 'wildcard',
     Empty = 'empty',
@@ -153,6 +155,12 @@ export interface GeoBoundingBox extends TermLikeAST {
     field_type: FieldType.Geo;
     top_left: GeoPoint;
     bottom_right: GeoPoint;
+}
+
+export interface GeoPolygon extends TermLikeAST {
+    type: ASTType.GeoPolygon;
+    field_type: FieldType.Geo;
+    points: GeoPoint[];
 }
 
 export interface Regexp extends StringDataType, TermLikeAST {

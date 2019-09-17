@@ -71,6 +71,10 @@ export function translateQuery(
         if (p.isGeoDistance(node)) {
             return buildGeoDistanceQuery(node);
         }
+
+        if (p.isGeoPolygon(node)) {
+            return buildGeoPolygonQuery(node);
+        }
     }
 
     function buildMultiMatchQuery(node: p.TermLikeAST, query: string): i.MultiMatchQuery {
@@ -82,6 +86,21 @@ export function translateQuery(
 
         logger.trace('built mutli-match query', { node, multiMatchQuery });
         return multiMatchQuery;
+    }
+
+    function buildGeoPolygonQuery(node: p.GeoPolygon): i.GeoQuery | undefined {
+        if (isMultiMatch(node)) return;
+
+        const field = getTermField(node);
+        const geoQuery: i.GeoQuery = {};
+
+        geoQuery.geo_polygon = {
+            [field]: {
+                points: node.points
+            }
+        };
+
+        return geoQuery;
     }
 
     function buildGeoBoundingBoxQuery(node: p.GeoBoundingBox): i.GeoQuery | undefined {

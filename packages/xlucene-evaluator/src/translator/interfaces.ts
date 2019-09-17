@@ -67,6 +67,11 @@ export interface GeoQuery {
         distance: string;
         [field: string]: p.GeoPoint | string;
     };
+    geo_polygon?: {
+        [field: string]: {
+            points: p.GeoPoint[] | string[];
+        };
+    };
 }
 
 export interface RegExprQuery {

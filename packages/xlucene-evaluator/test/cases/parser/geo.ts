@@ -94,4 +94,26 @@ export default [
             },
         },
     ],
+    [
+        'location:(_geo_polygon_:["123.43,223.43", "102.3,123.4", "99.3,154.4"])',
+        'a geo polygon query',
+        {
+            type: 'geo-polygon',
+            field: 'location',
+            points: [
+                {
+                    lat: 123.43,
+                    lon: 223.43
+                },
+                {
+                    lat: 102.3,
+                    lon: 123.4
+                },
+                {
+                    lat: 99.3,
+                    lon: 154.4
+                }
+            ]
+        }
+    ]
 ] as TestCase[];
