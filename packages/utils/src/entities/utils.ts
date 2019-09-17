@@ -1,14 +1,16 @@
 import * as i from './interfaces';
+import { isString } from '../strings';
+import { isNumber } from '../numbers';
 
-export function defineProperties(entity: any): void {
-    Object.defineProperty(entity, i.__IS_ENTITY_KEY, {
+export function defineEntityProperties(entity: any): void {
+    Object.defineProperty(entity, i.__IS_DATAENTITY_KEY, {
         value: true,
         configurable: false,
         enumerable: false,
         writable: false,
     });
 
-    Object.defineProperty(entity, i.__DATAENTITY_METADATA_KEY, {
+    Object.defineProperty(entity, i.__ENTITY_METADATA_KEY, {
         value: {},
         configurable: false,
         enumerable: false,
@@ -16,19 +18,20 @@ export function defineProperties(entity: any): void {
     });
 }
 
-export function createMetadata<M>(metadata: M): i.EntityMetadata<M> {
-    return { ...createCoreMetadata(), ...metadata } as i.EntityMetadata<M>;
+export function createMetadata<M>(metadata: M): i._DataEntityMetadata<M> {
+    return { ...createCoreMetadata(), ...metadata } as i._DataEntityMetadata<M>;
 }
 
-export function makeMetadata<M extends i.EntityMetadataType>(
+export function makeMetadata<M extends i._DataEntityMetadataType>(
     metadata?: M|undefined
-): i.EntityMetadata<M> {
+): i._DataEntityMetadata<M> {
     if (!metadata) return createCoreMetadata();
     return createMetadata(metadata);
 }
 
-export function createCoreMetadata<M extends i.EntityMetadataType>(): i.EntityMetadata<M> {
-    return { _createTime: Date.now() } as i.EntityMetadata<M>;
+export function createCoreMetadata<M extends i._DataEntityMetadataType>(
+): i._DataEntityMetadata<M> {
+    return { _createTime: Date.now() } as i._DataEntityMetadata<M>;
 }
 
 export function jsonToBuffer(input: any): Buffer {
@@ -36,5 +39,12 @@ export function jsonToBuffer(input: any): Buffer {
 }
 
 export function isValidKey(key: any): key is string|number {
-    return Boolean(key != null && key !== '');
+    if (key == null) return false;
+    if (isString(key) && key !== '') return true;
+    if (isNumber(key)) return true;
+    return false;
+}
+
+export function isDataEntity(input: any): boolean {
+    return Boolean(input != null && input[i.__IS_DATAENTITY_KEY] === true);
 }

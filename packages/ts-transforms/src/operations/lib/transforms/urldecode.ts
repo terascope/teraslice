@@ -12,7 +12,7 @@ export default class UrlDecode extends TransformOpBase {
         return decodeURI(data);
     }
 
-    run(record: DataEntity): DataEntity | null {
+    run(record: DataEntity): DataEntity {
         return this.execute(record, this.decode);
     }
 }
