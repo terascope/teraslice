@@ -7,6 +7,9 @@
         parseInferredTermType,
         isInferredTermType,
         propagateDefaultField,
+        geoDistanceParams,
+        geoBoxParams,
+        geoPolygonParams
     } = makeContext(options.contextArg);
 }
 
@@ -171,7 +174,9 @@ BaseTermExpression
             field,
         }
     }
-    / GeoTermExpression
+    / FunctionExpression
+    // for backwards compatability
+    / OldGeoTermExpression
     / FieldGroup
     / field:FieldName ws* FieldSeparator ws* term:InferredTermType {
         const node = { ...term, field };
@@ -220,8 +225,150 @@ FieldOrQuotedTermExpression
         }
     }
 
-GeoTermExpression
-    = field:FieldName ws* FieldSeparator ws* ParensStart ws* term:GeoTermType ws* ParensEnd {
+FunctionExpression
+    = field:FieldName ws* FieldSeparator ws* term:FunctionTerm {
+        return {
+            ...term,
+            field,
+        };
+    }
+
+FunctionTerm
+    = GeoFunction
+
+
+GeoFunction
+    = GeoDistanceFunctionKeyword ws* ParensStart ws* params:GeoFunctionParams ws* ParensEnd {
+        const results = geoDistanceParams(params);
+
+        return {
+            type: i.ASTType.GeoDistance,
+            ...results,
+        }
+    }
+    / GeoBoxFunctionKeyword ws* ParensStart ws* params:GeoFunctionParams ws* ParensEnd {
+        const results = geoBoxParams(params);
+
+        return {
+            type: i.ASTType.GeoBoundingBox,
+            ...results
+        }
+    }
+    / GeoPolygonFunctionKeyword ws* ParensStart ws* params:GeoFunctionParams ws* ParensEnd {
+        const points = geoPolygonParams(params);
+
+        return {
+            type: i.ASTType.GeoPolygon,
+            points
+        }
+    }
+
+GeoFunctionParams
+    = ws* param:GeoParam ws* Comma* ws* params:GeoParam? {
+         if (params) return [param, params]
+         return [param]
+    }
+
+GeoParam
+    = GeoPoint
+    / GeoDistance
+    / TopLeft
+    / BottomRight
+    / GeoPoints
+
+GeoPoint
+    = field:GeoPointKeyword ws* FieldSeparator ws* point:QuotedTerm {
+        return {
+            field,
+            value: parseGeoPoint(point)
+        }
+    }
+    / field:GeoPointKeyword ws* FieldSeparator ws* point:UnquotedTerm {
+        return {
+            field,
+            value: parseGeoPoint(point)
+        }
+    }
+
+TopLeft
+    = field:GeoTopLeftKeyword ws* FieldSeparator ws* point:QuotedTerm {
+        return {
+            field,
+            value: parseGeoPoint(point)
+        }
+    }
+    / field:GeoTopLeftKeyword ws* FieldSeparator ws* point:UnquotedTerm {
+        return {
+            field,
+            value: parseGeoPoint(point)
+        }
+    }
+
+BottomRight
+    = field:GeoBottomRightKeyword ws* FieldSeparator ws* point:QuotedTerm {
+        return {
+            field,
+            value: parseGeoPoint(point)
+        }
+    }
+    / field:GeoBottomRightKeyword ws* FieldSeparator ws* point:UnquotedTerm {
+        return {
+            field,
+            value: parseGeoPoint(point)
+        }
+    }
+
+GeoDistance
+    = field:GeoDistanceKeyword ws* FieldSeparator ws* distance:QuotedTerm {
+        return {
+            field,
+            value: parseGeoDistance(distance)
+        }
+    }
+    / field:GeoDistanceKeyword ws* FieldSeparator ws* distance:UnquotedTerm {
+         return {
+            field,
+            value: parseGeoDistance(distance)
+        }
+    }
+
+GeoPoints
+    = field:GeoPointsKeyword ws* FieldSeparator ws* ListStart  ws* list: ListItem ws* ListEnd {
+        const points = [];
+        for (const node of list) {
+            points.push(parseGeoPoint(node.value));
+        }
+
+        return {
+            field,
+            value: points
+        }
+    }
+
+// We are not currectly allowing this to be used across the whole system other than for geo points
+// If we were to use this across the system ListItem would become a grammar "type"
+// Im keeping it contained for now until we see how this evolves for general use
+
+ListExpression
+    = field:FieldName ws* FieldSeparator ws* ListStart  ws* list: ListItem ws* ListEnd {
+        const points = [];
+        for (const node of list) {
+            points.push(node.value);
+        }
+        return {
+            field,
+            points
+        }
+    }
+
+ListItem
+    = item:TermExpression ws* Comma* ws* items:ListItem? {
+         if (items) return [item, ...items]
+         return [item]
+    }
+
+OldGeoTermExpression
+    = field:FieldName ws* FieldSeparator ws* ParensStart ws* term:OldGeoTermType ws* ParensEnd {
         return {
             ...term,
             field,
@@ -278,39 +425,33 @@ RightRangeExpression
         }
     }
 
-GeoTermType
-    = point:GeoPoint ws* distance:GeoDistance {
+OldGeoTermType
+    = point:OldGeoPoint ws* distance:OldGeoDistance {
         return {
             type: i.ASTType.GeoDistance,
             ...point,
             ...distance
         }
     }
-    / distance:GeoDistance ws* point:GeoPoint {
+    / distance:OldGeoDistance ws* point:OldGeoPoint {
         return {
             type: i.ASTType.GeoDistance,
             ...point,
             ...distance
         }
     }
-    / topLeft:GeoTopLeft ws* bottomRight:GeoBottomRight {
+    / topLeft:OldGeoTopLeft ws* bottomRight:OldGeoBottomRight {
         return {
             type: i.ASTType.GeoBoundingBox,
             ...topLeft,
             ...bottomRight
         }
     }
-    / bottomRight:GeoBottomRight ws* topLeft:GeoTopLeft  {
+    / bottomRight:OldGeoBottomRight ws* topLeft:OldGeoTopLeft  {
         return {
             type: i.ASTType.GeoBoundingBox,
             ...topLeft,
             ...bottomRight
-        }
-    }
-    / points:GeoPolygon {
-        return {
-            type: i.ASTType.GeoPolygon,
-            ...points
         }
     }
 
@@ -438,55 +579,31 @@ RestrictedStringType
 FieldName
     = chars:FieldChar+ { return chars.join('') }
 
-GeoPoint
-    = GeoPointKeyword ws* FieldSeparator ws* term:QuotedStringType {
+OldGeoPoint
+    = OldGeoPointKeyword ws* FieldSeparator ws* term:QuotedStringType {
         return parseGeoPoint(term.value);
     }
 
-GeoDistance
-    = GeoDistanceKeyword ws* FieldSeparator ws* term:GeoDistanceType {
+OldGeoDistance
+    = OldGeoDistanceKeyword ws* FieldSeparator ws* term:OldGeoDistanceType {
         return parseGeoDistance(term.value);
     }
 
-GeoDistanceType
+OldGeoDistanceType
     = RestrictedStringType / QuotedStringType
 
-GeoTopLeft
-    = GeoTopLeftKeyword ws* FieldSeparator ws* term:QuotedStringType {
+OldGeoTopLeft
+    = OldGeoTopLeftKeyword ws* FieldSeparator ws* term:QuotedStringType {
          return {
              top_left: parseGeoPoint(term.value)
          }
     }
 
-GeoBottomRight
-    = GeoBottomRightKeyword ws* FieldSeparator ws* term:QuotedStringType {
+OldGeoBottomRight
+    = OldGeoBottomRightKeyword ws* FieldSeparator ws* term:QuotedStringType {
          return {
              bottom_right: parseGeoPoint(term.value)
          }
-    }
-
-GeoPolygon
-    = GeoPolygonKeyword ws* FieldSeparator ws* points:List ws* {
-        console.log('what are the points', points)
-        const results = [];
-        for (const point of points) {
-            results.push(parseGeoPoint(point.value))
-        }
-        if (results.length < 3) throw new Error('a geo_polygon query must have at least three geo-pointsin the list')
-        return {
-            points: results
-        }
-    }
-
-List
-    = ListStart  ws* list: ListItem ws* ListEnd {
-        return list;
-    }
-
-ListItem
-    = item:TermExpression ws* Comma* ws* items:ListItem? {
-         if (items) return [item, ...items]
-         return [item]
     }
 
 UnquotedTerm
@@ -514,23 +631,46 @@ Float
   = float:$(Digit* Dot Digit+) &NumReservedChar { return parseFloat(float) }
 
 /** keywords **/
+
+GeoDistanceFunctionKeyword
+    = 'geoDistance'
+
+GeoBoxFunctionKeyword
+    = 'geoBox'
+
+GeoPolygonFunctionKeyword
+    = 'geoPolygon'
+
 GeoPointKeyword
-    = '_geo_point_'
+    = 'point'
+
+GeoPointsKeyword
+    = 'points'
 
 GeoDistanceKeyword
-    = '_geo_distance_'
+    = 'distance'
 
 GeoTopLeftKeyword
-    = '_geo_box_top_left_'
+    = 'top_left'
 
 GeoBottomRightKeyword
-    = '_geo_box_bottom_right_'
-
-GeoPolygonKeyword
-    = '_geo_polygon_'
+    = 'bottom_right'
 
 ExistsKeyword
     = '_exists_'
+
+// These will be depreciated
+OldGeoPointKeyword
+    = '_geo_point_'
+
+OldGeoDistanceKeyword
+    = '_geo_distance_'
+
+OldGeoTopLeftKeyword
+    = '_geo_box_top_left_'
+
+OldGeoBottomRightKeyword
+    = '_geo_box_bottom_right_'
 
 Boolean
   = 'true' { return true }

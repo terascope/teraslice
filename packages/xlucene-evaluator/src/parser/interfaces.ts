@@ -174,3 +174,8 @@ export interface Wildcard extends StringDataType, TermLikeAST {
 export interface Term extends AnyDataType, TermLikeAST {
     type: ASTType.Term;
 }
+
+export interface GeoParamNodes {
+    field: string;
+    value: any;
+}

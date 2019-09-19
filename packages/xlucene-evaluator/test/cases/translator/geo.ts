@@ -48,7 +48,7 @@ export default [
         }
     ],
     [
-        'location:(_geo_box_top_left_:"10.5234,70.42345" _geo_box_bottom_right_:"50.5234,60.3456")',
+        'location:geoBox(top_left:"10.5234,70.42345" bottom_right:"50.5234,60.3456")',
         '.',
         {
             query: {
@@ -77,7 +77,42 @@ export default [
         }
     ],
     [
-        'loc:(_geo_point_:"33.435518,-111.873616" _geo_distance_:5000in)',
+        'location:geoPolygon(points:["123.43,223.43", "102.3,123.4", "99.3,154.4"])',
+        '.',
+        {
+            query: {
+                constant_score: {
+                    filter: {
+                        geo_polygon: {
+                            location: {
+                                points: [
+                                    {
+                                        lat: 123.43,
+                                        lon: 223.43
+                                    },
+                                    {
+                                        lat: 102.3,
+                                        lon: 123.4
+                                    },
+                                    {
+                                        lat: 99.3,
+                                        lon: 154.4
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {},
+        {
+            geo_sort_order: 'desc',
+            geo_sort_unit: 'feet'
+        }
+    ],
+    [
+        'loc:geoDistance(point:"33.435518,-111.873616", distance:5000in)',
         '.',
         {
             query: {

@@ -11,6 +11,7 @@ describe('Parser', () => {
                     const parser = new Parser(query, {
                         type_config: typeConfig
                     });
+                    // console.log('ast', JSON.stringify(parser.ast, null, 4))
                     expect(parser.ast).toMatchObject(ast);
                 });
             });
