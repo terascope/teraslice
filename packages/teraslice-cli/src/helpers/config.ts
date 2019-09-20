@@ -3,6 +3,7 @@ import fs from 'fs';
 import _ from 'lodash';
 import { has } from '@terascope/utils';
 import Aliases from './aliases';
+import { camelCase } from '../helpers/utils';
 
 /**
  * This is the top level config object, it manages the config directory and
@@ -21,7 +22,7 @@ export default class Config {
     constructor(cliArgs: any) {
         // We do this so that the command line options can be like 'cluster-url'
         // but the js properties are camelCase
-        this.args = _.mapKeys(cliArgs, (value, key) => _.camelCase(key));
+        this.args = _.mapKeys(cliArgs, (value, key) => camelCase(key));
         this.configDir = this.args.configDir;
         this._setupConfigDir();
         this.aliases = new Aliases(this.aliasesFile);

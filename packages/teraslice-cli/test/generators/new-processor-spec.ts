@@ -83,12 +83,9 @@ describe('processor generator with new flag', () => {
 
     it('should generate a Map processor', () => {
         assert.fileContent([
-            // @ts-ignore
-            [path.join(processPath, 'good_processor', 'processor.js'), 'class GoodProcessor extends MapProcessor'],
-            // @ts-ignore
-            [path.join(processPath, 'good_processor', 'processor.js'), 'module.exports = GoodProcessor;'],
-            // @ts-ignore
-            [path.join(processPath, 'good_processor', 'processor.js'), 'map(doc)']
+            [path.join(processPath, 'good_processor', 'processor.js'), /class GoodProcessor extends MapProcessor/],
+            [path.join(processPath, 'good_processor', 'processor.js'), /module\.exports = GoodProcessor;/],
+            [path.join(processPath, 'good_processor', 'processor.js'), /map\(doc\)/]
         ]);
     });
 

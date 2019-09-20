@@ -4,5 +4,5 @@
         "outDir": "dist",
         "rootDir": "."
     },
-    "include": ["src", "test"]
+    "include": ["src", "test", "test/fixtures/elasticsearch-assets-release.json"]
 }

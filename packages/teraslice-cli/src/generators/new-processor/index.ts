@@ -1,8 +1,8 @@
 
 import path from 'path';
-import _ from 'lodash';
 import Generator from 'yeoman-generator';
 import { getTemplatePath } from '../utils';
+import { snakeCase, camelCase } from '../../helpers/utils';
 
 export default class extends Generator {
     answers!: any;
@@ -27,7 +27,7 @@ export default class extends Generator {
                         }
                         return true;
                     },
-                    filter: (value: string) => _.snakeCase(value)
+                    filter: (value: string) => snakeCase(value)
                 },
                 {
                     type: 'list',
@@ -68,7 +68,7 @@ export default class extends Generator {
 
         this.fs.copyTpl(this.templatePath(`base-op/${type}.js`),
             this.destinationPath(`asset/${name}/processor.js`),
-            { name: capitolizeFirstLetter(_.camelCase(name)) });
+            { name: capitolizeFirstLetter(camelCase(name)) });
 
         this.fs.copyTpl(this.templatePath(`tests/${type}-spec.js`),
             this.destinationPath(`test/${name}-spec.js`),
