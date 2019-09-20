@@ -604,4 +604,32 @@ export default [
             ],
         },
     ],
+    [
+        'a:1 AND location:geoDistance(point:"33.435518,-111.873616" distance:5000m)',
+        'a simple AND with geoDistance function',
+        {
+            type: 'logical-group',
+            flow: [
+                {
+                    type: 'conjunction',
+                    nodes: [
+                        {
+                            type: 'term',
+                            field_type: 'integer',
+                            value: 1,
+                            field: 'a'
+                        },
+                        {
+                            type: 'geo-distance',
+                            lat: 33.435518,
+                            lon: -111.873616,
+                            distance: 5000,
+                            unit: 'meters',
+                            field: 'location'
+                        }
+                    ]
+                }
+            ]
+        },
+    ],
 ] as TestCase[];

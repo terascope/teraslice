@@ -7,9 +7,7 @@
         parseInferredTermType,
         isInferredTermType,
         propagateDefaultField,
-        geoDistanceParams,
-        geoBoxParams,
-        geoPolygonParams
+        parseFunction
     } = makeContext(options.contextArg);
 }
 
@@ -118,9 +116,6 @@ OrConjunction
     / left:TermGroup ws+ right:FieldOrQuotedTermGroup {
         return [left, right]
     }
-    // / left:TermGroup {
-    //     return [left]
-    // }
 
 TermGroup
     = NegationExpression / ParensGroup / TermExpression
@@ -234,115 +229,18 @@ FunctionExpression
     }
 
 FunctionTerm
-    = GeoFunction
-
-
-GeoFunction
-    = GeoDistanceFunctionKeyword ws* ParensStart ws* params:GeoFunctionParams ws* ParensEnd {
-        const results = geoDistanceParams(params);
-
-        return {
-            type: i.ASTType.GeoDistance,
-            ...results,
-        }
-    }
-    / GeoBoxFunctionKeyword ws* ParensStart ws* params:GeoFunctionParams ws* ParensEnd {
-        const results = geoBoxParams(params);
-
-        return {
-            type: i.ASTType.GeoBoundingBox,
-            ...results
-        }
-    }
-    / GeoPolygonFunctionKeyword ws* ParensStart ws* params:GeoFunctionParams ws* ParensEnd {
-        const points = geoPolygonParams(params);
-
-        return {
-            type: i.ASTType.GeoPolygon,
-            points
-        }
+    = fnName:RestrictedString ParensStart ws* params:FunctionParams ws* ParensEnd {
+        return parseFunction(fnName, params);
     }
 
-GeoFunctionParams
-    = ws* param:GeoParam ws* Comma* ws* params:GeoParam? {
-         if (params) return [param, params]
+FunctionParams
+    = param:ListExpression ws* Comma* ws* params:FunctionParams? {
+         if (params) return [param, ...params]
          return [param]
     }
-
-GeoParam
-    = GeoPoint
-    / GeoDistance
-    / TopLeft
-    / BottomRight
-    / GeoPoints
-
-GeoPoint
-    = field:GeoPointKeyword ws* FieldSeparator ws* point:QuotedTerm {
-        return {
-            field,
-            value: parseGeoPoint(point)
-        }
-    }
-    / field:GeoPointKeyword ws* FieldSeparator ws* point:UnquotedTerm {
-        return {
-            field,
-            value: parseGeoPoint(point)
-        }
-    }
-
-TopLeft
-    = field:GeoTopLeftKeyword ws* FieldSeparator ws* point:QuotedTerm {
-        return {
-            field,
-            value: parseGeoPoint(point)
-        }
-    }
-    / field:GeoTopLeftKeyword ws* FieldSeparator ws* point:UnquotedTerm {
-        return {
-            field,
-            value: parseGeoPoint(point)
-        }
-    }
-
-BottomRight
-    = field:GeoBottomRightKeyword ws* FieldSeparator ws* point:QuotedTerm {
-        return {
-            field,
-            value: parseGeoPoint(point)
-        }
-    }
-    / field:GeoBottomRightKeyword ws* FieldSeparator ws* point:UnquotedTerm {
-        return {
-            field,
-            value: parseGeoPoint(point)
-        }
-    }
-
-GeoDistance
-    = field:GeoDistanceKeyword ws* FieldSeparator ws* distance:QuotedTerm {
-        return {
-            field,
-            value: parseGeoDistance(distance)
-        }
-    }
-    / field:GeoDistanceKeyword ws* FieldSeparator ws* distance:UnquotedTerm {
-         return {
-            field,
-            value: parseGeoDistance(distance)
-        }
-    }
-
-GeoPoints
-    = field:GeoPointsKeyword ws* FieldSeparator ws* ListStart  ws* list: ListItem ws* ListEnd {
-        const points = [];
-        for (const node of list) {
-            points.push(parseGeoPoint(node.value));
-        }
-
-        return {
-            field,
-            value: points
-        }
+    / param:TermExpression ws* Comma* ws* params:FunctionParams? {
+         if (params) return [param, ...params]
+         return [param]
     }
 
 // We are not currectly allowing this to be used across the whole system other than for geo points
@@ -351,13 +249,9 @@ GeoPoints
 
 ListExpression
     = field:FieldName ws* FieldSeparator ws* ListStart  ws* list: ListItem ws* ListEnd {
-        const points = [];
-        for (const node of list) {
-            points.push(node.value);
-        }
         return {
             field,
-            points
+            value: list
         }
     }
 
@@ -631,30 +525,6 @@ Float
   = float:$(Digit* Dot Digit+) &NumReservedChar { return parseFloat(float) }
 
 /** keywords **/
-
-GeoDistanceFunctionKeyword
-    = 'geoDistance'
-
-GeoBoxFunctionKeyword
-    = 'geoBox'
-
-GeoPolygonFunctionKeyword
-    = 'geoPolygon'
-
-GeoPointKeyword
-    = 'point'
-
-GeoPointsKeyword
-    = 'points'
-
-GeoDistanceKeyword
-    = 'distance'
-
-GeoTopLeftKeyword
-    = 'top_left'
-
-GeoBottomRightKeyword
-    = 'bottom_right'
 
 ExistsKeyword
     = '_exists_'

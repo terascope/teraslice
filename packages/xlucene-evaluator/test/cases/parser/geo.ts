@@ -15,7 +15,7 @@ export default [
         },
     ],
     [
-        'location:geoDistance(point:"33.435518,-111.873616", distance:"5000m")',
+        'location:geoDistance(point:"33.435518,-111.873616", distance:"5000m", third: "data")',
         'a geo distance query with point double quoted',
         {
             type: ASTType.GeoDistance,

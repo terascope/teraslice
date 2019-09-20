@@ -2,6 +2,7 @@ import { Logger } from '@terascope/utils';
 import { parseGeoDistance, parseGeoPoint } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
+import xluceneFunctions from './functions';
 
 export default function makeContext(args: any) {
     let typeConfig: i.TypeConfig;
@@ -78,36 +79,10 @@ export default function makeContext(args: any) {
         return term;
     }
 
-    function geoDistanceParams(nodes: i.GeoParamNodes[]) {
-        const distanceParam = nodes.find((node) => node.field === 'distance');
-        const geoPointParam = nodes.find((node) => node.field === 'point');
-
-        if (distanceParam == null) throw new Error('geoDistance query needs to specify a "distance" parameter');
-        if (geoPointParam == null) throw new Error('geoDistance query needs to specify a "point" parameter');
-
-        return {
-            ...geoPointParam.value,
-            ...distanceParam.value
-        };
-    }
-
-    function geoBoxParams(nodes: i.GeoParamNodes[]) {
-        const topLeftParam = nodes.find((node) => node.field === 'top_left');
-        const bottomRightParam = nodes.find((node) => node.field === 'bottom_right');
-
-        if (topLeftParam == null) throw new Error('geoBox query needs to specify a "topLeft" parameter');
-        if (bottomRightParam == null) throw new Error('geoBox query needs to specify a "bottomRight" parameter');
-
-        return {
-            top_left: topLeftParam.value,
-            bottom_right: bottomRightParam.value
-        };
-    }
-
-    function geoPolygonParams(nodes: i.GeoParamNodes[]) {
-        const geoPointsParam = nodes.find((node) => node.field === 'points');
-        if (geoPointsParam == null) throw new Error('geoPolygon query needs to specify a "points" parameter');
-        return geoPointsParam.value;
+    function parseFunction(fnName: string, params: i.Term[]) {
+        const fn = xluceneFunctions[fnName];
+        if (fn == null) throw new Error(`Could not find an xlucene function with name "${fnName}"`);
+        return fn(params);
     }
 
     function coerceTermType(node: any, _field?: string) {
@@ -165,8 +140,6 @@ export default function makeContext(args: any) {
         parseInferredTermType,
         isInferredTermType,
         propagateDefaultField,
-        geoDistanceParams,
-        geoBoxParams,
-        geoPolygonParams
+        parseFunction
     };
 }

@@ -62,4 +62,13 @@ describe('Parser', () => {
             }).toThrowWithMessage(TSError, errMsg);
         });
     });
+
+    describe('when given a invalid function query "location: something(hello: "world")', () => {
+        it('should throw an error', () => {
+            const errMsg = 'Failure to parse xlucene query "location: something(hello:"world")", caused by Error: Could not find an xlucene function with name "something"';
+            expect(() => {
+                new Parser('location: something(hello:"world")');
+            }).toThrowWithMessage(TSError, errMsg);
+        });
+    });
 });
