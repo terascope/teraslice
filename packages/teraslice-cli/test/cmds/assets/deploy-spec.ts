@@ -5,7 +5,7 @@ import path from 'path';
 import { TerasliceServer, GithubServer } from '../../servers';
 
 import deploy from '../../../src/cmds/assets/deploy';
-import nock from 'nock/types';
+import nock from 'nock';
 
 function wasApiCalled(arr: string[], endpoint: string) {
     const results = arr.find((str) => str.includes(endpoint))
