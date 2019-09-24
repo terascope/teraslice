@@ -104,7 +104,7 @@ async function runTestSuite(
         );
     }
 
-    writeHeader(`Running test suite "${suite}"`, true);
+    writeHeader(`Running test suite "${suite}"`, false);
 
     const cleanup = await ensureServices(suite, options);
 
