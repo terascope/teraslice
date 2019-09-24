@@ -5,15 +5,11 @@ import tmp from 'tmp';
 import AssetSrc from '../../src/helpers/asset-src';
 
 describe('AssetSrc', () => {
-    let testAsset: any;
+    let testAsset: AssetSrc;
     const srcDir = path.join(__dirname, '../fixtures/testAsset');
 
     beforeEach(() => {
         testAsset = new AssetSrc(srcDir);
-    });
-
-    afterEach(() => {
-        testAsset = {};
     });
 
     test('should have srcDir and assetFile properties', () => {

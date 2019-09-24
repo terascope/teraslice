@@ -5,6 +5,12 @@ import Url from './url';
 const homeDir = os.homedir();
 
 const url = new Url();
+
+interface OptionsArgs {
+    arch?: 'x32' | 'x64';
+    'base-dir'?: string;
+}
+
 // TODO: fixme
 export default class Options {
     options: any;
@@ -26,6 +32,8 @@ export default class Options {
                 type: 'string',
                 nargs: 1
             }),
+
+            // TODO: what is default here
             build: () => ({
                 describe: 'Build asset from source prior to upload.  The current'
                         + ' directory is used if no argument is passed to this option',
