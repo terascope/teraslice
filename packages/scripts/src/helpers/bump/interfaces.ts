@@ -7,3 +7,19 @@ export type BumpPackageOptions = {
     deps: boolean;
     preId?: string;
 };
+
+export type BumpPkgInfo = {
+    from: string;
+    to: string;
+    deps: {
+        name: string;
+        type: BumpType;
+    }[];
+}
+
+export enum BumpType {
+    Release = 'release',
+    Dev = 'dev',
+    Prod = 'prod',
+    Peer = 'peer',
+}

@@ -25,8 +25,8 @@ const cmd: CommandModule = {
             })
             .option('deps', {
                 alias: 'd',
-                description: "Bump the child dependencies, (ignores the monorepo's main package)",
-                default: false,
+                description: "Bump the child dependencies recursively, (ignores the monorepo's main package)",
+                default: true,
                 type: 'boolean',
             })
             .option('release', {
