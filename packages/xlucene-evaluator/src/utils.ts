@@ -72,9 +72,7 @@ export const GEO_DISTANCE_UNITS: { readonly [key: string]: GeoDistanceUnit } = {
 };
 
 export function parseGeoDistance(str: string): GeoDistanceObj {
-    const matches = trim(str)
-        .replace(/['"]/g, '')
-        .match(/'?"?(\d+)(.*)'?"?$/);
+    const matches = trim(str).match(/(\d+)(.*)$/);
 
     if (!matches || !matches.length) {
         throw new Error(`Incorrect geo distance parameter provided: ${str}`);

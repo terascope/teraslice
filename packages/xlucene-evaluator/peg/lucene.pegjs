@@ -16,8 +16,8 @@
 start
     = ws* negate:NegationExpression ws* EOF { return negate }
     / ws* logic:LogicalGroup ws* EOF { return logic; }
-    / ws* term:UnqoutedTermType ws* EOF { return term; }
     / ws* term:TermExpression ws* EOF { return term; }
+    / ws* term:UnqoutedTermType ws* EOF { return term; }
     / ws* group:ParensGroup ws* EOF { return group; }
     / ws* EOF {
         return {
@@ -229,8 +229,9 @@ FunctionExpression
     }
 
 FunctionTerm
-    = fnName:RestrictedString ParensStart ws* params:FunctionParams ws* ParensEnd {
-        return parseFunction(fnName, params);
+    = fnName:RestrictedString ws* ParensStart ws* params:FunctionParams? ws* ParensEnd {
+        const fnArgs = params || [];
+        return parseFunction(fnName, fnArgs);
     }
 
 FunctionParams
@@ -248,7 +249,7 @@ FunctionParams
 // Im keeping it contained for now until we see how this evolves for general use
 
 ListExpression
-    = field:FieldName ws* FieldSeparator ws* ListStart  ws* list: ListItem ws* ListEnd {
+    = field:FieldName ws* FieldSeparator ws* ListStart ws* list: ListItem ws* ListEnd {
         return {
             field,
             value: list
@@ -260,6 +261,11 @@ ListItem
          if (items) return [item, ...items]
          return [item]
     }
+    / ListStart ws* list: ListItem ws* ListEnd ws* Comma* ws* items:ListItem? {
+        // needs to recursive check to see if value is list
+         if (items) return [list, ...items]
+         return [list]
+    }
 
 OldGeoTermExpression
     = field:FieldName ws* FieldSeparator ws* ParensStart ws* term:OldGeoTermType ws* ParensEnd {
@@ -270,12 +276,13 @@ OldGeoTermExpression
     }
 
 ParensStringType
-    = ParensStart ws* term:UnqoutedStringType ws* ParensEnd {
+    = ParensStart ws* term:QuotedStringType ws* ParensEnd {
         return term;
     }
-    / ParensStart ws* term:QuotedStringType ws* ParensEnd {
+    / ParensStart ws* term:UnqoutedStringType ws* ParensEnd {
         return term;
     }
+
 
 UnqoutedTermType
     = term:UnqoutedStringType {

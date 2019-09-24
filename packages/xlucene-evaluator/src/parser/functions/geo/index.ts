@@ -38,7 +38,10 @@ export function geoPolygon(params: i.Term[]) {
     if (geoPointsParam == null) throw new Error('geoPolygon query needs to specify a "points" parameter');
     if (!Array.isArray(geoPointsParam.value)) throw new Error('points parameter must be an array');
     // @ts-ignore we are ignoreing util we have a better story around list expressions
-    const points = geoPointsParam.value.map((node) => parseGeoPoint(node.value));
+    const points = geoPointsParam.value.map((node) => {
+        if (!node.value) throw new Error('points parameter must be an array of string values')
+        return parseGeoPoint(node.value);
+    });
     if (points.length < 3) throw new Error('geoPolygon points parameter must have at least three points');
 
     return {

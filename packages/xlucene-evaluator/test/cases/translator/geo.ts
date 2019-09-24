@@ -48,6 +48,35 @@ export default [
         }
     ],
     [
+        'location:(_geo_box_top_left_:"10.5234,70.42345" _geo_box_bottom_right_:"50.5234,60.3456")',
+        '.',
+        {
+            query: {
+                constant_score: {
+                    filter: {
+                        geo_bounding_box: {
+                            location: {
+                                top_left: {
+                                    lat: 10.5234,
+                                    lon: 70.42345,
+                                },
+                                bottom_right: {
+                                    lat: 50.5234,
+                                    lon: 60.3456
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {},
+        {
+            geo_sort_order: 'desc',
+            geo_sort_unit: 'feet'
+        }
+    ],
+    [
         'location:geoBox(top_left:"10.5234,70.42345" bottom_right:"50.5234,60.3456")',
         '.',
         {
