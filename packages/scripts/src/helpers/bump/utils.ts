@@ -17,8 +17,9 @@ export function getPackagesToBump(
     function _bumpDeps(pkgInfo: PackageInfo) {
         const bumpInfo = result[pkgInfo.name]!;
         for (const depPkg of packages) {
+            const main = isMainPackage(depPkg);
             if (depPkg.dependencies && depPkg.dependencies[pkgInfo.name]) {
-                if (options.deps && !isMainPackage(depPkg)) {
+                if (options.deps && !main) {
                     _bumpPackage(depPkg);
                 }
                 bumpInfo.deps.push({
@@ -44,9 +45,11 @@ export function getPackagesToBump(
     function _bumpPackage(pkgInfo: PackageInfo) {
         const from = pkgInfo.version;
         const to = bumpVersion(pkgInfo, options.release, options.preId);
+        const main = isMainPackage(pkgInfo);
         result[pkgInfo.name] = {
             from,
             to,
+            main,
             deps: []
         };
         _bumpDeps(pkgInfo);
@@ -55,12 +58,31 @@ export function getPackagesToBump(
     return result;
 }
 
+export function getBumpCommitMessage(
+    result: Record<string, BumpPkgInfo>,
+    release: ReleaseType
+): string {
+    const messages: string[] = [];
+    const bumpResult = { ...result };
+    const main = Object.entries(result).find(([, info]) => info.main);
+    if (main) {
+        const [name] = main;
+        delete bumpResult[name];
+        messages.push(`release: (${release}) ${name}`);
+    }
+    const names = Object.keys(bumpResult);
+    if (names.length) {
+        messages.push(`bump: (${release}) ${names.join(', ')}`);
+    }
+    return messages.join(' AND ');
+}
+
 /** This mutates the packages param */
 export function bumpPackages(
-    bumpResult: Record<string, BumpPkgInfo>,
+    result: Record<string, BumpPkgInfo>,
     packages: PackageInfo[],
 ): void {
-    for (const [name, bumpInfo] of Object.entries(bumpResult)) {
+    for (const [name, bumpInfo] of Object.entries(result)) {
         const pkgInfo = findPackageByName(packages, name);
         signale.info(`=> Updated ${name} to version ${bumpInfo.from} to ${bumpInfo.to}`);
 

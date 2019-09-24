@@ -11,6 +11,7 @@ export type BumpPackageOptions = {
 export type BumpPkgInfo = {
     from: string;
     to: string;
+    main: boolean;
     deps: {
         name: string;
         type: BumpType;
