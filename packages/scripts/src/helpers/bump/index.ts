@@ -1,24 +1,19 @@
 import semver from 'semver';
 import { get } from '@terascope/utils';
 import { PackageInfo } from '../interfaces';
+import { BumpPackageOptions } from './interfaces';
 import { listPackages, updatePkgJSON, readPackageInfo } from '../packages';
 import { writePkgHeader } from '../misc';
 import signale from '../signale';
 
-export type BumpPackageOptions = {
-    release: semver.ReleaseType;
-    deps: boolean;
-    preId?: string;
-};
-
-export async function bumpPackages(pkgInfos: PackageInfo[], options: BumpPackageOptions) {
+export async function bumpPackages(options: BumpPackageOptions) {
     let runOnce = false;
-    for (const pkgInfo of pkgInfos) {
+    for (const pkgInfo of options.packages) {
         writePkgHeader(`Bump(${options.release}) package version`, [pkgInfo], runOnce);
         await bumpPackage(pkgInfo, { ...options });
         runOnce = true;
     }
-    const folderNames = pkgInfos.map(({ folderName }) => folderName).join(', ');
+    const folderNames = options.packages.map(({ folderName }) => folderName).join(', ');
     const commitMsg = `bump(${options.release}) ${folderNames}`;
 
     signale.success(`
@@ -85,6 +80,7 @@ async function updateDependent(
     if (options.deps && isProdDep && !pkgInfo.terascope.main) {
         await bumpPackage(pkgInfo, {
             release: 'patch',
+            packages: [],
             deps: false,
         });
     }

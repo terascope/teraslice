@@ -53,7 +53,8 @@ const cmd: CommandModule = {
     },
     async handler(argv) {
         await syncAll({ verify: true });
-        return bumpPackages(argv.packages as PackageInfo[], {
+        return bumpPackages({
+            packages: argv.packages as PackageInfo[],
             preId: argv['prelease-id'] as string | undefined,
             release: argv.release as ReleaseType,
             deps: Boolean(argv.deps),
