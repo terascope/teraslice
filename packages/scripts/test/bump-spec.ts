@@ -4,7 +4,7 @@ import { BumpPackageOptions, BumpType, BumpPkgInfo } from '../src/helpers/bump/i
 import { PackageInfo } from '../src/helpers/interfaces';
 import {
     getPackagesToBump,
-    bumpPackages,
+    bumpPackagesList,
     getBumpCommitMessage
 } from '../src/helpers/bump/utils';
 
@@ -105,7 +105,7 @@ describe('Bump Utils', () => {
             });
 
             it('should corrently bump the packages list', () => {
-                bumpPackages(result, packages);
+                bumpPackagesList(result, packages);
                 expect(packages).toEqual([
                     {
                         name: 'package-main',
@@ -195,7 +195,7 @@ describe('Bump Utils', () => {
             });
 
             it('should corrently bump the packages list', () => {
-                bumpPackages(result, packages);
+                bumpPackagesList(result, packages);
                 expect(packages).toEqual([
                     {
                         name: 'package-main',
@@ -287,7 +287,7 @@ describe('Bump Utils', () => {
         });
 
         it('should corrently bump the packages list', () => {
-            bumpPackages(result, packages);
+            bumpPackagesList(result, packages);
             expect(packages).toEqual([
                 {
                     name: 'package-main',

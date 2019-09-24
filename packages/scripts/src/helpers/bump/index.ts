@@ -1,20 +1,30 @@
-import semver from 'semver';
-import { get } from '@terascope/utils';
-import { PackageInfo } from '../interfaces';
 import { BumpPackageOptions } from './interfaces';
-import { listPackages, updatePkgJSON, readPackageInfo } from '../packages';
-import { writePkgHeader } from '../misc';
+import { listPackages, isMainPackage, updatePkgJSON } from '../packages';
+import { PackageInfo } from '../interfaces';
+import { getRootInfo } from '../misc';
+import * as utils from './utils';
 import signale from '../signale';
 
 export async function bumpPackages(options: BumpPackageOptions) {
-    let runOnce = false;
-    for (const pkgInfo of options.packages) {
-        writePkgHeader(`Bump(${options.release}) package version`, [pkgInfo], runOnce);
-        await bumpPackage(pkgInfo, { ...options });
-        runOnce = true;
+    const rootInfo = getRootInfo();
+    const packages: PackageInfo[] = [...listPackages(), rootInfo as any];
+
+    const packagesToBump = utils.getPackagesToBump(packages, options);
+    utils.bumpPackagesList(packagesToBump, packages);
+
+    const commitMsg = utils.getBumpCommitMessage(packagesToBump, options.release);
+
+    for (const pkgInfo of packages) {
+        updatePkgJSON(pkgInfo);
     }
-    const folderNames = options.packages.map(({ folderName }) => folderName).join(', ');
-    const commitMsg = `bump(${options.release}) ${folderNames}`;
+
+    const mainInfo = packages.find(isMainPackage);
+
+    if (mainInfo && mainInfo.version !== rootInfo.version) {
+        signale.note(`IMPORTANT: make sure create release of v${mainInfo.version} after your PR gets merged`);
+        rootInfo.version = mainInfo.version;
+        await updatePkgJSON(rootInfo);
+    }
 
     signale.success(`
 
@@ -22,79 +32,4 @@ Please commit these changes:
 
     git commit -am "${commitMsg}" && git push
 `);
-}
-
-export async function bumpPackage(mainPkgInfo: PackageInfo, options: BumpPackageOptions) {
-    await updateMainPkg(mainPkgInfo, options);
-    for (const pkgInfo of listPackages()) {
-        await updateDependent(mainPkgInfo, pkgInfo, options);
-    }
-    const e2ePkgInfo = await readPackageInfo('e2e');
-    await updateDependent(mainPkgInfo, e2ePkgInfo, options);
-}
-
-async function updateMainPkg(mainPkgInfo: PackageInfo, options: BumpPackageOptions) {
-    const prevVersion = mainPkgInfo.version;
-    const newVersion = bumpVersion(mainPkgInfo, options.release, options.preId);
-    mainPkgInfo.version = newVersion;
-    await updatePkgJSON(mainPkgInfo, false);
-
-    signale.log(`=> Updated ${mainPkgInfo.name} to version ${prevVersion} to ${newVersion}`);
-    if (mainPkgInfo.terascope.main) {
-        signale.note(`IMPORTANT: make sure create release of v${newVersion} after your PR gets merged`);
-    }
-    return newVersion;
-}
-
-function bumpVersion(pkgInfo: PackageInfo, release: semver.ReleaseType = 'patch', preId?: string) {
-    const version = semver.inc(pkgInfo.version, release, false, preId);
-    if (!version) {
-        throw new Error(`Failure to increment version "${pkgInfo.version}" using "${release}"`);
-    }
-
-    return version;
-}
-
-async function updateDependent(
-    mainPkgInfo: PackageInfo,
-    pkgInfo: PackageInfo,
-    options: BumpPackageOptions
-) {
-    if (!isDependent(mainPkgInfo, pkgInfo)) return;
-    const { name } = mainPkgInfo;
-    const newVersion = formatVersion(mainPkgInfo.version);
-
-    let isProdDep = false;
-    if (pkgInfo.dependencies && pkgInfo.dependencies[name]) {
-        isProdDep = true;
-        pkgInfo.dependencies[name] = newVersion;
-    } else if (pkgInfo.devDependencies && pkgInfo.devDependencies[name]) {
-        pkgInfo.devDependencies[name] = newVersion;
-    } else if (pkgInfo.peerDependencies && pkgInfo.peerDependencies[name]) {
-        pkgInfo.peerDependencies[name] = newVersion;
-    }
-
-    await updatePkgJSON(pkgInfo, false);
-    signale.log(`---> Updated dependency ${pkgInfo.name}'s version of ${name} to ${newVersion}`);
-
-    if (options.deps && isProdDep && !pkgInfo.terascope.main) {
-        await bumpPackage(pkgInfo, {
-            release: 'patch',
-            packages: [],
-            deps: false,
-        });
-    }
-}
-
-function formatVersion(version: string): string {
-    return `^${version}`;
-}
-
-function isDependent(mainPkgInfo: PackageInfo, pkgInfo: PackageInfo): boolean {
-    if (pkgInfo.name === mainPkgInfo.name) return false;
-    const devDeps = Object.keys(get(pkgInfo, 'devDependencies', {}));
-    const peerDeps = Object.keys(get(pkgInfo, 'peerDependencies', {}));
-    const deps = Object.keys(get(pkgInfo, 'dependencies', {}));
-    const allDeps: string[] = [...devDeps, ...peerDeps, ...deps];
-    return allDeps.includes(mainPkgInfo.name);
 }

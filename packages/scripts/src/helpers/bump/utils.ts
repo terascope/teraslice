@@ -78,7 +78,7 @@ export function getBumpCommitMessage(
 }
 
 /** This mutates the packages param */
-export function bumpPackages(
+export function bumpPackagesList(
     result: Record<string, BumpPkgInfo>,
     packages: PackageInfo[],
 ): void {
