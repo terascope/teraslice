@@ -1,13 +1,14 @@
 import 'jest-extended';
 import { cloneDeep } from '@terascope/utils';
-import { BumpPackageOptions, BumpType } from '../src/helpers/bump/interfaces';
+import { BumpPackageOptions, BumpType, BumpPkgInfo } from '../src/helpers/bump/interfaces';
 import { PackageInfo } from '../src/helpers/interfaces';
 import {
-    getPackagesToBump
+    getPackagesToBump,
+    bumpPackages
 } from '../src/helpers/bump/utils';
 
 describe('Bump Utils', () => {
-    const packages: PackageInfo[] = [
+    const testPackages: PackageInfo[] = [
         {
             name: 'package-main',
             version: '1.0.0',
@@ -55,47 +56,184 @@ describe('Bump Utils', () => {
         } as any
     ];
 
-    describe('getPackagesToBump', () => {
-        describe('when bumping package-util-1', () => {
-            const pkgUtil1 = packages.find(({ name }) => name === 'package-util-1');
+    describe('when bumping package-util-1', () => {
+        const pkgUtil1 = testPackages.find(({ name }) => name === 'package-util-1');
 
-            describe('when deps=true and release=minor', () => {
-                const options: BumpPackageOptions = {
-                    release: 'minor',
-                    deps: true,
-                    packages: [cloneDeep(pkgUtil1!)]
-                };
+        describe('when deps=true and release=minor', () => {
+            const packages = cloneDeep(testPackages);
+            const options: BumpPackageOptions = {
+                release: 'minor',
+                deps: true,
+                packages: [cloneDeep(pkgUtil1!)]
+            };
+            let result: Record<string, BumpPkgInfo>;
 
-                it('should return an array of packages', () => {
-                    const result = getPackagesToBump(cloneDeep(packages), options);
+            beforeAll(() => {
+                result = getPackagesToBump(testPackages, options);
+            });
 
-                    expect(result).toEqual({
-                        'package-util-1': {
-                            from: '3.0.0',
-                            to: '3.1.0',
-                            deps: [
-                                {
-                                    type: BumpType.Prod,
-                                    name: 'package-dep-1'
-                                },
-                                {
-                                    type: BumpType.Dev,
-                                    name: 'package-dep-2'
-                                }
-                            ]
-                        },
-                        'package-dep-1': {
-                            from: '2.0.0',
-                            to: '2.1.0',
-                            deps: [
-                                {
-                                    type: BumpType.Prod,
-                                    name: 'package-main'
-                                },
-                            ]
-                        },
-                    });
+            it('should return a list of correctly bump packages', () => {
+                expect(result).toEqual({
+                    'package-util-1': {
+                        from: '3.0.0',
+                        to: '3.1.0',
+                        deps: [
+                            {
+                                type: BumpType.Prod,
+                                name: 'package-dep-1'
+                            },
+                            {
+                                type: BumpType.Dev,
+                                name: 'package-dep-2'
+                            }
+                        ]
+                    },
+                    'package-dep-1': {
+                        from: '2.0.0',
+                        to: '2.1.0',
+                        deps: [
+                            {
+                                type: BumpType.Prod,
+                                name: 'package-main'
+                            },
+                        ]
+                    },
                 });
+            });
+
+            it('should corrently bump the packages list', () => {
+                bumpPackages(result, packages);
+                expect(packages).toEqual([
+                    {
+                        name: 'package-main',
+                        version: '1.0.0',
+                        dependencies: {
+                            'package-dep-1': '^2.1.0'
+                        },
+                        terascope: {
+                            main: true
+                        }
+                    },
+                    {
+                        name: 'package-dep-1',
+                        version: '2.1.0',
+                        dependencies: {
+                            'package-util-1': '^3.1.0'
+                        },
+                        devDependencies: {
+                        },
+                    },
+                    {
+                        name: 'package-dep-2',
+                        version: '2.0.0',
+                        dependencies: {
+                        },
+                        devDependencies: {
+                            'package-util-1': '^3.1.0',
+                            'package-util-2': '^3.0.0'
+                        },
+                    },
+                    {
+                        name: 'package-util-1',
+                        version: '3.1.0',
+                        dependencies: {
+                        },
+                        devDependencies: {
+                        },
+                    },
+                    {
+                        name: 'package-util-2',
+                        version: '3.0.0',
+                        dependencies: {
+                        },
+                        devDependencies: {
+                        },
+                    }
+                ]);
+            });
+        });
+
+        describe('when deps=false and release=patch', () => {
+            const packages = cloneDeep(testPackages);
+            const options: BumpPackageOptions = {
+                release: 'patch',
+                deps: false,
+                packages: [cloneDeep(pkgUtil1!)]
+            };
+            let result: Record<string, BumpPkgInfo>;
+
+            beforeAll(() => {
+                result = getPackagesToBump(testPackages, options);
+            });
+
+            it('should return a list of correctly bump packages', () => {
+                expect(result).toEqual({
+                    'package-util-1': {
+                        from: '3.0.0',
+                        to: '3.0.1',
+                        deps: [
+                            {
+                                type: BumpType.Prod,
+                                name: 'package-dep-1'
+                            },
+                            {
+                                type: BumpType.Dev,
+                                name: 'package-dep-2'
+                            },
+                        ]
+                    },
+                });
+            });
+
+            it('should corrently bump the packages list', () => {
+                bumpPackages(result, packages);
+                expect(packages).toEqual([
+                    {
+                        name: 'package-main',
+                        version: '1.0.0',
+                        dependencies: {
+                            'package-dep-1': '^2.0.0'
+                        },
+                        terascope: {
+                            main: true
+                        }
+                    },
+                    {
+                        name: 'package-dep-1',
+                        version: '2.0.0',
+                        dependencies: {
+                            'package-util-1': '^3.0.1'
+                        },
+                        devDependencies: {
+                        },
+                    },
+                    {
+                        name: 'package-dep-2',
+                        version: '2.0.0',
+                        dependencies: {
+                        },
+                        devDependencies: {
+                            'package-util-1': '^3.0.1',
+                            'package-util-2': '^3.0.0'
+                        },
+                    },
+                    {
+                        name: 'package-util-1',
+                        version: '3.0.1',
+                        dependencies: {
+                        },
+                        devDependencies: {
+                        },
+                    },
+                    {
+                        name: 'package-util-2',
+                        version: '3.0.0',
+                        dependencies: {
+                        },
+                        devDependencies: {
+                        },
+                    }
+                ]);
             });
         });
     });

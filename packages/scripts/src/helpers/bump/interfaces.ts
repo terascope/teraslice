@@ -18,7 +18,6 @@ export type BumpPkgInfo = {
 }
 
 export enum BumpType {
-    Release = 'release',
     Dev = 'dev',
     Prod = 'prod',
     Peer = 'peer',
