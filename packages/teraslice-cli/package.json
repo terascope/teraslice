@@ -38,7 +38,6 @@
     "dependencies": {
         "@terascope/fetch-github-release": "^0.6.0",
         "@terascope/utils": "^0.20.1",
-        "@types/decompress": "^4.2.3",
         "archiver": "^3.0.0",
         "bluebird": "^3.5.5",
         "chalk": "^2.4.2",
@@ -62,7 +61,9 @@
     },
     "devDependencies": {
         "@types/archiver": "^3.0.0",
+        "@types/decompress": "^4.2.3",
         "@types/easy-table": "^0.0.32",
+        "@types/nock": "^10.0.3",
         "@types/prompts": "^2.0.1",
         "@types/signale": "^1.2.1",
         "@types/tmp": "^0.1.0",
@@ -72,7 +73,7 @@
         "@types/yeoman-generator": "^3.1.4",
         "decompress": "^4.2.0",
         "jest-fixtures": "^0.6.0",
-        "nock": "^11.3.3",
+        "nock": "^10.0.6",
         "yeoman-assert": "^3.1.1",
         "yeoman-test": "^2.0.0"
     },

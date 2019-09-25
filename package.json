@@ -1,5 +1,6 @@
 {
     "name": "teraslice-workspace",
+    "version": "0.57.1",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
@@ -18,6 +19,7 @@
         "build:pkg": "./scripts/build-pkg.sh",
         "build:watch": "yarn run build --watch",
         "bump": "ts-scripts bump",
+        "changelog": "conventional-changelog -p eslint -i CHANGELOG.md --same-file",
         "cleanup": "./scripts/cleanup.sh",
         "docs": "ts-scripts docs",
         "lint": "yarn lint:es && yarn sync --verify",
@@ -28,6 +30,11 @@
         "start": "node service.js",
         "sync": "ts-scripts sync",
         "test": "ts-scripts test"
+    },
+    "config": {
+        "commitizen": {
+            "path": "git-cz"
+        }
     },
     "dependencies": {},
     "devDependencies": {
@@ -41,7 +48,7 @@
         "@types/nanoid": "^2.0.0",
         "@types/node": "^12.7.2",
         "@types/uuid": "^3.4.4",
-        "eslint": "^6.2.2",
+        "eslint": "^6.4.0",
         "jest": "^24.9.0",
         "jest-extended": "^0.11.2",
         "jest-watch-typeahead": "^0.4.0",

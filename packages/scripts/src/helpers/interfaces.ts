@@ -38,6 +38,7 @@ export type PackageConfig = {
 };
 
 export type RootPackageInfo = {
+    version: string;
     dir: string;
     folderName: string;
     name: string;
