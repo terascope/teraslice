@@ -27,6 +27,12 @@ export interface ConnectionConfig {
     type: string;
 }
 
+export type ClientFactoryFn = (
+    config: object,
+    logger: Logger,
+    options: ConnectionConfig
+) => { client: any };
+
 export interface FoundationAPIs {
     /** Create a child logger */
     makeLogger(metadata?: Record<string, string>): Logger;
@@ -90,8 +96,8 @@ export type FoundationSysConfig<S> = {
         log_path: string;
         log_level: LogLevelConfig;
         logging: LogType[];
-    } & S;
-}
+    };
+} & S;
 
 export type FoundationContext<S = {}, A = {}, D extends string = string> = {
     sysconfig: FoundationSysConfig<S>;
