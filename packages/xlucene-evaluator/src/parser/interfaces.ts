@@ -190,7 +190,7 @@ export interface FunctionDefinition {
         field: string,
         params: any,
         config: FunctionConfig
-        ) => FunctionMethods;
+    ) => FunctionMethods;
 }
 
 export interface FunctionMethods {
