@@ -1,6 +1,5 @@
-'use strict';
-
-const api = require('../../lib/api');
+import 'jest-extended';
+import api from '../../src/api';
 
 describe('makeLogger foundation API', () => {
     it('should create a logger', async () => {
@@ -14,7 +13,7 @@ describe('makeLogger foundation API', () => {
                 }
             },
             name: 'terafoundation'
-        };
+        } as any;
         api(context);
         const { foundation } = context.apis;
 
@@ -37,7 +36,7 @@ describe('makeLogger foundation API', () => {
                 }
             },
             name: 'terafoundation'
-        };
+        } as any;
 
         api(context);
         const { foundation } = context.apis;
@@ -57,7 +56,7 @@ describe('makeLogger foundation API', () => {
                 }
             },
             name: 'terafoundation'
-        };
+        } as any;
 
         api(context);
         const { foundation } = context.apis;

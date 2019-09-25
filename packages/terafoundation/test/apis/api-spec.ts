@@ -1,6 +1,5 @@
-'use strict';
-
-const api = require('../../lib/api');
+import 'jest-extended';
+import api from '../../src/api';
 
 describe('apis module', () => {
     const context = {
@@ -10,7 +9,7 @@ describe('apis module', () => {
             }
         },
         name: 'terafoundation'
-    };
+    } as any;
 
     beforeEach(() => {
         // This sets up the API endpoints in the context.

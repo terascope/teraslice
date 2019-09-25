@@ -1,7 +1,9 @@
-'use strict';
-
-const path = require('path');
-const { getDefaultConfigFile, parseConfigFile } = require('../lib/sysconfig');
+import 'jest-extended';
+import path from 'path';
+import {
+    getDefaultConfigFile,
+    parseConfigFile
+} from '../src/sysconfig';
 
 process.env.TERAFOUNDATION_CONFIG = '';
 
@@ -29,6 +31,6 @@ describe('sysconfig helpers', () => {
     });
 });
 
-function getTestFile(fileName) {
+function getTestFile(fileName: any) {
     return path.join(__dirname, 'fixtures', fileName);
 }

@@ -1,7 +1,7 @@
-'use strict';
-
-const path = require('path');
-const { debugLogger } = require('@terascope/utils');
+/* eslint-disable import/first */
+import 'jest-extended';
+import path from 'path';
+import { debugLogger } from '@terascope/utils';
 
 jest.mock('elasticsearch');
 jest.mock('node-webhdfs');
@@ -12,14 +12,17 @@ jest.mock('redis', () => ({
 // jest.mock('aws-sdk');
 jest.mock('node-statsd');
 
-const elasticsearch = require('elasticsearch');
-const hdfs = require('node-webhdfs');
-const mongodb = require('mongoose');
-const redis = require('redis');
+import elasticsearch from 'elasticsearch';
+// @ts-ignore
+import hdfs from 'node-webhdfs';
+import mongodb from 'mongoose';
+import redis from 'redis';
 // const aws = require('aws-sdk');
-const statsd = require('node-statsd');
+// @ts-ignore
+import statsd from 'node-statsd';
 
 const esClient = { es: true };
+// @ts-ignore
 elasticsearch.Client.mockImplementation(() => Object.assign({}, esClient));
 
 const hdfsClient = { hdfs: true };
@@ -28,6 +31,7 @@ hdfs.WebHDFSClient.mockImplementation(() => Object.assign({}, hdfsClient));
 mongodb.connect = jest.fn();
 
 const redisClient = { redis: true };
+// @ts-ignore
 redis.createClient.mockImplementation(() => Object.assign({}, redisClient));
 
 // const awsClient = { aws: true };
@@ -74,7 +78,7 @@ describe('getConnection foundation API', () => {
             }
         },
         name: 'terafoundation'
-    };
+    } as any;
 
 
     beforeEach(() => {

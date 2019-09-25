@@ -1,11 +1,10 @@
-'use strict';
-
-const { debugLogger } = require('@terascope/utils');
-const workerModule = require('../lib/worker');
+import 'jest-extended';
+import { debugLogger } from '@terascope/utils';
+import workerModule from '../src/worker';
 
 describe('worker', () => {
     it('should not throw when constructed', () => {
-        const context = {
+        const context: any = {
             logger: debugLogger('worker-module')
         };
         expect(() => workerModule(context)).not.toThrow();

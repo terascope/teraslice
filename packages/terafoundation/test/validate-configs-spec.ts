@@ -1,8 +1,6 @@
-'use strict';
-
-const os = require('os');
-
-const validateConfigs = require('../lib/validate-configs');
+import 'jest-extended';
+import os from 'os';
+import validateConfigs from '../src/validate-configs';
 
 describe('Validate Configs', () => {
     describe('when using mainly defaults', () => {
@@ -34,7 +32,7 @@ describe('Validate Configs', () => {
                 {
                     name: 'test_Format',
                     validate() {},
-                    coerce(val) {
+                    coerce(val: any) {
                         return val;
                     },
                 },
@@ -42,7 +40,7 @@ describe('Validate Configs', () => {
         };
 
         it('should return a valid config', () => {
-            const validatedConfig = validateConfigs(cluster, config, configFile);
+            const validatedConfig = validateConfigs(cluster, config as any, configFile as any);
             expect(validatedConfig).toMatchObject({
                 terafoundation: {
                     connectors: {},
@@ -89,7 +87,7 @@ describe('Validate Configs', () => {
         };
 
         it('should return a valid config', () => {
-            const validatedConfig = validateConfigs({}, {}, configFile);
+            const validatedConfig = validateConfigs({} as any, {} as any, configFile as any);
             expect(validatedConfig).toMatchObject({
                 terafoundation: {
                     log_level: [
@@ -178,7 +176,7 @@ describe('Validate Configs', () => {
         };
 
         it('should return a valid config', () => {
-            const validatedConfig = validateConfigs({}, {}, configFile);
+            const validatedConfig = validateConfigs({} as any, {} as any, configFile as any);
             expect(validatedConfig).toMatchObject({
                 terafoundation: {
                     connectors: {
@@ -208,7 +206,7 @@ describe('Validate Configs', () => {
         };
 
         it('should throw an error', () => {
-            expect(() => validateConfigs(cluster, config, configFile)).toThrowError('Error validating configuration');
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrowError('Error validating configuration');
         });
     });
 
@@ -229,7 +227,7 @@ describe('Validate Configs', () => {
         };
 
         it('should throw an error', () => {
-            expect(() => validateConfigs(cluster, config, configFile)).toThrowError('Error validating configuration');
+            expect(() => validateConfigs(cluster as any, config as any, configFile as any)).toThrowError('Error validating configuration');
         });
     });
 });

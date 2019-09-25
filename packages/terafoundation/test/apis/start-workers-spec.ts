@@ -1,7 +1,6 @@
-'use strict';
-
-const { debugLogger } = require('@terascope/utils');
-const api = require('../../lib/api');
+import 'jest-extended';
+import { debugLogger } from '@terascope/utils';
+import api from '../../src/api';
 
 describe('startWorkers foundation API', () => {
     const context = {
@@ -11,7 +10,7 @@ describe('startWorkers foundation API', () => {
             }
         },
         name: 'terafoundation'
-    };
+    } as any;
 
     beforeEach(() => {
         // This sets up the API endpoints in the context.

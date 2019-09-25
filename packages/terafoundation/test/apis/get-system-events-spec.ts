@@ -1,6 +1,5 @@
-'use strict';
-
-const api = require('../../lib/api');
+import 'jest-extended';
+import api from '../../src/api';
 
 describe('getSystemEvents foundation API', () => {
     const context = {
@@ -10,7 +9,7 @@ describe('getSystemEvents foundation API', () => {
             }
         },
         name: 'terafoundation'
-    };
+    } as any;
 
     beforeEach(() => {
         // This sets up the API endpoints in the context.

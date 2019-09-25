@@ -1,12 +1,10 @@
-'use strict';
-
-const { EventEmitter } = require('events');
-const { debugLogger } = require('@terascope/utils');
-const masterModule = require('../lib/master');
+import { EventEmitter } from 'events';
+import { debugLogger } from '@terascope/utils';
+import masterModule from '../src/master';
 
 describe('master', () => {
     const events = new EventEmitter();
-    const cluster = new EventEmitter();
+    const cluster = new EventEmitter() as any;
     cluster.fork = jest.fn();
 
     const context = {
@@ -34,6 +32,6 @@ describe('master', () => {
     });
 
     it('should throw when constructed', () => {
-        expect(() => masterModule(context, moduleConfig)).not.toThrow();
+        expect(() => masterModule(context as any, moduleConfig as any)).not.toThrow();
     });
 });

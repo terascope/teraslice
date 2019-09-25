@@ -1,18 +1,17 @@
-'use strict';
-
-const { SimpleContext } = require('..');
+import 'jest-extended';
+import { makeSimpleContext } from '../src';
 
 describe('Terafoundation (SimpleContext)', () => {
     it('should be able to return a valid context', () => {
-        const context = new SimpleContext({
+        const context = makeSimpleContext({
             name: 'example',
-        }, {
+        } as any, {
             sysconfig: {
                 terafoundation: {
                     environment: process.env.NODE_ENV,
                 }
             }
-        });
+        } as any);
         expect(context).toHaveProperty('assignment');
         expect(context).toHaveProperty('name', 'example');
         expect(context).toHaveProperty('cluster.worker.id');
@@ -33,10 +32,10 @@ describe('Terafoundation (SimpleContext)', () => {
     });
 
     it('should throw an error when given an invalid system config', () => {
-        expect(() => { SimpleContext({ a: true }, { sysconfig: 'invalid' }); }).toThrowError('Terafoundation requires a valid system configuration');
+        expect(() => { makeSimpleContext({ a: true } as any, { sysconfig: 'invalid' } as any); }).toThrowError('Terafoundation requires a valid system configuration');
     });
 
     it('should throw an error when given an invalid application config', () => {
-        expect(() => { SimpleContext('invalid'); }).toThrowError('Terafoundation requires a valid application configuration');
+        expect(() => { makeSimpleContext('invalid' as any); }).toThrowError('Terafoundation requires a valid application configuration');
     });
 });
