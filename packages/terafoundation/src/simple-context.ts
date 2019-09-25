@@ -1,30 +1,34 @@
-'use strict';
-
-const ip = require('ip');
-const shortid = require('shortid');
-const { EventEmitter } = require('events');
-const {
+import ip from 'ip';
+import shortid from 'shortid';
+import { EventEmitter } from 'events';
+import {
     debugLogger,
     toBoolean,
     get,
     isEmpty,
     isPlainObject,
-} = require('@terascope/utils');
-const validateConfigs = require('./validate-configs');
-const { getArgs } = require('./sysconfig');
-const registerApis = require('./api');
+} from '@terascope/utils';
+import validateConfigs from './validate-configs';
+import { getArgs } from './sysconfig';
+import registerApis from './api';
+import * as i from './interfaces';
 
 const assignment = process.env.NODE_TYPE || process.env.assignment || 'worker';
 const useDebugLogger = toBoolean(process.env.USE_DEBUG_LOGGER);
 
-function makeContext(cluster, config, sysconfig) {
-    const context = {};
-    context.sysconfig = validateConfigs(cluster, config, sysconfig);
-    context.assignment = assignment;
-    context.name = config.name;
-    context.cluster = cluster;
-    context.arch = process.arch;
-    context.platform = process.platform;
+function makeContext<S = {}, A = {}, D extends string = string>(
+    cluster: i.FoundationCluster,
+    config: i.FoundationConfig<S, A, D>,
+    sysconfig: i.FoundationSysConfig<S>
+): i.FoundationContext<S, A, D> {
+    const context: i.FoundationContext<S, A, D> = {
+        sysconfig: validateConfigs(cluster, config, sysconfig),
+        assignment,
+        name: config.name,
+        arch: process.arch,
+        platform: process.platform,
+        cluster,
+    } as any;
 
     if (process.env.POD_IP) {
         context.sysconfig._nodeName = process.env.POD_IP;
@@ -56,30 +60,36 @@ function makeContext(cluster, config, sysconfig) {
     return context;
 }
 
-function getSysConfig(name, defaultConfigFile) {
+function getSysConfig(name: string, defaultConfigFile?: string) {
     const { configFile } = getArgs(name, defaultConfigFile);
     return configFile;
 }
 
-function generateWorkerId(context) {
+function generateWorkerId<T extends i.FoundationContext>(context: T) {
     const hostname = getHostname(context);
     const workerId = get(context, 'cluster.worker.id');
     return `${hostname}__${workerId}`;
 }
 
-function getHostname(context) {
+function getHostname<T extends i.FoundationContext>(context: T) {
     const hostname = get(context, ['sysconfig', context.name, 'hostname']);
     if (hostname) return hostname;
 
     return ip.address();
 }
 
-module.exports = function SimpleContext(config, { sysconfig: _sysconfig } = {}) {
+export default function simpleContext<S = {}, A = {}, D extends string = string>(
+    config: i.FoundationConfig<S, A, D>,
+    overrideArg?: { sysconfig: i.FoundationSysConfig<S> }
+): i.FoundationContext<S, A, D> {
     if (!isPlainObject(config) || isEmpty(config)) {
         throw new Error('Terafoundation requires a valid application configuration');
     }
 
-    const sysconfig = _sysconfig || getSysConfig(config.name, config.default_config_file);
+    const sysconfig = overrideArg && overrideArg.sysconfig
+        ? overrideArg.sysconfig
+        : getSysConfig(config.name, config.default_config_file);
+
     if (!isPlainObject(sysconfig) || isEmpty(sysconfig)) {
         throw new Error('Terafoundation requires a valid system configuration');
     }
@@ -91,4 +101,4 @@ module.exports = function SimpleContext(config, { sysconfig: _sysconfig } = {}) 
     };
 
     return makeContext(cluster, config, sysconfig);
-};
+}

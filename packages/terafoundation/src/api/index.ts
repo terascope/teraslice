@@ -1,14 +1,13 @@
-'use strict';
-
-const _makeLogger = require('./make-logger');
-const _getConnection = require('./get-connection');
-const _getSystemEvents = require('./get-system-events');
-const _startWorkers = require('./start-workers');
+import { FoundationContext } from '../interfaces';
+import _makeLogger from './make-logger';
+import _getConnection from './get-connection';
+import _getSystemEvents from './get-system-events';
+import _startWorkers from './start-workers';
 
 /*
  * This module controls the API endpoints that are exposed under context.apis.
  */
-module.exports = function apisModule(context) {
+export default function apisModule(context: FoundationContext) {
     const makeLogger = _makeLogger(context);
     const getConnection = _getConnection(context);
     const getSystemEvents = _getSystemEvents(context);
@@ -39,7 +38,7 @@ module.exports = function apisModule(context) {
      * @param {string} name - The module name being registered
      * @param {string} api - Object containing the functions being exposed as the API
      */
-    function registerAPI(name, api) {
+    function registerAPI(name: string, api: any) {
         if (Object.prototype.hasOwnProperty.call(context.apis, name)) {
             throw new Error(`Registration of API endpoints for module ${name} can only occur once`);
         } else {
@@ -50,10 +49,10 @@ module.exports = function apisModule(context) {
     // This exposes the registerAPI function to the rest of the system.
     context.apis = {
         registerAPI
-    };
+    } as any;
 
     _registerFoundationAPIs();
     _registerLegacyAPIs();
 
     return context.apis;
-};
+}

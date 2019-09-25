@@ -1,15 +1,18 @@
-'use strict';
+import os from 'os';
+import convict from 'convict';
+import { TSError, isFunction, isPlainObject } from '@terascope/utils';
+import { getConnectorSchema } from './connector-utils';
+import sysSchema from './system_schema';
+import * as i from './interfaces';
 
-const os = require('os');
-const convict = require('convict');
-const { TSError, isFunction, isPlainObject } = require('@terascope/utils');
-const { getConnectorSchema } = require('./connector-utils');
-const sysSchema = require('../system_schema');
-
-function validateConfig(cluster, schema, configFile) {
+function validateConfig(
+    cluster: i.FoundationCluster,
+    schema: convict.Schema<any>,
+    namespaceConfig: any
+) {
     try {
         const config = convict(schema || {});
-        config.load(configFile);
+        config.load(namespaceConfig);
 
         if (cluster.isMaster) {
             config.validate({
@@ -18,7 +21,7 @@ function validateConfig(cluster, schema, configFile) {
                 // false is deprecated and will be removed in ^5.0.0
                 // must be warn or strict
                 allowed: true,
-            });
+            } as any);
         }
 
         return config.getProperties();
@@ -27,9 +30,9 @@ function validateConfig(cluster, schema, configFile) {
     }
 }
 
-function extractSchema(fn, configFile) {
+function extractSchema<S>(fn: any, sysconfig: i.FoundationSysConfig<S>): any {
     if (isFunction(fn)) {
-        return fn(configFile);
+        return fn(sysconfig);
     }
     if (isPlainObject(fn)) {
         return fn;
@@ -43,9 +46,13 @@ function extractSchema(fn, configFile) {
  * @param config the config object passed to the library terafoundation
  * @param configFile the parsed config from the config file
 */
-module.exports = function validateConfigs(cluster, config, configFile) {
-    const schema = extractSchema(config.config_schema, configFile);
-    const result = {};
+export default function validateConfigs<S = {}, A = {}, D extends string = string>(
+    cluster: i.FoundationCluster,
+    config: i.FoundationConfig<S, A, D>,
+    sysconfig: i.FoundationSysConfig<S>
+): i.FoundationSysConfig<S> {
+    const schema = extractSchema(config.config_schema, sysconfig);
+    const result: any = {};
 
     if (config.schema_formats) {
         config.schema_formats.forEach((format) => {
@@ -53,13 +60,13 @@ module.exports = function validateConfigs(cluster, config, configFile) {
         });
     }
 
-    for (const [namespace, namespaceConfig] of Object.entries(configFile)) {
+    for (const [namespace, namespaceConfig] of Object.entries(sysconfig)) {
         // terafoundation
         if (namespace === 'terafoundation') {
             result[namespace] = validateConfig(cluster, sysSchema, namespaceConfig);
             result[namespace].connectors = {};
 
-            const connectors = configFile[namespace].connectors || {};
+            const connectors: Record<string, any> = sysconfig[namespace].connectors || {};
             for (const [connector, connectorConfig] of Object.entries(connectors)) {
                 const innerSchema = getConnectorSchema(connector);
                 result[namespace].connectors[connector] = {};
@@ -68,7 +75,7 @@ module.exports = function validateConfigs(cluster, config, configFile) {
                     result[namespace].connectors[connector][endpoint] = validateConfig(
                         cluster,
                         innerSchema,
-                        endpointConfig
+                        endpointConfig as any
                     );
                 }
             }
@@ -76,7 +83,7 @@ module.exports = function validateConfigs(cluster, config, configFile) {
             result[namespace] = validateConfig(
                 cluster,
                 schema[namespace],
-                namespaceConfig
+                namespaceConfig as any
             );
         }
     }
@@ -90,4 +97,4 @@ module.exports = function validateConfigs(cluster, config, configFile) {
     }
 
     return result;
-};
+}

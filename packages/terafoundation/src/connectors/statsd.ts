@@ -1,6 +1,6 @@
-'use strict';
+import { Logger } from '@terascope/utils';
 
-function create(customConfig, logger) {
+function create(customConfig: any, logger: Logger) {
     const { StatsD } = require('node-statsd');
     logger.info(`Using statsd host: ${customConfig.host}`);
 
@@ -11,7 +11,7 @@ function create(customConfig, logger) {
     };
 }
 
-module.exports = {
+export default {
     create,
     config_schema() {
         return {

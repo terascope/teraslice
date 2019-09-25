@@ -1,8 +1,7 @@
-'use strict';
+import { promisifyAll } from 'bluebird';
+import { Logger } from '@terascope/utils';
 
-const Promise = require('bluebird');
-
-function create(customConfig, logger) {
+function create(customConfig: any, logger: Logger) {
     const HdfsClient = require('node-webhdfs').WebHDFSClient;
 
     let highAvailibility = false;
@@ -22,11 +21,11 @@ function create(customConfig, logger) {
     logger.info(`Using hdfs hosts: ${currentNameNode}, high-availability: ${highAvailibility}`);
 
     return {
-        client: Promise.promisifyAll(client)
+        client: promisifyAll(client)
     };
 }
 
-module.exports = {
+export default {
     create,
     config_schema() {
         return {
@@ -42,7 +41,7 @@ module.exports = {
             namenode_host: {
                 doc: 'a single host, or multiple hosts listed in an array',
                 default: null,
-                format(val) {
+                format(val: any) {
                     if (typeof val === 'string') {
                         return;
                     }

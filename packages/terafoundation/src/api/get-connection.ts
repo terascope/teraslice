@@ -1,4 +1,5 @@
-'use strict';
+import { createConnection } from '../connector-utils';
+import { FoundationContext, ConnectionConfig } from '../interfaces';
 
 /*
  Common events
@@ -6,21 +7,14 @@
  connected
  reconnected
  */
-const { createConnection } = require('../connector-utils');
-
-module.exports = function getConnectionModule(context) {
+module.exports = function getConnectionModule(context: FoundationContext) {
     const { sysconfig } = context;
     const connections = {};
 
     /*
      * Creates a new connection to a remote service.
-     *
-     * @param options
-     * @param options.type
-     * @param options.endpoint
-     * @param options.cached
      */
-    return function getConnection(options) {
+    return function getConnection(options: ConnectionConfig) {
         const { logger } = context;
 
         const { type, endpoint = 'default', cached } = options;

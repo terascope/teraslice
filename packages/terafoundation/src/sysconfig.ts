@@ -1,12 +1,11 @@
-'use strict';
+import fs from 'fs';
+import path from 'path';
+import yargs from 'yargs';
+import yaml from 'js-yaml';
+import { cloneDeep } from '@terascope/utils';
+import * as i from './interfaces';
 
-const fs = require('fs');
-const path = require('path');
-const yargs = require('yargs');
-const yaml = require('js-yaml');
-const { cloneDeep } = require('@terascope/utils');
-
-function getDefaultConfigFile() {
+export function getDefaultConfigFile() {
     const cwd = process.cwd();
 
     if (process.env.TERAFOUNDATION_CONFIG) {
@@ -40,7 +39,10 @@ function getDefaultConfigFile() {
     return undefined;
 }
 
-function getArgs(scriptName, defaultConfigFile) {
+export function getArgs(
+    scriptName: string,
+    defaultConfigFile?: string
+): { configFile: i.FoundationSysConfig<any>; bootstrap: boolean } {
     const { argv } = yargs.usage('Usage: $0 [options]')
         .scriptName(scriptName)
         .version()
@@ -62,12 +64,12 @@ function getArgs(scriptName, defaultConfigFile) {
         .wrap(yargs.terminalWidth());
 
     return {
-        bootstrap: argv.bootstrap,
-        configFile: argv.configfile,
+        bootstrap: Boolean(argv.bootstrap),
+        configFile: argv.configfile as i.FoundationSysConfig<any>,
     };
 }
 
-function parseConfigFile(file) {
+export function parseConfigFile(file: string) {
     const configFile = file ? path.resolve(file) : undefined;
     if (!configFile || !fs.existsSync(configFile)) {
         throw new Error(`Could not find a usable config file at the path: ${configFile}`);
@@ -79,9 +81,3 @@ function parseConfigFile(file) {
 
     return cloneDeep(require(configFile));
 }
-
-module.exports = {
-    getArgs,
-    getDefaultConfigFile,
-    parseConfigFile,
-};

@@ -1,28 +1,28 @@
-import SimpleContext from './simple-context';
+import { Logger } from '@terascope/utils';
 import { getArgs } from './sysconfig';
 import validateConfigs from './validate-configs';
+import * as i from './interfaces';
 import master from './master';
 import api from './api';
 
 // this module is not really testable
 /* istanbul ignore next */
-module.exports = function clusterContext(config: any) {
-    const domain = require('domain');
+export default function ClusterContext<S = {}, A = {}, D extends string = string>(
+    config: i.FoundationConfig<S, A, D>
+): i.FoundationContext<S, A, D> {
     const cluster = require('cluster');
-
-    const primary = domain.create();
 
     const name = config.name ? config.name : 'terafoundation';
 
     const { configFile, bootstrap } = getArgs(config.name, config.default_config_file);
 
-    let logger;
+    let logger: Logger;
 
     const sysconfig = validateConfigs(cluster, config, configFile);
 
     // set by initAPI
 
-    function errorHandler(err) {
+    function errorHandler(err: any) {
         // eslint-disable-next-line no-console
         const logErr = logger ? logger.error.bind(logger) : console.log;
         if (cluster.isMaster) {
@@ -47,7 +47,7 @@ module.exports = function clusterContext(config: any) {
         }, 600);
     }
 
-    function findWorkerCode(context) {
+    function findWorkerCode(context: any) {
         let keyFound = false;
         if (config.descriptors) {
             Object.keys(config.descriptors).forEach((key) => {
@@ -65,13 +65,11 @@ module.exports = function clusterContext(config: any) {
         }
     }
 
-    // Domain emits 'error' when it's given an unhandled error
-    primary.on('error', errorHandler);
     process.on('uncaughtException', errorHandler);
     process.on('unhandledRejection', errorHandler);
 
     // See https://github.com/trentm/node-bunyan/issues/246
-    function handleStdError(err) {
+    function handleStdError(err: any) {
         if (err.code === 'EPIPE' || err.code === 'ERR_STREAM_DESTROYED') {
         // ignore
         } else {
@@ -82,64 +80,62 @@ module.exports = function clusterContext(config: any) {
     process.stdout.on('error', handleStdError);
     process.stderr.on('error', handleStdError);
 
-    primary.run(() => {
-        /*
+    let clusterName: string|undefined;
+    if (typeof config.cluster_name === 'function') {
+        clusterName = config.cluster_name(sysconfig);
+    }
+
+    /*
          * Service configuration context
          */
-        const context = {};
+    const context = {
+        sysconfig,
+        cluster,
+        name,
+        arch: process.arch,
+        platform: process.platform,
+        cluster_name: clusterName
+    } as i.FoundationContext<S, A, D>;
 
-        context.sysconfig = sysconfig;
-        context.cluster = cluster;
-        context.name = name;
-        context.arch = process.arch;
-        context.platform = process.platform;
+    // Initialize the API
+    api(context);
 
-        if (typeof config.cluster_name === 'function') {
-            context.cluster_name = config.cluster_name(context.sysconfig);
-        }
+    // Bootstrap the top level logger
+    logger = context.apis.foundation.makeLogger(context.name, context.name);
+    context.logger = logger;
 
-        // Initialize the API
-        api(context);
-
-        // Bootstrap the top level logger
-        logger = context.apis.foundation.makeLogger(context.name, context.name);
-        context.logger = logger;
-
-        if (config.script) {
-            config.script(context);
+    if (config.script) {
+        config.script(context);
         /**
          * Use cluster to start multiple workers
          */
-        } else if (context.cluster.isMaster) {
-            /**
+    } else if (context.cluster.isMaster) {
+        /**
              * If the bootstrap option is provided we run the bootstrap function to
              * do any initial application setup.
              * */
-            // TODO verify we need this
-            if (bootstrap) {
-                if (config.bootstrap && typeof config.bootstrap === 'function') {
-                    config.bootstrap(context, () => {
-                        // process.exit(0);
-                    });
-                } else {
-                    logger.error('No bootstrap function provided. Nothing to do.');
+        // TODO verify we need this
+        if (bootstrap) {
+            if (config.bootstrap && typeof config.bootstrap === 'function') {
+                config.bootstrap(context, () => {
                     // process.exit(0);
-                }
+                });
+            } else {
+                logger.error('No bootstrap function provided. Nothing to do.');
+                // process.exit(0);
             }
-
-            master(context, config);
-
-            // If there's a master plugin defined, pass it on.
-            if (config.master) {
-                // TODO reexamine this code here
-                context.master_plugin = config.master(context, config);
-            }
-        } else {
-            findWorkerCode(context);
         }
-    });
 
-    return primary;
-};
+        master(context, config);
 
-module.exports.SimpleContext = SimpleContext;
+        // If there's a master plugin defined, pass it on.
+        if (config.master) {
+            // TODO reexamine this code here
+            context.master_plugin = config.master(context, config);
+        }
+    } else {
+        findWorkerCode(context);
+    }
+
+    return context;
+}

@@ -42,7 +42,10 @@
         "shortid": "^2.2.14",
         "yargs": "^14.0.0"
     },
-    "devDependencies": {},
+    "devDependencies": {
+        "@types/bunyan": "^1.8.6",
+        "@types/js-yaml": "^3.12.1"
+    },
     "publishConfig": {
         "access": "public",
         "registry": "https://registry.npmjs.org/"

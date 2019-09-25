@@ -1,32 +1,38 @@
-'use strict';
+import fs from 'fs';
+import path from 'path';
+import bunyan from 'bunyan';
+import { includes, Logger } from '@terascope/utils';
+import * as i from '../interfaces';
 
-const fs = require('fs');
-const path = require('path');
-const bunyan = require('bunyan');
-const { includes } = require('@terascope/utils');
+type LogLevelObj = {
+    [type in i.LogType]: i.LogLevelType;
+};
 
-function getLogLevel(level) {
+function getLogLevel(level: i.LogLevelConfig): LogLevelObj {
     // Set the same level for all logging types.
     if (typeof level === 'string') {
-        return { console: level, file: level };
+        return {
+            console: level as i.LogLevelType,
+            file: level as i.LogLevelType
+        };
     }
 
     // Otherwise there may be a list of separate settins for each type.
     return level.reduce((prev, curr) => {
         Object.assign(prev, curr);
         return prev;
-    }, {});
+    }, {} as LogLevelObj);
 }
 
-module.exports = function makeLoggerModule(context) {
+module.exports = function makeLoggerModule(context: i.FoundationContext) {
     const loggingConfig = context.sysconfig.terafoundation;
     const logLevel = getLogLevel(loggingConfig.log_level);
 
     // This is the root logger. Module specific loggers will be created
     // as children of this logger
-    let logger;
+    let logger: Logger;
 
-    function _createChildLogger(name, _meta) {
+    function makeLogger(name: string, _meta: any) {
         const meta = _meta || {};
 
         // subsequent child loggers don't need name or filename,
@@ -39,11 +45,11 @@ module.exports = function makeLoggerModule(context) {
         return newLogger;
     }
 
-    return function makeLogger(loggerName, filename, _meta) {
+    return function makeRootLogger(loggerName: string, filename: string, _meta: any) {
         // If there is already a logger defined we're just creating a
         // child logger using the same config.
         if (logger) {
-            return _createChildLogger(loggerName, _meta);
+            return makeLogger(loggerName, _meta);
         }
 
         const streamConfig = [];
@@ -78,13 +84,12 @@ module.exports = function makeLoggerModule(context) {
             }
         }
 
-        const loggerConfig = {
+        const loggerConfig: bunyan.LoggerOptions = {
             name: loggerName,
-            level: logLevel.elasticsearch,
             streams: streamConfig
         };
 
-        logger = bunyan.createLogger(loggerConfig);
+        logger = bunyan.createLogger(loggerConfig) as Logger;
         logger.flush = async () => true;
 
         return logger;

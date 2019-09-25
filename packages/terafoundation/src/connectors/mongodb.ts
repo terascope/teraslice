@@ -1,11 +1,11 @@
-'use strict';
+import { Logger } from '@terascope/utils';
 
-function create(customConfig, logger) {
+function create(customConfig: any, logger: Logger) {
     const mongoose = require('mongoose');
     // TODO: rework configuration to allow incoming config to be a full mongo config
     logger.info(`Using mongo connection string: ${customConfig.servers}`);
 
-    const serverConfig = {
+    const serverConfig: any = {
         server: {
             auto_reconnect: true,
             socketOptions: { keepAlive: 1, connectTimeoutMS: 30000 }
@@ -23,7 +23,7 @@ function create(customConfig, logger) {
         };
     }
 
-    mongoose.connect(customConfig.servers, serverConfig, (error) => {
+    mongoose.connect(customConfig.servers, serverConfig, (error: any) => {
         if (error) {
             logger.error(error, 'Could not connect to Mongo DB:');
         }
@@ -34,7 +34,7 @@ function create(customConfig, logger) {
     };
 }
 
-module.exports = {
+export default {
     create,
     config_schema() {
         return {

@@ -1,16 +1,15 @@
-'use strict';
+import fs from 'fs';
+import https from 'https';
+import { Logger } from '@terascope/utils';
+import { defer, promisifyAll } from 'bluebird';
 
-const Promise = require('bluebird');
-const fs = require('fs');
-const https = require('https');
-
-function create(customConfig, logger) {
+function create(customConfig: any, logger: Logger) {
     const AWS = require('aws-sdk');
 
     logger.info(`Using S3 endpoint: ${customConfig.endpoint}`);
 
     customConfig.defer = function _defer() {
-        return Promise.defer();
+        return defer();
     };
 
     // https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/node-registering-certs.html
@@ -36,7 +35,7 @@ function create(customConfig, logger) {
     const client = new AWS.S3(customConfig);
 
     return {
-        client: Promise.promisifyAll(client, { suffix: '_Async' })
+        client: promisifyAll(client, { suffix: '_Async' })
     };
 }
 

@@ -1,8 +1,8 @@
-'use strict';
+import { cpus } from 'os';
 
-const workerCount = require('os').cpus().length;
+const workerCount = cpus().length;
 
-module.exports = {
+export = {
     environment: {
         doc: 'If set to `production`, console logging will be disabled and logs will be sent to a file',
         default: 'development',
@@ -16,7 +16,7 @@ module.exports = {
     logging: {
         doc: 'Logging destinations. Expects an array of logging targets',
         default: ['console'],
-        format(config) {
+        format(config: any) {
             const values = { console: true, file: true };
             if (!Array.isArray(config)) {
                 throw new Error('value for logging set in terafoundation must be an array');
@@ -32,7 +32,7 @@ module.exports = {
     log_level: {
         doc: 'Default logging levels',
         default: 'info',
-        format(val) {
+        format(val: any) {
             const check = {
                 trace: true, debug: true, info: true, warn: true, error: true, fatal: true
             };

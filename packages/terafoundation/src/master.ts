@@ -1,7 +1,27 @@
-'use strict';
+import { cpus } from 'os';
+import { times, Overwrite } from '@terascope/utils';
+import {
+    Cluster as NodeJSCluster,
+    Worker as NodeJSWorker
+} from 'cluster';
+import * as i from './interfaces';
 
-module.exports = function masterModule(context, moduleConfig) {
-    const { cluster, logger } = context;
+type Worker = NodeJSWorker & {
+    __process_restart?: boolean;
+    service_context: any;
+    assignment: string;
+};
+
+type MasterCluster = Overwrite<NodeJSCluster, {
+    isMaster: true;
+    workers: {
+        [id: string]: Worker;
+    };
+}>;
+
+export default function masterModule(context: i.FoundationContext, moduleConfig: any): void {
+    const { logger } = context;
+    const cluster: MasterCluster = context.cluster as any;
     const configWorkers = context.sysconfig.terafoundation.workers;
     let startWorkers = true;
     const events = context.foundation.getEventEmitter();
@@ -15,7 +35,7 @@ module.exports = function masterModule(context, moduleConfig) {
 
     let shuttingDown = false;
 
-    const workerCount = configWorkers || require('os').cpus().length;
+    const workerCount = configWorkers || cpus().length;
 
     function shutdown() {
         logger.info('Shutting down.');
@@ -29,7 +49,7 @@ module.exports = function masterModule(context, moduleConfig) {
 
         let workersAlive = 0;
         let funcRun = 0;
-        let shutdownInterval;
+        let shutdownInterval: NodeJS.Timer;
 
         let emittedShutdown = false;
         const emitShutdown = () => {
@@ -46,7 +66,7 @@ module.exports = function masterModule(context, moduleConfig) {
             emitShutdown();
 
             workers.forEach((worker) => {
-                if (worker.isDead()) return;
+                if (!worker || worker.isDead()) return;
                 workersAlive += 1;
 
                 // On the first execution of the function,
@@ -85,14 +105,12 @@ module.exports = function masterModule(context, moduleConfig) {
     // default starting workers will use context.worker for code source;
     if (startWorkers) {
         logger.info(`Starting ${workerCount} workers.`);
-        for (let i = 0; i < workerCount; i += 1) {
-            cluster.fork();
-        }
+        times(workerCount, () => cluster.fork());
     }
 
     // assignment is set at /lib/api/start_workers
-    function determineWorkerENV(worker) {
-        const options = {};
+    function determineWorkerENV(worker: Worker) {
+        const options: any = {};
 
         if (worker.service_context) {
             const envConfig = JSON.parse(worker.service_context);
@@ -104,7 +122,7 @@ module.exports = function masterModule(context, moduleConfig) {
         return options;
     }
 
-    function shouldProcessRestart(code, signal) {
+    function shouldProcessRestart(code: number, signal?: string) {
         const signalOptions = { SIGKILL: true, SIGTERM: true, SIGINT: true };
         let bool = true;
 
@@ -113,14 +131,15 @@ module.exports = function masterModule(context, moduleConfig) {
             bool = false;
         }
 
-        if (signalOptions[signal]) {
+        if (signal && signalOptions[signal]) {
             bool = false;
         }
 
         return bool;
     }
 
-    cluster.on('exit', (worker, code, signal) => {
+    cluster.on('exit', (_worker, code, signal) => {
+        const worker = _worker as Worker;
         const type = worker.assignment ? worker.assignment : 'worker';
         logger.info(`${type} has exited, id: ${worker.id}, code: ${code}, signal: ${signal}`);
         if (!shuttingDown && shouldProcessRestart(code, signal)) {
@@ -137,4 +156,4 @@ module.exports = function masterModule(context, moduleConfig) {
 
     // Put a friendly message on the terminal of the server.
     logger.info('Service starting');
-};
+}

@@ -1,6 +1,6 @@
-'use strict';
+import { Logger } from '@terascope/utils';
 
-function create(customConfig, logger) {
+function create(customConfig: any, logger: Logger) {
     const redis = require('redis');
 
     logger.info(`Using redis host: ${customConfig.host}`);
@@ -12,7 +12,7 @@ function create(customConfig, logger) {
     };
 }
 
-module.exports = {
+export default {
     create,
     config_schema() {
         return {

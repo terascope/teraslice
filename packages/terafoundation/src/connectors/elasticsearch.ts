@@ -1,33 +1,40 @@
-'use strict';
+import { defer } from 'bluebird';
+import { Logger } from '@terascope/utils';
 
-const Promise = require('bluebird');
-
-function logWrapper(logger) {
-    return function _wrap() {
-        this.error = logger.error.bind(logger);
-        this.warning = logger.warn.bind(logger);
-        this.info = logger.info.bind(logger);
-        this.debug = logger.debug.bind(logger);
-        this.trace = function _trace(method, requestUrl, body, responseBody, responseStatus) {
-            logger.trace({
-                method,
-                requestUrl,
-                body,
-                responseBody,
-                responseStatus
-            });
+function logWrapper(logger: Logger) {
+    return function _logger() {
+        return {
+            error: logger.error.bind(logger),
+            warning: logger.warn.bind(logger),
+            info: logger.info.bind(logger),
+            debug: logger.debug.bind(logger),
+            trace(
+                method: any,
+                requestUrl: any,
+                body: any,
+                responseBody: any,
+                responseStatus: any
+            ) {
+                logger.trace({
+                    method,
+                    requestUrl,
+                    body,
+                    responseBody,
+                    responseStatus
+                });
+            },
+            close() {}
         };
-        this.close = function _close() {};
     };
 }
 
-function create(customConfig, logger) {
+function create(customConfig: any, logger: Logger) {
     const elasticsearch = require('elasticsearch');
 
     logger.info(`using elasticsearch hosts: ${customConfig.host}`);
 
     customConfig.defer = function _defer() {
-        return Promise.defer();
+        return defer();
     };
 
     const client = new elasticsearch.Client(customConfig);
@@ -38,7 +45,7 @@ function create(customConfig, logger) {
     };
 }
 
-module.exports = {
+export default {
     create,
     config_schema() {
         return {
