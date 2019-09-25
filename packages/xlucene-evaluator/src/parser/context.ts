@@ -79,10 +79,11 @@ export default function makeContext(args: any) {
         return term;
     }
 
-    function parseFunction(fnName: string, params: i.Term[]) {
-        const fn = xluceneFunctions[fnName];
-        if (fn == null) throw new Error(`Could not find an xlucene function with name "${fnName}"`);
-        return fn(params);
+    function parseFunction(field: string, name: string, params: i.Term[]) {
+        // TODO: get better types name
+        const fnType = xluceneFunctions[name];
+        if (fnType == null) throw new Error(`Could not find an xlucene function with name "${name}"`);
+        return fnType.create(field, params, { logger, typeConfig });
     }
 
     function coerceTermType(node: any, _field?: string) {

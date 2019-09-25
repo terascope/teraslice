@@ -110,6 +110,10 @@ function walkAst(node: p.AnyAST, typeConfig: p.TypeConfig): BooleanCB {
         return logicNode(field, typeFunctions(node, typeConfig, rangeFn(node)));
     }
 
+    if (p.isFunctionExpression(node)) {
+        return logicNode(field, node.instance.match);
+    }
+
     if (p.isGeoDistance(node)) {
         return logicNode(field, geoDistance(node));
     }

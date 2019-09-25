@@ -45,7 +45,6 @@ export function geoPolygon(params: i.Term[]) {
     if (points.length < 3) throw new Error('geoPolygon points parameter must have at least three points');
 
     return {
-        type: i.ASTType.GeoPolygon,
         points
     };
 }

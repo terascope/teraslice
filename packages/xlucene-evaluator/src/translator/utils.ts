@@ -72,8 +72,20 @@ export function translateQuery(
             return buildGeoDistanceQuery(node);
         }
 
-        if (p.isGeoPolygon(node)) {
-            return buildGeoPolygonQuery(node);
+        if (p.isFunctionExpression(node)) {
+            const { query, sort: sortQuery } = node.instance.toElasticsearchQuery(options);
+            // TODO: review how sort works in this module
+            if (sortQuery != null) {
+                if (!sort) {
+                    sort = sortQuery;
+                } else if (Array.isArray(sort)) {
+                    sort.push(sortQuery);
+                } else {
+                    sort = [sort, sortQuery];
+                }
+            }
+
+            return query;
         }
     }
 
@@ -86,21 +98,6 @@ export function translateQuery(
 
         logger.trace('built mutli-match query', { node, multiMatchQuery });
         return multiMatchQuery;
-    }
-
-    function buildGeoPolygonQuery(node: p.GeoPolygon): i.GeoQuery | undefined {
-        if (isMultiMatch(node)) return;
-
-        const field = getTermField(node);
-        const geoQuery: i.GeoQuery = {};
-
-        geoQuery.geo_polygon = {
-            [field]: {
-                points: node.points
-            }
-        };
-
-        return geoQuery;
     }
 
     function buildGeoBoundingBoxQuery(node: p.GeoBoundingBox): i.GeoQuery | undefined {

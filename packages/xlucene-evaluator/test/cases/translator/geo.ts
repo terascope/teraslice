@@ -106,7 +106,7 @@ export default [
         }
     ],
     [
-        'location:geoPolygon(points:["123.43,223.43", "102.3,123.4", "99.3,154.4"])',
+        'location:geoPolygon(points:["70.43,140.43", "81.3,123.4", "85.3,134.4", "89.3,154.4"])',
         '.',
         {
             query: {
@@ -116,15 +116,19 @@ export default [
                             location: {
                                 points: [
                                     {
-                                        lat: 123.43,
-                                        lon: 223.43
+                                        lat: 70.43,
+                                        lon: 140.43
                                     },
                                     {
-                                        lat: 102.3,
+                                        lat: 81.3,
                                         lon: 123.4
                                     },
                                     {
-                                        lat: 99.3,
+                                        lat: 85.3,
+                                        lon: 134.4
+                                    },
+                                    {
+                                        lat: 89.3,
                                         lon: 154.4
                                     }
                                 ]
@@ -141,7 +145,7 @@ export default [
         }
     ],
     [
-        'loc:geoDistance(point:"33.435518,-111.873616", distance:5000in)',
+        'loc:geoDistance(point:"33.435518,-111.873616", distance:"5000in")',
         '.',
         {
             query: {

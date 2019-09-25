@@ -1,5 +1,7 @@
 
-import { geoDistance, geoBox, geoPolygon } from './geo';
+import geoBox from './geo/box';
+import geoDistance from './geo/distance';
+import geoPolygon from './geo/polygon';
 
 export default {
     geoDistance,

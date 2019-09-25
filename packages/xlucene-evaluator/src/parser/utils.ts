@@ -33,8 +33,8 @@ export function isGeoBoundingBox(node: any): node is i.GeoBoundingBox {
     return node && node.type === i.ASTType.GeoBoundingBox;
 }
 
-export function isGeoPolygon(node: any): node is i.GeoPolygon {
-    return node && node.type === i.ASTType.GeoPolygon;
+export function isFunctionExpression(node: any): node is i.FunctionNode {
+    return node && node.type === i.ASTType.Function;
 }
 
 export function isRegexp(node: any): node is i.Regexp {
@@ -85,7 +85,7 @@ export const termTypes: i.ASTType[] = [
     i.ASTType.Wildcard,
     i.ASTType.GeoDistance,
     i.ASTType.GeoBoundingBox,
-    i.ASTType.GeoPolygon,
+    i.ASTType.Function
 ];
 
 export function isTermType(node: any): node is i.TermLike {

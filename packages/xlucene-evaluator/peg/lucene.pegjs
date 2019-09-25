@@ -222,16 +222,20 @@ FieldOrQuotedTermExpression
 
 FunctionExpression
     = field:FieldName ws* FieldSeparator ws* term:FunctionTerm {
+        const { name, params } = term;
+
         return {
-            ...term,
+            type: i.ASTType.Function,
+            name,
+            instance: parseFunction(field, name, params),
             field,
         };
     }
 
 FunctionTerm
-    = fnName:RestrictedString ws* ParensStart ws* params:FunctionParams? ws* ParensEnd {
-        const fnArgs = params || [];
-        return parseFunction(fnName, fnArgs);
+    = name:RestrictedString ws* ParensStart ws* fnArgs:FunctionParams? ws* ParensEnd {
+        const params = fnArgs || [];
+        return { params, name };
     }
 
 FunctionParams

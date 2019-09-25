@@ -1,4 +1,6 @@
+
 import { Logger } from '@terascope/utils';
+import { UtilsTranslateQueryOptions } from '../translator/interfaces';
 
 export interface ParserOptions {
     type_config?: TypeConfig;
@@ -25,12 +27,12 @@ export interface TypeConfig {
 export type AST = EmptyAST & LogicalGroup & Term
 & Conjunction & Negation & FieldGroup
 & Exists & Range & GeoDistance
-& GeoBoundingBox & Regexp & Wildcard & GeoPolygon;
+& GeoBoundingBox & Regexp & Wildcard & FunctionNode;
 
 export type AnyAST = EmptyAST | LogicalGroup | Term
 | Conjunction | Negation | FieldGroup
 | Exists | Range | GeoDistance
-| GeoBoundingBox | Regexp | Wildcard | GeoPolygon;
+| GeoBoundingBox | Regexp | Wildcard | FunctionNode;
 
 export type GroupLike = FieldGroup|LogicalGroup;
 export type GroupLikeType = ASTType.LogicalGroup|ASTType.FieldGroup;
@@ -40,7 +42,7 @@ export interface GroupLikeAST {
     flow: Conjunction[];
 }
 
-export type TermLike = Term|Regexp|Range|Wildcard|GeoBoundingBox|GeoDistance|GeoPolygon;
+export type TermLike = Term|Regexp|Range|Wildcard|GeoBoundingBox|GeoDistance|FunctionNode;
 export type TermLikeType =
     ASTType.Term|
     ASTType.Regexp|
@@ -48,7 +50,7 @@ export type TermLikeType =
     ASTType.Wildcard|
     ASTType.GeoBoundingBox|
     ASTType.GeoDistance|
-    ASTType.GeoPolygon;
+    ASTType.Function
 
 export interface TermLikeAST {
     type: TermLikeType;
@@ -65,10 +67,10 @@ export enum ASTType {
     Range = 'range',
     GeoDistance = 'geo-distance',
     GeoBoundingBox = 'geo-bounding-box',
-    GeoPolygon = 'geo-polygon',
     Regexp = 'regexp',
     Wildcard = 'wildcard',
     Empty = 'empty',
+    Function = 'function'
 }
 
 export interface EmptyAST {
@@ -157,10 +159,11 @@ export interface GeoBoundingBox extends TermLikeAST {
     bottom_right: GeoPoint;
 }
 
-export interface GeoPolygon extends TermLikeAST {
-    type: ASTType.GeoPolygon;
-    field_type: FieldType.Geo;
-    points: GeoPoint[];
+export interface FunctionNode extends TermLikeAST {
+    type: ASTType.Function;
+    name: string;
+    description?: string;
+    instance: FunctionMethods;
 }
 
 export interface Regexp extends StringDataType, TermLikeAST {
@@ -173,4 +176,24 @@ export interface Wildcard extends StringDataType, TermLikeAST {
 
 export interface Term extends AnyDataType, TermLikeAST {
     type: ASTType.Term;
+}
+
+export interface FunctionConfig {
+    logger: Logger;
+    typeConfig: TypeConfig;
+}
+
+export interface FunctionDefinition {
+    version: string;
+    name: string;
+    create: (
+        field: string,
+        params: any,
+        config: FunctionConfig
+        ) => FunctionMethods;
+}
+
+export interface FunctionMethods {
+    match(arg: any): boolean;
+    toElasticsearchQuery(options: UtilsTranslateQueryOptions): any;
 }

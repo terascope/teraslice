@@ -620,12 +620,9 @@ export default [
                             field: 'a'
                         },
                         {
-                            type: 'geo-distance',
-                            lat: 33.435518,
-                            lon: -111.873616,
-                            distance: 5000,
-                            unit: 'meters',
-                            field: 'location'
+                            type: 'function',
+                            field: 'location',
+                            name: 'geoDistance'
                         }
                     ]
                 }
