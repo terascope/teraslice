@@ -46,7 +46,7 @@ if (['execution_controller', 'worker'].includes(assignment)) {
         },
     });
 
-    require('terafoundation')(terasliceConfig);
+    require('terafoundation').clusterContext(terasliceConfig);
 }
 
 function deprecatedUseOf(name) {

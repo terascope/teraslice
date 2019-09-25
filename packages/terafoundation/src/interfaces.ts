@@ -1,8 +1,12 @@
-import { EventEmitter } from 'events';
 import { Format } from 'convict';
-import { Logger } from '@terascope/utils';
+import { EventEmitter } from 'events';
+import { Logger, Overwrite } from '@terascope/utils';
+import {
+    Cluster as NodeJSCluster,
+    Worker as NodeJSWorker
+} from 'cluster';
 
-export type FoundationConfig<S, A, D extends string> = {
+export type FoundationConfig<S = {}, A = {}, D extends string = string> = {
     name: string;
     config_schema?: any;
     schema_formats?: Format[];
@@ -10,8 +14,10 @@ export type FoundationConfig<S, A, D extends string> = {
     cluster_name?: (sysconfig: FoundationSysConfig<S>) => string;
     script?: (context: FoundationContext<S, A, D>) => void;
     descriptors?: Record<D, string>;
-    worker: (context: FoundationContext<S, A, D>) => void;
     master: (context: FoundationContext<S, A, D>, config: FoundationConfig<S, A, D>) => void;
+    start_workers?: boolean;
+    shutdownMessaging?: boolean;
+    worker: (context: FoundationContext<S, A, D>) => void;
     bootstrap?: (context: FoundationContext<S, A, D>, cb: () => void) => void;
 }
 
@@ -22,14 +28,20 @@ export interface ConnectionConfig {
 }
 
 export interface FoundationAPIs {
-    makeLogger(name: string, _meta: any): Logger;
+    /** Create a child logger */
+    makeLogger(metadata?: Record<string, string>): Logger;
+    /** Create the root logger (usually done automatically) */
+    makeLogger(name: string, filename: string): Logger;
     getSystemEvents(): EventEmitter;
     getConnection(config: ConnectionConfig): { client: any };
     startWorkers(num: number, envOptions: Record<string, string>): void;
 }
 
 export interface LegacyFoundationApis {
-    makeLogger(name: string, _meta: any): Logger;
+    /** Create a child logger */
+    makeLogger(metadata?: Record<string, string>): Logger;
+    /** Create the root logger (usually done automatically) */
+    makeLogger(name: string, filename: string): Logger;
     getEventEmitter(): EventEmitter;
     getConnection(config: ConnectionConfig): { client: any };
     startWorkers(num: number, envOptions: Record<string, string>): void;
@@ -46,12 +58,28 @@ export type LogLevelConfig = string|({
     [type in LogType]: LogLevelType;
 }[])
 
-export type FoundationCluster = {
-    isMaster?: boolean;
+export interface FoundationWorker extends NodeJSWorker {
+    __process_restart?: boolean;
+    service_context: any;
+    assignment: string;
+}
+
+export type MasterCluster = Overwrite<NodeJSCluster, {
+    isWorker: false;
+    isMaster: true;
+    fork(env?: any): FoundationWorker;
+    workers: {
+        [id: string]: FoundationWorker;
+    };
+}>;
+
+export interface WorkerCluster {
+    isWorker: true;
+    isMaster: false;
     worker: {
         id: string;
     };
-};
+}
 
 export type FoundationSysConfig<S> = {
     _nodeName: string;
@@ -77,5 +105,5 @@ export type FoundationContext<S = {}, A = {}, D extends string = string> = {
     cluster_name?: string;
     // TODO does this need to exist?
     master_plugin?: any;
-    cluster: FoundationCluster;
+    cluster: WorkerCluster|MasterCluster;
 }

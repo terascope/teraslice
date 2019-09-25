@@ -6,7 +6,7 @@ import sysSchema from './system_schema';
 import * as i from './interfaces';
 
 function validateConfig(
-    cluster: i.FoundationCluster,
+    cluster: { isMaster: boolean },
     schema: convict.Schema<any>,
     namespaceConfig: any
 ) {
@@ -47,7 +47,7 @@ function extractSchema<S>(fn: any, sysconfig: i.FoundationSysConfig<S>): any {
  * @param configFile the parsed config from the config file
 */
 export default function validateConfigs<S = {}, A = {}, D extends string = string>(
-    cluster: i.FoundationCluster,
+    cluster: i.WorkerCluster|i.MasterCluster,
     config: i.FoundationConfig<S, A, D>,
     sysconfig: i.FoundationSysConfig<S>
 ): i.FoundationSysConfig<S> {
@@ -90,7 +90,9 @@ export default function validateConfigs<S = {}, A = {}, D extends string = strin
 
     // Annotate the config with some information about this instance.
     const hostname = os.hostname();
-    if (cluster.worker) {
+    if (process.env.POD_IP) {
+        result._nodeName = process.env.POD_IP;
+    } else if (cluster.worker) {
         result._nodeName = `${hostname}.${cluster.worker.id}`;
     } else {
         result._nodeName = hostname;

@@ -1409,6 +1409,13 @@
   resolved "https://registry.yarnpkg.com/@types/bluebird/-/bluebird-3.5.27.tgz#61eb4d75dc6bfbce51cf49ee9bbebe941b2cb5d0"
   integrity sha512-6BmYWSBea18+tSjjSC3QIyV93ZKAeNWGM7R6aYt1ryTZXrlHF+QLV0G2yV0viEGVyRkyQsWfMoJ0k/YghBX5sQ==
 
+"@types/bson@*":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@types/bson/-/bson-4.0.0.tgz#9073772679d749116eb1dfca56f8eaac6d59cc7a"
+  integrity sha512-pq/rqJwJWkbS10crsG5bgnrisL8pML79KlMKQMoQwLUjlPAkrUHMvHJ3oGwE7WHR61Lv/nadMwXVAD2b+fpD8Q==
+  dependencies:
+    "@types/node" "*"
+
 "@types/bunyan@^1.8.6":
   version "1.8.6"
   resolved "https://registry.yarnpkg.com/@types/bunyan/-/bunyan-1.8.6.tgz#6527641cca30bedec5feb9ab527b7803b8000582"
@@ -1443,7 +1450,7 @@
   resolved "https://registry.yarnpkg.com/@types/easy-table/-/easy-table-0.0.32.tgz#961034bf7bba3d5a4344585b960d7a0d11a249b5"
   integrity sha512-zKh0f/ixYFnr3Ldf5ZJTi1ZpnRqAynTTtVyGvWDf/TT12asE8ac98t3/WGWfFdRPp/qsccxg82C/Kl3NPNhqEw==
 
-"@types/elasticsearch@^5.0.34":
+"@types/elasticsearch@^5.0.34", "@types/elasticsearch@^5.0.35":
   version "5.0.35"
   resolved "https://registry.yarnpkg.com/@types/elasticsearch/-/elasticsearch-5.0.35.tgz#e0a3d2c2c8239a2cd9fae04360f759c553bc4b7b"
   integrity sha512-oqQylLukPuPtQWPKT7NeTZ23sVNAF9GYAJCMIexxO/Rjmtdv95I1hdfORp7r+eukyqQ3Y5xUS6ZA5mPkKl6JwA==
@@ -1615,6 +1622,22 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
   integrity sha512-tHq6qdbT9U1IRSGf14CL0pUlULksvY9OZ+5eEgl1N7t+OA3tGvNpxJCzuKQlsNgCVwbAs670L1vcVQi8j9HjnA==
 
+"@types/mongodb@*":
+  version "3.3.3"
+  resolved "https://registry.yarnpkg.com/@types/mongodb/-/mongodb-3.3.3.tgz#749ce52f1d958601dcc4cea3e2839a734c2723e2"
+  integrity sha512-ymI6OZB4kqaSgLDFn7PYGNC+BmwbKPuw88F+gr9SGyAltcSKI6nYf+rj8hrHEsypnjtT5rA+dnmjXdPSgXgSgQ==
+  dependencies:
+    "@types/bson" "*"
+    "@types/node" "*"
+
+"@types/mongoose@^5.5.18":
+  version "5.5.18"
+  resolved "https://registry.yarnpkg.com/@types/mongoose/-/mongoose-5.5.18.tgz#1dcf0efaeb5a813f8311561d098f7259e0761775"
+  integrity sha512-YWTNSehI+TvuqzEzr7nhzYRbwraq43bZao4XZc/T2ViGmzX06Wy9XPHCHAZ2vsuiZ9Vh9tiGomRt7MjzTihn+w==
+  dependencies:
+    "@types/mongodb" "*"
+    "@types/node" "*"
+
 "@types/ms@^0.7.30":
   version "0.7.31"
   resolved "https://registry.yarnpkg.com/@types/ms/-/ms-0.7.31.tgz#31b7ca6407128a3d2bbc27fe2d21b345397f6197"
@@ -1661,6 +1684,13 @@
   dependencies:
     "@types/prop-types" "*"
     csstype "^2.2.0"
+
+"@types/redis@^2.8.13":
+  version "2.8.13"
+  resolved "https://registry.yarnpkg.com/@types/redis/-/redis-2.8.13.tgz#fdd76d9a8b7c36ff24d8506a94ef2a890c87f498"
+  integrity sha512-p86cm5P6DMotUqCS6odQRz0JJwc5QXZw9eyH0ALVIqmq12yqtex5ighWyGFHKxak9vaA/GF/Ilu0KZ0MuXXUbg==
+  dependencies:
+    "@types/node" "*"
 
 "@types/semver@^6.0.1":
   version "6.0.2"

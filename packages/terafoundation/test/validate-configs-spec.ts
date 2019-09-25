@@ -1,10 +1,12 @@
 import 'jest-extended';
 import os from 'os';
+import { WorkerCluster } from '../src';
 import validateConfigs from '../src/validate-configs';
 
 describe('Validate Configs', () => {
     describe('when using mainly defaults', () => {
-        const cluster = {
+        const cluster: WorkerCluster = {
+            isWorker: true,
             isMaster: false,
             worker: {
                 id: 'someid'

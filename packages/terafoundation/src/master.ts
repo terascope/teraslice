@@ -1,27 +1,13 @@
 import { cpus } from 'os';
-import { times, Overwrite } from '@terascope/utils';
-import {
-    Cluster as NodeJSCluster,
-    Worker as NodeJSWorker
-} from 'cluster';
+import { times } from '@terascope/utils';
 import * as i from './interfaces';
 
-type Worker = NodeJSWorker & {
-    __process_restart?: boolean;
-    service_context: any;
-    assignment: string;
-};
-
-type MasterCluster = Overwrite<NodeJSCluster, {
-    isMaster: true;
-    workers: {
-        [id: string]: Worker;
-    };
-}>;
-
-export default function masterModule(context: i.FoundationContext, moduleConfig: any): void {
+export default function masterModule<S = {}, A = {}, D extends string = string>(
+    context: i.FoundationContext<S, A, D>,
+    moduleConfig: i.FoundationConfig<S, A, D>
+): void {
     const { logger } = context;
-    const cluster: MasterCluster = context.cluster as any;
+    const cluster = context.cluster as i.MasterCluster;
     const configWorkers = context.sysconfig.terafoundation.workers;
     let startWorkers = true;
     const events = context.foundation.getEventEmitter();
@@ -29,6 +15,7 @@ export default function masterModule(context: i.FoundationContext, moduleConfig:
     if (moduleConfig.start_workers === false) {
         startWorkers = false;
     }
+
     const plugin = context.master_plugin;
 
     if (plugin) plugin.pre();
@@ -109,7 +96,7 @@ export default function masterModule(context: i.FoundationContext, moduleConfig:
     }
 
     // assignment is set at /lib/api/start_workers
-    function determineWorkerENV(worker: Worker) {
+    function determineWorkerENV(worker: i.FoundationWorker) {
         const options: any = {};
 
         if (worker.service_context) {
@@ -139,7 +126,7 @@ export default function masterModule(context: i.FoundationContext, moduleConfig:
     }
 
     cluster.on('exit', (_worker, code, signal) => {
-        const worker = _worker as Worker;
+        const worker = _worker as i.FoundationWorker;
         const type = worker.assignment ? worker.assignment : 'worker';
         logger.info(`${type} has exited, id: ${worker.id}, code: ${code}, signal: ${signal}`);
         if (!shuttingDown && shouldProcessRestart(code, signal)) {

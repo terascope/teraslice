@@ -13,25 +13,57 @@ Here are a few tasks it can help you with:
 - Framework to create a number of general or special child workers
 - Schema validations for app configurations
 
-### Basic Example
+### Cluster Context Example
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Service (JavaScript)-->
 ```js
-//service.js
 const worker = require('./worker');
-const foundation = require('terafoundation')({
-    name: 'testserver',
-    worker: worker
-});
+const { clusterContext } = require('terafoundation');
+// OR using the default export
+// const clusterContext = require('terafoundation').default;
 
-//worker.js
-module.exports = function(context)
-const logger = context.logger
+clusterContext({
+    name: 'testserver',
+    worker
+});
+```
+<!--Worker (JavaScript)-->
+```js
+module.exports = function worker(context) {
+    const logger = context.logger;
     const count = 0;
     while (true) {
-        logger.info(count++)
+        logger.info(count++);
     }
 }
 ```
+<!--END_DOCUSAURUS_CODE_TABS-->
+
+### Single Context Example
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Service (TypeScript)-->
+```ts
+import { singleContext } from 'terafoundation';
+
+const context = singleContext({
+    name: 'testserver',
+});
+
+// do something with the context
+```
+<!--Service (JavaScript)-->
+```js
+const { singleContext } = require('terafoundation');
+
+const context = singleContext({
+    name: 'testserver',
+});
+
+// do something with the context
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 ## terafoundation call time settings
 

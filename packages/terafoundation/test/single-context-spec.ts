@@ -1,9 +1,9 @@
 import 'jest-extended';
-import { makeSimpleContext } from '../src';
+import { singleContext } from '../src';
 
-describe('Terafoundation (SimpleContext)', () => {
+describe('Terafoundation (singleContext)', () => {
     it('should be able to return a valid context', () => {
-        const context = makeSimpleContext({
+        const context = singleContext({
             name: 'example',
         } as any, {
             sysconfig: {
@@ -32,10 +32,10 @@ describe('Terafoundation (SimpleContext)', () => {
     });
 
     it('should throw an error when given an invalid system config', () => {
-        expect(() => { makeSimpleContext({ a: true } as any, { sysconfig: 'invalid' } as any); }).toThrowError('Terafoundation requires a valid system configuration');
+        expect(() => { singleContext({ a: true } as any, { sysconfig: 'invalid' } as any); }).toThrowError('Terafoundation requires a valid system configuration');
     });
 
     it('should throw an error when given an invalid application config', () => {
-        expect(() => { makeSimpleContext('invalid' as any); }).toThrowError('Terafoundation requires a valid application configuration');
+        expect(() => { singleContext('invalid' as any); }).toThrowError('Terafoundation requires a valid application configuration');
     });
 });

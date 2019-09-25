@@ -1,4 +1,3 @@
-import { Logger } from '@terascope/utils';
 import { getArgs } from './sysconfig';
 import validateConfigs from './validate-configs';
 import * as i from './interfaces';
@@ -7,16 +6,18 @@ import api from './api';
 
 // this module is not really testable
 /* istanbul ignore next */
-export default function ClusterContext<S = {}, A = {}, D extends string = string>(
+/**
+ * A Cluster Context (with worker processes), useful for scaling
+*/
+export default function clusterContext<S = {}, A = {}, D extends string = string>(
     config: i.FoundationConfig<S, A, D>
 ): i.FoundationContext<S, A, D> {
     const cluster = require('cluster');
+    let context: i.FoundationContext<S, A, D>;
 
     const name = config.name ? config.name : 'terafoundation';
 
     const { configFile, bootstrap } = getArgs(config.name, config.default_config_file);
-
-    let logger: Logger;
 
     const sysconfig = validateConfigs(cluster, config, configFile);
 
@@ -24,7 +25,10 @@ export default function ClusterContext<S = {}, A = {}, D extends string = string
 
     function errorHandler(err: any) {
         // eslint-disable-next-line no-console
-        const logErr = logger ? logger.error.bind(logger) : console.log;
+        const logErr = context.logger
+            ? context.logger.error.bind(context.logger)
+            : console.error;
+
         if (cluster.isMaster) {
             logErr(`Error in master with pid: ${process.pid}`);
         } else {
@@ -47,7 +51,7 @@ export default function ClusterContext<S = {}, A = {}, D extends string = string
         }, 600);
     }
 
-    function findWorkerCode(context: any) {
+    function findWorkerCode() {
         let keyFound = false;
         if (config.descriptors) {
             Object.keys(config.descriptors).forEach((key) => {
@@ -86,9 +90,9 @@ export default function ClusterContext<S = {}, A = {}, D extends string = string
     }
 
     /*
-         * Service configuration context
-         */
-    const context = {
+    * Service configuration context
+    */
+    context = {
         sysconfig,
         cluster,
         name,
@@ -101,8 +105,7 @@ export default function ClusterContext<S = {}, A = {}, D extends string = string
     api(context);
 
     // Bootstrap the top level logger
-    logger = context.apis.foundation.makeLogger(context.name, context.name);
-    context.logger = logger;
+    context.apis.foundation.makeLogger(context.name, context.name);
 
     if (config.script) {
         config.script(context);
@@ -121,7 +124,7 @@ export default function ClusterContext<S = {}, A = {}, D extends string = string
                     // process.exit(0);
                 });
             } else {
-                logger.error('No bootstrap function provided. Nothing to do.');
+                context.logger.error('No bootstrap function provided. Nothing to do.');
                 // process.exit(0);
             }
         }
@@ -134,7 +137,7 @@ export default function ClusterContext<S = {}, A = {}, D extends string = string
             context.master_plugin = config.master(context, config);
         }
     } else {
-        findWorkerCode(context);
+        findWorkerCode();
     }
 
     return context;
