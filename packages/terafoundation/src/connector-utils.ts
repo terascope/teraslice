@@ -1,9 +1,12 @@
-'use strict';
+import path from 'path';
+import { TSError, parseError, Logger } from '@terascope/utils';
 
-const path = require('path');
-const { TSError, parseError } = require('@terascope/utils');
+type ErrorResult = {
+    filePath: string;
+    message: string;
+}
 
-function requireConnector(filePath, errors) {
+function requireConnector(filePath: string, errors: ErrorResult[]) {
     let mod = require(filePath);
     if (mod && mod.default) {
         mod = mod.default;
@@ -33,7 +36,7 @@ function requireConnector(filePath, errors) {
     return null;
 }
 
-function guardedRequire(filePath, errors) {
+function guardedRequire(filePath: string, errors: ErrorResult[]) {
     try {
         return requireConnector(filePath, errors);
     } catch (error) {
@@ -49,11 +52,11 @@ function guardedRequire(filePath, errors) {
     }
 }
 
-function getConnectorModule(name, reason) {
+export function getConnectorModule(name: string, reason: string) {
     let mod;
 
     // collect the errors
-    const errors = [];
+    const errors: ErrorResult[] = [];
 
     const localPath = path.join(__dirname, 'connectors', name);
     mod = guardedRequire(localPath, errors);
@@ -93,19 +96,18 @@ function getConnectorModule(name, reason) {
     return null;
 }
 
-function getConnectorSchema(name) {
+export function getConnectorSchema(name: string) {
     const reason = `Could not retrieve schema code for: ${name}\n`;
 
     const mod = getConnectorModule(name, reason);
     if (!mod) {
-        // eslint-disable-next-line no-console
         console.warn(`[WARNING] ${reason}`);
         return {};
     }
     return mod.config_schema();
 }
 
-function createConnection(name, moduleConfig, logger, options) {
+export function createConnection(name: string, moduleConfig: any, logger: Logger, options: any) {
     const reason = `Could not find connector implementation for: ${name}\n`;
 
     const mod = getConnectorModule(name, reason);
@@ -115,9 +117,3 @@ function createConnection(name, moduleConfig, logger, options) {
 
     return mod.create(moduleConfig, logger, options);
 }
-
-module.exports = {
-    createConnection,
-    getConnectorSchema,
-    getConnectorModule
-};

@@ -1,14 +1,12 @@
-'use strict';
-
-const SimpleContext = require('./lib/simple-context');
-const { getArgs } = require('./lib/sysconfig');
-const validateConfigs = require('./lib/validate-configs');
-const master = require('./lib/master');
-const api = require('./lib/api');
+import SimpleContext from './simple-context';
+import { getArgs } from './sysconfig';
+import validateConfigs from './validate-configs';
+import master from './master';
+import api from './api';
 
 // this module is not really testable
 /* istanbul ignore next */
-module.exports = function clusterContext(config) {
+module.exports = function clusterContext(config: any) {
     const domain = require('domain');
     const cluster = require('cluster');
 

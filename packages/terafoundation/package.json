@@ -10,12 +10,18 @@
     "license": "Apache-2.0",
     "author": "Terascope, LLC <info@terascope.io>",
     "files": [
-        "*.js",
-        "lib/**/*",
-        "examples/**/*"
+        "dist/src/**/*"
     ],
-    "main": "./index.js",
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
+    "directories": {
+        "lib": "dist/src",
+        "test": "test"
+    },
     "scripts": {
+        "build": "tsc --build",
+        "build:watch": "yarn build --watch",
+        "prepublishOnly": "yarn build",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
@@ -43,6 +49,7 @@
     },
     "displayName": "Terafoundation",
     "terascope": {
+        "enableTypedoc": true,
         "testSuite": "unit"
     }
 }
