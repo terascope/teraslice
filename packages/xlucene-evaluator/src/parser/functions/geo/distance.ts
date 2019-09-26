@@ -27,7 +27,7 @@ const geoDistance: i.FunctionDefinition = {
     name: 'geoDistance',
     version: '1',
     create(field: string, params: any, { logger }) {
-        if (!field || field === '*') throw new Error('field for geoBox cannot be empty or "*"');
+        if (!field || field === '*') throw new Error('field for geoDistance cannot be empty or "*"');
         // eslint-disable-next-line @typescript-eslint/camelcase
         const {
             lat, lon, distance, unit: paramUnit

@@ -1,6 +1,6 @@
 
 import { Logger } from '@terascope/utils';
-import { UtilsTranslateQueryOptions } from '../translator/interfaces';
+import { UtilsTranslateQueryOptions, AnyQuery, AnyQuerySort } from '../translator';
 
 export interface ParserOptions {
     type_config?: TypeConfig;
@@ -193,7 +193,12 @@ export interface FunctionDefinition {
     ) => FunctionMethods;
 }
 
+export interface FunctionMethodsResults {
+    query: AnyQuery;
+    sort?: AnyQuerySort;
+}
+
 export interface FunctionMethods {
     match(arg: any): boolean;
-    toElasticsearchQuery(options: UtilsTranslateQueryOptions): any;
+    toElasticsearchQuery(options: UtilsTranslateQueryOptions): FunctionMethodsResults;
 }

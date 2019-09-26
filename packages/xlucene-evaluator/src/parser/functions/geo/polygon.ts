@@ -1,5 +1,4 @@
 
-// @ts-ignore
 import { polygon, lineString } from '@turf/helpers';
 // @ts-ignore
 import lineToPolygon from '@turf/line-to-polygon';
@@ -12,7 +11,7 @@ function validate(params: i.Term[]) {
     const geoPointsParam = params.find((node) => node.field === 'points');
     if (geoPointsParam == null) throw new Error('geoPolygon query needs to specify a "points" parameter');
     if (!Array.isArray(geoPointsParam.value)) throw new Error('points parameter must be an array');
-    // @ts-ignore we are ignoreing util we have a better story around list expressions
+
     const points = geoPointsParam.value.map((node) => {
         if (!node.value) throw new Error('points parameter must be an array of string values');
         return parseGeoPoint(node.value);
@@ -27,8 +26,7 @@ const geoPolygon: i.FunctionDefinition = {
     name: 'geoPolygon',
     version: '1',
     create(field: string, params: any, { logger }) {
-        if (!field || field === '*') throw new Error('field for geoBox cannot be empty or "*"');
-        // eslint-disable-next-line @typescript-eslint/camelcase
+        if (!field || field === '*') throw new Error('field for geoPolygon cannot be empty or "*"');
         const points = validate(params);
 
         function toElasticsearchQuery() {
