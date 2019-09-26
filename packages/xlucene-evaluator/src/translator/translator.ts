@@ -1,5 +1,6 @@
 import { debugLogger, isString, Logger } from '@terascope/utils';
-import { TypeConfig, Parser, GeoDistanceUnit } from '../parser';
+import { Parser } from '../parser';
+import { TypeConfig, GeoDistanceUnit } from '../interfaces';
 import { parseGeoDistanceUnit } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';

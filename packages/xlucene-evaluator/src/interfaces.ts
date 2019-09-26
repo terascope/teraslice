@@ -1,4 +1,3 @@
-import { GeoDistanceUnit } from './parser';
 
 type GeoPointArr = [number, number];
 type GeoPointStr = string;

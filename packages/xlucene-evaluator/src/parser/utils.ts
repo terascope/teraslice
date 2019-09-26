@@ -1,5 +1,6 @@
 import { isString, isEmpty } from '@terascope/utils';
 import * as i from './interfaces';
+import { FieldType } from '../interfaces';
 
 export function isLogicalGroup(node: any): node is i.LogicalGroup {
     return node && node.type === i.ASTType.LogicalGroup;
@@ -57,7 +58,7 @@ export function isStringDataType(node: any): node is i.StringDataType {
     return node && node.field_type === 'string';
 }
 
-export const numberDataTypes: i.FieldType[] = [i.FieldType.Integer, i.FieldType.Float];
+export const numberDataTypes: FieldType[] = [FieldType.Integer, FieldType.Float];
 
 export function isNumberDataType(node: any): node is i.NumberDataType {
     return node && numberDataTypes.includes(node.field_type);

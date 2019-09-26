@@ -4,6 +4,7 @@ import * as ts from '@terascope/utils';
 import * as p from '../parser';
 import { CachedTranslator, SortOrder } from '../translator';
 import * as i from './interfaces';
+import { GeoDistanceUnit, TypeConfig } from '../interfaces';
 
 const _logger = ts.debugLogger('xlucene-query-access');
 
@@ -15,9 +16,9 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     readonly allowImplicitQueries: boolean;
     readonly defaultGeoField?: string;
     readonly defaultGeoSortOrder?: SortOrder;
-    readonly defaultGeoSortUnit?: p.GeoDistanceUnit|string;
+    readonly defaultGeoSortUnit?: GeoDistanceUnit|string;
     readonly allowEmpty: boolean;
-    readonly typeConfig: p.TypeConfig;
+    readonly typeConfig: TypeConfig;
     logger: ts.Logger;
 
     private readonly _parser: p.CachedParser = new p.CachedParser();

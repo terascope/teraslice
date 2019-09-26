@@ -391,7 +391,7 @@ NegativeInfinityType
     = '*' {
         return {
             type: i.ASTType.Term,
-            field_type: i.FieldType.Integer,
+            field_type: FieldType.Integer,
             value: Number.NEGATIVE_INFINITY
         }
     }
@@ -400,7 +400,7 @@ PostiveInfinityType
     = '*' {
         return {
             type: i.ASTType.Term,
-            field_type: i.FieldType.Integer,
+            field_type: FieldType.Integer,
             value: Number.POSITIVE_INFINITY
         }
     }
@@ -409,7 +409,7 @@ FloatType
     = value:Float {
         return {
             type: i.ASTType.Term,
-            field_type: i.FieldType.Float,
+            field_type: FieldType.Float,
             value
         }
     }
@@ -418,7 +418,7 @@ IntegerType
     = value:Integer {
         return {
             type: i.ASTType.Term,
-            field_type: i.FieldType.Integer,
+            field_type: FieldType.Integer,
             value
         }
     }
@@ -427,7 +427,7 @@ BooleanType
   = value:Boolean {
       return {
         type: i.ASTType.Term,
-        field_type: i.FieldType.Boolean,
+        field_type: FieldType.Boolean,
         value
       }
   }
@@ -436,7 +436,7 @@ RegexpType
     = value:Regex {
         return {
             type: i.ASTType.Regexp,
-            field_type: i.FieldType.String,
+            field_type: FieldType.String,
             value
         }
     }
@@ -445,7 +445,7 @@ WildcardType
   = value:Wildcard {
        return {
            type: i.ASTType.Wildcard,
-           field_type: i.FieldType.String,
+           field_type: FieldType.String,
            value
        };
     }
@@ -454,7 +454,7 @@ QuotedStringType
     = value:QuotedTerm {
         return {
             type: i.ASTType.Term,
-            field_type: i.FieldType.String,
+            field_type: FieldType.String,
             quoted: true,
             value
         };
@@ -464,7 +464,7 @@ UnqoutedStringType
     = value:UnquotedTerm {
        return {
            type: i.ASTType.Term,
-           field_type: i.FieldType.String,
+           field_type: FieldType.String,
            quoted: false,
            value
        };
@@ -474,7 +474,7 @@ RestrictedStringType
     = value:RestrictedString {
        return {
            type: i.ASTType.Term,
-           field_type: i.FieldType.String,
+           field_type: FieldType.String,
            restricted: true,
            quoted: false,
            value
