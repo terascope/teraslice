@@ -18,6 +18,7 @@ export type FoundationConfig<S = {}, A = {}, D extends string = string> = {
     start_workers?: boolean;
     shutdownMessaging?: boolean;
     worker: (context: FoundationContext<S, A, D>) => void;
+    // FIXME
     bootstrap?: (context: FoundationContext<S, A, D>, cb: () => void) => void;
 }
 
@@ -109,7 +110,9 @@ export type FoundationContext<S = {}, A = {}, D extends string = string> = {
     platform: string;
     assignment: D;
     cluster_name?: string;
-    // TODO does this need to exist?
-    master_plugin?: any;
     cluster: WorkerCluster|MasterCluster;
 }
+
+export type ParsedArgs<S> = {
+    configfile: FoundationSysConfig<S>;
+};

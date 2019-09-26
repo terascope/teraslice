@@ -15,10 +15,8 @@ describe('makeLogger foundation API', () => {
             name: 'terafoundation'
         } as any;
         api(context);
-        const { foundation } = context.apis;
 
-        const logger = foundation.makeLogger(context.name, context.name);
-
+        const { logger } = context;
         expect(logger.debug).toBeFunction();
         expect(logger.fields.name).toBe('terafoundation');
         // We expect a console and file logger.
@@ -38,12 +36,9 @@ describe('makeLogger foundation API', () => {
             name: 'terafoundation'
         } as any;
 
-        api(context);
-        const { foundation } = context.apis;
-
-        // This should throw an error on setup of the root logger.
-        expect(() => foundation.makeLogger(context.name, context.name))
-            .toThrowError('Could not write to log_path: ./logs');
+        expect(() => {
+            api(context);
+        }).toThrowError('Could not write to log_path: ./logs');
     });
 
     it('setting logging to file with log_path set to a file should fail', () => {
@@ -58,11 +53,8 @@ describe('makeLogger foundation API', () => {
             name: 'terafoundation'
         } as any;
 
-        api(context);
-        const { foundation } = context.apis;
-
-        // This should throw an error on setup of the root logger.
-        expect(() => foundation.makeLogger(context.name, context.name))
-            .toThrowError('Could not write to log_path: README.md');
+        expect(() => {
+            api(context);
+        }).toThrowError('Could not write to log_path: README.md');
     });
 });

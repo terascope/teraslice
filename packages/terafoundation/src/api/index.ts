@@ -28,13 +28,65 @@ function getLogLevel(level: i.LogLevelConfig): LogLevelObj {
     }, {} as LogLevelObj);
 }
 
+function createRootLogger(context: i.FoundationContext<{}>): ts.Logger {
+    const filename = context.name;
+    const name = context.assignment || filename;
+    const foundationConfig = context.sysconfig.terafoundation;
+    const logLevel = getLogLevel(foundationConfig.log_level);
+
+    if (useDebugLogger) {
+        return ts.debugLogger(`${filename}:${name}`);
+    }
+
+    const streamConfig: bunyan.Stream[] = [];
+    const { environment = 'development' } = foundationConfig;
+
+    // Setup console logging. Always turned on for development but off by
+    // default for production.
+    if (environment === 'development' || ts.includes(foundationConfig.logging, 'console')) {
+        const level = logLevel.console ? logLevel.console : 'info';
+        streamConfig.push({ stream: process.stdout, level });
+    }
+
+    // Setup logging to files.
+    if (ts.includes(foundationConfig.logging, 'file')) {
+        const configPath = foundationConfig.log_path || './logs';
+
+        // remove whitespace
+        const logfile = filename.trim();
+
+        try {
+        // Verify the path is a directory by resolving any symlinks
+            const pathCheck = fs.lstatSync(fs.realpathSync(configPath));
+            if (pathCheck.isDirectory()) {
+                const level = logLevel.file ? logLevel.file : 'info';
+                streamConfig.push({ path: path.join(configPath, `${logfile}.log`), level });
+            } else {
+            // This is error is just caught by the catch block below.
+                throw new Error(`${configPath} is not a directory`);
+            }
+        } catch (e) {
+            throw new Error(`Could not write to log_path: ${configPath}`);
+        }
+    }
+
+    const loggerConfig: bunyan.LoggerOptions = {
+        name: filename,
+        streams: streamConfig
+    };
+
+    const logger = bunyan.createLogger(loggerConfig) as ts.Logger;
+    logger.flush = async () => true;
+    return logger;
+}
+
 /*
  * This module controls the API endpoints that are exposed under context.apis.
  */
-export default function apisModule(context: i.FoundationContext) {
+export default function registerApis(context: i.FoundationContext) {
     const foundationConfig = context.sysconfig.terafoundation;
-    const logLevel = getLogLevel(foundationConfig.log_level);
     const events = new EventEmitter();
+    context.logger = createRootLogger(context);
 
     // connection cache
     const connections = Object.create(null);
@@ -88,66 +140,14 @@ export default function apisModule(context: i.FoundationContext) {
         makeLogger(...args: any[]) {
             // If there is already a logger defined we're just creating a
             // child logger using the same config.
-            if (context.logger) {
-                const childLogger = context.logger.child(ts.isPlainObject(args[0])
-                    ? args[0]
-                    : args[2]);
-                // add flush fn to the new logger
-                childLogger.flush = context.logger.flush;
 
-                return childLogger;
-            }
-            const [name, filename] = args as [string, string];
-            if (typeof name !== 'string' || typeof filename !== 'string') {
-                throw new Error('Invalid input to makeLogger, expected name and filename');
-            }
+            const childLogger = context.logger.child(ts.isPlainObject(args[0])
+                ? args[0]
+                : args[2]);
+            // add flush fn to the new logger
+            childLogger.flush = context.logger.flush;
 
-            if (useDebugLogger) {
-                context.logger = ts.debugLogger(`${name}:${filename}`);
-                return context.logger;
-            }
-
-            const streamConfig: bunyan.Stream[] = [];
-            const { environment = 'development' } = foundationConfig;
-
-            // Setup console logging. Always turned on for development but off by
-            // default for production.
-            if (environment === 'development' || ts.includes(foundationConfig.logging, 'console')) {
-                const level = logLevel.console ? logLevel.console : 'info';
-                streamConfig.push({ stream: process.stdout, level });
-            }
-
-            // Setup logging to files.
-            if (ts.includes(foundationConfig.logging, 'file')) {
-                const configPath = foundationConfig.log_path || './logs';
-
-                // remove whitespace
-                const logfile = filename.trim();
-
-                try {
-                // Verify the path is a directory by resolving any symlinks
-                    const pathCheck = fs.lstatSync(fs.realpathSync(configPath));
-                    if (pathCheck.isDirectory()) {
-                        const level = logLevel.file ? logLevel.file : 'info';
-                        streamConfig.push({ path: path.join(configPath, `${logfile}.log`), level });
-                    } else {
-                    // This is error is just caught by the catch block below.
-                        throw new Error(`${configPath} is not a directory`);
-                    }
-                } catch (e) {
-                    throw new Error(`Could not write to log_path: ${configPath}`);
-                }
-            }
-
-            const loggerConfig: bunyan.LoggerOptions = {
-                name,
-                streams: streamConfig
-            };
-
-            context.logger = bunyan.createLogger(loggerConfig) as ts.Logger;
-            context.logger.flush = async () => true;
-
-            return context.logger;
+            return childLogger;
         },
         getSystemEvents() {
             return events;
@@ -211,6 +211,7 @@ export default function apisModule(context: i.FoundationContext) {
         }
     }
 
+
     // This exposes the registerAPI function to the rest of the system.
     context.apis = {
         registerAPI
@@ -218,6 +219,4 @@ export default function apisModule(context: i.FoundationContext) {
 
     _registerFoundationAPIs();
     _registerLegacyAPIs();
-
-    return context.apis;
 }

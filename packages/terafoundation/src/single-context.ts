@@ -23,7 +23,7 @@ export default function singleContext<S = {}, A = {}, D extends string = string>
 
     const sysconfig = overrideArg && overrideArg.sysconfig
         ? overrideArg.sysconfig
-        : getArgs(config.name, config.default_config_file).configFile;
+        : getArgs<S>(config.name, config.default_config_file).configfile;
 
     if (!isPlainObject(sysconfig) || isEmpty(sysconfig)) {
         throw new Error('Terafoundation requires a valid system configuration');

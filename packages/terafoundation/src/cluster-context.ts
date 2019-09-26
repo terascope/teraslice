@@ -17,9 +17,9 @@ export default function clusterContext<S = {}, A = {}, D extends string = string
 
     const name = config.name ? config.name : 'terafoundation';
 
-    const { configFile, bootstrap } = getArgs(config.name, config.default_config_file);
+    const parsedArgs = getArgs<S>(config.name, config.default_config_file);
 
-    const sysconfig = validateConfigs(cluster, config, configFile);
+    const sysconfig = validateConfigs<S, A, D>(cluster, config, parsedArgs.configfile);
 
     // set by initAPI
 
@@ -113,29 +113,7 @@ export default function clusterContext<S = {}, A = {}, D extends string = string
          * Use cluster to start multiple workers
          */
     } else if (context.cluster.isMaster) {
-        /**
-             * If the bootstrap option is provided we run the bootstrap function to
-             * do any initial application setup.
-             * */
-        // TODO verify we need this
-        if (bootstrap) {
-            if (config.bootstrap && typeof config.bootstrap === 'function') {
-                config.bootstrap(context, () => {
-                    // process.exit(0);
-                });
-            } else {
-                context.logger.error('No bootstrap function provided. Nothing to do.');
-                // process.exit(0);
-            }
-        }
-
         master(context, config);
-
-        // If there's a master plugin defined, pass it on.
-        if (config.master) {
-            // TODO reexamine this code here
-            context.master_plugin = config.master(context, config);
-        }
     } else {
         findWorkerCode();
     }

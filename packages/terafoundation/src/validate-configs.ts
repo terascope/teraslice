@@ -1,6 +1,8 @@
 import os from 'os';
 import convict from 'convict';
-import { TSError, isFunction, isPlainObject } from '@terascope/utils';
+import {
+    TSError, isFunction, isPlainObject, isEmpty
+} from '@terascope/utils';
 import { getConnectorSchema } from './connector-utils';
 import sysSchema from './system_schema';
 import * as i from './interfaces';
@@ -44,13 +46,17 @@ function extractSchema<S>(fn: any, sysconfig: i.FoundationSysConfig<S>): any {
 /**
  * @param cluster the nodejs cluster metadata
  * @param config the config object passed to the library terafoundation
- * @param configFile the parsed config from the config file
+ * @param sysconfig unvalidated sysconfig
 */
 export default function validateConfigs<S = {}, A = {}, D extends string = string>(
     cluster: i.WorkerCluster|i.MasterCluster,
     config: i.FoundationConfig<S, A, D>,
     sysconfig: i.FoundationSysConfig<S>
 ): i.FoundationSysConfig<S> {
+    if (!isPlainObject(sysconfig) || isEmpty(sysconfig)) {
+        throw new Error('Terafoundation requires a valid system configuration');
+    }
+
     const schema = extractSchema(config.config_schema, sysconfig);
     const result: any = {};
 

@@ -16,10 +16,6 @@ export default function masterModule<S = {}, A = {}, D extends string = string>(
         startWorkers = false;
     }
 
-    const plugin = context.master_plugin;
-
-    if (plugin) plugin.pre();
-
     let shuttingDown = false;
 
     const workerCount = configWorkers || cpus().length;
@@ -138,8 +134,6 @@ export default function masterModule<S = {}, A = {}, D extends string = string>(
             Object.assign(cluster.workers[newWorker.id], envConfig);
         }
     });
-
-    if (plugin) plugin.post();
 
     // Put a friendly message on the terminal of the server.
     logger.info('Service starting');

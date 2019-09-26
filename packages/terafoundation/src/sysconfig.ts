@@ -39,10 +39,10 @@ export function getDefaultConfigFile() {
     return undefined;
 }
 
-export function getArgs(
+export function getArgs<S = {}>(
     scriptName: string,
-    defaultConfigFile?: string
-): { configFile: i.FoundationSysConfig<any>; bootstrap: boolean } {
+    defaultConfigFile?: string,
+): i.ParsedArgs<S> {
     const { argv } = yargs.usage('Usage: $0 [options]')
         .scriptName(scriptName)
         .version()
@@ -50,23 +50,18 @@ export function getArgs(
         .help()
         .alias('h', 'help')
         .detectLocale(false)
-        .option('c', {
-            alias: 'configfile',
+        .option('configfile', {
+            alias: 'c',
             default: getDefaultConfigFile(),
             describe: `Terafoundation configuration file to load.
                         Defaults to env TERAFOUNDATION_CONFIG.`,
-            coerce: (arg) => parseConfigFile(arg || defaultConfigFile),
-        })
-        .option('b', {
-            alias: 'bootstrap',
-            describe: 'Perform initial setup'
+            coerce(arg) {
+                return parseConfigFile(arg || defaultConfigFile);
+            }
         })
         .wrap(yargs.terminalWidth());
 
-    return {
-        bootstrap: Boolean(argv.bootstrap),
-        configFile: argv.configfile as i.FoundationSysConfig<any>,
-    };
+    return (argv as unknown) as i.ParsedArgs<S>;
 }
 
 export function parseConfigFile(file: string) {
