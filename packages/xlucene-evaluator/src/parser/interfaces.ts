@@ -1,27 +1,16 @@
 
 import { Logger } from '@terascope/utils';
 import { UtilsTranslateQueryOptions, AnyQuery, AnyQuerySort } from '../translator';
+import {
+    GeoPoint,
+    GeoDistanceUnit,
+    TypeConfig,
+    FieldType
+} from '../interfaces';
 
 export interface ParserOptions {
     type_config?: TypeConfig;
     logger?: Logger;
-}
-
-export type GeoDistanceUnit = 'miles'|'yards'|'feet'|'inch'|'kilometers'|'meters'|'centimeters'|'millimeters'|'nauticalmiles';
-
-export enum FieldType {
-    Geo = 'geo',
-    Date = 'date',
-    IP = 'ip',
-    String = 'string',
-    Integer = 'integer',
-    Float = 'float',
-    Boolean = 'boolean',
-    Object = 'object'
-}
-
-export interface TypeConfig {
-    [field: string]: FieldType;
 }
 
 export type AST = EmptyAST & LogicalGroup & Term
@@ -145,11 +134,6 @@ export interface GeoDistance extends GeoPoint, TermLikeAST {
     field_type: FieldType.Geo;
     distance: number;
     unit: GeoDistanceUnit;
-}
-
-export interface GeoPoint {
-    lat: number;
-    lon: number;
 }
 
 export interface GeoBoundingBox extends TermLikeAST {
